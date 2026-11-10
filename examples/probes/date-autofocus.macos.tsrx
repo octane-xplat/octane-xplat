@@ -20,11 +20,11 @@ export default function DateAutoFocusProbe() {
         label="Other editor"
         placeholder="Keep focus here after cancelling a pending request"
       />
-      <Button label="Mount date field" clickAction={() => setKind('date')} />
-      <Button label="Mount time field" clickAction={() => setKind('time')} />
-      <Button label="Remove field" clickAction={() => setKind(null)} />
-      <Button label="Toggle focus request" clickAction={() => setRequested(!requested)} />
-      <Button label="Toggle blocked" clickAction={() => setBlocked(!blocked)} />
+      <Button label="Mount date field" onPress={() => setKind('date')} />
+      <Button label="Mount time field" onPress={() => setKind('time')} />
+      <Button label="Remove field" onPress={() => setKind(null)} />
+      <Button label="Toggle focus request" onPress={() => setRequested(!requested)} />
+      <Button label="Toggle blocked" onPress={() => setBlocked(!blocked)} />
       {kind === 'date' ? (
         <DateInput
           id="autofocus-preview"

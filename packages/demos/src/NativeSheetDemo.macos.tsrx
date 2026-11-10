@@ -17,7 +17,7 @@ function NestedSheet() @{
     [dismissals, setDismissals] = useState(0)
 
   <>
-    <Button label="Open nested sheet" clickAction={() => setOpen(true)} />
+    <Button label="Open nested sheet" onPress={() => setOpen(true)} />
     <Text>{`Nested dismissals: ${dismissals}`}</Text>
     <AppKitSheet
       id="native-sheet-nested"
@@ -31,7 +31,7 @@ function NestedSheet() @{
         <View className="gap-3">
           <Heading>Nested confirmation</Heading>
           <RecordLabel />
-          <Button label="Close nested sheet" clickAction={() => setOpen(false)} />
+          <Button label="Close nested sheet" onPress={() => setOpen(false)} />
         </View>
       )}
     />
@@ -77,21 +77,21 @@ export function NativeSheetDemo() @{
     <Heading>AppKit window sheet</Heading>
     <Button
       label="Open sheet"
-      clickAction={() => {
+      onPress={() => {
         setMounted(true)
         setOpen(true)
       }}
     />
     <Button
       label="Mount initially open sheet"
-      clickAction={() => {
+      onPress={() => {
         setMounted(true)
         setOpen(true)
       }}
     />
     <Button
       label="Unmount sheet owner"
-      clickAction={() => {
+      onPress={() => {
         setMounted(false)
         setOpen(false)
       }}
@@ -114,20 +114,20 @@ export function NativeSheetDemo() @{
               <TextInput label="Record name" value={name} onChange={setName} />
               <Button
                 label="Replace dismissal callback"
-                clickAction={() => setAlternate(!alternate)}
+                onPress={() => setAlternate(!alternate)}
               />
               <Button
                 label="Replace record scope"
-                clickAction={() => setRecord(record === 'A' ? 'B' : 'A')}
+                onPress={() => setRecord(record === 'A' ? 'B' : 'A')}
               />
               <Button
                 label="Queue another sheet on the main window"
-                clickAction={() => setQueued(true)}
+                onPress={() => setQueued(true)}
               />
-              <Button label="Cancel queued sheet" clickAction={() => setQueued(false)} />
-              <Button label="Unmount this owner in 1.5 seconds" clickAction={unmountLater} />
+              <Button label="Cancel queued sheet" onPress={() => setQueued(false)} />
+              <Button label="Unmount this owner in 1.5 seconds" onPress={unmountLater} />
               <NestedSheet />
-              <Button label="Save and close" clickAction={() => setOpen(false)} />
+              <Button label="Save and close" onPress={() => setOpen(false)} />
             </View>
           )}
         />
@@ -141,7 +141,7 @@ export function NativeSheetDemo() @{
           <View className="gap-3">
             <Heading>Queued sheet</Heading>
             <RecordLabel />
-            <Button label="Close queued sheet" clickAction={() => setQueued(false)} />
+            <Button label="Close queued sheet" onPress={() => setQueued(false)} />
           </View>
         )}
       />

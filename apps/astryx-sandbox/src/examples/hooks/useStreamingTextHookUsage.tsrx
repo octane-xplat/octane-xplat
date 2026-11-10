@@ -41,11 +41,11 @@ export function UseStreamingTextHookUsage() @{
         {streaming ? 'Streaming' : 'Complete'}
       </Text>
       <HStack gap={2}>
-        <Button label="Start streaming" clickAction={start} />
-        <Button label="Stop streaming" clickAction={stop} isDisabled={!streaming} />
+        <Button label="Start streaming" onPress={start} />
+        <Button label="Stop streaming" onPress={stop} isDisabled={!streaming} />
         <Button
           label="Reset"
-          clickAction={() => {
+          onPress={() => {
             stop()
             setText('')
           }}

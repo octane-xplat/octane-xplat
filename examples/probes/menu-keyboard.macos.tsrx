@@ -82,28 +82,28 @@ export default function MenuKeyboardProbe() {
       ) : (
         <label text="Dropdown removed" />
       )}
-      <Button label="Use local dropdown" clickAction={() => setMode('local')} />
-      <Button label="Accept controlled menu requests" clickAction={() => setMode('accept')} />
-      <Button label="Hold controlled menu requests" clickAction={() => setMode('hold')} />
+      <Button label="Use local dropdown" onPress={() => setMode('local')} />
+      <Button label="Accept controlled menu requests" onPress={() => setMode('accept')} />
+      <Button label="Hold controlled menu requests" onPress={() => setMode('hold')} />
       <Button
         label="Toggle controlled menu visibility"
-        clickAction={() => setOpen((value) => !value)}
+        onPress={() => setOpen((value) => !value)}
       />
       <Button
         label="Toggle dropdown disablement"
-        clickAction={() => setDisabled((value) => !value)}
+        onPress={() => setDisabled((value) => !value)}
       />
       <Button
         label="Toggle dropdown trigger loading"
-        clickAction={() => setLoading((value) => !value)}
+        onPress={() => setLoading((value) => !value)}
       />
-      <Button label="Remove or remount dropdown" clickAction={() => setShown((value) => !value)} />
+      <Button label="Remove or remount dropdown" onPress={() => setShown((value) => !value)} />
       <label
         text={`Dropdown mode: ${mode}; parent open: ${open}; disabled: ${disabled}; loading: ${loading}; requests: ${requests.join(', ')}`}
       />
       <Button
         label="Reset dynamic menu actions"
-        clickAction={() => {
+        onPress={() => {
           setShowAction(true)
           setDisableAction(false)
         }}
@@ -117,7 +117,7 @@ export default function MenuKeyboardProbe() {
         <Button
           id="context-item"
           label="Document — try Shift+F10, Context Menu key, secondary-click or Control-click"
-          clickAction={() => setResult('selected')}
+          onPress={() => setResult('selected')}
         />
       </ContextMenu>
       <label id="menu-key-result" text={`${result}; ${checked ? 'pinned' : 'unpinned'}`} />

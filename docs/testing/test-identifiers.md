@@ -64,7 +64,7 @@ export function EditOverlay(props: { open: boolean; close: () => void }) {
   return (
     <Overlay open={props.open} testID="packing.editor">
       <TextInput testID="packing.editor.name" accessibilityLabel="Item name" />
-      <Button testID="packing.editor.save" label="Save" clickAction={props.close} />
+      <Button testID="packing.editor.save" label="Save" onPress={props.close} />
     </Overlay>
   )
 }
@@ -145,7 +145,7 @@ Viewless logical nodes receive no native identifier.
 import { Button } from '@octane-xplat/ui'
 
 export function SaveDraft({ save }: { save(): void }) {
-  return <Button id="save-control" testID="draft.save" label="Save changes" clickAction={save} />
+  return <Button id="save-control" testID="draft.save" label="Save changes" onPress={save} />
 }
 ```
 

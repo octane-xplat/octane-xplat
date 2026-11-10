@@ -59,8 +59,8 @@ function OverviewSheet(props: {
           </VStack>
         </VStack>
         <HStack gap={2} justify="end">
-          <Button label="Cancel" variant="secondary" clickAction={props.onCancel} />
-          <Button label="Continue" clickAction={props.onContinue} />
+          <Button label="Cancel" variant="secondary" onPress={props.onCancel} />
+          <Button label="Continue" onPress={props.onContinue} />
         </HStack>
       </VStack>
     </Section>
@@ -102,8 +102,8 @@ function FrequencySheet(props: {
           ]}
         />
         <HStack gap={2} justify="end">
-          <Button label="Back" variant="secondary" clickAction={props.onBack} />
-          <Button label="Continue" clickAction={props.onContinue} />
+          <Button label="Back" variant="secondary" onPress={props.onBack} />
+          <Button label="Continue" onPress={props.onContinue} />
         </HStack>
       </VStack>
     </Section>
@@ -144,8 +144,8 @@ function ChannelsSheet(props: {
           <CheckboxInput label="Text messages" value={sms} onChange={setSms} />
         </VStack>
         <HStack gap={2} justify="end">
-          <Button label="Back" variant="secondary" clickAction={props.onBack} />
-          <Button label="Finish" clickAction={props.onFinish} />
+          <Button label="Back" variant="secondary" onPress={props.onBack} />
+          <Button label="Finish" onPress={props.onFinish} />
         </HStack>
       </VStack>
     </Section>
@@ -157,7 +157,7 @@ export function BottomSheetSwitcherShowcase() @{
 
   return (
     <>
-      <Button label="Set up notifications" clickAction={() => setActiveSheet('overview')} />
+      <Button label="Set up notifications" onPress={() => setActiveSheet('overview')} />
       <OverviewSheet
         isOpen={activeSheet === 'overview'}
         onOpenChange={(open) => {

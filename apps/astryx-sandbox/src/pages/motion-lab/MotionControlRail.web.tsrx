@@ -80,7 +80,7 @@ export function MotionControlRail() {
               size="sm"
               variant={speed === s ? 'secondary' : 'ghost'}
               label={`${s}×`}
-              clickAction={() => setSpeed(s)}
+              onPress={() => setSpeed(s)}
             />
           ))}
         </HStack>
@@ -135,10 +135,10 @@ export function MotionControlRail() {
           size="sm"
           variant={isLooping ? 'secondary' : 'ghost'}
           label={isLooping ? 'Looping' : 'Loop off'}
-          clickAction={() => setLooping(!isLooping)}
+          onPress={() => setLooping(!isLooping)}
         />
-        <Button size="sm" variant="ghost" label="Replay" clickAction={replay} />
-        <Button size="sm" variant="ghost" label="Reset" clickAction={reset} />
+        <Button size="sm" variant="ghost" label="Replay" onPress={replay} />
+        <Button size="sm" variant="ghost" label="Reset" onPress={reset} />
       </HStack>
     </HStack>
   )

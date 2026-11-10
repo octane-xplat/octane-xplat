@@ -114,7 +114,7 @@ export function MobileNavToggle(props: MobileNavToggleProps): unknown @{
       className={cx('vx-mobilenav-toggle', props.className)}
       style={props.style}
       accessibilityLabel={props.label ?? 'Open navigation'}
-      clickAction={toggleMobileNav}
+      onPress={toggleMobileNav}
     >
       {props.children ?? <Icon name="xplat-menu" size={20} />}
     </Button>

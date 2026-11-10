@@ -28,7 +28,7 @@ export function BottomSheetMobileKeyboard() @{
 
   return (
     <>
-      <Button label="Edit profile" clickAction={() => setIsOpen(true)} />
+      <Button label="Edit profile" onPress={() => setIsOpen(true)} />
       <BottomSheet isOpen={isOpen} onOpenChange={setIsOpen} label="Edit profile" height="tall">
         <VStack gap={4} style={{ padding: 'var(--spacing-4)' }}>
           <Heading level={3}>Edit profile</Heading>
@@ -47,7 +47,7 @@ export function BottomSheetMobileKeyboard() @{
           <TextInput label="Role" value={values.role} onChange={update('role')} />
           <TextArea label="Bio" rows={5} value={values.bio} onChange={update('bio')} />
           <TextArea label="Notes" rows={5} value={values.notes} onChange={update('notes')} />
-          <Button label="Save profile" variant="primary" clickAction={() => setIsOpen(false)} />
+          <Button label="Save profile" variant="primary" onPress={() => setIsOpen(false)} />
         </VStack>
       </BottomSheet>
     </>

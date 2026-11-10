@@ -2,11 +2,11 @@
 
 ID: appkit-button-actions
 Targets: macos
-Related APIs: Button, ButtonGroup, Pressable
+Related APIs: onPress, pressAction, Button, ButtonGroup, Pressable
 
 ## Starting point
 
-An ordinary form has a save action and a help link. The save may return a promise.
+An ordinary form has a save action and a help link. The save returns a promise; immediate effects use onPress.
 
 ## Requirements
 
@@ -17,7 +17,7 @@ owned busy state, sanitized URLs and correct teardown behavior.
 
 - AC1: Forward inherited press/layout/accessibility/ref props, wrap primitive children in native text hosts, retain content under busy presentation and expose an accessible busy/name state.
 - AC2: Block noninterruptible duplicate/reentrant presses immediately. Allow interruptible overlap while reporting busy until all calls settle; explicit/group disablement wins. Report synchronous/rejected failures and stop pending UI writes after unmount.
-- AC3: Sanitize href before calling the platform opener, then run clickAction. Block unsafe schemes; disabled links do not open. Native target browsing contexts are unsupported.
+- AC3: Run onPress first; unless prevented, sanitize href before calling the platform opener, then run pressAction. Block unsafe schemes; disabled links do not open. Native target browsing contexts are unsupported.
 - AC4: Keep source/object-driver cases separate from actual click/keys, OS URL opening, geometry, VoiceOver and packaged results. Retain the focus-triggered tooltip gap.
 
 - AC5: IconButton delegates to the same Button owner, preserving accessible name, icon/content hosts, refs/metadata, group defaults/disablement and sanitized links.

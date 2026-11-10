@@ -244,6 +244,40 @@ try {
         `${name}: scaled drag follows the window pointer in parent channel units`,
       )
 
+      const immediate = page.locator('#immediate-effect')
+
+      await immediate.click()
+      assert.equal((await state()).immediate, 1, `${name}: synchronous effect runs once`)
+      assert.equal(
+        await immediate.getAttribute('aria-busy'),
+        null,
+        `${name}: effect never becomes busy`,
+      )
+
+      const managed = page.locator('#managed-action')
+
+      await managed.click()
+      assert.equal((await state()).actionEffects, 1, `${name}: effect precedes managed action`)
+      assert.equal((await state()).actionStarts, 1, `${name}: managed action starts once`)
+      assert.equal(
+        await managed.getAttribute('aria-busy'),
+        'true',
+        `${name}: managed action is busy`,
+      )
+
+      assert.equal(await managed.isDisabled(), true, `${name}: pending action blocks presses`)
+      await page.waitForFunction(
+        () => JSON.parse(document.querySelector('#state').textContent).actionEnds === 1,
+      )
+
+      assert.equal(await managed.isDisabled(), false, `${name}: settled action restores activation`)
+      await managed.focus()
+      await page.keyboard.press('Enter')
+      assert.equal((await state()).actionStarts, 2, `${name}: keyboard invokes the same action`)
+      await page.waitForFunction(
+        () => JSON.parse(document.querySelector('#state').textContent).actionEnds === 2,
+      )
+
       assert.deepEqual(errors, [], `${name}: no page errors`)
       console.log(
         JSON.stringify({
@@ -251,7 +285,7 @@ try {
           packages: packed ? { mode: 'packed', sha256: packed.hashes } : { mode: 'linked-source' },
           evidence: 'browser mouse/keyboard/wheel input; virtual click and capture-loss API calls',
           status: 'pass',
-          assertions: 28,
+          assertions: 36,
         }),
       )
     } finally {

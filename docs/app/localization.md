@@ -467,7 +467,7 @@ import { Button, useAnnounce } from '@octane-xplat/ui'
 
 export function SaveStatus() {
   const announce = useAnnounce()
-  return <Button label="Save" clickAction={() => announce('Saved')} />
+  return <Button label="Save" onPress={() => announce('Saved')} />
 }
 ```
 

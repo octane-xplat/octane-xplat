@@ -41,19 +41,19 @@ export function NavigationPage() {
             label="Left"
             variant={alignment === 'start' ? 'primary' : 'secondary'}
             size="sm"
-            clickAction={() => setAlignment('start')}
+            onPress={() => setAlignment('start')}
           />
           <Button
             label="Center"
             variant={alignment === 'center' ? 'primary' : 'secondary'}
             size="sm"
-            clickAction={() => setAlignment('center')}
+            onPress={() => setAlignment('center')}
           />
           <Button
             label="Right"
             variant={alignment === 'end' ? 'primary' : 'secondary'}
             size="sm"
-            clickAction={() => setAlignment('end')}
+            onPress={() => setAlignment('end')}
           />
         </HStack>
 

@@ -81,8 +81,8 @@ export function TrackingChoice() {
     <VStack>
       <Text>{error}</Text>
       <Text>{permission?.authorizationStatus ?? 'Reading permission…'}</Text>
-      <Button label="Request tracking choice" clickAction={() => run(request)} />
-      <Button label="Refresh permission" clickAction={() => run(refresh)} />
+      <Button label="Request tracking choice" pressAction={() => run(request)} />
+      <Button label="Refresh permission" pressAction={() => run(refresh)} />
     </VStack>
   )
 }

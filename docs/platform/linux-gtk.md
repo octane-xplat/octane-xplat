@@ -1329,12 +1329,12 @@ export function Flow() {
   const confirm = useImperativeDialog()
   return (
     <>
-      <Button label="Edit" clickAction={() => setOpen(true)} />
+      <Button label="Edit" onPress={() => setOpen(true)} />
       <Dialog isOpen={open} onOpenChange={setOpen}>
         <DialogHeader title="Edit profile" />
         <Text>Dialog content portals above the window.</Text>
       </Dialog>
-      <Button label="Delete" clickAction={() =>
+      <Button label="Delete" onPress={() =>
         confirm.show(<AlertDialog isOpen title="Delete item?" actionLabel="Delete" onAction={() => confirm.hide()} />)} />
       {confirm.element}
     </>

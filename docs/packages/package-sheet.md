@@ -36,7 +36,7 @@ export function Details() {
   const [open, setOpen] = useState(false)
   return (
     <>
-      <Button clickAction={() => setOpen(true)}>Trip details</Button>
+      <Button onPress={() => setOpen(true)}>Trip details</Button>
       <SwiftUIBottomSheet
         open={open}
         detents={['medium', 'large']}
@@ -105,10 +105,10 @@ import { Button, Text, View } from '@octane-xplat/ui'
 export function TripDetails() {
   const [open, setOpen] = useState(false)
   return <View>
-    <Button label="Edit trip" clickAction={() => setOpen(true)} />
+    <Button label="Edit trip" onPress={() => setOpen(true)} />
     <AppKitSheet id="trip-details" open={open} className="gap-3 p-4"
       onDismissed={() => setOpen(false)}
-      content={() => <Button label="Save and close" clickAction={() => setOpen(false)} />} />
+      content={() => <Button label="Save and close" onPress={() => setOpen(false)} />} />
     <Text>Trip details</Text>
   </View>
 }

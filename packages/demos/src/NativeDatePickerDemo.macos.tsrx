@@ -41,27 +41,27 @@ export function NativeDatePickerDemo() @{
       }}
       accessibilityLabel="Displayed components"
     />
-    <Button label="Toggle text/calendar style" clickAction={() => setGraphical(!graphical)} />
-    <Button label="Toggle controlled selection" clickAction={() => setControlled(!controlled)} />
-    <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-    <Button label="Toggle bounds" clickAction={() => setBounded(!bounded)} />
+    <Button label="Toggle text/calendar style" onPress={() => setGraphical(!graphical)} />
+    <Button label="Toggle controlled selection" onPress={() => setControlled(!controlled)} />
+    <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+    <Button label="Toggle bounds" onPress={() => setBounded(!bounded)} />
     <Button
       label="Toggle invalid controlled date"
-      clickAction={() => {
+      onPress={() => {
         setControlled(true)
         setInvalid(!invalid)
       }}
     />
     <Button
       label="Reset selection"
-      clickAction={() => {
+      onPress={() => {
         setControlled(true)
         setSelection(INITIAL)
         setInvalid(false)
       }}
     />
-    <Button label="Replace selection callback" clickAction={() => setAlternate(!alternate)} />
-    <Button label="Mount/unmount picker" clickAction={() => setMounted(!mounted)} />
+    <Button label="Replace selection callback" onPress={() => setAlternate(!alternate)} />
+    <Button label="Mount/unmount picker" onPress={() => setMounted(!mounted)} />
     @if (mounted) {
       <AppKitDatePicker
         id="native-date-picker-control"

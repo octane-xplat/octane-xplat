@@ -80,13 +80,13 @@ export default function TypeaheadResultsProbe() {
       <TextInput label="After search" />
       <Button
         label="Change provider"
-        clickAction={() => setTeam(team === 'Design' ? 'Engineering' : 'Design')}
+        onPress={() => setTeam(team === 'Design' ? 'Engineering' : 'Design')}
       />
-      <Button label="Toggle width" clickAction={() => setWide(!wide)} />
-      <Button label="Toggle RTL" clickAction={() => setRTL(!rtl)} />
-      <Button label="Replace source" clickAction={() => setChanged(!changed)} />
-      <Button label="Toggle read-only" clickAction={() => setBlocked(!blocked)} />
-      <Button label="Toggle search" clickAction={() => setShown(!shown)} />
+      <Button label="Toggle width" onPress={() => setWide(!wide)} />
+      <Button label="Toggle RTL" onPress={() => setRTL(!rtl)} />
+      <Button label="Replace source" onPress={() => setChanged(!changed)} />
+      <Button label="Toggle read-only" onPress={() => setBlocked(!blocked)} />
+      <Button label="Toggle search" onPress={() => setShown(!shown)} />
       <Text>Committed: {person?.label ?? 'none'}</Text>
     </VStack>
   )

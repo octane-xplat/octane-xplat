@@ -36,7 +36,7 @@ export function RootContent() {
   useThemeScheme() // Subscribe so classes refresh with the preference/system scheme.
   return (
     <View className={themeSchemeClasses()}>
-      <Button clickAction={() => setThemePreference('dark')}>Use dark theme</Button>
+      <Button onPress={() => setThemePreference('dark')}>Use dark theme</Button>
     </View>
   )
 }

@@ -83,7 +83,7 @@ export function DialogAdaptivePresentation() @{
 
   return (
     <>
-      <Button label="Edit profile" clickAction={() => setIsOpen(true)} />
+      <Button label="Edit profile" onPress={() => setIsOpen(true)} />
       <AdaptiveDialog
         isOpen={isOpen}
         onOpenChange={setIsOpen}
@@ -93,8 +93,8 @@ export function DialogAdaptivePresentation() @{
         bottomSheetHeight="tall"
         footer={
           <HStack gap={2} justify="end">
-            <Button label="Cancel" variant="secondary" clickAction={() => setIsOpen(false)} />
-            <Button label="Save profile" variant="primary" clickAction={() => setIsOpen(false)} />
+            <Button label="Cancel" variant="secondary" onPress={() => setIsOpen(false)} />
+            <Button label="Save profile" variant="primary" onPress={() => setIsOpen(false)} />
           </HStack>
         }
       >

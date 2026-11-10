@@ -176,7 +176,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
       className={cx('vx-menu-trigger', button.className)}
       isDisabled={disabled}
       endContent={endContent}
-      clickAction={() => setOpen('toggle', true)}
+      onPress={() => setOpen('toggle', true)}
       accessibilityState={{ ...button.accessibilityState, expanded: open }}
     />
     <Popover

@@ -10,7 +10,7 @@ export default function TimeStepProbe() {
   return (
     <VStack gap={2}>
       <label text="Focus the time field; plain Up/Down requests 15-minute steps. Compare seconds, bounds, typed/invalid drafts, clearing, read-only, modified keys and IME. The runner synthesizes no native input." />
-      <Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
+      <Button label="Toggle read-only" onPress={() => setReadonly(!readonly)} />
       <TimeInput
         id="time-step"
         label="Start time"

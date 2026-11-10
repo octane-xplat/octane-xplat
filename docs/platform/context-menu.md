@@ -184,7 +184,7 @@ import { Button, Text, VStack } from '@octane-xplat/ui'
 export function NoteActions() {
   const [note, setNote] = useState('note-a'), [last, setLast] = useState('none')
   return <VStack gap={2}>
-    <Button label="Switch note" clickAction={() => setNote(note === 'note-a' ? 'note-b' : 'note-a')} />
+    <Button label="Switch note" onPress={() => setNote(note === 'note-a' ? 'note-b' : 'note-a')} />
     <AppKitContextMenu id={`note-actions-${note}`} accessibilityLabel={`Actions for ${note}`}
       items={[{ id: 'rename', title: 'Rename' }, { id: 'archive', title: 'Archive', disabled: true }]}
       trigger={() => <Text>{`Right-click ${note}`}</Text>}

@@ -29,7 +29,7 @@ export default function TestID() {
           testID="counter.increment"
           accessibilityLabel="Increment"
           label="Increment"
-          clickAction={() => setCount(count + 1)}
+          onPress={() => setCount(count + 1)}
         />
       </View>
       <TextInput
@@ -66,13 +66,13 @@ export default function TestID() {
         testID="items.rebind"
         label="Rebind item"
         accessibilityLabel="Rebind item"
-        clickAction={() => setItem(item === 'a' ? 'b' : undefined)}
+        onPress={() => setItem(item === 'a' ? 'b' : undefined)}
       />
       <Button
         testID="overlay.open"
         label="Open overlay"
         accessibilityLabel="Open overlay"
-        clickAction={() => setOpen(true)}
+        onPress={() => setOpen(true)}
       />
       <Overlay
         testID="overlay.content"
@@ -86,7 +86,7 @@ export default function TestID() {
             testID="overlay.close"
             label="Close overlay"
             accessibilityLabel="Close overlay"
-            clickAction={() => setOpen(false)}
+            onPress={() => setOpen(false)}
           />
         </Stack>
       </Overlay>

@@ -26,7 +26,7 @@ export function PowerSearchToken(props: PowerSearchTokenProps): JSX.Element @{
     <Button
       label={label}
       variant="secondary"
-      clickAction={props.onPress}
+      onPress={props.onPress}
       isDisabled={props.isDisabled}
       className="vx-power-search-token"
     />

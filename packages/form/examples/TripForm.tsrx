@@ -84,13 +84,13 @@ export function TripForm(props: {
     </FormLayout>
     <Button
       label={showNote ? 'Hide note' : 'Add note'}
-      clickAction={() => setShowNote(!showNote)}
+      onPress={() => setShowNote(!showNote)}
     />
-    <Button label="Save trip" isLoading={submitting} isDisabled={submitting} clickAction={submit} />
+    <Button label="Save trip" isLoading={submitting} isDisabled={submitting} onPress={submit} />
     <Button
       label="Reset"
       isDisabled={submitting}
-      clickAction={() => {
+      onPress={() => {
         form.reset()
         setResult('')
       }}

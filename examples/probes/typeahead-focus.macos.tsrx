@@ -52,12 +52,12 @@ export default function TypeaheadFocusProbe() {
           onChangeQuery={(text) => setLast(text)}
         />
       ) : null}
-      <Button label="Focus search" clickAction={() => input.current?.focus()} />
-      <Button label="Blur owned search" clickAction={() => input.current?.blur()} />
-      <Button label="Set query to Ada" clickAction={() => input.current?.setQuery('Ada')} />
-      <Button label="Toggle mounted" clickAction={() => setMounted(!mounted)} />
-      <Button label="Toggle read-only" clickAction={() => setBlocked(!blocked)} />
-      <Button label="Toggle autofocus request" clickAction={() => setAuto(!auto)} />
+      <Button label="Focus search" onPress={() => input.current?.focus()} />
+      <Button label="Blur owned search" onPress={() => input.current?.blur()} />
+      <Button label="Set query to Ada" onPress={() => input.current?.setQuery('Ada')} />
+      <Button label="Toggle mounted" onPress={() => setMounted(!mounted)} />
+      <Button label="Toggle read-only" onPress={() => setBlocked(!blocked)} />
+      <Button label="Toggle autofocus request" onPress={() => setAuto(!auto)} />
       <Text>
         Last query: {last}; selected: {selected?.label ?? 'none'}
       </Text>

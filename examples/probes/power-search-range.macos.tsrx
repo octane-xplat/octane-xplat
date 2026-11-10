@@ -40,12 +40,12 @@ export default function PowerSearchRangeProbe() {
 
   return (
     <VStack id="power-search-range-controls" gap={2}>
-      <Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
+      <Button label="Toggle read-only" onPress={() => setReadonly(!readonly)} />
       <Button
         label="Replace filter"
-        clickAction={() => setFilter({ field: 'created', operator: 'between' })}
+        onPress={() => setFilter({ field: 'created', operator: 'between' })}
       />
-      <Button label="Mount/unmount editor" clickAction={() => setMounted(!mounted)} />
+      <Button label="Mount/unmount editor" onPress={() => setMounted(!mounted)} />
       {mounted ? (
         <PowerSearchFilterEditor
           config={config}

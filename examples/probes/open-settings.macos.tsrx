@@ -18,7 +18,7 @@ export default function OpenSettingsProbe() {
   return (
     <VStack gap={2}>
       <Text>Open System Settings, then navigate to the permission you need.</Text>
-      <Button id="open-system-settings" label="Open settings" clickAction={open} />
+      <Button id="open-system-settings" label="Open settings" pressAction={open} />
       <Text id="settings-status">{status}</Text>
     </VStack>
   )

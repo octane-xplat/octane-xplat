@@ -22,9 +22,9 @@ export function LightboxProbe() @{
   })
 
   <View style={{ flexDirection: 'column' }}>
-    <Button id="lb-open" label="Open" clickAction={() => setOpen(true)} />
-    <Button id="lb-next-ctl" label="NextCtl" clickAction={() => setIndex(index + 1)} />
-    <Button id="hook-open" label="HookOpen" clickAction={() => hook.open(2)} />
+    <Button id="lb-open" label="Open" onPress={() => setOpen(true)} />
+    <Button id="lb-next-ctl" label="NextCtl" onPress={() => setIndex(index + 1)} />
+    <Button id="hook-open" label="HookOpen" onPress={() => hook.open(2)} />
     <Text id="picked">{mark}</Text>
     <Lightbox
       isOpen={open}

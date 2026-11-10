@@ -79,7 +79,7 @@ export function MoreMenu(props: MoreMenuProps): JSX.Element @{
 
   @if (useSheet) {
     <>
-      <Button {...button} id={props.id} style={props.style} clickAction={() => setOpen(!open)} />
+      <Button {...button} id={props.id} style={props.style} onPress={() => setOpen(!open)} />
       <BottomSheet
         isOpen={open}
         onOpenChange={setOpen}

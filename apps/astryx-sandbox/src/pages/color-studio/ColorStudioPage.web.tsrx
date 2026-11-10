@@ -214,7 +214,7 @@ function PaletteEntry({
           label="Remove"
           variant="ghost"
           size="sm"
-          clickAction={() => onRemove(color.id)}
+          onPress={() => onRemove(color.id)}
           icon={<span className="ColorStudioPage-static-4">✕</span>}
         />
       )}
@@ -412,7 +412,7 @@ function ExportPanel({ palette, options }: { palette: PaletteColor[]; options: T
       label={copied ? 'Copied!' : 'Export'}
       variant="ghost"
       size="sm"
-      clickAction={handleCopy}
+      pressAction={handleCopy}
     />
   )
 }
@@ -552,7 +552,7 @@ export function ColorStudioPage() {
                     label="Add color"
                     variant="ghost"
                     size="sm"
-                    clickAction={addColor}
+                    onPress={addColor}
                     icon={<span className="ColorStudioPage-static-29">+</span>}
                   />
                 </HStack>
@@ -578,7 +578,7 @@ export function ColorStudioPage() {
                     label="Add custom color"
                     variant="ghost"
                     size="sm"
-                    clickAction={() => {
+                    onPress={() => {
                       const h = Math.random() * 360
                       const hex = oklchClampedHex(0.5, 0.12, h)
 
@@ -630,7 +630,7 @@ export function ColorStudioPage() {
                       label="Remove"
                       variant="ghost"
                       size="sm"
-                      clickAction={() =>
+                      onPress={() =>
                         setCustomChannels((prev) => prev.filter((c) => c.id !== cc.id))
                       }
                       icon={<span className="ColorStudioPage-static-35">✕</span>}

@@ -327,9 +327,9 @@ export function FormWizardInlineTemplate() @{
       const count = Object.keys(currentErrors).length
 
       <HStack gap={2} vAlign="center" wrap="wrap">
-        <Button label={label} variant="primary" clickAction={confirmStep} />
+        <Button label={label} variant="primary" onPress={confirmStep} />
         {index > 0 ? (
-          <Button label="Back" variant="ghost" clickAction={() => goToStep(index - 1)} />
+          <Button label="Back" variant="ghost" onPress={() => goToStep(index - 1)} />
         ) : null}
         {count > 0 ? (
           <FieldStatus
@@ -393,7 +393,7 @@ export function FormWizardInlineTemplate() @{
                 label="Back to the pipeline"
                 variant="secondary"
                 size="sm"
-                clickAction={() => goToStep(1)}
+                onPress={() => goToStep(1)}
               />
             }
           />

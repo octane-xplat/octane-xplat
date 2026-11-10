@@ -35,7 +35,7 @@ export default function ImageLoadingProbe() {
       <Button
         id="toggle-image"
         label="Toggle second image"
-        clickAction={() => setSecond((value) => !value)}
+        onPress={() => setSecond((value) => !value)}
       />
       <Text>Both views use one source. Toggle the second view to exercise removal and reuse.</Text>
     </VStack>

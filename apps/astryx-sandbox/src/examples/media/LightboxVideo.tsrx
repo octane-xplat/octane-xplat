@@ -10,7 +10,7 @@ export function LightboxVideo() {
 
   return (
     <>
-      <Button label="Play video" clickAction={() => setIsOpen(true)} />
+      <Button label="Play video" onPress={() => setIsOpen(true)} />
       <Lightbox
         isOpen={isOpen}
         onOpenChange={setIsOpen}

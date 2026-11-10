@@ -127,7 +127,7 @@ const item = getRouteApi('/items/:id')
 
 export function ActivityFilter() {
   const updateSearch = item.useUpdateSearch()
-  return <Button label="Show activity" clickAction={() => {
+  return <Button label="Show activity" onPress={() => {
     void updateSearch(previous => ({ ...previous, tab: 'activity' }))
   }} />
 }

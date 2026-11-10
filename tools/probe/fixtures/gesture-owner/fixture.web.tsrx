@@ -1,6 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot, useRef, useState } from 'octane'
-import { View, Stack, Pressable, usePanGesture$, useInteractionScope$ } from '@octane-xplat/ui'
+import {
+  View,
+  Stack,
+  Button,
+  Pressable,
+  usePanGesture$,
+  useInteractionScope$,
+} from '@octane-xplat/ui'
+
 import { motion, MotionConfig } from '@octane-xplat/motion'
 import type { Suspension } from '@octane-xplat/ui'
 
@@ -20,6 +28,10 @@ const initial = {
   rawPresses: 0,
   nativeClicks: 0,
   scaledStarts: 0,
+  immediate: 0,
+  actionEffects: 0,
+  actionStarts: 0,
+  actionEnds: 0,
 }
 
 function Fixture() {
@@ -52,6 +64,21 @@ function Fixture() {
           Nested action
         </Pressable>
       </View>
+      <Button
+        id="immediate-effect"
+        label="Immediate effect"
+        onPress={() => update({ immediate: current.current.immediate + 1 })}
+      />
+      <Button
+        id="managed-action"
+        label="Managed action"
+        onPress={() => update({ actionEffects: current.current.actionEffects + 1 })}
+        pressAction={async () => {
+          update({ actionStarts: current.current.actionStarts + 1 })
+          await new Promise<void>((resolve) => setTimeout(resolve, 500))
+          update({ actionEnds: current.current.actionEnds + 1 })
+        }}
+      />
       <output id="state">{JSON.stringify(state)}</output>
       <View id="frozen-content" interactionScope={scope}>
         <Pressable

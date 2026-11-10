@@ -23,7 +23,7 @@ export function DisplayCases(props: {
       <Button
         id="core20-display-before"
         label="Before display"
-        clickAction={() => props.onActivate('display-before')}
+        onPress={() => props.onActivate('display-before')}
       />
     }
     @if (props.caseName === 'card') {
@@ -78,7 +78,7 @@ export function DisplayCases(props: {
             id="core20-banner-action"
             label={`Banner action ${props.revision}`}
             isDisabled={props.disabled}
-            clickAction={() => props.onActivate('banner-action', props.revision)}
+            onPress={() => props.onActivate('banner-action', props.revision)}
           />
         }
       >
@@ -89,7 +89,7 @@ export function DisplayCases(props: {
       <Button
         id="core20-display-after"
         label="After display"
-        clickAction={() => props.onActivate('display-after')}
+        onPress={() => props.onActivate('display-after')}
       />
     }
   </View>

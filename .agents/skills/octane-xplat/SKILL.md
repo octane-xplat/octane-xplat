@@ -12,6 +12,11 @@ platform example. Platform divergence belongs at file boundaries.
 
 ## Core constraints
 
+- Use `Button.onPress` for synchronous effects such as local state, panel visibility,
+  focus, navigation commands, or stopping playback. Reserve `pressAction` for
+  Promise-returning work that needs pending/error handling. Do not add `async`
+  merely to fit an action prop. See [action controls](references/primitives/actions.md).
+
 - Use the project's selected package manager. This repository uses Bun 1.4.4;
   consumer starters also use Bun. Declare every imported dependency; repository
   workspace dependencies use `"workspace:*"`.

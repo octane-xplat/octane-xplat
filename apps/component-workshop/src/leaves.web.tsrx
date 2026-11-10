@@ -81,7 +81,7 @@ export function RollingTextExample() {
   return (
     <>
       <RollingText value={String(value)} />
-      <Button label="Add one" clickAction={() => setValue(value + 1)} />
+      <Button label="Add one" onPress={() => setValue(value + 1)} />
     </>
   )
 }
@@ -114,7 +114,7 @@ export function MotionExample() {
   return (
     <MotionConfig reducedMotion="user">
       <LayoutGroup>
-        <Button label="Toggle animated content" clickAction={() => setVisible(!visible)} />
+        <Button label="Toggle animated content" onPress={() => setVisible(!visible)} />
         <Presence present={visible}>
           {visible ? (
             <motion.View
@@ -171,11 +171,11 @@ export function DrawerExample() {
     <Drawer
       open={open}
       onOpenChange={setOpen}
-      main={<Button label="Open drawer" clickAction={() => setOpen(true)} />}
+      main={<Button label="Open drawer" onPress={() => setOpen(true)} />}
       drawer={
         <>
           <Text>Navigation panel</Text>
-          <Button label="Close drawer" clickAction={() => setOpen(false)} />
+          <Button label="Close drawer" onPress={() => setOpen(false)} />
         </>
       }
     />
@@ -195,7 +195,7 @@ export function PagerExample() {
         style={{ height: 180 }}
       />
       <Text>Selected page: {page + 1}</Text>
-      <Button label="Next page" clickAction={() => setPage((page + 1) % 2)} />
+      <Button label="Next page" onPress={() => setPage((page + 1) % 2)} />
     </>
   )
 }
@@ -217,7 +217,7 @@ export function AnimatedImageExample() {
       />
       <Button
         label={playing ? 'Stop animation' : 'Play animation'}
-        clickAction={() => setPlaying(!playing)}
+        onPress={() => setPlaying(!playing)}
         isDisabled={window.matchMedia('(prefers-reduced-motion: reduce)').matches}
       />
     </>
@@ -238,7 +238,7 @@ export function VideoExample() {
       />
       <Button
         label={playing ? 'Pause' : 'Play local clip'}
-        clickAction={() => setPlaying(!playing)}
+        onPress={() => setPlaying(!playing)}
       />
     </>
   )

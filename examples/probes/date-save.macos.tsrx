@@ -51,8 +51,8 @@ export default function DateSaveProbe() {
           { label: 'Short stay', getRange: () => ({ start: '2026-03-06', end: '2026-03-08' }) },
         ]}
       />
-      <Button label="Complete save" clickAction={() => finish.current?.(false)} />
-      <Button label="Fail save" clickAction={() => finish.current?.(true)} />
+      <Button label="Complete save" onPress={() => finish.current?.(false)} />
+      <Button label="Fail save" onPress={() => finish.current?.(true)} />
       <label text={message} />
     </VStack>
   )

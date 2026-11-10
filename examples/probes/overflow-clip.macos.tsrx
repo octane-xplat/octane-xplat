@@ -30,13 +30,13 @@ export default function OverflowClipProbe() {
           }}
         >
           <Text>Wide content</Text>
-          <Button label="Outside action" clickAction={() => setPresses(presses + 1)} />
+          <Button label="Outside action" onPress={() => setPresses(presses + 1)} />
         </masonview>
       </masonview>
-      <Button label="Hidden" clickAction={() => setMode('hidden')} />
-      <Button label="Clip" clickAction={() => setMode('clip')} />
-      <Button label="Visible" clickAction={() => setMode('visible')} />
-      <Button label="Remove style" clickAction={() => setMode(undefined)} />
+      <Button label="Hidden" onPress={() => setMode('hidden')} />
+      <Button label="Clip" onPress={() => setMode('clip')} />
+      <Button label="Visible" onPress={() => setMode('visible')} />
+      <Button label="Remove style" onPress={() => setMode(undefined)} />
       <Text>
         Mode: {mode ?? 'native default'}; presses: {presses}
       </Text>

@@ -123,7 +123,7 @@ function RemoveButton() {
       size="sm"
 
       className="sb-mode-remove"
-      clickAction={() => {}}
+      onPress={() => {}}
     />
   )
 }
@@ -224,7 +224,7 @@ export function MediaModePage() {
             label={ALGO_INFO[id].label}
             variant={algo === id ? 'primary' : 'secondary'}
             size="sm"
-            clickAction={() => setAlgo(id)}
+            onPress={() => setAlgo(id)}
           />
         ))}
       </HStack>

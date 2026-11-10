@@ -30,7 +30,7 @@ export function ToastStacking() @{
           label="Show toast"
           variant="secondary"
           size="sm"
-          clickAction={() => {
+          onPress={() => {
             toast(MESSAGES[countRef.current++ % MESSAGES.length])
           }}
         />

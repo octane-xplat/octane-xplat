@@ -20,14 +20,14 @@ export function CollapsibleControlledAccordion() @{
         variant="secondary"
         size="sm"
         isDisabled={index <= 0}
-        clickAction={() => setOpen(STEPS[Math.max(0, index - 1)])}
+        onPress={() => setOpen(STEPS[Math.max(0, index - 1)])}
       />
       <Button
         label="Next"
         variant="secondary"
         size="sm"
         isDisabled={index >= STEPS.length - 1}
-        clickAction={() => setOpen(STEPS[Math.min(STEPS.length - 1, index + 1)])}
+        onPress={() => setOpen(STEPS[Math.min(STEPS.length - 1, index + 1)])}
       />
       <Text type="supporting">
         Step {index + 1} of {STEPS.length}

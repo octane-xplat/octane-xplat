@@ -28,16 +28,16 @@ export default function ProgressBarProbe() {
         <Text>{value}%</Text>
       </Meter>
       <ProgressGroup items={[{ key: 'cpu', label: 'CPU', value, max: 100 }]} />
-      <Button label="Toggle known progress" clickAction={() => setUnknown((current) => !current)} />
+      <Button label="Toggle known progress" onPress={() => setUnknown((current) => !current)} />
       <Button
         label="Advance known progress"
-        clickAction={() => setValue((current) => (current + 25) % 125)}
+        onPress={() => setValue((current) => (current + 25) % 125)}
       />
       <Button
         label="Toggle inactive state"
-        clickAction={() => setDisabled((current) => !current)}
+        onPress={() => setDisabled((current) => !current)}
       />
-      <Button label="Toggle style form" clickAction={() => setCSS((current) => !current)} />
+      <Button label="Toggle style form" onPress={() => setCSS((current) => !current)} />
       <Text>
         Change the app theme and inspect known/unknown mode, style width and accessibility
         separately. Unknown progress and the spinner have AppKit animation source rules; Reduce

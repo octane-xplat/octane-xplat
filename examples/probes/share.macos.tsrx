@@ -83,13 +83,13 @@ export default function ShareProbe() {
 
   return (
     <VStack id="share-controls" gap={2}>
-      <Button label="Share text" isDisabled={busy} clickAction={() => run('text')} />
-      <Button label="Share URL" isDisabled={busy} clickAction={() => run('url')} />
-      <Button label="Prepare local file" isDisabled={busy} clickAction={() => run('prepare')} />
+      <Button label="Share text" isDisabled={busy} pressAction={() => run('text')} />
+      <Button label="Share URL" isDisabled={busy} pressAction={() => run('url')} />
+      <Button label="Prepare local file" isDisabled={busy} pressAction={() => run('prepare')} />
       <Button
         label="Share prepared file"
         isDisabled={busy || !ready}
-        clickAction={() => run('file')}
+        pressAction={() => run('file')}
       />
       <Text>{result}</Text>
       <Text>

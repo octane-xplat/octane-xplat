@@ -1,7 +1,7 @@
 // Port of upstream templates/pages/login-split/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/login-split/.
 // GAPS: `type="email"`/`type="password"` → `keyboardType`/`secure`; Button
-// `onClick` → `clickAction`; Link `size`/`type` props unported (surrounding
+// `onClick` → `onPress`; Link `size`/`type` props unported (surrounding
 // Text carries `type="supporting"`); Grid `gap`/`align`/`justify` are not
 // props — they move into style. The @container rules live in
 // styles/login-split.css.
@@ -155,7 +155,7 @@ export function LoginSplitTemplate() @{
                           variant="primary"
                           size="lg"
                           isLoading={isLoading}
-                          clickAction={handleLogin}
+                          onPress={handleLogin}
                         />
 
                         <Divider label="Or continue with" />

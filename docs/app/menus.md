@@ -349,7 +349,7 @@ import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 export function Document() {
   return <ContextMenu label="Document actions" trigger="Actions"
     menu={<DropdownMenuItem label="Archive" onSelect={() => console.log('archive')} />}>
-    <Button label="report.txt" clickAction={() => console.log('select')} />
+    <Button label="report.txt" onPress={() => console.log('select')} />
   </ContextMenu>
 }
 ```
@@ -378,7 +378,7 @@ import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
   return <ContextMenu label="Document actions" trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-    <Button label="report.txt" clickAction={() => console.log('select')} />
+    <Button label="report.txt" onPress={() => console.log('select')} />
   </ContextMenu>
 }
 ```
@@ -408,7 +408,7 @@ import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
   return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-    <Button label="report.txt" clickAction={() => console.log('select')} />
+    <Button label="report.txt" onPress={() => console.log('select')} />
   </ContextMenu>
 }
 ```

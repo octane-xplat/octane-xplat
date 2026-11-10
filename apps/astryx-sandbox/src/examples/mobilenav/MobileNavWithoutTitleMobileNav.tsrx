@@ -10,7 +10,7 @@ export function MobileNavWithoutTitleMobileNav() @{
       label="Open Navigation"
       icon={<Icon name="sandbox-menu" color="inherit" />}
       variant="ghost"
-      clickAction={() => setIsOpen(true)}
+      onPress={() => setIsOpen(true)}
       isIconOnly
     />
     <MobileNav

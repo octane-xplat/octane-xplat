@@ -23,7 +23,7 @@ export function ToastDismiss() @{
           label="Show toast"
           variant="secondary"
           size="sm"
-          clickAction={() => {
+          onPress={() => {
             handleRef.current = toast({ body: 'Uploading file…', isAutoHide: false })
           }}
         />
@@ -31,7 +31,7 @@ export function ToastDismiss() @{
           label="Dismiss via code"
           variant="ghost"
           size="sm"
-          clickAction={() => {
+          onPress={() => {
             handleRef.current?.dismiss()
             handleRef.current = null
           }}

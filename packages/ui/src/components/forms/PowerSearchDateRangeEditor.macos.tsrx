@@ -217,7 +217,7 @@ export function PowerSearchDateRangeEditor(props: Props): unknown @{
             label={preset.label}
             variant="ghost"
             isDisabled={readOnly}
-            clickAction={() => change(rangeDraft(preset.value))}
+            onPress={() => change(rangeDraft(preset.value))}
           />
         }
       </masonview>
@@ -232,7 +232,7 @@ export function PowerSearchDateRangeEditor(props: Props): unknown @{
       <Button
         label="Cancel"
         variant="ghost"
-        clickAction={() => {
+        onPress={() => {
           if (alive.current && source.current.revision === revision) {
             live.current.onCancel()
           }
@@ -241,7 +241,7 @@ export function PowerSearchDateRangeEditor(props: Props): unknown @{
       <Button
         label={props.saveButtonLabel ?? 'Apply'}
         variant="primary"
-        clickAction={save}
+        onPress={save}
         isDisabled={readOnly}
       />
     </masonview>

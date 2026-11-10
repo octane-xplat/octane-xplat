@@ -44,13 +44,13 @@ export default function TokenizerKeysProbe() {
             setTags(items)
           }
         }}
-        endContent={<Button label="Apply" clickAction={() => setLast('Apply pressed')} />}
+        endContent={<Button label="Apply" onPress={() => setLast('Apply pressed')} />}
       />
       <TextInput label="After tags" />
-      <Button label="Restore tags" clickAction={() => setTags(people)} />
-      <Button label="Toggle read-only" clickAction={() => setReadOnly(!readOnly)} />
-      <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-      <Button label="Toggle controlled acceptance" clickAction={() => setAccept(!accept)} />
+      <Button label="Restore tags" onPress={() => setTags(people)} />
+      <Button label="Toggle read-only" onPress={() => setReadOnly(!readOnly)} />
+      <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+      <Button label="Toggle controlled acceptance" onPress={() => setAccept(!accept)} />
       <Text>
         Last: {last}; accepting: {String(accept)}
       </Text>

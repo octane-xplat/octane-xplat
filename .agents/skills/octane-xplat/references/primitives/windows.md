@@ -54,10 +54,10 @@ import { Button, Text, useLayer } from '@octane-xplat/ui'
 export function LayerTrigger() {
   const layer = useLayer({ mode: 'context', lightDismiss: true })
   return <>
-    <Button label="Details" ref={layer.ref} clickAction={layer.show} />
+    <Button label="Details" ref={layer.ref} onPress={layer.show} />
     {layer.render(<>
       <Text>Packing details</Text>
-      <Button label="Close" clickAction={layer.hide} />
+      <Button label="Close" onPress={layer.hide} />
     </>, { placement: 'below' })}
   </>
 }
@@ -359,7 +359,7 @@ import { Button, Pressable, Text } from '@octane-xplat/ui'
 
 export function Actions() @{
   <>
-    <Button clickAction={() => console.log('Saved')}>Save</Button>
+    <Button onPress={() => console.log('Saved')}>Save</Button>
     <Pressable accessibilityLabel="Refresh" onPress={() => console.log('Refreshed')}>
       <Text>Refresh</Text>
     </Pressable>

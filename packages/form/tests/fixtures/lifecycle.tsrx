@@ -36,7 +36,7 @@ function Name(props: { form: FixtureForm }) @{
     />
     <Text id="form-value">{field.state.value}</Text>
     <Text id="form-error">{field.state.meta.errors.join(',')}</Text>
-    <Button id="form-blur" label="Validate" clickAction={field.handleBlur} />
+    <Button id="form-blur" label="Validate" onPress={field.handleBlur} />
   </VStack>
 }
 
@@ -60,18 +60,18 @@ export default function FormLifecycle() @{
     <Button
       id="form-toggle"
       label="Toggle"
-      clickAction={() => enabled.handleChange(!enabled.state.value)}
+      onPress={() => enabled.handleChange(!enabled.state.value)}
     />
-    <Button id="form-submit" label="Submit" clickAction={() => form.handleSubmit()} />
-    <Button id="form-reset" label="Reset" clickAction={() => form.reset()} />
-    <Button id="form-note" label="Toggle note" clickAction={() => setShow(!show)} />
+    <Button id="form-submit" label="Submit" pressAction={() => form.handleSubmit()} />
+    <Button id="form-reset" label="Reset" onPress={() => form.reset()} />
+    <Button id="form-note" label="Toggle note" onPress={() => setShow(!show)} />
     @if (show) {
       <Note form={form} />
     }
     <Button
       id="form-check"
       label="Check release"
-      clickAction={() => setReleased(form.getFieldInfo('note').instance ? 'mounted' : 'released')}
+      onPress={() => setReleased(form.getFieldInfo('note').instance ? 'mounted' : 'released')}
     />
     <Text id="form-saved">{saved}</Text>
     <Text id="form-dirty">{String(dirty)}</Text>

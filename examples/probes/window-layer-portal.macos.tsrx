@@ -154,10 +154,10 @@ export default function WindowLayerPortalProbe() {
       >
         <label text="Layer anchor" />
       </masonview>
-      <Button label="Stage hidden" clickAction={stage} />
+      <Button label="Stage hidden" pressAction={stage} />
       <Button
         label="Reveal"
-        clickAction={() => {
+        onPress={() => {
           const layer = owner.current?.handle
 
           if (layer && !layer.closed) {
@@ -168,11 +168,11 @@ export default function WindowLayerPortalProbe() {
       />
       <Button
         label="Change source provider"
-        clickAction={() =>
+        onPress={() =>
           setLabel(label === 'source one' ? 'source two with more text' : 'source one')
         }
       />
-      <Button label="Close" clickAction={close} />
+      <Button label="Close" onPress={close} />
       <Text>Status: {status}</Text>
       <LabelProvider value={label}>
         {portal?.target

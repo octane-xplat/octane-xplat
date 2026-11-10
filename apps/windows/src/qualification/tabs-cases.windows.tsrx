@@ -14,7 +14,7 @@ export function TabCases(props: {
   )
 
   <View className="core20-viewport">
-    <Button label="Before tabs" clickAction={() => props.onActivate('tabs-before')} />
+    <Button label="Before tabs" onPress={() => props.onActivate('tabs-before')} />
     <TabList
       id="core20-tab-list"
       role="tablist"
@@ -46,6 +46,6 @@ export function TabCases(props: {
     <Text
       id={`core20-tab-panel-${selected}`}
     >{`Panel ${selected} revision ${props.revision}`}</Text>
-    <Button label="After tabs" clickAction={() => props.onActivate('tabs-after')} />
+    <Button label="After tabs" onPress={() => props.onActivate('tabs-after')} />
   </View>
 }

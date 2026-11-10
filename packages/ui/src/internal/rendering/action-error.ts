@@ -1,4 +1,4 @@
-/** Report a failed press action (`clickAction`, `pressedChangeAction`).
+/** Report a failed press action (`pressAction`, `pressedChangeAction`).
  *  A consumer `onActionError` receives the error; without one the error is
  *  re-thrown on a fresh task so it surfaces as an uncaught asynchronous
  *  error instead of being silently swallowed by pending-state cleanup. */

@@ -64,7 +64,7 @@ export function PhotoPicker() {
   }
   return (
     <>
-      <Button clickAction={pickPhoto}>Choose photo</Button>
+      <Button pressAction={pickPhoto}>Choose photo</Button>
       {preview && <Image src={preview.uri} alt="Selected photo" />}
       {error && <Text>{error}</Text>}
     </>

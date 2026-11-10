@@ -10,7 +10,7 @@ export function LightboxShowcase() {
 
   return (
     <>
-      <Button clickAction={() => setIsOpen(true)} label="View image" />
+      <Button onPress={() => setIsOpen(true)} label="View image" />
       <Lightbox
         isOpen={isOpen}
         onOpenChange={setIsOpen}

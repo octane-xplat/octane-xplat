@@ -408,12 +408,12 @@ export function MarkdownPerfPage() {
             </SegmentedControl>
             <Button
               label={isRunning ? 'Restart benchmark' : 'Run benchmark'}
-              clickAction={startBenchmark}
+              onPress={startBenchmark}
             />
             <Button
               label="Stop"
               variant="secondary"
-              clickAction={stopBenchmark}
+              onPress={stopBenchmark}
               isDisabled={!isRunning}
             />
           </HStack>

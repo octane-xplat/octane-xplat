@@ -13,7 +13,7 @@ export default function CalendarKeysProbe() {
   return (
     <VStack gap={2}>
       <label text="Tab into a day; arrows move focus, Home/End use row edges, Command+Home/End use the visible grid, PageUp/PageDown change months. Enter/Space selects. Range Escape clears an unfinished anchor before a surrounding layer handles dismissal. No OS keys are synthesized by the runner." />
-      <Button label="Toggle RTL" clickAction={() => setRTL(!rtl)} />
+      <Button label="Toggle RTL" onPress={() => setRTL(!rtl)} />
       <Calendar
         id="calendar-keys"
         value={day}

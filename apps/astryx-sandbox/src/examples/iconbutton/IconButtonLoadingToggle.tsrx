@@ -15,20 +15,20 @@ export function IconButtonLoadingToggle() @{
       icon={<Icon name="xplat-copy" color="inherit" />}
       variant="primary"
       isLoading={loadingId === 'copy'}
-      clickAction={() => handle('copy')}
+      onPress={() => handle('copy')}
     />
     <IconButton
       label="Search"
       icon={<Icon name="xplat-search" color="inherit" />}
       isLoading={loadingId === 'search'}
-      clickAction={() => handle('search')}
+      onPress={() => handle('search')}
     />
     <IconButton
       label="Close"
       icon={<Icon name="xplat-close" color="inherit" />}
       variant="ghost"
       isLoading={loadingId === 'close'}
-      clickAction={() => handle('close')}
+      onPress={() => handle('close')}
     />
   </HStack>
 }

@@ -184,7 +184,14 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 import { HoverCard as WebHoverCard, Tooltip as WebTooltip, useOutlineFromDOM } from '@octane-xplat/ui/web'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
 
-const buttonProps: ButtonProps = { children: 'Save', isLoading: true }
+const buttonProps: ButtonProps = { children: 'Save', isLoading: true,
+  onPress: (event) => event.preventDefault(), pressAction: async () => ({ saved: true }) }
+// @ts-expect-error immediate effects belong in onPress
+const invalidSyncAction: ButtonProps = { pressAction: () => {} }
+// @ts-expect-error clickAction has been removed
+const invalidClickAction: ButtonProps = { clickAction: async () => {} }
+void invalidSyncAction
+void invalidClickAction
 // @ts-expect-error isLoading is a boolean prop
 const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const viewProps: ViewProps = { id: 'root', gap: 8, ios: { hidden: true } }
@@ -213,7 +220,14 @@ void KeyboardAvoiding
 import { CameraView, useOutlineFromView, bottomSheetHost } from '@octane-xplat/ui/macos'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue, WebViewProps, WebViewHandle, WebViewContentSize, WebViewLoadEvent } from '@octane-xplat/ui'
 
-const buttonProps: ButtonProps = { children: 'Save', isLoading: true }
+const buttonProps: ButtonProps = { children: 'Save', isLoading: true,
+  onPress: (event) => event.preventDefault(), pressAction: async () => ({ saved: true }) }
+// @ts-expect-error immediate effects belong in onPress
+const invalidSyncAction: ButtonProps = { pressAction: () => {} }
+// @ts-expect-error clickAction has been removed
+const invalidClickAction: ButtonProps = { clickAction: async () => {} }
+void invalidSyncAction
+void invalidClickAction
 // @ts-expect-error isLoading is a boolean prop
 const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const animation: AnimatedValue = useAnimation(0, 'translateX')
@@ -318,7 +332,14 @@ import { useOutlineFromView } from '@octane-xplat/ui/nativescript'
 // @ts-expect-error legacy catalog lookups are removed; outlets own route composition
 import { layoutsForRoute } from '@octane-xplat/ui/nativescript'
 
-const buttonProps: ButtonProps = { children: 'Save', isLoading: true }
+const buttonProps: ButtonProps = { children: 'Save', isLoading: true,
+  onPress: (event) => event.preventDefault(), pressAction: async () => ({ saved: true }) }
+// @ts-expect-error immediate effects belong in onPress
+const invalidSyncAction: ButtonProps = { pressAction: () => {} }
+// @ts-expect-error clickAction has been removed
+const invalidClickAction: ButtonProps = { clickAction: async () => {} }
+void invalidSyncAction
+void invalidClickAction
 // @ts-expect-error isLoading is a boolean prop
 const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const viewProps: ViewProps = { id: 'native-root', gap: 6 }

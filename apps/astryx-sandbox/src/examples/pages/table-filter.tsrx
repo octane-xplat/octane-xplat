@@ -274,7 +274,7 @@ export function TableFilterTemplate() @{
 
   <VStack gap={4} padding={4}>
     <Heading level={1}>Service jobs</Heading>
-    <Button label="Power search" clickAction={() => setIsPowerSearch(!isPowerSearch)} />
+    <Button label="Power search" onPress={() => setIsPowerSearch(!isPowerSearch)} />
     {isPowerSearch && (
       <PowerSearch
         config={config}
@@ -339,7 +339,7 @@ export function TableFilterTemplate() @{
               <Button
                 label={`Move ${key} earlier`}
                 isDisabled={index === 0}
-                clickAction={() =>
+                onPress={() =>
                   setColumnKeys((previous) => {
                     const next = [...previous]
 
@@ -351,7 +351,7 @@ export function TableFilterTemplate() @{
               <Button
                 label={`Move ${key} later`}
                 isDisabled={index === columnKeys.length - 1}
-                clickAction={() =>
+                onPress={() =>
                   setColumnKeys((previous) => {
                     const next = [...previous]
 
@@ -381,7 +381,7 @@ export function TableFilterTemplate() @{
         <Button
           label={editingView === null ? 'Create saved view' : 'Save view'}
           isDisabled={!viewName.trim()}
-          clickAction={() => {
+          onPress={() => {
             const snapshot = {
               name: viewName.trim(),
               query,
@@ -408,7 +408,7 @@ export function TableFilterTemplate() @{
           <HStack key={index} gap={2}>
             <Button
               label={saved.name}
-              clickAction={() => {
+              onPress={() => {
                 clearAll()
                 setQuery(saved.query)
                 setPowerFilters(saved.filters)
@@ -427,14 +427,14 @@ export function TableFilterTemplate() @{
             />
             <Button
               label={`Edit ${saved.name}`}
-              clickAction={() => {
+              onPress={() => {
                 setViewName(saved.name)
                 setEditingView(index)
               }}
             />
             <Button
               label={`Delete ${saved.name}`}
-              clickAction={() =>
+              onPress={() =>
                 setSavedViews((previous) => previous.filter((_, i) => i !== index))
               }
             />
@@ -445,7 +445,7 @@ export function TableFilterTemplate() @{
     <HStack gap={3}>
       <Button
         label="Clear all"
-        clickAction={() => {
+        onPress={() => {
           setQuery('')
           setPowerFilters([])
           setQuoteRange([0, Math.ceil(Math.max(...allJobs.map((job) => job.quoted)) / 100) * 100])
@@ -477,7 +477,7 @@ export function TableFilterTemplate() @{
           <Text>{activeJob.address}</Text>
           <Text>{activeJob.technician}</Text>
           <Text>{activeJob.equipment}</Text>
-          <Button label="Close details" clickAction={() => setActiveJob(null)} />
+          <Button label="Close details" onPress={() => setActiveJob(null)} />
         </VStack>
       </HStack>
     )}

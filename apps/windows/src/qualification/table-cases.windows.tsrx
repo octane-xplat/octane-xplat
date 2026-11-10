@@ -47,7 +47,7 @@ export function TableCases(props: {
   const sortable = useTableSortable<Row>(state.sortConfig)
 
   <View className="core20-viewport">
-    <Button label="Before table" clickAction={() => props.onActivate('table-before')} />
+    <Button label="Before table" onPress={() => props.onActivate('table-before')} />
     <Text id="core20-table-state">{`Table sort ${JSON.stringify(sort)}`}</Text>
     <Table
       id="core20-table"
@@ -57,6 +57,6 @@ export function TableCases(props: {
       plugins={{ sortable }}
       density={props.revision ? 'compact' : 'balanced'}
     />
-    <Button label="After table" clickAction={() => props.onActivate('table-after')} />
+    <Button label="After table" onPress={() => props.onActivate('table-after')} />
   </View>
 }

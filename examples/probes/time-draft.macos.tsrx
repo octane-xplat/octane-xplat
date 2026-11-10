@@ -41,15 +41,15 @@ export default function TimeDraftProbe() {
       ) : null}
       <Button
         label="Finish save"
-        clickAction={() => {
+        onPress={() => {
           release.current?.()
           release.current = null
         }}
       />
-      <Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
-      <Button label="Toggle seconds" clickAction={() => setSeconds(!seconds)} />
-      <Button label="Toggle mounted" clickAction={() => setMounted(!mounted)} />
-      <Button label="Parent correction to 10:00" clickAction={() => setValue('10:00')} />
+      <Button label="Toggle read-only" onPress={() => setReadonly(!readonly)} />
+      <Button label="Toggle seconds" onPress={() => setSeconds(!seconds)} />
+      <Button label="Toggle mounted" onPress={() => setMounted(!mounted)} />
+      <Button label="Parent correction to 10:00" onPress={() => setValue('10:00')} />
       <Text>
         Parent value: {value ?? 'empty'}; last request: {last}
       </Text>

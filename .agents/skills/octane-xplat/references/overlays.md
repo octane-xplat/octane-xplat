@@ -138,7 +138,7 @@ the mounted element even when `open` is called elsewhere.
 import { useImperativeBottomSheet, Button, Text } from '@octane-xplat/ui'
 
 function Picker(props: { close: (value?: string) => void }) {
-  return <Button clickAction={() => props.close('saved')}>Save</Button>
+  return <Button onPress={() => props.close('saved')}>Save</Button>
 }
 export function Actions() {
   const sheet = useImperativeBottomSheet()
@@ -146,7 +146,7 @@ export function Actions() {
     <>
       <Text>Choose a bag</Text>
       <Button
-        clickAction={() => {
+        onPress={() => {
           void sheet.open(Picker)
         }}
       >
@@ -175,7 +175,7 @@ export function ModalActions() {
   return (
     <>
       <Button
-        clickAction={() => {
+        onPress={() => {
           void modal.open(Details)
         }}
       >

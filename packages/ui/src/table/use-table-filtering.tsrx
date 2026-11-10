@@ -194,7 +194,7 @@ function PopoverFilterTrigger(props: {
       size={props.size}
       variant={isFiltered ? 'primary' : 'secondary'}
       label={`Filter ${props.header}`}
-      clickAction={() => {
+      onPress={() => {
         setDraft(applied)
         popover.toggle()
       }}
@@ -218,7 +218,7 @@ function PopoverFilterTrigger(props: {
             label="Reset"
             variant="secondary"
             isDisabled={draft == null}
-            clickAction={() => {
+            onPress={() => {
               cfg.onFilterChange(props.columnKey, null)
               setDraft(undefined)
               popover.hide()
@@ -228,7 +228,7 @@ function PopoverFilterTrigger(props: {
           <Button
             label="Apply"
             variant="primary"
-            clickAction={() => {
+            onPress={() => {
               cfg.onFilterChange(props.columnKey, draft ?? null)
               popover.hide()
             }}

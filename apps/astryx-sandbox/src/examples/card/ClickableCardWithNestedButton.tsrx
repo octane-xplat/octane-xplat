@@ -10,7 +10,7 @@ export function ClickableCardWithNestedButton() @{
           $79.99
         </Text>
       </Stack>
-      <Button label="Add to cart" clickAction={() => {}} variant="primary" />
+      <Button label="Add to cart" onPress={() => {}} variant="primary" />
     </Stack>
   </ClickableCard>
 }

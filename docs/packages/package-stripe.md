@@ -99,7 +99,7 @@ export function Checkout({ returnURL, getCheckout, verifyOrder }: CheckoutProps)
       <Button
         label={busy ? 'Checkout open…' : 'Pay'}
         isDisabled={busy || !Stripe.supported}
-        clickAction={() => {
+        onPress={() => {
           void pay()
         }}
       />

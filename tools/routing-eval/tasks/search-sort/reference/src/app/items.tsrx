@@ -14,7 +14,7 @@ export function screen(props: RouteProps<'/items'>) {
 	const updateSearch = items.useUpdateSearch()
 	return <Screen>
 		<Text>{'Sorted by: ' + props.search.sort}</Text>
-		<Button label="Sort by name" clickAction={() => { void updateSearch({ sort: 'name' }) }} />
-		<Button label="Sort by price" clickAction={() => { void updateSearch({ sort: 'price' }) }} />
+		<Button label="Sort by name" onPress={() => { void updateSearch({ sort: 'name' }) }} />
+		<Button label="Sort by price" onPress={() => { void updateSearch({ sort: 'price' }) }} />
 	</Screen>
 }

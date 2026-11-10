@@ -153,7 +153,7 @@ export function DashboardTemplate() @{
                 label="Reload"
                 variant="secondary"
                 icon={<Icon name="sandbox-arrow-path" size={16} />}
-                clickAction={() => setReloadCount((c) => c + 1)}
+                onPress={() => setReloadCount((c) => c + 1)}
               />
             </HStack>
             <Card>

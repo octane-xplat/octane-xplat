@@ -3,7 +3,7 @@
 // GAPS: `type="email"`/`type="password"` → `keyboardType`/`secure`;
 // TextInput `onKeyDown` Enter → `onSubmit` (the field's return-key contract);
 // Text `as="h2"` → `Heading level={2}` (`type` carries the display scale);
-// Button `onClick` → `clickAction`; Link `size`/`type` props unported.
+// Button `onClick` → `onPress`; Link `size`/`type` props unported.
 import { useState } from 'octane'
 import {
   Avatar,
@@ -142,7 +142,7 @@ export function LoginSsoTemplate() @{
               label="Sign in"
               variant="primary"
               size="lg"
-              clickAction={handleContinue}
+              onPress={handleContinue}
               isDisabled={!emailValid}
             />
 
@@ -152,7 +152,7 @@ export function LoginSsoTemplate() @{
               label="Continue with SSO"
               variant="secondary"
               size="lg"
-              clickAction={handleContinue}
+              onPress={handleContinue}
               isDisabled={!emailValid}
             />
 
@@ -197,13 +197,13 @@ export function LoginSsoTemplate() @{
                 variant="primary"
                 size="lg"
                 isLoading={isLoading}
-                clickAction={() => setIsLoading(true)}
+                onPress={() => setIsLoading(true)}
               />
               <Button
                 label="Use a different email"
                 variant="ghost"
                 size="lg"
-                clickAction={handleBack}
+                onPress={handleBack}
               />
             </VStack>
           </>
@@ -252,13 +252,13 @@ export function LoginSsoTemplate() @{
                 variant="primary"
                 size="lg"
                 isLoading={isLoading}
-                clickAction={handleSignIn}
+                onPress={handleSignIn}
               />
               <Button
                 label="Use a different email"
                 variant="ghost"
                 size="lg"
-                clickAction={handleBack}
+                onPress={handleBack}
               />
             </VStack>
           </>

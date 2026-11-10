@@ -18,14 +18,14 @@ export function MovingCard() {
     <>
       <View ref={x.ref} />
       <Button
-        clickAction={() => {
+        onPress={() => {
           void x.to(80, { duration: 300 })
         }}
       >
         Move
       </Button>
       <Button
-        clickAction={() => {
+        onPress={() => {
           void x.spring(0, { damping: 14, stiffness: 120 })
         }}
       >
@@ -176,7 +176,7 @@ import { motion } from '@octane-xplat/motion'
 import { Button } from '@octane-xplat/ui'
 
 export function Panel() {
-  return <motion.View drag="x"><Button clickAction={() => {}}>Open</Button></motion.View>
+  return <motion.View drag="x"><Button onPress={() => {}}>Open</Button></motion.View>
 }
 ```
 
@@ -209,7 +209,7 @@ import { motion } from '@octane-xplat/motion'
 
 import { Button } from '@octane-xplat/ui'
 
-<motion.View drag="x"><Button clickAction={() => console.log('Open')}>Open</Button></motion.View>
+<motion.View drag="x"><Button onPress={() => console.log('Open')}>Open</Button></motion.View>
 ```
 
 Native Android Pressable rejects tap activation for a contact that travels beyond

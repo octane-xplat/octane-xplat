@@ -462,7 +462,7 @@ import { motion } from '@octane-xplat/motion'
 import { Button } from '@octane-xplat/ui'
 
 export function DraggablePanel() {
-  return <motion.View drag="x"><Button clickAction={() => console.log('Open')}>Open</Button></motion.View>
+  return <motion.View drag="x"><Button onPress={() => console.log('Open')}>Open</Button></motion.View>
 }
 ```
 

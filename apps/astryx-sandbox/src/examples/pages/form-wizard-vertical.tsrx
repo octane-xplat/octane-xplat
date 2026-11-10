@@ -358,8 +358,8 @@ export function FormWizardVerticalTemplate() @{
             </HStack>
           </StackItem>
           <HStack gap={2}>
-            <Button label="Cancel" variant="ghost" clickAction={() => {}} />
-            <Button label="Save & exit" variant="secondary" clickAction={() => {}} />
+            <Button label="Cancel" variant="ghost" onPress={() => {}} />
+            <Button label="Save & exit" variant="secondary" onPress={() => {}} />
           </HStack>
         </HStack>
         {isNarrow ? stepper(false) : null}
@@ -465,19 +465,19 @@ export function FormWizardVerticalTemplate() @{
                             label="Crop image"
                             variant="secondary"
                             size="sm"
-                            clickAction={() => {}}
+                            onPress={() => {}}
                           />
                           <Button
                             label="Preview on device"
                             variant="secondary"
                             size="sm"
-                            clickAction={() => {}}
+                            onPress={() => {}}
                           />
                           <Button
                             label="Remove cover"
                             variant="ghost"
                             size="sm"
-                            clickAction={() => setHasCover(false)}
+                            onPress={() => setHasCover(false)}
                           />
                         </HStack>
                       </VStack>
@@ -488,7 +488,7 @@ export function FormWizardVerticalTemplate() @{
                         label="Choose cover image"
                         variant="secondary"
                         icon={<Icon name="sandbox-arrow-up-tray" size={16} />}
-                        clickAction={() => setHasCover(true)}
+                        onPress={() => setHasCover(true)}
                       />
                       <Text type="supporting" color="secondary">
                         PNG or JPEG up to 20 MB.
@@ -699,7 +699,7 @@ export function FormWizardVerticalTemplate() @{
                   <Button
                     label={isStripeLinked ? 'Manage' : 'Connect Stripe'}
                     variant={isStripeLinked ? 'secondary' : 'primary'}
-                    clickAction={() => setIsStripeLinked((v) => !v)}
+                    onPress={() => setIsStripeLinked((v) => !v)}
                   />
                 </HStack>
               </Card>
@@ -857,7 +857,7 @@ export function FormWizardVerticalTemplate() @{
               label="Back"
               variant="secondary"
               isDisabled={step === 0}
-              clickAction={() => {
+              onPress={() => {
                 markAttempted(step)
                 setStep((s) => Math.max(0, s - 1))
               }}
@@ -865,7 +865,7 @@ export function FormWizardVerticalTemplate() @{
             <Button
               label={isLastStep ? 'Submit for review' : 'Continue'}
               variant="primary"
-              clickAction={goNext}
+              onPress={goNext}
             />
           </HStack>
         </HStack>

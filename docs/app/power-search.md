@@ -329,7 +329,7 @@ export function OwnerForm() {
   const [filter, setFilter] = useState<PartialFilter>({ field: 'owner', operator: 'is' })
   const [editing, setEditing] = useState(true)
   return <VStack gap={2}>
-    <Button label="Edit owners" clickAction={() => setEditing(true)} />
+    <Button label="Edit owners" onPress={() => setEditing(true)} />
     {editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
       onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
       onCancel={() => setEditing(false)} /> : null}
@@ -408,7 +408,7 @@ export function YearFilter() {
   const [filter, setFilter] = useState<PartialFilter>({ field: 'year' })
   const [editing, setEditing] = useState(true)
   return <VStack gap={2}>
-    <Button label="Edit year" clickAction={() => setEditing(true)} />
+    <Button label="Edit year" onPress={() => setEditing(true)} />
     {editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
       onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
       onCancel={() => setEditing(false)} /> : null}
@@ -482,8 +482,8 @@ export function DateFilter() {
   const [editing, setEditing] = useState(true)
   const open = (operator: string) => { setFilter({ field: 'created', operator, value: original }); setEditing(true) }
   return <VStack gap={2}>
-    <Button label="Edit timestamp" clickAction={() => open('before')} />
-    <Button label="Edit calendar day" clickAction={() => open('on_day')} />
+    <Button label="Edit timestamp" onPress={() => open('before')} />
+    <Button label="Edit calendar day" onPress={() => open('on_day')} />
     {editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
       onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
       onCancel={() => setEditing(false)} /> : null}

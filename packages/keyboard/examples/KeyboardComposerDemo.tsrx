@@ -14,7 +14,7 @@ export function KeyboardComposerDemo() @{
       <Field label="Message">
         <TextInput value={draft} onChange={setDraft} />
       </Field>
-      <Button clickAction={() => setDraft('')}>Send</Button>
+      <Button onPress={() => setDraft('')}>Send</Button>
     </KeyboardStickyView>
   </View>
 }

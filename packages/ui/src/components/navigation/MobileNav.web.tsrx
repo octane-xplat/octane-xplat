@@ -201,7 +201,7 @@ export function MobileNavToggle(props: MobileNavToggleProps): JSX.Element | null
       style={props.style}
       accessibilityLabel={props.label ?? 'Open navigation'}
       web={{ 'aria-expanded': isMobileNavOpen, 'aria-controls': mobileNavId, ...props.web }}
-      clickAction={toggleMobileNav}
+      onPress={toggleMobileNav}
     >
       {props.children ?? <Icon name="xplat-menu" size={20} />}
     </Button>

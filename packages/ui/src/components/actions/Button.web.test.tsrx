@@ -29,14 +29,14 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('Button clickAction failure reporting', () => {
-  it('reports a rejected clickAction through onActionError and clears pending', async () => {
+describe('Button pressAction failure reporting', () => {
+  it('reports a rejected pressAction through onActionError and clears pending', async () => {
     const error = new Error('save failed')
     const onActionError = vi.fn()
     let rejectAction: ((reason: unknown) => void) | undefined
     const host = mount({
       label: 'Save',
-      clickAction: () =>
+      pressAction: () =>
         new Promise<void>((_, reject) => {
           rejectAction = reject
         }),
@@ -55,12 +55,12 @@ describe('Button clickAction failure reporting', () => {
     expect(host.classList.contains('vx-button--loading')).toBe(false)
   })
 
-  it('reports a synchronous clickAction throw through onActionError', () => {
+  it('reports a synchronous pressAction throw through onActionError', () => {
     const error = new Error('sync failure')
     const onActionError = vi.fn()
     const host = mount({
       label: 'Save',
-      clickAction: () => {
+      pressAction: () => {
         throw error
       },
       onActionError,
@@ -77,7 +77,7 @@ describe('Button clickAction failure reporting', () => {
     let rejectAction: ((reason: unknown) => void) | undefined
     const host = mount({
       label: 'Save',
-      clickAction: () =>
+      pressAction: () =>
         new Promise<void>((_, reject) => {
           rejectAction = reject
         }),
@@ -141,11 +141,11 @@ describe('Button loading/pending semantics', () => {
     expect(status.textContent).toBe('Loading')
   })
 
-  it('reports an in-flight clickAction as busy and blocked until it settles', async () => {
+  it('reports an in-flight pressAction as busy and blocked until it settles', async () => {
     let resolveAction: (() => void) | undefined
     const host = mount({
       label: 'Save',
-      clickAction: () =>
+      pressAction: () =>
         new Promise<void>((resolve) => {
           resolveAction = resolve
         }),
@@ -197,7 +197,7 @@ describe('Button renders a native button element', () => {
 
   it.each(['Enter', ' '])('activates once per %s keypress through native click', (key) => {
     const action = vi.fn()
-    const host = mount({ label: 'Save', clickAction: action })
+    const host = mount({ label: 'Save', onPress: action })
     const type = key === 'Enter' ? 'keydown' : 'keyup'
 
     // Native buttons fire click for Enter (keydown) and Space (keyup);
@@ -212,7 +212,7 @@ describe('Button renders a native button element', () => {
 
   it('activates once on pointer click', () => {
     const action = vi.fn()
-    const host = mount({ label: 'Save', clickAction: action })
+    const host = mount({ label: 'Save', onPress: action })
 
     click(host)
     expect(action).toHaveBeenCalledTimes(1)
@@ -223,7 +223,7 @@ describe('Button renders a native button element', () => {
     const host = mount({
       label: 'Save',
       isDisabled: true,
-      clickAction: action,
+      onPress: action,
     }) as HTMLButtonElement
 
     expect(host.disabled).toBe(true)
@@ -238,7 +238,7 @@ describe('Button renders a native button element', () => {
       label: 'Save',
       isDisabled: true,
       tooltip: 'Unavailable',
-      clickAction: action,
+      onPress: action,
     }) as HTMLButtonElement
 
     expect(host.disabled).toBe(false)
@@ -251,7 +251,7 @@ describe('Button renders a native button element', () => {
     let resolveAction: (() => void) | undefined
     const host = mount({
       label: 'Save',
-      clickAction: () =>
+      pressAction: () =>
         new Promise<void>((resolve) => {
           resolveAction = resolve
         }),
@@ -269,5 +269,90 @@ describe('Button renders a native button element', () => {
 
     expect(host.getAttribute('aria-busy')).toBe(null)
     expect(host.disabled).toBe(false)
+  })
+})
+
+describe('Button synchronous effects and asynchronous work', () => {
+  it('runs an immediate effect without a loading transition and preserves activation data', () => {
+    const effect = vi.fn()
+    const host = mount({ label: 'Open', onPress: effect })
+
+    click(host)
+    expect(effect).toHaveBeenCalledTimes(1)
+    expect(effect.mock.calls[0][0].source).toBe('virtual')
+    expect(host.classList.contains('vx-button--loading')).toBe(false)
+  })
+
+  it('runs the effect before the action and blocks a reentrant press before pending renders', async () => {
+    const calls: string[] = []
+    let finish!: () => void
+    const task = new Promise<void>((resolve) => {
+      finish = resolve
+    })
+
+    const host = mount({
+      label: 'Save',
+      onPress: () => {
+        calls.push('effect')
+        host.click()
+      },
+      pressAction: () => {
+        calls.push('action')
+        return task
+      },
+    })
+
+    click(host)
+    expect(calls).toEqual(['effect', 'action'])
+    expect(host.classList.contains('vx-button--loading')).toBe(true)
+    await act(async () => {
+      finish()
+      await task
+    })
+
+    expect(host.classList.contains('vx-button--loading')).toBe(false)
+  })
+
+  it('lets onPress veto both link navigation and the managed action', () => {
+    const action = vi.fn(async () => {})
+    const host = mount({
+      label: 'Open',
+      href: 'https://example.com',
+      onPress: (event: { preventDefault(): void }) => event.preventDefault(),
+      pressAction: action,
+    })
+
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+
+    act(() => host.dispatchEvent(event))
+    expect(host.tagName).toBe('A')
+    expect(host.getAttribute('href')).toBe('https://example.com')
+    expect(event.defaultPrevented).toBe(true)
+    expect(action).not.toHaveBeenCalled()
+    expect(host.classList.contains('vx-button--loading')).toBe(false)
+  })
+
+  it('keeps interruptible overlap busy until every accepted action settles', async () => {
+    const ends: (() => void)[] = []
+    const host = mount({
+      label: 'Save',
+      isInterruptible: true,
+      pressAction: () => new Promise<void>((resolve) => ends.push(resolve)),
+    })
+
+    click(host)
+    click(host)
+    await act(async () => {
+      ends[0]()
+      await Promise.resolve()
+    })
+
+    expect(host.classList.contains('vx-button--loading')).toBe(true)
+    await act(async () => {
+      ends[1]()
+      await Promise.resolve()
+    })
+
+    expect(host.classList.contains('vx-button--loading')).toBe(false)
   })
 })

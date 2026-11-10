@@ -157,7 +157,7 @@ export function TableTreeTemplate() @{
     <Text>A small, embeddable vector canvas. TypeScript · MIT</Text>
     <HStack gap={3}>
       <Text>{`main / ${selectedFolderId ?? ''}`}</Text>
-      <Button label="Repository root" clickAction={() => setSelectedFolderId(null)} />
+      <Button label="Repository root" onPress={() => setSelectedFolderId(null)} />
     </HStack>
     <TextInput
       label="Search repository"

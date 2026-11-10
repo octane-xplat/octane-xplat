@@ -75,7 +75,7 @@ import { Button, ScrollableArea, type ScrollableAreaHandle } from '@octane-xplat
 export function Notes() {
   const viewport = useRef<ScrollableAreaHandle | null>(null)
   return <>
-    <Button label="Top" clickAction={() => viewport.current?.scrollToOffset({ block: 0 })} />
+    <Button label="Top" onPress={() => viewport.current?.scrollToOffset({ block: 0 })} />
     <ScrollableArea ref={viewport} height={200}>Notes</ScrollableArea>
   </>
 }

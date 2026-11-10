@@ -54,11 +54,11 @@ export default function CheckboxListProbe() {
         Standalone ownership: try rapid local toggles, blocked state, rejected parent feedback and
         removal during a change. Physical input is human-operated.
       </Text>
-      <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-      <Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
-      <Button label="Toggle parent acceptance" clickAction={() => setAccept(!accept)} />
-      <Button label="Toggle controlled attachment" clickAction={() => setShown(!shown)} />
-      <Button label="Toggle remove on next change" clickAction={() => setRemoveNext(!removeNext)} />
+      <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+      <Button label="Toggle read-only" onPress={() => setReadonly(!readonly)} />
+      <Button label="Toggle parent acceptance" onPress={() => setAccept(!accept)} />
+      <Button label="Toggle controlled attachment" onPress={() => setShown(!shown)} />
+      <Button label="Toggle remove on next change" onPress={() => setRemoveNext(!removeNext)} />
       <CheckboxInput
         id="local-check"
         label="Local mixed seed"

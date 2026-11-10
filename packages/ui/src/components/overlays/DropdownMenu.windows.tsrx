@@ -110,7 +110,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
         className={cx('vx-menu-trigger', button.className)}
         isDisabled={disabled}
         endContent={endContent}
-        clickAction={() => setOpen(!(latest.current.props.isOpen ?? local.current))}
+        onPress={() => setOpen(!(latest.current.props.isOpen ?? local.current))}
         accessibilityState={{ ...button.accessibilityState, expanded: open }}
       />
       <xplatwindowsmenu

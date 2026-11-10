@@ -47,9 +47,9 @@ export default function TypeaheadAccessibilityProbe() {
         />
       ) : null}
       <TextInput label="After search" />
-      <Button label="Toggle read-only" clickAction={() => setBlocked(!blocked)} />
-      <Button label="Replace source" clickAction={() => setAlternate(!alternate)} />
-      <Button label="Toggle search" clickAction={() => setShown(!shown)} />
+      <Button label="Toggle read-only" onPress={() => setBlocked(!blocked)} />
+      <Button label="Replace source" onPress={() => setAlternate(!alternate)} />
+      <Button label="Toggle search" onPress={() => setShown(!shown)} />
       <Text>Committed: {person?.label ?? 'none'}</Text>
     </VStack>
   )

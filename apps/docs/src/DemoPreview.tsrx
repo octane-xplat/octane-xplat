@@ -9,7 +9,7 @@ export function DemoPreview(props: { demo: string }) @{
     <Button
       className="demo-control"
       ref={launch}
-      clickAction={start}
+      onPress={start}
       isDisabled={state === 'loading' || state === 'ready'}
       label="Try in browser"
     />
@@ -26,11 +26,11 @@ export function DemoPreview(props: { demo: string }) @{
             : 'The demo loads when you choose Try in browser.'}
     </Text>
     @if (state === 'error') {
-      <Button className="demo-control" clickAction={start} label="Retry" />
+      <Button className="demo-control" onPress={start} label="Retry" />
     }
     @if (state === 'loading' || state === 'ready') {
       <>
-        <Button className="demo-control" clickAction={close} label="Close preview" />
+        <Button className="demo-control" onPress={close} label="Close preview" />
         <WebView
           {...frameProps}
           className="demo-frame"

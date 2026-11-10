@@ -1,6 +1,6 @@
 // Port of upstream templates/pages/detail-page/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/detail-page/.
-// GAPS: Button `onClick` → `clickAction`; TabMenu options keep upstream's
+// GAPS: Button `onClick` → `onPress`; TabMenu options keep upstream's
 // {value,label} shape.
 import { useState } from 'octane'
 import {
@@ -198,8 +198,8 @@ function PageHeader(props: {
         </StackItem>
         {!props.isNarrow ? (
           <HStack gap={2}>
-            <Button label="Restock" variant="secondary" clickAction={() => {}} />
-            <Button label="Edit" variant="secondary" clickAction={() => {}} />
+            <Button label="Restock" variant="secondary" onPress={() => {}} />
+            <Button label="Edit" variant="secondary" onPress={() => {}} />
           </HStack>
         ) : null}
       </HStack>
@@ -211,12 +211,12 @@ function PageHeader(props: {
         <HStack gap={2}>
           <StackItem size="fill">
             <VStack hAlign="stretch">
-              <Button label="Restock" variant="secondary" clickAction={() => {}} />
+              <Button label="Restock" variant="secondary" onPress={() => {}} />
             </VStack>
           </StackItem>
           <StackItem size="fill">
             <VStack hAlign="stretch">
-              <Button label="Edit" variant="secondary" clickAction={() => {}} />
+              <Button label="Edit" variant="secondary" onPress={() => {}} />
             </VStack>
           </StackItem>
         </HStack>
@@ -243,7 +243,7 @@ function PageHeader(props: {
           size="md"
           icon={<Icon name="sandbox-view-columns" size={16} />}
           isIconOnly
-          clickAction={props.onTogglePanel}
+          onPress={props.onTogglePanel}
         />
       </HStack>
     </VStack>
@@ -261,8 +261,8 @@ function ItemsCard() @{
           </HStack>
         </StackItem>
         <HStack gap={2}>
-          <Button label="Fulfill item" variant="ghost" clickAction={() => {}} />
-          <Button label="Create label" variant="secondary" clickAction={() => {}} />
+          <Button label="Fulfill item" variant="ghost" onPress={() => {}} />
+          <Button label="Create label" variant="secondary" onPress={() => {}} />
         </HStack>
       </HStack>
 
@@ -310,8 +310,8 @@ function InvoiceCard() @{
           </HStack>
         </StackItem>
         <HStack gap={2}>
-          <Button label="Refund" variant="ghost" clickAction={() => {}} />
-          <Button label="Send Invoice" variant="secondary" clickAction={() => {}} />
+          <Button label="Refund" variant="ghost" onPress={() => {}} />
+          <Button label="Send Invoice" variant="secondary" onPress={() => {}} />
         </HStack>
       </HStack>
 
@@ -386,7 +386,7 @@ function TimelineSection() @{
           variant="ghost"
           icon={<Icon name="sandbox-funnel" />}
           isIconOnly
-          clickAction={() => {}}
+          onPress={() => {}}
         />
       </HStack>
 

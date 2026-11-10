@@ -1,28 +1,30 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { useState } from 'octane'
 import type { ButtonProps } from '../../props'
-import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { Pressable, type PressableInternalProps } from './Pressable.web.tsrx'
 import { VisuallyHidden } from '../content/VisuallyHidden.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { useButtonGroup } from './button-group-context'
 import { useSize } from '../layout/size-context'
 import { sanitizeUrl } from '../../routing/safe-url'
-import { reportActionError } from '../../internal/rendering/action-error'
+import { useButtonAction } from './use-button-action.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn button — Pressable row with optional icon/label/end content
  *  and a loading state that swaps content for the spinner and blocks
- *  presses. Props follow the Astryx vocabulary (`label`, `variant`, `size`,
+ *  presses. Props follow the shared action vocabulary (`label`, `variant`, `size`,
  *  `isDisabled`, `isLoading`, `icon`, `isIconOnly`, `endContent`,
- *  `elevation`, `tooltip`, `href`, `clickAction`, `isInterruptible`);
+ *  `elevation`, `tooltip`, `href`, `pressAction`, `isInterruptible`);
  *  `href` renders a real anchor so link semantics (new tab, copy link)
  *  stay intact. Inside a ButtonGroup the group supplies size/disabled and a
  *  position class for the connected edge treatment. */
 export function Button(props: ButtonProps): JSX.Element @{
   const group = useButtonGroup()
-  const [actionPending, setActionPending] = useState(false)
-  // Busy = isLoading or an in-flight clickAction: aria-busy + hidden content +
+  const { pending: actionPending, press: runPress } = useButtonAction(
+    props,
+    Boolean(group?.isDisabled),
+  )
+
+  // Busy = isLoading or an in-flight pressAction: aria-busy + hidden content +
   // spinner overlay + live "Loading" status. Interruptible buttons stay
   // enabled (a re-click lands a fresh action) but still report busy.
   const busy = !!(props.isLoading || actionPending)
@@ -92,80 +94,32 @@ export function Button(props: ButtonProps): JSX.Element @{
     props.className,
   ]
 
-  const runPress = (e?: any) => {
-    if (disabled || (actionPending && !props.isInterruptible)) {
-      e?.preventDefault?.()
-      return
-    }
-
-    let action: void | Promise<void> | undefined
-
-    try {
-      action = props.clickAction?.()
-    } catch (error) {
-      reportActionError(error, props.onActionError)
-      return
-    }
-
-    if (action && typeof action.then === 'function') {
-      setActionPending(true)
-      Promise.resolve(action).then(
-        () => setActionPending(false),
-        (error) => {
-          setActionPending(false)
-          reportActionError(error, props.onActionError)
-        },
-      )
-    }
+  const pressableProps: PressableInternalProps = {
+    ...props,
+    _nativeButton: props.href == null,
+    _nativeAnchor: props.href != null,
+    href: props.href != null ? (sanitizeUrl(props.href) ?? undefined) : undefined,
   }
 
-  @if (props.href != null) {
-    <a
-      id={props.id}
-      data-testid={props.testID}
-      className={cls}
-      style={props.style}
-      href={sanitizeUrl(props.href) ?? undefined}
-      target={props.target}
-      rel={props.target === '_blank' ? 'noreferrer' : undefined}
-      title={props.tooltip}
-      aria-label={
-        props.accessibilityLabel ??
-        (props.isIconOnly || busy || (props.children != null && props.children !== props.label)
-          ? props.label
-          : undefined)
-      }
-      aria-busy={busy || undefined}
-      aria-disabled={disabled || undefined}
-      tabIndex={disabled ? -1 : undefined}
-      onClick={runPress}
-      ref={(el: any) => applyWebProps(el, props.web)}
-    >
-      {content}
-    </a>
-  } @else {
-    const pressableProps: PressableInternalProps = { ...props, _nativeButton: true }
-
-    <Pressable
-      {...pressableProps}
-      disabled={useAriaDisabled ? false : disabled}
-      onPress={runPress}
-      className={cls}
-      accessibilityRole={props.accessibilityRole ?? 'button'}
-      accessibilityLabel={
-        props.accessibilityLabel ??
-        (props.isIconOnly || busy || (props.children != null && props.children !== props.label)
-          ? props.label
-          : undefined)
-      }
-      accessibilityState={{
-        ...props.accessibilityState,
-        busy: busy || undefined,
-        disabled: useAriaDisabled || props.accessibilityState?.disabled,
-      }}
-      web={{ title: props.tooltip, ...props.web }}
-    >
-      {content}
-    </Pressable>
-  }
+  <Pressable
+    {...pressableProps}
+    disabled={useAriaDisabled ? false : disabled}
+    onPress={runPress}
+    className={cls}
+    accessibilityRole={props.accessibilityRole ?? (props.href == null ? 'button' : 'link')}
+    accessibilityLabel={
+      props.accessibilityLabel ??
+      (props.isIconOnly || busy || (props.children != null && props.children !== props.label)
+        ? props.label
+        : undefined)
+    }
+    accessibilityState={{
+      ...props.accessibilityState,
+      busy: busy || undefined,
+      disabled: useAriaDisabled || props.accessibilityState?.disabled,
+    }}
+    web={{ title: props.tooltip, ...props.web }}
+  >
+    {content}
+  </Pressable>
 }

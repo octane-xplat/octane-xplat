@@ -128,11 +128,11 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
       />
     ) : null}
     <masonview className="vx-power-search-editor-actions" style={{ display: 'flex' }}>
-      <Button label="Cancel" variant="ghost" clickAction={props.onCancel} />
+      <Button label="Cancel" variant="ghost" onPress={props.onCancel} />
       <Button
         label={props.saveButtonLabel ?? 'Apply'}
         variant="primary"
-        clickAction={save}
+        onPress={save}
         isDisabled={props.isReadOnly || unsupported}
       />
     </masonview>

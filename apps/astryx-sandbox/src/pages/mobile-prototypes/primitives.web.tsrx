@@ -745,7 +745,7 @@ export function BottomSheetMenu({
           label={cancelLabel}
           variant="secondary"
           className={'ml-fullBtn'}
-          clickAction={onClose}
+          onPress={onClose}
         />
       }
     >
@@ -1067,7 +1067,7 @@ export function SideDrawer({
                 variant="ghost"
                 size="sm"
                 icon={<CloseIcon />}
-                clickAction={onClose}
+                onPress={onClose}
               />
             )}
           </div>

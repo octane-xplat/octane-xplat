@@ -54,21 +54,21 @@ export default function FileDropProbe() {
       <Button
         label="Next accept filter"
         isDisabled={busy}
-        clickAction={() => setFilter((filter + 1) % filters.length)}
+        onPress={() => setFilter((filter + 1) % filters.length)}
       />
       <Button
         label="Service single pick"
         isDisabled={busy || disabled}
-        clickAction={() => choose(false)}
+        pressAction={() => choose(false)}
       />
       <Button
         label="Service multiple pick"
         isDisabled={busy || disabled}
-        clickAction={() => choose(true)}
+        pressAction={() => choose(true)}
       />
       <label id="service-pick-result" text={service} />
-      <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-      <Button label="Toggle dropzone/input" clickAction={() => setDropzone(!dropzone)} />
+      <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+      <Button label="Toggle dropzone/input" onPress={() => setDropzone(!dropzone)} />
       <FileInput
         id="attachments"
         label="Attachments"

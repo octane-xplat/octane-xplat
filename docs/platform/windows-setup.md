@@ -74,7 +74,7 @@ export function WindowsActions() @{
   const activate = () => setCount(getCount() + 1)
   <VStack width="100%" gap={2}>
     <Text>{`Activated ${count} times`}</Text>
-    <Button clickAction={activate}>Save</Button>
+    <Button onPress={activate}>Save</Button>
     <Pressable accessibilityLabel="Refresh" onPress={activate}>
       <Text>Refresh</Text>
     </Pressable>
@@ -184,7 +184,7 @@ export function SavedNotice() {
     isDismissable
     collapsible={false}
     onDismiss={() => console.log('Notice dismissed')}
-    endContent={<Button label="Review" clickAction={() => console.log('Review draft')} />}
+    endContent={<Button label="Review" onPress={() => console.log('Review draft')} />}
   >
     <Text>You can continue editing.</Text>
   </Banner>
@@ -392,8 +392,8 @@ import { Button, Text, View } from '@octane-xplat/ui'
 export function PositionControls(props: { move(amount: number): void }) {
   return <View>
     <Text>Move the item</Text>
-    <Button clickAction={() => props.move(-10)}>Move left</Button>
-    <Button clickAction={() => props.move(10)}>Move right</Button>
+    <Button onPress={() => props.move(-10)}>Move left</Button>
+    <Button onPress={() => props.move(10)}>Move right</Button>
   </View>
 }
 ```
@@ -466,10 +466,10 @@ import { Button, Screen, Text, useLayer } from '@octane-xplat/ui'
 export function Details() {
   const layer = useLayer({ mode: 'context', lightDismiss: true })
   return <Screen>
-    <Button label="Details" ref={layer.ref} clickAction={layer.show} />
+    <Button label="Details" ref={layer.ref} onPress={layer.show} />
     {layer.render(<>
       <Text>Packing details</Text>
-      <Button label="Close" clickAction={layer.hide} />
+      <Button label="Close" onPress={layer.hide} />
     </>, { placement: 'below' })}
   </Screen>
 }
@@ -498,10 +498,10 @@ export function ReviewName() {
   const returnTo = useRef<TextInputHandle | null>(null)
   return <Screen>
     <TextInput label="Name" value={name} onChange={setName} ref={returnTo} />
-    <Button label="Review name" clickAction={() => setOpen(true)} />
+    <Button label="Review name" onPress={() => setOpen(true)} />
     <Dialog isOpen={open} onOpenChange={setOpen} finalFocusRef={returnTo}>
       <Text>{name}</Text>
-      <Button label="Keep editing" clickAction={() => setOpen(false)} />
+      <Button label="Keep editing" onPress={() => setOpen(false)} />
     </Dialog>
   </Screen>
 }

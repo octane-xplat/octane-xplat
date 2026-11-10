@@ -69,7 +69,7 @@ export function PhotoLibrary() {
     <VStack>
       <Button
         label="Show photos"
-        clickAction={() => {
+        onPress={() => {
           void load()
         }}
       />
@@ -142,7 +142,7 @@ export function RefreshLibraryAccess() {
   return (
     <Button
       label={permission?.granted ? 'Refresh photo access' : 'Check photo access'}
-      clickAction={() => {
+      onPress={() => {
         void refresh().catch(() => console.error('Could not check photo access'))
       }}
     />

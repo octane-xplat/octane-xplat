@@ -55,7 +55,7 @@ export function BottomSheetSnapPoints() @{
           This sheet has two extra stops: half the viewport, and a 96px peek. Drag the handle down
           to collapse it, then back up — it rests at each stop instead of following your finger.
         </Text>
-        <Button label="Show directions" clickAction={() => setIsOpen(true)} />
+        <Button label="Show directions" onPress={() => setIsOpen(true)} />
       </VStack>
       <BottomSheet
         isOpen={isOpen}
@@ -85,7 +85,7 @@ export function BottomSheetSnapPoints() @{
             ))}
           </VStack>
           <Divider />
-          <Button label="Start" clickAction={() => setIsOpen(false)} variant="primary" />
+          <Button label="Start" onPress={() => setIsOpen(false)} variant="primary" />
         </VStack>
       </BottomSheet>
     </>

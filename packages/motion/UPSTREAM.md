@@ -153,7 +153,7 @@ import { Button } from '@octane-xplat/ui'
 export function Panel() {
   return (
     <motion.View drag="x">
-      <Button clickAction={() => {}}>Action</Button>
+      <Button onPress={() => {}}>Action</Button>
     </motion.View>
   )
 }
@@ -287,7 +287,7 @@ export function RetainedCard() {
   const [present, setPresent] = useState(true)
   return (
     <>
-      <Button clickAction={() => setPresent(!present)}>Toggle card</Button>
+      <Button onPress={() => setPresent(!present)}>Toggle card</Button>
       <Presence present={present}>
         <motion.View exit={{ opacity: 0 }}>
           <Text>Trip card</Text>

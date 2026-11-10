@@ -13,9 +13,9 @@ export default function AuthButtonsProbe() {
 
   return (
     <VStack id="auth-button-controls" gap={2}>
-      <Button label="Mount/unmount provider buttons" clickAction={() => setMounted(!mounted)} />
-      <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-      <Button label="Change Apple theme" clickAction={() => setWhite(!white)} />
+      <Button label="Mount/unmount provider buttons" onPress={() => setMounted(!mounted)} />
+      <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+      <Button label="Change Apple theme" onPress={() => setWhite(!white)} />
       {mounted ? (
         <>
           <AppleSignInButton

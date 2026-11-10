@@ -28,7 +28,7 @@ export default function VideoProbe() {
       />
       <Button
         label="Load source"
-        clickAction={() => {
+        onPress={() => {
           setEvents([])
           setSource(draft)
         }}
@@ -56,26 +56,26 @@ export default function VideoProbe() {
           onMutedChange={(next) => report(`muted: ${next}`)}
         />
       ) : null}
-      <Button label="Play / retry" clickAction={() => player.current?.play()} />
-      <Button label="Pause" clickAction={() => player.current?.pause()} />
-      <Button label="Seek to one second" clickAction={() => player.current?.seekTo(1000)} />
+      <Button label="Play / retry" onPress={() => player.current?.play()} />
+      <Button label="Pause" onPress={() => player.current?.pause()} />
+      <Button label="Seek to one second" onPress={() => player.current?.seekTo(1000)} />
       <Button
         label="Read current time"
-        clickAction={() => report(`time: ${player.current?.currentTime() ?? 0}ms`)}
+        onPress={() => report(`time: ${player.current?.currentTime() ?? 0}ms`)}
       />
-      <Button label="Control playback externally" clickAction={() => setPlaying(true)} />
-      <Button label="Release controlled playback" clickAction={() => setPlaying(undefined)} />
-      <Button label="Toggle controls" clickAction={() => setControls((value) => !value)} />
-      <Button label="Toggle loop" clickAction={() => setLoop((value) => !value)} />
+      <Button label="Control playback externally" onPress={() => setPlaying(true)} />
+      <Button label="Release controlled playback" onPress={() => setPlaying(undefined)} />
+      <Button label="Toggle controls" onPress={() => setControls((value) => !value)} />
+      <Button label="Toggle loop" onPress={() => setLoop((value) => !value)} />
       <Button
         label="Cycle fit"
-        clickAction={() =>
+        onPress={() =>
           setFit((value) =>
             value === 'contain' ? 'cover' : value === 'cover' ? 'fill' : 'contain',
           )
         }
       />
-      <Button label="Remove / restore video" clickAction={() => setShown((value) => !value)} />
+      <Button label="Remove / restore video" onPress={() => setShown((value) => !value)} />
       <Text>{events.join('; ') || 'No playback requested'}</Text>
       <Text>
         Manual native qualification only. No source loads until entered. Check playback/audio,

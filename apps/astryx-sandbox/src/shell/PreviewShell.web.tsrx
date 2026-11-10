@@ -195,7 +195,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
           isIconOnly
           label={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
           icon={<Icon name="sandbox-sidebar" size={16} />}
-          clickAction={() => setSidebarOpen(!sidebarOpen)}
+          onPress={() => setSidebarOpen(!sidebarOpen)}
         />
         <button className="sb-preview-name" onClick={() => setPaletteOpen(true)}>
           {pageName}
@@ -271,7 +271,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
           isIconOnly
           label={mode === 'light' ? 'Light mode' : 'Dark mode'}
           icon={<Icon name={mode === 'light' ? 'sandbox-sun' : 'sandbox-moon'} size={16} />}
-          clickAction={() => setMode(mode === 'light' ? 'dark' : 'light')}
+          onPress={() => setMode(mode === 'light' ? 'dark' : 'light')}
         />
         <Button
           variant="ghost"
@@ -279,7 +279,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
           isIconOnly
           label={clipboard.isCopied ? 'Copied' : 'Copy source'}
           icon={<Icon name={clipboard.isCopied ? 'sandbox-check' : 'sandbox-copy'} size={16} />}
-          clickAction={copy}
+          onPress={copy}
         />
       </View>
       <View className="sb-preview-body">

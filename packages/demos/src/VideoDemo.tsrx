@@ -33,13 +33,13 @@ export function VideoDemo() @{
       ref={handle}
     />
     <HStack className="gap-2">
-      <Button className="btn btn-secondary" clickAction={() => setPlaying(!playing)}>
+      <Button className="btn btn-secondary" onPress={() => setPlaying(!playing)}>
         <Text>{playing ? 'Pause' : 'Play'}</Text>
       </Button>
-      <Button className="btn btn-secondary" clickAction={() => handle.current?.seekTo(15000)}>
+      <Button className="btn btn-secondary" onPress={() => handle.current?.seekTo(15000)}>
         <Text>Seek 0:15</Text>
       </Button>
-      <Button className="btn btn-secondary" clickAction={() => setMuted(!muted)}>
+      <Button className="btn btn-secondary" onPress={() => setMuted(!muted)}>
         <Text>{muted ? 'Unmute' : 'Mute'}</Text>
       </Button>
     </HStack>

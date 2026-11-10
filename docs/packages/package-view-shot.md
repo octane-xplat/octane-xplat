@@ -52,7 +52,7 @@ export function CaptureCard() {
       <ViewShot ref={card} options={{ format: 'png', result: 'tmpfile' }}>
         <Text>Trip to the coast</Text>
       </ViewShot>
-      <Button label="Capture card" clickAction={() => void save()} />
+      <Button label="Capture card" onPress={() => void save()} />
       <Text>{status}</Text>
     </VStack>
   )

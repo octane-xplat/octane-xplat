@@ -396,7 +396,7 @@ function MdHeadingPermalink(props: {
           size="sm"
           isIconOnly
           label={isCopied ? copiedLabel : copyLabel}
-          clickAction={() => {
+          onPress={() => {
             void copy(props.url)
           }}
           {...getContentRevealProps()}

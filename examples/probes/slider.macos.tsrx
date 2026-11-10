@@ -47,12 +47,12 @@ export default function SliderProbe() {
           { value: 100, label: 'High' },
         ]}
       />
-      <Button label="Replace range in three seconds" clickAction={replaceLater} />
+      <Button label="Replace range in three seconds" pressAction={replaceLater} />
       <Text>
         Arm replacement, then drag across the timer: an external range should retire that drag;
         start a new drag to continue.
       </Text>
-      <Button label="Toggle range read-only" clickAction={() => setLocked((value) => !value)} />
+      <Button label="Toggle range read-only" onPress={() => setLocked((value) => !value)} />
       <Text>
         Try keys and accessibility adjustments before and after locking. Initial metadata does not
         qualify native input.

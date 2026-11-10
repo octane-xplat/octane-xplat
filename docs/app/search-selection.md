@@ -659,7 +659,7 @@ export function SearchAction() {
   const input = useRef<TypeaheadInputHandle | null>(null)
   return <>
     <BaseTypeahead ref={input} searchSource={people} value={null} onChange={() => {}} accessibilityLabel="Person" />
-    <Button label="Find Ada" clickAction={() => input.current?.setQuery('Ada')} />
+    <Button label="Find Ada" onPress={() => input.current?.setQuery('Ada')} />
   </>
 }
 ```
@@ -888,7 +888,7 @@ export function Details() {
   const anchor = useRef<NSView | null>(null)
   const [open, setOpen] = useState(false)
   return <>
-    <Button ref={anchor} label="Details" clickAction={() => setOpen(!open)} />
+    <Button ref={anchor} label="Details" onPress={() => setOpen(!open)} />
     <Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}
       placement="bottom" alignment="center" offset={12}>
       <Text>Details for the current selection</Text>

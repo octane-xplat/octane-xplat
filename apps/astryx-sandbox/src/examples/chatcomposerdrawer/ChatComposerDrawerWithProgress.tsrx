@@ -27,7 +27,7 @@ export function ChatComposerDrawerWithProgress() {
               size="sm"
               icon={<Icon name="sandbox-chat-at" size={16} />}
               isIconOnly
-              clickAction={() => {}}
+              onPress={() => {}}
             />
             <Button
               label="Attach"
@@ -35,7 +35,7 @@ export function ChatComposerDrawerWithProgress() {
               size="sm"
               icon={<Icon name="sandbox-chat-paperclip" size={16} />}
               isIconOnly
-              clickAction={() => {}}
+              onPress={() => {}}
             />
           </>
         }

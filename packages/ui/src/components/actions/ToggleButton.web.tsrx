@@ -61,10 +61,12 @@ export function ToggleButton(props: ToggleButtonProps): JSX.Element @{
     variant="ghost"
     isDisabled={disabled}
     icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon}
-    clickAction={() => {
-      activate()
-      return inGroup ? undefined : props.pressedChangeAction?.(actionValue)
-    }}
+    onPress={activate}
+    pressAction={
+      !inGroup && props.pressedChangeAction
+        ? () => props.pressedChangeAction!(actionValue)
+        : undefined
+    }
     accessibilityState={{ ...props.accessibilityState, pressed }}
     className={[
       'vx-toggle-button',

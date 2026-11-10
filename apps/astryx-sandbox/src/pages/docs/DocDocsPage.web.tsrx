@@ -461,7 +461,7 @@ export function DocDocsPage() {
                   variant={showCode ? 'secondary' : 'ghost'}
                   size="sm"
                   icon={<CodeIcon />}
-                  clickAction={() => setShowCode(!showCode)}
+                  onPress={() => setShowCode(!showCode)}
                 />
                 <Button label="Fullscreen" variant="ghost" size="sm" icon={<FullscreenIcon />} />
               </div>

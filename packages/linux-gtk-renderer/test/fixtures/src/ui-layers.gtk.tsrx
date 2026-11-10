@@ -53,12 +53,12 @@ export function LayersProbe() @{
       onEvent={(e) => setMark(e)}
     />
     <ContextLayerProbe id="geo-ls" placement="left" alignment="start" onEvent={(e) => setMark(e)} />
-    <Button id="ctl-toggle" label="Toggle controlled" clickAction={() => setCtlOpen(!ctlOpen)} />
+    <Button id="ctl-toggle" label="Toggle controlled" onPress={() => setCtlOpen(!ctlOpen)} />
     <ControlledLayerProbe id="ctl" open={ctlOpen} onEvent={(e) => setMark(e)} />
     <FixedLayerProbe id="layer-fixed" x={40} y={60} />
     <FixedLayerProbe id="layer-fixed2" x={300} y={200} />
-    <Button id="bg" label="Background" clickAction={() => setLightBg(lightBg + 1)} />
-    <Button id="bg-nolight" label="Background2" clickAction={() => setNoLightBg(noLightBg + 1)} />
+    <Button id="bg" label="Background" onPress={() => setLightBg(lightBg + 1)} />
+    <Button id="bg-nolight" label="Background2" onPress={() => setNoLightBg(noLightBg + 1)} />
     <Text id="lightbg-count">{String(lightBg)}</Text>
     <Text id="nolightbg-count">{String(noLightBg)}</Text>
     <HoverCard id="hc" content={<Text id="hc-body">Card body</Text>} delay={150} hideDelay={120}>
@@ -91,7 +91,7 @@ function ContextLayerProbe(props: {
       id={props.id + '-trigger'}
       label={props.id + ' trigger'}
       ref={layer.ref}
-      clickAction={() => (layer.isOpen ? layer.hide() : layer.show())}
+      onPress={() => (layer.isOpen ? layer.hide() : layer.show())}
     />
     {layer.render(<Text id={props.id + '-body'}>{'Context: ' + useContext(ProbeContext)}</Text>, {
       placement: props.placement ?? 'bottom',
@@ -130,7 +130,7 @@ function FixedLayerProbe(props: { id: string; x: number; y: number }) @{
     <Button
       id={props.id + '-trigger'}
       label={props.id + ' trigger'}
-      clickAction={() => (layer.isOpen ? layer.hide() : layer.show())}
+      onPress={() => (layer.isOpen ? layer.hide() : layer.show())}
     />
     {layer.render(
       <Text id={props.id + '-body'}>
@@ -149,7 +149,7 @@ export function PopoverProbe(props: { onPick: () => void }) @{
       id="pop-trigger"
       label="Popover trigger"
       ref={pop.triggerRef}
-      clickAction={() => pop.toggle()}
+      onPress={() => pop.toggle()}
     />
     {pop.render(<Text id="pop-body">Popover body</Text>)}
   </>

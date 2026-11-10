@@ -29,7 +29,7 @@ export default function TabMenuProbe() {
           }
         />
       </TabList>
-      <Button label="Toggle empty overflow" clickAction={() => setEmpty(!empty)} />
+      <Button label="Toggle empty overflow" onPress={() => setEmpty(!empty)} />
       <Text>{value}</Text>
     </VStack>
   )

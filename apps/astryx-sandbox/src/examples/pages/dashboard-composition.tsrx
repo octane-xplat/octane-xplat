@@ -456,7 +456,7 @@ export function DashboardCompositionTemplate() @{
                 Past 24 hours
               </Text>
             </VStack>
-            <Button label="View more" variant="secondary" size="lg" clickAction={() => {}} />
+            <Button label="View more" variant="secondary" size="lg" onPress={() => {}} />
           </HStack>
 
           <Grid columns={{ minWidth: 320, repeat: 'fit' }} style={{ gap: 'var(--spacing-4)' }}>

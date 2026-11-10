@@ -12,7 +12,7 @@ export function screen(props: RouteProps<'/login'>) {
 	const navigation = useRouter()
 	return <Screen>
 		<Text>Please sign in</Text>
-		<Button label="Sign in as Ada" clickAction={() => {
+		<Button label="Sign in as Ada" onPress={() => {
 			signIn('Ada')
 			void navigation.navigateUrl(props.search.returnTo, { replace: true })
 		}} />

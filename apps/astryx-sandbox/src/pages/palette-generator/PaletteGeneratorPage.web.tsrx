@@ -966,7 +966,7 @@ export function PaletteGeneratorPage() {
                   label={copied ? 'Copied' : 'Copy JSON'}
                   variant="ghost"
                   size="sm"
-                  clickAction={copyResults}
+                  pressAction={copyResults}
                 />
               </HStack>
               <Text type="supporting" color="secondary">
@@ -1069,7 +1069,7 @@ export function PaletteGeneratorPage() {
                         label="Use best fit"
                         size="sm"
                         variant="ghost"
-                        clickAction={() => setVibrancy(suggestedThemeVibrancy)}
+                        onPress={() => setVibrancy(suggestedThemeVibrancy)}
                       />
                     )}
                   </HStack>
@@ -1163,7 +1163,7 @@ export function PaletteGeneratorPage() {
                         variant="ghost"
                         size="sm"
                         icon={<span className="PaletteGeneratorPage-static-48">+</span>}
-                        clickAction={() => {
+                        onPress={() => {
                           const next = families.length + 1
 
                           setFamilies((current) => [
@@ -1197,7 +1197,7 @@ export function PaletteGeneratorPage() {
                             variant="ghost"
                             size="sm"
                             icon={<span aria-hidden="true">×</span>}
-                            clickAction={() =>
+                            onPress={() =>
                               setFamilies((current) =>
                                 current.filter((item) => item.id !== family.id),
                               )
@@ -1251,7 +1251,7 @@ export function PaletteGeneratorPage() {
                             variant="ghost"
                             size="sm"
                             icon={<span aria-hidden="true">+</span>}
-                            clickAction={() =>
+                            onPress={() =>
                               updateFamily(family.id, {
                                 anchors: [
                                   ...family.anchors,
@@ -1299,7 +1299,7 @@ export function PaletteGeneratorPage() {
                                 variant="ghost"
                                 size="sm"
                                 icon={<span aria-hidden="true">×</span>}
-                                clickAction={() =>
+                                onPress={() =>
                                   updateFamily(family.id, {
                                     anchors: family.anchors.filter(
                                       (_, index) => index !== anchorIndex,

@@ -28,7 +28,7 @@ export default function TabListProbe() {
         ))}
       </TabList>
       <Text id="tab-state">{value}</Text>
-      <Button id="select-archive" label="Select archive" clickAction={() => setValue('archive')} />
+      <Button id="select-archive" label="Select archive" onPress={() => setValue('archive')} />
     </VStack>
   )
 }

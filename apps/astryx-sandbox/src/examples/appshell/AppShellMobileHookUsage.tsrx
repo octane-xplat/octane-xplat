@@ -27,7 +27,7 @@ export function AppShellMobileHookUsage() @{
         <Button
           label={isMobileNavOpen ? 'Close navigation' : 'Open navigation'}
           variant="secondary"
-          clickAction={isMobileNavOpen ? closeMobileNav : openMobileNav}
+          onPress={isMobileNavOpen ? closeMobileNav : openMobileNav}
         />
         <Text type="body" color="secondary">
           {isMobileNavOpen ? 'Mobile nav is open' : 'Mobile nav is closed'}

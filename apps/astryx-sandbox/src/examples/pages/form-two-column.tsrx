@@ -1,7 +1,7 @@
 // Port of upstream templates/pages/form-two-column/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/form-two-column/.
 // GAPS: Selector `options` takes {value,label} pairs and `onValueChange`
-// (upstream string[] + onChange); Button `onClick` → `clickAction`.
+// (upstream string[] + onChange); Button `onClick` → `onPress`.
 import { useState } from 'octane'
 import {
   AspectRatio,
@@ -185,7 +185,7 @@ export function FormTwoColumnTemplate() @{
                 <Button
                   label="Let's connect"
                   variant="primary"
-                  clickAction={() => setSubmitted(true)}
+                  onPress={() => setSubmitted(true)}
                 />
               </VStack>
             </VStack>

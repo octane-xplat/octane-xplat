@@ -352,19 +352,19 @@ export function IdeTemplate() @{
                                     label="Format Document"
                                     size="sm"
                                     variant="secondary"
-                                    clickAction={() => {}}
+                                    onPress={() => {}}
                                   />
                                   <Button
                                     label="Go to Definition"
                                     size="sm"
                                     variant="secondary"
-                                    clickAction={() => {}}
+                                    onPress={() => {}}
                                   />
                                   <Button
                                     label="Find References"
                                     size="sm"
                                     variant="secondary"
-                                    clickAction={() => {}}
+                                    onPress={() => {}}
                                   />
                                 </Stack>
                               </Stack>

@@ -33,22 +33,22 @@ export default function ImageMemoryCacheProbe() {
           style={{ width: 48, height: 48 }}
         />
       ) : null}
-      <Button label="Query decoded memory" clickAction={query} />
+      <Button label="Query decoded memory" pressAction={query} />
       <Button
         label="Evict this decoded image"
-        clickAction={() => {
+        pressAction={() => {
           appKitHost()?.imageMemoryCache?.evict(source)
           query()
         }}
       />
       <Button
         label="Clear decoded images"
-        clickAction={() => {
+        pressAction={() => {
           appKitHost()?.imageMemoryCache?.clear()
           query()
         }}
       />
-      <Button label="Toggle mounted image" clickAction={() => setShown(!shown)} />
+      <Button label="Toggle mounted image" onPress={() => setShown(!shown)} />
       <Text>Cached: {status}</Text>
     </VStack>
   )

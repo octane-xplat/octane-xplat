@@ -229,12 +229,12 @@ export function EditorSheet() {
 
   return <View>
     <TextInput ref={editing} placeholder="Draft outside the sheet" />
-    <Button clickAction={() => setOpen(true)}>Edit in a sheet</Button>
+    <Button onPress={() => setOpen(true)}>Edit in a sheet</Button>
     <SwiftUIBottomSheet open={open} detents={['medium', 'large']}
       onDismissed={() => { setOpen(false); editing.current?.focus() }}
       content={() => <View>
         <TextInput placeholder="Message in the sheet" />
-        <Button clickAction={() => setOpen(false)}>Done</Button>
+        <Button onPress={() => setOpen(false)}>Done</Button>
       </View>}
     />
   </View>
@@ -261,7 +261,7 @@ export function AndroidEditorSheet({ open, close, editing }: {
   return <MaterialBottomSheet open={open} onDismissed={finish}
     content={() => <View>
       <TextInput placeholder="Message in the sheet" />
-      <Button clickAction={finish}>Done</Button>
+      <Button onPress={finish}>Done</Button>
     </View>}
   />
 }
@@ -325,12 +325,12 @@ function TripLabel() {
 export function TripSheet() {
   const [open, setOpen] = useState(false)
   return <TripNameProvider value="Oslo trip">
-    <Button label="Edit trip" clickAction={() => setOpen(true)} />
+    <Button label="Edit trip" onPress={() => setOpen(true)} />
     <AppKitSheet open={open} className="gap-3 p-4"
       onDismissed={() => setOpen(false)}
       content={() => <View className="gap-3">
         <TripLabel />
-        <Button label="Save and close" clickAction={() => setOpen(false)} />
+        <Button label="Save and close" onPress={() => setOpen(false)} />
       </View>} />
   </TripNameProvider>
 }

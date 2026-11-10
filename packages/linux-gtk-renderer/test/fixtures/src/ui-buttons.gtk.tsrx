@@ -18,7 +18,7 @@ export function Probe(props: { disabled?: boolean }) @{
       id="btn"
       label="Save"
       variant="primary"
-      clickAction={() => {
+      onPress={() => {
         counts.presses++
       }}
     />
@@ -26,7 +26,7 @@ export function Probe(props: { disabled?: boolean }) @{
       id="btn-dis"
       label="Noop"
       isDisabled
-      clickAction={() => {
+      onPress={() => {
         counts.presses += 100
       }}
     />
@@ -34,7 +34,7 @@ export function Probe(props: { disabled?: boolean }) @{
       id="icon-btn"
       icon="check"
       label="Confirm"
-      clickAction={() => {
+      onPress={() => {
         counts.icon++
       }}
     />
@@ -43,7 +43,7 @@ export function Probe(props: { disabled?: boolean }) @{
       <Button
         id="grp-a"
         label="A"
-        clickAction={() => {
+        onPress={() => {
           counts.presses += 10
         }}
       />

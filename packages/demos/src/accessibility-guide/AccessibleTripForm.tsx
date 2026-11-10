@@ -53,13 +53,13 @@ export function AccessibleTripForm() {
           input.current = handle
         }}
       />
-      <Button label="Use trip name" clickAction={submit} />
+      <Button label="Use trip name" onPress={submit} />
       <Button
         label="Clear trip name"
         isIconOnly
         icon={<Text>×</Text>}
         isDisabled={name.length === 0}
-        clickAction={clear}
+        onPress={clear}
       />
       <Text>{status}</Text>
     </VStack>

@@ -179,7 +179,7 @@ A direct call to a helper with the wrong name cannot establish AX enabled state.
 import { Button } from '@octane-xplat/ui'
 
 export function Save() {
-  return <Button label="Save" isDisabled clickAction={() => console.log('save')} />
+  return <Button label="Save" isDisabled onPress={() => console.log('save')} />
 }
 ```
 

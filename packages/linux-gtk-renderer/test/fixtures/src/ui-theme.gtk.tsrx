@@ -72,13 +72,13 @@ export function ThemeProbe() @{
     <Text id="mq-scheme">{String(mqScheme)}</Text>
     <Text id="copied">{String(clip.isCopied)}</Text>
     <Text id="copy-ok">{copyOk}</Text>
-    <Button id="pref-dark" label="PrefDark" clickAction={() => setThemePreference('dark')} />
-    <Button id="pref-light" label="PrefLight" clickAction={() => setThemePreference('light')} />
-    <Button id="pref-system" label="PrefSystem" clickAction={() => setThemePreference('system')} />
+    <Button id="pref-dark" label="PrefDark" onPress={() => setThemePreference('dark')} />
+    <Button id="pref-light" label="PrefLight" onPress={() => setThemePreference('light')} />
+    <Button id="pref-system" label="PrefSystem" onPress={() => setThemePreference('system')} />
     <Button
       id="ann-btn"
       label="Announce"
-      clickAction={() => announce('gtk announcement', 'assertive')}
+      onPress={() => announce('gtk announcement', 'assertive')}
     />
     <Pressable
       id="clip-btn"

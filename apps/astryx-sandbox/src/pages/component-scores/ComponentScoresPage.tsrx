@@ -520,7 +520,7 @@ export function ComponentScoresPage() @{
                   <Button
                     label="Clear filters"
                     variant="secondary"
-                    clickAction={() => {
+                    onPress={() => {
                       setQuery('')
                       setAuditFilter(null)
                       setPackageFilter(null)
@@ -591,7 +591,7 @@ export function ComponentScoresPage() @{
           <Divider />
           <Text>{selectedRow.summary}</Text>
           <HStack gap={2} hAlign="end">
-            <Button label="Close" variant="secondary" clickAction={() => setSelectedRowId(null)} />
+            <Button label="Close" variant="secondary" onPress={() => setSelectedRowId(null)} />
           </HStack>
         </VStack>
       </Dialog>

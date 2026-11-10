@@ -434,7 +434,7 @@ export function Qualification() @{
                 accessibilityLabel={
                   implicitNames ? undefined : `Button ${revision}`
                 }
-                clickAction={() => activate('button')}
+                onPress={() => activate('button')}
               >
                 {`Button content ${revision}`}
               </Button>

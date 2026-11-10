@@ -1,7 +1,7 @@
 // Port of upstream templates/pages/contact-form/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/contact-form/.
 // GAPS: Selector `options` takes {value,label} pairs and `onValueChange`
-// (upstream string[] + onChange); Button `onClick` → `clickAction`.
+// (upstream string[] + onChange); Button `onClick` → `onPress`.
 import { useState } from 'octane'
 import {
   Banner,
@@ -242,7 +242,7 @@ export function ContactFormTemplate() @{
               label="Submit"
               variant="primary"
               size="lg"
-              clickAction={() => setSubmitted(true)}
+              onPress={() => setSubmitted(true)}
             />
             <HStack gap={1} hAlign="center">
               <Text type="supporting" color="secondary">

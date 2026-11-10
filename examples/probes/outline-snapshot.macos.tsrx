@@ -74,12 +74,12 @@ export default function OutlineSnapshotProbe() {
       />
       <Button
         label="Toggle controlled selection"
-        clickAction={() => setControlled((value) => !value)}
+        onPress={() => setControlled((value) => !value)}
       />
-      <Button label="Toggle click scrolling" clickAction={() => setSeek((value) => !value)} />
+      <Button label="Toggle click scrolling" onPress={() => setSeek((value) => !value)} />
       <Button
         label="Toggle header offset"
-        clickAction={() => setOffset((value) => (value ? 0 : 24))}
+        onPress={() => setOffset((value) => (value ? 0 : 24))}
       />
       <Text>{events.join('; ') || 'No navigation requested'}</Text>
       <Text>

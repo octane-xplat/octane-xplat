@@ -1109,7 +1109,7 @@ it('context pointer intent opens from decorative content without directly invoki
     id: 'context',
     isOpen: false,
     onOpenChange: changes,
-    children: <Button id="context-item" label="Item" clickAction={primary} />,
+    children: <Button id="context-item" label="Item" onPress={primary} />,
     menu: <DropdownMenuItem id="context-action" label="Archive" />,
   }
 

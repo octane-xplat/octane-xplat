@@ -16,7 +16,7 @@ export function ToastAction() @{
         autoHideDuration={5000}
         isExiting={false}
         onDismiss={() => {}}
-        endContent={<Button label="Undo" variant="secondary" size="sm" clickAction={undo} />}
+        endContent={<Button label="Undo" variant="secondary" size="sm" onPress={undo} />}
       />
       <Toast
         type="info"

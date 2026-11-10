@@ -65,7 +65,7 @@ export function DocumentCopy() {
       />
       <Button
         isDisabled={!jsonReady}
-        clickAction={() => {
+        onPress={() => {
           const document = editor.current?.getJSON()
           if (document) editor.current?.setJSON(document)
         }}

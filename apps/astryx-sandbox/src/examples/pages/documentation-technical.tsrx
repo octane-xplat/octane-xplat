@@ -121,7 +121,7 @@ export function DocumentationTechnicalTemplate() @{
                   variant="ghost"
                   size="sm"
                   icon={<Icon name="sandbox-clipboard-document" />}
-                  clickAction={async () => {
+                  pressAction={async () => {
                     await copyText(AI_PROMPT)
                   }}
                 />

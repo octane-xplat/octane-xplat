@@ -184,7 +184,7 @@ export function TableLabPage() @{
     <Button
       label={metrics.running ? 'Scrolling…' : 'Run scroll test'}
       isDisabled={metrics.running}
-      clickAction={() => metrics.run(scroller.current)}
+      onPress={() => metrics.run(scroller.current)}
     />
     <Text>{`Scroll FPS: ${metrics.fps || '—'} · Frame drops: ${metrics.drops} · Frames sampled: ${metrics.frames}`}</Text>
     <Text color="secondary">Renderer commit timing is unavailable.</Text>

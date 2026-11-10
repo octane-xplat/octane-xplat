@@ -73,7 +73,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps): JSX.Elemen
         size={size}
         isIconOnly
         isDisabled={!dictation.isSupported}
-        clickAction={dictation.toggle}
+        onPress={dictation.toggle}
         icon={isListening ? undefined : <Icon name="xplat-mic" size={size === 'sm' ? 16 : 18} />}
       />
     </span>

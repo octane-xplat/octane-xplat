@@ -112,7 +112,7 @@ function ThemeControls() {
         isIconOnly
         label={mode === 'light' ? 'Switch to dark' : 'Switch to light'}
         icon={mode === 'light' ? <SunIcon /> : <MoonIcon />}
-        clickAction={() => setMode(mode === 'light' ? 'dark' : 'light')}
+        onPress={() => setMode(mode === 'light' ? 'dark' : 'light')}
       />
     </div>
   )

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import { useCallback, useLayoutEffect, useMemo, useRef } from 'octane'
 import type { NSView } from '@octane-xplat/platform/macos'
 import { openUrl } from '@octane-xplat/platform'
 import { cx } from '@octane-xplat/lib'
@@ -12,16 +12,21 @@ import { useButtonGroup } from './button-group-context'
 import { useSize } from '../layout/size-context'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { sanitizeUrl } from '../../routing/safe-url'
-import { reportActionError } from '../../internal/rendering/action-error'
+import { useButtonAction } from './use-button-action.tsrx'
 import { refList } from '../../internal/accessibility/ref-list'
 
 export function Button(props: ButtonProps): unknown @{
   const group = useButtonGroup()
   const size = useSize(props.size ?? group?.size, 'md')
-  const [pending, setPending] = useState(false)
-  const actions = useRef(new Set<symbol>())
-  const attached = useRef(true),
-    host = useRef<NSView | null>(null)
+  const { pending, press } = useButtonAction(props, Boolean(group?.isDisabled), (href) => {
+    const url = sanitizeUrl(href)
+
+    if (url != null) {
+      openUrl(url)
+    }
+  })
+
+  const host = useRef<NSView | null>(null)
 
   const live = useRef({ props, group })
 
@@ -49,13 +54,9 @@ export function Button(props: ButtonProps): unknown @{
   const ref = useMemo(() => refList(bind, props.ref), [bind, props.ref])
 
   useLayoutEffect(() => {
-    attached.current = true
-
     const view = host.current
 
     return () => {
-      attached.current = false
-      actions.current.clear()
       if (view) {
         Reflect.set(view, 'toolTip', null)
       }
@@ -67,67 +68,6 @@ export function Button(props: ButtonProps): unknown @{
   const busy = Boolean(props.isLoading || pending)
   const isDisabled = Boolean(props.isDisabled || group?.isDisabled)
   const disabled = isDisabled || (busy && !props.isInterruptible)
-  const press = () => {
-    const { props, group } = live.current
-    const busy = Boolean(props.isLoading || actions.current.size)
-
-    if (
-      !attached.current ||
-      !host.current ||
-      props.isDisabled ||
-      group?.isDisabled ||
-      (busy && !props.isInterruptible)
-    ) {
-      return
-    }
-
-    // URL dispatch is an external effect too; claim before it can reenter.
-    const token = Symbol('button-action')
-
-    actions.current.add(token)
-
-    const settle = () => {
-      if (!actions.current.delete(token) || !attached.current) {
-        return
-      }
-
-      setPending(actions.current.size > 0)
-    }
-
-    try {
-      if (props.href != null) {
-        const url = sanitizeUrl(props.href)
-
-        if (url != null) {
-          openUrl(url)
-        }
-      }
-    } catch (error) {
-      settle()
-      throw error
-    }
-
-    try {
-      const action = props.clickAction?.()
-
-      if (action && typeof action.then === 'function') {
-        if (attached.current && actions.current.has(token)) {
-          setPending(true)
-        }
-
-        Promise.resolve(action).then(settle, (error) => {
-          settle()
-          reportActionError(error, props.onActionError)
-        })
-      } else {
-        settle()
-      }
-    } catch (error) {
-      settle()
-      reportActionError(error, props.onActionError)
-    }
-  }
-
   const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon
   const label =
     props.children != null ? (

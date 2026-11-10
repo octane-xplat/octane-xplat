@@ -41,8 +41,8 @@ function Content(props: { onClose: () => void }) @{
       </VStack>
     </ScrollableArea>
     <HStack gap={2} justify="end" style={{ padding: 'var(--spacing-4)' }}>
-      <Button label="Decline" variant="secondary" clickAction={props.onClose} />
-      <Button label="Accept" variant="primary" clickAction={props.onClose} />
+      <Button label="Decline" variant="secondary" onPress={props.onClose} />
+      <Button label="Accept" variant="primary" onPress={props.onClose} />
     </HStack>
   </VStack>
 }

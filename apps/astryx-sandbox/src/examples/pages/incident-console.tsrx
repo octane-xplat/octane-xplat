@@ -321,8 +321,8 @@ function IncidentInspector(props: { incident: Incident }) @{
     </VStack>
 
     <HStack gap={2}>
-      <Button label={nextAction} size="sm" clickAction={() => {}} />
-      <Button label="Escalate" variant="secondary" size="sm" clickAction={() => {}} />
+      <Button label={nextAction} size="sm" onPress={() => {}} />
+      <Button label="Escalate" variant="secondary" size="sm" onPress={() => {}} />
     </HStack>
 
     <Divider />

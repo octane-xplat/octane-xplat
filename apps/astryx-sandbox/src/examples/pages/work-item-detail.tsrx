@@ -379,7 +379,7 @@ export function WorkItemDetailTemplate() @{
                     size="sm"
                     isIconOnly
                     icon={<Icon name="sandbox-information-circle" size={16} />}
-                    clickAction={toggleDetails}
+                    onPress={toggleDetails}
                   />
                 </HStack>
               </StackItem>
@@ -453,7 +453,7 @@ export function WorkItemDetailTemplate() @{
               <VStack gap={4}>
                 <SectionHeader
                   title="Subtasks"
-                  action={<Button label="Add subtask" clickAction={() => {}} />}
+                  action={<Button label="Add subtask" onPress={() => {}} />}
                 />
                 <HStack gap={3} vAlign="center">
                   <Text type="supporting" color="secondary">
@@ -499,7 +499,7 @@ export function WorkItemDetailTemplate() @{
               <VStack gap={4}>
                 <SectionHeader
                   title="Attachments"
-                  action={<Button label="Add attachment" clickAction={() => {}} />}
+                  action={<Button label="Add attachment" onPress={() => {}} />}
                 />
                 <VStack gap={1}>
                   {ATTACHMENTS.map((attachment) => (
@@ -547,7 +547,7 @@ export function WorkItemDetailTemplate() @{
               <VStack gap={10}>
                 <SectionHeader
                   title="Comments and activity"
-                  action={<Button label="Add comment" clickAction={() => {}} />}
+                  action={<Button label="Add comment" onPress={() => {}} />}
                 />
                 <VStack gap={6}>
                   {ACTIVITY.map((entry) => {
@@ -603,12 +603,12 @@ export function WorkItemDetailTemplate() @{
                     rows={5}
                   />
                   <HStack gap={2} hAlign="end">
-                    <Button label="Cancel" variant="ghost" clickAction={() => setComment('')} />
+                    <Button label="Cancel" variant="ghost" onPress={() => setComment('')} />
                     <Button
                       label="Comment"
                       variant="primary"
                       isDisabled={comment.trim().length === 0}
-                      clickAction={() => setComment('')}
+                      onPress={() => setComment('')}
                     />
                   </HStack>
                 </VStack>

@@ -62,14 +62,14 @@ export function AlertDialog(props: AlertDialogProps): unknown @{
       >
         <Button
           className="btn btn-secondary"
-          clickAction={() => requestChange(false)}
+          onPress={() => requestChange(false)}
           isDisabled={props.isActionLoading}
         >
           {props.cancelLabel ?? 'Cancel'}
         </Button>
         <Button
           className={cx('btn', ACTION_VARIANT_CLASS[props.actionVariant ?? 'destructive'])}
-          clickAction={props.onAction}
+          onPress={props.onAction}
           isLoading={props.isActionLoading}
         >
           {props.actionLabel}

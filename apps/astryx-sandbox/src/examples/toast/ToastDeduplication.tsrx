@@ -32,12 +32,12 @@ export function ToastDeduplication() @{
         onDismiss={() => {}}
       />
       <HStack gap={3}>
-        <Button label="Offline (ignore)" variant="secondary" size="sm" clickAction={showOffline} />
+        <Button label="Offline (ignore)" variant="secondary" size="sm" onPress={showOffline} />
         <Button
           label="Progress (overwrite)"
           variant="secondary"
           size="sm"
-          clickAction={showProgress}
+          onPress={showProgress}
         />
       </HStack>
     </VStack>

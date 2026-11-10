@@ -44,12 +44,12 @@ export default function SwitchProbe() {
       <Button
         id="switch-layout"
         label="Change switch metadata"
-        clickAction={() => setCompact((value) => !value)}
+        onPress={() => setCompact((value) => !value)}
       />
-      <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-      <Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
-      <Button label="Toggle save failure" clickAction={() => setFail(!fail)} />
-      <Button label="Toggle parent acceptance" clickAction={() => setAccept(!accept)} />
+      <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+      <Button label="Toggle read-only" onPress={() => setReadonly(!readonly)} />
+      <Button label="Toggle save failure" onPress={() => setFail(!fail)} />
+      <Button label="Toggle parent acceptance" onPress={() => setAccept(!accept)} />
       <Switch
         id="saved-alerts"
         label="Saved preference"

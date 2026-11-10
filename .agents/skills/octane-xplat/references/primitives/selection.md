@@ -245,7 +245,7 @@ physical pointer delivery, foreign engine views or long-press arbitration.
 import { Button, ClickableCard } from '@octane-xplat/ui'
 
 export function Entry({ open, remove }: { open(): void; remove(): void }) {
-  return <ClickableCard onPress={open}><Button clickAction={remove}>Remove</Button></ClickableCard>
+  return <ClickableCard onPress={open}><Button onPress={remove}>Remove</Button></ClickableCard>
 }
 ```
 
@@ -393,7 +393,7 @@ import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
   return <ContextMenu label="Document actions" trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-    <Button label="report.txt" clickAction={() => console.log('select')} />
+    <Button label="report.txt" onPress={() => console.log('select')} />
   </ContextMenu>
 }
 ```
@@ -415,7 +415,7 @@ import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
   return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-    <Button label="report.txt" clickAction={() => console.log('select')} />
+    <Button label="report.txt" onPress={() => console.log('select')} />
   </ContextMenu>
 }
 ```
@@ -435,7 +435,7 @@ import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
   return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-    <Button label="report.txt" clickAction={() => console.log('select')} />
+    <Button label="report.txt" onPress={() => console.log('select')} />
   </ContextMenu>
 }
 ```

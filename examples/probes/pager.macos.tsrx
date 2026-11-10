@@ -44,11 +44,11 @@ export default function PagerProbe() {
         <Text>
           Parent page: {page}; last user request: {last}
         </Text>
-        <Button label="Previous" clickAction={() => setPage(Math.max(0, page - 1))} />
-        <Button label="Next" clickAction={() => setPage(Math.min(2, page + 1))} />
-        <Button label="Toggle RTL" clickAction={() => setRTL(!rtl)} />
-        <Button label="Toggle empty" clickAction={() => setEmpty(!empty)} />
-        <Button label="Toggle accepting user changes" clickAction={() => setAccept(!accept)} />
+        <Button label="Previous" onPress={() => setPage(Math.max(0, page - 1))} />
+        <Button label="Next" onPress={() => setPage(Math.min(2, page + 1))} />
+        <Button label="Toggle RTL" onPress={() => setRTL(!rtl)} />
+        <Button label="Toggle empty" onPress={() => setEmpty(!empty)} />
+        <Button label="Toggle accepting user changes" onPress={() => setAccept(!accept)} />
         <Pager
           items={['Uncontrolled first', 'Uncontrolled second']}
           defaultPage={1}

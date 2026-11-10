@@ -107,8 +107,8 @@ export function Clip({ source }: { source: string }) {
   const player = useRef<VideoHandle | null>(null)
   return <>
     <Video ref={player} src={source} style={{ width: 320, height: 220 }} />
-    <Button label="Play / retry" clickAction={() => player.current?.play()} />
-    <Button label="Seek to one second" clickAction={() => player.current?.seekTo(1000)} />
+    <Button label="Play / retry" onPress={() => player.current?.play()} />
+    <Button label="Seek to one second" onPress={() => player.current?.seekTo(1000)} />
   </>
 }
 ```

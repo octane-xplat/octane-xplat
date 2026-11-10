@@ -83,11 +83,11 @@ export default function PowerSearchEntitiesProbe() {
 
   return (
     <VStack id="power-search-entity-controls" gap={2}>
-      <Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
-      <Button label="Toggle arbitrary entries" clickAction={() => setArbitrary(!arbitrary)} />
-      <Button label="Toggle source failure" clickAction={() => setFailure(!failure)} />
-      <Button label="Replace filter" clickAction={() => setFilter(initial())} />
-      <Button label="Mount/unmount editor" clickAction={() => setMounted(!mounted)} />
+      <Button label="Toggle read-only" onPress={() => setReadonly(!readonly)} />
+      <Button label="Toggle arbitrary entries" onPress={() => setArbitrary(!arbitrary)} />
+      <Button label="Toggle source failure" onPress={() => setFailure(!failure)} />
+      <Button label="Replace filter" onPress={() => setFilter(initial())} />
+      <Button label="Mount/unmount editor" onPress={() => setMounted(!mounted)} />
       {mounted ? (
         <PowerSearchFilterEditor
           config={config}

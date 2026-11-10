@@ -10,7 +10,7 @@ export function DrawerProbe() @{
   const [mainClicks, setMainClicks] = useState(0)
 
   <View style={{ flexDirection: 'column' }}>
-    <Button id="dr-open" label="OpenDrawer" clickAction={() => setOpen(true)} />
+    <Button id="dr-open" label="OpenDrawer" onPress={() => setOpen(true)} />
     <Text id="picked">{mark}</Text>
     <Text id="oc">{oc}</Text>
     <Text id="main-count">{String(mainClicks)}</Text>
@@ -23,13 +23,13 @@ export function DrawerProbe() @{
       }}
       main={
         <View style={{ flexDirection: 'column', height: '100%' }}>
-          <Button id="dr-main-btn" label="Main" clickAction={() => setMainClicks(mainClicks + 1)} />
+          <Button id="dr-main-btn" label="Main" onPress={() => setMainClicks(mainClicks + 1)} />
         </View>
       }
       drawer={
         <View style={{ flexDirection: 'column' }}>
           <Text>drawer-panel-label</Text>
-          <Button id="dr-item" label="Item" clickAction={() => setMark('item')} />
+          <Button id="dr-item" label="Item" onPress={() => setMark('item')} />
         </View>
       }
     />

@@ -62,7 +62,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
       className={cx('vx-menu-trigger', button.className)}
       isDisabled={disabled || button.isDisabled}
       endContent={endContent}
-      clickAction={() => setOpen(!open)}
+      onPress={() => setOpen(!open)}
       accessibilityState={{ ...button.accessibilityState, expanded: open }}
       web={{ 'aria-haspopup': 'menu', 'aria-expanded': open }}
     />

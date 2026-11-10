@@ -47,24 +47,24 @@ export default function NumberInputProbe() {
       ) : (
         <Text>Number field removed</Text>
       )}
-      <Button label="Accept controlled requests" clickAction={() => setMode('accept')} />
-      <Button label="Hold controlled requests" clickAction={() => setMode('hold')} />
-      <Button label="Use local value" clickAction={() => setMode('local')} />
-      <Button label="Enable field" clickAction={() => setBlocked('enabled')} />
-      <Button label="Disable field" clickAction={() => setBlocked('disabled')} />
-      <Button label="Make field read-only" clickAction={() => setBlocked('readonly')} />
+      <Button label="Accept controlled requests" onPress={() => setMode('accept')} />
+      <Button label="Hold controlled requests" onPress={() => setMode('hold')} />
+      <Button label="Use local value" onPress={() => setMode('local')} />
+      <Button label="Enable field" onPress={() => setBlocked('enabled')} />
+      <Button label="Disable field" onPress={() => setBlocked('disabled')} />
+      <Button label="Make field read-only" onPress={() => setBlocked('readonly')} />
       <Button
         label="Toggle numeric bounds and step"
-        clickAction={() => setTight((next) => !next)}
+        onPress={() => setTight((next) => !next)}
       />
       <Button
         label="Remove or remount numeric field"
-        clickAction={() => setShown((next) => !next)}
+        onPress={() => setShown((next) => !next)}
       />
       <Button
         id="toggle-steppers"
         label="Toggle number steppers"
-        clickAction={() => setSteppers((shown) => !shown)}
+        onPress={() => setSteppers((shown) => !shown)}
       />
       <Text id="number-state">{value === null ? 'empty' : String(value)}</Text>
       <Text>{`Mode: ${mode}; state: ${blocked}; bounds: 0..${tight ? 3 : 9}`}</Text>

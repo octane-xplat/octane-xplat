@@ -11,7 +11,7 @@ export function ToastShowcase() @{
     <Toast
       type="info"
       body="Document saved successfully"
-      endContent={<Button label="Show toast" variant="ghost" size="sm" clickAction={show} />}
+      endContent={<Button label="Show toast" variant="ghost" size="sm" onPress={show} />}
       isAutoHide={false}
       autoHideDuration={5000}
       isExiting={false}

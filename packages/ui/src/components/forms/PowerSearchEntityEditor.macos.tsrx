@@ -231,7 +231,7 @@ export function PowerSearchEntityEditor(props: Props): unknown @{
           onChange={(text) => change({ text })}
           isDisabled={blocked}
         />
-        <Button label="Add entries" clickAction={addEntries} isDisabled={blocked} />
+        <Button label="Add entries" pressAction={addEntries} isDisabled={blocked} />
       </masonview>
     }
     @if (pending.current) {
@@ -241,11 +241,11 @@ export function PowerSearchEntityEditor(props: Props): unknown @{
       <label text={draft.current.error} accessibilityLiveRegion="polite" />
     }
     <masonview className="vx-power-search-entity-actions">
-      <Button label="Cancel" variant="ghost" clickAction={cancel} />
+      <Button label="Cancel" variant="ghost" onPress={cancel} />
       <Button
         label={props.saveButtonLabel ?? 'Apply'}
         variant="primary"
-        clickAction={save}
+        onPress={save}
         isDisabled={blocked}
       />
     </masonview>

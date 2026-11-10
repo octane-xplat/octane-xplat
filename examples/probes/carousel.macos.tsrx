@@ -32,9 +32,9 @@ export default function CarouselProbe() {
         <Text>Second preview</Text>
         <Text>Third preview</Text>
       </Carousel>
-      <Button label="Last preview" clickAction={() => carousel.current?.scrollTo(2)} />
-      <Button label="Toggle snap" clickAction={() => setSnap(!snap)} />
-      <Button label="Toggle loop" clickAction={() => setLoop(!loop)} />
+      <Button label="Last preview" onPress={() => carousel.current?.scrollTo(2)} />
+      <Button label="Toggle snap" onPress={() => setSnap(!snap)} />
+      <Button label="Toggle loop" onPress={() => setLoop(!loop)} />
     </VStack>
   )
 }

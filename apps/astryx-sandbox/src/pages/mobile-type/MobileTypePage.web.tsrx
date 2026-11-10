@@ -560,7 +560,7 @@ export function MobileTypePage() {
                         variant="ghost"
                         size="sm"
                         label="Use"
-                        clickAction={() => setPinStep(recommendedStep)}
+                        onPress={() => setPinStep(recommendedStep)}
                       />
                     </HStack>
                   )}
@@ -577,7 +577,7 @@ export function MobileTypePage() {
                       size="sm"
                       variant="secondary"
                       label="Reset"
-                      clickAction={() => setCustomOverrides({})}
+                      onPress={() => setCustomOverrides({})}
                     />
                   </HStack>
                   {ROLES.map((role) => (

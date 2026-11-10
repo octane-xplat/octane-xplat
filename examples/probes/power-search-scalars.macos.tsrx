@@ -55,15 +55,15 @@ export default function PowerSearchScalarsProbe() {
     <VStack id="power-search-scalar-controls" gap={2}>
       <Button
         label="Edit title"
-        clickAction={() =>
+        onPress={() =>
           setFilter({ field: 'title', value: { type: 'string', value: 'Earthsea' } })
         }
       />
-      <Button label="Edit year" clickAction={() => setFilter({ field: 'year' })} />
-      <Button label="Edit price" clickAction={() => setFilter({ field: 'price' })} />
+      <Button label="Edit year" onPress={() => setFilter({ field: 'year' })} />
+      <Button label="Edit price" onPress={() => setFilter({ field: 'price' })} />
       <Button
         label="Edit timestamp"
-        clickAction={() =>
+        onPress={() =>
           setFilter({
             field: 'created',
             value: { type: 'date_absolute', unixSeconds: 1234567890.12345 },
@@ -72,16 +72,16 @@ export default function PowerSearchScalarsProbe() {
       />
       <Button
         label="Edit date-only"
-        clickAction={() =>
+        onPress={() =>
           setFilter({
             field: 'day',
             value: { type: 'date_absolute', unixSeconds: 1234567890.12345 },
           })
         }
       />
-      <Button label="Unknown field" clickAction={() => setFilter({ field: 'missing' })} />
-      <Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
-      <Button label="Mount/unmount editor" clickAction={() => setMounted(!mounted)} />
+      <Button label="Unknown field" onPress={() => setFilter({ field: 'missing' })} />
+      <Button label="Toggle read-only" onPress={() => setReadonly(!readonly)} />
+      <Button label="Mount/unmount editor" onPress={() => setMounted(!mounted)} />
       {mounted ? (
         <PowerSearchFilterEditor
           config={config}

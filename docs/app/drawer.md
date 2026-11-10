@@ -27,11 +27,11 @@ export function NavigationDrawer() {
       open={open}
       onOpenChange={setOpen}
       accessibilityLabel="Main navigation"
-      main={<Button label="Open navigation" clickAction={() => setOpen(true)} />}
+      main={<Button label="Open navigation" onPress={() => setOpen(true)} />}
       drawer={
         <View>
           <Text>Navigation</Text>
-          <Button label="Close navigation" clickAction={() => setOpen(false)} />
+          <Button label="Close navigation" onPress={() => setOpen(false)} />
         </View>
       }
     />

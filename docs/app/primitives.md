@@ -669,10 +669,10 @@ export function NestedDetails() {
   const [nested, setNested] = useState(false)
   return <FocusScope contain autoFocus restoreFocus accessibilityLabel="Details">
     <TextInput label="Name" />
-    <Button label="Edit notes" clickAction={() => setNested(true)} />
+    <Button label="Edit notes" onPress={() => setNested(true)} />
     {nested ? <FocusScope contain autoFocus restoreFocus accessibilityLabel="Notes">
       <TextInput label="Notes" />
-      <Button label="Done" clickAction={() => setNested(false)} />
+      <Button label="Done" onPress={() => setNested(false)} />
     </FocusScope> : null}
   </FocusScope>
 }
@@ -1647,7 +1647,7 @@ export function LongNotes() {
   const viewport = useRef<ScrollableAreaHandle | null>(null)
 
   return <View>
-    <Button clickAction={() => viewport.current?.scrollToOffset({ block: 0 }, { animated: true })}>
+    <Button onPress={() => viewport.current?.scrollToOffset({ block: 0 }, { animated: true })}>
       Back to the start
     </Button>
     <ScrollableArea ref={viewport} height={200} label="Trip notes">
@@ -2034,7 +2034,7 @@ still use separate roots; see the [current boundary inventory](../../.agents/doc
 import { Screen, Button, Text, useImperativeBottomSheet } from '@octane-xplat/ui'
 
 function Picker(props: { params: { title: string }; close: (value?: string) => void }) {
-  return <Button clickAction={() => props.close('saved')}>{props.params.title}</Button>
+  return <Button onPress={() => props.close('saved')}>{props.params.title}</Button>
 }
 
 export function SheetAction() {
@@ -2043,7 +2043,7 @@ export function SheetAction() {
   return (
     <Screen>
       <Button
-        clickAction={() => {
+        onPress={() => {
           void sheet.open(Picker, { title: 'Save' })
         }}
       >
@@ -2066,7 +2066,7 @@ import { useImperativeModal } from '@octane-xplat/ui/ios'
 import { Button } from '@octane-xplat/ui'
 
 function Picker(props: { close: (value?: string) => void }) {
-  return <Button clickAction={() => props.close('saved')}>Save</Button>
+  return <Button onPress={() => props.close('saved')}>Save</Button>
 }
 
 export function ModalAction() {
@@ -2075,7 +2075,7 @@ export function ModalAction() {
   return (
     <>
       <Button
-        clickAction={() => {
+        onPress={() => {
           void modal.open(Picker)
         }}
       >
@@ -2134,8 +2134,8 @@ export function ContactEditors() {
   const [email, setEmail] = useState('')
 
   return <Screen>
-    <Button clickAction={() => setActive('name')}>Edit name</Button>
-    <Button clickAction={() => setActive('email')}>Edit email</Button>
+    <Button onPress={() => setActive('name')}>Edit name</Button>
+    <Button onPress={() => setActive('email')}>Edit email</Button>
     <BottomSheet
       label="Edit name"
       isOpen={active === 'name'}
@@ -2270,7 +2270,7 @@ export function SaveButton() {
 
   return (
     <>
-      <Button clickAction={() => dialog.show(<Text>Saved changes</Text>)}>Save</Button>
+      <Button onPress={() => dialog.show(<Text>Saved changes</Text>)}>Save</Button>
       {dialog.element}
     </>
   )
@@ -2298,13 +2298,13 @@ export function GalleryActions() {
   return (
     <>
       <Button
-        clickAction={() =>
+        onPress={() =>
           alert.show({ title: 'Remove photo?', actionLabel: 'Remove', onAction: alert.hide })
         }
       >
         Remove
       </Button>
-      <Button clickAction={() => lightbox.open()}>View photo</Button>
+      <Button onPress={() => lightbox.open()}>View photo</Button>
       {alert.element}
       {lightbox.element}
     </>
@@ -2320,13 +2320,13 @@ window and returns a `BottomSheetHandle` — await it for the value passed to
 import { Button, openBottomSheet } from '@octane-xplat/ui'
 
 function Details(props: { params: { title: string }; close: (result?: unknown) => void }) {
-  return <Button clickAction={() => props.close(props.params.title)}>Done</Button>
+  return <Button onPress={() => props.close(props.params.title)}>Done</Button>
 }
 
 export function OpenDetails() {
   return (
     <Button
-      clickAction={() => {
+      onPress={() => {
         void openBottomSheet(Details, { title: 'Packing list' }, { label: 'Details' }).then(
           (result) => console.log(result),
         )
@@ -2354,7 +2354,7 @@ import { ToastViewport, Button, useToast } from '@octane-xplat/ui'
 function SaveNotice() {
   const toast = useToast()
 
-  return <Button clickAction={() => toast({ body: 'Saved' })}>Save</Button>
+  return <Button onPress={() => toast({ body: 'Saved' })}>Save</Button>
 }
 
 export function ScreenNotice() {
@@ -2659,7 +2659,7 @@ import type { ScrollableAreaHandle } from '@octane-xplat/ui'
 export function RightToLeftNotes() {
   const viewport = useRef<ScrollableAreaHandle | null>(null)
   return <InternationalizationProvider dir="rtl">
-    <Button label="Inline start" clickAction={() => viewport.current?.scrollToOffset({ inline: 0 })} />
+    <Button label="Inline start" onPress={() => viewport.current?.scrollToOffset({ inline: 0 })} />
     <ScrollableArea ref={viewport} axis="inline" width={240} height={80} paddingInlineStart={2}>
       <Text>Wide notes content</Text>
     </ScrollableArea>

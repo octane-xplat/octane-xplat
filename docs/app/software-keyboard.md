@@ -229,7 +229,7 @@ export function RecheckedForm() {
     ref={binding => { scrolling.current = binding }}
   >
     <TextInput placeholder="Message" />
-    <Button clickAction={() => scrolling.current?.recheck()}>Show editing field</Button>
+    <Button onPress={() => scrolling.current?.recheck()}>Show editing field</Button>
   </KeyboardAwareScrollView>
 }
 ```
@@ -393,7 +393,7 @@ export function SheetForm() {
   const [open, setOpen] = useState(false)
 
   return <Screen>
-    <Button clickAction={() => setOpen(true)}>Edit contact</Button>
+    <Button onPress={() => setOpen(true)}>Edit contact</Button>
     <BottomSheet isOpen={open} onOpenChange={setOpen}
       label="Edit contact" snapPoints={['50%', '90%']}>
       <KeyboardAwareScrollView clearance={12}>
@@ -420,7 +420,7 @@ export function ReturnToSearch() {
 
   return <Screen>
     <TextInput ref={search} placeholder="Search contacts" />
-    <Button clickAction={() => setOpen(true)}>Edit contact</Button>
+    <Button onPress={() => setOpen(true)}>Edit contact</Button>
     <BottomSheet isOpen={open} onOpenChange={setOpen}
       label="Edit contact" finalFocusRef={search}>
       <TextInput placeholder="Name" />

@@ -124,7 +124,7 @@ function ArtifactActions(props: { onClose?: () => void }) @{
       size="sm"
       icon={<Icon name="sandbox-clipboard-document" size={16} />}
       isIconOnly
-      clickAction={() => {}}
+      onPress={() => {}}
     />
     <Button
       label="Share"
@@ -132,7 +132,7 @@ function ArtifactActions(props: { onClose?: () => void }) @{
       size="sm"
       icon={<Icon name="sandbox-share" size={16} />}
       isIconOnly
-      clickAction={() => {}}
+      onPress={() => {}}
     />
     {props.onClose != null ? (
       <Button
@@ -141,7 +141,7 @@ function ArtifactActions(props: { onClose?: () => void }) @{
         size="sm"
         icon={<Icon name="sandbox-x-mark" size={16} />}
         isIconOnly
-        clickAction={props.onClose}
+        onPress={props.onClose}
       />
     ) : null}
   </>

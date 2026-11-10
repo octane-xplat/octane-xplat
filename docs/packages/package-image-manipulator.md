@@ -211,7 +211,7 @@ export function ResizeAction(props: { source: string; onResult: (result: ImageRe
     <VStack>
       <Button
         label="Resize photo"
-        clickAction={() => {
+        onPress={() => {
           void resize()
         }}
       />

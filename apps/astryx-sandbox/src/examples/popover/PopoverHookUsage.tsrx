@@ -10,7 +10,7 @@ export function PopoverHookUsage() @{
         <Button
           label="Open actions"
           ref={popover.triggerRef}
-          clickAction={popover.toggle}
+          pressAction={popover.toggle}
           {...(popover.triggerProps as any)}
         />
         {popover.render(

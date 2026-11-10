@@ -590,7 +590,7 @@ function MobileTokenOverrideControls({
           label="Reset custom values"
           size="sm"
           isDisabled={!hasOverrides}
-          clickAction={onReset}
+          onPress={onReset}
         />
       </HStack>
       <Table<OverrideTableRow>
@@ -717,7 +717,7 @@ function ProductInfo() {
             label="Decrease quantity"
             variant="ghost"
             icon={<Icon name="authored-minus" size={16} />}
-            clickAction={decrement}
+            onPress={decrement}
             isDisabled={(quantity ?? 1) <= 1}
             isIconOnly
           />
@@ -738,7 +738,7 @@ function ProductInfo() {
             label="Increase quantity"
             variant="ghost"
             icon={<Icon name="sandbox-plus" size={16} />}
-            clickAction={increment}
+            onPress={increment}
             isDisabled={(quantity ?? 1) >= 10}
             isIconOnly
           />

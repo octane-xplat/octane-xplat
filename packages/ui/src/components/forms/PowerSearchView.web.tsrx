@@ -104,7 +104,7 @@ export function PowerSearchView(props: PowerSearchViewProps): JSX.Element @{
         <Button
           label="Clear"
           variant="ghost"
-          clickAction={props.onClear}
+          onPress={props.onClear}
           isDisabled={props.isDisabled}
         />
       ) : null}

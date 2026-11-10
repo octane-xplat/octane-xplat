@@ -399,7 +399,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
               <Text type="supporting" color="secondary">
                 {p.subheading || 'Subtitle text goes here'}
               </Text>
-              {p.buttonLabel ? <Button label={p.buttonLabel} clickAction={() => {}} /> : null}
+              {p.buttonLabel ? <Button label={p.buttonLabel} onPress={() => {}} /> : null}
             </VStack>
           </div>
         </Card>
@@ -418,7 +418,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
                 icon={<Spinner />}
                 actions={
                   p.buttonLabel ? (
-                    <Button label={p.buttonLabel} variant="secondary" clickAction={() => {}} />
+                    <Button label={p.buttonLabel} variant="secondary" onPress={() => {}} />
                   ) : undefined
                 }
               />
@@ -463,7 +463,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
               label={p.label || 'Button'}
               variant={p.variant ?? 'primary'}
               size={p.size ?? 'md'}
-              clickAction={() => {}}
+              onPress={() => {}}
             />
           </div>
         </Card>
@@ -541,7 +541,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
               description={p.description}
               icon={<Icon name="sandbox-megaphone" size={24} />}
               actions={
-                p.buttonLabel ? <Button label={p.buttonLabel} clickAction={() => {}} /> : undefined
+                p.buttonLabel ? <Button label={p.buttonLabel} onPress={() => {}} /> : undefined
               }
             />
           </div>
@@ -652,7 +652,7 @@ export function EditorTemplate() @{
                     variant="ghost"
                     size="sm"
                     isIconOnly
-                    clickAction={() => moveBlock(block.id, -1)}
+                    onPress={() => moveBlock(block.id, -1)}
                   />
                   <Button
                     label="Move down"
@@ -660,7 +660,7 @@ export function EditorTemplate() @{
                     variant="ghost"
                     size="sm"
                     isIconOnly
-                    clickAction={() => moveBlock(block.id, 1)}
+                    onPress={() => moveBlock(block.id, 1)}
                   />
                   <Button
                     label="Delete block"
@@ -668,7 +668,7 @@ export function EditorTemplate() @{
                     variant="ghost"
                     size="sm"
                     isIconOnly
-                    clickAction={() => deleteBlock(block.id)}
+                    onPress={() => deleteBlock(block.id)}
                   />
                 </HStack>
               }
@@ -716,7 +716,7 @@ export function EditorTemplate() @{
               <StackItem size="fill">
                 <Heading level={4}>Customize</Heading>
               </StackItem>
-              <Button label="Publish" variant="primary" clickAction={() => {}} />
+              <Button label="Publish" variant="primary" onPress={() => {}} />
             </>
           ) : (
             <>
@@ -739,7 +739,7 @@ export function EditorTemplate() @{
                       variant="ghost"
                       size="sm"
                       isIconOnly
-                      clickAction={() => setIsEditingTitle(true)}
+                      onPress={() => setIsEditingTitle(true)}
                     />
                   </HStack>
                 </StackItem>
@@ -754,7 +754,7 @@ export function EditorTemplate() @{
                 <SegmentedControlItem value="tablet" label="Tablet" />
                 <SegmentedControlItem value="phone" label="Phone" />
               </SegmentedControl>
-              <Button label="Publish" variant="primary" clickAction={() => {}} />
+              <Button label="Publish" variant="primary" onPress={() => {}} />
             </>
           )}
         </HStack>
@@ -774,7 +774,7 @@ export function EditorTemplate() @{
               <Button
                 label="Customize"
                 variant="secondary"
-                clickAction={() => setIsCustomizeOpen(true)}
+                onPress={() => setIsCustomizeOpen(true)}
               />
             ) : null}
             {blocks.map((block) => (

@@ -15,7 +15,7 @@ export function PaletteProbe() @{
   const [closed, setClosed] = useState('none')
 
   <View style={{ flexDirection: 'column' }}>
-    <Button id="pal-open" label="OpenPalette" clickAction={() => setOpen(true)} />
+    <Button id="pal-open" label="OpenPalette" onPress={() => setOpen(true)} />
     <Text id="picked">{picked}</Text>
     <Text id="closed">{closed}</Text>
     <CommandPalette

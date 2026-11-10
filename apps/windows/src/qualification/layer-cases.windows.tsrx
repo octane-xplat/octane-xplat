@@ -21,7 +21,7 @@ function SelectorCase(props: SceneProps): unknown @{
     <Button
       id="core20-selector-outside"
       label="Before selector"
-      clickAction={() => props.onActivate('selector-before')}
+      onPress={() => props.onActivate('selector-before')}
     />
     <Text id="core20-selector-state">{`Selector value=${value} open=${open}`}</Text>
     <Selector
@@ -56,7 +56,7 @@ function SelectorCase(props: SceneProps): unknown @{
     <Button
       id="core20-selector-after"
       label="After selector"
-      clickAction={() => props.onActivate('selector-after')}
+      onPress={() => props.onActivate('selector-after')}
     />
   </View>
 }
@@ -68,7 +68,7 @@ function DropdownCase(props: SceneProps): unknown @{
     <Button
       id="core20-menu-outside"
       label="Before menu"
-      clickAction={() => props.onActivate('menu-before')}
+      onPress={() => props.onActivate('menu-before')}
     />
     <Text id="core20-menu-state">{`Menu open=${open}`}</Text>
     <DropdownMenu
@@ -114,7 +114,7 @@ function DropdownCase(props: SceneProps): unknown @{
     <Button
       id="core20-menu-after"
       label="After menu"
-      clickAction={() => props.onActivate('menu-after')}
+      onPress={() => props.onActivate('menu-after')}
     />
   </View>
 }
@@ -154,7 +154,7 @@ function AnchoredLayerCase(props: SceneProps): unknown @{
     <Button
       id="core20-layer-outside"
       label="Before layer"
-      clickAction={() => props.onActivate('layer-before')}
+      onPress={() => props.onActivate('layer-before')}
     />
     <Text id="core20-layer-state">{`Layer open=${open}`}</Text>
     <Button
@@ -162,7 +162,7 @@ function AnchoredLayerCase(props: SceneProps): unknown @{
       ref={layer.ref}
       label={`Details ${props.revision}`}
       isDisabled={props.disabled}
-      clickAction={layer.show}
+      onPress={layer.show}
     />
     {layer.render(
       <View
@@ -173,16 +173,16 @@ function AnchoredLayerCase(props: SceneProps): unknown @{
         <Text>{`Anchored content ${props.revision}`}</Text>
         <Button
           label={`Layer action ${props.revision}`}
-          clickAction={() => props.onActivate('layer-content', props.revision)}
+          onPress={() => props.onActivate('layer-content', props.revision)}
         />
-        <Button label="Close layer" clickAction={layer.hide} />
+        <Button label="Close layer" onPress={layer.hide} />
       </View>,
       { placement: 'below' },
     )}
     <Button
       id="core20-layer-after"
       label="After layer"
-      clickAction={() => props.onActivate('layer-after')}
+      onPress={() => props.onActivate('layer-after')}
     />
   </View>
 }
@@ -247,14 +247,14 @@ function NestedLayerCase(props: SceneProps): unknown @{
     <Button
       id="core20-nested-outside"
       label="Before nested"
-      clickAction={() => props.onActivate('nested-before')}
+      onPress={() => props.onActivate('nested-before')}
     />
     <Text id="core20-nested-state">{`Nested outer=${outerOpen} inner=${innerOpen}`}</Text>
     <Button
       id="core20-nested-outer-trigger"
       ref={outer.ref}
       label={`Outer layer ${props.revision}`}
-      clickAction={outer.show}
+      onPress={outer.show}
     />
     {outer.render(
       <View
@@ -262,8 +262,8 @@ function NestedLayerCase(props: SceneProps): unknown @{
         accessible
         accessibilityLabel={`Outer layer content ${props.revision}`}
       >
-        <Button label={`Inner layer ${props.revision}`} ref={inner.ref} clickAction={inner.show} />
-        <Button label="Close outer" clickAction={outer.hide} />
+        <Button label={`Inner layer ${props.revision}`} ref={inner.ref} onPress={inner.show} />
+        <Button label="Close outer" onPress={outer.hide} />
       </View>,
       { placement: 'below' },
     )}
@@ -275,16 +275,16 @@ function NestedLayerCase(props: SceneProps): unknown @{
       >
         <Button
           label={`Inner action ${props.revision}`}
-          clickAction={() => props.onActivate('nested-inner', props.revision)}
+          onPress={() => props.onActivate('nested-inner', props.revision)}
         />
-        <Button label="Close inner" clickAction={inner.hide} />
+        <Button label="Close inner" onPress={inner.hide} />
       </View>,
       { placement: 'below' },
     )}
     <Button
       id="core20-nested-after"
       label="After nested"
-      clickAction={() => props.onActivate('nested-after')}
+      onPress={() => props.onActivate('nested-after')}
     />
   </View>
 }

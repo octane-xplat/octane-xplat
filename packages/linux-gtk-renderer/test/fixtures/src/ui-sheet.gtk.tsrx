@@ -15,7 +15,7 @@ import {
 function ImpSheetContent(props: { params?: any; close?: (result?: unknown) => void }) @{
   <View style={{ flexDirection: 'column' }}>
     <Text>{'imp-sheet-' + String(props.params?.tag ?? '')}</Text>
-    <Button id="imp-close" label="ImpClose" clickAction={() => props.close?.('imp-result')} />
+    <Button id="imp-close" label="ImpClose" onPress={() => props.close?.('imp-result')} />
   </View>
 }
 
@@ -26,7 +26,7 @@ function ImperativeProbe(props: { onResult?: (value: string) => void }) @{
     <Button
       id="uib-open"
       label="UibOpen"
-      clickAction={() => {
+      onPress={() => {
         const handle = sheet.open(ImpSheetContent, { tag: 'uib' })
 
         handle.then((result) => props.onResult?.(String(result)))
@@ -52,19 +52,19 @@ export function SheetProbe() @{
   const [bgCount, setBgCount] = useState(0)
 
   <View style={{ flexDirection: 'column' }}>
-    <Button id="bg-btn" label="Bg" clickAction={() => setBgCount(bgCount + 1)} />
+    <Button id="bg-btn" label="Bg" onPress={() => setBgCount(bgCount + 1)} />
     <Text id="picked">{mark}</Text>
     <Text id="bg-count">{String(bgCount)}</Text>
-    <Button id="ctl-open" label="CtlOpen" clickAction={() => setCtlOpen(true)} />
-    <Button id="snap-open" label="SnapOpen" clickAction={() => setSnapOpen(true)} />
-    <Button id="req-open" label="ReqOpen" clickAction={() => setReqOpen(true)} />
-    <Button id="form-open" label="FormOpen" clickAction={() => setFormOpen(true)} />
-    <Button id="noscrim-open" label="NoScrim" clickAction={() => setNoScrimOpen(true)} />
-    <Button id="unctl-mount" label="Unctl" clickAction={() => setUnctlMounted(true)} />
+    <Button id="ctl-open" label="CtlOpen" onPress={() => setCtlOpen(true)} />
+    <Button id="snap-open" label="SnapOpen" onPress={() => setSnapOpen(true)} />
+    <Button id="req-open" label="ReqOpen" onPress={() => setReqOpen(true)} />
+    <Button id="form-open" label="FormOpen" onPress={() => setFormOpen(true)} />
+    <Button id="noscrim-open" label="NoScrim" onPress={() => setNoScrimOpen(true)} />
+    <Button id="unctl-mount" label="Unctl" onPress={() => setUnctlMounted(true)} />
     <Button
       id="h-hug"
       label="HHug"
-      clickAction={() => {
+      onPress={() => {
         setHeightMode('hug')
         setHeightOpen(true)
       }}
@@ -72,7 +72,7 @@ export function SheetProbe() @{
     <Button
       id="h-capped"
       label="HCapped"
-      clickAction={() => {
+      onPress={() => {
         setHeightMode('capped')
         setHeightOpen(true)
       }}
@@ -80,7 +80,7 @@ export function SheetProbe() @{
     <Button
       id="h-tall"
       label="HTall"
-      clickAction={() => {
+      onPress={() => {
         setHeightMode('tall')
         setHeightOpen(true)
       }}
@@ -88,7 +88,7 @@ export function SheetProbe() @{
     <Button
       id="h-num"
       label="HNum"
-      clickAction={() => {
+      onPress={() => {
         setHeightMode(300)
         setHeightOpen(true)
       }}
@@ -96,17 +96,17 @@ export function SheetProbe() @{
     <Button
       id="h-pct"
       label="HPct"
-      clickAction={() => {
+      onPress={() => {
         setHeightMode('50%')
         setHeightOpen(true)
       }}
     />
-    <Button id="sw-a" label="SwA" clickAction={() => setSwActive('a')} />
-    <Button id="sw-b" label="SwB" clickAction={() => setSwActive('b')} />
+    <Button id="sw-a" label="SwA" onPress={() => setSwActive('a')} />
+    <Button id="sw-b" label="SwB" onPress={() => setSwActive('b')} />
     <Button
       id="imp-open"
       label="ImpOpen"
-      clickAction={() => {
+      onPress={() => {
         const handle = openBottomSheet(ImpSheetContent, { tag: 'svc' })
 
         handle.then((result) => setMark('imp:' + String(result)))
@@ -115,13 +115,13 @@ export function SheetProbe() @{
     <Button
       id="imp-open2"
       label="ImpOpen2"
-      clickAction={() => {
+      onPress={() => {
         const handle = openBottomSheet(ImpSheetContent, { tag: 'svc2' })
 
         handle.then((result) => setMark('imp2:' + String(result)))
       }}
     />
-    <Button id="svc-latest" label="SvcLatest" clickAction={() => closeBottomSheet('svc2-result')} />
+    <Button id="svc-latest" label="SvcLatest" onPress={() => closeBottomSheet('svc2-result')} />
     <ImperativeProbe onResult={(v) => setMark('uib:' + v)} />
 
     <BottomSheet
@@ -166,7 +166,7 @@ export function SheetProbe() @{
     >
       <View style={{ flexDirection: 'column' }}>
         <Text>req-body</Text>
-        <Button id="req-close" label="ReqClose" clickAction={() => setReqOpen(false)} />
+        <Button id="req-close" label="ReqClose" onPress={() => setReqOpen(false)} />
       </View>
     </BottomSheet>
 
@@ -191,7 +191,7 @@ export function SheetProbe() @{
     >
       <View style={{ flexDirection: 'column' }}>
         <Text>noscrim-body</Text>
-        <Button id="noscrim-close" label="NoScrimClose" clickAction={() => setNoScrimOpen(false)} />
+        <Button id="noscrim-close" label="NoScrimClose" onPress={() => setNoScrimOpen(false)} />
       </View>
     </BottomSheet>
 
@@ -226,7 +226,7 @@ export function SheetProbe() @{
     >
       <View style={{ flexDirection: 'column' }}>
         <Text>sw-content-a</Text>
-        <Button id="sw-goto-b" label="GotoB" clickAction={() => setSwActive('b')} />
+        <Button id="sw-goto-b" label="GotoB" onPress={() => setSwActive('b')} />
       </View>
     </BottomSheet>
     <BottomSheet
@@ -240,7 +240,7 @@ export function SheetProbe() @{
     >
       <View style={{ flexDirection: 'column' }}>
         <Text>sw-content-b</Text>
-        <Button id="sw-goto-close" label="SwClose" clickAction={() => setSwActive(null)} />
+        <Button id="sw-goto-close" label="SwClose" onPress={() => setSwActive(null)} />
       </View>
     </BottomSheet>
 

@@ -116,7 +116,7 @@ import { getRouteApi } from '@octane-xplat/ui/routing'
 const item = getRouteApi('/items/:id')
 export function ItemFilters() {
   const updateSearch = item.useUpdateSearch()
-  return <Button label="Activity" clickAction={() => {
+  return <Button label="Activity" onPress={() => {
     void updateSearch(previous => ({ ...previous, tab: 'activity' }))
   }} />
 }

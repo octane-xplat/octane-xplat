@@ -214,7 +214,7 @@ export function DocumentationTemplate() @{
                       label="Get started"
                       variant="primary"
                       size="lg"
-                      clickAction={() => {}}
+                      onPress={() => {}}
                     />
                   </HStack>
                 </VStack>

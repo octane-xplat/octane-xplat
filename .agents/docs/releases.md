@@ -368,7 +368,7 @@ Disabled buttons no longer start their action when pressed.
 import { Button } from '@octane-xplat/ui'
 
 export function SaveButton() {
-  return <Button label="Save" isDisabled clickAction={() => console.log('Saved')} />
+  return <Button label="Save" isDisabled onPress={() => console.log('Saved')} />
 }
 ```
 

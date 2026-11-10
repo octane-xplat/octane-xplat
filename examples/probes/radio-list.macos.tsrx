@@ -62,15 +62,15 @@ export default function RadioListProbe() {
           { value: 'team', label: 'Team' },
         ]}
       />
-      <Button label="Toggle read-only" clickAction={() => setReadOnly(!readOnly)} />
-      <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-      <Button label="Toggle child disabled" clickAction={() => setChildDisabled(!childDisabled)} />
+      <Button label="Toggle read-only" onPress={() => setReadOnly(!readOnly)} />
+      <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+      <Button label="Toggle child disabled" onPress={() => setChildDisabled(!childDisabled)} />
       <Button
         label="Change child value"
-        clickAction={() => setChildValue(childValue === 'team' ? 'business' : 'team')}
+        onPress={() => setChildValue(childValue === 'team' ? 'business' : 'team')}
       />
-      <Button label="Toggle acceptance" clickAction={() => setAccept(!accept)} />
-      <Button label="Toggle focus move" clickAction={() => setMove(!move)} />
+      <Button label="Toggle acceptance" onPress={() => setAccept(!accept)} />
+      <Button label="Toggle focus move" onPress={() => setMove(!move)} />
       <Text>
         Last request: {last}; acceptance: {String(accept)}; move focus: {String(move)}
       </Text>

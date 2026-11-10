@@ -412,7 +412,7 @@ export function KanbanBoardTemplate() @{
               value={sprint}
               onValueChange={(v) => setSprint(v ?? '')}
             />
-            <Button label="Filter" variant="secondary" clickAction={() => {}} />
+            <Button label="Filter" variant="secondary" onPress={() => {}} />
             <Link href="#">View all tasks</Link>
           </HStack>
         </HStack>

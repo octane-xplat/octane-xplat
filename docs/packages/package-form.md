@@ -56,8 +56,8 @@ export function TripForm() {
             onBlur={name.handleBlur} onSubmit={submit} returnKeyType="done" />
         </Field>
       </FormLayout>
-      <Button label="Save" isLoading={submitting} isDisabled={submitting} clickAction={submit} />
-      <Button label="Reset" isDisabled={submitting} clickAction={() => form.reset()} />
+      <Button label="Save" isLoading={submitting} isDisabled={submitting} pressAction={submit} />
+      <Button label="Reset" isDisabled={submitting} onPress={() => form.reset()} />
       <Text>{saved}</Text>
     </VStack>
   )
@@ -95,7 +95,7 @@ import { useForm } from '@octane-xplat/form'
 
 export function ClearHiddenNote() {
   const form = useForm({ defaultValues: { note: 'Bring a coat' } })
-  return <Button label="Clear note" clickAction={() => form.setFieldValue('note', '')} />
+  return <Button label="Clear note" onPress={() => form.setFieldValue('note', '')} />
 }
 ```
 
@@ -151,7 +151,7 @@ import { useForm } from '@octane-xplat/form'
 
 export function SubmitAction() {
   const form = useForm({ defaultValues: { name: '' } })
-  return <Button label="Save" clickAction={() => form.handleSubmit()} />
+  return <Button label="Save" pressAction={() => form.handleSubmit()} />
 }
 ```
 

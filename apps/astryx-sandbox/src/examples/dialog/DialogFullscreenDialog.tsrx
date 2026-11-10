@@ -51,7 +51,7 @@ export function DialogFullscreenDialog() @{
         <Button
           label="Open documentation"
           variant="secondary"
-          clickAction={() => setIsOpen(true)}
+          onPress={() => setIsOpen(true)}
         />
       </VStack>
       <Dialog isOpen={isOpen} onOpenChange={setIsOpen} variant="fullscreen">
@@ -74,7 +74,7 @@ export function DialogFullscreenDialog() @{
             </VStack>
           </ScrollableArea>
           <HStack justify="end" style={{ padding: 'var(--spacing-4)' }}>
-            <Button label="Close" variant="primary" clickAction={() => setIsOpen(false)} />
+            <Button label="Close" variant="primary" onPress={() => setIsOpen(false)} />
           </HStack>
         </VStack>
       </Dialog>

@@ -53,16 +53,16 @@ export default function TextOverflowCssProbe() {
           </formattedstring>
         </label>
       </masonview>
-      <Button label="Toggle CSS nowrap" clickAction={() => setSingle(!single)} />
-      <Button label="Toggle CSS ellipsis" clickAction={() => setEllipsis(!ellipsis)} />
-      <Button label="Resize frame" clickAction={() => setWide(!wide)} />
-      <Button label="Toggle short title" clickAction={() => setShort(!short)} />
-      <Button label="Toggle explicit two-line limit" clickAction={() => setLimit(!limit)} />
+      <Button label="Toggle CSS nowrap" onPress={() => setSingle(!single)} />
+      <Button label="Toggle CSS ellipsis" onPress={() => setEllipsis(!ellipsis)} />
+      <Button label="Resize frame" onPress={() => setWide(!wide)} />
+      <Button label="Toggle short title" onPress={() => setShort(!short)} />
+      <Button label="Toggle explicit two-line limit" onPress={() => setLimit(!limit)} />
       <Button
         label="Cycle text alignment"
-        clickAction={() => setAlignment((alignment + 1) % alignments.length)}
+        onPress={() => setAlignment((alignment + 1) % alignments.length)}
       />
-      <Button label="Toggle CSS direction" clickAction={() => setRTL(!rtl)} />
+      <Button label="Toggle CSS direction" onPress={() => setRTL(!rtl)} />
       <Text>{`Nowrap ${single}, ellipsis ${ellipsis}, two-line limit ${limit}, wide ${wide}, alignment ${alignments[alignment] ?? 'removed'}, CSS direction ${rtl ? 'rtl' : 'ltr'}. Direction selects label alignment only; bidi shaping, vertical writing and parity remain unqualified.`}</Text>
     </VStack>
   )

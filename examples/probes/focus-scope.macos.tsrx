@@ -23,7 +23,7 @@ export default function FocusScopeProbe() {
         ownership and restoration after closing either owner. Repeat in two native windows; this
         probe does not create another window.
       </Text>
-      <Button id="scope-trigger" label="Edit details" clickAction={() => setOpen(true)} />
+      <Button id="scope-trigger" label="Edit details" onPress={() => setOpen(true)} />
       {open ? (
         <FocusScope id="scope" contain autoFocus restoreFocus accessibilityLabel="Details">
           <TextInput id="scope-first" label="Name" />
@@ -32,7 +32,7 @@ export default function FocusScopeProbe() {
           <Button
             id="scope-nested-trigger"
             label="Open nested editor"
-            clickAction={() => setNested(true)}
+            onPress={() => setNested(true)}
           />
           {nested ? (
             <FocusScope
@@ -47,11 +47,11 @@ export default function FocusScopeProbe() {
               <Button
                 id="scope-nested-close"
                 label="Close nested editor"
-                clickAction={() => setNested(false)}
+                onPress={() => setNested(false)}
               />
               <Button
                 label="Close both owners"
-                clickAction={() => {
+                onPress={() => {
                   setNested(false)
                   setOpen(false)
                 }}
@@ -61,7 +61,7 @@ export default function FocusScopeProbe() {
           <Button
             id="scope-close"
             label="Close"
-            clickAction={() => {
+            onPress={() => {
               setNested(false)
               setOpen(false)
             }}

@@ -195,7 +195,7 @@ export function TripPanel(props: { id: string }) @{
   } @pending {
     <Text>Loading trip…</Text>
   } @catch (error, reset) {
-    <Button label="Retry" clickAction={reset} />
+    <Button label="Retry" onPress={reset} />
   }
 }
 ```

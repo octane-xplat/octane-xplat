@@ -41,7 +41,7 @@ export function ChatMessageMetadataFooter() {
                     size="sm"
                     icon={<Icon name="sandbox-chat-copy" size={16} />}
                     isIconOnly
-                    clickAction={() => {}}
+                    onPress={() => {}}
                   />
                   <Button
                     label="Retry"
@@ -49,7 +49,7 @@ export function ChatMessageMetadataFooter() {
                     size="sm"
                     icon={<Icon name="sandbox-chat-refresh" size={16} />}
                     isIconOnly
-                    clickAction={() => {}}
+                    onPress={() => {}}
                   />
                   <Button
                     label="Good response"
@@ -57,7 +57,7 @@ export function ChatMessageMetadataFooter() {
                     size="sm"
                     icon={<Icon name="sandbox-chat-thumbs-up" size={16} />}
                     isIconOnly
-                    clickAction={() => {}}
+                    onPress={() => {}}
                   />
                   <Button
                     label="Bad response"
@@ -65,7 +65,7 @@ export function ChatMessageMetadataFooter() {
                     size="sm"
                     icon={<Icon name="sandbox-chat-thumbs-down" size={16} />}
                     isIconOnly
-                    clickAction={() => {}}
+                    onPress={() => {}}
                   />
                   <Text type="supporting" color="secondary">
                     GPT-4o

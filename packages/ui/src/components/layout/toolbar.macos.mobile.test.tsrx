@@ -32,7 +32,7 @@ it('Toolbar keeps a named toolbar host and its actions while label, orientation 
       <Button
         id="save"
         label="Save"
-        clickAction={() => {
+        onPress={() => {
           actions.push('save')
         }}
       />
@@ -161,7 +161,7 @@ it('Toolbar wires owned button focus while preserving ordinary activation and ed
         <Button
           id="save"
           label="Save"
-          clickAction={() => {
+          onPress={() => {
             actions.push('save')
           }}
         />
@@ -171,7 +171,7 @@ it('Toolbar wires owned button focus while preserving ordinary activation and ed
         <Button
           id="share"
           label="Share"
-          clickAction={() => {
+          onPress={() => {
             actions.push('share')
           }}
         />

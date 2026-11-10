@@ -52,14 +52,14 @@ export default function KeepAwakeProbe() @{
     </Text>
     <Button
       label={first ? 'Close first screen' : 'Open first screen'}
-      clickAction={() => setFirst(!first)}
+      onPress={() => setFirst(!first)}
     />
     <Button
       label={second ? 'Close second screen' : 'Open second screen'}
-      clickAction={() => setSecond(!second)}
+      onPress={() => setSecond(!second)}
     />
-    <Button label="Change cleanup warning preference" clickAction={() => setQuiet(!quiet)} />
-    <Button label="Check" clickAction={check} />
+    <Button label="Change cleanup warning preference" onPress={() => setQuiet(!quiet)} />
+    <Button label="Check" pressAction={check} />
     @if (first) {
       <ReadingRequest name="First" quiet={quiet} />
     }

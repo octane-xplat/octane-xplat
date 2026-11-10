@@ -1,7 +1,7 @@
 // Port of upstream templates/pages/settings/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/settings/.
 // GAPS: Typeahead `startIcon` takes rendered icon content (upstream icon
-// component); `type="password"` → `secure`; Button `onClick` → `clickAction`.
+// component); `type="password"` → `secure`; Button `onClick` → `onPress`.
 import { useState } from 'octane'
 import {
   Button,
@@ -123,7 +123,7 @@ export function SettingsTemplate() @{
               <TextInput label="Last name" value={lastName} onChange={setLastName} />
               <TextInput label="Email address" value={email} onChange={setEmail} />
               <HStack>
-                <Button label="Save" variant="primary" clickAction={() => {}} />
+                <Button label="Save" variant="primary" onPress={() => {}} />
               </HStack>
             </VStack>
           </Grid>
@@ -152,7 +152,7 @@ export function SettingsTemplate() @{
                 onChange={setConfirmPw}
               />
               <HStack>
-                <Button label="Save" variant="primary" clickAction={() => {}} />
+                <Button label="Save" variant="primary" onPress={() => {}} />
               </HStack>
             </VStack>
           </Grid>
@@ -186,7 +186,7 @@ export function SettingsTemplate() @{
                 onChange={setTwoFactor}
               />
               <HStack>
-                <Button label="Save" variant="primary" clickAction={() => {}} />
+                <Button label="Save" variant="primary" onPress={() => {}} />
               </HStack>
             </VStack>
           </Grid>

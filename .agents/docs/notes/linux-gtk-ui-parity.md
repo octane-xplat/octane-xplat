@@ -1316,7 +1316,7 @@ Pagination, FieldLabel and FieldStatus (~40 types beside). Availability is
 153 values and 180 types.
 
 Two maintained fixtures pass without skips. `ui-buttons.test.mjs` (33
-checks, real X11 input) proves clickAction press, isDisabled suppression
+checks, real X11 input) proves button activation, isDisabled suppression
 (own and group-inherited), ToggleButton pressed-toggle round trips,
 ClickableCard press, keyboard Enter activation and teardown. `ui-display.test.mjs`
 (49 checks, property-only) mounts every display leaf and asserts folded

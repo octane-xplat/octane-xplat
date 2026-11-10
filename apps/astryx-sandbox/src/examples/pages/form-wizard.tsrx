@@ -257,7 +257,7 @@ export function FormWizardTemplate() @{
             <StackItem size="fill">
               <Heading level={1}>Create workspace</Heading>
             </StackItem>
-            <Button label="Cancel" variant="ghost" clickAction={() => {}} />
+            <Button label="Cancel" variant="ghost" onPress={() => {}} />
           </HStack>
           <Stepper
             activeStep={step}
@@ -532,7 +532,7 @@ export function FormWizardTemplate() @{
                       label={`Go to ${outstanding[0].label}`}
                       variant="secondary"
                       size="sm"
-                      clickAction={() => setStep(outstanding[0].index)}
+                      onPress={() => setStep(outstanding[0].index)}
                     />
                   </HStack>
                 </VStack>
@@ -599,7 +599,7 @@ export function FormWizardTemplate() @{
         <HStack gap={3} vAlign="center">
           <StackItem size="fill" style={footerZone}>
             {STEPS[step].isOptional ? (
-              <Button label="Skip" variant="ghost" clickAction={goSkip} />
+              <Button label="Skip" variant="ghost" onPress={goSkip} />
             ) : null}
           </StackItem>
           <Text type="supporting" color="secondary">
@@ -611,14 +611,14 @@ export function FormWizardTemplate() @{
                 label="Back"
                 variant="secondary"
                 isDisabled={step === 0}
-                clickAction={() => setStep((s) => Math.max(0, s - 1))}
+                onPress={() => setStep((s) => Math.max(0, s - 1))}
               />
               <Button
                 label={isLastStep ? 'Create workspace' : 'Next'}
                 variant="primary"
                 // Never disabled: pressing it is how a step reveals what is
                 // wrong. A dead button with no explanation is a dead end.
-                clickAction={goNext}
+                onPress={goNext}
               />
             </HStack>
           </StackItem>

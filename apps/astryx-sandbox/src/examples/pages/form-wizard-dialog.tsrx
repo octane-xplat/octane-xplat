@@ -400,7 +400,7 @@ export function FormWizardDialogTemplate() @{
                 label="Back"
                 variant="secondary"
                 isDisabled={step === 0}
-                clickAction={() => setStep((s) => Math.max(0, s - 1))}
+                onPress={() => setStep((s) => Math.max(0, s - 1))}
               />
               <StackItem size="fill" />
               {Object.keys(currentErrors).length > 0 ? (
@@ -413,7 +413,7 @@ export function FormWizardDialogTemplate() @{
               <Button
                 label={isLastStep ? 'Schedule report' : 'Continue'}
                 variant="primary"
-                clickAction={goNext}
+                onPress={goNext}
               />
             </HStack>
           </LayoutFooter>

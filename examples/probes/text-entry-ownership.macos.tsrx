@@ -145,21 +145,21 @@ export default function TextEntryOwnershipProbe() {
         isReadOnly={readOnly}
         onSubmit={() => setLast('search submitted')}
       />
-      <Button label="Toggle read-only" clickAction={() => setReadOnly(!readOnly)} />
-      <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-      <Button label="Toggle controlled acceptance" clickAction={() => setAccept(!accept)} />
-      <Button label="Toggle clear focus move" clickAction={() => setMove(!move)} />
-      <Button label="Toggle controlled fields" clickAction={() => setShown(!shown)} />
-      <Button label="Toggle controlled values" clickAction={() => setControlled(!controlled)} />
-      <Button label="Toggle multiline width" clickAction={() => setNarrow(!narrow)} />
-      <Button label="Toggle multiline row cap" clickAction={() => setCapped(!capped)} />
-      <Button label="Toggle multiline growth" clickAction={() => setFixed(!fixed)} />
+      <Button label="Toggle read-only" onPress={() => setReadOnly(!readOnly)} />
+      <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+      <Button label="Toggle controlled acceptance" onPress={() => setAccept(!accept)} />
+      <Button label="Toggle clear focus move" onPress={() => setMove(!move)} />
+      <Button label="Toggle controlled fields" onPress={() => setShown(!shown)} />
+      <Button label="Toggle controlled values" onPress={() => setControlled(!controlled)} />
+      <Button label="Toggle multiline width" onPress={() => setNarrow(!narrow)} />
+      <Button label="Toggle multiline row cap" onPress={() => setCapped(!capped)} />
+      <Button label="Toggle multiline growth" onPress={() => setFixed(!fixed)} />
       <Text>
         For multiline sizing, enter several wrapped lines, change width/cap/growth, then remove and
         remount the controlled fields. Verify native scrolling, height, focus and cleanup manually
         after authorization; the run hook does not exercise them.
       </Text>
-      <Button label="Queue external replacement in 2.5 seconds" clickAction={queueReplacement} />
+      <Button label="Queue external replacement in 2.5 seconds" pressAction={queueReplacement} />
       <Text>
         Queued replacement is a manual trial only. After queuing, focus one controlled field and
         begin an IME composition; compare commit, matching echo, removal/unset and unmount/remount.

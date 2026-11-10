@@ -18,7 +18,7 @@ export function BottomSheetShowcase() @{
 
   return (
     <>
-      <Button label="Open sheet" clickAction={() => setIsOpen(true)} />
+      <Button label="Open sheet" onPress={() => setIsOpen(true)} />
       <BottomSheet isOpen={isOpen} onOpenChange={setIsOpen} label="Filters">
         <Section padding={4}>
           <VStack gap={4}>
@@ -33,7 +33,7 @@ export function BottomSheetShowcase() @{
                 onChange={setFreeShipping}
               />
             </VStack>
-            <Button label="Apply" clickAction={() => setIsOpen(false)} />
+            <Button label="Apply" onPress={() => setIsOpen(false)} />
           </VStack>
         </Section>
       </BottomSheet>

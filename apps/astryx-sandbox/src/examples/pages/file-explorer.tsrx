@@ -1,6 +1,6 @@
 // Port of upstream templates/pages/file-explorer/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/file-explorer/.
-// GAPS: IconButton `onClick` → `clickAction`; solid FolderIcon reuses the
+// GAPS: IconButton `onClick` → `onPress`; solid FolderIcon reuses the
 // outline glyph (recorded).
 import { useMemo, useState } from 'octane'
 import {
@@ -348,7 +348,7 @@ export function FileExplorerTemplate() @{
               variant="ghost"
               size="sm"
               icon={<Icon name="sandbox-chevron-left" size={16} />}
-              clickAction={() => {
+              onPress={() => {
                 if (selectedPath.length > 0) {
                   setSelectedPath(selectedPath.slice(0, -1))
                 }

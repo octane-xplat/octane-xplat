@@ -30,8 +30,8 @@ function Content(props: { onClose: () => void }) @{
       />
       <TextArea label="Bio" value={bio} onChange={setBio} placeholder="Tell us about yourself" />
       <HStack gap={2} justify="end">
-        <Button label="Cancel" variant="secondary" clickAction={props.onClose} />
-        <Button label="Save" variant="primary" clickAction={props.onClose} />
+        <Button label="Cancel" variant="secondary" onPress={props.onClose} />
+        <Button label="Save" variant="primary" onPress={props.onClose} />
       </HStack>
     </VStack>
   </VStack>

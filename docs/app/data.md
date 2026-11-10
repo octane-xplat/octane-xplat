@@ -1202,7 +1202,7 @@ export function ItemPages() {
 
   return <>
     <Text>{rows.items.map((item) => item.name).join(', ')}</Text>
-    <Button isDisabled={!rows.hasMore || rows.isLoading} clickAction={() => rows.loadMore()}>
+    <Button isDisabled={!rows.hasMore || rows.isLoading} pressAction={() => rows.loadMore()}>
       {rows.loadingState === 'error' ? 'Retry page' : 'Load more'}
     </Button>
   </>
@@ -1222,7 +1222,7 @@ export function ArchiveDrafts() {
     initialItems: [{ id: 'archive' }, { id: 'drafts', children: [{ id: 'note' }] }],
   })
 
-  return <Button clickAction={() => folders.move('drafts', 'archive', 0)}>Archive drafts</Button>
+  return <Button pressAction={() => folders.move('drafts', 'archive', 0)}>Archive drafts</Button>
 }
 ```
 

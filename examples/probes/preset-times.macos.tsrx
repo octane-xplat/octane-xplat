@@ -10,7 +10,7 @@ export default function PresetTimesProbe() {
   return (
     <VStack gap={2}>
       <label text="Focus the closed time field; plain Up/Down requests 5-minute steps, while Alt+Down opens 15-minute presets. Use bounded Up/Down, Home/End and Enter/Space. Tab/Shift-Tab requests a field neighbor; Escape requests field return. Compare clock-button selection, updated bounds and read-only state. No OS keys or native focus are synthesized by the runner." />
-      <Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
+      <Button label="Toggle read-only" onPress={() => setReadonly(!readonly)} />
       <DateTimeInput
         id="preset-appointment"
         label="Appointment"

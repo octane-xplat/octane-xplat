@@ -300,7 +300,7 @@ stack name into an escape from the owning flow.
 const item = getRouteApi('/items/:id', navigation)
 function Filter() {
   const updateSearch = item.useUpdateSearch()
-  return <Button label="Activity" clickAction={() => {
+  return <Button label="Activity" onPress={() => {
     void updateSearch(previous => ({ ...previous, tab: 'activity' }))
   }} />
 }
@@ -773,7 +773,7 @@ import { useNavigationBlocker } from '@octane-xplat/ui/routing'
 function Confirmation(props: { dirty: boolean }) {
   const blocker = useNavigationBlocker({ when: props.dirty })
   return blocker.status === 'blocked'
-    ? <Button label="Keep editing" clickAction={blocker.reset} />
+    ? <Button label="Keep editing" onPress={blocker.reset} />
     : null
 }
 ```
@@ -846,7 +846,7 @@ import { Button } from '@octane-xplat/ui'
 import { useRouter } from '@octane-xplat/ui/routing'
 function ModalClose() {
   const navigation = useRouter()
-  return <Button label="Close" clickAction={() => { void navigation.dismiss() }} />
+  return <Button label="Close" onPress={() => { void navigation.dismiss() }} />
 }
 ```
 

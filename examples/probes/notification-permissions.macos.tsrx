@@ -49,16 +49,16 @@ export default function NotificationPermissionsProbe() {
         Bridge capability: {notifications.supported ? 'available' : 'unavailable'}. No permission
         read, request or delivery occurs on mount.
       </Text>
-      <Button label="Read permission without prompting" clickAction={() => run('read')} />
+      <Button label="Read permission without prompting" pressAction={() => run('read')} />
       <Button
         label="Request notification permission"
         isDisabled={!notifications.supported}
-        clickAction={() => run('request')}
+        pressAction={() => run('request')}
       />
       <Button
         label="Request test notification if granted"
         isDisabled={!notifications.supported}
-        clickAction={() => run('send')}
+        pressAction={() => run('send')}
       />
       <Text>{result}</Text>
       <Text>

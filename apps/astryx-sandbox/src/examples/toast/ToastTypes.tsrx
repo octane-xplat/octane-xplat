@@ -20,7 +20,7 @@ export function ToastTypes() @{
         autoHideDuration={5000}
         isExiting={false}
         onDismiss={() => {}}
-        endContent={<Button label="Show toast" variant="ghost" size="sm" clickAction={showInfo} />}
+        endContent={<Button label="Show toast" variant="ghost" size="sm" onPress={showInfo} />}
       />
       <Toast
         type="error"
@@ -29,7 +29,7 @@ export function ToastTypes() @{
         autoHideDuration={5000}
         isExiting={false}
         onDismiss={() => {}}
-        endContent={<Button label="Show toast" variant="ghost" size="sm" clickAction={showError} />}
+        endContent={<Button label="Show toast" variant="ghost" size="sm" onPress={showError} />}
       />
     </VStack>
   )

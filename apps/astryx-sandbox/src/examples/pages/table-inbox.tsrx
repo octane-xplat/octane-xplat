@@ -96,7 +96,7 @@ export function TableInboxTemplate() @{
       header: 'Conversation',
       width: proportional(3),
       renderCell: (item) => (
-        <Button label={item.subject} variant="plain" clickAction={() => setChosenId(item.id)} />
+        <Button label={item.subject} variant="plain" onPress={() => setChosenId(item.id)} />
       ),
     },
     { key: 'receivedAt', header: 'Received', width: pixel(90) },
@@ -106,7 +106,7 @@ export function TableInboxTemplate() @{
   <VStack gap={4} padding={4}>
     <HStack hAlign="between">
       <Heading level={1}>Inbox</Heading>
-      <Button label="Compose" clickAction={() => setIsComposeOpen(true)} />
+      <Button label="Compose" onPress={() => setIsComposeOpen(true)} />
     </HStack>
     <SegmentedControl
       label="Inbox categories"
@@ -127,7 +127,7 @@ export function TableInboxTemplate() @{
     {selectedKeys.size > 0 && (
       <HStack gap={3}>
         <Text>{`${selectedKeys.size} selected`}</Text>
-        <Button label="Unselect All" clickAction={() => setSelectedKeys(new Set())} />
+        <Button label="Unselect All" onPress={() => setSelectedKeys(new Set())} />
       </HStack>
     )}
     <HStack gap={3}>
@@ -140,7 +140,7 @@ export function TableInboxTemplate() @{
           <VStack width={narrow ? 'fill' : pane.size} gap={3} padding={4}>
             <HStack hAlign="between">
               <Heading level={2}>{active.subject}</Heading>
-              <Button label="Close conversation" clickAction={() => setChosenId(null)} />
+              <Button label="Close conversation" onPress={() => setChosenId(null)} />
             </HStack>
             <Text>{`${active.sender} <${active.senderEmail}> · ${active.receivedFull}`}</Text>
             <Text>{`${active.priority} · ${active.tags.join(' · ')}`}</Text>
@@ -168,7 +168,7 @@ export function TableInboxTemplate() @{
             </HStack>
             <Button
               label="Reply"
-              clickAction={() => {
+              onPress={() => {
                 setRecipient([
                   { id: active.senderEmail, label: `${active.sender} <${active.senderEmail}>` },
                 ])
@@ -192,8 +192,8 @@ export function TableInboxTemplate() @{
           hasCreate
         />
         <HStack gap={2}>
-          <Button label="Cc" clickAction={() => setHasCc(!hasCc)} />
-          <Button label="Bcc" clickAction={() => setHasBcc(!hasBcc)} />
+          <Button label="Cc" onPress={() => setHasCc(!hasCc)} />
+          <Button label="Bcc" onPress={() => setHasBcc(!hasBcc)} />
         </HStack>
         {hasCc && (
           <Tokenizer
@@ -217,10 +217,10 @@ export function TableInboxTemplate() @{
         <TextArea label="Message" value={body} onChange={setBody} />
         <HStack gap={3}>
           <Button label="Send" />
-          <Button label="Close composer" clickAction={() => setIsComposeOpen(false)} />
+          <Button label="Close composer" onPress={() => setIsComposeOpen(false)} />
           <Button
             label="Discard draft"
-            clickAction={() => {
+            onPress={() => {
               setRecipient([])
               setSubject('')
               setBody('')

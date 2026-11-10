@@ -54,7 +54,7 @@ export default function ButtonActionsProbe() {
               ? 'https://octane-xplat.goddardai.org/app/components#appkit-button-actions-and-links'
               : undefined
           }
-          clickAction={() => {
+          pressAction={() => {
             record(`accepted:${revision}`)
             return new Promise<void>((resolve, reject) =>
               pending.current.push({ resolve, reject }),
@@ -67,25 +67,25 @@ export default function ButtonActionsProbe() {
       )}
       <Button
         label="Complete oldest action"
-        clickAction={() => pending.current.shift()?.resolve()}
+        onPress={() => pending.current.shift()?.resolve()}
       />
       <Button
         label="Fail oldest action"
-        clickAction={() => pending.current.shift()?.reject(new Error('Fixture save failed'))}
+        onPress={() => pending.current.shift()?.reject(new Error('Fixture save failed'))}
       />
       <Button
         label="Change callback revision"
-        clickAction={() => setRevision((value) => value + 1)}
+        onPress={() => setRevision((value) => value + 1)}
       />
-      <Button label="Toggle disablement" clickAction={() => setDisabled((value) => !value)} />
-      <Button label="Toggle external loading" clickAction={() => setLoading((value) => !value)} />
+      <Button label="Toggle disablement" onPress={() => setDisabled((value) => !value)} />
+      <Button label="Toggle external loading" onPress={() => setLoading((value) => !value)} />
       <Button
         label="Toggle interruptible overlap"
-        clickAction={() => setInterruptible((value) => !value)}
+        onPress={() => setInterruptible((value) => !value)}
       />
-      <Button label="Toggle pointer hint" clickAction={() => setHinted((value) => !value)} />
-      <Button label="Toggle documentation link" clickAction={() => setLinked((value) => !value)} />
-      <Button label="Remove or remount Save" clickAction={() => setShown((value) => !value)} />
+      <Button label="Toggle pointer hint" onPress={() => setHinted((value) => !value)} />
+      <Button label="Toggle documentation link" onPress={() => setLinked((value) => !value)} />
+      <Button label="Remove or remount Save" onPress={() => setShown((value) => !value)} />
       <label
         text={`disabled:${disabled}; loading:${loading}; interruptible:${interruptible}; link:${linked}`}
       />

@@ -21,10 +21,10 @@ export function OverlaysProbe() @{
   const [ovOpen, setOvOpen] = useState(false)
 
   <>
-    <Button id="bg" label="Background" clickAction={() => setBgClicks(bgClicks + 1)} />
+    <Button id="bg" label="Background" onPress={() => setBgClicks(bgClicks + 1)} />
     <Text id="bg-count">{String(bgClicks)}</Text>
 
-    <Button id="ctl-toggle" label="Toggle ctl" clickAction={() => setCtlOpen(!ctlOpen)} />
+    <Button id="ctl-toggle" label="Toggle ctl" onPress={() => setCtlOpen(!ctlOpen)} />
     <Dialog id="ctl" isOpen={ctlOpen} onOpenChange={(o) => setCtlOpen(o)}>
       <DialogHeader title="Controlled" />
       <Text id="ctl-body">Controlled dialog</Text>
@@ -35,12 +35,12 @@ export function OverlaysProbe() @{
       <Text id="unctl-body">Uncontrolled dialog</Text>
     </Dialog>
 
-    <Button id="ov-trigger" label="Overlay" clickAction={() => setOvOpen(true)} />
+    <Button id="ov-trigger" label="Overlay" onPress={() => setOvOpen(true)} />
     <Overlay testID="ov" shadeCover open={ovOpen} onDismiss={() => setOvOpen(false)}>
       <Text id="ov-body">Shaded overlay</Text>
     </Overlay>
 
-    <Button id="alert-trigger" label="Alert" clickAction={() => setMark('alert')} />
+    <Button id="alert-trigger" label="Alert" onPress={() => setMark('alert')} />
     <AlertDialog
       id="alert"
       isOpen={mark === 'alert'}
@@ -75,7 +75,7 @@ function ImperativeProbe(props: { onResult: (v: string) => void }) @{
     <Button
       id="imp-trigger"
       label="Imperative"
-      clickAction={() => {
+      onPress={() => {
         dialog.show(<Text id="imp-body">Imperative dialog</Text>)
         props.onResult('imp:shown')
       }}
@@ -83,7 +83,7 @@ function ImperativeProbe(props: { onResult: (v: string) => void }) @{
     <Button
       id="ia-trigger"
       label="ImpAlert"
-      clickAction={() => {
+      onPress={() => {
         alert.show({
           title: 'Imperative alert',
           actionLabel: 'Go',

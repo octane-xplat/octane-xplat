@@ -30,7 +30,7 @@ export function StepperCustomContent() @{
               />
             </div>
             <div>
-              <Button label="Continue" variant="primary" clickAction={() => setActive(1)} />
+              <Button label="Continue" variant="primary" onPress={() => setActive(1)} />
             </div>
           </div>
         )}
@@ -57,8 +57,8 @@ export function StepperCustomContent() @{
               </div>
             </Card>
             <div style={{ display: 'flex', gap: 8 }}>
-              <Button label="Back" variant="secondary" clickAction={() => setActive(0)} />
-              <Button label="Looks right" variant="primary" clickAction={() => setActive(2)} />
+              <Button label="Back" variant="secondary" onPress={() => setActive(0)} />
+              <Button label="Looks right" variant="primary" onPress={() => setActive(2)} />
             </div>
           </div>
         )}
@@ -70,8 +70,8 @@ export function StepperCustomContent() @{
               First deploy takes a few minutes — later deploys reuse the build cache.
             </Banner>
             <div style={{ display: 'flex', gap: 8 }}>
-              <Button label="Back" variant="secondary" clickAction={() => setActive(1)} />
-              <Button label="Deploy now" variant="primary" clickAction={() => setActive(3)} />
+              <Button label="Back" variant="secondary" onPress={() => setActive(1)} />
+              <Button label="Deploy now" variant="primary" onPress={() => setActive(3)} />
             </div>
           </div>
         )}

@@ -49,8 +49,8 @@ export default function TypeaheadKeysProbe() {
         }}
       />
       <TextInput label="After search" />
-      <Button label="Toggle read-only" clickAction={() => setBlocked(!blocked)} />
-      <Button label="Toggle consumer cancellation" clickAction={() => setCancel(!cancel)} />
+      <Button label="Toggle read-only" onPress={() => setBlocked(!blocked)} />
+      <Button label="Toggle consumer cancellation" onPress={() => setCancel(!cancel)} />
       <Text>
         Selected: {selected?.label ?? 'none'}; last key: {key}
       </Text>

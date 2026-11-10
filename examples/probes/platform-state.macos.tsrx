@@ -48,7 +48,7 @@ export default function PlatformStateProbe() @{
     </Text>
     <Button
       label={mounted ? 'Unmount readers' : 'Mount readers'}
-      clickAction={() => setMounted(!mounted)}
+      onPress={() => setMounted(!mounted)}
     />
     @if (mounted) {
       <Readers />

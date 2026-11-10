@@ -48,7 +48,7 @@ export default function AuthSessionProbe() {
       <Button
         label="Open cancellation fixture"
         isDisabled={!authSession.supported}
-        clickAction={start}
+        pressAction={start}
       />
       <Text>{result}</Text>
       <Text>

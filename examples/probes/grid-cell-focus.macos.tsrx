@@ -28,13 +28,13 @@ export default function GridCellFocusProbe() @{
       Home/End. Cell activation stays on Enter/Space or click; nested fields keep editing keys. This
       probe records mounting only.
     </Text>
-    <Button label="Focus first cell" clickAction={() => grid.onFocusCell?.(0)} />
-    <Button label="Focus last cell" clickAction={() => grid.onFocusCell?.(99)} />
-    <Button label="Toggle disabled cell 4" clickAction={() => setDisabled(!disabled)} />
-    <Button label="Toggle hidden cell 3" clickAction={() => setHidden(!hidden)} />
-    <Button label="Remove/restore cell 7" clickAction={() => setRemoved(!removed)} />
-    <Button label="Replace movement callback" clickAction={() => setAlternate(!alternate)} />
-    <Button label="Mount/unmount nested grid" clickAction={() => setNested(!nested)} />
+    <Button label="Focus first cell" pressAction={() => grid.onFocusCell?.(0)} />
+    <Button label="Focus last cell" pressAction={() => grid.onFocusCell?.(99)} />
+    <Button label="Toggle disabled cell 4" onPress={() => setDisabled(!disabled)} />
+    <Button label="Toggle hidden cell 3" onPress={() => setHidden(!hidden)} />
+    <Button label="Remove/restore cell 7" onPress={() => setRemoved(!removed)} />
+    <Button label="Replace movement callback" onPress={() => setAlternate(!alternate)} />
+    <Button label="Mount/unmount nested grid" onPress={() => setNested(!nested)} />
     <masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="cell-focus-grid">
       @for (const number of [0, 1, 2, 3, 4, 5, 6, 7, 8]) {
         @if (!(removed && number === 7)) {

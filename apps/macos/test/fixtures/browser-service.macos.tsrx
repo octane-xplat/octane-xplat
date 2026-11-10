@@ -17,11 +17,11 @@ export default function BrowserServiceProbe() {
       <Button
         label="Open in-app browser"
         isDisabled={!address || !webBrowser.supported}
-        clickAction={async () => setResult((await webBrowser.openBrowser(address)).type)}
+        pressAction={async () => setResult((await webBrowser.openBrowser(address)).type)}
       />
       <Button
         label="Dismiss browser"
-        clickAction={() => {
+        onPress={() => {
           webBrowser.dismissBrowser()
           setResult('Dismiss requested')
         }}

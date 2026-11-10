@@ -18,8 +18,8 @@ function Content(props: { onClose: () => void }) @{
         be undone.
       </Text>
       <HStack gap={2} justify="end">
-        <Button label="Cancel" variant="secondary" clickAction={props.onClose} />
-        <Button label="Delete" variant="destructive" clickAction={props.onClose} />
+        <Button label="Cancel" variant="secondary" onPress={props.onClose} />
+        <Button label="Delete" variant="destructive" onPress={props.onClose} />
       </HStack>
     </VStack>
   </VStack>

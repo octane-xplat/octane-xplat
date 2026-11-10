@@ -62,7 +62,7 @@ function NavigationOverlaysCard() {
               Modal — backdrop fade and content entry · duration-medium-max
             </Text>
             <HStack gap={2}>
-              <Button label="Open modal" clickAction={() => setModalOpen(true)} />
+              <Button label="Open modal" onPress={() => setModalOpen(true)} />
             </HStack>
           </VStack>
         </VStack>
@@ -88,9 +88,9 @@ function NavigationOverlaysCard() {
                 <Button
                   label="Cancel"
                   variant="secondary"
-                  clickAction={() => setModalOpen(false)}
+                  onPress={() => setModalOpen(false)}
                 />
-                <Button label="Confirm" variant="primary" clickAction={() => setModalOpen(false)} />
+                <Button label="Confirm" variant="primary" onPress={() => setModalOpen(false)} />
               </HStack>
             </LayoutFooter>
           }
@@ -153,10 +153,10 @@ function MicroInteractionsCard() {
             Buttons — hover, press, focus · duration-fast · Dropdown · duration-fast-max
           </Text>
           <HStack gap={2} wrap="wrap">
-            <Button label="Primary" variant="primary" clickAction={() => {}} />
-            <Button label="Secondary" variant="secondary" clickAction={() => {}} />
-            <Button label="Ghost" variant="ghost" clickAction={() => {}} />
-            <Button label="Destructive" variant="destructive" clickAction={() => {}} />
+            <Button label="Primary" variant="primary" onPress={() => {}} />
+            <Button label="Secondary" variant="secondary" onPress={() => {}} />
+            <Button label="Ghost" variant="ghost" onPress={() => {}} />
+            <Button label="Destructive" variant="destructive" onPress={() => {}} />
             <DropdownMenu
               button={{ label: 'Dropdown', variant: 'secondary' }}
               items={[
@@ -255,7 +255,7 @@ function MicroInteractionsCard() {
             <Button
               label={showStatus ? 'Clear' : 'Validate'}
               variant={showStatus ? 'ghost' : 'secondary'}
-              clickAction={() => setShowStatus((v) => !v)}
+              onPress={() => setShowStatus((v) => !v)}
             />
           </HStack>
         </VStack>
@@ -346,7 +346,7 @@ function LoadingStatusCard() {
                   label={`${v}%`}
                   variant="ghost"
                   size="sm"
-                  clickAction={() => setProgressValue(v)}
+                  onPress={() => setProgressValue(v)}
                 />
               ))}
             </HStack>
@@ -453,7 +453,7 @@ function ReducedMotionCard() {
                 label={moved ? 'Reset' : 'Move'}
                 variant="primary"
                 size="sm"
-                clickAction={() => setMoved((m) => !m)}
+                onPress={() => setMoved((m) => !m)}
               />
               <Switch
                 label="Simulate reduced motion"
@@ -491,7 +491,7 @@ export function DemoPopover({
         label={label}
         variant="secondary"
         size="sm"
-        clickAction={() => setOpen((v) => !v)}
+        onPress={() => setOpen((v) => !v)}
       />
       <Popover
         anchor={anchorRef}

@@ -67,7 +67,7 @@ export function ComplexSelectorDeadlinePicker() @{
               <Button
                 variant="primary"
                 label="Apply"
-                clickAction={() => {
+                onPress={() => {
                   if (!customDate) {
                     setError('Please select a date before applying')
                     return

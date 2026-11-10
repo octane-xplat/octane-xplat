@@ -18,7 +18,7 @@ export function Panel() {
   return (
     <View gestures={drag}>
       <Text>Dragged {Math.round(distance)} points</Text>
-      <Button clickAction={() => setSaved(true)}>Save</Button>
+      <Button onPress={() => setSaved(true)}>Save</Button>
       <Text>{saved ? 'Saved' : 'Unsaved'}</Text>
     </View>
   )
@@ -172,7 +172,7 @@ export function InterruptibleDrag() {
   const drag = usePanGesture$({ axis: 'x', enabled$ })
   return (
     <View>
-      <Button clickAction={() => enabled$.set(false)}>Stop dragging</Button>
+      <Button onPress={() => enabled$.set(false)}>Stop dragging</Button>
       <View gestures={drag} />
     </View>
   )
@@ -245,7 +245,7 @@ export function LockableContent() {
   return (
     <View>
       <Button
-        clickAction={() => {
+        onPress={() => {
           if (lease.current) return
           const result = scope.suspend()
           if (result.ok) {
@@ -257,7 +257,7 @@ export function LockableContent() {
         Suspend content
       </Button>
       <Button
-        clickAction={() => {
+        onPress={() => {
           lease.current?.release()
           lease.current = null
           setStatus('Ready')

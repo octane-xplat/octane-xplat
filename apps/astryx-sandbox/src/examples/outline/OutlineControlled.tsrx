@@ -21,8 +21,8 @@ export function OutlineControlled() @{
   <VStack gap={4} style={{ width: 240 }}>
     <Outline items={items} activeId={activeId} onActiveIdChange={setActiveId} />
     <HStack gap={2}>
-      <Button variant="secondary" size="sm" label="Previous" clickAction={() => goTo(index - 1)} />
-      <Button variant="secondary" size="sm" label="Next" clickAction={() => goTo(index + 1)} />
+      <Button variant="secondary" size="sm" label="Previous" onPress={() => goTo(index - 1)} />
+      <Button variant="secondary" size="sm" label="Next" onPress={() => goTo(index + 1)} />
     </HStack>
     <Text type="supporting" color="secondary">
       Active section: {items[index]?.label}

@@ -42,7 +42,7 @@ export function TableSelectionToolbar(props: TableSelectionToolbarProps): any @{
           label={clearLabel}
           variant="secondary"
           size="sm"
-          clickAction={selection.clearSelection}
+          onPress={selection.clearSelection}
         />
       </HStack>
     }

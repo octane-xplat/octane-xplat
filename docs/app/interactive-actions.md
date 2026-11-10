@@ -33,12 +33,12 @@ export function Example() {
         label="Save"
         variant="primary"
         size="lg"
-        clickAction={async () => {
+        onPress={() => {
           console.log('Saved')
         }}
       />
       <ToggleButton label="Pin" isPressed={pinned} onPressedChange={setPinned} />
-      <IconButton label="Share" icon="xplat-search" clickAction={() => console.log('Share')} />
+      <IconButton label="Share" icon="xplat-search" onPress={() => console.log('Share')} />
     </ButtonGroup>
   )
 }
@@ -109,22 +109,71 @@ export function Example() {
 
 ## Button states and actions
 
-`Button` has one spelling per state and action: `isDisabled`, `isLoading`,
-`icon`, and `endContent` for slots, and `clickAction` for the press action;
-`children` takes precedence over `label`. A pending `clickAction` shows a
-loading indicator and prevents repeat presses unless `isInterruptible` is
-true — with it, each press starts another overlapping call without
-cancelling the in-flight one. A failed action retries by pressing again;
-the promise `clickAction` returns is the handle your code awaits.
+Use `onPress` for immediate effects, such as changing local state, moving focus,
+opening a panel, or stopping playback. Use `pressAction` for asynchronous work:
+it must return a promise. Returning a promise from `onPress` does not enable
+pending-state or action-error handling. A pending action shows a loading indicator and prevents
+repeat presses unless `isInterruptible` is true. With that option, each press
+starts another call and the button stays busy until every call settles. Do not
+make a synchronous effect `async` just to use `pressAction`.
 
-**Migrating existing code:** the legacy `disabled`, `loading`, `leading`,
-`trailing`, and `onPress` props were removed — rename them to `isDisabled`,
-`isLoading`, `icon`, `endContent`, and `clickAction`. Both spellings used to
-merge (either disabled/loading state won); now only the single spelling is
-accepted. `IconButton` and `ToggleButton` share the same contract;
-`ToggleButton` uses `pressedChangeAction` instead of `clickAction`.
+```tsx
+import { Button } from '@octane-xplat/ui'
 
-When a `clickAction` promise rejects — or the action throws — the failure
+export function Actions(props: { close(): void; save(): Promise<void> }) {
+  return (
+    <>
+      <Button label="Close" onPress={props.close} />
+      <Button label="Save" pressAction={props.save} />
+    </>
+  )
+}
+```
+
+When both are supplied, `onPress` runs first. Its `preventDefault()` skips the
+link's navigation and the asynchronous action. A thrown `onPress` error also
+skips the action and goes to the renderer's error boundary. Disabled buttons
+and buttons blocked by a pending action run neither callback. Keyboard and
+accessibility activation use the same handlers. `IconButton` shares this
+contract. Toggle buttons use `onPressedChange` for immediate changes and
+`pressedChangeAction` for asynchronous saves.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function GuardedSave(props: { valid: boolean; save(): Promise<void> }) {
+  return (
+    <Button
+      label="Save"
+      onPress={(event) => {
+        if (!props.valid) event.preventDefault()
+      }}
+      pressAction={props.save}
+    />
+  )
+}
+```
+
+**Migrating existing code:** `clickAction` is removed. Move synchronous callbacks
+to `onPress` and Promise-returning callbacks to `pressAction`. Earlier alpha
+versions removed Button's `onPress`; it is now the synchronous effect callback.
+Keep `isDisabled`, `isLoading`, `icon`, and `endContent` for state and slots.
+There is no compatibility alias for `clickAction`.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Migrated(props: { open(): void; upload(): Promise<void> }) {
+  return (
+    <>
+      <Button label="Open" onPress={props.open} />
+      <Button label="Upload" pressAction={props.upload} />
+    </>
+  )
+}
+```
+
+When a `pressAction` promise rejects — or the action throws — the failure
 reports through `onActionError`. If no handler is set, the error still
 surfaces as an uncaught asynchronous error so a failed action is never
 silently swallowed. `ToggleButton`'s `pressedChangeAction` reports the same
@@ -140,7 +189,7 @@ export function Example() {
       isDisabled={false}
       isLoading={false}
       isInterruptible={false}
-      clickAction={async () => {
+      pressAction={async () => {
         await Promise.resolve()
       }}
       onActionError={(error) => {
@@ -157,7 +206,6 @@ export function Example() {
 
 [Try the goal counter demo](../demos/goal-counter.md) with bundled local content.
 
-
 ## AppKit card qualification
 
 AppKit cards now wrap primitive children in native text hosts while preserving
@@ -168,9 +216,11 @@ card leaves; native appearance remains unqualified.
 import { ClickableCard } from '@octane-xplat/ui'
 
 export function ProjectHelp() {
-  return <ClickableCard label="Open project help" href="https://example.com/help" elevation="low">
-    Read help
-  </ClickableCard>
+  return (
+    <ClickableCard label="Open project help" href="https://example.com/help" elevation="low">
+      Read help
+    </ClickableCard>
+  )
 }
 ```
 
@@ -182,7 +232,6 @@ FocusScope owner respects its explicit focus eligibility. This requires the
 matching renderer bridge. These source changes do not qualify real Tab order,
 VoiceOver, physical input, layout or packaging.
 
-
 A disabled selection card remains discoverable by focus while rejecting changes.
 Other disabled controls retain their ordinary focus behavior. Hiding, explicit
 Tab suppression and scope fallback exclusions still take precedence.
@@ -190,9 +239,17 @@ Tab suppression and scope fallback exclusions still take precedence.
 ```tsx
 import { SelectableCard } from '@octane-xplat/ui'
 
-export function Plan({ selected, onChange }: { selected: boolean; onChange(value: boolean): void }) {
-  return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>
-    Team plan is currently unavailable
-  </SelectableCard>
+export function Plan({
+  selected,
+  onChange,
+}: {
+  selected: boolean
+  onChange(value: boolean): void
+}) {
+  return (
+    <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>
+      Team plan is currently unavailable
+    </SelectableCard>
+  )
 }
 ```

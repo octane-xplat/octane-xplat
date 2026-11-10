@@ -34,7 +34,7 @@ vi.mock('../feedback/ActivityIndicator.tsrx', async () => ({
 import { Button } from './Button.tsrx'
 
 describe('native button action failure reporting', () => {
-  it('reports a rejected clickAction through onActionError', async () => {
+  it('reports a rejected pressAction through onActionError', async () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const error = new Error('save failed')
@@ -43,7 +43,7 @@ describe('native button action failure reporting', () => {
 
     root.render(Button, {
       label: 'Save',
-      clickAction: () =>
+      pressAction: () =>
         new Promise<void>((_, reject) => {
           rejectAction = reject
         }),
@@ -61,7 +61,7 @@ describe('native button action failure reporting', () => {
     root.unmount()
   })
 
-  it('reports a synchronous clickAction throw through onActionError', () => {
+  it('reports a synchronous pressAction throw through onActionError', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const error = new Error('sync failure')
@@ -69,7 +69,7 @@ describe('native button action failure reporting', () => {
 
     root.render(Button, {
       label: 'Save',
-      clickAction: () => {
+      pressAction: () => {
         throw error
       },
       onActionError,
@@ -79,4 +79,59 @@ describe('native button action failure reporting', () => {
     expect(onActionError).toHaveBeenCalledWith(error)
     root.unmount()
   })
+})
+
+it('runs a native synchronous effect before navigation and lets it prevent the action', () => {
+  const container = createObjectContainer('nativescript')
+  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const action = vi.fn(async () => {})
+  const effects: string[] = []
+
+  root.render(Button, {
+    label: 'Save',
+    href: 'https://example.com',
+    onPress: (event) => {
+      effects.push(event.source)
+      event.preventDefault()
+    },
+    pressAction: action,
+  })
+
+  try {
+    dispatchTestInput(container, container.children[0], 'tap', {})
+    expect(effects).toEqual(['virtual'])
+    expect(action).not.toHaveBeenCalled()
+  } finally {
+    root.unmount()
+  }
+})
+
+it('releases native admission after a synchronous effect throws and never starts its action', () => {
+  const container = createObjectContainer('nativescript')
+  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const action = vi.fn(async () => {})
+  let calls = 0
+
+  root.render(Button, {
+    label: 'Save',
+    onPress: () => {
+      if (++calls === 1) {
+        throw new Error('Effect failed')
+      }
+    },
+    pressAction: action,
+  })
+
+  try {
+    expect(() => dispatchTestInput(container, container.children[0], 'tap', {})).toThrow(
+      'Effect failed',
+    )
+
+    expect(action).not.toHaveBeenCalled()
+    dispatchTestInput(container, container.children[0], 'tap', {})
+    expect(calls).toBe(2)
+    expect(action).toHaveBeenCalledTimes(1)
+  } finally {
+    root.unmount()
+  }
 })

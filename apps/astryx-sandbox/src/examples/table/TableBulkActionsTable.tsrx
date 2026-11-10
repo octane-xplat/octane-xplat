@@ -50,8 +50,8 @@ export function TableBulkActionsTable() @{
       selection={selectionState}
       startContent={
         <>
-          <Button label="Export" variant="ghost" clickAction={() => {}} />
-          <Button label="Delete" variant="ghost" clickAction={selectionState.clearSelection} />
+          <Button label="Export" variant="ghost" onPress={() => {}} />
+          <Button label="Delete" variant="ghost" onPress={selectionState.clearSelection} />
         </>
       }
     />

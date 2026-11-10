@@ -21,7 +21,7 @@ export function VisuallyHiddenLiveRegion() {
         narrates them.
       </Text>
       <HStack gap={3} vAlign="center">
-        <Button label="Move task" variant="secondary" clickAction={move} />
+        <Button label="Move task" variant="secondary" onPress={move} />
         <Text type="body">
           Task is in <Text weight="bold">{current}</Text>
         </Text>

@@ -675,7 +675,7 @@ function BillingPanel(props: { settings: SettingsState; update: UpdateSetting })
         description="8 seats · $24 per seat, billed monthly."
         icon="sandbox-credit-card"
         control={
-          <Button label="Change plan" variant="secondary" size="sm" clickAction={() => {}} />
+          <Button label="Change plan" variant="secondary" size="sm" onPress={() => {}} />
         }
       />
       <SettingsRow
@@ -867,7 +867,7 @@ function ShortcutsPanel() @{
                 label={overrides[shortcut.id] ? 'Re-enable' : 'Rebind'}
                 variant="ghost"
                 size="sm"
-                clickAction={() =>
+                onPress={() =>
                   setOverrides((prev) => ({ ...prev, [shortcut.id]: !prev[shortcut.id] }))
                 }
               />
@@ -965,7 +965,7 @@ function PrivacyPanel(props: { settings: SettingsState; update: UpdateSetting })
         description="A download of everything we hold about you."
         icon="sandbox-arrow-down-tray"
         control={
-          <Button label="Request export" variant="secondary" size="sm" clickAction={() => {}} />
+          <Button label="Request export" variant="secondary" size="sm" onPress={() => {}} />
         }
       />
       <SettingsRow
@@ -973,7 +973,7 @@ function PrivacyPanel(props: { settings: SettingsState; update: UpdateSetting })
         description="Removes your profile and content permanently."
         icon="sandbox-trash"
         control={
-          <Button label="Delete account" variant="destructive" size="sm" clickAction={() => {}} />
+          <Button label="Delete account" variant="destructive" size="sm" onPress={() => {}} />
         }
       />
     </SettingsCard>
@@ -998,7 +998,7 @@ function IntegrationsPanel() @{
             label={integration.status === 'Connected' ? 'Manage' : 'Connect'}
             variant={integration.status === 'Connected' ? 'secondary' : 'primary'}
             size="sm"
-            clickAction={() => {}}
+            onPress={() => {}}
           />
         }
       />
@@ -1026,7 +1026,7 @@ function DeveloperPanel(props: { settings: SettingsState; update: UpdateSetting 
         title="Personal access token"
         description="Ends in …4f2c. Created March 2, 2026."
         icon="sandbox-identification"
-        control={<Button label="Regenerate" variant="secondary" size="sm" clickAction={() => {}} />}
+        control={<Button label="Regenerate" variant="secondary" size="sm" onPress={() => {}} />}
       />
     </SettingsCard>
     <SettingsCard title="Pre-release">
@@ -1090,7 +1090,7 @@ function SettingsPanelTabs(props: {
         icon={<Icon name={panel.icon} size={16} />}
         variant={panel.id === props.activePanel ? 'secondary' : 'ghost'}
         size="sm"
-        clickAction={() => props.onSelectPanel(panel.id)}
+        onPress={() => props.onSelectPanel(panel.id)}
       />
     ))}
   </HStack>
@@ -1147,7 +1147,7 @@ export function SettingsDialogTemplate() @{
               size="sm"
               isIconOnly
               icon={<Icon name="sandbox-x-mark" size={16} />}
-              clickAction={noop}
+              onPress={noop}
             />
           </HStack>
           <Divider />

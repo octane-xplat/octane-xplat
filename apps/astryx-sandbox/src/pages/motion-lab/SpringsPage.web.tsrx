@@ -212,7 +212,7 @@ function InterruptDemo({ duration, bounce }: { duration: number; bounce: number 
         size="sm"
         variant="secondary"
         label="Send it back — press twice, fast"
-        clickAction={toggle}
+        onPress={toggle}
       />
     </VStack>
   )

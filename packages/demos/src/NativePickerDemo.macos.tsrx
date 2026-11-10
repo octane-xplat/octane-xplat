@@ -76,30 +76,30 @@ export function NativePickerDemo() @{
         }}
       />
     }
-    <Button label="Toggle controlled selection" clickAction={() => setControlled(!controlled)} />
-    <Button label="Accept/reject controlled changes" clickAction={() => setAccept(!accept)} />
-    <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
-    <Button label="Reverse choices" clickAction={() => setReverse(!reverse)} />
+    <Button label="Toggle controlled selection" onPress={() => setControlled(!controlled)} />
+    <Button label="Accept/reject controlled changes" onPress={() => setAccept(!accept)} />
+    <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
+    <Button label="Reverse choices" onPress={() => setReverse(!reverse)} />
     <Button
       label="Rename choice in place"
-      clickAction={() => {
+      onPress={() => {
         base.current[1].title = `Renamed ${revision + 1}`
         setRevision((n) => n + 1)
       }}
     />
-    <Button label="Toggle empty choices" clickAction={() => setEmpty(!empty)} />
-    <Button label="Toggle duplicate ID" clickAction={() => setDuplicateID(!duplicateID)} />
+    <Button label="Toggle empty choices" onPress={() => setEmpty(!empty)} />
+    <Button label="Toggle duplicate ID" onPress={() => setDuplicateID(!duplicateID)} />
     <Button
       label="Toggle missing controlled ID"
-      clickAction={() => {
+      onPress={() => {
         setControlled(true)
         setInvalidSelection(!invalidSelection)
       }}
     />
-    <Button label="Replace current handler" clickAction={() => setAlternate(!alternate)} />
-    <Button label="Replace record" clickAction={() => setRecord(record === 'A' ? 'B' : 'A')} />
-    <Button label="Replace record in 1.5 seconds, then open menu" clickAction={replaceLater} />
-    <Button label="Mount/unmount picker" clickAction={() => setMounted(!mounted)} />
+    <Button label="Replace current handler" onPress={() => setAlternate(!alternate)} />
+    <Button label="Replace record" onPress={() => setRecord(record === 'A' ? 'B' : 'A')} />
+    <Button label="Replace record in 1.5 seconds, then open menu" onPress={replaceLater} />
+    <Button label="Mount/unmount picker" onPress={() => setMounted(!mounted)} />
     <Text id="native-picker-status">{`${controlled ? 'Controlled' : 'Uncontrolled'} · ${accept ? 'accept' : 'reject'} · selection ${JSON.stringify(selection)} · record ${record} · ${events} changes · ${last} · rename ${revision}`}</Text>
     <Text>
       Source implementation; native pointer/keyboard, menu tracking, Tab/focus, VoiceOver, layout

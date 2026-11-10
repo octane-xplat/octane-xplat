@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useState } from 'octane'
 import { Utils } from '@nativescript/core'
 import { TextSlot } from '../forms/text-slot.tsrx'
 import type { ButtonProps } from '../../props'
@@ -11,19 +10,30 @@ import { useButtonGroup } from './button-group-context'
 import { useSize } from '../layout/size-context'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { reportActionError } from '../../internal/rendering/action-error'
+import { useButtonAction } from './use-button-action.tsrx'
 
 /** Self-drawn button — Pressable row with optional icon/label/end content
  *  and a loading state that swaps content for the spinner and blocks
- *  presses. Props follow the Astryx vocabulary (`label`, `variant`, `size`,
+ *  presses. Props follow the shared action vocabulary (`label`, `variant`, `size`,
  *  `isDisabled`, `isLoading`, `icon`, `isIconOnly`, `endContent`,
- *  `elevation`, `href`, `clickAction`, `isInterruptible`); `href` opens the
+ *  `elevation`, `href`, `pressAction`, `isInterruptible`); `href` opens the
  *  platform browser — touch targets have no link-preview semantics.
  *  Inside a ButtonGroup the group supplies size/disabled and a position
  *  class for the connected edge treatment. */
 export function Button(props: ButtonProps): unknown @{
   const group = useButtonGroup()
-  const [actionPending, setActionPending] = useState(false)
+  const { pending: actionPending, press: runPress } = useButtonAction(
+    props,
+    Boolean(group?.isDisabled),
+    (href) => {
+      const url = sanitizeUrl(href)
+
+      if (url != null) {
+        Utils.openUrl(url)
+      }
+    },
+  )
+
   // Mirror the web leaf: busy (isLoading or in-flight action) disables unless
   // interruptible, and reports the busy accessibility state.
   const busy = !!(props.isLoading || actionPending)
@@ -52,40 +62,6 @@ export function Button(props: ButtonProps): unknown @{
       {props.endContent}
     </>
   )
-
-  const runPress = () => {
-    if (disabled || (actionPending && !props.isInterruptible)) {
-      return
-    }
-
-    if (props.href != null) {
-      const url = sanitizeUrl(props.href)
-
-      if (url != null) {
-        Utils.openUrl(url)
-      }
-    }
-
-    let action: void | Promise<void> | undefined
-
-    try {
-      action = props.clickAction?.()
-    } catch (error) {
-      reportActionError(error, props.onActionError)
-      return
-    }
-
-    if (action && typeof action.then === 'function') {
-      setActionPending(true)
-      Promise.resolve(action).then(
-        () => setActionPending(false),
-        (error) => {
-          setActionPending(false)
-          reportActionError(error, props.onActionError)
-        },
-      )
-    }
-  }
 
   <Pressable
     {...props}

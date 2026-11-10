@@ -92,12 +92,12 @@ const DOCS = {
 
 const EXAMPLE_PREVIEWS = [
   <HStack key="semantics" gap={3} vAlign="center">
-    <Button label="Flat" variant="ghost" clickAction={() => {}} />
-    <Button label="Default" variant="secondary" clickAction={() => {}} />
-    <Button label="Primary" variant="primary" clickAction={() => {}} />
-    <Button label="Destructive" variant="destructive" clickAction={() => {}} />
+    <Button label="Flat" variant="ghost" onPress={() => {}} />
+    <Button label="Default" variant="secondary" onPress={() => {}} />
+    <Button label="Primary" variant="primary" onPress={() => {}} />
+    <Button label="Destructive" variant="destructive" onPress={() => {}} />
   </HStack>,
-  <Button key="badge" label="Button" variant="secondary" clickAction={() => {}} />,
+  <Button key="badge" label="Button" variant="secondary" onPress={() => {}} />,
 ]
 
 const COMPONENT_PREVIEW = (
@@ -106,7 +106,7 @@ const COMPONENT_PREVIEW = (
     variant="secondary"
     icon={<Icon name="sandbox-plus" />}
     endContent={<Badge label="New" variant="neutral" />}
-    clickAction={() => {}}
+    onPress={() => {}}
   />
 )
 
@@ -233,13 +233,13 @@ export function DocumentationDesignTemplate() @{
                           variant="ghost"
                           size="sm"
                           icon={<Icon name="sandbox-arrow-top-right-on-square" size={16} />}
-                          clickAction={() => {}}
+                          onPress={() => {}}
                         />
                         <Button
                           label="Send to CLI"
                           variant="ghost"
                           size="sm"
-                          clickAction={() => {}}
+                          onPress={() => {}}
                         />
                         <Button
                           label="Fullscreen"
@@ -247,7 +247,7 @@ export function DocumentationDesignTemplate() @{
                           size="sm"
                           isIconOnly
                           icon={<Icon name="sandbox-arrows-pointing-out" size={16} />}
-                          clickAction={() => {}}
+                          onPress={() => {}}
                         />
                       </HStack>
                     </HStack>

@@ -24,12 +24,12 @@ export default function ImageFitProbe() {
       <Button
         id="fit-toggle"
         label="Toggle cover/contain"
-        clickAction={() => setFit((value) => (value === 'cover' ? 'contain' : 'cover'))}
+        onPress={() => setFit((value) => (value === 'cover' ? 'contain' : 'cover'))}
       />
       <Button
         id="position-toggle"
         label="Toggle corner"
-        clickAction={() =>
+        onPress={() =>
           setCorner((value) => (value === 'top left' ? 'bottom right' : 'top left'))
         }
       />

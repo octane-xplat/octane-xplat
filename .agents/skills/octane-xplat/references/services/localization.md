@@ -67,7 +67,7 @@ unqualified. See [AppKit custom cells](../../../../../docs/app/components.md#cus
 import { Button, useAnnounce } from '@octane-xplat/ui'
 export function Status() {
   const announce = useAnnounce()
-  return <Button label="Report saved" clickAction={() => announce('Saved')} />
+  return <Button label="Report saved" onPress={() => announce('Saved')} />
 }
 ```
 

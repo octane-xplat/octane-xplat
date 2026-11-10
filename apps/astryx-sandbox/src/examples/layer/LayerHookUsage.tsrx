@@ -10,7 +10,7 @@ export function LayerHookUsage() @{
         <Button
           label={layer.isOpen ? 'Hide layer' : 'Show layer'}
           ref={layer.ref}
-          clickAction={layer.isOpen ? layer.hide : layer.show}
+          onPress={layer.isOpen ? layer.hide : layer.show}
         />
         {layer.render(
           <Card padding={3}>

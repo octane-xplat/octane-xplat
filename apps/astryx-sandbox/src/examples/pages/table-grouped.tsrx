@@ -83,7 +83,7 @@ export function TableGroupedTemplate() @{
   <VStack gap={4} padding={4}>
     <HStack hAlign="between">
       <Heading level={1}>All Issues</Heading>
-      <Button label="Create issue" clickAction={() => setDialogOpen(true)} />
+      <Button label="Create issue" onPress={() => setDialogOpen(true)} />
     </HStack>
     <TextInput
       label="Filter issues"
@@ -125,7 +125,7 @@ export function TableGroupedTemplate() @{
             <Text>{selectedTask.project}</Text>
             <Text>{selectedTask.assignee}</Text>
             <Text>{selectedTask.priority}</Text>
-            <Button label="Close details" clickAction={() => setSelectedTask(null)} />
+            <Button label="Close details" onPress={() => setSelectedTask(null)} />
           </VStack>
         </HStack>
       )}
@@ -151,8 +151,8 @@ export function TableGroupedTemplate() @{
         />
         <TextInput label="Project" value="" onChange={() => {}} />
         <HStack gap={2}>
-          <Button label="Cancel" clickAction={() => setDialogOpen(false)} />
-          <Button label="Create" clickAction={() => setDialogOpen(false)} />
+          <Button label="Cancel" onPress={() => setDialogOpen(false)} />
+          <Button label="Create" onPress={() => setDialogOpen(false)} />
         </HStack>
       </VStack>
     </Dialog>

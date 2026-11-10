@@ -150,7 +150,7 @@ export function Booking(props: { date: string | null; change(date: string | null
   const input = useRef<TextInputHandle | null>(null)
   return <>
     <DateInput ref={input} label="Booking date" value={props.date} onChange={props.change} />
-    <Button label="Edit date" clickAction={() => input.current?.focus()} />
+    <Button label="Edit date" onPress={() => input.current?.focus()} />
   </>
 }
 ```

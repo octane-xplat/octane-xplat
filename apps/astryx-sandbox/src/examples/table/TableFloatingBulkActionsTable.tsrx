@@ -65,7 +65,7 @@ export function TableFloatingBulkActionsTable() @{
       <TableSelectionToolbar
         selection={selectionState}
         className="sb-bulk-toolbar"
-        startContent={<Button label="Approve" variant="ghost" clickAction={() => {}} />}
+        startContent={<Button label="Approve" variant="ghost" onPress={() => {}} />}
       />
       <Table data={users} columns={columns} idKey="id" plugins={{ selection: selectionPlugin }} />
     </div>

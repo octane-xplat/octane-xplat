@@ -397,7 +397,7 @@ function SoundBarsButton({
         size={size}
         icon={isListening ? undefined : <Icon name="xplat-mic" size={size === 'sm' ? 16 : 20} />}
         isIconOnly
-        clickAction={dictation.toggle}
+        onPress={dictation.toggle}
       />
     </span>
   )
@@ -584,7 +584,7 @@ export function DictationLabPage() {
                   label={s.label}
                   variant={selectedAttack === s.id ? 'primary' : 'ghost'}
                   size="sm"
-                  clickAction={() => setSelectedAttack(s.id)}
+                  onPress={() => setSelectedAttack(s.id)}
                 />
               ))}
             </HStack>
@@ -599,7 +599,7 @@ export function DictationLabPage() {
                   label={p.label}
                   variant={selectedPattern === p.id ? 'primary' : 'ghost'}
                   size="sm"
-                  clickAction={() => setSelectedPattern(p.id)}
+                  onPress={() => setSelectedPattern(p.id)}
                 />
               ))}
             </HStack>
@@ -615,7 +615,7 @@ export function DictationLabPage() {
               label="Preview Start"
               variant="secondary"
               size="sm"
-              clickAction={() => {
+              onPress={() => {
                 const style = attackStyles.find((s) => s.id === selectedAttack)
                 const pattern = notePatterns.find((p) => p.id === selectedPattern)
 
@@ -628,7 +628,7 @@ export function DictationLabPage() {
               label="Preview Stop"
               variant="ghost"
               size="sm"
-              clickAction={() => {
+              onPress={() => {
                 const style = attackStyles.find((s) => s.id === selectedAttack)
                 const pattern = notePatterns.find((p) => p.id === selectedPattern)
 

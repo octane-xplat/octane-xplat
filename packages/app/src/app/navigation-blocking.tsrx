@@ -18,22 +18,22 @@ export function NavigationBlocking(): Renderable {
       <Text>Edit the draft, then try Back.</Text>
       <Text id="navigation-blocking-dirty">{dirty ? 'Unsaved draft' : 'Saved draft'}</Text>
       <Text id="navigation-blocking-status">{blocker.status}</Text>
-      <Button id="navigation-blocking-edit" label="Edit draft" clickAction={() => setDirty(true)} />
+      <Button id="navigation-blocking-edit" label="Edit draft" onPress={() => setDirty(true)} />
       <Button
         id="navigation-blocking-back"
         label="Back"
-        clickAction={() => {
+        onPress={() => {
           void navigation.back()
         }}
       />
       {blocker.status === 'blocked' ? (
         <View className="sink-section">
           <Text>Leave without saving?</Text>
-          <Button id="navigation-blocking-keep" label="Keep editing" clickAction={blocker.reset} />
+          <Button id="navigation-blocking-keep" label="Keep editing" onPress={blocker.reset} />
           <Button
             id="navigation-blocking-leave"
             label="Leave screen"
-            clickAction={blocker.proceed}
+            onPress={blocker.proceed}
           />
         </View>
       ) : null}

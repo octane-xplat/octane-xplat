@@ -30,7 +30,7 @@ export default function DateFocusProbe() {
   return (
     <VStack gap={2}>
       <label text="Use the buttons to request each field's primary focus. Check DateTimeInput blur from both segments, unrelated editors, draft/IME callbacks, current blocking and popup interactions. The runner synthesizes no native focus or input." />
-      <Button label="Toggle read-only" clickAction={() => setBlocked(!blocked)} />
+      <Button label="Toggle read-only" onPress={() => setBlocked(!blocked)} />
       <DateInput
         id="focus-date"
         ref={date}
@@ -39,9 +39,9 @@ export default function DateFocusProbe() {
         onChange={setD}
         isReadOnly={blocked}
       />
-      <Button label="Focus date" clickAction={() => date.current?.focus()} />
+      <Button label="Focus date" onPress={() => date.current?.focus()} />
       <TimeInput ref={time} label="Time" value={t} onChange={setT} isReadOnly={blocked} />
-      <Button label="Focus time" clickAction={() => time.current?.focus()} />
+      <Button label="Focus time" onPress={() => time.current?.focus()} />
       <DateTimeInput
         ref={datetime}
         label="Appointment"
@@ -49,10 +49,10 @@ export default function DateFocusProbe() {
         onChange={setDt}
         isReadOnly={blocked}
       />
-      <Button label="Focus appointment date" clickAction={() => datetime.current?.focus()} />
-      <Button label="Blur appointment" clickAction={() => datetime.current?.blur()} />
+      <Button label="Focus appointment date" onPress={() => datetime.current?.focus()} />
+      <Button label="Blur appointment" onPress={() => datetime.current?.blur()} />
       <DateRangeInput ref={range} label="Stay" value={r} onChange={setR} isReadOnly={blocked} />
-      <Button label="Focus range trigger" clickAction={() => range.current?.focus()} />
+      <Button label="Focus range trigger" onPress={() => range.current?.focus()} />
     </VStack>
   )
 }

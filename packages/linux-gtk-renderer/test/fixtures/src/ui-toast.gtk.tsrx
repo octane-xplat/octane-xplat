@@ -14,7 +14,7 @@ function ViewportProbes(props: {
     <Button
       id={`${props.prefix}-push`}
       label={`${props.prefix} push`}
-      clickAction={() =>
+      onPress={() =>
         props.keep(
           `${props.prefix}a`,
           toast({ body: `${props.prefix}-toast-a`, isAutoHide: false }),
@@ -24,7 +24,7 @@ function ViewportProbes(props: {
     <Button
       id={`${props.prefix}-push-b`}
       label={`${props.prefix} push b`}
-      clickAction={() =>
+      onPress={() =>
         props.keep(
           `${props.prefix}b`,
           toast({ body: `${props.prefix}-toast-b`, isAutoHide: false }),
@@ -34,7 +34,7 @@ function ViewportProbes(props: {
     <Button
       id={`${props.prefix}-push-c`}
       label={`${props.prefix} push c`}
-      clickAction={() =>
+      onPress={() =>
         props.keep(
           `${props.prefix}c`,
           toast({ body: `${props.prefix}-toast-c`, isAutoHide: false }),
@@ -53,7 +53,7 @@ export const pushRenderToast = (onHide: (reason: string) => void) =>
     renderContent: (t) => (
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Text>render-toast-body</Text>
-        <Button id="toast-dismiss-btn" label="Close" clickAction={() => t.dismiss()} />
+        <Button id="toast-dismiss-btn" label="Close" onPress={() => t.dismiss()} />
       </View>
     ),
   })
@@ -74,13 +74,13 @@ export function ToastProbe() @{
   // stay in the uncovered middle-left band.
 
   <View style={{ flexDirection: 'column', width: 150, marginTop: 90 }}>
-    <Button id="bg" label="Background" clickAction={() => setBgClicks(bgClicks + 1)} />
+    <Button id="bg" label="Background" onPress={() => setBgClicks(bgClicks + 1)} />
     <Text id="bg-count">{String(bgClicks)}</Text>
-    <Button ref={anchorRef} id="anchor-btn" label="Anchor" clickAction={() => setMark('anchor')} />
+    <Button ref={anchorRef} id="anchor-btn" label="Anchor" onPress={() => setMark('anchor')} />
     <Button
       id="t-outer"
       label="Outer"
-      clickAction={() => {
+      onPress={() => {
         outerToast({
           body: 'outer-toast-body',
           isAutoHide: false,
@@ -94,7 +94,7 @@ export function ToastProbe() @{
     <Button
       id="t-anchor"
       label="Anchored"
-      clickAction={() => {
+      onPress={() => {
         outerToast({
           body: 'anchored-toast-body',
           anchor: anchorRef,
@@ -106,14 +106,14 @@ export function ToastProbe() @{
     <Button
       id="vp-dismiss-c"
       label="Dismiss C"
-      clickAction={() => handles.current.vpc?.dismiss()}
+      onPress={() => handles.current.vpc?.dismiss()}
     />
     {vp2Mounted ? (
       <ToastViewport position="bottomStart" inset={{ bottom: 60, start: 50 }}>
         <ViewportProbes prefix="in" keep={keep} />
       </ToastViewport>
     ) : null}
-    <Button id="vp2-toggle" label="Toggle VP2" clickAction={() => setVp2Mounted(!vp2Mounted)} />
+    <Button id="vp2-toggle" label="Toggle VP2" onPress={() => setVp2Mounted(!vp2Mounted)} />
     <Toast id="inline-toast" type="error" isAutoHide={false} body="inline-toast-body" />
     <Text id="picked">{mark}</Text>
   </View>

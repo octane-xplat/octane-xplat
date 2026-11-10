@@ -26,7 +26,7 @@ export default function PopoverProbe() {
           id="popover-anchor"
           ref={anchor}
           label="Toggle details"
-          clickAction={() => setOpen((value) => !value)}
+          onPress={() => setOpen((value) => !value)}
         />
         <Popover
           anchor={anchor}
@@ -41,14 +41,14 @@ export default function PopoverProbe() {
           <VStack gap={2}>
             <ProjectName />
             <TextInput label="Retained draft" />
-            <Button label="Change provider" clickAction={() => setSecond((value) => !value)} />
-            <Button label="Close details" clickAction={() => setOpen(false)} />
+            <Button label="Change provider" onPress={() => setSecond((value) => !value)} />
+            <Button label="Close details" onPress={() => setOpen(false)} />
           </VStack>
         </Popover>
-        <Button label="Change placement" clickAction={() => setAbove((value) => !value)} />
+        <Button label="Change placement" onPress={() => setAbove((value) => !value)} />
         <Button
           label="Toggle outside dismissal"
-          clickAction={() => setOutside((value) => !value)}
+          onPress={() => setOutside((value) => !value)}
         />
         <Text>
           Manually open details, edit its draft and change the provider. Move/resize/scroll the

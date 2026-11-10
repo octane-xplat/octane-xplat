@@ -23,7 +23,7 @@ export function PopoverBottomSheetAlternative() @{
 
   return (
     <>
-      <Button label="Open project actions" clickAction={() => setIsOpen(true)} />
+      <Button label="Open project actions" onPress={() => setIsOpen(true)} />
       <BottomSheet isOpen={isOpen} onOpenChange={setIsOpen} label="Project actions" height="hug">
         <Section padding={4}>
           <VStack gap={3}>

@@ -34,14 +34,14 @@ export function InternationalizationProvider02Overrides() @{
         className="sb-locale-selector"
       />
     </InternationalizationProvider>
-    <Button label="Announce saved" clickAction={() => announce('Billing region saved')} />
+    <Button label="Announce saved" onPress={() => announce('Billing region saved')} />
     <Button
       label="Announce error"
-      clickAction={() => announce('Billing region required', 'assertive')}
+      onPress={() => announce('Billing region required', 'assertive')}
     />
     <Button
       label="Clear announcements"
-      clickAction={() => {
+      onPress={() => {
         announce('')
         announce('', 'assertive')
       }}

@@ -25,7 +25,7 @@ export default function ContainerRevealProbe() @{
       nested row isolation, hidden/unmounted cleanup and VoiceOver. Actions keep their layout space.
       This runner mounts controls only.
     </Text>
-    <Button label="Toggle reveal enabled" clickAction={() => setEnabled(!enabled)} />
+    <Button label="Toggle reveal enabled" onPress={() => setEnabled(!enabled)} />
     <FileRow name="report.pdf" enabled={enabled} />
     <FileRow name="budget.xlsx" enabled={enabled} />
     <FileRow name="outer" enabled={enabled}>

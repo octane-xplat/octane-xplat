@@ -282,17 +282,17 @@ function GeometryReader() {
           </masonview>
         </scrollview>
       </masonview>
-      <Button label="Record snapshot" clickAction={() => controls.current?.sample('manual')} />
-      <Button label="Toggle short/long content" clickAction={() => setTall(!tall)} />
-      <Button label="Toggle reserved header" clickAction={() => setReserved(!reserved)} />
-      <Button label="Toggle local top inset trial" clickAction={() => controls.current?.inset()} />
+      <Button label="Record snapshot" onPress={() => controls.current?.sample('manual')} />
+      <Button label="Toggle short/long content" onPress={() => setTall(!tall)} />
+      <Button label="Toggle reserved header" onPress={() => setReserved(!reserved)} />
+      <Button label="Toggle local top inset trial" onPress={() => controls.current?.inset()} />
       <Button
         label="Toggle allowed elasticity"
-        clickAction={() => controls.current?.elasticity()}
+        onPress={() => controls.current?.elasticity()}
       />
       <Button
         label="Clear trace (maximum 256 rows)"
-        clickAction={() => controls.current?.clear()}
+        onPress={() => controls.current?.clear()}
       />
     </VStack>
   )
@@ -311,7 +311,7 @@ export default function PullRefreshGeometryProbe() {
       </Text>
       <Button
         label={mounted ? 'Unmount reader' : 'Mount reader'}
-        clickAction={() => setMounted(!mounted)}
+        onPress={() => setMounted(!mounted)}
       />
       {mounted ? <GeometryReader /> : null}
       <Text id="pull-refresh-geometry-status">

@@ -9,7 +9,7 @@ export function ListCases(props: {
   onActivate: (source: string, fixtureRevision?: number) => void
 }): unknown @{
   <View className="core20-viewport">
-    <Button label="Before list" clickAction={() => props.onActivate('list-before')} />
+    <Button label="Before list" onPress={() => props.onActivate('list-before')} />
     <List
       id="core20-list"
       accessible
@@ -42,6 +42,6 @@ export function ListCases(props: {
         {0}
       </ListItem>
     </List>
-    <Button label="After list" clickAction={() => props.onActivate('list-after')} />
+    <Button label="After list" onPress={() => props.onActivate('list-after')} />
   </View>
 }

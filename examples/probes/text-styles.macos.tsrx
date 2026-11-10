@@ -45,23 +45,23 @@ export default function TextStylesProbe() {
       </RichText>
       <Button
         label="Cycle heading level"
-        clickAction={() =>
+        onPress={() =>
           setLevel((current) => (current === 6 ? 1 : ((current + 1) as 1 | 2 | 3 | 4 | 5 | 6)))
         }
       />
       <Button
         label="Toggle text descriptions"
-        clickAction={() => setDescribed((current) => !current)}
+        onPress={() => setDescribed((current) => !current)}
       />
       <Button
         label="Toggle text accessibility visibility"
-        clickAction={() => setHiddenFromAX((current) => !current)}
+        onPress={() => setHiddenFromAX((current) => !current)}
       />
-      <Button label="Toggle text size" clickAction={() => setLarge((current) => !current)} />
-      <Button label="Toggle declaration string" clickAction={() => setCSS((current) => !current)} />
+      <Button label="Toggle text size" onPress={() => setLarge((current) => !current)} />
+      <Button label="Toggle declaration string" onPress={() => setCSS((current) => !current)} />
       <Button
         label="Remove or restore style"
-        clickAction={() => setStyled((current) => !current)}
+        onPress={() => setStyled((current) => !current)}
       />
       <Text>
         Manual style/composition/removal fixture. Inline press handlers are not wired on AppKit.

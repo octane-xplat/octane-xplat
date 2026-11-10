@@ -77,7 +77,7 @@ export function EditTripName() {
   const input = useRef<TextInputHandle | null>(null)
   return <>
     <TextInput label="Trip name" ref={(handle) => { input.current = handle }} />
-    <Button label="Edit trip name" clickAction={() => input.current?.focus()} />
+    <Button label="Edit trip name" onPress={() => input.current?.focus()} />
   </>
 }
 ```
@@ -95,7 +95,7 @@ export function SelectionStatus() {
   const [status, setStatus] = useState('No trip selected.')
   const announce = useAnnounce()
   return <>
-    <Button label="Select Kyoto trip" clickAction={() => {
+    <Button label="Select Kyoto trip" onPress={() => {
       setStatus('Kyoto trip selected.')
       announce('Kyoto trip selected.')
     }} />
@@ -122,7 +122,7 @@ import { Button, Text } from '@octane-xplat/ui'
 
 export function ClearNameAction(props: { hasName: boolean; clear: () => void }) {
   return <Button label="Clear trip name" isIconOnly icon={<Text>×</Text>}
-    isDisabled={!props.hasName} clickAction={props.clear} />
+    isDisabled={!props.hasName} onPress={props.clear} />
 }
 ```
 
@@ -138,7 +138,7 @@ import { Button, Text } from '@octane-xplat/ui'
 export function SaveTripAction(props: { save: () => Promise<void> }) {
   const [status, setStatus] = useState('Ready to save.')
   return <>
-    <Button label="Save trip" clickAction={async () => {
+    <Button label="Save trip" pressAction={async () => {
       setStatus('Saving trip…')
       await props.save()
       setStatus('Trip saved.')
@@ -167,7 +167,7 @@ export function ReviewTrip(props: { open: boolean; close: () => void }) {
   return <Overlay open isModal accessibilityLabel="Review trip" onDismiss={props.close}>
     <Text>Review trip</Text>
     <Text>Check the selected trip before continuing.</Text>
-    <Button label="Close review" clickAction={props.close} />
+    <Button label="Close review" onPress={props.close} />
   </Overlay>
 }
 ```
@@ -198,7 +198,7 @@ export function MoveStatus() {
   const reduced = useReducedMotion()
   const x = useMotionValue(0)
   return <>
-    <Button label="Move status" clickAction={() => {
+    <Button label="Move status" onPress={() => {
       if (reduced) x.jump(20)
       else x.animate(20, { type: 'spring' })
     }} />

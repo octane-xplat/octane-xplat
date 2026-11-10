@@ -26,12 +26,12 @@ export default function ScrollMetadataProbe() {
           ))}
         </VStack>
       </ScrollableArea>
-      <Button label="Toggle descriptions" clickAction={() => setDescribed((value) => !value)} />
+      <Button label="Toggle descriptions" onPress={() => setDescribed((value) => !value)} />
       <Button
         label="Toggle accessibility visibility"
-        clickAction={() => setHidden((value) => !value)}
+        onPress={() => setHidden((value) => !value)}
       />
-      <Button label="Rename viewport" clickAction={() => setRenamed((value) => !value)} />
+      <Button label="Rename viewport" onPress={() => setRenamed((value) => !value)} />
       <Text>
         Manual native metadata fixture. Verify VoiceOver viewport/descendant navigation,
         descriptions and updates separately from OS scrolling; mounting proves neither.

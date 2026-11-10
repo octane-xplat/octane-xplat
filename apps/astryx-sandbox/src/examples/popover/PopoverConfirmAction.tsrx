@@ -12,7 +12,7 @@ export function PopoverConfirmAction() @{
         ref={anchor}
         label="Delete project"
         variant="destructive"
-        clickAction={() => setIsOpen(true)}
+        onPress={() => setIsOpen(true)}
       />
       <Popover
         anchor={anchor}
@@ -27,8 +27,8 @@ export function PopoverConfirmAction() @{
             This will permanently delete the project and all its data. This action cannot be undone.
           </Text>
           <HStack gap={2} justify="end">
-            <Button label="Delete" variant="destructive" clickAction={() => setIsOpen(false)} />
-            <Button label="Cancel" variant="ghost" clickAction={() => setIsOpen(false)} />
+            <Button label="Delete" variant="destructive" onPress={() => setIsOpen(false)} />
+            <Button label="Cancel" variant="ghost" onPress={() => setIsOpen(false)} />
           </HStack>
         </VStack>
       </Popover>

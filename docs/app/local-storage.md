@@ -211,7 +211,7 @@ export function PackingScreen() {
       <Button
         label="Add item"
         isDisabled={state.busy || !owner.list}
-        clickAction={() => change((list) => list.add(draft))}
+        pressAction={() => change((list) => list.add(draft))}
       />
       <Text>{state.message}</Text>
       {state.items.map((item) => (
@@ -222,17 +222,17 @@ export function PackingScreen() {
           <Button
             label={item.packed ? 'Mark not packed' : 'Mark packed'}
             isDisabled={state.busy}
-            clickAction={() => change((list) => list.setPacked(item.id, !item.packed))}
+            pressAction={() => change((list) => list.setPacked(item.id, !item.packed))}
           />
           <Button
             label="Rename using item name"
             isDisabled={state.busy}
-            clickAction={() => change((list) => list.rename(item.id, draft))}
+            pressAction={() => change((list) => list.rename(item.id, draft))}
           />
           <Button
             label="Remove item"
             isDisabled={state.busy}
-            clickAction={() => change((list) => list.remove(item.id))}
+            pressAction={() => change((list) => list.remove(item.id))}
           />
         </VStack>
       ))}

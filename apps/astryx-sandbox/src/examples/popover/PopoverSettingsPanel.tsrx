@@ -11,7 +11,7 @@ export function PopoverSettingsPanel() @{
 
   return (
     <>
-      <Button ref={anchor} label="Settings" clickAction={() => setIsOpen(true)} />
+      <Button ref={anchor} label="Settings" onPress={() => setIsOpen(true)} />
       <Popover
         anchor={anchor}
         open={isOpen}

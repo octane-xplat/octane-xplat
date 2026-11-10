@@ -35,7 +35,7 @@ export default function ToggleSaveProbe() {
       <Button
         id="toggle-save"
         label="Complete save"
-        clickAction={() => {
+        onPress={() => {
           const task = pending.current
 
           pending.current = null
@@ -46,21 +46,21 @@ export default function ToggleSaveProbe() {
       <Button
         id="toggle-fail"
         label="Fail save"
-        clickAction={() => {
+        onPress={() => {
           const task = pending.current
 
           pending.current = null
           task?.reject(new Error('Save failed'))
         }}
       />
-      <Button label="Toggle controlled mode" clickAction={() => setControlled((value) => !value)} />
+      <Button label="Toggle controlled mode" onPress={() => setControlled((value) => !value)} />
       <Button
         label="Toggle controlled parent value"
-        clickAction={() => setPressed((value) => !value)}
+        onPress={() => setPressed((value) => !value)}
       />
       <Button
         label="Toggle controlled request acceptance"
-        clickAction={() => setAccept((value) => !value)}
+        onPress={() => setAccept((value) => !value)}
       />
       <label
         text={`mode:${controlled ? 'controlled' : 'local'}; parent:${pressed}; accept:${accept}`}

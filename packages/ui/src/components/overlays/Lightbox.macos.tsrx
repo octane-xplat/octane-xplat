@@ -65,7 +65,7 @@ function LightboxPanel(
         <Button
           accessibilityLabel="Previous media"
           isDisabled={props.currentIndex === 0}
-          clickAction={() => props.setIndex(props.currentIndex - 1)}
+          onPress={() => props.setIndex(props.currentIndex - 1)}
         >
           Previous
         </Button>
@@ -73,11 +73,11 @@ function LightboxPanel(
         <Button
           accessibilityLabel="Next media"
           isDisabled={props.currentIndex === props.media.length - 1}
-          clickAction={() => props.setIndex(props.currentIndex + 1)}
+          onPress={() => props.setIndex(props.currentIndex + 1)}
         >
           Next
         </Button>
-        <Button accessibilityLabel="Close lightbox" clickAction={() => props.onOpenChange(false)}>
+        <Button accessibilityLabel="Close lightbox" onPress={() => props.onOpenChange(false)}>
           ×
         </Button>
       </masonview>

@@ -64,7 +64,7 @@ is a client-routed SPA — adaptation recorded.
 | `useImperativeDialog(defaults)` | `useImperativeDialog(defaults?: DialogOptions)` | **ported** — defaults merge under per-`show` options |
 | `Overlay` media-scrim component (3 templates) | name collision with Xplat `Overlay` (modal scrim) | **adapted** — `examples/overlay/MediaOverlay.tsrx` composes the scrim+content pattern from `View`; upstream `<img>` sources substituted with themed gradient blocks |
 | `Layout`/`LayoutContent`/`LayoutFooter` slot composition (dialog examples) | `Layout`/`LayoutContent` now exist in `@octane-xplat/ui`; `LayoutFooter` still missing | remains re-authored as `VStack` + padded sections until `LayoutFooter` lands |
-| `Button` `onClick` | `clickAction` | direct map (upstream contract preserved) |
+| `Button` `onClick` | `pressAction` | direct map (upstream contract preserved) |
 | `Text` `type`/`weight`/`color` | native `Text` props (`type`/`size`/`color`/`weight`) in `@octane-xplat/ui` | **ported** — all screens and examples pass the real props; the `sb-type-*`/`sb-color-*` shims are removed |
 | DropdownMenu `button={{label,variant,icon,isIconOnly}}` + `hasChevron` | `button` prop + `hasChevron` on `DropdownMenu` | **ported** — the trigger is the shared `Button` (a real `<button>`); menu examples use `button={{label, variant, icon, isIconOnly}}` |
 | `ContextMenu` `menuContent` | `menu` prop | direct map |
@@ -846,7 +846,7 @@ authored page or composed page-template claims.
 | SyntaxTheme wrappers and four presets | public per-block `syntaxTheme` override | explicit override replaces a provider; pinned Dracula/GitHub Light/GitHub Dark/One Dark Pro token data retained |
 | completed/streaming text | new public `useStreamingText` at `/markdown` | cumulative snapshots; natural/fast/instant, reset, completion, grapheme boundaries and timer disposal; native reduced-motion preference remains unavailable |
 | Chat messages, bubble grouping/density/custom content, metadata/status, system rows, token display and layouts | same named exports at `@octane-xplat/ui/chat` | direct composition; `Timestamp` values use explicit UTC `Z` for deterministic Xplat input |
-| composer/input slots, send/stop, validation, drawers, triggers and menus | `ChatComposer`, `ChatComposerInput`, drawer, send button and static search sources | `onSubmit/onStop` → `onSend/onCancel`; `handleRef` → `ref`; Button uses `clickAction`; Menu actions have stable keys |
+| composer/input slots, send/stop, validation, drawers, triggers and menus | `ChatComposer`, `ChatComposerInput`, drawer, send button and static search sources | `onSubmit/onStop` → `onSend/onCancel`; `handleRef` → `ref`; Button uses `pressAction`; Menu actions have stable keys |
 | tool call details, pending/running/complete/error | `ChatToolCalls` | error duration omitted because the public union allows duration only for completion |
 | dictation state fixtures and live capability | `ChatDictationButton`, `useChatDictation` | idle/listening/speaking fixtures retained; live routes explain unsupported recognition; no OS speech claim |
 

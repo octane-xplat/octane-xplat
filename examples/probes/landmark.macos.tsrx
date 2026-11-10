@@ -35,9 +35,9 @@ export default function LandmarkProbe() @{
     <Region role="navigation" label="Navigation" />
     <FocusScope contain={contain} restoreFocus>
       <VStack gap={2}>
-        <Button label="Toggle containment" clickAction={() => setContain(!contain)} />
-        <Button label="Toggle aside visibility" clickAction={() => setHideAside(!hideAside)} />
-        <Button label="Toggle aside mount" clickAction={() => setMountAside(!mountAside)} />
+        <Button label="Toggle containment" onPress={() => setContain(!contain)} />
+        <Button label="Toggle aside visibility" onPress={() => setHideAside(!hideAside)} />
+        <Button label="Toggle aside mount" onPress={() => setMountAside(!mountAside)} />
         <Region role="main" label="Workspace">
           <Region role="search" label="Nested search" />
         </Region>

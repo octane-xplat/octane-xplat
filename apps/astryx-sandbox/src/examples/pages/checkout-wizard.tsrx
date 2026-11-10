@@ -348,7 +348,7 @@ export function CheckoutWizardTemplate() @{
       <Button
         label={step === 0 ? 'Continue shopping' : 'Back'}
         variant="secondary"
-        clickAction={() => setStep((s) => Math.max(0, s - 1))}
+        onPress={() => setStep((s) => Math.max(0, s - 1))}
       />
       <StackItem size="fill" />
       {Object.keys(currentErrors).length > 0 ? (
@@ -361,7 +361,7 @@ export function CheckoutWizardTemplate() @{
       <Button
         label={isLastStep ? `Place order · ${money(total)}` : 'Continue'}
         variant="primary"
-        clickAction={goNext}
+        onPress={goNext}
       />
     </HStack>
   )
@@ -473,7 +473,7 @@ export function CheckoutWizardTemplate() @{
                           variant="ghost"
                           size="sm"
                           icon={<Icon name="sandbox-x-mark" size={16} />}
-                          clickAction={() => setQuantities((q) => ({ ...q, [item.id]: 0 }))}
+                          onPress={() => setQuantities((q) => ({ ...q, [item.id]: 0 }))}
                         />
                       </HStack>
                     ))}
@@ -489,7 +489,7 @@ export function CheckoutWizardTemplate() @{
                           placeholder="WELCOME10"
                         />
                       </StackItem>
-                      <Button label="Apply" variant="secondary" clickAction={applyPromo} />
+                      <Button label="Apply" variant="secondary" onPress={applyPromo} />
                     </HStack>
                     {promoWasChecked && !appliedPromo ? (
                       <Text type="supporting" style={{ color: 'var(--color-text-error, #d92d20)' }}>

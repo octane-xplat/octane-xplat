@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 export function Button(props: {
   accessibilityLabel?: string
-  clickAction?: () => void
+  onPress?: () => void
   children?: unknown
 }) {
   return (
-    <masonview accessibilityLabel={props.accessibilityLabel} onTap={props.clickAction}>
+    <masonview accessibilityLabel={props.accessibilityLabel} onTap={props.onPress}>
       {props.children}
     </masonview>
   )

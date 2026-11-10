@@ -57,7 +57,7 @@ export function DialogHeader(props: DialogHeaderProps): unknown @{
       </masonview>
       {props.endContent}
       {requestClose != null && (
-        <Button accessibilityLabel="Close dialog" clickAction={() => requestClose(false)}>
+        <Button accessibilityLabel="Close dialog" onPress={() => requestClose(false)}>
           ×
         </Button>
       )}

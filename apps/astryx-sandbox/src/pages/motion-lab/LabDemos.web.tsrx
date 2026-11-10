@@ -185,7 +185,7 @@ export function NativePopoverProbe() {
           variant="secondary"
           size="sm"
           label="Open native popover"
-          clickAction={() => document.getElementById(id)?.showPopover()}
+          onPress={() => document.getElementById(id)?.showPopover()}
         />
         <div id={id} popover="auto" className={'ml-nativePopover'}>
           <Text type="supporting">
@@ -280,7 +280,7 @@ export function DialogRig({ mode }: { mode: Mode }) {
           variant="secondary"
           size="sm"
           label="Open dialog"
-          clickAction={() => {
+          onPress={() => {
             placeRing()
             setOpen(true)
           }}
@@ -301,8 +301,8 @@ export function DialogRig({ mode }: { mode: Mode }) {
               This cannot be undone.
             </Text>
             <HStack gap={1.5}>
-              <Button size="sm" variant="ghost" label="Cancel" clickAction={close} />
-              <Button size="sm" variant="destructive" label="Delete" clickAction={close} />
+              <Button size="sm" variant="ghost" label="Cancel" onPress={close} />
+              <Button size="sm" variant="destructive" label="Delete" onPress={close} />
             </HStack>
           </VStack>
         </Card>
@@ -704,7 +704,7 @@ export function InterruptRig({ mode }: { mode: Mode }) {
         size="sm"
         variant="secondary"
         label="Toggle — press it twice, fast"
-        clickAction={toggle}
+        onPress={toggle}
       />
       <Hint>
         {mode === 'before'
@@ -742,7 +742,7 @@ export function OriginRig({ kind }: { kind: 'zero' | 'centre' | 'anchored' }) {
             size="sm"
             variant="secondary"
             label="Trigger"
-            clickAction={() => setOpen((v) => !v)}
+            onPress={() => setOpen((v) => !v)}
           />
         </div>
         <div
@@ -919,7 +919,7 @@ export function PressRig({ technique }: { technique: 'transform' | 'scale' | 'no
           size="sm"
           variant="ghost"
           label="Simulate a library drag"
-          clickAction={simulateLibraryDrag}
+          onPress={simulateLibraryDrag}
         />
       </HStack>
       <Hint>

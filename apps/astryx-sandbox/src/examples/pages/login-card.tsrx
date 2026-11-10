@@ -1,7 +1,7 @@
 // Port of upstream templates/pages/login-card/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/login-card/.
 // GAPS: `type="email"`/`type="password"` → `keyboardType`/`secure`; Button
-// `onClick` → `clickAction`; Link `size`/`type` props are unported (the
+// `onClick` → `onPress`; Link `size`/`type` props are unported (the
 // surrounding Text carries `type="supporting"`; color="secondary" kept).
 import { useState } from 'octane'
 import {
@@ -143,7 +143,7 @@ export function LoginCardTemplate() @{
             variant="primary"
             size="lg"
             isLoading={isLoading}
-            clickAction={handleLogin}
+            onPress={handleLogin}
           />
 
           {/* Divider */}

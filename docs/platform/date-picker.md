@@ -819,8 +819,8 @@ export function BookingDate() {
   const [date, setDate] = useState<string | null>('2026-03-05')
   return <VStack>
     <DateInput ref={input} label="Booking date" value={date} onChange={setDate} />
-    <Button label="Edit booking date" clickAction={() => input.current?.focus()} />
-    <Button label="Leave date field" clickAction={() => input.current?.blur()} />
+    <Button label="Edit booking date" onPress={() => input.current?.focus()} />
+    <Button label="Leave date field" onPress={() => input.current?.blur()} />
   </VStack>
 }
 ```
@@ -841,7 +841,7 @@ export function EditAppointment(props: { value: string | null; change(value: str
   const appointment = useRef<TextInputHandle | null>(null)
   return <>
     <DateTimeInput ref={appointment} label="Appointment" value={props.value} onChange={props.change} />
-    <Button label="Edit appointment date" clickAction={() => appointment.current?.focus()} />
+    <Button label="Edit appointment date" onPress={() => appointment.current?.focus()} />
   </>
 }
 ```
@@ -926,7 +926,7 @@ export function BookingTime() {
   const [requested, setRequested] = useState(false)
   return <>
     <TimeInput label="Start time" hasAutoFocus={requested} />
-    <Button label="Toggle focus request" clickAction={() => setRequested(!requested)} />
+    <Button label="Toggle focus request" onPress={() => setRequested(!requested)} />
   </>
 }
 ```

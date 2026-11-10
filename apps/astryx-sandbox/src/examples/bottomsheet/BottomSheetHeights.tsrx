@@ -15,9 +15,9 @@ export function BottomSheetHeights() @{
   return (
     <>
       <HStack gap={2}>
-        <Button label="Open hug" clickAction={() => setHeight('hug')} />
-        <Button label="Open capped" clickAction={() => setHeight('capped')} />
-        <Button label="Open tall" clickAction={() => setHeight('tall')} />
+        <Button label="Open hug" onPress={() => setHeight('hug')} />
+        <Button label="Open capped" onPress={() => setHeight('capped')} />
+        <Button label="Open tall" onPress={() => setHeight('tall')} />
       </HStack>
       <BottomSheet
         isOpen={height != null}
@@ -29,7 +29,7 @@ export function BottomSheetHeights() @{
           <Heading level={3}>{height ?? 'Hug'} height</Heading>
           <Divider />
           <Text type="body">{descriptions[height ?? 'hug']}</Text>
-          <Button label="Close" clickAction={() => setHeight(null)} />
+          <Button label="Close" onPress={() => setHeight(null)} />
         </VStack>
       </BottomSheet>
     </>

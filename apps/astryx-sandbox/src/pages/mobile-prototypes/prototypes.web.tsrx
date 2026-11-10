@@ -196,19 +196,19 @@ function BottomSheetDemo() {
             label="Hug content"
             variant="secondary"
             className={'ml-fullBtn'}
-            clickAction={() => setActive('hug')}
+            onPress={() => setActive('hug')}
           />
           <Button
             label="Capped (scrolls)"
             variant="secondary"
             className={'ml-fullBtn'}
-            clickAction={() => setActive('capped')}
+            onPress={() => setActive('capped')}
           />
           <Button
             label="Pinned tall"
             variant="secondary"
             className={'ml-fullBtn'}
-            clickAction={() => setActive('tall')}
+            onPress={() => setActive('tall')}
           />
         </VStack>
         <VStack gap={2}>
@@ -219,7 +219,7 @@ function BottomSheetDemo() {
             label="Detents (medium ↔ full)"
             variant="secondary"
             className={'ml-fullBtn'}
-            clickAction={() => setActive('detents')}
+            onPress={() => setActive('detents')}
           />
         </VStack>
         <VStack gap={2}>
@@ -230,7 +230,7 @@ function BottomSheetDemo() {
             label="Peek (min-height, non-modal)"
             variant="secondary"
             className={'ml-fullBtn'}
-            clickAction={() => setActive('peek')}
+            onPress={() => setActive('peek')}
           />
         </VStack>
       </AppScreen>
@@ -330,7 +330,7 @@ function DrawerDemo() {
           label="Open navigation (start)"
           variant="secondary"
           className={'ml-fullBtn'}
-          clickAction={() => setActive('start')}
+          onPress={() => setActive('start')}
         />
         <Text type="supporting" color="secondary">
           …or swipe in from the left edge (the grip). A navigation drawer has
@@ -345,7 +345,7 @@ function DrawerDemo() {
           label="Open filters (end)"
           variant="secondary"
           className={'ml-fullBtn'}
-          clickAction={() => setActive('end')}
+          onPress={() => setActive('end')}
         />
         <Text type="supporting" color="secondary">
           A contextual side sheet <b>does</b> get a header close (×) — it isn&apos;t tied to one
@@ -381,7 +381,7 @@ function DrawerDemo() {
             label="Apply filters"
             variant="primary"
             className={'ml-fullBtn'}
-            clickAction={close}
+            onPress={close}
           />
         </VStack>
       </SideDrawer>
@@ -443,7 +443,7 @@ function DrawerTabletDemo() {
               variant="ghost"
               size="sm"
               icon={<MenuIcon />}
-              clickAction={() => setNav((n) => !n)}
+              onPress={() => setNav((n) => !n)}
             />
             <Text type="large" weight="semibold">
               Projects
@@ -454,7 +454,7 @@ function DrawerTabletDemo() {
             variant="secondary"
             size="sm"
             icon={<FilterIcon width={16} height={16} />}
-            clickAction={() => setFilters((f) => !f)}
+            onPress={() => setFilters((f) => !f)}
           />
         </div>
         <div
@@ -551,13 +551,13 @@ function DialogDemo() {
           label="Edit profile (dialog → sheet)"
           variant="secondary"
           className={'ml-fullBtn'}
-          clickAction={() => setSheet(true)}
+          onPress={() => setSheet(true)}
         />
         <Button
           label="Delete account (alert dialog)"
           variant="destructive"
           className={'ml-fullBtn'}
-          clickAction={() => setAlert(true)}
+          onPress={() => setAlert(true)}
         />
       </AppScreen>
 
@@ -571,7 +571,7 @@ function DialogDemo() {
             label="Save changes"
             variant="primary"
             className={'ml-fullBtn'}
-            clickAction={() => setSheet(false)}
+            onPress={() => setSheet(false)}
           />
         }
       >
@@ -599,8 +599,8 @@ function DialogDemo() {
         title="Delete account?"
         actions={
           <>
-            <Button label="Cancel" variant="ghost" clickAction={() => setAlert(false)} />
-            <Button label="Delete" variant="destructive" clickAction={() => setAlert(false)} />
+            <Button label="Cancel" variant="ghost" onPress={() => setAlert(false)} />
+            <Button label="Delete" variant="destructive" onPress={() => setAlert(false)} />
           </>
         }
       >
@@ -681,7 +681,7 @@ function LayoutPanelDemo() {
             variant="ghost"
             size="sm"
             icon={<BackIcon />}
-            clickAction={() => setSelected(null)}
+            onPress={() => setSelected(null)}
           />
           <Text type="large" weight="semibold">
             {item?.name ?? ''}
@@ -935,7 +935,7 @@ function MultiSelectorDemo() {
             label={`Apply${draft.length ? ` (${draft.length})` : ''}`}
             variant="primary"
             className={'ml-fullBtn'}
-            clickAction={() => {
+            onPress={() => {
               setSel(draft)
               setOpen(false)
             }}
@@ -1162,7 +1162,7 @@ function PowerSearchDemo() {
                 variant="ghost"
                 size="sm"
                 icon={<BackIcon width={16} height={16} />}
-                clickAction={() => setActive(null)}
+                onPress={() => setActive(null)}
               />
             </div>
             <List hasDividers density="spacious">
@@ -1343,7 +1343,7 @@ function DateTimeInputDemo({ beside = false }: { beside?: boolean } = {}) {
             variant="primary"
             className={'ml-fullBtn'}
             isDisabled={!date || !time}
-            clickAction={() => setOpen(false)}
+            onPress={() => setOpen(false)}
           />
         }
       >
@@ -1670,7 +1670,7 @@ function DateRangeInputDemo() {
             variant="primary"
             className={'ml-fullBtn'}
             isDisabled={!range?.start || !range?.end}
-            clickAction={() => setOpen(false)}
+            onPress={() => setOpen(false)}
           />
         }
       >
@@ -1722,7 +1722,7 @@ function DateRangeInputTabletDemo() {
             variant="primary"
             className={'ml-fullBtn'}
             isDisabled={!range?.start || !range?.end}
-            clickAction={() => setOpen(false)}
+            onPress={() => setOpen(false)}
           />
         }
       >
@@ -1888,7 +1888,7 @@ function TokenizerDemo() {
               size="sm"
               className={'ml-noShrink'}
               icon={<PlusIcon width={14} height={14} />}
-              clickAction={() => setOpen(true)}
+              onPress={() => setOpen(true)}
             />
           </div>
         </Field>
@@ -1974,13 +1974,13 @@ function PopoverDemo() {
           defaults to <b>hug</b> height — only as tall as its content.
         </Note>
         <div ref={smallRef as any} style={{ alignSelf: 'flex-start' }}>
-          <Button label="Small popover" variant="secondary" clickAction={openSmall} />
+          <Button label="Small popover" variant="secondary" onPress={openSmall} />
         </div>
         <Button
           label="Large content → sheet"
           variant="secondary"
           className={'ml-fullBtn'}
-          clickAction={() => setLarge(true)}
+          onPress={() => setLarge(true)}
         />
       </AppScreen>
 
@@ -2046,7 +2046,7 @@ function DropdownMenuDemo() {
           label="Actions"
           variant="secondary"
           icon={<ChevronDown width={16} height={16} />}
-          clickAction={() => setOpen(true)}
+          onPress={() => setOpen(true)}
         />
       </AppScreen>
       <BottomSheetMenu
@@ -2095,7 +2095,7 @@ function MoreMenuDemo() {
               variant="ghost"
               size="sm"
               icon={<DotsIcon />}
-              clickAction={() => setOpen(true)}
+              onPress={() => setOpen(true)}
             />
           </div>
         </Card>
@@ -2233,7 +2233,7 @@ function HoverCardDemo() {
             variant="secondary"
             size="sm"
             className={'ml-fullBtn'}
-            clickAction={() => setOpen(false)}
+            onPress={() => setOpen(false)}
           />
         </div>
       </AnchoredPopover>
@@ -2281,7 +2281,7 @@ function InfoTipDemo() {
               variant="ghost"
               size="sm"
               icon={<InfoIcon width={16} height={16} />}
-              clickAction={openTip}
+              onPress={openTip}
             />
           </span>
         </div>
@@ -2397,7 +2397,7 @@ function TooltipDemo() {
             label="Sync now"
             variant="secondary"
             icon={<PlusIcon />}
-            clickAction={toggle}
+            onPress={toggle}
           />
         </span>
       </AppScreen>
@@ -2604,7 +2604,7 @@ function TableFilterDemo() {
             endContent={
               sel.length ? <Badge label={String(sel.length)} variant="info" /> : undefined
             }
-            clickAction={() => setOpen(true)}
+            onPress={() => setOpen(true)}
           />
         </div>
         <div
@@ -2636,14 +2636,14 @@ function TableFilterDemo() {
         scrim={false}
         title="Filters"
         headerAccessory={
-          <Button label="Reset" variant="ghost" size="sm" clickAction={() => setSel([])} />
+          <Button label="Reset" variant="ghost" size="sm" onPress={() => setSel([])} />
         }
         footer={
           <Button
             label="Done"
             variant="primary"
             className={'ml-fullBtn'}
-            clickAction={() => setOpen(false)}
+            onPress={() => setOpen(false)}
           />
         }
       >
@@ -2689,7 +2689,7 @@ function TableFilterTabletDemo() {
             endContent={
               sel.length ? <Badge label={String(sel.length)} variant="info" /> : undefined
             }
-            clickAction={() => setOpen(true)}
+            onPress={() => setOpen(true)}
           />
         </div>
         <Table data={filtered} columns={TABLE_COLUMNS} idKey="name" hasHover />
@@ -2701,14 +2701,14 @@ function TableFilterTabletDemo() {
         scrim={false}
         title="Filters"
         headerAccessory={
-          <Button label="Reset" variant="ghost" size="sm" clickAction={() => setSel([])} />
+          <Button label="Reset" variant="ghost" size="sm" onPress={() => setSel([])} />
         }
         footer={
           <Button
             label="Done"
             variant="primary"
             className={'ml-fullBtn'}
-            clickAction={() => setOpen(false)}
+            onPress={() => setOpen(false)}
           />
         }
       >
@@ -2757,7 +2757,7 @@ function TableFilterDrawerDemo({ beside = false }: { beside?: boolean } = {}) {
             endContent={
               sel.length ? <Badge label={String(sel.length)} variant="info" /> : undefined
             }
-            clickAction={() => setOpen(true)}
+            onPress={() => setOpen(true)}
           />
         </div>
         <Table
@@ -2785,13 +2785,13 @@ function TableFilterDrawerDemo({ beside = false }: { beside?: boolean } = {}) {
               label="Reset"
               variant="ghost"
               className={'ml-fullBtn'}
-              clickAction={() => setSel([])}
+              onPress={() => setSel([])}
             />
             <Button
               label="Done"
               variant="primary"
               className={'ml-fullBtn'}
-              clickAction={() => setOpen(false)}
+              onPress={() => setOpen(false)}
             />
           </VStack>
         </VStack>

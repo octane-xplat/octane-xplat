@@ -287,7 +287,7 @@ function MetricsBar({ metrics, onScrollTest }: { metrics: PerfMetrics; onScrollT
         thresholds={{ good: 120, warn: 55 }}
       />
       <Metric label="drops" value={metrics.scrollFrameDrops} unit="" />
-      <Button size="sm" variant="secondary" label="Scroll test" clickAction={onScrollTest} />
+      <Button size="sm" variant="secondary" label="Scroll test" onPress={onScrollTest} />
     </HStack>
   )
 }

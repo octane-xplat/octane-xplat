@@ -14,7 +14,7 @@ export function PopoverKeyboardShortcuts() @{
 
   return (
     <>
-      <Button ref={anchor} label="Shortcuts" clickAction={() => setIsOpen(true)} />
+      <Button ref={anchor} label="Shortcuts" onPress={() => setIsOpen(true)} />
       <Popover
         anchor={anchor}
         open={isOpen}

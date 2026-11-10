@@ -24,7 +24,7 @@ export function KeyboardFormDemo() @{
       <Field label="Message">
         <TextArea placeholder="Write a message" />
       </Field>
-      <Button clickAction={() => scrolling.current?.recheck()}>Show editing field</Button>
+      <Button onPress={() => scrolling.current?.recheck()}>Show editing field</Button>
     </View>
   </KeyboardAwareScrollView>
 }

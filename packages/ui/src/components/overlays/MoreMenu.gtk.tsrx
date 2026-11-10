@@ -67,7 +67,7 @@ export function MoreMenu(props: MoreMenuProps): unknown @{
 
   @if (presentation === 'bottom-sheet') {
     <>
-      <Button {...button} id={props.id} style={props.style} clickAction={() => setOpen(!open)} />
+      <Button {...button} id={props.id} style={props.style} onPress={() => setOpen(!open)} />
       <BottomSheet
         isOpen={open}
         onOpenChange={setOpen}

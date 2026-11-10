@@ -22,7 +22,7 @@ export default function ToolbarProbe() {
             id="toolbar-save"
             label="Save"
             isDisabled={disabled}
-            clickAction={() => setResult('save')}
+            onPress={() => setResult('save')}
           />
         }
         centerContent={
@@ -31,23 +31,23 @@ export default function ToolbarProbe() {
         endContent={
           <VStack>
             <ToggleButton id="toolbar-pin" label="Pin" />
-            {shown ? <Button label="Share" clickAction={() => setResult('share')} /> : null}
+            {shown ? <Button label="Share" onPress={() => setResult('share')} /> : null}
             <Toolbar
               label="Nested actions"
               startContent={
-                <Button label="Nested action" clickAction={() => setResult('nested')} />
+                <Button label="Nested action" onPress={() => setResult('nested')} />
               }
             />
           </VStack>
         }
       />
-      <Button label="Change toolbar label" clickAction={() => setNamed((value) => !value)} />
+      <Button label="Change toolbar label" onPress={() => setNamed((value) => !value)} />
       <Button
         label="Change toolbar orientation"
-        clickAction={() => setVertical((value) => !value)}
+        onPress={() => setVertical((value) => !value)}
       />
-      <Button label="Toggle Save disablement" clickAction={() => setDisabled((value) => !value)} />
-      <Button label="Remove or restore Share" clickAction={() => setShown((value) => !value)} />
+      <Button label="Toggle Save disablement" onPress={() => setDisabled((value) => !value)} />
+      <Button label="Remove or restore Share" onPress={() => setShown((value) => !value)} />
       <Text>{result}</Text>
       <Text>
         Manually Tab to actions; use Left/Right or Up/Down for the current axis and Home/End. Focus

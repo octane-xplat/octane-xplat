@@ -510,7 +510,7 @@ export function DashboardScorecardTemplate() @{
               label="Export"
               variant="secondary"
               icon={<Icon name="sandbox-arrow-down-tray" size={16} />}
-              clickAction={() => {}}
+              onPress={() => {}}
             />
           </HStack>
         </HStack>

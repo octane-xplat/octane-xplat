@@ -29,14 +29,14 @@ presentation. Each handle remains independent when multiple sheets are open.
 import { useImperativeBottomSheet, Button } from '@octane-xplat/ui'
 
 function Picker(props: { close: (value?: string) => void }) {
-  return <Button clickAction={() => props.close('saved')}>Save</Button>
+  return <Button onPress={() => props.close('saved')}>Save</Button>
 }
 export function Actions() {
   const sheet = useImperativeBottomSheet()
   return (
     <>
       <Button
-        clickAction={() => {
+        onPress={() => {
           void sheet.open(Picker)
         }}
       >
@@ -126,7 +126,7 @@ export function LocalActions() {
   const navigation = useNativeRouteNavigator('root')
   return (
     <>
-      <Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>
+      <Button onPress={() => navigation.push({ name: 'settings', params: {} })}>
         Settings
       </Button>
       {navigation.element}
@@ -148,7 +148,7 @@ import { Button, Screen, Text, useLayer } from '@octane-xplat/ui'
 export function Actions() {
   const layer = useLayer({ mode: 'fixed', lightDismiss: true })
   return <Screen>
-    <Button clickAction={layer.show}>Open</Button>
+    <Button onPress={layer.show}>Open</Button>
     {layer.render(<Text>Menu</Text>, { x: 12, y: 20 })}
   </Screen>
 }

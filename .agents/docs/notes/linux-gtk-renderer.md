@@ -2936,7 +2936,7 @@ consumer component slice, not standalone.
 
 `ui-buttons.test.mjs` drives `fixtures/src/ui-buttons-main.ts` through the
 public barrel: 33 checks, all passing with real X11 input — button
-`clickAction` fires, `isDisabled` (own prop and ButtonGroup context) blocks
+activation fires, `isDisabled` (own prop and ButtonGroup context) blocks
 activation, `ToggleButton` reports pressed/unpressed, `ClickableCard`
 activates, `grab_focus`+Return activates the focused Button, unmount frees
 the node registry.

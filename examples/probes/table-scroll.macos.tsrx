@@ -88,7 +88,7 @@ export default function TableScrollProbe() @{
       width: pixel(180),
       resizable: !locked,
       renderCell: (person) => (
-        <Button label={`Open ${person.name}`} clickAction={() => setAction(person.name)} />
+        <Button label={`Open ${person.name}`} onPress={() => setAction(person.name)} />
       ),
     },
     { key: 'team', header: 'Team', width: proportional(2, { minWidth: 240 }) },
@@ -141,34 +141,34 @@ export default function TableScrollProbe() @{
         actual expanded widths, oversized overlapping runs, pinned button/field hit-testing, focus,
         disable/removal and cleanup separately.
       </Text>
-      <Button label="Toggle viewport width" clickAction={() => setWide(!wide)} />
-      <Button label="Toggle empty data" clickAction={() => setEmpty(!empty)} />
-      <Button label="Toggle bounded height" clickAction={() => setBounded(!bounded)} />
+      <Button label="Toggle viewport width" onPress={() => setWide(!wide)} />
+      <Button label="Toggle empty data" onPress={() => setEmpty(!empty)} />
+      <Button label="Toggle bounded height" onPress={() => setBounded(!bounded)} />
       <Button
         label="Toggle default body wrap/truncate"
-        clickAction={() => setTruncate(!truncate)}
+        onPress={() => setTruncate(!truncate)}
       />
-      <Button label="Toggle long body text" clickAction={() => setLongText(!longText)} />
+      <Button label="Toggle long body text" onPress={() => setLongText(!longText)} />
       <Text>{`Default text ${truncate ? 'truncate' : 'wrap'}; long content ${longText}. Custom buttons and fields keep their own text behavior. Native truncation, row measurement, resize and VoiceOver remain unqualified; mounting is not a pass.`}</Text>
       <Button
         label="Toggle controlled column widths"
-        clickAction={() => setWidths(widths.name === 320 ? {} : { name: 320, team: 420 })}
+        onPress={() => setWidths(widths.name === 320 ? {} : { name: 320, team: 420 })}
       />
-      <Button label="Toggle accepting resize commits" clickAction={() => setAccept(!accept)} />
+      <Button label="Toggle accepting resize commits" onPress={() => setAccept(!accept)} />
       <Button
         label="Toggle uncontrolled resize"
-        clickAction={() => setUncontrolled(!uncontrolled)}
+        onPress={() => setUncontrolled(!uncontrolled)}
       />
-      <Button label="Toggle name-column resize lock" clickAction={() => setLocked(!locked)} />
+      <Button label="Toggle name-column resize lock" onPress={() => setLocked(!locked)} />
       <Text>
         Resize commits: {commits}; mode: {uncontrolled ? 'uncontrolled' : 'controlled'}; accepting:{' '}
         {String(accept)}
       </Text>
-      <Button label="Toggle sticky columns" clickAction={() => setPinned(!pinned)} />
-      <Button label="Toggle multiple pinned columns" clickAction={() => setMultiple(!multiple)} />
-      <Button label="Toggle RTL" clickAction={() => setRTL(!rtl)} />
+      <Button label="Toggle sticky columns" onPress={() => setPinned(!pinned)} />
+      <Button label="Toggle multiple pinned columns" onPress={() => setMultiple(!multiple)} />
+      <Button label="Toggle RTL" onPress={() => setRTL(!rtl)} />
       <Text>Last pinned action: {action}</Text>
-      <Button label="Read native metrics" clickAction={measure} />
+      <Button label="Read native metrics" pressAction={measure} />
       <Text>{metrics}</Text>
       <VStack style={{ width: wide ? 960 : 360, maxWidth: '100%' }}>
         <StickyTable

@@ -390,7 +390,7 @@ export function RetryHistory() {
   const state = useNavigation()
 
   return state.status === 'failed'
-    ? <Button label="Try again" clickAction={() => { void navigation.retry() }} />
+    ? <Button label="Try again" onPress={() => { void navigation.retry() }} />
     : null
 }
 ```
@@ -416,7 +416,7 @@ import { useRouter } from '@octane-xplat/ui/routing'
 export function PaneBack() {
   const navigation = useRouter()
 
-  return <Button label="Back" clickAction={() => { void navigation.back() }} />
+  return <Button label="Back" onPress={() => { void navigation.back() }} />
 }
 ```
 
@@ -461,12 +461,12 @@ export function DraftScreen() {
   const blocker = useNavigationBlocker({ when: dirty })
 
   return <View>
-    <Button label="Edit draft" clickAction={() => setDirty(true)} />
-    <Button label="Back" clickAction={() => { void navigation.back() }} />
+    <Button label="Edit draft" onPress={() => setDirty(true)} />
+    <Button label="Back" onPress={() => { void navigation.back() }} />
     {blocker.status === 'blocked' ? <View>
       <Text>Leave without saving?</Text>
-      <Button label="Keep editing" clickAction={blocker.reset} />
-      <Button label="Leave screen" clickAction={blocker.proceed} />
+      <Button label="Keep editing" onPress={blocker.reset} />
+      <Button label="Leave screen" onPress={blocker.proceed} />
     </View> : null}
   </View>
 }
@@ -525,7 +525,7 @@ function TabConfirmation(props: { dirty: boolean; visible: boolean }) {
   const blocker = useNavigationBlocker({ when: props.dirty && props.visible })
 
   return blocker.status === 'blocked'
-    ? <Button label="Keep editing" clickAction={blocker.reset} />
+    ? <Button label="Keep editing" onPress={blocker.reset} />
     : null
 }
 ```
@@ -710,7 +710,7 @@ const item = getRouteApi('/items/:id')
 export function ActivityFilter() {
   const updateSearch = item.useUpdateSearch()
 
-  return <Button label="Show activity" clickAction={() => {
+  return <Button label="Show activity" onPress={() => {
     void updateSearch(previous => ({ ...previous, tab: 'activity' }))
   }} />
 }
@@ -728,7 +728,7 @@ callback returns `cancelled` without calling your updater function.
 export function ClearFilter() {
   const updateSearch = item.useUpdateSearch()
 
-  return <Button label="Clear filter" clickAction={() => {
+  return <Button label="Clear filter" onPress={() => {
     void updateSearch({}, { replace: false })
   }} />
 }
@@ -1246,8 +1246,8 @@ function EditActions() {
   const navigation = useRouter()
 
   return <View>
-    <Button label="Back" clickAction={() => { void navigation.back() }} />
-    <Button label="Close" clickAction={() => { void navigation.dismiss() }} />
+    <Button label="Back" onPress={() => { void navigation.back() }} />
+    <Button label="Close" onPress={() => { void navigation.dismiss() }} />
   </View>
 }
 ```
@@ -1641,9 +1641,9 @@ export function NativeNotes() {
   const editor = useRef<TextInputHandle | null>(null)
 
   return <View>
-    <Button clickAction={() => { void navigation.back() }}>Back</Button>
+    <Button onPress={() => { void navigation.back() }}>Back</Button>
     <TextInput ref={editor} defaultValue="Trip notes" />
-    <Button clickAction={() => editor.current?.focus()}>Edit notes</Button>
+    <Button onPress={() => editor.current?.focus()}>Edit notes</Button>
     <ScrollableArea height={200} label="Saved notes">
       <Text>{Array.from({ length: 50 }, (_, index) => `Note ${index + 1}`).join('\n')}</Text>
     </ScrollableArea>
@@ -2334,10 +2334,10 @@ function Toolbar(props: { navigation: WorkspaceNavigation['navigation']; topic: 
   const navigation = useRouter(props.navigation)
 
   return <View className="flex-row gap-2">
-    <Button label="Open help" clickAction={() => {
+    <Button label="Open help" onPress={() => {
       void navigation.push({ to: '/help/:topic', params: { topic: props.topic } })
     }} />
-    <Button label="Back" clickAction={() => { void navigation.back() }} />
+    <Button label="Back" onPress={() => { void navigation.back() }} />
   </View>
 }
 
@@ -2467,7 +2467,7 @@ import { Button } from '@octane-xplat/ui'
 import { webBrowser } from '@octane-xplat/web-browser'
 export function Help({ address }: { address: string }) {
   return <Button label="Open help" isDisabled={!webBrowser.supported}
-    clickAction={async () => { await webBrowser.openBrowser(address) }} />
+    pressAction={async () => { await webBrowser.openBrowser(address) }} />
 }
 ```
 

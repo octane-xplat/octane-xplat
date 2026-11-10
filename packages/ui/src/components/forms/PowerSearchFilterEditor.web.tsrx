@@ -103,11 +103,11 @@ export function PowerSearchFilterEditor(
       />
     ) : null}
     <div className="vx-power-search-editor-actions">
-      <Button label="Cancel" variant="ghost" clickAction={props.onCancel} />
+      <Button label="Cancel" variant="ghost" onPress={props.onCancel} />
       <Button
         label={props.saveButtonLabel ?? 'Apply'}
         variant="primary"
-        clickAction={save}
+        onPress={save}
         isDisabled={props.isReadOnly || unsupported}
       />
     </div>

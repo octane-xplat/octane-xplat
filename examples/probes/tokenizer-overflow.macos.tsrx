@@ -36,16 +36,16 @@ export default function TokenizerOverflowProbe() {
         searchSource={source}
         tokenOverflowBehavior={mode}
         hasClear
-        endContent={<Button label="Apply" clickAction={() => {}} />}
+        endContent={<Button label="Apply" onPress={() => {}} />}
       />
       <TextInput label="After tags" />
-      <Button label="Narrow" clickAction={() => setWidth(180)} />
-      <Button label="Wide" clickAction={() => setWidth(640)} />
-      <Button label="Inline" clickAction={() => setMode('unfocusedInline')} />
-      <Button label="Layer" clickAction={() => setMode('unfocusedLayer')} />
-      <Button label="Wrap" clickAction={() => setMode('none')} />
-      <Button label="Restore" clickAction={() => setTags(people)} />
-      <Button label="Reverse" clickAction={() => setTags([...tags].reverse())} />
+      <Button label="Narrow" onPress={() => setWidth(180)} />
+      <Button label="Wide" onPress={() => setWidth(640)} />
+      <Button label="Inline" onPress={() => setMode('unfocusedInline')} />
+      <Button label="Layer" onPress={() => setMode('unfocusedLayer')} />
+      <Button label="Wrap" onPress={() => setMode('none')} />
+      <Button label="Restore" onPress={() => setTags(people)} />
+      <Button label="Reverse" onPress={() => setTags([...tags].reverse())} />
     </VStack>
   )
 }

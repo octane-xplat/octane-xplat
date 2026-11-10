@@ -84,7 +84,7 @@ export function TiptapEditorDemo() @{
     />
     <HStack className="flex-wrap gap-2">
       {TOOLBAR.map((item) => (
-        <Button key={item.label} className="btn btn-secondary" clickAction={() => press(item)}>
+        <Button key={item.label} className="btn btn-secondary" onPress={() => press(item)}>
           <Text>{item.label}</Text>
         </Button>
       ))}

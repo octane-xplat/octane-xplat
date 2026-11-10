@@ -50,11 +50,11 @@ export default function BorderStylesProbe() {
       >
         <label text="Artificial border sample" />
       </masonview>
-      <Button label="Next style" clickAction={() => setIndex((index + 1) % styles.length)} />
-      <Button label="Next width" clickAction={() => setWidth(width === 4 ? 1 : width + 1)} />
-      <Button label="Next radius" clickAction={() => setRadius(radius === 24 ? 0 : radius + 8)} />
-      <Button label="Toggle mixed sides" clickAction={() => setMixed(!mixed)} />
-      <Button label="Resize preview" clickAction={() => setWide(!wide)} />
+      <Button label="Next style" onPress={() => setIndex((index + 1) % styles.length)} />
+      <Button label="Next width" onPress={() => setWidth(width === 4 ? 1 : width + 1)} />
+      <Button label="Next radius" onPress={() => setRadius(radius === 24 ? 0 : radius + 8)} />
+      <Button label="Toggle mixed sides" onPress={() => setMixed(!mixed)} />
+      <Button label="Resize preview" onPress={() => setWide(!wide)} />
       <Text>{`Style ${styles[index] ?? 'removed (native width-only solid)'}, width ${width}, radius ${radius}, mixed ${mixed}`}</Text>
     </VStack>
   )

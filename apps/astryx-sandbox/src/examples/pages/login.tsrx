@@ -1,6 +1,6 @@
 // Port of upstream templates/pages/login/page.tsx (Astryx 0.6.4, MIT) — route /templates/login/.
 // GAPS: `type="email"`/`type="password"` → `keyboardType`/`secure`; Button
-// `onClick` → `clickAction`; Banner `container="card"` has no equivalent
+// `onClick` → `onPress`; Banner `container="card"` has no equivalent
 // ('banner'|'section' only) — omitted.
 import { useState } from 'octane'
 import {
@@ -89,7 +89,7 @@ export function LoginTemplate() @{
             variant="primary"
             size="lg"
             isLoading={isLoading}
-            clickAction={handleSignIn}
+            onPress={handleSignIn}
           />
         </VStack>
       </Card>

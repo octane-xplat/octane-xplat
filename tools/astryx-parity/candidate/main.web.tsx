@@ -84,7 +84,7 @@ function Behavior() {
           label="Sync"
           variant="secondary"
           size="md"
-          clickAction={() => {
+          onPress={() => {
             window.__parity.events.push('sync')
           }}
         />
@@ -95,7 +95,7 @@ function Behavior() {
           variant="secondary"
           size="md"
           isDisabled
-          clickAction={() => {
+          onPress={() => {
             window.__parity.events.push('disabled')
           }}
         />
@@ -105,7 +105,7 @@ function Behavior() {
           label="Async"
           variant="secondary"
           size="md"
-          clickAction={() => {
+          pressAction={() => {
             window.__parity.events.push('async:start')
             return new Promise<void>((resolve) => {
               resolvePending = () => {
@@ -409,7 +409,7 @@ function StreamPump({ id }: { id: string }) {
       <span data-parity-action={`${id}/next`}>
         <Button
           label="next"
-          clickAction={() => {
+          onPress={() => {
             setIdx(Math.min(idx + 1, STREAM_FIXTURE_CHUNKS.length))
             window.__parity.events.push(`${id}:next`)
           }}
@@ -418,7 +418,7 @@ function StreamPump({ id }: { id: string }) {
       <span data-parity-action={`${id}/reset`}>
         <Button
           label="reset"
-          clickAction={() => {
+          onPress={() => {
             setIdx(0)
             window.__parity.events.push(`${id}:reset`)
           }}
@@ -427,7 +427,7 @@ function StreamPump({ id }: { id: string }) {
       <span data-parity-action={`${id}/mount`}>
         <Button
           label="mount"
-          clickAction={() => {
+          onPress={() => {
             setMounted(!mounted)
             window.__parity.events.push(`${id}:mount`)
           }}
@@ -446,7 +446,7 @@ function SourceSwap() {
       <span data-parity-action="source-swap">
         <Button
           label="swap"
-          clickAction={() => {
+          onPress={() => {
             setAlt(!alt)
             window.__parity.events.push('swap')
           }}
@@ -465,7 +465,7 @@ function SourceIdChange() {
       <span data-parity-action="source-id-change">
         <Button
           label="sources"
-          clickAction={() => {
+          onPress={() => {
             setWithApi(!withApi)
             window.__parity.events.push('sourceIdChange')
           }}

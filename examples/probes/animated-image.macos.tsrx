@@ -21,17 +21,17 @@ export default function AnimatedImageProbe() {
         separately.
       </Text>
       <TextInput label="Test image source" value={address} onChange={setAddress} />
-      <Button label="Apply source" clickAction={() => setSource(address)} />
-      <Button label="Clear source" clickAction={() => setSource('')} />
-      <Button label="Toggle mount" clickAction={() => setShown(!shown)} />
-      <Button label="Unrelated render" clickAction={() => setCount(count + 1)} />
+      <Button label="Apply source" onPress={() => setSource(address)} />
+      <Button label="Clear source" onPress={() => setSource('')} />
+      <Button label="Toggle mount" onPress={() => setShown(!shown)} />
+      <Button label="Unrelated render" onPress={() => setCount(count + 1)} />
       <Text>
         Unrelated updates: {count}; fit: {fit}
       </Text>
-      <Button label="Fit" clickAction={() => setFit('aspectFit')} />
-      <Button label="Fill" clickAction={() => setFit('fill')} />
-      <Button label="Cover" clickAction={() => setFit('aspectFill')} />
-      <Button label="Natural size" clickAction={() => setFit('none')} />
+      <Button label="Fit" onPress={() => setFit('aspectFit')} />
+      <Button label="Fill" onPress={() => setFit('fill')} />
+      <Button label="Cover" onPress={() => setFit('aspectFill')} />
+      <Button label="Natural size" onPress={() => setFit('none')} />
       {shown ? (
         <AnimatedImage
           src={source}

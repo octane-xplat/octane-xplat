@@ -189,7 +189,7 @@ function ProductInfo() @{
           label="Decrease quantity"
           variant="ghost"
           icon={<Icon name="sandbox-minus" size={16} />}
-          clickAction={decrement}
+          onPress={decrement}
           isDisabled={(quantity ?? 1) <= 1}
           isIconOnly
         />
@@ -208,15 +208,15 @@ function ProductInfo() @{
           label="Increase quantity"
           variant="ghost"
           icon={<Icon name="sandbox-plus" size={16} />}
-          clickAction={increment}
+          onPress={increment}
           isDisabled={(quantity ?? 1) >= 10}
           isIconOnly
         />
       </HStack>
     </VStack>
     <VStack gap={2}>
-      <Button label="Add to Cart" variant="primary" size="lg" clickAction={() => {}} />
-      <Button label="Buy it now" size="lg" clickAction={() => {}} />
+      <Button label="Add to Cart" variant="primary" size="lg" onPress={() => {}} />
+      <Button label="Buy it now" size="lg" onPress={() => {}} />
     </VStack>
     <CollapsibleGroup type="multiple" defaultValue={['composition']}>
       <Divider />

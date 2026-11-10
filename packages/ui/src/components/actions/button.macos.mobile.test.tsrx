@@ -12,14 +12,20 @@ import { Button } from './Button.macos.tsrx'
 import { IconButton } from '../media/IconButton.macos.tsrx'
 import { ButtonGroupProvider } from './button-group-context'
 
-vi.mock('@octane-xplat/platform', async (original) => ({
-  ...(await original<typeof import('@octane-xplat/platform')>()),
-  openUrl: vi.fn(),
+vi.mock('@octane-xplat/platform', () => ({ openUrl: vi.fn() }))
+vi.mock('./Pressable.macos.tsrx', () => import('../../../tests/button-pressable-mock.macos.tsrx'))
+vi.mock('../feedback/ActivityIndicator.macos.tsrx', async () => ({
+  ActivityIndicator: (await import('../layout/Spacer.tsrx')).Spacer,
 }))
 
 function mount(component: any, props: any) {
   const container = createObjectContainer('nativescript')
-  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const driver = createObjectDriver('nativescript')
+
+  // Action-policy fixture retains callbacks; OS input is qualified separately.
+  driver.events = { classify: () => null }
+
+  const root = createUniversalRoot(container, driver)
   const render = (next: any) => {
     root.render(component, next)
     flushUniversalSync(() => {})
@@ -67,20 +73,20 @@ it('opens sanitized href before the action and blocks unsafe schemes and disable
   const env = mount(Button, {
     label: 'Docs',
     href: ' https://example.com/\nhelp ',
-    clickAction: action,
+    pressAction: action,
   })
 
   try {
     env.host().props.onTap()
     expect(order).toEqual(['https://example.com/help', 'action'])
-    env.render({ label: 'Blocked', href: 'JaVaScRiPt:alert(1)', clickAction: action })
+    env.render({ label: 'Blocked', href: 'JaVaScRiPt:alert(1)', pressAction: action })
     env.host().props.onTap()
     expect(order).toEqual(['https://example.com/help', 'action', 'action'])
     env.render({
       label: 'Disabled',
       href: 'https://example.com',
       isDisabled: true,
-      clickAction: action,
+      pressAction: action,
     })
 
     expect(env.host().props.onTap).toBeUndefined()
@@ -96,7 +102,7 @@ it('retains content and host while busy, reports busy/name and rejects same-fram
 
   const env = mount(Button, {
     label: 'Save changes',
-    clickAction: action,
+    pressAction: action,
     row: 2,
     style: { width: 180 },
     onPressIn: vi.fn(),
@@ -145,7 +151,7 @@ it('keeps interruptible overlap busy until every promise settles and reports err
   const env = mount(Button, {
     label: 'Save',
     isInterruptible: true,
-    clickAction: () => (++calls === 1 ? first.promise : second.promise),
+    pressAction: () => (++calls === 1 ? first.promise : second.promise),
     onActionError: errors,
   })
 
@@ -179,7 +185,7 @@ it('inherits group disablement, forwards press metadata and honors interruptible
   function Group() {
     return (
       <ButtonGroupProvider value={{ position: 'only', isDisabled: true }}>
-        <Button label="Grouped" clickAction={action} />
+        <Button label="Grouped" pressAction={action} />
       </ButtonGroupProvider>
     )
   }
@@ -196,7 +202,7 @@ it('inherits group disablement, forwards press metadata and honors interruptible
     label: 'Retry',
     isLoading: true,
     isInterruptible: true,
-    clickAction: action,
+    pressAction: action,
     onPressIn: inside,
     accessibilityHint: 'Saves the draft',
     accessibilityState: { selected: true },
@@ -223,7 +229,7 @@ it('reports synchronous errors and ignores cached presses after unmount', async 
 
   const env = mount(Button, {
     label: 'Save',
-    clickAction: () => {
+    pressAction: () => {
       throw error
     },
     onActionError: errors,
@@ -234,7 +240,7 @@ it('reports synchronous errors and ignores cached presses after unmount', async 
 
   const action = vi.fn(() => task.promise)
 
-  env.render({ label: 'Save', clickAction: action })
+  env.render({ label: 'Save', pressAction: action })
 
   const press = env.host().props.onTap
 
@@ -255,7 +261,7 @@ it('wraps primitive children in text hosts and forwards refs without changing pe
     return <Button {...props}>Save draft</Button>
   }
 
-  const env = mount(ChildButton, { label: 'Fallback', clickAction: action, ref })
+  const env = mount(ChildButton, { label: 'Fallback', pressAction: action, ref })
 
   try {
     const host = env.host(),
@@ -276,7 +282,7 @@ it('wraps primitive children in text hosts and forwards refs without changing pe
 
     const nextRef = { current: null }
 
-    env.render({ clickAction: action, ref: nextRef })
+    env.render({ pressAction: action, ref: nextRef })
     press()
     expect(action).toHaveBeenCalledTimes(1)
     expect(nextRef.current).toBe(host)
@@ -298,7 +304,7 @@ it('IconButton shares named busy ownership and preserves icon/ref/metadata', asy
   const env = mount(IconButton, {
     label: 'Share',
     icon: <label id="share-icon" text="Share glyph" />,
-    clickAction: action,
+    pressAction: action,
     ref,
     testID: 'document.share',
     accessibilityHint: 'Shares this document',
@@ -390,7 +396,7 @@ it('held AppKit presses use current props, inherited blocking, href and callback
   const base = {
     label: 'Save',
     href: 'https://example.com/old',
-    clickAction: () => events.push('old'),
+    pressAction: () => events.push('old'),
   }
 
   const env = mount(Grouped, base)
@@ -407,7 +413,7 @@ it('held AppKit presses use current props, inherited blocking, href and callback
     env.render({
       label: 'Current',
       href: ' https://example.com/new ',
-      clickAction: () => events.push('current'),
+      pressAction: () => events.push('current'),
     })
 
     press()
@@ -422,7 +428,7 @@ it('held presses use current interruptibility and active tokens rather than rend
   const tasks = [deferred(), deferred(), deferred()]
   let calls = 0
   const action = () => tasks[calls++].promise
-  const env = mount(Button, { label: 'Save', isInterruptible: true, clickAction: action })
+  const env = mount(Button, { label: 'Save', isInterruptible: true, pressAction: action })
 
   try {
     const press = env.host().props.onTap
@@ -430,7 +436,7 @@ it('held presses use current interruptibility and active tokens rather than rend
     press()
     press()
     expect(calls).toBe(2)
-    env.render({ label: 'Save', isInterruptible: false, clickAction: action })
+    env.render({ label: 'Save', isInterruptible: false, pressAction: action })
     press()
     expect(calls).toBe(2)
     tasks[0].resolve()
@@ -472,7 +478,7 @@ it('noninterruptible Button ownership is claimed before URL bridge reentry', () 
   const env = mount(Button, {
     label: 'Help',
     href: 'https://example.com/help',
-    clickAction: () => events.push('action'),
+    pressAction: () => events.push('action'),
   })
 
   try {
@@ -503,7 +509,7 @@ it('an accepted URL/action pair retains its callback and error owner across prop
   const env = mount(Button, {
     label: 'Help',
     href: 'https://example.com/old',
-    clickAction: () => {
+    pressAction: () => {
       events.push('accepted')
       throw failure
     },
@@ -524,7 +530,7 @@ it('an accepted URL/action pair retains its callback and error owner across prop
         label: 'New',
         ref: [nextRef, [nestedRef]],
         href: 'https://example.com/new',
-        clickAction: () => events.push('current'),
+        pressAction: () => events.push('current'),
         onActionError: () => events.push('current-error'),
       })
 
@@ -556,7 +562,7 @@ it('a synchronous URL opener error releases the claim and skips the action witho
   const env = mount(Button, {
     label: 'Help',
     href: 'https://example.com/help',
-    clickAction: action,
+    pressAction: action,
     onActionError: errors,
   })
 
@@ -592,7 +598,7 @@ it('throwing action then access reports to the accepted error owner and releases
 
   const env = mount(Button, {
     label: 'Save',
-    clickAction: () => {
+    pressAction: () => {
       calls++
       return malformed ? value : undefined
     },
@@ -621,13 +627,13 @@ it('pending Button failure keeps its accepted error callback after replacement a
     action = vi.fn(() => task.promise)
 
   const ref = { current: null }
-  const env = mount(Button, { label: 'Save', clickAction: action, onActionError: accepted, ref })
+  const env = mount(Button, { label: 'Save', pressAction: action, onActionError: accepted, ref })
 
   try {
     const press = env.host().props.onTap
 
     press()
-    env.render({ label: 'Changed', clickAction: action, onActionError: replacement, ref })
+    env.render({ label: 'Changed', pressAction: action, onActionError: replacement, ref })
     env.root.unmount()
     expect(ref.current).toBeNull()
     press()
@@ -657,7 +663,7 @@ it('IconButton held actions inherit current Button loading, href and action owne
     label: 'Help',
     icon: <label text="Help" />,
     href: 'https://example.com/old',
-    clickAction: () => events.push('old'),
+    pressAction: () => events.push('old'),
   }
 
   const env = mount(IconButton, base)
@@ -671,7 +677,7 @@ it('IconButton held actions inherit current Button loading, href and action owne
     env.render({
       ...base,
       href: 'https://example.com/current',
-      clickAction: () => events.push('current'),
+      pressAction: () => events.push('current'),
     })
 
     press()
@@ -712,7 +718,7 @@ it('Button pointer hints remain during busy/disabled/ref handoff and clear on te
     first = { current: null },
     second = { current: null }
 
-  const base = { label: 'Save', tooltip: 'Save this document', clickAction: () => task.promise }
+  const base = { label: 'Save', tooltip: 'Save this document', pressAction: () => task.promise }
   const env = mount(Button, { ...base, ref: first })
 
   try {

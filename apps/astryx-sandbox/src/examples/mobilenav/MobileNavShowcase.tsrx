@@ -10,7 +10,7 @@ export function MobileNavShowcase() @{
       label="Open Navigation"
       icon={<Icon name="sandbox-menu" color="inherit" />}
       variant="ghost"
-      clickAction={() => setIsOpen(true)}
+      onPress={() => setIsOpen(true)}
       isIconOnly
     />
     <MobileNav isOpen={isOpen} onOpenChange={(open: boolean) => setIsOpen(open)} header="My App">

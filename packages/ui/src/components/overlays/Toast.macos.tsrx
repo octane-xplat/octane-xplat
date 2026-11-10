@@ -118,7 +118,7 @@ export function Toast(props: ToastProps): unknown @{
       </masonview>
     )}
     {props.onDismiss != null && (
-      <Button accessibilityLabel="Dismiss notification" clickAction={() => dismiss('manual')}>
+      <Button accessibilityLabel="Dismiss notification" onPress={() => dismiss('manual')}>
         ×
       </Button>
     )}

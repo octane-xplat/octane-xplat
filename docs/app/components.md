@@ -300,7 +300,7 @@ export function Example() {
 | `FormLayout`                                            | Arranges labeled fields                                          | `direction`, `defaultOptionality`                                                             |
 | `InputGroup`, `InputGroupText`                          | Joins a labeled control with prefix/suffix text                  | `label`, `size`                                                                               |
 | `PowerSearch`                                           | Structured field/operator/value filters                          | `config`, `filters`, `onChange`, `components`                                                 |
-| `Button`                                                | Labeled action                                                   | `label`, `variant`, `size`, `isDisabled`, `isLoading`, `clickAction`, `onActionError`, `href` |
+| `Button`                                                | Labeled action                                                   | `label`, `variant`, `size`, `isDisabled`, `isLoading`, `pressAction`, `onActionError`, `href` |
 | `IconButton`                                            | Icon-only named action                                           | `icon`, `label`, `variant`, `size`                                                            |
 | `ButtonGroup`                                           | Connected action row                                             | `label`, `orientation`, `size`, `isDisabled`                                                  |
 | `ToggleButton`, `ToggleButtonGroup`                     | Pressed action and toggle group                                  | `isPressed`, `value`, `onChange`, `type`                                                      |
@@ -1276,7 +1276,7 @@ import { Button, Text, View, useGridFocus } from '@octane-xplat/ui'
 export function PaletteControls() {
   const grid = useGridFocus<NSView>({ rows: 1, columns: 2, onFocusChange: (index) => console.log(index) })
   return <View className="gap-2">
-    <Button label="Focus last cell" clickAction={() => grid.onFocusCell?.(1)} />
+    <Button label="Focus last cell" onPress={() => grid.onFocusCell?.(1)} />
     <masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row gap-2">
       <button data-grid-cell text="First" onTap={() => console.log('First')} />
       <button data-grid-cell text="Last" onTap={() => console.log('Last')} />
@@ -1596,7 +1596,7 @@ export function Previews() {
       <Text>Second preview</Text>
       <Text>Third preview</Text>
     </Carousel>
-    <Button label="Last preview" clickAction={() => carousel.current?.scrollTo(2)} />
+    <Button label="Last preview" onPress={() => carousel.current?.scrollTo(2)} />
   </>
 }
 ```
@@ -1611,7 +1611,7 @@ layout/scroll callbacks and window updates keep controls current and release on
 teardown:
 
 ```tsx
-<Button label="Next preview" clickAction={() => {
+<Button label="Next preview" onPress={() => {
   if (carousel.current?.canScrollNext()) carousel.current.scrollNext()
 }} />
 ```
@@ -1650,7 +1650,7 @@ Native user activity and accepted handle commands also retire late initial
 alignment rather than resetting the user's position:
 
 ```tsx
-<Button label="Last preview" clickAction={() => carousel.current?.scrollTo(2)} />
+<Button label="Last preview" onPress={() => carousel.current?.scrollTo(2)} />
 ```
 
 Six intent-policy, two geometry and two wiring cases are authored and unrun;
@@ -1751,12 +1751,12 @@ updates, while failures still reach the configured error path.
 import { Button } from '@octane-xplat/ui'
 
 export function SaveButton({ save, report }: { save(): Promise<void>; report(error: unknown): void }) {
-  return <Button label="Save changes" clickAction={save} onActionError={report} />
+  return <Button label="Save changes" pressAction={save} onActionError={report} />
 }
 ```
 
 A button's `href` uses the existing URL sanitizer and AppKit platform opener
-before its click action. `target` does not create a native browser tab/window;
+after its synchronous `onPress` effect and before `pressAction`. `target` does not create a native browser tab/window;
 use NavLink for app routes. Primitive children receive a text host, and inherited
 Pressable layout/events and accessibility metadata reach the native host.
 
@@ -1784,7 +1784,7 @@ import { Button } from '@octane-xplat/ui'
 export function CurrentSave({ disabled, save, report }: {
   disabled: boolean; save(): Promise<void>; report(error: unknown): void
 }) {
-  return <Button label="Save" isDisabled={disabled} clickAction={save}
+  return <Button label="Save" isDisabled={disabled} pressAction={save}
     onActionError={report} />
 }
 ```
@@ -1821,7 +1821,7 @@ input, busy sizing, VoiceOver and native pointer-hint presentation remain unqual
 import { IconButton } from '@octane-xplat/ui'
 
 export function Share({ share }: { share(): Promise<void> }) {
-  return <IconButton label="Share document" icon="share" clickAction={share} testID="document.share" />
+  return <IconButton label="Share document" icon="share" pressAction={share} testID="document.share" />
 }
 ```
 

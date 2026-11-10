@@ -14,9 +14,9 @@ export function BottomSheetNoScrim() @{
         <Button
           label="Interact with page"
           variant="secondary"
-          clickAction={() => setBackgroundClicks((c) => c + 1)}
+          onPress={() => setBackgroundClicks((c) => c + 1)}
         />
-        <Button label="Show place details" clickAction={() => setIsOpen(true)} />
+        <Button label="Show place details" onPress={() => setIsOpen(true)} />
       </VStack>
       <BottomSheet
         isOpen={isOpen}
@@ -29,7 +29,7 @@ export function BottomSheetNoScrim() @{
           <Heading level={3}>Central Park</Heading>
           <Divider />
           <Text type="body">The page remains visible and interactive behind this sheet.</Text>
-          <Button label="Close details" clickAction={() => setIsOpen(false)} />
+          <Button label="Close details" onPress={() => setIsOpen(false)} />
         </VStack>
       </BottomSheet>
     </Section>

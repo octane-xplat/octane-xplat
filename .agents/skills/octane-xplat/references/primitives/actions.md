@@ -2,6 +2,51 @@
 
 Use for button actions, interactive cards, toolbar focus, and busy feedback. Apply the [native interaction prerequisites](accessibility.md) for AppKit.
 
+## Choose an effect or an asynchronous action
+
+Use `onPress` for immediate effects. Use `pressAction` only for Promise-returning
+work whose pending state and failures the button should manage. Never manufacture
+an `async` wrapper for a state setter, focus call, panel toggle, or animation command.
+`IconButton` follows the same rule. Toggle buttons use `onPressedChange` for immediate
+changes and `pressedChangeAction` for asynchronous saves.
+
+```tsx
+import { useState } from 'octane'
+import { Button } from '@octane-xplat/ui'
+
+export function EditorActions(props: { save(): Promise<void> }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button label={open ? 'Close editor' : 'Open editor'} onPress={() => setOpen(!open)} />
+      <Button label="Save" pressAction={props.save} />
+    </>
+  )
+}
+```
+
+When both callbacks are supplied, `onPress` runs before navigation and
+`pressAction`. Calling its event's `preventDefault()` skips both. A thrown
+`onPress` error also skips the action and follows the normal renderer error path;
+`onActionError` handles failures from `pressAction`, including throws before its
+promise is returned. Disabled or noninterruptibly busy buttons run neither.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Save(props: { valid: boolean; save(): Promise<void> }) {
+  return (
+    <Button
+      label="Save"
+      onPress={(event) => {
+        if (!props.valid) event.preventDefault()
+      }}
+      pressAction={props.save}
+    />
+  )
+}
+```
+
 ## AppKit busy feedback
 
 Spinner now forwards named sizes, text/node labels, contrast, accessible names,
@@ -21,7 +66,6 @@ export function Saving() {
 }
 ```
 
-
 AppKit ProgressBar subscribes to theme changes and preserves object/array/CSS
 styles with authored overrides. It forwards declared accessible/name/hint/value
 props. Indeterminate mode skips the formatter, readout, marks and numeric AX
@@ -34,8 +78,16 @@ unqualified; do not infer them from mounted metadata.
 ```tsx
 import { ProgressBar } from '@octane-xplat/ui'
 export function Upload({ percent }: { percent?: number }) {
-  return <ProgressBar label="Upload" value={percent} isIndeterminate={percent === undefined}
-    hasValueLabel accessibilityHint="Keep the app open" style="width:240px" />
+  return (
+    <ProgressBar
+      label="Upload"
+      value={percent}
+      isIndeterminate={percent === undefined}
+      hasValueLabel
+      accessibilityHint="Keep the app open"
+      style="width:240px"
+    />
+  )
 }
 ```
 
@@ -48,9 +100,11 @@ arc/color remain gaps; do not infer a filled gauge or native AX proof.
 ```tsx
 import { Meter, Text } from '@octane-xplat/ui'
 export function Storage() {
-  return <Meter value={6} maxValue={10} size={48} accessibilityLabel="Storage">
-    <Text>6 GB</Text>
-  </Meter>
+  return (
+    <Meter value={6} maxValue={10} size={48} accessibilityLabel="Storage">
+      <Text>6 GB</Text>
+    </Meter>
+  )
 }
 ```
 
@@ -66,7 +120,7 @@ switching. See [native activation](../../../../../docs/packages/package-macos-ap
 import { Button } from '@octane-xplat/ui'
 
 export function Save({ save }: { save(): void }) {
-  return <Button label="Save" clickAction={save} />
+  return <Button label="Save" onPress={save} />
 }
 ```
 
@@ -88,11 +142,11 @@ writes while accepted app work and its failure reporting continue.
 import { Button } from '@octane-xplat/ui'
 
 export function Save({ save }: { save(): Promise<void> }) {
-  return <Button label="Save" clickAction={save} />
+  return <Button label="Save" pressAction={save} />
 }
 ```
 
-Button href is sanitized and handed to the platform opener before clickAction.
+After `onPress`, Button href is sanitized and handed to the platform opener before pressAction.
 It does not use the router; target has no native browsing-context behavior.
 Native URL opening/input/VoiceOver/busy geometry require separate target qualification.
 Focus-triggered tooltip presentation is still missing. Button tooltip now assigns the
@@ -104,9 +158,14 @@ hover delivery, focus and AX semantics require separate target qualification. Se
 ```tsx
 import { Button } from '@octane-xplat/ui'
 
-export function Help() { return <Button href="https://example.com/help" tooltip="Read help">Help</Button> }
+export function Help() {
+  return (
+    <Button href="https://example.com/help" tooltip="Read help">
+      Help
+    </Button>
+  )
+}
 ```
-
 
 IconButton.macos is a thin wrapper around Button.macos with isIconOnly, matching
 the shared native shape. Use the Button contract for pending/overlap/errors,
@@ -117,7 +176,7 @@ qualification is still open; focus-triggered tooltips remain a gap.
 import { IconButton } from '@octane-xplat/ui'
 
 export function Share({ share }: { share(): Promise<void> }) {
-  return <IconButton label="Share document" icon="share" clickAction={share} />
+  return <IconButton label="Share document" icon="share" pressAction={share} />
 }
 ```
 
@@ -130,8 +189,8 @@ reports onActionError without rollback; controlled isPressed still follows the
 parent. Local intent is separate from controlled/group display; an accepted
 Button callback uses its captured controlled value across URL-driven parent
 updates and preserves local intent across mode changes. A throwing
-onPressedChange retains the local flip, skips the save and uses Button's error
-path. Group value membership ignores member save actions.
+onPressedChange retains the local flip, skips the save and follows the renderer
+error path; onActionError is reserved for the asynchronous save. Group value membership ignores member save actions.
 
 ```tsx
 import { ToggleButton } from '@octane-xplat/ui'
@@ -162,10 +221,13 @@ are not implemented. See [cards](../../../../../docs/app/interactive-actions.md#
 import { ClickableCard } from '@octane-xplat/ui'
 
 export function Help() {
-  return <ClickableCard label="Open help" href="https://example.com/help" elevation="low">Help</ClickableCard>
+  return (
+    <ClickableCard label="Open help" href="https://example.com/help" elevation="low">
+      Help
+    </ClickableCard>
+  )
 }
 ```
-
 
 Disabled-card focus uses a reference-counted renderer claim, released on enablement
 or detach, without adding an action. FocusScope honors explicit native key-view
@@ -176,8 +238,18 @@ behavior; do not infer qualification from bridge presence alone.
 ```tsx
 import { SelectableCard } from '@octane-xplat/ui'
 
-export function UnavailablePlan({ selected, onChange }: { selected: boolean; onChange(value: boolean): void }) {
-  return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>Unavailable</SelectableCard>
+export function UnavailablePlan({
+  selected,
+  onChange,
+}: {
+  selected: boolean
+  onChange(value: boolean): void
+}) {
+  return (
+    <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>
+      Unavailable
+    </SelectableCard>
+  )
 }
 ```
 
@@ -201,8 +273,14 @@ web helper's key direction; native RTL visual behavior requires separate target 
 import { Button, Toolbar } from '@octane-xplat/ui'
 
 export function Actions() {
-  return <Toolbar label="Page actions" orientation="horizontal"
-    startContent={<Button label="Save" />} endContent={<Button label="Share" />} />
+  return (
+    <Toolbar
+      label="Page actions"
+      orientation="horizontal"
+      startContent={<Button label="Save" />}
+      endContent={<Button label="Share" />}
+    />
+  )
 }
 ```
 

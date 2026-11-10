@@ -4495,7 +4495,7 @@ export interface ImperativeAlertDialogReturn {
  *
  * const carousel = useRef<CarouselHandle>()
  * const slidesView = <Carousel ref={carousel}>{slides}</Carousel>
- * const nextButton = <Button label="Next" clickAction={() => carousel.current?.scrollNext()} />
+ * const nextButton = <Button label="Next" onPress={() => carousel.current?.scrollNext()} />
  * ```
  */
 export interface CarouselHandle {
@@ -7696,21 +7696,24 @@ export type Elevation = 'none' | 'low' | 'med' | 'high'
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | (string & {})
 
 /** Button composes Pressable — same-props/same-pixels, self-drawn. `isLoading`
- *  shows the spinner and blocks presses. Props follow the Astryx vocabulary
+ *  shows the spinner and blocks presses. Props follow the shared action vocabulary
  *  (`label`, `variant`, `size`, `isDisabled`, `isLoading`, `icon`,
- *  `isIconOnly`, `endContent`, `elevation`, `tooltip`, `href`, `clickAction`,
- *  `isInterruptible`) — each state and action has one spelling.
- *  `clickAction` failures report through `onActionError`.
+ *  `isIconOnly`, `endContent`, `elevation`, `tooltip`, `href`, `pressAction`,
+ *  `isInterruptible`); use `onPress` for synchronous effects.
+ *  `pressAction` failures report through `onActionError`.
  *
  * @example
  * ```tsx
  * import { Button } from '@octane-xplat/ui'
  *
- * <Button label="Save" variant="primary" clickAction={save} onActionError={showError} />
+ * <Button label="Save" variant="primary" pressAction={save} onActionError={showError} />
  * ```
  * @see PressableProps for the interaction base, IconButtonProps, ButtonGroupProps.
  */
-export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'> {
+export interface ButtonProps extends Omit<PressableProps, 'disabled'> {
+  /** Synchronous effect before navigation and pressAction. preventDefault skips
+   *  both; thrown errors follow the renderer path, not onActionError. */
+  onPress?: (event: ActivationEvent) => void
   /** Visible label text; `children` takes precedence when both are set. */
   label?: string
   /** Visual variant. @default 'secondary' */
@@ -7722,16 +7725,17 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'
   isDisabled?: boolean
   /** Loading state — shows the spinner and blocks presses. */
   isLoading?: boolean
-  /** Keep the button interactive while a `clickAction` is pending — each
+  /** Keep the button interactive while a `pressAction` is pending — each
    *  press then starts another overlapping call without cancelling the
    *  in-flight one. */
   isInterruptible?: boolean
-  /** Action run on press; pending promises show the loading spinner unless
+  /** Asynchronous work run after onPress; return its promise (result ignored)
+   *  so pending work shows the loading spinner unless
    *  `isInterruptible` keeps presses live. Presses during a pending call
    *  are ignored (never queued); retrying a failed action is another
    *  press. The call's own promise is the completion handle to await. */
-  clickAction?: () => void | Promise<void>
-  /** Reports a `clickAction` failure — a thrown error or a rejected
+  pressAction?: () => Promise<unknown>
+  /** Reports a `pressAction` failure — a thrown error or a rejected
    *  promise. When omitted, failures surface as uncaught asynchronous
    *  errors rather than being silently swallowed. */
   onActionError?: (error: unknown) => void
@@ -8446,7 +8450,7 @@ export interface MenuSurfaceProps {
 /** The `DropdownMenu` trigger described as shared-`Button` props — every
  *  `ButtonProps` field except the press handler, which the menu owns
  *  (Astryx `DropdownMenuButtonProps`). */
-export type DropdownMenuButtonProps = Omit<ButtonProps, 'clickAction'>
+export type DropdownMenuButtonProps = Omit<ButtonProps, 'pressAction' | 'onPress'>
 
 /** Both data rows and compound children use the same menu contracts.
  *
@@ -10992,7 +10996,7 @@ export interface KbdProps {
  * import { EmptyState, Button } from '@octane-xplat/ui'
  *
  * <EmptyState icon="xplat-doc-image" title="No results" description="Try a different query">
- * 	<Button label="Clear filters" clickAction={clear} />
+ * 	<Button label="Clear filters" onPress={clear} />
  * </EmptyState>
  * ```
  */
@@ -13795,7 +13799,7 @@ export interface ResizeHandleProps {
  * ```tsx
  * import { IconButton } from '@octane-xplat/ui'
  *
- * <IconButton icon="xplat-close" label="Close" clickAction={close} />
+ * <IconButton icon="xplat-close" label="Close" onPress={close} />
  * ```
  * @see ButtonProps.
  */
@@ -13880,7 +13884,10 @@ export interface ButtonGroupProps {
  * ```
  * @see ToggleButtonGroupProps for grouped selection.
  */
-export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant' | 'clickAction'> {
+export interface ToggleButtonProps extends Omit<
+  ButtonProps,
+  'label' | 'variant' | 'pressAction' | 'onPress'
+> {
   /** Button text. */
   label: string
   /** Controlled pressed state. */
@@ -13890,7 +13897,7 @@ export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant'
   /** Action-backed toggle — runs while the pending spinner shows, with an
    *  optimistic press flip. Ignored when `value` binds group membership.
    *  Failures report through `onActionError`. */
-  pressedChangeAction?: (isPressed: boolean) => void | Promise<void>
+  pressedChangeAction?: (isPressed: boolean) => Promise<unknown>
   /** Icon shown while pressed (e.g. filled variant); falls back to `icon`. */
   pressedIcon?: Renderable
   /** Accent color applied while pressed (Astryx `color`). */

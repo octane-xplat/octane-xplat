@@ -6,7 +6,7 @@ export function MobileNavEndSideMobileNav() @{
   const [isOpen, setIsOpen] = useState(false)
 
   <>
-    <Button label="Open from Right" clickAction={() => setIsOpen(true)} />
+    <Button label="Open from Right" onPress={() => setIsOpen(true)} />
     <MobileNav
       isOpen={isOpen}
       onOpenChange={(open: boolean) => setIsOpen(open)}

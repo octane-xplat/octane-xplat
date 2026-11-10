@@ -16,11 +16,16 @@ import type { JSX } from 'octane/jsx-runtime'
  *  Button is the only producer. */
 export interface PressableInternalProps extends PressableProps {
   _nativeButton?: boolean
+  _nativeAnchor?: boolean
+  href?: string
+  target?: string
 }
 
 export function Pressable(props: PressableProps): JSX.Element @{
-  const asButton = (props as PressableInternalProps)._nativeButton === true
-  const Tag: any = asButton ? 'button' : 'div'
+  const internal = props as PressableInternalProps
+  const asButton = internal._nativeButton === true
+  const asAnchor = internal._nativeAnchor === true
+  const Tag: 'button' | 'a' | 'div' = asButton ? 'button' : asAnchor ? 'a' : 'div'
   const bindInput = useInteractionHost({
     ...props,
     gestures: props.disabled ? undefined : props.gestures,
@@ -46,6 +51,9 @@ export function Pressable(props: PressableProps): JSX.Element @{
   <Tag
     ref={forwardedRef}
     type={asButton ? 'button' : undefined}
+    href={asAnchor ? internal.href : undefined}
+    target={asAnchor ? internal.target : undefined}
+    rel={asAnchor && internal.target === '_blank' ? 'noreferrer' : undefined}
     disabled={asButton && props.disabled ? true : undefined}
     id={props.id}
     data-testid={props.testID}
@@ -54,7 +62,7 @@ export function Pressable(props: PressableProps): JSX.Element @{
       ...styleRecord(props.style),
       ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}),
     })}
-    role={asButton ? undefined : (props.accessibilityRole ?? 'button')}
+    role={asButton || asAnchor ? undefined : (props.accessibilityRole ?? 'button')}
     aria-label={props.accessibilityLabel}
     aria-description={props.accessibilityHint}
     aria-valuetext={props.accessibilityValue}
@@ -67,7 +75,15 @@ export function Pressable(props: PressableProps): JSX.Element @{
     aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
     aria-hidden={props.accessible === false ? true : undefined}
     tabIndex={
-      asButton ? undefined : props.onPress && !props.disabled && props.accessible !== false ? 0 : -1
+      asAnchor
+        ? props.disabled
+          ? -1
+          : undefined
+        : asButton
+          ? undefined
+          : props.onPress && !props.disabled && props.accessible !== false
+            ? 0
+            : -1
     }
   >
     <InteractionScopeProvider scope={props.interactionScope}>

@@ -43,8 +43,8 @@ import { useNavigationBlocker } from '@octane-xplat/ui/routing'
 export function ConfirmLeave(props: { dirty: boolean }) {
   const blocker = useNavigationBlocker({ when: props.dirty })
   return blocker.status === 'blocked' ? <View>
-    <Button label="Keep editing" clickAction={blocker.reset} />
-    <Button label="Leave screen" clickAction={blocker.proceed} />
+    <Button label="Keep editing" onPress={blocker.reset} />
+    <Button label="Leave screen" onPress={blocker.proceed} />
   </View> : null
 }
 ```

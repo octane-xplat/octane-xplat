@@ -200,7 +200,7 @@ export function InputCases(props: {
     <Button
       id="input-focus-second"
       label="Focus second"
-      clickAction={() => secondRef.current?.focus()}
+      onPress={() => secondRef.current?.focus()}
     />
   </VStack>
 }

@@ -41,9 +41,9 @@ export default function PowerSearchFocusProbe() {
           isDisabled={disabled}
         />
       ) : null}
-      <Button label="Toggle search" clickAction={() => setShown(!shown)} />
-      <Button label="Toggle request" clickAction={() => setRequested(!requested)} />
-      <Button label="Toggle disabled" clickAction={() => setDisabled(!disabled)} />
+      <Button label="Toggle search" onPress={() => setShown(!shown)} />
+      <Button label="Toggle request" onPress={() => setRequested(!requested)} />
+      <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
     </VStack>
   )
 }

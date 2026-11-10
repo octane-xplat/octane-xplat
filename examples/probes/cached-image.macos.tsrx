@@ -71,14 +71,14 @@ export default function AppKitCachedImageProbe() {
       ) : null}
       <Button
         label="Initialize default cache"
-        clickAction={() => {
+        pressAction={() => {
           initializeImageCache()
           report('initialization requested')
         }}
       />
       <Button
         label="Prefetch bytes without displaying"
-        clickAction={async () => {
+        pressAction={async () => {
           const owned = source
 
           report(`prefetch: ${await prefetch(owned)}`)
@@ -86,17 +86,17 @@ export default function AppKitCachedImageProbe() {
       />
       <Button
         label="Query source"
-        clickAction={async () => {
+        pressAction={async () => {
           const owned = source
 
           report(`cached: ${(await isImageCached(owned))[owned]}`)
         }}
       />
-      <Button label="Toggle cache bypass" clickAction={() => setBypass(!bypass)} />
-      <Button label="Toggle preview" clickAction={() => setShown(!shown)} />
+      <Button label="Toggle cache bypass" onPress={() => setBypass(!bypass)} />
+      <Button label="Toggle preview" onPress={() => setShown(!shown)} />
       <Button
         label="Evict source"
-        clickAction={async () => {
+        pressAction={async () => {
           const owned = source
 
           report(`evicted: ${await evictImage(owned)}`)
@@ -104,7 +104,7 @@ export default function AppKitCachedImageProbe() {
       />
       <Button
         label="Clear image-owned caches"
-        clickAction={async () => {
+        pressAction={async () => {
           try {
             await clearImageCaches()
             report('clear completed')

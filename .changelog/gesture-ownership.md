@@ -7,7 +7,7 @@ import { Button, View, usePanGesture$ } from '@octane-xplat/ui'
 
 export function Panel() {
   const drag = usePanGesture$({ axis: 'x', onEnd: (sample) => console.log(sample.translation) })
-  return <View gestures={drag}><Button clickAction={() => {}}>Open</Button></View>
+  return <View gestures={drag}><Button onPress={() => {}}>Open</Button></View>
 }
 ```
 

@@ -523,7 +523,7 @@ export function TablePageTemplate() @{
                 title="No matching line items"
                 description="No line on this invoice matches the current filters."
               >
-                <Button label="Clear filters" variant="secondary" clickAction={clearEverything} />
+                <Button label="Clear filters" variant="secondary" onPress={clearEverything} />
               </EmptyState>
             ) : (
               <VStack gap={4}>
@@ -559,7 +559,7 @@ export function TablePageTemplate() @{
                   <Button
                     label="Clear all filters"
                     variant="secondary"
-                    clickAction={clearEverything}
+                    onPress={clearEverything}
                   />
                 </HStack>
               </Banner>

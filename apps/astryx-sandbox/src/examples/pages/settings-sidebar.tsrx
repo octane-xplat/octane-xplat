@@ -140,8 +140,8 @@ function ExpandableRow(props: {
         </Text>
         {props.children}
         <HStack gap={2}>
-          <Button label="Save" variant="primary" clickAction={props.onSave} />
-          <Button label="Cancel" variant="ghost" clickAction={props.onCancel} />
+          <Button label="Save" variant="primary" onPress={props.onSave} />
+          <Button label="Cancel" variant="ghost" onPress={props.onCancel} />
         </HStack>
       </VStack>
     ) : (
@@ -154,7 +154,7 @@ function ExpandableRow(props: {
             {props.value}
           </Text>
         </VStack>
-        <Button label="Edit" variant="link" size="sm" clickAction={props.onEdit} />
+        <Button label="Edit" variant="link" size="sm" onPress={props.onEdit} />
       </HStack>
     )}
     <Divider />
@@ -266,7 +266,7 @@ export function SettingsSidebarTemplate() @{
               variant="ghost"
               size="sm"
               icon={<Icon name="sandbox-chevron-left" size={16} />}
-              clickAction={() => setMobileView('nav')}
+              onPress={() => setMobileView('nav')}
             />
             <Heading level={3}>{activeNav}</Heading>
           </HStack>

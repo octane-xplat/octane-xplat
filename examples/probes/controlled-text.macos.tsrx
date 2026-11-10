@@ -41,7 +41,7 @@ export default function ControlledTextProbe() {
 
   return (
     <VStack gap={2}>
-      <Button label="Remove / restore fields" clickAction={() => setShown((value) => !value)} />
+      <Button label="Remove / restore fields" onPress={() => setShown((value) => !value)} />
       {shown ? (
         <TextInput
           id="controlled-field"
@@ -52,7 +52,7 @@ export default function ControlledTextProbe() {
       ) : null}
       <Button
         label="Replace single line in five seconds"
-        clickAction={() => replaceLater('field')}
+        pressAction={() => replaceLater('field')}
       />
       <Text id="controlled-field-state">{field}</Text>
       {shown ? (
@@ -67,13 +67,13 @@ export default function ControlledTextProbe() {
       ) : null}
       <Button
         label="Toggle multiline placeholder color"
-        clickAction={() => setColoredPlaceholder((value) => !value)}
+        onPress={() => setColoredPlaceholder((value) => !value)}
       />
       <Text>
         Empty the note to inspect placeholder color changes and removal. Mounting does not qualify
         native painting.
       </Text>
-      <Button label="Replace note in five seconds" clickAction={() => replaceLater('note')} />
+      <Button label="Replace note in five seconds" pressAction={() => replaceLater('note')} />
       <Text id="controlled-note-state">{note}</Text>
     </VStack>
   )

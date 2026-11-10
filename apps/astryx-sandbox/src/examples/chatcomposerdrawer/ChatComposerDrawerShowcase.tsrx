@@ -34,7 +34,7 @@ export function ChatComposerDrawerShowcase() {
             size="sm"
             icon={<Icon name="sandbox-chat-paperclip" size={16} />}
             isIconOnly
-            clickAction={() => {}}
+            onPress={() => {}}
           />
         }
       />

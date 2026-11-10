@@ -843,7 +843,7 @@ export function CanvasEditorTemplate() @{
                     size="sm"
                     isIconOnly
                     icon={<Icon name="sandbox-x-mark" size={12} />}
-                    clickAction={() => closeTab(tab.id)}
+                    onPress={() => closeTab(tab.id)}
                   />
                 </HStack>
               ))}
@@ -853,7 +853,7 @@ export function CanvasEditorTemplate() @{
                 size="sm"
                 isIconOnly
                 icon={<Icon name="sandbox-plus" size={16} />}
-                clickAction={addTab}
+                onPress={addTab}
               />
             </HStack>
           </HStack>
@@ -895,7 +895,7 @@ export function CanvasEditorTemplate() @{
                 onSelect: () => {},
               }))}
             />
-            <Button label="Share" variant="primary" size="sm" clickAction={() => {}} />
+            <Button label="Share" variant="primary" size="sm" onPress={() => {}} />
           </HStack>
         </HStack>
       </LayoutHeader>

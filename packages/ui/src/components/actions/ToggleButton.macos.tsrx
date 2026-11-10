@@ -15,6 +15,7 @@ export function ToggleButton(props: ToggleButtonProps): unknown @{
   // Button callback retains its props even if URL dispatch updates the parent.
   const current = useRef(local)
   const disabled = Boolean(props.isDisabled || group?.isDisabled)
+  let actionValue = !pressed
   const activate = () => {
     if (disabled) {
       return
@@ -32,8 +33,8 @@ export function ToggleButton(props: ToggleButtonProps): unknown @{
       setLocal(next)
     }
 
+    actionValue = next
     props.onPressedChange?.(next)
-    return props.pressedChangeAction?.(next)
   }
 
   <Button
@@ -41,7 +42,12 @@ export function ToggleButton(props: ToggleButtonProps): unknown @{
     variant="ghost"
     size={props.size ?? group?.size}
     isDisabled={disabled}
-    clickAction={activate}
+    onPress={activate}
+    pressAction={
+      !inGroup && props.pressedChangeAction
+        ? () => props.pressedChangeAction!(actionValue)
+        : undefined
+    }
     icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon}
     accessibilityState={{ ...props.accessibilityState, pressed }}
     className={cx(

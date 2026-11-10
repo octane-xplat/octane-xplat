@@ -71,7 +71,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
       className={['vx-menu-trigger', button.className]}
       isDisabled={disabled || button.isDisabled}
       endContent={endContent}
-      clickAction={() => setOpen(!open)}
+      onPress={() => setOpen(!open)}
       accessibilityState={{ ...button.accessibilityState, expanded: open }}
       web={{
         ...button.web,

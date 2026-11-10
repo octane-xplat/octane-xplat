@@ -31,7 +31,7 @@ export function ChatMessageMetadataShowcase() {
                       size="sm"
                       icon={<Icon name="sandbox-chat-refresh" size={16} />}
                       isIconOnly
-                      clickAction={() => {}}
+                      onPress={() => {}}
                     />
                   </HStack>
                 }
@@ -68,7 +68,7 @@ export function ChatMessageMetadataShowcase() {
                       size="sm"
                       icon={<Icon name="sandbox-chat-copy" size={16} />}
                       isIconOnly
-                      clickAction={() => {}}
+                      onPress={() => {}}
                     />
                     <Button
                       label="Retry"
@@ -76,7 +76,7 @@ export function ChatMessageMetadataShowcase() {
                       size="sm"
                       icon={<Icon name="sandbox-chat-refresh" size={16} />}
                       isIconOnly
-                      clickAction={() => {}}
+                      onPress={() => {}}
                     />
                     <Button
                       label="Good response"
@@ -84,7 +84,7 @@ export function ChatMessageMetadataShowcase() {
                       size="sm"
                       icon={<Icon name="sandbox-chat-thumbs-up" size={16} />}
                       isIconOnly
-                      clickAction={() => {}}
+                      onPress={() => {}}
                     />
                     <Button
                       label="Bad response"
@@ -92,7 +92,7 @@ export function ChatMessageMetadataShowcase() {
                       size="sm"
                       icon={<Icon name="sandbox-chat-thumbs-down" size={16} />}
                       isIconOnly
-                      clickAction={() => {}}
+                      onPress={() => {}}
                     />
                     <Text type="supporting" color="secondary">
                       Claude Opus 4.6

@@ -1,6 +1,6 @@
 // Port of upstream templates/pages/messaging-shell/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/messaging-shell/.
-// GAPS: IconButton `onClick` → `clickAction`; TextInput `startIcon` takes
+// GAPS: IconButton `onClick` → `onPress`; TextInput `startIcon` takes
 // rendered icon content; ToothIcon → sandbox-cog.
 import { useState } from 'octane'
 import {
@@ -303,7 +303,7 @@ export function MessagingShellTemplate() @{
           tooltip={item.label}
           icon={<Icon name={item.icon} size={16} color="inherit" />}
           variant={item.id === 'home' ? 'secondary' : 'ghost'}
-          clickAction={() => {}}
+          onPress={() => {}}
         />
       ))}
       <div style={styles.railSpacer} />
@@ -312,7 +312,7 @@ export function MessagingShellTemplate() @{
         tooltip="Settings"
         icon={<Icon name="sandbox-cog" size={16} color="inherit" />}
         variant="ghost"
-        clickAction={() => {}}
+        onPress={() => {}}
       />
       <Avatar
         name={USERS.you.name}
@@ -334,7 +334,7 @@ export function MessagingShellTemplate() @{
           icon={<Icon name="sandbox-pencil-square" size={16} color="inherit" />}
           variant="ghost"
           size="sm"
-          clickAction={() => {}}
+          onPress={() => {}}
         />
       </HStack>
       <div style={styles.sidebarSearch}>
@@ -432,7 +432,7 @@ export function MessagingShellTemplate() @{
           icon={<Icon name="sandbox-user-group" size={16} color="inherit" />}
           variant="ghost"
           size="sm"
-          clickAction={() => {}}
+          onPress={() => {}}
         />
       </HStack>
       <Divider />
@@ -482,7 +482,7 @@ export function MessagingShellTemplate() @{
           icon={<Icon name="sandbox-x-mark" size={16} color="inherit" />}
           variant="ghost"
           size="sm"
-          clickAction={() => setIsThreadOpen(false)}
+          onPress={() => setIsThreadOpen(false)}
         />
       </HStack>
       <Divider />

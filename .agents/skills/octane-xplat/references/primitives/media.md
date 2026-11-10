@@ -157,7 +157,7 @@ export function Previews() {
     <Carousel ref={carousel} label="Previews" hasButtons hasLoop variant="proportional" style={{ width: 320, height: 120 }}>
       <Text>First</Text><Text>Second</Text>
     </Carousel>
-    <Button label="Next" clickAction={() => carousel.current?.scrollNext()} />
+    <Button label="Next" onPress={() => carousel.current?.scrollNext()} />
   </>
 }
 ```

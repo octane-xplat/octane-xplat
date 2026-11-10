@@ -9,7 +9,7 @@ function DynamicMenuDetails() @{
   const [expanded, setExpanded] = useState(false)
 
   <View className="gap-2">
-    <Button label="Add/remove trigger child" clickAction={() => setExpanded(!expanded)} />
+    <Button label="Add/remove trigger child" onPress={() => setExpanded(!expanded)} />
     @if (expanded) {
       <Text id="native-context-menu-late-child">
         Right-click this child added after attachment
@@ -64,11 +64,11 @@ export function NativeContextMenuDemo() @{
     <Heading>AppKit context menu</Heading>
     <Button
       label="Change record scope"
-      clickAction={() => setRecord(record === 'note-a' ? 'note-b' : 'note-a')}
+      onPress={() => setRecord(record === 'note-a' ? 'note-b' : 'note-a')}
     />
     <Button
       label="Change record after 1 second"
-      clickAction={() => {
+      onPress={() => {
         if (timer.current !== null) {
           clearTimeout(timer.current)
         }
@@ -79,13 +79,13 @@ export function NativeContextMenuDemo() @{
         }, 1000)
       }}
     />
-    <Button label="Replace callback" clickAction={() => setAlternate(!alternate)} />
-    <Button label="Toggle Delete enabled" clickAction={() => setCanDelete(!canDelete)} />
-    <Button label="Add/remove Share" clickAction={() => setShare(!share)} />
-    <Button label="Reverse items" clickAction={() => setReverse(!reverse)} />
-    <Button label="Toggle empty items" clickAction={() => setEmpty(!empty)} />
-    <Button label="Toggle duplicate IDs" clickAction={() => setDuplicate(!duplicate)} />
-    <Button label="Mount/unmount menu" clickAction={() => setMounted(!mounted)} />
+    <Button label="Replace callback" onPress={() => setAlternate(!alternate)} />
+    <Button label="Toggle Delete enabled" onPress={() => setCanDelete(!canDelete)} />
+    <Button label="Add/remove Share" onPress={() => setShare(!share)} />
+    <Button label="Reverse items" onPress={() => setReverse(!reverse)} />
+    <Button label="Toggle empty items" onPress={() => setEmpty(!empty)} />
+    <Button label="Toggle duplicate IDs" onPress={() => setDuplicate(!duplicate)} />
+    <Button label="Mount/unmount menu" onPress={() => setMounted(!mounted)} />
     @if (mounted) {
       <AppKitContextMenu
         id={`native-context-menu-${record}`}

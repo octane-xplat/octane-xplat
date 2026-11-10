@@ -327,11 +327,11 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
         <label text={draft.current.error} accessibilityLiveRegion="polite" />
       }
       <masonview className="vx-power-search-editor-actions" style={{ display: 'flex' }}>
-        <Button label="Cancel" variant="ghost" clickAction={cancel} />
+        <Button label="Cancel" variant="ghost" onPress={cancel} />
         <Button
           label={props.saveButtonLabel ?? 'Apply'}
           variant="primary"
-          clickAction={save}
+          onPress={save}
           isDisabled={readOnly || unsupported || !field || !operator}
         />
       </masonview>

@@ -164,7 +164,7 @@ export function ComponentsDemo() @{
     <View className="controls-section">
       <Text className="font-bold">Button</Text>
       <HStack className="items-center gap-4">
-        <Button className="btn btn-secondary" clickAction={() => setLastMenu('pressed')}>
+        <Button className="btn btn-secondary" onPress={() => setLastMenu('pressed')}>
           <Text>Press me</Text>
         </Button>
         <Button className="btn" isLoading={true}>
@@ -367,7 +367,7 @@ export function ComponentsDemo() @{
           { key: 'off', label: 'Off', disabled: true },
         ]}
       />
-      <Button className="btn btn-secondary" clickAction={() => setCmdk(true)}>
+      <Button className="btn btn-secondary" onPress={() => setCmdk(true)}>
         <Text>Command palette</Text>
       </Button>
       <CommandPalette
@@ -388,7 +388,7 @@ export function ComponentsDemo() @{
           { key: 'delete', label: 'Delete', group: 'Actions', isDisabled: true },
         ]}
       />
-      <Button className="btn btn-secondary" clickAction={() => setRemoteCmdk(true)}>
+      <Button className="btn btn-secondary" onPress={() => setRemoteCmdk(true)}>
         <Text>Search remote commands</Text>
       </Button>
       <CommandPalette

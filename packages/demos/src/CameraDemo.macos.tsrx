@@ -71,15 +71,15 @@ export function CameraDemo() @{
       onError={(e) => setStatus(`error ${e.message ?? ''}`)}
     />
     <HStack className="gap-2 items-center">
-      <Button className="btn btn-secondary" clickAction={() => setActive(!active)}>
+      <Button className="btn btn-secondary" onPress={() => setActive(!active)}>
         <Text>{active ? 'Stop preview' : 'Start preview'}</Text>
       </Button>
       {recording ? (
-        <Button className="btn btn-secondary" id="camera-stop" clickAction={stop}>
+        <Button className="btn btn-secondary" id="camera-stop" onPress={stop}>
           <Text>Stop recording</Text>
         </Button>
       ) : (
-        <Button className="btn btn-secondary" id="camera-record" clickAction={start}>
+        <Button className="btn btn-secondary" id="camera-record" pressAction={start}>
           <Text>Record</Text>
         </Button>
       )}

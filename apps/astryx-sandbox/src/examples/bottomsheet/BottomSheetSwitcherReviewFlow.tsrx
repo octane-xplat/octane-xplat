@@ -7,7 +7,7 @@ export function BottomSheetSwitcherReviewFlow() @{
 
   return (
     <>
-      <Button label="Review settings" clickAction={() => setActiveSheet('review')} />
+      <Button label="Review settings" onPress={() => setActiveSheet('review')} />
       <BottomSheet
         isOpen={activeSheet === 'review'}
         onOpenChange={(open) => {
@@ -28,8 +28,8 @@ export function BottomSheetSwitcherReviewFlow() @{
               </Text>
             </VStack>
             <HStack gap={2} justify="end">
-              <Button label="Cancel" variant="secondary" clickAction={() => setActiveSheet(null)} />
-              <Button label="Continue" clickAction={() => setActiveSheet('confirm')} />
+              <Button label="Cancel" variant="secondary" onPress={() => setActiveSheet(null)} />
+              <Button label="Continue" onPress={() => setActiveSheet('confirm')} />
             </HStack>
           </VStack>
         </Section>
@@ -56,9 +56,9 @@ export function BottomSheetSwitcherReviewFlow() @{
               <Button
                 label="Back"
                 variant="secondary"
-                clickAction={() => setActiveSheet('review')}
+                onPress={() => setActiveSheet('review')}
               />
-              <Button label="Save" clickAction={() => setActiveSheet(null)} />
+              <Button label="Save" onPress={() => setActiveSheet(null)} />
             </HStack>
           </VStack>
         </Section>

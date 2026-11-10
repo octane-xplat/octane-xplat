@@ -16,7 +16,7 @@ export function PopoverFilterPanel() @{
 
   return (
     <>
-      <Button ref={anchor} label="Filter" clickAction={() => setIsOpen(true)} />
+      <Button ref={anchor} label="Filter" onPress={() => setIsOpen(true)} />
       <Popover
         anchor={anchor}
         open={isOpen}
@@ -41,11 +41,11 @@ export function PopoverFilterPanel() @{
           />
           <Divider />
           <HStack gap={2} justify="end">
-            <Button label="Apply" variant="primary" clickAction={() => setIsOpen(false)} />
+            <Button label="Apply" variant="primary" onPress={() => setIsOpen(false)} />
             <Button
               label="Reset"
               variant="ghost"
-              clickAction={() =>
+              onPress={() =>
                 setFilters({ active: true, archived: false, drafts: true, shared: false })
               }
             />

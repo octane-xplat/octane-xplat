@@ -35,7 +35,7 @@ export function ChatMessageBubbleMetadata() {
                     size="sm"
                     icon={<Icon name="sandbox-chat-copy" size={16} />}
                     isIconOnly
-                    clickAction={() => {}}
+                    onPress={() => {}}
                   />
                   <Text type="supporting" color="secondary">
                     Claude Opus 4.6

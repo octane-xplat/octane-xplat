@@ -104,7 +104,7 @@ function DialogPreview() {
       <div className="DocumentationPage-static-2">
         <Heading level={3}>Dialog</Heading>
       </div>
-      <Button label="Open Dialog" variant="primary" clickAction={() => setIsOpen(true)} />
+      <Button label="Open Dialog" variant="primary" onPress={() => setIsOpen(true)} />
       <Dialog isOpen={isOpen} onOpenChange={setIsOpen}>
         <DialogHeader title="Example Dialog" />
         <div className="DocumentationPage-static-3">
@@ -879,7 +879,7 @@ export function DocumentationPage() {
                     label="Get started"
                     variant="primary"
                     size="lg"
-                    clickAction={() => {
+                    onPress={() => {
                       setSelectedComponent('button')
                       setActiveNav('button')
                     }}

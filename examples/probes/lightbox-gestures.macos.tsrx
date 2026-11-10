@@ -17,12 +17,12 @@ export default function LightboxGestureProbe() {
       <Button
         label="Open image gallery"
         isDisabled={!first || !second}
-        clickAction={() => {
+        onPress={() => {
           setIndex(0)
           setOpen(true)
         }}
       />
-      <Button label="Toggle image zoom" clickAction={() => setZoom((value) => !value)} />
+      <Button label="Toggle image zoom" onPress={() => setZoom((value) => !value)} />
       <Text>
         Current index: {index}. No gallery/media loads until sources are entered and opened.
       </Text>

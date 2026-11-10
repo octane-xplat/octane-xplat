@@ -186,7 +186,7 @@ export function PaymentFormTemplate() @{
                         <Text type="large" weight="bold">
                           Contact
                         </Text>
-                        <Button label="Sign in" variant="ghost" size="sm" clickAction={() => {}} />
+                        <Button label="Sign in" variant="ghost" size="sm" onPress={() => {}} />
                       </HStack>
                       <Text type="supporting" color="secondary">
                         Sign in for faster checkout, or continue as a guest.
@@ -307,7 +307,7 @@ export function PaymentFormTemplate() @{
                             label="PayPal"
                             variant="secondary"
                             style={{ backgroundColor: '#ffc439', color: '#003087' }}
-                            clickAction={() => setPaymentMethod('paypal')}
+                            onPress={() => setPaymentMethod('paypal')}
                           />
                         </StackItem>
                         <StackItem size="fill">
@@ -315,7 +315,7 @@ export function PaymentFormTemplate() @{
                             label="G Pay"
                             variant="secondary"
                             style={{ backgroundColor: '#000', color: '#fff' }}
-                            clickAction={() => setPaymentMethod('gpay')}
+                            onPress={() => setPaymentMethod('gpay')}
                           />
                         </StackItem>
                       </HStack>
@@ -469,9 +469,9 @@ export function PaymentFormTemplate() @{
                         <Button
                           label={`Pay ${fmt(total)}`}
                           variant="primary"
-                          clickAction={() => setSubmitted(true)}
+                          onPress={() => setSubmitted(true)}
                         />
-                        <Button label="Cancel" variant="ghost" clickAction={() => {}} />
+                        <Button label="Cancel" variant="ghost" onPress={() => {}} />
                       </HStack>
                     </VStack>
                   </VStack>
@@ -539,7 +539,7 @@ export function PaymentFormTemplate() @{
                             placeholder="Promo code"
                           />
                         </StackItem>
-                        <Button label="Apply" variant="secondary" clickAction={() => {}} />
+                        <Button label="Apply" variant="secondary" onPress={() => {}} />
                       </HStack>
                       <Divider />
                       <VStack gap={2}>

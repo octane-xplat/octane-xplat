@@ -21,8 +21,8 @@ function Content(props: { onClose: () => void }) @{
         admin access.
       </Text>
       <HStack gap={2} justify="end">
-        <Button label="Cancel" variant="secondary" clickAction={props.onClose} />
-        <Button label="Transfer" variant="primary" clickAction={props.onClose} />
+        <Button label="Cancel" variant="secondary" onPress={props.onClose} />
+        <Button label="Transfer" variant="primary" onPress={props.onClose} />
       </HStack>
     </VStack>
   </VStack>

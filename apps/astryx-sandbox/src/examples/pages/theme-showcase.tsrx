@@ -387,7 +387,7 @@ function CheckoutCard(props: { isMobile: boolean }) @{
             </SelectableCard>
           </Grid>
         </VStack>
-        <Button label="Pay now" variant="primary" size="lg" clickAction={() => {}} />
+        <Button label="Pay now" variant="primary" size="lg" onPress={() => {}} />
       </VStack>
     </VStack>
   </Card>
@@ -404,7 +404,7 @@ function ChatCard() @{
           isIconOnly
           label="Export conversation"
           icon={<Icon name="sandbox-arrow-down-tray" size={16} />}
-          clickAction={() => {}}
+          onPress={() => {}}
         />
         <Button
           variant="ghost"
@@ -412,7 +412,7 @@ function ChatCard() @{
           isIconOnly
           label="Close chat"
           icon={<Icon name="sandbox-x-mark" size={16} />}
-          clickAction={() => {}}
+          onPress={() => {}}
         />
       </HStack>
     </HStack>
@@ -486,7 +486,7 @@ function ChatCard() @{
             variant="secondary"
             size="sm"
             label={question}
-            clickAction={() => {}}
+            onPress={() => {}}
           />
         ))}
       </HStack>
@@ -503,7 +503,7 @@ function ChatCard() @{
             isIconOnly
             label="Voice input"
             icon={<Icon name="sandbox-microphone" size={16} />}
-            clickAction={() => {}}
+            onPress={() => {}}
           />
         }
       />
@@ -571,7 +571,7 @@ function InventoryCard(props: {
         variant="primary"
         size="sm"
         icon={<Icon name="sandbox-plus" size={16} />}
-        clickAction={() => {}}
+        onPress={() => {}}
       />
     </HStack>
     <Divider variant="subtle" />
@@ -602,7 +602,7 @@ function InventoryCard(props: {
               variant="ghost"
               size="sm"
               icon={<Icon name="sandbox-tag" size={16} />}
-              clickAction={() => {}}
+              onPress={() => {}}
             />
           )}
         >
@@ -754,24 +754,24 @@ export function ThemeShowcaseTemplate() @{
                   variant="ghost"
                   isIconOnly
                   icon={<Icon name="sandbox-magnifying-glass" size={20} />}
-                  clickAction={() => {}}
+                  onPress={() => {}}
                 />
                 <Button
                   label="Account"
                   variant="ghost"
                   isIconOnly
                   icon={<Icon name="sandbox-user" size={20} />}
-                  clickAction={() => {}}
+                  onPress={() => {}}
                 />
                 <Button
                   label="Cart"
                   variant="ghost"
                   isIconOnly
                   icon={<Icon name="sandbox-shopping-bag" size={20} />}
-                  clickAction={() => {}}
+                  onPress={() => {}}
                 />
               </HStack>
-              <Button label="Sign in" variant="primary" clickAction={() => {}} />
+              <Button label="Sign in" variant="primary" onPress={() => {}} />
             </HStack>
           }
         />
@@ -831,7 +831,7 @@ export function ThemeShowcaseTemplate() @{
                             step={1}
                             size="sm"
                           />
-                          <Button label="Add to cart" variant="primary" clickAction={() => {}} />
+                          <Button label="Add to cart" variant="primary" onPress={() => {}} />
                         </HStack>
                       </VStack>
                     </div>
