@@ -8,9 +8,10 @@ import {
   flushUniversalSync,
 } from 'octane/universal/native'
 
-import { usePanGesture$ } from './hooks.tsrx'
+import { usePanGesture$, useInteractionScope$ } from './hooks.tsrx'
+import { interactionScopeController } from './scope'
 import { createGestureOwner } from './owner'
-import type { PanGesture } from './types'
+import type { PanGesture, InteractionScope } from './types'
 
 function Reader(props: { capture(handle: PanGesture): void; start(): void }) @{
   const drag = usePanGesture$({ axis: 'x', onStart: props.start })
@@ -106,5 +107,75 @@ it('isolates hook-owned signals, rerenders native readers and retains the handle
   } finally {
     owner.dispose()
     root.unmount()
+  }
+})
+
+function ScopeReader(props: { capture(scope: InteractionScope): void }) @{
+  const scope = useInteractionScope$()
+
+  props.capture(scope)
+
+  <label text={String(scope.suspended$.get())} />
+}
+
+it('retires both unused scopes and active suspension leases before native effect cleanup', () => {
+  const container = createObjectContainer('nativescript')
+  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const handles: InteractionScope[] = []
+  let restored = 0
+
+  try {
+    flushUniversalSync(() =>
+      root.render(ScopeReader, {
+        capture: (scope) => {
+          handles.push(scope)
+        },
+      }),
+    )
+
+    flushUniversalSync(() => root.unmount())
+    expect(handles[0].suspend()).toEqual({ ok: false, reason: 'detached' })
+  } finally {
+    root.unmount()
+  }
+
+  const activeRoot = createUniversalRoot(container, createObjectDriver('nativescript'))
+
+  try {
+    flushUniversalSync(() =>
+      activeRoot.render(ScopeReader, {
+        capture: (scope) => {
+          handles.push(scope)
+        },
+      }),
+    )
+
+    const scope = handles.at(-1)!
+
+    interactionScopeController(scope).attach({
+      freeze() {
+        return {
+          ok: true,
+          release() {
+            restored++
+          },
+        }
+      },
+    })
+
+    const result = scope.suspend()
+
+    expect(result.ok).toBe(true)
+    flushUniversalSync(() => {})
+    expect(container.children[0].props.text).toBe('true')
+    flushUniversalSync(() => activeRoot.unmount())
+    expect(restored).toBe(1)
+    if (result.ok) {
+      result.lease.release()
+    }
+
+    expect(restored).toBe(1)
+  } finally {
+    activeRoot.unmount()
   }
 })

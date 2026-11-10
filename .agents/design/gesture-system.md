@@ -1,6 +1,6 @@
 # Gesture ownership and composition
 
-Status: proposal for review. No API below is implemented by this document. Source baseline: `0c291fca389d535a57c55ebb6f23998b6ea66af4`; consumer evidence: Opals `0af25b863e9662951915129959c4b3575a3bed31`. This is a system design, not an approved numbered decision or an implementation plan.
+Status: approved direction; implementation in progress. The public cutover remains gated by platform qualification. See the [internal ownership note](../docs/gesture-ownership.md) for the implemented boundary. Source baseline: `0c291fca389d535a57c55ebb6f23998b6ea66af4`; consumer evidence: Opals `0af25b863e9662951915129959c4b3575a3bed31`. This is a system design, not an approved numbered decision or an implementation plan.
 
 ## Recommendation
 
@@ -139,7 +139,7 @@ export declare function prioritize(first: GestureInput, second: GestureInput, ..
 export interface Suspension { release(): void }
 export type SuspendResult =
   | { readonly ok: true; readonly lease: Suspension }
-  | { readonly ok: false; readonly reason: 'unsupported' | 'detached' }
+  | { readonly ok: false; readonly reason: 'unsupported' | 'detached' | 'busy' }
 export interface InteractionScope {
   readonly suspended$: ReadSignal<boolean> // true while at least one lease exists
   suspend(): SuspendResult

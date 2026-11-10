@@ -116,7 +116,7 @@ export interface Suspension {
 
 export type SuspendResult =
   | { readonly ok: true; readonly lease: Suspension }
-  | { readonly ok: false; readonly reason: 'unsupported' | 'detached' }
+  | { readonly ok: false; readonly reason: 'unsupported' | 'detached' | 'busy' }
 
 export interface InteractionScope {
   readonly suspended$: SignalHandle<boolean> // true while at least one lease exists

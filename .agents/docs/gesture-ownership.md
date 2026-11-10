@@ -37,3 +37,34 @@ UI barrel; it does not establish a completed Pressable or scrolling cutover.
 Native object-driver tests verify signal/lifecycle contracts, never OS gesture
 delivery. Keep platform input qualification separate and retain actual results
 outside Git, following [exploration](exploration.md).
+
+## Host bindings and suspension leases
+
+`createGestureBinding` compares leaf identity and composition structure after
+commit. New description objects do not replace registrations; host replacement
+or a changed relationship tree disposes the old attachment. Platform adapters
+must roll back partially attached listeners, reservations and registrations if
+attachment fails. Raw native observers may receive the same event through
+several ancestors; deduplicate at the window owner, never per recognizer.
+
+The iOS raw-contact adapter snapshots UIKit contacts in logical window units.
+Filter ended/cancelled touches from `UIEvent.allTouches`; that collection is not
+an active-pointer list. Freeze the window-to-local basis for translation while
+recomputing local positions against the current host transform. Other native
+hosts currently reject this internal adapter explicitly; do not infer support
+from the shared coordinator or declarations.
+
+Scope leases count owners. A native driver's first freeze must preflight and
+roll back its own partial mutations; only a successful freeze publishes
+suspended state. The last release restores input. Detach removes the driver
+before notifying subscribers, and retirement restores native state without
+writing into retired signal cells. Acquisition during freeze/restoration returns
+`busy`; detached or unsupported operations return their specific failure. A
+synchronous unmount caused by suspension publication returns `detached` after
+restoration. A scope cannot be attached to more than one host.
+
+The scroll-policy registry intersects independent reservations at every managed
+viewport, including viewports mounted under an existing reservation. This does
+not change overflow, offsets or layout. Host integration must register the actual
+scroll viewports and refresh ancestry after committed reparenting. A registry
+unit test does not prove that Mason/browser scrolling obeys its policy.

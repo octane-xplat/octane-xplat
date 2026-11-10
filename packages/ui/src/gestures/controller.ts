@@ -86,6 +86,7 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
   private unsubscribe: (() => void) | null = null
   private unsubscribeRetirement: (() => void) | null = null
   private signalsRetired = false
+  private readonly configurationListeners = new Set<() => void>()
 
   readonly kind: K
   options: O
@@ -163,6 +164,21 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
     if (!this.enabled()) {
       this.invalidate?.('disabled')
     }
+
+    this.notifyConfiguration()
+  }
+
+  observeConfiguration(listener: () => void): () => void {
+    this.configurationListeners.add(listener)
+    return () => {
+      this.configurationListeners.delete(listener)
+    }
+  }
+
+  private notifyConfiguration() {
+    for (const listener of [...this.configurationListeners]) {
+      listener()
+    }
   }
 
   attach(owner: object, invalidate: (reason: CancelReason) => void) {
@@ -210,6 +226,8 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
         if (!this.enabled()) {
           this.invalidate?.('disabled')
         }
+
+        this.notifyConfiguration()
       }) ?? null
   }
 
@@ -245,7 +263,12 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
     } finally {
       this.disposed = true
       this.detach()
-      this.scope?.dispose()
+      try {
+        this.notifyConfiguration()
+      } finally {
+        this.configurationListeners.clear()
+        this.scope?.dispose()
+      }
     }
   }
 }

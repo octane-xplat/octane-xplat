@@ -322,3 +322,69 @@ describe('interaction owner', () => {
     f.dispose()
   })
 })
+
+it('keeps cancellation samples current and preserves a specific host cancellation reason', () => {
+  const samples: PanSample[] = [],
+    reasons: string[] = []
+
+  const pan = createPanController({
+    axis: 'x',
+    onCancel(sample, reason) {
+      samples.push(sample)
+      reasons.push(reason)
+    },
+  })
+
+  const f = fixture(pan.handle, [pan])
+
+  try {
+    f.send('down', [f.contact('1', 0)])
+    f.send('move', [f.contact('1', 20)])
+    f.owner.dispatch({
+      type: 'cancel',
+      time: 100,
+      contacts: [],
+      changed: f.contact('1', 25),
+      hitPath: [],
+      cancelReason: 'capture-lost',
+    })
+
+    expect(reasons).toEqual(['capture-lost'])
+    expect(samples[0].pointerCount).toBe(0)
+    expect(samples[0].translation.x).toBe(25)
+    expect(samples[0].time).toBe(100)
+  } finally {
+    f.dispose()
+  }
+})
+
+it('does not recognize over native manipulation and cancels only hosts contained by a scope', () => {
+  const pan = createPanController({ axis: 'x' })
+  const f = fixture(pan.handle, [pan])
+
+  try {
+    const contact = f.contact('1', 0)
+
+    f.owner.dispatch({
+      type: 'down',
+      time: 0,
+      contacts: [contact],
+      changed: contact,
+      hitPath: [pan.owner!],
+      nativeOwned: true,
+    })
+
+    f.send('move', [f.contact('1', 20)])
+    expect(pan.handle.active$.get()).toBe(false)
+    f.send('up', [], f.contact('1', 20))
+    f.send('down', [contact])
+    f.send('move', [f.contact('1', 20)])
+    expect(pan.handle.active$.get()).toBe(true)
+    f.owner.cancelWhere(() => false, 'scope-suspended')
+    expect(pan.handle.active$.get()).toBe(true)
+    f.owner.cancelWhere(() => true, 'scope-suspended')
+    expect(pan.handle.phase$.get()).toBe('cancelled')
+  } finally {
+    f.dispose()
+  }
+})

@@ -26,6 +26,9 @@ export interface InputFrame {
   readonly changed: InputContact
   /** Deepest host first. Hit testing is performed only on first down. */
   readonly hitPath: readonly object[]
+  /** Editable/hosted native manipulation owns the sequence before app recognition. */
+  readonly nativeOwned?: boolean
+  readonly cancelReason?: CancelReason
 }
 
 export interface InputContact {
@@ -45,6 +48,8 @@ export interface GestureSpace {
 export interface GestureScheduler {
   frame(callback: () => void): () => void
   error(error: unknown): void
+  /** Cancel incompatible native work before lifecycle callbacks. False rejects the claim. */
+  claim?(host: object): boolean
 }
 
 interface Attachment {
@@ -364,6 +369,26 @@ export function createGestureOwner(scheduler: GestureScheduler) {
   }
 
   function activate(run: Run) {
+    let claimed = true
+
+    try {
+      claimed = scheduler.claim?.(run.attachment.host) ?? true
+    } catch (error) {
+      callbackErrors.push(error)
+      claimed = false
+    }
+
+    if (!claimed) {
+      run.phase = 'failed'
+      publish(run)
+      return
+    }
+
+    // A native cancellation callback may synchronously detach or disable this candidate.
+    if (run.phase !== 'possible' || run.controller.disposed || !run.controller.enabled()) {
+      return
+    }
+
     run.phase = 'active'
     consumed = true
     // Dormant multi-contact recognizers remain idle, not superseded.
@@ -426,7 +451,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
     sequence++
 
     const selected = [...attachments]
-      .filter((a) => frame.hitPath.includes(a.host))
+      .filter((a) => !frame.nativeOwned && frame.hitPath.includes(a.host))
       .sort((a, b) => frame.hitPath.indexOf(a.host) - frame.hitPath.indexOf(b.host))
 
     runs = selected.flatMap((attachment) =>
@@ -500,7 +525,13 @@ export function createGestureOwner(scheduler: GestureScheduler) {
         }
 
         if (frame.type === 'cancel') {
-          terminal(run, 'cancelled', 'system')
+          const sample = measure(run, frame)
+
+          if (sample) {
+            run.last = sample
+          }
+
+          terminal(run, 'cancelled', frame.cancelReason ?? 'system')
           if (run.phase !== 'cancelled') {
             run.phase = 'failed'
           }
@@ -510,6 +541,14 @@ export function createGestureOwner(scheduler: GestureScheduler) {
         }
 
         if (frame.contacts.length > run.max) {
+          if (run.phase === 'active') {
+            const sample = measure(run, frame)
+
+            if (sample) {
+              run.last = sample
+            }
+          }
+
           terminal(run, 'cancelled', 'pointer-count')
           if (run.phase !== 'cancelled') {
             run.phase = 'failed'
@@ -679,6 +718,26 @@ export function createGestureOwner(scheduler: GestureScheduler) {
   return {
     dispatch,
     register,
+    cancelWhere(contains: (host: object) => boolean, reason: CancelReason) {
+      if (disposed) {
+        return
+      }
+
+      transaction(() => {
+        for (const run of [...runs]) {
+          if (!contains(run.attachment.host)) {
+            continue
+          }
+
+          if (run.phase === 'active') {
+            terminal(run, 'cancelled', reason)
+          } else if (run.phase === 'possible' || run.phase === 'idle') {
+            run.phase = 'failed'
+            publish(run)
+          }
+        }
+      })
+    },
     dispose() {
       if (disposed) {
         return

@@ -1,3 +1,4 @@
+import { createInteractionScope, type ScopeController } from './scope'
 import { derived$ } from 'octane/signals'
 import { useSignal$ } from 'octane/signals/client'
 import { useInsertionEffect, useLayoutEffect, useRef } from 'octane'
@@ -11,6 +12,7 @@ import {
 } from './controller'
 
 import type {
+  InteractionScope,
   PanGesture,
   PanGestureOptions,
   PanSample,
@@ -59,5 +61,21 @@ export function usePinchGesture$(options: PinchGestureOptions): PinchGesture {
 
   useInsertionEffect(() => () => controller.dispose(), [controller])
   useLayoutEffect(() => controller.commit(options), [controller, options])
+  return controller.handle
+}
+
+/** Own reference-counted input suspension for one attached content subtree. */
+export function useInteractionScope$(): InteractionScope {
+  const state$ = useSignal$(false)
+  const suspended$ = derived$(() => state$.get())
+  const ref = useRef<ScopeController | null>(null)
+
+  if (!ref.current) {
+    ref.current = createInteractionScope(state$, suspended$)
+  }
+
+  const controller = ref.current
+
+  useInsertionEffect(() => () => controller.dispose(), [controller])
   return controller.handle
 }
