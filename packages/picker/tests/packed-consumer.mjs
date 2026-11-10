@@ -64,14 +64,6 @@ const missing = <Select label="Fruit" />
 void select
 void missing
 `,
-  macos: `import { Select, type SelectProps } from '@octane-xplat/picker/macos'
-const props: SelectProps = { label: 'Fruit', options: [{ value: 'a', label: 'Apple' }] }
-const select = <Select {...props} />
-// @ts-expect-error options is required
-const missing = <Select label="Fruit" />
-void select
-void missing
-`,
   native: `import { SwiftUIPicker, type SwiftUIPickerProps } from '@octane-xplat/picker/ios'
 import { MaterialDropdown, type MaterialDropdownProps } from '@octane-xplat/picker/android'
 const iosProps: SwiftUIPickerProps = { label: 'Fruit', options: [{ id: 'a', title: 'Apple' }] }
@@ -91,7 +83,10 @@ void badAndroid
 import { Select, type SelectProps } from '@octane-xplat/picker/macos'
 const selectProps: SelectProps = { label: 'Region', options: [{ value: 'sfo', label: 'San Francisco' }] }
 const select = <Select {...selectProps} />
+// @ts-expect-error options is required
+const missingSelect = <Select label="Region" />
 void select
+void missingSelect
 const options: readonly AppKitPickerOption[] = [{ id: 'carry', title: 'Carry-on', disabled: false }]
 const props: AppKitPickerProps = { label: 'Bag', options, selection: 'carry', onSelectionChange: (id) => void id }
 const picker = <AppKitPicker {...props} />
