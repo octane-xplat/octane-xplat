@@ -59,6 +59,28 @@ for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }
 WIN=$(xdotool search --name "Desktop Shell Journey" | head -1)
 xdotool windowactivate --sync "$WIN" 2>/dev/null || true
 
+# Click widget <testID> using the latest BOUNDS marker + the X window's
+# absolute client origin. AT-SPI extents are unreliable on GTK4 — never use
+# them for coordinates.
+click_bounds() {
+  local id=$1 geo bnd raw
+  WIN=$(xdotool search --name "Desktop Shell Journey" | head -1)
+  geo=$(xwininfo -id "$WIN" 2>/dev/null | grep 'Absolute upper-left' | awk '{print $NF}' | paste -sd, -)
+  [ -z "$geo" ] && geo=$(xdotool getwindowgeometry --shell "$WIN" 2>/dev/null | grep -E '^(X|Y)=' | cut -d= -f2 | paste -sd, -)
+  bnd=$(grep -o "JOURNEY BOUNDS $id [0-9.-]*,[0-9.-]* [0-9.]*x[0-9.]*" "$LOG" | tail -1 | sed 's/.*'"$id"' //;s/x/,/;s/ /,/')
+  if [ -z "$geo" ] || [ -z "$bnd" ]; then
+    raw=$(xwininfo -id "$WIN" 2>/dev/null | head -12 | tr '\n' ' ')
+    CLICK_FAIL="geo='${geo:-none}' bnd='${bnd:-none}' win='$WIN' xwininfo='$raw'"
+    return 1
+  fi
+  local gx gy bx by bw bh
+  gx=${geo%,*}; gy=${geo#*,}
+  bx=$(echo "$bnd" | cut -d, -f1); by=$(echo "$bnd" | cut -d, -f2)
+  bw=$(echo "$bnd" | cut -d, -f3); bh=$(echo "$bnd" | cut -d, -f4)
+  xdotool mousemove $((gx + bx + bw/2)) $((gy + by + bh/2)) click 1
+  return 0
+}
+
 # --- AT-SPI role/name assertions (independent of READY? needs the app) ---
 python3 ax.py tree "$APP_NAME" > ax-tree.txt 2>/dev/null
 if [ "$READY" = yes ]; then
@@ -73,13 +95,12 @@ fi
 
 # --- form: type into the entry at AT-SPI coords, click Submit ---
 if [ "$READY" = yes ]; then
-  R=$(python3 ax.py find "$APP_NAME" entry "" 2>/dev/null || python3 ax.py find "$APP_NAME" text "" 2>/dev/null)
-  if [ -n "$R" ]; then
-    X=$(echo "$R" | cut -d, -f1); Y=$(echo "$R" | cut -d, -f2)
-    xdotool mousemove $((X+5)) $((Y+5)) click 1 type "Ada"
-    step "form: type name" os-input-x11-xtest pass "atspi coords $X,$Y"
+  if click_bounds journey-name; then
+    xdotool type "Ada"
+    sleep 0.3
+    step "form: type name" os-input-x11-xtest pass "bounds+geometry"
   else
-    step "form: type name" os-input-x11-xtest fail "name field not in AT-SPI"
+    step "form: type name" os-input-x11-xtest fail "${CLICK_FAIL:-name field not in AT-SPI}"
   fi
   if click_bounds journey-submit; then
     for i in $(seq 1 40); do grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && break; sleep 0.25; done
@@ -94,8 +115,7 @@ fi
 
 # --- Tab focus traversal reaching Submit, verified via AT-SPI focused state ---
 if [ "$READY" = yes ]; then
-  R2=$(python3 ax.py find "$APP_NAME" entry "" 2>/dev/null || python3 ax.py find "$APP_NAME" text "" 2>/dev/null)
-  [ -n "$R2" ] && xdotool mousemove $(($(echo "$R2" | cut -d, -f1)+5)) $(($(echo "$R2" | cut -d, -f2)+5)) click 1
+  click_bounds journey-name
   sleep 0.3
   xdotool key Tab; sleep 0.5
   FOC=$(python3 ax.py focused "$APP_NAME" 2>/dev/null || true)
