@@ -341,6 +341,51 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
   }
 }
 
+/** Opt-in revalidation probe for NativeScript/NativeScript#11630:
+ *  `writeTextSync` silently no-ops and `readTextSync` returns "undefined"
+ *  on the Windows runtime. Each direction is verified against real async
+ *  IO so a sync stub is distinguishable from a working sync path. */
+async function coreFsSyncSpec(): Promise<Record<string, unknown>> {
+  const dir = nsPath.join(knownFolders.documents().path, 'core20-service-sync')
+  const filePath = nsPath.join(dir, 'core20-sync.txt')
+  const file = File.fromPath(filePath)
+  const out: Record<string, unknown> = { existsBefore: File.exists(filePath) }
+
+  // Direction 1: sync writes must land real bytes (two writes, last wins).
+  let writeThrew = ''
+
+  try {
+    file.writeTextSync('sync-write-α')
+    file.writeTextSync('sync-write-β')
+  } catch (error) {
+    writeThrew = String(error)
+  }
+
+  out.writeThrew = writeThrew
+  out.existsAfterSyncWrite = File.exists(filePath)
+
+  let afterSync = ''
+
+  try {
+    afterSync = await file.readText()
+  } catch {}
+
+  out.afterSyncWrite = afterSync
+  out.syncWriteMatched = afterSync === 'sync-write-β'
+
+  // Direction 2: sync reads must return an async write's real contents.
+  await file.writeText('async-content-γ')
+  out.readSync = file.readTextSync()
+  out.readSyncMatched = out.readSync === 'async-content-γ'
+
+  try {
+    await deleteItemByPath(filePath)
+    await deleteItemByPath(dir)
+  } catch {}
+
+  return out
+}
+
 const SECURE_KEY = 'core20-secure-rt'
 const SECURE_PERSIST_KEY = 'core20-secure-persist'
 
@@ -1727,6 +1772,9 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'corefs':
         result = await coreFsSpec()
+        break
+      case 'corefs-sync':
+        result = await coreFsSyncSpec()
         break
       case 'secure-storage':
         result = await secureStorageSpec()
