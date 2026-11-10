@@ -426,3 +426,5 @@ X11 hover/focus/Escape; a physical touch seat remains unqualified.
 GTK WebView `onMessage` uses the same bounded outbox drain as native: ~200 ms,
 ordered, at-least-once, no replies or native origin metadata. It drops stale
 evaluation completions on navigation, callback removal and disposal.
+
+For iOS runtime-only classes, a non-null lookup need not preserve Class identity through metadata wrappers. Use the [interop boundary and app-owned native factory guidance](../../../../docs/testing/known-limits.md#ios-runtime-only-class-identity); retain public UIKit fallbacks and distinguish consumer reports from independent device qualification.

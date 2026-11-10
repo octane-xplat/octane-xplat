@@ -748,3 +748,16 @@ unqualified.
 ## GTK 4: WM_DELETE on a second window crashes X11 apps under headless Xvfb
 
 Verified 2026-11-09 on Debian trixie (`libgtk-4-1 4.18.6+ds-2`, `gjs 1.82.3-1`, openbox, Xvfb, dbus-run-session): closing a second `Gtk.Window`/`Gtk.ApplicationWindow` via `xdotool windowclose` (WM_DELETE) kills the process with `BadDrawable` / `GdkSurface unexpectedly destroyed` + `_gdk_surface_destroy_hierarchy: assertion failed: (priv->egl_native_window == NULL)`. A plain-GJS control with no Octane code (a main `ApplicationWindow` plus a second window opened from `GLib.idle_add`, then `xdotool windowclose` on the second) crashes identically in 3 of 3 runs, so this is GDK X11 surface teardown, not renderer behavior. `GDK_DISABLE=gl,vulkan` does not prevent it. Closing through the window controller's `close()` (an in-window button) survives. Not verified on a real compositor; it may be specific to headless Xvfb. Separately, creating a window synchronously inside a D-Bus method handler produced the same `BadDrawable`; that trigger was ours, and `@octane-xplat/tray` now dispatches SNI/dbusmenu callbacks through `GLib.idle_add`. The desktop-shell journey closes the Inspector with its own button and runs the WM_DELETE probe last, under the `x11-wm-delete-message` input class, so this crash cannot mask other steps.
+The mobile Video leaf hides its poster on `onPlaybackStart`. Android native
+qualification observed loaded, visible posters with controls both enabled and
+disabled, but no start callback or poster removal after playback requests.
+This is partial lifecycle evidence, not proof of rendered frames or a complete
+playback diagnosis. Source replacement after confirmed playback and visual
+flicker remain unqualified. Xplat currently has no workaround for the missing
+event; host object-driver dispatch does not prove that the plugin emits it.
+Requalify the native event and poster lifecycle when changing the plugin or
+its event integration. Keep detailed run evidence in Silo and local reports.
+
+## iOS runtime-only class wrappers
+
+[Issue #228](https://github.com/octane-xplat/octane-xplat/issues/228) records consumer diagnostics on NativeScript iOS runtime 9.1.0/core 9.1.3: CAFilter lookup returns an NSObject wrapper and class-method discovery fails. NativeScript documents build-time SDK-header metadata; the precise superclass substitution point remains unisolated. Xplat carries no patch or private API support. The [public boundary guidance](../../docs/testing/known-limits.md#ios-runtime-only-class-identity) describes an app-owned native factory route, consumer-reported physical-device evidence, and the public UIKit fallback. Recheck wrapper identity and native metadata when upgrading the runtime; this docs change supplies no independent device qualification.

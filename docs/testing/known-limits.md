@@ -878,3 +878,37 @@ export function Toolbar() {
 
 Drawer is an optional package with one API and mobile gestures; see the
 [drawer setup and migration guide](../app/drawer.md).
+
+## iOS runtime-only class identity
+
+NativeScript builds JavaScript bindings from SDK headers at build time; a class present in the Objective-C runtime need not have a matching JavaScript constructor. A non-null class lookup does not prove that its wrapper preserves the original Class identity or exposes its class methods. See [NativeScript metadata](https://docs.nativescript.org/guide/metadata).
+
+```ts
+// Diagnostic fragment in an iOS-only leaf, with iOS platform types loaded.
+const candidate = NSClassFromString('CAFilter')
+const wrapperName = candidate ? candidate.description() : 'missing'
+// A non-null candidate alone is insufficient evidence of callable methods.
+```
+
+[Issue #228](https://github.com/octane-xplat/octane-xplat/issues/228) reports an NSObject wrapper and missing `filterWithType:` discovery for CAFilter on physical iPhone 13 Pro Max, Xplat 0.19.0, community Octane 0.2.5, NativeScript core 9.1.3 and iOS runtime 9.1.0. This is consumer diagnostic evidence; the exact substitution point between runtime and generated metadata remains unisolated. It is not a general claim that every runtime-only class behaves this way. TypeScript declarations or assertions cannot restore native Class identity.
+
+### Keep runtime lookup inside an app-owned native bridge
+
+For a runtime-only dependency, keep class lookup and invocation in a small native factory and expose an Objective-C-visible NSObject result. Keep layout, attachment and disposal in the existing iOS leaf. Follow [NativeScript native-source setup](https://docs.nativescript.org/guide/native-code/ios) for source inclusion, module visibility and metadata generation; rebuild the native app after adding source. A declaration alone does not install the bridge.
+
+This public-API example illustrates the boundary in an app-owned Swift file included by that setup. It returns a UIKit blur view instead of exposing a runtime Class to JavaScript:
+
+```swift
+import UIKit
+
+@objc(AppEffectFactory)
+public final class AppEffectFactory: NSObject {
+    @objc public static func makeFallback() -> NSObject {
+        return UIVisualEffectView(effect: UIBlurEffect(style: .regular))
+    }
+}
+```
+
+The factory owns creation; the caller owns attaching and removing the returned view. This example uses public UIKit uniform blur, not variable-radius blur. Validate generated metadata and the exported selector in your rebuilt app before relying on the factory. The snippet has not been compiled or device-tested in this documentation change.
+
+The [consumer follow-up](https://github.com/octane-xplat/octane-xplat/issues/228#issuecomment-6753562494) reports a Swift NSObject factory performing private CAFilter lookup and invocation natively, returning an NSObject to NativeScript, on physical iPhone 13 Pro Max with iOS 27.0.1. That report qualifies the consumer experiment only; this repository has not independently reproduced it. CAFilter is private and unsupported by Xplat. No private API bridge, runtime patch, or shipping guarantee is provided here. Retain a public UIKit fallback and qualify native factories on each intended OS/device configuration.
