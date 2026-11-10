@@ -75,13 +75,84 @@ try {
       await button.focus()
       await page.keyboard.press('Enter')
       assert.equal((await state()).clicks, 4, `${name}: keyboard survives cancellation`)
+
+      const scopedButton = page.locator('#frozen-action')
+
+      await page.locator('#freeze').click()
+      await page.locator('#freeze').click()
+      assert.equal((await state()).leases, 2, `${name}: overlapping suspension leases`)
+      assert.equal((await state()).scopeFailure, '', `${name}: non-scrolling subtree can suspend`)
+
+      const scopedBounds = await scopedButton.boundingBox()
+
+      await page.mouse.click(scopedBounds.x + 30, scopedBounds.y + 20)
+      assert.equal(
+        (await state()).scopePresses,
+        0,
+        `${name}: inert scope rejects real mouse activation`,
+      )
+
+      await scopedButton.evaluate((node) => node.click())
+      assert.equal(
+        (await state()).scopePresses,
+        0,
+        `${name}: suspended scope rejects virtual activation`,
+      )
+
+      await page.locator('#release').click()
+      assert.equal(
+        await page.locator('#frozen-content').evaluate((node) => node.inert),
+        true,
+        `${name}: one release preserves another owner's lock`,
+      )
+
+      await page.locator('#release').click()
+      await scopedButton.focus()
+      await page.keyboard.press('Enter')
+      assert.equal(
+        (await state()).scopePresses,
+        1,
+        `${name}: independent keyboard activation after restoration`,
+      )
+
+      const viewport = page.locator('#scroll-viewport')
+
+      await viewport.scrollIntoViewIfNeeded()
+      assert.equal(
+        await viewport.evaluate((node) => node.style.touchAction),
+        'pan-y pinch-zoom',
+        `${name}: reservation on actual viewport`,
+      )
+
+      const scrollBounds = await viewport.boundingBox()
+
+      await page.mouse.move(scrollBounds.x + 50, scrollBounds.y + 50)
+      await page.mouse.wheel(0, 240)
+      await page.waitForFunction(
+        () => JSON.parse(document.querySelector('#state').textContent).scrollY > 20,
+      )
+
+      assert.ok(
+        (await state()).scrollY > 20,
+        `${name}: vertical browser wheel scrolling remains available`,
+      )
+
+      await page.mouse.down()
+      await page.mouse.move(scrollBounds.x + 110, scrollBounds.y + 50, { steps: 6 })
+      await page.mouse.up()
+      assert.equal(
+        (await state()).revealStarts,
+        1,
+        `${name}: horizontal parent claims over a vertical viewport`,
+      )
+
       assert.deepEqual(errors, [], `${name}: no page errors`)
       console.log(
         JSON.stringify({
           target: name,
-          evidence: 'browser mouse/keyboard input; capture-loss API call',
+          evidence: 'browser mouse/keyboard/wheel input; virtual click and capture-loss API calls',
           status: 'pass',
-          assertions: 11,
+          assertions: 20,
         }),
       )
     } finally {

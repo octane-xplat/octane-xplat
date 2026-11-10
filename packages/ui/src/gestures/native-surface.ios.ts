@@ -1,8 +1,7 @@
 import type { EventData } from '@nativescript/core'
-import { gestureLeaves } from './composition'
-import { gestureController } from './controller'
+import { reserveNativeGesturePolicy } from './native-policy'
 import { inverseGestureTransform, type GestureTransform } from './geometry'
-import type { NativeGestureSurface, NativeGestureView } from './input.native'
+import type { NativeGestureNode, NativeGestureSurface, NativeGestureView } from './input.native'
 import type { InputContact, InputFrame } from './owner'
 
 interface IosTouchPayload extends EventData {
@@ -57,6 +56,7 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
     host.window === window ? inverseGestureTransform(windowTransform(host, window)) : null
 
   let hitPath: readonly object[] = []
+  let inSequence = false
   let observing = false
 
   return {
@@ -113,8 +113,29 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
           }
         }
 
-        if (event.action === 'down' && contacts.length === event.ios.touches.count) {
+        // UIKit may list both new contacts while reporting just one changed touch.
+        // Cohort admission follows our first observed down, never collection sizes.
+        if (event.action === 'down' && !inSequence) {
           hitPath = nativePath(changed.view)
+
+          const local = transform()?.(changed.locationInView(window))
+          const hit = local ? view.elementFromPoint?.(local.x, local.y) : null
+
+          if (hit) {
+            // Mason's logical ancestry can differ from UIKit's native ancestry.
+            // Use its public hit-test result rather than assuming UIView nesting.
+            const logicalPath: object[] = []
+
+            for (let node: NativeGestureNode | null | undefined = hit; node; node = node.parent) {
+              const native = node.nativeViewProtected
+
+              if (native && typeof native === 'object') {
+                logicalPath.push(native)
+              }
+            }
+
+            hitPath = logicalPath
+          }
         }
 
         const type: InputFrame['type'] = event.action
@@ -125,6 +146,8 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
           changed: toContact(changed),
           hitPath,
         }
+
+        inSequence = frame.contacts.length > 0 && frame.type !== 'cancel'
 
         const key = `${frame.time}:${type}:${frame.changed.id}:${contacts.map((contact) => `${contact.id},${contact.window.x},${contact.window.y}`).join(';')}`
 
@@ -138,30 +161,7 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
       }
     },
     reserve(input) {
-      if (!('touchAction' in view.style)) {
-        throw new Error('Unsupported gesture attachment: the iOS host has no touch-action policy')
-      }
-
-      const prior = Reflect.get(view.style, 'touchAction')
-      let horizontal = false,
-        vertical = false
-
-      for (const handle of gestureLeaves(input)) {
-        const controller = gestureController(handle)
-
-        horizontal ||= controller.kind === 'pinch' || controller.options.axis !== 'y'
-        vertical ||= controller.kind === 'pinch' || controller.options.axis !== 'x'
-      }
-
-      const action =
-        horizontal && vertical ? 'none' : horizontal ? 'pan-y pinch-zoom' : 'pan-x pinch-zoom'
-
-      Reflect.set(view.style, 'touchAction', action)
-      return () => {
-        if (Reflect.get(view.style, 'touchAction') === action) {
-          Reflect.set(view.style, 'touchAction', prior)
-        }
-      }
+      return reserveNativeGesturePolicy(view.style, input)
     },
   }
 }

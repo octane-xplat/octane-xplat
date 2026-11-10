@@ -50,8 +50,9 @@ several ancestors; deduplicate at the window owner, never per recognizer.
 The iOS raw-contact adapter snapshots UIKit contacts in logical window units.
 Filter ended/cancelled touches from `UIEvent.allTouches`; that collection is not
 an active-pointer list. Freeze the window-to-local basis for translation while
-recomputing local positions against the current host transform. Other native
-hosts currently reject this internal adapter explicitly; do not infer support
+recomputing local positions against the current host transform. The Android bridge maps stable MotionEvent pointer IDs and converts screen pixels
+to logical window units; its native-input behavior still needs OS qualification.
+Other native hosts reject this internal adapter explicitly. Do not infer support
 from the shared coordinator or declarations.
 
 Scope leases count owners. A native driver's first freeze must preflight and
@@ -68,3 +69,25 @@ viewport, including viewports mounted under an existing reservation. This does
 not change overflow, offsets or layout. Host integration must register the actual
 scroll viewports and refresh ancestry after committed reparenting. A registry
 unit test does not prove that Mason/browser scrolling obeys its policy.
+
+## Browser adapter limits
+
+The internal web adapter shares one policy writer between a gesture host and a
+managed viewport, intersects authored restrictions with reservations, and updates
+policy after committed options or live enablement changes. Every attachment owns
+a root lease; removing a gesture must not remove listeners still needed by a
+scope or viewport.
+
+Browser scope suspension requires `inert` and an input-only subtree. It rejects
+scrollable overflow, embedded foreign documents, and a focused editable control
+before mutation. Wheel/key/click guards supplement `inert`; overlapping scopes
+restore the original flag only after the final owner releases. Do not turn this
+bounded input gate into a scroll-freeze claim: stopping existing browser touch
+scrolling and momentum remains unqualified. Programmatic handler dispatch is not
+accessibility-service evidence.
+
+For iOS admission, collection sizes are not a reliable first-down marker. Also
+prefer Mason's public `elementFromPoint()` and logical parent chain when
+available: a framework layout tree must not be inferred from UIKit ancestry
+alone. Retain physical native hit testing for non-Mason hosts. The real concurrent
+pinch gate remains separate from the mounted bridge regression.

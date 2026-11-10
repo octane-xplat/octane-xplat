@@ -70,3 +70,25 @@ export function observeGesturePolicy(
     }
   }
 }
+
+/** Keep authored directional restrictions while reserving axes for app recognition. */
+export function restrictTouchAction(authored: string, policy: ScrollPolicy): string {
+  if (policy.x && policy.y && policy.pinch) {
+    return authored || 'auto'
+  }
+
+  const tokens =
+    !authored || authored === 'auto' || authored === 'manipulation'
+      ? ['pan-x', 'pan-y', 'pinch-zoom']
+      : authored.split(/\s+/)
+
+  const kept = tokens.filter((token) =>
+    /^pan-(x|left|right)$/.test(token)
+      ? policy.x
+      : /^pan-(y|up|down)$/.test(token)
+        ? policy.y
+        : token === 'pinch-zoom' && policy.pinch,
+  )
+
+  return kept.join(' ') || 'none'
+}

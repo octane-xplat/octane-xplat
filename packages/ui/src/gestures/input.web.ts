@@ -1,8 +1,17 @@
 import { gestureLeaves } from './composition'
-import { gestureController } from './controller'
+import { observeGesturePolicy, restrictTouchAction } from './gesture-policy'
+import {
+  createScrollPolicyRegistry,
+  unrestrictedScroll,
+  suspendedScroll,
+  type ScrollPolicy,
+  type ScrollPolicyRegistry,
+} from './scroll-policy'
+
+import { interactionScopeController } from './scope'
 import { createGestureOwner, type GestureOwner, type InputContact, type InputFrame } from './owner'
 import { inverseGestureTransform, type GestureTransform } from './geometry'
-import type { GestureInput } from './types'
+import type { GestureInput, InteractionScope } from './types'
 
 interface WebAttachment {
   readonly node: HTMLElement
@@ -12,6 +21,11 @@ interface WebAttachment {
 interface WebRoot {
   readonly owner: GestureOwner
   readonly attachments: Set<WebAttachment>
+  readonly policies: ScrollPolicyRegistry<HTMLElement>
+  readonly locks: Map<HTMLElement, { count: number; wasInert: boolean }>
+  retain(): () => void
+  policyHost(node: HTMLElement): () => void
+  consumeWithin(node: HTMLElement): void
   dispose(): void
 }
 
@@ -80,6 +94,26 @@ function rootFor(document: Document): WebRoot {
 
   const attachments = new Set<WebAttachment>()
   const contacts = new Map<number, InputContact>()
+  const locks = new Map<HTMLElement, { count: number; wasInert: boolean }>()
+  const policies = createScrollPolicyRegistry<HTMLElement>((ancestor, descendant) =>
+    ancestor.contains(descendant),
+  )
+
+  const policyHosts = new Map<HTMLElement, { count: number; release(): void }>()
+  let references = 0
+  let disposed = false
+  const blocked = (event: Event) => {
+    const path = event.composedPath()
+
+    if (![...locks.keys()].some((node) => path.includes(node))) {
+      return false
+    }
+
+    event.preventDefault()
+    event.stopImmediatePropagation()
+    return true
+  }
+
   let path: readonly object[] = []
   let capture: { node: HTMLElement; id: number } | null = null
   let tail: { pointer: number; path: readonly object[]; capture: HTMLElement | null } | null = null
@@ -102,16 +136,32 @@ function rootFor(document: Document): WebRoot {
     screen: { x: event.screenX, y: event.screenY },
   })
 
-  const send = (event: PointerEvent, type: InputFrame['type']) =>
+  const send = (
+    event: PointerEvent,
+    type: InputFrame['type'],
+    cancelReason?: InputFrame['cancelReason'],
+  ) =>
     owner.dispatch({
       type,
       time: event.timeStamp,
       contacts: [...contacts.values()],
       changed: contact(event),
       hitPath: path,
+      cancelReason,
+      nativeOwned: path.some(
+        (node) =>
+          node instanceof window.HTMLElement &&
+          (node.isContentEditable ||
+            /^(INPUT|SELECT|TEXTAREA|IFRAME|OBJECT|EMBED)$/.test(node.tagName) ||
+            node.getAttribute('role') === 'slider'),
+      ),
     })
 
   const down = (event: PointerEvent) => {
+    if (blocked(event)) {
+      return
+    }
+
     if (event.button !== 0 || contacts.has(event.pointerId)) {
       return
     }
@@ -161,7 +211,11 @@ function rootFor(document: Document): WebRoot {
     }
   }
 
-  const finish = (event: PointerEvent, type: 'up' | 'cancel') => {
+  const finish = (
+    event: PointerEvent,
+    type: 'up' | 'cancel',
+    cancelReason?: InputFrame['cancelReason'],
+  ) => {
     if (!contacts.has(event.pointerId)) {
       return
     }
@@ -171,7 +225,7 @@ function rootFor(document: Document): WebRoot {
       contacts.clear()
     }
 
-    claimed = send(event, type) || claimed
+    claimed = send(event, type, cancelReason) || claimed
     if (claimed && !contacts.size) {
       tail = { pointer: event.pointerId, path, capture: capture?.node ?? null }
     }
@@ -199,10 +253,14 @@ function rootFor(document: Document): WebRoot {
     }
 
     capture = null
-    finish(event, 'cancel')
+    finish(event, 'cancel', 'capture-lost')
   }
 
   const click = (event: MouseEvent) => {
+    if (blocked(event)) {
+      return
+    }
+
     if (!tail || event.detail === 0) {
       return
     }
@@ -253,11 +311,81 @@ function rootFor(document: Document): WebRoot {
   document.addEventListener('lostpointercapture', lost, true)
   document.addEventListener('click', click, true)
   window.addEventListener('blur', blur)
+  document.addEventListener('wheel', blocked, { capture: true, passive: false })
+  document.addEventListener('keydown', blocked, true)
+  document.addEventListener('keyup', blocked, true)
 
   const root: WebRoot = {
     owner,
     attachments,
+    policies,
+    locks,
+    retain() {
+      if (disposed) {
+        throw new Error('Cannot retain a disposed gesture root')
+      }
+
+      references++
+
+      let alive = true
+
+      return () => {
+        if (!alive) {
+          return
+        }
+
+        alive = false
+        if (--references === 0) {
+          root.dispose()
+        }
+      }
+    },
+    policyHost(node) {
+      const prior = policyHosts.get(node)
+
+      if (prior) {
+        prior.count++
+      } else {
+        const writer = touchActionWriter(node)
+        const release = policies.register({ host: node, apply: writer })
+
+        policyHosts.set(node, { count: 1, release })
+      }
+
+      let alive = true
+
+      return () => {
+        if (!alive) {
+          return
+        }
+
+        alive = false
+
+        const record = policyHosts.get(node)
+
+        if (record && --record.count === 0) {
+          policyHosts.delete(node)
+          record.release()
+        }
+      }
+    },
+    consumeWithin(node) {
+      if (path.includes(node)) {
+        claimed = true
+      }
+
+      owner.cancelWhere(
+        (host) => host instanceof window.Node && node.contains(host),
+        'scope-suspended',
+      )
+    },
     dispose() {
+      if (disposed) {
+        return
+      }
+
+      disposed = true
+      roots.delete(document)
       try {
         blur()
         owner.dispose()
@@ -269,7 +397,9 @@ function rootFor(document: Document): WebRoot {
         document.removeEventListener('lostpointercapture', lost, true)
         document.removeEventListener('click', click, true)
         window.removeEventListener('blur', blur)
-        roots.delete(document)
+        document.removeEventListener('wheel', blocked, true)
+        document.removeEventListener('keydown', blocked, true)
+        document.removeEventListener('keyup', blocked, true)
       }
     },
   }
@@ -281,45 +411,78 @@ function rootFor(document: Document): WebRoot {
 /** Attach one gesture tree. The renderer retains this attachment across equivalent descriptions. */
 export function attachWebGesture(node: HTMLElement, input: GestureInput): () => void {
   const root = rootFor(node.ownerDocument)
+  const releaseRoot = root.retain()
   const record = { node, input }
   const target = Object.freeze({ id: `web-target:${++targetId}` })
-  const detach = root.owner.register(node, input, {
-    target,
-    local: (point) => {
-      const matrix = windowTransform(node)
+  const cleanups: (() => void)[] = [releaseRoot]
+  let alive = true
+  const release = () => {
+    if (!alive) {
+      return
+    }
 
-      return matrix ? (inverseGestureTransform(matrix)?.(point) ?? null) : null
-    },
-    freeze: () => {
-      const matrix = windowTransform(node)
+    alive = false
+    root.attachments.delete(record)
 
-      return matrix ? inverseGestureTransform(matrix) : null
-    },
-  })
+    // Every owned resource is attempted even if a cancellation callback fails.
+    const errors: unknown[] = []
 
-  root.attachments.add(record)
+    for (const cleanup of cleanups.reverse()) {
+      try {
+        cleanup()
+      } catch (error) {
+        errors.push(error)
+      }
+    }
 
-  const previous = node.style.touchAction
-  const leaves = gestureLeaves(input)
-  let horizontal = false,
-    vertical = false
-
-  for (const leaf of leaves) {
-    const controller = gestureController(leaf)
-
-    if (controller.kind === 'pinch') {
-      horizontal = true
-      vertical = true
-    } else {
-      horizontal ||= controller.options.axis !== 'y'
-      vertical ||= controller.options.axis !== 'x'
+    if (errors.length) {
+      throw new AggregateError(errors, 'Gesture attachment cleanup failed')
     }
   }
 
-  const action =
-    horizontal && vertical ? 'none' : horizontal ? 'pan-y pinch-zoom' : 'pan-x pinch-zoom'
+  try {
+    const detach = root.owner.register(node, input, {
+      target,
+      local: (point) => {
+        const matrix = windowTransform(node)
 
-  node.style.touchAction = action
+        return matrix ? (inverseGestureTransform(matrix)?.(point) ?? null) : null
+      },
+      freeze: () => {
+        const matrix = windowTransform(node)
+
+        return matrix ? inverseGestureTransform(matrix) : null
+      },
+    })
+
+    cleanups.push(detach, root.policyHost(node))
+
+    const reservation = root.policies.reserve(node, unrestrictedScroll)
+
+    cleanups.push(() => reservation.release())
+    cleanups.push(observeGesturePolicy(input, (policy) => reservation.update(policy)))
+    root.attachments.add(record)
+  } catch (error) {
+    release()
+    throw error
+  }
+
+  return release
+}
+
+/** Register the actual scroll viewport, not its layout wrapper. */
+export function registerWebGestureViewport(node: HTMLElement): () => void {
+  const root = rootFor(node.ownerDocument),
+    releaseRoot = root.retain()
+
+  let releaseHost: () => void
+
+  try {
+    releaseHost = root.policyHost(node)
+  } catch (error) {
+    releaseRoot()
+    throw error
+  }
 
   let alive = true
 
@@ -330,16 +493,147 @@ export function attachWebGesture(node: HTMLElement, input: GestureInput): () => 
 
     alive = false
     try {
-      detach()
+      releaseHost()
     } finally {
-      root.attachments.delete(record)
-      if (node.style.touchAction === action) {
-        node.style.touchAction = previous
+      releaseRoot()
+    }
+  }
+}
+
+/** Input-only suspension. Scrollable subtrees remain unsupported until momentum is qualified. */
+export function attachWebInteractionScope(node: HTMLElement, scope: InteractionScope): () => void {
+  const root = rootFor(node.ownerDocument),
+    releaseRoot = root.retain()
+
+  let release: () => void
+
+  try {
+    release = interactionScopeController(scope).attach({
+      freeze() {
+        const window = node.ownerDocument.defaultView
+
+        if (
+          !window ||
+          typeof node.inert !== 'boolean' ||
+          node.querySelector('iframe,object,embed')
+        ) {
+          return { ok: false, reason: 'unsupported' }
+        }
+
+        const descendants = [node, ...node.querySelectorAll<HTMLElement>('*')]
+
+        // No standard browser operation promises to stop already-owned touch momentum.
+        // Do not return success based solely on touch-action or an instant scroll seek.
+        if (
+          descendants.some((child) => {
+            const style = window.getComputedStyle(child)
+
+            return (
+              (child.scrollHeight > child.clientHeight &&
+                /auto|scroll|hidden/.test(style.overflowY)) ||
+              (child.scrollWidth > child.clientWidth && /auto|scroll|hidden/.test(style.overflowX))
+            )
+          })
+        ) {
+          return { ok: false, reason: 'unsupported' }
+        }
+
+        const focused = node.ownerDocument.activeElement
+
+        if (
+          focused instanceof window.HTMLElement &&
+          node.contains(focused) &&
+          (focused.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(focused.tagName))
+        ) {
+          return { ok: false, reason: 'unsupported' }
+        }
+
+        const reservation = root.policies.reserve(node, suspendedScroll)
+
+        const lock = root.locks.get(node)
+
+        if (lock) {
+          lock.count++
+        } else {
+          root.locks.set(node, { count: 1, wasInert: node.inert })
+        }
+
+        node.inert = true
+
+        let alive = true
+        const restore = () => {
+          if (!alive) {
+            return
+          }
+
+          alive = false
+
+          const lock = root.locks.get(node)
+
+          if (lock && --lock.count === 0) {
+            root.locks.delete(node)
+            if (node.inert) {
+              node.inert = lock.wasInert
+            }
+          }
+
+          reservation.release()
+        }
+
+        try {
+          root.consumeWithin(node)
+        } catch (error) {
+          restore()
+          throw error
+        }
+
+        return { ok: true, release: restore }
+      },
+    })
+  } catch (error) {
+    releaseRoot()
+    throw error
+  }
+
+  let alive = true
+
+  return () => {
+    if (!alive) {
+      return
+    }
+
+    alive = false
+    try {
+      release()
+    } finally {
+      releaseRoot()
+    }
+  }
+}
+
+/** One writer per host avoids separate gesture/viewport writers restoring each other's masks. */
+function touchActionWriter(node: HTMLElement): (policy: ScrollPolicy) => void {
+  let authored = node.style.touchAction
+  let original = node.ownerDocument.defaultView?.getComputedStyle(node).touchAction ?? authored
+
+  let written: string | null = null
+
+  return (policy) => {
+    if (written !== null && node.style.touchAction !== written) {
+      authored = node.style.touchAction
+      original = node.ownerDocument.defaultView?.getComputedStyle(node).touchAction ?? authored
+    }
+
+    if (policy.x && policy.y && policy.pinch) {
+      if (written !== null && node.style.touchAction === written) {
+        node.style.touchAction = authored
       }
 
-      if (!root.attachments.size) {
-        root.dispose()
-      }
+      written = null
+      return
     }
+
+    written = restrictTouchAction(original, policy)
+    node.style.touchAction = written
   }
 }

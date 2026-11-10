@@ -232,8 +232,8 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 ## Gesture owner checks
 
 The internal gesture prototype has three focused checks. Run the state-machine
-and web-adapter unit cases, the compiled native hook/object-driver case, and
-the browser mouse/keyboard input case separately from device qualification:
+and web-adapter unit cases, the native bridge and compiled hook/object-driver
+cases, and browser input separately from device qualification:
 
 ```sh
 bun run turbo run test --filter=@octane-xplat/ui -- src/gestures
@@ -242,8 +242,10 @@ bun run turbo run test:gestures:web --filter=@xplat/probe
 ```
 
 The browser task launches existing Chromium, Firefox and WebKit installations,
-uses mouse/keyboard input, and deliberately releases pointer capture through a
-browser API. It does not capture images, install engines, or simulate native
+uses mouse/keyboard/wheel input, and deliberately invokes virtual clicks and
+releases pointer capture through browser APIs. It covers scoped input leases
+and managed viewport reservations without claiming touch momentum suspension.
+It does not capture images, install engines, or simulate native
 devices. It remains a local qualification task outside the lightweight PR gate.
 These checks do not qualify the eventual public component bindings, native
 scroll suspension, touchscreens, accessibility services or packed consumers.

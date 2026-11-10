@@ -17,3 +17,12 @@
 <div id="panel"><button id="action">Nested action</button></div>
 <output id="state"></output>
 <script type="module" src="./fixture.web.ts"></script>
+<style>
+  #frozen-content { width: 320px; height: 110px; }
+  #scroll-parent { margin: 40px; width: 300px; }
+  #scroll-viewport { width: 300px; height: 160px; overflow-y: auto; }
+  #scroll-content { height: 1000px; }
+</style>
+<div id="frozen-content"><button id="frozen-action">Scoped action</button></div>
+<button id="freeze">Suspend content</button><button id="release">Release one lease</button>
+<div id="scroll-parent"><div id="scroll-viewport"><div id="scroll-content">Managed vertical scrolling</div></div></div>

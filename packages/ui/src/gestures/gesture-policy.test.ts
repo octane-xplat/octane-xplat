@@ -1,4 +1,5 @@
 import { expect, it } from 'vitest'
+import { reserveNativeGesturePolicy } from './native-policy'
 import { createScope } from 'octane/signals'
 import { createPanController, createPinchController } from './controller'
 import { simultaneous } from './composition'
@@ -35,5 +36,30 @@ it('updates reserved axes after committed options and live enablement without ob
     pan.dispose()
     pinch.dispose()
     scope.dispose()
+  }
+})
+
+it('reserves native input without widening authored restrictions and preserves live author updates', () => {
+  const pan = createPanController({ axis: 'x' }),
+    style = { touchAction: 'pan-y' }
+
+  pan.attach({}, () => {})
+
+  const release = reserveNativeGesturePolicy(style, pan.handle)
+
+  try {
+    expect(style.touchAction).toBe('pan-y')
+    pan.commit({ axis: 'y' })
+    expect(style.touchAction).toBe('none')
+    style.touchAction = 'pan-left pinch-zoom'
+    pan.commit({ axis: 'y' })
+    expect(style.touchAction).toBe('pan-left pinch-zoom')
+    pan.commit({ axis: 'y', enabled: false })
+    expect(style.touchAction).toBe('pan-left pinch-zoom')
+    release()
+    expect(style.touchAction).toBe('pan-left pinch-zoom')
+  } finally {
+    release()
+    pan.dispose()
   }
 })

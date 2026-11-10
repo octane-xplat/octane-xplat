@@ -6,12 +6,20 @@ import {
   type InputFrame,
 } from './owner'
 
-import type { GestureInput } from './types'
+import type { GestureInput, Point } from './types'
 
 /** Minimal native-host boundary; shared ownership never imports a platform runtime. */
-export interface NativeGestureView {
+export interface NativeGestureNode {
+  readonly nativeViewProtected?: unknown
+  readonly parent?: NativeGestureNode | null
+}
+
+export interface NativeGestureView extends NativeGestureNode {
   readonly nativeViewProtected: unknown
   readonly style: object
+  elementFromPoint?(x: number, y: number): NativeGestureNode | null
+  getLocationInWindow?(): Point | undefined
+  getLocationOnScreen?(): Point | undefined
   on(event: string, listener: (event: unknown) => void): void
   off(event: string, listener: (event: unknown) => void): void
 }
