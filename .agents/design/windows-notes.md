@@ -1,7 +1,7 @@
 # Windows target notes
 
 > How `octane-xplat` could gain a Windows desktop target via
-> [NativeScript/windows](../references/prior-art/nativescript-windows.md). This records
+> [NativeScript/windows](https://github.com/octane-xplat/prior-art/blob/f346f16feb067192d6f944b1272a96f4fcfb18da/nativescript-windows.md). This records
 > the design and implementation status through 2026-10-02.
 >
 > **Owns:** Windows target seam (new platform, not one of the seven owned

@@ -23,7 +23,7 @@ second export, a package dependency, or a changed row-state guarantee.
 | Size/anchor/seek correctness    | Shared expectation                                | Same expectation                                               |
 | Native resource ownership       | Usual component lifetime                          | Explicit assignment/activity cleanup as well as final disposal |
 
-The [versioned precedent study](../references/prior-art/recycling-lists.md)
+The [versioned precedent study](https://github.com/octane-xplat/prior-art/blob/f346f16feb067192d6f944b1272a96f4fcfb18da/recycling-lists.md)
 covers LegendList, FlashList v2, RecyclerListView, Vue Virtual Scroller, Flutter,
 and AndroidX RecyclerView. LegendList demonstrates one controller supporting both
 lifecycles. FlashList demonstrates deeper reuse plus coordinated correction and

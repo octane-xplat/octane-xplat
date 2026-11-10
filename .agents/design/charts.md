@@ -3,7 +3,7 @@
 > Design record for a leaf package that renders the same charts on every
 > target from one DOM-free core. Web, NativeScript, and AppKit leaves are
 > implemented; verification is target-specific. Prior art surveyed in
-> [`.agents/references/prior-art/charts.md`](../references/prior-art/charts.md).
+> [Chart-library prior-art study](https://github.com/octane-xplat/prior-art/blob/f346f16feb067192d6f944b1272a96f4fcfb18da/charts.md).
 
 ## Architecture
 

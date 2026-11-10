@@ -59,6 +59,29 @@ When adding or revising material:
   indexes and inbound links after moves or pruning, review changed guidance for
   stale claims and duplication, and run the applicable documentation/recipe checks.
 
+## Prior-art research
+
+External-system studies live in the private
+[prior-art repository](https://github.com/octane-xplat/prior-art/blob/main/README.md).
+Consult the relevant study before researching an external system. Update the
+canonical study when new evidence changes its findings; keep our decisions,
+implementation contracts, and upstream limitations in this framework repository.
+
+Use an existing local clone, by default `~/dev/prior-art`, outside framework
+worktrees. If it is absent and you have private-repository access, clone it:
+
+```sh
+gh repo clone octane-xplat/prior-art ~/dev/prior-art
+```
+
+Read that repository's `AGENTS.md` before editing. Commit research independently
+from framework changes; cite a specific research commit when a framework decision
+relies on its findings. Keep discovery links pointed at the current index.
+Do not copy private notes into public artifacts. Framework guidance must remain
+usable without private access; if access is unavailable, state that limitation
+and continue from accessible evidence. Normal builds, tests, and CI do not need
+this clone.
+
 ## Read what applies
 
 Read the relevant reference before acting in that area. These files carry the

@@ -38,7 +38,7 @@ start at the [public docs](../../docs/README.md).
 
 Implementation investigations and evidence are indexed in the
 [implementation notes](../docs/notes/README.md). External systems are in
-[prior-art references](../references/prior-art/README.md).
+[prior-art references](https://github.com/octane-xplat/prior-art/blob/main/README.md).
 
 - [Query cache engine](query-cache-engine.md) — engine decision, ownership contract and qualification limits.
 - [Query cache qualification](query-cache-qualification.md) — maintained checks and their evidence boundaries.
