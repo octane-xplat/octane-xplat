@@ -662,12 +662,32 @@ regression is `packages/video/tests/exoplayer-playback-start.ios.test.ts`. Both
 tests drive the installed plugin source through stubbed listener/KVO contracts
 — they do not qualify NativeScript's runtime bridging or device delivery.
 
-The runtime proxy gap remains upstream work tracked separately:
-`Dump.getSupportedMethods` must generate overrides for explicitly supplied
-default interface implementations before any `Player.Listener` callback reaches
-JavaScript. Until that repaired runtime is consumed, the patched plugin still
-cannot deliver its event in this probe — the local patch and listener test do
-not establish native delivery. Requalify both controls modes, pause/resume,
-buffering/seek cycles, looping, source replacement, loading cancellation, and
-unmount on the repaired runtime; keep iOS qualification separate. Detailed run
-evidence belongs in Silo and reports.
+The runtime proxy gap is repaired locally and remains upstream work: a
+`Dump.getSupportedMethods` change on the 9.1.1 base `60d03e98` (local
+nativescript-android worktree `stony-crocus/v911-repair`, repair commit
+`d896651e`) generates proxy overrides for explicitly requested non-abstract
+interface methods — including interfaces passed to `Object.extend` — while
+leaving unnamed defaults on their native implementations. Debuggable consumers
+must take the `-PoptimizedWithInspector` variant: `RuntimeHelper` starts
+`AndroidJsV8Inspector` whenever `android:debuggable` is set, and the plain
+`-Poptimized` AAR omits that JNI, so a debuggable app dies pre-JS into
+`ErrorReportActivity` with `UnsatisfiedLinkError`. The qualified artifact is
+`runtime-optimized-with-inspector-release.aar` (SHA-256
+`f5874cf7da11894af3220270c93fef68bf27701c60479bf0678acbfe6c5ee56e`,
+arm64-v8a, V8 14.9.207.39, built on NDK 29.0.14206865); an earlier main-based
+draft (SHA-256 `f59623f1…`, built on `6d16eb2c`) is incompatible and must not
+be used.
+
+With that runtime in the prepared probe's `runtime-libs`, the full Android
+matrix passed on `elegant-fir-probe` (Android 35, run
+`e3c44d20-148e-4ac6-8f26-8cce317e5c02`, 22/22 assertions):
+`playbackStart`/`playbackReady` each delivered once per source through the
+dynamic proxy in both controls modes, poster present before start and removed
+after, pause/resume/seek/loop kept a single start, source replacement re-armed
+and reported again with autoplay rendered frames, a missing source stayed
+buffering with the poster retained, cancellation returned to idle with the
+poster, and unmount unloaded the view with the player idle. Media-failure
+callback delivery (`onPlayerError`) was not exercised and stays open; static
+app bindings and release-APK delivery remain unqualified, and upstream
+`NativeScript/android` still needs the generator fix. Detailed run evidence
+belongs in Silo and reports.
