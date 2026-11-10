@@ -40,11 +40,9 @@ interface WorkerCtor {
 
 const projection = () => globalThis as { NSWinRT?: WindowsRuntime; Worker?: WorkerCtor }
 
-const WM_HOTKEY = 0x0312
 const WM_APP = 0x8000
 const CMD_BIND = WM_APP + 0x40
 const CMD_UNBIND = WM_APP + 0x41
-const CMD_QUIT = WM_APP + 0x42
 const MOD_ALT = 0x1
 const MOD_CONTROL = 0x2
 const MOD_SHIFT = 0x4
@@ -56,8 +54,6 @@ const REC_READY = 0
 const REC_BOUND = 1
 const REC_FAILED = 2
 const REC_HOTKEY = 3
-const REC_UNBOUND = 4
-const REC_EXITED = 5
 
 // The worker is fully self-orchestrating: the pipe name derives from the
 // shared process id, so no postMessage payload ever needs to arrive.
@@ -155,8 +151,12 @@ const WORKER_SOURCE = `(function () {
 })()`
 
 const u32 = (v: number) => ({ type: 'u32', value: v })
-const i32 = (v: number) => ({ type: 'i32', value: v })
 const ptr = (v: number) => ({ type: 'pointer', value: v })
+
+function invalidHandle(handle: number): boolean {
+  // The projection can expose INVALID_HANDLE_VALUE as signed or unsigned.
+  return !handle || handle === -1 || handle === 0xffffffff || handle === Number(0xffffffffffffffffn)
+}
 
 interface PendingReply {
   resolve(value: number): void
@@ -249,7 +249,6 @@ function ensureRuntime(): boolean {
 }
 
 const readBuf = new ArrayBuffer(4096)
-const readView = new DataView(readBuf)
 const availBuf = new ArrayBuffer(8)
 const availView = new DataView(availBuf)
 
@@ -380,7 +379,7 @@ function createPipe(): boolean {
     ),
   )
 
-  if (!handle || handle === 0xffffffff || handle === 0xffffffffffffffff) {
+  if (invalidHandle(handle)) {
     pipe = 0
     return false
   }
@@ -431,7 +430,7 @@ function spawnWorker(): WorkerLike | null {
       ),
     )
 
-    if (!fh) {
+    if (invalidHandle(fh)) {
       return null
     }
 
