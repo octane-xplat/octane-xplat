@@ -65,6 +65,33 @@ interface ContentRoot {
 }
 ```
 
+## Retained iOS SwiftUI sheet hosts
+
+`SwiftUIBottomSheet` retains one NativeScript portal host across presentations.
+Its Swift representable must use the component's stable `contentId` as the
+factory key; the component releases that cached factory entry before
+unregistering its host on teardown. Do not append a presentation UUID or remount
+the portal to make reopening work.
+
+With `@nativescript/swift-ui` 4.0.2 and Core 9.1.3, the adapter's
+`NativeScriptViewHelper.generateNativeView` sets up each newly created factory
+entry with a fresh root context, then returns a cached controller's view.
+Core rebuilds native views when that context changes. Reusing one portal host
+under a fresh factory key therefore leaves the controller holding the old tree,
+and the second sheet is blank. The adapter implementation is in the installed
+package's `index.ios.js`; its published repository metadata does not locate
+that version's adapter source. Core's cache is in
+[`NativeScriptMainWindow.swift`](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/platforms/ios/src/NativeScriptMainWindow.swift).
+Recheck both boundaries on dependency upgrades. A different factory strategy
+needs proof that it preserves the retained tree and releases every cached entry.
+
+Real-input Release XCTest on an iPhone 13 Pro Max with iOS 27.0.1 reproduces the
+blank second presentation and passes three presentations with the stable key.
+The maintained reproduction is
+[`testSheet`](../../../tools/verification/animation-quality/AnimationQualityTests.swift);
+see [issue #233](https://github.com/octane-xplat/octane-xplat/issues/233).
+This establishes interactive reopening, not visual parity or hitch performance.
+
 ## Routes and backstack lifetime
 
 A native route request snapshots its owner before guards/loaders. A disposed

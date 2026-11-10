@@ -192,6 +192,13 @@ read the [current ownership inventory](../../../docs/notes/portal-boundaries.md)
 Theme inheritance is a separate host concern; see
 [theme across hosts](styling/root-boundaries.md).
 
+When maintaining the iOS `SwiftUIBottomSheet` adapter, preserve one native factory
+key for its retained portal host and destroy the cached entry on owner teardown.
+Fresh presentation UUIDs rebuild Core's native tree behind the adapter's cached
+controller and can produce a blank reopened sheet. See the
+[retained-host contract](../../../docs/notes/portal-boundaries.md#retained-ios-swiftui-sheet-hosts)
+before changing that lifecycle.
+
 ## Ownerless `openBottomSheet` / `closeBottomSheet`
 
 Use global `openBottomSheet(Component, props)` when content does not need the

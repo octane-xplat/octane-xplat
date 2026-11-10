@@ -22,13 +22,13 @@ private final class SheetModel: ObservableObject {
 	var onDismiss: (() -> Void)?
 }
 
-// Same shape as the plugin's NativeScriptViewRepresentable — unique instance
-// id resolved through the core-owned NativeScriptViewFactory.
+// One factory identity per retained portal host. A new identity would rerun
+// root setup while the adapter still holds the old native controller view.
 private struct HostedNativeScriptView: UIViewRepresentable {
 	let id: String
 
 	init(id: String) {
-		self.id = id + "-" + UUID().uuidString
+		self.id = id
 	}
 
 	func makeUIView(context: Context) -> UIView {

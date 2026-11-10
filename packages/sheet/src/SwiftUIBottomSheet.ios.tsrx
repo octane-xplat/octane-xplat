@@ -81,6 +81,8 @@ export function SwiftUIBottomSheet(props: SwiftUIBottomSheetProps): unknown @{
     setPortalHost(host)
 
     return () => {
+      // The factory cache belongs to this retained portal, not each presentation.
+      NativeScriptViewFactory.shared?.viewDestroyer?.(contentId.current)
       unregisterSwiftUIHost(contentId.current)
     }
   }, [])
