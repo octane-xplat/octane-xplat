@@ -139,11 +139,17 @@ export class ProjectionRoot {
       this.runResizePass()
     }
 
-    const ticks = [...this.queuedTicks.values()]
+    // Keep not-yet-delivered ticks cancellable during this batch. New ticks
+    // belong to the next frame, even when queued by an earlier callback.
+    const ticks = [...this.queuedTicks.keys()]
 
-    this.queuedTicks.clear()
-    for (const tick of ticks) {
-      tick()
+    for (const id of ticks) {
+      const tick = this.queuedTicks.get(id)
+
+      if (tick) {
+        this.queuedTicks.delete(id)
+        tick()
+      }
     }
 
     if (this.needsProjectionUpdate) {
