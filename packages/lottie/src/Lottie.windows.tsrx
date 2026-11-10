@@ -19,7 +19,7 @@ export function Lottie(props: LottieProps): unknown @{
   }))
 
   useEffect(() => {
-    props.onError?.({ type: 'error', error: 'unsupported: lottie playback is not available on windows' })
+    props.onError?.({ message: 'unsupported: lottie playback is not available on windows' })
   }, [])
 
   <masonview id={props.id} className={props.className} style={props.style} />
