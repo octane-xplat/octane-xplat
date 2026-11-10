@@ -1,5 +1,4 @@
 import Gtk from 'gi://Gtk?version=4.0'
-import GLib from 'gi://GLib'
 
 /** Controller handed to openWindow callers and content resolvers — the GTK
  *  counterpart of the AppKit window controller windows.macos wraps. */
@@ -128,7 +127,14 @@ export function createGtkWindowService(deps: {
       // Explicit close is a command — skips the close-request veto like
       // the macOS controller's NSWindow.close() path.
       close() {
+        if (controller.isClosed) {
+          return
+        }
+
         finish()
+        try {
+          win.destroy()
+        } catch {}
       },
       setTitle(title: string) {
         win.set_title(String(title))
@@ -146,13 +152,6 @@ export function createGtkWindowService(deps: {
       }
 
       controller.isClosed = true
-      // Destroy the window before unmounting the root — GTK's own surface
-      // teardown ordering releases the GL/EGL window first; unmounting
-      // first leaves a half-destroyed surface that trips
-      // _gdk_surface_destroy_hierarchy's egl_native_window assert.
-      try {
-        win.destroy()
-      } catch {}
       try {
         mounted.root.unmount()
       } catch {
@@ -162,24 +161,15 @@ export function createGtkWindowService(deps: {
       resolveClosed()
     }
 
-    // User-initiated close requests route through the veto. When allowed, we
-    // suppress GTK's default teardown and close through the controller path —
-    // letting GTK destroy the surface after the root unmounted crashes the
-    // connection with BadDrawable under X11 (the unmounted root still queues
-    // requests on the half-destroyed surface).
+    // User-initiated close requests route through the veto before GTK's
+    // default destroys the window; the mounted root unmounts first.
     win.connect('close-request', () => {
       if (controller.onCloseRequested?.() === false) {
         return true
       }
 
-      // Veto GTK's default teardown and take the controller path on the next
-      // idle — a synchronous destroy inside delete-event/close-request crashes
-      // the connection with BadDrawable under X11.
-      GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-        controller.close()
-        return GLib.SOURCE_REMOVE
-      })
-      return true
+      finish()
+      return false
     })
 
     const component =

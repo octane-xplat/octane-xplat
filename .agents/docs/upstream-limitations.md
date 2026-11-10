@@ -716,3 +716,7 @@ the poster contract is qualified by the paused/failed paths, not a
 single-instant sample. AVFoundation errors were observed via item status, not
 a plugin error event; static bindings and release-app delivery remain
 unqualified.
+
+## GTK 4: WM_DELETE on a second window crashes X11 apps under headless Xvfb
+
+Verified 2026-11-09 on Debian trixie (GTK 4.14.5, gjs, openbox, Xvfb, dbus-run-session): closing a second `Gtk.Window`/`Gtk.ApplicationWindow` via `xdotool windowclose` (WM_DELETE) kills the process with `BadDrawable` / `GdkSurface unexpectedly destroyed` + `_gdk_surface_destroy_hierarchy: assertion failed: (priv->egl_native_window == NULL)`. A plain-GJS control (no Octane code — main ApplicationWindow plus a second window opened from `GLib.idle_add`) crashes identically 3/3 (evidence: `research/desktop-shell/linux-diag-2/`), so this is upstream GDK X11 surface teardown, not renderer behavior. The first close path also crashed when the window was created inside a D-Bus method handler — that half was ours (tray now dispatches callbacks via `GLib.idle_add`). WM_DELETE on the app's only/first window was not observed to crash; closing via the controller's `close()` (in-window button) takes the same destroy path and survived in the journey probe. Not verified on a real compositor; may be headless-Xvfb-specific. No workaround found: GDK_SYNCHRONIZE only exposes the error earlier; GDK_DISABLE=gl,vulkan did not prevent it. Steps in the desktop-shell journey that close the Inspector via WM_DELETE stay `fail` with this evidence.
