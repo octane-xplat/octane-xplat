@@ -63,8 +63,8 @@ xdotool windowactivate --sync "$WIN" 2>/dev/null || true
 # absolute client origin. AT-SPI extents are unreliable on GTK4 — never use
 # them for coordinates.
 click_bounds() {
-  local id=$1 geo bnd raw
-  WIN=$(xdotool search --name "Desktop Shell Journey" | head -1)
+  local id=$1 title=${2:-Desktop Shell Journey} geo bnd raw
+  WIN=$(xdotool search --name "$title" | head -1)
   geo=$(xwininfo -id "$WIN" 2>/dev/null | grep 'Absolute upper-left' | awk '{print $NF}' | paste -sd, -)
   [ -z "$geo" ] && geo=$(xdotool getwindowgeometry --shell "$WIN" 2>/dev/null | grep -E '^(X|Y)=' | cut -d= -f2 | paste -sd, -)
   bnd=$(grep -o "JOURNEY BOUNDS $id [0-9.-]*,[0-9.-]* [0-9.]*x[0-9.]*" "$LOG" | tail -1 | sed 's/.*'"$id"' //;s/x/,/;s/ /,/')
@@ -211,11 +211,15 @@ else
   step "global shortcut: portal trigger" os-input-x11-xtest-via-portal blocked "launch"
 fi
 
-# --- window lifecycle: close Inspector, reopen via tray ---
+# --- window lifecycle: close via the Inspector's own Close button ---
 if [ "$READY" = yes ]; then
-  xdotool search --name 'Inspector' windowclose 2>/dev/null || python3 ax.py press "$APP_NAME" "Close" >/dev/null 2>&1
-  sleep 0.6
-  grep -q 'JOURNEY INSPECTOR_CLOSED' "$LOG" && step "window lifecycle: close" os-input-x11-xtest pass "" || step "window lifecycle: close" os-input-x11-xtest fail "no INSPECTOR_CLOSED"
+  for i in $(seq 1 20); do grep -q 'JOURNEY BOUNDS inspector-close' "$LOG" && break; sleep 0.25; done
+  if click_bounds inspector-close Inspector; then
+    for i in $(seq 1 40); do grep -q 'JOURNEY INSPECTOR_CLOSED' "$LOG" && break; sleep 0.25; done
+    grep -q 'JOURNEY INSPECTOR_CLOSED' "$LOG" && step "window lifecycle: close" os-input-x11-xtest pass "button click" || step "window lifecycle: close" os-input-x11-xtest fail "button click, no INSPECTOR_CLOSED"
+  else
+    step "window lifecycle: close" os-input-x11-xtest fail "${CLICK_FAIL:-no inspector-close bounds}"
+  fi
   if [ -n "$SNI" ]; then
     gdbus call --session -d "$SNI" -o /MenuBar -m com.canonical.dbusmenu.Event "$IID" clicked "<''>" 0 >/dev/null 2>&1
     sleep 0.8
@@ -223,9 +227,18 @@ if [ "$READY" = yes ]; then
   else
     step "window lifecycle: reopen" dbus-shell-protocol blocked "no SNI registered"
   fi
+  # Close the reopened Inspector via its button too, then quit normally.
+  for i in $(seq 1 20); do grep -q 'JOURNEY BOUNDS inspector-close' "$LOG" | tail -1 | grep -q 'inspector-close' && break; sleep 0.25; done
+  if click_bounds inspector-close Inspector; then
+    for i in $(seq 1 40); do grep -qc 'JOURNEY INSPECTOR_CLOSED' "$LOG" && [ "$(grep -c 'JOURNEY INSPECTOR_CLOSED' "$LOG")" -ge 2 ] && break; sleep 0.25; done
+    [ "$(grep -c 'JOURNEY INSPECTOR_CLOSED' "$LOG")" -ge 2 ] && step "window lifecycle: close again" os-input-x11-xtest pass "" || step "window lifecycle: close again" os-input-x11-xtest fail "no second INSPECTOR_CLOSED"
+  else
+    step "window lifecycle: close again" os-input-x11-xtest fail "${CLICK_FAIL:-no bounds}"
+  fi
 else
   step "window lifecycle: close" os-input-x11-xtest blocked "launch"
   step "window lifecycle: reopen" dbus-shell-protocol blocked "launch"
+  step "window lifecycle: close again" os-input-x11-xtest blocked "launch"
 fi
 
 # --- quit through the app's own Quit accelerator ---
@@ -267,6 +280,23 @@ for i in $(seq 1 60); do grep -q 'JOURNEY READY' "$LOG.v2" && break; sleep 0.25;
 grep -q 'JOURNEY RESTORED name=Ada' "$LOG.v2" && step "v2 restores name" in-process pass "" || step "v2 restores name" in-process fail "$(tail -2 $LOG.v2 2>/dev/null | tr '\n' ' ')"
 python3 ax.py tree "$APP_NAME" > ax-tree-v2.txt 2>/dev/null
 grep -qi '0\.2\.0\|v2' ax-tree-v2.txt && step "v2 version visible" atspi pass "" || step "v2 version visible" atspi fail "no version in AT-SPI tree"
+# WM_DELETE probe: upstream GDK X11 teardown crash — recorded, not gating.
+if [ -n "$SNI" ]; then
+  SNI2=$(tail -1 watcher-registered.txt 2>/dev/null)
+  LAY2=$(gdbus call --session -d "$SNI2" -o /MenuBar -m com.canonical.dbusmenu.GetLayout 0 -1 "[]" 2>/dev/null || true)
+  IID2=$(echo "$LAY2" | grep -o "([0-9]*, {[^}]*Open Inspector" | grep -o "^([0-9]*" | tr -d '(')
+  [ -n "$IID2" ] && gdbus call --session -d "$SNI2" -o /MenuBar -m com.canonical.dbusmenu.Event "$IID2" clicked "<''>" 0 >/dev/null 2>&1
+  sleep 2
+  xdotool search --name 'Inspector' windowclose 2>/dev/null
+  sleep 3
+  if kill -0 $APP2 2>/dev/null; then
+    step "window lifecycle: WM_DELETE close" os-input-x11-xtest pass ""
+  else
+    step "window lifecycle: WM_DELETE close" os-input-x11-xtest fail "upstream GDK X11 teardown crash (see .agents/docs/upstream-limitations.md)"
+  fi
+else
+  step "window lifecycle: WM_DELETE close" os-input-x11-xtest blocked "no SNI"
+fi
 kill $APP2 2>/dev/null; sleep 0.3
 
 # --- uninstall removes app dir + entry, keeps settings ---

@@ -133,6 +133,36 @@ runGtkApp(
         marker(`CHAIN ${parts.join(' > ')}`)
       }
       ;(globalThis as any).__journeyFocusChain()
+
+      // BOUNDS for widgets in secondary windows (the Inspector's own Close
+      // button) — searched across all toplevels, emitted once per window.
+      const Gtk = (globalThis as any).imports?.gi?.Gtk
+      const GLib = (globalThis as any).imports?.gi?.GLib
+      const seen = new Map<string, any>()
+      GLib?.timeout_add?.(GLib.PRIORITY_DEFAULT, 500, () => {
+        const tl = Gtk?.Window?.get_toplevels?.()
+        const n = tl?.get_n_items?.() ?? 0
+        for (const id of ['inspector-close']) {
+          let found: any = null
+          for (let i = 0; i < n; i++) {
+            found = findWidget(tl.get_item(i), id)
+            if (found) break
+          }
+          if (found && !seen.has(id)) {
+            seen.set(id, found)
+            const root = found.get_root?.()
+            const [ok, rect] = root ? found.compute_bounds(root) : [false, null]
+            marker(
+              ok
+                ? `BOUNDS ${id} ${rect.origin.x},${rect.origin.y} ${rect.size.width}x${rect.size.height}`
+                : `BOUNDS ${id} no-bounds`,
+            )
+          } else if (!found && seen.has(id)) {
+            seen.delete(id)
+          }
+        }
+        return true
+      })
     }
     const restored = storage.getString(STORAGE_KEY)
 
