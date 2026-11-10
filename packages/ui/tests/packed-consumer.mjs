@@ -188,10 +188,7 @@ const buttonProps: ButtonProps = { children: 'Save', isLoading: true,
   onPress: (event) => event.preventDefault(), pressAction: async () => ({ saved: true }) }
 // @ts-expect-error immediate effects belong in onPress
 const invalidSyncAction: ButtonProps = { pressAction: () => {} }
-// @ts-expect-error clickAction has been removed
-const invalidClickAction: ButtonProps = { clickAction: async () => {} }
 void invalidSyncAction
-void invalidClickAction
 // @ts-expect-error isLoading is a boolean prop
 const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const viewProps: ViewProps = { id: 'root', gap: 8, ios: { hidden: true } }
@@ -224,10 +221,7 @@ const buttonProps: ButtonProps = { children: 'Save', isLoading: true,
   onPress: (event) => event.preventDefault(), pressAction: async () => ({ saved: true }) }
 // @ts-expect-error immediate effects belong in onPress
 const invalidSyncAction: ButtonProps = { pressAction: () => {} }
-// @ts-expect-error clickAction has been removed
-const invalidClickAction: ButtonProps = { clickAction: async () => {} }
 void invalidSyncAction
-void invalidClickAction
 // @ts-expect-error isLoading is a boolean prop
 const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const animation: AnimatedValue = useAnimation(0, 'translateX')
@@ -336,10 +330,7 @@ const buttonProps: ButtonProps = { children: 'Save', isLoading: true,
   onPress: (event) => event.preventDefault(), pressAction: async () => ({ saved: true }) }
 // @ts-expect-error immediate effects belong in onPress
 const invalidSyncAction: ButtonProps = { pressAction: () => {} }
-// @ts-expect-error clickAction has been removed
-const invalidClickAction: ButtonProps = { clickAction: async () => {} }
 void invalidSyncAction
-void invalidClickAction
 // @ts-expect-error isLoading is a boolean prop
 const invalidButtonProps: ButtonProps = { isLoading: 'yes' }
 const viewProps: ViewProps = { id: 'native-root', gap: 6 }
