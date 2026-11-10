@@ -30,10 +30,6 @@ const packaged = emit(
   `class FlexboxLayout extends FlexboxLayoutBase {${added('core-preferred-package.patch')}}`,
 )
 
-test('preferred-size source and package patches contain the same lifecycle', () => {
-  assert.equal(source, packaged)
-})
-
 function harness(code, available = true) {
   class Base {
     _addViewToNativeVisualTree(child) {

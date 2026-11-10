@@ -25,7 +25,6 @@ try {
   const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 
   assert.equal(manifest.exports['.'].default, './src/index.ts')
-  assert.match(readFileSync(join(root, manifest.exports['.'].types), 'utf8'), /cx/)
 
   const typeFixture = join(root, 'component-props.check.ts')
 

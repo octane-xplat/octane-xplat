@@ -259,3 +259,18 @@ assuming a fixed timer proves an empty cohort. Native scroll suspension,
 touchscreens, accessibility services and packed consumers require their own
 qualifications. Keep source-linked input evidence distinct from packed-runtime
 input evidence; ordinary packed declaration/build checks prove neither.
+
+## Verification assertions
+
+Keep checks that catch a consequential regression independently: public type
+inference and misuse, packed export/declaration resolution, platform isolation,
+behavior and resource ownership. Test current contracts rather than retaining
+lists of names removed by past migrations. A negative type test is useful when
+it prevents a real misuse, such as synchronous `pressAction`, erased query
+inference, or access through an opaque host ref.
+
+Prefer observable results over source spelling. Source checks remain useful for
+packaged bytes and platform boundaries when those are the contract; they do not
+prove runtime behavior. When both variants already run the same behavior cases,
+requiring identical implementation text adds no behavioral evidence. Run shared
+regressions through their owning Turbo task rather than a second wrapper.

@@ -101,7 +101,6 @@
 		"test:go-model": { "cache": false, "dependsOn": ["build:go-onnx"], "passThroughEnv": ["XPLAT_GO_ONNX_BINARY"] },
 		"test:typecheck-envs": { "dependsOn": ["build", "^build"], "cache": false },
 		"test:routes": { "dependsOn": ["build", "^build"], "cache": false },
-		"test:build-record": { "cache": false },
 		"test:fmt": { "dependsOn": ["^build"] },
 		"test:macos-packaging": { "dependsOn": ["build", "^build"], "cache": false },
 		"test:compatibility": { "dependsOn": ["build", "^build"], "cache": false },

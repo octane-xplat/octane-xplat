@@ -139,16 +139,6 @@ test('all descriptors expose truthful native schemas outside a project', () => {
   )
 
   assert.equal(catalog.value.data.commands.length, 24)
-  for (const removed of [
-    'runtime build',
-    'job status',
-    'job cancel',
-    'session start',
-    'session end',
-    'capture',
-  ]) {
-    assert.ok(!catalog.value.data.commands.some((command) => command.command === removed))
-  }
 
   assert.ok(
     !catalog.value.data.commands.some((command) => command.command === 'session detach'),

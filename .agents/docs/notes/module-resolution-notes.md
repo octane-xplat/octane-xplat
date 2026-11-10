@@ -30,7 +30,7 @@ evaluated` logged on device. `.android > .native` is the same
 > `tsc` still can't. **Checker changed 2026-11-06**: checking now runs
 > native `tsc --runExternalCode` (no Volar plugin); whether the native
 > mapper keeps that resolution is unverified — treat this caveat as
-> historical until re-measured. See Q25 + `pnpm check:suffix-resolution`.
+> historical until re-measured. See Q25 and `packages/cli/test/typescript-native.test.mjs` (owned by the CLI `test` task).
 > Suffixed `.ts` helpers DO resolve extensionless under `moduleSuffixes`
 > (`./platform/nav` → `nav.native.ts`/`nav.web.ts` typecheck fine). Second
 > caveat (Exp 9): a `.ts` file importing a `.tsrx` component gets

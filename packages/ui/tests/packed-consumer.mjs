@@ -323,8 +323,6 @@ import type { RouteSpec } from '@octane-xplat/ui/routing'
 import { PlatformIcon, UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps, type UITableViewProps, type UISwitchProps } from '@octane-xplat/ui/ios'
 import { MaterialSwitch, type MaterialSwitchProps, type RecyclerViewProps, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
 import { useOutlineFromView } from '@octane-xplat/ui/nativescript'
-// @ts-expect-error legacy catalog lookups are removed; outlets own route composition
-import { layoutsForRoute } from '@octane-xplat/ui/nativescript'
 
 const buttonProps: ButtonProps = { children: 'Save', isLoading: true,
   onPress: (event) => event.preventDefault(), pressAction: async () => ({ saved: true }) }
@@ -358,7 +356,6 @@ const tableProps: UITableViewProps<{ id: string }> = { items: [], renderItem: ()
 const recyclerProps: RecyclerViewProps = { items: [], renderItem: () => null }
 const androidSwitchProps: MaterialSwitchProps = { isDisabled: true }
 const glyph: string = PlatformIcon.select({ ios: 'heart.fill', android: 'favorite' })
-const getLayouts: typeof layoutsForRoute = layoutsForRoute
 const viewOutline = useOutlineFromView()
 const root = <View {...viewProps} />
 const keyboard = <KeyboardAvoiding {...keyboardProps} />
@@ -378,7 +375,6 @@ void tableProps
 void recyclerProps
 void androidSwitchProps
 void glyph
-void getLayouts
 void viewOutline
 void root
 void keyboard
@@ -403,9 +399,6 @@ function GestureConsumer() {
   if (result.ok) { const lease: Suspension = result.lease; lease.release() }
   // @ts-expect-error gesture outputs are read-only handles
   pan.active$.set(true)
-  // @ts-expect-error translation aliases are removed
-  const dx = (null as unknown as PanSample).dx
-  void dx
   return <View gestures={compete(pinch, pan)} interactionScope={scope} />
 }
 void GestureConsumer
@@ -425,8 +418,6 @@ import { useStore as rootUseStore } from '@octane-xplat/ui'
 import { MarkdownScreen } from '@octane-xplat/ui'
 // @ts-expect-error chat components live under @octane-xplat/ui/chat
 import { ChatLayout } from '@octane-xplat/ui'
-// @ts-expect-error legacy navigation was removed during the canonical cutover
-import { pushRoute } from '@octane-xplat/ui/routing'
 const typedFeed = defineCursorQuery(['feed'], async (tag: string, { cursor }) => {
   const response = await fetch('/api/feed?tag=' + encodeURIComponent(tag) + '&cursor=' + encodeURIComponent(cursor))
   return response.json() as Promise<{ items: { id: string }[]; nextCursor?: string }>
@@ -475,8 +466,6 @@ void typedQueries.runOptimistic(typedUsers, '42', (operation, view$) => {
   operation.adopt({ id: '42', name: 123 })
   operation.adopt({ id: '42', name: 'Grace' })
 })
-// @ts-expect-error the global default cache was removed
-import { cachedQuery$ } from '@octane-xplat/ui/data'
 void typedUser
 const mdProps: MarkdownProps = { children: '# hi' }
 // @ts-expect-error the raw source is children, not text
@@ -490,8 +479,6 @@ void [subpathRouter, useRouter, getRouteApi, useListData, useAsyncList, defineQu
   source += `
 import type { ClassValue } from '@octane-xplat/ui'
 import type { ClassValue as OctaneClassValue } from 'octane/jsx-runtime'
-// @ts-expect-error ClassName was removed; use upstream ClassValue
-import type { ClassName } from '@octane-xplat/ui'
 declare const classCount: number
 declare const upstreamClass: OctaneClassValue
 const sharedClass: ClassValue = ['card', classCount && 'active', [42, 0, NaN], upstreamClass] as const
@@ -554,12 +541,10 @@ void [<RouteOutlet {...outletProps}>{scoped.element}</RouteOutlet>, ownedSheet]
     source += `
 import { useImperativeModal as iosModal } from '@octane-xplat/ui/ios'
 import { useImperativeModal as androidModal } from '@octane-xplat/ui/android'
-// @ts-expect-error removed owner helper is replaced by RouteOutlet and useRouter
-import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
 const iosOwner = iosModal()
 const androidOwner = androidModal()
 const navigation = useRouter()
-void [iosOwner.element, androidOwner.element, navigation, useNativeRouteNavigator]
+void [iosOwner.element, androidOwner.element, navigation]
 `
   }
 

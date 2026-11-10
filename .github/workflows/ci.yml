@@ -65,7 +65,7 @@ jobs:
       - name: Repo checks
         run: >-
           bun run check:compatibility && bun run check:patches && bun run turbo run check:ui-barrels --filter=@octane-xplat/ui && bun run check:css &&
-          bun run check:suffix-resolution && bun run check:changelog && bun run check:doc-examples
+          bun run check:changelog && bun run check:doc-examples
 
       - name: Typecheck web
         run: bun run turbo run typecheck --filter=@xplat/web

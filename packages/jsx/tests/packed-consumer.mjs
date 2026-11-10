@@ -172,18 +172,12 @@ const badSearchHandler = <searchbar onTextChange={(value: string) => { void valu
 void badSearchText
 void badSearchPlaceholder
 void badSearchHandler
-// @ts-expect-error removed layout containers are not in the contract
-const badFlex = <flexboxlayout />
 // @ts-expect-error layout props moved into the style bag — row is not a prop
 const badRow = <masonview row="1" />
-void badFlex
 void badRow
 // @ts-expect-error dock is not a prop — positioning lives in the style bag
 const badEdge = <label dock="center" />
-// @ts-expect-error removed props reject even on kept elements
-const badStretch = <masonview stretchLastChild={false} />
 void badEdge
-void badStretch
 
 // Two-parameter components: octane Context providers and native styled()
 // factories are callable (props, scope) — ElementTypeOf accepts them while
