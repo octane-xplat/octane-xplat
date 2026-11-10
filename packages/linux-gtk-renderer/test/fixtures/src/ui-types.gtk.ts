@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars -- Compile-only assertions intentionally have no runtime readers. */
 // Declarations now come only from the unsuffixed contract. Compare the GTK
 // runtime export shape to the contract's own source: branded types like
 // ValidatedDestination keep one declaration, while package types resolve to
