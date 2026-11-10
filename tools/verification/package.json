@@ -12,7 +12,8 @@
 		"test:e2e": "node test-e2e.ts",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
 		"test": "node --test *.test.mjs && python3 -B -m unittest discover -s animation-quality -p '*_test.py'",
-		"test:desktop-shell:linux": "node desktop-shell/linux.mjs"
+		"test:desktop-shell:linux": "node desktop-shell/linux.mjs",
+		"test:desktop-shell:windows": "node desktop-shell/windows.mjs"
 	},
 	"devDependencies": {
 		"@octane-xplat/ui": "workspace:*",

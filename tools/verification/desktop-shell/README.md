@@ -146,3 +146,52 @@ goddard-agent resource run --json '{"resources":{"exclusive":["device:andromeda"
   error, never an in-process fallback.
 - Steps that depend on an earlier step record `blocked: <dependency>` so a
   single failure cannot mask independent results.
+
+# Desktop-shell journey (Windows)
+
+Windows has no downstream app workflow yet, so this lane cannot install packed
+tarballs into an external consumer. It follows the packaged-runtime route of
+the package runtime tests instead. The build phase stages `app/` under
+`apps/windows/src/.desktop-shell-journey/` (ignored) and bundles v1 (0.1.0) and
+v2 (0.2.0) with the harness Vite config (`XPLAT_WINDOWS_ENTRY` selects the
+entry). The journey phase copies the packaged NativeScript Windows runtime on
+`windy` into `%USERPROFILE%\agent-scratch\octane-xplat\hushed-dew\windows-<id>\`,
+replaces its `app\` with each bundle, and registers it with
+`Add-AppxPackage -Register`. A scheduled task then drives the app from the
+interactive session.
+
+- `app/main.windows.ts` — mounts through `renderNativeScriptApp`, supplies the
+  Inspector through `Application.setWindowContentResolver`, and adds a
+  Windows-only `Open Inspector` app-menu item.
+- `windows.mjs` — the runner (`--phase build|journey|all`).
+- `windows/driver.ps1` — the in-session driver: SendInput for keyboard and
+  mouse, and UI Automation for names, control types, focus, and Invoke.
+
+```sh
+bunx turbo run test:desktop-shell:windows --filter=@xplat/verification -- --phase build
+
+goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"]},"purpose":"desktop-shell windows journey"}' \
+  -- node tools/verification/desktop-shell/windows.mjs --phase journey
+```
+
+## Windows input classes
+
+- **`os-input-sendinput`** — SendInput keyboard and mouse aimed at UIA
+  bounding rectangles. Chords use right Ctrl unless Alt is held (left
+  Ctrl+Alt), the path the app-menu runtime test pins for WinUI accelerators.
+- **`os-input-sendinput-background`** — the global shortcut is pressed while
+  Notepad is the foreground process. The step records `blocked` if Notepad
+  never became foreground.
+- **`uia`** / **`uia-pattern`** — UIA reads, and UIA `Invoke`. These are not OS
+  input. The Inspector open step falls back to `Invoke` when the mouse click
+  misses the flyout item, and is labeled `uia-pattern` when it does.
+- **`in-process`** — package registration, markers, and LocalState checks.
+
+## Known capability differences vs macOS and Linux
+
+- The UIA tree exposes no AutomationId for `testID`, so the driver matches
+  controls by control type and visible name.
+- Removing an MSIX package deletes its LocalState, so settings do not
+  survive uninstall. The step expects that.
+- The tray icon has no aimed OS-input path: managed UIA sees no notification
+  area buttons in the Windows 11 XAML taskbar. The step records `blocked`.
