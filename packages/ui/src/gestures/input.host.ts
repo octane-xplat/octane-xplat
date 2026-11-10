@@ -3,7 +3,9 @@ import type { ActivationEvent, GestureInput, InteractionScope, Point } from './t
 import type { PressOptions } from './press'
 import { gestureLeaves } from './composition'
 import { gestureController } from './controller'
+import { observeGesturePolicy } from './gesture-policy'
 import { interactionTarget } from './target'
+import { freezeGestureBasis } from './geometry'
 import {
   attachNativeGesture,
   attachNativeInteractionScope,
@@ -16,9 +18,11 @@ import {
 export interface HostGestureSurface {
   readonly root: object
   readonly host: object
+  claim?(): boolean
   local(point: Point): Point | null
   parentBasis?(): ((point: Point) => Point) | null
-  freeze(): ((point: Point) => Point) | null
+  freeze?(): ((point: Point) => Point) | null
+  parentLocal?(point: Point): Point | null
   containsPoint(point: Point): boolean
   containsHost(host: object): boolean
   observe(dispatch: (frame: InputFrame, identity: string) => void): () => void
@@ -38,6 +42,22 @@ export function createMouseGestureAdapter(
   bridge: () => HostGestureBridge | undefined,
   scheduler: GestureScheduler,
 ) {
+  function validate(input: GestureInput): void {
+    for (const handle of gestureLeaves(input)) {
+      const controller = gestureController(handle)
+
+      if (
+        controller.kind === 'pinch' ||
+        (controller.options.pointers?.min ?? 1) !== 1 ||
+        (controller.options.pointers?.max ?? 1) !== 1
+      ) {
+        throw new Error(
+          `Unsupported ${platform} gesture attachment: this adapter supports one mouse contact; direct-touch pinch and trackpad magnification are unavailable`,
+        )
+      }
+    }
+  }
+
   function surface(view: object): NativeGestureSurface {
     const input = bridge()?.gestureSurface?.(view)
 
@@ -49,33 +69,26 @@ export function createMouseGestureAdapter(
 
     return {
       ...input,
-      parentBasis: input.parentBasis ? () => input.parentBasis!() : undefined,
+      parentBasis: input.parentLocal
+        ? () => freezeGestureBasis((point) => input.parentLocal!(point))
+        : input.parentBasis
+          ? () => input.parentBasis!()
+          : undefined,
       space: {
         target: interactionTarget(input.host),
         local: (point) => input.local(point),
-        freeze: () => input.freeze(),
+        freeze: () =>
+          input.freeze ? input.freeze() : freezeGestureBasis((point) => input.local(point)),
       },
-      scheduler,
+      scheduler: { ...scheduler, claim: input.claim ? () => input.claim!() : scheduler.claim },
       // Mouse observation does not reserve touch scrolling or trackpad magnification.
-      reserve: () => () => {},
+      reserve: (input) => observeGesturePolicy(input, () => validate(input)),
     }
   }
 
   return {
     gesture(view: object, input: GestureInput, basis: 'host' | 'parent' = 'host'): () => void {
-      for (const handle of gestureLeaves(input)) {
-        const controller = gestureController(handle)
-
-        if (
-          controller.kind === 'pinch' ||
-          (controller.options.pointers?.min ?? 1) !== 1 ||
-          (controller.options.pointers?.max ?? 1) !== 1
-        ) {
-          throw new Error(
-            `Unsupported ${platform} gesture attachment: this adapter supports one mouse contact; direct-touch pinch and trackpad magnification are unavailable`,
-          )
-        }
-      }
+      validate(input)
 
       const host = surface(view)
 

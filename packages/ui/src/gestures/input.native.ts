@@ -107,6 +107,9 @@ function retain(surface: NativeGestureSurface) {
     const hosts = new Map<object, NativeHost>()
     const owner = createGestureOwner({
       frame: (callback) => surface.scheduler.frame(callback),
+      delay: surface.scheduler.delay
+        ? (callback, milliseconds) => surface.scheduler.delay!(callback, milliseconds)
+        : undefined,
       error: (error) => surface.scheduler.error(error),
       // A root can contain hosts with different native claim mechanisms. Never
       // retain the first surface's claim callback for all later registrations.

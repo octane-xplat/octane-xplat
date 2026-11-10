@@ -57,6 +57,8 @@ export interface GestureSpace {
 
 export interface GestureScheduler {
   frame(callback: () => void): () => void
+  /** Optional native main-loop clock for managed press holds. */
+  delay?(callback: () => void, milliseconds: number): () => void
   error(error: unknown): void
   /** Cancel incompatible native work before lifecycle callbacks. False rejects the claim. */
   claim?(host: object): boolean
@@ -810,12 +812,15 @@ export function createGestureOwner(scheduler: GestureScheduler) {
         contains,
         call,
         schedule(callback, delay) {
-          const id = setTimeout(() => {
+          const fire = () => {
             if (!disposed) {
               transaction(callback)
             }
-          }, delay)
-
+          }
+          if (scheduler.delay) {
+            return scheduler.delay(fire, delay)
+          }
+          const id = setTimeout(fire, delay)
           return () => clearTimeout(id)
         },
         claim() {
