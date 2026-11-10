@@ -3309,10 +3309,12 @@ previously wedged the harness with `Gjs-CRITICAL` callbacks from finalized
 `map`/`unmap`/`layout`/`key-pressed`/`TickCallback` sources. The public-instance
 disposer also finally calls `disposeOverlayHost()` (bound but never invoked),
 and window wiring records `[emitter, id]` pairs (`windowConnections`) because
-the `layout` watch lives on the GdkSurface, not the window. Shared window
-controllers (layer-key, modality) are window-scoped and persist across
-unmount; fixture `window.destroy()` performs the final teardown while the JS
-context is alive.
+the `layout` watch lives on the GdkSurface, not the window. `root.unmount()`
+undoes all of `wireContainerWindow` (#229): it disconnects every
+`windowConnections` pair and the pre-window `notify::root` watch on the
+host, removes the layer-key and modality controllers from their widget, and
+clears those fields, so a remount into the same window starts clean
+(`test/root-teardown.test.mjs`).
 
 ## Viewless span runs -> Pango markup (slice I)
 
