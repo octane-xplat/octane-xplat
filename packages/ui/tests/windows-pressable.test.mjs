@@ -437,6 +437,10 @@ const menuSpinner = compiled(
   'export function ActivityIndicator() @{ <label text="Loading" /> }',
 )
 
+const menuButtonAction = compiled('menu-button-action', read('actions/use-button-action.tsrx'), {
+  '../../internal/rendering/action-error': menuSupport,
+})
+
 const menuButton = compiled('menu-button', read('actions/Button.tsrx'), {
   '@nativescript/core': support,
   '@octane-xplat/lib': support,
@@ -444,6 +448,7 @@ const menuButton = compiled('menu-button', read('actions/Button.tsrx'), {
   './Pressable.tsrx': pressable,
   '../feedback/ActivityIndicator.tsrx': menuSpinner,
   '../media/Icon.tsrx': icon,
+  './use-button-action.tsrx': menuButtonAction,
   './button-group-context': menuSupport,
   '../layout/size-context': menuSupport,
   '../../routing/safe-url': safeUrl,
@@ -574,8 +579,9 @@ test('Windows navigation tabs retain the shared button and href path', () => {
 })
 
 test('Windows Pressable mounts a native host and updates its peer kind and callback', () => {
-  const first = () => {}
-  const next = () => {}
+  const calls = []
+  const first = () => calls.push('first')
+  const next = () => calls.push('next')
   const f = mount(Pressable, { accessibilityLabel: 'First', onPress: first })
 
   try {
@@ -584,7 +590,8 @@ test('Windows Pressable mounts a native host and updates its peer kind and callb
 
     assert.equal(inputs().length, 1)
     assert.equal(inputs()[0].type, 'xplatwindowsbutton')
-    assert.equal(inputs()[0].props.settings.onPress, first)
+    inputs()[0].props.settings.onPress()
+    assert.deepEqual(calls, ['first'])
     assert.equal(inputs()[0].props.settings.label, 'First')
     assert.equal(inputs()[0].props.style.width, 120)
     assert.equal(inputs()[0].props.style.height, 32)
@@ -598,9 +605,11 @@ test('Windows Pressable mounts a native host and updates its peer kind and callb
 
     assert.equal(inputs().length, 1)
     assert.equal(inputs()[0].type, 'xplatwindowslink')
-    assert.equal(inputs()[0].props.settings.onPress, next)
     assert.equal(inputs()[0].props.isEnabled, false)
     assert.equal(inputs()[0].props.settings.label, 'Next')
+    f.render({ accessibilityRole: 'link', onPress: next })
+    inputs()[0].props.settings.onPress()
+    assert.deepEqual(calls, ['first', 'next'])
   } finally {
     f.root.unmount()
   }
