@@ -287,15 +287,23 @@ if [ -n "$SNI" ]; then
   IID2=$(echo "$LAY2" | grep -o "([0-9]*, {[^}]*Open Inspector" | grep -o "^([0-9]*" | tr -d '(')
   [ -n "$IID2" ] && gdbus call --session -d "$SNI2" -o /MenuBar -m com.canonical.dbusmenu.Event "$IID2" clicked "<''>" 0 >/dev/null 2>&1
   sleep 2
-  xdotool search --name 'Inspector' windowclose 2>/dev/null
-  sleep 3
-  if kill -0 $APP2 2>/dev/null; then
-    step "window lifecycle: WM_DELETE close" os-input-x11-xtest pass ""
+  if ! grep -q 'JOURNEY INSPECTOR_OPENED' "$LOG.v2"; then
+    step "window lifecycle: WM_DELETE close" x11-wm-delete-message blocked "v2 inspector did not open (IID2=${IID2:-none})"
+  elif [ -z "$(xdotool search --name 'Inspector' 2>/dev/null)" ]; then
+    step "window lifecycle: WM_DELETE close" x11-wm-delete-message blocked "no Inspector X window to close"
   else
-    step "window lifecycle: WM_DELETE close" os-input-x11-xtest fail "upstream GDK X11 teardown crash (see .agents/docs/upstream-limitations.md)"
+    xdotool search --name 'Inspector' windowclose 2>/dev/null
+    sleep 3
+    if ! kill -0 $APP2 2>/dev/null; then
+      step "window lifecycle: WM_DELETE close" x11-wm-delete-message fail "app died: upstream GDK X11 teardown crash (see .agents/docs/upstream-limitations.md)"
+    elif grep -q 'JOURNEY INSPECTOR_CLOSED' "$LOG.v2"; then
+      step "window lifecycle: WM_DELETE close" x11-wm-delete-message pass ""
+    else
+      step "window lifecycle: WM_DELETE close" x11-wm-delete-message fail "app alive but no INSPECTOR_CLOSED"
+    fi
   fi
 else
-  step "window lifecycle: WM_DELETE close" os-input-x11-xtest blocked "no SNI"
+  step "window lifecycle: WM_DELETE close" x11-wm-delete-message blocked "no SNI"
 fi
 kill $APP2 2>/dev/null; sleep 0.3
 

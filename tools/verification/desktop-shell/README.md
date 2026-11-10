@@ -94,7 +94,7 @@ evidence; README declares it disposable — remove manually when done).
   `keepAppResident`, `createGlobalShortcuts({ appId })`, platform `storage`.
   `journey.ts`/`App.tsrx`/`Inspector.tsrx` are shared unchanged with macOS.
 - `linux.mjs` — the runner (`--phase build|journey|all`).
-- `linux/container/` — Dockerfile (Debian trixie: gjs, GTK4, Xvfb, xdotool,
+- `linux/container/` — Dockerfile (Debian trixie: gjs, GTK4, Xvfb, openbox, xdotool,
   pyatspi, at-spi2, KDE portal + kglobalacceld), `run.sh` (emits
   `STEP|name|inputClass|result|detail`), `ax.py` (pyatspi helper),
   `watcher.js` (test-owned StatusNotifierWatcher — no Plasma shell exists).
@@ -110,13 +110,24 @@ goddard-agent resource run --json '{"resources":{"exclusive":["device:andromeda"
 
 ## Linux input classes
 
-- **`os-input-x11-xtest`** — `xdotool` against Xvfb: clicks at AT-SPI-reported
-  coordinates, typing, Tab/Space, in-window menu accelerators, window close.
+- **`os-input-x11-xtest`** — `xdotool` against Xvfb + openbox: typing,
+  Tab/Space, in-window menu accelerators, F10 menubar navigation, and clicks
+  on the Submit and Inspector Close buttons. Click targets come from the app's
+  `JOURNEY BOUNDS` markers (`compute_bounds`, re-emitted after the first
+  frame) plus the client origin from `xwininfo`, never from AT-SPI extents —
+  GTK 4 reports unreliable extents (`0,0`), and a click there lands on the
+  first menubar item and opens a popover that takes all later input.
+- **`x11-wm-delete-message`** — `xdotool windowclose` sends WM_DELETE to the
+  Inspector during the v2 launch. GTK 4.14 under Xvfb + openbox crashes on
+  this path even in a plain-GJS control (see
+  `.agents/docs/upstream-limitations.md`), so the step runs last and does not
+  gate other steps; it records `blocked` when no Inspector window opened.
 - **`os-input-x11-xtest-via-portal`** — xdotool presses the portal-assigned
   trigger while a foreign X client (xeyes) is focused; proves the KDE
   portal + kglobalacceld delivered the global shortcut in the background.
 - **`atspi`** — pyatspi reads/asserts roles, names, focused state and window
-  presence. Observation only — never activation counted as OS input.
+  presence; the `app menu: AT-SPI activation` step also invokes the menu
+  item's AT-SPI action. Neither is counted as OS input.
 - **`dbus-shell-protocol`** — a separate `gdbus` process drives the SNI /
   `com.canonical.dbusmenu` protocol surface (`GetLayout`, `Event clicked`,
   `NameHasOwner`). It exercises the real shell contract but is not OS input.
