@@ -14,6 +14,15 @@ const qualificationSource = qualificationEnabled
     }
   : null
 
+// XPLAT_WINDOWS_ENTRY swaps the app entry for a staged verification app (the
+// desktop-shell journey stages its sources under src/.desktop-shell-journey/
+// so they resolve this app's dependencies).
+const entryOverride = process.env.XPLAT_WINDOWS_ENTRY
+  ? fileURLToPath(new URL(process.env.XPLAT_WINDOWS_ENTRY, new URL('./', import.meta.url)))
+  : qualificationEnabled
+    ? fileURLToPath(new URL('./src/qualification/index.ts', import.meta.url))
+    : null
+
 // The shared preset owns the renderer rules, octane→universal/native alias,
 // suffix extension chain (.windows → the unsuffixed native default when
 // building for windows), deps-bundle plugin exclusions, the HMR watchdog,
@@ -25,17 +34,17 @@ export default defineConfig(({ mode }) =>
       define: qualificationSource
         ? { __WINDOWS_QUALIFICATION_SOURCE__: JSON.stringify(qualificationSource) }
         : {},
-      plugins: qualificationEnabled
+      plugins: entryOverride
         ? [
             {
-              name: 'windows-component-qualification-entry',
+              name: 'windows-entry-override',
               enforce: 'pre',
               resolveId(source, importer) {
                 if (
                   importer?.includes('virtual:entry-with-polyfills') &&
                   source === '/src/index.ts'
                 ) {
-                  return fileURLToPath(new URL('./src/qualification/index.ts', import.meta.url))
+                  return entryOverride
                 }
 
                 return null
