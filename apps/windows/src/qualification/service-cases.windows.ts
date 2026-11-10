@@ -1655,6 +1655,39 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
   return out
 }
 
+/** Opt-in revalidation probe for NativeScript/NativeScript#11627: awaiting
+ *  UserConsentVerifier async ops through the projected NSWinRT.toPromise
+ *  panicked the isolate on 0.1.0-alpha.146 (cross-isolate PinnedRef). On
+ *  affected runtimes the process dies between the 'check-availability' and
+ *  'checked' progress steps; RequestVerification only runs when the class
+ *  reports Available so no consent UI can stall the polling loop. */
+async function helloToPromiseSpec(record: Emit): Promise<Record<string, unknown>> {
+  const out: Record<string, unknown> = {}
+  const step = (name: string) => record('service-progress', { spec: 'hello-toPromise', step: name })
+  const verifier = Windows?.Security?.Credentials?.UI?.UserConsentVerifier
+
+  out.verifierProjected = typeof verifier?.CheckAvailabilityAsync === 'function'
+
+  if (!out.verifierProjected) {
+    return out
+  }
+
+  step('check-availability')
+  const availability = await NSWinRT.toPromise(verifier.CheckAvailabilityAsync())
+
+  out.availability = availability
+  step('checked')
+
+  if (availability === 0) {
+    step('request-verification')
+    out.verification = await NSWinRT.toPromise(
+      verifier.RequestVerificationAsync('octane-xplat revalidation'),
+    )
+  }
+
+  return out
+}
+
 export async function runServiceSpec(spec: string, record: Emit): Promise<void> {
   try {
     let result: Record<string, unknown>
@@ -1767,6 +1800,9 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'leaf-surface':
         result = await leafSurfaceSpec(record)
+        break
+      case 'hello-toPromise':
+        result = await helloToPromiseSpec(record)
         break
       default:
         record('service-error', { spec, message: 'Unknown service spec' })
