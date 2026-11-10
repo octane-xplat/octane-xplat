@@ -120,34 +120,12 @@ mounted.root.unmount()
 await pause(50)
 
 // Remount cycles into the same host; each mount owns one explicit scope.
-// The renderer wires window-level watches (resize notifies, modality
-// controllers, the surface layout hook) once per container and never removes
-// them — that is renderer lifecycle, not bridge ownership, so each cycle
-// tears that wiring down before its scope releases.
-const unwireContainer = (container) => {
-  for (const [emitter, id] of container.windowConnections ?? []) {
-    emitter.disconnect(id)
-  }
-  const root = container.window ?? container.host.get_root?.()
-  if (container.rootSignalId) {
-    ;(root ?? container.host).disconnect?.(container.rootSignalId)
-  }
-  for (const controller of [
-    ...(container.modalityControllers ?? []),
-    container.layerKeyController,
-  ]) {
-    if (controller) {
-      root?.remove_controller?.(controller)
-    }
-  }
-}
 let baseline = null
 for (let i = 0; i < 20; i++) {
   const cycle = beginScope()
   const instance = mount()
   await pause(10)
   instance.root.unmount()
-  unwireContainer(instance.container)
   releaseScope(cycle)
   await pause(30) // let deferred interop callback releases drain
   const snap = { ...bridgeStats }
