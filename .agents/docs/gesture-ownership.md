@@ -143,3 +143,17 @@ adapter's coverage make suspension unsupported. An uncovered portal cannot mount
 into an already suspended scope. Context/host bindings remain private until the
 public cutover. Browser scroll momentum and Android/AppKit full-input suspension
 remain unsupported; no input-only lock may be advertised as a scroll freeze.
+
+Convenience callback controllers allocate after commit and only while a callback
+exists. Ordinary layout hosts allocate no gesture signal cells. Keep the typed
+hook's renderer-owned cells separate from this imperative convenience lifetime.
+Binding revisions prevent an older cleanup from overwriting a newer registration.
+
+Octane's universal renderer cannot recursively replace its root with
+`flushUniversalSync(root.render(...))` from a cancellation callback during an
+already committed native host batch. This is an upstream root-transaction limit,
+not proof that component state updates fail: compiled tests verify a normal
+state setter can schedule the replacement gesture from that same cancellation
+path. Keep direct root replacement outside the in-progress commit; coordinator
+cancellation remains synchronous. The original failure is retained in Silo's
+feedback observations and a local report.

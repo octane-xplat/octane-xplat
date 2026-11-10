@@ -9,12 +9,12 @@ export interface GestureHostAdapter<Host> {
 /** A committed host registration; render-time objects never own native listeners. */
 export function createGestureBinding<Host>(adapter: GestureHostAdapter<Host>) {
   let host: Host | null = null
-  let gestures: GestureInput | undefined
-  let scope: InteractionScope | undefined
-  let releaseGestures: (() => void) | null = null
-  let releaseScope: (() => void) | null = null
+  let gestures: GestureInput | undefined, scope: InteractionScope | undefined
+  let releaseGestures: (() => void) | null = null,
+    releaseScope: (() => void) | null = null
 
-  function clearGestures() {
+  let revision = 0
+  const clearGestures = () => {
     const release = releaseGestures
 
     releaseGestures = null
@@ -22,7 +22,7 @@ export function createGestureBinding<Host>(adapter: GestureHostAdapter<Host>) {
     release?.()
   }
 
-  function clearScope() {
+  const clearScope = () => {
     const release = releaseScope
 
     releaseScope = null
@@ -30,19 +30,33 @@ export function createGestureBinding<Host>(adapter: GestureHostAdapter<Host>) {
     release?.()
   }
 
-  function detach() {
+  function detachCurrent() {
     host = null
+
+    const oldGestures = releaseGestures,
+      oldScope = releaseScope
+
+    releaseGestures = null
+    gestures = undefined
+    releaseScope = null
+    scope = undefined
     try {
-      clearGestures()
+      oldGestures?.()
     } finally {
-      clearScope()
+      oldScope?.()
     }
   }
 
   return {
     commit(nextHost: Host | null, nextGestures?: GestureInput, nextScope?: InteractionScope) {
-      if (host !== nextHost) {
-        detach()
+      const identity = ++revision
+
+      if (host !== nextHost || nextHost === null) {
+        detachCurrent()
+        if (revision !== identity) {
+          return
+        }
+
         host = nextHost
       }
 
@@ -55,21 +69,46 @@ export function createGestureBinding<Host>(adapter: GestureHostAdapter<Host>) {
         !(gestures && nextGestures && sameGestureInput(gestures, nextGestures))
       ) {
         clearGestures()
+        if (revision !== identity) {
+          return
+        }
+
         if (nextGestures) {
-          releaseGestures = adapter.gestures(host, nextGestures)
+          const release = adapter.gestures(host, nextGestures)
+
+          if (revision !== identity) {
+            release()
+            return
+          }
+
+          releaseGestures = release
           gestures = nextGestures
         }
       }
 
       if (scope !== nextScope) {
         clearScope()
+        if (revision !== identity) {
+          return
+        }
+
         if (nextScope) {
-          releaseScope = adapter.scope(host, nextScope)
+          const release = adapter.scope(host, nextScope)
+
+          if (revision !== identity) {
+            release()
+            return
+          }
+
+          releaseScope = release
           scope = nextScope
         }
       }
     },
-    detach,
+    detach() {
+      revision++
+      detachCurrent()
+    },
   }
 }
 

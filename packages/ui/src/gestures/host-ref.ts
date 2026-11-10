@@ -38,12 +38,19 @@ export function createInteractionHostRef<Host>(
 
       host = null
       detach()
+      if (disposed || generation !== identity) {
+        return
+      }
+
       host = next
       try {
         attach(next)
       } catch (error) {
-        host = null
-        detach()
+        if (!disposed && generation === identity) {
+          host = null
+          detach()
+        }
+
         throw error
       }
     },

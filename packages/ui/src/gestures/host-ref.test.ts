@@ -79,3 +79,26 @@ it('retires queued null refs when a different host commits or the component disp
   expect(detaches).toBe(count + 1)
   expect(attached).toEqual([first, second])
 })
+
+it('does not overwrite a newer host installed by a detach callback', () => {
+  const first = {},
+    replacement = {},
+    stale = {}
+
+  let replace = false
+  const lifecycle = createInteractionHostRef<object>(
+    () => {},
+    () => {
+      if (replace) {
+        replace = false
+        lifecycle.bind(replacement)
+      }
+    },
+  )
+
+  lifecycle.bind(first)
+  replace = true
+  lifecycle.bind(stale)
+  expect(lifecycle.host).toBe(replacement)
+  lifecycle.dispose()
+})

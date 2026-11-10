@@ -56,3 +56,43 @@ it('updates semantic handlers without replacing raw host ownership during ordina
   expect(calls.slice(4)).toEqual(['off-press', 'off-gesture', 'off-viewport'])
   pan.dispose()
 })
+
+it('cleans old gesture ownership when press-out reenters with an empty host', () => {
+  let gestures = 0,
+    viewports = 0
+
+  const pan = createPanController({ axis: 'x' }),
+    host = {}
+
+  const binding = createInteractionBinding({
+    gestures() {
+      gestures++
+      return () => {
+        gestures--
+      }
+    },
+    scope() {
+      return () => {}
+    },
+    viewport() {
+      viewports++
+      return () => {
+        viewports--
+      }
+    },
+    press() {
+      return {
+        commit() {},
+        dispose() {
+          binding.commit(null, {})
+        },
+      }
+    },
+  })
+
+  binding.commit(host, { gestures: pan.handle, viewport: true, press: { slop: 8 } })
+  binding.detach()
+  expect(gestures).toBe(0)
+  expect(viewports).toBe(0)
+  pan.dispose()
+})

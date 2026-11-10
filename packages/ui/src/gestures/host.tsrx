@@ -15,7 +15,7 @@ import {
   type InteractionBindingOptions,
 } from './host-binding'
 
-import { useGestureInput } from './convenience.tsrx'
+import { createConvenienceInput, type ConvenienceInput } from './convenience'
 import { useInteractionMembership } from './context.tsrx'
 import { createInteractionHostRef, type InteractionHostRef } from './host-ref'
 import type { GestureHostProps } from './types'
@@ -30,7 +30,13 @@ export function useInteractionHost(
   options: InteractionHostOptions,
 ): (host: NativeGestureView | null) => void {
   const membership = useInteractionMembership()
-  const input = useGestureInput(options)
+  const convenienceRef = useRef<ConvenienceInput | null>(null)
+
+  if (!convenienceRef.current) {
+    convenienceRef.current = createConvenienceInput()
+  }
+
+  const convenience = convenienceRef.current
   const lifecycleRef = useRef<InteractionHostRef<NativeGestureView> | null>(null)
   const observed = useRef<NativeGestureView | null>(null)
   const committed = useRef<InteractionBindingOptions>({})
@@ -81,16 +87,32 @@ export function useInteractionHost(
   const lifecycle = lifecycleRef.current
 
   useLayoutEffect(() => {
+    const snapshot = convenience.commit(options)
+
+    if (!convenience.current(snapshot)) {
+      return
+    }
+
     committed.current = {
-      gestures: input,
+      gestures: snapshot.input,
       scope: options.interactionScope,
       press: options.press,
       viewport: options.viewport,
     }
 
     sync()
-  }, [input, options.interactionScope, options.press, options.viewport, sync])
+  }, [convenience, options, sync])
 
-  useInsertionEffect(() => () => lifecycle.dispose(), [lifecycle])
+  useInsertionEffect(
+    () => () => {
+      try {
+        lifecycle.dispose()
+      } finally {
+        convenience.dispose()
+      }
+    },
+    [lifecycle, convenience],
+  )
+
   return lifecycle.bind
 }

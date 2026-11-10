@@ -68,3 +68,34 @@ it('leaves a failed attachment detached and permits a later committed retry', ()
   expect(release).toBe(1)
   pan.dispose()
 })
+
+it('keeps a reentrant registration when an older gesture cleanup commits another description', () => {
+  const first = createPanController({ axis: 'x' }),
+    second = createPanController({ axis: 'y' }),
+    stale = createPanController({ axis: 'both' })
+
+  const host = {},
+    calls: string[] = []
+
+  const binding = createGestureBinding({
+    gestures(_host, input) {
+      calls.push(input === first.handle ? 'first' : input === second.handle ? 'second' : 'stale')
+      return () => {
+        if (input === first.handle) {
+          binding.commit(host, second.handle)
+        }
+      }
+    },
+    scope() {
+      return () => {}
+    },
+  })
+
+  binding.commit(host, first.handle)
+  binding.commit(host, stale.handle)
+  expect(calls).toEqual(['first', 'second'])
+  binding.detach()
+  first.dispose()
+  second.dispose()
+  stale.dispose()
+})

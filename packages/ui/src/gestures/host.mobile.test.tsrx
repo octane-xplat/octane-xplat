@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { expect, it, vi } from 'vitest'
+import { useState } from 'octane'
 import {
   createObjectContainer,
   createObjectDriver,
@@ -123,6 +124,143 @@ it('keeps the compiled native host observer through callback updates and cleans 
     flushUniversalSync(() => root.unmount())
     expect(harness.unobserved - unobserved).toBe(1)
     expect(harness.listeners.size).toBe(0)
+  } finally {
+    root.unmount()
+  }
+})
+
+function Convenience(props: {
+  onPan?: (event: import('./types').GestureNotification<import('./types').PanSample>) => void
+}) @{
+  const bind = useInteractionHost({ onPan: props.onPan })
+
+  <masonview ref={(host: object | null) => bind(host ? harness.host : null)} />
+}
+
+it('allocates callback convenience input after commit, updates handlers without observer churn and finalizes removal once', () => {
+  const root = createUniversalRoot(
+    createObjectContainer('nativescript'),
+    createObjectDriver('nativescript'),
+  )
+
+  const calls: string[] = []
+  const observed = harness.observed
+  const newest = (event: import('./types').GestureNotification<import('./types').PanSample>) => {
+    calls.push('newest:' + event.phase)
+  }
+
+  const current = (event: import('./types').GestureNotification<import('./types').PanSample>) => {
+    calls.push('current:' + event.phase)
+  }
+
+  const send = (type: InputFrame['type'], time: number, x: number) => {
+    const point = { id: '1', kind: 'touch' as const, window: { x, y: 0 }, screen: null }
+
+    harness.listeners.get(harness.host)?.(
+      {
+        type,
+        time,
+        contacts: type === 'up' ? [] : [point],
+        changed: point,
+        hitPath: [harness.host],
+      },
+      String(time),
+    )
+  }
+
+  try {
+    flushUniversalSync(() =>
+      root.render(Convenience, {
+        onPan: (event) => {
+          calls.push('old:' + event.phase)
+        },
+      }),
+    )
+
+    send('down', 0, 0)
+    send('move', 20, 20)
+    flushUniversalSync(() => root.render(Convenience, { onPan: current }))
+    send('move', 40, 30)
+    expect(harness.observed - observed).toBe(1)
+    expect(calls).toContain('current:update')
+    flushUniversalSync(() => root.render(Convenience, {}))
+    expect(calls.filter((call) => call === 'current:finish')).toHaveLength(1)
+    flushUniversalSync(() => root.render(Convenience, { onPan: newest }))
+    send('up', 60, 30)
+    send('down', 80, 0)
+    send('move', 100, 20)
+    expect(calls).toContain('newest:start')
+  } finally {
+    root.unmount()
+  }
+})
+
+function Scheduled(props: {
+  onPan?: (event: import('./types').GestureNotification<import('./types').PanSample>) => void
+  replacement: (event: import('./types').GestureNotification<import('./types').PanSample>) => void
+  capture(update: () => void): void
+}) @{
+  const [replaced, setReplaced] = useState(false)
+
+  props.capture(() => setReplaced(true))
+
+  const bind = useInteractionHost({ onPan: replaced ? props.replacement : props.onPan })
+
+  <masonview ref={(host: object | null) => bind(host ? harness.host : null)} />
+}
+
+it('allows a cancellation callback to schedule a normal component update during native commit', async () => {
+  const root = createUniversalRoot(
+    createObjectContainer('nativescript'),
+    createObjectDriver('nativescript'),
+  )
+
+  const calls: string[] = []
+  let replace = () => {},
+    armed = true
+
+  const capture = (update: () => void) => {
+    replace = update
+  }
+
+  const replacement = (
+    event: import('./types').GestureNotification<import('./types').PanSample>,
+  ) => {
+    calls.push('new:' + event.phase)
+  }
+
+  const original = (event: import('./types').GestureNotification<import('./types').PanSample>) => {
+    if (event.phase === 'finish' && armed) {
+      armed = false
+      replace()
+    }
+  }
+
+  const send = (type: InputFrame['type'], time: number, x: number) => {
+    const point = { id: '1', kind: 'touch' as const, window: { x, y: 0 }, screen: null }
+
+    harness.listeners.get(harness.host)?.(
+      {
+        type,
+        time,
+        contacts: type === 'up' ? [] : [point],
+        changed: point,
+        hitPath: [harness.host],
+      },
+      String(time),
+    )
+  }
+
+  try {
+    flushUniversalSync(() => root.render(Scheduled, { onPan: original, replacement, capture }))
+    send('down', 0, 0)
+    send('move', 20, 20)
+    flushUniversalSync(() => root.render(Scheduled, { replacement, capture }))
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    send('up', 40, 20)
+    send('down', 60, 0)
+    send('move', 80, 20)
+    expect(calls).toContain('new:start')
   } finally {
     root.unmount()
   }

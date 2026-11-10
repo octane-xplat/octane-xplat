@@ -25,7 +25,8 @@ export function createInteractionBinding<Host>(adapter: InteractionAdapter<Host>
   let host: Host | null = null
   let press: PressBinding | null = null
   let viewport: (() => void) | null = null
-  const detach = () => {
+  let revision = 0
+  function detachCurrent(identity: number) {
     host = null
 
     const oldPress = press,
@@ -37,7 +38,10 @@ export function createInteractionBinding<Host>(adapter: InteractionAdapter<Host>
       oldPress?.dispose()
     } finally {
       try {
-        gestures.detach()
+        // A reentrant commit entered with host=null and already detached the old gestures.
+        if (revision === identity) {
+          gestures.detach()
+        }
       } finally {
         oldViewport?.()
       }
@@ -46,8 +50,14 @@ export function createInteractionBinding<Host>(adapter: InteractionAdapter<Host>
 
   return {
     commit(next: Host | null, options: InteractionBindingOptions) {
-      if (next !== host) {
-        detach()
+      const identity = ++revision
+
+      if (next !== host || next === null) {
+        detachCurrent(identity)
+        if (revision !== identity) {
+          return
+        }
+
         host = next
       }
 
@@ -56,11 +66,22 @@ export function createInteractionBinding<Host>(adapter: InteractionAdapter<Host>
       }
 
       gestures.commit(host, options.gestures, options.scope)
+      if (revision !== identity) {
+        return
+      }
+
       if (options.press) {
         if (press) {
           press.commit(options.press)
         } else {
-          press = adapter.press(host, options.press)
+          const attached = adapter.press(host, options.press)
+
+          if (revision !== identity) {
+            attached.dispose()
+            return
+          }
+
+          press = attached
         }
       } else {
         const old = press
@@ -69,8 +90,19 @@ export function createInteractionBinding<Host>(adapter: InteractionAdapter<Host>
         old?.dispose()
       }
 
+      if (revision !== identity) {
+        return
+      }
+
       if (options.viewport && !viewport) {
-        viewport = adapter.viewport(host)
+        const release = adapter.viewport(host)
+
+        if (revision !== identity) {
+          release()
+          return
+        }
+
+        viewport = release
       } else if (!options.viewport && viewport) {
         const old = viewport
 
@@ -78,7 +110,11 @@ export function createInteractionBinding<Host>(adapter: InteractionAdapter<Host>
         old()
       }
     },
-    detach,
+    detach() {
+      const identity = ++revision
+
+      detachCurrent(identity)
+    },
   }
 }
 
