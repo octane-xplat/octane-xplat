@@ -36,7 +36,12 @@ No browser or device performance task belongs in lightweight PR CI.
    then Finish. Drag the blue card and release it for drag; swipe the scrolling
    region for scroll; close or swipe-dismiss the native sheet for sheet. Reverse
    allows manual interruption too. Dispose removes the card mid-run. A bounded
-   JSON diagnostic is logged on Finish; it contains no screenshot or user data.
+   JSON diagnostic is logged on Finish and saved to the app's
+   `Documents/animation-quality-results.json`, after the measured interval.
+   It records read-only maximum refresh capability, power mode, thermal state
+   and Reduce Motion. It contains no screenshot or user data. Drag exclusively
+   owns its x axis (do not also assign `animate.x`); every selected trial resets
+   the card so repeated drags start inside the full-width input region.
 
 4. Record with Apple's Animation Hitches instrument. Add Time Profiler for a
    separate diagnostic recording: correlate `Scenario` with main-thread JS,
@@ -60,15 +65,73 @@ No browser or device performance task belongs in lightweight PR CI.
    XcodeGen’s `captureScreenshotsAutomatically=false`). Verify the generated
    `.xctestrun` target has `SystemAttachmentLifetime=keepNever` before execution.
    Disable performance diagnostics with `-enablePerformanceTestsDiagnostics NO`;
+   disable verbose failure diagnostics with `-collect-test-diagnostics never`.
    deleting image attachments afterwards is not an alternative. Run with
    `-destination 'platform=iOS,id=<authorized-id>' -parallel-testing-enabled NO
    -maximum-concurrent-test-simulator-destinations 1`. This repository supplies
    a generated UI-test project, not signing credentials. Run from a device
    reservation. The test source never requests screenshots.
 
-The Swift bridge uses `beginAnimationInterval`, so the custom
-`XCTOSSignpostMetric` collects Apple's presentation metrics rather than merely
-wall time. Tween/spring/retarget/layout/shared intervals end on completion;
+6. After building the test project with `xcodebuild build-for-testing`, run the
+   physical suite through the maintained recorder. Supply the generated
+   `.xctestrun`, archived app and a new local evidence directory:
+
+   ```sh
+   node tools/verification/animation-quality/run.mjs AUTHORIZED_PHYSICAL_UDID \
+     /absolute/path/AnimationQuality_iphoneos.xctestrun \
+     /absolute/path/benchmark.xcarchive/Products/Applications/benchmark.app \
+     ~/dev/reports/octane-xplat/animation-quality/new-run
+   ```
+
+   The runner reserves that device, verifies both automatic-attachment policies,
+   installs only the benchmark bundle, launches before Instruments attaches, and
+   runs serial XCTest trials without performance diagnostics. The tests use
+   `activate()` to preserve the profiled process. It records Animation Hitches
+   plus the benchmark's signpost subsystem, exports nonvisual XML tables and
+   copies the app's bounded result journal. Each test gets its own trace and
+   xcresult. A final optional argument selects one test, such as `Drag` or
+   `Sheet`. `DiagnosticCosts` instead records Time Profiler while exercising
+   spring, layout and retarget with diagnostic spans enabled; those results
+   cannot seed a presentation baseline. Callback costs include the span bridge
+   overhead, and sampled stacks are statistical rather than exact cost totals.
+   Test success alone never marks a baseline qualified. The runner
+   records the app executable hash and its own source identity; retain the
+   build log/source identity separately when building from uncommitted changes.
+
+   Instruments recordings use six explicit playback trials without a concurrent
+   `XCTOSSignpostMetric` collector. Functional-only runs use the XCTest metrics.
+   Keep these collectors separate: their simultaneous use produced incomplete
+   scenario windows on the physical proving device even though XCTest passed.
+
+   Add `--functional` to run the same real-input suite without Instruments. This
+   is the faster fixture/lifecycle check, and produces no presentation evidence.
+   Run it before spending time on traces. The sheet check retains one owner for
+   all six presentations, then selects another scenario; the recorder requires
+   one cache entry while mounted and zero after teardown. Disposal/resume also
+   requires no Motion callback deliveries during a ten-second idle window.
+
+   Analyze exported scenario windows without opening Instruments or images:
+
+   ```sh
+   python3 tools/verification/animation-quality/summarize.py /absolute/run/Tween tween > /absolute/run/Tween.summary.json
+   ```
+
+   Python 3's standard library resolves xctrace XML references and duplicate
+   signpost tables. The summary scopes hitches to the target process and active
+   windows, preserves whole-stall severity at window boundaries, and flags
+   missing/unclosed intervals. It reports displayed-surface changes separately
+   and leaves frame count unavailable. It cannot qualify a baseline by itself.
+
+For input failures only, build with `XPLAT_ANIMATION_INPUT_DEBUG=1` before the
+build command. This enables a bounded, app-owned text journal of input, hit-test
+ancestry and errors at `Documents/animation-input-diagnostic.json`. It writes
+during interaction and invalidates performance results. Rebuild without that
+variable for measurement; the default has no input journal writes.
+
+The Swift bridge uses `beginAnimationInterval`, requesting Apple's animation
+metrics through the custom `XCTOSSignpostMetric`. A `ScenarioName` signpost event
+identifies each following interval in Instruments.
+Tween/spring/retarget/layout/shared intervals end on completion;
 sheet ends on dismissal; scrolling and drag retain the explicit interaction
 window through Finish. Keep the latter windows identical between revisions.
 Confirm intervals exist in the recording: missing metrics are unavailable,
@@ -138,7 +201,8 @@ and successful background/foreground without retained disposed work. Check
 Reduce Motion live notification and transform settlement while running only
 when a human has authorized that settings change. XCTest's disposal/resume test
 checks card absence, not internal native writes or live preference changes.
-The logged presentation samples aid retarget diagnosis but do not themselves
+The idle test checks Motion callback delivery, not native display-link wakeups
+or energy use. The logged presentation samples aid retarget diagnosis but do not themselves
 prove continuous position/velocity across the handoff. Qualify these contracts
 separately; a hitch pass cannot compensate for a lifecycle failure.
 

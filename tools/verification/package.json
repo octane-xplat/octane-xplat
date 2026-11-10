@@ -10,7 +10,7 @@
 		"smoke:macos": "node qualify.ts smoke:macos",
 		"test:e2e": "node test-e2e.ts",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test": "node --test *.test.mjs"
+		"test": "node --test *.test.mjs && python3 -B -m unittest discover -s animation-quality -p '*_test.py'"
 	},
 	"devDependencies": {
 		"@octane-xplat/ui": "workspace:*",

@@ -8,7 +8,9 @@ final class AnimationQualityTests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
-        app.launch()
+        // The recording runner launches the installed Release app before attaching.
+        // activate() also launches it for standalone functional execution.
+        app.activate()
         XCTAssertTrue(app.staticTexts["status"].waitForExistence(timeout: 15))
     }
 
@@ -54,8 +56,39 @@ final class AnimationQualityTests: XCTestCase {
     func testRetarget() { benchmark("retarget") }
     func testLayout() { benchmark("layout") }
     func testShared() { benchmark("shared") }
-    func testSheet() { benchmark("sheet") }
+    func testSheet() {
+        benchmark("sheet")
+        // Keep the same owner through all presentations, then release it.
+        button("select-tween").tap()
+        button("finish").tap()
+    }
     func testScroll() { benchmark("scroll") }
+
+    // Instruments owns presentation collection in these cases. Running a second
+    // XCTOSSignpostMetric collector at the same time can leave incomplete windows.
+    private func presentation(_ scenario: String) {
+        for _ in 0..<6 { play(scenario) }
+    }
+    func testPresentationTween() { presentation("tween") }
+    func testPresentationSpring() { presentation("spring") }
+    func testPresentationDrag() { presentation("drag") }
+    func testPresentationRetarget() { presentation("retarget") }
+    func testPresentationLayout() { presentation("layout") }
+    func testPresentationShared() { presentation("shared") }
+    func testPresentationSheet() {
+        presentation("sheet")
+        button("select-tween").tap()
+        button("finish").tap()
+    }
+    func testPresentationScroll() { presentation("scroll") }
+
+    // Explicit diagnostic recording only; excluded from the recorder's default suite.
+    func testDiagnosticCosts() {
+        button("diagnostic").tap()
+        play("spring")
+        play("layout")
+        play("retarget")
+    }
 
     func testDisposalAndResume() {
         button("select-spring").tap()
@@ -64,6 +97,11 @@ final class AnimationQualityTests: XCTestCase {
         XCUIDevice.shared.press(.home)
         app.activate()
         XCTAssertFalse(button("card").exists)
+        let idle = NSPredicate(format: "label == %@", "idle")
+        let expectation = XCTNSPredicateExpectation(predicate: idle, object: app.staticTexts["status"])
+        let outcome = XCTWaiter.wait(for: [expectation], timeout: 15)
+        let status = app.staticTexts["status"].label
         button("finish").tap()
+        XCTAssertEqual(outcome, .completed, "Idle check ended with status: " + status)
     }
 }

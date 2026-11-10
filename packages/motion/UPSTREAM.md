@@ -592,6 +592,15 @@ Reject missing or zero presentation-frame telemetry even when XCTest supplies
 a nonzero frame-rate estimate and zero hitch totals; those values alone cannot
 establish a quality baseline.
 
+The recorder exports native signpost, hitch and displayed-surface tables without
+images. Check that every warmup/measured interval is present; a successful
+XCTest case can still have incomplete Instruments windows. Duplicate signpost
+tables must not double-count intervals, and surface-change counts must not be
+substituted for presentation frames. The functional-only mode checks OS input,
+sheet host teardown, disposal/reactivation and a ten-second Motion callback idle
+window independently. These checks do not qualify native idle wakeups, active
+animation resume, live system preference changes or interruption continuity.
+
 Motion's mobile clock reads `CACurrentMediaTime() * 1000` on iOS. Generators
 sample elapsed milliseconds, so variable frame intervals do not change spring
 physics or tween duration. Resume uses elapsed wall-independent monotonic time:

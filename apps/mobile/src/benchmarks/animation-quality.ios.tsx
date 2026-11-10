@@ -1,23 +1,71 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Application, Frame, Page } from '@nativescript/core'
-import type { View as NativeView } from '@nativescript/core'
+import { Application, File, Frame, Page, knownFolders, path } from '@nativescript/core'
+import { View as NativeView } from '@nativescript/core'
 import { install } from '@nativescript-community/gesturehandler'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
-import { useEffect, useRef, useState } from 'octane'
+import { useEffect, useMemo, useRef, useState } from 'octane'
 import { View, Pressable, Text, ScrollableArea } from '@octane-xplat/ui'
 import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 import { motion, MotionConfig } from '../../../../packages/motion/src/index'
 import { clock } from '../../../../packages/motion/src/clock'
 import { delegationStats } from '../../../../packages/motion/src/delegation'
 import '@octane-xplat/ui/theme/tokens.css'
+import './animation-quality.css'
 
 interface TraceBridge {
-  begin(): void
+  beginScenario(scenario: string): void
+  environment(): NSDictionary<string, number | boolean>
   end(): void
   beginFrame(): void
   endFrame(): void
 }
+
 declare const AnimationQualityTrace: TraceBridge
+declare const NativeScriptViewFactory: {
+  readonly shared: { readonly views: NSDictionary<string, UIView> } | null
+}
+
+function sheetFactoryEntries(): number {
+  const keys = NativeScriptViewFactory.shared?.views.allKeys
+  let count = 0
+
+  for (let index = 0; keys && index < keys.count; index++) {
+    if (String(keys.objectAtIndex(index)).startsWith('xplatsheet')) {
+      count++
+    }
+  }
+
+  return count
+}
+
+declare const __XPLAT_ANIMATION_INPUT_DEBUG__: boolean
+const inputDebug = __XPLAT_ANIMATION_INPUT_DEBUG__
+const inputEvents: { event: string; data: unknown }[] = []
+const results: object[] = []
+const inputLog = (event: string, data: unknown) => {
+  if (inputDebug && inputEvents.length < 100) {
+    const serialized = JSON.stringify(data)
+
+    inputEvents.push({ event, data: serialized === undefined ? null : JSON.parse(serialized) })
+    File.fromPath(
+      path.join(knownFolders.documents().path, 'animation-input-diagnostic.json'),
+    ).writeTextSync(JSON.stringify(inputEvents))
+  }
+}
+
+inputLog('loaded', { diagnostic: inputDebug })
+if (inputDebug) {
+  const error = (event: object) => {
+    if ('error' in event) {
+      const value = event.error
+
+      inputLog('error', value instanceof Error ? value.stack : String(value))
+    }
+  }
+
+  Application.on('uncaughtError', error)
+  Application.on('discardedError', error)
+}
 
 // Diagnostic callback costs include JS, synchronous bridge calls and synchronous
 // layout. These are NOT display hitch measurements. Sampling is bounded and no
@@ -26,13 +74,18 @@ const request = clock.request
 const costs: number[] = []
 let detailed = false
 let running = false
+let deliveries = 0
+
 clock.request = (callback) =>
   request(() => {
+    deliveries++
     if (!running || !detailed) {
       callback()
       return
     }
+
     const start = clock.now()
+
     AnimationQualityTrace.beginFrame()
     try {
       callback()
@@ -50,17 +103,65 @@ function Benchmark() {
   const [mounted, setMounted] = useState(true)
   const [sheet, setSheet] = useState(false)
   const [status, setStatus] = useState('ready')
+  const [iteration, setIteration] = useState(0)
+
+  useEffect(() => {
+    inputLog('state', { scenario, status, sheet })
+  }, [scenario, status, sheet])
+
   const Region = scenario === 'scroll' ? ScrollableArea : View
   const card = useRef<NativeView | null>(null)
   const sampleRef = useRef<number[]>([])
   const samples = sampleRef.current
+  const idleObservation = useRef<{ before: number; after: number; elapsedMs: number } | null>(null)
+  const controls = useRef<Record<string, NativeView>>({})
+  const saveStart = useMemo(
+    () => (value: object | null) => {
+      if (value instanceof NativeView) {
+        controls.current.start = value
+      }
+    },
+    [],
+  )
+
+  const inspectStart = () => {
+    const view = controls.current.start?.ios
+
+    if (!view?.window) {
+      return
+    }
+
+    const point = view.convertPointToView(
+      { x: view.bounds.size.width / 2, y: view.bounds.size.height / 2 },
+      view.window,
+    )
+
+    let hit = view.window.hitTestWithEvent(point, null)
+    const ancestry: string[] = []
+
+    while (hit) {
+      ancestry.push(String(hit.class()) + ':' + String(hit.accessibilityIdentifier ?? ''))
+      hit = hit.superview
+    }
+
+    inputLog('start-hit-test', {
+      scenario,
+      status,
+      ancestry,
+      recognizers: String(view.gestureRecognizers),
+      enabled: view.userInteractionEnabled,
+    })
+  }
+
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
   const clearTimers = () => {
     for (const timer of timers.current) {
       clearTimeout(timer)
     }
+
     timers.current = []
   }
+
   useEffect(
     () => () => {
       clearTimers()
@@ -69,40 +170,71 @@ function Benchmark() {
     },
     [],
   )
+
   const sample = () => {
     // Presentation-layer translation, never a screenshot or model destination.
     const layer = card.current?.ios?.layer.presentationLayer()
+
     return layer ? Number(layer.transform.m41) : null
   }
+
   const finish = () => {
     clearTimers()
     AnimationQualityTrace.end()
     running = false
     setStatus('done')
-    console.log(
-      'ANIMATION_QUALITY ' +
-        JSON.stringify({
-          scenario,
-          diagnostic: detailed,
-          callbackMs: costs,
-          interruptionSamples: samples,
-          delegations: delegationStats(),
-        }),
-    )
+
+    const environment = AnimationQualityTrace.environment()
+    const result = {
+      scenario,
+      environment: {
+        maximumFramesPerSecond: environment.objectForKey('maximumFramesPerSecond'),
+        lowPowerMode: environment.objectForKey('lowPowerMode'),
+        thermalState: environment.objectForKey('thermalState'),
+        reduceMotion: environment.objectForKey('reduceMotion'),
+      },
+      diagnostic: detailed || inputDebug,
+      callbackMs: [...costs],
+      interruptionSamples: [...samples],
+      delegations: { ...delegationStats() },
+      sheetFactoryEntries: sheetFactoryEntries(),
+      callbackDeliveries: deliveries,
+      idleObservation: idleObservation.current,
+    }
+
+    if (results.length < 100) {
+      results.push(result)
+      // Persist only after the measured interval, never from the frame loop.
+      File.fromPath(
+        path.join(knownFolders.documents().path, 'animation-quality-results.json'),
+      ).writeTextSync(JSON.stringify(results))
+    }
+
+    console.log('ANIMATION_QUALITY ' + JSON.stringify(result))
   }
+
   const select = (name: string) => {
+    inputLog('select', { name, scenario, status })
+    if (inputDebug) {
+      setTimeout(inspectStart, 100)
+    }
+
     if (running) {
       finish()
     }
+
+    idleObservation.current = null
+    setIteration((value) => value + 1)
     setScenario(name)
     setTarget(false)
     setMounted(true)
     setSheet(false)
     setStatus('ready')
   }
+
   return (
     <MotionConfig reducedMotion="user">
-      <View style={{ padding: 20, gap: 8 }}>
+      <View className="animation-quality-root">
         <Text testID="status">{status}</Text>
         {['tween', 'spring', 'drag', 'retarget', 'layout', 'shared', 'sheet', 'scroll'].map(
           (name) => (
@@ -113,24 +245,32 @@ function Benchmark() {
         )}
         <Pressable
           testID="start"
+          ref={inputDebug ? saveStart : undefined}
+          onPressIn={inputDebug ? () => inputLog('start-down', { scenario, status }) : undefined}
+          onPressOut={inputDebug ? () => inputLog('start-up', { scenario, status }) : undefined}
           onPress={() => {
+            inputLog('start-enter', { scenario, status, sheet })
             costs.length = 0
             samples.length = 0
             running = true
-            AnimationQualityTrace.begin()
+            AnimationQualityTrace.beginScenario(scenario)
+            inputLog('start-signpost-open', { scenario, status })
             setStatus('running')
             setTarget(true)
             if (scenario === 'sheet') {
               setSheet(true)
             }
+
             if (scenario === 'retarget') {
               for (let index = 1; index <= 6; index++) {
                 timers.current.push(
                   setTimeout(() => {
                     const position = sample()
+
                     if (position !== null) {
                       samples.push(position)
                     }
+
                     setTarget((value) => !value)
                   }, index * 80),
                 )
@@ -144,8 +284,11 @@ function Benchmark() {
           testID="reverse"
           onPress={() => {
             const before = sample()
+
             setTarget(!target)
+
             const after = sample()
+
             if (before !== null && after !== null) {
               samples.push(after - before)
             }
@@ -158,6 +301,26 @@ function Benchmark() {
           onPress={() => {
             clearTimers()
             setMounted(false)
+            setStatus('waiting-for-idle')
+            // Permit the final cancelled/empty frame to drain before observing.
+            timers.current.push(
+              setTimeout(() => {
+                const before = deliveries
+                const start = clock.now()
+
+                timers.current.push(
+                  setTimeout(() => {
+                    idleObservation.current = {
+                      before,
+                      after: deliveries,
+                      elapsedMs: clock.now() - start,
+                    }
+
+                    setStatus(deliveries === before ? 'idle' : 'callbacks-during-idle')
+                  }, 10000),
+                )
+              }, 250),
+            )
           }}
         >
           <Text>Dispose</Text>
@@ -186,10 +349,14 @@ function Benchmark() {
             style={{ width: 70, height: 30, backgroundColor: '#276EF1' }}
           />
         )}
-        <Region testID="scroller" style={{ height: 220 }}>
-          <View style={{ height: scenario === 'scroll' ? 1600 : 210 }}>
+        <Region testID="scroller" className="animation-quality-region">
+          <View
+            className="animation-quality-content"
+            style={{ height: scenario === 'scroll' ? 1600 : 210 }}
+          >
             {mounted && (
               <motion.View
+                key={iteration}
                 onAnimationComplete={() => {
                   if (running && ['tween', 'spring', 'retarget'].includes(scenario)) {
                     AnimationQualityTrace.end()
@@ -205,10 +372,15 @@ function Benchmark() {
                   card.current = value
                 }}
                 drag={scenario === 'drag' ? 'x' : false}
-                onDragEnd={() => setStatus('drag-ended')}
+                onDragEnd={(_event, info) => {
+                  inputLog('drag-end', info)
+                  setStatus(info.cancelled ? 'drag-cancelled' : 'drag-ended')
+                }}
                 dragConstraints={{ left: 0, right: 180 }}
                 layout={scenario === 'layout'}
-                animate={{ x: target && scenario !== 'layout' && scenario !== 'drag' ? 160 : 0 }}
+                animate={
+                  scenario === 'drag' ? undefined : { x: target && scenario !== 'layout' ? 160 : 0 }
+                }
                 transition={
                   scenario === 'spring' || scenario === 'scroll'
                     ? {
@@ -255,12 +427,20 @@ function Benchmark() {
           <SwiftUIBottomSheet
             open={sheet}
             detents={['medium', 'large']}
+            onPresentedChange={(presented) => inputLog('sheet-presented', { presented })}
             onDismissed={() => {
+              inputLog('sheet-dismissed', { sheet, status })
               AnimationQualityTrace.end()
               setSheet(false)
             }}
             content={() => (
-              <Pressable testID="close-sheet" onPress={() => setSheet(false)}>
+              <Pressable
+                testID="close-sheet"
+                onPress={() => {
+                  inputLog('sheet-close', { sheet, status })
+                  setSheet(false)
+                }}
+              >
                 <Text>Close sheet</Text>
               </Pressable>
             )}
@@ -270,13 +450,17 @@ function Benchmark() {
     </MotionConfig>
   )
 }
+
 install()
 Application.run({
   create: () => {
     const page = new Page()
+
     page.actionBarHidden = true
     renderNativeScriptApp(page, Benchmark)
+
     const frame = new Frame()
+
     frame.navigate({ create: () => page })
     return frame
   },

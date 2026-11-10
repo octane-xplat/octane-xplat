@@ -5,7 +5,7 @@
 		"bench:animation:ios": {
 			"dependsOn": ["@octane-xplat/motion#typegen", "@octane-xplat/sheet#typegen", "@octane-xplat/cli#build"],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "DEVELOPER_DIR", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+			"passThroughEnv": ["GODDARD_*", "DEVELOPER_DIR", "XPLAT_IOS_DEVELOPMENT_TEAM", "XPLAT_ANIMATION_INPUT_DEBUG"]
 		},
 		"build:ios": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
