@@ -42,6 +42,16 @@ test('API task prepares declarations and builds for every published package', ()
   }
 })
 
+test('desktop declaration caches include the published type entry', () => {
+  for (const name of ['app-menu', 'global-shortcuts', 'shortcuts', 'tray']) {
+    const root = `../../packages/${name}`
+    const manifest = JSON.parse(readFileSync(`${root}/package.json`, 'utf8'))
+    const config = JSON.parse(readFileSync(`${root}/turbo.json`, 'utf8'))
+    assert.equal(manifest.types, './types/generated/index.d.ts')
+    assert.ok(config.tasks.typegen.outputs.includes('types/generated/**/*.d.ts'), name)
+  }
+})
+
 test('exports-md preserves TSDoc across declaration re-exports and subpaths', async (t) => {
   const root = mkdtempSync(join(tmpdir(), 'xplat-api-test-'))
 

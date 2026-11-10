@@ -5,7 +5,7 @@
 	"tasks": {
 		"typegen": {
 			"outputs": [
-				"dist/**/*.d.ts"
+				"types/generated/**/*.d.ts"
 			]
 		},
 		"build": {

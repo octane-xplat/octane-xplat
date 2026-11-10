@@ -2,7 +2,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"typegen": {
-			"outputs": ["dist/**/*.d.ts"]
+			"outputs": ["types/generated/**/*.d.ts"]
 		},
 		"build": {
 			"outputs": ["dist/**/*.js"]
