@@ -107,11 +107,18 @@ globalThis.AVPlayer=class {
 		this.kvoAdds=[]
 		this.kvoRemovals=[]
 	}
-	play(){this.playCount++}
-	pause(){}
+	play(){this.playCount++;this.rate=1}
+	pause(){this.pauseCount=(this.pauseCount||0)+1;this.rate=0;this.timeControlStatus=0}
 	seekToTime(){}
 	seekToTimeToleranceBeforeToleranceAfterCompletionHandler(_t,_b,_a,done){if(done)done(true)}
-	replaceCurrentItemWithPlayerItem(item){this.currentItem=item}
+	replaceCurrentItemWithPlayerItem(item){
+		this.currentItem=item
+		// AVPlayer keeps its requested rate across item replacement; the stub
+		// models that so tests can observe residual playback a swap inherits.
+		if (this.rate>0 && item && item.status===AVPlayerItemStatus.ReadyToPlay) {
+			this.timeControlStatus=2 // Playing
+		}
+	}
 	addObserverForKeyPathOptionsContext(observer,path){this.kvoAdds.push({observer,path})}
 	removeObserverForKeyPath(observer,path){this.kvoRemovals.push({observer,path})}
 	addPeriodicTimeObserverForIntervalQueueUsingBlock(){return {}}
@@ -248,6 +255,42 @@ test('exoplayer emits playbackStart once per source from actual playback only (i
     // Destruction detaches the player-state observer.
     view.destroy()
     assert.ok(kvoPaths(player2, 'kvoRemovals').includes('timeControlStatus'))
+  } finally {
+    if (view._player) {
+      view.destroy()
+    }
+  }
+})
+
+test('source replacement does not inherit a requested play rate when autoplay is off (ios)', () => {
+  const view = new Video()
+  const player = view._player
+  const emittedBefore = emitted.length
+  try {
+    // A told-to-play player (autoplay on an item that may never become ready)
+    // keeps AVPlayer.rate=1, and the rate survives item replacement upstream.
+    view.autoplay = true
+    view._setNativeVideo(new Item())
+    assert.equal(player.playCount, 1)
+    assert.equal(player.rate, 1)
+
+    // Swapping to a source without autoplay must pause: otherwise the ready
+    // replacement resumes under the residual rate and reports a start for an
+    // engagement the app never asked to play. ExoPlayer recreates its player
+    // per source, so Android resets playWhenReady; the web leaf resets too.
+    view.autoplay = false
+    const next = new Item()
+    next.status = READY_TO_PLAY
+    view._setNativeVideo(next)
+    assert.equal(player.pauseCount, 1)
+    assert.equal(player.rate, 0)
+    assert.equal(player.timeControlStatus, PAUSED)
+    observe(view, 'timeControlStatus')
+    assert.equal(
+      emitted.slice(emittedBefore).filter((name: string) => name === 'playbackStart').length,
+      0,
+      'a paused replacement must not surface a playbackStart',
+    )
   } finally {
     if (view._player) {
       view.destroy()

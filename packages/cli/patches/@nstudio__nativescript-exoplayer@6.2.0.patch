@@ -34,7 +34,7 @@ index 76f8f3d44420c972f778244531f1f101a2fa5def..781e233f1d88bd4fda554840470965fb
                      /* required in listener implementation */
                  },
 diff --git a/index.ios.js b/index.ios.js
-index b555c57d6a49c8d866f04149e76c82db8372342e..c7bc8aa6e1702f6706ccd77952cf6bdaf7b8d957 100644
+index b555c57d6a49c8d866f04149e76c82db8372342e..4fb0b8929d58a268982a9926d7c848b749959e68 100644
 --- a/index.ios.js
 +++ b/index.ios.js
 @@ -50,6 +50,7 @@ export class Video extends VideoBase {
@@ -111,7 +111,17 @@ index b555c57d6a49c8d866f04149e76c82db8372342e..c7bc8aa6e1702f6706ccd77952cf6bda
      _addStatusObserver(currentItem) {
          this._observerActive = true;
          currentItem.addObserverForKeyPathOptionsContext(this._observer, 'status', 0, null);
-@@ -385,7 +410,10 @@ export class Video extends VideoBase {
+@@ -342,6 +367,9 @@ export class Video extends VideoBase {
+         if (this.autoplay) {
+             this.play();
+         }
++        else {
++            this.pause();
++        }
+     }
+     _backgroundAudioCheck() {
+         try {
+@@ -385,7 +413,10 @@ export class Video extends VideoBase {
      }
      playbackStart() {
          this._videoPlaying = true;
@@ -123,7 +133,7 @@ index b555c57d6a49c8d866f04149e76c82db8372342e..c7bc8aa6e1702f6706ccd77952cf6bda
      }
  }
  var PlayerObserverClass = /** @class */ (function (_super) {
-@@ -399,6 +427,11 @@ var PlayerObserverClass = /** @class */ (function (_super) {
+@@ -399,6 +430,11 @@ var PlayerObserverClass = /** @class */ (function (_super) {
                  this['_owner'].playbackReady();
              }
          }

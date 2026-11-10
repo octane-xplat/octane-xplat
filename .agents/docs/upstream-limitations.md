@@ -657,7 +657,13 @@ AVFoundation's actual-playing transition; a buffering player reports
 a start. `eventPlaybackStart` resets on non-looping finish, item replacement,
 and `_setNativePlayerSource`, so replays and replacements report again while
 looping does not; the player-state observer attaches in `_init()`, re-attaches
-on AVPlayer replacement, and detaches in `destroy()`. The maintained iOS
+on AVPlayer replacement, and detaches in `destroy()`. The same patch also
+pauses the shared AVPlayer on source replacement when autoplay is off:
+AVPlayer.rate survives `replaceCurrentItemWithPlayerItem`, so a player told to
+play (e.g. autoplay on a failed item) would otherwise resume on the next item
+even when the new source requests `autoplay=false`. Android recreates its
+ExoPlayer per source, resetting `playWhenReady`, and the web leaf resets on a
+new `src` — the pause restores that contract on iOS. The maintained iOS
 regression is `packages/video/tests/exoplayer-playback-start.ios.test.ts`. Both
 tests drive the installed plugin source through stubbed listener/KVO contracts
 — they do not qualify NativeScript's runtime bridging or device delivery.
@@ -691,3 +697,22 @@ callback delivery (`onPlayerError`) was not exercised and stays open; static
 app bindings and release-APK delivery remain unqualified, and upstream
 `NativeScript/android` still needs the generator fix. Detailed run evidence
 belongs in Silo and reports.
+
+On the selected iOS simulator (`91D40099-A056-497D-A572-ADDDFD6A8F23`, iPhone
+18 Pro), the equivalent matrix passed (acceptance run
+`c5f25a82-1ee6-4004-970a-cdfc4e1addce`, 24/24 assertions):
+`playbackStart`/`playbackReady` each delivered once per source through the
+real NativeScript KVO `timeControlStatus` bridging in both controls modes,
+poster present before start and removed after, pause/resume/seek/loop kept a
+single start, source replacement re-armed and reported again under autoplay,
+a missing source surfaced `AVPlayerItem.status=Failed`
+(`AVFoundationErrorDomain -11800`) with the poster retained, cancellation
+stayed paused with the poster (the residual-rate repair above), and unmount
+left the view unloaded with the player paused. The unpatched run also showed
+the residual-rate failure: a failed autoplay item's requested rate replayed
+the next non-autoplay source. On fast local media an autoplay replacement
+reaches `Playing` inside ~40 ms, so the poster mounts only for that window —
+the poster contract is qualified by the paused/failed paths, not a
+single-instant sample. AVFoundation errors were observed via item status, not
+a plugin error event; static bindings and release-app delivery remain
+unqualified.
