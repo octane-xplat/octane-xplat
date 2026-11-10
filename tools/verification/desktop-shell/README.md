@@ -118,7 +118,7 @@ goddard-agent resource run --json '{"resources":{"exclusive":["device:andromeda"
   GTK 4 reports unreliable extents (`0,0`), and a click there lands on the
   first menubar item and opens a popover that takes all later input.
 - **`x11-wm-delete-message`** — `xdotool windowclose` sends WM_DELETE to the
-  Inspector during the v2 launch. GTK 4.14 under Xvfb + openbox crashes on
+  Inspector during the v2 launch. GTK 4.18 under Xvfb + openbox crashes on
   this path even in a plain-GJS control (see
   `.agents/docs/upstream-limitations.md`), so the step runs last and does not
   gate other steps; it records `blocked` when no Inspector window opened.
