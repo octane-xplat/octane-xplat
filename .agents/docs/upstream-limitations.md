@@ -777,28 +777,41 @@ its event integration. Keep detailed run evidence in Silo and local reports.
 
 ## NativeScript iOS HTTP module fetch budget (9.1.0)
 
-Source evidence at NativeScript iOS
-[`v9.1.0`, `HttpLoader.mm`](https://github.com/NativeScript/ios/blob/v9.1.0/NativeScript/runtime/HttpLoader.mm#L650-L655):
-`BuildModuleFetchRequest` sets a 5-second request timeout, including for the
-async graph fetcher. Its session's 10-second timeout does not extend that
-request. A macOS Foundation control with those settings timed out a valid
-6-second response at about 5 seconds; a 15-second request succeeded. This is
-host transport evidence, not iOS graph qualification. NativeScript Vite
-8.0.20's module route permits 120-second transforms, so native fetches can
-expire while a valid cold transform remains pending.
+NativeScript iOS 9.1.0's
+[`BuildModuleFetchRequest`](https://github.com/NativeScript/ios/blob/v9.1.0/NativeScript/runtime/HttpLoader.mm#L650-L655)
+sets a 5-second request timeout for both synchronous and async graph loads.
+The async session's 10-second setting does not extend it. NativeScript Vite
+8.0.20 permits 120-second transforms, so valid cold responses can outlast
+native discovery's request budget.
+
+Verified on an arm64 iOS 27 simulator using the published 9.1.0 native host:
+the [plain-ESM delayed-parent reproduction](../../tools/platform-qualification/ios-module-graph/README.md)
+produced two async timeouts and three graph-miss warnings for the parent and
+its undiscovered subtree. A test-only 30-second request override fetched the
+parent once with no warnings; both runs returned 42. An isolated published
+0.20.0 consumer cold start then reproduced native timeout traces and valid
+HTTP responses taking 5-9 seconds. Within 60 seconds, the default run had
+118 transport retries, 73 dependency failures and six fallback warnings;
+its App graph had not finished. The request override produced no retries,
+fetch failures or misses, and completed that graph in about 45 seconds.
+These are graph-loading measurements, not usable-screen or OS-input timing.
 
 [`AsyncGraphOnFetchCompleted`](https://github.com/NativeScript/ios/blob/v9.1.0/NativeScript/runtime/ModuleInternalCallbacks.mm#L1490-L1500)
-leaves failed dependencies to synchronous resolution after the transport retry;
-`LoadHttpModuleForUrl` then emits the graph-miss warning. One missed parent
-can therefore produce warnings for its undiscovered subtree. The warning
-alone does not distinguish a timeout, compile failure, identity mismatch, or
-premature linking of a partially compiled graph.
+leaves failed dependencies to synchronous resolution after a transport retry;
+`LoadHttpModuleForUrl` then warns. A missed parent can therefore cause many
+subtree warnings without an import-analysis or re-export defect. The isolated
+control covers named and star re-exports. Cold serving latency triggers the
+mismatch, but its division between upstream Vite, the canonical patch and
+consumer plugins has not been profiled. No consumer import/configuration
+repair is established; do not remove intentional dynamic entry imports based
+on these warnings.
 
-The [isolated reproduction](../../tools/platform-qualification/ios-module-graph/README.md)
-removes Vite and application configuration; its iOS execution remains pending.
-Xplat carries no timeout workaround. Investigate native fetch-failure traces
-and cold server response times before attributing consumer misses to this
-mechanism or changing import ownership. Trial a longer request budget upstream,
-then reconcile request/retry and graph deadlines; increasing only the session
-timeout cannot fix the verified request limit. No upstream report or runtime
-repair has been submitted for this finding.
+The [test-only native override](../../tools/platform-qualification/ios-module-graph/timeout-override.m)
+changes the effective request deadline in the same runtime binary; it is not
+a production workaround. The candidate 30-second source repair has not been
+rebuilt or release-qualified. Upstream should reconcile request/retry,
+server-transform and total graph deadlines, and preserve the original
+fetch-failure reason in fallback diagnostics. Raising only the async session
+timeout is insufficient. Xplat carries no production runtime patch; no
+upstream issue or repair has been submitted for this finding. HMR correctness
+and usable-screen startup remain unqualified by this investigation.
