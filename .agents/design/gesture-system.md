@@ -18,7 +18,7 @@ Issue state is supporting context, not qualification. The following classificati
 | --- | --- | --- |
 | [#221: scroll suspension](https://github.com/octane-xplat/octane-xplat/issues/221) | Current shared contract gap. `UseScrollableAreaOptions` has no suspension/input-enabled contract. Opals' per-viewport touch-action containment has recorded simulator HID success; disabling descendants alone previously failed. The issue remains open. | Establish viewport policy before recognition and expose offset-preserving suspension. A post-claim flag alone is insufficient. |
 | [#189: nested web clicks](https://github.com/octane-xplat/octane-xplat/issues/189) | Historical eager-capture defect, closed. Current `pan.web.tsrx` defers capture beyond 8px and retains a callback ref. It still uses radial slop, has no axis-intent contract, emits `began` on down, and arbitrates independently of scroll/other recognizers. | Preserve deferred capture; introduce explicit activation, axis intent, and sequence-scoped activation suppression. |
-| [#222: handler replacement](https://github.com/octane-xplat/octane-xplat/issues/222) | Current native source gap: `usePan` uses `useCallback(..., [cb])`; `usePinch` has the same pattern. Opals wraps pan in `useEffectEvent`. Actual device effects of callback replacement remain unqualified. | Lifetime belongs to host + registration key, never callback identity. |
+| [#222: handler replacement](https://github.com/octane-xplat/octane-xplat/issues/222) | Current native source gap: `usePan` uses `useCallback(..., [cb])`; `usePinch` has the same pattern. Opals wraps pan in `useEffectEvent`. Actual device effects of callback replacement remain unqualified. | Lifetime belongs to host + hook-owned handle, never callback identity. |
 | Event data | Current gap. `onPress` is zero-argument; mobile/web pan assign `x/y = deltaX/deltaY`. The interface simultaneously calls those fields normalized positions. `locationX/Y` are AppKit-only optional fields. No shared contact identities/count. | Replace aliases with named position, translation, velocity, contact, and activation contracts. |
 | [#164: zoom and pinch](https://github.com/octane-xplat/octane-xplat/issues/164) | Historical absence is resolved in source: `CameraSession.zoomState()/setZoom()`, preview pinch, and shared native pinch exist. Shared pinch is not synthesized on web/desktop; raw focal coordinates are not a portable coordinate contract. Mutual exclusion remains app-owned. | Reuse camera zoom controls; solve composition rather than invent another camera API. |
 | [#230: Android pan then press](https://github.com/octane-xplat/octane-xplat/issues/230) | Baseline still binds native tap directly to `onPress`. Later fix `55e3a1c13` is absent from baseline ancestry. Opals records OS-input success at linked `38652eaa`, including the next independent tap. That is a locally fixed defect with narrow recorded qualification, not a universal outstanding defect or a published-support claim. | Carry the raw movement/slop insight into the common press participant; preserve the regression as acceptance evidence. |
@@ -36,11 +36,13 @@ There are four distinct lifetimes:
 | Entity | Owner and lifetime | Invariant |
 | --- | --- | --- |
 | Root interaction owner | Renderer root/window | No process-global input lock; portals require explicit same-window scope membership. |
-| Registration | Mounted host + stable string key | Committed callbacks update in place; host replacement disposes registration. |
+| Registration | Mounted host + hook-owned gesture handle | Committed callbacks update in place; host replacement disposes registration. |
 | Sequence/session | Root contact cohort / one recognizer activation | Every activation gets exactly one end or cancel. New pointers do not create a fresh sequence while any old pointer remains down. |
 | Suspension lease | Scope hook owner until released/disposed | Multiple leases compose; releasing one never unlocks another owner's lock. |
 
-The public surface consists of a keyed gesture hook, a scoped suspension hook, and richer semantic activation on Pressable. Components gain `gestures` and `interactionScope`; these attach behavior to the existing host and add no layout wrapper. Binding a recognizer unsupported by that host produces an explicit unsupported diagnostic and false support entry; it is not an implicit successful registration. Apps must retain alternate controls on unsupported targets. The following contracts are proposed TypeScript, not imports available today.
+The public surface consists of typed gesture hooks, composition descriptions, a scoped suspension hook, and richer semantic activation on Pressable. Components gain `gestures` and `interactionScope`; these attach behavior to the existing host and add no layout wrapper. A gesture handle attaches directly: there is no registry, string key, or separate binding to pass around. Every included handle attaches to exactly one host, through one composition tree.
+
+Ordinary gestures have no support signal and require no capability check. Attaching a gesture unsupported by the selected host fails explicitly through the renderer's error boundary, with an unsupported-gesture diagnostic identifying the host and gesture; it never registers a silent no-op. Document the actual platform subset and choose alternate controls or platform leaves where needed. Optional operations report availability at the operation boundary: `content.suspend()` returns success or a concrete failure. Do not make app authors inspect a capability flag before every drag. The following contracts are proposed TypeScript, not imports available today.
 
 ```ts
 // Proposed exports from @octane-xplat/ui. Opaque brands omitted for readability.
@@ -104,45 +106,36 @@ export interface GestureEnablement {
   readonly enabled$?: ReadSignal<boolean> // live, synchronous boolean source
   // Supplying both is a configuration error.
 }
-export interface PanDefinition extends GestureCallbacks<PanSample>, GestureEnablement {
-  readonly kind: 'pan'
+export interface GestureOptions {
+  readonly samples?: 'none' | 'frame' | 'input' // default none
+}
+export interface PanGestureOptions extends GestureCallbacks<PanSample>, GestureEnablement, GestureOptions {
   readonly axis: 'x' | 'y' | 'both' // physical axes; app resolves logical direction
   readonly activation?: { readonly distance?: number; readonly dominance?: number }
   readonly pointers?: { readonly min?: number; readonly max?: number }
 }
-export interface PinchDefinition extends GestureCallbacks<PinchSample>, GestureEnablement {
-  readonly kind: 'pinch'
-}
-export type GestureDefinition = PanDefinition | PinchDefinition
-export interface GestureRelation {
-  readonly kind: 'exclusive' | 'simultaneous'
-  readonly keys: readonly string[]
-}
-export interface GestureBinding { readonly id: string }
-export interface GestureSupport {
-  readonly pan: boolean
-  readonly pinch: boolean
-  readonly suspendUserInput: boolean
-  readonly stopMomentum: boolean
-}
-export interface GestureState {
-  readonly phase: 'idle' | 'possible' | 'active' | 'failed' | 'ended' | 'cancelled'
-  readonly sequenceId: string | null
-  readonly cancelReason: CancelReason | null
-}
-export interface UseGesturesResult {
-  readonly binding: GestureBinding
-  readonly state$: ReadSignal<Readonly<Record<string, GestureState>>>
-  readonly active$: ReadSignal<boolean> // any active recognizer on this binding
+export interface PinchGestureOptions extends GestureCallbacks<PinchSample>, GestureEnablement, GestureOptions {}
+export type GesturePhase = 'idle' | 'possible' | 'active' | 'failed' | 'ended' | 'cancelled'
+export interface GestureHandle<T, K extends 'pan' | 'pinch'> {
+  readonly id: string // stable hook-instance identity; opaque in shipping declarations
+  readonly kind: K
+  readonly phase$: ReadSignal<GesturePhase>
+  readonly active$: ReadSignal<boolean>
   readonly pointerCount$: ReadSignal<number> // observed cohort, not just claimed input
-  readonly support$: ReadSignal<GestureSupport | null> // null before host attach
-  readonly samples$: ReadSignal<Readonly<Record<string, PanSample | PinchSample>>> | null
+  readonly sample$: ReadSignal<T | null> | null // null when sample publication is off
 }
-export declare function useGestures$(options: {
-  readonly definitions: Readonly<Record<string, GestureDefinition>>
-  readonly relations?: readonly GestureRelation[]
-  readonly samples?: 'none' | 'frame' | 'input' // default none
-}): UseGesturesResult
+export type PanGesture = GestureHandle<PanSample, 'pan'>
+export type PinchGesture = GestureHandle<PinchSample, 'pinch'>
+export interface GestureComposition {
+  readonly kind: 'compete' | 'simultaneous' | 'prioritize'
+  readonly gestures: readonly GestureInput[]
+}
+export type GestureInput = PanGesture | PinchGesture | GestureComposition
+export declare function usePanGesture$(options: PanGestureOptions): PanGesture
+export declare function usePinchGesture$(options: PinchGestureOptions): PinchGesture
+export declare function compete(first: GestureInput, second: GestureInput, ...rest: GestureInput[]): GestureComposition
+export declare function simultaneous(first: GestureInput, second: GestureInput, ...rest: GestureInput[]): GestureComposition
+export declare function prioritize(first: GestureInput, second: GestureInput, ...rest: GestureInput[]): GestureComposition
 export interface Suspension { release(): void }
 export type SuspendResult =
   | { readonly ok: true; readonly lease: Suspension }
@@ -160,74 +153,66 @@ export interface ActivationEvent {
   preventDefault(): void // cancels default semantic action, not an active drag
 }
 // PressableProps.onPress becomes (event: ActivationEvent) => void.
-// View/Row/Stack/StackItem/Pressable accept gestures?: GestureBinding.
+// View/Row/Stack/StackItem/Pressable accept gestures?: GestureInput.
 // Layout hosts also accept interactionScope?: InteractionScope.
 ```
 
 ### Signals observe state; the coordinator owns input
 
-Use Octane signals for hook outputs and selected live inputs, following the [upstream signal ownership and component-read contract](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md). The proposed hooks are named `useGestures$` and `useInteractionScope$` because they return signal-backed results. All examples on this page use those names. The binding, result object, and signal handles remain stable for their hook instance; the coordinator alone writes the returned signals. Publish read-only Octane handles with their native branding intact, rather than introducing another subscription engine. Resolving the exact upstream read-only declaration type against the pinned runtime is an implementation gate; `ReadSignal<T>` above only abbreviates that shape.
+Use Octane signals for hook outputs and selected live inputs, following the [upstream signal ownership and component-read contract](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md). The hooks are named `usePanGesture$`, `usePinchGesture$`, and `useInteractionScope$` because they return signal-backed handles. The gesture and signal handles remain stable for their hook instance; the coordinator alone writes the returned signals. Publish read-only Octane handles with their native branding intact, rather than introducing another subscription engine. Resolving the exact upstream read-only declaration type against the pinned runtime is an implementation gate; `ReadSignal<T>` above only abbreviates that shape.
 
 ```tsx
-// Proposed API: read active state in a component, never write ownership flags.
+// Proposed API: observe state; attach the same handle directly.
 import 'octane/signals'
-import { useGestures$, View, Text } from '@octane-xplat/ui'
+import { usePanGesture$, View, Text } from '@octane-xplat/ui'
 
 export function DragStatus() {
-  const drag = useGestures$({ definitions: {
-    panel: { kind: 'pan', axis: 'x' },
-  } })
+  const drag = usePanGesture$({ axis: 'x' })
   const active = drag.active$.get()
-  return <View gestures={drag.binding}>
+  return <View gestures={drag}>
     <Text>{active ? 'Dragging' : 'Ready'}</Text>
   </View>
 }
 ```
 
-State, aggregate activity, pointer count, support, and suspension status are low-volume reactive outputs. Each key starts idle, becomes possible when eligible to observe, and retains failed/ended/cancelled until the sequence ends; reset to idle when all contacts lift. A terminal phase may be observable only within the same synchronous dispatch before reset, so it is not a durable event log. State publication is coherent across keys and derived outputs: no reader should see active false paired with a newly active key from the same publication. The semantic pressed/hovered/focused hooks should follow the same read-only-state pattern when they adopt this owner; this proposal does not add new component families.
+Phase, activity, pointer count, and scope suspension status are low-volume reactive outputs. Each gesture starts idle, becomes possible when eligible to observe, and retains failed/ended/cancelled until the sequence ends; reset to idle when all contacts lift. A terminal phase may be observable only within the same synchronous dispatch before reset, so it is not a durable event log. Publish coherent state across participating handles: no reader should see active false paired with an active phase from the same publication. Composition descriptions have no independent signals or subscriptions; observe the individual handles, deriving aggregate state through ordinary Octane signals if needed. Semantic pressed/hovered/focused hooks should follow the same read-only-state pattern when they adopt this owner; this proposal adds no new component families.
 
 ```ts
-// Continuation: synchronous observations of the existing drag result.
+// Continuation: read state from the existing drag and content scope.
 const active = drag.active$.get()
-const panelState = drag.state$.get().panel
+const phase = drag.phase$.get()
 const pointerCount = drag.pointerCount$.get()
-const support = drag.support$.get()
 const suspended = content.suspended$.get()
 ```
 
-Live enablement accepts a ready, synchronous boolean signal. Subscribe after host attachment/commit, read the current value before admitting every input sample, and replace subscriptions only when the input handle changes. Setting false rejects possible recognition and cancels an active recognizer with `disabled`, without waiting for a render or effect. Enablement follows committed values: a pending renderer transition does not disable input until that value commits. Notification-driven cancellation occurs by the end of the outer synchronous signal batch; a later input sample checks the value even if no notification has arrived yet. Only the final value of a synchronous batch is observable through notification: false then true in one batch need not cancel if no input dispatch observed false. Use session.cancel() when cancellation itself is required. Re-enabling cannot restart a failed/cancelled key during the same contact sequence. Boolean `enabled` follows committed prop updates; thresholds, axes, and relations still snapshot at sequence admission. Supplying both enablement forms or an async/pending/error boolean source is an explicit configuration error, never a reason to suspend rendering or guess that recognition is enabled.
+Live enablement accepts a ready, synchronous boolean signal. Subscribe after host attachment/commit, read the current value before admitting every input sample, and replace subscriptions only when the input handle changes. Setting false rejects possible recognition and cancels an active recognizer with `disabled`, without waiting for a render or effect. Enablement follows committed values: a pending renderer transition does not disable input until that value commits. Notification-driven cancellation occurs by the end of the outer synchronous signal batch; a later input sample checks the value even if no notification has arrived yet. Only the final value of a synchronous batch is observable through notification: false then true in one batch need not cancel if no input dispatch observed false. Use session.cancel() when cancellation itself is required. Re-enabling cannot restart a failed/cancelled gesture during the same contact sequence. Boolean `enabled` follows committed prop updates; thresholds, axes, and composition rules still snapshot at sequence admission. Supplying both enablement forms or an async/pending/error boolean source is an explicit configuration error, never a reason to suspend rendering or guess that recognition is enabled.
 
 ```tsx
-// Proposed fragment inside a component. A parent may pass its ready boolean signal.
+// Proposed fragment inside a component.
 import { signal$ } from 'octane/signals'
-import { useGestures$ } from '@octane-xplat/ui'
+import { usePanGesture$ } from '@octane-xplat/ui'
 
 const dismissEnabled$ = signal$(true)
-const capture = useGestures$({ definitions: {
-  dismiss: { kind: 'pan', axis: 'y', enabled$: dismissEnabled$ },
-} })
-// In an ordinary event callback, this disables/cancels without a component render:
+const dismiss = usePanGesture$({ axis: 'y', enabled$: dismissEnabled$ })
+// Invoke from an ordinary event callback, not during rendering:
 const disableDismiss = () => dismissEnabled$.set(false)
 ```
 
-Continuous samples are opt-in. With `samples: 'none'`, return `samples$: null` and allocate no sample publication queue. Frame mode publishes one immutable keyed snapshot per host display frame, containing the latest active samples from the same coordinator snapshot; skipped intermediate movement is intentional. Input mode publishes a coherent snapshot per admitted input dispatch, for consumers that need every normalized sample. An opted-in signal initially holds an empty record, retains the final samples until the next sequence starts, and clears removed keys. It does not retain a history. Raw callback delivery is unchanged in all modes.
+Continuous samples are opt-in per gesture. With `samples: 'none'`, return `sample$: null` and allocate no sample publication queue. Frame mode publishes the latest immutable sample at most once per host display frame during movement; skipped intermediate movement is intentional. Input mode publishes per admitted input dispatch. An opted-in sample signal starts with null, retains the final sample until the next sequence starts, and stores no history. Participating handles publish together when they share a coordinator dispatch/frame; choosing different cadences deliberately permits different sample ages, so consumers must compare sequence IDs and timestamps rather than assume simultaneous gestures have identical sample times. Raw callback delivery is unchanged in all modes.
 
 ```ts
-const drag = useGestures$({
-  samples: 'frame',
-  definitions: { media: { kind: 'pan', axis: 'both', onUpdate: moveMedia } },
-})
-const displayedSample = drag.samples$?.get().media
+const drag = usePanGesture$({ axis: 'both', samples: 'frame', onUpdate: moveMedia })
+const displayedSample = drag.sample$?.get()
 ```
 
 Start and terminal samples publish immediately even in frame mode. Discard pending older frame work before terminal publication; update internal ownership and signal values together before terminal callbacks, then notify reactive observers after the transition's callbacks finish. Every subsequent callback checks that its session is still active, so cancellation from onStart suppresses the obsolete onUpdate. The coordinator remains authoritative outside speculative renders; publish host-input state urgently so a renderer transition cannot delay cancellation or lease enforcement. Signal-subscriber errors must not prevent cleanup. Native rendering reads need their own runtime signals import, as shown above; reading a per-input sample in rendering may rerender on every publication. Neither frame mode nor signals alone promise compositor-driven motion. Use the existing direct motion path for precise drag writes and signals for consumers that benefit from reactive snapshots.
 
 ```ts
 // Direct motion and reactive observation can coexist; neither establishes ownership.
-const input = useGestures$({ samples: 'frame', definitions: {
-  panel: { kind: 'pan', axis: 'x', onUpdate: movePanel,
-    onEnd: finishPanel, onCancel: restorePanel },
-} })
+const drag = usePanGesture$({
+  axis: 'x', samples: 'frame', onUpdate: movePanel,
+  onEnd: finishPanel, onCancel: restorePanel,
+})
 ```
 
 Claiming, cancellation, activation, and suspension remain synchronous commands/events. Do not acquire a suspension lease from an effect watching active state: a descendant may already have scrolled. Do not infer successful release from active becoming false: it could mean cancellation, and reactive scheduling may combine several transitions. Callbacks deliver start/end/cancel/finalize exactly once under the existing lifecycle rules. A scope's suspended signal changes only after a lease is actually acquired or released; writing a separate app signal never freezes scrolling. On disposal, cancel owned sessions before retiring signal ownership, cancel queued frame publications, detach enabled-source subscriptions, and reject stale publisher generations. Escaped handles do not extend the hook lifetime; use Octane's normal retired-owner behavior.
@@ -269,50 +254,77 @@ function sameContact(sample: GestureSample, id: string) {
 Internal states are `idle → possible → active → ended/cancelled → idle`. A possible recognizer can instead fail silently and remain excluded until the sequence ends. `onStart` means the owner has successfully claimed input; it is not pointerdown. No start means no end/cancel/finalize callback. For immediate observation, Pressable's existing press-in/out lifecycle gains the same optional pointer sample; observation never claims input. Framework state records press eligibility separately from pan activation.
 
 ```ts
-const panel = useGestures$({ definitions: {
-  reveal: { kind: 'pan', axis: 'x', activation: { distance: 8, dominance: 1.2 },
-    onStart: sample => console.log('claimed', sample.sequenceId) },
-} })
+const reveal = usePanGesture$({
+  axis: 'x', activation: { distance: 8, dominance: 1.2 },
+  onStart: sample => console.log('claimed', sample.sequenceId),
+})
 ```
 
 Defaults: pan has exactly one contact, 8 logical-unit activation distance, and 1.2 axis dominance for x/y. Both-axis pan uses radial distance. Axis candidates remain possible while intent is ambiguous; crossing the opposite-axis threshold with dominance fails that candidate for the sequence. Native adapters must evaluate the initial nonzero displacement before emitting start. The first start/update includes movement already accumulated; it is never silently reset at native recognition. Moving a control beneath the finger cannot turn a drag back into a press.
 
 ```ts
-const freeDrag = useGestures$({ definitions: {
-  drag: { kind: 'pan', axis: 'both', pointers: { min: 1, max: 1 } },
-} })
+const freeDrag = usePanGesture$({ axis: 'both', pointers: { min: 1, max: 1 } })
 ```
 
-Default competing gestures are exclusive, including descendant press and native scroll on the claimed axis. Deepest eligible host wins simultaneous activation ties; on the same host, lexical key order breaks ties, so object allocation/order cannot change behavior. An explicit exclusive relation's listed order replaces this tie order. Simultaneous recognition is opt-in for listed keys on the same binding; it never resurrects a cancelled press or overrides system ownership. Contradictory relations, duplicate membership in exclusive priority groups, unknown keys, and cycles are configuration errors before contacts begin. Cross-host arbitrary wait graphs are deliberately deferred; built-in nested ownership handles the examples here without an app-managed arena.
+### Typed composition: competition, simultaneity, and priority
 
-```ts
-const transform = useGestures$({
-  definitions: {
-    move: { kind: 'pan', axis: 'both', pointers: { min: 2, max: 2 } },
-    zoom: { kind: 'pinch' },
-  },
-  relations: [{ kind: 'simultaneous', keys: ['move', 'zoom'] }],
-})
+Model gestures as handles and compose them as values. This follows the useful separation in [Gesture Handler's composition API](https://docs.swmansion.com/react-native-gesture-handler/docs/composition/overview/), with [SwiftUI's gesture operators](https://developer.apple.com/documentation/swiftui/gesture) as an expressiveness reference and [Flutter's gesture arena](https://docs.flutter.dev/ui/interactivity/gestures) as an arbitration reference. These are design influences, not claims of API parity or proof of host support.
+
+| Composition | Activation rule | After one child activates |
+| --- | --- | --- |
+| `compete(a, b)` | First eligible child to activate wins; argument order resolves an exact same-dispatch tie. | Cancel other possible children; no wait for a higher-priority candidate. |
+| `simultaneous(a, b)` | Eligible children can activate independently. | Keep compatible children observing/active; never revive a cancelled press. |
+| `prioritize(a, b)` | A ready lower-priority child waits while an earlier eligible candidate remains possible. It activates only after those earlier candidates fail. | Cancel incompatible lower-priority candidates. |
+
+```tsx
+// Proposed fragment; each composition attaches to its own host.
+<>
+  <View gestures={compete(horizontalDrag, verticalDrag)} />
+  <View gestures={simultaneous(imagePan, imagePinch)} />
+  <View gestures={prioritize(horizontalIntent, freeDragFallback)} />
+</>
 ```
 
-A second contact immediately invalidates an exact-one-contact pan and cancels it with `pointer-count`. Pinch starts from two contacts, activates after 4 logical units of span change, and uses cumulative scale from that two-contact baseline. Pinch may become eligible in the ongoing sequence even after pan cancellation. It ends when fewer than two remain; remaining fingers cannot restart pan or press until all lift. A third contact cancels pinch in this first design, avoiding centroid/scale jumps. A later design can add explicit rebaselining; it must not happen silently.
+`prioritize` is ordered waiting, not a tie-breaker. It can introduce real latency: a general drag fallback waits until the horizontal candidate rejects vertical intent. Waiting preserves its original baseline and latest sample, so eventual activation does not lose movement. Required recognizer deadlines must be bounded by that recognizer's contract. A future double-tap/single-tap composition would necessarily delay single tap; it would not implement Opals' immediate-first-tap policy. The initial typed hooks here are pan and pinch; typed tap/long-press hooks and sequencing can extend the same composition model later without adding them to this implementation scope.
 
 ```ts
-const capture = useGestures$({
-  definitions: { zoom: { kind: 'pinch' }, dismiss: { kind: 'pan', axis: 'y' } },
-  relations: [{ kind: 'exclusive', keys: ['zoom', 'dismiss'] }],
-})
+const horizontalIntent = usePanGesture$({ axis: 'x' })
+const freeDragFallback = usePanGesture$({ axis: 'both' })
+const interaction = prioritize(horizontalIntent, freeDragFallback)
+```
+
+Unrelated gestures default to competition, including descendant pointer presses and native scrolling on the claimed axis. Deepest eligible host wins exact activation ties; explicit sibling composition order resolves ties on the same host, without string sorting or object-allocation identity. Compose nested descriptions for richer policy; the relation at the lowest common composition ancestor governs gestures in separate branches. Simultaneity cannot override OS ownership or a competing/prioritizing ancestor. Compositions only describe relationships among handles attached to the same host. Arbitrary cross-host wait graphs remain deferred; built-in nested control/scroll ownership handles the identified needs.
+
+```ts
+const imagePan = usePanGesture$({ axis: 'both', pointers: { min: 2, max: 2 } })
+const imagePinch = usePinchGesture$({})
+const transform = simultaneous(imagePan, imagePinch)
+```
+
+Composition helpers are pure descriptions, not hooks or new recognizers. Recreating an equivalent tree during rendering retains the same registrations by leaf-handle identity and operator/order structure. Descriptions may nest but must be acyclic trees; repeating a leaf, attaching it to multiple hosts, mixing roots, or attaching both a composed handle and that same handle separately is a configuration error. Validate before recognition, not halfway through input. The public contract exposes no mutable relationship graph.
+
+```tsx
+// Recreated description; drag and pinch keep their hook-owned identities.
+<View gestures={simultaneous(imagePan, imagePinch)} />
+```
+
+A second contact immediately invalidates an exact-one-contact pan and cancels it with `pointer-count`. Pinch starts from two contacts, activates after 4 logical units of span change, and uses cumulative scale from that two-contact baseline. Pointer eligibility is evaluated before competition. Pinch is dormant while fewer than two contacts exist; a one-contact pan winning does not permanently reject that dormant two-contact recognizer. When a second contact invalidates the active pan, cancel that pan first, then admit the newly eligible pinch with a new session in the same sequence. Previously cancelled/failed one-contact recognizers do not restart. It ends when fewer than two remain; remaining fingers cannot restart pan or press until all lift. A third contact cancels pinch in this first design, avoiding centroid/scale jumps. A later design can add explicit rebaselining; it must not happen silently.
+
+```ts
+const zoom = usePinchGesture$({})
+const dismiss = usePanGesture$({ axis: 'y', pointers: { min: 1, max: 1 } })
+const capture = compete(zoom, dismiss)
 ```
 
 ### Callback updates, cancellation, and cleanup
 
-One binding and one scope each attach to one host; duplicate attachment is a configuration error. Same host/key/kind means the same registration even if options objects and callbacks are newly allocated each render. Publish callback updates after commit, atomically, without rebinding native observers. Thresholds/axis/relations are snapshotted at sequence admission; configuration edits take effect on the next sequence. Removing a key, changing its kind, disabling, detaching, or moving between roots cancels active work immediately; the removed registration's last committed callbacks receive its terminal event before cleanup. Stable callback delivery covers pinch and press too.
+One gesture handle and one scope each attach to one host; duplicate attachment is a configuration error. Same host and hook-owned handle means the same registration even if options objects, composition descriptions, and callbacks are newly allocated each render. Publish callback updates after commit, atomically, without rebinding native observers. Thresholds, axes, and composition order/operators are snapshotted at sequence admission; configuration edits take effect on the next sequence. Removing a handle from the attached tree, replacing it with another hook handle, disabling, detaching, or moving between roots cancels its active work immediately; the removed registration's last committed callbacks receive its terminal event before cleanup. Stable callback delivery covers pinch and press too.
 
 ```ts
 // Ordinary rerenders may replace this closure without replacing its recognizer.
-const drag = useGestures$({ definitions: {
-  panel: { kind: 'pan', axis: 'x', onUpdate: sample => setPanelX(sample.translation.x) },
-} })
+const drag = usePanGesture$({
+  axis: 'x', onUpdate: sample => setPanelX(sample.translation.x),
+})
 ```
 
 Clear active ownership before calling terminal callbacks, so cancellation and unmount can reenter safely. Deliver one terminal outcome; finalization runs even if end/cancel throws, then errors go through the renderer's error boundary. Capture loss, system takeover, app interruption, and scope suspension are cancellation, never successful release. Cleanup releases only owned capture/observers/trackers/leases, restores the latest authored state, and cannot write to an obsolete host. A claimed sequence remains ineligible for trailing press even if it later cancels.
@@ -351,13 +363,13 @@ Scope membership follows framework ownership and explicit portal propagation wit
 
 ```tsx
 // Keep the owner and the close target outside the content being suspended.
-<View gestures={panel.binding}>
+<View gestures={panel}>
   <View interactionScope={content}>{children}</View>
   <Pressable onPress={closePanel}><Text>Close panel</Text></Pressable>
 </View>
 ```
 
-Native feasibility is a gate, not a guarantee: UIKit and Mason must stop recognizers and momentum in the correct order without hidden-overflow writes. Public input suspension may require a Mason/native driver seam; recorded app containment does not establish a shipping setter. Browser kinetic-scroll interruption must be proved separately in each engine, without rebuilding layout or disabling browser zoom globally. If an adapter cannot stop already-owned system input, support must report false and suspend must fail; do not promise a universal synchronous takeover. Supported framework-managed viewports are the initial boundary. Foreign embedded WebViews, OS navigation gestures, and third-party native controls require registered adapters; opaque surfaces must cause unsupported coverage rather than silently passing the lease.
+Native feasibility is a gate, not a guarantee: UIKit and Mason must stop recognizers and momentum in the correct order without hidden-overflow writes. Public input suspension may require a Mason/native driver seam; recorded app containment does not establish a shipping setter. Browser kinetic-scroll interruption must be proved separately in each engine, without rebuilding layout or disabling browser zoom globally. If an adapter cannot stop already-owned system input, `suspend()` must return `{ ok: false, reason: 'unsupported' }`; do not promise a universal synchronous takeover. Supported framework-managed viewports are the initial boundary. Foreign embedded WebViews, OS navigation gestures, and third-party native controls require registered adapters; opaque surfaces must cause unsupported coverage rather than silently passing the lease.
 
 ## Four consumer examples
 
@@ -368,7 +380,7 @@ These are proposed TSX sketches with app callbacks passed as props. The names ar
 Below-threshold motion preserves the nested button's press. A claimed drag cancels only that sequence's press eligibility. Keyboard and assistive activation still run without inventing a contact location.
 
 ```tsx
-import { useGestures$, View, Pressable, Text } from '@octane-xplat/ui'
+import { usePanGesture$, View, Pressable, Text } from '@octane-xplat/ui'
 import type { PanSample, ActivationEvent } from '@octane-xplat/ui'
 
 export function Panel(props: {
@@ -377,11 +389,11 @@ export function Panel(props: {
   restore(): void
   search(event: ActivationEvent): void
 }) {
-  const drag = useGestures$({ definitions: {
-    panel: { kind: 'pan', axis: 'x', onUpdate: props.move,
-      onEnd: props.release, onCancel: props.restore },
-  } })
-  return <View gestures={drag.binding}>
+  const drag = usePanGesture$({
+    axis: 'x', onUpdate: props.move,
+    onEnd: props.release, onCancel: props.restore,
+  })
+  return <View gestures={drag}>
     <Pressable onPress={props.search}><Text>Search</Text></Pressable>
   </View>
 }
@@ -393,37 +405,35 @@ The pan owner sits outside the suspended content. Acquire the lease on claim bef
 
 ```tsx
 import { useRef } from 'octane'
-import { useGestures$, useInteractionScope$, View, ScrollableArea, Pressable, Text } from '@octane-xplat/ui'
-import type { PanSample, Suspension } from '@octane-xplat/ui'
+import { usePanGesture$, useInteractionScope$, View, ScrollableArea, Pressable, Text } from '@octane-xplat/ui'
+import type { PanSample, Suspension, Renderable } from '@octane-xplat/ui'
 
 export function Reveal(props: {
   move(sample: PanSample): void
   settle(sample: PanSample): Promise<'open' | 'closed'>
   close(): Promise<void>
-  children?: unknown
+  children?: Renderable
 }) {
   const content = useInteractionScope$()
   const lease = useRef<Suspension | null>(null)
   const unlock = () => { lease.current?.release(); lease.current = null }
   const close = async () => { await props.close(); unlock() }
-  const reveal = useGestures$({ definitions: {
-    reveal: { kind: 'pan', axis: 'x',
-      activation: { distance: 8, dominance: 1.2 },
-      onStart: sample => {
-        if (lease.current) return
-        const result = content.suspend()
-        if (!result.ok) { sample.session.cancel(); return }
-        lease.current = result.lease
-        props.move(sample)
-      },
-      onUpdate: sample => { if (lease.current) props.move(sample) },
-      onEnd: sample => { void props.settle(sample).then(state => {
-        if (state === 'closed') unlock()
-      }) },
-      onCancel: () => { void close() },
+  const reveal = usePanGesture$({
+    axis: 'x', activation: { distance: 8, dominance: 1.2 },
+    onStart: sample => {
+      if (lease.current) return
+      const result = content.suspend()
+      if (!result.ok) { sample.session.cancel(); return }
+      lease.current = result.lease
+      props.move(sample)
     },
-  } })
-  return <View gestures={reveal.binding}>
+    onUpdate: sample => { if (lease.current) props.move(sample) },
+    onEnd: sample => { void props.settle(sample).then(state => {
+      if (state === 'closed') unlock()
+    }) },
+    onCancel: () => { void close() },
+  })
+  return <View gestures={reveal}>
     <View interactionScope={content}>
       <ScrollableArea axis="block">{props.children}</ScrollableArea>
     </View>
@@ -440,8 +450,8 @@ A second contact cancels dismiss-pan even before pinch's span threshold. Lifting
 
 ```tsx
 import { useRef } from 'octane'
-import { useGestures$, View } from '@octane-xplat/ui'
-import type { PanSample } from '@octane-xplat/ui'
+import { usePanGesture$, usePinchGesture$, compete, View } from '@octane-xplat/ui'
+import type { PanSample, Renderable } from '@octane-xplat/ui'
 import type { CameraSession } from '@octane-xplat/camera'
 
 export function Capture(props: {
@@ -449,27 +459,25 @@ export function Capture(props: {
   move(sample: PanSample): void
   release(sample: PanSample): void
   restore(): void
-  children?: unknown
+  children?: Renderable
 }) {
   const baseline = useRef<number | null>(null)
-  const input = useGestures$({
-    definitions: {
-      zoom: { kind: 'pinch',
-        onStart: sample => {
-          baseline.current = props.session.zoomState()?.zoom ?? null
-          if (baseline.current === null) sample.session.cancel()
-        },
-        onUpdate: sample => {
-          if (baseline.current !== null) props.session.setZoom(baseline.current * sample.scale)
-        },
-        onFinalize: () => { baseline.current = null },
-      },
-      dismiss: { kind: 'pan', axis: 'y', onUpdate: props.move,
-        onEnd: props.release, onCancel: props.restore },
+  const zoom = usePinchGesture$({
+    onStart: sample => {
+      baseline.current = props.session.zoomState()?.zoom ?? null
+      if (baseline.current === null) { sample.session.cancel(); return }
+      props.session.setZoom(baseline.current * sample.scale)
     },
-    relations: [{ kind: 'exclusive', keys: ['zoom', 'dismiss'] }],
+    onUpdate: sample => {
+      if (baseline.current !== null) props.session.setZoom(baseline.current * sample.scale)
+    },
+    onFinalize: () => { baseline.current = null },
   })
-  return <View gestures={input.binding}>{props.children}</View>
+  const dismiss = usePanGesture$({
+    axis: 'y', pointers: { min: 1, max: 1 }, onUpdate: props.move,
+    onEnd: props.release, onCancel: props.restore,
+  })
+  return <View gestures={compete(zoom, dismiss)}>{props.children}</View>
 }
 ```
 
@@ -481,8 +489,8 @@ Changing camera/lens or removing the capture surface must cancel its active regi
 
 ```tsx
 import { useRef } from 'octane'
-import { useGestures$, View } from '@octane-xplat/ui'
-import type { PanSample, ActivationEvent } from '@octane-xplat/ui'
+import { usePanGesture$, View, Pressable } from '@octane-xplat/ui'
+import type { PanSample, ActivationEvent, Renderable } from '@octane-xplat/ui'
 
 interface ViewerDrag {
   begin(sample: PanSample): void // stop animation; snapshot pose and original grab point
@@ -490,32 +498,40 @@ interface ViewerDrag {
   release(sample: PanSample): void // app dismissal threshold / destination
   recover(): void
 }
-export function Viewer(props: { model: ViewerDrag; tap(event: ActivationEvent): void }) {
+export function Viewer(props: {
+  model: ViewerDrag
+  tap(event: ActivationEvent): void
+  children?: Renderable
+}) {
   const running = useRef(false)
-  const input = useGestures$({ definitions: {
-    media: { kind: 'pan', axis: 'both',
-      onStart: sample => {
-        props.model.begin(sample)
-        running.current = true
-        props.model.update(sample)
-      },
-      onUpdate: sample => { if (running.current) props.model.update(sample) },
-      onEnd: props.model.release,
-      onCancel: () => props.model.recover(),
-      onFinalize: () => { running.current = false },
+  const drag = usePanGesture$({
+    axis: 'both',
+    onStart: sample => {
+      props.model.begin(sample)
+      running.current = true
+      props.model.update(sample)
     },
-  } })
-  return <View gestures={input.binding} />
+    onUpdate: sample => { if (running.current) props.model.update(sample) },
+    onEnd: sample => props.model.release(sample),
+    onCancel: () => props.model.recover(),
+    onFinalize: () => { running.current = false },
+  })
+  return <View gestures={drag}>
+    <Pressable onPress={props.tap} accessibilityLabel="Toggle playback">
+      {props.children}
+    </Pressable>
+  </View>
 }
 ```
 
-For an actual tappable viewer, put its semantic Pressable inside this host and pass `props.tap` to its onPress. Pointer activation carries a position; keyboard/accessibility activation has `pointer: null`. The app chooses an accessible default action without fake center coordinates. Immediate first tap and second tap within 300ms remain an app timer/state rule; do not use delayed framework double-press arbitration for that requirement.
+The inner semantic Pressable delivers a pointer sample for pointer activation and `pointer: null` for keyboard/accessibility activation. The app chooses an accessible default action without fake center coordinates. Immediate first tap and second tap within 300ms remain an app timer/state rule; do not use delayed priority-based double-press arbitration for that requirement.
 
-```tsx
-// Continuation inside View gestures={input.binding}:
-<Pressable onPress={props.tap} accessibilityLabel="Toggle playback">
-  {media}
-</Pressable>
+```ts
+// Proposed app handler fragment; seeking intervals and media geometry stay here.
+function activate(event: ActivationEvent) {
+  if (event.pointer === null) togglePlayback()
+  else handlePlayerTap(event.pointer.position.local, event.pointer.time)
+}
 ```
 
 ## Platform adapters and accessibility
@@ -526,7 +542,7 @@ For an actual tappable viewer, put its semantic Pressable inside this host and p
 | iOS | Coordinator-aware recognizer delegates/failure relationships and Mason viewport policy before recognition; stop native/Mason deceleration; stable targets | Existing NativeScript simultaneous defaults are not arbitration. Own or compose delegates without clobbering OS controls/navigation. Physical multi-touch and offset preservation need proof. |
 | Android | Raw/window movement independent of moving local view, pointer IDs, system slop for press eligibility, scroll interception/cancel, velocity density conversion | Reuse the linked Pressable fix's insight; never suppress press solely because Android emitted pan began. Verify cancellation delivery through Mason and native controls. |
 | macOS | AppKit recognizer/scroll-wheel participant; normalize host coordinates and magnification separately | Trackpad magnification need not expose touch contacts; do not fabricate two fingers. Defer trackpad pinch until an explicit non-contact gesture contract is designed. |
-| Linux / Windows | Adapt existing pointer owner, cancellation and scroll events; preserve lifetime contract | Existing pointer support does not establish pinch or suspension. Expose capability results and an explicit documented subset, never silent no-op support. |
+| Linux / Windows | Adapt existing pointer owner, cancellation and scroll events; preserve lifetime contract | Existing pointer support does not establish pinch or suspension. Document the actual gesture subset, diagnose unsupported attachment, and report optional suspension failures at the operation boundary. |
 
 On web, correlate only the claimed sequence's compatibility click with its original contact and dispatch origin. Expire that eligibility record at the next independent down and handle keyboard/virtual activation through the semantic bridge. A global boolean that consumes the next click is insufficient. On native, Pressable owns contact eligibility and semantic accessibility activation separately; raw Mason tap observers may still fire without activating the shared control. Keep native system slop for press jitter, separate from the configurable pan threshold; losing press eligibility does not require a pan winner.
 
@@ -542,7 +558,7 @@ Preserve Enter/Space behavior, disabled state, focus, screen-reader action, and 
 
 ## Compatibility and migration
 
-Recommend an alpha hard cutover after qualification, with no parallel legacy recognizer path or compatibility aliases. Preserve familiar `onPan` and `onPinch` as simple conveniences backed by the new owner, using the new sample/terminal contract rather than legacy `state` unions. `gestures` is required for options/composition. Disallow convenience handlers and keyed definitions of the same kind on the same host; report configuration errors rather than recognizing twice.
+Recommend an alpha hard cutover after qualification, with no parallel legacy recognizer path or compatibility aliases. Preserve familiar `onPan` and `onPinch` as simple conveniences backed by the new owner, using the new sample/terminal contract rather than legacy `state` unions. `gestures` is required for options/composition. Disallow convenience handlers and explicit handles of the same kind on the same host; report configuration errors rather than recognizing twice.
 
 ```ts
 // Proposed convenience callback contract: phase is explicit, cancellation has a reason.
@@ -560,7 +576,7 @@ export type GestureNotification<T> =
 | `x/y`, `locationX/Y`, raw pinch focus | Choose position.local/window/screen explicitly; never silently reinterpret aliases. |
 | zero-argument `onPress` | Existing `() => …` callbacks still assign; add ActivationEvent where positions are required. |
 | `onSwipe` native direction bitmask | Remove. Derive swipe intent from successful pan release and app thresholds. Do not preserve an independent competing recognizer. |
-| raw native pinch / synthetic pan cancel | Use keyed pinch/pan composition. |
+| raw native pinch / synthetic pan cancel | Compose typed pinch/pan handles with `compete`. |
 | `useEffectEvent` solely for recognizer stability | Remove workaround after lifetime qualification. Keep it for unrelated manual subscriptions if needed. |
 | `lockChatInput` + touch-action leaves | Replace with managed viewport policy and a suspension lease after adapter qualification. |
 
@@ -569,16 +585,16 @@ No release claim follows from accepting this document. The cutover needs a break
 ## Staged delivery and validation gates
 
 1. **Prove ownership feasibility first.** Build a temporary probe for horizontal parent over vertical Mason/browser scrolling and a nested button. Prove pre-recognition intent and synchronous suspension at offset 600 during an already-held gesture and during deceleration. Test unsupported foreign surfaces. Do not freeze a public suspension promise until adapters prove it.
-2. **Land lifetime, payload, and signal core.** Stable host/key registrations, atomic committed handlers, sequence/contact identity, named coordinates, end/cancel separation, read-only state/support signals, and live boolean enablement. Prove urgent publication and branded handle/compiler ownership on web and native. Add optional frame/input sample publication without routing ownership through reactive effects. Adopt recorded press fixes without misrepresenting their published availability. Keep work behind an internal harness until the cutover; no public migration shim.
+2. **Land lifetime, payload, and signal core.** Stable host/handle registrations, atomic committed handlers, sequence/contact identity, named coordinates, end/cancel separation, read-only gesture-state signals, and live boolean enablement. Prove urgent publication and branded handle/compiler ownership on web and native. Add optional frame/input sample publication without routing ownership through reactive effects. Adopt recorded press fixes without misrepresenting their published availability. Keep work behind an internal harness until the cutover; no public migration shim.
 3. **Integrate scrolling and semantic presses.** All framework scroll owners and Pressable use the coordinator. Exercise scope membership, portal policy, reparenting, overlapping leases, unmount and callback reentrancy. Move Motion, sheets and leaf consumers off competing recognizers.
-4. **Add pinch and composition.** Web/iOS first, then macOS feasibility; Android must also pass before mobile support is advertised. Validate second-finger cancellation, sticky exclusion until all up, and explicit simultaneous recognition. Trackpad gestures and arbitrary cross-host wait graphs remain separate decisions.
+4. **Add pinch and composition.** Implement distinct compete/simultaneous/prioritize rules over typed handles, including real wait-for-failure priority rather than activation tie-breaking. Web/iOS first, then macOS feasibility; Android must also pass before mobile support is advertised. Validate second-finger cancellation, sticky exclusion until all up, and explicit simultaneous recognition. Trackpad gestures and arbitrary cross-host wait graphs remain separate decisions.
 5. **Cut over public API and migrate examples.** Reconcile recipes, docs, TSDoc, skill and release notes in one breaking release; separately test linked-source and packed consumers. Remove replaced code after every participant has one owner.
 
 Validation is a matrix of distinct evidence levels, not one green suite:
 
 | Evidence | Required assertions | What it cannot prove |
 | --- | --- | --- |
-| Pure state-machine tests | Deterministic ties, invalid relations, contact IDs, active→one terminal, pointer-count transitions, lease overlap, callback-update snapshots, reentrancy, coherent signal snapshots, enable-source changes, frame coalescing and no stale terminal overwrite | Recognizer behavior or hit testing |
+| Pure state-machine tests | Deterministic ties, priority waiting/failure, nested composition, invalid/duplicate handles, contact IDs, active→one terminal, pointer-count transitions, lease overlap, callback-update snapshots, reentrancy, coherent signal snapshots, enable-source changes, frame coalescing and no stale terminal overwrite | Recognizer behavior or hit testing |
 | Mounted handler/adapter tests | Latest committed handler, no observer churn, units and transforms, native cancellation mapping, density, independent signal cells for two hook instances, native render subscriptions, disposal, no resource leaks | Real presses, scrolling, pinch delivery |
 | Recognizer integration | Native recognizer identity/count across self-triggered render; actual delegate/failure relationship; cancel reaching scroll driver; no running decelerator after lease | End-to-end app composition unless driven by real input |
 | Browser engine input | Real mouse click on nested button; 7px jitter vs threshold; horizontal claim vs vertical scroll; held direction turn; pointer leaving host; capture loss; keyboard/virtual click after cancelled drag | Touchscreen behavior from mouse alone; dispatchEvent is not equivalent |
@@ -587,7 +603,7 @@ Validation is a matrix of distinct evidence levels, not one green suite:
 
 For scroll acceptance, capture nonvisual telemetry at down, claim, held direction turn, release and close: sequence/session IDs, recognizer state, offset, transform, press count, momentum state, and timestamps. Compare freeze offsets within a declared sub-logical-unit tolerance; require positive normal-scroll movement before and after suspension. Include horizontal and nested viewports, flings, wheel/keyboard scrolling, content resize, programmatic scroll during lock, and descendants mounted while locked. Hold phases are essential: checking only release misses ongoing movement.
 
-For coordinates, move/scale the host beneath a stationary finger and move the finger over a stationary host. Assert local point changes appropriately, translation follows frozen window motion, and initial displacement is preserved. Cover nonzero began, rotated transforms, singular matrices, pointer-up counts, stable targets through capture, stale velocity, and Android display density. For signals, assert lifecycle callbacks still deliver when start and finish occur in one batch, disable during start/update/batched writes, and disable then re-enable while fingers remain down. Cancel a queued frame just before terminal delivery and unmount; verify it cannot overwrite terminal state or write after disposal. Test read-only outputs, stable handles through self-triggered rerenders, subscription replacement after committed input-handle changes, and ordinary semantic activation with signal-backed enablement. Signal-only changes to touch-action reservation take effect for future contacts; they cannot reclaim a sequence already owned by the browser. For press, exercise jitter, cancelled drag with no following compatibility click, a fresh independent press, keyboard activation, and screen-reader activation. Never infer accessibility support from raw tap dispatch.
+For coordinates, move/scale the host beneath a stationary finger and move the finger over a stationary host. Assert local point changes appropriately, translation follows frozen window motion, and initial displacement is preserved. Cover nonzero began, rotated transforms, singular matrices, pointer-up counts, stable targets through capture, stale velocity, and Android display density. For signals, assert lifecycle callbacks still deliver when start and finish occur in one batch, disable during start/update/batched writes, and disable then re-enable while fingers remain down. Cancel a queued frame just before terminal delivery and unmount; verify it cannot overwrite terminal state or write after disposal. Test read-only outputs, stable handles through self-triggered rerenders, subscription replacement after committed input-handle changes, and ordinary semantic activation with signal-backed enablement. Signal-only changes to touch-action reservation take effect for future contacts; they cannot reclaim a sequence already owned by the browser. For composition, distinguish first-to-activate competition from ordered waiting, preserve movement accumulated while waiting, reject duplicate leaves before attachment, and retain recognizers when equivalent descriptions are rebuilt. Validate unsupported attachment diagnostics separately from suspend failure results. For press, exercise jitter, cancelled drag with no following compatibility click, a fresh independent press, keyboard activation, and screen-reader activation. Never infer accessibility support from raw tap dispatch.
 
 Future probes use the repository probe workflow and maintained tests through Turbo. Browser engines/device tests stay out of lightweight PR CI. Existing devices only: iOS `91D40099-A056-497D-A572-ADDDFD6A8F23`; Android `elegant-fir-probe`, no cloning/parallel workers. Reserve native build/device resources, shut down owned devices, and use textual state/log evidence only. Multi-touch input tooling must support actual concurrent contacts; two sequential swipes are not pinch. If unavailable, mark that gate unverified rather than substitute handler dispatch. No devices, screenshots, or OS input were used for this design task.
 
@@ -601,7 +617,9 @@ Future probes use the repository probe workflow and maintained tests through Tur
 | Recognition defaults | 8 logical units and 1.2 axis dominance for pan; system press slop; 4-unit span for pinch. These are recommended starting defaults, subject to real-input feel/accessibility qualification, not universal usability facts. |
 | Nested-control policy | Observe across controls, claim only after intent; editable/native manipulation participants have priority unless an explicit dedicated drag handle owns the hit area. This preserves selection and sliders, at the cost of requiring handles for some whole-panel drags. |
 | Multi-touch after pan | Cancel exact-one pan immediately and forbid resumption until all lift. Safer for camera dismissal; continuous one→two→one transforms require a future explicit rebase policy. |
-| Cross-host arbitrary composition | Defer wait/failure graphs in public API. Same-binding relations and built-in nesting cover the identified needs without cyclic app graphs. |
+| Typed handles and composition | Replace string-keyed definitions with stable hook-owned handles. Pure compete/simultaneous/prioritize descriptions express distinct rules; rebuilding a description never replaces recognizers. |
+| Cross-host arbitrary composition | Defer wait/failure graphs in public API. Same-host composition trees and built-in nesting cover the identified needs without cyclic app graphs. |
+| Capability checks | No support signal on individual gestures. Unsupported attachment gets an explicit diagnostic; optional operations such as suspend return concrete failures. Apps do not preflight ordinary dragging. |
 | Reactive gesture API | Read-only hook-owned Octane signals for state; optional frame/input samples; live boolean enablement. More reactive integration, with explicit cadence and lifetime rules. Ownership and terminal actions stay synchronous. |
 | Alpha compatibility | Hard cutover, keep component names and semantic press, remove translation aliases and independent swipe recognizers. Larger one-time migration, one coherent long-term contract. |
 
