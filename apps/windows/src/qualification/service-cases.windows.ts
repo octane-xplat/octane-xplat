@@ -346,45 +346,52 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
  *  on the Windows runtime. Each direction is verified against real async
  *  IO so a sync stub is distinguishable from a working sync path. */
 async function coreFsSyncSpec(): Promise<Record<string, unknown>> {
-  const dir = nsPath.join(knownFolders.documents().path, 'core20-service-sync')
+  const out: Record<string, unknown> = {}
+  const describe = (error: unknown): string => {
+    const e = error as Record<string, unknown> | null | undefined
+    const parts = [e?.name, e?.message, e?.hresult, e?.code, String(error)]
+      .filter((p) => p !== undefined && p !== null && p !== '' && p !== '[object Object]')
 
-  Folder.fromPath(dir)
-
-  const filePath = nsPath.join(dir, 'core20-sync.txt')
-  const file = File.fromPath(filePath)
-  const out: Record<string, unknown> = { existsBefore: File.exists(filePath) }
-
-  // Direction 1: sync writes must land real bytes (two writes, last wins).
-  let writeThrew = ''
-
-  try {
-    file.writeTextSync('sync-write-α')
-    file.writeTextSync('sync-write-β')
-  } catch (error) {
-    writeThrew = String(error)
+    return parts.map(String).join(' | ') || String(error)
+  }
+  const attempt = async <T>(name: string, fn: () => T | Promise<T>): Promise<T | undefined> => {
+    try {
+      return await fn()
+    } catch (error) {
+      out[name + 'Error'] = describe(error)
+      return undefined
+    }
   }
 
-  out.writeThrew = writeThrew
-  out.existsAfterSyncWrite = File.exists(filePath)
+  const dir = nsPath.join(knownFolders.documents().path, 'core20-service-sync')
 
-  let afterSync = ''
+  await attempt('mkdir', () => Folder.fromPath(dir))
 
-  try {
-    afterSync = await file.readText()
-  } catch {}
+  const filePath = nsPath.join(dir, 'core20-sync.txt')
+  const file = await attempt('fromPath', () => File.fromPath(filePath))
 
-  out.afterSyncWrite = afterSync
-  out.syncWriteMatched = afterSync === 'sync-write-β'
+  if (!file) {
+    return out
+  }
+
+  out.existsBefore = await attempt('existsBefore', () => File.exists(filePath))
+
+  // Direction 1: sync writes must land real bytes (two writes, last wins).
+  await attempt('syncWrite1', () => file.writeTextSync('sync-write-α'))
+  await attempt('syncWrite2', () => file.writeTextSync('sync-write-β'))
+  out.existsAfterSyncWrite = await attempt('existsAfterSyncWrite', () => File.exists(filePath))
+  out.afterSyncWrite = await attempt('afterSyncWrite', () => file.readText())
+  out.syncWriteMatched = out.afterSyncWrite === 'sync-write-β'
 
   // Direction 2: sync reads must return an async write's real contents.
-  await file.writeText('async-content-γ')
-  out.readSync = file.readTextSync()
+  await attempt('asyncWrite', () => file.writeText('async-content-γ'))
+  out.readSync = await attempt('readSync', () => file.readTextSync())
   out.readSyncMatched = out.readSync === 'async-content-γ'
 
-  try {
+  await attempt('cleanup', async () => {
     await deleteItemByPath(filePath)
     await deleteItemByPath(dir)
-  } catch {}
+  })
 
   return out
 }
