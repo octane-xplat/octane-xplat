@@ -347,6 +347,9 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
  *  IO so a sync stub is distinguishable from a working sync path. */
 async function coreFsSyncSpec(): Promise<Record<string, unknown>> {
   const dir = nsPath.join(knownFolders.documents().path, 'core20-service-sync')
+
+  Folder.fromPath(dir)
+
   const filePath = nsPath.join(dir, 'core20-sync.txt')
   const file = File.fromPath(filePath)
   const out: Record<string, unknown> = { existsBefore: File.exists(filePath) }
