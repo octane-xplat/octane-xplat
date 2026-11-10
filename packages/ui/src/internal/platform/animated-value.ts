@@ -9,10 +9,9 @@ export interface AnimationHost {
   reducedMotion?(): boolean
 }
 
-export function createAnimatedValue(
-  initial: number,
-  host: AnimationHost,
-): AnimatedValue & { dispose(): void } {
+export type OwnedAnimatedValue = AnimatedValue & { dispose(): void }
+
+export function createAnimatedValue(initial: number, host: AnimationHost): OwnedAnimatedValue {
   let current = initial
   let view: any = null
   let frame = 0

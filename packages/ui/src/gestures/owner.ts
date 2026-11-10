@@ -523,6 +523,15 @@ export function createGestureOwner(scheduler: GestureScheduler) {
     runs = selected.flatMap((attachment) =>
       attachment.controllers.map((controller) => {
         const projection = attachment.space.freeze()
+        const contact = frame.changed
+        const admitted =
+          !controller.admission ||
+          controller.admission.admit({
+            local: attachment.space.local(contact.window),
+            window: contact.window,
+            screen: contact.screen,
+          })
+
         const pan = controller.kind === 'pan' ? controller.options : null
         const run: Run = {
           attachment,
@@ -533,7 +542,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
             : null,
           min: pan?.pointers?.min ?? (controller.kind === 'pinch' ? 2 : 1),
           max: pan?.pointers?.max ?? (controller.kind === 'pinch' ? 2 : 1),
-          phase: projection ? 'idle' : 'failed',
+          phase: projection && admitted ? 'idle' : 'failed',
           projection,
           start: point({ x: 0, y: 0 }),
           startPosition: null,
@@ -716,7 +725,15 @@ export function createGestureOwner(scheduler: GestureScheduler) {
             ready = Math.abs(run.last.scale - 1) * run.startSpan >= 4
           }
 
-          if (ready) {
+          if (
+            ready &&
+            run.controller.admission &&
+            'translation' in run.last &&
+            !run.controller.admission.intent(run.last)
+          ) {
+            run.phase = 'failed'
+            publish(run)
+          } else if (ready) {
             activate(run)
           }
         }

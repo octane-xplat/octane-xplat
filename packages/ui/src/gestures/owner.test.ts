@@ -493,3 +493,35 @@ it('does not admit a new contact after system cancellation while an old contact 
     f.dispose()
   }
 })
+
+it('applies leaf edge admission and signed intent before claim, preserving the cohort after cancellation', () => {
+  const events: string[] = []
+  const pan = createPanController({
+    axis: 'x',
+    onStart: () => events.push('start'),
+    onCancel: () => events.push('cancel'),
+    onFinalize: () => events.push('finalize'),
+  })
+
+  pan.admission = { admit: (p) => (p.local?.x ?? 100) <= 40, intent: (s) => s.translation.x > 0 }
+
+  const f = fixture(pan.handle, [pan])
+
+  f.send('down', [f.contact('1', 80)])
+  f.send('move', [f.contact('1', 180)])
+  expect(events).toEqual([])
+  f.send('up', [])
+  f.send('down', [f.contact('1', 10)])
+  f.send('move', [f.contact('1', -10)])
+  expect(events).toEqual([])
+  f.send('up', [])
+  f.send('down', [f.contact('1', 10)])
+  f.send('move', [f.contact('1', 30)])
+  expect(events).toEqual(['start'])
+  f.send('down', [f.contact('1', 30), f.contact('2', 40)])
+  f.send('up', [f.contact('1', 30)], f.contact('2', 40))
+  f.send('move', [f.contact('1', 90)])
+  expect(events).toEqual(['start', 'cancel', 'finalize'])
+  f.send('up', [])
+  f.dispose()
+})

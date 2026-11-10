@@ -1,7 +1,7 @@
 import type { ClassValue, CSSProperties } from 'octane/jsx-runtime'
 
 /** Slide-over navigation panel from `@octane-xplat/drawer`. Mobile uses
- * ui-drawer's native gesture engine; web and desktop use a composed panel.
+ * the shared gesture owner and a composed panel; web and desktop use explicit controls.
  * Supply an accessible open/close control in your content on every target.
  * @example
  * ```tsx
@@ -42,9 +42,9 @@ export interface DrawerProps {
   accessibilityLabel?: string
   /** Receives mobile animation failures instead of an unhandled rejection. */
   onError?: (error: unknown) => void
-  /** Platform host properties, applied after shared configuration. */
+  /** Native host properties. Removed ui-drawer engine settings are rejected. */
   ios?: Record<string, unknown>
-  /** Platform host properties, applied after shared configuration. */
+  /** Native host properties. Removed ui-drawer engine settings are rejected. */
   android?: Record<string, unknown>
   /** Platform host properties, applied after shared configuration. */
   web?: Record<string, unknown>

@@ -1,151 +1,258 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { registerElement } from '@nativescript-community/octane'
-import { Drawer as PluginDrawer, install } from '@nativescript-community/ui-drawer'
-import { Application, isAndroid, isIOS } from '@nativescript/core'
-import { useCallback, useEffect, useRef } from 'octane'
+import { Application, isAndroid, isIOS, type View } from '@nativescript/core'
+import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/animation-frame'
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'octane'
+import { useSignal$ } from 'octane/signals/client'
 import { cx } from '@octane-xplat/lib'
+import { attachOwnedPan, useInputCallbackGuard } from '@octane-xplat/ui/internal/gesture-input'
+import { createAnimatedValue } from '@octane-xplat/ui/internal/animated-value'
+import { Pressable } from '@octane-xplat/ui'
 import type { DrawerProps } from './props'
-import { bindDrawer } from './native-binding'
+import { bindDrawer, type DrawerBinding } from './native-binding'
+import { applyNativeDrawerProps } from './native-host-props'
 
-// This module is reachable only through the opt-in drawer package. The
-// upstream import also installs gesture lifecycle mixins; do not mark it pure.
-install()
-
-class DrawerHost extends PluginDrawer {
-  onAnimationError?: (error: unknown) => void
-  // Upstream open() does not await animateToPosition(). Catch at the actual
-  // animation boundary so failures cannot escape its fire-and-forget call.
-  override async animateToPosition(...args: Parameters<PluginDrawer['animateToPosition']>) {
-    try {
-      await super.animateToPosition(...args)
-    } catch (error) {
-      this.onAnimationError?.(error)
-    }
-  }
-}
-
-registerElement('xplatDrawer', DrawerHost)
-
-/** Gesture-enabled mobile Drawer. Content and styling belong to the caller;
- * this is a custom native layout, not OS-provided menu chrome. */
+/** Mobile presentation composed over the shared root gesture owner. */
 export function Drawer(props: DrawerProps): unknown @{
+  const invoke = useInputCallbackGuard()
+  const gestureEnabled$ = useSignal$(props.isGestureEnabled !== false)
   const latest = useRef(props)
 
-  latest.current = props
-
-  const host = useRef<DrawerHost | null>(null)
-  const binding = useRef<ReturnType<typeof bindDrawer> | null>(null)
-  const checkReady = useRef<(() => void) | null>(null)
-  const onSlotLayout = useCallback(() => {
-    queueMicrotask(() => checkReady.current?.())
+  const host = useRef<View | null>(null)
+  const panel = useRef<View | null>(null)
+  const backdrop = useRef<View | null>(null)
+  const main = useRef<View | null>(null)
+  const binding = useRef<DrawerBinding | null>(null)
+  const ready = useCallback(() => {
+    queueMicrotask(() => binding.current?.sync())
   }, [])
 
-  const attach = useCallback((view: DrawerHost | null) => {
+  const attach = useCallback((view: View | null) => {
     host.current = view
   }, [])
 
   useEffect(() => {
-    const view = host.current
+    const root = host.current
+    const content = panel.current
+    const shade = backdrop.current
+    const background = main.current
 
-    if (!view) {
+    if (!root || !content || !shade || !background) {
       return
     }
 
-    const control = bindDrawer(view, () => ({
-      ...latest.current,
-      reducedMotion:
-        latest.current.reducedMotion ||
-        (isIOS && UIAccessibilityIsReduceMotionEnabled()) ||
-        (isAndroid &&
-          android.provider.Settings.Global.getFloat(
-            Application.android.context.getContentResolver(),
-            android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
-            1,
-          ) === 0),
-    }))
+    let savedOpen = latest.current.defaultOpen ?? false
+    let releaseMounted: (() => void) | null = null
+    const unmount = () => {
+      const release = releaseMounted
 
-    binding.current = control
-    view.onAnimationError = control.reportError
+      releaseMounted = null
+      release?.()
+    }
 
-    const ready = () => {
-      if (
-        view.isLoaded &&
-        view.isSideReady('left') &&
-        view.leftDrawer &&
-        view.leftDrawer.getActualSize().width > 0
-      ) {
-        control.ready()
+    const mount = () => {
+      if (releaseMounted || !root.isLoaded) {
+        return
       }
-    }
 
-    checkReady.current = ready
+      const originalHidden = isIOS ? background.ios.accessibilityElementsHidden : false
+      const originalModal = isIOS ? content.ios.accessibilityViewIsModal : false
+      const originalImportance = isAndroid ? background.android.getImportantForAccessibility() : 0
+      let revealed = 0
+      let from = 0
+      let target = 0
+      const write = (value: number) => {
+        const width = content.getActualSize().width || latest.current.width || 280
 
-    const opened = () => control.settled(true)
-    const closed = () => control.settled(false)
-    const back = (event: { cancel: boolean }) => {
-      if (view.isOpened('left')) {
-        event.cancel = true
-        control.dismiss()
+        revealed = Math.max(0, Math.min(width, value))
+        content.translateX = revealed - width
+        content.visibility = revealed > 0 ? 'visible' : 'hidden'
+        shade.opacity = revealed / width
+        shade.visibility = revealed > 0 ? 'visible' : 'hidden'
+        // Native editing and semantic focus remain native; hide covered content
+        // from accessibility without disabling the owner's contact observer.
+        if (isIOS) {
+          background.ios.accessibilityElementsHidden = revealed > 0 || originalHidden
+          content.ios.accessibilityViewIsModal = revealed > 0 || originalModal
+        } else if (isAndroid) {
+          background.android.setImportantForAccessibility(revealed > 0 ? 4 : originalImportance)
+        }
       }
-    }
 
-    view.on('open', opened)
-    view.on('close', closed)
-    view.on('layoutChanged', ready)
-    view.on('loaded', ready)
-    if (isAndroid) {
-      Application.android.on('activityBackPressed', back)
-    }
+      // Reuse UI's cancellable scalar engine; a single eased sample writes both
+      // panel and shade. No second platform tween can overwrite a new drag.
+      const animation = createAnimatedValue(0, {
+        now: Date.now,
+        request: requestAnimationFrame,
+        cancel: cancelAnimationFrame,
+        write: (_view, t) => {
+          const eased = t * t * (3 - 2 * t)
 
-    ready()
-    return () => {
-      control.dispose()
-      view.off('open', opened)
-      view.off('close', closed)
-      view.off('layoutChanged', ready)
-      view.off('loaded', ready)
+          write(from + (target - from) * eased)
+        },
+      })
+
+      animation.ref(root)
+
+      const control = bindDrawer(
+        {
+          width: () => content.getActualSize().width,
+          read: () => revealed,
+          stop: () => animation.stop(),
+          write,
+          settle(value, reducedMotion) {
+            // Resetting the timeline must not reset the presentation.
+            animation.ref(null)
+            void animation.to(0, { duration: 0 })
+            from = revealed
+            target = value
+            animation.ref(root)
+            return animation.to(1, { duration: reducedMotion ? 0 : 200 })
+          },
+          dispose() {
+            animation.dispose()
+            if (isIOS) {
+              background.ios.accessibilityElementsHidden = originalHidden
+              content.ios.accessibilityViewIsModal = originalModal
+            } else if (isAndroid) {
+              background.android.setImportantForAccessibility(originalImportance)
+            }
+          },
+        },
+        () => ({
+          ...latest.current,
+          defaultOpen: savedOpen,
+          onOpenChange: (value) => {
+            savedOpen = value
+            invoke(latest.current.onOpenChange, value)
+          },
+          onDismiss: () => {
+            invoke(latest.current.onDismiss)
+          },
+          onError: latest.current.onError
+            ? (error) => {
+                invoke(latest.current.onError, error)
+              }
+            : undefined,
+          reducedMotion:
+            latest.current.reducedMotion ||
+            (isIOS && UIAccessibilityIsReduceMotionEnabled()) ||
+            (isAndroid &&
+              android.provider.Settings.Global.getFloat(
+                Application.android.context.getContentResolver(),
+                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+                1,
+              ) === 0),
+        }),
+      )
+
+      binding.current = control
+
+      let off: () => void
+
+      try {
+        off = attachOwnedPan(root, { ...control.pan, enabled$: gestureEnabled$ }, control.admission)
+      } catch (error) {
+        control.dispose()
+        binding.current = null
+        throw error
+      }
+
+      const back = (event: { cancel: boolean }) => {
+        if (!event.cancel && control.visible()) {
+          event.cancel = true
+          control.dismiss()
+        }
+      }
+
       if (isAndroid) {
-        Application.android.off('activityBackPressed', back)
+        Application.android.on('activityBackPressed', back)
       }
 
-      view.onAnimationError = undefined
-      binding.current = null
-      checkReady.current = null
+      control.sync()
+      releaseMounted = () => {
+        try {
+          off()
+        } finally {
+          try {
+            control.dispose()
+          } finally {
+            if (isAndroid) {
+              Application.android.off('activityBackPressed', back)
+            }
+
+            binding.current = null
+          }
+        }
+      }
+    }
+
+    root.on('loaded', mount)
+    root.on('unloaded', unmount)
+    mount()
+    return () => {
+      root.off('loaded', mount)
+      root.off('unloaded', unmount)
+      unmount()
     }
   }, [])
 
-  useEffect(() => {
-    binding.current?.sync()
-  }, [props.open])
-
-  useEffect(() => {
-    const bag = isIOS ? props.ios : props.android
-
-    if (host.current && bag) {
-      Object.assign(host.current, bag)
+  useLayoutEffect(() => {
+    latest.current = { ...props }
+    gestureEnabled$.set(props.isGestureEnabled !== false)
+    if (host.current) {
+      applyNativeDrawerProps(host.current, isIOS ? props.ios : props.android)
     }
-  }, [props.ios, props.android])
 
-  <xplatDrawer
+    binding.current?.sync()
+  }, [
+    props.open,
+    props.defaultOpen,
+    props.width,
+    props.isGestureEnabled,
+    props.reducedMotion,
+    props.onOpenChange,
+    props.onDismiss,
+    props.onError,
+    props.ios,
+    props.android,
+  ])
+
+  <masonview
     id={props.id}
     ref={attach}
-    className={cx('vx-drawer', props.className)}
+    className={cx('vx-drawer', 'vx-drawer--mobile', props.className)}
     style={props.style}
-    gestureEnabled={props.isGestureEnabled !== false}
-    backdropColor="rgba(0, 0, 0, 0.4)"
-    backdropProperties={{ className: 'vx-drawer-backdrop' }}
+    onLayoutChanged={ready}
   >
-    <masonview className="vx-drawer-main" hostSlot="mainContent" style={{ display: 'grid' }}>
+    <masonview
+      id={props.id ? props.id + '-main' : undefined}
+      ref={(view: View | null) => {
+        main.current = view
+      }}
+      className="vx-drawer-main"
+    >
       {props.main}
     </masonview>
+    <Pressable
+      id={props.id ? props.id + '-backdrop' : undefined}
+      ref={(view: View | null) => {
+        backdrop.current = view
+      }}
+      className="vx-drawer-backdrop"
+      accessibilityLabel="Close navigation"
+      onPress={() => binding.current?.dismiss()}
+    />
     <masonview
-      hostSlot="leftDrawer"
-      onLayoutChanged={onSlotLayout}
+      id={props.id ? props.id + '-panel' : undefined}
+      ref={(view: View | null) => {
+        panel.current = view
+      }}
       className="vx-drawer-panel"
       accessibilityLabel={props.accessibilityLabel ?? 'Navigation'}
-      style={{ display: 'grid', width: props.width ?? 280 }}
+      onLayoutChanged={ready}
+      style={{ width: props.width ?? 280 }}
     >
       {props.drawer}
     </masonview>
-  </xplatDrawer>
+  </masonview>
 }

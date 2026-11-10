@@ -1,21 +1,24 @@
-import { createPanController } from './controller'
+import { createPanController, type PanAdmission } from './controller'
 import type { PanGesture, PanGestureOptions } from './types'
 import type { PressOptions } from './press'
 
 /** @internal Framework-package integration; call only for a committed host. */
 export interface ExternalGestureAdapter {
-  pan(host: object, input: PanGesture): () => void
+  pan(host: object, input: PanGesture, basis: 'host' | 'parent'): () => void
   press(host: object, options: PressOptions): () => void
 }
 
 export function createExternalGestureInput(adapter: ExternalGestureAdapter) {
   return {
-    attachPan(host: object, options: PanGestureOptions): () => void {
+    attachPan(host: object, options: PanGestureOptions, admission?: PanAdmission): () => void {
       const controller = createPanController(options)
+
+      controller.admission = admission
+
       let release: () => void
 
       try {
-        release = adapter.pan(host, controller.handle)
+        release = adapter.pan(host, controller.handle, admission?.basis ?? 'parent')
       } catch (error) {
         controller.dispose()
         throw error

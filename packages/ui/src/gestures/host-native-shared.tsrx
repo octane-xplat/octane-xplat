@@ -18,6 +18,7 @@ export type { InteractionHostOptions } from './host-options'
 export function useNativeInteractionHost(
   options: InteractionHostOptions,
   adapter: InteractionAdapter<NativeGestureView>,
+  isReady?: (host: NativeGestureView) => boolean,
 ): (host: object | null) => void {
   const guarded = useInteractionCallbacks(options)
   const membership = useInteractionMembership()
@@ -39,7 +40,10 @@ export function useNativeInteractionHost(
 
   const binding = ref.current
   const clearLoaded = useCallback(() => {
-    observed.current?.off('loaded', sync)
+    observed.current?.off('loaded', loaded)
+    if (isReady) {
+      observed.current?.off('layoutChanged', loaded)
+    }
     observed.current?.off('unloaded', unloaded)
     observed.current = null
   }, [])
@@ -63,14 +67,25 @@ export function useNativeInteractionHost(
     if (observed.current !== host) {
       clearLoaded()
       observed.current = host
-      host.on('loaded', sync)
+      host.on('loaded', loaded)
+      if (isReady) {
+        host.on('layoutChanged', loaded)
+      }
       host.on('unloaded', unloaded)
     }
 
-    if (host.isLoaded !== false) {
+    if (isReady ? isReady(host) : host.isLoaded !== false) {
       binding.commit(host, current)
     }
-  }, [binding, clearLoaded])
+  }, [binding, clearLoaded, isReady])
+
+  const loaded = useCallback(() => {
+    if (isReady) {
+      queueMicrotask(sync)
+    } else {
+      sync()
+    }
+  }, [isReady, sync])
 
   const unloaded = useCallback(() => binding.detach(), [binding])
 

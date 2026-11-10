@@ -49,8 +49,8 @@ try {
 
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
 
-  assert.equal(manifest.dependencies['@nativescript-community/ui-drawer'], '0.1.32')
-  assert.equal(manifest.dependencies['@nativescript-community/gesturehandler'], '2.1.0')
+  assert.equal(manifest.dependencies['@nativescript-community/ui-drawer'], undefined)
+  assert.equal(manifest.dependencies['@nativescript-community/gesturehandler'], undefined)
   // Install only declared dependencies/peers. No UI workspace dev plugins leak
   // into this consumer's node_modules.
   for (const dependency of new Set([

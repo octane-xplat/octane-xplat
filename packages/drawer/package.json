@@ -40,8 +40,6 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
-		"@nativescript-community/gesturehandler": "2.1.0",
-		"@nativescript-community/ui-drawer": "0.1.32",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/lib": "workspace:*"
 	},

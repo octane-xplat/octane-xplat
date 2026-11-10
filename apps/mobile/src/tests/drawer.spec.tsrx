@@ -1,34 +1,23 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { describe, expect, it } from 'vitest'
-import { Application, isAndroid } from '@nativescript/core'
+import { Application, isAndroid, type View } from '@nativescript/core'
 import { Drawer } from '@octane-xplat/drawer'
 import { Text } from '@octane-xplat/ui'
 import { mountXplat, waitUntil } from '@octane-xplat/platform/testing'
 
-type NativeDrawer = {
-  isOpened(side: string): boolean
-  close(side: string, duration: number): Promise<void>
-  gestureEnabled: boolean
-  panGestureHandler: unknown
-  mainContent: unknown
-  leftDrawer?: { getActualSize(): { width: number } }
-}
-
-function findHost(view: any, id: string): NativeDrawer | undefined {
-  let host: NativeDrawer | undefined
-  const find = (node: any): void => {
-    if (node.id === id) {
-      host = node
-    }
-
-    node.eachChildView?.((child: unknown) => {
-      find(child)
-      return true
-    })
+function findHost(view: View, id: string): View | undefined {
+  if (view.id === id) {
+    return view
   }
 
-  find(view)
-  return host
+  let result: View | undefined
+
+  view.eachChildView?.((child) => {
+    result ??= findHost(child, id)
+    return true
+  })
+
+  return result
 }
 
 function hardwareBack(): boolean {
@@ -73,21 +62,19 @@ function BackDrawer() @{
 }
 
 describe('native Drawer', () => {
-  it('mounts the gesture host, lays out slots and opens after layout', async () => {
+  it('mounts the composed host and opens the measured panel after layout', async () => {
     const { view } = await mountXplat(OpenDrawer)
     const host = findHost(view, 'drawer-host')
+    const panel = findHost(view, 'drawer-host-panel')
 
     expect(host).toBeDefined()
-    await waitUntil(() => host!.isOpened('left'), {
+    await waitUntil(() => panel!.visibility === 'visible' && panel!.translateX === 0, {
       message: 'defaultOpen never opened after layout',
     })
 
-    expect(host!.gestureEnabled).toBe(true)
-    expect(host!.panGestureHandler).toBeDefined()
-    expect(host!.mainContent).toBeDefined()
-    expect(host!.leftDrawer!.getActualSize().width).toBe(280)
-    await host!.close('left', 0)
-    expect(host!.isOpened('left')).toBe(false)
+    expect(findHost(view, 'drawer-host-main')).toBeDefined()
+    expect(panel!.getActualSize().width).toBe(280)
+    expect(panel!.translateX).toBe(0)
   })
 
   it.skipIf(!isAndroid)('consumes one hardware Back press to dismiss the open panel', async () => {
@@ -96,16 +83,17 @@ describe('native Drawer', () => {
 
     const { view } = await mountXplat(BackDrawer)
     const host = findHost(view, 'drawer-back-host')
+    const panel = findHost(view, 'drawer-back-host-panel')
 
     expect(host).toBeDefined()
-    await waitUntil(() => host!.isOpened('left'), {
+    await waitUntil(() => panel!.visibility === 'visible' && panel!.translateX === 0, {
       message: 'defaultOpen never opened after layout',
     })
 
     expect(hardwareBack()).toBe(true)
     expect(backChanges).toEqual([false])
     expect(backDismissals).toBe(1)
-    await waitUntil(() => !host!.isOpened('left'), {
+    await waitUntil(() => panel!.visibility === 'hidden', {
       message: 'Back dismissal did not close the panel',
     })
 

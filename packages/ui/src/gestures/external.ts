@@ -7,6 +7,7 @@ import {
 } from './input.native'
 
 import { nativeGestureSurface } from './native-surface'
+import { nativeInputReady } from './native-ready'
 
 function nativeHost(host: object): NativeGestureView {
   if (
@@ -26,8 +27,9 @@ function nativeHost(host: object): NativeGestureView {
 function loaded(host: object, attach: (view: NativeGestureView) => () => void): () => void {
   const view = nativeHost(host)
   let release: (() => void) | null = null
+  let alive = true
   const load = () => {
-    if (!release) {
+    if (alive && !release && nativeInputReady(view)) {
       release = attach(view)
     }
   }
@@ -39,29 +41,43 @@ function loaded(host: object, attach: (view: NativeGestureView) => () => void): 
     old?.()
   }
 
-  view.on('loaded', load)
+  const deferredLoad = () => {
+    queueMicrotask(load)
+  }
+
+  view.on('loaded', deferredLoad)
+  view.on('layoutChanged', deferredLoad)
   view.on('unloaded', unload)
   try {
     if (view.isLoaded !== false) {
       load()
     }
   } catch (error) {
-    view.off('loaded', load)
+    alive = false
+    view.off('loaded', deferredLoad)
+    view.off('layoutChanged', deferredLoad)
     view.off('unloaded', unload)
     throw error
   }
 
   return () => {
-    view.off('loaded', load)
+    alive = false
+    view.off('loaded', deferredLoad)
+    view.off('layoutChanged', deferredLoad)
     view.off('unloaded', unload)
     unload()
   }
 }
 
 const input = createExternalGestureInput({
-  pan: (host, gesture) =>
+  pan: (host, gesture, basis) =>
     loaded(host, (view) =>
-      attachNativeGesture(parentGestureSurface(nativeGestureSurface(view)), gesture),
+      attachNativeGesture(
+        basis === 'parent'
+          ? parentGestureSurface(nativeGestureSurface(view))
+          : nativeGestureSurface(view),
+        gesture,
+      ),
     ),
   press: (host, options) =>
     loaded(host, (view) => {
@@ -76,3 +92,7 @@ const input = createExternalGestureInput({
 
 export const attachOwnedPan = input.attachPan
 export const observeOwnedPress = input.observePress
+
+export type { PanAdmission } from './controller'
+
+export { useInputCallbackGuard } from './callbacks.tsrx'

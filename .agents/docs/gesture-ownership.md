@@ -184,10 +184,16 @@ third-party drawer engines, embedded editing engines and OS navigation cannot be
 claimed or frozen merely because a wrapper is a View. The initial suspension
 adapter rejects unknown native subclasses. Do not advertise engine interoperability
 or replace their gesture machinery without a separate adapter qualification.
-The native Drawer still uses ui-drawer's engine; closed-edge intent and its
-animation lifecycle need an adapter before it can share custom gesture composition.
-This boundary is separate from the public pan/pinch cutover, not proof of coordinated
-native drawer/descendant gestures.
+Mobile Drawer now uses the common owner through the internal gesture-input boundary.
+Its leaf supplies synchronous edge admission and signed intent before activation;
+the enabled host reserves its horizontal axis before OS recognition. The default Motion
+bridge retains its frozen parent basis; Drawer selects its stable root host basis.
+The owner still enforces native manipulation boundaries and exact-one pointer
+cancellation. No public cross-host composition graph is added. The UI scalar
+animation engine drives one leaf presentation writer; generation checks prevent
+stale settles from committing state. See [Drawer](native-drawer.md) for limits.
+UI BottomSheet's private grabber pan and platform-native sheet presenters remain
+separate integration boundaries; do not generalize Drawer qualification to them.
 
 Component callbacks bridge errors into their mounted renderer boundary after
 synchronous cancellation/finalization. A retired component cannot receive a
@@ -235,3 +241,17 @@ full suspension remains unsupported. Native window coordinates are logical
 units; native screen positions remain null. Packed public-component, Motion,
 Mason and accessibility-service qualification remain separate from transport
 and handler checks; consult Silo and retained reports for the actual artifacts.
+
+Leaf admission is a predicate inside the existing owner, not an external-engine
+capture protocol. `PanAdmission` rejects first-down regions and signed intent
+before claim; optional live enablement supplements the ordinary signal/prop
+configuration. Native horizontal reservations must exist before contact. A
+per-down policy write cannot promise to revoke scrolling already admitted by
+the native engine. With NativeScript core 9.1.3 on Android, `loaded` can precede
+OS window insertion for hidden descendants; native adapter attachment then
+rejects a missing window. The maintained [Drawer input fixture](../../packages/drawer/tests/fixtures/drawer-input.mobile.tsrx)
+exercises the composed host. Common hosts and imperative leaves work around
+this by retrying after committed load/layout only when the native view is
+attached (Android `isAttachedToWindow`, iOS `window`). Cleanup invalidates queued
+attachment callbacks. Reassess the readiness gate if upstream guarantees
+window insertion before `loaded`; do not remove it on build evidence alone.

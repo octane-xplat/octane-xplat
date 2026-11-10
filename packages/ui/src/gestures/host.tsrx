@@ -8,6 +8,7 @@ import {
 } from './input.native'
 
 import { nativeGestureSurface } from './native-surface'
+import { nativeInputReady } from './native-ready'
 import { observeNativePress } from './native-press'
 import type { InteractionAdapter } from './host-binding'
 import type { InteractionHostOptions } from './host-options'
@@ -25,5 +26,5 @@ const adapter: InteractionAdapter<NativeGestureView> = {
 }
 
 export function useInteractionHost(options: InteractionHostOptions): (host: object | null) => void {
-  return useNativeInteractionHost(options, adapter)
+  return useNativeInteractionHost(options, adapter, nativeInputReady)
 }

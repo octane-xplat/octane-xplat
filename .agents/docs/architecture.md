@@ -69,5 +69,4 @@ carried on the package (#62).
    requested platform. For intentional
    pass-through behavior, follow the criteria in `docs/start/architecture.md`.
 
-Drawer is owned by `@octane-xplat/drawer` (#133), including its mobile gesture
-plugin dependency. UI must not re-export it or depend on the drawer leaf.
+Drawer is owned by `@octane-xplat/drawer` (#133), including its mobile presentation and common-owner gesture policy. UI must not re-export it or depend on the drawer leaf.

@@ -3,14 +3,14 @@ import type { GestureCallbacks, GestureSample } from './types'
 import type { PressOptions } from './press'
 import type { InteractionHostOptions } from './host-options'
 
-type CallbackGuard = <A extends unknown[]>(
+export type InputCallbackGuard = <A extends unknown[]>(
   callback: ((...args: A) => void) | undefined,
   ...args: A
 ) => boolean
 
 /** External host errors enter the mounted renderer boundary after synchronous
  * input cleanup. A retired owner cannot receive a state update. */
-function useInputCallbackGuard(): CallbackGuard {
+export function useInputCallbackGuard(): InputCallbackGuard {
   const [failure, setFailure] = useState<{ error: unknown } | null>(null)
   const alive = useRef(true),
     pending = useRef(false)
@@ -88,7 +88,7 @@ export function useGestureCallbacks<T extends GestureSample>(
 
 function guardedPress(
   options: PressOptions | undefined,
-  invoke: CallbackGuard,
+  invoke: InputCallbackGuard,
 ): PressOptions | undefined {
   if (!options) {
     return undefined

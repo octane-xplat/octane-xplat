@@ -14,10 +14,19 @@ import type {
   PanGesture,
   PanGestureOptions,
   PanSample,
+  Positions,
   PinchGesture,
   PinchGestureOptions,
   PinchSample,
 } from './types'
+
+/** Framework leaf policy, evaluated by the common owner before activation. */
+export interface PanAdmission {
+  readonly basis?: 'host' | 'parent'
+  enabled?(): boolean
+  admit(position: Positions): boolean
+  intent(sample: PanSample): boolean
+}
 
 let nextId = 0
 
@@ -80,6 +89,7 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
   readonly handle: GestureHandle<T, K>
   readonly scope: Scope | null
   readonly state$
+  admission?: PanAdmission
   disposed = false
   owner: object | null = null
   invalidate: ((reason: CancelReason) => void) | null = null
@@ -146,7 +156,7 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
       throw new Error('enabled$ must remain a ready synchronous boolean signal')
     }
 
-    return value
+    return value && (this.admission?.enabled?.() ?? true)
   }
 
   commit(options: O) {

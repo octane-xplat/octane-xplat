@@ -10,14 +10,16 @@ An Octane Xplat application with its target renderer and UI theme configured.
 
 ## Requirements
 
-Add a usable navigation drawer without requiring drawer plugins in applications
-that use unrelated UI widgets.
+Add a usable navigation drawer using the common input owner on mobile, without installing a separate drawer
+gesture plugin.
 
 ## Acceptance criteria
 
 - AC1: The reader installs the drawer package and migrates old UI root and platform-specific drawer imports without app-direct plugin declarations.
 - AC2: The reader composes accessible open/close controls, owns state through open/onOpenChange or defaultOpen, and receives user dismissal without callback echoes from prop updates.
-- AC3: On iOS/Android, edge opening and drag closing work by default, with explicit gesture and reduced-motion configuration and target qualification limits described.
+- AC3: On iOS/Android, edge opening and drag closing work by default, with explicit gesture and reduced-motion configuration and target qualification limits described. Edge admission precedes movement; nested
+  buttons retain taps, claimed drags suppress trailing activation, and extra
+  pointers cancel without restarting the same contact cohort.
 - AC4: On web/desktop, the documented panel subset remains explicit; on web, keyboard focus, Escape dismissal and return focus work.
 
 ## Documentation

@@ -1,10 +1,10 @@
 # @octane-xplat/drawer
 
-> Cross-platform Drawer with native mobile edge gestures
+> Cross-platform Drawer with shared-owner mobile edge gestures
 
 One Drawer API across web, iOS, Android, macOS, and Windows. Mobile edge-open
-and drag-close gestures use `@nativescript-community/ui-drawer`; its gesture
-engine is owned by this package. Apps using unrelated UI widgets do not install
+and drag-close gestures use the existing shared input owner. No separate
+drawer gesture plugin is installed. Apps using unrelated UI widgets do not install
 this package.
 
 ```tsx
