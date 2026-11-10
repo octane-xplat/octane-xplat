@@ -462,11 +462,13 @@ updates report `unsupported`, `requestStream` rejects explicitly, and the
 functions (no foreign-suffix module reaches the windows bundle — the
 boundary plugin is active in build:windows). `media` is picker-backed
 (`supported`/`available` true, capture null, photos permission
-`unsupported`); `biometrics` runs real Windows Hello through the managed
-`ServiceInterop` helper (`supported` true; the Windy box has no Hello
-enrollment so availability reports `denied` — the managed bridge is
-required because the projected `toPromise` await panics the isolate, see
-upstream-limitations). Drivers: files-identity 12, service 130,
+`unsupported`); `biometrics` runs real Windows Hello (`supported` true;
+the Windy box has no Hello enrollment so availability reports `denied`).
+On this run it went through the managed `ServiceInterop` bridge because
+the projected `toPromise` await panicked the isolate — fixed upstream in
+`@nativescript/windows@1.0.0-beta.24` (see upstream-limitations), after
+which the leaf cut over to the direct projection and the helper's Hello
+members were removed. Drivers: files-identity 12, service 130,
 storage-verify 8, secure-verify 9 (159 assertions, launch `mw9qbl3z`).
 
 ### leaf-surface-2 qualified (b561f5716, MSIX 1.0.0.244)
