@@ -692,11 +692,39 @@ dynamic proxy in both controls modes, poster present before start and removed
 after, pause/resume/seek/loop kept a single start, source replacement re-armed
 and reported again with autoplay rendered frames, a missing source stayed
 buffering with the poster retained, cancellation returned to idle with the
-poster, and unmount unloaded the view with the player idle. Media-failure
-callback delivery (`onPlayerError`) was not exercised and stays open; static
-app bindings and release-APK delivery remain unqualified, and upstream
-`NativeScript/android` still needs the generator fix. Detailed run evidence
-belongs in Silo and reports.
+poster, and unmount unloaded the view with the player idle. At that time
+media-failure callback delivery (`onPlayerError`) had not been exercised.
+
+The upstream repair is now landed on the NativeScript/android main line at
+`e5432d92e6174b02e0905db2121d3a1065e90422` (three layers: supplied default
+interface overrides in `Dump.getSupportedMethods`, content-keyed class
+identity for anonymous interface proxies, and unsupplied D8-desugared
+defaults bridged to the native `$-CC` companion). Upstream verification:
+binding-generator tests 14/14 and 26/26 on-device specs on
+`elegant-fir-probe`, including a real second-listener `onPlayerError`
+PlaybackException (`errors 1`, `errorStates 2`); no upstream release exists,
+so consumers still need a locally built artifact.
+
+For consumer verification the complete repair was backported onto the same
+9.1.1 base `60d03e98` (worktree `trudy-v911-full`) and rebuilt as
+`runtime-optimized-with-inspector-release.aar` (SHA-256
+`8e50916b0d95e824754477ecbb79718497eaeef4dea7fa755262dad52f23a0bd`,
+arm64-v8a). With that artifact in `runtime-libs` the same probe matrix passed
+again on `elegant-fir-probe` (run `1d2a0608-c72b-4158-9b49-a9895d27c05e`,
+22/22 assertions), and an added runtime-layer case passed all four
+assertions: a second anonymous `Player.Listener` proxy received the real
+missing-file `ExoPlaybackException` (`errors 1`, states `2,1`), and an
+unsupplied `Comparator.reversed` default resolved to the native
+`Collections$ReverseComparator2` implementation. The same layer case also
+passed on the previous Dump-only artifact `f5874cf7` (run
+`cc99288d-d9c8-4017-a2aa-93f3d5f4e802`): this consumer cannot discriminate
+the newer layers because the plugin supplies the full `Player.Listener`
+surface, so Dump-only stubs still forward to each instance's own
+implementation. Discriminating fail-before/pass-after coverage for the
+newer layers therefore stays with the upstream test-app specs; the consumer
+runs confirm the complete runtime is not a regression for the matrix.
+Static app bindings and release-APK delivery remain unqualified. Detailed
+run evidence belongs in Silo and reports.
 
 On the selected iOS simulator (`91D40099-A056-497D-A572-ADDDFD6A8F23`, iPhone
 18 Pro), the equivalent matrix passed (acceptance run
