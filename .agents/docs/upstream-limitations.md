@@ -774,3 +774,31 @@ its event integration. Keep detailed run evidence in Silo and local reports.
 ## iOS runtime-only class wrappers
 
 [Issue #228](https://github.com/octane-xplat/octane-xplat/issues/228) records consumer diagnostics on NativeScript iOS runtime 9.1.0/core 9.1.3: CAFilter lookup returns an NSObject wrapper and class-method discovery fails. NativeScript documents build-time SDK-header metadata; the precise superclass substitution point remains unisolated. Xplat carries no patch or private API support. The [public boundary guidance](../../docs/testing/known-limits.md#ios-runtime-only-class-identity) describes an app-owned native factory route, consumer-reported physical-device evidence, and the public UIKit fallback. Recheck wrapper identity and native metadata when upgrading the runtime; this docs change supplies no independent device qualification.
+
+## NativeScript iOS HTTP module fetch budget (9.1.0)
+
+Source evidence at NativeScript iOS
+[`v9.1.0`, `HttpLoader.mm`](https://github.com/NativeScript/ios/blob/v9.1.0/NativeScript/runtime/HttpLoader.mm#L650-L655):
+`BuildModuleFetchRequest` sets a 5-second request timeout, including for the
+async graph fetcher. Its session's 10-second timeout does not extend that
+request. A macOS Foundation control with those settings timed out a valid
+6-second response at about 5 seconds; a 15-second request succeeded. This is
+host transport evidence, not iOS graph qualification. NativeScript Vite
+8.0.20's module route permits 120-second transforms, so native fetches can
+expire while a valid cold transform remains pending.
+
+[`AsyncGraphOnFetchCompleted`](https://github.com/NativeScript/ios/blob/v9.1.0/NativeScript/runtime/ModuleInternalCallbacks.mm#L1490-L1500)
+leaves failed dependencies to synchronous resolution after the transport retry;
+`LoadHttpModuleForUrl` then emits the graph-miss warning. One missed parent
+can therefore produce warnings for its undiscovered subtree. The warning
+alone does not distinguish a timeout, compile failure, identity mismatch, or
+premature linking of a partially compiled graph.
+
+The [isolated reproduction](../../tools/platform-qualification/ios-module-graph/README.md)
+removes Vite and application configuration; its iOS execution remains pending.
+Xplat carries no timeout workaround. Investigate native fetch-failure traces
+and cold server response times before attributing consumer misses to this
+mechanism or changing import ownership. Trial a longer request budget upstream,
+then reconcile request/retry and graph deadlines; increasing only the session
+timeout cannot fix the verified request limit. No upstream report or runtime
+repair has been submitted for this finding.

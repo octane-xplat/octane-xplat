@@ -15,6 +15,7 @@ separately in `tools/desktop-support/`.
 | `windows-input-contracts/` | Native Windows input fixture and OS driver |
 | `windows-layout/` | Percentage-size regression and native geometry/popover fixtures; [automatic shrink candidate](../../.agents/docs/windows-layout-repair.md#automatic-fixed-size-shrink-candidate) |
 | `windows-rich-text/` | Candidate preparation, object-driver tests, native fixtures, and runtime fixtures |
+| [ios-module-graph/](ios-module-graph/README.md) | Plain-ESM HTTP graph timeout reproduction; iOS execution pending |
 | `ios-editor-backing/` | Standalone compile/link and metadata diagnostics; [findings](../../.agents/design/evidence/ios-editor-backing/results.md) |
 
 Use the owning [Windows repair notes](../../.agents/docs/parity/windows-support-progress.md)
