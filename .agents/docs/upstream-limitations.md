@@ -612,3 +612,23 @@ leases; native subtree replacement requires release and reacquisition. Other
 platforms have no equivalent contract in this API. Host tests establish
 ownership, not real-touch qualification. See the
 [public usage and limits](../../docs/app/primitives.md#pause-ios-user-scrolling-during-an-ancestor-drag).
+
+## Android Video playback-start event (@nstudio/nativescript-exoplayer 6.2.0)
+
+The Android source shipped in `@nstudio/nativescript-exoplayer` 6.2.0 sets
+`eventPlaybackStart` in `onPlayWhenReadyChanged` but does not emit
+`Video.playbackStartEvent`. Its `onPlaybackStateChanged` emits readiness and
+completion events. The versioned upstream source is available through
+`opensrc path @nstudio/nativescript-exoplayer@6.2.0`, under
+`packages/nativescript-exoplayer/index.android.ts`; compare the installed
+`index.android.js` before carrying this conclusion to another version.
+
+The mobile Video leaf hides its poster on `onPlaybackStart`. Android native
+qualification observed loaded, visible posters with controls both enabled and
+disabled, but no start callback or poster removal after playback requests.
+This is partial lifecycle evidence, not proof of rendered frames or a complete
+playback diagnosis. Source replacement after confirmed playback and visual
+flicker remain unqualified. Xplat currently has no workaround for the missing
+event; host object-driver dispatch does not prove that the plugin emits it.
+Requalify the native event and poster lifecycle when changing the plugin or
+its event integration. Keep detailed run evidence in Silo and local reports.
