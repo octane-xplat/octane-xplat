@@ -108,10 +108,31 @@ runGtkApp(
       }
     }
     if (DIAG) {
+      const GObject = (globalThis as any).imports?.gi?.GObject
       window.connect?.('notify::focus-widget', () => {
         const fw = (window as any).get_focus?.()
-        marker(`FOCUS ${fw ? (fw.get_name?.() || fw.constructor?.name || 'widget') : 'none'}`)
+        if (!fw) {
+          marker(`FOCUS none (root.get_focus()=null)`)
+          return
+        }
+        const name = fw.get_name?.() || ''
+        const gtype = GObject?.type_name?.(fw) ?? 'widget'
+        marker(`FOCUS ${name || gtype}${name ? ' ' + gtype : ''}`)
       })
+      // Exposed for the runner: dump the submit button's ancestor chain with
+      // the flags GTK's traversal actually checks.
+      ;(globalThis as any).__journeyFocusChain = () => {
+        const b = findWidget(window, 'journey-submit')
+        if (!b) return marker('CHAIN missing')
+        const parts: string[] = []
+        for (let w = b; w; w = w.get_parent?.()) {
+          parts.push(
+            `${GObject?.type_name?.(w) ?? '?'}|f=${w.get_focusable?.() ? 1 : 0}|c=${w.get_can_focus?.() ? 1 : 0}|s=${w.is_sensitive?.() ? 1 : 0}|t=${w.get_can_target?.() ? 1 : 0}|v=${w.get_visible?.() ? 1 : 0}|m=${w.get_mapped?.() ? 1 : 0}`,
+          )
+        }
+        marker(`CHAIN ${parts.join(' > ')}`)
+      }
+      ;(globalThis as any).__journeyFocusChain()
     }
     const restored = storage.getString(STORAGE_KEY)
 

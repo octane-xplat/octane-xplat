@@ -51,7 +51,7 @@ desktop-file-validate "$XDG_DATA_HOME/applications/$APP_ID.desktop" && step "des
 
 # --- launch through the installed Exec line ---
 EXEC=$(grep '^Exec=' "$XDG_DATA_HOME/applications/$APP_ID.desktop" | sed 's/^Exec=//;s/"//g')
-DESKTOP_SHELL_DIAG=1 GDK_SYNCHRONIZE=1 $EXEC >"$LOG" 2>&1 &
+DESKTOP_SHELL_DIAG=1 GDK_SYNCHRONIZE=1 ${JOURNEY_APP_ENV:-} $EXEC >"$LOG" 2>&1 &
 APP_PID=$!
 READY=no
 for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }; sleep 0.25; done
@@ -85,7 +85,7 @@ if [ "$READY" = yes ]; then
     for i in $(seq 1 40); do grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && break; sleep 0.25; done
     grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && step "form: submit" os-input-x11-xtest pass "bounds+geometry" || step "form: submit" os-input-x11-xtest fail "bounds+geometry click, no SUBMITTED"
   else
-    step "form: submit" os-input-x11-xtest fail "no bounds/geometry"
+    step "form: submit" os-input-x11-xtest fail "${CLICK_FAIL:-no bounds/geometry}"
   fi
 else
   step "form: type name" os-input-x11-xtest blocked "launch"
