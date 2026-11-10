@@ -51,6 +51,12 @@ jobs:
         with:
           go-version-file: packages/cli/go/go.mod
       - run: bun install --frozen-lockfile
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
+          run_install: false
+          standalone: true
+      - run: bun run turbo run test:go-native-entry --filter=@octane-xplat/cli
       # Builds the host's Go executable (and probe) under research/go-cli and
       # runs the native contract check — the replaced Bun standalone gate.
       - run: bun run turbo run test:go-cli --filter=@octane-xplat/cli

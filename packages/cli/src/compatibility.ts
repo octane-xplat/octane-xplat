@@ -260,18 +260,22 @@ export function planUpgrade(dir: string): UpgradePlan {
     ),
   )
 
-  if (
-    manager === 'bun' &&
-    rootPackage &&
-    usesCli &&
-    !(rootPackage.pkg.trustedDependencies ?? []).includes('@octane-xplat/cli')
-  ) {
-    rootPackage.pkg.trustedDependencies = [
-      ...(rootPackage.pkg.trustedDependencies ?? []),
-      '@octane-xplat/cli',
-    ]
+  if (manager === 'bun' && rootPackage && usesCli) {
+    for (const name of ['octane-xplat', '@octane-xplat/cli']) {
+      if (!(rootPackage.pkg.trustedDependencies ?? []).includes(name)) {
+        rootPackage.pkg.trustedDependencies = [...(rootPackage.pkg.trustedDependencies ?? []), name]
+        plan.updates.push(`.: trust the ${name} install script`)
+      }
+    }
+  }
 
-    plan.updates.push('.: trust the @octane-xplat/cli install script')
+  if (manager === 'pnpm' && usesCli) {
+    for (const name of ['octane-xplat', '@octane-xplat/cli']) {
+      if (ws.getIn(['allowBuilds', name]) !== true) {
+        ws.setIn(['allowBuilds', name], true)
+        plan.updates.push(`.: allow the ${name} install script`)
+      }
+    }
   }
 
   // pnpm uses root overrides, including legacy package.json settings. Preserve

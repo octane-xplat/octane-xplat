@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 // The xplat bin entry — dev targets spawn through the CLI, not a local shim.
 const xplatCli = join(
   dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
-  '../../bin/xplat.mjs',
+  '../../bin/xplat.exe',
 )
 
 // Cold native-leaf builds can outlast the normal warm-session deadline.
@@ -16,7 +16,7 @@ const timeoutMs = Number(process.env.XPLAT_MACOS_SMOKE_TIMEOUT_MS ?? 120000)
 
 assert.ok(Number.isSafeInteger(timeoutMs) && timeoutMs > 0, 'Invalid AppKit smoke timeout')
 
-const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
+const host = spawn(xplatCli, ['dev', 'macos'], {
   cwd: fileURLToPath(new URL('..', import.meta.url)),
   env: {
     ...process.env,

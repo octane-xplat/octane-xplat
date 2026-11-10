@@ -2,10 +2,11 @@
 // per supported host. Used by scripts/publish-release.ts and every packaging
 // gate — there is no other layout.
 import assert from 'node:assert/strict'
-import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 
 import { dirname, join } from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { placeholder } from '../../packages/cli/install-native.mjs'
 import { sha256 } from './native-inputs.mjs'
 
 // [Go target, npm os, npm cpu] — the same matrix cli-executables.yml builds.
@@ -186,6 +187,7 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
   // The repack runs inside the staged tree, where build config is absent;
   // the tarball's contents are already final, so no build hooks belong.
   delete pkg.scripts.prepack
+  delete pkg.scripts.postpack
   pkg.optionalDependencies = Object.fromEntries(
     nativePlatformPackages.map((name) => [name, version]),
   )
@@ -196,13 +198,8 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
     }
   }
 
-  // The dev launcher resolves research/go-cli inside a checkout; published
-  // installs select a payload image instead.
-  rmSync(join(stage, 'bin/xplat.mjs'), { force: true })
-  // Bun's Windows bin shim remembers a shebang before postinstall runs.
-  // Keep this native .exe slot empty until installation selects its image.
-  writeFileSync(join(stage, 'bin/xplat.exe'), '', { mode: 0o755 })
-  cpSync(join(root, 'tools/cli-go/install-native.mjs'), join(stage, 'install-native.mjs'))
+  // Reset even when the first pack skipped lifecycle hooks.
+  writeFileSync(join(stage, 'bin/xplat.exe'), placeholder, { mode: 0o755 })
   writeFileSync(
     join(stage, 'native-platforms.json'),
     JSON.stringify({ version: 1, cliVersion: version, targets }, null, 2) + '\n',

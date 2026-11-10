@@ -71,7 +71,7 @@ test('install-native exits 0 without a payload for an unsupported host', (t) => 
   const dir = mkdtempSync(join(tmpdir(), 'xplat-install-'))
 
   t.after(() => rmSync(dir, { recursive: true, force: true }))
-  cpSync(join(root, 'tools/cli-go/install-native.mjs'), join(dir, 'install-native.mjs'))
+  cpSync(join(root, 'packages/cli/install-native.mjs'), join(dir, 'install-native.mjs'))
   writeFileSync(
     join(dir, 'package.json'),
     JSON.stringify({ name: '@octane-xplat/cli', version: '1.0.0' }),

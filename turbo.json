@@ -48,6 +48,7 @@
 		"test:go-response-roots": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
 		"test:go-foreground-input": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-release-worker": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_RELEASE_BINARY"] },
+		"test:go-native-entry": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-package": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-registry": { "cache": false, "dependsOn": ["build:go"] },
 		"octane-xplat#test:packed": { "dependsOn": ["build", "@octane-xplat/cli#build:go"], "cache": false },

@@ -1,8 +1,12 @@
 # Use xplat as an agent
 
-The npm `xplat` command requires Bun >=1.4.4 on PATH. Standalone release
-executables embed Bun and unpack their production payload into a writable
-local cache; they still require the app's Node/Bun/platform toolchains.
+The installed `xplat` command is a native Go executable, including when supplied
+by the `octane-xplat` umbrella. Allow both `octane-xplat` and `@octane-xplat/cli`
+install scripts and optional dependencies; Node selects the image at install time.
+Blocked scripts leave a failing placeholder (Windows may report an invalid
+executable). Repair through the declaring package's `install-native.mjs`; the
+umbrella installer repairs both command entries. Help and native inspection need
+no Node; app toolchains and explicit JS workers still do.
 See [CLI installation and executable builds](../../../../docs/packages/package-cli.md#single-file-executable).
 
 The [Go implementation](../../../../packages/cli/go/README.md) is the sole CLI;

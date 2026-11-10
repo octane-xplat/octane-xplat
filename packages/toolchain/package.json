@@ -10,7 +10,7 @@
 		"directory": "packages/toolchain"
 	},
 	"bin": {
-		"xplat": "./bin/xplat.mjs"
+		"xplat": "./bin/xplat.exe"
 	},
 	"exports": {
 		"./vite": {
@@ -21,11 +21,15 @@
 	"files": [
 		"bin",
 		"vite.js",
-		"vite.d.ts"
+		"vite.d.ts",
+		"install-native.mjs"
 	],
 	"scripts": {
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test:packed": "node test/packed.mjs"
+		"test:packed": "node test/packed.mjs",
+		"postinstall": "node install-native.mjs",
+		"prepack": "node install-native.mjs --prepare-package",
+		"postpack": "node install-native.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/cli": "workspace:*",

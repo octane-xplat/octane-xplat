@@ -127,6 +127,23 @@ func selectUpgradeWorker(projectRoot string) (upgradeWorkerLease, error) {
 		if err = osfs.ReadJSON(filepath.Join(root, "package.json"), &pkg); err != nil {
 			return upgradeWorkerLease{}, err
 		}
+		if pkg.Name == "octane-xplat" {
+			// The umbrella owns a direct copy of the executable. Resolve its
+			// release worker from its own CLI dependency, never the target app.
+			if pkg.Version != cli.Metadata.Version {
+				return upgradeWorkerLease{}, errors.New("invoked umbrella package/executable versions differ; reinstall this CLI")
+			}
+			root = project.InstalledRoot(root, "@octane-xplat/cli")
+			if root == "" {
+				return upgradeWorkerLease{}, errors.New("invoked umbrella is missing its CLI dependency; reinstall this CLI")
+			}
+			if err = osfs.ReadJSON(filepath.Join(root, "package.json"), &pkg); err != nil {
+				return upgradeWorkerLease{}, err
+			}
+			if pkg.Name != "@octane-xplat/cli" {
+				return upgradeWorkerLease{}, errors.New("invoked umbrella has an invalid CLI dependency; reinstall this CLI")
+			}
+		}
 		if pkg.Name != "@octane-xplat/cli" {
 			continue
 		}

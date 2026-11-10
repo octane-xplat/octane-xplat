@@ -56,3 +56,7 @@ packages/*/platforms/android/*.aar
 
 # Generated from public declarations by @xplat/docs#api.
 /docs/api/
+
+# Local native command entries; prepack replaces them with script-free placeholders.
+/packages/cli/bin/xplat.exe
+/packages/toolchain/bin/xplat.exe

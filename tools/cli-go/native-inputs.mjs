@@ -31,6 +31,8 @@ export function nativeInputs(root) {
   }
 
   files.push(
+    'packages/cli/install-native.mjs',
+    'packages/toolchain/install-native.mjs',
     'packages/cli/src/dev-inspector.web.ts',
     'packages/cli/src/mcp/inspection/dom.web.ts',
     'packages/cli/src/mcp/dev-stack.ts',

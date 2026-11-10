@@ -162,7 +162,8 @@ uncommitted publication checkout.
 ## CLI executables
 
 `cli-executables.yml` builds the Go CLI on macOS and Linux arm64/x64 and
-Windows x64, runs the `test:go-cli` contract check on each host, then attaches
+Windows x64, runs the `test:go-cli` contract check and `test:go-native-entry` packed
+Bun/npm/pnpm installation gate on each host, then attaches
 executables and SHA-256 checksums to published lockstep releases. Edits to the
 moving nightly release refresh its assets. Manual dispatch retains artifacts
 without uploading to a release. The normal checks job also runs the Linux
@@ -178,7 +179,7 @@ postinstall (`install-native.mjs`) copies the matching image out of five
 optional payload packages — `@octane-xplat/cli-native-darwin-arm64`,
 `-darwin-x64`, `-linux-x64`, `-linux-arm64`, `-win32-x64` — pinned at the
 lockstep version (`native-platforms.json` records each image's bytes and
-SHA-256; the `bin/xplat.exe` slot stays an empty placeholder until then).
+SHA-256; the `bin/xplat.exe` slot contains a failing, shebang-free placeholder until then).
 The `nim` channel is gone: the CLI and its payloads publish at the lockstep
 version like every other package.
 

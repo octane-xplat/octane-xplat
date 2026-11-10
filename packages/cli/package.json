@@ -22,7 +22,7 @@
 		"directory": "packages/cli"
 	},
 	"bin": {
-		"xplat": "./bin/xplat.mjs"
+		"xplat": "./bin/xplat.exe"
 	},
 	"files": [
 		"src",
@@ -30,7 +30,8 @@
 		"bin",
 		"patches",
 		"!dist/xplat",
-		"!dist/xplat.exe"
+		"!dist/xplat.exe",
+		"install-native.mjs"
 	],
 	"type": "module",
 	"exports": {
@@ -77,7 +78,7 @@
 	},
 	"scripts": {
 		"build": "vite build",
-		"prepack": "bun run build",
+		"prepack": "node install-native.mjs --prepare-package && bun run build",
 		"test": "node --test --test-concurrency=2 test/*.test.mjs test/*.test.ts",
 		"test:docs-search": "node --test test/mcp-docs.test.mjs",
 		"test:native-runtime": "node --test test/vite-native-runtime.test.mjs",
@@ -104,6 +105,7 @@
 		"test:go-response-roots": "node --test --test-name-pattern=response.roots ../../tools/cli-go/doctor.test.mjs ../../tools/cli-go/patches.test.mjs",
 		"test:go-doctor": "node --test ../../tools/cli-go/doctor.test.mjs",
 		"test:go-release-worker": "node --test ../../tools/cli-go/release-worker.test.mjs",
+		"test:go-native-entry": "node --test ../../tools/cli-go/native-entry.test.mjs",
 		"test:go-package": "node --test ../../tools/cli-go/package.test.mjs ../../tools/cli-go/stage-release.test.mjs",
 		"test:go-registry": "node --test ../../tools/cli-go/registry-package.test.mjs",
 		"test:go-device-relay": "node --test test/dev-device-relay.test.mjs",
@@ -137,7 +139,9 @@
 		"test:go-doc-index": "node --test ../../tools/cli-go/docs-index.test.mjs",
 		"test:go-dev-server": "node --test ../../tools/cli-go/dev-server.test.mjs",
 		"test:go-reports": "node --test ../../tools/cli-go/reports.test.mjs",
-		"test:go-android-reports-real": "node ../../tools/cli-go/android-reports-real.mjs --run"
+		"test:go-android-reports-real": "node ../../tools/cli-go/android-reports-real.mjs --run",
+		"postinstall": "node install-native.mjs",
+		"postpack": "node install-native.mjs"
 	},
 	"dependencies": {
 		"@babel/core": "8.1.0",

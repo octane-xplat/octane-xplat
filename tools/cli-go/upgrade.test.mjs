@@ -222,6 +222,7 @@ test('Bun catalogs, native channel choices, patch bytes and excluded packages ag
   assert.equal(JSON.parse(readFileSync(join(dir, 'package.json'))).engines.node, '>=30')
   // The CLI installs its native executable from a postinstall Bun must trust.
   assert.deepEqual(JSON.parse(readFileSync(join(dir, 'package.json'))).trustedDependencies, [
+    'octane-xplat',
     '@octane-xplat/cli',
   ])
 
@@ -252,6 +253,9 @@ test('pnpm YAML comments, catalogs, local links and Windows pins agree with the 
   )
 
   compareApply(dir)
+  const workspace = parseYaml(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'))
+  assert.equal(workspace.allowBuilds['octane-xplat'], true)
+  assert.equal(workspace.allowBuilds['@octane-xplat/cli'], true)
   assert.match(
     readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'),
     /# preserve workspace policy/,

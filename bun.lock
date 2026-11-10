@@ -817,7 +817,7 @@
       "name": "@octane-xplat/cli",
       "version": "0.20.0",
       "bin": {
-        "xplat": "./bin/xplat.mjs",
+        "xplat": "./bin/xplat.exe",
       },
       "dependencies": {
         "@babel/core": "8.1.0",
@@ -2918,7 +2918,7 @@
       "name": "octane-xplat",
       "version": "0.20.0",
       "bin": {
-        "xplat": "./bin/xplat.mjs",
+        "xplat": "./bin/xplat.exe",
       },
       "dependencies": {
         "@octane-xplat/cli": "workspace:*",
@@ -3352,12 +3352,14 @@
     },
   },
   "trustedDependencies": [
-    "@parcel/watcher",
-    "esbuild",
-    "nativescript",
-    "@nativescript/core",
-    "@nativescript/firebase-analytics",
     "workerd",
+    "esbuild",
+    "@parcel/watcher",
+    "@nativescript/core",
+    "@octane-xplat/cli",
+    "@nativescript/firebase-analytics",
+    "octane-xplat",
+    "nativescript",
   ],
   "patchedDependencies": {
     "css@3.0.0": "packages/cli/patches/css@3.0.0.patch",

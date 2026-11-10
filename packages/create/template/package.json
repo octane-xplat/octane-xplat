@@ -155,6 +155,7 @@
 		"@nativescript-community/sqlite-bridge@4.1.1": "patches/@nativescript-community__sqlite-bridge@4.1.1.patch"
 	},
 	"trustedDependencies": [
+		"octane-xplat",
 		"@octane-xplat/cli",
 		"esbuild",
 		"@parcel/watcher",

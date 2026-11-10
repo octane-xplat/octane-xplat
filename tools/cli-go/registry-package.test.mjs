@@ -94,7 +94,7 @@ test('production layout selects only the host payload and installs a direct nati
   }
 
   // fmt is a published external dep — serve the installed copy's tarball.
-  const fmtVersion = '0.2.0'
+  const fmtVersion = JSON.parse(readFileSync(join(root, 'node_modules/@octane-xplat/fmt/package.json'))).version
 
   success(
     run(
@@ -169,7 +169,7 @@ test('production layout selects only the host payload and installs a direct nati
       JSON.stringify({
         private: true,
         dependencies: { '@octane-xplat/cli': pkg.version },
-        trustedDependencies: ['@octane-xplat/cli'],
+        trustedDependencies: ['octane-xplat', '@octane-xplat/cli'],
       }),
     )
 
@@ -296,7 +296,7 @@ test('production layout selects only the host payload and installs a direct nati
       dependencies: {
         'octane-xplat': `file:${depPackages.find((item) => item.manifest.name === 'octane-xplat').archive}`,
       },
-      trustedDependencies: ['@octane-xplat/cli'],
+      trustedDependencies: ['octane-xplat', '@octane-xplat/cli'],
     }),
   )
 
@@ -340,12 +340,12 @@ test('production layout selects only the host payload and installs a direct nati
     'transitive postinstall must select the host payload',
   )
 
-  // The umbrella bin is a Node launcher; expose only Node on PATH.
+  // The umbrella command itself must execute without Node.
   const appLauncher = join(app, 'node_modules/.bin/xplat')
 
   assert.equal(
     success(
-      run(appLauncher, ['--version'], { env: { ...appEnv, PATH: dirname(process.execPath) } }),
+      run(appLauncher, ['--version'], { env: { ...appEnv, PATH: '' } }),
     ).stdout.trim(),
     pkg.version,
     'umbrella bin must launch the transitively-installed native CLI',

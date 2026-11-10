@@ -588,6 +588,8 @@ test('pnpm-workspace.yaml mirrors the Bun manifest config homes in order', () =>
 test('allowBuilds approves the trusted set and follows target claims', () => {
   const web = parseYaml(composePnpmWorkspace(['web']))
 
+  assert.equal(web.allowBuilds['octane-xplat'], true)
+  assert.equal(web.allowBuilds['@octane-xplat/cli'], true)
   assert.equal(web.allowBuilds.esbuild, true)
   assert.equal(web.allowBuilds['@parcel/watcher'], true)
   assert.equal(web.allowBuilds.nativescript, undefined)

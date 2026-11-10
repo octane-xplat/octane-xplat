@@ -144,35 +144,53 @@ machine out of an optional payload package:
 `@octane-xplat/cli-native-darwin-arm64`, `-darwin-x64`, `-linux-x64`,
 `-linux-arm64` or `-win32-x64`.
 
-Package managers only run install scripts you allow. New starters already
-list the CLI, and `xplat upgrade` adds it to Bun projects:
+The installed `xplat` command runs Go directly. Node runs during installation
+and when a command needs a JavaScript tool, such as Vite or the upgrade worker.
+The executable is named `bin/xplat.exe` on every host so Windows command links
+also launch it directly. You still type `xplat`:
 
-```json
-{ "trustedDependencies": ["@octane-xplat/cli"] }
+```sh
+xplat --version
+xplat --help
 ```
 
-pnpm needs the same permission. Run `pnpm approve-builds @octane-xplat/cli`,
-or allow it in `pnpm-workspace.yaml`:
+New starters allow both native installers. `xplat upgrade` adds these permissions
+to Bun projects; preserve other entries already in your project:
+
+```json
+{ "trustedDependencies": ["octane-xplat", "@octane-xplat/cli"] }
+```
+
+For pnpm, allow the installers in `pnpm-workspace.yaml`. npm runs them unless
+install scripts have been disabled:
 
 ```yaml
 allowBuilds:
+  octane-xplat: true
   '@octane-xplat/cli': true
 ```
 
-If `xplat` reports that the native executable was not installed, the script
-did not run, for example after `bun install --ignore-scripts`. Run the
-command `xplat` prints; it finishes the installation in place:
+If installation scripts were blocked, `xplat` fails. POSIX shells show a repair
+message; Windows may report an invalid executable instead. Enable the permissions
+above and reinstall, or run the installer explicitly from the project directory.
+For an app using the `octane-xplat` umbrella, this repairs both command entries:
 
 ```sh
-node "/path/to/@octane-xplat/cli/install-native.mjs"
+node node_modules/octane-xplat/install-native.mjs
+xplat --version
 ```
 
-`bun pm trust @octane-xplat/cli` cannot repair an app that gets the CLI
-through `octane-xplat`, because Bun only trusts direct dependencies by name.
-On a platform without a payload, installation still succeeds and `xplat`
-cannot run. Contributors with this repository
-installed can build and run the binary locally; `bun run xplat` inside an
-app workspace resolves the local `research/go-cli` build:
+For a project that declares `@octane-xplat/cli` directly, use its installer:
+
+```sh
+node node_modules/@octane-xplat/cli/install-native.mjs
+xplat --version
+```
+
+Keep optional dependencies enabled: they contain the platform executable. On a
+host outside the five platforms above, installation warns and succeeds so the
+JavaScript exports remain usable, but the native command cannot run. Contributors
+can prepare both local command entries with the host Go build:
 
 ```sh
 turbo run build:go --filter=@octane-xplat/cli

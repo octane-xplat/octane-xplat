@@ -10,9 +10,18 @@ The [Go implementation](../../packages/cli/go/README.md) is the sole CLI.
 snapshots, correctness checks and size/startup measurements. Published
 `@octane-xplat/cli` installs the native bin via postinstall from five
 optional `@octane-xplat/cli-native-<os>-<cpu>` payload packages staged by
-`tools/cli-go/stage-release.mjs`; in-repo `bin/xplat.mjs` stays the dev
-launcher and is stripped from the tarball. Projects need
-`@octane-xplat/cli` in `trustedDependencies`. Node is an installed prerequisite for
+`tools/cli-go/stage-release.mjs`. Both CLI and umbrella (`octane-xplat`)
+commands point to `bin/xplat.exe` on every host, with no Node launcher. Their
+installers select the checksummed payload at install time; the umbrella repairs
+both entries because npm can link the CLI bin when both are reachable. Projects
+allow both packages' install scripts (Bun `trustedDependencies`, pnpm `allowBuilds`).
+Host core `build:go` prepares both checkout entries; cross/ONNX builds do not.
+Prepack resets each entry to a failing placeholder without a shebang and postpack
+restores the local image. Never pack the umbrella with `--ignore-scripts` for
+publication: that bypasses the host-image safeguard. Release staging resets the
+CLI slot even when its initial workspace pack skips scripts. Blocked-script POSIX
+invocation reports repair steps; Windows may only report an invalid executable.
+Use the owning package's `install-native.mjs` to repair explicitly. Node is an installed prerequisite for
 explicit JavaScript workers; the executable does not bundle a JS runtime or
 call a JavaScript CLI. Workspace matching supports literal paths, `*` within a path segment and
 exclusions; advanced glob grammar is deliberately unsupported. Discovery and

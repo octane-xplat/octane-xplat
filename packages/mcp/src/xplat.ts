@@ -39,8 +39,8 @@ const DEFAULT_TIMEOUT_MS = 60_000
 /**
  * Resolve the `xplat` executable as argv prefix: an explicit
  * XPLAT_MCP_XPLAT path wins, then the installed @octane-xplat/cli bin
- * (native `bin/xplat.exe` after install, `bin/xplat.mjs` under Node in the
- * repo), then a bare `xplat` lookup on PATH.
+ * (`bin/xplat.exe` in both installed packages and built checkouts), then a
+ * bare `xplat` lookup on PATH.
  */
 function resolveXplatArgv(): string[] {
   const explicit = process.env.XPLAT_MCP_XPLAT
@@ -57,10 +57,6 @@ function resolveXplatArgv(): string[] {
 
     if (existsSync(native) && statSync(native).size > 0 && statSync(native).isFile()) {
       return [native]
-    }
-
-    if (existsSync(join(bin, 'xplat.mjs'))) {
-      return [process.execPath, join(bin, 'xplat.mjs')]
     }
   } catch {
     // Fall through to PATH resolution.

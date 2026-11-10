@@ -16,6 +16,8 @@ import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 
+import { installNative } from '../../packages/cli/install-native.mjs'
+
 import { nativeInputs } from './native-inputs.mjs'
 import { buildReleaseWorker } from './release-worker.mjs'
 
@@ -327,5 +329,15 @@ if (flags.includes('--test') || devServerRace) {
   }
 
   writeFileSync(binary + '.json', JSON.stringify(record, null, 2) + '\n')
+  if (
+    cli &&
+    !onnx &&
+    target ===
+      `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
+  ) {
+    installNative(join(root, 'packages/cli'))
+    installNative(join(root, 'packages/toolchain'))
+  }
+
   console.log(JSON.stringify(record))
 }

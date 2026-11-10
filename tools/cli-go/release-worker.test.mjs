@@ -9,6 +9,7 @@ import {
   rmSync,
   realpathSync,
   existsSync,
+  symlinkSync,
 } from 'node:fs'
 
 import { join, resolve, dirname } from 'node:path'
@@ -142,6 +143,45 @@ test('invoked release wins over an older or broken project worker', () => {
 
   success(run(exe, dir, ['--no-install']))
   assert.equal(existsSync(join(dir, 'old-worker-ran')), false)
+})
+
+test('umbrella native entry uses its own release worker and rejects a mismatched dependency', () => {
+  const { dir: cliDir } = pkg()
+  const umbrella = join(scratch, 'umbrella ' + sequence++ + ' π')
+
+  put(umbrella, 'package.json', { name: 'octane-xplat', version: build.cliVersion })
+
+  const exe = put(umbrella, 'bin/xplat.exe', readFileSync(binary))
+
+  // copyFile preserves executable permissions on each supported host.
+  cpSync(binary, exe)
+
+  const dependency = join(umbrella, 'node_modules/@octane-xplat/cli')
+
+  mkdirSync(dirname(dependency), { recursive: true })
+  symlinkSync(cliDir, dependency, process.platform === 'win32' ? 'junction' : 'dir')
+
+  const dir = project()
+
+  put(dir, 'node_modules/@octane-xplat/cli/package.json', {
+    name: '@octane-xplat/cli',
+    version: '0.18.0',
+    exports: { './worker': './bad.mjs' },
+  })
+
+  put(dir, 'node_modules/@octane-xplat/cli/bad.mjs', 'throw Error("old project worker ran")')
+  success(run(exe, dir, ['--no-install']))
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, 'package.json'))).trustedDependencies, [
+    'octane-xplat',
+    '@octane-xplat/cli',
+  ])
+
+  put(cliDir, 'package.json', { name: '@octane-xplat/cli', version: '0.18.0' })
+
+  const failure = run(exe, dir, ['--check'])
+
+  assert.notEqual(failure.status, 0)
+  assert.match(failure.stderr, /versions differ/)
 })
 
 test('broken invoked worker metadata or bytes never fall back to a project worker', () => {

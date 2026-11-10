@@ -19,20 +19,12 @@ import { nativeFixture, hostTarget } from '../../../tools/cli-go/stage-fixture.m
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url))
 
-// Bun never runs lifecycle scripts for transitive file: deps (and this test
-// also installs with --ignore-scripts), so the CLI's postinstall has not run
-// and bin/xplat.exe is the empty placeholder. The registry gate covers the
-// real transitive postinstall; here, follow the documented repair: xplat
-// prints the exact install-native command.
+// File-tarball installs skip transitive hooks. Repair the umbrella entry;
+// its installer selects the payload independently of the CLI hook.
 function repairNativeCli(dir) {
-  const unrepaired = spawnSync('bun', ['run', 'xplat', '--version'], { cwd: dir, encoding: 'utf8' })
+  const installer = join(dir, 'node_modules/octane-xplat/install-native.mjs')
 
-  assert.notEqual(unrepaired.status, 0)
-
-  const repair = unrepaired.stderr.match(/^\s*node "(.+install-native\.mjs)"$/m)
-
-  assert.ok(repair, unrepaired.stderr)
-  run(process.execPath, [repair[1]], dir)
+  run(process.execPath, [installer], dir)
 }
 
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/toolchain')
