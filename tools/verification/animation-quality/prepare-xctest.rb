@@ -29,6 +29,13 @@ scheme.add_test_target(target)
 scheme.test_action.build_configuration = 'Release'
 scheme.test_action.code_coverage_enabled = false
 scheme.test_action.disable_main_thread_checker = true
+# This is Xcode's automatic screen-capture OFF setting, also used by
+# XcodeGen's captureScreenshotsAutomatically=false. Inspect the generated
+# xctestrun before execution; never rely on deleting attachments afterwards.
+scheme.test_action.xml_element.attributes['systemAttachmentLifetime'] = 'keepNever'
+scheme.test_action.xml_element.attributes['userAttachmentLifetime'] = 'keepNever'
+scheme.test_action.xml_element.attributes['selectedDebuggerIdentifier'] = ''
+scheme.test_action.xml_element.attributes['selectedLauncherIdentifier'] = 'Xcode.IDEFoundation.Launcher.PosixSpawn'
 scheme.save_as(project.path, 'AnimationQuality')
 puts project.path
-puts 'Before execution: disable debugger, diagnostics and automatic screenshots in the test scheme. See README.md.'
+puts 'Release scheme: debugger and automatic screen capture disabled. Verify SystemAttachmentLifetime=keepNever in the generated xctestrun before execution.'

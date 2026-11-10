@@ -50,6 +50,7 @@ function Benchmark() {
   const [mounted, setMounted] = useState(true)
   const [sheet, setSheet] = useState(false)
   const [status, setStatus] = useState('ready')
+  const Region = scenario === 'scroll' ? ScrollableArea : View
   const card = useRef<NativeView | null>(null)
   const sampleRef = useRef<number[]>([])
   const samples = sampleRef.current
@@ -185,7 +186,7 @@ function Benchmark() {
             style={{ width: 70, height: 30, backgroundColor: '#276EF1' }}
           />
         )}
-        <ScrollableArea testID="scroller" style={{ height: 220 }}>
+        <Region testID="scroller" style={{ height: 220 }}>
           <View style={{ height: scenario === 'scroll' ? 1600 : 210 }}>
             {mounted && (
               <motion.View
@@ -249,20 +250,22 @@ function Benchmark() {
                 />
               ))}
           </View>
-        </ScrollableArea>
-        <SwiftUIBottomSheet
-          open={sheet}
-          detents={['medium', 'large']}
-          onDismissed={() => {
-            AnimationQualityTrace.end()
-            setSheet(false)
-          }}
-          content={() => (
-            <Pressable testID="close-sheet" onPress={() => setSheet(false)}>
-              <Text>Close sheet</Text>
-            </Pressable>
-          )}
-        />
+        </Region>
+        {scenario === 'sheet' && (
+          <SwiftUIBottomSheet
+            open={sheet}
+            detents={['medium', 'large']}
+            onDismissed={() => {
+              AnimationQualityTrace.end()
+              setSheet(false)
+            }}
+            content={() => (
+              <Pressable testID="close-sheet" onPress={() => setSheet(false)}>
+                <Text>Close sheet</Text>
+              </Pressable>
+            )}
+          />
+        )}
       </View>
     </MotionConfig>
   )

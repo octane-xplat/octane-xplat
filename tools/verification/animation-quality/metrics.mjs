@@ -43,6 +43,11 @@ export function evaluate(run, baseline) {
       throw new Error(`${scenario}: requires five measured iterations`)
     }
     for (const row of rows) {
+      if (!Number.isInteger(row.frameCount) || row.frameCount <= 0) {
+        throw new Error(
+          `${scenario}: presentation frame count must be positive; missing/zero telemetry is not a hitch pass`,
+        )
+      }
       for (const key of ['durationSeconds', 'hitchMs', 'worstHitchMs']) {
         if (!Number.isFinite(row[key]) || row[key] < 0) {
           throw new Error(`${scenario}: invalid ${key}`)

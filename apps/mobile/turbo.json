@@ -3,7 +3,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"bench:animation:ios": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build"],
+			"dependsOn": ["@octane-xplat/motion#typegen", "@octane-xplat/sheet#typegen", "@octane-xplat/cli#build"],
 			"cache": false,
 			"passThroughEnv": ["GODDARD_*", "DEVELOPER_DIR", "XPLAT_IOS_DEVELOPMENT_TEAM"]
 		},

@@ -588,6 +588,9 @@ The maintained [iOS benchmark](../../tools/verification/animation-quality/README
 owns the fixture, Instruments/XCTest workflow, per-device baseline format and
 acceptance criteria. Runtime presentation qualification requires a physical
 phone; callback cadence and simulator runs cannot establish hitch performance.
+Reject missing or zero presentation-frame telemetry even when XCTest supplies
+a nonzero frame-rate estimate and zero hitch totals; those values alone cannot
+establish a quality baseline.
 
 Motion's mobile clock reads `CACurrentMediaTime() * 1000` on iOS. Generators
 sample elapsed milliseconds, so variable frame intervals do not change spring

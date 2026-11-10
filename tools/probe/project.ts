@@ -90,7 +90,9 @@ export async function filesUnder(root) {
   return files
 }
 
-export async function dependencies(target, caseFile, extra) {
+// A fixture may qualify another workspace’s pinned dependencies. Keep its own
+// case identity while resolving native peers from that explicit owner.
+export async function dependencies(target, caseFile, extra, dependencyAnchor = caseFile) {
   const app = appFor(target)
   const pkg = await json(join(app, 'package.json'))
   const names = new Set(['octane', '@octane-xplat/ui', ...extra])
@@ -124,7 +126,7 @@ export async function dependencies(target, caseFile, extra) {
     }
   }
 
-  const roots = [dirname(caseFile)]
+  const roots = [dirname(dependencyAnchor)]
 
   while (dirname(roots.at(-1)) !== roots.at(-1)) {
     roots.push(dirname(roots.at(-1)))
@@ -223,8 +225,14 @@ export async function fingerprint(deps, resources) {
   return { key: digest.digest('hex').slice(0, 16), files }
 }
 
-export async function prepare(target, caseFile, extra = [], resources) {
-  const deps = await dependencies(target, caseFile, extra)
+export async function prepare(
+  target,
+  caseFile,
+  extra = [],
+  resources,
+  dependencyAnchor = caseFile,
+) {
+  const deps = await dependencies(target, caseFile, extra, dependencyAnchor)
   const native = ['ios', 'android'].includes(target)
   const resourceRoot = native ? (resources ?? join(deps.app, 'App_Resources')) : undefined
   const stamp = await fingerprint(deps, resourceRoot)

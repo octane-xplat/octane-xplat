@@ -17,6 +17,7 @@ const fixture = () => ({
     Array.from({ length: 5 }, () => ({
       scenario,
       durationSeconds: 2,
+      frameCount: 120,
       hitchMs: 0,
       worstHitchMs: 0,
     })),
@@ -41,4 +42,12 @@ test('one bad iteration and relative regressions cannot hide in averages', () =>
     Object.assign(row, { hitchMs: 4, worstHitchMs: 4 })
   }
   assert.equal(evaluate(run, fixture())[0].pass, false)
+})
+
+test('zero or missing presentation frames cannot qualify zero-hitch output', () => {
+  const run = fixture()
+  run.results[0].frameCount = 0
+  assert.throws(() => evaluate(run), /presentation frame count/)
+  delete run.results[0].frameCount
+  assert.throws(() => evaluate(run), /presentation frame count/)
 })

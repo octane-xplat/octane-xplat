@@ -21,6 +21,7 @@ final class AnimationQualityTests: XCTestCase {
         button("start").tap()
         if scenario == "drag" {
             let card = button("card")
+            XCTAssertEqual(app.staticTexts["status"].label, "running")
             card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
                 .press(forDuration: 0.05, thenDragTo: card.coordinate(withNormalizedOffset: CGVector(dx: 2, dy: 0.5)))
         } else if scenario == "scroll" {
@@ -29,6 +30,7 @@ final class AnimationQualityTests: XCTestCase {
         } else if scenario == "sheet" {
             XCTAssertTrue(button("close-sheet").waitForExistence(timeout: 5))
             button("close-sheet").tap()
+            XCTAssertTrue(button("close-sheet").waitForNonExistence(timeout: 5))
         }
         if scenario == "drag" {
             XCTAssertEqual(app.staticTexts["status"].label, "drag-ended")

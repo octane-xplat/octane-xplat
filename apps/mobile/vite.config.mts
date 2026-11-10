@@ -26,24 +26,6 @@ export default defineConfig(({ mode }) =>
         ),
       },
       plugins: [
-        ...(process.env.XPLAT_ANIMATION_QUALITY
-          ? [
-              {
-                name: 'animation-quality-entry',
-                enforce: 'pre' as const,
-                resolveId(source: string, importer?: string) {
-                  if (
-                    importer?.includes('virtual:entry-with-polyfills') &&
-                    source === '/src/index.ts'
-                  ) {
-                    return fileURLToPath(
-                      new URL('./src/benchmarks/animation-quality.ios.tsx', import.meta.url),
-                    )
-                  }
-                },
-              },
-            ]
-          : []),
         ...(process.env.XPLAT_DOCS_DEMOS
           ? [
               {
