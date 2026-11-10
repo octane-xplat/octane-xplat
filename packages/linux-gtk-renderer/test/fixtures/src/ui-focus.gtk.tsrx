@@ -112,7 +112,7 @@ export function FocusProbe() {
         id="focus-btn"
         testID="focus-btn"
         label="Focus Me"
-        clickAction={() => {
+        onPress={() => {
           events.push('btn:press')
         }}
       />
@@ -121,7 +121,7 @@ export function FocusProbe() {
         testID="focus-btn-disabled"
         label="Skip Me"
         isDisabled
-        clickAction={() => {
+        onPress={() => {
           events.push('btn:press-disabled')
         }}
       />
@@ -130,7 +130,7 @@ export function FocusProbe() {
         testID="focus-btn-ina11y"
         label="Skip A11y"
         accessible={false}
-        clickAction={() => {
+        onPress={() => {
           events.push('btn:press-ina11y')
         }}
       />
