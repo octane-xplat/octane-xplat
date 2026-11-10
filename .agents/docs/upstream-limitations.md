@@ -579,9 +579,16 @@ PasswordVault) complete through `toPromise` in the same context. The
 `OctaneXplat.Interop.ServiceInterop` managed helper runs the calls on the
 captured dispatcher and returns polled string state; `biometrics.windows`
 uses that bridge (packaged evidence 1.0.0.234). Tracked upstream in
-[#11627](https://github.com/NativeScript/NativeScript/issues/11627). Keep
-the managed route until an upstream release makes this class's
-completions isolate-safe.
+[#11627](https://github.com/NativeScript/NativeScript/issues/11627).
+
+Fixed upstream in `@nativescript/windows@1.0.0-beta.24` (the original
+report ran `0.1.0-alpha.146`): the opt-in `hello-toPromise` service spec
+awaited both calls through `NSWinRT.toPromise` in the same
+command-dispatch context on packaged MSIX 1.0.0.247 and resolved —
+`CheckAvailabilityAsync` → `1` (DeviceNotPresent) and
+`RequestVerificationAsync` → `1` on a host with no Hello enrollment —
+with the process surviving. The managed bridge can be retired in favor
+of the direct projection when convenient.
 
 ### NativeScript file API `*Sync` variants are stubs on Windows
 

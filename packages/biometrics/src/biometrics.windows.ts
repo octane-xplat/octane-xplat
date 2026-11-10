@@ -1,10 +1,12 @@
 // Windows leaf — Windows Hello via
 // Windows.Security.Credentials.UI.UserConsentVerifier through the app-shipped
-// `OctaneXplat.Interop.ServiceInterop` managed helper. The projected
-// `NSWinRT.toPromise` await on UserConsentVerifier panics the JS isolate when
-// its completion crosses contexts, so the operation runs on the captured
-// dispatcher inside the helper and JS polls `HelloState` (the same bridge
-// the files pickers use). Apps without the interop helper get the explicit
+// `OctaneXplat.Interop.ServiceInterop` managed helper. On runtimes before
+// `@nativescript/windows@1.0.0-beta.24` the projected `NSWinRT.toPromise`
+// await on UserConsentVerifier panics the JS isolate when its completion
+// crosses contexts (NativeScript/NativeScript#11627, fixed in beta.24), so
+// the operation runs on the captured dispatcher inside the helper and JS
+// polls `HelloState` (the same bridge the files pickers use). Apps without
+// the interop helper get the explicit
 // unsupported shape. The prompt is owned by the OS consent UI; no per-app
 // permission grant exists, so permission answers mirror device availability.
 import { NSWinRT } from '@octane-xplat/platform/windows'
