@@ -1,13 +1,11 @@
+import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
 import { describe, expect, it, vi } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import {
-  createObjectContainer,
-  createObjectDriver,
-  createUniversalRoot,
-} from 'octane/universal/native'
+import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
-vi.mock('@nativescript/core', () => ({
+vi.mock('@nativescript/core', async () => ({
+  View: (await import('../../../tests/native-gesture-object-driver')).NativeGestureView,
   // ui-svg's index.common.ts evaluates NS decorators at import.
   Property: class {
     constructor(_opts?: any) {}
@@ -15,7 +13,6 @@ vi.mock('@nativescript/core', () => ({
   },
   CSSType: () => () => {},
   registerElement: () => {},
-  View: class {},
   isIOS: false,
   isAndroid: true,
   Utils: { openUrl: vi.fn() },

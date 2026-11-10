@@ -1,0 +1,1 @@
+Keep Android drags from also activating a moving Pressable on release. A sheet can now follow a finger and return after a small drag without firing its header's press action. Ordinary taps and tiny finger movements still work. See the [gesture guide](https://octane-xplat.goddardai.org/app/animation-gestures).

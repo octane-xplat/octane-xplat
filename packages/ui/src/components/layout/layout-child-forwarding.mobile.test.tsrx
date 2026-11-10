@@ -1,13 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
 import { expect, it, vi } from 'vitest'
 import {
-  createObjectContainer,
   createObjectDriver,
   createUniversalRoot,
   flushUniversalSync,
 } from 'octane/universal/native'
 
-vi.mock('@nativescript/core', () => ({
+vi.mock('@nativescript/core', async () => ({
+  View: (await import('../../../tests/native-gesture-object-driver')).NativeGestureView,
   // ui-svg's index.common.ts evaluates NS decorators at import.
   Property: class {
     constructor(_opts?: any) {}
@@ -15,7 +16,6 @@ vi.mock('@nativescript/core', () => ({
   },
   CSSType: () => () => {},
   registerElement: () => {},
-  View: class {},
   Screen: { mainScreen: { widthDIPs: 1024, heightDIPs: 768 } },
   Application: { ios: null, android: {}, on() {}, off() {} },
   isIOS: false,

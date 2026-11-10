@@ -1,17 +1,18 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
 import { useState } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import {
-  createObjectContainer,
-  createObjectDriver,
-  createUniversalRoot,
-} from 'octane/universal/native'
+import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
 import { VirtualList } from './VirtualList.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { VirtualListSizeIndex } from './virtual-list-layout'
 
-vi.mock('@nativescript/core', () => ({ isAndroid: true, isIOS: false }))
+vi.mock('@nativescript/core', async () => ({
+  View: (await import('../../../tests/native-gesture-object-driver')).NativeGestureView,
+  isAndroid: true,
+  isIOS: false,
+}))
 
 const items = Array.from({ length: 500 }, (_, index) => ({ id: 'r' + index }))
 const keyExtractor = (item: { id: string }) => item.id

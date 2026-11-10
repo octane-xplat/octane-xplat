@@ -224,3 +224,14 @@ import { Button } from '@octane-xplat/ui'
 
 <motion.View drag="x"><Button clickAction={() => console.log('Open')}>Open</Button></motion.View>
 ```
+
+Native Android Pressable rejects tap activation for a contact that travels beyond
+Android's touch slop even when its pan moves the host with the finger. Keep the
+ordinary `onPress` callback; no app-side trailing-tap timer is needed. Small jitter
+still permits a tap. See [native contact ownership](../../../../docs/native-pressable.md).
+
+```tsx
+import { Pressable } from '@octane-xplat/ui'
+
+<Pressable onPan={(event) => console.log(event.dy)} onPress={() => console.log('Activate')} />
+```

@@ -1,15 +1,20 @@
 /** @jsxImportSource @octane-xplat/jsx */
-vi.mock('@nativescript/core', () => ({
+import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+
+vi.mock('@nativescript/core', async () => ({
+  View: (await import('../../../tests/native-gesture-object-driver')).NativeGestureView,
   Property: class {
     constructor(_opts?: any) {}
     register() {}
   },
   CSSType: () => () => {},
   registerElement: () => {},
-  View: class {},
   isIOS: false,
   isAndroid: true,
 }))
+
+// Ref lifecycle coverage does not render a poster or exercise the UI barrel.
+vi.mock('@octane-xplat/ui', () => ({ Image: () => null }))
 
 vi.mock('@nstudio/nativescript-exoplayer', () => ({
   Video: class {},
@@ -23,7 +28,6 @@ vi.mock('../../../../video/src/video-chrome.tsrx', () => ({
 import { describe, expect, it, vi } from 'vitest'
 import { useCallback, useImperativeHandle, useRef, useState } from 'octane'
 import {
-  createObjectContainer,
   createObjectDriver,
   createUniversalRoot,
   flushUniversalSync,

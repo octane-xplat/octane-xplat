@@ -1,11 +1,13 @@
+import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
 import { describe, expect, it, vi } from 'vitest'
-import {
-  createObjectContainer,
-  createObjectDriver,
-  createUniversalRoot,
-} from 'octane/universal/native'
+import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
-vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
+vi.mock('@nativescript/core', async () => ({
+  View: (await import('../../../tests/native-gesture-object-driver')).NativeGestureView,
+  isIOS: false,
+  isAndroid: true,
+}))
+
 vi.mock('../layout/pan.tsrx', () => ({ usePan: () => undefined }))
 
 import { Pressable } from './Pressable.tsrx'
