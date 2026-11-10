@@ -613,22 +613,61 @@ platforms have no equivalent contract in this API. Host tests establish
 ownership, not real-touch qualification. See the
 [public usage and limits](../../docs/app/primitives.md#pause-ios-user-scrolling-during-an-ancestor-drag).
 
-## Android Video playback-start event (@nstudio/nativescript-exoplayer 6.2.0)
+## Mobile Video callbacks (@nstudio/nativescript-exoplayer 6.2.0)
 
-The Android source shipped in `@nstudio/nativescript-exoplayer` 6.2.0 sets
-`eventPlaybackStart` in `onPlayWhenReadyChanged` but does not emit
-`Video.playbackStartEvent`. Its `onPlaybackStateChanged` emits readiness and
-completion events. The versioned upstream source is available through
-`opensrc path @nstudio/nativescript-exoplayer@6.2.0`, under
-`packages/nativescript-exoplayer/index.android.ts`; compare the installed
-`index.android.js` before carrying this conclusion to another version.
+Two dependency boundaries affect Android Video qualification. In the
+[plugin source at its published gitHead](https://github.com/nstudio/nativescript-plugins/blob/f29a83d78dccb5c2c9aff00f1749bc2b6788b56d/packages/nativescript-exoplayer/index.android.ts),
+`onPlayWhenReadyChanged` sets `eventPlaybackStart` without emitting
+`Video.playbackStartEvent`; the installed 6.2.0 `index.android.js` agrees.
+Adding an emit at that location would still confuse a playback request with
+actual playback. The mobile Video leaf removes its poster on `onPlaybackStart`.
 
-The mobile Video leaf hides its poster on `onPlaybackStart`. Android native
-qualification observed loaded, visible posters with controls both enabled and
-disabled, but no start callback or poster removal after playback requests.
-This is partial lifecycle evidence, not proof of rendered frames or a complete
-playback diagnosis. Source replacement after confirmed playback and visual
-flicker remain unqualified. Xplat currently has no workaround for the missing
-event; host object-driver dispatch does not prove that the plugin emits it.
-Requalify the native event and poster lifecycle when changing the plugin or
-its event integration. Keep detailed run evidence in Silo and local reports.
+Separately, the probe host loads case code dynamically, so its Java listener
+proxies use NativeScript Android's runtime binding generator. In
+[Android 9.1.1 `Dump.getSupportedMethods`](https://github.com/NativeScript/android/blob/60d03e98f215d63f3043cce926197f8044950ad1/test-app/runtime-binding-generator/src/main/java/com/tns/bindings/Dump.java#L281),
+interface methods are collected only when abstract; explicitly supplied
+implementations of default interface methods are omitted. This affects
+ExoPlayer 2.17.1's `Player.Listener` callbacks. An independent listener and an
+explicit `java.lang.Object.extend` implementation received no native callbacks;
+reflection on the generated class showed no callback overrides. This conclusion
+is scoped to runtime-generated proxies, not a qualification of static bindings
+or every Android app build.
+
+On the selected Android AVD, native state reached READY with `isPlaying=true`,
+media time advanced, and decoder rendered-buffer counts increased with controls
+both enabled and disabled. Plugin readiness/start flags remained false, event
+counts stayed zero, and the poster remained. Thus absence of `onReady` in this
+probe does not establish a media preparation failure. Decoder counters establish
+native rendering progress, not visible pixels, flicker, or display timing.
+
+The plugin half is repaired locally: the canonical patch
+`@nstudio__nativescript-exoplayer@6.2.0.patch` emits `playbackStart` once per
+source from `onIsPlayingChanged` — ExoPlayer's actual-playing transition — and
+returns `onPlayWhenReadyChanged` to a stub so a play request cannot surface as
+a start. `release()` and non-looping-ended flag resets are preserved, so
+replays and source replacements report again; looping does not re-emit. The
+maintained listener regression is
+`packages/video/tests/exoplayer-playback-start.mobile.test.ts`. On iOS the
+plugin's `playbackStart()` emitter was dead code with no observer call site:
+`PlayerObserverClass` only watches the item's `status` for `playbackReady`.
+The same canonical patch now observes the player's KVO-compliant
+`timeControlStatus` and emits once per source from its `Playing` state —
+AVFoundation's actual-playing transition; a buffering player reports
+`WaitingToPlayAtSpecifiedRate`, so a play request or a stall cannot surface as
+a start. `eventPlaybackStart` resets on non-looping finish, item replacement,
+and `_setNativePlayerSource`, so replays and replacements report again while
+looping does not; the player-state observer attaches in `_init()`, re-attaches
+on AVPlayer replacement, and detaches in `destroy()`. The maintained iOS
+regression is `packages/video/tests/exoplayer-playback-start.ios.test.ts`. Both
+tests drive the installed plugin source through stubbed listener/KVO contracts
+— they do not qualify NativeScript's runtime bridging or device delivery.
+
+The runtime proxy gap remains upstream work tracked separately:
+`Dump.getSupportedMethods` must generate overrides for explicitly supplied
+default interface implementations before any `Player.Listener` callback reaches
+JavaScript. Until that repaired runtime is consumed, the patched plugin still
+cannot deliver its event in this probe — the local patch and listener test do
+not establish native delivery. Requalify both controls modes, pause/resume,
+buffering/seek cycles, looping, source replacement, loading cancellation, and
+unmount on the repaired runtime; keep iOS qualification separate. Detailed run
+evidence belongs in Silo and reports.

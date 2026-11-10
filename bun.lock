@@ -3375,6 +3375,7 @@
     "@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
     "@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
     "@nativescript-community/octane@0.2.5": "packages/cli/patches/@nativescript-community__octane@0.2.5.patch",
+    "@nstudio/nativescript-exoplayer@6.2.0": "packages/cli/patches/@nstudio__nativescript-exoplayer@6.2.0.patch",
     "@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
     "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
   },
