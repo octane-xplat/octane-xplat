@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef } from 'octane'
-import type { ColorAreaProps, PanEvent } from '../../props'
+import type { ColorAreaProps } from '../../props'
 import type { ColorAreaViewProps } from '../../internal-props'
 import { useMeasure } from '../layout/useMeasure.web.tsrx'
-import { usePan } from '../layout/pan.web.tsrx'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { LinearGradient } from '../media/LinearGradient.tsrx'
 import { hsbToHex, type Hsb } from '../../theme/color'
@@ -60,34 +61,37 @@ export function ColorAreaView(props: ColorAreaViewProps): JSX.Element {
     props.onHsbEnd()
   }
 
-  usePan(host, (e: PanEvent) => {
-    if (props.isDisabled) {
-      return
-    }
-
-    if (e.state === 'began') {
-      drag.current = { ...props.hsb }
-      return
-    }
-
-    if (e.state === 'moved') {
-      if (!drag.current || !w || !h) {
+  const input = useControlPan(
+    { axis: 'both', enabled: !props.isDisabled },
+    (e: ControlPanNotification) => {
+      if (props.isDisabled && e.phase !== 'finish') {
         return
       }
 
-      props.onHsb({
-        h: props.hsb.h,
-        s: Math.min(1, Math.max(0, drag.current.s + e.dx / w)),
-        b: Math.min(1, Math.max(0, drag.current.b - e.dy / h)),
-      })
-    } else {
-      if (drag.current) {
-        props.onHsbEnd()
+      if (e.phase === 'start') {
+        drag.current = { ...props.hsb }
+        return
       }
 
-      drag.current = null
-    }
-  })
+      if (e.phase === 'update') {
+        if (!drag.current || !w || !h) {
+          return
+        }
+
+        props.onHsb({
+          h: props.hsb.h,
+          s: Math.min(1, Math.max(0, drag.current.s + e.translation.x / w)),
+          b: Math.min(1, Math.max(0, drag.current.b - e.translation.y / h)),
+        })
+      } else {
+        if (drag.current) {
+          props.onHsbEnd()
+        }
+
+        drag.current = null
+      }
+    },
+  )
 
   const thumbX = Math.min(Math.max(s * w, 0), Math.max(w, 0))
   const thumbY = Math.min(Math.max((1 - b) * h, 0), Math.max(h, 0))
@@ -109,6 +113,7 @@ export function ColorAreaView(props: ColorAreaViewProps): JSX.Element {
       }}
       ref={(el: any) => {
         host.current = el
+        input.ref(el)
         measure.ref(el)
         applyWebProps(el, props.web as Record<string, any> | undefined)
       }}

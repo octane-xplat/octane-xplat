@@ -2,6 +2,8 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
+import { useInteractionHost } from '../../gestures/host.tsrx'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { ViewProps } from '../../props'
 import {
   applyEscapeProps,
@@ -10,23 +12,22 @@ import {
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from './layout-child'
-import { usePan } from './pan.tsrx'
-import { usePinch } from './pinch.tsrx'
 
-/** Neutral flex-column container — flex-direction:column masonview on native.
- *  Gesture props map 1:1 to NS gesture events (onPan → 'pan', etc.) —
- *  the driver's onX → eventName rule covers them generically. Payloads
- *  are normalized to the shared gesture shape (animation-gestures.md):
- *  { x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled' }. */
+/** Neutral flex-column container with shared gesture ownership and optional input scope. */
 export function View(props: ViewProps): unknown @{
+  const bindInput = useInteractionHost(props)
   const forwardedRef = useMemo(
     () =>
-      refList((v: any) => {
-        if (v) {
-          applyEscapeProps(v, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (v: any) => {
+          if (v) {
+            applyEscapeProps(v, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   <masonview
@@ -42,10 +43,9 @@ export function View(props: ViewProps): unknown @{
     accessibilityValue={props.accessibilityValue}
     accessibilityState={nativeAccessibilityState(props.accessibilityState)}
     accessibilityLiveRegion={props.accessibilityLiveRegion}
-    onPan={usePan(props.onPan)}
-    onSwipe={props.onSwipe}
-    onPinch={usePinch(props.onPinch)}
   >
-    {props.children}
+    <InteractionScopeProvider scope={props.interactionScope}>
+      {props.children}
+    </InteractionScopeProvider>
   </masonview>
 }

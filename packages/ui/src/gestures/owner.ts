@@ -30,6 +30,10 @@ export interface InputFrame {
   readonly hitPath: readonly object[]
   /** Editable/hosted native manipulation owns the sequence before app recognition. */
   readonly nativeOwned?: boolean
+  /** Native semantic activation is retained; an ancestor drag can still observe. */
+  readonly nativePressOwned?: boolean
+  /** Managed manipulation may recognize here; ancestor drags and presses may not. */
+  readonly nativeBoundary?: object
   readonly cancelReason?: CancelReason
   /** Native contact lifetime, such as MotionEvent.downTime; not an app-visible session ID. */
   readonly cohort?: string
@@ -66,6 +70,7 @@ interface Attachment {
 }
 
 interface PressAttachment {
+  readonly observeOnly: boolean
   readonly host: object
   readonly controller: PressController
   readonly space: GestureSpace
@@ -109,7 +114,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
   const attachments = new Set<Attachment>()
   const presses = new Set<PressAttachment>()
   const targets = new Map<object, { target: InteractionTarget; count: number }>()
-  let activePress: PressAttachment | null = null
+  let activePresses: PressAttachment[] = []
   let sequenceTarget: InteractionTarget | null = null
   let runs: Run[] = []
   let sequence = 0
@@ -480,13 +485,37 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       press.controller.cancel()
     }
 
-    activePress =
-      [...presses]
-        .filter((press) => !isSuspended(press.host) && frame.hitPath.includes(press.host))
-        .sort((a, b) => frame.hitPath.indexOf(a.host) - frame.hitPath.indexOf(b.host))[0] ?? null
+    const controlHosts = [...attachments]
+      .filter((attachment) => attachment.controllers.some((controller) => controller.manipulation))
+      .map((attachment) => attachment.host)
+
+    // A drawn adjustable thumb belongs to its registered manipulation host.
+    // Its semantic role must not exclude that host's own pan registration.
+    const manipulation = frame.hitPath.findIndex((host) => controlHosts.includes(host))
+    const boundary =
+      manipulation >= 0
+        ? manipulation
+        : frame.hitPath.findIndex((host) => host === frame.nativeBoundary)
+
+    const eligibleHost = (host: object) =>
+      frame.hitPath.includes(host) && (boundary < 0 || frame.hitPath.indexOf(host) <= boundary)
+
+    const eligiblePresses = [...presses]
+      .filter(
+        (press) =>
+          !frame.nativeOwned &&
+          !frame.nativePressOwned &&
+          !isSuspended(press.host) &&
+          eligibleHost(press.host),
+      )
+      .sort((a, b) => frame.hitPath.indexOf(a.host) - frame.hitPath.indexOf(b.host))
+
+    const primary = eligiblePresses.find((press) => !press.observeOnly)
+
+    activePresses = eligiblePresses.filter((press) => press.observeOnly || press === primary)
 
     const selected = [...attachments]
-      .filter((a) => !frame.nativeOwned && !isSuspended(a.host) && frame.hitPath.includes(a.host))
+      .filter((a) => !frame.nativeOwned && !isSuspended(a.host) && eligibleHost(a.host))
       .sort((a, b) => frame.hitPath.indexOf(a.host) - frame.hitPath.indexOf(b.host))
 
     runs = selected.flatMap((attachment) =>
@@ -529,12 +558,8 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       }),
     )
 
-    if (activePress) {
-      activePress.controller.begin(
-        frame,
-        `${identity}:${sequence}`,
-        sequenceTarget ?? activePress.space.target,
-      )
+    for (const press of activePresses) {
+      press.controller.begin(frame, `${identity}:${sequence}`, sequenceTarget ?? press.space.target)
     }
   }
 
@@ -554,7 +579,9 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       }
 
       if (frame.type !== 'down' || frame.contacts.length > 1) {
-        activePress?.controller.update(frame)
+        for (const press of [...activePresses]) {
+          press.controller.update(frame)
+        }
       }
 
       if (frame.contacts.length > 1) {
@@ -702,7 +729,14 @@ export function createGestureOwner(scheduler: GestureScheduler) {
 
       const wasConsumed = consumed
 
-      if (frame.type === 'cancel' || !frame.contacts.length) {
+      if (frame.type === 'cancel') {
+        cancelFrame?.()
+        cancelFrame = null
+      }
+
+      // Cancellation can leave physical contacts down. They retain this failed
+      // cohort until the final up; a new second finger cannot start a new run.
+      if (!frame.contacts.length) {
         cancelFrame?.()
         cancelFrame = null
         inSequence = false
@@ -817,7 +851,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       throw error
     }
 
-    attachment = { host, controller, space: ownedSpace }
+    attachment = { host, controller, space: ownedSpace, observeOnly: options.observeOnly === true }
     presses.add(attachment)
 
     let alive = true
@@ -854,9 +888,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
 
         const cleanup = () => {
           presses.delete(attachment)
-          if (activePress === attachment) {
-            activePress = null
-          }
+          activePresses = activePresses.filter((press) => press !== attachment)
 
           try {
             controller.dispose()
@@ -998,7 +1030,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
 
           presses.clear()
           suspensions.clear()
-          activePress = null
+          activePresses = []
           for (const run of [...runs]) {
             if (run.last) {
               run.last = Object.freeze({

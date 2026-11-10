@@ -377,6 +377,29 @@ void keyboard
   // and peer configuration — each moved domain resolves through its own
   // subpath and must no longer resolve at the package root.
   source += `
+import { usePanGesture$, usePinchGesture$, useInteractionScope$, compete, prioritize, simultaneous } from '@octane-xplat/ui'
+import type { PanSample, ActivationEvent, Suspension } from '@octane-xplat/ui'
+function GestureConsumer() {
+  const pan = usePanGesture$({ axis: 'x', samples: 'frame', onEnd(sample: PanSample) { void sample.position.local; void sample.velocity?.x } })
+  const pinch = usePinchGesture$({})
+  const scope = useInteractionScope$()
+  const event = (value: ActivationEvent) => { void value.source; void value.pointer; value.preventDefault() }
+  void event
+  void prioritize(pan, pinch)
+  void simultaneous(pan, pinch)
+  const result = scope.suspend()
+  if (result.ok) { const lease: Suspension = result.lease; lease.release() }
+  // @ts-expect-error gesture outputs are read-only handles
+  pan.active$.set(true)
+  // @ts-expect-error translation aliases are removed
+  const dx = (null as unknown as PanSample).dx
+  void dx
+  return <View gestures={compete(pinch, pan)} interactionScope={scope} />
+}
+void GestureConsumer
+`
+
+  source += `
 import { router as subpathRouter, useRouter, getRouteApi, type RouteManifest } from '@octane-xplat/ui/routing'
 import { useListData, useAsyncList, defineQuery, defineCursorQuery, createQueryClient, useQuery$, type Selection, type QueryOptions, type QueryLoadContext } from '@octane-xplat/ui/data'
 import { inspectQueryClient, registerQueryInspection } from '@octane-xplat/ui/data/dev'

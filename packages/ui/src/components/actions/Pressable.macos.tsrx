@@ -1,14 +1,26 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { PressableProps } from '../../props'
-import { usePan } from '../layout/pan.macos.tsrx'
-import { usePinch } from '../layout/pinch.tsrx'
+import { useInteractionHost } from '../../gestures/host.macos.tsrx'
+import { pressOptions } from '../../gestures/semantic-press'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
+import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from '../layout/layout-child'
 
+const semanticAction = () => {}
+
 export function Pressable(props: PressableProps): unknown @{
+  const bindInput = useInteractionHost({
+    ...props,
+    gestures: props.disabled ? undefined : props.gestures,
+    onPan: props.disabled ? undefined : props.onPan,
+    onPinch: props.disabled ? undefined : props.onPinch,
+    press: pressOptions(props),
+  })
+
   <masonview
-    ref={props.ref}
+    ref={refList(bindInput, props.ref)}
     {...layoutChildProps(
       props,
       mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style)),
@@ -18,23 +30,8 @@ export function Pressable(props: PressableProps): unknown @{
     accessible={props.accessible}
     className={cx('vx-pressable', props.className)}
     disabled={props.disabled}
-    onPan={usePan(props.disabled ? undefined : props.onPan)}
-    onSwipe={props.disabled ? undefined : props.onSwipe}
-    onPinch={usePinch(props.disabled ? undefined : props.onPinch)}
-    onLongPress={props.disabled ? undefined : props.onLongPress}
-    onDoubleTap={props.disabled ? undefined : props.onDoublePress}
-    onTouch={
-      props.disabled
-        ? undefined
-        : (e: any) => {
-            if (e.action === 'down') {
-              props.onPressIn?.()
-            } else if (e.action === 'up' || e.action === 'cancel') {
-              props.onPressOut?.()
-            }
-          }
-    }
-    onTap={props.disabled ? undefined : props.onPress}
+    onTap={props.disabled ? undefined : semanticAction}
+    onDoubleTap={props.disabled || !props.onDoublePress ? undefined : semanticAction}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityHint={props.accessibilityHint}
     accessibilityValue={props.accessibilityValue}
@@ -44,6 +41,8 @@ export function Pressable(props: PressableProps): unknown @{
     }}
     accessibilityRole={props.accessibilityRole ?? (props.onPress ? 'button' : undefined)}
   >
-    {props.children}
+    <InteractionScopeProvider scope={props.interactionScope}>
+      {props.children}
+    </InteractionScopeProvider>
   </masonview>
 }

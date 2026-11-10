@@ -383,18 +383,11 @@ export function DerivedValue() {
 }
 ```
 
-Use shared `onPan` events to stop playback on begin, set displacement during
-movement, and spring with release velocity on end. Treat cancellation separately
-and commit product state once the interaction outcome is known. On web, one
-primary contact owns each interaction; extra contacts and nonprimary mouse
-buttons are ignored. Losing pointer capture, removing the callback, or unmounting
-cancels the contact once. Replacing the callback keeps the same contact and
-sends subsequent events to the new callback. Nested buttons still receive taps
-below the capture threshold. Native velocity
-is DIP/second; web velocity is CSS pixels/second. Web pointer-up carries the
-last movement sample for up to 100 ms, so a pointer-up at the same coordinates
-as the final move retains its velocity; older samples resolve to zero. For declarative bounded dragging, use the surface below. Raw `onPan` keeps its
-existing dispatch and does not gain gesturehandler arbitration.
+Use shared `onPan` notifications to stop playback after a drag claims input,
+update displacement, and spring with release velocity on success. A second
+finger cancels a one-pointer pan; it cannot restart until every finger lifts.
+Callback changes preserve the active contact. For axis intent, pinch, composition,
+signals, and scroll suspension, use [gesture handles](gestures.md).
 
 ```tsx
 import { motion, useMotionValue } from '@octane-xplat/motion'
@@ -406,10 +399,12 @@ export function PanCard() {
     <motion.View
       style={{ x }}
       onPan={(event) => {
-        if (event.state === 'began') x.stop()
-        if (event.state === 'moved') x.set(event.dx)
-        if (event.state === 'ended') x.animate(0, { type: 'spring', velocity: event.vx })
-        if (event.state === 'cancelled') x.animate(0, { type: 'spring', velocity: 0 })
+        if (event.phase === 'start') x.stop()
+        if (event.phase !== 'finish') x.set(event.sample.translation.x)
+        if (event.phase === 'finish') {
+          const velocity = event.terminal.outcome === 'ended' ? event.terminal.sample.velocity?.x ?? 0 : 0
+          void x.animate(0, { type: 'spring', velocity })
+        }
       }}
     />
   )
@@ -457,28 +452,18 @@ export function DragCard() {
 }
 ```
 
-Native apps install the optional motion peer with
-`bun add @nativescript-community/gesturehandler@2.0.45`. In the native entry,
-call its `install()` before creating any Page, Frame, or root view:
+Motion dragging uses the shared UI input owner on web, iOS, Android, and the
+experimental AppKit mouse adapter. No gesturehandler installation is needed for
+Motion. Avoid attaching a separate pan to the same motion host; choose one owner
+for each translated axis. Nested buttons remain semantic actions until a drag wins.
 
-```ts
-import { install } from '@nativescript-community/gesturehandler'
+```tsx
+import { motion } from '@octane-xplat/motion'
+import { Button } from '@octane-xplat/ui'
 
-install()
-// Create the app's root after installation.
-```
-
-Use `install()` without the override flag to preserve existing `onPan` observers.
-A normal Page supplies the handler root; custom native roots need the plugin's
-`GestureRootView`. The peer is required for the native motion entry, and is
-unnecessary on web. Missing native setup has no raw-pan fallback.
-
-```ts
-import { install } from '@nativescript-community/gesturehandler'
-import { Application, Page } from '@nativescript/core'
-
-install()
-Application.run({ create: () => new Page() })
+export function DraggablePanel() {
+  return <motion.View drag="x"><Button clickAction={() => console.log('Open')}>Open</Button></motion.View>
+}
 ```
 
 `drag={true}` owns both axes; `drag="y"` owns vertical translation. Constraints
@@ -581,8 +566,8 @@ function Card() {
     <motion.View
       style={{ x }}
       onPan={(event) => {
-        if (event.state === 'moved') x.set(event.dx)
-        if (event.state === 'ended' || event.state === 'cancelled') {
+        if (event.phase !== 'finish') x.set(event.sample.translation.x)
+        if (event.phase === 'finish') {
           if (reduced) x.jump(0)
           else x.animate(0, { type: 'spring' })
         }
@@ -1385,46 +1370,19 @@ export function MovingCard() {
 
 ### Gesture event migration
 
-`PanEvent.state` is now the exact union `began | moved | ended | cancelled`.
-`x`/`dx` and `y`/`dy` are identical cumulative displacement from the start,
-using CSS pixels on web and logical DIPs/points on native. `vx` and `vy` use
-those units per second. `target` is the attached host, an explicit platform
-escape hatch. `SwipeEvent.direction` retains NativeScript's direction flags
-(1 right, 2 left, 4 up, 8 down); web does not synthesize swipe callbacks.
-Use `onPan` for portable dragging. Replace arbitrary state/direction strings
-or numbers in typed test fixtures with these supported values.
-
-`onPinch` reports a cumulative scale multiplier since the gesture began
-(`1` is unchanged) with the same `began | moved | ended | cancelled`
-state union. It attaches to the same native leaves as `onSwipe`
-(`View`, `Row`, `Stack`, `StackItem`, `Pressable`); web and desktop
-renderers do not synthesize pinch events. Optional `focusX` and `focusY`
-contain coordinates reported by the native recognizer. They are absent when
-unavailable; coordinate units and native gesture delivery still need device
-qualification.
+Shared callbacks now receive `start`/`update` notifications with a sample, or a
+`finish` notification with an `ended`/`cancelled` terminal outcome. Translation
+aliases and `onSwipe` are removed. See [the gesture migration examples](gestures.md#migrate-existing-callbacks)
+for named positions, velocities, ownership, and platform limits.
 
 ```tsx
 import { View } from '@octane-xplat/ui'
 
-export function PinchArea() {
-  return <View onPinch={({ scale, focusX, focusY }) => console.log(scale, focusX, focusY)} />
-}
-```
-
-```tsx
-import { Text, View } from '@octane-xplat/ui'
-
 export function DragArea() {
-  return (
-    <View
-      onPan={(event) => {
-        if (event.state === 'ended') console.log(event.dx, event.dy, event.vx, event.vy)
-        if (event.state === 'cancelled') console.log('Drag cancelled')
-      }}
-    >
-      <Text>Drag here</Text>
-    </View>
-  )
+  return <View onPan={(event) => {
+    if (event.phase === 'finish') console.log(event.terminal.outcome)
+    else console.log(event.sample.translation)
+  }} />
 }
 ```
 

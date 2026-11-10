@@ -3,7 +3,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import type { ContextRenderProps, TooltipOptions, TooltipReturn } from '../../props'
 import { View } from '../layout/View.tsrx'
 import { Text } from '../content/Text.tsrx'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { layerOffset, resolveLayerAlignment, resolveLayerSide } from './popover-position'
 
 /** GTK positioning and interaction can belong to different native views.

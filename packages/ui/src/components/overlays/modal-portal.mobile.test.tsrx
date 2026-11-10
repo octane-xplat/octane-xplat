@@ -44,7 +44,7 @@ vi.mock('@nativescript-community/octane', async (importOriginal) => ({
   },
 }))
 
-vi.mock('../../internal/platform/native-portal', () => ({
+vi.mock('../../internal/platform/native-portal.tsrx', () => ({
   createPortal: (children: any, target: any) => {
     state.portals.push({ children, target })
     return children

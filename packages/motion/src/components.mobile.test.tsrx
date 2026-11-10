@@ -129,12 +129,7 @@ it('retargets a retained native host on a signal write', () => {
   root.unmount()
 })
 
-import {
-  handlers,
-  GestureHandlerStateEvent,
-  GestureHandlerTouchEvent,
-  GestureState,
-} from '../test/gesturehandler'
+import { attachments, sample } from '../test/owned-input'
 
 function NativeDrag() @{
   <MotionConfig reducedMotion="always">
@@ -154,28 +149,17 @@ it('drives the retained native host from its handler and snaps reduced settlemen
   root.render(NativeDrag, {})
 
   const node: any = container.children[0]
-  const handler = handlers.findLast((h) => h.node === node)
+  const handler = attachments.findLast((h) => h.node === node)
 
   expect(handler).toBeDefined()
-  handler.emit(GestureHandlerStateEvent, {
-    state: GestureState.ACTIVE,
-    extraData: { translationX: 10 },
-  })
-
-  handler.emit(GestureHandlerTouchEvent, {
-    state: GestureState.ACTIVE,
-    extraData: { translationX: 20 },
-  })
-
+  handler.options.onStart(sample(10))
+  handler.options.onUpdate(sample(20))
   expect(node.translateX).toBe(20)
-  handler.emit(GestureHandlerStateEvent, {
-    state: GestureState.END,
-    extraData: { translationX: 20, velocityX: 250 },
-  })
+  handler.options.onFinalize({ outcome: 'ended', sample: sample(20, 250) })
 
   expect(node.translateX).toBe(40)
   root.unmount()
-  expect(handler.node).toBeUndefined()
+  expect(handler.node).toBeNull()
 })
 
 function NativeVariants(props: any) @{

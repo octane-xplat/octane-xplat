@@ -2,6 +2,8 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
+import { useInteractionHost } from '../../gestures/host.tsrx'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { StackItemProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import {
@@ -11,25 +13,26 @@ import {
 } from '../overlays/escape-props'
 
 import { stackItemStyle } from './stack-layout'
-import { usePan } from './pan.tsrx'
-import { usePinch } from './pinch.tsrx'
 
 /** StackItem — per-child size (`fill` grows into remaining space) and
  *  cross-axis alignment inside a `Stack`. `isScrollable` hosts the content
  *  in a ScrollView on native (NS layouts can't scroll their own overflow). */
 export function StackItem(props: StackItemProps): unknown @{
+  const bindInput = useInteractionHost({ ...props, viewport: Boolean(props.isScrollable) })
   const itemStyle = stackItemStyle(props)
-  const onPan = usePan(props.onPan)
-  const onPinch = usePinch(props.onPinch)
 
   const forwardedRef = useMemo(
     () =>
-      refList((v: any) => {
-        if (v) {
-          applyEscapeProps(v, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (v: any) => {
+          if (v) {
+            applyEscapeProps(v, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   @if (props.isScrollable) {
@@ -46,12 +49,11 @@ export function StackItem(props: StackItemProps): unknown @{
       accessibilityValue={props.accessibilityValue}
       accessibilityState={nativeAccessibilityState(props.accessibilityState)}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
-      onPan={onPan}
-      onSwipe={props.onSwipe}
-      onPinch={onPinch}
     >
       <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
-        {props.children}
+        <InteractionScopeProvider scope={props.interactionScope}>
+          {props.children}
+        </InteractionScopeProvider>
       </masonview>
     </scrollview>
   } @else {
@@ -67,11 +69,10 @@ export function StackItem(props: StackItemProps): unknown @{
       accessibilityValue={props.accessibilityValue}
       accessibilityState={nativeAccessibilityState(props.accessibilityState)}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
-      onPan={onPan}
-      onSwipe={props.onSwipe}
-      onPinch={onPinch}
     >
-      {props.children}
+      <InteractionScopeProvider scope={props.interactionScope}>
+        {props.children}
+      </InteractionScopeProvider>
     </masonview>
   }
 }

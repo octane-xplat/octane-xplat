@@ -15,7 +15,7 @@ const state = vi.hoisted(() => ({
   backListeners: new Map<string, (event: any) => void>(),
 }))
 
-vi.mock('../../internal/platform/native-portal', () => ({
+vi.mock('../../internal/platform/native-portal.tsrx', () => ({
   createPortal: (children: any, target: any) => {
     state.portals.push({ children, target })
     return children

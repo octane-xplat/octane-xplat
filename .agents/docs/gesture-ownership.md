@@ -1,10 +1,10 @@
 # Gesture ownership core
 
-The typed ownership core under `packages/ui/src/gestures/` is internal while the
-[gesture proposal](../design/gesture-system.md) is implemented. Its hooks and
-composition helpers are not exported from the package root. Production gesture
-props still use their existing implementation until the platform bindings and
-public cutover are qualified; do not document the prototype as released support.
+The public hooks and component attachment contract are implemented under
+`packages/ui/src/gestures/`. Use the [gesture guide](../../docs/app/gestures.md)
+for app code and [the approved design](../design/gesture-system.md) for rationale.
+The public cutover removes independent `onSwipe` and translation aliases;
+`onPan`/`onPinch` conveniences use the same samples as typed handles.
 
 The coordinator owns contact sequences and recognizer sessions. Gesture handles
 own committed callbacks and read-only Octane signal projections. Composition is
@@ -30,10 +30,11 @@ handle must not prolong a component's signal lifetime.
 
 ## Verification boundaries
 
-Use [the focused gesture checks](testing.md#gesture-owner-checks) for the internal
+Use [the focused gesture checks](testing.md#gesture-owner-checks) for the shared
 state machine, compiled hook lifecycle, and browser input adapter. The browser
-fixture deliberately uses the real internal adapter without importing the public
-UI barrel; it does not establish a completed Pressable or scrolling cutover.
+fixture mounts public hooks, layout/scroll hosts, Pressable and Motion. It uses
+actual browser mouse/keyboard/wheel input plus explicit virtual-click and capture-loss
+API calls. This does not qualify touch momentum or native input.
 Native object-driver tests verify signal/lifecycle contracts, never OS gesture
 delivery. Keep platform input qualification separate and retain actual results
 outside Git, following [exploration](exploration.md).
@@ -127,7 +128,7 @@ Pointer-count signals continue to observe the cohort after cancellation.
 
 ## Bounded iOS suspension
 
-The internal iOS driver cancels competing UIKit recognizers, then seeks supported
+The iOS driver cancels competing UIKit recognizers, then seeks supported
 Mason scroll surfaces to their current offsets to stop deceleration/tweens. It
 excludes the coordinator's raw-contact recognizers, so cancelling a descendant
 cannot destroy an outside owner's observation. Native flags use overlapping leases;
@@ -140,8 +141,8 @@ UIScrollViews outside their legal offset range return unsupported before mutatio
 Managed viewports mounted during a lease inherit its reservation. Framework scope
 membership follows context, including across portals; members outside the physical
 adapter's coverage make suspension unsupported. An uncovered portal cannot mount
-into an already suspended scope. Context/host bindings remain private until the
-public cutover. Browser scroll momentum and Android/AppKit full-input suspension
+into an already suspended scope. Portal targets register ownership during insertion, before layout commands can
+acquire a lease. An uncovered portal is rejected during render while suspended. Browser scroll momentum and Android/AppKit full-input suspension
 remain unsupported; no input-only lock may be advertised as a scroll freeze.
 
 Convenience callback controllers allocate after commit and only while a callback
@@ -157,3 +158,32 @@ state setter can schedule the replacement gesture from that same cancellation
 path. Keep direct root replacement outside the in-progress commit; coordinator
 cancellation remains synchronous. The original failure is retained in Silo's
 feedback observations and a local report.
+
+## Framework consumers and opaque engines
+
+Motion's pan and visual press subscriptions use the framework-only
+`@octane-xplat/ui/internal/gesture-input` integration boundary. It allocates
+controllers only after host commit; package consumers do not import private
+controller files or create independent recognizers. Visual observers never
+become a second semantic activation target and cancel before pan start.
+Motion's x/y channels use a frozen logical-parent basis, excluding the host's
+own transform. Public pan hooks keep their frozen host basis. Local grab points
+still refer to the attached host. Preserve this distinction in platform adapters.
+Built-in sliders/resize handles use the same owner with manipulation priority.
+Their private GTK/Windows widget transport does not establish shared gesture support.
+
+Opaque platform widgets remain native input boundaries. Native sheet presenters,
+third-party drawer engines, embedded editing engines and OS navigation cannot be
+claimed or frozen merely because a wrapper is a View. The initial suspension
+adapter rejects unknown native subclasses. Do not advertise engine interoperability
+or replace their gesture machinery without a separate adapter qualification.
+The native Drawer still uses ui-drawer's engine; closed-edge intent and its
+animation lifecycle need an adapter before it can share custom gesture composition.
+This boundary is separate from the public pan/pinch cutover, not proof of coordinated
+native drawer/descendant gestures.
+
+Component callbacks bridge errors into their mounted renderer boundary after
+synchronous cancellation/finalization. A retired component cannot receive a
+state update; errors from its cleanup use the uncaught-error route. Keep engine
+fault reporting separate from app callback errors. Maintained handler tests
+qualify this route; they do not qualify OS interruption by themselves.

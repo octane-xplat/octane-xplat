@@ -4,7 +4,7 @@ import { SheetContent } from './sheet-content.tsrx'
 import type { PercentLengthType } from '@nativescript/core'
 import { useEffect, useRef, useState } from 'octane'
 import { GridLayout, Screen, isAndroid, isIOS } from '@nativescript/core'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { SizeProvider } from '../layout/size-context'
 import type { BottomSheetProps } from '../../props'
 

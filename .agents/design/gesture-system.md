@@ -1,6 +1,8 @@
 # Gesture ownership and composition
 
-Status: approved direction; implementation in progress. The public cutover remains gated by platform qualification. See the [internal ownership note](../docs/gesture-ownership.md) for the implemented boundary. Source baseline: `0c291fca389d535a57c55ebb6f23998b6ea66af4`; consumer evidence: Opals `0af25b863e9662951915129959c4b3575a3bed31`. This is a system design, not an approved numbered decision or an implementation plan.
+Implementation status: the public contracts now live in [gesture types](../../packages/ui/src/gestures/types.ts) and [the app guide](../../docs/app/gestures.md). The design below preserves the approved rationale and acceptance matrix. Initial adapters expose a documented subset: web/iOS/Android gestures, AppKit mouse pan, and capability-gated suspension. Opaque native engines such as Drawer require separate interoperability qualification.
+
+Status: the initial supported subset is implemented. See the [public guide](../../docs/app/gestures.md) for current usage and limits, and the [internal ownership note](../docs/gesture-ownership.md) for adapter boundaries. Native opaque drawer/sheet engines, desktop multi-touch, and full suspension outside the bounded iOS adapter remain separate qualification work. Source baseline: `0c291fca389d535a57c55ebb6f23998b6ea66af4`; consumer evidence: Opals `0af25b863e9662951915129959c4b3575a3bed31`. This is a system design, not an approved numbered decision or an implementation plan.
 
 ## Recommendation
 
@@ -42,7 +44,7 @@ There are four distinct lifetimes:
 
 The public surface consists of typed gesture hooks, composition descriptions, a scoped suspension hook, and richer semantic activation on Pressable. Components gain `gestures` and `interactionScope`; these attach behavior to the existing host and add no layout wrapper. A gesture handle attaches directly: there is no registry, string key, or separate binding to pass around. Every included handle attaches to exactly one host, through one composition tree.
 
-Ordinary gestures have no support signal and require no capability check. Attaching a gesture unsupported by the selected host fails explicitly through the renderer's error boundary, with an unsupported-gesture diagnostic identifying the host and gesture; it never registers a silent no-op. Document the actual platform subset and choose alternate controls or platform leaves where needed. Optional operations report availability at the operation boundary: `content.suspend()` returns success or a concrete failure. Do not make app authors inspect a capability flag before every drag. The following contracts are proposed TypeScript, not imports available today.
+Ordinary gestures have no support signal and require no capability check. Attaching a gesture unsupported by the selected host fails explicitly through the renderer's error boundary, with an unsupported-gesture diagnostic identifying the host and gesture; it never registers a silent no-op. Document the actual platform subset and choose alternate controls or platform leaves where needed. Optional operations report availability at the operation boundary: `content.suspend()` returns success or a concrete failure. Do not make app authors inspect a capability flag before every drag. The following contracts record the approved design; use the linked declarations for exact shipping names.
 
 ```ts
 // Proposed exports from @octane-xplat/ui. Opaque brands omitted for readability.
@@ -373,7 +375,7 @@ Native feasibility is a gate, not a guarantee: UIKit and Mason must stop recogni
 
 ## Four consumer examples
 
-These are proposed TSX sketches with app callbacks passed as props. The names are illustrative API contracts, not copyable current-release code. Layout, animation, and destination policy remain in the app.
+These design sketches explain ownership with app callbacks passed as props. Use the app guide for maintained examples. Layout, animation, and destination policy remain in the app.
 
 ### Nested controls in a draggable panel
 
@@ -580,7 +582,7 @@ export type GestureNotification<T> =
 | `useEffectEvent` solely for recognizer stability | Remove workaround after lifetime qualification. Keep it for unrelated manual subscriptions if needed. |
 | `lockChatInput` + touch-action leaves | Replace with managed viewport policy and a suspension lease after adapter qualification. |
 
-No release claim follows from accepting this document. The cutover needs a breaking Conventional Commit, user-facing release note with usage and official guide links, public gesture guide and TSDoc, maintained examples/recipes, and synchronized Octane skill guidance. Opals migration is a separate authorized task; its ten-second/300ms/media policies remain intact. Existing current-release guidance stays unchanged by this proposal.
+No release claim follows from accepting this document. The cutover needs a breaking Conventional Commit, user-facing release note with usage and official guide links, public gesture guide and TSDoc, maintained examples/recipes, and synchronized Octane skill guidance. Opals migration is a separate authorized task; its ten-second/300ms/media policies remain intact. The implementation reconciles guides, recipes, examples and skill guidance at the cutover; this design retains the rationale and staged intent.
 
 ## Staged delivery and validation gates
 

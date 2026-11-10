@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { createPortal } from '../../internal/platform/native-portal.web.tsrx'
 import { modalPortalOwner } from './modal-focus.web'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { SizeProvider } from '../layout/size-context'
-import { createPortal, useEffect, useRef, useState } from 'octane'
+import { useEffect, useRef, useState } from 'octane'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import type { PopoverProps } from '../../props'
 import type { PopoverInternalProps } from '../../internal-props'

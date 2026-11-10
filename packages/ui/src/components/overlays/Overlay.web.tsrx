@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { createPortal, useEffect, useRef, useState } from 'octane'
+import { createPortal } from '../../internal/platform/native-portal.web.tsrx'
+import { useEffect, useRef, useState } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { OverlayProps } from '../../props'
 import { useThemeScheme } from '../../theme/theme-scheme'

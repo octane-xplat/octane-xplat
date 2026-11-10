@@ -1,3 +1,4 @@
+import { observeOwnedPress } from '@octane-xplat/ui/internal/gesture-input'
 import { captureViewportOffset } from './projection/viewport-offset'
 import { correctNativePaint, radiusKeys } from './projection/paint'
 import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
@@ -140,17 +141,7 @@ export function attachHost(node: any): HostAdapter {
       }
 
       if (kind === 'press') {
-        // NativeScript's `touch` event: action down/up/cancel.
-        const onTouch = (event: any) => {
-          if (event.action === 'down') {
-            callbacks.start()
-          } else if (event.action === 'up' || event.action === 'cancel') {
-            callbacks.end()
-          }
-        }
-
-        node.on('touch', onTouch)
-        return () => node.off('touch', onTouch)
+        return observeOwnedPress(node, callbacks)
       }
 
       // focus/blur exist only on focusable hosts (editable text, buttons).

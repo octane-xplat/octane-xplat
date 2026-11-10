@@ -3,7 +3,7 @@ import type { NSView } from '@octane-xplat/platform/macos'
 import './column-resize-handle.macos.css'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { useKeyboard } from '../internal/keyboard/use-keyboard.macos'
-import { usePan } from '../components/layout/pan.macos.tsrx'
+import { useControlPan } from '../gestures/control.tsrx'
 import type { AppKitColumnResizeState, AppKitResizeScope } from './column-resize-state.macos'
 
 export function AppKitColumnResizeHandle(props: {
@@ -103,7 +103,7 @@ export function AppKitColumnResizeHandle(props: {
     },
   })
 
-  const onPan = usePan((event) => {
+  const input = useControlPan({ axis: 'x', enabled: true }, (event) => {
     const current = scope()
 
     if (!current) {
@@ -114,14 +114,14 @@ export function AppKitColumnResizeHandle(props: {
       return
     }
 
-    if (event.state === 'began') {
+    if (event.phase === 'start') {
       view.current?.window?.makeFirstResponder(view.current)
       latest.current.state.begin(current)
-      latest.current.state.move(current, event.dx)
-    } else if (event.state === 'moved') {
-      latest.current.state.move(current, event.dx)
-    } else if (event.state === 'ended') {
-      latest.current.state.end(current, event.dx)
+      latest.current.state.move(current, event.translation.x)
+    } else if (event.phase === 'update') {
+      latest.current.state.move(current, event.translation.x)
+    } else if (event.phase === 'finish' && !event.cancelled) {
+      latest.current.state.end(current, event.translation.x)
     } else {
       latest.current.state.cancel(current.view)
     }
@@ -207,13 +207,16 @@ export function AppKitColumnResizeHandle(props: {
   }
 
   <masonview
-    ref={bind}
+    ref={(host: NSView | null) => {
+      bind(host)
+      input.ref(host)
+    }}
     className={[
       'vx-table-resize-appkit',
       props.state.active(props.columnKey) && 'vx-table-resize-appkit--active',
     ]}
     {...keyboardProps}
-    onPan={onPan}
+    onPan={input.onPan}
     onLayoutChanged={queueMeasure}
     onTap={() => {
       const target = view.current

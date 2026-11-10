@@ -1,11 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { useCallback, useEffect, useRef } from 'octane'
-import type { ColorSliderProps, PanEvent } from '../../props'
+import { useMemo, useCallback, useEffect, useRef } from 'octane'
+import type { ColorSliderProps } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
+import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
 import { useMeasure } from '../layout/useMeasure.tsrx'
-import { usePan } from '../layout/pan.tsrx'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyNativeProps } from '../../internal/platform/platformProps'
 import { nativeAccessibilityRole } from '../overlays/escape-props'
 import { LinearGradient } from '../media/LinearGradient.tsrx'
@@ -59,35 +61,40 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
   const w = measure.bounds?.width ?? 0
   const hue = props.hsb.h
 
-  const onPan = usePan((e: PanEvent) => {
-    if (props.isDisabled) {
-      return
-    }
-
-    if (e.state === 'began') {
-      lastTarget.current = e.target
-      drag.current = hue
-      return
-    }
-
-    if (e.state === 'moved') {
-      const size = targetSize()
-
-      if (drag.current == null || !size || !(size.width > 0)) {
+  const input = useControlPan(
+    { axis: 'x', enabled: !props.isDisabled },
+    (e: ControlPanNotification) => {
+      if (props.isDisabled && e.phase !== 'finish') {
         return
       }
 
-      const h = Math.min(360, Math.max(0, drag.current + (e.dx / size.width) * 360))
-
-      props.onHsb({ ...props.hsb, h })
-    } else {
-      if (drag.current != null) {
-        props.onHsbEnd()
+      if (e.phase === 'start') {
+        lastTarget.current = host.current
+        drag.current = hue
+        return
       }
 
-      drag.current = null
-    }
-  })
+      if (e.phase === 'update') {
+        const size = targetSize()
+
+        if (drag.current == null || !size || !(size.width > 0)) {
+          return
+        }
+
+        const h = Math.min(360, Math.max(0, drag.current + (e.translation.x / size.width) * 360))
+
+        props.onHsb({ ...props.hsb, h })
+      } else {
+        if (drag.current != null) {
+          props.onHsbEnd()
+        }
+
+        drag.current = null
+      }
+    },
+  )
+
+  const inputRef = useMemo(() => refList(bindHost, input.ref), [bindHost, input.ref])
 
   useEffect(() => {
     applyNativeProps(host.current, props)
@@ -103,8 +110,8 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
     accessibilityRole={nativeAccessibilityRole('adjustable')}
     accessibilityLabel={props.accessibilityLabel ?? 'hue'}
     accessibilityValue={`hue ${Math.round(hue)}°`}
-    onPan={onPan}
-    ref={bindHost}
+    onPan={input.onPan}
+    ref={inputRef}
   >
     <LinearGradient
       colors={HUE_STOPS}

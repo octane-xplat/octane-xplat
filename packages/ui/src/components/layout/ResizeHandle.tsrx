@@ -1,6 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef } from 'octane'
-import type { ResizeHandleProps, PanEvent } from '../../props'
+import type { ResizeHandleProps } from '../../props'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
+import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Pressable } from '../actions/Pressable.tsrx'
@@ -18,32 +21,35 @@ export function ResizeHandle(props: ResizeHandleProps): unknown @{
   const started = useRef(false)
   const lastTap = useRef(0)
 
-  const onPan = (e: PanEvent) => {
-    if (props.isDisabled || !resizable) {
-      return
-    }
-
-    const delta = (isHorizontal ? e.dx : e.dy) * sign
-
-    if (e.state === 'began') {
-      started.current = true
-      resizable._onResizeStart()
-    } else if (e.state === 'moved') {
-      if (started.current) {
-        resizable._onResizeMove(delta)
+  const input = useControlPan(
+    { axis: isHorizontal ? 'x' : 'y', enabled: !props.isDisabled && Boolean(resizable) },
+    (e: ControlPanNotification) => {
+      if ((props.isDisabled && e.phase !== 'finish') || !resizable) {
+        return
       }
-    } else {
-      // ended / cancelled
-      if (started.current) {
-        started.current = false
-        if (e.state === 'cancelled') {
-          resizable._onResizeCancel?.()
-        } else {
-          resizable._onResizeEnd()
+
+      const delta = (isHorizontal ? e.translation.x : e.translation.y) * sign
+
+      if (e.phase === 'start') {
+        started.current = true
+        resizable._onResizeStart()
+      } else if (e.phase === 'update') {
+        if (started.current) {
+          resizable._onResizeMove(delta)
+        }
+      } else {
+        // ended / cancelled
+        if (started.current) {
+          started.current = false
+          if (e.cancelled) {
+            resizable._onResizeCancel?.()
+          } else {
+            resizable._onResizeEnd()
+          }
         }
       }
-    }
-  }
+    },
+  )
 
   const onTap = () => {
     if (props.isDisabled || !resizable?._collapsible) {
@@ -74,7 +80,6 @@ export function ResizeHandle(props: ResizeHandleProps): unknown @{
       : props.pillPlacement
 
   <Pressable
-    ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
     className={cx(
       'vx-resize-handle',
@@ -92,7 +97,7 @@ export function ResizeHandle(props: ResizeHandleProps): unknown @{
     accessibilityRole="adjustable"
     accessibilityLabel={props.label ?? 'Resize handle'}
     accessibilityValue={resizable ? String(Math.round(resizable._size)) : undefined}
-    onPan={onPan}
+    ref={refList(input.ref, (view: any) => applyEscapeProps(view, props))}
     onPress={onTap}
   >
     {props.children ?? <masonview className="vx-resize-handle-pill" style={{ display: 'flex' }} />}

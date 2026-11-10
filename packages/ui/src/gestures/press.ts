@@ -8,6 +8,8 @@ import type {
 } from './types'
 
 export interface PressOptions {
+  /** Private visual observer: never becomes a semantic activation target. */
+  readonly observeOnly?: boolean
   readonly enabled?: boolean
   readonly slop: number | null
   /** Null uses the host's semantic long-press event; web supplies its hold interval. */

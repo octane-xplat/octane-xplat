@@ -1,4 +1,8 @@
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
 import { describe, expect, it, vi } from 'vitest'
 import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
@@ -8,7 +12,6 @@ vi.mock('@nativescript/core', async () => ({
   isAndroid: true,
 }))
 
-vi.mock('../layout/pan.tsrx', () => ({ usePan: () => undefined }))
 
 import { Pressable } from './Pressable.tsrx'
 

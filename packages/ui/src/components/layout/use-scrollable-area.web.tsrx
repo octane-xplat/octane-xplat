@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { useInteractionHost } from '../../gestures/host.web.tsrx'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { CSSProperties } from 'octane/jsx-runtime'
 import type {
@@ -26,6 +27,7 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES }
 export function useScrollableArea<TElement extends object = object>(
   options: UseScrollableAreaOptions = {},
 ): UseScrollableAreaResult<TElement> {
+  const bindInput = useInteractionHost({ viewport: true })
   const axis = options.axis ?? 'block'
   const keyboardAccess = options.keyboardAccess
   const overscroll = options.overscroll ?? 'allow'
@@ -76,9 +78,10 @@ export function useScrollableArea<TElement extends object = object>(
   const bindViewport = useCallback(
     (el: HTMLElement | null) => {
       viewportRef.current = el
+      bindInput(el)
       measure()
     },
-    [measure],
+    [bindInput, measure],
   )
 
   const bindContent = useCallback((el: HTMLElement | null) => {

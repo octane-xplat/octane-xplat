@@ -1,290 +1,227 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-// @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
 import { View } from './View.web.tsrx'
+import { Pressable } from '../actions/Pressable.web.tsrx'
+import type { PanNotification, PanSample } from '../../gestures/types'
 
-const roots: any[] = []
+const cleanups: (() => void)[] = []
 
-function mount(onPan: (e: any) => void) {
-  const el = document.createElement('div')
+afterEach(() => {
+  for (const cleanup of cleanups.splice(0).reverse()) {
+    cleanup()
+  }
 
-  document.body.append(el)
+  document.body.replaceChildren()
+})
 
-  const root = createRoot(el)
+function fixture(handler: (event: PanNotification) => void) {
+  const mount = document.createElement('div')
 
-  roots.push(root)
+  document.body.append(mount)
 
-  act(() =>
-    root.render(
-      <View onPan={onPan}>
-        <div id="child" />
-      </View>,
-    ),
-  )
+  const root = createRoot(mount),
+    pressed = vi.fn()
 
-  const host = el.firstElementChild as HTMLElement
-  const child = host.firstElementChild as HTMLElement
-
-  const pointer = (
-    type: string,
-    x: number,
-    y: number,
-    target: EventTarget = child,
-    pointerId = 1,
-    button = 0,
-    isPrimary = true,
-  ) =>
-    act(() =>
-      target.dispatchEvent(
-        Object.assign(new Event(type, { bubbles: true, cancelable: true }), {
-          clientX: x,
-          clientY: y,
-          pointerId,
-          button,
-          isPrimary,
-        }),
-      ),
-    )
-
-  const click = (target: EventTarget) =>
-    act(() => target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })))
-
-  const render = (cb?: (e: any) => void) =>
+  const render = (onPan = handler) =>
     act(() =>
       root.render(
-        <View onPan={cb}>
-          <div id="child" />
+        <View onPan={onPan} ref={() => {}}>
+          <Pressable onPress={pressed}>Action</Pressable>
         </View>,
       ),
     )
 
-  return { root, host, child, pointer, click, render }
+  render()
+
+  const host = mount.firstElementChild as HTMLElement,
+    button = host.firstElementChild as HTMLElement
+
+  for (const node of [host, button]) {
+    Object.defineProperties(node, {
+      offsetWidth: { value: 300, configurable: true },
+      offsetHeight: { value: 200, configurable: true },
+    })
+
+    node.getBoundingClientRect = () => ({
+      x: 20,
+      y: 30,
+      left: 20,
+      top: 30,
+      width: 300,
+      height: 200,
+      right: 320,
+      bottom: 230,
+      toJSON() {},
+    })
+  }
+
+  let held: number | null = null,
+    time = 0
+
+  host.setPointerCapture = vi.fn((id) => {
+    held = id
+  })
+
+  host.releasePointerCapture = vi.fn(() => {
+    held = null
+  })
+
+  host.hasPointerCapture = (id) => held === id
+
+  const pointer = (type: string, x: number, y = 35, target: EventTarget = button, id = 1) => {
+    const event = new MouseEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      clientX: x,
+      clientY: y,
+    })
+
+    Object.defineProperties(event, {
+      pointerId: { value: id },
+      pointerType: { value: 'mouse' },
+      timeStamp: { value: (time += 20) },
+    })
+
+    act(() => target.dispatchEvent(event))
+  }
+
+  const dispose = () => act(() => root.unmount())
+
+  cleanups.push(dispose)
+  return { host, button, pressed, render, pointer, dispose }
 }
 
-afterEach(() => {
-  for (const root of roots.splice(0)) {
-    act(() => root.unmount())
-  }
+it('claims after intent and reports separate local positions, translation and stable semantic targets', () => {
+  const events: PanNotification[] = [],
+    f = fixture((event) => {
+      events.push(event)
+    })
 
-  document.body.innerHTML = ''
-})
-
-it('reports began/moved/ended with cumulative deltas', () => {
-  const events: any[] = []
-  const { pointer } = mount((e) => events.push(e))
-
-  pointer('pointerdown', 10, 10)
-  pointer('pointermove', 25, 20)
-  pointer('pointerup', 25, 20)
-
-  expect(events.map((e) => e.state)).toEqual(['began', 'moved', 'ended'])
-  expect(events[1]).toMatchObject({ dx: 15, dy: 10, x: 15, y: 10 })
-  expect(events[2]).toMatchObject({ dx: 15, dy: 10 })
-})
-
-it('does not capture the pointer until the drag slop is crossed', () => {
-  const { host, pointer } = mount(vi.fn())
-
-  const capture = vi.fn()
-  const release = vi.fn()
-
-  Object.assign(host, {
-    setPointerCapture: capture,
-    hasPointerCapture: () => true,
-    releasePointerCapture: release,
-  })
-
-  pointer('pointerdown', 10, 10)
-  expect(capture).not.toHaveBeenCalled()
-
-  pointer('pointermove', 15, 10)
-  expect(capture).not.toHaveBeenCalled()
-
-  pointer('pointermove', 20, 10)
-  expect(capture).toHaveBeenCalledTimes(1)
-  expect(capture).toHaveBeenCalledWith(1)
-
-  pointer('pointermove', 30, 10)
-  expect(capture).toHaveBeenCalledTimes(1)
-
-  pointer('pointerup', 30, 10)
-})
-
-it('keeps tracking after the pointer leaves the element', () => {
-  const events: any[] = []
-  const { pointer } = mount((e) => events.push(e))
-
-  pointer('pointerdown', 10, 10)
-  // A fast drag can exit the host before the slop is crossed; the document
-  // listeners still deliver the rest of the gesture.
-  pointer('pointermove', 14, 10, document)
-  pointer('pointermove', 30, 10, document)
-  pointer('pointerup', 30, 10, document)
-
-  expect(events.map((e) => e.state)).toEqual(['began', 'moved', 'moved', 'ended'])
-})
-
-it('ignores pointers other than the active one', () => {
-  const events: any[] = []
-  const { pointer } = mount((e) => events.push(e))
-
-  pointer('pointerdown', 10, 10)
-  pointer('pointermove', 50, 50, undefined, 2)
-  pointer('pointerup', 50, 50, undefined, 2)
-
-  expect(events.map((e) => e.state)).toEqual(['began'])
-})
-
-it('emits cancelled and stops tracking', () => {
-  const events: any[] = []
-  const { pointer } = mount((e) => events.push(e))
-
-  pointer('pointerdown', 10, 10)
-  pointer('pointermove', 20, 10)
-  pointer('pointercancel', 20, 10)
-  pointer('pointermove', 40, 10)
-
-  expect(events.map((e) => e.state)).toEqual(['began', 'moved', 'cancelled'])
-})
-
-it('lets a click reach the document when no drag was captured', () => {
-  const { child, pointer, click } = mount(vi.fn())
-  const seen = vi.fn()
-
-  document.addEventListener('click', seen)
-  try {
-    pointer('pointerdown', 10, 10)
-    pointer('pointermove', 12, 10)
-    pointer('pointerup', 12, 10)
-    click(child)
-    expect(seen).toHaveBeenCalledTimes(1)
-  } finally {
-    document.removeEventListener('click', seen)
-  }
-})
-
-it('suppresses the retargeted click once, after a captured drag', () => {
-  const { host, pointer, click } = mount(vi.fn())
-  const seen = vi.fn()
-
-  document.addEventListener('click', seen)
-  try {
-    pointer('pointerdown', 10, 10)
-    pointer('pointermove', 40, 10)
-    pointer('pointerup', 40, 10)
-
-    click(host)
-    expect(seen).not.toHaveBeenCalled()
-
-    click(host)
-    expect(seen).toHaveBeenCalledTimes(1)
-  } finally {
-    document.removeEventListener('click', seen)
-  }
-})
-
-it('retains the initiating contact and origin across other pointer downs', () => {
-  const events: any[] = []
-  const { pointer } = mount((e) => events.push(e))
-
-  pointer('pointerdown', 10, 10)
-  pointer('pointermove', 30, 10)
-  pointer('pointerdown', 100, 100, undefined, 2)
-  pointer('pointermove', 110, 100, undefined, 2)
-  pointer('pointerup', 110, 100, undefined, 2)
-  pointer('pointermove', 40, 10)
-  pointer('pointerup', 40, 10)
-  expect(events.map((e) => e.state)).toEqual(['began', 'moved', 'moved', 'ended'])
-  expect(events.at(-1).dx).toBe(30)
-})
-
-it('rejects nonprimary contacts and nonprimary buttons', () => {
-  const events: any[] = []
-  const { pointer } = mount((e) => events.push(e))
-
-  pointer('pointerdown', 0, 0, undefined, 2, 0, false)
-  pointer('pointerup', 0, 0, undefined, 2)
-  pointer('pointerdown', 0, 0, undefined, 1, 2)
-  pointer('pointerup', 0, 0)
+  f.pointer('pointerdown', 25)
+  f.pointer('pointermove', 32)
   expect(events).toEqual([])
+  f.pointer('pointermove', 37)
+  expect(events.map((event) => event.phase)).toEqual(['start', 'update'])
+
+  const first = events[0]
+
+  if (first.phase === 'finish') {
+    throw new Error('Expected start')
+  }
+
+  expect(first.sample.translation.x).toBe(12)
+  expect(first.sample.startPosition.local).toEqual({ x: 5, y: 5 })
+  expect(first.sample.position.local).toEqual({ x: 17, y: 5 })
+  expect(first.sample.target).not.toBe(first.sample.currentTarget)
+  f.pointer('pointerup', 37)
+
+  const end = events.at(-1)
+
+  expect(end?.phase).toBe('finish')
+  if (end?.phase === 'finish') {
+    expect(end.terminal.outcome).toBe('ended')
+    expect(end.terminal.sample.pointerCount).toBe(0)
+  }
 })
 
-it('cancels capture loss exactly once using the last pointer coordinates', () => {
-  const events: any[] = []
-  const { pointer, host, child } = mount((e) => events.push(e))
+it('keeps a contact and capture through callback and callback-ref replacement', () => {
+  const first: PanNotification[] = [],
+    next: PanNotification[] = []
 
-  pointer('pointerdown', 10, 10)
-  pointer('pointermove', 30, 20)
-  pointer('lostpointercapture', 0, 0, child)
-  pointer('lostpointercapture', 0, 0, host, 2)
-  expect(events).toHaveLength(2)
-  pointer('lostpointercapture', 0, 0, host)
-  expect(events.map((e) => e.state)).toEqual(['began', 'moved', 'cancelled'])
-  pointer('pointercancel', 30, 20)
-  pointer('pointerup', 30, 20)
-  expect(events.map((e) => e.state)).toEqual(['began', 'moved', 'cancelled'])
-  expect(events.at(-1)).toMatchObject({ dx: 20, dy: 10 })
-})
-
-it('keeps a contact through callback replacement and cancels it on disable', () => {
-  const first = vi.fn(),
-    next = vi.fn()
-
-  const { pointer, render } = mount(first)
-
-  pointer('pointerdown', 10, 10)
-  render(next)
-  pointer('pointermove', 30, 10)
-  render()
-  pointer('pointerup', 30, 10)
-  expect(first.mock.calls.map(([e]) => e.state)).toEqual(['began'])
-  expect(next.mock.calls.map(([e]) => e.state)).toEqual(['moved', 'cancelled'])
-  render(next)
-  pointer('pointerdown', 5, 5)
-  pointer('pointerup', 5, 5)
-  expect(next.mock.calls.slice(-2).map(([e]) => e.state)).toEqual(['began', 'ended'])
-})
-
-it('cancels on unmount and releases capture without a duplicate terminal', () => {
-  const events: any[] = []
-  const { pointer, root, host } = mount((e) => events.push(e))
-
-  Object.assign(host, {
-    hasPointerCapture: () => true,
-    releasePointerCapture: () => {
-      pointer('lostpointercapture', 0, 0, host)
-    },
+  const f = fixture((event) => {
+    first.push(event)
   })
 
-  pointer('pointerdown', 10, 10)
-  pointer('pointermove', 30, 10)
-  act(() => root.unmount())
-  pointer('pointerup', 30, 10, document)
-  expect(events.map((e) => e.state)).toEqual(['began', 'moved', 'cancelled'])
+  f.pointer('pointerdown', 25)
+  f.pointer('pointermove', 40)
+
+  const start = first[0]
+
+  if (start.phase === 'finish') {
+    throw new Error('Expected start')
+  }
+
+  f.render((event) => {
+    next.push(event)
+  })
+
+  f.pointer('pointermove', 50)
+  f.pointer('pointerup', 50)
+  expect(first.filter((event) => event.phase === 'finish')).toHaveLength(0)
+  expect(f.host.setPointerCapture).toHaveBeenCalledTimes(1)
+  expect(next.at(-1)?.phase).toBe('finish')
+
+  const event = next[0]
+
+  if (event.phase !== 'finish') {
+    expect(event.sample.session.id).toBe(start.sample.session.id)
+  }
 })
 
-it('preserves fresh velocity at up but expires a stationary sample', () => {
-  const clock = vi.spyOn(performance, 'now')
-  const events: any[] = []
-  const { pointer } = mount((e) => events.push(e))
+it('cancels capture loss with the last coordinates and cannot restart before all contacts lift', () => {
+  const events: PanNotification[] = [],
+    f = fixture((event) => {
+      events.push(event)
+    })
 
-  try {
-    clock.mockReturnValue(0)
-    pointer('pointerdown', 10, 10)
-    clock.mockReturnValue(20)
-    pointer('pointermove', 30, 10)
-    clock.mockReturnValue(30)
-    pointer('pointerup', 30, 10)
-    expect(events.at(-1).vx).toBe(1000)
-    clock.mockReturnValue(100)
-    pointer('pointerdown', 10, 10)
-    clock.mockReturnValue(120)
-    pointer('pointermove', 30, 10)
-    clock.mockReturnValue(221)
-    pointer('pointerup', 30, 10)
-    expect(events.at(-1).vx).toBe(0)
-  } finally {
-    clock.mockRestore()
+  f.pointer('pointerdown', 25)
+  f.pointer('pointermove', 45)
+  f.pointer('lostpointercapture', 0, 0, f.host)
+
+  const finish = events.at(-1)
+
+  if (finish?.phase !== 'finish') {
+    throw new Error('Expected terminal')
   }
+
+  expect(finish.terminal.outcome).toBe('cancelled')
+  if (finish.terminal.outcome === 'cancelled') {
+    expect(finish.terminal.reason).toBe('capture-lost')
+  }
+
+  expect(finish.terminal.sample.position.window).toEqual({ x: 45, y: 35 })
+  f.pointer('pointermove', 100)
+  f.pointer('pointerup', 100)
+  expect(events.filter((event) => event.phase === 'finish')).toHaveLength(1)
+  f.pointer('pointerdown', 25)
+  f.pointer('pointermove', 45)
+  expect(events.filter((event) => event.phase === 'start')).toHaveLength(2)
+})
+
+it('keeps keyboard and virtual activation eligible after a claimed drag while rejecting its pointer click', () => {
+  const f = fixture(() => {})
+
+  f.pointer('pointerdown', 25)
+  f.pointer('pointermove', 45)
+  f.pointer('pointerup', 45)
+  act(() =>
+    f.button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 })),
+  )
+
+  expect(f.pressed).not.toHaveBeenCalled()
+  act(() => f.button.click())
+  expect(f.pressed).toHaveBeenCalledTimes(1)
+  expect(f.pressed.mock.calls[0][0].pointer).toBeNull()
+  f.pointer('pointerdown', 25)
+  f.pointer('pointerup', 25)
+  act(() => f.button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 })))
+  expect(f.pressed).toHaveBeenCalledTimes(2)
+})
+
+it('finalizes an active attachment exactly once on unmount', () => {
+  const terminals: PanSample[] = []
+  const f = fixture((event) => {
+    if (event.phase === 'finish') {
+      terminals.push(event.terminal.sample)
+    }
+  })
+
+  f.pointer('pointerdown', 25)
+  f.pointer('pointermove', 45)
+  f.dispose()
+  f.pointer('pointerup', 45, 35, document)
+  expect(terminals).toHaveLength(1)
+  expect(f.host.releasePointerCapture).toHaveBeenCalledTimes(1)
 })

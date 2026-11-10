@@ -2746,3 +2746,5 @@ ownership. OTP autofill, native digit filtering, physical focus/caret/IME,
 secure-field behavior and VoiceOver remain open or
 unqualified; do not infer a complete native authentication flow from source
 presence.
+
+For draggable panels, pinch zoom, gesture signals, and scoped input cancellation, see [gestures](gestures.md).

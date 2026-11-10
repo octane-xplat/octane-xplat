@@ -1,26 +1,28 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { useMemo, useRef } from 'octane'
+import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
+import { useInteractionHost } from '../../gestures/host.web.tsrx'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { RowProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from './layout-child.web'
-import { usePan } from './pan.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 export function Row(props: RowProps): JSX.Element @{
-  const el = useRef<HTMLElement | null>(null)
-
-  usePan(el, props.onPan)
+  const bindInput = useInteractionHost(props)
 
   const forwardedRef = useMemo(
     () =>
-      refList((e: any) => {
-        el.current = e
-        if (e) {
-          applyEscapeProps(e, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (e: any) => {
+          if (e) {
+            applyEscapeProps(e, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   <div
@@ -39,6 +41,8 @@ export function Row(props: RowProps): JSX.Element @{
     aria-checked={props.accessibilityState?.checked}
     aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
   >
-    {props.children}
+    <InteractionScopeProvider scope={props.interactionScope}>
+      {props.children}
+    </InteractionScopeProvider>
   </div>
 }

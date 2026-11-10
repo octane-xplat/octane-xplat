@@ -121,15 +121,15 @@ export interface DragConstraints {
 
 /** Payload for drag callbacks. */
 export interface DragInfo {
-  /** Current pointer position (dips). */
+  /** Current pointer position in logical window coordinates. */
   point: { x: number; y: number }
-  /** Change since the last event. */
+  /** Change since the last event in the parent plane used by translation channels. */
   delta: { x: number; y: number }
-  /** Displacement from the drag origin. */
+  /** Displacement in the parent plane frozen at admission; excludes the host's own scale/rotation. */
   offset: { x: number; y: number }
-  /** CSS pixels/DIP per second. */
+  /** Parent-plane CSS pixels/DIP per second; unavailable speed settles as zero. */
   velocity: { x: number; y: number }
-  /** True when the OS cancelled the gesture. */
+  /** True for interrupted input, including system takeover, disablement or detachment. */
   cancelled: boolean
 }
 

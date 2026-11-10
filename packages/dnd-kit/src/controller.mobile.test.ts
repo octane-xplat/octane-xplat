@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
+import type { PanSample } from '@octane-xplat/ui'
 import { DndController } from './controller'
 import { arrayMove } from './sort'
 
@@ -14,8 +15,34 @@ const flush = async () => {
   }
 }
 
-const pan = (source: ReturnType<DndController['registerDraggable']>, state: string, dy = 0) =>
-  source.onPan?.({ state, dx: 0, dy, x: 0, y: dy, vx: 0, vy: 0, target: null })
+const pan = (source: ReturnType<DndController['registerDraggable']>, state: string, dy = 0) => {
+  const position = { local: { x: 0, y: dy }, window: { x: 0, y: dy }, screen: null }
+  const sample: PanSample = {
+    sequenceId: 'test',
+    time: 0,
+    target: { id: 'test' },
+    currentTarget: { id: 'test' },
+    position,
+    startPosition: position,
+    contacts: [],
+    pointerCount: 0,
+    session: { id: 'test', cancel() {} },
+    translation: { x: 0, y: dy },
+    velocity: { x: 0, y: 0 },
+  }
+
+  source.onPan?.(
+    state === 'ended' || state === 'cancelled'
+      ? {
+          phase: 'finish',
+          terminal:
+            state === 'ended'
+              ? { outcome: 'ended', sample }
+              : { outcome: 'cancelled', sample, reason: 'system' },
+        }
+      : { phase: state === 'began' ? 'start' : 'update', sample },
+  )
+}
 
 function setup() {
   const manager = new DndController()

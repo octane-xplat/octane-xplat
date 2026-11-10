@@ -52,10 +52,8 @@ export function App(props: {
       onPress={() => events.push(['press', props.version])}
       onPressIn={() => events.push(['in', props.version])}
       onPressOut={() => events.push(['out', props.version])}
-      onPan={(e) => events.push(['pan', props.version, e])}
-      onSwipe={(e) => events.push(['swipe', props.version, e.direction])}
     >
-      <Text>Drag me</Text>
+      <Text>Press me</Text>
     </Pressable>
     <Stack id="flow" direction={props.horizontal ? 'horizontal' : 'vertical'} gap={2}>
       <Text id="alpha">Alpha</Text>

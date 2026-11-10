@@ -147,49 +147,36 @@ export function SharedCard({ expanded }: { expanded: boolean }) {
 
 ## Gestures
 
-Normalized payloads (primitives.md). Pan on web uses raw pointer listeners
-(`pointermove` isn't delegated); native uses the
-NS `pan` recognizer. Both map to `{x,y,dx,dy,vx,vy,state,target}`. Native
-velocity comes from iOS `velocityInView` or Android `VelocityTracker`, in
-dips per second. Web keeps one initiating primary contact and cancels once on
-capture loss, callback removal, or unmount. Handle `cancelled` as a return or
-recovery path, never as a successful dismissal. Callback replacement continues
-the contact; nested controls keep taps below capture slop.
+Use the shared owner through `usePanGesture$`, `usePinchGesture$`, and `gestures`. Callback updates preserve a session. Samples separate local/window/screen positions from translation; nullable velocity is in logical units/second. Commit actions only on `onEnd`; `onCancel` is interruption. `onFinalize` follows either once. A second finger cancels an exact-one-pointer pan until all lift. Do not synthesize cancelled events or suppress clicks in apps. See [gesture contracts and migration](../../../../../docs/app/gestures.md).
 
 ```tsx
-import { View, Text } from '@octane-xplat/ui'
+import { View, usePanGesture$ } from '@octane-xplat/ui'
 
-export function GestureArea() {
-  return (
-    <View
-      onPan={({ dx, dy, vx, vy, state }) => console.log(dx, dy, vx, vy, state)}
-      onSwipe={({ direction }) => console.log(direction)}
-    >
-      <Text>Drag here</Text>
-    </View>
-  )
+export function DragArea() {
+  const drag = usePanGesture$({ axis: 'x', onEnd: (sample) => console.log(sample.translation) })
+  return <View gestures={drag} />
 }
 ```
 
-For camera pinch-to-zoom, use the [camera guide](../../../../../docs/packages/package-camera.md#pinch-to-zoom).
-`CameraView.onPinch` is available on iOS and Android; shared `onPinch` also
-exposes optional raw focal coordinates. Mock normalization checks do not qualify
-native gesture delivery or focal-coordinate units. Coordinate custom ancestor
-pull-down recognizers with the pinch; they may observe the same touches.
-
-Windows pan uses the pinned Core pointer owner: one initiating contact,
-cumulative logical-DIP deltas, capture-loss cancellation and zero velocity.
-Packaged x64 mouse checks cover the shared Slider's numeric pointer path; they
-do not qualify touch, pen, swipe or the full Slider contract. Keep pointer
-subscriptions in Core's shared event owner; the preview's direct routed
-`AddHandler` projection still rejects with `E_NOINTERFACE`. See the
-[Windows mouse-dragging boundary](../../../../../docs/platform/windows-setup.md#mouse-dragging).
+Public hooks expose read-only phase/activity/contact signals and optional frame/input samples. Keep signal names suffixed `$` and import the signal runtime in render readers. `enabled$` is a live boolean source; never supply it together with `enabled`. Suspend through `useInteractionScope$` and inspect the operation result. Full suspension is capability-gated: bounded UIKit/Mason on iOS, input-only inert subtrees on web; Android/macOS full suspension is unsupported. Portals outside coverage reject suspension. No `drag.support$` exists.
 
 ```tsx
-import { View } from '@octane-xplat/ui'
+import { View, useInteractionScope$ } from '@octane-xplat/ui'
 
-export function MouseDrag() {
-  return <View onPan={({ state, dx, dy }) => console.log(state, dx, dy)} />
+export function ScopedContent() {
+  const scope = useInteractionScope$()
+  return <View interactionScope={scope} />
+}
+```
+
+Web/iOS/Android have the shared pan/pinch adapter; experimental AppKit supports one mouse contact, with no shared pinch or trackpad magnification. GTK/Windows shared attachments throw explicitly; native widget input remains separate. Motion `drag` and `whileTap` now use the same owner as Pressable; remove Motion-only gesturehandler setup. Camera zoom amounts and media seek/dismiss policy stay with their owning API or app.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+import { Button } from '@octane-xplat/ui'
+
+export function Panel() {
+  return <motion.View drag="x"><Button clickAction={() => {}}>Open</Button></motion.View>
 }
 ```
 

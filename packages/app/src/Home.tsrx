@@ -196,19 +196,23 @@ export function Home() @{
 
         <View className="sink-section">
           <Text className="section-label">Gestures and animation</Text>
-          {/* Gesture seam (Exp 10/17): onPan/onSwipe → NS gesture events on the
-					    flexboxlayout; payloads normalized to {dx,dy,state:'moved'|...}.
-					    Web leaf plumbs pointer events itself (pointermove isn't
-					    delegated by the DOM renderer). */}
+          {/* Shared gesture ownership preserves nested button taps. */}
           <View
             id="pan-box"
             className="panbox"
             style={{ padding: 16 }}
             onPan={(e) => {
-              ;(e.target as any).lastPanState = e.state
-              console.log('[probe] pan dx=' + e.dx + ' dy=' + e.dy + ' state=' + e.state)
+              const sample = e.phase === 'finish' ? e.terminal.sample : e.sample
+
+              console.log(
+                '[probe] pan translation=' +
+                  sample.translation.x +
+                  ',' +
+                  sample.translation.y +
+                  ' phase=' +
+                  e.phase,
+              )
             }}
-            onSwipe={(e) => console.log('[probe] swipe dir=' + e.direction)}
           >
             <Text className="text-sm text-muted">Pan or swipe inside this box</Text>
             <Pressable onPress={openOverlay} className="btn btn-secondary">

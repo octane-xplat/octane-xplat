@@ -1,3 +1,5 @@
+export { usePanGesture$, usePinchGesture$, useInteractionScope$ } from './gestures/hooks.tsrx'
+export { compete, simultaneous, prioritize } from './gestures/composition'
 // GTK/GJS runtime values. Add shared leaves only with maintained GTK runtime checks.
 // moduleSuffixes resolves this twin for package types, so re-export the
 // shared type surface explicitly.

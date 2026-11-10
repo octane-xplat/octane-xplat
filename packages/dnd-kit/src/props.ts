@@ -1,5 +1,5 @@
 import type { CollisionDetector, Data, UniqueIdentifier } from '@dnd-kit/abstract'
-import type { PanEvent, ViewProps } from '@octane-xplat/ui'
+import type { PanNotification, ViewProps } from '@octane-xplat/ui'
 
 /** Identifier type for draggables/droppables. */
 export type DndId = UniqueIdentifier
@@ -90,7 +90,7 @@ export interface DraggableResult {
   /** Ref callback wiring the node into the dnd registry. */
   ref(element: any): void
   /** Attach to the drag surface; it may be a descendant of the measured `ref` node. */
-  onPan(event: PanEvent): void
+  onPan(event: PanNotification): void
   /** True while this node is the active drag. */
   isDragging: boolean
   /** Current drag offset applied to the element. */

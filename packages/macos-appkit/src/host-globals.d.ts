@@ -53,7 +53,10 @@ declare global {
     ) => import('./gesture-input').AppKitGestureSurface
     observeGestureActivation?: (
       view: object,
-      notify: (source: import('./action-store').ActionActivationSource) => void,
+      notify: (
+        source: import('./action-store').ActionActivationSource,
+        kind?: 'double' | 'long',
+      ) => void,
     ) => () => void
     observePointerInput?: (
       notify: (event: { type: number; modifierFlags: number }) => void,

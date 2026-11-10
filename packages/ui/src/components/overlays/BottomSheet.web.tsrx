@@ -1,17 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { createPortal } from '../../internal/platform/native-portal.web.tsrx'
 import { SheetContent } from './sheet-content.tsrx'
 import { LayerDepthContext, LayerDepthProvider } from './layer-dismissal.tsrx'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { SizeProvider } from '../layout/size-context'
-import {
-  createPortal,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'octane'
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 
 import type { BottomSheetProps } from '../../props'
 

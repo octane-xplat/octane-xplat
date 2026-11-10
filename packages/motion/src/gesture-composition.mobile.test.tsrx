@@ -8,6 +8,7 @@ import {
 
 import { motion, MotionConfig } from './index'
 import { controllers } from './components.tsrx'
+import { dispatchOwnedPress } from '../test/owned-input'
 import { gestureContract } from '../test/gesture-contract'
 import type { MotionProps } from './types'
 
@@ -63,6 +64,10 @@ gestureContract((props, reduced = false) => {
       const action = name === 'cancel' ? 'cancel' : name
 
       flushUniversalSync(() => {
+        if (type === 'touch') {
+          dispatchOwnedPress(node, action)
+        }
+
         for (const callback of listeners.get(type) ?? []) {
           callback({ action })
         }

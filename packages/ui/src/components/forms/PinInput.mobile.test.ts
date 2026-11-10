@@ -13,7 +13,6 @@ vi.mock('@nativescript/core', () => ({
   Utils: { openUrl: vi.fn() },
 }))
 
-vi.mock('../layout/pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('../media/svg', () => ({}))
 vi.mock('../../routing/default-router', () => ({
   router: { navigateUrl: () => Promise.resolve({ status: 'not-found' }) },

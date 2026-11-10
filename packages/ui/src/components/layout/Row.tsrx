@@ -2,6 +2,8 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
+import { useInteractionHost } from '../../gestures/host.tsrx'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { RowProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import {
@@ -11,18 +13,21 @@ import {
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from './layout-child'
-import { usePan } from './pan.tsrx'
-import { usePinch } from './pinch.tsrx'
 
 export function Row(props: RowProps): unknown @{
+  const bindInput = useInteractionHost(props)
   const forwardedRef = useMemo(
     () =>
-      refList((v: any) => {
-        if (v) {
-          applyEscapeProps(v, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (v: any) => {
+          if (v) {
+            applyEscapeProps(v, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   <masonview
@@ -38,10 +43,9 @@ export function Row(props: RowProps): unknown @{
     accessibilityValue={props.accessibilityValue}
     accessibilityState={nativeAccessibilityState(props.accessibilityState)}
     accessibilityLiveRegion={props.accessibilityLiveRegion}
-    onPan={usePan(props.onPan)}
-    onSwipe={props.onSwipe}
-    onPinch={usePinch(props.onPinch)}
   >
-    {props.children}
+    <InteractionScopeProvider scope={props.interactionScope}>
+      {props.children}
+    </InteractionScopeProvider>
   </masonview>
 }

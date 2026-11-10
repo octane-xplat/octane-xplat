@@ -8,7 +8,10 @@ import {
 } from 'octane/universal/native'
 
 import { Slider } from './Slider.macos.tsrx'
-import { usePan } from '../layout/pan.macos.tsrx'
+
+vi.mock('../../gestures/control.tsrx', () => import('../../../tests/control-pan-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
 import { FormField } from './FormField.macos.tsrx'
 import {
   moveSlider,
@@ -24,7 +27,13 @@ function mount(component: any, props: any) {
   vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
 
   const container = createObjectContainer('nativescript')
-  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const driver = createObjectDriver('nativescript')
+
+  // Value-policy fixtures retain callbacks as props; the AppKit integration
+  // suite separately exercises renderer dispatch and raw input ownership.
+  driver.events = { classify: () => null }
+
+  const root = createUniversalRoot(container, driver)
   const render = (next: any) => {
     root.render(component, next)
     flushUniversalSync(() => {})
@@ -41,7 +50,7 @@ function mount(component: any, props: any) {
   const named = (name: string) =>
     all().filter((node) => String(node.props?.className).split(' ').includes(name))
 
-  return { root, render, all, named }
+  return { root, render, all, named, container }
 }
 
 function key(thumb: any, name: string, extras = {}) {
@@ -231,29 +240,6 @@ it('formats text/tooltip readouts, draws declared marks and retains inline CSS s
 
     await vi.waitFor(() => expect(env.named('vx-slider-thumb')[0].toolTip).toBe('50%'))
     expect(env.named('vx-slider-thumb')[0].props.accessibilityValue).toBe('0.5')
-  } finally {
-    env.root.unmount()
-  }
-})
-
-it('AppKit pan keeps shared delta aliases and exposes pointer location separately', () => {
-  const events: unknown[] = []
-  function Listener() @{
-    const pan = usePan((event) => events.push(event))
-
-    <masonview className="pan-listener" onPan={pan} />
-  }
-
-  const env = mount(Listener, {})
-
-  try {
-    env
-      .named('pan-listener')[0]
-      .props.onPan({ state: 2, x: 42, y: 17, deltaX: 10, deltaY: 3, view: {} })
-
-    expect(events).toEqual([
-      expect.objectContaining({ x: 10, y: 3, dx: 10, dy: 3, locationX: 42, locationY: 17 }),
-    ])
   } finally {
     env.root.unmount()
   }

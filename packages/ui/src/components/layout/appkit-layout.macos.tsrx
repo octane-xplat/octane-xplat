@@ -1,5 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { useInteractionHost } from '../../gestures/host.macos.tsrx'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import { useMemo, useContext } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type {
@@ -63,6 +65,7 @@ export function Grid(props: GridProps): unknown @{
  *  resolution as the other targets; `isScrollable` hosts the flow in a
  *  scrollview. Overlapping children belong in `Absolute`. */
 export function Stack(props: StackProps): unknown @{
+  const bindInput = useInteractionHost({ ...props, viewport: Boolean(props.isScrollable) })
   const layout = resolveStackLayout(props)
   const sizingStyle = {
     ...(props.width != null ? { width: props.width } : {}),
@@ -77,12 +80,16 @@ export function Stack(props: StackProps): unknown @{
 
   const forwardedRef = useMemo(
     () =>
-      refList((v: any) => {
-        if (v) {
-          applyEscapeProps(v, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (v: any) => {
+          if (v) {
+            applyEscapeProps(v, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   @if (layout.scrollable) {
@@ -112,7 +119,9 @@ export function Stack(props: StackProps): unknown @{
           { display: 'flex' },
         )}
       >
-        {props.children}
+        <InteractionScopeProvider scope={props.interactionScope}>
+          {props.children}
+        </InteractionScopeProvider>
       </masonview>
     </scrollview>
   } @else {
@@ -138,22 +147,29 @@ export function Stack(props: StackProps): unknown @{
       accessibilityState={props.accessibilityState}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
-      {props.children}
+      <InteractionScopeProvider scope={props.interactionScope}>
+        {props.children}
+      </InteractionScopeProvider>
     </masonview>
   }
 }
 
 export function StackItem(props: StackItemProps): unknown @{
+  const bindInput = useInteractionHost({ ...props, viewport: Boolean(props.isScrollable) })
   const itemStyle = stackItemStyle(props)
 
   const forwardedRef = useMemo(
     () =>
-      refList((v: any) => {
-        if (v) {
-          applyEscapeProps(v, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (v: any) => {
+          if (v) {
+            applyEscapeProps(v, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   @if (props.isScrollable) {
@@ -172,7 +188,9 @@ export function StackItem(props: StackItemProps): unknown @{
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
       <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
-        {props.children}
+        <InteractionScopeProvider scope={props.interactionScope}>
+          {props.children}
+        </InteractionScopeProvider>
       </masonview>
     </scrollview>
   } @else {
@@ -189,7 +207,9 @@ export function StackItem(props: StackItemProps): unknown @{
       accessibilityState={props.accessibilityState}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
-      {props.children}
+      <InteractionScopeProvider scope={props.interactionScope}>
+        {props.children}
+      </InteractionScopeProvider>
     </masonview>
   }
 }

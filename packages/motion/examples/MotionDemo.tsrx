@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane'
-import { Text, View, Pressable, type PanEvent } from '@octane-xplat/ui'
+import { Text, View, Pressable, type PanNotification } from '@octane-xplat/ui'
 import { motion, MotionConfig, useMotionValue, useTransform, useReducedMotion } from '../src/index'
 
 /** Mount in a screen to exercise destination changes and pan-to-spring settling. */
@@ -9,17 +9,17 @@ export function MotionDemo() @{
   const scale = useTransform(x, [-120, 0, 120], [0.9, 1, 0.9])
   const origin = useRef(0)
   const reduced = useReducedMotion()
-  const pan = (event: PanEvent) => {
-    if (event.state === 'began') {
+  const pan = (event: PanNotification) => {
+    if (event.phase === 'start') {
       x.stop()
       origin.current = x.get()
     }
 
-    if (event.state === 'moved') {
-      x.set(Math.max(-120, Math.min(120, origin.current + event.dx)))
+    if (event.phase !== 'finish') {
+      x.set(Math.max(-120, Math.min(120, origin.current + event.sample.translation.x)))
     }
 
-    if (event.state === 'ended' || event.state === 'cancelled') {
+    if (event.phase === 'finish') {
       x.animate(
         0,
         reduced
@@ -28,7 +28,8 @@ export function MotionDemo() @{
               type: 'spring',
               stiffness: 180,
               damping: 20,
-              velocity: event.state === 'ended' ? event.vx : 0,
+              velocity:
+                event.terminal.outcome === 'ended' ? (event.terminal.sample.velocity?.x ?? 0) : 0,
             },
       )
     }

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import { HStack, Text, View, setTranslate } from '@octane-xplat/ui'
-import type { PanEvent } from '@octane-xplat/ui'
+import type { PanNotification } from '@octane-xplat/ui'
 
 type Track = { id: string; title: string; artist: string }
 
@@ -41,10 +41,13 @@ export function Reorder() @{
 
   const clearShifts = () => items.forEach((t) => setTranslate(views.current.get(t.id)))
 
-  const pan = (item: Track, e: PanEvent) => {
+  const pan = (item: Track, e: PanNotification) => {
+    const sample = e.phase === 'finish' ? e.terminal.sample : e.sample
+    const ended = e.phase === 'finish' && e.terminal.outcome === 'ended'
+    const cancelled = e.phase === 'finish' && e.terminal.outcome === 'cancelled'
     const el = views.current.get(item.id)
 
-    if (e.state === 'began') {
+    if (e.phase === 'start') {
       const from = items.indexOf(item)
 
       drag.current = {
@@ -54,8 +57,6 @@ export function Reorder() @{
         pitch: rowHeight(el) + ROW_GAP || 1,
         active: false,
       }
-
-      return
     }
 
     const d = drag.current
@@ -64,7 +65,7 @@ export function Reorder() @{
       return
     }
 
-    if (e.state === 'moved') {
+    if (e.phase !== 'finish') {
       if (!d.active) {
         d.active = true
         setLifted(item.id)
@@ -72,8 +73,8 @@ export function Reorder() @{
 
       const last = items.length - 1
 
-      d.hover = Math.min(last, Math.max(0, d.from + Math.round(e.dy / d.pitch)))
-      setTranslate(el, 0, e.dy)
+      d.hover = Math.min(last, Math.max(0, d.from + Math.round(sample.translation.y / d.pitch)))
+      setTranslate(el, 0, sample.translation.y)
       items.forEach((sib, i) => {
         if (sib.id === d.id) {
           return
@@ -94,7 +95,7 @@ export function Reorder() @{
 
     drag.current = null
     setLifted(null)
-    if (e.state === 'ended' && d.hover !== d.from) {
+    if (ended && d.hover !== d.from) {
       const next = items.slice()
 
       next.splice(d.from, 1)

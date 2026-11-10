@@ -27,7 +27,7 @@ function fixture() {
 
   const api = runSlice(
     source +
-      '\n({ setPressGesture, disposePressGestures, configureGesture, swipeDirection, target, delegate })',
+      '\n({ setPressGesture, disposePressGestures, configureGesture, swipeDirection, target, delegate, observeSecondaryActivation })',
     {
       elementBehaviors: new Map(),
       behaviorOf: () => undefined,
@@ -419,4 +419,25 @@ test('optional attempt gates apply only to configured recognizers and can be rem
   assert.equal(f.configureGesture(recognizer), recognizer)
   assert.equal(attempt(recognizer), true)
   assert.deepEqual(calls, [event])
+})
+
+test('managed double activation intercepts only after lifecycle/disabled checks and releases its route', () => {
+  const f = fixture()
+  const kinds: string[] = []
+  const off = f.observeSecondaryActivation(f.node.view, (kind: string) => kinds.push(kind))
+
+  f.target.doublePressed({ view: f.node.view, state: 3 })
+  assert.deepEqual(kinds, ['double'])
+  assert.deepEqual(f.events, [])
+  f.node.props.disabled = true
+  f.target.doublePressed({ view: f.node.view, state: 3 })
+  assert.equal(kinds.length, 1)
+  f.node.props.disabled = false
+  f.node.lifecycle = 'disposing'
+  f.target.doublePressed({ view: f.node.view, state: 3 })
+  assert.equal(kinds.length, 1)
+  f.node.lifecycle = 'mounted'
+  off()
+  f.target.doublePressed({ view: f.node.view, state: 3 })
+  assert.deepEqual(f.events, ['double'])
 })

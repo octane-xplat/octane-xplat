@@ -10,6 +10,8 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.{ts,tsrx}'],
+    setupFiles: ['./test/geometry.web.ts'],
+    maxWorkers: 2,
     exclude: ['**/*.mobile.test.*'],
     environment: 'jsdom',
   },

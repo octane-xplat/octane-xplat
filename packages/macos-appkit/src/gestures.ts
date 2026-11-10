@@ -24,6 +24,20 @@ const nodes = new WeakMap<object, GestureNode>()
 const owned = new WeakSet<object>()
 const attempts = new WeakMap<object, (event: NSEvent) => boolean>()
 
+const secondaryActivations = new WeakMap<object, (kind: 'double' | 'long') => void>()
+
+export function observeSecondaryActivation(
+  view: object,
+  notify: (kind: 'double' | 'long') => void,
+): () => void {
+  secondaryActivations.set(view, notify)
+  return () => {
+    if (secondaryActivations.get(view) === notify) {
+      secondaryActivations.delete(view)
+    }
+  }
+}
+
 function dispatch(node: GestureNode | undefined, name: string, event?: any) {
   if (
     !node ||
@@ -32,6 +46,14 @@ function dispatch(node: GestureNode | undefined, name: string, event?: any) {
     node.props.disabled ||
     typeof node.props[name] !== 'function'
   ) {
+    return
+  }
+
+  const secondary = name === 'onDoubleTap' ? 'double' : name === 'onLongPress' ? 'long' : null
+  const managed = secondary && secondaryActivations.get(node.view!)
+
+  if (managed && secondary) {
+    node.container.root!.eventScope('discrete', () => managed(secondary))
     return
   }
 

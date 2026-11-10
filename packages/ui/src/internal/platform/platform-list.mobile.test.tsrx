@@ -15,7 +15,7 @@ vi.mock('@nativescript/core', () => ({
   },
 }))
 
-vi.mock('./native-portal', () => ({ createPortal: (children: any) => children }))
+vi.mock('./native-portal.tsrx', () => ({ createPortal: (children: any) => children }))
 vi.mock('../../components/overlays/escape-props', () => ({ applyEscapeProps() {} }))
 vi.mock('../../components/layout/refresh', () => ({ createPullToRefresh: vi.fn() }))
 vi.mock('../../components/feedback/ActivityIndicator.tsrx', () => ({

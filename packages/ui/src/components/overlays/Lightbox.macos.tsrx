@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'octane'
 import { createAppKitLightboxGestures } from './lightbox-gestures.macos'
 import type { LightboxProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
+import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Button } from '../actions/controls.macos.tsrx'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { usePresentation } from './presentation.macos.tsrx'
@@ -80,16 +81,30 @@ function LightboxPanel(
           ×
         </Button>
       </masonview>
-      <masonview
+      <Pressable
         ref={stage}
         className="vx-lightbox-stage"
         style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: 0 }}
-        onDoubleTap={
+        onDoublePress={
           item && item.type !== 'video' && props.hasZoom !== false
             ? () => gestures.toggleZoom()
             : undefined
         }
-        onSwipe={props.media.length > 1 ? (event) => gestures.swipe(event.direction) : undefined}
+        onPan={
+          props.media.length > 1
+            ? (event) => {
+                if (event.phase !== 'finish' || event.terminal.outcome !== 'ended') {
+                  return
+                }
+
+                const { x, y } = event.terminal.sample.translation
+
+                if (Math.abs(x) >= 48 && Math.abs(x) > Math.abs(y)) {
+                  gestures.swipe(x < 0 ? 2 : 1)
+                }
+              }
+            : undefined
+        }
       >
         {item?.type === 'video' ? (
           <xplatvideo
@@ -108,7 +123,7 @@ function LightboxPanel(
             <image src={item?.src} accessibilityLabel={item?.alt} />
           </scrollview>
         )}
-      </masonview>
+      </Pressable>
       {item?.caption != null && <label whiteSpace="normal">{item.caption}</label>}
     </masonview>
   </LayerDepthProvider>

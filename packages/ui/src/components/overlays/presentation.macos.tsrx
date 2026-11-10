@@ -2,7 +2,7 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { useThemeScheme } from '../../theme/theme-scheme'
 
 /** Registrations publish new content independently of parent prop updates. */

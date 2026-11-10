@@ -1,4 +1,7 @@
 import type { ClassValue, CSSProperties, Octane } from 'octane/jsx-runtime'
+import type { GestureHostProps, ActivationEvent, GestureSample } from './gestures/types'
+
+export type { PanNotification, PinchNotification } from './gestures/types'
 
 /** Shared prop/type contract — the single source of truth for the public
  *  API surface. Platform leaves import these types so prop shapes cannot
@@ -87,61 +90,6 @@ export type LayoutComponent = ComponentFunction<{
 }>
 
 // ---------- gestures ----------
-
-/** Pan phase; cancellation never implies a completed drag. */
-export type PanState = 'began' | 'moved' | 'ended' | 'cancelled'
-
-/** Cumulative translation from gesture start (x/dx and y/dy are aliases),
- * in CSS pixels on web or logical DIPs/points on native. Velocity uses
- * those same units per second; target is the attached host. */
-export interface PanEvent {
-  /** Current point in the attached host's top-left logical coordinates.
-   * Currently supplied by AppKit only; use dx/dy for portable dragging. */
-  locationX?: number
-  /** Vertical point in the attached host's top-left logical coordinates — AppKit only; prefer dx/dy for portable dragging. */
-  locationY?: number
-  /** Normalized horizontal position within the host (0–1). */
-  x: number
-  /** Normalized vertical position within the host (0–1). */
-  y: number
-  /** Horizontal translation since gesture start, in DIPs. */
-  dx: number
-  /** Vertical translation since gesture start, in DIPs. */
-  dy: number
-  /** Horizontal velocity in DIPs per second. */
-  vx: number
-  /** Vertical velocity in DIPs per second. */
-  vy: number
-  /** Gesture phase — began → moved → ended/cancelled. */
-  state: PanState
-  /** The host element the gesture is attached to. */
-  target: HostElement
-}
-
-/** NativeScript swipe direction flags: right=1, left=2, up=4, down=8.
- * Swipe callbacks attach to native gesture-capable primitives; web does not
- * synthesize swipe events. Use onPan for portable dragging. */
-export interface SwipeEvent {
-  /** NativeScript direction bitmask: right=1, left=2, up=4, down=8. */
-  direction: 1 | 2 | 4 | 8
-}
-
-/** Normalized pinch gesture payload. `scale` is the cumulative multiplier
- * since the gesture began — `1` is unchanged, `2` doubles span. Pinch
- * callbacks attach to native gesture-capable primitives; web and desktop
- * renderers do not synthesize pinch events. */
-export interface PinchEvent {
-  /** Cumulative scale multiplier since gesture start. */
-  scale: number
-  /** Focal point x as reported by the native recognizer; absent when unavailable. */
-  focusX?: number
-  /** Focal point y as reported by the native recognizer; absent when unavailable. */
-  focusY?: number
-  /** Gesture phase — began → moved → ended/cancelled. */
-  state: PanState
-  /** The host element the gesture is attached to. */
-  target: HostElement
-}
 
 /** Public shape of `setTranslate` — the imperative translate write on a
  *  bound view (a leaf's `ref` target). Web composes into the element's
@@ -436,7 +384,7 @@ export interface StackSizeProps {
  *  @see HStackProps and VStackProps for the axis-locked presets,
  *  StackItemProps for per-child overrides, AbsoluteProps for overlap. */
 export interface StackProps
-  extends StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
+  extends GestureHostProps, StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
   /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
   className?: ClassValue
   /** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -472,12 +420,6 @@ export interface StackProps
   isScrollable?: boolean
   /** Host element override — render as a different element/component type. */
   as?: ElementType
-  /** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
-  onPan?: (e: PanEvent) => void
-  /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
-  onSwipe?: (e: SwipeEvent) => void
-  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
-  onPinch?: (e: PinchEvent) => void
 }
 
 /** Cross-axis self-alignment for a `StackItem` — mirrors `align-self`. */
@@ -501,7 +443,7 @@ export type StackItemSize = 'static' | 'fill'
  *  </Stack>
  *  ```
  *  @see StackProps */
-export interface StackItemProps extends AccessibilityProps {
+export interface StackItemProps extends GestureHostProps, AccessibilityProps {
   /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
   className?: ClassValue
   /** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -527,12 +469,6 @@ export interface StackItemProps extends AccessibilityProps {
   isScrollable?: boolean
   /** Host element override for the stack item wrapper. */
   as?: ElementType
-  /** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
-  onPan?: (e: PanEvent) => void
-  /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
-  onSwipe?: (e: SwipeEvent) => void
-  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
-  onPinch?: (e: PinchEvent) => void
 }
 
 /** Horizontal flow stack — `Stack` with `direction="horizontal"`. `hAlign`
@@ -772,7 +708,7 @@ export interface AccessibilityProps {
  * @see StackProps for flow layout, AccessibilityProps, LayoutChildProps.
  */
 export interface ViewProps
-  extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
+  extends GestureHostProps, LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
   /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
   className?: ClassValue
   /** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -783,12 +719,6 @@ export interface ViewProps
   id?: string
   /** Receives the underlying host through a standard Octane ref. */
   ref?: Octane.Ref<object>
-  /** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
-  onPan?: (e: PanEvent) => void
-  /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
-  onSwipe?: (e: SwipeEvent) => void
-  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
-  onPinch?: (e: PinchEvent) => void
   /** Platform-specific properties are applied after shared props. */
   ios?: PlatformProps
   /** Platform-specific properties are applied after shared props. */
@@ -800,7 +730,7 @@ export interface ViewProps
 /** The `Row` leaf's contract — the same layout/flex prop set as `View`. `Row` itself is not exported on the public barrel; use `HStack` (or `Stack` with `direction="horizontal"`) for horizontal flow. Exported for wrappers that forward to the leaf.
  */
 export interface RowProps
-  extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
+  extends GestureHostProps, LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
   /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
   className?: ClassValue
   /** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -811,12 +741,6 @@ export interface RowProps
   id?: string
   /** Receives the underlying host through a standard Octane ref. */
   ref?: Octane.Ref<object>
-  /** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
-  onPan?: (e: PanEvent) => void
-  /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
-  onSwipe?: (e: SwipeEvent) => void
-  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
-  onPinch?: (e: PinchEvent) => void
   /** Platform-specific properties are applied after shared props. */
   ios?: PlatformProps
   /** Platform-specific properties are applied after shared props. */
@@ -985,7 +909,7 @@ export interface RichTextSpanProps {
   web?: PlatformProps
 }
 
-/** Portable interaction primitive — a host view that reports `onPress` (tap/click/Enter), `onLongPress` (~500ms hold), `onDoublePress`, press lifecycle (`onPressIn`/`onPressOut`), and gesture events (`onPan`, native-only `onSwipe`). `disabled` suppresses activation; `hitSlop` expands the tappable area in dips. Prefer `Button` for labeled actions — Pressable is the unstyled base.
+/** Portable interaction primitive — a host view that reports `onPress` (tap/click/Enter), `onLongPress` (~500ms hold), `onDoublePress`, press lifecycle (`onPressIn`/`onPressOut`), and owned gestures (`gestures`, `onPan`, `onPinch`). `disabled` suppresses activation; `hitSlop` expands the tappable area in dips. Prefer `Button` for labeled actions — Pressable is the unstyled base.
  *
  * @example
  * ```tsx
@@ -995,9 +919,10 @@ export interface RichTextSpanProps {
  * 	<Text>{title}</Text>
  * </Pressable>
  * ```
- * @see ButtonProps, PanEvent.
+ * @see ButtonProps, PanNotification.
  */
-export interface PressableProps extends LayoutChildProps, FlexContainerProps, TestIDProps {
+export interface PressableProps
+  extends GestureHostProps, LayoutChildProps, FlexContainerProps, TestIDProps {
   /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
   className?: ClassValue
   /** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -1010,14 +935,8 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
   disabled?: boolean
   /** Receives the underlying host through a standard Octane ref. */
   ref?: Octane.Ref<object>
-  /** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
-  onPan?: (e: PanEvent) => void
-  /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
-  onSwipe?: (e: SwipeEvent) => void
-  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
-  onPinch?: (e: PinchEvent) => void
   /** Activation callback — tap/click or keyboard activation. */
-  onPress?: () => void
+  onPress?: (event: ActivationEvent) => void
   /** ~500ms press-and-hold (web: timer over pointerdown/up). */
   onLongPress?: () => void
   /** Groups the subtree into a single accessibility element on native. */
@@ -1027,10 +946,10 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
   /** Semantic role override (defaults to `button` when onPress is set). */
   accessibilityRole?: Role
   /** Fires when the press starts (touch down), before activation. */
-  onPressIn?: () => void
+  onPressIn?: (sample?: GestureSample) => void
   /** Fires when the press is released, whether or not it activated. */
-  onPressOut?: () => void
-  /** Double-tap callback; may delay `onPress` while waiting for a second tap on platforms that serialize gestures. */
+  onPressOut?: (sample?: GestureSample) => void
+  /** Additional double-tap callback. Each successful press still activates immediately. */
   onDoublePress?: () => void
   /** Extra touch target around the element in DIPs without changing layout. */
   hitSlop?: number

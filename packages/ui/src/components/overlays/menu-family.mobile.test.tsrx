@@ -1,5 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 import { describe, expect, it, vi } from 'vitest'
 import {
   createObjectDriver,
@@ -37,7 +42,6 @@ vi.mock('../../internal/platform/apply-native-modifiers.native', () => ({
 // The routing import graph reaches the platform barrel, whose per-service
 // modules evaluate @nativescript/core at import; none are exercised here.
 vi.mock('@octane-xplat/platform', () => ({ announce: () => {} }))
-vi.mock('../layout/pan', () => ({ usePan: () => undefined }))
 // The universal runtime only accepts compiler-defined components — stand in
 // with a real compiled leaf rather than a bare function.
 vi.mock('../media/Icon', async () => ({
@@ -113,13 +117,13 @@ describe('native menu action contracts (object driver)', () => {
       await vi.waitFor(() => expect(row('check')).toBeTruthy())
       expect(row('check').props.accessibilityRole).toBe('checkbox')
       expect(row('check').props.accessibilityState).toBe('unchecked')
-      flushUniversalSync(() => container.dispatchEvent(row('check'), 'tap', {}))
+      flushUniversalSync(() => dispatchTestInput(container, row('check'), 'tap', {}))
       expect(check).toHaveBeenCalledWith(true)
       expect(close).not.toHaveBeenCalled()
       expect(row('check').props.accessibilityState).toBe('unchecked')
-      flushUniversalSync(() => container.dispatchEvent(row('blocked'), 'tap', {}))
+      flushUniversalSync(() => dispatchTestInput(container, row('blocked'), 'tap', {}))
       expect(disabled).not.toHaveBeenCalled()
-      flushUniversalSync(() => container.dispatchEvent(row('old'), 'tap', {}))
+      flushUniversalSync(() => dispatchTestInput(container, row('old'), 'tap', {}))
       expect(radio).toHaveBeenCalledWith('old')
       expect(close).toHaveBeenCalledTimes(1)
       root.render(DataSurface, { items: [{ ...items[0], value: true }], closeMenu: close })
@@ -160,7 +164,7 @@ describe('native menu action contracts (object driver)', () => {
         all(container).find((node) => node.props?.accessibilityLabel === 'Back to parent menu')
 
       await vi.waitFor(() => expect(button()).toBeTruthy())
-      flushUniversalSync(() => container.dispatchEvent(button(), 'tap', {}))
+      flushUniversalSync(() => dispatchTestInput(container, button(), 'tap', {}))
       expect(back).toHaveBeenCalledTimes(1)
       expect(nativeAccessibilityRole('menuitemradio')).toBe('radioButton')
     } finally {
@@ -286,7 +290,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
     const submenu = all(container).find((node) => node.props?.id === 'move')
 
     hydrate(submenu)
-    flushUniversalSync(() => container.dispatchEvent(submenu, 'tap', {}))
+    flushUniversalSync(() => dispatchTestInput(container, submenu, 'tap', {}))
     await settle()
     expect(layers).toHaveLength(2)
     expect(layers[1].options.anchor).toBe(submenu)
@@ -294,13 +298,13 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
     await settle()
     expect(layers[1].closed).toBe(true)
     expect(close).not.toHaveBeenCalled()
-    flushUniversalSync(() => container.dispatchEvent(submenu, 'tap', {}))
+    flushUniversalSync(() => dispatchTestInput(container, submenu, 'tap', {}))
     await settle()
     expect(layers).toHaveLength(3)
 
     const target = all(container).find((node) => node.props?.id === 'target')
 
-    flushUniversalSync(() => container.dispatchEvent(target, 'tap', {}))
+    flushUniversalSync(() => dispatchTestInput(container, target, 'tap', {}))
     expect(pick).toHaveBeenCalledOnce()
     expect(close).toHaveBeenCalledWith(false)
     expect(layers[0].closed).toBe(false)

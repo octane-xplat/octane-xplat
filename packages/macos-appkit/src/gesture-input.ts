@@ -18,6 +18,7 @@ interface Point {
 }
 
 export interface AppKitContactFrame {
+  readonly cohort: string
   readonly type: 'down' | 'move' | 'up' | 'cancel'
   readonly time: number
   readonly contacts: readonly {
@@ -34,6 +35,7 @@ export interface AppKitContactFrame {
   }
   readonly hitPath: readonly object[]
   readonly nativeOwned: boolean
+  readonly nativeBoundary?: object
 }
 
 /** Mouse contacts only. Trackpad magnification is not a direct-touch pinch. */
@@ -63,6 +65,33 @@ export function appKitGestureSurface(view: NSView) {
     root: window,
     host: view,
     local,
+    parentBasis() {
+      const parent = view.superview ?? content
+      const convert = (point: Point) =>
+        parent.window === window ? viewPoint(parent, toNative(point)) : null
+
+      const zero = convert({ x: 0, y: 0 }),
+        x = convert({ x: 1, y: 0 }),
+        y = convert({ x: 0, y: 1 })
+
+      if (!zero || !x || !y) {
+        return null
+      }
+
+      const a = x.x - zero.x,
+        b = x.y - zero.y,
+        c = y.x - zero.x,
+        d = y.y - zero.y
+
+      if (!Number.isFinite(a * d - b * c) || Math.abs(a * d - b * c) < 1e-10) {
+        return null
+      }
+
+      return (point: Point) => ({
+        x: zero.x + a * point.x + c * point.y,
+        y: zero.y + b * point.x + d * point.y,
+      })
+    },
     freeze() {
       const zero = local({ x: 0, y: 0 }),
         x = local({ x: 1, y: 0 }),
@@ -210,12 +239,19 @@ function observeWindow(window: NSWindow, content: NSView, dispatch: ContactObser
         }
 
         last = {
+          cohort: String(sequence),
           type: type === 1 ? 'down' : type === 2 ? 'up' : 'move',
           time: event.timestamp * 1000,
           contacts: type === 2 ? [] : [changed],
           changed,
           hitPath: path,
           nativeOwned,
+          nativeBoundary: path.find((host) => {
+            const value: unknown = Reflect.get(host, 'accessibilityRole')
+            const role = typeof value === 'function' ? value.call(host) : value
+
+            return role === 'AXSlider' || role === 'AXIncrementor'
+          }),
         }
 
         if (type === 2) {

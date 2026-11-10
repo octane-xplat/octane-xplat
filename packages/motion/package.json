@@ -65,7 +65,6 @@
 		"motion-dom": "14.7.1"
 	},
 	"devDependencies": {
-		"@nativescript-community/gesturehandler": "2.0.45",
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/macos-appkit": "workspace:*",
@@ -80,7 +79,6 @@
 		"@octane-xplat/cli": "workspace:*"
 	},
 	"peerDependencies": {
-		"@nativescript-community/gesturehandler": "2.0.45",
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
 		"@octane-xplat/macos-appkit": "workspace:*",
@@ -91,9 +89,6 @@
 			"optional": true
 		},
 		"@nativescript/core": {
-			"optional": true
-		},
-		"@nativescript-community/gesturehandler": {
 			"optional": true
 		},
 		"@octane-xplat/macos-appkit": {

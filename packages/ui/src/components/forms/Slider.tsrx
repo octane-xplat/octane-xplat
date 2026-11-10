@@ -1,11 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
-import type { PanEvent, SliderProps } from '../../props'
+import { useMemo, useCallback, useContext, useEffect, useRef, useState } from 'octane'
+import type { SliderProps } from '../../props'
+import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
 import { useMeasure } from '../layout/useMeasure.tsrx'
 import { useTooltip } from '../overlays/use-tooltip.tsrx'
-import { usePan } from '../layout/pan.tsrx'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -111,22 +113,22 @@ function SliderControl(inputProps: SliderProps) @{
 
   useEffect(() => applySliderAccessibility(host.current, { min, max, value: hi, text: readout }))
 
-  const onPan = usePan((event: PanEvent) => {
-    if (blocked) {
+  const input = useControlPan({ axis: 'x', enabled: !blocked }, (event: ControlPanNotification) => {
+    if (blocked && event.phase !== 'finish') {
       return
     }
 
-    if (event.state === 'began') {
+    if (event.phase === 'start') {
       // GTK can send pan begin before touch down. Choose on first movement,
       // after both callbacks have observed the current press.
       drag.current = { lo, hi, which: null }
-    } else if (event.state === 'moved') {
+    } else if (event.phase === 'update') {
       if (!drag.current || !width) {
         return
       }
 
       if (drag.current.which === null) {
-        const at = min + (press.current / width) * (max - min)
+        const at = min + ((event.startLocal?.x ?? press.current) / width) * (max - min)
 
         drag.current.which =
           isRange && Math.abs(at - drag.current.lo) <= Math.abs(at - drag.current.hi) ? 'lo' : 'hi'
@@ -134,11 +136,13 @@ function SliderControl(inputProps: SliderProps) @{
 
       const base = drag.current.which === 'lo' ? drag.current.lo : drag.current.hi
 
-      move(drag.current.which, base + (event.dx / width) * (max - min))
+      move(drag.current.which, base + (event.translation.x / width) * (max - min))
     } else {
       drag.current = null
     }
   })
+
+  const inputRef = useMemo(() => refList(bindHost, input.ref), [bindHost, input.ref])
 
   const thumbLeft = (value: number) =>
     Math.min(Math.max(ratio(value) * width - 10, 0), Math.max(width - 20, 0))
@@ -149,7 +153,7 @@ function SliderControl(inputProps: SliderProps) @{
 
   <masonview
     id={props.id}
-    ref={bindHost}
+    ref={inputRef}
     className={cx(
       'vx-slider',
       'vx-slider--native',
@@ -176,12 +180,16 @@ function SliderControl(inputProps: SliderProps) @{
       invalid: props.status?.type === 'error',
     })}
     isEnabled={!isDisabled}
-    onTouch={(event: any) => {
-      if (event.action === 'down') {
-        press.current = event.getX?.() ?? event.x ?? 0
-      }
-    }}
-    onPan={onPan}
+    onTouch={
+      input.nativeControl
+        ? (event: any) => {
+            if (event.action === 'down') {
+              press.current = event.getX?.() ?? event.x ?? 0
+            }
+          }
+        : undefined
+    }
+    onPan={input.onPan}
   >
     <masonview
       className="vx-slider-track"

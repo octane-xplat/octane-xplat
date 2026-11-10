@@ -1,3 +1,4 @@
+import { observeOwnedPress } from '@octane-xplat/ui/internal/gesture-input'
 import { captureViewportOffset } from './projection/viewport-offset'
 import { setLayoutProjectionScale } from '@octane-xplat/macos-appkit'
 import { paintScale } from './projection/paint'
@@ -88,6 +89,7 @@ export function attachHost(node: any): HostAdapter {
       write(original)
       setLayoutProjectionScale(node, null)
     },
+    gesture: (kind, callbacks) => (kind === 'press' ? observeOwnedPress(node, callbacks) : null),
     pan: (axis, callbacks) => attachPan(node, axis, callbacks),
     measureLayout() {
       const box = measureNativeBox(node)

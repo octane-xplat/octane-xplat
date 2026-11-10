@@ -56,7 +56,7 @@ export interface PanSample extends GestureSample {
 }
 
 export interface PinchSample extends GestureSample {
-  readonly scale: number // cumulative from two-contact baseline, initially 1
+  readonly scale: number // cumulative from two-contact baseline; start may already differ from 1
   readonly scaleVelocity: number | null // scale units/second
 }
 
@@ -142,3 +142,8 @@ export interface GestureHostProps {
   readonly onPan?: (event: GestureNotification<PanSample>) => void
   readonly onPinch?: (event: GestureNotification<PinchSample>) => void
 }
+
+/** A claimed pan's start/update or its final successful/cancelled outcome. */
+export type PanNotification = GestureNotification<PanSample>
+/** A claimed pinch's start/update or its final successful/cancelled outcome. */
+export type PinchNotification = GestureNotification<PinchSample>

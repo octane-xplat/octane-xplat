@@ -1,3 +1,4 @@
+import { useInteractionCallbacks } from './callbacks.tsrx'
 import { useCallback, useInsertionEffect, useLayoutEffect, useRef } from 'octane'
 import {
   attachNativeGesture,
@@ -18,17 +19,12 @@ import {
 import { createConvenienceInput, type ConvenienceInput } from './convenience'
 import { useInteractionMembership } from './context.tsrx'
 import { createInteractionHostRef, type InteractionHostRef } from './host-ref'
-import type { GestureHostProps } from './types'
-import type { PressOptions } from './press'
+import type { InteractionHostOptions } from './host-options'
 
-export interface InteractionHostOptions extends GestureHostProps {
-  readonly press?: PressOptions
-  readonly viewport?: boolean
-}
+export type { InteractionHostOptions } from './host-options'
 
-export function useInteractionHost(
-  options: InteractionHostOptions,
-): (host: NativeGestureView | null) => void {
+export function useInteractionHost(options: InteractionHostOptions): (host: object | null) => void {
+  const guarded = useInteractionCallbacks(options)
   const membership = useInteractionMembership()
   const convenienceRef = useRef<ConvenienceInput | null>(null)
 
@@ -37,7 +33,7 @@ export function useInteractionHost(
   }
 
   const convenience = convenienceRef.current
-  const lifecycleRef = useRef<InteractionHostRef<NativeGestureView> | null>(null)
+  const lifecycleRef = useRef<InteractionHostRef<object> | null>(null)
   const observed = useRef<NativeGestureView | null>(null)
   const committed = useRef<InteractionBindingOptions>({})
   const ref = useRef<InteractionBinding<NativeGestureView> | null>(null)
@@ -55,29 +51,50 @@ export function useInteractionHost(
   }
 
   const binding = ref.current
-  const sync = useCallback(() => {
-    const host = lifecycleRef.current?.host ?? null
+  const clearLoaded = useCallback(() => {
+    observed.current?.off('loaded', sync)
+    observed.current?.off('unloaded', unloaded)
+    observed.current = null
+  }, [])
 
-    if (host?.isLoaded !== false) {
-      binding.commit(host, committed.current)
+  const sync = useCallback(() => {
+    const host = lifecycleRef.current?.host ?? null,
+      current = committed.current
+
+    const needed = Boolean(current.gestures || current.scope || current.press || current.viewport)
+
+    if (!host || !needed) {
+      clearLoaded()
+      binding.commit(null, {})
+      return
     }
-  }, [binding])
+
+    if (!isNativeGestureView(host)) {
+      throw new Error('Native gesture attachment requires a NativeScript view')
+    }
+
+    if (observed.current !== host) {
+      clearLoaded()
+      observed.current = host
+      host.on('loaded', sync)
+      host.on('unloaded', unloaded)
+    }
+
+    if (host.isLoaded !== false) {
+      binding.commit(host, current)
+    }
+  }, [binding, clearLoaded])
 
   const unloaded = useCallback(() => binding.detach(), [binding])
 
   if (!lifecycleRef.current) {
-    lifecycleRef.current = createInteractionHostRef(
+    lifecycleRef.current = createInteractionHostRef<object>(
       (host) => {
-        observed.current = host
         membership(host)
-        host.on('loaded', sync)
-        host.on('unloaded', unloaded)
         sync()
       },
       () => {
-        observed.current?.off('loaded', sync)
-        observed.current?.off('unloaded', unloaded)
-        observed.current = null
+        clearLoaded()
         membership(null)
         binding.detach()
       },
@@ -87,7 +104,7 @@ export function useInteractionHost(
   const lifecycle = lifecycleRef.current
 
   useLayoutEffect(() => {
-    const snapshot = convenience.commit(options)
+    const snapshot = convenience.commit(guarded)
 
     if (!convenience.current(snapshot)) {
       return
@@ -96,12 +113,12 @@ export function useInteractionHost(
     committed.current = {
       gestures: snapshot.input,
       scope: options.interactionScope,
-      press: options.press,
+      press: guarded.press,
       viewport: options.viewport,
     }
 
     sync()
-  }, [convenience, options, sync])
+  }, [convenience, guarded, options, sync])
 
   useInsertionEffect(
     () => () => {
@@ -115,4 +132,16 @@ export function useInteractionHost(
   )
 
   return lifecycle.bind
+}
+
+function isNativeGestureView(host: object): host is NativeGestureView {
+  return (
+    'nativeViewProtected' in host &&
+    'style' in host &&
+    typeof host.style === 'object' &&
+    'on' in host &&
+    typeof host.on === 'function' &&
+    'off' in host &&
+    typeof host.off === 'function'
+  )
 }

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useLayoutEffect, useMemo, useSyncExternalStore } from 'octane'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import {
   createContentOwner,
   type ContentOwner,

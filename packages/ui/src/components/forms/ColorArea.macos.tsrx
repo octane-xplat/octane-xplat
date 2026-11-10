@@ -1,11 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { useCallback, useRef } from 'octane'
-import type { ColorAreaProps, PanEvent } from '../../props'
+import { useMemo, useCallback, useRef } from 'octane'
+import type { ColorAreaProps } from '../../props'
 import type { ColorAreaViewProps } from '../../internal-props'
+import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
 import { useMeasure } from '../layout/useMeasure.tsrx'
-import { usePan } from '../layout/pan.tsrx'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
 import { nativeAccessibilityRole } from '../overlays/escape-props'
 import { LinearGradient } from '../media/LinearGradient.tsrx'
@@ -45,35 +47,38 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
     }
   }
 
-  const onPan = usePan((e: PanEvent) => {
-    if (props.isDisabled) {
-      return
-    }
-
-    if (e.state === 'began') {
-      drag.current = { ...props.hsb }
-      focusHost()
-      return
-    }
-
-    if (e.state === 'moved') {
-      if (!drag.current || !w || !h) {
+  const input = useControlPan(
+    { axis: 'both', enabled: !props.isDisabled },
+    (e: ControlPanNotification) => {
+      if (props.isDisabled && e.phase !== 'finish') {
         return
       }
 
-      props.onHsb({
-        h: props.hsb.h,
-        s: Math.min(1, Math.max(0, drag.current.s + e.dx / w)),
-        b: Math.min(1, Math.max(0, drag.current.b - e.dy / h)),
-      })
-    } else {
-      if (drag.current) {
-        props.onHsbEnd()
+      if (e.phase === 'start') {
+        drag.current = { ...props.hsb }
+        focusHost()
+        return
       }
 
-      drag.current = null
-    }
-  })
+      if (e.phase === 'update') {
+        if (!drag.current || !w || !h) {
+          return
+        }
+
+        props.onHsb({
+          h: props.hsb.h,
+          s: Math.min(1, Math.max(0, drag.current.s + e.translation.x / w)),
+          b: Math.min(1, Math.max(0, drag.current.b - e.translation.y / h)),
+        })
+      } else {
+        if (drag.current) {
+          props.onHsbEnd()
+        }
+
+        drag.current = null
+      }
+    },
+  )
 
   // Committed adjustment shared by arrow keys and assistive actions — reads
   // the latest props so retained handlers never replay a stale hsb.
@@ -131,6 +136,8 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
     },
   })
 
+  const inputRef = useMemo(() => refList(bindHost, input.ref), [bindHost, input.ref])
+
   const thumbX = Math.min(Math.max(s * w - THUMB / 2, 0), Math.max(w - THUMB, 0))
   const thumbY = Math.min(Math.max((1 - b) * h - THUMB / 2, 0), Math.max(h - THUMB, 0))
 
@@ -150,8 +157,8 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
     onTap={focusHost}
     onAccessibilityIncrement={props.isDisabled ? undefined : () => adjust(1)}
     onAccessibilityDecrement={props.isDisabled ? undefined : () => adjust(-1)}
-    onPan={onPan}
-    ref={bindHost}
+    onPan={input.onPan}
+    ref={inputRef}
   >
     <masonview
       style={mergeStyle(

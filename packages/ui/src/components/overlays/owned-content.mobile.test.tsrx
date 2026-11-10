@@ -11,7 +11,7 @@ import {
 import { createContentOwner } from './owned-content'
 import { useOwnedContent } from './use-owned-content.tsrx'
 
-vi.mock('../../internal/platform/native-portal', () => ({
+vi.mock('../../internal/platform/native-portal.tsrx', () => ({
   createPortal: (children: any) => children,
 }))
 

@@ -4,7 +4,7 @@ import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { SizeProvider } from '../layout/size-context'
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import { GridLayout } from '@nativescript/core'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import type {
   ContextLayerReturn,
   ContextRenderProps,

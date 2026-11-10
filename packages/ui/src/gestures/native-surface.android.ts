@@ -78,12 +78,29 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
     return matrix ? inverseGestureTransform(matrix) : null
   }
 
+  let nativeBoundary: object | undefined
   let hitPath: readonly object[] = [],
     observing = false,
     inSequence = false
 
   return {
     root,
+    parentBasis() {
+      if (!host.isAttachedToWindow() || host.getRootView() !== root) {
+        return null
+      }
+
+      const logical = view.parent?.nativeViewProtected
+      const parent = logical instanceof android.view.View ? logical : host.getParent()
+
+      if (!(parent instanceof android.view.View)) {
+        return (point) => point
+      }
+
+      const matrix = transform(parent, { x: 0, y: 0 }, density)
+
+      return matrix ? inverseGestureTransform(matrix) : null
+    },
     host,
     space: { target, local: (point) => inverse()?.(point) ?? null, freeze: inverse },
     containsHost(other) {
@@ -169,6 +186,8 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
         }
 
         if (frame.type === 'down' && !inSequence) {
+          nativeBoundary = undefined
+
           const local = inverse()?.(frame.changed.window)
           const hit = local ? (view.elementFromPoint?.(local.x, local.y) ?? view) : view
           const path: object[] = []
@@ -178,6 +197,14 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
 
             if (native && typeof native === 'object') {
               path.push(native)
+              if (
+                !nativeBoundary &&
+                (node.accessibilityRole === 'adjustable' ||
+                  node.accessibilityRole === 'slider' ||
+                  node.accessibilityRole === 'spinbutton')
+              ) {
+                nativeBoundary = native
+              }
             }
           }
 
@@ -191,6 +218,7 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
         const current = {
           ...frame,
           hitPath,
+          nativeBoundary,
           nativeOwned:
             unobservedStart ||
             hitPath.some(

@@ -163,6 +163,7 @@ export async function checkMacOSMotionConsumer({
   const container = api.createObjectContainer('macos')
   const driver = api.createObjectDriver('macos')
   const originalTransaction = globalThis.CATransaction
+  const originalInputBridge = globalThis.__xplatAppKit
 
   if (packageName === '@octane-xplat/motion') {
     // Supply explicit AppKit property doubles for this import/mount check.
@@ -186,6 +187,20 @@ export async function checkMacOSMotionConsumer({
     }
 
     globalThis.CATransaction = { begin() {}, setDisableActions() {}, commit() {} }
+    // Contract doubles for package/object mounts only; no native input is sent.
+    globalThis.__xplatAppKit = {
+      gestureSurface: (host) => ({
+        root: container,
+        host,
+        local: (point) => point,
+        freeze: () => (point) => point,
+        parentBasis: () => (point) => point,
+        containsPoint: () => true,
+        containsHost: (candidate) => candidate === host,
+        observe: () => () => {},
+      }),
+      observeGestureActivation: () => () => {},
+    }
   }
 
   const root = api.createUniversalRoot(container, driver)
@@ -220,6 +235,12 @@ export async function checkMacOSMotionConsumer({
     assert.equal(container.children.length, 1, 'initial object-driver mount creates a host')
   } finally {
     root.unmount()
+    if (originalInputBridge === undefined) {
+      delete globalThis.__xplatAppKit
+    } else {
+      globalThis.__xplatAppKit = originalInputBridge
+    }
+
     if (originalTransaction === undefined) {
       delete globalThis.CATransaction
     } else {

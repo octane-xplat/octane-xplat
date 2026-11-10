@@ -1,31 +1,29 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { useMemo, useRef } from 'octane'
+import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
+import { useInteractionHost } from '../../gestures/host.web.tsrx'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { ViewProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from './layout-child.web'
-import { usePan } from './pan.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
-/** Neutral flex-column container — the RN-shaped default block.
- *  onPan is pointer plumbing: pointerdown/move/up on the element.
- *  pointermove isn't in octane's delegated-event set, so the leaf attaches
- *  raw listeners through its internal ref. Payloads normalize
- *  to the shared shape {x,y,dx,dy,vx,vy,state,target}. */
+/** Neutral flex-column container with shared gesture ownership and optional input scope. */
 export function View(props: ViewProps): JSX.Element @{
-  const el = useRef<HTMLElement | null>(null)
-
-  usePan(el, props.onPan)
+  const bindInput = useInteractionHost(props)
 
   const forwardedRef = useMemo(
     () =>
-      refList((e: any) => {
-        el.current = e
-        if (e) {
-          applyEscapeProps(e, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (e: any) => {
+          if (e) {
+            applyEscapeProps(e, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   <div
@@ -44,6 +42,8 @@ export function View(props: ViewProps): JSX.Element @{
     aria-checked={props.accessibilityState?.checked}
     aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
   >
-    {props.children}
+    <InteractionScopeProvider scope={props.interactionScope}>
+      {props.children}
+    </InteractionScopeProvider>
   </div>
 }

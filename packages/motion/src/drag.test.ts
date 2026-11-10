@@ -181,6 +181,7 @@ describe('bounded drag', () => {
     expect(() => validateDrag({ dragConstraints: { left: 20, right: 10 } })).toThrow('reversed')
     expect(() => validateDrag({ dragElastic: 2 })).toThrow('dragElastic')
     expect(() => validateDrag({ drag: 'x', animate: { x: 20 } })).toThrow('both own x')
+    expect(() => validateDrag({ drag: 'x', onPan() {} })).toThrow('cannot share a host')
   })
 })
 

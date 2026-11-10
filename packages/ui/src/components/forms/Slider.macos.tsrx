@@ -2,8 +2,9 @@
 import type { NSView } from '@octane-xplat/platform/macos'
 import { useCallback, useContext, useEffect, useId, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
-import type { PanEvent, SliderProps } from '../../props'
-import { usePan } from '../layout/pan.macos.tsrx'
+import type { SliderProps } from '../../props'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
@@ -184,6 +185,7 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 
   const thumbs = useRef<(NSView | null)[]>([])
   const track = useRef<NSView | null>(null)
+  const panHost = useRef<NSView | null>(null)
   const lo = Array.isArray(value) ? value[0] : value,
     hi = Array.isArray(value) ? value[1] : value
 
@@ -241,86 +243,76 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
     }
   }
 
-  const onPan = usePan(
-    blocked
-      ? undefined
-      : (event: PanEvent) => {
-          if (!track.current || changing.current) {
-            return
-          }
+  const input = useControlPan({ axis: 'x', enabled: !blocked }, (event: ControlPanNotification) => {
+    if (!track.current || !panHost.current || changing.current) {
+      return
+    }
 
-          if (event.state === 'began') {
-            const location = event.locationX
+    if (event.phase === 'start') {
+      const location = event.startLocal?.x
 
-            if (typeof location !== 'number' || !Number.isFinite(location)) {
-              return
-            }
+      if (typeof location !== 'number' || !Number.isFinite(location)) {
+        return
+      }
 
-            const target = event.target as NSView
-            const line = track.current
-            const rect =
-              typeof line?.convertRectToView === 'function'
-                ? line.convertRectToView(line.bounds, target)
-                : null
+      const target = panHost.current
+      const line = track.current
+      const rect =
+        typeof line?.convertRectToView === 'function'
+          ? line.convertRectToView(line.bounds, target)
+          : null
 
-            const width = Number(
-              rect?.size?.width ??
-                Number(target?.bounds?.size?.width ?? target?.frame?.size?.width ?? 0) - 20,
-            )
+      const width = Number(
+        rect?.size?.width ??
+          Number(target?.bounds?.size?.width ?? target?.frame?.size?.width ?? 0) - 20,
+      )
 
-            const origin = Number(rect?.origin?.x ?? 10) - Number(target?.bounds?.origin?.x ?? 0)
+      const origin = Number(rect?.origin?.x ?? 10) - Number(target?.bounds?.origin?.x ?? 0)
 
-            if (!Number.isFinite(width) || width <= 0) {
-              return
-            }
+      if (!Number.isFinite(width) || width <= 0) {
+        return
+      }
 
-            const at =
-              limits.min + ((location - event.dx - origin) / width) * (limits.max - limits.min)
+      const at = limits.min + ((location - origin) / width) * (limits.max - limits.min)
 
-            const lowDistance = Math.abs(at - lo),
-              highDistance = Math.abs(at - hi)
+      const lowDistance = Math.abs(at - lo),
+        highDistance = Math.abs(at - hi)
 
-            const which: 0 | 1 =
-              range &&
-              (lowDistance < highDistance || (lowDistance === highDistance && event.dx < 0))
-                ? 0
-                : 1
+      const which: 0 | 1 =
+        range &&
+        (lowDistance < highDistance || (lowDistance === highDistance && event.translation.x < 0))
+          ? 0
+          : 1
 
-            drag.current = { key, which, start: live.current, width, controlled, source: base }
+      drag.current = { key, which, start: live.current, width, controlled, source: base }
 
-            const thumb = thumbs.current[which]
+      const thumb = thumbs.current[which]
 
-            thumb?.window?.makeFirstResponder(thumb)
-            return
-          }
+      thumb?.window?.makeFirstResponder(thumb)
+      return
+    }
 
-          const session = drag.current
+    const session = drag.current
 
-          if (!session || session.key !== key) {
-            return
-          }
+    if (!session || session.key !== key) {
+      return
+    }
 
-          if (event.state === 'moved' || event.state === 'ended') {
-            const start = Array.isArray(session.start)
-              ? session.start[session.which]
-              : session.start
+    if (event.phase === 'update' || (event.phase === 'finish' && !event.cancelled)) {
+      const start = Array.isArray(session.start) ? session.start[session.which] : session.start
 
-            move(
-              session.which,
-              start + (event.dx / session.width) * (limits.max - limits.min),
-              true,
-            )
-          }
+      move(
+        session.which,
+        start + (event.translation.x / session.width) * (limits.max - limits.min),
+        true,
+      )
+    }
 
-          if (
-            (event.state === 'ended' || event.state === 'cancelled') &&
-            drag.current === session
-          ) {
-            drag.current = null
-            setPreview(null)
-          }
-        },
-  )
+    if (event.phase === 'finish' && drag.current === session) {
+      drag.current = null
+      setPreview(null)
+    }
+  })
 
   const name = props.ariaLabel ?? props.fieldLabel ?? props.label
   const state = {
@@ -350,7 +342,11 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
         range && 'vx-slider--range',
         disabled && 'vx-slider--disabled',
       )}
-      onPan={onPan}
+      ref={(view: NSView | null) => {
+        panHost.current = view
+        input.ref(view)
+      }}
+      onPan={input.onPan}
       accessibilityRole={range ? 'group' : undefined}
       accessibilityLabel={range ? name : undefined}
     >

@@ -1,28 +1,13 @@
 <!doctype html>
 <meta charset="utf-8" />
-<title>Gesture owner input qualification</title>
+<title>Public gesture input qualification</title>
 <style>
-  #panel {
-    margin: 40px;
-    width: 300px;
-    height: 240px;
-    border: 1px solid;
-  }
-  button {
-    margin: 30px;
-    width: 160px;
-    height: 50px;
-  }
+#panel, #motion-panel { margin: 40px; width: 300px; height: 240px; border: 1px solid; }
+#action, #frozen-action, #freeze, #release, #motion-action { margin: 30px; width: 160px; height: 50px; }
+#frozen-content { width: 320px; height: 110px; }
+#scroll-parent { margin: 40px; width: 300px; }
+#scroll-viewport { width: 300px; height: 160px; overflow-y: auto; }
+#scroll-content { height: 1000px; flex-shrink: 0; }
 </style>
-<div id="panel"><button id="action">Nested action</button></div>
-<output id="state"></output>
-<script type="module" src="./fixture.web.ts"></script>
-<style>
-  #frozen-content { width: 320px; height: 110px; }
-  #scroll-parent { margin: 40px; width: 300px; }
-  #scroll-viewport { width: 300px; height: 160px; overflow-y: auto; }
-  #scroll-content { height: 1000px; }
-</style>
-<div id="frozen-content"><button id="frozen-action">Scoped action</button></div>
-<button id="freeze">Suspend content</button><button id="release">Release one lease</button>
-<div id="scroll-parent"><div id="scroll-viewport"><div id="scroll-content">Managed vertical scrolling</div></div></div>
+<div id="app"></div>
+<script type="module" src="./fixture.web.tsrx"></script>

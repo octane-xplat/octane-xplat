@@ -1,5 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 import { describe, expect, it, vi } from 'vitest'
 import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
@@ -56,12 +61,12 @@ describe('GridList (universal renderer)', () => {
     expect(rows.length).toBe(3)
     expect(rows[0].type).toBe('masonview')
 
-    container.dispatchEvent(rows[0], 'tap', {})
+    dispatchTestInput(container, rows[0], 'tap', {})
     expect(onAction).toHaveBeenCalledWith('a')
     expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(['a']))
-    container.dispatchEvent(rows[1], 'tap', {})
+    dispatchTestInput(container, rows[1], 'tap', {})
     expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(['a', 'b']))
-    container.dispatchEvent(rows[0], 'tap', {})
+    dispatchTestInput(container, rows[0], 'tap', {})
     expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(['b']))
     root.unmount()
   })
@@ -84,7 +89,7 @@ describe('GridList (universal renderer)', () => {
 
     expect(container.children[0].props.style?.flexWrap).toBe('nowrap')
     expect(rows[1].props.accessibilityState).toBe('disabled')
-    expect(() => container.dispatchEvent(rows[1], 'tap', {})).toThrow('no "tap" listener')
+    expect(() => dispatchTestInput(container, rows[1], 'tap', {})).toThrow('no "tap" listener')
     expect(onAction).not.toHaveBeenCalled()
     root.unmount()
   })

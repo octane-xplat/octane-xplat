@@ -7,22 +7,43 @@ import {
   flushUniversalSync,
 } from 'octane/universal/native'
 
-vi.mock('./presentation.macos.tsrx', () => ({
-  usePresentation: (open: boolean, Panel: any, props: any) => (open ? <Panel {...props} /> : null),
-}))
-
-vi.mock('./layer-dismissal.tsrx', () => ({
-  LayerDepthProvider: (props: any) => props.children,
+vi.mock('./presentation.macos.tsrx', () => import('../../../tests/presentation-mock.tsrx'))
+vi.mock('./layer-dismissal.tsrx', async (original) => ({
+  ...(await original<typeof import('./layer-dismissal.tsrx')>()),
   useLayerDismissal: () => ({ depth: 0, shouldClose: () => true }),
 }))
 
-vi.mock('../actions/controls.macos.tsrx', () => ({
-  Button: (props: any) => (
-    <masonview accessibilityLabel={props.accessibilityLabel} onTap={props.clickAction}>
-      {props.children}
-    </masonview>
-  ),
-}))
+vi.mock('../actions/controls.macos.tsrx', () => import('../../../tests/lightbox-button-mock.macos.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestPan, dispatchTestDoublePress } from '../../../tests/interaction-host-mock.tsrx'
+import type { PanSample } from '../../gestures/types'
+
+const point = { x: 0, y: 0 },
+  position = { local: point, window: point, screen: null }
+
+const sample: PanSample = {
+  sequenceId: 'test',
+  time: 0,
+  target: { id: 'stage' },
+  currentTarget: { id: 'stage' },
+  position,
+  startPosition: position,
+  contacts: [],
+  pointerCount: 0,
+  session: { id: 'test', cancel() {} },
+  translation: point,
+  velocity: null,
+}
+
+const swipe = (host: object, direction: number) =>
+  dispatchTestPan(host, {
+    phase: 'finish',
+    terminal: {
+      outcome: 'ended',
+      sample: { ...sample, translation: { x: direction === 2 ? -80 : 80, y: 0 } },
+    },
+  })
 
 import { Lightbox } from './Lightbox.macos.tsrx'
 
@@ -80,22 +101,24 @@ it('AppKit panel wires current zoom/swipe policy and media replacement while lat
   try {
     render()
 
-    const stage = all().find((node) => node.props?.className === 'vx-lightbox-stage'),
+    const stage = all().find((node) =>
+        String(node.props?.className).split(' ').includes('vx-lightbox-stage'),
+      ),
       scroll = all().find((node) => node.type === 'scrollview')
 
-    const retainedToggle = stage.props.onDoubleTap
+    const retainedToggle = () => dispatchTestDoublePress(stage)
 
     retainedToggle()
     expect(zooms).toEqual([2])
-    stage.props.onSwipe({ direction: 2 })
+    swipe(stage, 2)
     expect(changes).toEqual([])
-    stage.props.onDoubleTap()
-    stage.props.onSwipe({ direction: 2 })
+    dispatchTestDoublePress(stage)
+    swipe(stage, 2)
     flushUniversalSync(() => {})
     expect(changes).toEqual([1])
     expect(scroll.magnification).toBe(1)
     render({ index: 0, hasZoom: false, onIndexChange: (index: number) => current.push(index) })
-    stage.props.onSwipe({ direction: 2 })
+    swipe(stage, 2)
     expect(current).toEqual([1])
     expect(stage.props.onDoubleTap).toBeUndefined()
     retainedToggle()
@@ -112,7 +135,7 @@ it('AppKit panel wires current zoom/swipe policy and media replacement while lat
     expect(video.props.autoplay).toBe(true)
     expect(all().some((node) => node.type === 'scrollview')).toBe(false)
     root.unmount()
-    stage.props.onSwipe({ direction: 1 })
+    swipe(stage, 1)
     expect(current).toEqual([1])
   } finally {
     root.unmount()

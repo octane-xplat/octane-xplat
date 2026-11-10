@@ -1,11 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { useMemo, useEffect, useRef } from 'octane'
+import { useMemo } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
-import { usePan } from '../layout/pan.web.tsrx'
+import { useInteractionHost } from '../../gestures/host.web.tsrx'
+import { pressOptions } from '../../gestures/press-options'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** Internal contract shared with Button — `_nativeButton` renders a real
@@ -19,62 +21,26 @@ export interface PressableInternalProps extends PressableProps {
 export function Pressable(props: PressableProps): JSX.Element @{
   const asButton = (props as PressableInternalProps)._nativeButton === true
   const Tag: any = asButton ? 'button' : 'div'
-  const el = useRef<HTMLElement | null>(null)
-  const spacePressed = useRef(false)
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const latest = useRef(props)
-
-  latest.current = props
-
-  usePan(el, props.disabled ? undefined : props.onPan)
-
-  const cancel = () => {
-    if (timer.current !== null) {
-      clearTimeout(timer.current)
-      timer.current = null
-    }
-  }
-
-  useEffect(() => {
-    if (props.disabled) {
-      spacePressed.current = false
-    }
-  }, [props.disabled])
-
-  const enabled = !props.disabled && Boolean(props.onLongPress)
-
-  useEffect(() => {
-    if (!enabled) {
-      cancel()
-    }
-  }, [enabled])
-
-  useEffect(() => () => cancel(), [])
-
-  // Long-press parity with native: ~500ms hold over pointerdown/up.
-  const down = () => {
-    if (latest.current.disabled || !latest.current.onLongPress) {
-      return
-    }
-
-    cancel()
-    timer.current = setTimeout(() => {
-      timer.current = null
-      if (!latest.current.disabled) {
-        latest.current.onLongPress?.()
-      }
-    }, 500)
-  }
+  const bindInput = useInteractionHost({
+    ...props,
+    gestures: props.disabled ? undefined : props.gestures,
+    onPan: props.disabled ? undefined : props.onPan,
+    onPinch: props.disabled ? undefined : props.onPinch,
+    press: pressOptions(props),
+  })
 
   const forwardedRef = useMemo(
     () =>
-      refList((e: any) => {
-        el.current = e
-        if (e) {
-          applyEscapeProps(e, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (e: any) => {
+          if (e) {
+            applyEscapeProps(e, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   <Tag
@@ -103,79 +69,9 @@ export function Pressable(props: PressableProps): JSX.Element @{
     tabIndex={
       asButton ? undefined : props.onPress && !props.disabled && props.accessible !== false ? 0 : -1
     }
-    onKeyDown={
-      asButton
-        ? undefined
-        : (e: KeyboardEvent) => {
-            if (e.target !== e.currentTarget || props.disabled || e.isComposing || !props.onPress) {
-              return
-            }
-
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              if (!e.repeat) {
-                props.onPress()
-              }
-            } else if (e.key === ' ') {
-              e.preventDefault()
-              spacePressed.current = true
-            }
-          }
-    }
-    onKeyUp={
-      asButton
-        ? undefined
-        : (e: KeyboardEvent) => {
-            if (e.target !== e.currentTarget || e.key !== ' ') {
-              return
-            }
-
-            const activate = spacePressed.current
-
-            spacePressed.current = false
-            if (activate && !props.disabled && props.onPress) {
-              e.preventDefault()
-              props.onPress()
-            }
-          }
-    }
-    onBlur={
-      asButton
-        ? undefined
-        : () => {
-            spacePressed.current = false
-          }
-    }
-    onClick={props.disabled ? undefined : props.onPress}
-    onDoubleClick={props.disabled ? undefined : props.onDoublePress}
-    onPointerDown={(e: any) => {
-      if (!props.disabled) {
-        props.onPressIn?.()
-        down()
-      }
-    }}
-    onPointerUp={() => {
-      if (!props.disabled) {
-        props.onPressOut?.()
-      }
-
-      cancel()
-    }}
-    onPointerLeave={() => {
-      if (!props.disabled) {
-        props.onPressOut?.()
-      }
-
-      cancel()
-    }}
-    onPointerCancel={() => {
-      if (!props.disabled) {
-        props.onPressOut?.()
-      }
-
-      cancel()
-    }}
   >
-    {props.children}
+    <InteractionScopeProvider scope={props.interactionScope}>
+      {props.children}
+    </InteractionScopeProvider>
   </Tag>
 }

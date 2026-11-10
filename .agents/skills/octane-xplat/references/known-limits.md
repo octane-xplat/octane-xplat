@@ -168,9 +168,7 @@ Slider keeps one field and local/controlled scalar or range owner. GTK
 adjustable roles use the renderer's slider focus and ref increment/decrement
 events; the private accessibility helper publishes typed min/max/current/text
 properties without importing GI into UI. Keep controlled rejection, step
-anchoring and endpoint checks. PanEvent x/y remain movement deltas: capture
-native touch position and defer thumb selection until the first movement,
-because GTK can dispatch pan begin before touch down.
+anchoring and endpoint checks. Shared gesture samples expose an explicit local grab point. The GTK/Windows private native-widget transport retains its own touch ordering; GTK thumb selection waits for a measured point because its drag begin can precede touch down. This private transport does not establish shared gesture support.
 
 Slider value tooltips split interaction (the control) from position (the
 upper thumb). The GTK use-tooltip leaf supports this internal path through

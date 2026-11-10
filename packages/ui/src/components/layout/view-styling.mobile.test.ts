@@ -11,7 +11,6 @@ vi.mock('@nativescript/core', () => ({
   Utils: { openUrl: vi.fn() },
 }))
 
-vi.mock('./pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('./route', () => ({ pushDeepLink: () => false }))
 
 import { View } from './View.tsrx'

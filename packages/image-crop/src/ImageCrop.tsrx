@@ -1,6 +1,6 @@
 import { useRef } from 'octane'
 import { Absolute, View, useMeasure } from '@octane-xplat/ui'
-import type { PanEvent } from '@octane-xplat/ui'
+import type { PanNotification } from '@octane-xplat/ui'
 import type { CropHandle, ImageCropProps, PixelCrop, Size } from './props'
 import { constrainCrop, containFrame, convertToPercentCrop, dragCrop } from './geometry'
 import { Gesture } from './Gesture.tsrx'
@@ -10,7 +10,7 @@ import type { JSX } from 'octane/jsx-runtime'
 
 const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const
 
-/** Inline controlled selection. View.onPan delegates to the UI usePan leaves. */
+/** Inline controlled selection. View.onPan shares input ownership with nested controls. */
 export function ImageCrop(props: ImageCropProps): JSX.Element @{
   const measure = useMeasure()
   // Root hosts may offer more space than the explicitly sized image viewport.
@@ -30,25 +30,27 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
     src: string
   } | null>(null)
 
-  const pan = (handle: CropHandle, event: PanEvent) => {
+  const pan = (handle: CropHandle, event: PanNotification) => {
+    const sample = event.phase === 'finish' ? event.terminal.sample : event.sample
+    const ended = event.phase === 'finish' && event.terminal.outcome === 'ended'
+    const cancelled = event.phase === 'finish' && event.terminal.outcome === 'cancelled'
+
     if (props.disabled || frame.width <= 0 || frame.height <= 0) {
       gesture.current = null
       return
     }
 
-    if (event.state === 'began') {
+    if (event.phase === 'start') {
       if (!gesture.current) {
         gesture.current = {
           handle,
           start: crop,
           size: frame,
-          dx: event.dx,
-          dy: event.dy,
+          dx: 0,
+          dy: 0,
           src: props.src,
         }
       }
-
-      return
     }
 
     const active = gesture.current
@@ -57,7 +59,7 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
       return
     }
 
-    if (event.state === 'cancelled') {
+    if (cancelled) {
       gesture.current = null
       return
     }
@@ -75,8 +77,8 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
     const next = dragCrop(
       active.start,
       handle,
-      event.dx - active.dx,
-      event.dy - active.dy,
+      sample.translation.x - active.dx,
+      sample.translation.y - active.dy,
       frame,
       props,
     )
@@ -84,7 +86,7 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
     const percent = convertToPercentCrop(next, frame)
 
     props.onChange(next, percent)
-    if (event.state === 'ended') {
+    if (ended) {
       gesture.current = null
       props.onComplete?.(next, percent)
     }
@@ -109,7 +111,7 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
           borderColor: '#ffffff',
           backgroundColor: 'rgba(255,255,255,0.13)',
         }}
-        onPan={props.disabled ? undefined : (e: PanEvent) => pan('move', e)}
+        onPan={props.disabled ? undefined : (e: PanNotification) => pan('move', e)}
       />
       @if (props.ruleOfThirds) {
         @for (const fraction of [1 / 3, 2 / 3]; key fraction) {
@@ -167,7 +169,7 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
             borderWidth: 1,
             borderColor: '#ffffff',
           }}
-          onPan={props.disabled ? undefined : (e: PanEvent) => pan(handle, e)}
+          onPan={props.disabled ? undefined : (e: PanNotification) => pan(handle, e)}
         />
       }
     </Absolute>

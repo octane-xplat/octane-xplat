@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { useMemo } from 'octane'
 import type { CommandPaletteItem, CommandPaletteProps } from '../../props'
 import { createCommandPaletteController } from './command-palette-state'

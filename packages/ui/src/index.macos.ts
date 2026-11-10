@@ -1,3 +1,5 @@
+export { usePanGesture$, usePinchGesture$, useInteractionScope$ } from './gestures/hooks.tsrx'
+export { compete, simultaneous, prioritize } from './gestures/composition'
 // Experimental AppKit public surface. Components with a direct AppKit
 // equivalent use the host renderer. The barrel exposes the same names as the
 // shared surface (`index.shared.ts`); AppKit-only contracts live under the

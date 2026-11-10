@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { useMemo } from 'octane'
+import { useMemo, useRef } from 'octane'
 import type { View } from '@nativescript/core'
 import { useMeasure } from '../layout/useMeasure.tsrx'
 import './pressable-control.windows'
@@ -14,8 +14,8 @@ import {
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from '../layout/layout-child'
-import { usePan } from '../layout/pan.tsrx'
-import { usePinch } from '../layout/pinch.tsrx'
+import { useInteractionHost } from '../../gestures/host.windows.tsrx'
+import { virtualActivation } from '../../gestures/virtual-activation'
 
 /** Keep the shared drawing and layout, with a measured native control for
  * focus and activation. Only Click invokes onPress: a second tap listener
@@ -23,16 +23,19 @@ import { usePinch } from '../layout/pinch.tsrx'
 export function Pressable(props: PressableProps): unknown @{
   const measured = useMeasure()
   const disabled = Boolean(props.disabled || props.accessibilityState?.disabled)
-  const pan = usePan(disabled ? undefined : props.onPan)
+  const bindInput = useInteractionHost(props)
+  const host = useRef<View | null>(null)
   const forwardedRef = useMemo(
     () =>
       refList((v: View | null) => {
+        host.current = v
+        bindInput(v)
         measured.ref(v)
         if (v) {
           applyEscapeProps(v, props)
         }
       }, props.ref),
-    [measured.ref, props.ref, props.ios, props.android, props.web],
+    [bindInput, measured.ref, props.ref, props.ios, props.android, props.web],
   )
 
   const peerProps = {
@@ -47,7 +50,13 @@ export function Pressable(props: PressableProps): unknown @{
     settings: {
       label: props.accessibilityLabel,
       accessible: props.accessible,
-      onPress: props.onPress,
+      onPress: props.onPress
+        ? () => {
+            if (host.current) {
+              props.onPress?.(virtualActivation(host.current))
+            }
+          }
+        : undefined,
     },
     isEnabled: !disabled,
     accessible: props.accessible,
@@ -56,9 +65,6 @@ export function Pressable(props: PressableProps): unknown @{
     accessibilityValue: props.accessibilityValue,
     accessibilityState: nativeAccessibilityState({ ...props.accessibilityState, disabled }),
     accessibilityLiveRegion: props.accessibilityLiveRegion,
-    onPan: pan,
-    onSwipe: disabled ? undefined : props.onSwipe,
-    onPinch: usePinch(disabled ? undefined : props.onPinch),
     onLongPress: disabled ? undefined : props.onLongPress,
     onDoubleTap: disabled ? undefined : props.onDoublePress,
     onTouch: disabled

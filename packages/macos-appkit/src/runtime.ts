@@ -43,6 +43,7 @@ import { createTree } from './tree'
 import { createDriver } from './driver'
 import { createHover } from './hover'
 import { appKitGestureSurface } from './gesture-input'
+import { observeSecondaryActivation } from './gestures'
 import { createPopover } from './popover'
 import { createCssPseudoState } from './css-pseudo-state'
 import { createContextMenu } from './context-menu'
@@ -517,7 +518,24 @@ function initializeRuntime() {
   ) => hover.pointerMotion.observe(view, handlers, hover.hoverTrackingTarget)
 
   hostBridge.appKitBridge.gestureSurface = appKitGestureSurface
-  hostBridge.appKitBridge.observeGestureActivation = actionStore.observeActivation
+  hostBridge.appKitBridge.observeGestureActivation = (
+    view: object,
+    notify: (
+      source: 'pointer' | 'keyboard' | 'accessibility' | 'virtual',
+      kind?: 'double' | 'long',
+    ) => void,
+  ) => {
+    const primary = actionStore.observeActivation(view, notify)
+    const secondary = observeSecondaryActivation(view, (kind) => notify('pointer', kind))
+
+    return () => {
+      try {
+        secondary()
+      } finally {
+        primary()
+      }
+    }
+  }
 
   hostBridge.appKitBridge.locatePointer = (view: NSView) => hover.pointerMotion.locate(view)
 

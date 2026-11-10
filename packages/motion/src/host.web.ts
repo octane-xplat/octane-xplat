@@ -1,3 +1,4 @@
+import { observeOwnedPress } from '@octane-xplat/ui/internal/gesture-input'
 import { captureViewportOffset } from './projection/viewport-offset.web'
 import { radiusKeys } from './projection/paint'
 import { attachPan } from './pan.web'
@@ -159,30 +160,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
     },
     gesture(kind, callbacks) {
       if (kind === 'press') {
-        const down = (event: PointerEvent) => {
-          try {
-            // Preserve descendant click targets when this host wraps controls.
-            ;(event.target as Element | null)?.setPointerCapture?.(event.pointerId)
-          } catch (error) {
-            // Synthetic pointer dispatch has no active browser pointer.
-            if (event.isTrusted || (error as Error).name !== 'NotFoundError') {
-              throw error
-            }
-          }
-
-          callbacks.start()
-        }
-
-        const end = () => callbacks.end()
-
-        node.addEventListener('pointerdown', down)
-        node.addEventListener('pointerup', end)
-        node.addEventListener('pointercancel', end)
-        return () => {
-          node.removeEventListener('pointerdown', down)
-          node.removeEventListener('pointerup', end)
-          node.removeEventListener('pointercancel', end)
-        }
+        return observeOwnedPress(node, callbacks)
       }
 
       node.addEventListener('focus', callbacks.start)

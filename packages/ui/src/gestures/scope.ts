@@ -9,6 +9,7 @@ export interface SuspensionDriver {
 
 export interface ScopeController {
   readonly handle: InteractionScope
+  covers(host: object): boolean
   registerMember(host: object): () => void
   attach(driver: SuspensionDriver): () => void
   dispose(): void
@@ -132,6 +133,9 @@ export function createInteractionScope(
 
   const result: ScopeController = {
     handle,
+    covers(host) {
+      return Boolean(driver?.covers?.(host))
+    },
     registerMember(host) {
       if (disposed) {
         throw new Error('Cannot join a disposed interaction scope')

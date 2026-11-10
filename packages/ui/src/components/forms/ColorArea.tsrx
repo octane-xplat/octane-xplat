@@ -1,11 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { useCallback, useEffect, useRef } from 'octane'
-import type { ColorAreaProps, PanEvent } from '../../props'
+import { useMemo, useCallback, useEffect, useRef } from 'octane'
+import type { ColorAreaProps } from '../../props'
 import type { ColorAreaViewProps } from '../../internal-props'
+import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
 import { useMeasure } from '../layout/useMeasure.tsrx'
-import { usePan } from '../layout/pan.tsrx'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyNativeProps } from '../../internal/platform/platformProps'
 import { nativeAccessibilityRole } from '../overlays/escape-props'
 import { LinearGradient } from '../media/LinearGradient.tsrx'
@@ -58,39 +60,44 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
   const h = measure.bounds?.height ?? 0
   const { s, b } = props.hsb
 
-  const onPan = usePan((e: PanEvent) => {
-    if (props.isDisabled) {
-      return
-    }
-
-    if (e.state === 'began') {
-      lastTarget.current = e.target
-      drag.current = { ...props.hsb }
-      return
-    }
-
-    if (e.state === 'moved') {
-      const size = targetSize()
-      const next =
-        size && size.width > 0 && size.height > 0 && drag.current
-          ? {
-              h: props.hsb.h,
-              s: Math.min(1, Math.max(0, drag.current.s + e.dx / size.width)),
-              b: Math.min(1, Math.max(0, drag.current.b - e.dy / size.height)),
-            }
-          : null
-
-      if (next) {
-        props.onHsb(next)
-      }
-    } else {
-      if (drag.current) {
-        props.onHsbEnd()
+  const input = useControlPan(
+    { axis: 'both', enabled: !props.isDisabled },
+    (e: ControlPanNotification) => {
+      if (props.isDisabled && e.phase !== 'finish') {
+        return
       }
 
-      drag.current = null
-    }
-  })
+      if (e.phase === 'start') {
+        lastTarget.current = host.current
+        drag.current = { ...props.hsb }
+        return
+      }
+
+      if (e.phase === 'update') {
+        const size = targetSize()
+        const next =
+          size && size.width > 0 && size.height > 0 && drag.current
+            ? {
+                h: props.hsb.h,
+                s: Math.min(1, Math.max(0, drag.current.s + e.translation.x / size.width)),
+                b: Math.min(1, Math.max(0, drag.current.b - e.translation.y / size.height)),
+              }
+            : null
+
+        if (next) {
+          props.onHsb(next)
+        }
+      } else {
+        if (drag.current) {
+          props.onHsbEnd()
+        }
+
+        drag.current = null
+      }
+    },
+  )
+
+  const inputRef = useMemo(() => refList(bindHost, input.ref), [bindHost, input.ref])
 
   useEffect(() => {
     applyNativeProps(host.current, props)
@@ -107,8 +114,8 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
     accessibilityRole={nativeAccessibilityRole('adjustable')}
     accessibilityLabel={props.accessibilityLabel ?? 'color'}
     accessibilityValue={`saturation ${Math.round(s * 100)}%, brightness ${Math.round(b * 100)}%`}
-    onPan={onPan}
-    ref={bindHost}
+    onPan={input.onPan}
+    ref={inputRef}
   >
     <masonview
       className="vx-color-area-hue"

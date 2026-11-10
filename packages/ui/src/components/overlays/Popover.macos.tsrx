@@ -4,7 +4,7 @@ import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { PopoverProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import { createAppKitPopoverOwner, type AppKitPopoverTarget } from './popover-owner.macos'
 

@@ -34,6 +34,49 @@ interface WebRoot {
 
 const roots = new WeakMap<Document, WebRoot>()
 
+/** Visual press observer shares cohort cancellation without a second semantic target. */
+export function observeWebPress(node: HTMLElement, options: PressOptions): () => void {
+  const root = rootFor(node.ownerDocument)
+  const release = root.retain()
+  const space = webSpace(node)
+  const registration = root.owner.registerPress(node, options, space, (point) => {
+    const local = space.local(point)
+
+    return Boolean(
+      local &&
+      local.x >= 0 &&
+      local.y >= 0 &&
+      local.x <= node.offsetWidth &&
+      local.y <= node.offsetHeight,
+    )
+  })
+
+  return () => {
+    try {
+      registration.dispose()
+    } finally {
+      release()
+    }
+  }
+}
+
+function deepestSemanticHost(path: readonly EventTarget[], document: Document): HTMLElement | null {
+  const Element = document.defaultView?.HTMLElement
+
+  return (
+    path.find((entry): entry is HTMLElement =>
+      Boolean(
+        Element &&
+        entry instanceof Element &&
+        (presses.has(entry) ||
+          entry.isContentEditable ||
+          /^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(entry.tagName) ||
+          /^(button|slider|spinbutton)$/.test(entry.getAttribute('role') ?? '')),
+      ),
+    ) ?? null
+  )
+}
+
 /** Compute a stable 2D plane, accounting for transformed ancestors and border-box origin. */
 function windowTransform(node: HTMLElement): GestureTransform | null {
   const window = node.ownerDocument.defaultView
@@ -116,7 +159,7 @@ function rootFor(document: Document): WebRoot {
     return true
   }
 
-  let path: readonly object[] = []
+  let path: readonly EventTarget[] = []
   let capture: { node: HTMLElement; id: number } | null = null
   let tail: { pointer: number; path: readonly object[]; capture: HTMLElement | null } | null = null
   let claimed = false
@@ -142,22 +185,31 @@ function rootFor(document: Document): WebRoot {
     event: PointerEvent,
     type: InputFrame['type'],
     cancelReason?: InputFrame['cancelReason'],
-  ) =>
-    owner.dispatch({
+    changed = contact(event),
+  ) => {
+    const semanticHost = deepestSemanticHost(path, document)
+
+    return owner.dispatch({
       type,
       time: event.timeStamp,
       contacts: [...contacts.values()],
-      changed: contact(event),
+      changed,
       hitPath: path,
       cancelReason,
+      nativePressOwned: semanticHost !== null && !presses.has(semanticHost),
+      nativeBoundary: path.find(
+        (node) =>
+          node instanceof window.HTMLElement &&
+          /^(slider|spinbutton)$/.test(node.getAttribute('role') ?? ''),
+      ),
       nativeOwned: path.some(
         (node) =>
           node instanceof window.HTMLElement &&
           (node.isContentEditable ||
-            /^(INPUT|SELECT|TEXTAREA|IFRAME|OBJECT|EMBED)$/.test(node.tagName) ||
-            node.getAttribute('role') === 'slider'),
+            /^(INPUT|SELECT|TEXTAREA|IFRAME|OBJECT|EMBED)$/.test(node.tagName)),
       ),
     })
+  }
 
   const down = (event: PointerEvent) => {
     if (blocked(event)) {
@@ -222,12 +274,12 @@ function rootFor(document: Document): WebRoot {
       return
     }
 
-    contacts.delete(event.pointerId)
-    if (type === 'cancel') {
-      contacts.clear()
-    }
+    const previousContact = contacts.get(event.pointerId)
 
-    claimed = send(event, type, cancelReason) || claimed
+    contacts.delete(event.pointerId)
+    claimed =
+      send(event, type, cancelReason, type === 'cancel' ? previousContact : undefined) || claimed
+
     if (claimed && !contacts.size) {
       tail = { pointer: event.pointerId, path, capture: capture?.node ?? null }
     }
@@ -255,7 +307,8 @@ function rootFor(document: Document): WebRoot {
     }
 
     capture = null
-    finish(event, 'cancel', 'capture-lost')
+    // Capture loss does not end the physical contacts. Retain their cohort until up.
+    claimed = send(event, 'cancel', 'capture-lost', contacts.get(event.pointerId)) || claimed
   }
 
   const click = (event: MouseEvent) => {
@@ -411,7 +464,11 @@ function rootFor(document: Document): WebRoot {
 }
 
 /** Attach one gesture tree. The renderer retains this attachment across equivalent descriptions. */
-export function attachWebGesture(node: HTMLElement, input: GestureInput): () => void {
+export function attachWebGesture(
+  node: HTMLElement,
+  input: GestureInput,
+  basis: 'host' | 'parent' = 'host',
+): () => void {
   const root = rootFor(node.ownerDocument)
   const releaseRoot = root.retain()
   const record = { node, input }
@@ -442,7 +499,7 @@ export function attachWebGesture(node: HTMLElement, input: GestureInput): () => 
   }
 
   try {
-    const detach = root.owner.register(node, input, webSpace(node))
+    const detach = root.owner.register(node, input, webSpace(node, basis))
 
     cleanups.push(detach, root.policyHost(node))
 
@@ -632,7 +689,7 @@ function touchActionWriter(node: HTMLElement): (policy: ScrollPolicy) => void {
   }
 }
 
-function webSpace(node: HTMLElement): GestureSpace {
+function webSpace(node: HTMLElement, reference: 'host' | 'parent' = 'host'): GestureSpace {
   return {
     target: interactionTarget(node),
     local: (point) => {
@@ -641,7 +698,15 @@ function webSpace(node: HTMLElement): GestureSpace {
       return matrix ? (inverseGestureTransform(matrix)?.(point) ?? null) : null
     },
     freeze: () => {
-      const matrix = windowTransform(node)
+      // Motion translation channels belong to the parent plane, independent
+      // of the moving element's own scale/rotation. Public handles use host axes.
+      const basis = reference === 'parent' ? node.parentElement : node
+
+      if (!basis) {
+        return (point) => point
+      }
+
+      const matrix = windowTransform(basis)
 
       return matrix ? inverseGestureTransform(matrix) : null
     },
@@ -685,12 +750,7 @@ export function attachWebPress(node: HTMLElement, options: PressOptions) {
     // Only the deepest managed semantic host handles an activation.
     const path = event.composedPath()
 
-    return (
-      path.find(
-        (entry) =>
-          entry instanceof node.ownerDocument.defaultView!.HTMLElement && presses.has(entry),
-      ) === node
-    )
+    return deepestSemanticHost(path, node.ownerDocument) === node
   }
 
   const click = (event: MouseEvent) => {
@@ -752,6 +812,7 @@ export function attachWebPress(node: HTMLElement, options: PressOptions) {
 
     spaceHeld = false
     if (activate) {
+      keyboard = false
       event.preventDefault()
       registration.activate('keyboard', () => event.preventDefault())
     }
@@ -770,6 +831,11 @@ export function attachWebPress(node: HTMLElement, options: PressOptions) {
   node.addEventListener('blur', blur)
   return {
     commit(next: PressOptions) {
+      if (next.enabled === false) {
+        keyboard = false
+        spaceHeld = false
+      }
+
       registration.commit(next)
     },
     dispose() {

@@ -10,7 +10,7 @@ import {
 import { defaultCollisionDetection } from '@dnd-kit/collision'
 import { batch, effect, signal, untracked } from '@dnd-kit/state'
 import type { Rectangle } from '@dnd-kit/geometry'
-import type { PanEvent } from '@octane-xplat/ui'
+import type { PanNotification } from '@octane-xplat/ui'
 import type {
   DndContextProps,
   DndId,
@@ -24,7 +24,7 @@ import { measure } from './geometry'
 import type { Signal } from '@dnd-kit/state'
 
 class PanDraggable extends Draggable {
-  onPan?: (event: PanEvent) => void
+  onPan?: (event: PanNotification) => void
   activationDistance = 0
   setActivationDistance(value?: number): void {
     const distance = value ?? 0
@@ -58,12 +58,16 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
       await manager.renderer.rendering
     }
 
-    const handle = async (event: PanEvent) => {
+    const handle = async (event: PanNotification) => {
+      const sample = event.phase === 'finish' ? event.terminal.sample : event.sample
+      const ended = event.phase === 'finish' && event.terminal.outcome === 'ended'
+      const cancelled = event.phase === 'finish' && event.terminal.outcome === 'cancelled'
+
       if (!bound) {
         return
       }
 
-      if (event.state === 'began') {
+      if (event.phase === 'start') {
         if (source.disabled || !manager.dragOperation.status.idle) {
           return
         }
@@ -76,24 +80,22 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
 
         origin = null
         pendingOrigin = measured
-        base = { x: event.dx, y: event.dy }
+        base = { x: 0, y: 0 }
         activationDistance = source.activationDistance
         if (activationDistance === 0) {
           pendingOrigin = null
           await start(measured)
         }
-
-        return
       }
 
       if (pendingOrigin) {
-        if (event.state === 'cancelled' || (event.state !== 'ended' && source.disabled)) {
+        if (cancelled || (!ended && source.disabled)) {
           pendingOrigin = null
           return
         }
 
-        const x = event.dx - base.x
-        const y = event.dy - base.y
+        const x = sample.translation.x - base.x
+        const y = sample.translation.y - base.y
 
         if (Math.hypot(x, y) >= activationDistance) {
           if (source.disabled || !manager.dragOperation.status.idle) {
@@ -106,7 +108,7 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
           pendingOrigin = null
           await start(measured)
         } else {
-          if (event.state === 'ended') {
+          if (ended) {
             pendingOrigin = null
           }
 
@@ -122,16 +124,16 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
         return
       }
 
-      const x = event.dx - base.x
-      const y = event.dy - base.y
+      const x = sample.translation.x - base.x
+      const y = sample.translation.y - base.y
 
       manager.actions.move({ to: { x: origin.center.x + x, y: origin.center.y + y } })
       // The core commits movement in a microtask. Serialize release after it.
       await Promise.resolve()
       manager.dragOperation.shape = origin.translate(x, y)
       manager.refresh()
-      if (event.state === 'ended' || event.state === 'cancelled') {
-        manager.actions.stop({ canceled: event.state === 'cancelled' })
+      if (ended || cancelled) {
+        manager.actions.stop({ canceled: cancelled })
         origin = null
       } else {
         manager.startAutoScroll()

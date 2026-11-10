@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { memo, useState } from 'octane'
 import { GridLayout, TabViewItem } from '@nativescript/core'
-import { createPortal } from '../internal/platform/native-portal'
+import { createPortal } from '../internal/platform/native-portal.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { getIcon } from '../components/media/icons'
 import { Icon } from '../components/media/Icon.tsrx'

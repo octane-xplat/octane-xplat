@@ -1,3 +1,8 @@
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 import { describe, expect, it, vi } from 'vitest'
 import {
   createObjectContainer,
@@ -11,7 +16,6 @@ vi.mock('@nativescript/core', () => ({
   Utils: { openUrl: vi.fn() },
 }))
 
-vi.mock('../layout/pan.tsrx', () => ({ usePan: () => undefined }))
 // CheckboxIndicator registers <svgview> as an import side effect; the object
 // driver doesn't need the real vendored SVGView.
 vi.mock('../media/svg', () => ({}))
@@ -244,7 +248,7 @@ describe('native indicators + list', () => {
     const disabledView = findByClass(disabled.container.children[0], 'vx-listitem')
 
     expect(() =>
-      disabled.container.dispatchEvent(disabledView, 'tap', { object: disabledView }),
+      dispatchTestInput(disabled.container, disabledView, 'tap', { object: disabledView }),
     ).toThrow('no "tap" listener')
 
     expect(calls).toBe(0)
@@ -257,7 +261,7 @@ describe('native indicators + list', () => {
 
     const enabledView = findByClass(enabled.container.children[0], 'vx-listitem')
 
-    enabled.container.dispatchEvent(enabledView, 'tap', { object: enabledView })
+    dispatchTestInput(enabled.container, enabledView, 'tap', { object: enabledView })
     expect(calls).toBe(1)
     enabled.root.unmount()
   })

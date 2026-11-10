@@ -7,7 +7,7 @@ import { useThemeScheme } from '../../theme/theme-scheme'
 import { themeSchemeClasses } from '../../theme/theme-host'
 import { Toast } from './Toast.tsrx'
 import { Popover } from './Popover.tsrx'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 /** Edge gap + inter-toast gap in dips (same values as the native leaf). */

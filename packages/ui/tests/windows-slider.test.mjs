@@ -63,7 +63,11 @@ export const focused=[];
 export const focusSliderInput=view=>{focused.push(view);return view!=null;};
 export const queueSliderInputFocus=()=>()=>{};
 export const useMeasure=()=>({ref:()=>{},bounds:{width:300,height:28}});
-export const usePan=callback=>callback;`,
+// Value-policy fixture: native pointer recognition is qualified separately.
+export const useControlPan=(options,callback)=>({ref:()=>{},nativeControl:true,onPan:event=>{
+ if(!options.enabled)return;
+ callback({phase:event.state==='began'?'start':event.state==='moved'?'update':'finish',translation:{x:event.dx??0,y:0},startLocal:null,positionLocal:null,cancelled:event.state==='cancelled'});
+}});`,
 )
 
 const field = compiled(
@@ -102,7 +106,7 @@ const slider = compiled(
     '../overlays/escape-props': support,
     '../../internal/layout/style-merge': support,
     '../layout/useMeasure.tsrx': support,
-    '../layout/pan.tsrx': support,
+    '../../gestures/control.windows.tsrx': support,
     './slider-control': support,
     './slider-model.windows': model,
   },

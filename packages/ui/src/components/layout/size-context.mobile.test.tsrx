@@ -31,7 +31,7 @@ vi.mock('./root-layout', () => ({
 // The universal portal target is stubbed to identity — portal children render
 // inline under the declaring tree, so the SizeProvider-null reset inside the
 // layer surface is the code under test.
-vi.mock('../../internal/platform/native-portal', () => ({
+vi.mock('../../internal/platform/native-portal.tsrx', () => ({
   createPortal: (children: any) => children,
 }))
 

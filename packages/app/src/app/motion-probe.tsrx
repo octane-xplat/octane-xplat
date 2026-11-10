@@ -9,7 +9,7 @@ import {
   useTransform,
 } from '@octane-xplat/motion'
 
-import { Screen, HStack, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
+import { Screen, HStack, Text, Pressable, TextInput, type PanNotification } from '@octane-xplat/ui'
 import { useRouter } from '@octane-xplat/ui/routing'
 
 function PresenceCounter(props: {
@@ -89,25 +89,29 @@ export function MotionProbe() @{
       ? { type: 'spring' as const, stiffness: 200, damping: 22 }
       : { duration: 0.9, ease: 'easeOut' as const }
 
-  const pan = (event: PanEvent) => {
-    if (event.state === 'began') {
+  const pan = (event: PanNotification) => {
+    const sample = event.phase === 'finish' ? event.terminal.sample : event.sample
+    const ended = event.phase === 'finish' && event.terminal.outcome === 'ended'
+    const cancelled = event.phase === 'finish' && event.terminal.outcome === 'cancelled'
+
+    if (event.phase === 'start') {
       panX.stop()
       panOrigin.current = panX.get()
       panPhases.current = ['began']
       setPanStatus('pan began')
-    } else if (event.state === 'moved') {
+    } else if (event.phase === 'update') {
       if (panPhases.current[panPhases.current.length - 1] !== 'moved') {
         panPhases.current.push('moved')
       }
 
-      panX.set(Math.max(-100, Math.min(100, panOrigin.current + event.dx)))
-    } else if (event.state === 'ended' || event.state === 'cancelled') {
-      panPhases.current.push(event.state)
+      panX.set(Math.max(-100, Math.min(100, panOrigin.current + sample.translation.x)))
+    } else if (ended || cancelled) {
+      panPhases.current.push(ended ? 'ended' : 'cancelled')
 
-      const velocity = event.state === 'ended' ? event.vx : 0
+      const velocity = ended ? (sample.velocity?.x ?? 0) : 0
 
       setPanStatus(
-        `${event.state}; release vx=${Math.round(velocity)}; phases=${panPhases.current.join('→')}`,
+        `${ended ? 'ended' : 'cancelled'}; release vx=${Math.round(velocity)}; phases=${panPhases.current.join('→')}`,
       )
 
       void panX

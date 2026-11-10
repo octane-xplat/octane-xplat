@@ -25,6 +25,7 @@ import {
 export interface NativeGestureNode {
   readonly nativeViewProtected?: unknown
   readonly parent?: NativeGestureNode | null
+  readonly accessibilityRole?: unknown
 }
 
 export interface NativeGestureView extends NativeGestureNode {
@@ -45,6 +46,7 @@ export interface NativeGestureSurface {
   readonly root: object
   readonly host: object
   readonly space: GestureSpace
+  readonly parentBasis?: GestureSpace['freeze']
   readonly scheduler: GestureScheduler
   observe(dispatch: (frame: InputFrame, eventIdentity: string) => void): () => void
   reserve(input: GestureInput): () => void
@@ -70,6 +72,33 @@ interface NativeRoot {
 }
 
 const roots = new WeakMap<object, NativeRoot>()
+
+/** Framework motion channels use the parent's plane, while positions remain local to the host. */
+export function parentGestureSurface(surface: NativeGestureSurface): NativeGestureSurface {
+  if (!surface.parentBasis) {
+    throw new Error('Unsupported gesture attachment: parent coordinate basis unavailable')
+  }
+
+  return { ...surface, space: { ...surface.space, freeze: surface.parentBasis } }
+}
+
+/** Private adapter ingress. Native observers and dispatch-only fixtures use the
+ * same cohort reconciliation; this is not evidence of OS input delivery. */
+export function dispatchNativeGestureInput(
+  root: object,
+  frame: InputFrame,
+  identity: string,
+): boolean {
+  const current = roots.get(root)
+
+  if (!current || current.lastEvent === identity) {
+    return false
+  }
+
+  current.lastEvent = identity
+  current.stream.dispatch(frame)
+  return true
+}
 
 function retain(surface: NativeGestureSurface) {
   let root = roots.get(surface.root)
@@ -139,12 +168,7 @@ function retain(surface: NativeGestureSurface) {
       }
 
       offObserver = surface.observe((frame, identity) => {
-        if (current.lastEvent === identity) {
-          return
-        }
-
-        current.lastEvent = identity
-        current.stream.dispatch(frame)
+        dispatchNativeGestureInput(surface.root, frame, identity)
       })
     } catch (error) {
       current.hosts.delete(surface.host)

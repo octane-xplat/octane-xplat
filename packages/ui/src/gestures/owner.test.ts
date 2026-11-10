@@ -460,3 +460,36 @@ it('continues publishing cohort pointer counts after an exact-one pan is cancell
     f.dispose()
   }
 })
+
+it('does not admit a new contact after system cancellation while an old contact remains down', () => {
+  let starts = 0,
+    cancels = 0
+
+  const pan = createPanController({ axis: 'x', onStart: () => starts++, onCancel: () => cancels++ })
+  const pinch = createPinchController({ onStart: () => starts++ })
+  const f = fixture(compete(pinch.handle, pan.handle), [pan, pinch])
+
+  try {
+    const one = f.contact('1', 0),
+      moved = f.contact('1', 20)
+
+    f.send('down', [one])
+    f.send('move', [moved])
+    f.send('cancel', [moved])
+    expect(cancels).toBe(1)
+
+    const two = f.contact('2', 60)
+
+    f.send('down', [moved, two], two)
+    f.send('move', [moved, f.contact('2', 120)])
+    expect(starts).toBe(1)
+    f.send('up', [moved], two)
+    f.send('up', [], moved)
+    expect(pan.handle.pointerCount$.get()).toBe(0)
+    f.send('down', [one])
+    f.send('move', [moved])
+    expect(starts).toBe(2)
+  } finally {
+    f.dispose()
+  }
+})

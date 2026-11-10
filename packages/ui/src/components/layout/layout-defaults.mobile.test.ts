@@ -1,4 +1,8 @@
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
 import { describe, expect, it, vi } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -23,7 +27,6 @@ vi.mock('@nativescript/core', async () => ({
 // Leaves that pull in native plugin internals are stubbed — this test only
 // checks the className root's emitted props.
 vi.mock('../media/Icon.tsrx', () => ({ Icon: () => null }))
-vi.mock('./pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('./route', () => ({ pushDeepLink: () => false }))
 vi.mock('../../internal/keyboard/keyboard-inset', () => ({ useKeyboardInset: () => 0 }))
 

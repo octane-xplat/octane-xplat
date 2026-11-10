@@ -1,5 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 import { describe, expect, it, vi } from 'vitest'
 import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
@@ -47,7 +52,7 @@ describe('native button action failure reporting', () => {
 
     const host = container.children[0]
 
-    container.dispatchEvent(host, 'tap', {})
+    dispatchTestInput(container, host, 'tap', {})
 
     rejectAction!(error)
     await Promise.resolve()
@@ -70,7 +75,7 @@ describe('native button action failure reporting', () => {
       onActionError,
     })
 
-    container.dispatchEvent(container.children[0], 'tap', {})
+    dispatchTestInput(container, container.children[0], 'tap', {})
     expect(onActionError).toHaveBeenCalledWith(error)
     root.unmount()
   })

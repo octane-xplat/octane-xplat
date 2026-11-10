@@ -1,5 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 import { expect, it, vi } from 'vitest'
 import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
@@ -18,7 +23,6 @@ vi.mock('@nativescript/core', async () => ({
   Utils: { openUrl: vi.fn() },
 }))
 
-vi.mock('../layout/pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('../../routing/default-router', () => ({
   router: { navigateUrl: () => Promise.resolve({ status: 'not-found' }) },
 }))
@@ -62,7 +66,7 @@ for (const layout of ['fill', 'hug'] as const) {
       )
 
       expect(tab).toBeDefined()
-      container.dispatchEvent(tab, 'tap', { eventName: 'tap', object: tab })
+      dispatchTestInput(container, tab, 'tap', { eventName: 'tap', object: tab })
       expect(selected).toHaveBeenCalledExactlyOnceWith('second')
     } finally {
       root.unmount()

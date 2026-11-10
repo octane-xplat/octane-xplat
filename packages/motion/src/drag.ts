@@ -1,10 +1,11 @@
+import type { GestureHostProps } from '@octane-xplat/ui'
 import type { ProjectionNode } from './projection/node'
 import type { Controller } from './controller'
 import type { HostAdapter } from './host-types'
 import type { DragInfo, MotionProps } from './types'
 import type { MotionValue } from './value'
 
-export function validateDrag(props: MotionProps): void {
+export function validateDrag(props: MotionProps & GestureHostProps): void {
   if (props.drag !== undefined && ![true, false, 'x', 'y'].includes(props.drag)) {
     throw new Error('motion: drag must be boolean, x, or y')
   }
@@ -30,6 +31,12 @@ export function validateDrag(props: MotionProps): void {
     (!Number.isFinite(props.dragElastic) || props.dragElastic < 0 || props.dragElastic > 1)
   ) {
     throw new Error('motion: dragElastic must be boolean or a number from 0 to 1')
+  }
+
+  if (props.drag && (props.gestures || props.onPan || props.onPinch)) {
+    throw new Error(
+      'motion: drag and gestures/onPan/onPinch cannot share a host; use custom gesture handles with MotionValues',
+    )
   }
 
   if (props.drag) {

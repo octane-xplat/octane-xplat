@@ -1,3 +1,4 @@
+import { useInteractionCallbacks } from './callbacks.tsrx'
 import { useInsertionEffect, useLayoutEffect, useRef } from 'octane'
 import {
   attachWebGesture,
@@ -15,17 +16,14 @@ import {
 import { createConvenienceInput, type ConvenienceInput } from './convenience'
 import { useInteractionMembership } from './context.tsrx'
 import { createInteractionHostRef, type InteractionHostRef } from './host-ref'
-import type { GestureHostProps } from './types'
-import type { PressOptions } from './press'
+import type { InteractionHostOptions } from './host-options'
 
-export interface InteractionHostOptions extends GestureHostProps {
-  readonly press?: PressOptions
-  readonly viewport?: boolean
-}
+export type { InteractionHostOptions } from './host-options'
 
 export function useInteractionHost(
   options: InteractionHostOptions,
 ): (host: HTMLElement | null) => void {
+  const guarded = useInteractionCallbacks(options)
   const membership = useInteractionMembership()
   const convenienceRef = useRef<ConvenienceInput | null>(null)
 
@@ -65,7 +63,7 @@ export function useInteractionHost(
   const lifecycle = lifecycleRef.current
 
   useLayoutEffect(() => {
-    const snapshot = convenience.commit(options)
+    const snapshot = convenience.commit(guarded)
 
     if (!convenience.current(snapshot)) {
       return
@@ -74,12 +72,12 @@ export function useInteractionHost(
     committed.current = {
       gestures: snapshot.input,
       scope: options.interactionScope,
-      press: options.press,
+      press: guarded.press,
       viewport: options.viewport,
     }
 
     binding.commit(lifecycle.host, committed.current)
-  }, [binding, lifecycle, convenience, options])
+  }, [binding, lifecycle, convenience, guarded, options])
 
   useInsertionEffect(
     () => () => {

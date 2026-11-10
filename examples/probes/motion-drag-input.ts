@@ -1,47 +1,6 @@
-import {
-  Manager,
-  GestureHandlerStateEvent,
-  GestureHandlerTouchEvent,
-  GestureState,
-} from '@nativescript-community/gesturehandler'
+import { createGestureDispatch } from '../../tools/probe/gesture-dispatch.mobile'
 
-/** iOS handler-level dispatch, not OS touch or scroll arbitration evidence. */
-export function dragInput(
-  node: any,
-  phase: 'start' | 'move' | 'end' | 'cancel',
-  x: number,
-  velocity = 0,
-) {
-  const manager = Manager.getInstance() as any
-  const handler = [...(manager.attachedHandlers?.values() ?? [])].find(
-    (candidate: any) => candidate.attachedView === node,
-  ) as any
+const input = createGestureDispatch()
 
-  if (!handler) {
-    throw new Error('Motion probe could not find attached iOS PanGestureHandler')
-  }
-
-  const state =
-    phase === 'end'
-      ? GestureState.END
-      : phase === 'cancel'
-        ? GestureState.CANCELLED
-        : GestureState.ACTIVE
-
-  handler.notify({
-    eventName: phase === 'move' ? GestureHandlerTouchEvent : GestureHandlerStateEvent,
-    object: handler,
-    data: {
-      state,
-      extraData: {
-        translationX: x,
-        translationY: 0,
-        absoluteX: x,
-        absoluteY: 0,
-        velocityX: velocity,
-        velocityY: 0,
-      },
-      view: node,
-    },
-  })
-}
+/** Native adapter dispatch; this does not synthesize OS contacts. */
+export const dragInput = input.send

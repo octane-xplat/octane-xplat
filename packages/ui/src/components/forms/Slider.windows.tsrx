@@ -8,7 +8,7 @@ import { FormField } from './FormField.tsrx'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMeasure } from '../layout/useMeasure.tsrx'
-import { usePan } from '../layout/pan.tsrx'
+import { useControlPan } from '../../gestures/control.windows.tsrx'
 import {
   moveSliderThumb,
   normalizeSliderValue,
@@ -129,19 +129,19 @@ export function Slider(inputProps: SliderProps): unknown @{
     }
   }
 
-  const onPan = usePan((event) => {
-    if (event.state === 'ended' || event.state === 'cancelled' || blocked) {
+  const input = useControlPan({ axis: 'x', enabled: !blocked }, (event) => {
+    if (event.phase === 'finish' || blocked) {
       drag.current = null
       return
     }
 
-    if (event.state === 'began') {
+    if (event.phase === 'start') {
       // Touch may be delivered before or after pan-began by the shared pointer owner.
       if (!contact.current) {
         drag.current = { thumb: 'upper', origin: upper }
       }
     } else if (drag.current && width > 0) {
-      request(drag.current.thumb, drag.current.origin + (event.dx / width) * (max - min))
+      request(drag.current.thumb, drag.current.origin + (event.translation.x / width) * (max - min))
     }
   })
 
@@ -169,7 +169,10 @@ export function Slider(inputProps: SliderProps): unknown @{
       ) : null}
       <masonview className="vx-slider-row-windows">
         <masonview
-          ref={bindHost}
+          ref={(host: View | null) => {
+            bindHost(host)
+            input.ref(host)
+          }}
           className={cx(
             'vx-slider',
             'vx-slider-track-windows',
@@ -179,7 +182,7 @@ export function Slider(inputProps: SliderProps): unknown @{
             props.size && `vx-slider--size-${props.size}`,
           )}
           isEnabled={!disabled}
-          onPan={onPan}
+          onPan={input.onPan}
           onTouch={onTouch}
         >
           <masonview

@@ -155,6 +155,17 @@
 						"./src/routing/core.ts"
 					],
 					"types": "./types/generated/routing/core.d.ts"
+				},
+				"./internal/gesture-input": {
+					"source": "src/gestures/external.ts",
+					"runtime": [
+						"./src/gestures/external.ts",
+						"./src/gestures/external.web.ts",
+						"./src/gestures/external.macos.ts",
+						"./src/gestures/external.gtk.ts",
+						"./src/gestures/external.windows.ts"
+					],
+					"types": "./types/generated/gestures/external.d.ts"
 				}
 			}
 		}

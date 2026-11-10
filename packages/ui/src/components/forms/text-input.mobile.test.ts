@@ -1,4 +1,9 @@
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 import { describe, expect, it, vi } from 'vitest'
 import {
   createObjectDriver,
@@ -103,7 +108,7 @@ describe('native controlled input writes', () => {
           get: () => text,
           set: (value) => {
             text = value
-            container.dispatchEvent(node, 'textchange', { object: node, value })
+            dispatchTestInput(container, node, 'textchange', { object: node, value })
           },
         })
       }
@@ -119,14 +124,14 @@ describe('native controlled input writes', () => {
       // A native edit still reaches the callback exactly once.
       text = 'xy'
       flushUniversalSync(() =>
-        container.dispatchEvent(node, 'textchange', { object: node, value: text }),
+        dispatchTestInput(container, node, 'textchange', { object: node, value: text }),
       )
 
       expect(change).toHaveBeenCalledExactlyOnceWith('xy')
       await vi.waitFor(() => expect(text).toBe('x'))
       text = 'xy'
       flushUniversalSync(() =>
-        container.dispatchEvent(node, 'textchange', { object: node, value: text }),
+        dispatchTestInput(container, node, 'textchange', { object: node, value: text }),
       )
 
       expect(change).toHaveBeenCalledTimes(2)

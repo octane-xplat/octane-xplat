@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useRef, useState } from 'octane'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { SizeProvider } from '../layout/size-context'
 import type { OverlayProps } from '../../props'
 import { cx } from '@octane-xplat/lib'

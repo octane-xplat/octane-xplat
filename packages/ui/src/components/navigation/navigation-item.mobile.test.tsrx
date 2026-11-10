@@ -1,5 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 import {
   createObjectDriver,
   createUniversalRoot,
@@ -29,7 +34,6 @@ vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 // These cases omit decorative icons; SDK SVG registration belongs to device checks.
 vi.mock('../media/Icon', () => ({ Icon: () => null }))
 vi.mock('../media/Icon.tsrx', () => ({ Icon: () => null }))
-vi.mock('../layout/pan', () => ({ usePan: () => undefined }))
 vi.mock('../overlays/Popover', () => ({ Popover: () => null }))
 // Keep pure source conversion while skipping the SDK's SVGView registration.
 vi.mock('../media/svg', async () => await import('../media/svg-source'))
@@ -95,13 +99,13 @@ for (const [kind, token] of Object.entries(kinds)) {
       root.render(NavigationChrome, { ...props, disabled: true })
       await settle()
       expect(() =>
-        container.dispatchEvent(target(), 'tap', { eventName: 'tap', object: target() }),
+        dispatchTestInput(container, target(), 'tap', { eventName: 'tap', object: target() }),
       ).toThrow('no "tap" listener')
 
       expect(fixture.loads).toBe(0)
       root.render(NavigationChrome, props)
       await settle()
-      container.dispatchEvent(target(), 'tap', { eventName: 'tap', object: target() })
+      dispatchTestInput(container, target(), 'tap', { eventName: 'tap', object: target() })
       await settle()
       expect(fixture.router.forStack('library').getSnapshot().route).toMatchObject({
         params: { id: kind },

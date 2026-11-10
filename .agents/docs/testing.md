@@ -231,7 +231,7 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 
 ## Gesture owner checks
 
-The internal gesture prototype has three focused checks. Run the state-machine
+The shared gesture system has three focused checks. Run the state-machine
 and web-adapter unit cases, the native bridge and compiled hook/object-driver
 cases, and browser input separately from device qualification:
 
@@ -239,6 +239,7 @@ cases, and browser input separately from device qualification:
 bun run turbo run test --filter=@octane-xplat/ui -- src/gestures
 bun run turbo run test:gestures:native --filter=@octane-xplat/ui
 bun run turbo run test:gestures:web --filter=@xplat/probe
+bun run turbo run test:gestures:web --filter=@xplat/probe -- --packed
 ```
 
 The browser task launches existing Chromium, Firefox and WebKit installations,
@@ -247,5 +248,14 @@ releases pointer capture through browser APIs. It covers scoped input leases
 and managed viewport reservations without claiming touch momentum suspension.
 It does not capture images, install engines, or simulate native
 devices. It remains a local qualification task outside the lightweight PR gate.
-These checks do not qualify the eventual public component bindings, native
-scroll suspension, touchscreens, accessibility services or packed consumers.
+The browser fixture mounts public components and Motion. `--packed` copies both
+package tarballs into an isolated consumer, reports their SHA-256 hashes, and
+keeps the UI/Motion runtime off source aliases. It covers host/parent scale
+without changing the public pan coordinate contract. Device fixtures under
+`packages/ui/tests/fixtures/gesture-*` use public hooks and props; they wait for
+real external input and record text telemetry. A pinch finish can precede the
+last physical finger lift: wait for pointerCount$ to reach zero instead of
+assuming a fixed timer proves an empty cohort. Native scroll suspension,
+touchscreens, accessibility services and packed consumers require their own
+qualifications. Keep source-linked input evidence distinct from packed-runtime
+input evidence; ordinary packed declaration/build checks prove neither.

@@ -1,6 +1,7 @@
 import { hostGlobal } from '../internal/platform/host-bridge'
 import {
   attachNativeGesture,
+  parentGestureSurface,
   attachNativeInteractionScope,
   attachNativePress,
   type NativeGestureSurface,
@@ -17,6 +18,7 @@ interface AppKitSurface {
   readonly root: object
   readonly host: object
   local(point: Point): Point | null
+  parentBasis?(): ((point: Point) => Point) | null
   freeze(): ((point: Point) => Point) | null
   containsPoint(point: Point): boolean
   containsHost(host: object): boolean
@@ -27,7 +29,7 @@ interface AppKitGestureBridge {
   gestureSurface?(view: object): AppKitSurface
   observeGestureActivation?(
     view: object,
-    notify: (source: ActivationEvent['source']) => void,
+    notify: (source: ActivationEvent['source'], kind?: 'double' | 'long') => void,
   ): () => void
 }
 
@@ -41,6 +43,7 @@ function surface(view: object): NativeGestureSurface {
 
   return {
     ...input,
+    parentBasis: input.parentBasis ? () => input.parentBasis!() : undefined,
     space: {
       target: interactionTarget(input.host),
       local: (point) => input.local(point),
@@ -65,7 +68,11 @@ function surface(view: object): NativeGestureSurface {
   }
 }
 
-export function attachAppKitGesture(view: object, input: GestureInput): () => void {
+export function attachAppKitGesture(
+  view: object,
+  input: GestureInput,
+  basis: 'host' | 'parent' = 'host',
+): () => void {
   for (const handle of gestureLeaves(input)) {
     const controller = gestureController(handle)
 
@@ -80,7 +87,9 @@ export function attachAppKitGesture(view: object, input: GestureInput): () => vo
     }
   }
 
-  return attachNativeGesture(surface(view), input)
+  const host = surface(view)
+
+  return attachNativeGesture(basis === 'parent' ? parentGestureSurface(host) : host, input)
 }
 
 export function attachAppKitScope(view: object, scope: InteractionScope): () => void {
@@ -92,8 +101,16 @@ export function attachAppKitPress(view: object, options: PressOptions) {
   const bridge = hostGlobal<AppKitGestureBridge>('__xplatAppKit')
 
   return attachNativePress(surface(view), options, (registration) => {
-    const dispose = bridge?.observeGestureActivation?.(view, (source) => {
-      registration.activate(source)
+    if (options.observeOnly) {
+      return { commit() {}, dispose() {} }
+    }
+
+    const dispose = bridge?.observeGestureActivation?.(view, (source, kind) => {
+      if (kind === 'long') {
+        registration.longPress(source)
+      } else {
+        registration.activate(source, undefined, kind)
+      }
     })
 
     if (!dispose) {

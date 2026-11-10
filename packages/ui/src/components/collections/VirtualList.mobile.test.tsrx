@@ -1,5 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+// Action/layout fixture only: no native input is delivered by the object driver.
+vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
+
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 import { useState } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
@@ -100,7 +105,7 @@ async function mount(
     }
   })
 
-  container.dispatchEvent(scroll, 'loaded', { object: scroll })
+  dispatchTestInput(container, scroll, 'loaded', { object: scroll })
 
   const content = scroll.children[0]
 
@@ -112,7 +117,7 @@ async function mount(
 
   const move = (offset: number) => {
     scroll.scrollTop = offset
-    container.dispatchEvent(scroll, 'scroll', { target: scroll })
+    dispatchTestInput(container, scroll, 'scroll', { target: scroll })
   }
 
   const measure = (id: string, height: number, emit = true) => {
@@ -381,7 +386,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
     const findRow = () => collect(container.children).find((node) => node.props.id === 'row-r10')
     const row = findRow()
 
-    container.dispatchEvent(row, 'tap', { object: row })
+    dispatchTestInput(container, row, 'tap', { object: row })
     expect(findRow().props.text).toBe('r10:1')
 
     const prepended = [{ id: 'prepended' }, ...items]

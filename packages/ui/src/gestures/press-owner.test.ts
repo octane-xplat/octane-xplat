@@ -232,3 +232,133 @@ it('keeps suspended hosts ineligible for later pointer and semantic activation u
     f.dispose()
   }
 })
+
+it('cancels visual press observers with the semantic press before a pan starts', () => {
+  const f = fixture()
+  const observer = f.owner.registerPress(
+    f.panel,
+    {
+      observeOnly: true,
+      slop: 100,
+      onPressIn: () => f.calls.push('visual-in'),
+      onPressOut: () => f.calls.push('visual-out'),
+    },
+    f.space('panel'),
+    () => true,
+  )
+
+  try {
+    f.send('down', 20)
+    expect(f.calls).toEqual(['in', 'visual-in'])
+    f.send('move', 40)
+    expect(f.calls).toEqual(['in', 'visual-in', 'out', 'visual-out', 'pan'])
+    f.send('up', 40)
+    expect(f.press.activate('pointer')).toBe(false)
+    f.send('down', 20)
+    f.send('up', 20)
+    expect(f.press.activate('pointer')).toBe(true)
+    expect(f.events).toHaveLength(1)
+  } finally {
+    observer.dispose()
+    f.dispose()
+  }
+})
+
+it('gives a nested manipulation control admission priority over a faster ancestor pan', () => {
+  const f = fixture()
+  const starts: string[] = []
+
+  f.pan.commit({ axis: 'x', activation: { distance: 1 }, onStart: () => starts.push('panel') })
+
+  const control = createPanController(
+    { axis: 'x', activation: { distance: 12 }, onStart: () => starts.push('control') },
+    undefined,
+    true,
+  )
+
+  const release = f.owner.register(f.button, control.handle, f.space('control'))
+
+  try {
+    f.send('down', 20)
+    f.send('move', 25)
+    expect(starts).toEqual([])
+    f.send('move', 40)
+    expect(starts).toEqual(['control'])
+  } finally {
+    release()
+    control.dispose()
+    f.dispose()
+  }
+})
+
+it('keeps physical input on an editable native control away from ancestor presses', () => {
+  const f = fixture()
+  const contact = { id: '1', kind: 'touch' as const, window: { x: 20, y: 10 }, screen: null }
+
+  try {
+    f.owner.dispatch({
+      type: 'down',
+      time: 10,
+      contacts: [contact],
+      changed: contact,
+      hitPath: [f.button, f.panel],
+      nativeOwned: true,
+    })
+
+    f.owner.dispatch({
+      type: 'up',
+      time: 20,
+      contacts: [],
+      changed: contact,
+      hitPath: [f.button, f.panel],
+      nativeOwned: true,
+    })
+
+    expect(f.press.activate('pointer')).toBe(false)
+    expect(f.calls).toEqual([])
+    expect(f.press.activate('keyboard')).toBe(true)
+  } finally {
+    f.dispose()
+  }
+})
+
+it('lets a managed control own its adjustable descendant without admitting an ancestor pan', () => {
+  const f = fixture(),
+    thumb = {},
+    starts: string[] = []
+
+  f.pan.commit({ axis: 'x', activation: { distance: 1 }, onStart: () => starts.push('panel') })
+
+  const control = createPanController(
+    { axis: 'x', onStart: () => starts.push('control') },
+    undefined,
+    true,
+  )
+
+  const release = f.owner.register(f.button, control.handle, f.space('control'))
+
+  try {
+    const send = (type: InputFrame['type'], x: number) => {
+      const contact = { id: '1', kind: 'mouse' as const, window: { x, y: 10 }, screen: null }
+
+      f.owner.dispatch({
+        type,
+        time: x,
+        changed: contact,
+        contacts: [contact],
+        hitPath: [thumb, f.button, f.panel],
+        nativeBoundary: thumb,
+      })
+    }
+
+    send('down', 0)
+    send('move', 4)
+    expect(starts).toEqual([])
+    send('move', 20)
+    expect(starts).toEqual(['control'])
+  } finally {
+    release()
+    control.dispose()
+    f.dispose()
+  }
+})

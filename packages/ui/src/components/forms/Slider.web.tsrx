@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef, useState } from 'octane'
-import type { PanEvent, SliderProps } from '../../props'
+import type { SliderProps } from '../../props'
 import { useMeasure } from '../layout/useMeasure.web.tsrx'
 import { useTooltip } from '../overlays/use-tooltip.web.tsrx'
-import { usePan } from '../layout/pan.web.tsrx'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
@@ -21,7 +22,6 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
   const measure = useMeasure()
   const drag = useRef<{ lo0: number; hi0: number; which: 'lo' | 'hi' } | null>(null)
   const [internal, setInternal] = useState(props.defaultValue ?? props.min ?? props.minValue ?? 0)
-  const origin = useRef(0)
   const tooltip = useTooltip({
     isEnabled: props.valueDisplay === 'tooltip' && !props.disabled && !props.isDisabled,
     delay: 0,
@@ -112,28 +112,13 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
     move('hi', next)
   }
 
-  useEffect(() => {
-    const node = host.current
-
-    if (!node) {
+  const input = useControlPan({ axis: 'x', enabled: !blocked }, (e: ControlPanNotification) => {
+    if (blocked && e.phase !== 'finish') {
       return
     }
 
-    const down = (event: PointerEvent) => {
-      origin.current = event.clientX - node.getBoundingClientRect().left
-    }
-
-    node.addEventListener('pointerdown', down, true)
-    return () => node.removeEventListener('pointerdown', down, true)
-  }, [])
-
-  usePan(host, (e: PanEvent) => {
-    if (blocked) {
-      return
-    }
-
-    if (e.state === 'began') {
-      const frac = width > 0 ? origin.current / width : 0
+    if (e.phase === 'start') {
+      const frac = width > 0 ? (e.startLocal?.x ?? 0) / width : 0
       const at = min + frac * (max - min)
       const which = isRange && Math.abs(at - lo) <= Math.abs(at - hi) ? 'lo' : 'hi'
 
@@ -145,9 +130,9 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
       return
     }
 
-    if (e.state === 'moved') {
+    if (e.phase === 'update') {
       const base = drag.current.which === 'lo' ? drag.current.lo0 : drag.current.hi0
-      const next = base + (e.dx / width) * (max - min)
+      const next = base + (e.translation.x / width) * (max - min)
 
       move(drag.current.which, next)
     } else {
@@ -186,6 +171,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
       style={props.style}
       ref={(el: any) => {
         host.current = el
+        input.ref(el)
         measure.ref(el)
         tooltip.interactionRef(el)
         applyWebProps(el, props.web)

@@ -384,27 +384,21 @@ remain unqualified.
 
 ## Mouse dragging
 
-The experimental Windows target delivers `onPan` while a mouse button is held.
-`dx` and `dy` measure the total movement since the press in logical pixels;
-`state` identifies the start, movement, end or cancellation. Try dragging across
-this area and watch the values in the console:
+Shared `gestures`, `onPan`, and `onPinch` attachments currently reject Windows explicitly. The new ownership API needs a qualified Windows adapter; the older native widget pointer transport is not that adapter. Keep a semantic alternative when a screen also offers dragging on other platforms.
 
 ```tsx
-import { View, Text } from '@octane-xplat/ui'
+import { Button, Text, View } from '@octane-xplat/ui'
 
-export function DragArea() {
-  return <View onPan={({ state, dx, dy }) => console.log(state, dx, dy)}>
-    <Text>Drag here</Text>
+export function PositionControls(props: { move(amount: number): void }) {
+  return <View>
+    <Text>Move the item</Text>
+    <Button clickAction={() => props.move(-10)}>Move left</Button>
+    <Button clickAction={() => props.move(10)}>Move right</Button>
   </View>
 }
 ```
 
-Bounded packaged x64 checks cover mouse movement beyond the control's bounds,
-release, loss of pointer capture, recovery on the next drag, and the existing
-Slider's controlled numeric drag. Windows reports zero pan velocity. Hardware
-touch, pen, multiple contacts, swipe, screen-reader and visual parity remain
-unqualified. The [Slider section](#slider-input) records its separate public
-component boundary.
+The Slider retains its private native pointer transport. Earlier bounded packaged x64 checks cover mouse movement beyond its bounds, release, capture loss, recovery, and controlled numeric dragging. They do not qualify the new shared gesture API, hardware touch, pen, multiple contacts, screen-reader or visual parity. See [shared gesture limits](../app/gestures.md) and the [Slider section](#slider-input).
 
 ## Slider input
 

@@ -51,8 +51,8 @@ export default defineConfig({
     alias: [
       { find: /^@nativescript\/core$/, replacement: resolve(configDir, 'test/platform.ts') },
       {
-        find: /^@nativescript-community\/gesturehandler$/,
-        replacement: resolve(configDir, 'test/gesturehandler.ts'),
+        find: /^@octane-xplat\/ui\/internal\/gesture-input$/,
+        replacement: resolve(configDir, 'test/owned-input.ts'),
       },
       {
         find: /^@octane-xplat\/ui$/,

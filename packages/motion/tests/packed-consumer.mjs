@@ -52,7 +52,6 @@ const dependencies = [
   'octane',
   '@nativescript-community/octane',
   '@nativescript/core',
-  '@nativescript-community/gesturehandler',
   '@nativescript/types',
   '@octane-xplat/macos-appkit',
   '@octane-xplat/jsx',

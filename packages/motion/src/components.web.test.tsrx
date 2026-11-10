@@ -246,9 +246,9 @@ describe('upstream-shaped props', () => {
     const mounted = mount(<TapScale />)
     const node = mounted.container.querySelector('#tap') as HTMLElement
 
-    node.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    pointer(node, 'pointerdown', 0)
     expect(node.style.transform).toContain('scale(1.5)')
-    node.dispatchEvent(new Event('pointerup', { bubbles: true }))
+    pointer(node, 'pointerup', 0)
     expect(node.style.transform).toContain('scale(1)')
     mounted.close()
   })
@@ -379,7 +379,7 @@ describe('declarative pointer drag', () => {
     const node = mounted.container.querySelector('#drag') as HTMLElement
 
     node.setPointerCapture = vi.fn()
-    expect(node.style.touchAction).toBe('pan-y')
+    expect(node.style.touchAction).toBe('pan-y pinch-zoom')
     pointer(node, 'pointerdown', 0)
     pointer(node, 'pointermove', 4)
     expect(started).not.toHaveBeenCalled()
@@ -405,7 +405,7 @@ describe('declarative pointer drag', () => {
     const node = mounted.container.querySelector('#drag') as HTMLElement
 
     act(() => mounted.root.render(<DragBox drag="y" dragMomentum={false} />))
-    expect(node.style.touchAction).toBe('pan-x')
+    expect(node.style.touchAction).toBe('pan-x pinch-zoom')
     pointer(node, 'pointerdown', 0)
     pointer(node, 'pointermove', 0, 30)
     pointer(node, 'pointerup', 0, 30)
@@ -430,6 +430,7 @@ describe('declarative pointer drag', () => {
     pointer(node, 'pointerdown', 0)
     pointer(node, 'pointermove', 0, 30)
     expect(start).not.toHaveBeenCalled()
+    pointer(node, 'pointerup', 0, 30)
     pointer(node, 'pointerdown', 0)
     pointer(node, 'pointermove', 30)
     pointer(node, 'pointercancel', 30)
@@ -499,9 +500,9 @@ it('resolves gesture labels and restores the resolved animate target', () => {
   const mounted = mount(<VariantGesture />)
   const host = mounted.container.querySelector('#variant-gesture') as HTMLElement
 
-  host.dispatchEvent(new Event('pointerdown'))
+  pointer(host, 'pointerdown', 0)
   expect(host.style.transform).toContain('scale(2)')
-  host.dispatchEvent(new Event('pointerup'))
+  pointer(host, 'pointerup', 0)
   expect(host.style.transform).toContain('scale(1)')
   host.dispatchEvent(new Event('focus'))
   expect(host.style.transform).toContain('translateX(30px)')

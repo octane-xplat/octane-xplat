@@ -78,11 +78,22 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
   const transform = () =>
     host.window === window ? inverseGestureTransform(windowTransform(host, window)) : null
 
+  let nativeBoundary: object | undefined
   let hitPath: readonly object[] = []
   let observing = false
 
   return {
     root: window,
+    parentBasis() {
+      if (host.window !== window) {
+        return null
+      }
+
+      const logical = view.parent?.nativeViewProtected
+      const parent = logical instanceof UIView ? logical : (host.superview ?? window)
+
+      return inverseGestureTransform(windowTransform(parent, window))
+    },
     suspension: iosSuspension(view, host),
     host,
     space: { target, local: (point) => transform()?.(point) ?? null, freeze: transform },
@@ -183,6 +194,7 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
         // UIKit may list both new contacts while reporting just one changed touch.
         // Cohort admission follows our first observed down, never collection sizes.
         if (event.action === 'down') {
+          nativeBoundary = undefined
           hitPath = nativePath(changed.view)
 
           const local = transform()?.(changed.locationInView(window))
@@ -198,6 +210,14 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
 
               if (native && typeof native === 'object') {
                 logicalPath.push(native)
+                if (
+                  !nativeBoundary &&
+                  (node.accessibilityRole === 'adjustable' ||
+                    node.accessibilityRole === 'slider' ||
+                    node.accessibilityRole === 'spinbutton')
+                ) {
+                  nativeBoundary = native
+                }
               }
             }
 
@@ -212,6 +232,7 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
           contacts: type === 'cancel' ? [] : contacts,
           changed: toContact(changed),
           hitPath,
+          nativeBoundary,
           cohort: windowCohort.observe(type, type === 'cancel' ? [] : births),
           nativeOwned:
             type === 'down' &&

@@ -1,13 +1,38 @@
 import assert from 'node:assert/strict'
+import { packedGestureFixture } from './gesture-packed-fixture.mjs'
 import { fileURLToPath } from 'node:url'
 import { appFor, importFrom, repo } from './project.ts'
 
 const { createServer } = await importFrom(appFor('web'), 'vite')
 const { chromium, firefox, webkit } = await importFrom(appFor('web'), 'playwright')
+const { tsrx } = await importFrom(appFor('web'), '@octane-xplat/cli/vite')
+const { octane } = await importFrom(appFor('web'), 'octane/compiler/vite')
+const fixture = fileURLToPath(new URL('./fixtures/gesture-owner/', import.meta.url))
+const packed = process.argv.includes('--packed') ? packedGestureFixture(repo, fixture) : null
 const server = await createServer({
+  plugins: [tsrx('web'), octane({ ssr: false })],
+  resolve: {
+    conditions: ['web'],
+    extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.ts', '.mjs', '.js', '.json'],
+  },
+  optimizeDeps: {
+    noDiscovery: true,
+    include: [
+      'octane',
+      'octane/internal/client',
+      'octane/signals',
+      'octane/signals/client',
+      'motion-dom',
+    ],
+    exclude: ['@octane-xplat/ui', '@octane-xplat/motion'],
+  },
   configFile: false,
-  root: fileURLToPath(new URL('./fixtures/gesture-owner/', import.meta.url)),
-  server: { host: '127.0.0.1', port: 0, fs: { allow: [repo] } },
+  root: packed?.root ?? fixture,
+  server: {
+    host: '127.0.0.1',
+    port: 0,
+    fs: { allow: [repo, ...(packed ? [packed.directory] : [])] },
+  },
 })
 
 await server.listen()
@@ -22,7 +47,29 @@ try {
       const errors = []
 
       page.on('pageerror', (error) => errors.push(error.message))
-      await page.goto(url)
+      page.on('requestfailed', (request) =>
+        errors.push(`${request.url()}: ${request.failure()?.errorText}`),
+      )
+
+      page.on('console', (message) => {
+        if (message.type() === 'error') {
+          errors.push(message.text())
+        }
+      })
+
+      const response = await page.goto(url)
+
+      if (response.status() !== 200) {
+        throw new Error(
+          `${name}: fixture HTTP ${response.status()}: ${(await response.text()).slice(0, 1000)}`,
+        )
+      }
+
+      await page.waitForSelector('#action', { timeout: 15000 }).catch(async (error) => {
+        throw new Error(
+          `${name}: fixture failed to mount: ${errors.join('; ')}; body=${(await page.locator('body').innerText()).slice(0, 1000)}; ${error.message}`,
+        )
+      })
 
       const button = page.locator('#action')
       const state = () => page.locator('#state').textContent().then(JSON.parse)
@@ -146,13 +193,65 @@ try {
         `${name}: horizontal parent claims over a vertical viewport`,
       )
 
+      const motion = page.locator('#motion-action')
+
+      await motion.scrollIntoViewIfNeeded()
+
+      const motionBounds = await motion.boundingBox()
+
+      await page.mouse.move(motionBounds.x + 30, motionBounds.y + 20)
+      await page.mouse.down()
+      await page.mouse.move(motionBounds.x + 90, motionBounds.y + 20, { steps: 8 })
+      await page.mouse.up()
+      assert.equal((await state()).motionStarts, 1, `${name}: Motion uses the shared owner`)
+      assert.equal((await state()).motionPresses, 0, `${name}: Motion drag rejects the child press`)
+      await motion.click()
+      assert.equal((await state()).motionPresses, 1, `${name}: fresh Motion child tap`)
+
+      await page.locator('#native-checkbox').check()
+      assert.equal(
+        await page.locator('#native-checkbox').isChecked(),
+        true,
+        `${name}: native checkbox default survives its Pressable ancestor`,
+      )
+
+      await page.locator('#native-button').click()
+      assert.equal((await state()).nativeClicks, 1, `${name}: native child action`)
+      assert.equal(
+        (await state()).rawPresses,
+        0,
+        `${name}: native child never activates the semantic ancestor`,
+      )
+
+      const scaled = page.locator('#scaled-panel')
+
+      await scaled.scrollIntoViewIfNeeded()
+
+      const beforeScaled = await scaled.boundingBox()
+      const scaledX = beforeScaled.x + beforeScaled.width / 2,
+        scaledY = beforeScaled.y + beforeScaled.height / 2
+
+      await page.mouse.move(scaledX, scaledY)
+      await page.mouse.down()
+      await page.mouse.move(scaledX + 60, scaledY, { steps: 8 })
+      await page.mouse.up()
+
+      const afterScaled = await scaled.boundingBox()
+
+      assert.equal((await state()).scaledStarts, 1, `${name}: scaled Motion host claims once`)
+      assert.ok(
+        Math.abs(afterScaled.x - beforeScaled.x - 60) < 1,
+        `${name}: scaled drag follows the window pointer in parent channel units`,
+      )
+
       assert.deepEqual(errors, [], `${name}: no page errors`)
       console.log(
         JSON.stringify({
           target: name,
+          packages: packed ? { mode: 'packed', sha256: packed.hashes } : { mode: 'linked-source' },
           evidence: 'browser mouse/keyboard/wheel input; virtual click and capture-loss API calls',
           status: 'pass',
-          assertions: 20,
+          assertions: 28,
         }),
       )
     } finally {
@@ -161,4 +260,5 @@ try {
   }
 } finally {
   await server.close()
+  packed?.dispose()
 }

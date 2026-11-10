@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import type { UIModalProps } from '../props'
 import { Frame, GridLayout } from '@nativescript/core'
-import { createPortal } from '../internal/platform/native-portal'
+import { createPortal } from '../internal/platform/native-portal.tsrx'
 import { applyThemeClasses } from '../theme/theme-host'
 import { modalPresenter } from '../components/overlays/modal-presenter'
 

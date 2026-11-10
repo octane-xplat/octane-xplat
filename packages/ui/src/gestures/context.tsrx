@@ -1,3 +1,4 @@
+import 'octane/signals'
 import {
   createContext,
   useContext,
@@ -86,4 +87,45 @@ export function useInteractionMembership(): (host: object | null) => void {
   )
 
   return bind
+}
+
+/** Preserve ownership through a portal without adding a layout wrapper. */
+export function InteractionPortalBoundary(props: {
+  target: object
+  children?: Renderable
+}): unknown @{
+  const scopes = useContext(ScopeContext)
+
+  for (const scope of scopes) {
+    if (scope.suspended$.get() && !interactionScopeController(scope).covers(props.target)) {
+      throw new Error(
+        'Unsupported interaction scope: a portal cannot enter a suspended subtree outside its input coverage',
+      )
+    }
+  }
+
+  // Insertion metadata precedes every layout command, regardless of component order.
+  useInsertionEffect(() => {
+    const releases: (() => void)[] = []
+
+    try {
+      for (const scope of scopes) {
+        releases.push(interactionScopeController(scope).registerMember(props.target))
+      }
+    } catch (error) {
+      for (const release of releases.reverse()) {
+        release()
+      }
+
+      throw error
+    }
+
+    return () => {
+      for (const release of releases.reverse()) {
+        release()
+      }
+    }
+  }, [scopes, props.target])
+
+  <>{props.children}</>
 }

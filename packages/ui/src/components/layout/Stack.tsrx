@@ -2,6 +2,8 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
+import { useInteractionHost } from '../../gestures/host.tsrx'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { StackProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import {
@@ -11,8 +13,6 @@ import {
 } from '../overlays/escape-props'
 
 import { resolveStackLayout } from './stack-layout'
-import { usePan } from './pan.tsrx'
-import { usePinch } from './pinch.tsrx'
 
 /** Astryx flow Stack — a flex masonview in `direction`, `hAlign`/`vAlign`
  *  mapped to main/cross axes, spacing-step gap/padding (steps × 4 dips).
@@ -20,9 +20,8 @@ import { usePinch } from './pinch.tsrx'
  *  `isScrollable` hosts the flow inside a ScrollView — NS layouts can't
  *  scroll their own overflow. */
 export function Stack(props: StackProps): unknown @{
+  const bindInput = useInteractionHost({ ...props, viewport: Boolean(props.isScrollable) })
   const layout = resolveStackLayout(props)
-  const onPan = usePan(props.onPan)
-  const onPinch = usePinch(props.onPinch)
   const sizingStyle = {
     ...(props.width != null ? { width: props.width } : {}),
     ...(props.height != null ? { height: props.height } : {}),
@@ -37,12 +36,16 @@ export function Stack(props: StackProps): unknown @{
 
   const forwardedRef = useMemo(
     () =>
-      refList((v: any) => {
-        if (v) {
-          applyEscapeProps(v, props)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (v: any) => {
+          if (v) {
+            applyEscapeProps(v, props)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   @if (layout.scrollable) {
@@ -60,9 +63,6 @@ export function Stack(props: StackProps): unknown @{
       accessibilityValue={props.accessibilityValue}
       accessibilityState={nativeAccessibilityState(props.accessibilityState)}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
-      onPan={onPan}
-      onSwipe={props.onSwipe}
-      onPinch={onPinch}
     >
       <masonview
         style={mergeStyle(
@@ -76,7 +76,9 @@ export function Stack(props: StackProps): unknown @{
           { display: 'flex' },
         )}
       >
-        {props.children}
+        <InteractionScopeProvider scope={props.interactionScope}>
+          {props.children}
+        </InteractionScopeProvider>
       </masonview>
     </scrollview>
   } @else {
@@ -102,11 +104,10 @@ export function Stack(props: StackProps): unknown @{
       accessibilityValue={props.accessibilityValue}
       accessibilityState={nativeAccessibilityState(props.accessibilityState)}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
-      onPan={onPan}
-      onSwipe={props.onSwipe}
-      onPinch={onPinch}
     >
-      {props.children}
+      <InteractionScopeProvider scope={props.interactionScope}>
+        {props.children}
+      </InteractionScopeProvider>
     </masonview>
   }
 }

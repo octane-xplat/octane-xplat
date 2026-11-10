@@ -1,33 +1,35 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { useInteractionHost } from '../../gestures/host.web.tsrx'
+import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { StackItemProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
-import { useMemo, useRef } from 'octane'
+import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import { stackItemStyle } from './stack-layout'
-import { usePan } from './pan.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** StackItem — per-child size (`fill` grows into remaining space) and
  *  cross-axis alignment inside a `Stack`. Carries the flex `min-*: 0`
  *  reset so `size="fill" isScrollable` is a complete scroll region. */
 export function StackItem(props: StackItemProps): JSX.Element @{
+  const bindInput = useInteractionHost({ ...props, viewport: Boolean(props.isScrollable) })
   const Tag: any = props.as ?? 'div'
-  const el = useRef<HTMLElement | null>(null)
-
-  usePan(el, props.onPan)
 
   const forwardedRef = useMemo(
     () =>
-      refList((e: any) => {
-        el.current = e
-        if (e) {
-          applyEscapeProps(e, props)
-          applyWebProps(e, props.web)
-        }
-      }, props.ref),
-    [props.ref, props.ios, props.android, props.web],
+      refList(
+        (e: any) => {
+          if (e) {
+            applyEscapeProps(e, props)
+            applyWebProps(e, props.web)
+          }
+        },
+        bindInput,
+        props.ref,
+      ),
+    [bindInput, props.ref, props.ios, props.android, props.web],
   )
 
   <Tag
@@ -54,6 +56,8 @@ export function StackItem(props: StackItemProps): JSX.Element @{
     aria-checked={props.accessibilityState?.checked}
     aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
   >
-    {props.children}
+    <InteractionScopeProvider scope={props.interactionScope}>
+      {props.children}
+    </InteractionScopeProvider>
   </Tag>
 }

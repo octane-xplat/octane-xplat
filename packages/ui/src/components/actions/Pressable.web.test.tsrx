@@ -20,8 +20,17 @@ function mount(props: any = {}) {
 
   render()
 
-  const pointer = (type: string) =>
-    act(() => el.firstElementChild!.dispatchEvent(new Event(type, { bubbles: true })))
+  const pointer = (type: string) => {
+    const event = new MouseEvent(type === 'pointerleave' ? 'pointermove' : type, {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      clientX: type === 'pointerleave' ? 1000 : 0,
+    })
+
+    Object.defineProperty(event, 'pointerId', { value: 1 })
+    act(() => el.firstElementChild!.dispatchEvent(event))
+  }
 
   const keyboard = (type: string, key: string, repeat = false) => {
     const event = new KeyboardEvent(type, { key, repeat, bubbles: true, cancelable: true })
@@ -134,4 +143,42 @@ it('activates on Space release, not on Space press', () => {
   expect(callback).not.toHaveBeenCalled()
   expect(keyboard('keyup', ' ').defaultPrevented).toBe(true)
   expect(callback).toHaveBeenCalledTimes(1)
+})
+
+it('preserves native child activation and form defaults without starting an ancestor long press', () => {
+  const pressed = vi.fn(),
+    held = vi.fn(),
+    entered = vi.fn(),
+    native = vi.fn()
+
+  const { el, advance } = mount({
+    onPress: pressed,
+    onLongPress: held,
+    onPressIn: entered,
+    children: (
+      <>
+        <input id="native-check" type="checkbox" />
+        <button id="native-action" onClick={native}>
+          Native
+        </button>
+      </>
+    ),
+  })
+
+  const checkbox = el.querySelector<HTMLInputElement>('#native-check')!
+
+  act(() => checkbox.click())
+  expect(checkbox.checked).toBe(true)
+
+  const button = el.querySelector<HTMLButtonElement>('#native-action')!
+  const down = new MouseEvent('pointerdown', { button: 0, bubbles: true })
+
+  Object.defineProperty(down, 'pointerId', { value: 1 })
+  act(() => button.dispatchEvent(down))
+  advance()
+  act(() => button.click())
+  expect(native).toHaveBeenCalledOnce()
+  expect(pressed).not.toHaveBeenCalled()
+  expect(held).not.toHaveBeenCalled()
+  expect(entered).not.toHaveBeenCalled()
 })

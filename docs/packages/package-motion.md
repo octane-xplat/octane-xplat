@@ -17,29 +17,31 @@ import { Text } from '@octane-xplat/ui'
 
 export function MovingCard() {
   return (
-    <motion.View
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
+    <motion.View initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
       <Text>Packing card</Text>
     </motion.View>
   )
 }
 ```
 
-The card should fade into view. To add dragging, first complete native gesture
-setup below.
+The card should fade into view. Dragging uses the shared UI input owner; Motion no longer requires installing gesturehandler. Web, iOS, and Android share this path; experimental macOS supports a mouse contact. See [gesture ownership and limits](../app/gestures.md).
 
-iOS and Android apps using `drag` must install `@nativescript-community/gesturehandler`
-and call its `install()` before creating the root. Web does not require this
-optional peer. See [drag setup](https://octane-xplat.goddardai.org/animation-gestures#drag-a-component).
+```tsx
+import { motion } from '@octane-xplat/motion'
 
-```ts
-// bootstrap.mobile.ts — before Application.run or creating Page/Frame roots.
-import { install } from '@nativescript-community/gesturehandler'
+export function DraggableCard() {
+  return <motion.View drag="x" dragConstraints={{ left: -80, right: 80 }} />
+}
+```
 
-install()
+`onDrag` reports `point` in logical window coordinates. Its `offset`, `delta`, and velocity use the parent's coordinate plane, frozen when the contact begins; scaling the dragged host does not scale its movement again. Built-in `drag` rejects `gestures`, `onPan`, and `onPinch` on that same host. Use [custom gesture handles with MotionValues](../app/gestures.md#finish-once-and-handle-interruption) when you need composition.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function DragPosition() {
+  return <motion.View drag="x" onDrag={(_event, info) => console.log(info.offset.x)} />
+}
 ```
 
 See the [motion guide](https://octane-xplat.goddardai.org/animation-gestures) and the maintained
@@ -55,9 +57,15 @@ import { useMotionValue } from '@octane-xplat/motion'
 
 export function useHorizontalRelease() {
   const x = useMotionValue(0)
-  const release = (velocity: number) => x.animate(x.get(), {
-    type: 'inertia', velocity, min: 0, max: 120, power: 0.5, timeConstant: 280,
-  })
+  const release = (velocity: number) =>
+    x.animate(x.get(), {
+      type: 'inertia',
+      velocity,
+      min: 0,
+      max: 120,
+      power: 0.5,
+      timeConstant: 280,
+    })
   return { x, release }
 }
 ```
@@ -85,7 +93,6 @@ plus layout and shared-handoff geometry checks in `test:macos-runtime`.
 Its source and published imports are checked separately from real AppKit runtime
 assertions. Live OS preference changes, broader lifecycle acceptance and input
 behavior remain unqualified.
-
 
 Combine layout projection with drag when surrounding content can move during the
 gesture. The host keeps its position through layout moves and resumes layout

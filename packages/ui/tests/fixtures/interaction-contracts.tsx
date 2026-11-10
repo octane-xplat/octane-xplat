@@ -7,8 +7,8 @@ import {
   type UseKeyboardResult,
   type UseClipboardOptions,
   type UseClipboardResult,
-  type PanState,
-  type SwipeEvent,
+  type GesturePhase,
+  type PanNotification,
   type AnimationResult,
 } from '@octane-xplat/ui'
 
@@ -41,12 +41,12 @@ const isCopied: boolean = clipboard.isCopied
 const x = useAnimation(0, 'translateX')
 const finished: Promise<AnimationResult> = x.to(40, { duration: 300 })
 const spring: Promise<AnimationResult> = x.spring(0)
-const phase: PanState = 'cancelled'
-const direction: SwipeEvent['direction'] = 4
+const phase: GesturePhase = 'cancelled'
+const notification: PanNotification['phase'] = 'finish'
 // @ts-expect-error unsupported phases cannot enter the shared event domain
-const invalidPhase: PanState = 'changed'
-// @ts-expect-error native direction flags are a bounded domain
-const invalidDirection: SwipeEvent['direction'] = 3
+const invalidPhase: GesturePhase = 'changed'
+// @ts-expect-error notifications have a closed phase domain
+const invalidNotification: PanNotification['phase'] = 'ended'
 
 void [
   supported,
@@ -57,7 +57,7 @@ void [
   finished,
   spring,
   phase,
-  direction,
+  notification,
   invalidPhase,
-  invalidDirection,
+  invalidNotification,
 ]

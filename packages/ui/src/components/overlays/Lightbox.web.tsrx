@@ -1,11 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { createPortal, useCallback, useEffect, useRef, useState } from 'octane'
+import { createPortal } from '../../internal/platform/native-portal.web.tsrx'
+import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { LightboxMedia, LightboxProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { isolateModalFocus } from './modal-focus.web'
 import { applyEscapeProps } from './escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
+import { useInteractionHost } from '../../gestures/host.web.tsrx'
+import { usePanGesture$, usePinchGesture$ } from '../../gestures/hooks.tsrx'
+import { compete } from '../../gestures/composition'
 import { Text } from '../content/Text.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
@@ -39,8 +43,9 @@ function LightboxLayer(props: {
   const imgEl = useRef<HTMLImageElement | null>(null)
   const [zoomed, setZoomed] = useState(false)
   const pan = useRef({ x: 0, y: 0 })
-  const drag = useRef<{ x: number; y: number } | null>(null)
-  const suppressClick = useRef(false)
+  const dragBase = useRef({ x: 0, y: 0 })
+  const scale = useRef(1)
+  const pinchBase = useRef(1)
   const onClose = useRef(props.onClose)
 
   onClose.current = props.onClose
@@ -126,62 +131,67 @@ function LightboxLayer(props: {
       pan.current = { x: 0, y: 0 }
     }
 
+    scale.current = on ? 2.5 : 1
     el.style.transform = on ? `scale(2.5) translate(${pan.current.x}px, ${pan.current.y}px)` : ''
 
     el.style.cursor = on ? 'grab' : 'zoom-in'
   }
 
-  const onMediaClick = () => {
-    // Pointer capture still delivers a click after a drag. Keep the pan
-    // until a separate click, rather than immediately toggling zoom off.
-    if (suppressClick.current) {
-      suppressClick.current = false
-      return
-    }
-
-    if (zoomOn) {
-      applyZoom(!zoomed)
-    }
-  }
-
-  const onPointerDown = (event: PointerEvent) => {
-    suppressClick.current = false
-    if (!zoomed || !imgEl.current) {
-      return
-    }
-
-    drag.current = { x: event.clientX, y: event.clientY }
-    imgEl.current.setPointerCapture?.(event.pointerId)
-    imgEl.current.style.cursor = 'grabbing'
-  }
-
-  const onPointerMove = (event: PointerEvent) => {
-    const start = drag.current
+  const draw = () => {
     const el = imgEl.current
 
-    if (!start || !el) {
-      return
-    }
-
-    if (Math.abs(event.clientX - start.x) + Math.abs(event.clientY - start.y) > 3) {
-      suppressClick.current = true
-    }
-
-    pan.current = {
-      x: pan.current.x + (event.clientX - start.x) / 2.5,
-      y: pan.current.y + (event.clientY - start.y) / 2.5,
-    }
-
-    drag.current = { x: event.clientX, y: event.clientY }
-    el.style.transform = `scale(2.5) translate(${pan.current.x}px, ${pan.current.y}px)`
-  }
-
-  const onPointerUp = () => {
-    drag.current = null
-    if (imgEl.current) {
-      imgEl.current.style.cursor = zoomed ? 'grab' : 'zoom-in'
+    if (el) {
+      el.style.transform = `scale(${scale.current}) translate(${pan.current.x}px, ${pan.current.y}px)`
     }
   }
+
+  const drag = usePanGesture$({
+    axis: 'both',
+    enabled: zoomed,
+    onStart() {
+      dragBase.current = pan.current
+    },
+    onUpdate(sample) {
+      pan.current = {
+        x: dragBase.current.x + sample.translation.x / scale.current,
+        y: dragBase.current.y + sample.translation.y / scale.current,
+      }
+
+      draw()
+    },
+  })
+
+  const pinch = usePinchGesture$({
+    enabled: zoomOn,
+    onStart() {
+      pinchBase.current = scale.current
+    },
+    onUpdate(sample) {
+      scale.current = Math.max(1, Math.min(4, pinchBase.current * sample.scale))
+      setZoomed(scale.current > 1)
+      draw()
+    },
+  })
+
+  const imageInput = useInteractionHost({
+    gestures: compete(pinch, drag),
+    press: {
+      slop: 8,
+      onPress: () => {
+        if (zoomOn) {
+          applyZoom(!zoomed)
+        }
+      },
+    },
+  })
+
+  const imageRef = useCallback(
+    (node: HTMLImageElement | null) => {
+      imgEl.current = node
+      imageInput(node)
+    },
+    [imageInput],
+  )
 
   return (
     <div
@@ -211,17 +221,12 @@ function LightboxLayer(props: {
             />
           ) : (
             <img
-              ref={imgEl}
+              ref={imageRef}
               className="vx-lightbox-media"
               src={item.src}
               alt={item.alt}
               draggable={false}
               style={{ cursor: zoomOn ? (zoomed ? 'grab' : 'zoom-in') : undefined }}
-              onClick={onMediaClick}
-              onPointerDown={onPointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              onPointerCancel={onPointerUp}
             />
           ))}
         {count > 1 && (

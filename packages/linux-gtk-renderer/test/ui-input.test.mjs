@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { spawn, spawnSync, execFileSync } from 'node:child_process'
+import { spawn, execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
@@ -10,7 +10,7 @@ import { gjsAvailable, gtkOsInputReady } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
-test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', async (t) => {
+test('GTK native widget transport receives X11 press and pan through OS hit-testing', async (t) => {
   if (!gtkOsInputReady() || !gjsAvailable()) {
     t.skip('Requires Linux, X11 DISPLAY, GJS and xdotool')
     return
@@ -141,17 +141,17 @@ test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', 
   assert.equal(await closed, 0, stderr)
   assert.ok(
     events.some((e) => e.kind === 'in'),
-    'pointer down reaches the Pressable',
+    'pointer down reaches the native widget',
   )
 
   assert.ok(
     events.some((e) => e.kind === 'out'),
-    'pointer up/cancel releases the Pressable',
+    'pointer up/cancel releases the native widget',
   )
 
   assert.ok(
     events.some((e) => e.kind === 'press'),
-    'OS click reaches onPress',
+    'OS click reaches the native tap action',
   )
 
   assert.equal(
@@ -169,8 +169,7 @@ test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', 
     JSON.stringify(events),
   )
 
-  assert.ok(pans.every((e) => Number.isFinite(e.vx) && Number.isFinite(e.vy)))
   t.diagnostic(
-    'Linux Xvfb/X11; xdotool pointer click and drag; actual GTK picking and input dispatch; no images',
+    'Linux Xvfb/X11; xdotool native widget transport. Shared gestures/onPan/onPinch remain unsupported on GTK; this is not public gesture API qualification. No images',
   )
 }, 30000)

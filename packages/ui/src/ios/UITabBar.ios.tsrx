@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { memo, useState } from 'octane'
 import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core'
-import { createPortal } from '../internal/platform/native-portal'
+import { createPortal } from '../internal/platform/native-portal.tsrx'
 import { RouteOutlet } from '../routing/RouteOutlet.tsrx'
 import { registerStack } from '../components/layout/stacks'
 import { cx } from '@octane-xplat/lib'

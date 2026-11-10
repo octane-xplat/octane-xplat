@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { expect, it, vi } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
 import {
   createObjectContainer,
   createObjectDriver,
@@ -9,92 +9,122 @@ import {
 
 import { Pressable } from '../../components/actions/Pressable.macos.tsrx'
 import { View } from '../../components/layout/View.macos.tsrx'
+import type { InputFrame } from '../../gestures/owner'
+import type { ActivationEvent, PanNotification } from '../../gestures/types'
 
-it('AppKit Pressable forwards gestures, balances cancellation and suppresses disabled callbacks', () => {
+afterEach(() => vi.unstubAllGlobals())
+
+it('coordinates public AppKit pan and semantic press bindings without observer churn on handler updates', () => {
+  const window = {},
+    observers = new Map<object, (frame: InputFrame, identity: string) => void>()
+
+  const activations = new Map<
+    object,
+    (source: ActivationEvent['source'], kind?: 'double' | 'long') => void
+  >()
+
+  let observed = 0,
+    removed = 0,
+    time = 0
+
+  vi.stubGlobal('__xplatAppKit', {
+    gestureSurface(host: object) {
+      return {
+        root: window,
+        host,
+        local: (p: object) => p,
+        freeze: () => (p: object) => p,
+        containsPoint: () => true,
+        containsHost: (other: object) => other === host,
+        observe(callback: (frame: InputFrame, identity: string) => void) {
+          observed++
+          observers.set(host, callback)
+          return () => {
+            removed++
+            observers.delete(host)
+          }
+        },
+      }
+    },
+    observeGestureActivation(
+      host: object,
+      callback: (source: ActivationEvent['source'], kind?: 'double' | 'long') => void,
+    ) {
+      activations.set(host, callback)
+      return () => activations.delete(host)
+    },
+  })
+
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-  const props = {
-    onPress: vi.fn(),
-    onLongPress: vi.fn(),
-    onDoublePress: vi.fn(),
-    onPressIn: vi.fn(),
-    onPressOut: vi.fn(),
-    onPan: vi.fn(),
-    onSwipe: vi.fn(),
+  const old = vi.fn(),
+    latest = vi.fn(),
+    press = vi.fn(),
+    double = vi.fn()
+
+  function Panel(props: { pan(event: PanNotification): void; disabled?: boolean }) {
+    return (
+      <View onPan={props.pan}>
+        <Pressable disabled={props.disabled} onPress={press} onDoublePress={double}>
+          Close
+        </Pressable>
+      </View>
+    )
   }
 
+  const render = (pan = latest, disabled = false) =>
+    flushUniversalSync(() => root.render(Panel, { pan, disabled }))
+
   try {
-    root.render(Pressable, props)
-    flushUniversalSync(() => {})
+    render(old)
 
-    const host = container.children[0]
+    const panel = container.children[0],
+      button = panel.children[0]
 
-    container.dispatchEvent(host, 'tap', {})
-    container.dispatchEvent(host, 'longPress', {})
-    container.dispatchEvent(host, 'doubleTap', {})
-    container.dispatchEvent(host, 'touch', { action: 'down' })
-    container.dispatchEvent(host, 'touch', { action: 'move' })
-    container.dispatchEvent(host, 'touch', { action: 'cancel' })
+    const send = (type: InputFrame['type'], x: number) => {
+      const contact = { id: 'mouse', kind: 'mouse' as const, window: { x, y: 10 }, screen: null }
+      const frame: InputFrame = {
+        type,
+        time: (time += 20),
+        contacts: type === 'up' ? [] : [contact],
+        changed: contact,
+        hitPath: [button, panel],
+      }
 
-    const pan = { deltaX: 40, deltaY: 5, velocityX: 3, velocityY: 2, state: 3, view: host }
-
-    container.dispatchEvent(host, 'pan', pan)
-    container.dispatchEvent(host, 'swipe', { direction: 1 })
-    for (const name of [
-      'onPress',
-      'onLongPress',
-      'onDoublePress',
-      'onPressIn',
-      'onPressOut',
-      'onSwipe',
-    ]) {
-      expect(props[name]).toHaveBeenCalledTimes(1)
+      flushUniversalSync(() => {
+        for (const callback of observers.values()) {
+          callback(frame, String(time))
+        }
+      })
     }
 
-    expect(props.onPan).toHaveBeenCalledWith({
-      x: 40,
-      y: 5,
-      dx: 40,
-      dy: 5,
-      vx: 3,
-      vy: 2,
-      state: 'ended',
-      target: host,
+    send('down', 10)
+    render()
+    expect(observed).toBe(2)
+    expect(removed).toBe(0)
+    send('move', 40)
+    send('up', 40)
+    expect(old).not.toHaveBeenCalled()
+    expect(latest.mock.calls.map(([event]) => event.phase)).toEqual(['start', 'update', 'finish'])
+    expect(press).not.toHaveBeenCalled()
+    send('down', 40)
+    send('up', 40)
+    expect(press).toHaveBeenCalledOnce()
+    expect(press.mock.calls[0][0]).toMatchObject({
+      source: 'pointer',
+      pointer: { pointerCount: 0 },
     })
 
-    root.render(Pressable, { ...props, disabled: true })
-    flushUniversalSync(() => {})
-    for (const name of ['tap', 'longPress', 'doubleTap', 'touch', 'pan', 'swipe']) {
-      expect(() => container.dispatchEvent(host, name, {})).toThrow('no')
-    }
-
-    expect(host.props.disabled).toBe(true)
-    expect(host.props.accessibilityState.disabled).toBe(true)
-    root.render(Pressable, props)
-    flushUniversalSync(() => {})
-    container.dispatchEvent(host, 'tap', {})
-    expect(props.onPress).toHaveBeenCalledTimes(2)
-  } finally {
+    activations.get(button)!('pointer', 'double')
+    expect(double).toHaveBeenCalledOnce()
+    activations.get(button)!('accessibility')
+    expect(press.mock.calls.at(-1)![0]).toMatchObject({ source: 'accessibility', pointer: null })
+    render(latest, true)
+    activations.get(button)!('keyboard')
+    expect(press).toHaveBeenCalledTimes(2)
     root.unmount()
-  }
-})
-
-it('AppKit View retains pan normalization and forwards swipe without changing its payload', () => {
-  const container = createObjectContainer('nativescript')
-  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-  const onPan = vi.fn(),
-    onSwipe = vi.fn()
-
-  try {
-    root.render(View, { onPan, onSwipe })
-    flushUniversalSync(() => {})
-
-    const host = container.children[0]
-
-    container.dispatchEvent(host, 'pan', { deltaX: 0, deltaY: 0, state: 0, view: host })
-    container.dispatchEvent(host, 'swipe', { direction: 4 })
-    expect(onPan.mock.calls[0][0].state).toBe('cancelled')
-    expect(onSwipe).toHaveBeenCalledWith({ direction: 4 })
+    expect(removed).toBe(observed)
+    expect(activations.size).toBe(0)
   } finally {
     root.unmount()
   }

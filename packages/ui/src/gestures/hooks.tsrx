@@ -1,3 +1,4 @@
+import { useGestureCallbacks } from './callbacks.tsrx'
 import { createInteractionScope, type ScopeController } from './scope'
 import { derived$ } from 'octane/signals'
 import { useSignal$ } from 'octane/signals/client'
@@ -34,33 +35,46 @@ function useGestureCells$<T>(): GestureCells<T> {
 
 /** Create a stable drag recognizer; callback updates never reattach the recognizer. */
 export function usePanGesture$(options: PanGestureOptions): PanGesture {
+  return usePanHandle$(options, false)
+}
+
+/** Internal control ownership boundary; not exported from the public barrel. */
+export function useControlPanGesture$(options: PanGestureOptions): PanGesture {
+  return usePanHandle$(options, true)
+}
+
+function usePanHandle$(options: PanGestureOptions, manipulation: boolean): PanGesture {
+  const callbacks = useGestureCallbacks(options)
+  const committed = { ...options, ...callbacks }
   const cells = useGestureCells$<PanSample>()
   const ref = useRef<PanController | null>(null)
 
   if (!ref.current || ref.current.disposed) {
-    ref.current = createPanController(options, cells)
+    ref.current = createPanController(committed, cells, manipulation)
   }
 
   const controller = ref.current
 
   useInsertionEffect(() => () => controller.dispose(), [controller])
-  useLayoutEffect(() => controller.commit(options), [controller, options])
+  useLayoutEffect(() => controller.commit(committed), [controller, committed])
   return controller.handle
 }
 
 /** Create a stable two-contact pinch with cumulative scale and explicit cancellation. */
 export function usePinchGesture$(options: PinchGestureOptions): PinchGesture {
+  const callbacks = useGestureCallbacks(options)
+  const committed = { ...options, ...callbacks }
   const cells = useGestureCells$<PinchSample>()
   const ref = useRef<PinchController | null>(null)
 
   if (!ref.current || ref.current.disposed) {
-    ref.current = createPinchController(options, cells)
+    ref.current = createPinchController(committed, cells)
   }
 
   const controller = ref.current
 
   useInsertionEffect(() => () => controller.dispose(), [controller])
-  useLayoutEffect(() => controller.commit(options), [controller, options])
+  useLayoutEffect(() => controller.commit(committed), [controller, committed])
   return controller.handle
 }
 

@@ -13,6 +13,9 @@
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
 		"typescript": "catalog:",
-		"@types/node": "24.10.1"
+		"@types/node": "24.10.1",
+		"@octane-xplat/motion": "workspace:*",
+		"@octane-xplat/ui": "workspace:*",
+		"octane": "catalog:"
 	}
 }

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { useInteractionHost } from '../../gestures/host.tsrx'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane'
 import { mergedRef } from '../../internal/accessibility/ref-list'
@@ -93,6 +94,7 @@ const a11y = (props: ScrollableAreaProps) => ({
  *  self-drawn indicator strip; refresh.ts owns the gesture. Only the
  *  block axis pulls. */
 function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
+  const bindInput = useInteractionHost({ viewport: true })
   const cfg = useRef<RefreshConfig>({})
 
   cfg.current = {
@@ -135,9 +137,10 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
     () =>
       mergedRef((v: any) => {
         scroller.current = v
+        bindInput(v)
         applyEscapeProps(v, props)
       }),
-    [props.ios, props.android, props.web],
+    [bindInput, props.ios, props.android, props.web],
   )
 
   <masonview
@@ -198,6 +201,8 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
 }
 
 function ScrollableAreaCore(props: ScrollableAreaProps) @{
+  const bindInput = useInteractionHost({ viewport: true })
+  const bindInlineInput = useInteractionHost({ viewport: true })
   const axis = props.axis ?? 'block'
   const horizontal = axis === 'inline'
   const both = axis === 'both'
@@ -212,9 +217,10 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
     () =>
       mergedRef((v: any) => {
         scroller.current = v
+        bindInput(v)
         applyEscapeProps(v, props)
       }),
-    [props.ios, props.android, props.web],
+    [bindInput, props.ios, props.android, props.web],
   )
 
   <scrollview
@@ -230,6 +236,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
       <scrollview
         ref={(v: any) => {
           inlineScroller.current = v
+          bindInlineInput(v)
         }}
         orientation="horizontal"
       >

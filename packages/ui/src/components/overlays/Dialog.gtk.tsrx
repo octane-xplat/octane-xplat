@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext, useEffect, useId, useRef, useState } from 'octane'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { SizeProvider } from '../layout/size-context'
 import type { DialogHeaderProps, DialogProps } from '../../props'
 import { cx } from '@octane-xplat/lib'

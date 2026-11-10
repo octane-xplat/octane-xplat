@@ -2,7 +2,7 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useRef, useState } from 'octane'
 import { GridLayout } from '@nativescript/core'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import type { LightboxProps, LightboxMedia } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyThemeClasses } from '../../theme/theme-host'
@@ -10,6 +10,9 @@ import { rootLayoutFor } from '../layout/root-layout'
 import { createOverlayLifetime } from './overlay-lifetime'
 import { Icon } from '../media/Icon.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
+import { View } from '../layout/View.tsrx'
+import { usePanGesture$, usePinchGesture$ } from '../../gestures/hooks.tsrx'
+import { compete } from '../../gestures/composition'
 import { Text } from '../content/Text.tsrx'
 
 const clampIndex = (i: number, count: number) =>
@@ -34,66 +37,83 @@ function LightboxPanel(props: {
   const isVideo = item?.type === 'video'
   const stage = useRef<any>(null)
 
-  // Pan to pan while zoomed — accumulate translate on the image view.
   const imgView = useRef<any>(null)
   const panAcc = useRef({ x: 0, y: 0 })
-  const onStagePan = (e: any) => {
+  const panBase = useRef({ x: 0, y: 0 })
+  const scale = useRef(1)
+  const pinchBase = useRef(1)
+  const apply = () => {
     const el = imgView.current
 
-    if (!zoomed || !el) {
-      return
+    if (el) {
+      el.scaleX = el.scaleY = scale.current
+      el.translateX = panAcc.current.x
+      el.translateY = panAcc.current.y
     }
-
-    if (e.state === 1) {
-      return
-    }
-
-    if (e.state === 0 || e.state === 3) {
-      return
-    }
-
-    panAcc.current = { x: e.deltaX, y: e.deltaY }
-    el.translateX = e.deltaX
-    el.translateY = e.deltaY
   }
+
+  const drag = usePanGesture$({
+    axis: 'both',
+    onStart() {
+      panBase.current = panAcc.current
+    },
+    onUpdate(sample) {
+      if (scale.current <= 1) {
+        return
+      }
+
+      panAcc.current = {
+        x: panBase.current.x + sample.translation.x,
+        y: panBase.current.y + sample.translation.y,
+      }
+
+      apply()
+    },
+    onEnd(sample) {
+      if (
+        scale.current > 1 ||
+        Math.abs(sample.translation.x) < 48 ||
+        Math.abs(sample.translation.x) <= Math.abs(sample.translation.y)
+      ) {
+        return
+      }
+
+      props.setIndex(clampIndex(index + (sample.translation.x < 0 ? 1 : -1), count))
+    },
+  })
+
+  const pinch = usePinchGesture$({
+    enabled: props.hasZoom && !isVideo,
+    onStart() {
+      pinchBase.current = scale.current
+    },
+    onUpdate(sample) {
+      scale.current = Math.max(1, Math.min(4, pinchBase.current * sample.scale))
+      setZoomed(scale.current > 1)
+      apply()
+    },
+  })
 
   const toggleZoom = () => {
-    const el = imgView.current
-    const next = !zoomed
-
-    setZoomed(next)
-    if (el?.animate) {
-      el.animate({
-        scale: next ? { x: 2, y: 2 } : { x: 1, y: 1 },
-        translate: { x: 0, y: 0 },
-        duration: 160,
-      })
-    } else if (el) {
-      el.scaleX = next ? 2 : 1
-      el.scaleY = next ? 2 : 1
-      el.translateX = 0
-      el.translateY = 0
-    }
-
+    scale.current = zoomed ? 1 : 2
+    setZoomed(scale.current > 1)
     panAcc.current = { x: 0, y: 0 }
+    apply()
   }
 
-  const onSwipe = (e: any) => {
-    // SwipeDirection: right=1, left=2
-    if (e.direction === 2) {
-      props.setIndex(Math.min(index + 1, count - 1))
-    } else if (e.direction === 1) {
-      props.setIndex(Math.max(index - 1, 0))
-    }
-  }
+  useEffect(() => {
+    scale.current = 1
+    panAcc.current = { x: 0, y: 0 }
+    setZoomed(false)
+    apply()
+  }, [item?.src])
 
-  <masonview
+  <View
     ref={(v: any) => {
       stage.current = v
     }}
     className={cx('vx-lightbox', props.className)}
-    onSwipe={onSwipe}
-    onPan={onStagePan}
+    gestures={compete(pinch, drag)}
     accessibilityLabel={item?.alt ?? 'Media viewer'}
     style={{
       display: 'grid',
@@ -134,17 +154,18 @@ function LightboxPanel(props: {
                 </label>
               </masonview>
             ) : (
-              <image
-                ref={(v: any) => {
-                  imgView.current = v
-                }}
-                src={item.src}
-                stretch="aspectFit"
-                className="vx-lightbox-media"
-                accessibilityLabel={item.alt}
-                onDoubleTap={props.hasZoom ? toggleZoom : undefined}
-                style={{ justifySelf: 'center', alignSelf: 'center' }}
-              />
+              <Pressable onDoublePress={props.hasZoom ? toggleZoom : undefined}>
+                <image
+                  ref={(v: any) => {
+                    imgView.current = v
+                  }}
+                  src={item.src}
+                  stretch="aspectFit"
+                  className="vx-lightbox-media"
+                  accessibilityLabel={item.alt}
+                  style={{ justifySelf: 'center', alignSelf: 'center' }}
+                />
+              </Pressable>
             ))}
         </masonview>
         <masonview
@@ -198,7 +219,7 @@ function LightboxPanel(props: {
         </masonview>
       </masonview>
     )}
-  </masonview>
+  </View>
 }
 
 /** Full-screen media viewer (Astryx `Lightbox`), native leaf — a dedicated

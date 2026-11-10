@@ -68,8 +68,9 @@ export const applyEscapeProps=()=>{};
 export const nativeAccessibilityRole=value=>value;
 export const nativeAccessibilityState=value=>value?.disabled?'disabled':undefined;
 export const useMeasure=()=>({ref:()=>{},bounds:{width:120,height:32}});
-export const usePan=value=>value;
-export const usePinch=value=>value;
+// Action/layout fixture only: OS gesture attachment has its own adapter tests.
+export const useInteractionHost=()=>()=>{};
+export const virtualActivation=host=>({source:'virtual',target:{id:'fixture'},currentTarget:{id:'fixture'},pointer:null,preventDefault(){}});
 export const layoutChildProps=(props,style)=>({style});
 export const useLinkComponent=value=>value??'a';
 export const Utils={openUrl:()=>true};
@@ -91,8 +92,8 @@ const pressable = compiled(
     '../overlays/escape-props': support,
     '../layout/layout-child': support,
     '../layout/useMeasure.tsrx': support,
-    '../layout/pan.tsrx': support,
-    '../layout/pinch.tsrx': support,
+    '../../gestures/host.windows.tsrx': support,
+    '../../gestures/virtual-activation': support,
   },
 )
 

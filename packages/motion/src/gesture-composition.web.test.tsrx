@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { dispatchPointer } from '../test/geometry.web'
 import { act, createRoot } from 'octane'
 import { motion, MotionConfig } from './index.web'
 import { controllers } from './components.tsrx'
@@ -37,7 +38,13 @@ gestureContract((props, reduced = false) => {
         cancel: 'pointercancel',
       }[name]
 
-      act(() => node.dispatchEvent(new Event(type, { bubbles: true })))
+      act(() => {
+        if (name === 'focus' || name === 'blur') {
+          node.dispatchEvent(new Event(type))
+        } else {
+          dispatchPointer(node, type)
+        }
+      })
     },
     close() {
       if (!closed) {

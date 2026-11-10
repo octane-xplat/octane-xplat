@@ -89,9 +89,11 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
   private readonly configurationListeners = new Set<() => void>()
 
   readonly kind: K
+  readonly manipulation: boolean
   options: O
 
-  constructor(kind: K, options: O, cells?: GestureCells<T>) {
+  constructor(kind: K, options: O, cells?: GestureCells<T>, manipulation = false) {
+    this.manipulation = manipulation
     this.kind = kind
     this.options = options
     validateGestureOptions(options)
@@ -276,8 +278,14 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
 export function createPanController(
   options: PanGestureOptions,
   cells?: GestureCells<PanSample>,
+  manipulation = false,
 ): PanController {
-  const result = new Controller<PanSample, PanGestureOptions, 'pan'>('pan', options, cells)
+  const result = new Controller<PanSample, PanGestureOptions, 'pan'>(
+    'pan',
+    options,
+    cells,
+    manipulation,
+  )
 
   panControllers.set(result.handle, result)
   return result

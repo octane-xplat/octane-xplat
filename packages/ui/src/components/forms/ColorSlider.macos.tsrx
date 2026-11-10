@@ -1,11 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { useCallback, useRef } from 'octane'
-import type { ColorSliderProps, PanEvent } from '../../props'
+import { useMemo, useCallback, useRef } from 'octane'
+import type { ColorSliderProps } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
+import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
 import { useMeasure } from '../layout/useMeasure.tsrx'
-import { usePan } from '../layout/pan.tsrx'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
 import { nativeAccessibilityRole } from '../overlays/escape-props'
 import { LinearGradient } from '../media/LinearGradient.tsrx'
@@ -44,31 +46,37 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
     }
   }
 
-  const onPan = usePan((e: PanEvent) => {
-    if (props.isDisabled) {
-      return
-    }
-
-    if (e.state === 'began') {
-      drag.current = hue
-      focusHost()
-      return
-    }
-
-    if (e.state === 'moved') {
-      if (drag.current == null || !w) {
+  const input = useControlPan(
+    { axis: 'x', enabled: !props.isDisabled },
+    (e: ControlPanNotification) => {
+      if (props.isDisabled && e.phase !== 'finish') {
         return
       }
 
-      props.onHsb({ ...props.hsb, h: Math.min(360, Math.max(0, drag.current + (e.dx / w) * 360)) })
-    } else {
-      if (drag.current != null) {
-        props.onHsbEnd()
+      if (e.phase === 'start') {
+        drag.current = hue
+        focusHost()
+        return
       }
 
-      drag.current = null
-    }
-  })
+      if (e.phase === 'update') {
+        if (drag.current == null || !w) {
+          return
+        }
+
+        props.onHsb({
+          ...props.hsb,
+          h: Math.min(360, Math.max(0, drag.current + (e.translation.x / w) * 360)),
+        })
+      } else {
+        if (drag.current != null) {
+          props.onHsbEnd()
+        }
+
+        drag.current = null
+      }
+    },
+  )
 
   // Committed adjustment shared by arrow keys and assistive actions — reads
   // the latest props so retained handlers never replay a stale hsb.
@@ -121,6 +129,8 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
     },
   })
 
+  const inputRef = useMemo(() => refList(bindHost, input.ref), [bindHost, input.ref])
+
   const thumbX = Math.min(Math.max((hue / 360) * w - THUMB / 2, 0), Math.max(w - THUMB, 0))
 
   <masonview
@@ -139,8 +149,8 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
     onTap={focusHost}
     onAccessibilityIncrement={props.isDisabled ? undefined : () => adjust(1)}
     onAccessibilityDecrement={props.isDisabled ? undefined : () => adjust(-1)}
-    onPan={onPan}
-    ref={bindHost}
+    onPan={input.onPan}
+    ref={inputRef}
   >
     <LinearGradient
       colors={HUE_STOPS}

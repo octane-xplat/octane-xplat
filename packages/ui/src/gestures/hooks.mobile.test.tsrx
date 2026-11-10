@@ -179,3 +179,84 @@ it('retires both unused scopes and active suspension leases before native effect
     activeRoot.unmount()
   }
 })
+
+it('cancels and finalizes before reporting a native callback error through the renderer boundary', async () => {
+  const container = createObjectContainer('nativescript')
+  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  let handle: PanGesture | null = null
+  const calls: string[] = []
+  function Broken() {
+    handle = usePanGesture$({
+      axis: 'x',
+      onStart() {
+        calls.push('start')
+        throw new Error('Native drag failed')
+      },
+      onCancel() {
+        calls.push('cancel')
+      },
+      onFinalize() {
+        calls.push('finalize')
+      },
+    })
+
+    return <label text="Ready" />
+  }
+
+  function Boundary() @{
+    @try {
+      <Broken />
+    } @catch (error) {
+      <label text={String(error)} />
+    }
+  }
+
+  const owner = createGestureOwner({
+    frame: () => () => {},
+    error: (error) => {
+      throw error
+    },
+  })
+
+  const host = {}
+
+  try {
+    flushUniversalSync(() => root.render(Boundary, {}))
+    owner.register(host, handle!, {
+      target: { id: 'test' },
+      local: (p) => p,
+      freeze: () => (p) => p,
+    })
+
+    const contact = (x: number) => ({
+      id: '1',
+      kind: 'touch' as const,
+      window: { x, y: 0 },
+      screen: null,
+    })
+
+    owner.dispatch({
+      type: 'down',
+      time: 0,
+      contacts: [contact(0)],
+      changed: contact(0),
+      hitPath: [host],
+    })
+
+    owner.dispatch({
+      type: 'move',
+      time: 20,
+      contacts: [contact(20)],
+      changed: contact(20),
+      hitPath: [host],
+    })
+
+    expect(calls).toEqual(['start', 'cancel', 'finalize'])
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    flushUniversalSync(() => {})
+    expect(container.children[0].props.text).toContain('Native drag failed')
+  } finally {
+    owner.dispose()
+    root.unmount()
+  }
+})

@@ -6,22 +6,22 @@ inspected from Octane main on 2026-09-29. Its UPSTREAM.md pins Motion 12.42.2
 `motion-dom@14.7.1` and bundles its pure numeric generators and interpolation.
 The adapter is original code; it does not copy upstream's DOM host factory.
 
-| Contract                                         | Upstream reference under packages/motion                          | Xplat implementation / evidence                                                                                                                                      |
-| ------------------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Initial and changing targets, equal destinations | src/index.ts; tests/conformance/rerender.test.ts, effects.test.ts | Compiled wrappers over UI; components.web.test.tsrx                                                                                                                  |
-| Numeric spring/tween samples                     | Motion's motion-dom animation/generators                          | Reused generators; engine.test.ts compares irregular-time samples                                                                                                    |
-| Stable value, subscriptions, style replacement   | src/useMotionValue.ts; tests/conformance/motionValue.test.ts      | Numeric adapter with native clock; components.web.test.tsrx                                                                                                          |
-| Spring set versus jump; follow source            | src/useSpring.ts; tests/conformance/useSpring.test.ts             | Owned spring interception and cleanup; hook tests                                                                                                                    |
-| Derived numeric values                           | src/useTransform.ts; tests/conformance/useTransform.test.ts       | Upstream interpolation, direct subscriptions; hook tests                                                                                                             |
-| Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts     | Context inheritance; spring transforms settle immediately on live preference changes while opacity can keep animating (`components.web.test.tsrx`, `engine.test.ts`) |
-| Exit lifecycle                                   | src/index.ts; tests/conformance/exit.test.ts                      | Deliberate live-subtree retention on both leaves; presence.web.test.tsrx and native presence test                                                                    |
-| Retained hosts on native                         | Not a DOM binding concern                                         | components.mobile.test.tsrx uses the universal object driver                                                                                                         |
-| Bounded drag                                     | src/index.ts pointer-drag binding; upstream/src/gestures/drag     | Numeric constraints, scalar elasticity, callbacks, JS velocity spring; drag.test.ts and web/native handler tests                                                     |
-| Interaction targets                              | whileTap/whileFocus gesture bindings                              | Active press > focus > current base per channel; compiled web/native gesture-composition tests                                                      |
-| Variant labels and bounded orchestration         | src/context.ts; src/index.ts variant inheritance/stagger          | variants.test.ts, web/native compiled host tests; numeric resolution before Controller                                                                               |
-| Scoped imperative runs                           | useAnimate                                                        | Controller registry keyed on host nodes; `ref` accepts callback refs and `{current}` scopes                                                                          |
-| Inertia                                           | `type: 'inertia'` imperative transition (drag release); motion-dom's `inertia` generator | `type: 'inertia'` on `MotionValue.animate`/`runAnimation` — target ignored; `power`/`timeConstant`/`min`/`max`/`bounceStiffness`/`bounceDamping`; engine.test.ts        |
-| Custom host components                           | motion.create / motion.<tag>                                      | `motion.create(Component)` wraps shared-UI leaves; DOM tag proxy excluded                                                                                            |
+| Contract                                         | Upstream reference under packages/motion                                                 | Xplat implementation / evidence                                                                                                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Initial and changing targets, equal destinations | src/index.ts; tests/conformance/rerender.test.ts, effects.test.ts                        | Compiled wrappers over UI; components.web.test.tsrx                                                                                                                  |
+| Numeric spring/tween samples                     | Motion's motion-dom animation/generators                                                 | Reused generators; engine.test.ts compares irregular-time samples                                                                                                    |
+| Stable value, subscriptions, style replacement   | src/useMotionValue.ts; tests/conformance/motionValue.test.ts                             | Numeric adapter with native clock; components.web.test.tsrx                                                                                                          |
+| Spring set versus jump; follow source            | src/useSpring.ts; tests/conformance/useSpring.test.ts                                    | Owned spring interception and cleanup; hook tests                                                                                                                    |
+| Derived numeric values                           | src/useTransform.ts; tests/conformance/useTransform.test.ts                              | Upstream interpolation, direct subscriptions; hook tests                                                                                                             |
+| Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts                            | Context inheritance; spring transforms settle immediately on live preference changes while opacity can keep animating (`components.web.test.tsrx`, `engine.test.ts`) |
+| Exit lifecycle                                   | src/index.ts; tests/conformance/exit.test.ts                                             | Deliberate live-subtree retention on both leaves; presence.web.test.tsrx and native presence test                                                                    |
+| Retained hosts on native                         | Not a DOM binding concern                                                                | components.mobile.test.tsrx uses the universal object driver                                                                                                         |
+| Bounded drag                                     | src/index.ts pointer-drag binding; upstream/src/gestures/drag                            | Numeric constraints, scalar elasticity, callbacks, JS velocity spring; drag.test.ts and web/native handler tests                                                     |
+| Interaction targets                              | whileTap/whileFocus gesture bindings                                                     | Active press > focus > current base per channel; compiled web/native gesture-composition tests                                                                       |
+| Variant labels and bounded orchestration         | src/context.ts; src/index.ts variant inheritance/stagger                                 | variants.test.ts, web/native compiled host tests; numeric resolution before Controller                                                                               |
+| Scoped imperative runs                           | useAnimate                                                                               | Controller registry keyed on host nodes; `ref` accepts callback refs and `{current}` scopes                                                                          |
+| Inertia                                          | `type: 'inertia'` imperative transition (drag release); motion-dom's `inertia` generator | `type: 'inertia'` on `MotionValue.animate`/`runAnimation` — target ignored; `power`/`timeConstant`/`min`/`max`/`bounceStiffness`/`bounceDamping`; engine.test.ts     |
+| Custom host components                           | motion.create / motion.<tag>                                                             | `motion.create(Component)` wraps shared-UI leaves; DOM tag proxy excluded                                                                                            |
 
 Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packages/motion),
 [upstream ledger](https://github.com/octanejs/octane/blob/main/packages/motion/UPSTREAM.md),
@@ -85,8 +85,9 @@ export function DraggableCard() {
 
 `onDragStart`, `onDrag`, and `onDragEnd` receive `(event, info)`, where info has
 `point`, `delta`, `offset`, `velocity` (units/second), and `cancelled`. Point is
-viewport/screen coordinates. Offset and delta describe pointer movement before
-constraints. Start fires on activation after an 8-unit threshold, rather than
+logical window coordinates. Offset, delta and velocity use the parent's
+coordinate plane, frozen at contact admission, before constraints; the dragged
+host's own transform does not affect those values. Start fires on activation after an 8-unit threshold, rather than
 on pointer-down; unsuccessful pre-activation gestures emit no drag callbacks.
 On web, an active drag consumes its trailing pointer click before host or nested
 actions run; below-threshold taps, keyboard clicks, and later presses remain usable.
@@ -143,32 +144,24 @@ export function LivePosition() {
 }
 ```
 
-Web uses host PointerEvents/capture and `touch-action: pan-y` for horizontal
-drag, `pan-x` for vertical drag, or `none` for both. Native imports the optional
-peer `@nativescript-community/gesturehandler` (pinned to 2.0.45); native consumers
-must install it even when using only other motion APIs because the native
-entry imports its adapter. Web consumers do not need it. Apps call `install()`
-before creating their Page/Frame/root; **do not call `install(true)`**, which
-would replace existing NS gesture observers. There is no raw-pan fallback.
-Motion reserves handler tags from 700000000 upward within its single module
-instance. Native axis activation/failure uses 8 DIP; 2.0.45's Android config
-setters need explicit DIP→pixel conversion while payloads already return DIP.
-On Android single-axis handlers disable the default radial slop trigger so
-only the selected axis can activate. The plugin's Manager owns view-init/dispose attachment; motion removes its
-state/touch listeners and detaches on cleanup.
+Motion uses UI's shared input owner for drag and visual press feedback. It no longer owns a separate pointer/gesturehandler recognizer, tag range, or native installation step. Translation and nullable velocity come from shared samples; unavailable velocity maps to zero for Motion settlement. Axis reservations preserve the other axis and browser pinch zoom. The native SDK transport is shared with Pressable. GTK and Windows shared dragging reject unsupported attachment explicitly.
 
-```ts
-// Native bootstrap .mobile.ts, before creating Page/Frame/root hosts.
-import { install } from '@nativescript-community/gesturehandler'
+```tsx
+import { motion } from '@octane-xplat/motion'
+import { Button } from '@octane-xplat/ui'
 
-install() // Preserve existing NativeScript gesture observers.
+export function Panel() {
+  return (
+    <motion.View drag="x">
+      <Button clickAction={() => {}}>Action</Button>
+    </motion.View>
+  )
+}
 ```
 
-NativeViewGestureHandler is not needed for the bounded surface: motion attaches
-PanGestureHandler directly to its host, with no simultaneous/waitFor graph.
-Nested native control ownership and complex competing drags are deferred.
-Threshold configuration is source/test evidence of arbitration policy; only
-real OS input inside a ScrollView can establish runtime arbitration.
+Built-in `drag` rejects same-host `gestures`, `onPan` and `onPinch`; use typed handles with MotionValues for custom composition.
+
+Input qualification belongs to the shared UI adapter and mounted public consumer fixtures. Callback-dispatch tests in Motion verify mapping and settlement, not OS recognition. See [gesture contracts](../../docs/app/gestures.md).
 
 ## Variants (decision #93)
 
@@ -437,15 +430,12 @@ Real OS preference changes and the remaining N2 host/lifecycle acceptance still
 require independent nonvisual runtime qualification. RollingText retains its
 separate conservative preference baseline; this Motion fix does not qualify it.
 
-Motion's macOS drag leaf throws `motion: macOS drag backend is not implemented`
-when drag is requested. The mobile gesture backend is never loaded on macOS;
-adding its exports to compatibility shims would not provide an AppKit backend.
-The following request remains unsupported at this boundary:
+Motion's experimental macOS drag uses the shared one-contact AppKit mouse adapter. Trackpad magnification, direct-touch pinch, and full input suspension remain unsupported. Actual keyboard delivery still needs a key-window qualification; method-dispatch accessibility tests do not qualify a screen reader.
 
 ```tsx
 import { motion } from '@octane-xplat/motion'
 
-export function UnsupportedDrag() {
+export function MouseDrag() {
   return <motion.View drag="x" />
 }
 ```
@@ -534,9 +524,11 @@ inherited/global namespace, matching Motion's ID behavior.
 import { LayoutGroup, motion } from '@octane-xplat/motion'
 
 export function GroupNamespace() {
-  return <LayoutGroup id="tabs" inherit={false}>
-    <motion.View layoutId="underline" />
-  </LayoutGroup>
+  return (
+    <LayoutGroup id="tabs" inherit={false}>
+      <motion.View layoutId="underline" />
+    </LayoutGroup>
+  )
 }
 ```
 
@@ -558,12 +550,13 @@ re-entry cancels removal and promotes from the current presented box.
 import { Presence, motion } from '@octane-xplat/motion'
 
 export function SharedPresence({ present }: { present: boolean }) {
-  return <Presence present={present}>
-    <motion.View layoutId="card" layoutCrossfade={false} />
-  </Presence>
+  return (
+    <Presence present={present}>
+      <motion.View layoutId="card" layoutCrossfade={false} />
+    </Presence>
+  )
 }
 ```
-
 
 ## Drag with layout projection
 

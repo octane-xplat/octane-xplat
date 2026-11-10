@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { createPortal } from '../../internal/platform/native-portal.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useLayoutEffect, useMemo, useSyncExternalStore } from 'octane'
-import { createPortal } from 'octane'
+
 import {
   createContentOwner,
   type ContentOwner,

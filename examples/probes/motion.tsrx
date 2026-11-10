@@ -16,7 +16,7 @@ import {
   Text,
   Pressable,
   TextInput,
-  type PanEvent,
+  type PanNotification,
 } from '@octane-xplat/ui'
 
 import { dragInput } from './motion-drag-input'
@@ -172,22 +172,23 @@ export default function MotionProbe() @{
       ? { type: 'spring' as const, stiffness: 200, damping: 22 }
       : { duration: 0.6, ease: 'easeOut' as const }
 
-  const pan = (event: PanEvent) => {
-    if (event.state === 'began') {
+  const pan = (event: PanNotification) => {
+    if (event.phase === 'start') {
       panX.stop()
       panOrigin.current = panX.get()
       panPhases.current = ['began']
       setPanStatus('pan began')
-    } else if (event.state === 'moved') {
+    } else if (event.phase === 'update') {
       if (panPhases.current[panPhases.current.length - 1] !== 'moved') {
         panPhases.current.push('moved')
       }
 
-      panX.set(Math.max(-100, Math.min(100, panOrigin.current + event.dx)))
-    } else if (event.state === 'ended' || event.state === 'cancelled') {
-      panPhases.current.push(event.state)
+      panX.set(Math.max(-100, Math.min(100, panOrigin.current + event.sample.translation.x)))
+    } else if (event.phase === 'finish') {
+      panPhases.current.push(event.terminal.outcome === 'ended' ? 'ended' : 'cancelled')
 
-      const velocity = event.state === 'ended' ? event.vx : 0
+      const velocity =
+        event.terminal.outcome === 'ended' ? (event.terminal.sample.velocity?.x ?? 0) : 0
 
       void panX
         .animate(
@@ -438,8 +439,8 @@ export async function run(ctx: ProbeContext) {
     })
     .catch(() => ctx.record('cancel-timeout-status', ctx.inspect('motion-pan-status').text))
 
-  // Gesture phases: synthetic dispatch — PointerEvents on DOM targets, the
-  // native pan gesture observer (GestureTypes.pan = 8) on iOS/Android.
+  // Handler dispatch only: PointerEvents on web and the shared native adapter
+  // ingress on mobile. Maintained OS fixtures separately qualify recognition.
   const panRow = ctx.find('motion-pan-row')
 
   if (ctx.target === 'web' || ctx.target === 'linux') {
@@ -453,24 +454,9 @@ export async function run(ctx: ProbeContext) {
     fire('pointermove', 280)
     fire('pointerup', 280)
   } else if (ctx.target === 'ios' || ctx.target === 'android') {
-    const observers = panRow.getGestureObservers?.(8) ?? []
-    const emit = (state: number, deltaX: number) => {
-      for (const observer of observers) {
-        observer.callback.call(observer.context, {
-          eventName: 'pan',
-          object: panRow,
-          view: panRow,
-          state,
-          deltaX,
-          deltaY: 0,
-          ios: { velocityInView: () => ({ x: 250, y: 0 }) },
-        })
-      }
-    }
-
-    emit(1, 0)
-    emit(2, 60)
-    emit(3, 80)
+    dragInput(panRow, 'start', 0)
+    dragInput(panRow, 'move', 60, 250)
+    dragInput(panRow, 'end', 80, 250)
   }
 
   if (ctx.target !== 'macos') {
@@ -484,8 +470,8 @@ export async function run(ctx: ProbeContext) {
     )
   }
 
-  // Pointer dispatch on web; actual plugin handler notifications on iOS.
-  // This exercises normalization/JS settlement, not native scroll hit-testing.
+  // Dispatch through web pointer input or the shared native adapter ingress.
+  // This qualifies mapping/settlement, not OS recognition or hit-testing.
   if (ctx.target === 'web' || ctx.target === 'ios') {
     const box = ctx.find('motion-drag-box')
 
@@ -547,8 +533,8 @@ export async function run(ctx: ProbeContext) {
   )
 
   // whileTap: pointerdown drives the interaction target, release restores the
-  // declarative animate target. Native `touch` is a gesture observer
-  // (GestureTypes.touch = 128), not a plain event — dispatch through it.
+  // declarative animate target. Native samples enter the shared owner;
+  // this remains handler dispatch, not an OS-input claim.
   const tapBox = ctx.find('motion-tap-box')
 
   tapSamples = []
@@ -562,9 +548,7 @@ export async function run(ctx: ProbeContext) {
         }),
       )
     } else if (ctx.target === 'ios' || ctx.target === 'android') {
-      for (const observer of tapBox.getGestureObservers?.(128) ?? []) {
-        observer.callback.call(observer.context, { eventName: 'touch', object: tapBox, action })
-      }
+      dragInput(tapBox, action === 'down' ? 'start' : 'end', 0)
     }
   }
 

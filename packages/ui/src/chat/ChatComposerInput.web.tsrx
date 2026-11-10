@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { useImperativeHandle, createPortal, useCallback, useEffect, useRef, useState } from 'octane'
+import { createPortal } from '../internal/platform/native-portal.web.tsrx'
+import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane'
 
 import type {
   ChatComposerDraft,

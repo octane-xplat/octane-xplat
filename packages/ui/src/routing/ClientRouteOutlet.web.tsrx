@@ -1,8 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { createPortal } from '../internal/platform/native-portal.web.tsrx'
 import { routeAuthorityKey, RouteOutletResume } from './route-outlet-authority.tsrx'
 import type { ClientRouteOutletProps } from '../props'
 import { RouterOutletBoundary } from './router-outlet-boundary.tsrx'
-import { createPortal, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'octane'
+import { useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'octane'
 import { ClientRouteView } from './ClientRouteView.tsrx'
 import { RouterRenderScopeProvider } from './router-hooks.tsrx'
 import type { BrowserRouterHost } from './browser-router-host.web'

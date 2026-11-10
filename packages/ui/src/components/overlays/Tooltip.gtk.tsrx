@@ -4,7 +4,7 @@ import { cx } from '@octane-xplat/lib'
 import type { TooltipProps } from '../../props'
 import { View } from '../layout/View.tsrx'
 import { Text } from '../content/Text.tsrx'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 
 /** Native GTK owns intent and popup geometry; the portal keeps content in
  * this component's universal root, including its context and updates. */

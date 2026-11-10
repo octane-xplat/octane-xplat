@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { createPortal } from '../../internal/platform/native-portal.web.tsrx'
 import { modalPortalOwner } from './modal-focus.web'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { SizeProvider } from '../layout/size-context'
-import { createPortal, useCallback, useEffect, useId, useRef, useState } from 'octane'
+import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import type {
   ContextLayerReturn,
   ContextRenderProps,

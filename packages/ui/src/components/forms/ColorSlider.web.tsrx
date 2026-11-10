@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { JSX } from 'octane/jsx-runtime'
 import { useRef } from 'octane'
-import type { ColorSliderProps, PanEvent } from '../../props'
+import type { ColorSliderProps } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
 import { useMeasure } from '../layout/useMeasure.web.tsrx'
-import { usePan } from '../layout/pan.web.tsrx'
+import { useControlPan } from '../../gestures/control.tsrx'
+import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { LinearGradient } from '../media/LinearGradient.tsrx'
 import { hsbToHex } from '../../theme/color'
@@ -49,30 +50,36 @@ export function ColorSliderView(props: ColorSliderViewProps): JSX.Element {
     props.onHsbEnd()
   }
 
-  usePan(host, (e: PanEvent) => {
-    if (props.isDisabled) {
-      return
-    }
-
-    if (e.state === 'began') {
-      drag.current = hue
-      return
-    }
-
-    if (e.state === 'moved') {
-      if (drag.current == null || !w) {
+  const input = useControlPan(
+    { axis: 'x', enabled: !props.isDisabled },
+    (e: ControlPanNotification) => {
+      if (props.isDisabled && e.phase !== 'finish') {
         return
       }
 
-      props.onHsb({ ...props.hsb, h: Math.min(360, Math.max(0, drag.current + (e.dx / w) * 360)) })
-    } else {
-      if (drag.current != null) {
-        props.onHsbEnd()
+      if (e.phase === 'start') {
+        drag.current = hue
+        return
       }
 
-      drag.current = null
-    }
-  })
+      if (e.phase === 'update') {
+        if (drag.current == null || !w) {
+          return
+        }
+
+        props.onHsb({
+          ...props.hsb,
+          h: Math.min(360, Math.max(0, drag.current + (e.translation.x / w) * 360)),
+        })
+      } else {
+        if (drag.current != null) {
+          props.onHsbEnd()
+        }
+
+        drag.current = null
+      }
+    },
+  )
 
   const thumbX = Math.min(Math.max((hue / 360) * w, 0), Math.max(w, 0))
 
@@ -96,6 +103,7 @@ export function ColorSliderView(props: ColorSliderViewProps): JSX.Element {
       }}
       ref={(el: any) => {
         host.current = el
+        input.ref(el)
         measure.ref(el)
         applyWebProps(el, props.web as Record<string, any> | undefined)
       }}

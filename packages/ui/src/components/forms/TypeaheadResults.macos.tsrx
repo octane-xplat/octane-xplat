@@ -2,7 +2,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { PopoverAnchorRef, PopoverPlacement, Renderable } from '../../props'
 import type { NSView } from '@octane-xplat/platform/macos'
-import { createPortal } from '../../internal/platform/native-portal'
+import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import { useDirection } from '../../internal/platform/internationalization'
 import { LayerDepthProvider, useLayerDismissal } from '../overlays/layer-dismissal.tsrx'
