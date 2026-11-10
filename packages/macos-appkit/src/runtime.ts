@@ -42,6 +42,7 @@ import { createProjection } from './projection'
 import { createTree } from './tree'
 import { createDriver } from './driver'
 import { createHover } from './hover'
+import { appKitGestureSurface } from './gesture-input'
 import { createPopover } from './popover'
 import { createCssPseudoState } from './css-pseudo-state'
 import { createContextMenu } from './context-menu'
@@ -514,6 +515,9 @@ function initializeRuntime() {
     view: NSView,
     handlers: { move(x: number, y: number): void; exit(): void },
   ) => hover.pointerMotion.observe(view, handlers, hover.hoverTrackingTarget)
+
+  hostBridge.appKitBridge.gestureSurface = appKitGestureSurface
+  hostBridge.appKitBridge.observeGestureActivation = actionStore.observeActivation
 
   hostBridge.appKitBridge.locatePointer = (view: NSView) => hover.pointerMotion.locate(view)
 

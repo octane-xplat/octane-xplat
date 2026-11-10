@@ -1,7 +1,9 @@
+import { createPressController, type PressController, type PressOptions } from './press'
 import { createScope } from 'octane/signals'
 import { gestureController, type GestureController } from './controller'
 import { gestureLeaves, gestureRelation } from './composition'
 import type {
+  ActivationEvent,
   CancelReason,
   Contact,
   GestureInput,
@@ -29,6 +31,10 @@ export interface InputFrame {
   /** Editable/hosted native manipulation owns the sequence before app recognition. */
   readonly nativeOwned?: boolean
   readonly cancelReason?: CancelReason
+  /** Native contact lifetime, such as MotionEvent.downTime; not an app-visible session ID. */
+  readonly cohort?: string
+  /** Android may deliver target-split pointer subsets through different hosts. */
+  readonly partialContacts?: boolean
 }
 
 export interface InputContact {
@@ -57,6 +63,12 @@ interface Attachment {
   readonly input: GestureInput
   readonly space: GestureSpace
   readonly controllers: readonly GestureController[]
+}
+
+interface PressAttachment {
+  readonly host: object
+  readonly controller: PressController
+  readonly space: GestureSpace
 }
 
 interface Run {
@@ -95,6 +107,10 @@ export function createGestureOwner(scheduler: GestureScheduler) {
   const identity = ++ownerId
   const publication = createScope({ scopeKey: `xplat:gesture-owner:${identity}` })
   const attachments = new Set<Attachment>()
+  const presses = new Set<PressAttachment>()
+  const targets = new Map<object, { target: InteractionTarget; count: number }>()
+  let activePress: PressAttachment | null = null
+  let sequenceTarget: InteractionTarget | null = null
   let runs: Run[] = []
   let sequence = 0
   let session = 0
@@ -211,7 +227,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       for (const run of runs.filter((run) => run.controller === controller)) {
         if (run.phase === 'active') {
           terminal(run, 'cancelled', reason)
-        } else if (run.phase === 'possible') {
+        } else if (run.phase === 'possible' || run.phase === 'idle') {
           run.phase = 'failed'
           publish(run)
         }
@@ -259,13 +275,8 @@ export function createGestureOwner(scheduler: GestureScheduler) {
     const contact = primary(run, frame)
     const position = positions(run, contact)
 
-    if (!run.projection) {
-      if (frame.contacts.length < run.min) {
-        return null
-      }
-
-      run.projection = run.attachment.space.freeze()
-      if (!run.projection) {
+    if (!run.startPosition) {
+      if (frame.contacts.length < run.min || !run.projection) {
         return null
       }
 
@@ -276,7 +287,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       run.previousTime = frame.time
     }
 
-    if (!position.local || !run.startPosition) {
+    if (!position.local || !run.startPosition || !run.projection) {
       return null
     }
 
@@ -298,7 +309,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
     const base: GestureSample = Object.freeze({
       sequenceId: `${identity}:${sequence}`,
       time: frame.time,
-      target: runs[0]?.attachment.space.target ?? run.attachment.space.target,
+      target: sequenceTarget ?? run.attachment.space.target,
       currentTarget: run.attachment.space.target,
       position,
       startPosition: run.startPosition,
@@ -368,17 +379,21 @@ export function createGestureOwner(scheduler: GestureScheduler) {
     return true
   }
 
-  function activate(run: Run) {
+  function claimHost(host: object): boolean {
     let claimed = true
 
     try {
-      claimed = scheduler.claim?.(run.attachment.host) ?? true
+      claimed = scheduler.claim?.(host) ?? true
     } catch (error) {
       callbackErrors.push(error)
       claimed = false
     }
 
-    if (!claimed) {
+    return claimed
+  }
+
+  function activate(run: Run) {
+    if (!claimHost(run.attachment.host)) {
       run.phase = 'failed'
       publish(run)
       return
@@ -391,6 +406,10 @@ export function createGestureOwner(scheduler: GestureScheduler) {
 
     run.phase = 'active'
     consumed = true
+    for (const press of [...presses]) {
+      press.controller.cancel()
+    }
+
     // Dormant multi-contact recognizers remain idle, not superseded.
     for (const other of [...runs]) {
       if (other === run || other.phase !== 'possible') {
@@ -444,18 +463,35 @@ export function createGestureOwner(scheduler: GestureScheduler) {
     }
   }
 
+  const suspensions = new Set<(host: object) => boolean>()
+  const isSuspended = (host: object) => [...suspensions].some((contains) => contains(host))
+
   function admit(frame: InputFrame) {
     inSequence = true
     multiContact = false
     consumed = false
     sequence++
+    sequenceTarget =
+      frame.hitPath
+        .map((host) => targets.get(host)?.target)
+        .find((target) => target !== undefined) ?? null
+
+    for (const press of [...presses]) {
+      press.controller.cancel()
+    }
+
+    activePress =
+      [...presses]
+        .filter((press) => !isSuspended(press.host) && frame.hitPath.includes(press.host))
+        .sort((a, b) => frame.hitPath.indexOf(a.host) - frame.hitPath.indexOf(b.host))[0] ?? null
 
     const selected = [...attachments]
-      .filter((a) => !frame.nativeOwned && frame.hitPath.includes(a.host))
+      .filter((a) => !frame.nativeOwned && !isSuspended(a.host) && frame.hitPath.includes(a.host))
       .sort((a, b) => frame.hitPath.indexOf(a.host) - frame.hitPath.indexOf(b.host))
 
     runs = selected.flatMap((attachment) =>
       attachment.controllers.map((controller) => {
+        const projection = attachment.space.freeze()
         const pan = controller.kind === 'pan' ? controller.options : null
         const run: Run = {
           attachment,
@@ -466,8 +502,8 @@ export function createGestureOwner(scheduler: GestureScheduler) {
             : null,
           min: pan?.pointers?.min ?? (controller.kind === 'pinch' ? 2 : 1),
           max: pan?.pointers?.max ?? (controller.kind === 'pinch' ? 2 : 1),
-          phase: 'idle',
-          projection: null,
+          phase: projection ? 'idle' : 'failed',
+          projection,
           start: point({ x: 0, y: 0 }),
           startPosition: null,
           startSpan: 0,
@@ -480,6 +516,10 @@ export function createGestureOwner(scheduler: GestureScheduler) {
           session: Object.freeze({
             id: `${identity}:session:${++session}`,
             cancel: () => {
+              if (disposed || run.phase !== 'active') {
+                return
+              }
+
               transaction(() => terminal(run, 'cancelled', 'programmatic'))
             },
           }),
@@ -488,6 +528,14 @@ export function createGestureOwner(scheduler: GestureScheduler) {
         return run
       }),
     )
+
+    if (activePress) {
+      activePress.controller.begin(
+        frame,
+        `${identity}:${sequence}`,
+        sequenceTarget ?? activePress.space.target,
+      )
+    }
   }
 
   function dispatch(frame: InputFrame): boolean {
@@ -505,6 +553,10 @@ export function createGestureOwner(scheduler: GestureScheduler) {
         admit(frame)
       }
 
+      if (frame.type !== 'down' || frame.contacts.length > 1) {
+        activePress?.controller.update(frame)
+      }
+
       if (frame.contacts.length > 1) {
         multiContact = true
       }
@@ -515,6 +567,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
           continue
         }
 
+        publish(run)
         if (!run.controller.enabled()) {
           invalidate(run.controller, 'disabled')
           if (run.phase === 'idle') {
@@ -668,6 +721,159 @@ export function createGestureOwner(scheduler: GestureScheduler) {
     })
   }
 
+  function registerTarget(host: object, target: InteractionTarget): () => void {
+    if (disposed) {
+      throw new Error('Cannot register on a disposed interaction owner')
+    }
+
+    const existing = targets.get(host)
+
+    if (existing) {
+      existing.count++
+    } else {
+      targets.set(host, { target, count: 1 })
+    }
+
+    let alive = true
+
+    return () => {
+      if (!alive) {
+        return
+      }
+
+      alive = false
+
+      const record = targets.get(host)
+
+      if (record && --record.count === 0) {
+        targets.delete(host)
+      }
+    }
+  }
+
+  function canonicalSpace(host: object, space: GestureSpace): GestureSpace {
+    return {
+      target: targets.get(host)?.target ?? space.target,
+      local: (point) => space.local(point),
+      freeze: () => space.freeze(),
+    }
+  }
+
+  function registerPress(
+    host: object,
+    options: PressOptions,
+    space: GestureSpace,
+    contains: (point: Point) => boolean,
+  ) {
+    const releaseTarget = registerTarget(host, space.target)
+    const ownedSpace = canonicalSpace(host, space)
+    let attachment: PressAttachment
+    let controller: PressController
+
+    try {
+      controller = createPressController(options, {
+        space: ownedSpace,
+        contains,
+        call,
+        schedule(callback, delay) {
+          const id = setTimeout(() => {
+            if (!disposed) {
+              transaction(callback)
+            }
+          }, delay)
+
+          return () => clearTimeout(id)
+        },
+        claim() {
+          if (disposed || !presses.has(attachment)) {
+            return false
+          }
+
+          if (!claimHost(host)) {
+            return false
+          }
+
+          consumed = true
+          for (const other of [...presses]) {
+            if (other !== attachment) {
+              other.controller.cancel()
+            }
+          }
+
+          for (const run of [...runs]) {
+            if (run.phase === 'active') {
+              terminal(run, 'cancelled', 'superseded')
+            } else if (run.phase === 'possible' || run.phase === 'idle') {
+              run.phase = 'failed'
+              publish(run)
+            }
+          }
+
+          return !disposed && presses.has(attachment)
+        },
+      })
+    } catch (error) {
+      releaseTarget()
+      throw error
+    }
+
+    attachment = { host, controller, space: ownedSpace }
+    presses.add(attachment)
+
+    let alive = true
+
+    return {
+      commit(next: PressOptions) {
+        if (alive && !disposed) {
+          transaction(() => controller.commit(next))
+        }
+      },
+      activate(
+        source: ActivationEvent['source'],
+        preventDefault?: () => void,
+        kind?: 'press' | 'double',
+      ) {
+        return alive && !disposed && !isSuspended(host)
+          ? transaction(() => controller.activate(source, preventDefault, kind))
+          : false
+      },
+      longPress(source: ActivationEvent['source']) {
+        return alive && !disposed && !isSuspended(host)
+          ? transaction(() => controller.longPress(source))
+          : false
+      },
+      get pressed() {
+        return controller.pressed
+      },
+      dispose() {
+        if (!alive) {
+          return
+        }
+
+        alive = false
+
+        const cleanup = () => {
+          presses.delete(attachment)
+          if (activePress === attachment) {
+            activePress = null
+          }
+
+          try {
+            controller.dispose()
+          } finally {
+            releaseTarget()
+          }
+        }
+
+        if (disposed) {
+          cleanup()
+        } else {
+          transaction(cleanup)
+        }
+      },
+    }
+  }
+
   function register(host: object, input: GestureInput, space: GestureSpace): () => void {
     if (disposed) {
       throw new Error('Cannot register on a disposed interaction owner')
@@ -679,7 +885,8 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       throw new Error('Gesture is already attached or disposed')
     }
 
-    const attachment: Attachment = { host, input, space, controllers }
+    const releaseTarget = registerTarget(host, space.target)
+    const attachment: Attachment = { host, input, space: canonicalSpace(host, space), controllers }
     const attached: GestureController[] = []
 
     try {
@@ -694,6 +901,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
         controller.detach()
       }
 
+      releaseTarget()
       throw error
     }
 
@@ -705,65 +913,123 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       }
 
       alive = false
+      if (disposed) {
+        releaseTarget()
+        return
+      }
+
       transaction(() => {
         attachments.delete(attachment)
         for (const controller of controllers) {
           invalidate(controller, 'detached')
           controller.detach()
         }
+
+        releaseTarget()
       })
     }
+  }
+
+  function cancelWhere(contains: (host: object) => boolean, reason: CancelReason) {
+    if (disposed) {
+      return
+    }
+
+    transaction(() => {
+      for (const press of [...presses]) {
+        if (contains(press.host)) {
+          press.controller.cancel()
+        }
+      }
+
+      for (const run of [...runs]) {
+        if (!contains(run.attachment.host)) {
+          continue
+        }
+
+        if (run.phase === 'active') {
+          terminal(run, 'cancelled', reason)
+        } else if (run.phase === 'possible' || run.phase === 'idle') {
+          run.phase = 'failed'
+          publish(run)
+        }
+      }
+    })
   }
 
   return {
     dispatch,
     register,
-    cancelWhere(contains: (host: object) => boolean, reason: CancelReason) {
+    registerPress,
+    registerTarget,
+    cancelWhere,
+    suspendWhere(contains: (host: object) => boolean) {
       if (disposed) {
-        return
+        throw new Error('Cannot suspend a disposed owner')
       }
 
-      transaction(() => {
-        for (const run of [...runs]) {
-          if (!contains(run.attachment.host)) {
-            continue
-          }
+      suspensions.add(contains)
+      try {
+        cancelWhere(contains, 'scope-suspended')
+      } catch (error) {
+        suspensions.delete(contains)
+        throw error
+      }
 
-          if (run.phase === 'active') {
-            terminal(run, 'cancelled', reason)
-          } else if (run.phase === 'possible' || run.phase === 'idle') {
-            run.phase = 'failed'
-            publish(run)
-          }
-        }
-      })
+      return () => {
+        suspensions.delete(contains)
+      }
     },
     dispose() {
       if (disposed) {
         return
       }
 
-      transaction(() => {
-        for (const run of [...runs]) {
-          terminal(run, 'cancelled', 'detached')
-        }
-
-        for (const attachment of attachments) {
-          for (const controller of attachment.controllers) {
-            controller.detach()
+      disposed = true
+      try {
+        transaction(() => {
+          if (lastFrame) {
+            lastFrame = { ...lastFrame, type: 'cancel', contacts: [] }
           }
-        }
 
-        attachments.clear()
-        runs = []
-        cancelFrame?.()
-        cancelFrame = null
-        disposed = true
-      })
+          for (const press of [...presses]) {
+            press.controller.dispose()
+          }
 
-      publication.dispose()
+          presses.clear()
+          suspensions.clear()
+          activePress = null
+          for (const run of [...runs]) {
+            if (run.last) {
+              run.last = Object.freeze({
+                ...run.last,
+                pointerCount: 0,
+                contacts: Object.freeze([]),
+              })
+            }
+
+            terminal(run, 'cancelled', 'detached')
+          }
+
+          for (const attachment of attachments) {
+            for (const controller of attachment.controllers) {
+              controller.detach()
+            }
+          }
+
+          attachments.clear()
+          runs = []
+          cancelFrame?.()
+          cancelFrame = null
+          targets.clear()
+        })
+      } finally {
+        publication.dispose()
+      }
     },
   }
 }
 
 export type GestureOwner = ReturnType<typeof createGestureOwner>
+
+export type PressRegistration = ReturnType<GestureOwner['registerPress']>

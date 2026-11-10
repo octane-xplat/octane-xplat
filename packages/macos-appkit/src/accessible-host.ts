@@ -69,7 +69,7 @@ export function createAccessibleHost(deps: Dependencies) {
         !deps.state.get(this)?.accessibilityState?.readonly &&
         deps.actions.hasHandler(this)
       ) {
-        deps.actions.invokeAction(deps.actions.idForView(this)!)
+        deps.actions.invokeAction(deps.actions.idForView(this)!, 'keyboard')
         return
       }
 
@@ -150,7 +150,7 @@ export function createAccessibleHost(deps: Dependencies) {
         return false
       }
 
-      deps.actions.invokeAction(actionId)
+      deps.actions.invokeAction(actionId, 'accessibility')
       return true
     }
 

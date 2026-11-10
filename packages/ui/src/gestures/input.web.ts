@@ -12,6 +12,9 @@ import { interactionScopeController } from './scope'
 import { createGestureOwner, type GestureOwner, type InputContact, type InputFrame } from './owner'
 import { inverseGestureTransform, type GestureTransform } from './geometry'
 import type { GestureInput, InteractionScope } from './types'
+import type { PressOptions } from './press'
+import { interactionTarget } from './target'
+import type { GestureSpace } from './owner'
 
 interface WebAttachment {
   readonly node: HTMLElement
@@ -30,7 +33,6 @@ interface WebRoot {
 }
 
 const roots = new WeakMap<Document, WebRoot>()
-let targetId = 0
 
 /** Compute a stable 2D plane, accounting for transformed ancestors and border-box origin. */
 function windowTransform(node: HTMLElement): GestureTransform | null {
@@ -413,7 +415,6 @@ export function attachWebGesture(node: HTMLElement, input: GestureInput): () => 
   const root = rootFor(node.ownerDocument)
   const releaseRoot = root.retain()
   const record = { node, input }
-  const target = Object.freeze({ id: `web-target:${++targetId}` })
   const cleanups: (() => void)[] = [releaseRoot]
   let alive = true
   const release = () => {
@@ -441,19 +442,7 @@ export function attachWebGesture(node: HTMLElement, input: GestureInput): () => 
   }
 
   try {
-    const detach = root.owner.register(node, input, {
-      target,
-      local: (point) => {
-        const matrix = windowTransform(node)
-
-        return matrix ? (inverseGestureTransform(matrix)?.(point) ?? null) : null
-      },
-      freeze: () => {
-        const matrix = windowTransform(node)
-
-        return matrix ? inverseGestureTransform(matrix) : null
-      },
-    })
+    const detach = root.owner.register(node, input, webSpace(node))
 
     cleanups.push(detach, root.policyHost(node))
 
@@ -509,6 +498,11 @@ export function attachWebInteractionScope(node: HTMLElement, scope: InteractionS
 
   try {
     release = interactionScopeController(scope).attach({
+      covers(member) {
+        const window = node.ownerDocument.defaultView
+
+        return Boolean(window && member instanceof window.Node && node.contains(member))
+      },
       freeze() {
         const window = node.ownerDocument.defaultView
 
@@ -637,3 +631,168 @@ function touchActionWriter(node: HTMLElement): (policy: ScrollPolicy) => void {
     node.style.touchAction = written
   }
 }
+
+function webSpace(node: HTMLElement): GestureSpace {
+  return {
+    target: interactionTarget(node),
+    local: (point) => {
+      const matrix = windowTransform(node)
+
+      return matrix ? (inverseGestureTransform(matrix)?.(point) ?? null) : null
+    },
+    freeze: () => {
+      const matrix = windowTransform(node)
+
+      return matrix ? inverseGestureTransform(matrix) : null
+    },
+  }
+}
+
+/** Semantic click delivery shares the gesture owner's pointer eligibility. */
+export function attachWebPress(node: HTMLElement, options: PressOptions) {
+  const root = rootFor(node.ownerDocument)
+  const releaseRoot = root.retain()
+  const space = webSpace(node)
+
+  if (presses.has(node)) {
+    releaseRoot()
+    throw new Error('A semantic press can attach only once per host')
+  }
+
+  let registration: import('./owner').PressRegistration
+
+  try {
+    registration = root.owner.registerPress(node, options, space, (point) => {
+      const local = space.local(point)
+
+      return Boolean(
+        local &&
+        local.x >= 0 &&
+        local.y >= 0 &&
+        local.x <= node.offsetWidth &&
+        local.y <= node.offsetHeight,
+      )
+    })
+  } catch (error) {
+    releaseRoot()
+    throw error
+  }
+
+  let keyboard = false
+  let spaceHeld = false
+  let alive = true
+  const own = (event: Event) => {
+    // Only the deepest managed semantic host handles an activation.
+    const path = event.composedPath()
+
+    return (
+      path.find(
+        (entry) =>
+          entry instanceof node.ownerDocument.defaultView!.HTMLElement && presses.has(entry),
+      ) === node
+    )
+  }
+
+  const click = (event: MouseEvent) => {
+    if (!own(event)) {
+      return
+    }
+
+    const source = event.detail !== 0 ? 'pointer' : keyboard ? 'keyboard' : 'virtual'
+
+    keyboard = false
+    if (!registration.activate(source, () => event.preventDefault())) {
+      event.preventDefault()
+    }
+
+    event.stopPropagation()
+  }
+
+  const double = (event: MouseEvent) => {
+    if (own(event)) {
+      registration.activate(
+        event.detail ? 'pointer' : 'virtual',
+        () => event.preventDefault(),
+        'double',
+      )
+
+      event.stopPropagation()
+    }
+  }
+
+  const down = (event: KeyboardEvent) => {
+    if (event.target !== node || event.isComposing || event.repeat) {
+      return
+    }
+
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return
+    }
+
+    keyboard = true
+    if (node.tagName === 'BUTTON' || node.tagName === 'A') {
+      return
+    }
+
+    event.preventDefault()
+    if (event.key === 'Enter') {
+      keyboard = false
+      registration.activate('keyboard', () => event.preventDefault())
+    } else {
+      spaceHeld = true
+    }
+  }
+
+  const up = (event: KeyboardEvent) => {
+    if (event.target !== node || event.key !== ' ') {
+      return
+    }
+
+    const activate = spaceHeld
+
+    spaceHeld = false
+    if (activate) {
+      event.preventDefault()
+      registration.activate('keyboard', () => event.preventDefault())
+    }
+  }
+
+  const blur = () => {
+    keyboard = false
+    spaceHeld = false
+  }
+
+  presses.add(node)
+  node.addEventListener('click', click)
+  node.addEventListener('dblclick', double)
+  node.addEventListener('keydown', down)
+  node.addEventListener('keyup', up)
+  node.addEventListener('blur', blur)
+  return {
+    commit(next: PressOptions) {
+      registration.commit(next)
+    },
+    dispose() {
+      if (!alive) {
+        return
+      }
+
+      alive = false
+      presses.delete(node)
+      node.removeEventListener('click', click)
+      node.removeEventListener('dblclick', double)
+      node.removeEventListener('keydown', down)
+      node.removeEventListener('keyup', up)
+      node.removeEventListener('blur', blur)
+      try {
+        registration.dispose()
+      } finally {
+        releaseRoot()
+      }
+    },
+  }
+}
+
+const presses = new WeakSet<HTMLElement>()
+
+export type WebPressBinding = ReturnType<typeof attachWebPress>

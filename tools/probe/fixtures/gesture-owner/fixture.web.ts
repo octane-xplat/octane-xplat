@@ -1,5 +1,6 @@
 import {
   attachWebGesture,
+  attachWebPress,
   attachWebInteractionScope,
   registerWebGestureViewport,
 } from '../../../../packages/ui/src/gestures/input.web'
@@ -51,14 +52,19 @@ const pan = createPanController({
 
 const detach = attachWebGesture(panel, pan.handle)
 
-button.addEventListener('click', () => {
-  state.clicks++
-  publish()
+const press = attachWebPress(button, {
+  slop: 8,
+  longPressDelay: 500,
+  onPress() {
+    state.clicks++
+    publish()
+  },
 })
 
 window.addEventListener(
   'pagehide',
   () => {
+    press.dispose()
     detach()
     pan.dispose()
   },

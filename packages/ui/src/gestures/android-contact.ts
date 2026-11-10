@@ -13,6 +13,7 @@ export interface AndroidContactEvent {
   getRawX(index?: number): number
   getRawY(index?: number): number
   getEventTime(): number
+  getDownTime(): number
 }
 
 export interface AndroidContactSpace {
@@ -92,5 +93,13 @@ export function androidContactFrame(
     }
   }
 
-  return { type, time: event.getEventTime(), changed: contact(changedIndex), contacts, hitPath }
+  return {
+    type,
+    time: event.getEventTime(),
+    changed: contact(changedIndex),
+    contacts,
+    hitPath,
+    cohort: `android:${event.getDownTime()}`,
+    partialContacts: true,
+  }
 }

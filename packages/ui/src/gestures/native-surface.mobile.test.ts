@@ -1,4 +1,10 @@
 import { afterEach, expect, it, vi } from 'vitest'
+
+vi.mock('@nativescript/core', () => ({
+  GestureEvents: { gestureAttached: 'gestureAttached' },
+  GestureTypes: { touch: 128 },
+}))
+
 import { nativeGestureSurface } from './native-surface.ios'
 import { attachNativeGesture, type NativeGestureView } from './input.native'
 import { createPanController, createPinchController } from './controller'
@@ -48,11 +54,15 @@ it('admits simultaneous UIKit downs even when allTouches has two contacts and ch
   const view = {
     nativeViewProtected: host,
     style: { touchAction: 'auto' },
-    on(_event: string, next: (event: unknown) => void) {
-      listener = next
+    on(event: string, next: (event: unknown) => void) {
+      if (event === 'touch') {
+        listener = next
+      }
     },
-    off() {
-      listener = null
+    off(event) {
+      if (event === 'touch') {
+        listener = null
+      }
     },
   }
 
@@ -70,6 +80,9 @@ it('admits simultaneous UIKit downs even when allTouches has two contacts and ch
     type: 0,
     get phase() {
       return phase
+    },
+    get timestamp() {
+      return time
     },
     locationInView() {
       return { x: 200 + (sign * span) / 2, y: 200 }
@@ -143,11 +156,15 @@ it('uses Mason logical hit ancestry when UIKit ancestry does not contain the ges
   const view: NativeGestureView = {
     nativeViewProtected: host,
     style: { touchAction: 'auto' },
-    on(_event, next) {
-      listener = next
+    on(event, next) {
+      if (event === 'touch') {
+        listener = next
+      }
     },
-    off() {
-      listener = null
+    off(event) {
+      if (event === 'touch') {
+        listener = null
+      }
     },
     elementFromPoint() {
       return { nativeViewProtected: physicalHit, parent: view }
@@ -166,6 +183,9 @@ it('uses Mason logical hit ancestry when UIKit ancestry does not contain the ges
     type: 0,
     get phase() {
       return phase
+    },
+    get timestamp() {
+      return time
     },
     locationInView() {
       return { x, y: 20 }

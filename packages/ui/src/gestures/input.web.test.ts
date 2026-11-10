@@ -1,6 +1,7 @@
 import { afterEach, expect, it } from 'vitest'
 import {
   attachWebGesture,
+  attachWebPress,
   registerWebGestureViewport,
   attachWebInteractionScope,
 } from './input.web'
@@ -265,4 +266,36 @@ it('restores the original inert flag after independent scopes on the same host r
   expect(node.inert).toBe(true)
   b.lease.release()
   expect(node.inert).toBe(false)
+})
+
+it('routes a managed semantic press through the same contact owner and preserves virtual activation after cancellation', () => {
+  const { node, button } = host()
+
+  Object.defineProperties(button, { offsetWidth: { value: 300 }, offsetHeight: { value: 200 } })
+
+  const sources: string[] = []
+  const pan = createPanController({ axis: 'x' })
+
+  cleanups.push(() => pan.dispose(), attachWebGesture(node, pan.handle))
+
+  const press = attachWebPress(button, {
+    slop: 100,
+    onPress: (event) => sources.push(event.source),
+  })
+
+  cleanups.push(() => press.dispose())
+  pointer(button, 'pointerdown', 10, 10)
+  pointer(button, 'pointerup', 10, 10)
+  button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+  expect(sources).toEqual(['pointer'])
+  pointer(button, 'pointerdown', 10, 10)
+  pointer(button, 'pointermove', 40, 10)
+  pointer(button, 'pointerup', 40, 10)
+  button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+  button.click()
+  expect(sources).toEqual(['pointer', 'virtual'])
+  expect(() => attachWebPress(button, { slop: 8 })).toThrow('only once')
+  press.commit({ slop: 100, enabled: false, onPress: () => sources.push('disabled') })
+  button.click()
+  expect(sources).toHaveLength(2)
 })

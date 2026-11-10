@@ -130,3 +130,15 @@ export interface ActivationEvent {
   readonly pointer: GestureSample | null
   preventDefault(): void // cancels default semantic action, not an active drag
 }
+
+/** Convenience callbacks use the same samples and terminal outcomes as typed handles. */
+export type GestureNotification<T> =
+  | { readonly phase: 'start' | 'update'; readonly sample: T }
+  | { readonly phase: 'finish'; readonly terminal: Terminal<T> }
+
+export interface GestureHostProps {
+  readonly gestures?: GestureInput
+  readonly interactionScope?: InteractionScope
+  readonly onPan?: (event: GestureNotification<PanSample>) => void
+  readonly onPinch?: (event: GestureNotification<PinchSample>) => void
+}

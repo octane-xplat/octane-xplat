@@ -1,15 +1,22 @@
+export type ActionActivationSource = 'pointer' | 'keyboard' | 'accessibility' | 'virtual'
+
 /** Private ID/handler ownership. Native tags are untrusted numbers at ingress. */
 export interface ActionRegistration {
   readonly id: number
-  setHandler(handler: (() => void) | undefined): void
+  setHandler(handler: ((source: ActionActivationSource) => void) | undefined): void
   release(): void
 }
 
 export type ActionStore = ReturnType<typeof createActionStore>
 
 export function createActionStore() {
-  const slots = new Map<number, { run(): void; hasHandler(): boolean }>()
+  const slots = new Map<
+    number,
+    { run(source: ActionActivationSource): void; hasHandler(): boolean }
+  >()
+
   const views = new WeakMap<object, ActionRegistration>()
+  const activations = new WeakMap<object, (source: ActionActivationSource) => void>()
   let nextId = 1
 
   function allocate(view?: object): ActionRegistration {
@@ -19,7 +26,7 @@ export function createActionStore() {
 
     const id = nextId++
     let active = true
-    let handler: (() => void) | undefined
+    let handler: ((source: ActionActivationSource) => void) | undefined
     const current = () => active && (!view || views.get(view) === lease)
     const lease: ActionRegistration = {
       id,
@@ -43,9 +50,9 @@ export function createActionStore() {
     }
 
     slots.set(id, {
-      run() {
+      run(source) {
         if (current()) {
-          handler?.()
+          handler?.(source)
         }
       },
       hasHandler() {
@@ -60,9 +67,9 @@ export function createActionStore() {
     return lease
   }
 
-  function dispatch(id: unknown): void {
+  function dispatch(id: unknown, source: ActionActivationSource = 'virtual'): void {
     if (typeof id === 'number' && Number.isSafeInteger(id) && id > 0) {
-      slots.get(id)?.run()
+      slots.get(id)?.run(source)
     }
   }
 
@@ -76,5 +83,32 @@ export function createActionStore() {
     return id !== undefined && (slots.get(id)?.hasHandler() ?? false)
   }
 
-  return { allocate, dispatch, idForView, hasHandler }
+  function observeActivation(
+    view: object,
+    notify: (source: ActionActivationSource) => void,
+  ): () => void {
+    if (activations.has(view)) {
+      throw new Error('Managed activation already attached')
+    }
+
+    activations.set(view, notify)
+    return () => {
+      if (activations.get(view) === notify) {
+        activations.delete(view)
+      }
+    }
+  }
+
+  function deliverActivation(view: object, source: ActionActivationSource): boolean {
+    const notify = activations.get(view)
+
+    if (!notify) {
+      return false
+    }
+
+    notify(source)
+    return true
+  }
+
+  return { allocate, dispatch, idForView, hasHandler, observeActivation, deliverActivation }
 }

@@ -212,3 +212,45 @@ it('returns detached after a suspension subscriber synchronously unmounts the sc
   expect(value$.get()).toBe(false)
   owner.dispose()
 })
+
+it('rejects uncovered portal ownership before mutation and rejects newly uncovered members during a lease', () => {
+  const owner = createScope({ scopeKey: 'scope-coverage' }),
+    state$ = owner.signal$('state', false)
+
+  const controller = createInteractionScope(
+    state$,
+    owner.derived$('read', () => state$.get()),
+  )
+
+  const inside = {},
+    outside = {}
+
+  let freezes = 0
+  const detach = controller.attach({
+    covers: (host) => host === inside,
+    freeze() {
+      freezes++
+      return { ok: true, release() {} }
+    },
+  })
+
+  const leave = controller.registerMember(outside)
+
+  expect(controller.handle.suspend()).toEqual({ ok: false, reason: 'unsupported' })
+  expect(freezes).toBe(0)
+  leave()
+
+  const leaveInside = controller.registerMember(inside)
+  const result = controller.handle.suspend()
+
+  expect(result.ok).toBe(true)
+  expect(() => controller.registerMember(outside)).toThrow('portal cannot enter')
+  if (result.ok) {
+    result.lease.release()
+  }
+
+  leaveInside()
+  detach()
+  controller.dispose()
+  owner.dispose()
+})

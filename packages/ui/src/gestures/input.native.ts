@@ -6,7 +6,20 @@ import {
   type InputFrame,
 } from './owner'
 
-import type { GestureInput, Point } from './types'
+import { createNativeContactStream, type NativeContactStream } from './native-contact-stream'
+import type { GestureInput, Point, InteractionScope } from './types'
+import type { PressOptions } from './press'
+import type { NativePressTransport } from './native-press'
+import type { PressRegistration } from './owner'
+import { interactionScopeController, type SuspensionDriver } from './scope'
+import { observeGesturePolicy } from './gesture-policy'
+import {
+  createScrollPolicyRegistry,
+  unrestrictedScroll,
+  suspendedScroll,
+  type ScrollPolicyRegistry,
+  type ScrollPolicy,
+} from './scroll-policy'
 
 /** Minimal native-host boundary; shared ownership never imports a platform runtime. */
 export interface NativeGestureNode {
@@ -17,7 +30,10 @@ export interface NativeGestureNode {
 export interface NativeGestureView extends NativeGestureNode {
   readonly nativeViewProtected: unknown
   readonly style: object
+  readonly isLoaded?: boolean
   elementFromPoint?(x: number, y: number): NativeGestureNode | null
+  getActualSize?(): { width: number; height: number }
+  eachChild?(callback: (child: NativeGestureView) => boolean): void
   getLocationInWindow?(): Point | undefined
   getLocationOnScreen?(): Point | undefined
   on(event: string, listener: (event: unknown) => void): void
@@ -32,82 +48,350 @@ export interface NativeGestureSurface {
   readonly scheduler: GestureScheduler
   observe(dispatch: (frame: InputFrame, eventIdentity: string) => void): () => void
   reserve(input: GestureInput): () => void
+  containsHost?(host: object): boolean
+  containsPoint?(point: Point): boolean
+  writePolicy?(policy: ScrollPolicy): void
+  suspension?: SuspensionDriver
+}
+
+interface NativeHost {
+  readonly surface: NativeGestureSurface
+  count: number
+  release(): void
 }
 
 interface NativeRoot {
   readonly owner: GestureOwner
-  readonly surfaces: Set<object>
+  readonly presses: Set<PressRegistration>
+  readonly stream: NativeContactStream
+  readonly hosts: Map<object, NativeHost>
+  readonly policies: ScrollPolicyRegistry<object>
   lastEvent: string | null
 }
 
 const roots = new WeakMap<object, NativeRoot>()
 
-/** Deduplicate a native event delivered through several ancestor touch observers. */
-export function attachNativeGesture(
-  surface: NativeGestureSurface,
-  input: GestureInput,
-): () => void {
+function retain(surface: NativeGestureSurface) {
   let root = roots.get(surface.root)
 
   if (!root) {
-    root = { owner: createGestureOwner(surface.scheduler), surfaces: new Set(), lastEvent: null }
+    const owner = createGestureOwner(surface.scheduler)
+    const hosts = new Map<object, NativeHost>()
+    const presses = new Set<PressRegistration>()
+
+    root = {
+      owner,
+      presses,
+      stream: createNativeContactStream((frame) => {
+        owner.dispatch(frame)
+        if (frame.type === 'up' && !frame.contacts.length) {
+          for (const press of [...presses]) {
+            press.activate('pointer')
+          }
+        }
+      }),
+      hosts,
+      policies: createScrollPolicyRegistry(
+        (ancestor, descendant) =>
+          ancestor === descendant ||
+          Boolean(hosts.get(ancestor)?.surface.containsHost?.(descendant)),
+      ),
+      lastEvent: null,
+    }
+
     roots.set(surface.root, root)
   }
 
   const current = root
-  const registration = {}
-  let releaseRegistration: (() => void) | null = null
-  let releaseReservation: (() => void) | null = null
-  let releaseObserver: (() => void) | null = null
-  const release = () => {
-    try {
-      releaseObserver?.()
-    } finally {
-      releaseObserver = null
-      try {
-        releaseRegistration?.()
-      } finally {
-        releaseRegistration = null
+  let record = current.hosts.get(surface.host)
+
+  if (record) {
+    record.count++
+  } else {
+    let offPolicy: (() => void) | null = null
+    let offObserver: (() => void) | null = null
+    let offTarget: (() => void) | null = null
+
+    record = {
+      surface,
+      count: 1,
+      release() {
         try {
-          releaseReservation?.()
+          offObserver?.()
         } finally {
-          releaseReservation = null
-          current.surfaces.delete(registration)
-          if (!current.surfaces.size) {
-            try {
-              current.owner.dispose()
-            } finally {
-              roots.delete(surface.root)
-            }
+          try {
+            offPolicy?.()
+          } finally {
+            offTarget?.()
           }
         }
+      },
+    }
+
+    current.hosts.set(surface.host, record)
+    try {
+      offTarget = current.owner.registerTarget(surface.host, surface.space.target)
+      if (surface.writePolicy) {
+        offPolicy = current.policies.register({
+          host: surface.host,
+          apply: (policy) => surface.writePolicy!(policy),
+        })
+      }
+
+      offObserver = surface.observe((frame, identity) => {
+        if (current.lastEvent === identity) {
+          return
+        }
+
+        current.lastEvent = identity
+        current.stream.dispatch(frame)
+      })
+    } catch (error) {
+      current.hosts.delete(surface.host)
+      try {
+        record.release()
+      } finally {
+        if (!current.hosts.size) {
+          roots.delete(surface.root)
+          current.owner.dispose()
+        }
+      }
+
+      throw error
+    }
+  }
+
+  let alive = true
+
+  return {
+    root: current,
+    release() {
+      if (!alive) {
+        return
+      }
+
+      alive = false
+
+      const record = current.hosts.get(surface.host)
+
+      if (!record || --record.count) {
+        return
+      }
+
+      current.hosts.delete(surface.host)
+      try {
+        record.release()
+      } finally {
+        if (!current.hosts.size) {
+          roots.delete(surface.root)
+          try {
+            current.stream.cancel('detached')
+          } finally {
+            current.owner.dispose()
+          }
+        }
+      }
+    },
+  }
+}
+
+/** One raw native observer per host, independent of callback and participant updates. */
+export function attachNativeGesture(
+  surface: NativeGestureSurface,
+  input: GestureInput,
+): () => void {
+  const retained = retain(surface)
+  let offGesture: (() => void) | null = null
+  let offPolicy: (() => void) | null = null
+  let alive = true
+  const release = () => {
+    if (!alive) {
+      return
+    }
+
+    alive = false
+    try {
+      offGesture?.()
+    } finally {
+      try {
+        offPolicy?.()
+      } finally {
+        retained.release()
       }
     }
   }
 
   try {
-    releaseRegistration = current.owner.register(surface.host, input, surface.space)
-    releaseReservation = surface.reserve(input)
-    current.surfaces.add(registration)
-    releaseObserver = surface.observe((frame, eventIdentity) => {
-      if (current.lastEvent === eventIdentity) {
-        return
+    offGesture = retained.root.owner.register(surface.host, input, surface.space)
+    if (surface.writePolicy) {
+      const reservation = retained.root.policies.reserve(surface.host, unrestrictedScroll)
+      let observe: (() => void) | null = null
+
+      offPolicy = () => {
+        try {
+          observe?.()
+        } finally {
+          reservation.release()
+        }
       }
 
-      current.lastEvent = eventIdentity
-      current.owner.dispatch(frame)
-    })
+      observe = observeGesturePolicy(input, (policy) => reservation.update(policy))
+    } else {
+      offPolicy = surface.reserve(input)
+    }
   } catch (error) {
     release()
+    throw error
+  }
+
+  return release
+}
+
+/** Managed viewports observe contacts even when no app gesture is attached. */
+export function registerNativeGestureViewport(surface: NativeGestureSurface): () => void {
+  if (!surface.writePolicy) {
+    throw new Error('Unsupported scroll viewport: missing input policy')
+  }
+
+  return retain(surface).release
+}
+
+export function attachNativeInteractionScope(
+  surface: NativeGestureSurface,
+  scope: InteractionScope,
+): () => void {
+  const retained = retain(surface)
+  let detach: () => void
+
+  try {
+    detach = interactionScopeController(scope).attach({
+      covers(member) {
+        let host: unknown = member
+
+        if ('nativeViewProtected' in member) {
+          host = member.nativeViewProtected
+        }
+
+        return (
+          host !== null &&
+          typeof host === 'object' &&
+          (host === surface.host || Boolean(surface.containsHost?.(host)))
+        )
+      },
+      freeze() {
+        const reservation = retained.root.policies.reserve(surface.host, suspendedScroll)
+        let result: ReturnType<SuspensionDriver['freeze']>
+
+        try {
+          result = surface.suspension?.freeze() ?? { ok: false, reason: 'unsupported' }
+        } catch (error) {
+          reservation.release()
+          throw error
+        }
+
+        if (!result.ok) {
+          reservation.release()
+          return result
+        }
+
+        const frozen = result
+        let unblock: (() => void) | null = null
+        const release = () => {
+          try {
+            unblock?.()
+            frozen.release()
+          } finally {
+            reservation.release()
+          }
+        }
+
+        try {
+          unblock = retained.root.owner.suspendWhere(
+            (host) => host === surface.host || Boolean(surface.containsHost?.(host)),
+          )
+        } catch (error) {
+          release()
+          throw error
+        }
+
+        return { ok: true, release }
+      },
+    })
+  } catch (error) {
+    retained.release()
     throw error
   }
 
   let alive = true
 
   return () => {
-    if (alive) {
-      alive = false
-      release()
+    if (!alive) {
+      return
+    }
+
+    alive = false
+    try {
+      detach()
+    } finally {
+      retained.release()
     }
   }
 }
+
+export function attachNativePress(
+  surface: NativeGestureSurface,
+  options: PressOptions,
+  observe: (registration: PressRegistration, options: PressOptions) => NativePressTransport,
+) {
+  const retained = retain(surface)
+  let press: PressRegistration | null = null
+  let semantic: NativePressTransport | null = null
+  let alive = true
+  const dispose = () => {
+    if (!alive) {
+      return
+    }
+
+    alive = false
+    try {
+      semantic?.dispose()
+    } finally {
+      try {
+        if (press) {
+          retained.root.presses.delete(press)
+        }
+
+        press?.dispose()
+      } finally {
+        retained.release()
+      }
+    }
+  }
+
+  try {
+    press = retained.root.owner.registerPress(
+      surface.host,
+      options,
+      surface.space,
+      (point) => surface.containsPoint?.(point) ?? false,
+    )
+
+    retained.root.presses.add(press)
+    semantic = observe(press, options)
+  } catch (error) {
+    dispose()
+    throw error
+  }
+
+  const registration = press
+
+  return {
+    commit(next: PressOptions) {
+      registration.commit(next)
+      semantic?.commit(next)
+    },
+    dispose,
+  }
+}
+
+export type NativePressBinding = ReturnType<typeof attachNativePress>

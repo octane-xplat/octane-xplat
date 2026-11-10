@@ -48,6 +48,13 @@ declare global {
       view: import('@octane-xplat/platform/macos').NSView,
       handler: (target: import('@octane-xplat/platform/macos').NSView) => boolean,
     ) => () => void
+    gestureSurface?: (
+      view: import('@octane-xplat/platform/macos').NSView,
+    ) => import('./gesture-input').AppKitGestureSurface
+    observeGestureActivation?: (
+      view: object,
+      notify: (source: import('./action-store').ActionActivationSource) => void,
+    ) => () => void
     observePointerInput?: (
       notify: (event: { type: number; modifierFlags: number }) => void,
     ) => () => void

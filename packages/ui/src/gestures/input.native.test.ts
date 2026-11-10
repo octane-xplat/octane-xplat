@@ -134,5 +134,5 @@ it('rolls back registration when the native reservation fails', () => {
 
   detach()
   pan.dispose()
-  expect(a.counts()).toEqual({ observed: 1, unobserved: 1, reserved: 1, restored: 1 })
+  expect(a.counts()).toEqual({ observed: 2, unobserved: 2, reserved: 1, restored: 1 })
 })

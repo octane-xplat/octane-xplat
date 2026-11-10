@@ -24,6 +24,7 @@ function motion(action: number, index: number, ids: number[]): AndroidContactEve
     getRawX: (i = 0) => 100 + i * 20,
     getRawY: (i = 0) => 200 + i * 40,
     getEventTime: () => 1234,
+    getDownTime: () => 1200,
   }
 }
 

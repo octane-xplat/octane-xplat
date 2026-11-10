@@ -1,15 +1,14 @@
 import { Utils } from '@nativescript/core'
 import { androidContactFrame, type AndroidContactEvent } from './android-contact'
 import { inverseGestureTransform, type GestureTransform } from './geometry'
-import { reserveNativeGesturePolicy } from './native-policy'
+import { reserveNativeGesturePolicy, nativePolicyWriter } from './native-policy'
+import { interactionTarget } from './target'
 import type { NativeGestureNode, NativeGestureSurface, NativeGestureView } from './input.native'
 import type { Point } from './types'
 
 interface AndroidTouchPayload {
   readonly android: AndroidContactEvent
 }
-
-let targetId = 0
 
 function transform(
   view: android.view.View,
@@ -64,7 +63,7 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
 
   const root = host.getRootView()
   const density = Utils.layout.getDisplayDensity()
-  const target = Object.freeze({ id: `android-target:${++targetId}` })
+  const target = interactionTarget(host)
   const plane = () => {
     const origin = view.getLocationInWindow?.()
 
@@ -87,6 +86,43 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
     root,
     host,
     space: { target, local: (point) => inverse()?.(point) ?? null, freeze: inverse },
+    containsHost(other) {
+      if (other === host) {
+        return true
+      }
+
+      // Logical Mason ancestry need not mirror the native view tree.
+      const pending: NativeGestureView[] = [view]
+
+      for (let index = 0; index < pending.length; index++) {
+        const current = pending[index]
+
+        if (current.nativeViewProtected === other) {
+          return true
+        }
+
+        current.eachChild?.((child) => {
+          pending.push(child)
+          return true
+        })
+      }
+
+      return false
+    },
+    containsPoint(point) {
+      const local = inverse()?.(point)
+      const size = view.getActualSize?.()
+
+      return Boolean(
+        local &&
+        size &&
+        local.x >= 0 &&
+        local.y >= 0 &&
+        local.x <= size.width &&
+        local.y <= size.height,
+      )
+    },
+    writePolicy: nativePolicyWriter(view.style),
     scheduler: {
       frame(callback) {
         const id = requestAnimationFrame(callback)
@@ -152,7 +188,20 @@ export function nativeGestureSurface(view: NativeGestureView): NativeGestureSurf
 
         inSequence = frame.contacts.length > 0 && frame.type !== 'cancel'
 
-        const current = { ...frame, hitPath, nativeOwned: unobservedStart }
+        const current = {
+          ...frame,
+          hitPath,
+          nativeOwned:
+            unobservedStart ||
+            hitPath.some(
+              (node) =>
+                node instanceof android.widget.EditText ||
+                node instanceof android.widget.SeekBar ||
+                node instanceof android.widget.CompoundButton ||
+                node instanceof android.webkit.WebView,
+            ),
+        }
+
         const contacts = frame.contacts
           .map((contact) => `${contact.id},${contact.window.x},${contact.window.y}`)
           .sort()

@@ -54,6 +54,7 @@ export class NSCachedURLResponse extends NativeObject {}
 export class NSClickGestureRecognizer extends NativeObject {}
 export class NSColor extends NativeObject {}
 export class NSCompositingOperation extends NativeObject {}
+export class NSControl extends NativeObject {}
 export class NSControlSize extends NativeObject {}
 export class NSCursor extends NativeObject {}
 export class NSData extends NativeObject {}
@@ -143,6 +144,7 @@ export class NSVisualEffectBlendingMode extends NativeObject {}
 export class NSVisualEffectMaterial extends NativeObject {}
 export class NSVisualEffectView extends NativeObject {}
 export class NSWindow extends NativeObject {}
+export class NSWindowDidResignKeyNotification extends NativeObject {}
 export class NSWindowDidResizeNotification extends NativeObject {}
 export class NSWindowDidUpdateNotification extends NativeObject {}
 export class NSWindowOrderingMode extends NativeObject {}

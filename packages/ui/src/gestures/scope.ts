@@ -3,11 +3,13 @@ import type { InteractionScope, SuspendResult } from './types'
 
 /** Host adapters must preflight and roll back their own partial native mutations. */
 export interface SuspensionDriver {
+  covers?(host: object): boolean
   freeze(): { ok: true; release(): void } | { ok: false; reason: 'unsupported' }
 }
 
 export interface ScopeController {
   readonly handle: InteractionScope
+  registerMember(host: object): () => void
   attach(driver: SuspensionDriver): () => void
   dispose(): void
 }
@@ -28,6 +30,7 @@ export function createInteractionScope(
   let suspended = false
   let generation = 0
   const leases = new Set<object>()
+  const members = new Map<object, number>()
   let unsubscribe: (() => void) | null = null
 
   function clear() {
@@ -69,6 +72,10 @@ export function createInteractionScope(
       const current = driver
 
       if (!leases.size) {
+        if ([...members.keys()].some((host) => !current.covers?.(host))) {
+          return { ok: false, reason: 'unsupported' }
+        }
+
         acquiring = true
 
         let result: ReturnType<SuspensionDriver['freeze']>
@@ -125,6 +132,37 @@ export function createInteractionScope(
 
   const result: ScopeController = {
     handle,
+    registerMember(host) {
+      if (disposed) {
+        throw new Error('Cannot join a disposed interaction scope')
+      }
+
+      if (leases.size && !driver?.covers?.(host)) {
+        throw new Error(
+          'Unsupported interaction scope: a portal cannot enter a suspended subtree outside its input coverage',
+        )
+      }
+
+      members.set(host, (members.get(host) ?? 0) + 1)
+
+      let alive = true
+
+      return () => {
+        if (!alive) {
+          return
+        }
+
+        alive = false
+
+        const count = members.get(host) ?? 0
+
+        if (count <= 1) {
+          members.delete(host)
+        } else {
+          members.set(host, count - 1)
+        }
+      }
+    },
     attach(next) {
       if (disposed || driver) {
         throw new Error('An interaction scope may attach to only one host')
@@ -162,6 +200,7 @@ export function createInteractionScope(
       }
 
       disposed = true
+      members.clear()
       try {
         clear()
       } finally {

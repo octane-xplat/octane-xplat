@@ -57,3 +57,33 @@ test('release is inert under reentry, held dispatch, handler resurrection and vi
   assert.equal(store.hasHandler(view), false)
   assert.deepEqual(calls, ['next'])
 })
+
+test('managed semantic activation retains explicit origin and releases independently of action ownership', () => {
+  const store = createActionStore(),
+    view = {},
+    calls: string[] = []
+
+  const action = store.allocate(view)
+
+  action.setHandler((source) => {
+    if (!store.deliverActivation(view, source)) {
+      calls.push('ordinary')
+    }
+  })
+
+  const off = store.observeActivation(view, (source) => {
+    calls.push(source)
+  })
+
+  for (const source of ['pointer', 'keyboard', 'accessibility', 'virtual'] as const) {
+    store.dispatch(action.id, source)
+  }
+
+  assert.deepEqual(calls, ['pointer', 'keyboard', 'accessibility', 'virtual'])
+  assert.throws(() => store.observeActivation(view, () => {}), /already attached/)
+  off()
+  off()
+  store.dispatch(action.id)
+  assert.equal(calls.at(-1), 'ordinary')
+  action.release()
+})

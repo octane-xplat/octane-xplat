@@ -112,8 +112,12 @@ export function createActions(deps: Dependencies) {
 
     nodeActions.get(node)?.action.setHandler(
       handler
-        ? () => {
+        ? (source) => {
             if (node.view === view && canDispatch(node)) {
+              if (view && deps.store.deliverActivation(view, source)) {
+                return
+              }
+
               handler()
             }
           }
@@ -158,7 +162,7 @@ export function createActions(deps: Dependencies) {
         return
       }
 
-      invokeAction(idForView(sender.view))
+      invokeAction(idForView(sender.view), 'pointer')
     }
 
     ['linkPressed:'](sender: NSClickGestureRecognizer) {

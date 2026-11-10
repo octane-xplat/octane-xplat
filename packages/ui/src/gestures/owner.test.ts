@@ -388,3 +388,75 @@ it('does not recognize over native manipulation and cancels only hosts contained
     f.dispose()
   }
 })
+
+it('freezes multi-contact axes at first admission while taking its centroid baseline when the second contact arrives', () => {
+  let scale = 1
+  const samples: PanSample[] = []
+  const pan = createPanController({
+    axis: 'x',
+    pointers: { min: 2, max: 2 },
+    onStart: (sample) => {
+      samples.push(sample)
+    },
+  })
+
+  const host = {},
+    owner = createGestureOwner({
+      frame: () => () => {},
+      error: (error) => {
+        throw error
+      },
+    })
+
+  owner.register(host, pan.handle, {
+    target: { id: 'scaled' },
+    local: (point) => ({ x: point.x / scale, y: point.y }),
+    freeze() {
+      const basis = scale
+
+      return (point) => ({ x: point.x / basis, y: point.y })
+    },
+  })
+
+  let time = 0
+  const contact = (id: string, x: number): InputContact => ({
+    id,
+    kind: 'touch',
+    window: { x, y: 0 },
+    screen: null,
+  })
+
+  const send = (type: InputFrame['type'], contacts: readonly InputContact[]) =>
+    owner.dispatch({ type, time: (time += 20), contacts, changed: contacts[0], hitPath: [host] })
+
+  try {
+    send('down', [contact('1', 0)])
+    scale = 2
+    send('down', [contact('1', 0), contact('2', 20)])
+    send('move', [contact('1', 10), contact('2', 30)])
+    expect(samples[0].translation.x).toBe(10)
+    expect(samples[0].startPosition.local?.x).toBe(5)
+    expect(samples[0].position.local?.x).toBe(10)
+  } finally {
+    owner.dispose()
+    pan.dispose()
+  }
+})
+
+it('continues publishing cohort pointer counts after an exact-one pan is cancelled', () => {
+  const pan = createPanController({ axis: 'x' }),
+    f = fixture(pan.handle, [pan])
+
+  try {
+    f.send('down', [f.contact('1', 0)])
+    f.send('move', [f.contact('1', 20)])
+    f.send('down', [f.contact('1', 20), f.contact('2', 30)], f.contact('2', 30))
+    expect(pan.handle.phase$.get()).toBe('cancelled')
+    expect(pan.handle.pointerCount$.get()).toBe(2)
+    f.send('up', [f.contact('1', 20)], f.contact('2', 30))
+    expect(pan.handle.pointerCount$.get()).toBe(1)
+    expect(pan.handle.active$.get()).toBe(false)
+  } finally {
+    f.dispose()
+  }
+})
