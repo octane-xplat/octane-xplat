@@ -1659,8 +1659,8 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
  *  UserConsentVerifier async ops through the projected NSWinRT.toPromise
  *  panicked the isolate on 0.1.0-alpha.146 (cross-isolate PinnedRef). On
  *  affected runtimes the process dies between the 'check-availability' and
- *  'checked' progress steps; RequestVerification only runs when the class
- *  reports Available so no consent UI can stall the polling loop. */
+ *  'checked' progress steps. On hosts without Hello enrollment
+ *  RequestVerificationAsync returns a failure result without consent UI. */
 async function helloToPromiseSpec(record: Emit): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = {}
   const step = (name: string) => record('service-progress', { spec: 'hello-toPromise', step: name })
@@ -1677,12 +1677,14 @@ async function helloToPromiseSpec(record: Emit): Promise<Record<string, unknown>
 
   out.availability = availability
   step('checked')
+  step('request-verification')
 
-  if (availability === 0) {
-    step('request-verification')
+  try {
     out.verification = await NSWinRT.toPromise(
       verifier.RequestVerificationAsync('octane-xplat revalidation'),
     )
+  } catch (error) {
+    out.verificationError = String((error as Error)?.message ?? error)
   }
 
   return out
