@@ -359,6 +359,21 @@ experience of agents writing Octane-xplat code effectively.
   take the classic path (same as before the retarget). The generated check
   config's `tsrx.platform` key is a Volar-plugin option and is inert under
   native tsc.
+- **`@nativescript/vite` 8.0.20/8.0.21 parse top-level import records via Oxc
+  (`parseAst`) instead of Babel.** Babel 7.29.9 `skipBlockComment` rescans to
+  the next line break for every block comment — ~1.5 s per parse on the ~1.9 MB
+  single-line served module carrying ~2,000 block comments
+  (`shaders/dist/core/std-*.js`), and ~6 parses per request stacked to a ~10–20 s
+  event-loop stall — the cold-boot `NSURL -1001` storm on iOS. Our patch tries
+  Vite's `parseAst(code, {lang: 'tsx'})` first in both
+  `collectTopLevelImportRecords` implementations and in the dev link-check's
+  static-import scan (`collectStaticImportDefaultIntents`), falling back to the
+  same Babel parse when Oxc rejects. With it, the iOS simulator completed the
+  cold-server HMR cycle on `apps/mobile` (initial launch, in-place JS edit,
+  native rebuild) with the Go engine; loader `-1001` retries still occur but
+  recover. Upstream: NativeScript#11634. The Windows `pkg.pr.new` abae298
+  preview keeps its own unchanged patch file because the regenerated 8.0.21
+  hunks do not apply to that source.
 - **Bun 1.4.4 is the install minimum.** On macOS arm64, 1.4.3 failed the
   canonical `@nativescript/vite@8.0.21` patch with `EINVAL (fstatat)` in both
   an isolated dependency and the full workspace. The identical patch applied

@@ -488,30 +488,213 @@ index 0d58dfc3e2254656cd910ddf2dde7845dd1cf595..8d57de97e60bbab854737f33391c2c6e
          }
          else {
              i++;
+diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
+index 00b89ff3ae13b1c2b219a4c35c0450f97ac5ffc9..e04fb22973a93959a6532be0500f184b5160ce9a 100644
+--- a/hmr/server/websocket-module-bindings.js
++++ b/hmr/server/websocket-module-bindings.js
+@@ -6,7 +6,7 @@ import { astExtractImportsAndStripTypes } from '../helpers/ast-extract.js';
+ import { getProjectRootPath } from '../../helpers/project.js';
+ import { extractRootPackageName } from '../shared/package-classifier.js';
+ import { isEsmFrameworkPackageSpecifier, isLikelyNativeScriptPluginSpecifier, isLikelyNativeScriptRuntimePluginSpecifier, normalizeNodeModulesSpecifier, resolveInternalRuntimePluginBareSpecifier, resolveNodeModulesPackageBoundary, resolveVendorFromCandidate, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
+-import { MODULE_IMPORT_ANALYSIS_PLUGINS } from './websocket-served-module-helpers.js';
++import { MODULE_IMPORT_ANALYSIS_PLUGINS, parseTopLevelStatements } from './websocket-served-module-helpers.js';
+ import { getVendorManifest } from '../shared/vendor/registry.js';
+ /**
+  * True when a vendor manifest is active and the specifier's root package is
+@@ -28,16 +28,19 @@ function hasExplicitRuntimePluginScriptExtension(segment) {
+     return EXPLICIT_RUNTIME_PLUGIN_SCRIPT_EXT_RE.test(segment);
+ }
+ function collectTopLevelImportRecords(code) {
+-    try {
+-        const ast = babelParse(code, {
+-            sourceType: 'module',
+-            plugins: [...MODULE_IMPORT_ANALYSIS_PLUGINS],
+-        });
+-        const body = ast?.program?.body;
+-        if (!Array.isArray(body)) {
+-            return [];
+-        }
+-        return body
++    let body = parseTopLevelStatements(code);
++    if (!body) {
++        try {
++            body = babelParse(code, {
++                sourceType: 'module',
++                plugins: [...MODULE_IMPORT_ANALYSIS_PLUGINS],
++            })?.program?.body ?? null;
++        } catch {}
++    }
++    if (!Array.isArray(body)) {
++        return [];
++    }
++    return body
+             .filter((node) => node?.type === 'ImportDeclaration' && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
+             .map((node) => {
+             const text = code.slice(node.start, node.end);
+@@ -51,10 +54,6 @@ function collectTopLevelImportRecords(code) {
+                 isTypeOnly: node.importKind === 'type',
+             };
+         });
+-    }
+-    catch {
+-        return [];
+-    }
+ }
+ /** Value re-exports (`export * from 'x'`, `export { a } from 'x'`), as the positions of their source literals. */
+ function collectTopLevelReExportSources(code) {
+diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
+index f7634561533a352548f8422a79b48e908f2e05fc..2230bc7d891285cdb9b8f36f464fc52b6d9ab82d 100644
+--- a/hmr/server/websocket-ns-m.js
++++ b/hmr/server/websocket-ns-m.js
+@@ -9,7 +9,7 @@ import { createNsMRequestContext, resolveFsAnchoredSpec, resolveNsMTransformedMo
+ import { setDeviceModuleHeaders } from './route-helpers.js';
+ import { RAW_QUERY_PATTERN } from './constants.js';
+ import { CSS_MODULE_RE, buildCssRegisterSnippetFromVar, normalizeCssForDevice } from './css-device-module.js';
+-import { assertNoOptimizedArtifacts, buildBootProgressSnippet, canonicalizeRtImports, dedupeRtNamedImportsAgainstDestructures, deduplicateLinkerImports, ensureDestructureCoreImports, ensureGuardPlainDynamicImports, ensureVariableDynamicImportHelper, expandStarExports, hasEsmDefaultExport, hoistTopLevelStaticImports, MODULE_IMPORT_ANALYSIS_PLUGINS, wrapCommonJsModuleForDevice, ensureWorkerEntryGlobalsImport, classifyServedRequest } from './websocket-served-module-helpers.js';
++import { assertNoOptimizedArtifacts, buildBootProgressSnippet, canonicalizeRtImports, dedupeRtNamedImportsAgainstDestructures, deduplicateLinkerImports, ensureDestructureCoreImports, ensureGuardPlainDynamicImports, ensureVariableDynamicImportHelper, expandStarExports, hasEsmDefaultExport, hoistTopLevelStaticImports, MODULE_IMPORT_ANALYSIS_PLUGINS, wrapCommonJsModuleForDevice, ensureWorkerEntryGlobalsImport, classifyServedRequest, collectStaticImportDefaultIntents } from './websocket-served-module-helpers.js';
+ import { cleanCode, collectImportDependencies, isWorkerEntryModuleId, processCodeForDevice, rewriteImports } from './websocket-device-transform.js';
+ import { REQUIRE_GUARD_SNIPPET } from './require-guard.js';
+ import { getServerOrigin } from './server-origin.js';
+@@ -479,20 +479,7 @@ export function registerNsModuleServerRoute(server, options) {
+             try {
+                 const devCheck = process.env.NODE_ENV !== 'production';
+                 if (devCheck) {
+-                    const ast = babelParse(code, {
+-                        sourceType: 'module',
+-                        plugins: MODULE_IMPORT_ANALYSIS_PLUGINS,
+-                    });
+-                    const imports = [];
+-                    babelTraverse(ast, {
+-                        ImportDeclaration(p) {
+-                            const src = p.node.source.value;
+-                            if (typeof src !== 'string')
+-                                return;
+-                            const wantsDefault = p.node.specifiers.some((s) => s.type === 'ImportDefaultSpecifier');
+-                            imports.push({ src, wantsDefault });
+-                        },
+-                    });
++                    const imports = collectStaticImportDefaultIntents(code);
+                     // Resolve and verify each static import that asks for default
+                     for (const imp of imports) {
+                         if (!imp.wantsDefault)
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
-index 6004d307bcbcc48da887fb2177642c83e9eb89b7..9798d184bf6cb4762ed801ebf658c575d34f669e 100644
+index 6004d307bcbcc48da887fb2177642c83e9eb89b7..e7ab711ce335f2168f3e3880c36816a4561d170d 100644
 --- a/hmr/server/websocket-served-module-helpers.js
 +++ b/hmr/server/websocket-served-module-helpers.js
-@@ -122,8 +122,8 @@ export function hasEsmDefaultExport(code) {
+@@ -1,7 +1,10 @@
+ import { parse as babelParse } from '@babel/parser';
++import traverse from '@babel/traverse';
++import { parseAst } from 'vite';
+ import * as t from '@babel/types';
+ import { existsSync, readFileSync } from 'fs';
+ import * as path from 'path';
++const babelTraverse = traverse?.default || traverse;
+ import * as PAT from './constants.js';
+ import { isDeepCoreSubpath } from './core-sanitize.js';
+ import { getCjsNamedExports } from '../helpers/cjs-named-exports.js';
+@@ -122,40 +125,82 @@ export function hasEsmDefaultExport(code) {
          return node.specifiers.some((spec) => !(t.isExportSpecifier(spec) && spec.exportKind === 'type') && (t.isIdentifier(spec.exported) ? spec.exported.name : spec.exported.value) === 'default');
      });
  }
 -export function collectTopLevelImportRecords(code) {
 -    if (!code || typeof code !== 'string' || !/\bimport\b/.test(code)) {
+-        return [];
+-    }
++/**
++ * Top-level statements via Vite's native (Oxc) parser. Babel's block-comment
++ * line tracking rescans to the next line break for every comment, so long
++ * minified lines with many comments parse quadratically. Returns null when
++ * Oxc rejects the code so callers can fall back to Babel.
++ */
++export function parseTopLevelStatements(code) {
+     try {
+-        const ast = babelParse(code, {
+-            sourceType: 'module',
+-            plugins: MODULE_IMPORT_ANALYSIS_PLUGINS,
+-        });
+-        const body = ast?.program?.body;
+-        if (!Array.isArray(body)) {
+-            return [];
++        const ast = parseAst(code, { lang: 'tsx' });
++        return Array.isArray(ast?.body) ? ast.body : null;
++    } catch {
++        return null;
++    }
++}
++/**
++ * Static import sources and whether each asks for a default binding.
++ */
++export function collectStaticImportDefaultIntents(code) {
++    const body = parseTopLevelStatements(code);
++    if (body) {
++        const imports = [];
++        for (const node of body) {
++            if (node?.type !== 'ImportDeclaration' || typeof node.source?.value !== 'string')
++                continue;
++            imports.push({ src: node.source.value, wantsDefault: Array.isArray(node.specifiers) && node.specifiers.some((s) => s?.type === 'ImportDefaultSpecifier') });
+         }
+-        return body
+-            .filter((node) => t.isImportDeclaration(node) && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
++        return imports;
++    }
++    const ast = babelParse(code, {
++        sourceType: 'module',
++        plugins: MODULE_IMPORT_ANALYSIS_PLUGINS,
++    });
++    const imports = [];
++    babelTraverse(ast, {
++        ImportDeclaration(p) {
++            const src = p.node.source.value;
++            if (typeof src !== 'string')
++                return;
++            imports.push({ src, wantsDefault: p.node.specifiers.some((s) => s.type === 'ImportDefaultSpecifier') });
++        },
++    });
++    return imports;
++}
 +export function collectTopLevelImportRecords(code, includeReExports = false) {
 +    if (!code || typeof code !== 'string' || !(includeReExports ? /\b(?:import|export)\b/ : /\bimport\b/).test(code)) {
-         return [];
-     }
-     try {
-@@ -136,7 +136,7 @@ export function collectTopLevelImportRecords(code) {
-             return [];
-         }
-         return body
--            .filter((node) => t.isImportDeclaration(node) && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
-+            .filter((node) => (t.isImportDeclaration(node) || (includeReExports && (t.isExportNamedDeclaration(node) || t.isExportAllDeclaration(node)))) && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
++        return [];
++    }
++    let body = parseTopLevelStatements(code);
++    if (!body) {
++        try {
++            body = babelParse(code, {
++                sourceType: 'module',
++                plugins: MODULE_IMPORT_ANALYSIS_PLUGINS,
++            })?.program?.body ?? null;
++        } catch {}
++    }
++    if (!Array.isArray(body)) {
++        return [];
++    }
++    return body
++            .filter((node) => (node?.type === 'ImportDeclaration' || (includeReExports && (node?.type === 'ExportNamedDeclaration' || node?.type === 'ExportAllDeclaration'))) && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
              .map((node) => ({
              start: node.start,
              end: node.end,
+             text: code.slice(node.start, node.end),
+             source: node.source.value,
+-            hasOnlyNamedSpecifiers: Array.isArray(node.specifiers) && node.specifiers.length > 0 && node.specifiers.every((spec) => t.isImportSpecifier(spec)),
++            hasOnlyNamedSpecifiers: Array.isArray(node.specifiers) && node.specifiers.length > 0 && node.specifiers.every((spec) => spec?.type === 'ImportSpecifier'),
+             namedBindings: Array.isArray(node.specifiers)
+                 ? node.specifiers
+-                    .filter((spec) => t.isImportSpecifier(spec) && typeof spec.start === 'number' && typeof spec.end === 'number')
++                    .filter((spec) => spec?.type === 'ImportSpecifier' && typeof spec.start === 'number' && typeof spec.end === 'number')
+                     .map((spec) => ({
+-                    importedName: t.isIdentifier(spec.imported) ? spec.imported.name : String(spec.imported?.value || ''),
++                    importedName: spec.imported?.type === 'Identifier' ? spec.imported.name : String(spec.imported?.value || ''),
+                     text: code.slice(spec.start, spec.end),
+                 }))
+                 : [],
+         }));
+-    }
+-    catch {
+-        return [];
+-    }
+ }
+ export function hoistTopLevelStaticImports(code) {
+     const imports = collectTopLevelImportRecords(code);
 diff --git a/hmr/shared/vendor/manifest-collect.js b/hmr/shared/vendor/manifest-collect.js
 index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..854530f1b5c65e41e47b61b50cb1d21c43c48144 100644
 --- a/hmr/shared/vendor/manifest-collect.js
