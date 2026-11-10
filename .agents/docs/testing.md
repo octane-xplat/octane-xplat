@@ -228,3 +228,22 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 - [Packed Android starter](android-starter-tests.md) — selected-host consumer test gate.
 - [AppKit verification](appkit-verification.md) — layout, overlays, and packed-consumer scope.
 - [iOS animation quality](../../tools/verification/animation-quality/README.md) — isolated Release fixture, real-input XCTest source, Instruments metrics, per-device baselines and evidence limits; excluded from lightweight PR CI.
+
+## Gesture owner checks
+
+The internal gesture prototype has three focused checks. Run the state-machine
+and web-adapter unit cases, the compiled native hook/object-driver case, and
+the browser mouse/keyboard input case separately from device qualification:
+
+```sh
+bun run turbo run test --filter=@octane-xplat/ui -- src/gestures
+bun run turbo run test:gestures:native --filter=@octane-xplat/ui
+bun run turbo run test:gestures:web --filter=@xplat/probe
+```
+
+The browser task launches existing Chromium, Firefox and WebKit installations,
+uses mouse/keyboard input, and deliberately releases pointer capture through a
+browser API. It does not capture images, install engines, or simulate native
+devices. It remains a local qualification task outside the lightweight PR gate.
+These checks do not qualify the eventual public component bindings, native
+scroll suspension, touchscreens, accessibility services or packed consumers.

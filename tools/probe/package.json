@@ -7,7 +7,8 @@
 		"probe": "node cli.ts",
 		"test": "node --test --test-concurrency=2 *.test.mjs",
 		"test:query-cache-runtime": "node query-cache-runtime.ts",
-		"typecheck": "tsc --runExternalCode -p tsconfig.json"
+		"typecheck": "tsc --runExternalCode -p tsconfig.json",
+		"test:gestures:web": "node gesture-input.web.mjs"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",

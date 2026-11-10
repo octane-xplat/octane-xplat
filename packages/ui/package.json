@@ -165,7 +165,8 @@
 		"sync:ui-barrels": "node scripts/sync-ui-barrels.ts",
 		"check:ui-barrels": "node scripts/sync-ui-barrels.ts --check",
 		"bench:routing-types": "node scripts/bench-routing-types.ts",
-		"typecheck:scripts": "tsc --runExternalCode -p scripts/tsconfig.json"
+		"typecheck:scripts": "tsc --runExternalCode -p scripts/tsconfig.json",
+		"test:gestures:native": "vitest run --config vitest.native.config.mts src/gestures/hooks.mobile.test.tsrx"
 	},
 	"dependencies": {
 		"@octane-xplat/camera": "workspace:*",

@@ -9,6 +9,10 @@
 		"test:query-cache-runtime": {
 			"dependsOn": ["@octane-xplat/ui#typegen", "@octane-xplat/cli#build"],
 			"cache": false
+		},
+		"test:gestures:web": {
+			"dependsOn": ["@octane-xplat/ui#typegen", "@octane-xplat/cli#build"],
+			"cache": false
 		}
 	}
 }

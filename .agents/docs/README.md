@@ -74,3 +74,4 @@ in Silo/local storage. Plans are maintained outside `.agents/`.
 - [GTK UI parity](notes/linux-gtk-ui-parity.md) — native export inventory, implementation order, and qualification boundaries.
 
 - [Native Pressable contacts](native-pressable.md) — Android moving-host tap arbitration and upstream recognizer boundary.
+- [Gesture ownership core](gesture-ownership.md) — internal coordinator, signal retirement boundary, and qualification entry points.

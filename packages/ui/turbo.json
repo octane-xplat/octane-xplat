@@ -36,6 +36,10 @@
 		"bench:routing-types": {
 			"dependsOn": ["typegen", "@octane-xplat/cli#build"],
 			"cache": false
+		},
+		"test:gestures:native": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"env": ["XPLAT_UI_TEST_TARGET"]
 		}
 	}
 }
