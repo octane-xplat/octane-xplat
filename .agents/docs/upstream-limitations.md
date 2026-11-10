@@ -596,7 +596,12 @@ are gone from `ServiceInterop`.
 `File.readTextSync` returns the string `"undefined"` (not the file contents)
 and `File.writeTextSync` reports success without performing IO. Confirmed on
 packaged MSIX 1.0.0.243 via write instrumentation (writeCount incremented,
-writeError null, file unchanged). Any app relying on synchronous file reads or
+writeError null, file unchanged) and revalidated on
+`@nativescript/windows@1.0.0-beta.24` (MSIX 1.0.0.251, `corefs-sync` spec):
+`readTextSync` returns `undefined` on a file with real contents, a
+fresh-file `writeTextSync` produces an empty file after which async
+`writeText` throws `Windows.Foundation.HResult`, and `File.exists` returns
+`undefined` (not `false`) for a missing path. Any app relying on synchronous file reads or
 writes — e.g. preferences persistence through `File.writeTextSync` — silently
 loses data (tracked upstream as NativeScript/NativeScript#11630). Workaround in `storage.windows.ts`: async `readText`/`writeText`
 with snapshot writes enqueued at call time. Real-world impact: a packaged
