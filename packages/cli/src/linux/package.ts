@@ -96,6 +96,7 @@ command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$
 printf 'Installed to %s\\n' "$DEST"
 `,
   )
+
   chmodSync(join(appDir, 'install.sh'), 0o755)
 
   writeFileSync(
@@ -111,6 +112,7 @@ printf 'Removed %s and its desktop entry.\\n' "$DEST"
 printf 'Settings kept under %s\\n' "\${XDG_CONFIG_HOME:-$HOME/.config}/${config.applicationId}"
 `,
   )
+
   chmodSync(join(appDir, 'uninstall.sh'), 0o755)
 }
 

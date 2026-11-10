@@ -3,7 +3,13 @@ import type { Subscriptions } from './subscriptions'
 import type { AccessibilityState } from './accessibility-state'
 import { createTabStopSuppression } from './tab-stop'
 import { createDisabledFocusTargets } from './disabled-focus'
-import { NSNumber, NSProtocolFromString, NSView, NativeClass, interop } from '@octane-xplat/platform/macos'
+import {
+  NSNumber,
+  NSProtocolFromString,
+  NSView,
+  NativeClass,
+  interop,
+} from '@octane-xplat/platform/macos'
 
 interface Dependencies {
   actions: Pick<Actions, 'hasHandler' | 'idForView' | 'invokeAction'>
@@ -122,7 +128,9 @@ export function createAccessibleHost(deps: Dependencies) {
       'NSAccessibilitySlider',
       'NSAccessibilityStepper',
     ]
-      .map((name) => (typeof NSProtocolFromString === 'function' ? NSProtocolFromString(name) : null))
+      .map((name) =>
+        typeof NSProtocolFromString === 'function' ? NSProtocolFromString(name) : null,
+      )
       .filter(Boolean)
 
     static {
@@ -412,31 +420,39 @@ export function createAccessibleHost(deps: Dependencies) {
         // best-effort under partial native shims
       }
     }
+
     const pushKey = (key: string, compute: () => unknown) =>
       push(() => storage.setValueForKey?.(compute(), key))
 
     push(() => {
       storage.accessibilityElement = view.isAccessibilityElement()
     })
+
     pushKey('accessibilityRole', () => view.accessibilityRole())
     pushKey('accessibilityLabel', () => view.accessibilityLabel())
     pushKey('accessibilityTitle', () => view.accessibilityTitle())
     pushKey('accessibilityValue', () => view.accessibilityValue())
     pushKey('accessibilityValueDescription', () => view.accessibilityValueDescription())
+
     const props = deps.state.get(view)
+
     if (props?.accessibilityMinValue !== undefined) {
       pushKey('accessibilityMinValue', () => view.accessibilityMinValue())
     }
+
     if (props?.accessibilityMaxValue !== undefined) {
       pushKey('accessibilityMaxValue', () => view.accessibilityMaxValue())
     }
+
     pushKey('accessibilityHelp', () => view.accessibilityHelp())
     push(() => {
       storage.accessibilityEnabled = view.isAccessibilityEnabled()
     })
+
     push(() => {
       storage.accessibilitySelected = view.isAccessibilitySelected()
     })
+
     push(() => {
       storage.accessibilityExpanded = view.isAccessibilityExpanded()
     })

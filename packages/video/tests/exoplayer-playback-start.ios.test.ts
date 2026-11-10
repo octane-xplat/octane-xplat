@@ -20,9 +20,11 @@ const require = createRequire(new URL('../package.json', import.meta.url))
 const installed = require.resolve('@nstudio/nativescript-exoplayer/index.ios.js')
 
 const directory = mkdtempSync(join(tmpdir(), 'xplat-video-exoplayer-ios-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 const support = join(directory, 'support.mjs')
+
 writeFileSync(
   support,
   `
@@ -137,8 +139,11 @@ const source = readFileSync(installed, 'utf8').replace(
   /(from|import)\s*(['"])(?:\.\/common|@nativescript\/core)\2/g,
   (_match: string, keyword: string) => `${keyword} ${JSON.stringify(supportUrl)}`,
 )
+
 const subject = join(directory, 'index.ios.mjs')
+
 writeFileSync(subject, source)
+
 const { Video } = (await import(pathToFileURL(subject).href)) as any
 const { emitted } = (await import(supportUrl)) as any
 
@@ -164,6 +169,7 @@ function kvoPaths(player: any, list: 'kvoAdds' | 'kvoRemovals') {
 test('exoplayer emits playbackStart once per source from actual playback only (ios)', () => {
   const view = new Video()
   const player = view._player
+
   try {
     // A play request is not playback — no start, and the flag stays unset so
     // the later real transition can still report.
@@ -172,6 +178,7 @@ test('exoplayer emits playbackStart once per source from actual playback only (i
       kvoPaths(player, 'kvoAdds').includes('timeControlStatus'),
       'player was not observed for timeControlStatus',
     )
+
     view.play()
     assert.equal(player.playCount, 1)
     assert.equal(view.eventPlaybackStart, false)
@@ -245,7 +252,9 @@ test('exoplayer emits playbackStart once per source from actual playback only (i
     view._setNativePlayerSource('https://example.invalid/replacement.mp4')
     assert.equal(view.eventPlaybackStart, false)
     assert.ok(kvoPaths(player, 'kvoRemovals').includes('timeControlStatus'))
+
     const player2 = view._player
+
     assert.notEqual(player2, player)
     assert.ok(kvoPaths(player2, 'kvoAdds').includes('timeControlStatus'))
     player2.timeControlStatus = PLAYING
@@ -266,6 +275,7 @@ test('source replacement does not inherit a requested play rate when autoplay is
   const view = new Video()
   const player = view._player
   const emittedBefore = emitted.length
+
   try {
     // A told-to-play player (autoplay on an item that may never become ready)
     // keeps AVPlayer.rate=1, and the rate survives item replacement upstream.
@@ -279,7 +289,9 @@ test('source replacement does not inherit a requested play rate when autoplay is
     // engagement the app never asked to play. ExoPlayer recreates its player
     // per source, so Android resets playWhenReady; the web leaf resets too.
     view.autoplay = false
+
     const next = new Item()
+
     next.status = READY_TO_PLAY
     view._setNativeVideo(next)
     assert.equal(player.pauseCount, 1)

@@ -19,6 +19,7 @@ function installRuntime(pipeHandle: number | bigint, fileHandle: number | bigint
       }
     },
   )
+
   vi.stubGlobal('NSWinRT', {
     interop: { pointerFromBuffer: () => 1 },
     win32: {
@@ -46,6 +47,7 @@ async function bind() {
   }
 
   const { backend } = await import('../src/backend.windows')
+
   return backend.bind(
     { key: 1, id: 'test', accelerator: parsed.accelerator, description: 'Test' },
     () => {},

@@ -122,7 +122,6 @@ describe('native pan normalization', () => {
   })
 })
 
-
 const panReads: Array<{ label: string; moves: number; state: PanEvent['state'] }> = []
 let renderedPan: unknown
 
@@ -134,7 +133,9 @@ function StatefulPanHost(props: { label: string; enabled: boolean }) @{
       setMoves(moves + 1)
     }
   }
+
   const onPan = usePan(props.enabled ? callback : undefined)
+
   renderedPan = onPan
 
   <masonview id="stateful-pan" onPan={onPan} style={{ display: 'flex' }} />
@@ -142,17 +143,24 @@ function StatefulPanHost(props: { label: string; enabled: boolean }) @{
 
 it('retains the pan bridge through its own movement rerender and reads committed callbacks', () => {
   panReads.length = 0
+
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   let dispatchRetired: (() => void) | undefined
+
   try {
     flushUniversalSync(() => root.render(StatefulPanHost, { label: 'first', enabled: true }))
+
     const host = container.children[0]
     const original = renderedPan
+
     dispatchRetired = () => container.dispatchEvent(host, 'pan', { state: 2, deltaX: 30 })
-    const dispatch = (state: number) => flushUniversalSync(() => {
-      container.dispatchEvent(host, 'pan', { state, deltaX: 25, deltaY: 0, view: host })
-    })
+
+    const dispatch = (state: number) =>
+      flushUniversalSync(() => {
+        container.dispatchEvent(host, 'pan', { state, deltaX: 25, deltaY: 0, view: host })
+      })
+
     dispatch(1)
     dispatch(2)
     expect(renderedPan).toBe(original)
@@ -173,8 +181,11 @@ it('retains the pan bridge through its own movement rerender and reads committed
   } finally {
     root.unmount()
   }
+
   expect(container.children).toHaveLength(0)
+
   const finalReads = panReads.length
+
   expect(dispatchRetired).toThrow()
   expect(panReads).toHaveLength(finalReads)
 })

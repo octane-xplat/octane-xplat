@@ -16,11 +16,15 @@ const here = dirname(fileURLToPath(import.meta.url))
 const repo = join(here, '../../..')
 const harness = join(repo, 'apps/windows')
 const WORK = process.env.DESKTOP_SHELL_WORK ?? join(repo, 'research/desktop-shell/windows-run-1')
-const PHASE = process.argv.includes('--phase') ? process.argv[process.argv.indexOf('--phase') + 1] : 'all'
+const PHASE = process.argv.includes('--phase')
+  ? process.argv[process.argv.indexOf('--phase') + 1]
+  : 'all'
+
 const HOST = process.env.DESKTOP_SHELL_WINDOWS_HOST ?? 'windy'
 const RUNTIME =
   process.env.DESKTOP_SHELL_WINDOWS_RUNTIME ??
   'C:\\Users\\alecs\\dev\\octane-xplat\\apps\\windows\\platforms\\windows\\windows\\bin'
+
 const TASK = 'hushed-dew'
 
 const log = (m) => console.log(`[desktop-shell-windows] ${m}`)
@@ -58,6 +62,7 @@ function buildBundles() {
     for (const file of ['App.tsrx', 'Inspector.tsrx', 'journey.ts', 'main.windows.ts']) {
       cpSync(join(here, 'app', file), join(staged, file))
     }
+
     writeFileSync(
       join(staged, 'version.ts'),
       `export const APP_VERSION = '${version}'\nexport const STATUS_SUFFIX = '${suffix}'\n`,
@@ -81,7 +86,12 @@ function buildBundles() {
 
     rmSync(zip, { force: true })
     execFileSync('zip', ['-qr', zip, '.'], { cwd: out })
-    bundles[label] = { version, zip, sha256: sha256(zip), bundleSha256: sha256(join(out, 'bundle.mjs')) }
+    bundles[label] = {
+      version,
+      zip,
+      sha256: sha256(zip),
+      bundleSha256: sha256(join(out, 'bundle.mjs')),
+    }
   }
 
   rmSync(staged, { recursive: true, force: true })
@@ -97,8 +107,11 @@ function runJourney() {
   const remote = ps(
     `$d=Join-Path $env:USERPROFILE 'agent-scratch\\octane-xplat\\${TASK}\\windows-${id}'; New-Item -ItemType Directory -Force $d | Out-Null; Set-Content (Join-Path $d 'README.txt') 'Disposable desktop-shell journey scratch for task ${TASK}; safe to delete.'; $d`,
   ).trim()
+
   const upload = (local, name) =>
-    execFileSync('scp', ['-q', local, `${HOST}:${remote.replaceAll('\\', '/')}/${name}`], { timeout: 300_000 })
+    execFileSync('scp', ['-q', local, `${HOST}:${remote.replaceAll('\\', '/')}/${name}`], {
+      timeout: 300_000,
+    })
 
   upload(bundles.v1.zip, 'app-v1.zip')
   upload(bundles.v2.zip, 'app-v2.zip')
@@ -110,6 +123,7 @@ function runJourney() {
     runLocal,
     `try { & ${q(remote + '\\driver.ps1')} -Directory ${q(remote)} -Runtime ${q(RUNTIME)} -Identity ${q(identity)} *> ${q(remote + '\\output.log')}; $code=0 } catch { $_ | Out-File -Append ${q(remote + '\\output.log')}; $code=1 } finally { Set-Content ${q(remote + '\\exit')} $code }\n`,
   )
+
   upload(runLocal, 'run.ps1')
 
   log(`journey on ${HOST} (${remote})`)
@@ -139,15 +153,24 @@ try {
 
       return { step, inputClass, result, detail: detail.join('|').trim() }
     })
-  const windowsBuild = ps(`(Get-CimInstance Win32_OperatingSystem | ForEach-Object { $_.Caption + ' ' + $_.BuildNumber })`).trim()
+
+  const windowsBuild = ps(
+    `(Get-CimInstance Win32_OperatingSystem | ForEach-Object { $_.Caption + ' ' + $_.BuildNumber })`,
+  ).trim()
+
   const harnessManifest = JSON.parse(readFileSync(join(harness, 'package.json'), 'utf8'))
   const evidence = {
     product: 'desktop-shell',
     platform: 'windows-winui',
-    route: 'packaged NativeScript Windows runtime (MSIX layout registration); no downstream consumer workflow exists',
+    route:
+      'packaged NativeScript Windows runtime (MSIX layout registration); no downstream consumer workflow exists',
     result: steps.length > 0 && steps.every((s) => s.result === 'pass') ? 'pass' : 'fail',
-    sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repo, encoding: 'utf8' }).trim(),
-    sourceDirty: execFileSync('git', ['status', '--porcelain'], { cwd: repo, encoding: 'utf8' }).trim() !== '',
+    sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: repo,
+      encoding: 'utf8',
+    }).trim(),
+    sourceDirty:
+      execFileSync('git', ['status', '--porcelain'], { cwd: repo, encoding: 'utf8' }).trim() !== '',
     identity,
     host: HOST,
     remote,
@@ -155,7 +178,9 @@ try {
     environment: {
       windows: windowsBuild,
       nativescriptCore: harnessManifest.dependencies['@nativescript/core'],
-      nativescriptWindows: harnessManifest.dependencies['@nativescript/windows'] ?? harnessManifest.devDependencies?.['@nativescript/windows'],
+      nativescriptWindows:
+        harnessManifest.dependencies['@nativescript/windows'] ??
+        harnessManifest.devDependencies?.['@nativescript/windows'],
     },
     artifacts: bundles,
     hashes: output.split(/\r?\n/).filter((line) => line.startsWith('HASH ')),
@@ -163,13 +188,24 @@ try {
   }
 
   writeFileSync(join(WORK, 'evidence.json'), JSON.stringify(evidence, null, 2))
-  for (const s of steps) log(`${s.result.padEnd(7)} ${s.inputClass.padEnd(30)} ${s.step}${s.detail ? ' — ' + s.detail : ''}`)
+  for (const s of steps) {
+    log(
+      `${s.result.padEnd(7)} ${s.inputClass.padEnd(30)} ${s.step}${s.detail ? ' — ' + s.detail : ''}`,
+    )
+  }
+
   return evidence
 }
 
 mkdirSync(WORK, { recursive: true })
-if (PHASE === 'build' || PHASE === 'all') buildBundles()
+if (PHASE === 'build' || PHASE === 'all') {
+  buildBundles()
+}
+
 if (PHASE === 'journey' || PHASE === 'all') {
-  if (!existsSync(join(WORK, 'bundles.json'))) throw new Error(`no bundles in ${WORK}; run --phase build first`)
+  if (!existsSync(join(WORK, 'bundles.json'))) {
+    throw new Error(`no bundles in ${WORK}; run --phase build first`)
+  }
+
   runJourney()
 }

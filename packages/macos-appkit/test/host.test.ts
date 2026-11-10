@@ -144,35 +144,43 @@ test('host option validation rejects malformed arguments', () => {
     name: 'TypeError',
     message: 'runMacOSApp options must be an object',
   })
+
   assert.throws(() => (runMacOSApp as any)({}, 'mount'), {
     name: 'TypeError',
     message: 'runMacOSApp mount must be a function',
   })
+
   assert.throws(() => (createAppKitWindow as any)('options'), {
     name: 'TypeError',
     message: 'createAppKitWindow options must be an object',
   })
+
   assert.throws(() => createAppKitWindow({ terminateAfterLastWindowClosed: 'yes' as any }), {
     name: 'TypeError',
     message: 'createAppKitWindow terminateAfterLastWindowClosed must be a boolean',
   })
+
   assert.throws(() => (createAppKitWindow as any)({ size: { width: -4, height: 10 } }), {
     name: 'TypeError',
     message: 'createAppKitWindow size must have positive finite width and height',
   })
+
   assert.throws(() => (createHostedWindow as any)('options'), {
     name: 'TypeError',
     message: 'createHostedWindow options must be an object',
   })
+
   assert.equal(typeof openSecondary, 'function')
   assert.throws(() => openSecondary(null), {
     name: 'TypeError',
     message: 'openWindow options must be an object',
   })
+
   assert.throws(() => openSecondary({ kind: 'sideways' }), {
     name: 'RangeError',
     message: 'Unsupported macOS window kind: sideways',
   })
+
   assert.throws(() => (setWindowContentResolver as any)('resolver'), {
     name: 'TypeError',
     message: 'setWindowContentResolver expects a function or null',
@@ -207,6 +215,7 @@ test('openWindow enforces the resolver contract and unmounts on close', async ()
   assert.throws(() => openSecondary({}), /openWindow component|setWindowContentResolver/)
 
   const seen: unknown[] = []
+
   setWindowContentResolver((data, controller) => {
     seen.push(data)
     assert.equal(controller.isClosed, false)
@@ -220,13 +229,19 @@ test('openWindow enforces the resolver contract and unmounts on close', async ()
   assert.equal(controller.isClosed, false)
   assert.ok(controller.root)
   assert.equal(controller.window.title, 'Secondary')
-  assert.equal(debugWindows().some((entry) => entry.title === 'Secondary'), true)
+  assert.equal(
+    debugWindows().some((entry) => entry.title === 'Secondary'),
+    true,
+  )
 
   controller.close()
   await controller.closed
   assert.equal(controller.isClosed, true)
   assert.equal(controller.root, null)
-  assert.equal(debugWindows().some((entry) => entry.title === 'Secondary'), false)
+  assert.equal(
+    debugWindows().some((entry) => entry.title === 'Secondary'),
+    false,
+  )
 })
 
 test('runMacOSApp calls mount cleanup once before unmount, then stops the host', async () => {
@@ -244,6 +259,7 @@ test('runMacOSApp calls mount cleanup once before unmount, then stops the host',
 
   runMacOSApp({ title: 'Host test' }, (target) => {
     mounted = target
+
     const unmount = target.root.unmount.bind(target.root)
 
     target.root.unmount = () => {

@@ -81,24 +81,22 @@ export function usePan(cb?: (e: PanEvent) => void): ((e: any) => void) | undefin
   const velocityTracker = useRef<any>(null)
   // Retain the native observer through state/callback updates while reading
   // the latest committed callback. Removing the prop still removes the listener.
-  const handler = useEffectEvent(
-    (e: any) => {
-      const nativeState = nativePanState(e)
-      const state = PAN_STATE[nativeState] ?? 'moved'
-      const velocity = panVelocity(e, nativeState, velocityTracker)
+  const handler = useEffectEvent((e: any) => {
+    const nativeState = nativePanState(e)
+    const state = PAN_STATE[nativeState] ?? 'moved'
+    const velocity = panVelocity(e, nativeState, velocityTracker)
 
-      cb?.({
-        x: e.deltaX,
-        y: e.deltaY,
-        dx: e.deltaX,
-        dy: e.deltaY,
-        vx: velocity.vx,
-        vy: velocity.vy,
-        state,
-        target: e.view ?? e.object,
-      })
-    },
-  )
+    cb?.({
+      x: e.deltaX,
+      y: e.deltaY,
+      dx: e.deltaX,
+      dy: e.deltaY,
+      vx: velocity.vx,
+      vy: velocity.vy,
+      state,
+      target: e.view ?? e.object,
+    })
+  })
 
   return cb ? handler : undefined
 }

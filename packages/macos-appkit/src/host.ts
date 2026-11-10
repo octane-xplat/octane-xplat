@@ -13,6 +13,7 @@ import type {
   NSWindow,
   NSWindowDelegate,
 } from '@octane-xplat/platform/macos'
+
 import {
   createAppKitWindow,
   externalRunLoopMode,
@@ -22,11 +23,7 @@ import {
 } from './host-windowing'
 
 export { createAppKitWindow } from './host-windowing'
-export type {
-  AppKitHostDelegate,
-  AppKitWindow,
-  CreateAppKitWindowOptions,
-} from './host-windowing'
+export type { AppKitHostDelegate, AppKitWindow, CreateAppKitWindowOptions } from './host-windowing'
 export { fitWindowToContent } from './host-windowing'
 export { setWindowContentResolver } from './host-windowing'
 export type { WindowContentResolver } from './host-windowing'

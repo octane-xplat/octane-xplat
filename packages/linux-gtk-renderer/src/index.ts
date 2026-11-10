@@ -1492,7 +1492,9 @@ function windowService(): GtkWindowService {
  *  public entry to the same seam the `__octaneGtkHost` bridge exposes,
  *  re-exported from `@octane-xplat/linux-gtk/host` (the macOS host's
  *  `setWindowContentResolver` counterpart). */
-export function setWindowContentResolver(resolve: ((data: unknown, controller: any) => unknown) | null): void {
+export function setWindowContentResolver(
+  resolve: ((data: unknown, controller: any) => unknown) | null,
+): void {
   windowService().setWindowContentResolver(resolve)
 }
 
@@ -2326,9 +2328,7 @@ function setAccessibleRole(node: ElementNode, value: unknown) {
   }
 
   if (node.type === 'masonview') {
-    view.set_focusable(
-      node.props.accessible !== false && INTERACTIVE_FOCUS_ROLES.includes(role),
-    )
+    view.set_focusable(node.props.accessible !== false && INTERACTIVE_FOCUS_ROLES.includes(role))
   }
 
   node.pressKeys?.refresh()

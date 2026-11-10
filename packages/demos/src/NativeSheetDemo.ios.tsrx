@@ -12,11 +12,7 @@ export function NativeSheetDemo() @{
   <View className="controls-demo gap-4">
     <Heading>SwiftUI bottom sheet</Heading>
     <TextInput ref={editing} placeholder="Draft outside the sheet" />
-    <Pressable
-      id="native-sheet-open"
-      className="overlay-demo-card"
-      onPress={() => setOpen(true)}
-    >
+    <Pressable id="native-sheet-open" className="overlay-demo-card" onPress={() => setOpen(true)}>
       <Text>Open the More sheet</Text>
     </Pressable>
     <Text>{`Sheet: ${open ? 'open' : 'closed'}`}</Text>
@@ -33,10 +29,7 @@ export function NativeSheetDemo() @{
         <View className="gap-3 p-5">
           <Heading>More</Heading>
           <TextInput placeholder="Message in the sheet" />
-          <Pressable
-            className="overlay-demo-card"
-            onPress={() => setOpen(false)}
-          >
+          <Pressable className="overlay-demo-card" onPress={() => setOpen(false)}>
             <Text>Close from inside</Text>
           </Pressable>
         </View>

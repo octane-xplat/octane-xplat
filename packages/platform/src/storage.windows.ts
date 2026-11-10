@@ -33,8 +33,9 @@ const writeFile = (): void => {
       ;(globalThis as Record<string, unknown>).__xplatStorageWriteError =
         error instanceof Error ? error.message : String(error)
     })
+
   ;(globalThis as Record<string, unknown>).__xplatStorageWriteCount =
-    ((globalThis as Record<string, unknown>).__xplatStorageWriteCount as number ?? 0) + 1
+    (((globalThis as Record<string, unknown>).__xplatStorageWriteCount as number) ?? 0) + 1
 }
 
 // The file APIs' *Sync variants are stubs on this host (readTextSync yields

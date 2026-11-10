@@ -4,6 +4,7 @@ import { suspendScrollInput } from './scroll-input.ios'
 function host(enabled = true, children: object[] = []) {
   const writes: boolean[] = []
   let current = enabled
+
   return {
     _styleHelper: {},
     nativeViewProtected: {
@@ -33,7 +34,9 @@ describe('iOS scroll input ownership', () => {
     const child = host(),
       root = host(true, [child]),
       ancestor = host(true, [root])
+
     const release = suspendScrollInput(root)
+
     expect(root.nativeViewProtected.userScrollEnabled).toBe(false)
     expect(child.nativeViewProtected.userScrollEnabled).toBe(false)
     expect(ancestor.writes).toEqual([])
@@ -49,8 +52,10 @@ describe('iOS scroll input ownership', () => {
   it('restores only after the last overlapping owner and retains originally disabled flags', () => {
     const child = host(false),
       root = host(true, [child])
+
     const outer = suspendScrollInput(root),
       inner = suspendScrollInput(child)
+
     outer()
     expect(child.writes).toEqual([false])
     inner()
@@ -61,8 +66,10 @@ describe('iOS scroll input ownership', () => {
   it('keeps enabled descendants suspended until the last overlapping owner releases', () => {
     const child = host(),
       root = host(true, [child])
+
     const inner = suspendScrollInput(child)
     const outer = suspendScrollInput(root)
+
     inner()
     expect(child.nativeViewProtected.userScrollEnabled).toBe(false)
     outer()
@@ -76,6 +83,7 @@ describe('iOS scroll input ownership', () => {
     const root = host(true, children)
     const release = suspendScrollInput(root)
     const late = host()
+
     children.push(late)
     expect(late.writes).toEqual([])
     expect(recognizer.enabled).toBe(true)
@@ -87,11 +95,15 @@ describe('iOS scroll input ownership', () => {
     for (const nativeViewProtected of [{}, undefined]) {
       const child = { _styleHelper: {}, nativeViewProtected }
       const root = host(true, [child])
+
       expect(() => suspendScrollInput(root)).toThrow('Mason core 1.0.0-beta.8 or later')
       expect(root.writes).toEqual([])
     }
+
     expect(() => suspendScrollInput({})).toThrow('loaded Mason scroll subtree')
+
     const root = host(true, [{ isLoaded: false }])
+
     expect(() => suspendScrollInput(root)).toThrow('Mason core 1.0.0-beta.8 or later')
     expect(root.writes).toEqual([])
   })
@@ -108,7 +120,9 @@ describe('iOS scroll input ownership', () => {
         },
       },
     }
+
     const root = host(true, [child, broken])
+
     expect(() => suspendScrollInput(root)).toThrow('native rejection')
     expect(root.writes).toEqual([false, true])
     expect(child.writes).toEqual([false, true])

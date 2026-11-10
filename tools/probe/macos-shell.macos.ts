@@ -20,10 +20,11 @@ globalThis.__xplatDevModules = {
 }
 
 const appKit = createAppKitWindow({
-	title: 'Octane macOS spike',
-	terminateAfterLastWindowClosed: true,
-	rootOptions: harnessFontOptions,
+  title: 'Octane macOS spike',
+  terminateAfterLastWindowClosed: true,
+  rootOptions: harnessFontOptions,
 })
+
 let running = Promise.resolve()
 
 function adapter() {

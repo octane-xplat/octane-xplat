@@ -16,11 +16,7 @@ export function NativeSheetDemo() @{
   <View className="controls-demo gap-4">
     <Heading>Material bottom sheet</Heading>
     <TextInput ref={editing} placeholder="Draft outside the sheet" />
-    <Pressable
-      id="native-sheet-open"
-      className="overlay-demo-card"
-      onPress={() => setOpen(true)}
-    >
+    <Pressable id="native-sheet-open" className="overlay-demo-card" onPress={() => setOpen(true)}>
       <Text>Open the More sheet</Text>
     </Pressable>
     <Text>{`Sheet: ${open ? 'open' : 'closed'}`}</Text>

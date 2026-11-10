@@ -26,6 +26,7 @@ import {
   setInspectorHandle,
   statusSuffix$,
 } from './journey'
+
 import { APP_VERSION, STATUS_SUFFIX } from './version'
 
 // Windows entry for the desktop-shell journey. The packaged NativeScript
@@ -118,8 +119,11 @@ Application.on(Application.exitEvent, cleanup)
 // way the title-bar close button does; core then raises `exit` once the last
 // window is gone.
 function nativeWindow(): { Close(): void; Activate(): void } | undefined {
-  return (Application.primaryWindow as { windows?: { window?: { Close(): void; Activate(): void } } } | undefined)
-    ?.windows?.window
+  return (
+    Application.primaryWindow as
+      | { windows?: { window?: { Close(): void; Activate(): void } } }
+      | undefined
+  )?.windows?.window
 }
 
 function quit() {
@@ -184,6 +188,7 @@ async function setUpShell() {
       title: 'Desktop Shell Journey',
       menu: TRAY_MENU.map((item) => ({ ...item, onSelect: () => openInspector() })),
     })
+
     marker('TRAY_OK')
   } catch (error) {
     marker(`TRAY_ERROR ${error instanceof Error ? error.message : String(error)}`)
@@ -235,6 +240,7 @@ const entry = {
     setTimeout(() => {
       void setUpShell().catch((error) => marker(`SETUP_ERROR ${String(error)}`))
     }, 0)
+
     return page
   },
 }

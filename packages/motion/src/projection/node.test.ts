@@ -916,12 +916,15 @@ describe('projection scheduler cancellation', () => {
   it('cancels a later tick during delivery and defers reentrant work', () => {
     const { root, clock } = setup()
     const calls: string[] = []
+
     root.animationClock.request(() => {
       calls.push('first')
       root.animationClock.cancel(second)
       root.animationClock.request(() => calls.push('next'))
     })
+
     const second = root.animationClock.request(() => calls.push('cancelled'))
+
     clock.advance(8)
     expect(calls).toEqual(['first'])
     clock.advance(17)

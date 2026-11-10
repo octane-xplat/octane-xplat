@@ -23,6 +23,7 @@ import {
   setInspectorHandle,
   statusSuffix$,
 } from './journey'
+
 import { STATUS_SUFFIX } from './version'
 
 const APP_ID = 'org.octane.xplat.shell-journey'
@@ -83,55 +84,92 @@ runGtkApp(
       (globalThis as any).imports?.gi?.GLib?.getenv?.('DESKTOP_SHELL_DIAG') === '1' ||
       (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
         ?.DESKTOP_SHELL_DIAG === '1'
+
     const findWidget = (node: any, name: string): any | null => {
-      if (!node) return null
-      if (node.get_name?.() === name) return node
+      if (!node) {
+        return null
+      }
+
+      if (node.get_name?.() === name) {
+        return node
+      }
+
       let c = node.get_first_child?.()
+
       while (c) {
         const hit = findWidget(c, name)
-        if (hit) return hit
+
+        if (hit) {
+          return hit
+        }
+
         c = c.get_next_sibling?.()
       }
+
       return null
     }
+
     const bounds = (id: string) => {
-      if (!DIAG) return
+      if (!DIAG) {
+        return
+      }
+
       try {
         const w = findWidget(window, id)
-        if (!w) return marker(`BOUNDS ${id} missing`)
+
+        if (!w) {
+          return marker(`BOUNDS ${id} missing`)
+        }
+
         const [ok, rect] = w.compute_bounds(window)
         const t = window.get_native?.().get_surface_transform?.()
-        const g = ok ? `${rect.origin.x},${rect.origin.y} ${rect.size.width}x${rect.size.height}` : 'no-bounds'
+        const g = ok
+          ? `${rect.origin.x},${rect.origin.y} ${rect.size.width}x${rect.size.height}`
+          : 'no-bounds'
+
         marker(`BOUNDS ${id} ${g} xf=${t?.x ?? '?'},${t?.y ?? '?'}`)
       } catch (error) {
         marker(`BOUNDS ${id} error ${error}`)
       }
     }
+
     if (DIAG) {
       const GObject = (globalThis as any).imports?.gi?.GObject
+
       window.connect?.('notify::focus-widget', () => {
         const fw = (window as any).get_focus?.()
+
         if (!fw) {
           marker(`FOCUS none (root.get_focus()=null)`)
           return
         }
+
         const name = fw.get_name?.() || ''
         const gtype = GObject?.type_name?.(fw) ?? 'widget'
+
         marker(`FOCUS ${name || gtype}${name ? ' ' + gtype : ''}`)
       })
+
       // Exposed for the runner: dump the submit button's ancestor chain with
       // the flags GTK's traversal actually checks.
       ;(globalThis as any).__journeyFocusChain = () => {
         const b = findWidget(window, 'journey-submit')
-        if (!b) return marker('CHAIN missing')
+
+        if (!b) {
+          return marker('CHAIN missing')
+        }
+
         const parts: string[] = []
+
         for (let w = b; w; w = w.get_parent?.()) {
           parts.push(
             `${GObject?.type_name?.(w) ?? '?'}|f=${w.get_focusable?.() ? 1 : 0}|c=${w.get_can_focus?.() ? 1 : 0}|s=${w.is_sensitive?.() ? 1 : 0}|t=${w.get_can_target?.() ? 1 : 0}|v=${w.get_visible?.() ? 1 : 0}|m=${w.get_mapped?.() ? 1 : 0}`,
           )
         }
+
         marker(`CHAIN ${parts.join(' > ')}`)
       }
+
       ;(globalThis as any).__journeyFocusChain()
 
       // BOUNDS for widgets in secondary windows (the Inspector's own Close
@@ -139,19 +177,27 @@ runGtkApp(
       const Gtk = (globalThis as any).imports?.gi?.Gtk
       const GLib = (globalThis as any).imports?.gi?.GLib
       const seen = new Map<string, any>()
+
       GLib?.timeout_add?.(GLib.PRIORITY_DEFAULT, 500, () => {
         const tl = Gtk?.Window?.get_toplevels?.()
         const n = tl?.get_n_items?.() ?? 0
+
         for (const id of ['inspector-close']) {
           let found: any = null
+
           for (let i = 0; i < n; i++) {
             found = findWidget(tl.get_item(i), id)
-            if (found) break
+            if (found) {
+              break
+            }
           }
+
           if (found && !seen.has(id)) {
             seen.set(id, found)
+
             const root = found.get_root?.()
             const [ok, rect] = root ? found.compute_bounds(root) : [false, null]
+
             marker(
               ok
                 ? `BOUNDS ${id} ${rect.origin.x},${rect.origin.y} ${rect.size.width}x${rect.size.height}`
@@ -161,9 +207,11 @@ runGtkApp(
             seen.delete(id)
           }
         }
+
         return true
       })
     }
+
     const restored = storage.getString(STORAGE_KEY)
 
     if (restored) {
@@ -232,6 +280,7 @@ runGtkApp(
             onSelect: () => openInspector(),
           })),
         })
+
         marker('TRAY_OK')
       } catch (error) {
         marker(`TRAY_ERROR ${error instanceof Error ? error.message : String(error)}`)
@@ -267,8 +316,12 @@ runGtkApp(
       bounds('journey-submit')
       if (DIAG) {
         let painted = false
+
         window.get_frame_clock?.().connect?.('after-paint', () => {
-          if (painted) return
+          if (painted) {
+            return
+          }
+
           painted = true
           bounds('journey-name')
           bounds('journey-submit')
@@ -282,6 +335,7 @@ runGtkApp(
         (globalThis as any).imports?.gi?.GLib?.getenv?.('DESKTOP_SHELL_DIAG_OPEN') === 'timeout'
       ) {
         const GLib = (globalThis as any).imports.gi.GLib
+
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
           openInspector()
           return false
@@ -296,18 +350,22 @@ runGtkApp(
         menuDisposed = true
         menuHandle.dispose()
       }
+
       if (shortcuts && !shortcutsDisposed) {
         shortcutsDisposed = true
         shortcuts.dispose()
       }
+
       if (tray && !trayDestroyed) {
         trayDestroyed = true
         tray.destroy()
       }
+
       if (residency && !residencyReleased) {
         residencyReleased = true
         residency.release()
       }
+
       marker(
         `CLEANUP menu=${menuDisposed ? 1 : 0} shortcuts=${shortcutsDisposed ? 1 : 0}` +
           ` tray=${trayDestroyed ? 1 : 0} residency=${residencyReleased ? 1 : 0}`,

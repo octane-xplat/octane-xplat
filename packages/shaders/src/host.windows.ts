@@ -1,14 +1,9 @@
 // Windows leaf — no GPU canvas backend exists on the Windows host.
 // Contract-preserving bounded results: unsupported flags, rejected
 // creation calls, and reduced-motion off.
-import type {
-  CreateShaderOptions,
-  ShaderInstance,
-  WebGPUSupportInfo,
-} from './types'
+import type { CreateShaderOptions, ShaderInstance, WebGPUSupportInfo } from './types'
 
-const unsupported = (): Error =>
-  new Error('unsupported: shaders is not available on windows')
+const unsupported = (): Error => new Error('unsupported: shaders is not available on windows')
 
 export async function createShader(
   _canvas: unknown,

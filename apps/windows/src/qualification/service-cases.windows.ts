@@ -55,7 +55,11 @@ import { supported as richTextSupported } from '@octane-xplat/richtext'
 import { Image as XplatImage, prefetch as imagePrefetch, isImageCached } from '@octane-xplat/image'
 import { Video } from '@octane-xplat/video'
 import { Lottie } from '@octane-xplat/lottie'
-import { IntersectionObserver, supported as intersectionSupported } from '@octane-xplat/intersection-observer'
+import {
+  IntersectionObserver,
+  supported as intersectionSupported,
+} from '@octane-xplat/intersection-observer'
+
 import { Chart } from '@octane-xplat/charts'
 import { createShader, isWebGPUSupported } from '@octane-xplat/shaders'
 

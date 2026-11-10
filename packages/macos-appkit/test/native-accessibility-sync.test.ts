@@ -48,6 +48,7 @@ function fixture() {
   })
 
   const view = new host.AccessibleHostView() as any
+
   view.setValueForKey = (value: unknown, key: string) => calls.push([key, value])
 
   const accessibility = createAccessibility({ accessibleHost: host, state })
@@ -67,8 +68,7 @@ function fixture() {
     },
   })
 
-  const pushed = (name: string) =>
-    calls.filter(([key]) => key === name).map(([, value]) => value)
+  const pushed = (name: string) => calls.filter(([key]) => key === name).map(([, value]) => value)
   const last = (name: string) => pushed(name).at(-1)
 
   return { store, state, host, view, actions, accessibility, node, calls, pushed, last }
@@ -125,5 +125,6 @@ test('a bare interactive view becomes an element once a handler lands', () => {
 test('AccessibleHostView declares the NSAccessibility action protocols', () => {
   const f = fixture()
   const protocols = (f.host.AccessibleHostView as any).ObjCProtocols ?? []
+
   assert.ok(protocols.length >= 1, 'expected at least one accessibility protocol')
 })

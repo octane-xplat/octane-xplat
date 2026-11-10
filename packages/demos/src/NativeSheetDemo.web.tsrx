@@ -28,10 +28,7 @@ export function NativeSheetDemo() @{
       content={() => (
         <View className="gap-3 p-5">
           <Heading>More</Heading>
-          <Pressable
-            className="overlay-demo-card"
-            onPress={() => setOpen(false)}
-          >
+          <Pressable className="overlay-demo-card" onPress={() => setOpen(false)}>
             <Text>Close from inside</Text>
           </Pressable>
         </View>

@@ -5,7 +5,12 @@ import * as octaneSignals from 'octane/signals'
 import * as octaneSignalsClient from 'octane/signals/client'
 import * as octaneInternalClient from 'octane/internal/client'
 import * as renderer from '@octane-xplat/macos-appkit'
-import { createAppKitWindow, debugWindows, fitWindowToContent } from '@octane-xplat/macos-appkit/host'
+import {
+  createAppKitWindow,
+  debugWindows,
+  fitWindowToContent,
+} from '@octane-xplat/macos-appkit/host'
+
 import { createDevBench } from './dev-bench.mjs'
 
 const { hmrUniversalComponent, UNIVERSAL_HMR } = octaneNative
@@ -23,6 +28,7 @@ const appKit = createAppKitWindow({
   terminateAfterLastWindowClosed: true,
   rootOptions: harnessFontOptions,
 })
+
 const { app, window, contentView, applicationClosed, windowClosed } = appKit
 const root = renderer.createMacOSRoot(contentView, harnessFontOptions)
 const bench = createDevBench(root, appKit)

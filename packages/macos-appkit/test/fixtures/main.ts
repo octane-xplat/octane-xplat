@@ -16,10 +16,7 @@ import { checkHtmlLifecycle } from './html-lifecycle'
 import { checkPickerBridgeLifecycle } from './picker-bridge-lifecycle'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
-import {
-  setWindowContentResolver,
-  type MacOSAppMount,
-} from '@octane-xplat/macos-appkit/host'
+import { setWindowContentResolver, type MacOSAppMount } from '@octane-xplat/macos-appkit/host'
 import { checkFormattedLifecycle } from './formatted-lifecycle'
 import { checkSearchLifecycle } from './search-lifecycle'
 import { checkRootLifecycle } from './root-lifecycle'
@@ -403,10 +400,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
               const mountShape: Pick<MacOSAppMount, 'root'> = { root }
 
-              check(
-                mountShape.root === root,
-                'Embedding root does not satisfy the host mount type',
-              )
+              check(mountShape.root === root, 'Embedding root does not satisfy the host mount type')
 
               const bridge: any = Reflect.get(globalThis, '__xplatAppKit')
 
@@ -422,6 +416,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
                 bridge.storageGet('packed-host-key') === 'packed-value',
                 'Packed host storage round-trip failed',
               )
+
               bridge.storageRemove('packed-host-key')
               check(
                 bridge.storageGet('packed-host-key') === null,
@@ -449,6 +444,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
                 resolverCalls.length === 1 && (resolverCalls[0] as any)?.marker === 'secondary',
                 'Window resolver did not receive request data',
               )
+
               check(
                 secondary.isClosed === false && secondary.root !== null,
                 'Secondary window did not mount its root',
@@ -462,6 +458,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
                 windowRefEvents.join(',') === 'attach,cleanup',
                 'Secondary window root did not unmount: ' + windowRefEvents.join(','),
               )
+
               console.log('PACKED_HOST_OK')
               console.log('PACKED_RENDERER_OK')
             } catch (error) {

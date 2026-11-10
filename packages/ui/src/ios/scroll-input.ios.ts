@@ -72,9 +72,11 @@ export function suspendScrollInput(root: object): () => void {
   const acquired: ScrollInputViewport[] = []
   const releaseViewport = (viewport: ScrollInputViewport) => {
     const state = suspensions.get(viewport)
+
     if (!state || --state.owners > 0) {
       return
     }
+
     suspensions.delete(viewport)
     viewport.userScrollEnabled = state.enabled
   }
@@ -82,27 +84,33 @@ export function suspendScrollInput(root: object): () => void {
   try {
     for (const viewport of viewports) {
       const state = suspensions.get(viewport)
+
       if (state) {
         state.owners++
       } else {
         const enabled = viewport.userScrollEnabled
+
         viewport.userScrollEnabled = false
         suspensions.set(viewport, { owners: 1, enabled })
       }
+
       acquired.push(viewport)
     }
   } catch (error) {
     for (const viewport of acquired.reverse()) {
       releaseViewport(viewport)
     }
+
     throw error
   }
 
   let released = false
+
   return () => {
     if (released) {
       return
     }
+
     released = true
     for (const viewport of acquired) {
       releaseViewport(viewport)

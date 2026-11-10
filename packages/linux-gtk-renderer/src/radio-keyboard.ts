@@ -86,8 +86,7 @@ export const INTERACTIVE_FOCUS_ROLES = [
  * grab_focus() would re-enter vfunc_focus and recurse. */
 export function focusSelf(widget: any, direction: number): boolean | undefined {
   if (
-    (direction !== Gtk.DirectionType.TAB_FORWARD &&
-      direction !== Gtk.DirectionType.TAB_BACKWARD) ||
+    (direction !== Gtk.DirectionType.TAB_FORWARD && direction !== Gtk.DirectionType.TAB_BACKWARD) ||
     !widget.get_focusable() ||
     !INTERACTIVE_FOCUS_ROLES.includes(widget.get_accessible_role())
   ) {

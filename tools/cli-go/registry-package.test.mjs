@@ -94,7 +94,9 @@ test('production layout selects only the host payload and installs a direct nati
   }
 
   // fmt is a published external dep — serve the installed copy's tarball.
-  const fmtVersion = JSON.parse(readFileSync(join(root, 'node_modules/@octane-xplat/fmt/package.json'))).version
+  const fmtVersion = JSON.parse(
+    readFileSync(join(root, 'node_modules/@octane-xplat/fmt/package.json')),
+  ).version
 
   success(
     run(
@@ -344,9 +346,7 @@ test('production layout selects only the host payload and installs a direct nati
   const appLauncher = join(app, 'node_modules/.bin/xplat')
 
   assert.equal(
-    success(
-      run(appLauncher, ['--version'], { env: { ...appEnv, PATH: '' } }),
-    ).stdout.trim(),
+    success(run(appLauncher, ['--version'], { env: { ...appEnv, PATH: '' } })).stdout.trim(),
     pkg.version,
     'umbrella bin must launch the transitively-installed native CLI',
   )

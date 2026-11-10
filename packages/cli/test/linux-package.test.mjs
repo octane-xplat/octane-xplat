@@ -115,6 +115,7 @@ test('GTK archive ships desktop entry and install/uninstall; install→reinstall
   const { appDir } = await packageLinux(root)
 
   const relocated = join(root, 'relocated app')
+
   cpSync(appDir, relocated, { recursive: true })
 
   const dataHome = join(root, 'data home')
@@ -124,16 +125,15 @@ test('GTK archive ships desktop entry and install/uninstall; install→reinstall
     XDG_DATA_HOME: dataHome,
     XDG_CONFIG_HOME: configHome,
   }
+
   const installed = join(dataHome, 'org.example.Sample')
 
   execFileSync('sh', [join(relocated, 'install.sh')], { env })
   assert.ok(existsSync(join(installed, 'app.js')))
   assert.ok(existsSync(join(dataHome, 'applications/org.example.Sample.desktop')))
 
-  const desktop = readFileSync(
-    join(dataHome, 'applications/org.example.Sample.desktop'),
-    'utf8',
-  )
+  const desktop = readFileSync(join(dataHome, 'applications/org.example.Sample.desktop'), 'utf8')
+
   assert.match(desktop, /Exec="[^"]+data home\/org\.example\.Sample\/sample-app"/)
 
   // Settings a run wrote survive every later step.

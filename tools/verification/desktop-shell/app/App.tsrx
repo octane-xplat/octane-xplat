@@ -23,9 +23,7 @@ export default function App() {
       <Button testID="journey-submit" clickAction={() => submitName(name)}>
         Submit
       </Button>
-      <Text testID="journey-status">
-        {statusText() + suffix}
-      </Text>
+      <Text testID="journey-status">{statusText() + suffix}</Text>
       <Text testID="journey-count">Count: {count}</Text>
       <Text testID="journey-error">{lastError}</Text>
     </View>

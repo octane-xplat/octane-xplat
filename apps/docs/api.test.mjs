@@ -47,6 +47,7 @@ test('desktop declaration caches include the published type entry', () => {
     const root = `../../packages/${name}`
     const manifest = JSON.parse(readFileSync(`${root}/package.json`, 'utf8'))
     const config = JSON.parse(readFileSync(`${root}/turbo.json`, 'utf8'))
+
     assert.equal(manifest.types, './types/generated/index.d.ts')
     assert.ok(config.tasks.typegen.outputs.includes('types/generated/**/*.d.ts'), name)
   }

@@ -18,9 +18,11 @@ const require = createRequire(new URL('../package.json', import.meta.url))
 const installed = require.resolve('@nstudio/nativescript-exoplayer/index.android.js')
 
 const directory = mkdtempSync(join(tmpdir(), 'xplat-video-exoplayer-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 const support = join(directory, 'support.mjs')
+
 writeFileSync(
   support,
   `
@@ -110,8 +112,11 @@ const source = readFileSync(installed, 'utf8').replace(
   /(from|import)\s*(['"])(?:\.\/common|@nativescript\/core)\2/g,
   (_match: string, keyword: string) => `${keyword} ${JSON.stringify(supportUrl)}`,
 )
+
 const subject = join(directory, 'index.android.mjs')
+
 writeFileSync(subject, source)
+
 const { Video } = (await import(pathToFileURL(subject).href)) as any
 const { emitted } = (await import(supportUrl)) as any
 const listeners: any[] = (globalThis as any).__listenerImpls
@@ -165,7 +170,9 @@ const audioManager = {
 function attach(view: any) {
   view._context = { getSystemService: () => audioManager }
   view.player = fakePlayer()
+
   const before = listeners.length
+
   view._setupMediaPlayerListeners()
   assert.equal(listeners.length, before + 1, 'player listener was not attached')
   return listeners[listeners.length - 1]
@@ -178,6 +185,7 @@ const finishes = () => emitted.filter((name: string) => name === 'finished').len
 test('exoplayer emits playbackStart once per source from actual playback only', () => {
   const view = new Video()
   const listener = attach(view)
+
   try {
     // A play request is not playback — no start, and the flag stays unset so
     // the later real transition can still report.
@@ -222,7 +230,9 @@ test('exoplayer emits playbackStart once per source from actual playback only', 
     // player: release() resets the per-source flags and the next listener
     // attaches fresh.
     view.release()
+
     const second = attach(view)
+
     second.onPlaybackStateChanged(READY)
     second.onIsPlayingChanged(true)
     assert.equal(starts(), 3)

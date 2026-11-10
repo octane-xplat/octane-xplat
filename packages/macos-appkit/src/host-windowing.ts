@@ -118,10 +118,7 @@ export interface HostedWindowController {
  * // openWindow({ data: { docId: 1 } }) now mounts DocumentWindow.
  * ```
  */
-export type WindowContentResolver = (
-  data: unknown,
-  controller: AppKitWindowController,
-) => unknown
+export type WindowContentResolver = (data: unknown, controller: AppKitWindowController) => unknown
 
 /** Options accepted by the host's `openWindow` (the `__xplatAppKitOpenWindow`
  *  global `openWindow` from @octane-xplat/ui calls through). */

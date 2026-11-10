@@ -224,9 +224,11 @@ async function run() {
   // Null under the Gtk.Box emulation path (installed apps don't ship the
   // typelib yet) — the two native-engine-only checks below skip then.
   let native = null
+
   try {
     native = (globalThis as any).imports.gi.XplatMason
   } catch {}
+
   const osInput = GLib.getenv('GTK_FOCUS_OS') === '1'
 
   const tfKeys = findView('tf-keys')
@@ -256,8 +258,11 @@ async function run() {
   if (native) {
     check(
       'landmark main label reaches widget',
-      native.test_accessible_string_property(lmMain, Gtk.AccessibleProperty.LABEL, 'Main region') ===
-        null,
+      native.test_accessible_string_property(
+        lmMain,
+        Gtk.AccessibleProperty.LABEL,
+        'Main region',
+      ) === null,
     )
 
     check(

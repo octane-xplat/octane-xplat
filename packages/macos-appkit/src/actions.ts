@@ -77,6 +77,7 @@ export function createActions(deps: Dependencies) {
     if (view) {
       deps.syncViewAccessibility?.(view)
     }
+
     return action.id
   }
 

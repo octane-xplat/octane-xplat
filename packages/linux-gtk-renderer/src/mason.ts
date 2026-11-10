@@ -843,7 +843,9 @@ const MasonView = GObject.registerClass(
   class XplatMasonView extends (Gtk as any).Widget {
     vfunc_focus(direction: number) {
       return (
-        focusRadioGroup(this, direction) ?? focusSelf(this, direction) ?? super.vfunc_focus(direction)
+        focusRadioGroup(this, direction) ??
+        focusSelf(this, direction) ??
+        super.vfunc_focus(direction)
       )
     }
     vfunc_snapshot(snapshot: any) {
@@ -857,7 +859,9 @@ const MasonFallbackView = GObject.registerClass(
   class XplatMasonFallbackView extends (Gtk as any).Box {
     vfunc_focus(direction: number) {
       return (
-        focusRadioGroup(this, direction) ?? focusSelf(this, direction) ?? super.vfunc_focus(direction)
+        focusRadioGroup(this, direction) ??
+        focusSelf(this, direction) ??
+        super.vfunc_focus(direction)
       )
     }
   },

@@ -34,22 +34,13 @@ export function List(props: ListProps): unknown @{
 
   const markerFor = (index: number) =>
     listStyle === 'decimal' ? (
-      <label
-        className={cx('vx-listmarker', 'vx-list-marker--number')}
-        text={`${start + index}.`}
-      />
+      <label className={cx('vx-listmarker', 'vx-list-marker--number')} text={`${start + index}.`} />
     ) : listStyle === 'disc' ? (
-      <masonview
-        className="vx-listmarker"
-        style={{ display: 'flex' }}
-      >
+      <masonview className="vx-listmarker" style={{ display: 'flex' }}>
         <masonview className="vx-listmarker-dot" style={{ display: 'flex' }} />
       </masonview>
     ) : listStyle === 'circle' ? (
-      <masonview
-        className="vx-listmarker"
-        style={{ display: 'flex' }}
-      >
+      <masonview className="vx-listmarker" style={{ display: 'flex' }}>
         <masonview className="vx-listmarker-circle" style={{ display: 'flex' }} />
       </masonview>
     ) : null

@@ -17,14 +17,16 @@ export class IntersectionObserver implements IntersectionObserverShape {
   readonly rootMargin: string
   readonly thresholds: readonly number[]
 
-  constructor(
-    callback: IntersectionObserverCallback,
-    options: IntersectionObserverInit = {},
-  ) {
+  constructor(callback: IntersectionObserverCallback, options: IntersectionObserverInit = {}) {
     void callback
     this.root = options.root ?? null
     this.rootMargin = options.rootMargin ?? '0px'
-    this.thresholds = options.threshold === undefined ? [0] : Array.isArray(options.threshold) ? options.threshold : [options.threshold]
+    this.thresholds =
+      options.threshold === undefined
+        ? [0]
+        : Array.isArray(options.threshold)
+          ? options.threshold
+          : [options.threshold]
   }
 
   observe(_target: unknown): void {}

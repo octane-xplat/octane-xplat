@@ -54,12 +54,13 @@ export class Color {
 // Gdk is read lazily so unit tests without GI imports keep 0×0 / scale 1.
 function primaryMonitor(): { w: number; h: number; scale: number } {
   try {
-    const Gdk = (globalThis as unknown as { imports?: { gi?: { Gdk?: any } } })
-      .imports?.gi?.Gdk
+    const Gdk = (globalThis as unknown as { imports?: { gi?: { Gdk?: any } } }).imports?.gi?.Gdk
     const mon =
       Gdk?.Display?.get_default?.()?.get_monitors?.()?.get_item?.(0) ??
       Gdk?.Display?.get_default?.()?.get_primary_monitor?.()
+
     const geo = mon?.get_geometry?.()
+
     return {
       w: Number(geo?.width ?? 0),
       h: Number(geo?.height ?? 0),
@@ -89,6 +90,7 @@ export const Screen = {
     },
   },
 }
+
 export const AccessibilityRole = {
   button: 'button',
   link: 'link',
@@ -140,52 +142,66 @@ const hexName = (key: string) =>
 
 const warnedPaths = new Set<string>()
 function warnOnce(path: string, error: unknown) {
-  if (warnedPaths.has(path)) return
+  if (warnedPaths.has(path)) {
+    return
+  }
+
   warnedPaths.add(path)
   console.warn('[linux-gtk] settings write failed', path, error)
 }
 
 function loadKeyFile() {
-  if (keyFileStore !== null) return keyFileStore
+  if (keyFileStore !== null) {
+    return keyFileStore
+  }
+
   try {
     const g = globalThis as unknown as {
       imports?: { gi?: { GLib?: any; Gio?: any } }
     }
+
     const GLib = g.imports?.gi?.GLib
     const Gio = g.imports?.gi?.Gio
-    if (!GLib || !Gio) throw new Error('no GLib')
+
+    if (!GLib || !Gio) {
+      throw new Error('no GLib')
+    }
 
     const appId =
       Gio.Application.get_default?.()?.get_application_id?.() ??
       GLib.get_prgname?.() ??
       'octane-app'
+
     const dir = GLib.build_filenamev([GLib.get_user_config_dir(), String(appId)])
     const path = GLib.build_filenamev([dir, 'settings.ini'])
     const keys = new Map<string, { t: string; v: unknown }>()
     const names = new Map<string, string>()
 
     const kf = new GLib.KeyFile()
+
     try {
       kf.load_from_file(path, GLib.KeyFileFlags.NONE)
+
       const [groups] = kf.get_groups()
+
       for (const grp of groups ?? []) {
         const [names0] = kf.get_keys(grp)
+
         for (const hex0 of names0 ?? []) {
           const hex = String(hex0)
           const real = new TextDecoder().decode(
             Uint8Array.from(hex.slice(1).match(/../g) ?? [], (h) => parseInt(h, 16)),
           )
+
           const raw = String(kf.get_string(grp, hex))
           const t = raw[0]
           const v = raw.slice(1)
+
           keys.set(
             real,
-            t === 's'
-              ? { t, v }
-              : t === 'n'
-                ? { t, v: Number(v) }
-                : { t: 'b', v: v === 'true' },
+            t === 's' ? { t, v } : t === 'n' ? { t, v: Number(v) } : { t: 'b', v: v === 'true' },
           )
+
           names.set(real, hex)
         }
       }
@@ -200,13 +216,17 @@ function loadKeyFile() {
       names,
       write() {
         const kf2 = new GLib.KeyFile()
+
         for (const [key, e] of this.keys) {
           kf2.set_string('settings', this.names.get(key) ?? hexName(key), `${e.t}${e.v}`)
         }
+
         GLib.mkdir_with_parents(this.dir, 0o700)
+
         // Atomic write: temp file + rename, so a crash mid-flush cannot
         // truncate a previously good settings file.
         const [contents] = kf2.to_data()
+
         if (!GLib.file_set_contents(this.path, contents)) {
           throw new Error('keyfile save failed')
         }
@@ -215,11 +235,15 @@ function loadKeyFile() {
   } catch {
     keyFileStore = { dir: '', path: '', keys: new Map(), names: new Map(), write() {} }
   }
+
   return keyFileStore
 }
 
 function persist(store: { write(): void; dir: string; path: string }) {
-  if (!store.dir) return
+  if (!store.dir) {
+    return
+  }
+
   try {
     store.write()
   } catch (error) {
@@ -231,21 +255,26 @@ const settingsStore = new Map<string, unknown>()
 
 function getEntry(key: string): unknown {
   const store = loadKeyFile()
+
   if (store.dir) {
     const e = store.keys.get(key)
+
     return e === undefined ? undefined : e.v
   }
+
   return settingsStore.get(key)
 }
 
 function setEntry(key: string, t: string, v: unknown) {
   const store = loadKeyFile()
+
   if (store.dir) {
     store.keys.set(key, { t, v })
     store.names.set(key, store.names.get(key) ?? hexName(key))
     persist(store)
     return
   }
+
   settingsStore.set(key, v)
 }
 
@@ -267,10 +296,12 @@ export const ApplicationSettings = {
   },
   getAllKeys(): string[] {
     const store = loadKeyFile()
+
     return store.dir ? [...store.keys.keys()] : [...settingsStore.keys()]
   },
   hasKey(key: string): boolean {
     const store = loadKeyFile()
+
     return store.dir ? store.keys.has(key) : settingsStore.has(key)
   },
   setString(key: string, value: string) {
@@ -284,26 +315,34 @@ export const ApplicationSettings = {
   },
   remove(key: string) {
     const store = loadKeyFile()
+
     if (store.dir) {
       store.keys.delete(key)
       store.names.delete(key)
       persist(store)
       return
     }
+
     settingsStore.delete(key)
   },
   clear() {
     const store = loadKeyFile()
+
     if (store.dir) {
       store.keys.clear()
       persist(store)
       return
     }
+
     settingsStore.clear()
   },
   flush(): boolean {
     const store = loadKeyFile()
-    if (!store.dir) return true
+
+    if (!store.dir) {
+      return true
+    }
+
     try {
       store.write()
       return true

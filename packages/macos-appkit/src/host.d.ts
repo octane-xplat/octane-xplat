@@ -6,6 +6,7 @@ import type {
   NSWindow,
   NSWindowDelegate,
 } from '@octane-xplat/platform/macos'
+
 import type { MacOSRootOptions } from '@octane-xplat/macos-appkit'
 import type { UniversalComponent, UniversalRoot } from 'octane/universal/native'
 
@@ -155,10 +156,7 @@ export declare function fitWindowToContent(
  * // openWindow({ data: { docId: 1 } }) now mounts DocumentWindow.
  * ```
  */
-export type WindowContentResolver = (
-  data: unknown,
-  controller: AppKitWindowController,
-) => unknown
+export type WindowContentResolver = (data: unknown, controller: AppKitWindowController) => unknown
 
 /**
  * Install the app-owned resolver that maps `openWindow({ data })` requests to
@@ -256,9 +254,7 @@ export interface MacOSOpenWindowOptions {
  * await controller.closed
  * ```
  */
-export declare function createHostedWindow(
-  options?: MacOSOpenWindowOptions,
-): HostedWindowController
+export declare function createHostedWindow(options?: MacOSOpenWindowOptions): HostedWindowController
 
 /**
  * Snapshot/press handles for every secondary window, used by dev automation.
