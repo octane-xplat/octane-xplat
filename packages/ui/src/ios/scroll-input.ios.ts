@@ -35,8 +35,8 @@ const suspensions = new WeakMap<ScrollInputViewport, Suspension>()
  *
  * This snapshots the current subtree: release before detaching/replacing it and
  * reacquire after mounting new descendants. Requires the native Mason
- * userScrollEnabled setter (not present in registry core beta.7); throws before
- * changing any viewport when an unloaded/older Mason host is encountered.
+ * userScrollEnabled setter (published in registry core 1.0.0-beta.8); throws
+ * before changing any viewport when an unloaded/older Mason host is encountered.
  */
 export function suspendScrollInput(root: object): () => void {
   const viewports = new Set<ScrollInputViewport>()
@@ -48,7 +48,7 @@ export function suspendScrollInput(root: object): () => void {
 
     if (host.isLoaded === false || (host._styleHelper !== undefined && !isViewport(native))) {
       throw new Error(
-        'suspendScrollInput requires loaded Mason views with native userScrollEnabled; rebuild with a compatible Mason core artifact (registry beta.7 lacks this API).',
+        'suspendScrollInput requires loaded Mason views with native userScrollEnabled; rebuild with Mason core 1.0.0-beta.8 or later.',
       )
     }
 

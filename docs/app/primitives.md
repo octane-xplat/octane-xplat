@@ -1659,12 +1659,11 @@ export function LongNotes() {
 
 ## Pause iOS user scrolling during an ancestor drag
 
-This iOS-only API requires a locally built Mason core containing native
-`MasonUIView.userScrollEnabled` (source revision
-`915996706008351bf949b6d8ac040864d9619dc8` or later). Registry core beta.7
-lacks that setter. Install the compatible local plugin tarball through your
-app's dependency manager and rebuild the native app; a JavaScript reload is
-insufficient. Other platforms are not supported by this iOS entry point.
+This iOS-only API requires Mason core's native `MasonUIView.userScrollEnabled`
+setter, published in `@octane-xplat/nativescript-mason-core` `1.0.0-beta.8`
+and later (earlier registry builds lack it). Rebuild the native app after
+installing a compatible version; a JavaScript reload is insufficient. Other
+platforms are not supported by this iOS entry point.
 
 Call `suspendScrollInput` on a loaded content host before moving its ancestor.
 It stops active user scrolling and momentum without assigning an offset or

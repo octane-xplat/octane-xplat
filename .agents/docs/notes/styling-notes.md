@@ -209,8 +209,8 @@ defaults; those still require host qualification.
 Mixed percentage/length calculations are another native boundary. Core 9.1.3's
 [`PercentLength.parse`](https://github.com/NativeScript/NativeScript/blob/9.1.3-core/packages/core/ui/styling/length-shared.ts#L81)
 rejects an unresolved contextual width calculation after CSS evaluation. Mason
-core beta.7's
-[`cssLengthToDip`](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.7/packages/nativescript-mason-core/style.ts#L645)
+core beta.8's
+[`cssLengthToDip`](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.8/packages/nativescript-mason-core/style.ts#L645)
 leaves mixed results unresolved and its width accessor falls through to Core.
 The private adapter rejects generated `calc()` expressions containing both `%`
 and pixel/DIP literals; this conservative syntax check leaves authored CSS

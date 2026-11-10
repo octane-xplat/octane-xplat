@@ -9,7 +9,7 @@ No event is intercepted or consumed; native scrolling and pan delivery keep
 their existing owners. Keyboard/accessibility activation without an Android
 MotionEvent and iOS recognizer arbitration retain their existing paths.
 
-Mason Core 1.0.0-beta.7 retains Mason's string `tap` → native `click` alias.
+Mason Core 1.0.0-beta.8 retains Mason's string `tap` → native `click` alias.
 That event's wrapper carries a target but no MotionEvent. Pressable binds the
 NativeScript gesture channel through the base View listener API, avoiding
 the alias while retaining NativeScript accessibility dispatch. The alias and

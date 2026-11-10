@@ -130,7 +130,7 @@ errors on any declaration whose property isn't in
 `scripts/ns-css-registry.json` — the `cssName` list extracted from the
 installed `@nativescript/core` (`node scripts/gen-css-registry.ts` to refresh on core
 upgrades), plus the `overflow`, `overflow-x`, and `overflow-y` registrations in
-Mason Core 1.0.0-beta.7's `properties.ts`. These registrations establish declaration
+Mason Core 1.0.0-beta.8's `properties.ts`. These registrations establish declaration
 support, not device clipping parity. Dropped-but-intentional props (`display`, `grid-area`,
 `border-style`, `user-select`, `-webkit-*`) live in the script's
 `DROPPED_INTENTIONAL` map with a reason each; `xplat-web-only` blocks are

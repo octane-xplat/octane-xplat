@@ -14,7 +14,7 @@
 				"@nativescript/unit-test-runner": "5.0.0",
 				"@nativescript/vite": "8.0.20",
 				"@octane-xplat/jsx": "0.20.0",
-				"@octane-xplat/nativescript-mason-core": "1.0.0-beta.7",
+				"@octane-xplat/nativescript-mason-core": "1.0.0-beta.8",
 				"@octane-xplat/platform": "0.20.0",
 				"@octane-xplat/ui": "0.20.0",
 				"@octane-xplat/workshop": "0.20.0",
@@ -144,7 +144,7 @@
 	"patchedDependencies": {
 		"octane@0.16.3": "patches/octane@0.16.3.patch",
 		"@nativescript/core@9.1.3": "patches/@nativescript__core@9.1.3.patch",
-		"@octane-xplat/nativescript-mason-core@1.0.0-beta.7": "patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.7.patch",
+		"@octane-xplat/nativescript-mason-core@1.0.0-beta.8": "patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.8.patch",
 		"css@3.0.0": "patches/css@3.0.0.patch",
 		"@nativescript/vite@8.0.20": "patches/@nativescript__vite@8.0.20.patch",
 		"@nativescript-community/octane@0.2.5": "patches/@nativescript-community__octane@0.2.5.patch",

@@ -53,7 +53,7 @@
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.7",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.8",
 		"octane": "catalog:"
 	},
 	"peerDependencies": {

@@ -595,14 +595,14 @@ with snapshot writes enqueued at call time. Real-world impact: a packaged
 qualification app's storage-persist spec read `null` for values written the
 previous launch.
 
-## Mason iOS input suspension requires a local native build
+## Mason iOS input suspension needs core 1.0.0-beta.8 or later
 
 For Xplat #221, Mason source revision `915996706008351bf949b6d8ac040864d9619dc8`
-adds the per-viewport `MasonUIView.userScrollEnabled` setter. Registry
-`@octane-xplat/nativescript-mason-core@1.0.0-beta.7` does not contain it; the
-local build retains that version. Check native capability rather than trusting
-the package version, and rebuild the native app after installing a compatible
-local artifact. Do not change registry pins to imply the API is published.
+adds the per-viewport `MasonUIView.userScrollEnabled` setter. It is published in
+`@octane-xplat/nativescript-mason-core@1.0.0-beta.8` (tag `next`; `latest`
+remains 0.0.1 bootstrap); registry beta.7 and earlier do not contain it. Check
+native capability rather than trusting the package version, and rebuild the
+native app after upgrading the dependency.
 
 The native setter cancels user pans and momentum without assigning offsets;
 programmatic seeks remain available. Overflow hidden is not a substitute:

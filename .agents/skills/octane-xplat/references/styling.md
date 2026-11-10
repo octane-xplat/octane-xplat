@@ -100,7 +100,7 @@ export function Columns() {
 For driver work and the distinction between JSX tags and imperative native
 hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
-Mason core beta.7 registers `display` and `position` as CSS properties;
+Mason core beta.8 registers `display` and `position` as CSS properties;
 do not assume those keys must be inline-only. Class delivery still needs
 qualification in the selected host. Use explicit edge offsets; AppKit ignores
 the `inset` shorthand. Keep supported static declarations in CSS. The [workshop chrome](../../../docs/workshop-chrome.md)

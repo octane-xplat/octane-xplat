@@ -87,12 +87,12 @@ describe('iOS scroll input ownership', () => {
     for (const nativeViewProtected of [{}, undefined]) {
       const child = { _styleHelper: {}, nativeViewProtected }
       const root = host(true, [child])
-      expect(() => suspendScrollInput(root)).toThrow('registry beta.7 lacks this API')
+      expect(() => suspendScrollInput(root)).toThrow('Mason core 1.0.0-beta.8 or later')
       expect(root.writes).toEqual([])
     }
     expect(() => suspendScrollInput({})).toThrow('loaded Mason scroll subtree')
     const root = host(true, [{ isLoaded: false }])
-    expect(() => suspendScrollInput(root)).toThrow('registry beta.7 lacks this API')
+    expect(() => suspendScrollInput(root)).toThrow('Mason core 1.0.0-beta.8 or later')
     expect(root.writes).toEqual([])
   })
 

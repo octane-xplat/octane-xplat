@@ -130,10 +130,10 @@ reacquire around subtree replacement. Never use overflow hidden as a temporary
 iOS input lock (it clamps offsets), or treat touchAction as momentum
 cancellation. Ancestor and unrelated recognizers remain independent.
 
-Requires the locally built Mason core native setter from revision
-`915996706008351bf949b6d8ac040864d9619dc8`; registry beta.7 lacks it. Missing
-or unloaded Mason support throws, rather than silently claiming suspension.
-A fresh native build is required. No registry publication is implied.
+Requires Mason core `1.0.0-beta.8` or later; earlier registry builds lack the
+native `userScrollEnabled` setter. Missing or unloaded Mason support throws,
+rather than silently claiming suspension. A native rebuild is required after
+upgrading the dependency.
 See [iOS input suspension](../../../../../docs/app/primitives.md#pause-ios-user-scrolling-during-an-ancestor-drag)
 for usage and runtime qualification limits.
 
