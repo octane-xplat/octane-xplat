@@ -104,8 +104,18 @@ function retain(surface: NativeGestureSurface) {
   let root = roots.get(surface.root)
 
   if (!root) {
-    const owner = createGestureOwner(surface.scheduler)
     const hosts = new Map<object, NativeHost>()
+    const owner = createGestureOwner({
+      frame: (callback) => surface.scheduler.frame(callback),
+      error: (error) => surface.scheduler.error(error),
+      // A root can contain hosts with different native claim mechanisms. Never
+      // retain the first surface's claim callback for all later registrations.
+      claim(host) {
+        const current = hosts.get(host)
+
+        return current ? (current.surface.scheduler.claim?.(host) ?? true) : false
+      },
+    })
     const presses = new Set<PressRegistration>()
 
     root = {

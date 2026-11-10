@@ -48,6 +48,13 @@ must roll back partially attached listeners, reservations and registrations if
 attachment fails. Raw native observers may receive the same event through
 several ancestors; deduplicate at the window owner, never per recognizer.
 
+Desktop host bridges share the runtime-neutral mouse integration in
+`packages/ui/src/gestures/input.host.ts`; AppKit supplies its native surface and
+activation provenance. This wrapper does not add touch policy or suspension.
+The native root resolves each claim through the registered host's scheduler,
+not the scheduler of the first surface retained in that root. Keep frame/error
+scheduling root-scoped and native claiming host-scoped.
+
 The iOS raw-contact adapter snapshots UIKit contacts in logical window units.
 Filter ended/cancelled touches from `UIEvent.allTouches`; that collection is not
 an active-pointer list. Freeze the window-to-local basis for translation while

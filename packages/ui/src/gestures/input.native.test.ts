@@ -136,3 +136,46 @@ it('rolls back registration when the native reservation fails', () => {
   pan.dispose()
   expect(a.counts()).toEqual({ observed: 2, unobserved: 2, reserved: 1, restored: 1 })
 })
+
+it('routes native claims to the claimed host instead of the first surface', () => {
+  const root = {},
+    firstHost = {},
+    secondHost = {}
+  const first = fixture(root, firstHost),
+    second = fixture(root, secondHost)
+  const claims: object[] = []
+  first.surface.scheduler.claim = (host) => {
+    claims.push(host)
+    return false
+  }
+  second.surface.scheduler.claim = (host) => {
+    claims.push(host)
+    return true
+  }
+  let starts = 0
+  const a = createPanController({ axis: 'x' })
+  const b = createPanController({
+    axis: 'x',
+    onStart() {
+      starts++
+    },
+  })
+  const offA = attachNativeGesture(first.surface, a.handle)
+  const offB = attachNativeGesture(second.surface, b.handle)
+  try {
+    for (const [type, x] of [
+      ['down', 0],
+      ['move', 20],
+    ] as const) {
+      const contact = { id: '1', kind: 'mouse' as const, window: { x, y: 0 }, screen: null }
+      second.send({ type, time: x, changed: contact, contacts: [contact], hitPath: [secondHost] })
+    }
+    expect(claims).toEqual([secondHost])
+    expect(starts).toBe(1)
+  } finally {
+    offB()
+    offA()
+    b.dispose()
+    a.dispose()
+  }
+})
