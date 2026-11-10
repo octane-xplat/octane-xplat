@@ -384,9 +384,9 @@ async function buildPhase() {
     join(consumer, 'vite.config.ts'),
     [
       "import { defineConfig } from 'vite'",
-      "import { xplatMacOS } from '@octane-xplat/cli/macos/vite'",
+      "import { macos } from '@octane-xplat/cli/macos/vite'",
       '',
-      "export default defineConfig(({ mode }) => xplatMacOS(mode, { entry: 'src/main.macos.ts' }))",
+      "export default defineConfig(({ mode }) => macos(mode, { entry: 'src/main.macos.ts' }))",
       '',
     ].join('\n'),
   )
