@@ -113,11 +113,11 @@ dbus-run-session -- xvfb-run -a env XPLAT_MASON_TYPELIB=/path/to/facade-dir LD_L
 dbus-run-session -- xvfb-run -a python3 tools/linux-runtime-eval/port/cdp-check.py /path/to/prepared/ns-linux tools/linux-runtime-eval/dist/bench-native/app.js
 ```
 
-Native C frames in the CPU profile can carry the wrong symbol name, so attribute only JavaScript frames.
+Native C frames in the CPU profile can carry the wrong symbol name ([triniwiz/linux-runtime#12](https://github.com/triniwiz/linux-runtime/issues/12)), so attribute only JavaScript frames.
 
 Two local workarounds hide known gaps; keep them in mind when reading results:
 
-- NativeScript Linux `0.1.0-alpha.2` metadata omits some GTK-stack structs, such as `graphene_rect_t`. For those out-parameters, the projection allocates raw memory with a field map taken from GI.
+- The runtime exposes C structs only under their struct tags, such as `_graphene_rect_t`, not their typedef names ([triniwiz/linux-runtime#13](https://github.com/triniwiz/linux-runtime/issues/13)). The projection's struct lookup doesn't try `_graphene_rect_t`, so for Graphene out-parameters it falls back to raw memory with a field map taken from GI. The struct is present in the metadata.
 - `root.unmount()` leaves the renderer's window signal handlers and controllers attached ([#229](https://github.com/octane-xplat/octane-xplat/issues/229)). `port/main.mjs` removes them itself (`unwireContainer`) before checking that each remount cycle leaves native counts flat.
 
 ## Integration boundaries

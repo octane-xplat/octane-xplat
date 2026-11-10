@@ -186,9 +186,9 @@ function getClass(ns,name){
   }
   return klass
 }
-// Out-structs whose C type is absent from the generated metadata (graphene
-// keeps private typedefs) get raw memory plus an explicit float field map —
-// `fields` carry absolute byte offsets.
+// Out-structs that rawCtor's name candidates miss (the runtime exposes
+// graphene structs only by tag, e.g. `_graphene_rect_t`) get raw memory plus
+// an explicit float field map — `fields` carry absolute byte offsets.
 const outStructLayouts={
   'Graphene.Rect':{size:16,fields:{origin:{x:0,y:4},size:{width:8,height:12}}},
   'Graphene.Point':{size:8,fields:{x:0,y:4}},
