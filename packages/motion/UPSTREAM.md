@@ -581,3 +581,44 @@ and cancellation release the block.
 
 Numeric constraints retain their translation-coordinate contract. Measured ref
 constraints, drag-to-reorder and `Reorder` remain outside this work.
+
+## iOS scheduling and quality
+
+The maintained [iOS benchmark](../../tools/verification/animation-quality/README.md)
+owns the fixture, Instruments/XCTest workflow, per-device baseline format and
+acceptance criteria. Runtime presentation qualification requires a physical
+phone; callback cadence and simulator runs cannot establish hitch performance.
+
+Motion's mobile clock reads `CACurrentMediaTime() * 1000` on iOS. Generators
+sample elapsed milliseconds, so variable frame intervals do not change spring
+physics or tween duration. Resume uses elapsed wall-independent monotonic time:
+a run may advance directly to completion after suspension, not replay missed
+frames. There is no promise to freeze animation time while backgrounded.
+Delegated UIKit animation resume/interruption needs separate device evidence.
+
+NativeScript 9.1.3 owns a lazy singleton FPSCallback for animation-frame work.
+Its display link registers both NSDefaultRunLoopMode and UITrackingRunLoopMode;
+there is no explicit preferredFramesPerSecond, frameInterval or frame-rate-range
+cap in this path. The mobile proving host opts into higher iPhone refresh rates
+with CADisableMinimumFrameDurationOnPhone; system policy still chooses the rate.
+Consumer apps must review their own built plist. Motion does not own or replace
+that display link, and this audit does not qualify the macOS scheduler.
+
+NativeScript queues requests made outside a callback via a macrotask; requests
+made during a frame callback go to the next display-link batch. Therefore its
+requestAnimationFrame is not a guarantee of exactly one callback per physical
+presentation. NativeScript catches callback exceptions, supports pending queue
+cancellation, and pauses its link after a batch requests no further frames.
+Cancellation can leave an empty delivery, but not a perpetual Motion idle loop;
+the paused link remains allocated upstream rather than invalidated. See upstream
+[animation-frame](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/animation-frame/index.ts)
+and [FPSCallback](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/fps-meter/fps-native.ios.ts).
+
+ProjectionRoot batches layout ticks separately. It retains IDs until delivery so
+an earlier tick can cancel a later tick in that same batch. New ticks wait until
+the next frame. Host regression tests establish this cancellation behavior;
+they do not establish OS scheduling, energy use or presentation pacing.
+Existing engine and object-driver tests cover irregular-time spring samples,
+retargeting, cancellation, disposal and live Reduce Motion propagation. Physical
+frame pacing, native idle wakeups, background/resume and genuine preference
+notification still require the benchmark's independent device qualification.

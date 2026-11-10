@@ -227,3 +227,4 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 - [Argent checks](argent.md) — stable-ID lifecycle regressions and dated target evidence.
 - [Packed Android starter](android-starter-tests.md) — selected-host consumer test gate.
 - [AppKit verification](appkit-verification.md) — layout, overlays, and packed-consumer scope.
+- [iOS animation quality](../../tools/verification/animation-quality/README.md) — isolated Release fixture, real-input XCTest source, Instruments metrics, per-device baselines and evidence limits; excluded from lightweight PR CI.

@@ -2,6 +2,11 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"bench:animation:ios": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "DEVELOPER_DIR", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+		},
 		"build:ios": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
 			"cache": false

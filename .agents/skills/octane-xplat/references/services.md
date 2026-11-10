@@ -38,3 +38,10 @@ twins such as `storage`, connectivity, files, and system bars live under
    extension-resolve).
 3. If it touches a DOM global on web — fine, web leaf is DOM territory;
    the unsuffixed native implementation must stay DOM-free (xplat/no-dom-globals).
+
+For iOS animation performance work, use the maintained
+[animation quality benchmark](../../../../tools/verification/animation-quality/README.md).
+Use physical presentation hitch metrics, not JS frame callback cadence or
+simulator results. Follow its Release, real-input, resource, no-screenshot and
+per-device baseline requirements. The scheduler audit is canonical in
+[Motion compatibility](../../../../packages/motion/UPSTREAM.md#ios-scheduling-and-quality).

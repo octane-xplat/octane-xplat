@@ -8,6 +8,7 @@
 		"android": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev android",
 		"debug:ios": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && ns debug ios",
 		"build:ios": "ns build ios",
+		"bench:animation:ios": "node scripts/build-animation-quality.mjs",
 		"bench:vlist:ios": "node scripts/bench-virtual-list.ts ios",
 		"bench:vlist:android": "node scripts/bench-virtual-list.ts android",
 		"test:ios": "ns test ios",
