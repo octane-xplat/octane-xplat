@@ -1327,6 +1327,22 @@ playback; opacity may still fade. This hook has no MotionConfig, Presence,
 variant, or completion-promise contract. Use the motion leaf for those
 capabilities on its documented targets. `setTranslate` also remains available.
 
+On native macOS, Motion, this hook and CSS keyframes share a display-synchronized
+scheduler. Pending animation callbacks keep it active; finishing or cancelling the
+last callback stops it. Timing uses a monotonic clock, so changing the system date
+does not change animation progress. Rebuild the native host after upgrading the
+renderer. One shared clock follows the main display selected when playback starts;
+independent windows on different displays do not each get their own refresh clock.
+
+```tsx
+import { useAnimation, Pressable, Text } from '@octane-xplat/ui'
+
+export function Fade() {
+  const fade = useAnimation(0.4, 'opacity')
+  return <Pressable ref={fade.ref} onPress={() => { void fade.to(1, { duration: 300 }) }}><Text>Fade in</Text></Pressable>
+}
+```
+
 The [maintained example](../../packages/ui/examples/AnimationDemo.tsrx) demonstrates
 replacement and stop. [Animation notes](../../.agents/docs/notes/animation-notes.md#appkit-imperative-animation)
 record AppKit verification and scheduling limits.

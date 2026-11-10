@@ -1862,6 +1862,7 @@
         "octane": "catalog:",
         "typescript": "catalog:",
         "typescript-classic": "catalog:",
+        "vite": "catalog:",
       },
       "peerDependencies": {
         "octane": ">=0.6.3 <1",

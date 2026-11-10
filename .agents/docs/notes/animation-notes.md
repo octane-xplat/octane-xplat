@@ -39,9 +39,40 @@ The maintained engine regressions check timing and trajectory independently.
 AppKit owns alpha through NSView and transforms through Core Animation. Explicit
 sampled writes disable implicit layer actions. Controllers belong to their bound
 ref and must detach/dispose without retaining a view or overwriting a newer owner.
-The main-runloop 16 ms timer is not screen-synchronized and makes no frame-pacing
-promise. Linear and damped-spring imperative controllers have their own units and
-rest conditions; they are not the Motion engine.
+Motion, imperative UI animation and CSS keyframes share the process queue in
+`macos-appkit/src/animation-frame.ts`. It starts the native `XplatDisplayLink`
+leaf only while callbacks are pending and stops immediately after the last
+callback completes or is cancelled. Requests made during delivery wait for the
+next refresh; peers in one batch share a timestamp and remain cancellable until
+visited. Callback failure is reported without starving other consumers.
+
+The leaf uses NSScreen CADisplayLink on macOS 14+ in the main run loop's common
+modes. macOS 13.5 retains CVDisplayLink: its real-time callback merges a native
+main-queue dispatch source, never entering JavaScript. Merging coalesces missed
+refreshes instead of building a backlog. Stop quiesces Core Video before
+releasing the source; generation checks suppress retired main-queue delivery.
+Neither path runs a frame timer while idle. The retained JS target and native
+owner are process services; idle stop releases display-link/target ownership,
+not the process scheduler itself. Root retirement relies on consumers cancelling
+their owned requests; CSS subtree retirement cancels its last queued frame.
+
+Timestamps sample CACurrentMediaTime at main-thread delivery, in milliseconds,
+sharing the host performance.now() mach_absolute_time epoch. Motion's macOS
+clock and UI animation read performance.now(), while CSS starts from the same
+native clock. Do not mix these values with Date.now() or predicted presentation
+times. This avoids wall-clock jumps; it does not promise a fixed refresh rate or
+pixel parity. CADisplayLink selects the main NSScreen when an idle queue starts;
+the process queue does not track independent windows across multiple displays.
+CVDisplayLink uses the active display set. Display reconfiguration, sleep/wake,
+and macOS 13.5 runtime qualification remain separate from current-host evidence.
+See [Apple's AppKit display-link guidance](https://developer.apple.com/videos/play/wwdc2023/10054/).
+
+The source leaf is compiled and its header included in combined metadata by the
+normal macOS native builder. Manual runners must load that artifact and metadata,
+not just the prebuilt Mason library. Missing native support fails explicitly;
+there is no timer fallback. Linear and damped-spring imperative controllers keep
+their existing units and rest conditions; sharing a scheduler does not make them
+the Motion engine.
 
 ## Decision #130 — layout projection (web, iOS, Android, macOS)
 

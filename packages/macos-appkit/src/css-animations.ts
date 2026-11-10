@@ -1,3 +1,4 @@
+import { requestAnimationFrame, cancelAnimationFrame, animationNow } from './animation-frame.ts'
 import { shallowEqualStyle } from './style-values.ts'
 import type { ElementNode, PropBag } from './model'
 import type { NativeStyle } from './native-style'
@@ -13,8 +14,8 @@ import {
 // NS CssState.playKeyframeAnimations over the shared sampler — the GTK
 // renderer's model: every matched `animation` plays from its rule's start on
 // each selector re-match, later animations override earlier ones per
-// property, and the overlay sits above the computed style. One shared ~60 Hz
-// timer drives every playing node; Core Animation groups are not used — they
+// property, and the overlay sits above the computed style. One shared display-link queue
+// drives every playing node; Core Animation groups are not used — they
 // do not complete through the bridge (.agents/docs/notes/routing-transitions.md).
 
 export interface CssAnimationPlayback {
@@ -30,14 +31,12 @@ interface Dependencies {
 export type CssAnimations = ReturnType<typeof createCssAnimations>
 
 export function createCssAnimations(deps: Dependencies) {
-  const ANIMATION_FRAME_MS = 16
-
   /** Nodes holding a playback (playing or forwards-filled). */
   const animatedNodes = new Set<ElementNode>()
 
   const playingNodes = new Set<ElementNode>()
 
-  let animationTimer: ReturnType<typeof setTimeout> | null = null
+  let animationFrame: number | null = null
 
   /** Values a property animates from when no earlier keyframe declares it —
    *  the node's current (pre-animation) computed value. */
@@ -73,17 +72,17 @@ export function createCssAnimations(deps: Dependencies) {
       return
     }
 
-    node.cssAnimation = { infos, startMs: Date.now(), base: animationBase(node) }
+    node.cssAnimation = { infos, startMs: animationNow(), base: animationBase(node) }
     animatedNodes.add(node)
     // Segment 0 lands synchronously, like NS `animate(view, 0)` at play.
     if (advanceKeyframeAnimation(node, node.cssAnimation.startMs)) {
       playingNodes.add(node)
-      animationTimer ??= setTimeout(tickKeyframeAnimations, ANIMATION_FRAME_MS)
+      animationFrame ??= requestAnimationFrame(tickKeyframeAnimations)
     }
   }
 
-  function tickKeyframeAnimations() {
-    const now = Date.now()
+  function tickKeyframeAnimations(now: number) {
+    animationFrame = null
 
     for (const node of playingNodes) {
       if (!advanceKeyframeAnimation(node, now)) {
@@ -91,9 +90,9 @@ export function createCssAnimations(deps: Dependencies) {
       }
     }
 
-    animationTimer = playingNodes.size
-      ? setTimeout(tickKeyframeAnimations, ANIMATION_FRAME_MS)
-      : null
+    if (playingNodes.size) {
+      animationFrame ??= requestAnimationFrame(tickKeyframeAnimations)
+    }
   }
 
   /** Writes one frame; false once every animation on the node has finished. */
@@ -160,6 +159,11 @@ export function createCssAnimations(deps: Dependencies) {
     node.cssAnimation = undefined
     animatedNodes.delete(node)
     playingNodes.delete(node)
+
+    if (playingNodes.size === 0 && animationFrame !== null) {
+      cancelAnimationFrame(animationFrame)
+      animationFrame = null
+    }
 
     const hadOverlay = node.animatedStyle !== undefined
 

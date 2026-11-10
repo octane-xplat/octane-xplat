@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { macos } from '../../cli/src/macos/vite.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
-import { writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import {
   macOSHostArch,
   hostBundle,
@@ -46,24 +46,16 @@ try {
 
   const bootstrap = join(directory, 'bootstrap.js')
 
-  await writeNativeBootstrap(
-    {
-      prebuilt: [
-        {
-          source: join(packageRoot, '../macos-appkit/platforms/macos/prebuilt/libxplatmason.dylib'),
-        },
-      ],
-      libraries: [],
-    },
-    bootstrap,
-  )
+  const artifact = await buildMacOSNative(appRoot)
+
+  await writeNativeBootstrap(artifact, bootstrap)
 
   const result = spawnSync(
     await macOSExecutable(appRoot, 'macos/host'),
     [
       join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
       bundle,
-      join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+      artifact.metadata[macOSHostArch()],
       bootstrap,
     ],
     {

@@ -11,6 +11,20 @@ Run the focused check from the repository root:
 bun run --filter @xplat/macos test:layout-placement
 ```
 
+## Animation scheduling
+
+The nonvisual native fixture exercises the real display-link bridge and shared
+queue, main-thread delivery, matching monotonic clock epochs, same-frame batches,
+nested requests, cancellation, imperative interpolation, CSS completion and
+retirement, plus native stop/idle/restart. The fixture inspects values only.
+Queue error isolation and failed-start recovery have separate controlled-driver
+unit coverage. This does not establish physical input, visual smoothness,
+multi-display migration, sleep/wake, or macOS 13.5 runtime behavior.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit animation runtime"}' -- bun run turbo run test:animation-runtime --filter=@octane-xplat/macos-appkit
+```
+
 ## Packed consumers and overlays
 
 The renderer's assembly tests load the actual public entry with stand-ins only

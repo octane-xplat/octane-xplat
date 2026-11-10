@@ -18,7 +18,7 @@ playback safely when replacing it or removing the screen.
 - AC1: Attach a stable animation controller to a view ref and use documented properties and units for timed and spring playback.
 - AC2: Replace playback from the current sample, freeze it with stop, and cancel owned work on ref detachment or component disposal.
 - AC4: Await finished/cancelled/failed run outcomes, including replacement, detachment, reduced motion, and host write failure.
-- AC3: Understand reduced-motion behavior on AppKit and distinguish timer/property evidence from OS input or frame-pacing verification.
+- AC3: Understand reduced-motion behavior on AppKit and distinguish display-link/property evidence from OS input or frame-pacing verification.
 - AC5: Raw web pan retains one primary contact, cancels capture loss or teardown once, and preserves nested taps and release velocity.
 
 ## Documentation
@@ -29,3 +29,5 @@ playback safely when replacing it or removing the screen.
 - AC3: [AppKit behavior](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [verification limits](../notes/animation-notes.md#appkit-imperative-animation).
 
 - AC4: [Observable outcomes and migration](../../../docs/app/animation-gestures.md#observe-imperative-animation-results) and [visible example](../../../packages/ui/examples/AnimationDemo.tsrx).
+
+- AC3 scheduling: [shared display-link ownership](../notes/animation-notes.md#appkit-imperative-animation) and [nonvisual native fixture](../../../packages/macos-appkit/test/fixtures/animation-frames.ts) cover scheduling separately from visual frame pacing and OS input.

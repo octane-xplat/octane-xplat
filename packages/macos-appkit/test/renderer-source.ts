@@ -144,10 +144,9 @@ const declarations: readonly (readonly [string, string])[] = [
   ['css-cascade', 'envForNode'],
   ['css-cascade', 'restyleNode'],
   ['css-animations', 'CssAnimationPlayback'],
-  ['css-animations', 'ANIMATION_FRAME_MS'],
   ['css-animations', 'animatedNodes'],
   ['css-animations', 'playingNodes'],
-  ['css-animations', 'animationTimer'],
+  ['css-animations', 'animationFrame'],
   ['css-animations', 'animationBase'],
   ['css-animations', 'sameAnimations'],
   ['css-animations', 'playKeyframeAnimations'],
@@ -644,32 +643,38 @@ export function rendererSource(): string {
     modules.set(module, found)
   }
 
-  cached = declarations
-    .flatMap(([module, symbol]) => {
-      let text = modules.get(module)?.get(symbol)
-      // Preserve the old fixture's map boundary/substring anchors only. Runtime
-      // storage is private and is covered through production constructor tests.
-      const legacyDeclarations: Record<string, string> = {
-        actionHandlers: 'const actionHandlers = new Map()',
-        actionIdsByView: 'const actionIdsByView = new WeakMap()',
-        nextActionId: 'let nextActionId = 1',
-        accessibilityLabels: 'const accessibilityLabels = new Map()',
-        accessibilityRoles: 'const accessibilityRoles = new Map()',
-        stackAccessibilityPropsByView: 'const stackAccessibilityPropsByView = new WeakMap()',
-      }
+  cached =
+    `
+const animationNow = () => Date.now()
+const requestAnimationFrame = (callback) => setTimeout(() => callback(animationNow()), 16)
+const cancelAnimationFrame = (id) => clearTimeout(id)
+` +
+    declarations
+      .flatMap(([module, symbol]) => {
+        let text = modules.get(module)?.get(symbol)
+        // Preserve the old fixture's map boundary/substring anchors only. Runtime
+        // storage is private and is covered through production constructor tests.
+        const legacyDeclarations: Record<string, string> = {
+          actionHandlers: 'const actionHandlers = new Map()',
+          actionIdsByView: 'const actionIdsByView = new WeakMap()',
+          nextActionId: 'let nextActionId = 1',
+          accessibilityLabels: 'const accessibilityLabels = new Map()',
+          accessibilityRoles: 'const accessibilityRoles = new Map()',
+          stackAccessibilityPropsByView: 'const stackAccessibilityPropsByView = new WeakMap()',
+        }
 
-      if (!text) {
-        text = legacyDeclarations[symbol]
-      }
+        if (!text) {
+          text = legacyDeclarations[symbol]
+        }
 
-      if (symbol === 'invokeAction') {
-        text = 'function invokeAction(id) { actionHandlers.get(id)?.() }'
-      }
+        if (symbol === 'invokeAction') {
+          text = 'function invokeAction(id) { actionHandlers.get(id)?.() }'
+        }
 
-      // Type declarations disappear during stripping.
-      return text === undefined ? [] : [text]
-    })
-    .join('\n')
+        // Type declarations disappear during stripping.
+        return text === undefined ? [] : [text]
+      })
+      .join('\n')
 
   return cached
 }

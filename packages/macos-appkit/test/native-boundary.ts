@@ -187,6 +187,10 @@ export function mockNativeBoundary(
 
   const hooks = registerHooks({
     resolve(specifier, owner, next) {
+      if (specifier.endsWith('/animation-frame.ts') || specifier === './animation-frame') {
+        return { url: new URL('./timer-frames.ts', import.meta.url).href, shortCircuit: true }
+      }
+
       if (specifier === '@nativescript/macos-node-api') {
         return { url: 'data:text/javascript,export {}', shortCircuit: true }
       }

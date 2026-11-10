@@ -12,7 +12,7 @@ export function useAnimation(initial = 0, property = 'translateX'): AnimatedValu
 
   if (!value.current) {
     value.current = createAnimatedValue(initial, {
-      now: Date.now,
+      now: () => performance.now(),
       request: requestAnimationFrame,
       cancel: cancelAnimationFrame,
       write: (view, next) => writeAnimatedProperty(view, property, next),

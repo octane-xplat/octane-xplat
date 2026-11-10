@@ -204,6 +204,7 @@
 			"outputs": []
 		},
 		// Boots a real macOS harness process — observable side effects, keep uncached.
+		"test:animation-runtime": { "cache": false, "dependsOn": ["^typegen"], "passThroughEnv": ["GODDARD_*"] },
 		"test:macos-runtime": {
 			"dependsOn": ["^typegen"],
 			"cache": false

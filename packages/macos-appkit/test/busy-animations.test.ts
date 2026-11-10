@@ -1,4 +1,10 @@
-import { createCssAnimations } from '../src/css-animations.ts'
+import { mockNativeBoundary } from './native-boundary.ts'
+
+const hooks = mockNativeBoundary()
+const { createCssAnimations } = await import('../src/css-animations.ts')
+
+hooks.deregister()
+
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'

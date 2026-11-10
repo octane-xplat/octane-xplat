@@ -73,12 +73,4 @@ export class TextBase {}
 export class View {}
 export const unsetValue = Symbol('unsetValue')
 
-// The AppKit spike has no display-link driver — motion's clock just needs a
-// frame-shaped timer; the host's pump runs setTimeout on the main run loop.
-export function requestAnimationFrame(callback: (time: number) => void): unknown {
-  return setTimeout(() => callback(Date.now()), 16)
-}
-
-export function cancelAnimationFrame(id: unknown) {
-  clearTimeout(id)
-}
+export { requestAnimationFrame, cancelAnimationFrame } from './animation-frame.ts'

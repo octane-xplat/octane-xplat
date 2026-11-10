@@ -16,6 +16,7 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | Host/CSS batch scope and commit stages | `layout-batch.ts`, `driver.ts`, `css-cascade.ts` |
 | Root creation/retirement and read-only membership | `roots.ts` receives the `root-directory.ts` writer; other services receive its reader |
 | Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts`, `layout-projection.ts` |
+| Shared animation frames and monotonic time | `frame-scheduler.ts`, `animation-frame.ts`, `platforms/macos/src/XplatDisplayLink.m`; [clock ownership](notes/animation-notes.md#appkit-imperative-animation) |
 | CSS matching, state and environment | `css-cascade.ts`, `css-animations.ts`, `css-pseudo-state.ts`, `style-environment.ts` |
 | Stateless style reads and normalization | `style-values.ts` |
 | Native styling and painting | `native-style.ts`, `pointer-style.ts`, `native-colors.ts`, `outlines.ts`, `box-paint.ts`, `box-paint-state.ts`, `box-geometry.ts`, `background-paint.ts`, `border-paint.ts`, `shadow-paint.ts`, `transform-paint.ts` |

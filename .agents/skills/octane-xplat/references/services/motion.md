@@ -235,3 +235,16 @@ import { Pressable } from '@octane-xplat/ui'
 
 <Pressable onPan={(event) => console.log(event.dy)} onPress={() => console.log('Activate')} />
 ```
+
+For AppKit, keep Motion, imperative UI animation and CSS keyframes on the
+renderer-owned display-link queue. Rebuild native leaves after upgrading the
+renderer; a host with only Mason's prebuilt library lacks the scheduler bridge.
+The macOS clock is monotonic milliseconds, not Date.now(). A shared queue follows
+one main screen per active run, so do not infer per-window multi-display pacing.
+See [native scheduler ownership and verification limits](../../../../docs/notes/animation-notes.md#appkit-imperative-animation).
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View animate={{ opacity: 1 }} initial={{ opacity: 0 }} transition={{ duration: 0.3 }} />
+```

@@ -16,6 +16,7 @@
 	],
 	"xplat": {
 		"macos": {
+			"frameworks": ["AppKit", "QuartzCore", "CoreVideo"],
 			"prebuiltLibraries": [
 				"platforms/macos/prebuilt/libxplatmason.dylib"
 			],
@@ -50,6 +51,7 @@
 		"test:gestures": "node ../../tools/probe/cli.ts run test/fixtures/gestures.macos.tsrx --target macos",
 		"test:portals": "node ../../tools/probe/cli.ts run test/fixtures/portal-lifecycle.macos.tsrx --target macos",
 		"test:overflow": "node ../../tools/probe/cli.ts run test/fixtures/text-overflow.macos.tsrx --target macos",
+		"test:animation-runtime": "node test/animation-runtime.mjs",
 		"test:packed": "node --experimental-strip-types test/packed-consumer.ts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
 	},
@@ -63,6 +65,7 @@
 		"saxes": "6.0.0"
 	},
 	"devDependencies": {
+		"vite": "catalog:",
 		"octane": "catalog:",
 		"typescript": "catalog:",
 		"typescript-classic": "catalog:",
