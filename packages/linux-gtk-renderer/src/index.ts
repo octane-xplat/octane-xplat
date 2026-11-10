@@ -1,3 +1,4 @@
+import { gtkGestureSurface, gtkActivationSource } from './gesture-input.js'
 // GTK4 host driver for the Octane universal runtime — the Linux/GJS sibling
 // of packages/macos-appkit's AppKit driver. Derived from the proven
 // feasibility adapter (evidence: .agents/design/linux-gtk-feasibility-review.md;
@@ -3964,7 +3965,9 @@ function connectEvent(
   const handler = (..._args: any[]) => dispatch(payloadFor(node, type))
 
   if (type === 'tap') {
-    node.pressKeys?.set(type, handler)
+    node.pressKeys?.set(type, () =>
+      dispatch({ eventName: type, object: view, activationSource: 'keyboard' }),
+    )
   }
 
   if (type === 'touch') {
@@ -4114,7 +4117,8 @@ function connectEvent(
         controllers: [gesture],
       }
     }
-    case 'doubletap': {
+    case 'doubletap':
+    case 'doubletaprelease': {
       const gesture = new Gtk.GestureClick()
 
       view.add_controller(gesture)
@@ -4122,11 +4126,14 @@ function connectEvent(
         connections: [
           {
             emitter: gesture,
-            signalId: gesture.connect('pressed', (_g: any, nPress: number) => {
-              if (nPress === 2) {
-                handler()
-              }
-            }),
+            signalId: gesture.connect(
+              type === 'doubletaprelease' ? 'released' : 'pressed',
+              (_g: any, nPress: number) => {
+                if (nPress === 2) {
+                  handler()
+                }
+              },
+            ),
           },
         ],
         controllers: [gesture],
@@ -5119,6 +5126,73 @@ export function createGtkContainer(
   bindOverlayHost(contentHost, container)
 
   ;(globalThis as any).__octaneGtkHost = {
+    gestureSurface: (view: GtkView) => {
+      const node = [...liveGtkContainers]
+        .flatMap((root) => [...root.nodes.values()])
+        .find((candidate) => candidate.view === view && !candidate.destroyed)
+      return gtkGestureSurface(
+        view,
+        node ? () => hostViewOf(node.container, node.parent) : undefined,
+      )
+    },
+    gestureFrame: (callback: () => void) => {
+      let source = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 16, () => {
+        source = 0
+        callback()
+        return false
+      })
+      return () => {
+        if (source) {
+          GLib.source_remove(source)
+          source = 0
+        }
+      }
+    },
+    observeGestureActivation: (
+      view: GtkView,
+      notify: (source: string, kind?: 'double' | 'long') => void,
+    ) => {
+      const node = [...liveGtkContainers]
+        .flatMap((root) => [...root.nodes.values()])
+        .find((candidate) => candidate.view === view && !candidate.destroyed)
+      if (!node) {
+        throw new Error('GTK semantic activation requires a live renderer host')
+      }
+      const wired = [
+        connectEvent(node.container, node, view, 'tap', (event: { activationSource?: string }) =>
+          notify(event.activationSource ?? gtkActivationSource(view)),
+        ),
+      ]
+      try {
+        wired.push(
+          connectEvent(node.container, node, view, 'doubletaprelease', () => {
+            Promise.resolve().then(() => notify('pointer', 'double'))
+          }),
+        )
+      } catch (error) {
+        for (const binding of wired) {
+          for (const connection of binding.connections) {
+            connection.emitter.disconnect(connection.signalId)
+          }
+          for (const controller of binding.controllers) {
+            view.remove_controller(controller)
+          }
+        }
+        node.pressKeys?.set('tap', null)
+        throw error
+      }
+      return () => {
+        for (const binding of wired) {
+          for (const connection of binding.connections) {
+            connection.emitter.disconnect(connection.signalId)
+          }
+          for (const controller of binding.controllers) {
+            view.remove_controller(controller)
+          }
+        }
+        node.pressKeys?.set('tap', null)
+      }
+    },
     createOverlayLayer: (options: any) => {
       const last = [...liveGtkContainers].filter((c) => !c.service).at(-1)
       const layer = last?.contentHost?.createOverlayLayer?.(options)
@@ -5310,6 +5384,13 @@ export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {
 }
 
 export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
+  // Octane's signal publication/retirement uses the host microtask global,
+  // independently of the universal root scheduler. GJS supplies Promises.
+  if (typeof globalThis.queueMicrotask !== 'function') {
+    globalThis.queueMicrotask = (callback) => {
+      Promise.resolve().then(callback)
+    }
+  }
   const container = createGtkContainer(host, { service: options.service === true })
   const root = createUniversalRoot(container, gtkDriver, {
     // GJS has no queueMicrotask — the universal runtime requires a

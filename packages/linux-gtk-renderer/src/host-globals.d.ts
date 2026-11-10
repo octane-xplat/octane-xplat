@@ -1,6 +1,6 @@
 // Ambient host globals the GJS runtime provides (verified present in GJS
 // 1.82.3 by the feasibility proof's globals inventory). Deliberately absent:
-// `document`, `navigator`, `queueMicrotask`, `performance`, `process`,
+// `document`, `navigator`, `performance`, `process`,
 // `fetch`, `MessageChannel` — GJS does not define them, and declaring them
 // here would hide real DOM/runtime assumptions from typecheck. Note GJS does
 // define `window` as an alias of the global object; it is intentionally left
@@ -13,6 +13,9 @@ declare global {
   class TextDecoder {
     decode(value: Uint8Array): string
   }
+
+  /** Installed by createGtkRoot for Octane signal publication on GJS. */
+  function queueMicrotask(callback: () => void): void
 
   function setTimeout(callback: () => void, ms?: number): number
   function clearTimeout(id: number): void

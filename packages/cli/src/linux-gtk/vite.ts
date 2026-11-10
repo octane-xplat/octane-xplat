@@ -1,7 +1,7 @@
 // @ts-nocheck — .mjs-style module; annotations pending (transitional)
 import { createRequire } from 'node:module'
 import { existsSync, realpathSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { boundary, nodeEnvDefine, css } from '../vite.ts'
 import { inlineStylesheets } from '../inline-stylesheets.ts'
@@ -214,6 +214,16 @@ export async function linuxGtk(env, options = {}) {
       alias: [
         // One universal runtime instance for the app and the renderer.
         { find: /^octane$/, replacement: universalNative },
+        // The universal entry resolved by Node imports its sibling signal
+        // registry. Client hooks must use that same tree, not the default
+        // browser export's independent hook-owner registry.
+        ...['signals', 'signals/client', 'signals/server'].map((entry) => ({
+          find: new RegExp(`^octane/${entry}$`),
+          replacement: join(
+            dirname(universalNative),
+            entry === 'signals' ? 'signals/index.js' : `${entry}.js`,
+          ),
+        })),
         { find: /^octane\/universal\/native$/, replacement: universalNative },
         // Leaves that touch NativeScript defaults keep working inside a
         // GTK bundle via the renderer's compat shims.

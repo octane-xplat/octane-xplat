@@ -1,0 +1,13 @@
+{
+  "name": "@xplat/platform-qualification",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:windows-gestures": "node desktop-gestures/build-windows.mjs",
+    "verify:windows-gestures": "node desktop-gestures/verify-windows.mjs"
+  },
+  "devDependencies": {
+    "@octane-xplat/ui": "workspace:*",
+    "vite": "catalog:"
+  }
+}

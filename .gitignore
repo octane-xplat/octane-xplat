@@ -60,3 +60,9 @@ packages/*/platforms/android/*.aar
 # Local native command entries; prepack replaces them with script-free placeholders.
 /packages/cli/bin/xplat.exe
 /packages/toolchain/bin/xplat.exe
+
+# Built GTK shared gesture OS-input fixture.
+/packages/linux-gtk-renderer/test/fixtures/dist-shared-gestures/
+
+# Built desktop transport qualification fixture.
+/tools/platform-qualification/dist-windows-gestures/

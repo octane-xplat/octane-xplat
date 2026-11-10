@@ -11,6 +11,7 @@ separately in `tools/desktop-support/`.
 
 | Path | Purpose |
 | --- | --- |
+| [`desktop-gestures/`](desktop-gestures/README.md) | Maintained GTK/Windows shared mouse owner gates, separate from packed/public-component qualification |
 | `patches/` | Candidate/source repairs; applied consumer patches remain in `packages/cli/patches/` |
 | `windows-input-contracts/` | Native Windows input fixture and OS driver |
 | `windows-layout/` | Percentage-size regression and native geometry/popover fixtures; [automatic shrink candidate](../../.agents/docs/windows-layout-repair.md#automatic-fixed-size-shrink-candidate) |

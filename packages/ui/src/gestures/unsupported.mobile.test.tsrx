@@ -10,11 +10,11 @@ import { useInteractionHost as useWindowsHost } from './host.windows.tsrx'
 import { useInteractionHost as useGtkHost } from './host.gtk.tsrx'
 
 it.each([
-  ['Windows', useWindowsHost],
-  ['GTK', useGtkHost],
+  ['Windows', useWindowsHost, 'Native gesture attachment requires a NativeScript view'],
+  ['GTK', useGtkHost, 'Unsupported GTK gesture attachment: raw mouse input bridge unavailable'],
 ] as const)(
-  '%s rejects shared attachment rather than registering an inert gesture',
-  (platform, useHost) => {
+  '%s rejects attachment when its qualified bridge is unavailable',
+  (_platform, useHost, diagnostic) => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     function Surface() {
@@ -24,7 +24,7 @@ it.each([
     }
 
     try {
-      expect(() => root.render(Surface, {})).toThrow(`Unsupported gesture attachment: ${platform}`)
+      expect(() => root.render(Surface, {})).toThrow(diagnostic)
     } finally {
       root.unmount()
     }

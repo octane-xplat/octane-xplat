@@ -1,7 +1,16 @@
-import { useUnsupportedInteractionHost } from './host-unsupported.tsrx'
+import { useNativeInteractionHost } from './host-native-shared.tsrx'
+import { attachWindowsGesture, attachWindowsScope, attachWindowsPress } from './input.windows'
 import type { InteractionHostOptions } from './host-options'
 
 export type { InteractionHostOptions } from './host-options'
+
+const adapter = {
+  gestures: attachWindowsGesture,
+  scope: attachWindowsScope,
+  press: attachWindowsPress,
+  viewport: () => () => {},
+}
+
 export function useInteractionHost(options: InteractionHostOptions): (host: object | null) => void {
-  return useUnsupportedInteractionHost(options, 'Windows')
+  return useNativeInteractionHost(options, adapter)
 }

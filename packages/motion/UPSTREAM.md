@@ -144,7 +144,7 @@ export function LivePosition() {
 }
 ```
 
-Motion uses UI's shared input owner for drag and visual press feedback. It no longer owns a separate pointer/gesturehandler recognizer, tag range, or native installation step. Translation and nullable velocity come from shared samples; unavailable velocity maps to zero for Motion settlement. Axis reservations preserve the other axis and browser pinch zoom. The native SDK transport is shared with Pressable. GTK and Windows shared dragging reject unsupported attachment explicitly.
+Motion uses UI's shared input owner for drag and visual press feedback. It no longer owns a separate pointer/gesturehandler recognizer, tag range, or native installation step. Translation and nullable velocity come from shared samples; unavailable velocity maps to zero for Motion settlement. Axis reservations preserve the other axis and browser pinch zoom. The native SDK transport is shared with Pressable. GTK and Windows use the experimental shared one-mouse-contact adapter. Native transport input, public Motion consumers, and packed-runtime qualification are separate gates.
 
 ```tsx
 import { motion } from '@octane-xplat/motion'

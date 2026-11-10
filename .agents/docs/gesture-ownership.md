@@ -50,7 +50,7 @@ several ancestors; deduplicate at the window owner, never per recognizer.
 
 Desktop host bridges share the runtime-neutral mouse integration in
 `packages/ui/src/gestures/input.host.ts`; AppKit supplies its native surface and
-activation provenance. This wrapper does not add touch policy or suspension.
+activation provenance. GTK and Windows feed the same wrapper and owner. Its affine basis helper freezes plain numeric conversions; parent-local conversion keeps Motion outside the host's own transform. This wrapper does not add touch policy or suspension.
 The native root resolves each claim through the registered host's scheduler,
 not the scheduler of the first surface retained in that root. Keep frame/error
 scheduling root-scoped and native claiming host-scoped.
@@ -62,7 +62,7 @@ recomputing local positions against the current host transform. The Android brid
 to logical window units. Real OS pan and pan-to-pinch qualification exists for
 both mobile adapters; retain the exact evidence boundaries in Silo. The AppKit
 prototype supports one mouse contact; direct-touch pinch and trackpad
-magnification reject attachment explicitly. Other native hosts reject this
+magnification reject attachment explicitly. GTK and Windows provide the same bounded mouse subset; other native hosts reject this
 internal adapter explicitly. Do not infer support
 from the shared coordinator or declarations.
 
@@ -177,7 +177,7 @@ Motion's x/y channels use a frozen logical-parent basis, excluding the host's
 own transform. Public pan hooks keep their frozen host basis. Local grab points
 still refer to the attached host. Preserve this distinction in platform adapters.
 Built-in sliders/resize handles use the same owner with manipulation priority.
-Their private GTK/Windows widget transport does not establish shared gesture support.
+GTK/Windows controls now use these same manipulation registrations. Raw `view.on("pan")` remains a separate widget API; framework controls must not install it alongside shared ownership.
 
 Opaque platform widgets remain native input boundaries. Native sheet presenters,
 third-party drawer engines, embedded editing engines and OS navigation cannot be
@@ -194,3 +194,44 @@ synchronous cancellation/finalization. A retired component cannot receive a
 state update; errors from its cleanup use the uncaught-error route. Keep engine
 fault reporting separate from app callback errors. Maintained handler tests
 qualify this route; they do not qualify OS interruption by themselves.
+
+## Desktop input leaves
+
+GTK uses one capture-phase raw event controller per native input surface (window
+or popover), filters ancestor delivery by Gdk surface and copies mouse data,
+and resets pending native gesture tracking only when the owner claims. Editing,
+adjustable and hosted native controls remain boundaries. Semantic Mason buttons
+keep role-specific keyboard bindings and acquire focus on pointer press. The
+preset resolves signal imports beside the selected universal runtime; mixing
+Node/default export trees creates independent hook-owner registries. GJS roots
+install a Promise-backed `queueMicrotask` when absent because Octane's signal
+publication/retirement also uses that global, separately from root scheduling.
+
+Windows stages UI's `platforms/windows/GestureInput.cs` through the NativeScript
+plugin pipeline and compiles it into the native host. Its typed WinUI observer
+normalizes one mouse contact and handles capture, window interruption and cleanup.
+One managed callback per visual input root feeds the shared owner. Popup visual
+trees own separate input roots even when they share XamlRoot; Motion parent
+conversion rejects a parent in another root. The pinned beta.24 API
+uses `NSWinRT.dotnet.asDelegate` for managed callbacks; `NSWinRT.asDelegate` is for
+WinRT delegates. Native semantic peers use beta.24's WinRT subclass projection,
+marking pointer/key dispatch synchronously. Typed managed subscriptions deliver
+Click/LayoutUpdated and release them explicitly. In the beta.24 OS gate,
+property-assigned Click on the composed JS peer did not deliver; ordinary
+button delivery and typed native subscriptions did. Keep this bounded bridge
+limitation visible rather than reverting to pointer-down timing heuristics.
+Windows frames and managed holds use cancellable WinUI DispatcherQueue timers
+through the existing owner scheduler. The isolated beta.24 host did not execute
+a JavaScript timeout despite its template pump; do not qualify the native
+scheduler by assuming a working global timer. The runtime timeout/pump gap is
+bounded to that host fixture and still needs upstream/packed-host qualification.
+Virtual actions remain eligible during an unrelated pointer cohort. Never infer
+activation source from pointer-down state or a timing window.
+
+Both desktop leaves reject pinch and multi-contact configurations, including
+configuration changes on an existing attachment. Receiving mouse contacts does
+not reserve touch axes, stop wheel input or suspend native momentum. Desktop
+full suspension remains unsupported. Native window coordinates are logical
+units; native screen positions remain null. Packed public-component, Motion,
+Mason and accessibility-service qualification remain separate from transport
+and handler checks; consult Silo and retained reports for the actual artifacts.

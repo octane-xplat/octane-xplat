@@ -96,6 +96,7 @@ declare module 'gi://Gtk?version=4.0' {
     class Widget {
       connect(signal: string, handler: (...args: any[]) => unknown): number
       disconnect(id: number): void
+      get_native(): NativeWidget | null
       get_parent(): Widget | null
       unparent(): void
       get_first_child(): Widget | null
@@ -140,6 +141,10 @@ declare module 'gi://Gtk?version=4.0' {
       reset_property(property: number): void
       reset_relation(relation: number): void
       grab_focus(): boolean
+      compute_point(
+        target: Widget,
+        point: { x: number; y: number },
+      ): [boolean, { x: number; y: number }]
       pick(x: number, y: number, flags: number): Widget | null
       compute_bounds(
         target: Widget,
@@ -277,6 +282,15 @@ declare module 'gi://Gtk?version=4.0' {
       [key: string]: any
     }
 
+    class Gesture extends EventController {
+      reset(): void
+    }
+
+    class SpinButton extends Widget {}
+    class CheckButton extends Widget {}
+    class Range extends Widget {}
+    class Scrollbar extends Widget {}
+
     class EventController {
       [key: string]: any
     }
@@ -395,6 +409,11 @@ declare module 'gi://Gtk?version=4.0' {
       [key: string]: any
     }
 
+    interface NativeWidget extends Widget {
+      get_surface(): object | null
+      get_surface_transform(): [number, number]
+    }
+
     class Window extends Widget {
       constructor(props?: Record<string, unknown>)
       set_child(child: Widget | null): void
@@ -475,6 +494,19 @@ declare module 'gi://GLib' {
 
 declare module 'gi://Gdk?version=4.0' {
   namespace Gdk {
+    const InputSource: { MOUSE: number; TOUCHPAD: number }
+    class Device {
+      get_source(): number
+    }
+    class Event {
+      get_surface(): object | null
+      get_device(): Device | null
+      get_modifier_state(): number
+      get_event_type(): number
+      get_button?(): number
+      get_pointer_emulated(): boolean
+      get_position(): [boolean, number, number]
+    }
     const EventType: {
       KEY_PRESS: number
       KEY_RELEASE: number

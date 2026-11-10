@@ -1,5 +1,11 @@
+import {
+  createWindowsActionControl,
+  observeWindowsActionControl,
+  windowsActivationSource,
+} from '../../gestures/input.windows'
+import type { ActivationEvent } from '../../gestures/types'
 import { Property, TextBase, View } from '@nativescript/core'
-import { Microsoft, NSWinRT } from '@octane-xplat/platform/windows'
+import { Microsoft } from '@octane-xplat/platform/windows'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
@@ -9,7 +15,7 @@ type ChildView = Parameters<Parameters<View['eachChildView']>[0]>[0]
 interface ActionSettings {
   label?: string
   accessible?: boolean
-  onPress?: () => void
+  onPress?: (source: ActivationEvent['source']) => void
 }
 
 declare module '@octane-xplat/jsx/intrinsics' {
@@ -31,11 +37,10 @@ class WindowsActionControl extends View {
   declare settings: ActionSettings | undefined
   protected kind: 'Button' | 'HyperlinkButton' = 'Button'
   private eventNative: any
-  private click: any
-  private layoutDelegate: any
+  private disposeEvents: (() => void) | undefined
 
   createNativeView(): any {
-    const native = new Microsoft.UI.Xaml.Controls[this.kind]()
+    const native = createWindowsActionControl(this.kind)
 
     native.MinWidth = 0
     native.MinHeight = 0
@@ -52,20 +57,19 @@ class WindowsActionControl extends View {
     const native = this.nativeViewProtected
 
     this.eventNative = native
-    this.click = NSWinRT.asDelegate('Microsoft.UI.Xaml.RoutedEventHandler', () => {
-      if (this.eventNative === native && this.isLoaded && this.isEnabled && native.IsEnabled) {
-        this.settings?.onPress?.()
-      }
-    })
-
-    this.layoutDelegate = NSWinRT.asDelegate('Windows.Foundation.EventHandler`1<Object>', () => {
-      if (this.eventNative === native && this.isLoaded) {
-        this.syncAccessibility()
-      }
-    })
-
-    native.Click = this.click
-    native.LayoutUpdated = this.layoutDelegate
+    this.disposeEvents = observeWindowsActionControl(
+      native,
+      () => {
+        if (this.eventNative === native && this.isLoaded && this.isEnabled && native.IsEnabled) {
+          this.settings?.onPress?.(windowsActivationSource(native))
+        }
+      },
+      () => {
+        if (this.eventNative === native && this.isLoaded) {
+          this.syncAccessibility()
+        }
+      },
+    )
     this.syncAccessibility()
   }
 
@@ -120,17 +124,14 @@ class WindowsActionControl extends View {
   }
 
   disposeNativeView(): void {
-    const native = this.eventNative
-
     this.eventNative = undefined
-    if (native) {
-      native.Click = null
-      native.LayoutUpdated = null
+    const dispose = this.disposeEvents
+    this.disposeEvents = undefined
+    try {
+      dispose?.()
+    } finally {
+      super.disposeNativeView()
     }
-
-    this.click = undefined
-    this.layoutDelegate = undefined
-    super.disposeNativeView()
   }
 }
 

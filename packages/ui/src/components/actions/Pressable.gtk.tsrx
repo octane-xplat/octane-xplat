@@ -12,7 +12,7 @@ import {
 
 import { layoutChildProps } from '../layout/layout-child'
 import { useInteractionHost } from '../../gestures/host.gtk.tsrx'
-import { virtualActivation } from '../../gestures/virtual-activation'
+import { pressOptions } from '../../gestures/semantic-press'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 
 /** masonview, not contentview — ContentView is single-child: the driver
@@ -20,7 +20,7 @@ import { InteractionScopeProvider } from '../../gestures/context.tsrx'
  *  silently dropped. Column flex matches View's shape (and the web div);
  *  tap/longPress are gesture events, they attach to any view. */
 export function Pressable(props: PressableProps): unknown @{
-  const bindInput = useInteractionHost(props)
+  const bindInput = useInteractionHost({ ...props, press: pressOptions(props) })
   const host = useRef<object | null>(null)
   const forwardedRef = useMemo(
     () =>
@@ -65,17 +65,6 @@ export function Pressable(props: PressableProps): unknown @{
       disabled: props.disabled || props.accessibilityState?.disabled,
     })}
     accessibilityLiveRegion={props.accessibilityLiveRegion}
-    onTap={
-      props.disabled
-        ? undefined
-        : () => {
-            if (host.current) {
-              props.onPress?.(virtualActivation(host.current))
-            }
-          }
-    }
-    onDoubleTap={props.disabled ? undefined : props.onDoublePress}
-    onLongPress={props.disabled ? undefined : props.onLongPress}
   >
     <InteractionScopeProvider scope={props.interactionScope}>
       {props.children}

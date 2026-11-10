@@ -105,10 +105,11 @@ The GTK root now adds 22 runtime exports to the previous Text/Pressable pair:
 View, VStack, HStack, Grid, GridSpan, Stack, StackItem, Center, Section, Layout,
 LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel, Absolute, Spacer, Badge,
 Divider, ColorSwatch, SizeContext, SizeProvider and useSize. Existing shared
-leaves are reused. The renderer dispatches pan/swipe/touch through GTK gesture
-controllers; `pan.gtk.tsrx` preserves their shared payload instead of applying
-the NativeScript numeric-state adapter. Keep the matching `.tsrx` extension:
-the preset's `.tsrx` resolution precedes `.gtk.ts`.
+leaves are reused. Public pan and framework manipulation controls now feed the
+shared mouse owner through the GTK raw-contact bridge. The renderer's raw
+`view.on("pan")`/swipe/touch API remains a separate widget transport; do not
+install it alongside shared framework gestures. Keep the matching `.tsrx`
+extension so the preset selects the GTK host lifecycle.
 
 The maintained renderer task passes 28 tests in the Linux guest, with none
 skipped. Its UI fixture performs 42 assertions, including real Mason allocation

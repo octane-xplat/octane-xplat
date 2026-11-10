@@ -1,12 +1,14 @@
-import type { PanGestureOptions } from './types'
+import { createExternalGestureInput } from './external-shared'
+import { attachWindowsGesture, attachWindowsPress } from './input.windows'
 
-export function attachOwnedPan(_host: object, _options: PanGestureOptions): () => void {
-  throw new Error('Shared gesture input is unsupported on windows')
-}
+const input = createExternalGestureInput({
+  pan: (host, gesture) => attachWindowsGesture(host, gesture, 'parent'),
+  press: (host, options) => {
+    const binding = attachWindowsPress(host, options)
 
-export function observeOwnedPress(
-  _host: object,
-  _callbacks: { start(): void; end(): void },
-): () => void {
-  throw new Error('Shared gesture input is unsupported on windows')
-}
+    return () => binding.dispose()
+  },
+})
+
+export const attachOwnedPan = input.attachPan
+export const observeOwnedPress = input.observePress

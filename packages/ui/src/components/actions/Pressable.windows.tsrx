@@ -6,6 +6,7 @@ import { useMeasure } from '../layout/useMeasure.tsrx'
 import './pressable-control.windows'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
+import type { ActivationEvent } from '../../gestures/types'
 import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
@@ -15,15 +16,16 @@ import {
 
 import { layoutChildProps } from '../layout/layout-child'
 import { useInteractionHost } from '../../gestures/host.windows.tsrx'
-import { virtualActivation } from '../../gestures/virtual-activation'
+import { pressOptions } from '../../gestures/semantic-press'
+import { dispatchWindowsActivation } from '../../gestures/input.windows'
 
 /** Keep the shared drawing and layout, with a measured native control for
- * focus and activation. Only Click invokes onPress: a second tap listener
- * would dispatch mouse activation twice. */
+ * focus and native activation provenance. Pointer eligibility belongs to the
+ * shared owner; native Click retains keyboard and virtual activation. */
 export function Pressable(props: PressableProps): unknown @{
   const measured = useMeasure()
   const disabled = Boolean(props.disabled || props.accessibilityState?.disabled)
-  const bindInput = useInteractionHost(props)
+  const bindInput = useInteractionHost({ ...props, press: pressOptions(props) })
   const host = useRef<View | null>(null)
   const forwardedRef = useMemo(
     () =>
@@ -51,9 +53,9 @@ export function Pressable(props: PressableProps): unknown @{
       label: props.accessibilityLabel,
       accessible: props.accessible,
       onPress: props.onPress
-        ? () => {
+        ? (source: ActivationEvent['source']) => {
             if (host.current) {
-              props.onPress?.(virtualActivation(host.current))
+              dispatchWindowsActivation(host.current, source)
             }
           }
         : undefined,
@@ -65,17 +67,6 @@ export function Pressable(props: PressableProps): unknown @{
     accessibilityValue: props.accessibilityValue,
     accessibilityState: nativeAccessibilityState({ ...props.accessibilityState, disabled }),
     accessibilityLiveRegion: props.accessibilityLiveRegion,
-    onLongPress: disabled ? undefined : props.onLongPress,
-    onDoubleTap: disabled ? undefined : props.onDoublePress,
-    onTouch: disabled
-      ? undefined
-      : (e: any) => {
-          if (e.action === 'down') {
-            props.onPressIn?.()
-          } else if (e.action === 'up' || e.action === 'cancel') {
-            props.onPressOut?.()
-          }
-        },
   }
 
   <masonview

@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "//"
+  ],
+  "tasks": {
+    "build:windows-gestures": {
+      "dependsOn": [
+        "^typegen"
+      ],
+      "outputs": [
+        "dist-windows-gestures/**"
+      ]
+    },
+    "verify:windows-gestures": {
+      "cache": false
+    }
+  }
+}

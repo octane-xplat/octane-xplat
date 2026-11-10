@@ -69,7 +69,10 @@ export const nativeAccessibilityRole=value=>value;
 export const nativeAccessibilityState=value=>value?.disabled?'disabled':undefined;
 export const useMeasure=()=>({ref:()=>{},bounds:{width:120,height:32}});
 // Action/layout fixture only: OS gesture attachment has its own adapter tests.
-export const useInteractionHost=()=>()=>{};
+const presses=new WeakMap();
+export const useInteractionHost=options=>host=>{if(host) presses.set(host,options.press)};
+export const pressOptions=props=>props;
+export const dispatchWindowsActivation=(host,source)=>presses.get(host)?.onPress?.({source,target:{id:'fixture'},currentTarget:{id:'fixture'},pointer:null,preventDefault(){}});
 export const virtualActivation=host=>({source:'virtual',target:{id:'fixture'},currentTarget:{id:'fixture'},pointer:null,preventDefault(){}});
 export const layoutChildProps=(props,style)=>({style});
 export const useLinkComponent=value=>value??'a';
@@ -94,6 +97,8 @@ const pressable = compiled(
     '../layout/useMeasure.tsrx': support,
     '../../gestures/host.windows.tsrx': support,
     '../../gestures/virtual-activation': support,
+    '../../gestures/semantic-press': support,
+    '../../gestures/input.windows': support,
   },
 )
 
@@ -354,6 +359,7 @@ const windowsTabs = compiled(
     '../media/Icon.tsrx': icon,
     '../content/Text.tsrx': tabText,
     './TabList.tsrx': tabs,
+    './tab-menu.tsrx': tabMenu,
   },
 )
 
@@ -580,8 +586,8 @@ test('Windows navigation tabs retain the shared button and href path', () => {
 
 test('Windows Pressable mounts a native host and updates its peer kind and callback', () => {
   const calls = []
-  const first = () => calls.push('first')
-  const next = () => calls.push('next')
+  const first = (event) => calls.push(['first', event.source])
+  const next = (event) => calls.push(['next', event.source])
   const f = mount(Pressable, { accessibilityLabel: 'First', onPress: first })
 
   try {
@@ -590,8 +596,8 @@ test('Windows Pressable mounts a native host and updates its peer kind and callb
 
     assert.equal(inputs().length, 1)
     assert.equal(inputs()[0].type, 'xplatwindowsbutton')
-    inputs()[0].props.settings.onPress()
-    assert.deepEqual(calls, ['first'])
+    inputs()[0].props.settings.onPress('virtual')
+    assert.deepEqual(calls, [['first', 'virtual']])
     assert.equal(inputs()[0].props.settings.label, 'First')
     assert.equal(inputs()[0].props.style.width, 120)
     assert.equal(inputs()[0].props.style.height, 32)
@@ -605,11 +611,15 @@ test('Windows Pressable mounts a native host and updates its peer kind and callb
 
     assert.equal(inputs().length, 1)
     assert.equal(inputs()[0].type, 'xplatwindowslink')
+    assert.equal(typeof inputs()[0].props.settings.onPress, 'function')
     assert.equal(inputs()[0].props.isEnabled, false)
     assert.equal(inputs()[0].props.settings.label, 'Next')
     f.render({ accessibilityRole: 'link', onPress: next })
-    inputs()[0].props.settings.onPress()
-    assert.deepEqual(calls, ['first', 'next'])
+    inputs()[0].props.settings.onPress('keyboard')
+    assert.deepEqual(calls, [
+      ['first', 'virtual'],
+      ['next', 'keyboard'],
+    ])
   } finally {
     f.root.unmount()
   }

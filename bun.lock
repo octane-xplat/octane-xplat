@@ -3291,6 +3291,13 @@
         "wrangler": "4.136.3",
       },
     },
+    "tools/platform-qualification": {
+      "name": "@xplat/platform-qualification",
+      "devDependencies": {
+        "@octane-xplat/ui": "workspace:*",
+        "vite": "catalog:",
+      },
+    },
     "tools/probe": {
       "name": "@xplat/probe",
       "version": "0.0.0",
@@ -5312,6 +5319,8 @@
     "@xplat/native-readiness": ["@xplat/native-readiness@workspace:tools/native-readiness"],
 
     "@xplat/ota-server": ["@xplat/ota-server@workspace:tools/ota-server"],
+
+    "@xplat/platform-qualification": ["@xplat/platform-qualification@workspace:tools/platform-qualification"],
 
     "@xplat/probe": ["@xplat/probe@workspace:tools/probe"],
 

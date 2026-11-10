@@ -158,7 +158,7 @@ export function DragArea() {
 }
 ```
 
-Public hooks expose read-only phase/activity/contact signals and optional frame/input samples. Keep signal names suffixed `$` and import the signal runtime in render readers. `enabled$` is a live boolean source; never supply it together with `enabled`. Suspend through `useInteractionScope$` and inspect the operation result. Full suspension is capability-gated: bounded UIKit/Mason on iOS, input-only inert subtrees on web; Android/macOS full suspension is unsupported. Portals outside coverage reject suspension. No `drag.support$` exists.
+Public hooks expose read-only phase/activity/contact signals and optional frame/input samples. Keep signal names suffixed `$` and import the signal runtime in render readers. `enabled$` is a live boolean source; never supply it together with `enabled`. Suspend through `useInteractionScope$` and inspect the operation result. Full suspension is capability-gated: bounded UIKit/Mason on iOS, input-only inert subtrees on web; Android/macOS/GTK/Windows full suspension is unsupported. Portals outside coverage reject suspension. No `drag.support$` exists.
 
 ```tsx
 import { View, useInteractionScope$ } from '@octane-xplat/ui'
@@ -169,7 +169,7 @@ export function ScopedContent() {
 }
 ```
 
-Web/iOS/Android have the shared pan/pinch adapter; experimental AppKit supports one mouse contact, with no shared pinch or trackpad magnification. GTK/Windows shared attachments throw explicitly; native widget input remains separate. Motion `drag` and `whileTap` now use the same owner as Pressable; remove Motion-only gesturehandler setup. Camera zoom amounts and media seek/dismiss policy stay with their owning API or app.
+Web/iOS/Android have the shared pan/pinch adapter; experimental AppKit, native GTK, and Windows provide one-mouse-contact adapters, with no desktop shared pinch or trackpad magnification. Windows needs the pinned beta.24 host and a native rebuild to compile UI's input bridge. Desktop OS and packed qualification is scenario-specific; do not infer Mason or accessibility-service coverage from transport tests. Motion `drag` and `whileTap` now use the same owner as Pressable; remove Motion-only gesturehandler setup. Camera zoom amounts and media seek/dismiss policy stay with their owning API or app.
 
 ```tsx
 import { motion } from '@octane-xplat/motion'

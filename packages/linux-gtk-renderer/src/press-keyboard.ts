@@ -60,9 +60,13 @@ export function bindPressKeys(node: ElementNode) {
     togglePointer: any = null
 
   const pointerRole = () =>
-    [Gtk.AccessibleRole.CHECKBOX, Gtk.AccessibleRole.SWITCH, Gtk.AccessibleRole.RADIO].includes(
-      view.get_accessible_role(),
-    )
+    [
+      Gtk.AccessibleRole.BUTTON,
+      Gtk.AccessibleRole.LINK,
+      Gtk.AccessibleRole.CHECKBOX,
+      Gtk.AccessibleRole.SWITCH,
+      Gtk.AccessibleRole.RADIO,
+    ].includes(view.get_accessible_role())
 
   const ensure = () => {
     if (disposed || !view.get_focusable()) {

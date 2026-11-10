@@ -25,7 +25,7 @@ export function Panel() {
 }
 ```
 
-Use this API on web, iOS, and Android. Experimental macOS supports one mouse contact. Shared pinch and trackpad magnification are unavailable there. GTK and Windows reject shared gesture attachments explicitly; their native widgets retain their own input handling. Attaching a gesture does not promise that an arbitrary native widget can yield input.
+Use this API on web, iOS, and Android. Experimental macOS, native GTK, and Windows provide a one-mouse-contact adapter. Desktop pen and direct-touch input, pinch, and trackpad magnification remain unsupported. Windows requires the pinned beta.24 host and a native rebuild after upgrading UI; updating only the JavaScript bundle does not install the native input bridge. Attaching a gesture does not promise that an arbitrary native widget can yield input.
 
 ## Choose when a drag wins
 
@@ -274,7 +274,7 @@ export function LockableContent() {
 }
 ```
 
-Suspension is all-or-nothing and capability-gated. The initial iOS adapter supports known UIKit/Mason subtrees and rejects foreign or editing surfaces it cannot freeze safely. Web supports input-only subtrees with `inert`; scrollable subtrees return `unsupported` because stopping browser momentum is not qualified. Android and macOS full suspension return `unsupported`. `detached` means the scope has no mounted host; `busy` prevents reentrant acquisition during a transition. There is no `support$` on a drag handle. Check the operation's result when using optional suspension.
+Suspension is all-or-nothing and capability-gated. The initial iOS adapter supports known UIKit/Mason subtrees and rejects foreign or editing surfaces it cannot freeze safely. Web supports input-only subtrees with `inert`; scrollable subtrees return `unsupported` because stopping browser momentum is not qualified. Android, macOS, GTK, and Windows full suspension return `unsupported`. `detached` means the scope has no mounted host; `busy` prevents reentrant acquisition during a transition. There is no `support$` on a drag handle. Check the operation's result when using optional suspension.
 
 ## Keep semantic activation available
 

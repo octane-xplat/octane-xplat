@@ -46,7 +46,9 @@
 		"prepack": "bun run turbo run build --filter=@octane-xplat/linux-gtk",
 		"test:a11y": "node --test test/a11y.test.mjs",
 		"typegen": "tsc --runExternalCode -p tsconfig.build.json && node build.mjs",
-		"test:runtime": "node --test --test-concurrency=1"
+		"test:runtime": "node --test --test-concurrency=1",
+		"build:gestures": "node test/shared-gestures.mjs",
+		"test:gestures": "node --test test/shared-gestures.test.mjs"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",

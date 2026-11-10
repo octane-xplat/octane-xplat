@@ -1,0 +1,5 @@
+<Project>
+  <!-- NativeScript stages this directory under the generated WinUI project.
+       Its default Compile glob compiles the C# bridge. Do not copy sources
+       to the application output as generic plugin content. -->
+</Project>

@@ -88,6 +88,21 @@ function fixture(tag = 'xplatwindowsbutton') {
         }
       }
 
+      if (name === '../../gestures/input.windows') {
+        return {
+          createWindowsActionControl: (kind) => new { Button, HyperlinkButton }[kind](),
+          windowsActivationSource: () => 'virtual',
+          observeWindowsActionControl(native, click, layout) {
+            native.Click = click
+            native.LayoutUpdated = layout
+            return () => {
+              native.Click = null
+              native.LayoutUpdated = null
+            }
+          },
+        }
+      }
+
       throw new Error(name)
     },
   })
