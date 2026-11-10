@@ -230,7 +230,7 @@ public static class GestureInput
                     Emit(type, true, null);
                     if (pendingDouble) Emit("double", true, null);
                 }
-                finally { pointer = null; captured = false; pendingDouble = false; }
+                finally { pointer = null; captured = false; pendingDouble = false; hitElements = Array.Empty<UIElement>(); }
             } else Emit(type, false, null);
         }
 
@@ -254,6 +254,7 @@ public static class GestureInput
             finally {
                 var release = captured ? pointer : null;
                 captured = false; pointer = null;
+                hitElements = Array.Empty<UIElement>();
                 if (release != null) Element.ReleasePointerCapture(release);
             }
         }
