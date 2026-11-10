@@ -37,6 +37,28 @@ const makePnpmApp = () => {
   return { root, depDir: join(siblingDir, 'dep') }
 }
 
+const makeBunApp = () => {
+  const root = realpathSync(track(mkdtempSync(join(tmpdir(), 'xplat-rewrite-imports-'))))
+
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'app' }))
+
+  const siblingDir = join(root, 'node_modules/.bun/a@1/node_modules')
+
+  mkdirSync(join(siblingDir, 'a'), { recursive: true })
+  writeFileSync(join(siblingDir, 'a/package.json'), JSON.stringify({ name: 'a' }))
+  writeFileSync(join(siblingDir, 'a/x.js'), 'import "dep"\n')
+  mkdirSync(join(siblingDir, 'dep'), { recursive: true })
+  writeFileSync(
+    join(siblingDir, 'dep/package.json'),
+    JSON.stringify({ name: 'dep', main: './index.js' }),
+  )
+
+  writeFileSync(join(siblingDir, 'dep/index.js'), '')
+  writeFileSync(join(siblingDir, 'dep/sub.js'), '')
+  symlinkSync(join(siblingDir, 'a'), join(root, 'node_modules/a'), 'dir')
+  return { root, depDir: join(siblingDir, 'dep') }
+}
+
 afterEach(() => {
   for (const dir of dirs.splice(0)) {
     rmSync(dir, { recursive: true, force: true })
@@ -57,6 +79,22 @@ describe('bare npm package fallback resolution under pnpm', () => {
 
   it('appends the subpath to the /ns/m/@fs package root', () => {
     const { root, depDir } = makePnpmApp()
+    const importerPath = '/node_modules/a/x.js'
+    const out = rewriteImports('import "dep/sub.js"', importerPath, new Map(), new Map(), root)
+
+    assert.equal(out, `import "/ns/m/@fs${depDir}/sub.js"`)
+  })
+
+  it('anchors a sibling-only spec at the importer realpath via /ns/m/@fs (bun layout)', () => {
+    const { root, depDir } = makeBunApp()
+    const importerPath = '/node_modules/a/x.js'
+    const out = rewriteImports('import "dep"', importerPath, new Map(), new Map(), root)
+
+    assert.equal(out, `import "/ns/m/@fs${depDir}"`)
+  })
+
+  it('appends the subpath to the /ns/m/@fs package root (bun layout)', () => {
+    const { root, depDir } = makeBunApp()
     const importerPath = '/node_modules/a/x.js'
     const out = rewriteImports('import "dep/sub.js"', importerPath, new Map(), new Map(), root)
 

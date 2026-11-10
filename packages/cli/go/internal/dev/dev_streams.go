@@ -20,6 +20,8 @@ const devTerminalLineLimit = 1 << 20
 const devConsoleBudget = 4 << 20
 
 var devLocalURL = regexp.MustCompile(`https?://(?:localhost|127\.0\.0\.1|\[::1\]):[0-9]+/[^\s\x1b]*`)
+var devNetworkLine = regexp.MustCompile(`\bNetwork:\s*https?://`)
+var devEngineAddress = regexp.MustCompile(`https?://[^\s\x1b/:]+:[0-9]+`)
 var devReadyLine = regexp.MustCompile(`(?i)(successfully (synced|started)|host started|\bready\b)`)
 
 type devConsole struct {

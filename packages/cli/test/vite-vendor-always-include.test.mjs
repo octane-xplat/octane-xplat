@@ -23,8 +23,8 @@ const makeProject = () => {
   return root
 }
 
-const makeHiddenHoistDep = (root, name) => {
-  const dir = join(root, 'node_modules/.pnpm/node_modules', name)
+const makeHiddenHoistDep = (root, name, store = '.pnpm') => {
+  const dir = join(root, 'node_modules', store, 'node_modules', name)
 
   mkdirSync(dir, { recursive: true })
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, main: './index.js' }))
@@ -74,6 +74,33 @@ describe('ALWAYS_INCLUDE presence check', () => {
           ...process.env,
           PROJECT_ROOT: root,
           NODE_PATH: join(root, 'node_modules/.pnpm/node_modules'),
+        },
+      },
+    )
+
+    assert.ok(!JSON.parse(out).includes('stacktrace-js'))
+  })
+
+  it('ignores packages present only in the bun hidden hoist even when NODE_PATH exposes them', () => {
+    const root = makeProject()
+
+    makeHiddenHoistDep(root, 'stacktrace-js', '.bun')
+
+    const manifestCollect = new URL('./hmr/shared/vendor/manifest-collect.js', nsEntry).href
+    const out = execFileSync(
+      process.execPath,
+      [
+        '--input-type=module',
+        '-e',
+        `const { collectVendorModules } = await import(${JSON.stringify(manifestCollect)});` +
+          `console.log(JSON.stringify(collectVendorModules(process.env.PROJECT_ROOT, 'ios').entries))`,
+      ],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          PROJECT_ROOT: root,
+          NODE_PATH: join(root, 'node_modules/.bun/node_modules'),
         },
       },
     )

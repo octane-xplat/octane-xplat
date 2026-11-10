@@ -1154,7 +1154,7 @@ index 00b89ff3ae13b1c2b219a4c35c0450f97ac5ffc9..54c8716bfc5c9a6e2cd9cbee7bbbe9c7
          // realm's import map; in a worker serve (vendorImportsAsHttp) it must not
          // win over the /ns/m HTTP rewrite.
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
-index 0081819906b9df7480408697b1afadb149e26e31..ae7ef0adf8b810cbeff74f26bce242d750129c06 100644
+index 0081819906b9df7480408697b1afadb149e26e31..9a912371fdd79976e6c2d87f2497f25b91e6df4d 100644
 --- a/hmr/server/websocket-module-specifiers.js
 +++ b/hmr/server/websocket-module-specifiers.js
 @@ -1,4 +1,5 @@
@@ -1163,41 +1163,70 @@ index 0081819906b9df7480408697b1afadb149e26e31..ae7ef0adf8b810cbeff74f26bce242d7
  import * as path from 'path';
  import * as PAT from './constants.js';
  import { getVendorManifest, resolveVendorSpecifier } from '../shared/vendor/registry.js';
-@@ -328,6 +329,24 @@ export function resolveVendorFromCandidate(specifier) {
+@@ -328,6 +329,34 @@ export function resolveVendorFromCandidate(specifier) {
      }
      return null;
  }
-+const pnpmStoreDirsCache = new Map();
-+// Upstream scans linked checkouts; retain only the app-local pnpm store fallback.
-+function listPnpmStoreNodeModulesDirs(projectRoot) {
-+    const cached = pnpmStoreDirsCache.get(projectRoot);
++const isolatedStoreDirsCache = new Map();
++// Upstream scans linked checkouts; retain only the isolated-store fallback:
++// pnpm's `.pnpm` virtual store and bun's `.bun` store. bun only creates
++// `.bun` at the top node_modules of the install (the workspace root in a
++// monorepo), so the scan walks the project root's ancestors; each store's
++// own `node_modules` dir is bun's flat all-packages hoist, and per-entry
++// `<store>/<pkg@ver>/node_modules` dirs hold the packages it lacks.
++function listIsolatedStoreNodeModulesDirs(projectRoot) {
++    const cached = isolatedStoreDirsCache.get(projectRoot);
 +    if (cached) return cached;
 +    const dirs = [];
-+    const store = path.join(projectRoot, 'node_modules', '.pnpm');
-+    try {
-+        for (const entry of readdirSync(store, { withFileTypes: true })) {
-+            if (entry.isDirectory() && !entry.name.startsWith('.')) {
-+                const dir = path.join(store, entry.name, 'node_modules');
-+                if (existsSync(dir)) dirs.push(dir);
-+            }
++    for (let dir = path.resolve(projectRoot); ; dir = path.dirname(dir)) {
++        for (const storeName of ['.pnpm', '.bun']) {
++            const store = path.join(dir, 'node_modules', storeName);
++            try {
++                for (const entry of readdirSync(store, { withFileTypes: true })) {
++                    if (entry.isDirectory() && !entry.name.startsWith('.')) {
++                        const dir = path.join(store, entry.name, 'node_modules');
++                        if (existsSync(dir)) dirs.push(dir);
++                    }
++                }
++            } catch {}
 +        }
-+    } catch {}
-+    pnpmStoreDirsCache.set(projectRoot, dirs);
++        if (dir === path.dirname(dir)) break;
++    }
++    isolatedStoreDirsCache.set(projectRoot, dirs);
 +    return dirs;
 +}
  const workspaceNodeModulesDirsCache = new Map();
  /**
   * `node_modules` dirs that can hold a package the served URL no longer
-@@ -485,6 +504,8 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
+@@ -357,6 +386,9 @@ function listWorkspaceNodeModulesDirs(workspaceRoot) {
+         }
+     };
+     pushIfPresent(path.join(workspaceRoot, 'node_modules', '.pnpm', 'node_modules'));
++    // bun's isolated layout keeps the same flat hoist at `.bun/node_modules`
++    // — the only on-disk anchor for packages no workspace member links.
++    pushIfPresent(path.join(workspaceRoot, 'node_modules', '.bun', 'node_modules'));
+     for (const groupDir of listSubdirs(workspaceRoot)) {
+         pushIfPresent(path.join(groupDir, 'node_modules'));
+         for (const packageDir of listSubdirs(groupDir)) {
+@@ -485,6 +517,8 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
                  return fromWorkspaceScan;
          }
      }
-+    const fromPnpmStore = probeNodeModulesTail(listPnpmStoreNodeModulesDirs(projectRoot));
-+    if (fromPnpmStore) return fromPnpmStore;
++    const fromIsolatedStore = probeNodeModulesTail(listIsolatedStoreNodeModulesDirs(projectRoot));
++    if (fromIsolatedStore) return fromIsolatedStore;
      // Linked source checkouts keep private node_modules outside both roots.
      // Only packages the app's own install lacks may come from them: each
      // extension/index variant is resolved separately, so a variant missing
-@@ -533,6 +554,8 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
+@@ -497,7 +531,7 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
+                 if (!root)
+                     return false;
+                 const nodeModules = path.join(path.resolve(root), 'node_modules');
+-                return existsSync(path.join(nodeModules, pkgName)) || existsSync(path.join(nodeModules, '.pnpm', 'node_modules', pkgName));
++                return existsSync(path.join(nodeModules, pkgName)) || existsSync(path.join(nodeModules, '.pnpm', 'node_modules', pkgName)) || existsSync(path.join(nodeModules, '.bun', 'node_modules', pkgName));
+             });
+         if (!installedForApp) {
+             const fromLinkedDeps = probeNodeModulesTail(listLinkedDependencyNodeModulesDirs(projectRoot));
+@@ -533,6 +567,8 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
   * Returns `null` when the absolute path is outside both roots; the
   * caller should then leave the original `/@fs/` URL alone (defensive).
   */
@@ -1206,7 +1235,7 @@ index 0081819906b9df7480408697b1afadb149e26e31..ae7ef0adf8b810cbeff74f26bce242d7
  export function rewriteFsAbsoluteToNsM(spec, projectRoot, workspaceRoot) {
      if (!spec || !spec.startsWith('/@fs/'))
          return null;
-@@ -566,6 +589,56 @@ export function rewriteFsAbsoluteToNsM(spec, projectRoot, workspaceRoot) {
+@@ -566,6 +602,56 @@ export function rewriteFsAbsoluteToNsM(spec, projectRoot, workspaceRoot) {
      }
      if (rel === null)
          return null;
@@ -1263,7 +1292,7 @@ index 0081819906b9df7480408697b1afadb149e26e31..ae7ef0adf8b810cbeff74f26bce242d7
      return rel === '' ? `/ns/m${querySuffix}` : `/ns/m/${rel}${querySuffix}`;
  }
  /**
-@@ -746,6 +819,26 @@ export function resolveNodeModulesPackageBoundary(nodeModulesSpec, projectRoot)
+@@ -746,6 +832,26 @@ export function resolveNodeModulesPackageBoundary(nodeModulesSpec, projectRoot)
      return resolved;
  }
  const exportsReverseMapCache = new Map();
@@ -1290,7 +1319,7 @@ index 0081819906b9df7480408697b1afadb149e26e31..ae7ef0adf8b810cbeff74f26bce242d7
  function resolveExportConditionValue(conditions) {
      if (typeof conditions === 'string')
          return conditions;
-@@ -771,8 +864,8 @@ function getExportsReverseMap(pkgName, projectRoot) {
+@@ -771,8 +877,8 @@ function getExportsReverseMap(pkgName, projectRoot) {
          return cached;
      const map = new Map();
      try {
@@ -1301,7 +1330,7 @@ index 0081819906b9df7480408697b1afadb149e26e31..ae7ef0adf8b810cbeff74f26bce242d7
          if (pkgJson.exports && typeof pkgJson.exports === 'object') {
              for (const [entryPoint, conditions] of Object.entries(pkgJson.exports)) {
                  if (entryPoint.includes('*') || entryPoint.endsWith('.json'))
-@@ -973,4 +1066,43 @@ export function resolveVendorRouting(nodeModulesSpec, projectRoot) {
+@@ -973,4 +1079,43 @@ export function resolveVendorRouting(nodeModulesSpec, projectRoot) {
      }
      return { route: 'http' };
  }
@@ -1622,7 +1651,7 @@ index e6a14437f8990e2c631f23eb8db21aa0b28b5759..2b9fb450511b6e114b6e7e7ac8a48831
                              return;
                          // Root-component guard. Analog's in-place
 diff --git a/hmr/shared/vendor/manifest-collect.js b/hmr/shared/vendor/manifest-collect.js
-index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..8951fe0d26c6cd73ad713bf672ca242437678afd 100644
+index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..234dd31bbdf72bbf831accbf23464a872ef5aa90 100644
 --- a/hmr/shared/vendor/manifest-collect.js
 +++ b/hmr/shared/vendor/manifest-collect.js
 @@ -527,7 +527,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
@@ -1796,7 +1825,7 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..8951fe0d26c6cd73ad713bf672ca2424
      for (const cand of candidates) {
          const abs = path.resolve(pkgDir, cand);
          const ext = path.extname(cand);
-@@ -889,25 +925,47 @@ function classifyPackageEntry(name, projectRequire, platform) {
+@@ -889,25 +925,49 @@ function classifyPackageEntry(name, projectRequire, platform) {
              continue;
          }
          if (!ext) {
@@ -1837,13 +1866,15 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..8951fe0d26c6cd73ad713bf672ca2424
 +// and pnpm's bin shims (`node_modules/.bin/ns`, `xplat`) export NODE_PATH
 +// containing the hidden `.pnpm/node_modules` hoist, where phantom copies of
 +// other importers' dependencies (e.g. a package only a different workspace
-+// app uses) look installed but are unresolvable at bundle time.
++// app uses) look installed but are unresolvable at bundle time. bun's
++// isolated layout keeps the same phantom class at `.bun/node_modules`.
 +function isAlwaysIncludeInstalled(name, projectRoot) {
 +    let dir = projectRoot;
 +    for (;;) {
-+        const inPnpmHiddenHoist =
-+            path.basename(dir) === '.pnpm' && path.basename(path.dirname(dir)) === 'node_modules';
-+        if (!inPnpmHiddenHoist && fs.existsSync(path.join(dir, 'node_modules', name, 'package.json'))) {
++        const inHiddenHoist =
++            (path.basename(dir) === '.pnpm' || path.basename(dir) === '.bun') &&
++            path.basename(path.dirname(dir)) === 'node_modules';
++        if (!inHiddenHoist && fs.existsSync(path.join(dir, 'node_modules', name, 'package.json'))) {
 +            return true;
 +        }
 +        const parent = path.dirname(dir);
@@ -1855,7 +1886,7 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..8951fe0d26c6cd73ad713bf672ca2424
  }
  function canResolveDependencyPackageJson(specifier, projectRequire) {
      try {
-@@ -939,4 +997,3 @@ function parseEnvList(value) {
+@@ -939,4 +999,3 @@ function parseEnvList(value) {
          .map((token) => token.trim())
          .filter(Boolean);
  }
@@ -1886,7 +1917,7 @@ index 54ba11ef9c329df049fa93b01b2ce47c9fb1ac3e..f7e3d0d1bd71919584834ef5a56e42f7
          // Stub compiled `.node` addons (fsevents & co.) — unloadable by esbuild and
          // unrunnable on device; a throwing stub preserves optional-dep semantics.
 diff --git a/hmr/shared/vendor/vendor-esbuild-plugins.js b/hmr/shared/vendor/vendor-esbuild-plugins.js
-index 4855a85322188435072c21bb72c60ea16d514b37..9a45d264cda57c376239dfe124049b7cb95c34b8 100644
+index 4855a85322188435072c21bb72c60ea16d514b37..cd3c60f273d813dac2df00c8450f0efcb2dda70b 100644
 --- a/hmr/shared/vendor/vendor-esbuild-plugins.js
 +++ b/hmr/shared/vendor/vendor-esbuild-plugins.js
 @@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
@@ -1897,7 +1928,7 @@ index 4855a85322188435072c21bb72c60ea16d514b37..9a45d264cda57c376239dfe124049b7c
  export function createVendorEsbuildPlugin(projectRoot) {
      return {
          name: 'ns-vendor-resolver',
-@@ -419,6 +420,119 @@ export function angularLinkerEsbuildPlugin(projectRoot) {
+@@ -419,6 +420,120 @@ export function angularLinkerEsbuildPlugin(projectRoot) {
   * the try/catch-optional semantics instead of masking real missing modules
   * with `undefined` exports.
   */
@@ -1930,11 +1961,11 @@ index 4855a85322188435072c21bb72c60ea16d514b37..9a45d264cda57c376239dfe124049b7c
 +// Is the package physically installed? Walk Node's node_modules lookup
 +// chain from the importer, then the project root. Presence is judged by the
 +// package DIRECTORY (its package.json file), never by entry resolution.
-+// pnpm's hidden hoist (`<root>/node_modules/.pnpm/node_modules/<pkg>`) does
-+// not count: those entries are phantom copies of other importers'
-+// dependencies, not packages installed for this importer — an unrelated
-+// workspace app's hoisted copy (e.g. a Windows-only package) must not
-+// disable the alias.
++// The package managers' hidden hoists (`<root>/node_modules/.pnpm/node_modules/<pkg>`,
++// bun's `<root>/node_modules/.bun/node_modules/<pkg>`) do not count: those
++// entries are phantom copies of other importers' dependencies, not packages
++// installed for this importer — an unrelated workspace app's hoisted copy
++// (e.g. a Windows-only package) must not disable the alias.
 +const esbuildPackagePresenceCache = new Map();
 +const isEsbuildPackageInstalled = (pkgName, fromDir, projectRoot) => {
 +    const cacheKey = `${pkgName}\0${fromDir}`;
@@ -1944,9 +1975,10 @@ index 4855a85322188435072c21bb72c60ea16d514b37..9a45d264cda57c376239dfe124049b7c
 +    let present = false;
 +    let dir = fromDir;
 +    for (;;) {
-+        const inPnpmHiddenHoist =
-+            path.basename(dir) === '.pnpm' && path.basename(path.dirname(dir)) === 'node_modules';
-+        if (!inPnpmHiddenHoist &&
++        const inHiddenHoist =
++            (path.basename(dir) === '.pnpm' || path.basename(dir) === '.bun') &&
++            path.basename(path.dirname(dir)) === 'node_modules';
++        if (!inHiddenHoist &&
 +            fs.existsSync(path.join(dir, 'node_modules', pkgName, 'package.json'))) {
 +            present = true;
 +            break;

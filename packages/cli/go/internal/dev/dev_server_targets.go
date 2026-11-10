@@ -79,6 +79,11 @@ func (view *devTargetView) observe(id, kind string, nativeSidecar bool, record h
 		return
 	}
 	line := history.DevANSI.ReplaceAllString(record.Line, "")
+	if view.apps != nil && devNetworkLine.MatchString(line) {
+		for _, match := range devEngineAddress.FindAllString(line, 8) {
+			view.apps.allowOrigin(id, match)
+		}
+	}
 	if match := devLocalURL.FindString(line); match != "" {
 		if view.apps != nil {
 			view.apps.allowOrigin(id, match)

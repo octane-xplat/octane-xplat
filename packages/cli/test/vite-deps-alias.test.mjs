@@ -261,6 +261,125 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
     }
   })
 
+  it('bun hidden-hoist decoy does not disable the alias (vendor + deps bundles)', async () => {
+    const root = makeProject()
+    // bun isolated layout: dep-main's real dir lives under .bun and
+    // node_modules/dep-main is a symlink to it; `absent-name` exists ONLY
+    // in the hidden hoist (`.bun/node_modules/`) as another importer's
+    // dependency — the phantom presence must not count as installed.
+    const depDir = join(root, 'node_modules/.bun/dep-main@1.0.0/node_modules/dep-main')
+
+    mkdirSync(depDir, { recursive: true })
+    writeFileSync(
+      join(depDir, 'package.json'),
+      JSON.stringify({ name: 'dep-main', main: 'index.js' }),
+    )
+
+    writeFileSync(
+      join(depDir, 'index.js'),
+      `import 'absent-name';\nimport 'absent-name/style';\nexport const dep = 1\n`,
+    )
+
+    symlinkSync('.bun/dep-main@1.0.0/node_modules/dep-main', join(root, 'node_modules/dep-main'))
+
+    const decoy = join(root, 'node_modules/.bun/node_modules/absent-name')
+
+    mkdirSync(decoy, { recursive: true })
+    writeFileSync(
+      join(decoy, 'package.json'),
+      JSON.stringify({ name: 'absent-name', main: 'index.js' }),
+    )
+
+    writeFileSync(join(decoy, 'index.js'), 'globalThis.__hoistDecoy = "DECOY_HOIST"\n')
+    writeFileSync(join(decoy, 'style.js'), 'globalThis.__hoistDecoyStyle = "DECOY_HOIST_STYLE"\n')
+
+    const target = makeAliasTarget(root)
+
+    setUserAliasEntries([{ find: /^absent-name(?=\/|$)/, replacement: target }])
+
+    const code = await buildVendorCode(root, 'ios')
+
+    assert.ok(code.includes('TARGET_MARKER_ROOT'), 'vendor: root alias target bundled')
+    assert.ok(code.includes('TARGET_MARKER_STYLE'), 'vendor: subpath alias target bundled')
+    assert.ok(!code.includes('DECOY_HOIST'), 'vendor: hidden-hoist decoy not bundled')
+
+    process.env.NS_DEPS_BUNDLE_NO_DISK_CACHE = '1'
+    try {
+      const state = await generateDepsBundle({
+        projectRoot: root,
+        platform: 'ios',
+        mode: 'development',
+        recordedPaths: [],
+      })
+
+      assert.ok(state?.code.includes('TARGET_MARKER_ROOT'), 'deps: root alias target bundled')
+      assert.ok(state?.code.includes('TARGET_MARKER_STYLE'), 'deps: subpath alias target bundled')
+      assert.ok(!state?.code.includes('DECOY_HOIST'), 'deps: hidden-hoist decoy not bundled')
+    } finally {
+      delete process.env.NS_DEPS_BUNDLE_NO_DISK_CACHE
+    }
+  })
+
+  it('does not redirect a bun sibling-installed package', async () => {
+    const root = makeProject()
+    // dep-main imports 'installed-dep', which bun installs as a sibling
+    // inside `.bun/dep-main@1.0.0/node_modules/` — a REAL dependency of
+    // the importer, so the alias must keep default resolution.
+    const siblings = join(root, 'node_modules/.bun/dep-main@1.0.0/node_modules')
+    const depDir = join(siblings, 'dep-main')
+
+    mkdirSync(depDir, { recursive: true })
+    writeFileSync(
+      join(depDir, 'package.json'),
+      JSON.stringify({ name: 'dep-main', main: 'index.js' }),
+    )
+
+    writeFileSync(
+      join(depDir, 'index.js'),
+      `import { m } from 'installed-dep';\nexport const dep = m\n`,
+    )
+
+    symlinkSync('.bun/dep-main@1.0.0/node_modules/dep-main', join(root, 'node_modules/dep-main'))
+
+    const installed = join(siblings, 'installed-dep')
+
+    mkdirSync(installed, { recursive: true })
+    writeFileSync(
+      join(installed, 'package.json'),
+      JSON.stringify({ name: 'installed-dep', main: 'index.js' }),
+    )
+
+    writeFileSync(
+      join(installed, 'index.js'),
+      'export const m = "INSTALLED_RESOLUTION"\nglobalThis.__installedDep = 1\n',
+    )
+
+    const decoy = join(root, 'node_modules/alias-target')
+
+    mkdirSync(decoy, { recursive: true })
+    writeFileSync(
+      join(decoy, 'package.json'),
+      JSON.stringify({ name: 'alias-target', main: 'index' }),
+    )
+
+    writeFileSync(
+      join(decoy, 'index.ios.js'),
+      'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n',
+    )
+
+    writeFileSync(
+      join(decoy, 'index.android.js'),
+      'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n',
+    )
+
+    setUserAliasEntries([{ find: /^installed-dep(?=\/|$)/, replacement: decoy }])
+
+    const code = await buildVendorCode(root, 'ios')
+
+    assert.ok(code.includes('INSTALLED_RESOLUTION'), 'bun sibling keeps default resolution')
+    assert.ok(!code.includes('DECOY_RESOLUTION'), 'alias must not redirect installed packages')
+  })
+
   it('does not redirect a pnpm sibling-installed package', async () => {
     const root = makeProject()
     // dep-main imports 'installed-dep', which bun installs as a sibling

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/history"
 	"net/http"
 	"strings"
 	"testing"
@@ -88,6 +89,34 @@ func TestDevAppCredentialsAndOriginIsolation(t *testing.T) {
 }
 
 func mustJSON(value any) []byte { data, _ := json.Marshal(value); return data }
+
+func TestDevAppDeviceNetworkOriginAllowed(t *testing.T) {
+	server, _, _ := devServerFixture(t, nil)
+	target := devTarget{ID: "phone-target", Kind: "ios"}
+	grant := server.appGrant(target)
+	view := newDevTargetView(t.TempDir(), []devTarget{target})
+	view.apps = server.apps
+	// A physical-device app reaches the engine through its LAN endpoint, and its
+	// WebSocket client reports that address as Origin; loopback-only capture
+	// rejected every device bridge handshake.
+	view.observe(target.ID, target.Kind, false, history.Record{Line: "  ➜  Network: http://192.168.4.25:5174/     en1"})
+	headers := http.Header{"Origin": []string{"http://192.168.4.25:5174"}}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	conn, _, err := websocket.Dial(ctx, grant.Socket, &websocket.DialOptions{HTTPHeader: headers})
+	if err != nil {
+		t.Fatal("engine Network origin was not allow-listed for the app socket", err)
+	}
+	t.Cleanup(func() { _ = conn.CloseNow() })
+	hello := devAppHello{Protocol: "octane-app-debug", Version: 1, InstanceID: grant.InstanceID, TargetID: grant.TargetID, Token: grant.Token, Registry: devAppRegistry{Protocol: "xplat-dev-actions", Version: 1, AppInstanceID: "device-app", Platform: "ios", Revision: 1, Actions: []json.RawMessage{json.RawMessage(`{"id":"fixture.echo","title":"Echo"}`)}}}
+	data, _ := json.Marshal(hello)
+	if err = conn.Write(ctx, websocket.MessageText, data); err != nil {
+		t.Fatal(err)
+	}
+	if reply := appSocketRead(t, conn); reply["type"] != "registered" {
+		t.Fatal(reply)
+	}
+}
 
 func TestDevAppRegistryAttachAndReconnectKeepClientLifetimeSeparate(t *testing.T) {
 	ready := make(chan struct{})

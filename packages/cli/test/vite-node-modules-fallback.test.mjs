@@ -338,6 +338,78 @@ describe('patched NativeScript Vite node_modules fallback', () => {
     )
   })
 
+  it('finds a package in bun’s isolated store', () => {
+    const projectRoot = makeProject({ name: 'app' })
+    const expected = writeResolvedFile(
+      projectRoot,
+      'node_modules/.bun/@fixture+pkg@1.0.0/node_modules/@fixture/pkg/lib/index.mjs',
+    )
+
+    assert.equal(
+      resolveCandidateFilePath(
+        '/node_modules/@fixture/pkg/lib/index.mjs',
+        projectRoot,
+        projectRoot,
+      ),
+      expected,
+    )
+  })
+
+  it('anchors bun store files inside the project root', () => {
+    const projectRoot = makeProject({ name: 'app' })
+    const expected = writeResolvedFile(
+      projectRoot,
+      'node_modules/.bun/@fixture+pkg@1.0.0/node_modules/@fixture/pkg/index.js',
+    )
+
+    const candidate = '/node_modules/@fixture/pkg/index.js?v=123'
+
+    assert.deepEqual(
+      filterExistingNodeModulesTransformCandidates(
+        candidate,
+        [candidate],
+        projectRoot,
+        projectRoot,
+      ),
+      [`/@fs${expected}?v=123`],
+    )
+  })
+
+  it('finds a package in bun’s workspace-root flat hoist', () => {
+    const projectRoot = makeProject({ name: 'app' })
+    const workspaceRoot = dirname(projectRoot)
+    // bun's isolated layout installs the store at the workspace root's
+    // node_modules/.bun: real package dirs under `<store>/node_modules` and
+    // a flat `<store>/node_modules` hoist of symlinks every install level
+    // shares — the only place a transitive-only package appears on disk for
+    // serving.
+    const storeFile = writeResolvedFile(
+      workspaceRoot,
+      'node_modules/.bun/@fixture+pkg@1.0.0/node_modules/@fixture/pkg/lib/index.mjs',
+    )
+    const hoistDir = join(workspaceRoot, 'node_modules/.bun/node_modules/@fixture')
+
+    mkdirSync(hoistDir, { recursive: true })
+    symlinkSync(
+      '../../@fixture+pkg@1.0.0/node_modules/@fixture/pkg',
+      join(hoistDir, 'pkg'),
+      'dir',
+    )
+
+    const hoistFile = join(hoistDir, 'pkg/lib/index.mjs')
+
+    assert.ok(existsSync(hoistFile))
+    assert.equal(realpathSync(hoistFile), storeFile)
+    assert.equal(
+      resolveCandidateFilePath(
+        '/node_modules/@fixture/pkg/lib/index.mjs',
+        projectRoot,
+        workspaceRoot,
+      ),
+      hoistFile,
+    )
+  })
+
   it('does not let a node_modules tail escape its candidate directory', () => {
     const projectRoot = makeProject({ name: 'app' })
     const outside = writeResolvedFile(projectRoot, 'outside.mjs')

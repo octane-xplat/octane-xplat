@@ -429,7 +429,11 @@ experience of agents writing Octane-xplat code effectively.
   NativeScript Vite 8.0.20 now discovers installed source links for nested
   `/ns/m/node_modules/` requests and anchors transforms to the file found
   ([NativeScript#11559](https://github.com/NativeScript/NativeScript/pull/11559)).
-  The local patch retains the separate app-local pnpm virtual-store fallback.
+  The local patch retains the separate isolated-store fallback: the
+  app-local pnpm virtual store plus bun's `.bun` store — its flat
+  `node_modules` hoist and per-package `<store>/<pkg@ver>/node_modules`
+  dirs — located by walking the project root's ancestors because bun only
+  creates `.bun` at the install's top `node_modules`.
 - NativeScript Vite 8.0.20 excludes source-only packages from its HMR vendor
   bundle regardless of dependency spec
   ([NativeScript#11560](https://github.com/NativeScript/NativeScript/pull/11560)).
@@ -539,8 +543,9 @@ experience of agents writing Octane-xplat code effectively.
 - **Vite aliases need the canonical esbuild replay on NativeScript Vite
   8.0.20.** Its deps and vendor esbuild passes ignore `resolve.alias`. The
   canonical patch replays aliases there for packages that are not installed
-  for the importer. Packages found only in pnpm's hidden hoist
-  (`node_modules/.pnpm/node_modules/`) do not count as installed. Without that
+  for the importer. Packages found only in the package managers' hidden
+  hoists (`node_modules/.pnpm/node_modules/`, bun's
+  `node_modules/.bun/node_modules/`) do not count as installed. Without that
   exclusion, `apps/windows`' full MasonKit disabled the mobile
   MasonKit-to-core alias, and iOS dev boot threw
   `MasonListDelegate is not defined`. The regressions live in
@@ -559,7 +564,8 @@ experience of agents writing Octane-xplat code effectively.
     `NODE_PATH`, and pnpm's bin shims add `node_modules/.pnpm/node_modules`
     to `NODE_PATH`. So a copy only another workspace package uses gets
     added, and esbuild then cannot resolve it. The patch checks the project's
-    `node_modules` folders on disk instead and skips pnpm's hidden hoist.
+    `node_modules` folders on disk instead and skips the hidden
+    `.pnpm` and `.bun` hoists.
     Regression: `packages/cli/test/vite-vendor-always-include.test.mjs`.
 
   Both are upstream bugs that have not been reported yet.
