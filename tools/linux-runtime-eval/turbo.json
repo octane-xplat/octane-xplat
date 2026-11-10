@@ -13,7 +13,7 @@
     },
     "build:port": {
       "dependsOn": ["^typegen"],
-      "outputs": ["dist/port-native/**", "dist/port-gjs/**"],
+      "outputs": ["dist/port-native/**", "dist/port-gjs/**", "dist/bench-native/**", "dist/bench-gjs/**"],
       "cache": false
     },
     "dev:port": {

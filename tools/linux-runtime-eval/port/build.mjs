@@ -19,6 +19,8 @@ const gjsStubPlugin={name:'gjs-stub-missing-typelibs',enforce:'pre',
 for(const target of [
   {name:'port-native',entry:'port/main.mjs',projection:true},
   {name:'port-gjs',entry:'port/gjs-main.mjs',projection:false},
+  {name:'bench-native',entry:'port/bench-native.mjs',projection:true},
+  {name:'bench-gjs',entry:'port/bench-gjs.mjs',projection:false},
 ]){
   if(target.projection&&!existsSync(schemaPath))throw Error(`GI schema missing: ${schemaPath} — export it on the Linux host: XPLAT_MASON_TYPELIB=<facade> LD_LIBRARY_PATH=<facade> gjs tools/linux-runtime-eval/port/export-gi.js research/linux-runtime-port/gi.json`)
   const base=await linuxGtk('production',{root,entry:target.entry,outDir:`dist/${target.name}`})

@@ -93,6 +93,28 @@ Compare the ready-record frames between the GJS and NativeScript runs for geomet
 
 Boundaries: the projection is an evaluation harness, not a GJS compatibility layer — it intentionally fails on uncovered calls, and ownership is explicit via scopes rather than GC. `dist/port-gjs` stubs typelibs absent on the probe host (`Soup`, `WebKit`, `JavaScriptCore`, `Xdp`, `Adw`) that the screen never reaches.
 
+### Benchmark and debugging checks
+
+`build:port` also emits `dist/bench-native/app.js` and `dist/bench-gjs/app.js`. Both run the same 200-row screen (`port/bench.mjs`) with the shipping renderer defaults. The benchmark times first mount, a one-label update, an update to all 200 labels, and remounts. Timings stop when the widget state is committed, so GTK painting is excluded. `port/bench.py` adds time from process spawn and the process's own RSS from `/proc`. Run each engine under its own Xvfb display. Alternate the engines between trials, and record host load, because timings are sensitive to it:
+
+```sh
+dbus-run-session -- xvfb-run -a python3 tools/linux-runtime-eval/port/bench.py /path/to/prepared/ns-linux tools/linux-runtime-eval/dist/bench-native/app.js
+dbus-run-session -- xvfb-run -a env XPLAT_MASON_TYPELIB=/path/to/facade-dir LD_LIBRARY_PATH=/path/to/facade-dir \
+  python3 tools/linux-runtime-eval/port/bench.py gjs -m tools/linux-runtime-eval/dist/bench-gjs/app.js
+```
+
+`port/cdp-check.py` starts the native benchmark with `--inspect-brk` and drives the Chrome DevTools Protocol using only the Python standard library. It checks three things:
+
+1. A breakpoint inside the renderer's `widgetName` pauses, and an expression evaluates in that frame.
+2. A CPU profile of the updates contains renderer and projection functions.
+3. A heap snapshot completes.
+
+```sh
+dbus-run-session -- xvfb-run -a python3 tools/linux-runtime-eval/port/cdp-check.py /path/to/prepared/ns-linux tools/linux-runtime-eval/dist/bench-native/app.js
+```
+
+Native C frames in the CPU profile can carry the wrong symbol name, so attribute only JavaScript frames.
+
 Two local workarounds hide known gaps; keep them in mind when reading results:
 
 - NativeScript Linux `0.1.0-alpha.2` metadata omits some GTK-stack structs, such as `graphene_rect_t`. For those out-parameters, the projection allocates raw memory with a field map taken from GI.
