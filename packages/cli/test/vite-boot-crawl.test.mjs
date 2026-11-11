@@ -111,3 +111,36 @@ it('crawl walks and pre-warms the served module closure', async (t) => {
   const first = await fetch(`${origin}/ns/m/src/leaf.mjs`)
   assert.equal(first.status, 200)
 })
+
+// Excess workers pause while device demand is live but must resume — not
+// retire — once it goes quiet. A boot burst (or an aborted boot) would
+// otherwise permanently kneecap the crawl to its residual workers, leaving
+// the warm frontier unreachable for the rest of the session.
+it('crawl workers resume after device traffic goes quiet', async () => {
+  const paths = Array.from({ length: 8 }, (_, i) => `/ns/m/src/mod-${i}.mjs`)
+  let deviceActive = true
+  let inflight = 0
+  let maxInflight = 0
+  const fetchImpl = async (path) => {
+    inflight += 1
+    maxInflight = Math.max(maxInflight, inflight)
+    await new Promise((resolve) => setTimeout(resolve, 10))
+    inflight -= 1
+    return { status: 200, text: async () => '' }
+  }
+  const crawl = runBootGraphCrawl({
+    origin: 'http://fixture.invalid',
+    seeds: paths,
+    concurrency: 4,
+    crawlWhileDeviceActive: 1,
+    deviceYieldMs: 5,
+    isDeviceActive: () => deviceActive,
+    fetchImpl,
+  })
+  await new Promise((resolve) => setTimeout(resolve, 60))
+  assert.ok(maxInflight <= 1, 'excess workers must yield while device traffic is live')
+  deviceActive = false
+  const { visited } = await crawl
+  assert.equal(visited.size, paths.length, 'paused workers must finish the queue after traffic quiets')
+  assert.ok(maxInflight > 1, 'resumed workers must fetch in parallel again')
+})
