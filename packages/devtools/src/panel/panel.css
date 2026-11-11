@@ -1,0 +1,156 @@
+/* Devtools panel chrome — the AppKit/web shared surface, ported from the
+   retired vanilla panel (app/panel.css) with class-only selectors and
+   flexbox-only right-alignment (mason has no auto margins). The dt-shell/
+   dt-header rules style the web-only picker wrapper in main.web.tsrx. */
+html, body { margin: 0; height: 100%; }
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+	font-size: 13px;
+	line-height: 18px;
+	color: #1a1a1a;
+	background: #ffffff;
+}
+#root { height: 100%; }
+.dt-shell { display: flex; flex-direction: column; height: 100%; }
+.dt-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 10px;
+	height: 34px;
+	flex: none;
+	border-bottom: 1px solid #e3e3e3;
+	background: #fafafa;
+}
+.dt-brand { font-weight: 600; font-size: 12px; letter-spacing: 0.02em; color: #555555; }
+.dt-select, .dt-refresh {
+	font: inherit;
+	height: 24px;
+	border: 1px solid #d4d4d4;
+	border-radius: 5px;
+	background: #ffffff;
+	color: inherit;
+	padding: 0 8px;
+}
+.dt-select { max-width: 420px; text-overflow: ellipsis; }
+.dt-refresh { cursor: pointer; }
+.dt-refresh:hover { background: #f0f0f0; }
+.dt-root {
+	background-color: #ffffff;
+	color: #1a1a1a;
+	font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+	font-size: 13px;
+	line-height: 18px;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+}
+.dt-nav {
+	align-items: center;
+	padding: 0 8px;
+	height: 30px;
+	flex-shrink: 0;
+	border-bottom-width: 1px;
+	border-bottom-color: #e3e3e3;
+	background-color: #fafafa;
+}
+.dt-tabs { flex: 1; align-items: center; gap: 2px; }
+.dt-tab {
+	height: 30px;
+	padding: 0 12px;
+	justify-content: center;
+	border-bottom-width: 2px;
+	border-bottom-color: transparent;
+}
+.dt-tab-label { color: #666666; font-size: 13px; }
+.dt-tab-active { border-bottom-color: #3b82f6; }
+.dt-tab-active .dt-tab-label { color: #1a1a1a; font-weight: 500; }
+.dt-badge {
+	font-size: 11px;
+	padding: 1px 7px;
+	border-radius: 9px;
+	background-color: #eeeeee;
+	color: #666666;
+}
+.dt-badge-live { background-color: #e2f3e4; color: #2c7a33; }
+.dt-badge-connecting { background-color: #fdf3d7; color: #8a6d1a; }
+.dt-badge-closed { background-color: #f6e2e2; color: #c92a2a; }
+.dt-main { flex: 1; flex-basis: 0px; height: 0; min-height: 0; width: 100%; }
+.dt-content { width: 100%; padding: 8px 10px 24px; flex-shrink: 0; }
+.dt-empty { color: #999999; padding: 24px 4px; }
+.dt-heading {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: #888888;
+	margin: 14px 0 4px;
+}
+.dt-heading-first { margin-top: 0; }
+.dt-row {
+	align-items: center;
+	gap: 8px;
+	min-height: 28px;
+	padding: 2px 6px;
+	border-bottom-width: 1px;
+	border-bottom-color: #f1f1f1;
+}
+.dt-name { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+.dt-meta { color: #999999; font-size: 11px; }
+.dt-right { flex: 1; justify-content: flex-end; gap: 6px; align-items: center; min-width: 0; }
+.dt-chip {
+	font-family: ui-monospace, "SF Mono", Menlo, monospace;
+	font-size: 10px;
+	padding: 1px 6px;
+	border-radius: 8px;
+	background-color: #eef2ff;
+	color: #3b5bdb;
+}
+.dt-run { height: 20px; }
+.dt-outcome {
+	padding-left: 14px;
+}
+.dt-outcome-status { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; }
+.dt-outcome-failed .dt-outcome-status { color: #c92a2a; }
+.dt-outcome-cancelled .dt-outcome-status { color: #8a6d1a; }
+.dt-outcome-succeeded .dt-outcome-status { color: #2c7a33; }
+.dt-pre {
+	font-family: ui-monospace, "SF Mono", Menlo, monospace;
+	font-size: 11px;
+	color: #444444;
+	margin: 2px 0 0;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+.dt-toolbar { align-items: center; gap: 8px; margin-bottom: 6px; }
+.dt-log-line {
+	align-items: baseline;
+	gap: 8px;
+	min-height: 22px;
+	padding: 1px 6px;
+	border-bottom-width: 1px;
+	border-bottom-color: #f6f6f6;
+}
+.dt-level {
+	width: 44px;
+	flex-shrink: 0;
+	color: #999999;
+	font-family: ui-monospace, "SF Mono", Menlo, monospace;
+	font-size: 11.5px;
+}
+.dt-log-warn .dt-level { color: #b07800; }
+.dt-log-error .dt-level { color: #c92a2a; }
+.dt-text {
+	flex: 1;
+	min-width: 0;
+	font-family: ui-monospace, "SF Mono", Menlo, monospace;
+	font-size: 11.5px;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+.dt-at {
+	color: #bbbbbb;
+	font-size: 10px;
+	flex-shrink: 0;
+	font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}

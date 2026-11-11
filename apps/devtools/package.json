@@ -1,0 +1,38 @@
+{
+	"name": "@octane-xplat/devtools-desktop",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"xplat": "xplat",
+		"dev": "xplat dev macos",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
+	},
+	"dependencies": {
+		"@nativescript/macos-node-api": "catalog:",
+		"@octane-xplat/devtools": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/ui": "workspace:*",
+		"octane": "catalog:"
+	},
+	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
+		"@octane-xplat/macos-build": "workspace:*",
+		"@octanejs/vite-plugin": "catalog:",
+		"typescript": "catalog:",
+		"vite": "catalog:"
+	},
+	"xplat": {
+		"targets": {
+			"macos": {
+				"runtime": "appkit-node-api",
+				"dev": {
+					"viteConfig": "vite.dev.config.mjs",
+					"bundleFile": "dist/dev/app.cjs"
+				}
+			}
+		}
+	}
+}

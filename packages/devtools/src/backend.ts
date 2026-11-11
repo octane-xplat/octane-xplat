@@ -61,19 +61,14 @@ function parseBackendGrant(source: string, channel: string): BackendGrant {
     throw new Error('Invalid devtools backend JSON')
   }
 
-  const endpoint = new URL(grant.socket)
+  // The macOS JSC host has no global `URL`; the grant only ever carries the
+  // strict loopback `/backend` socket shape, so validate it directly.
+  const endpoint = /^ws:\/\/127\.0\.0\.1:\d{1,5}\/backend$/.test(grant.socket)
 
   if (
     grant.protocol !== 'octane-devtools-backend' ||
     grant.version !== 1 ||
-    endpoint.protocol !== 'ws:' ||
-    endpoint.hostname !== '127.0.0.1' ||
-    !endpoint.port ||
-    endpoint.pathname !== '/backend' ||
-    endpoint.username ||
-    endpoint.password ||
-    endpoint.hash ||
-    endpoint.search ||
+    !endpoint ||
     !/^[a-f0-9]{32}$/.test(grant.instanceId) ||
     !/^[a-f0-9]{64}$/.test(grant.token) ||
     typeof grant.targetId !== 'string' ||

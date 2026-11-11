@@ -16,9 +16,9 @@ import (
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/osfs"
 )
 
-// The dev server also serves the devtools panel itself: `GET /devtools/`
-// serves the selected project's installed @octane-xplat/devtools package
-// (app/ statics and dist/ ESM modules), and `GET /devtools/servers`
+// The dev server also serves the devtools panel itself: `GET /devtools/app/`
+// serves the bundled panel (dist/panel/) of the selected project's installed
+// @octane-xplat/devtools package, and `GET /devtools/servers`
 // enumerates every live dev-server discovery record so the panel picker can
 // offer each running `xplat dev` server. Everything is loopback-only GET with
 // no CORS headers; the records expose the panel credential the same way the
@@ -56,11 +56,9 @@ func (server *devServer) devtoolsApp(w http.ResponseWriter, r *http.Request) {
 	case r.URL.Path == "/devtools/servers":
 		server.devtoolsServerList(w)
 	case r.URL.Path == "/devtools/app/":
-		server.serveDevtoolsFile(w, r, "app", "index.html")
+		server.serveDevtoolsFile(w, r, filepath.Join("dist", "panel"), "index.html")
 	case strings.HasPrefix(r.URL.Path, "/devtools/app/"):
-		server.serveDevtoolsFile(w, r, "app", strings.TrimPrefix(r.URL.Path, "/devtools/app/"))
-	case strings.HasPrefix(r.URL.Path, "/devtools/dist/"):
-		server.serveDevtoolsFile(w, r, "dist", strings.TrimPrefix(r.URL.Path, "/devtools/dist/"))
+		server.serveDevtoolsFile(w, r, filepath.Join("dist", "panel"), strings.TrimPrefix(r.URL.Path, "/devtools/app/"))
 	default:
 		http.NotFound(w, r)
 	}

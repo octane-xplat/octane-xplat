@@ -2,6 +2,14 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
-		"typegen": { "outputs": ["dist/**"] }
+		"typegen": { "outputs": ["dist/**"] },
+		// The panel vite config imports the cli's web preset plugins.
+		"build": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build"],
+			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
+			"outputs": ["dist/**", "types/**"]
+		},
+		// The host test and Go dev server both serve the built panel bundle.
+		"test": { "dependsOn": ["build"] }
 	}
 }

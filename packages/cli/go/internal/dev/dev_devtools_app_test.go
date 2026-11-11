@@ -17,17 +17,16 @@ func devtoolsBase(server *devServer) string {
 func installDevtoolsPackage(t *testing.T, app string) {
 	t.Helper()
 	pkg := filepath.Join(app, "node_modules", "@octane-xplat", "devtools")
-	for _, dir := range []string{"app", "dist"} {
+	for _, dir := range []string{filepath.Join("dist", "panel", "assets")} {
 		if err := os.MkdirAll(filepath.Join(pkg, dir), 0o755); err != nil {
 			t.Fatal(err)
 		}
 	}
 	files := map[string]string{
-		"package.json":     `{"name":"@octane-xplat/devtools","version":"0.0.0"}`,
-		"app/index.html":   `<!doctype html><title>devtools</title>`,
-		"app/panel.js":     `import { connectDevtools } from '../dist/client.js'`,
-		"dist/client.js":   `export const connectDevtools = true`,
-		"dist/types.js":    `export {}`,
+		"package.json":                  `{"name":"@octane-xplat/devtools","version":"0.0.0"}`,
+		"dist/panel/index.html":         `<!doctype html><title>devtools</title><script type="module" src="./assets/panel.js"></script>`,
+		"dist/panel/assets/panel.js":    `import { connectDevtools } from './client.js'`,
+		"dist/panel/assets/client.js":   `export const connectDevtools = true`,
 	}
 	for name, content := range files {
 		if err := os.WriteFile(filepath.Join(pkg, name), []byte(content), 0o644); err != nil {
@@ -60,24 +59,19 @@ func TestDevtoolsAppServesInstalledPackage(t *testing.T) {
 		t.Fatalf("panel index missing: %d %q", status, body)
 	}
 
-	status, body, header := devtoolsGet(t, base+"/devtools/app/panel.js")
+	status, body, header := devtoolsGet(t, base+"/devtools/app/assets/panel.js")
 	if status != http.StatusOK || !strings.Contains(body, "connectDevtools") ||
 		header.Get("X-Content-Type-Options") != "nosniff" {
 		t.Fatalf("panel script missing: %d %v", status, header)
 	}
 
-	if status, body, _ := devtoolsGet(t, base+"/devtools/dist/client.js"); status != http.StatusOK ||
-		!strings.Contains(body, "connectDevtools") {
-		t.Fatalf("client module missing: %d", status)
+	// Traversal stays inside the package's dist/panel root — a cleaned path
+	// outside the section is a containment 404, never a leak.
+	if status, _, _ := devtoolsGet(t, base+"/devtools/app/../client.js"); status != http.StatusNotFound {
+		t.Fatalf("cross-section read escaped the panel root: %d", status)
 	}
 
-	// Path-cleaned cross-section reads stay inside the package's app root —
-	// dist/ does not exist there, so this is a containment 404, never a leak.
-	if status, _, _ := devtoolsGet(t, base+"/devtools/app/../dist/client.js"); status != http.StatusNotFound {
-		t.Fatalf("cross-section read escaped the app root: %d", status)
-	}
-
-	if status, _, _ := devtoolsGet(t, base+"/devtools/dist/../../secret"); status != http.StatusNotFound {
+	if status, _, _ := devtoolsGet(t, base+"/devtools/app/../../secret"); status != http.StatusNotFound {
 		t.Fatalf("traversal escaped the package: %d", status)
 	}
 }

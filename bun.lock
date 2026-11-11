@@ -82,6 +82,26 @@
         "vite": "catalog:",
       },
     },
+    "apps/devtools": {
+      "name": "@octane-xplat/devtools-desktop",
+      "version": "0.0.0",
+      "dependencies": {
+        "@nativescript/macos-node-api": "catalog:",
+        "@octane-xplat/devtools": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/platform": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
+        "octane": "catalog:",
+      },
+      "devDependencies": {
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/macos-build": "workspace:*",
+        "@octanejs/vite-plugin": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+    },
     "apps/docs": {
       "name": "@xplat/docs",
       "version": "0.0.0",
@@ -1062,10 +1082,20 @@
       "version": "0.20.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
       },
       "devDependencies": {
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/jsx": "workspace:*",
+        "@octanejs/vite-plugin": "catalog:",
+        "@tsrx/content-mapper": "catalog:",
         "@types/node": "26.6.6",
+        "octane": "catalog:",
         "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+      "peerDependencies": {
+        "octane": ">=0.6.3 <1",
       },
     },
     "packages/dnd-kit": {
@@ -4325,6 +4355,8 @@
     "@octane-xplat/desktop-webview": ["@octane-xplat/desktop-webview@workspace:packages/desktop-webview"],
 
     "@octane-xplat/devtools": ["@octane-xplat/devtools@workspace:packages/devtools"],
+
+    "@octane-xplat/devtools-desktop": ["@octane-xplat/devtools-desktop@workspace:apps/devtools"],
 
     "@octane-xplat/dnd-kit": ["@octane-xplat/dnd-kit@workspace:packages/dnd-kit"],
 

@@ -1,11 +1,15 @@
 {
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
-	"extends": "./tsconfig.json",
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"types": ["node"],
+		"lib": ["ESNext"],
 		"noEmit": false,
 		"declaration": true,
 		"outDir": "dist",
 		"rootDir": "src",
 		"rewriteRelativeImportExtensions": true
-	}
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/panel"]
 }

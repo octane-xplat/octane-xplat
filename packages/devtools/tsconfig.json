@@ -1,6 +1,0 @@
-{
-	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
-	"extends": "../../tsconfig.base.json",
-	"compilerOptions": { "types": ["node"], "lib": ["ESNext"] },
-	"include": ["src/**/*.ts"]
-}

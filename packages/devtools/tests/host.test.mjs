@@ -49,7 +49,7 @@ test('records enumeration returns valid records and omits the RPC token', () =>
     assert.ok(!('token' in servers[0]))
   }))
 
-test('the host serves the panel, client module, and live records over loopback', () =>
+test('the host serves the built panel and live records over loopback', () =>
   withRecordsDir(async (dir) => {
     mkdirSync(join(dir, 'key-good'))
     writeFileSync(join(dir, 'key-good', 'server.json'), JSON.stringify(RECORD))
@@ -66,17 +66,18 @@ test('the host serves the panel, client module, and live records over loopback',
       assert.equal(page.status, 200)
       assert.match(await page.text(), /Octane Xplat Devtools/)
 
-      const panel = await fetch(`${host.endpoint}/app/panel.js`)
-      assert.equal(panel.status, 200)
-      assert.match(panel.headers.get('content-type'), /javascript/)
-
-      const client = await fetch(`${host.endpoint}/dist/client.js`)
-      assert.equal(client.status, 200)
-      assert.match(await client.text(), /connectDevtools/)
+      // The bundled entry imports connectDevtools and mounts the picker.
+      const asset = await fetch(`${host.endpoint}/`)
+      const script = /src="(\.\/)?assets\/([^"]+\.js)"/.exec(await asset.text())
+      assert.ok(script, 'panel index references a bundled script')
+      const bundle = await fetch(`${host.endpoint}/app/assets/${script[2]}`)
+      assert.equal(bundle.status, 200)
+      assert.match(bundle.headers.get('content-type'), /javascript/)
+      assert.match(await bundle.text(), /connectDevtools|\/devtools\/servers/)
 
       // Traversal and unknown paths stay out.
       assert.equal((await fetch(`${host.endpoint}/../package.json`)).status, 404)
-      assert.equal((await fetch(`${host.endpoint}/dist/../../package.json`)).status, 404)
+      assert.equal((await fetch(`${host.endpoint}/app/../../package.json`)).status, 404)
       assert.equal((await fetch(`${host.endpoint}/devtools/servers/../x`)).status, 404)
       assert.equal((await fetch(`${host.endpoint}/nope`)).status, 404)
     } finally {

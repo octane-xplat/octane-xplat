@@ -1,8 +1,8 @@
-// Loopback HTTP host for the devtools panel: serves the static panel app, the
-// compiled client module, and the live dev-server records the picker lists.
-// Loopback only and no CORS headers — records carry the panel credential, so
-// the API stays unreadable to other origins while remaining trivially usable
-// by the served page.
+// Loopback HTTP host for the devtools panel: serves the built panel bundle
+// (dist/panel) and the live dev-server records the picker lists. Loopback only
+// and no CORS headers — records carry the panel credential, so the API stays
+// unreadable to other origins while remaining trivially usable by the served
+// page.
 
 import { createServer, type Server } from 'node:http'
 import { readFileSync, realpathSync } from 'node:fs'
@@ -15,6 +15,9 @@ const TYPES: Record<string, string> = {
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.woff2': 'font/woff2',
 }
 
 export interface DevtoolsHost {
@@ -30,8 +33,7 @@ function packageRoot(): string {
 
 export async function serveDevtools({ port = 0 }: { port?: number } = {}): Promise<DevtoolsHost> {
   const root = realpathSync(packageRoot())
-  const app = join(root, 'app')
-  const dist = join(root, 'dist')
+  const panel = join(root, 'dist', 'panel')
 
   const server: Server = createServer((req, res) => {
     const send = (status: number, body: string | Buffer, type = 'application/json; charset=utf-8') => {
@@ -49,18 +51,16 @@ export async function serveDevtools({ port = 0 }: { port?: number } = {}): Promi
       return send(200, JSON.stringify({ servers: listDevtoolsServers() }))
     }
 
-    // '/app/...' maps to the static panel sources; '/dist/...' exposes the
-    // compiled client module so the panel can import connectDevtools. Both
-    // are strict containment checks — no traversal out of either root.
-    const base = path === '/' ? null : path.startsWith('/app/') ? app : path.startsWith('/dist/') ? dist : null
+    // '/' and '/app/...' map to the built panel bundle — strict containment,
+    // no traversal out of dist/panel.
     const file =
-      path === '/'
-        ? join(app, 'index.html')
-        : base
-          ? join(base, path.slice(base === app ? '/app'.length : '/dist'.length))
+      path === '/' || path === '/app'
+        ? join(panel, 'index.html')
+        : path.startsWith('/app/')
+          ? join(panel, path.slice('/app'.length))
           : null
 
-    if (!file || (base && !file.startsWith(base + sep))) {
+    if (!file || (path.startsWith('/app/') && !file.startsWith(panel + sep))) {
       return send(404, '{"error":"not found"}')
     }
 

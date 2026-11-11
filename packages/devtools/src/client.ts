@@ -47,17 +47,28 @@ export interface DevtoolsConnection {
   onSessions(listener: (sessions: readonly SessionSnapshot[]) => void): () => void
   onBackends(listener: (backends: readonly BackendRef[]) => void): () => void
   onError(listener: (error: ChannelError) => void): () => void
+  /** Fires on every connection-state transition ('live' on the ready frame,
+   *  'closed' when the socket ends or the factory yields no socket). */
+  onState(listener: (state: 'connecting' | 'live' | 'closed') => void): () => void
   close(): void
 }
 
-export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnection {
-  const endpoint = new URL(record.endpoint)
+export interface ConnectDevtoolsOptions {
+  /** Overrides the socket factory — the macOS JSC host has no global
+   *  `WebSocket`, so native panels inject their transport here. */
+  socket?: (url: string) => DevSocket | undefined
+}
+
+export function connectDevtools(
+  record: DevtoolsServerRecord,
+  options: ConnectDevtoolsOptions = {},
+): DevtoolsConnection {
+  // The macOS JSC host has no global `URL`; records only ever carry the
+  // strict loopback `/rpc` shape, so validate it directly.
+  const endpoint = /^http:\/\/(127\.0\.0\.1:\d{1,5})\/rpc$/.exec(record.endpoint)
 
   if (
-    endpoint.protocol !== 'http:' ||
-    endpoint.hostname !== '127.0.0.1' ||
-    !endpoint.port ||
-    endpoint.pathname !== '/rpc' ||
+    !endpoint ||
     !/^[a-f0-9]{32}$/.test(record.instanceId) ||
     !/^[a-f0-9]{64}$/.test(record.devtoolsToken)
   ) {
@@ -80,12 +91,19 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
   const sessionListeners = new Set<(sessions: readonly SessionSnapshot[]) => void>()
   const backendListeners = new Set<(backends: readonly BackendRef[]) => void>()
   const errorListeners = new Set<(error: ChannelError) => void>()
+  const stateListeners = new Set<(state: 'connecting' | 'live' | 'closed') => void>()
 
-  const ws = `ws://${endpoint.host}/devtools`
-  const next = devSocket(ws)
+  const setState = (next: 'connecting' | 'live' | 'closed') => {
+    if (state === next) return
+    state = next
+    for (const listener of stateListeners) listener(next)
+  }
+
+  const ws = `ws://${endpoint[1]}/devtools`
+  const next = (options.socket ?? devSocket)(ws)
 
   if (!next) {
-    state = 'closed'
+    setState('closed')
   } else {
     socket = next
     next.onopen = () => {
@@ -114,7 +132,7 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
         panelId = typeof frame.panel === 'string' ? frame.panel : null
         snapshot = Array.isArray(frame.sessions) ? frame.sessions : []
         backendList = Array.isArray(frame.backends) ? frame.backends : []
-        state = 'live'
+        setState('live')
       } else if (frame.type === 'sessions' && Array.isArray(frame.sessions)) {
         snapshot = frame.sessions
         for (const listener of sessionListeners) {
@@ -163,7 +181,7 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
     next.onclose = () => {
       if (socket === next) {
         socket = undefined
-        state = 'closed'
+        setState('closed')
       }
     }
   }
@@ -208,12 +226,16 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
       errorListeners.add(listener)
       return () => errorListeners.delete(listener)
     },
+    onState(listener) {
+      stateListeners.add(listener)
+      return () => stateListeners.delete(listener)
+    },
     close() {
       if (state === 'closed') {
         return
       }
 
-      state = 'closed'
+      setState('closed')
       socket?.close()
       socket = undefined
     },

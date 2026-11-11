@@ -1,0 +1,12 @@
+{
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": ["node"]
+	},
+	"include": ["src/**/*", "../../packages/*/src/**/*.d.ts"],
+	"exclude": ["node_modules", "dist", "artifacts"],
+	"files": ["../../packages/macos-appkit/src/host-globals.d.ts"]
+}
