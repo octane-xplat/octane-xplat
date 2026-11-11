@@ -174,14 +174,27 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
       }
 
       const view = element
+
+      // LayoutUpdated (or the platform's layout-valid flag) marks the first
+      // completed arrange — before it a 0×0 read means "not laid out yet";
+      // a real zero-size element publishes 0×0 once layout has run.
+      let laidOut = view.isLayoutValid === true
       const update = () => {
         const next = readBounds(view)
+
+        if (next === null) {
+          bounds$.set(null)
+          return
+        }
+
+        if (!laidOut && next.width === 0 && next.height === 0) {
+          return
+        }
 
         // Fresh object each read — skip publication when nothing moved
         // or the re-render → layoutChanged → update loop never ends.
         bounds$.set((prev: MeasureBounds | null) => {
           return prev &&
-            next &&
             prev.x === next.x &&
             prev.y === next.y &&
             prev.width === next.width &&
@@ -205,9 +218,15 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
         }, 0)
       }
 
+      const onLayout = () => {
+        laidOut = true
+        update()
+      }
+
       let releaseLayout: (() => void) | undefined
       const attachLayout = () => {
         releaseLayout ??= observeLayout(view, () => {
+          laidOut = true
           afterAttach()
           if (!observe) {
             releaseLayout?.()
@@ -223,7 +242,7 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
       const scrollParents: ViewBase[] = []
 
       if (observe) {
-        view.on?.('layoutChanged', update)
+        view.on?.('layoutChanged', onLayout)
 
         let parent = view.parent
 
@@ -242,7 +261,7 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
         }
 
         if (observe) {
-          view.off?.('layoutChanged', update)
+          view.off?.('layoutChanged', onLayout)
           for (const parent of scrollParents) {
             parent.off?.('scroll', update)
           }

@@ -4005,16 +4005,17 @@ export interface MeasureBounds {
   height: number
 }
 
-/** Options for `useMeasure$` — `observe` (default true) re-measures on layout/resize/scroll/content-size changes; `false` takes a single read once the host lays out.
+/** Options for `useMeasure$` — `observe` (default true) re-measures on layout/resize/scroll/content-size changes; `false` takes a single read and releases its listeners once the host completes a layout.
  */
 export interface UseMeasureOptions {
   /** Re-measure on layout, resize, ancestor scroll, and content-size
-   *  changes; `false` takes a single read once the host lays out.
+   *  changes; `false` takes a single read once the host lays out, then
+   *  releases its listeners.
    *  @default true */
   observe?: boolean
 }
 
-/** `useMeasure$` result — `ref` attaches to a leaf's `ref` prop; `bounds$` reads the latest `MeasureBounds` in app-surface dips, or `null` until the host reports a usable layout (the readiness signal).
+/** `useMeasure$` result — `ref` attaches to a leaf's `ref` prop; `bounds$` reads the latest `MeasureBounds` in app-surface dips, or `null` until the host reports a usable layout (the readiness signal). A measured zero-size element publishes a real `0×0` — guard size-dependent work on positive `width`/`height`, not just non-null.
  *
  * @example
  * ```tsx
@@ -4033,9 +4034,11 @@ export interface MeasureResult {
    *  platform host (`HostElement` — `HTMLElement` on web, the native
    *  view elsewhere) or `null` on detach. */
   ref: (element: HostElement) => void
-  /** Latest bounds, or `null` until the attached host reports a usable
+  /** Latest bounds, or `null` until the attached host completes a usable
    *  layout. `bounds$.get() === null` is the readiness signal — render
-   *  fallbacks while it holds. */
+   *  fallbacks while it holds. A genuinely zero-size element publishes a
+   *  real `0×0`, so effects that require room should also check
+   *  `bounds.width > 0 && bounds.height > 0`. */
   bounds$: DerivedSignal<MeasureBounds | null>
 }
 

@@ -124,3 +124,56 @@ it('takes a single measurement without installing ResizeObserver when observe is
   expect(h.read$().get()?.width).toBe(100)
   expect(h.disconnect).not.toHaveBeenCalled()
 })
+
+it('stays null for a detached host and publishes a real zero size once connected', () => {
+  let width = 0
+  let height = 0
+  let notify = () => {}
+
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(callback: () => void) {
+        notify = callback
+      }
+      observe() {}
+      disconnect() {}
+    },
+  )
+
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+    x: 0,
+    y: 0,
+    left: 0,
+    top: 0,
+    right: width,
+    bottom: height,
+    width,
+    height,
+    toJSON() {},
+  }))
+
+  const host = document.createElement('div')
+  const root = createRoot(host)
+  let bounds$: DerivedSignal<MeasureBounds | null>
+  const capture = (value$: DerivedSignal<MeasureBounds | null>) => {
+    bounds$ = value$
+  }
+
+  act(() => root.render(<Measurement observe={true} capture={capture} />))
+  cleanups.push(() => {
+    root.unmount()
+    host.remove()
+  })
+
+  expect(bounds$!.get()).toBe(null)
+
+  document.body.appendChild(host)
+  act(() => notify())
+  expect(bounds$!.get()).toEqual({ x: 0, y: 0, width: 0, height: 0 })
+
+  width = 80
+  height = 24
+  act(() => notify())
+  expect(bounds$!.get()).toEqual({ x: 0, y: 0, width: 80, height: 24 })
+})

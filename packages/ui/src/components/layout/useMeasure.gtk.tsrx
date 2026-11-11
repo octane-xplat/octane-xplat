@@ -30,6 +30,23 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
         return
       }
 
+      // A widget reporting 0×0 before its first layout is not yet usable; a
+      // real zero-size element publishes 0×0 once a layout has completed.
+      // `layoutChanged` is that witness; a nonzero size proves a layout
+      // already ran.
+      let laidOut = false
+      let released = false
+
+      const release = () => {
+        if (released) {
+          return
+        }
+
+        released = true
+        view.off?.('loaded', onLoad)
+        view.off?.('layoutChanged', onLayout)
+      }
+
       const update = () => {
         if (disposed.current) {
           return
@@ -37,11 +54,19 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
 
         const next = readBounds(view)
 
+        if (next === null) {
+          bounds$.set(null)
+          return
+        }
+
+        if (!laidOut && next.width === 0 && next.height === 0) {
+          return
+        }
+
         // Fresh object each read — skip publication when nothing moved
         // or the re-render → layoutChanged → update loop never ends.
         bounds$.set((prev: MeasureBounds | null) => {
           return prev &&
-            next &&
             prev.x === next.x &&
             prev.y === next.y &&
             prev.width === next.width &&
@@ -49,20 +74,29 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
             ? prev
             : next
         })
-      }
 
-      view.on?.('loaded', update)
-      update()
-      if (observe) {
-        view.on?.('layoutChanged', update)
-      }
-
-      detach.current = () => {
-        view.off?.('loaded', update)
-        if (observe) {
-          view.off?.('layoutChanged', update)
+        if (!observe) {
+          release()
         }
       }
+
+      const onLayout = () => {
+        laidOut = true
+        update()
+      }
+
+      // Reload precedes the reattached widget's next allocation; wait for
+      // layoutChanged before trusting a zero-size read again.
+      const onLoad = () => {
+        laidOut = false
+        update()
+      }
+
+      view.on?.('loaded', onLoad)
+      view.on?.('layoutChanged', onLayout)
+
+      detach.current = release
+      update()
     },
     [observe],
   )

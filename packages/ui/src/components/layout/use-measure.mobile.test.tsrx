@@ -59,6 +59,76 @@ it('stays null until the host can report a usable layout', () => {
   expect(values.every((b) => b === null)).toBe(true)
 })
 
+function mountListenerHost(size: () => { width: number; height: number }) {
+  const listeners = new Map<string, Set<() => void>>()
+  const mounted = mountWithHosts((instance) => {
+    instance.getLocationOnScreen = () => ({ x: 0, y: 0 })
+    instance.getActualSize = size
+    instance.on = (event: string, callback: () => void) => {
+      const callbacks = listeners.get(event) ?? new Set<() => void>()
+
+      callbacks.add(callback)
+      listeners.set(event, callbacks)
+    }
+    instance.off = (event: string, callback: () => void) => listeners.get(event)?.delete(callback)
+    return instance
+  })
+
+  const emit = (event: string) => {
+    for (const callback of listeners.get(event) ?? []) {
+      callback()
+    }
+  }
+
+  return { ...mounted, listeners, emit }
+}
+
+it('stays null while a bound host has not laid out, then publishes a real zero size', () => {
+  let size = { width: 0, height: 0 }
+  const { root, emit } = mountListenerHost(() => size)
+  const values: Array<MeasureBounds | null> = []
+
+  flushUniversalSync(() => root.render(Measured, { values }))
+  expect(values.at(-1)).toBe(null)
+
+  flushUniversalSync(() => emit('layoutChanged'))
+  expect(values.at(-1)).toEqual({ x: 0, y: 0, width: 0, height: 0 })
+
+  flushUniversalSync(() => {
+    size = { width: 140, height: 44 }
+    emit('layoutChanged')
+  })
+  expect(values.at(-1)).toEqual({ x: 0, y: 0, width: 140, height: 44 })
+  root.unmount()
+})
+
+function SingleMeasured(props: { values: Array<MeasureBounds | null> }) @{
+  const measurement = useMeasure$({ observe: false })
+
+  props.values.push(measurement.bounds$.get())
+
+  <masonview ref={measurement.ref} style={{ display: 'flex' }} />
+}
+
+it('waits for the first usable layout in single-read mode, then releases its listeners', () => {
+  let size = { width: 0, height: 0 }
+  const { root, listeners, emit } = mountListenerHost(() => size)
+  const values: Array<MeasureBounds | null> = []
+
+  flushUniversalSync(() => root.render(SingleMeasured, { values }))
+  expect(values.at(-1)).toBe(null)
+
+  size = { width: 120, height: 36 }
+  flushUniversalSync(() => emit('layoutChanged'))
+  expect(values.at(-1)).toEqual({ x: 0, y: 0, width: 120, height: 36 })
+  expect([...listeners.values()].every((callbacks) => callbacks.size === 0)).toBe(true)
+
+  size = { width: 240, height: 36 }
+  flushUniversalSync(() => emit('layoutChanged'))
+  expect(values.at(-1)).toEqual({ x: 0, y: 0, width: 120, height: 36 })
+  root.unmount()
+})
+
 // The child owns the read; the measuring parent never samples bounds.
 function BoundsReader(props: {
   bounds$: DerivedSignal<MeasureBounds | null>

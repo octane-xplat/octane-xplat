@@ -165,7 +165,7 @@ test('refreshes a transient zero-size attachment without a SizeChanged event', (
   const measurement = fixture()
 
   measurement.ref(host)
-  assertSize(measurement, 0, 0)
+  assert.equal(measurement.bounds, null)
   host.size = { width: 400, height: 24 }
   host.nativeViewProtected.layout()
   measurement.flush()
@@ -182,6 +182,10 @@ test('loaded coalesces one post-attach read and unchanged bounds do not rerender
   host.nativeViewProtected.layout()
   host.nativeViewProtected.layout()
   assert.equal(measurement.pending, 1)
+
+  // The first layout makes the measured zero size a usable read.
+  measurement.flush()
+  assertSize(measurement, 0, 0)
 
   const writes = measurement.writes
 
@@ -238,6 +242,8 @@ test('synchronous callback-ref replacement preserves unchanged bounds without sc
 
       assert.equal(measurement.writes, writes)
       assert.equal(measurement.pending, 0)
+      host.nativeViewProtected.layout()
+      measurement.flush()
       assertSize(measurement, width, width ? 32 : 0)
       measurement.unmount()
     }
@@ -247,6 +253,9 @@ test('synchronous callback-ref replacement preserves unchanged bounds without sc
 test('null refs and unmount cancel pending reads and subscriptions', () => {
   for (const detach of ['ref', 'unmount']) {
     const host = view(view())
+
+    host.size = { width: 400, height: 24 }
+
     const measurement = fixture()
 
     measurement.ref(host)
@@ -269,9 +278,13 @@ test('null refs and unmount cancel pending reads and subscriptions', () => {
 })
 
 test('unmount cancels a deferred clear and late null refs cannot restart it', () => {
+  const host = view()
+
+  host.size = { width: 100, height: 20 }
+
   const measurement = fixture()
 
-  measurement.ref(view())
+  measurement.ref(host)
 
   const writes = measurement.writes
 
@@ -369,7 +382,7 @@ test('native layout notifications defer state writes and one-shot observation de
   measurement.ref(host)
   host.size = { width: 400, height: 24 }
   host.nativeViewProtected.layout()
-  assertSize(measurement, 0, 0)
+  assert.equal(measurement.bounds, null)
   assert.equal(host.nativeViewProtected.LayoutUpdated, null)
   measurement.flush()
   assertSize(measurement, 400, 24)

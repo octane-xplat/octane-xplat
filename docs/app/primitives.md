@@ -1231,7 +1231,11 @@ export function Example() {
 
 Use `useMeasure$()` when a screen needs live element bounds. Pass its `ref`
 to the element and read `bounds$.get()` for its current position and size.
-The read-only signal starts at `null` until the host has a usable layout.
+The read-only signal starts at `null` and stays `null` until the host
+completes a layout — `null` is the "not laid out yet" readiness signal, so
+render a fallback while it holds. An element that genuinely measured to
+zero reports a real `0×0`, so work that needs room, such as sizing an
+animated surface, should also check `bounds.width > 0 && bounds.height > 0`.
 Positions use the app surface's top-left corner: the browser viewport,
 macOS window content area, or app root on iOS/Android. Sizes and positions
 use CSS pixels on web and device-independent pixels on native targets.
@@ -1255,8 +1259,9 @@ export function MeasuredCard() {
 Keep the handle when another calculation or child needs to follow the bounds.
 A derived signal recalculates when a signal it reads changes. The measurement
 belongs to the component that called the hook; its observers are released when
-that component unmounts. Set `{ observe: false }` to take one measurement after
-binding instead of following later changes.
+that component unmounts. Set `{ observe: false }` to take one measurement once
+the host lays out — it keeps listening until the first usable read lands, then
+releases its listeners instead of following later changes.
 
 ```tsx
 import { derived$ } from 'octane/signals'

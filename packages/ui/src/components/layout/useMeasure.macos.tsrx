@@ -22,6 +22,23 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
         return
       }
 
+      if (!view) {
+        bounds$.set(null)
+        return
+      }
+
+      let released = false
+      const release = () => {
+        if (released) {
+          return
+        }
+
+        released = true
+        for (const observer of observers) {
+          center.removeObserver(observer)
+        }
+      }
+
       const update = () => {
         if (disposed.current) {
           return
@@ -39,11 +56,12 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
             ? previous
             : next,
         )
-      }
 
-      update()
-      if (!view || !observe) {
-        return
+        // A null read means the view is not in a window yet — keep the
+        // observers so a single read can still land on its first layout.
+        if (next !== null && !observe) {
+          release()
+        }
       }
 
       const appKit = globalThis as Record<string, any>
@@ -66,11 +84,8 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
         ancestor = ancestor.superview
       }
 
-      detach.current = () => {
-        for (const observer of observers) {
-          center.removeObserver(observer)
-        }
-      }
+      detach.current = release
+      update()
     },
     [observe],
   )

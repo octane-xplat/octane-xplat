@@ -32,10 +32,13 @@ export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
         return
       }
 
-      const next = readBounds(element)
+      // A detached element has no layout; a connected element's rect is
+      // always current — a real zero size publishes 0×0.
+      const next = element.isConnected === false ? null : readBounds(element)
 
       bounds$.set((previous) =>
         previous &&
+        next &&
         previous.x === next.x &&
         previous.y === next.y &&
         previous.width === next.width &&
