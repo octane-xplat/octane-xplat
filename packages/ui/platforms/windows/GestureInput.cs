@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.UI.Xaml;
@@ -18,21 +18,58 @@ public delegate void ContactObserver(string frame);
 /// <summary>Native delivery only: recognition and press eligibility belong to the shared UI owner.</summary>
 public static class GestureInput
 {
-    private sealed class Identity { public readonly long Value = ++nextIdentity; }
-    private static long nextIdentity, nextSubscription;
-    private static readonly ConditionalWeakTable<object, Identity> identities = new();
-    private static readonly Dictionary<long, RootInput> roots = new();
+    private static long nextSubscription, nextRoot;
+    private static readonly Dictionary<string, RootInput> roots = new();
     private static readonly Dictionary<long, (RootInput root, ContactObserver observer)> subscriptions = new();
-    private static long Id(object value) => identities.GetValue(value, _ => new Identity()).Value;
-    private static UIElement Element(object value) => value as UIElement
-        ?? throw new InvalidOperationException("Gesture input requires a projected UIElement");
+
+    // Projected base wrappers may differ for one native view. Canonical
+    // IUnknown keys stay stable across wrappers and GC. They remain private to
+    // the native transport; strings avoid numeric precision loss in JavaScript.
+    // Observed roots and active hit elements retain the corresponding views.
+    private static string Id(UIElement value)
+    {
+        var pointer = WinRT.MarshalInspectable<UIElement>.FromManaged(value);
+        IntPtr canonical = IntPtr.Zero;
+        try {
+            var unknown = new Guid("00000000-0000-0000-C000-000000000046");
+            Marshal.ThrowExceptionForHR(Marshal.QueryInterface(pointer, in unknown, out canonical));
+            return "0x" + canonical.ToInt64().ToString("x", CultureInfo.InvariantCulture);
+        } finally {
+            if (canonical != IntPtr.Zero) Marshal.Release(canonical);
+            WinRT.MarshalInspectable<UIElement>.DisposeAbi(pointer);
+        }
+    }
+
+    private static DependencyObject Source(object value)
+    {
+        if (value is UIElement source) return source;
+        if (value == null) return null;
+        var pointer = WinRT.MarshalInspectable<object>.FromManaged(value);
+        try { return WinRT.MarshalInspectable<UIElement>.FromAbi(pointer); }
+        finally { WinRT.MarshalInspectable<object>.DisposeAbi(pointer); }
+    }
+    private static UIElement Element(object value)
+    {
+        if (value is UIElement element) return element;
+        // NativeScript's public pointer key preserves native WinRT identity
+        // when its object-to-managed argument conversion loses that projection.
+        // The JS surface retains the native view throughout this call/lease.
+        if (value is string key && key.StartsWith("0x", StringComparison.Ordinal) &&
+            ulong.TryParse(key.AsSpan(2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out var address) && address != 0) {
+            // Project the known base explicitly: custom Mason runtime classes
+            // do not ship a corresponding managed runtime-class projection.
+            var projected = WinRT.MarshalInspectable<UIElement>.FromAbi(new IntPtr(unchecked((long)address)));
+            if (projected != null) return projected;
+        }
+        throw new InvalidOperationException("Gesture input requires a projected UIElement");
+    }
     private static UIElement Root(UIElement host)
     {
         if (host.XamlRoot == null) throw new InvalidOperationException("Gesture input requires a mounted XamlRoot");
         // Popups share XamlRoot but have a separate visual input tree. Observe
         // that tree rather than assuming every event reaches XamlRoot.Content.
         var root = host;
-        for (DependencyObject node = host; node != null; node = VisualTreeHelper.GetParent(node))
+        for (DependencyObject node = host; node != null; node = Source(VisualTreeHelper.GetParent(node)))
             if (node is UIElement element) root = element;
         return root;
     }
@@ -43,7 +80,7 @@ public static class GestureInput
         return JsonSerializer.Serialize(new { host = Id(host), root = Id(Root(host)) });
     }
 
-    public static string Local(object value, double x, double y, long expectedRoot)
+    public static string Local(object value, double x, double y, string expectedRoot)
     {
         var host = Element(value);
         try {
@@ -117,10 +154,51 @@ public static class GestureInput
 
     private static readonly Dictionary<long, Action> actionSubscriptions = new();
 
+    private interface IActionOrigin { string Source { get; } }
+    private sealed class ActionButton : Button, IActionOrigin
+    {
+        public string Source { get; private set; } = "virtual";
+        private void WithSource(string source, Action action) {
+            var previous = Source; Source = source;
+            try { action(); } finally { Source = previous; }
+        }
+        protected override void OnPointerReleased(PointerRoutedEventArgs e) => WithSource("pointer", () => base.OnPointerReleased(e));
+        protected override void OnKeyDown(KeyRoutedEventArgs e) => WithSource("keyboard", () => base.OnKeyDown(e));
+        protected override void OnKeyUp(KeyRoutedEventArgs e) => WithSource("keyboard", () => base.OnKeyUp(e));
+    }
+    private sealed class ActionLink : HyperlinkButton, IActionOrigin
+    {
+        public string Source { get; private set; } = "virtual";
+        private void WithSource(string source, Action action) {
+            var previous = Source; Source = source;
+            try { action(); } finally { Source = previous; }
+        }
+        protected override void OnPointerReleased(PointerRoutedEventArgs e) => WithSource("pointer", () => base.OnPointerReleased(e));
+        protected override void OnKeyDown(KeyRoutedEventArgs e) => WithSource("keyboard", () => base.OnKeyDown(e));
+        protected override void OnKeyUp(KeyRoutedEventArgs e) => WithSource("keyboard", () => base.OnKeyUp(e));
+    }
+
+    // Managed peers keep a real ButtonBase identity through Core's native-view
+    // lifecycle. A JS-composed WinRT subclass can lose that identity at this
+    // managed ingress even while its WinRT properties remain callable.
+    public static object CreateAction(string kind)
+    {
+        ButtonBase control = kind switch {
+            "Button" => new ActionButton(),
+            "HyperlinkButton" => new ActionLink(),
+            _ => throw new ArgumentException("Unsupported native action control", nameof(kind))
+        };
+        control.MinWidth = 0;
+        control.MinHeight = 0;
+        control.Template = (ControlTemplate)Microsoft.UI.Xaml.Markup.XamlReader.Load(
+            $"<ControlTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" TargetType=\"{kind}\"><Border Background=\"Transparent\" /></ControlTemplate>");
+        return control;
+    }
+
     public static long ObserveAction(object value, ContactObserver observer)
     {
         if (value is not ButtonBase button) throw new InvalidOperationException("Native action peer requires ButtonBase");
-        RoutedEventHandler click = (_, _) => observer("click");
+        RoutedEventHandler click = (_, _) => observer("click:" + (button is IActionOrigin origin ? origin.Source : "virtual"));
         EventHandler<object> layout = (_, _) => observer("layout");
         button.Click += click;
         try { button.LayoutUpdated += layout; }
@@ -148,19 +226,19 @@ public static class GestureInput
         private readonly SubclassProc windowProcedure;
         private readonly IntPtr hwnd;
         private readonly UIntPtr subclassId;
-        private readonly long rootIdentity;
+        private readonly string rootIdentity;
         private Pointer pointer;
         private long cohort, serial;
         private bool active, transferring, captured, nativeOwned, pendingDouble;
         private double x, y;
-        private long[] path = Array.Empty<long>();
+        private string[] path = Array.Empty<string>();
         private UIElement[] hitElements = Array.Empty<UIElement>();
 
         public RootInput(UIElement element)
         {
             Element = element;
             rootIdentity = Id(element);
-            subclassId = new UIntPtr((ulong)rootIdentity);
+            subclassId = new UIntPtr((ulong)++nextRoot);
             hwnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(element.XamlRoot.ContentIslandEnvironment.AppWindowId);
             windowProcedure = WindowEvent;
             down = (_, args) => Input("down", args);
@@ -208,10 +286,14 @@ public static class GestureInput
             if (type == "down") {
                 if (active || !point.Properties.IsLeftButtonPressed || point.Properties.IsRightButtonPressed) return;
                 active = true; captured = false; pendingDouble = false; cohort++; pointer = args.Pointer;
-                var nodes = new List<long>();
+                var nodes = new List<string>();
                 var elements = new List<UIElement>();
                 nativeOwned = false;
-                for (DependencyObject node = args.OriginalSource as DependencyObject; node != null; node = VisualTreeHelper.GetParent(node)) {
+                // OriginalSource is object-typed. An unregistered custom Mason
+                // class arrives as IInspectable, despite being a real UIElement.
+                // Query its known base before walking the actual visual tree.
+                var start = Source(args.OriginalSource);
+                for (DependencyObject node = start; node != null; node = Source(VisualTreeHelper.GetParent(node))) {
                     if (node is UIElement input) { nodes.Add(Id(input)); elements.Add(input); }
                     if (node is TextBox || node is RichEditBox || node is PasswordBox || node is Slider || node is NumberBox ||
                         node is ScrollBar || node is ComboBox || node is ToggleSwitch || node is CheckBox || node is RadioButton || node.GetType().Name == "WebView2") nativeOwned = true;

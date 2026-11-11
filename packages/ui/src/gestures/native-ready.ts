@@ -20,6 +20,10 @@ export function nativeInputReady(view: NativeGestureView): boolean {
     return native.window != null
   }
 
+  if ('XamlRoot' in native) {
+    return native.XamlRoot != null
+  }
+
   // Non-mobile adapters/object drivers still validate their own surface type.
   return true
 }

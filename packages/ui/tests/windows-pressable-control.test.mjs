@@ -132,7 +132,7 @@ function fixture(tag = 'xplatwindowsbutton') {
   }
 }
 
-test('native button and hyperlink retain their WinUI peer under a transparent template', () => {
+test('native button and hyperlink use their respective peer factory', () => {
   for (const [tag, kind] of [
     ['xplatwindowsbutton', 'Button'],
     ['xplatwindowslink', 'HyperlinkButton'],
@@ -140,9 +140,6 @@ test('native button and hyperlink retain their WinUI peer under a transparent te
     const f = fixture(tag)
 
     assert.equal(f.native.constructor, f[kind])
-    assert.match(f.native.Template, new RegExp(`TargetType="${kind}"`))
-    assert.equal(f.native.MinWidth, 0)
-    assert.equal(f.native.MinHeight, 0)
   }
 })
 

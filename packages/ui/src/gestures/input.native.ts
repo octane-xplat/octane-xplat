@@ -29,7 +29,7 @@ export interface NativeGestureNode {
 }
 
 export interface NativeGestureView extends NativeGestureNode {
-  readonly nativeViewProtected: unknown
+  readonly nativeViewProtected?: unknown
   readonly style: object
   readonly isLoaded?: boolean
   elementFromPoint?(x: number, y: number): NativeGestureNode | null

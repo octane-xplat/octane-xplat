@@ -1,5 +1,11 @@
 import { useNativeInteractionHost } from './host-native-shared.tsrx'
-import { attachWindowsGesture, attachWindowsScope, attachWindowsPress } from './input.windows'
+import {
+  attachWindowsGesture,
+  attachWindowsScope,
+  attachWindowsPress,
+  windowsInputReady,
+} from './input.windows'
+
 import type { InteractionHostOptions } from './host-options'
 
 export type { InteractionHostOptions } from './host-options'
@@ -12,5 +18,5 @@ const adapter = {
 }
 
 export function useInteractionHost(options: InteractionHostOptions): (host: object | null) => void {
-  return useNativeInteractionHost(options, adapter)
+  return useNativeInteractionHost(options, adapter, windowsInputReady)
 }

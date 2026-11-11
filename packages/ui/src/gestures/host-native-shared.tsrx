@@ -1,6 +1,7 @@
 import { useInteractionCallbacks } from './callbacks.tsrx'
 import { useCallback, useInsertionEffect, useLayoutEffect, useRef } from 'octane'
 import type { NativeGestureView } from './input.native'
+import { isNativeGestureView } from './native-host-lifecycle'
 import {
   createInteractionBinding,
   type InteractionBinding,
@@ -134,16 +135,4 @@ export function useNativeInteractionHost(
   )
 
   return lifecycle.bind
-}
-
-function isNativeGestureView(host: object): host is NativeGestureView {
-  return (
-    'nativeViewProtected' in host &&
-    'style' in host &&
-    typeof host.style === 'object' &&
-    'on' in host &&
-    typeof host.on === 'function' &&
-    'off' in host &&
-    typeof host.off === 'function'
-  )
 }

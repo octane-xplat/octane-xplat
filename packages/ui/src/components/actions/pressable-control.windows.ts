@@ -5,7 +5,6 @@ import {
 } from '../../gestures/input.windows'
 import type { ActivationEvent } from '../../gestures/types'
 import { Property, TextBase, View } from '@nativescript/core'
-import { Microsoft } from '@octane-xplat/platform/windows'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
@@ -40,15 +39,7 @@ class WindowsActionControl extends View {
   private disposeEvents: (() => void) | undefined
 
   createNativeView(): any {
-    const native = createWindowsActionControl(this.kind)
-
-    native.MinWidth = 0
-    native.MinHeight = 0
-    native.Template = Microsoft.UI.Xaml.Markup.XamlReader.Load(
-      `<ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="${this.kind}"><Border Background="Transparent" /></ControlTemplate>`,
-    )
-
-    return native
+    return createWindowsActionControl(this.kind)
   }
 
   initNativeView(): void {
