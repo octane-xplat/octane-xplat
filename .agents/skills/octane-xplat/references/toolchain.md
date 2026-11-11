@@ -34,8 +34,10 @@ Keep the supplied catalog and managed patches together. The compatibility
 manifest, installed package versions, and doctor/upgrade output own the current
 version set; exact pins copied into prose go stale. Within this repository,
 workspace dependencies use `"workspace:*"` and packages declare every import.
-The TypeScript CLI runs under Bun; its standalone executables embed it. Repository
-installs require Bun 1.4.4. Consumer starters select Bun or pnpm at create time
+`xplat` is a native Go executable — the TypeScript and Nim implementations are
+removed, and the executable embeds neither Node nor Bun. Repository
+installs require Bun 1.4.4; Node is an installed prerequisite for the CLI's
+explicit JavaScript workers. Consumer starters select Bun or pnpm at create time
 (`bun create` vs `pnpm create`, or `--package-manager`); pnpm projects keep
 catalogs, overrides, patches, `allowBuilds`, and the hoisted linker in
 `pnpm-workspace.yaml`. `xplat add`, `xplat patches`, and development/build
@@ -44,13 +46,13 @@ Other Node tooling needs Node >=22.18 for direct erasable TypeScript execution;
 consumer bundlers still compile framework runtime source.
 
 Keep the app's existing CLI Vite imports during native migration. Small Vite
-exports and bounded Node workers can remain in `@octane-xplat/cli`; the Nim
-prerelease package retains that curated closure with optional engine peers.
+exports and bounded Node workers remain in `@octane-xplat/cli`; the published
+tarball retains that curated closure with optional engine peers.
 Apps may instead choose `@octane-xplat/build`, whose preset paths/options match.
 Keep compiler engines declared in the project and use the installed catalog for
-native command coverage. The parallel Go implementation retains Nim/TypeScript
-until its replacement qualification; a native executable embeds neither Node nor
-Bun. See
+native command coverage. Go is the sole CLI implementation — native commands
+never fall back to a TypeScript CLI, and a native executable embeds neither
+Node nor Bun. See
 [project build plugins](../../../../docs/packages/package-build.md).
 
 ```ts

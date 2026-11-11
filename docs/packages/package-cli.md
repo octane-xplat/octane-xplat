@@ -12,7 +12,11 @@ Windows, and Linux apps. Desktop setup and support depend on the selected
 host; check [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets)
 before adding one to an app.
 
-The npm command runs with **Bun 1.4.4 or later**. Install Bun using its
+The `xplat` command is a native executable — it does not run under Node or
+Bun. The app toolchain around it still needs Node >=22.22.2, the package
+manager your starter selected (**Bun 1.4.4 or later** or pnpm), Vite, and the
+platform toolchains for your targets; see [Native executable](#native-executable)
+for how the binary is installed. For a Bun-managed app, install Bun using its
 [installation guide](https://bun.sh/docs/installation), then check it before
 adding the CLI to an existing app:
 
@@ -613,11 +617,27 @@ dependencies; those are not hidden in the CLI or indiscriminately overridden.
 ### Working against a local checkout
 
 Point an app's `link:`, `file:` or `portal:` dependencies at a local checkout
-of the framework to try unreleased changes. If a pnpm 11 install resolves the
+of the framework to try unreleased changes. Prepare the checkout first —
+`bun install` inside it, then the on-demand Turbo tasks for what the app
+consumes: `turbo run build:go --filter=@octane-xplat/cli` produces the Go
+executable that the checkout's `xplat` bin needs (`install-native.mjs`
+reports a `build:go` instruction when it is absent), and `turbo run build`
+or `turbo run typegen` with a `--filter` builds the dist output and generated
+declarations of linked packages.
+
+```sh
+cd /path/to/octane-xplat
+bun install
+bun run turbo run build:go --filter=@octane-xplat/cli
+bun run turbo run build --filter=@octane-xplat/ui   # only for linked packages
+```
+
+If a pnpm 11 install resolves the
 link before its path exists, the `node_modules` entry appears without the
 `.bin` shims (`xplat`/`xplat-lint` report `command not found`) — reinstall
-once the path exists (`rm -rf node_modules && bun install`) or wire the same
-reinstall into the app's `postinstall`.
+once the path exists with the app's own package manager (`rm -rf node_modules
+&& pnpm install`, or `bun install` in a Bun app) or wire the same reinstall
+into the app's `postinstall`.
 
 The checkout keeps its own
 `node_modules`, so its packages can resolve a second physical copy of

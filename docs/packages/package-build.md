@@ -72,8 +72,8 @@ imports. Keep the selected preset, options, app entry and other plugins:
 import { css } from '@octane-xplat/build/vite'
 ```
 
-The TypeScript CLI continues to expose its existing plugin paths during the
-parallel migration. The experimental Nim package also retains the small Vite
+The published `@octane-xplat/cli` tarball continues to expose its existing
+plugin paths under the Go executable. It retains the small Vite
 exports, with opt-in engine dependencies; changing to a separate package is not
 required for those imports. See [native CLI setup](package-cli.md#native-executable)
 for its opt-in engine installation. Command availability remains a separate contract: inspect the
@@ -97,7 +97,7 @@ xplat actions list --json
 xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --input '{}' --json
 ```
 
-For native macOS packaging with the Nim CLI, install the separate
+For native macOS packaging with the CLI, install the separate
 [macOS build worker](package-macos-build.md). Its host assets are not part of
 this package.
 
