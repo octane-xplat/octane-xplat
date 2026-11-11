@@ -1518,8 +1518,11 @@ test('dev channels join the announcement, gate sends on hub capability, and rout
   const socket = sockets[0]
 
   socket.open()
-  assert.equal(socket.frames[0].registry.channels.length, 1)
+  // The reserved xplat-actions channel always joins the announcement with a
+  // bridged registry — panels rely on it to reach action invocation.
+  assert.equal(socket.frames[0].registry.channels.length, 2)
   assert.deepEqual(socket.frames[0].registry.channels[0], { id: 'probe', version: 2 })
+  assert.deepEqual(socket.frames[0].registry.channels[1], { id: 'xplat-actions', version: 1 })
   socket.receive({
     type: 'registered',
     protocol: 'octane-app-debug',
@@ -1584,9 +1587,150 @@ test('dev channels join the announcement, gate sends on hub capability, and rout
   channel.dispose()
   await new Promise((resolve) => queueMicrotask(resolve))
   assert.equal(next.frames.at(-1).type, 'registry')
-  assert.equal(next.frames.at(-1).registry.channels, undefined)
+  assert.deepEqual(next.frames.at(-1).registry.channels, [{ id: 'xplat-actions', version: 1 }])
   assert.equal(states.at(-1), 'closed')
   assert.equal(channel.send('backend', { n: 5 }), false)
+})
+
+test('the reserved xplat-actions channel dispatches invokes and returns outcomes to panels', async (t) => {
+  const sockets = []
+  class Socket {
+    readyState = 0
+    frames = []
+    constructor(url) {
+      this.url = url
+      sockets.push(this)
+    }
+    send(data) {
+      this.frames.push(JSON.parse(data))
+    }
+    close() {
+      this.readyState = 3
+      this.onclose?.()
+    }
+    open() {
+      this.readyState = 1
+      this.onopen?.()
+    }
+    receive(frame) {
+      this.onmessage?.({ data: JSON.stringify(frame) })
+    }
+  }
+
+  const instanceId = 'a'.repeat(32)
+  const { exports: api } = await loadDevActions({
+    origin: 'http://127.0.0.1:5173',
+    token: 'app-proof',
+    socket: 'ws://127.0.0.1:1234/app?target=web&instance=' + instanceId,
+    instanceId,
+    targetId: 'web',
+    WebSocket: Socket,
+    fetch: () => {
+      throw Error('unexpected HTTP fallback')
+    },
+  })
+
+  let releaseSlow
+  const action = api.registerDevAction({
+    id: 'fixture.ping',
+    title: 'Ping',
+    description: 'Responds with a pong result.',
+    effects: { summary: 'none' },
+    input: { fields: {} },
+    result: { fields: { pong: { type: 'boolean' } } },
+    run: async () => ({ pong: true }),
+  })
+  const slow = api.registerDevAction({
+    id: 'fixture.slow',
+    title: 'Slow',
+    description: 'Waits for an external release before completing.',
+    effects: { summary: 'none' },
+    input: { fields: {} },
+    execution: { cancellable: true },
+    run: () => new Promise((resolve) => (releaseSlow = resolve)),
+  })
+  const bridge = api.startDevActionBridge()
+
+  t.after(() => {
+    bridge.stop()
+    action.dispose()
+    slow.dispose()
+  })
+
+  const socket = sockets[0]
+  socket.open()
+  socket.receive({
+    type: 'registered',
+    protocol: 'octane-app-debug',
+    version: 1,
+    instanceId,
+    sessionId: 'sess_actions',
+    capabilities: ['channels'],
+  })
+
+  // An unknown action fails through the same outcome path, addressed by the
+  // caller's requestId, never by socket position.
+  socket.receive({
+    type: 'channel',
+    channel: 'xplat-actions',
+    from: 'panel',
+    panel: 'panel_1',
+    data: { type: 'invoke', requestId: 'req-missing', actionId: 'fixture.absent' },
+  })
+  socket.receive({
+    type: 'channel',
+    channel: 'xplat-actions',
+    from: 'panel',
+    panel: 'panel_1',
+    data: { type: 'invoke', requestId: 'req-ping', actionId: 'fixture.ping', input: {} },
+  })
+  socket.receive({
+    type: 'channel',
+    channel: 'xplat-actions',
+    from: 'panel',
+    panel: 'panel_1',
+    data: { type: 'invoke', requestId: 'req-slow', actionId: 'fixture.slow', input: {} },
+  })
+  // Malformed payloads must not throw or degrade the socket.
+  socket.receive({
+    type: 'channel',
+    channel: 'xplat-actions',
+    from: 'panel',
+    panel: 'panel_1',
+    data: { type: 'invoke' },
+  })
+  socket.receive({ type: 'channel', channel: 'xplat-actions', from: 'panel', data: 'junk' })
+  socket.receive({
+    type: 'channel',
+    channel: 'xplat-actions',
+    from: 'panel',
+    data: { type: 'cancel', requestIds: ['req-slow'] },
+  })
+
+  assert.ok(
+    await until(
+      () =>
+        socket.frames.filter(
+          (frame) => frame.type === 'channel' && frame.channel === 'xplat-actions',
+        ).length >= 3,
+    ),
+    'panel invokes produced no channel outcomes',
+  )
+
+  const outcomes = {}
+  for (const frame of socket.frames) {
+    if (frame.type === 'channel' && frame.channel === 'xplat-actions') {
+      outcomes[frame.data.outcome.requestId] = frame.data.outcome
+    }
+  }
+
+  assert.equal(outcomes['req-missing'].status, 'failed')
+  assert.equal(outcomes['req-missing'].error.code, 'invalid_selection')
+  assert.equal(outcomes['req-ping'].status, 'succeeded')
+  assert.deepEqual(outcomes['req-ping'].result, { pong: true })
+  assert.equal(outcomes['req-slow'].status, 'cancelled')
+  assert.equal(bridge.state, 'live')
+  releaseSlow?.({})
 })
 
 test('dev channels report unavailable on the HTTP polling fallback bridge', async (t) => {

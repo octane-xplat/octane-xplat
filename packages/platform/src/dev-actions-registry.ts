@@ -846,6 +846,8 @@ export function devActionsRevision(): number {
 export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevActionBridge {
   const state = registry()
 
+  ensureDevActionsChannel(state)
+
   if (state.bridge) {
     const rt = state.bridge
 
@@ -972,6 +974,26 @@ export interface DevChannelRegistration {
   dispose(): void
 }
 
+function devChannelSend(
+  entry: ChannelEntry,
+  state: RegistryState,
+  to: 'backend' | 'panels',
+  data: unknown,
+): boolean {
+  const rt = state.bridge
+
+  if (entry.closed || !rt?.endpoint.socket || rt.socket?.readyState !== 1 || !rt.channelCapable) {
+    return false
+  }
+
+  try {
+    rt.socket.send(JSON.stringify({ type: 'channel', channel: entry.id, to, data }))
+    return true
+  } catch {
+    return false
+  }
+}
+
 function devChannelState(entry: ChannelEntry, state: RegistryState): DevChannelState {
   if (entry.closed) {
     return 'closed'
@@ -1047,23 +1069,7 @@ export function registerDevChannel(
 
   return {
     send(to: 'backend' | 'panels', data: unknown): boolean {
-      const rt = state.bridge
-
-      if (
-        entry.closed ||
-        !rt?.endpoint.socket ||
-        rt.socket?.readyState !== 1 ||
-        !rt.channelCapable
-      ) {
-        return false
-      }
-
-      try {
-        rt.socket.send(JSON.stringify({ type: 'channel', channel: id, to, data }))
-        return true
-      } catch {
-        return false
-      }
+      return devChannelSend(entry, state, to, data)
     },
     dispose() {
       if (entry.closed) {
@@ -1080,6 +1086,114 @@ export function registerDevChannel(
       notifyChannel(entry, state)
     },
   }
+}
+
+/**
+ * Reserved channel carrying devtools-panel action invocations into the app.
+ * Panels send `{ type: 'invoke' | 'cancel' }` data; outcomes come back as
+ * `{ type: 'outcome', outcome }` broadcast to all panels. @internal
+ */
+export const DEV_ACTIONS_CHANNEL_ID = 'xplat-actions'
+
+// Devtools invocation traffic rides the app socket's channel transport, so
+// dispatch needs a runtime whose outcome path writes frames onto this
+// channel instead of the socket's `outcome` type.
+function devActionsChannelRuntime(entry: ChannelEntry, state: RegistryState): BridgeRuntime {
+  const socket: AppDebugSocket = {
+    readyState: 1,
+    onopen: null,
+    onmessage: null,
+    onerror: null,
+    onclose: null,
+    send: (text) => {
+      try {
+        devChannelSend(entry, state, 'panels', JSON.parse(text))
+      } catch {
+        // A malformed frame can never come from postOutcome; drop it quietly.
+      }
+    },
+    close: () => {},
+  }
+
+  return {
+    endpoint: { origin: '', token: '', socket: `channel:${entry.id}` },
+    socket,
+    state: 'live',
+    polling: false,
+    announcing: false,
+    controller: new AbortController(),
+  }
+}
+
+function dispatchDevActionsChannel(
+  entry: ChannelEntry,
+  state: RegistryState,
+  data: unknown,
+) {
+  if (typeof data !== 'object' || data === null) {
+    return
+  }
+
+  const request = data as Record<string, unknown>
+
+  if (request.type === 'cancel' && Array.isArray(request.requestIds)) {
+    for (const requestId of request.requestIds.slice(0, 64)) {
+      if (typeof requestId === 'string' && requestId.length > 0 && requestId.length <= 128) {
+        requestCancel(requestId)
+      }
+    }
+    return
+  }
+
+  if (
+    request.type !== 'invoke' ||
+    typeof request.requestId !== 'string' ||
+    request.requestId.length === 0 ||
+    request.requestId.length > 128
+  ) {
+    return
+  }
+
+  const invocation: InvocationRequest = {
+    requestId: request.requestId,
+    appInstanceId: state.instanceId,
+    actionId: typeof request.actionId === 'string' ? request.actionId : '',
+    input:
+      typeof request.input === 'object' && request.input !== null && !Array.isArray(request.input)
+        ? (request.input as Record<string, unknown>)
+        : {},
+    ...(typeof request.registryRevision === 'number' && Number.isInteger(request.registryRevision)
+      ? { registryRevision: request.registryRevision }
+      : {}),
+  }
+
+  void dispatchInvocation(devActionsChannelRuntime(entry, state), invocation)
+}
+
+// Declared once per registry so devtools panels can always find the action
+// surface; registering 'xplat-actions' as a user channel is a conflict. The
+// reserved channel joins the announcement without a revision bump — revision
+// guards the action surface, which a built-in transport channel never alters.
+function ensureDevActionsChannel(state: RegistryState) {
+  if (state.channels?.has(DEV_ACTIONS_CHANNEL_ID)) {
+    return
+  }
+
+  const entry: ChannelEntry = {
+    id: DEV_ACTIONS_CHANNEL_ID,
+    version: 1,
+    handlers: {
+      message(frame) {
+        dispatchDevActionsChannel(entry, state, frame.data)
+      },
+      state() {},
+    },
+    closed: false,
+  }
+
+  state.channels?.set(entry.id, entry)
+  scheduleAnnounce(state)
+  notifyChannel(entry, state)
 }
 
 // Coalesce bursts (hot-reload re-registration) into one announcement.

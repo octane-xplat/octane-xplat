@@ -1,10 +1,44 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import { createRequire } from 'node:module'
+import { realpathSync } from 'node:fs'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { createDevStackResolver } from './dev-stack.ts'
 import { installDevInspector } from '../dev-inspector.web.ts'
 import { inspectDOM } from './inspection/dom.web.ts'
 import { browserLogScript } from '../dev-log-client.web.ts'
 import { formatBrowserLogBatch } from '../dev-log-server.ts'
+
+type DevLogRecord = { level: string; line: string; at: string }
+type DevBackend = {
+  sendToPanels(data: unknown, panel?: string): boolean
+  subscribe(
+    listener: (message: { from: 'panel'; panel: string; data: { type?: string } }) => void,
+  ): () => void
+  close(): void
+} | null
+
+const DEV_LOG_CHANNEL = 'xplat-logs'
+const DEV_LOG_RECENT_MAX = 256
+
+// The devtools backend client ships in @octane-xplat/devtools, which cannot
+// be a static dependency here (cli ↔ platform ↔ devtools would cycle in the
+// workspace graph). Resolve it from the project like the workshop engine
+// exports; absent installs simply get no xplat-logs backend.
+async function loadDevBackend(project: string): Promise<DevBackend> {
+  try {
+    const require = createRequire(join(project, 'package.json'))
+    const entry = realpathSync(require.resolve('@octane-xplat/devtools/backend'))
+    const api = (await import(pathToFileURL(entry).href)) as {
+      connectDevBackend?: (channel: string) => DevBackend
+    }
+
+    return api.connectDevBackend?.(DEV_LOG_CHANNEL) ?? null
+  } catch {
+    return null
+  }
+}
 
 // Explicit Go foreground dev owns this channel. Only an app/target credential
 // enters generated code; it cannot authenticate the CLI's private HTTP API.
@@ -87,7 +121,20 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
         },
       ]
     },
-    configureServer(server: ViteDevServer) {
+    async configureServer(server: ViteDevServer) {
+      // Devtools panels subscribe to this target's log stream over the
+      // xplat-logs backend channel; absent under the plain-Vite fallback.
+      const logsBackend = await loadDevBackend(server.config.root)
+      const recent: DevLogRecord[] = []
+
+      logsBackend?.subscribe((message) => {
+        if (message.from === 'panel' && message.data?.type === 'subscribe') {
+          logsBackend.sendToPanels({ type: 'snapshot', records: recent.slice() }, message.panel)
+        }
+      })
+
+      server.httpServer?.once('close', () => logsBackend?.close())
+
       server.middlewares.use(async (req, res, next) => {
         if (![logs, stacks].includes(req.url?.split('?')[0] ?? '')) {
           return next()
@@ -151,6 +198,20 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
 
           if (blocked) {
             return reply(503, { error: 'Browser log sink busy' })
+          }
+
+          if (logsBackend && batch.accepted > 0) {
+            const at = new Date().toISOString()
+            const records = (body as { records: { level: string; line: string }[] }).records.map(
+              (record) => ({ level: record.level, line: record.line, at }),
+            )
+
+            recent.push(...records)
+            if (recent.length > DEV_LOG_RECENT_MAX) {
+              recent.splice(0, recent.length - DEV_LOG_RECENT_MAX)
+            }
+
+            logsBackend.sendToPanels({ type: 'batch', records })
           }
 
           if (batch.text && !process.stderr.write(batch.text)) {

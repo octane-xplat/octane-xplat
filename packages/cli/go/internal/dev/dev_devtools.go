@@ -198,7 +198,11 @@ func devSessionsSnapshot(hub *devAppHub, target string) []any {
 	result := []any{}
 	for _, peer := range hub.peers {
 		if target == "" || peer.target == target {
-			result = append(result, devPeerSnapshot(peer))
+			entry := devPeerSnapshot(peer)
+			// Devtools consumers get the declared action surface with each
+			// session so panels can list invocable actions without RPC.
+			entry["actions"] = peer.registry.Actions
+			result = append(result, entry)
 		}
 	}
 	sortDevSessions(result)

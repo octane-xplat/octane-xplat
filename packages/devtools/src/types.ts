@@ -3,6 +3,24 @@
 // backends (/backend) and devtools panels (/devtools); these are the frame
 // shapes the three peers exchange.
 
+/** A declared dev action as the app's registry announces it. */
+export interface DevActionRef {
+  id: string
+  title?: string
+  description?: string
+  input?: { fields?: Record<string, unknown> } & Record<string, unknown>
+  result?: Record<string, unknown>
+  effects?: Record<string, unknown>
+  availability?: {
+    platforms?: string[]
+    readyWhen?: string
+    route?: { url?: string; fromInput?: boolean }
+    ready?: boolean
+    reason?: string
+  }
+  execution?: { timeoutMs?: number; cancellable?: boolean } & Record<string, unknown>
+}
+
 /** A connected app session as the hub reports it in `ready`/`sessions`. */
 export interface SessionSnapshot {
   sessionId: string
@@ -18,6 +36,7 @@ export interface SessionSnapshot {
   connectedAt: string
   disconnectedAt: string
   inspection?: unknown
+  actions?: DevActionRef[]
   channels: { id: string; version: number }[]
 }
 
