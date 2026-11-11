@@ -27,6 +27,7 @@ import {
 export function Components(props: {
   report(kind: string, detail?: unknown): void
   retire?(): void
+  captureRef?(host: object | null): void
 }) {
   useLayoutEffect(() => props.report('scene-layout-effect'), [])
 
@@ -113,6 +114,16 @@ export function Components(props: {
             style={{ width: 180, height: 44 }}
           >
             <Text>Retire scene</Text>
+          </Pressable>
+        )}
+        {props.captureRef && (
+          <Pressable
+            ref={props.captureRef}
+            accessibilityLabel="Release capture"
+            onPress={() => {}}
+            style={{ width: 180, height: 44 }}
+          >
+            <Text>Release capture</Text>
           </Pressable>
         )}
       </View>

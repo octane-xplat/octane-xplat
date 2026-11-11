@@ -123,11 +123,11 @@ It also checks focus-loss cancellation and active unmount. This qualifies servic
 activation, not a VoiceOver journey, hardware input, or trackpad gestures.
 
 On Windows, stage `dist/`, current UI `platforms/windows/GestureInput.cs` and
-`windows-components-build.ps1` in an owned run directory. The builder takes
+`windows-components-build.ps1` and `CaptureActor.cs` in an owned run directory. The builder takes
 `-RunRoot` and `-HostCheckout`, reuses an existing prepared Windows SDK/project's
 native inputs, and builds a separate scratch host without changing the shared
 checkout. Stage `GestureInput.cs` from the extracted UI tarball and retain its
-hash. This is not a fresh SDK/plugin installation check. Build under a
+hash. Use a fresh project for native builds; when refreshing a scratch project, force recompilation because MSBuild can reuse an older DLL when copied source retains old timestamps. A matching source-file hash alone does not establish that its DLL was rebuilt. This is not a fresh SDK/plugin installation check. Build under a
 native-build reservation. Then stage `windows-components-run.ps1` as
 `windows-run.ps1` beside `windows-launch.ps1` and invoke the existing launcher
 under a separate desktop-input reservation. Stage
@@ -139,7 +139,7 @@ be disabled for this registered layout. Use a unique scheduled-task name; the
 launcher removes only that task. The driver verifies physical owned-window hit
 testing, uses the OS mouse movement helper rather than cursor repositioning,
 and checks Motion geometry, nested activation, editing/Slider priority, native
-wheel offsets, focus cancellation, active cleanup, Space and independent UIA
+wheel offsets, capture-loss and focus cancellation, active cleanup, Space and independent UIA
 Invoke. Preserve startup diagnostics when public UI does not mount; native host
 compilation alone does not qualify these interactions. UIA actions do not
 qualify a Narrator journey.

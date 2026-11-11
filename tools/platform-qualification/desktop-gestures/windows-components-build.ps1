@@ -17,6 +17,7 @@ Get-ChildItem $source | Where-Object Name -NotIn @('bin','binpublish','obj','app
 }
 Get-ChildItem $project -Recurse -Filter GestureInput.cs | Remove-Item
 Copy-Item "$run/GestureInput.cs" "$project/GestureInput.cs"
+Copy-Item "$run/CaptureActor.cs" "$project/CaptureActor.cs"
 Copy-Item "$run/dist" "$project/app" -Recurse
 @'
 using System;

@@ -59,6 +59,18 @@ function DragAt($x,$y,$distance,$release=$true) {
  Start-Sleep -Milliseconds 250
 }
 function CountKind($kind) { return @(Records|Where-Object kind -eq $kind).Count }
+function StableScroll($pattern) {
+ $previous=$pattern.Current.VerticalScrollPercent
+ $stable=0
+ for($attempt=0;$attempt -lt 40;$attempt++) {
+  Start-Sleep -Milliseconds 50
+  $current=$pattern.Current.VerticalScrollPercent
+  if([Math]::Abs($current-$previous) -lt 0.001){$stable++}else{$stable=0}
+  if($stable -ge 4){return $current}
+  $previous=$current
+ }
+ throw 'Native wheel scrolling did not settle within the input bound'
+}
 function FindControl($name,$type) {
  return $window.FindAll([Windows.Automation.TreeScope]::Descendants,[Windows.Automation.PropertyCondition]::new([Windows.Automation.AutomationElement]::NameProperty,$name)) | Where-Object {$_.Current.ControlType -eq $type} | Select-Object -First 1
 }
@@ -94,6 +106,7 @@ try {
  @{kind='input-target';rect=@{x=$r.X;y=$r.Y;width=$r.Width;height=$r.Height};offscreen=$button.Current.IsOffscreen;enabled=$button.Current.IsEnabled} | ConvertTo-Json -Compress | Add-Content "$run/native-gate.log"
  Check ($r.Width -gt 0 -and $r.Height -gt 0 -and !$button.Current.IsOffscreen) 'Native button has a visible hit region'
  $x=$r.X+30; $y=$r.Y+30
+ $initialButtonX=$r.X
  MovePointer $x $y
  $physical=[PackedGestureInput+Point]::new()
  [PackedGestureInput]::GetPhysicalCursorPos([ref]$physical)|Out-Null
@@ -107,10 +120,12 @@ try {
  $records=@(Records)
  Check (@($records|Where-Object kind -eq 'press').Count -eq 0) 'Motion drag suppresses nested activation'
  Check (@($records|Where-Object kind -eq 'drag-finish').Count -eq 1) 'Motion drag finishes exactly once'
+ Check (@(Get-Content "$run/gate.log"|Where-Object {$_.StartsWith('NATIVE_CAPTURE_ATTACHED=')}).Count -eq 1) 'Native capture actor observes a captured pointer before release testing'
  $geometry=$records|Where-Object kind -eq 'geometry'|Select-Object -Last 1
  Check ($null -ne $geometry) 'Native public host geometry is observable'
  Check ([Math]::Abs($geometry.detail.x-100*180/$r.Width) -lt 2) 'Motion translation respects rendered parent and display scale'
  $r=$button.Current.BoundingRectangle
+ Check ([Math]::Abs($r.X-$initialButtonX-100) -lt 2) 'Actual rendered button bounds move 100 physical pixels'
  MovePointer ($r.X+30) ($r.Y+30)
  Mouse 2; Start-Sleep -Milliseconds 70; Mouse 4
  Start-Sleep -Milliseconds 300
@@ -155,10 +170,10 @@ try {
  $beforeScroll=$scrollPattern.Current.VerticalScrollPercent
  MovePointer $sx $sy
  [PackedGestureInput]::Wheel(-240)
- Start-Sleep -Milliseconds 350
- $scrolled=$scrollPattern.Current.VerticalScrollPercent
+ $scrolled=StableScroll $scrollPattern
  Check ($scrolled -gt $beforeScroll) 'OS wheel scrolls the native viewport'
  DragAt $sx $sy 80
+ @{kind='scroll-offsets';before=$scrolled;after=$scrollPattern.Current.VerticalScrollPercent}|ConvertTo-Json -Compress|Add-Content "$run/native-gate.log"
  Check ((CountKind 'reveal-start') -gt $reveals) 'Horizontal reveal activates over native scrolling content'
  Check ([Math]::Abs($scrollPattern.Current.VerticalScrollPercent-$scrolled) -lt 0.01) 'Horizontal claim retains native vertical offset'
  MovePointer $sx $sy
@@ -182,6 +197,16 @@ try {
   Mouse 4
  } finally {$other.Close();$other.Dispose()}
  [PackedGestureInput]::SetForegroundWindow([IntPtr]::new($window.Current.NativeWindowHandle))|Out-Null
+ $r=$button.Current.BoundingRectangle
+ DragAt ($r.X+30) ($r.Y+30) 40 $false
+ $captureButton=FindControl 'Release capture' ([Windows.Automation.ControlType]::Button)
+ Check ($null -ne $captureButton) 'Native capture-release actor is available'
+ $captureButton.GetCurrentPattern([Windows.Automation.InvokePattern]::Pattern).Invoke()
+ for($attempt=0;$attempt -lt 30 -and (CountKind 'drag-finish') -lt 3;$attempt++){Start-Sleep -Milliseconds 50}
+ $terminals=@(Records|Where-Object kind -eq 'drag-finish')
+ Check ($terminals.Count -eq 3 -and $terminals[-1].detail.cancelled) 'Native capture loss cancels Motion exactly once'
+ Check ([PackedGestureInput]::GetForegroundWindow() -eq [IntPtr]::new($window.Current.NativeWindowHandle)) 'Capture cancellation preserves the focused owned window'
+ Mouse 4
  $r=$button.Current.BoundingRectangle
  DragAt ($r.X+30) ($r.Y+30) 40 $false
  $retire=FindControl 'Retire scene' ([Windows.Automation.ControlType]::Button)
