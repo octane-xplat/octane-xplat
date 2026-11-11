@@ -111,7 +111,7 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 
 	@objc(start:audio:orientation:maximumDurationMs:reply:)
 	public func start(_ path: String, audio: Bool, orientation: Int, maximumDurationMs: Double, reply: @escaping (String, String) -> Void) {
-		queue.async {
+		queue.async { [self] in
 			guard self.writer == nil, !self.released, self.sourceReady else { DispatchQueue.main.async { reply("failed", "Recorder is busy or its source is unavailable") }; return }
 			if audio && self.session != nil && (!self.audioSession.isRunning || self.audioSession.isInterrupted) {
 				DispatchQueue.main.async { reply("failed", "Microphone capture is unavailable") }; return
@@ -136,12 +136,12 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 			self.limit = maximumDurationMs / 1000
 			self.orientation = AVCaptureVideoOrientation(rawValue: orientation) ?? .portrait
 			self.expectedCameraID = self.session?.inputs.compactMap { $0 as? AVCaptureDeviceInput }.first { $0.device.hasMediaType(.video) }?.device.uniqueID
-			if let connection = self.video.connection(with: .video), let value = AVCaptureVideoOrientation(rawValue: orientation), connection.isVideoOrientationSupported, connection.videoOrientation != value { connection.videoOrientation = value }
+			if let connection = self.video.connection(with: .video) { self.applyOrientation(self.orientation, to: connection) }
 			let preparationEpoch = self.takeEpoch
 			let selectedOrientation = self.orientation
 			DispatchQueue.main.async {
 				guard self.queue.sync(execute: { self.takeEpoch == preparationEpoch && !self.released }) else { return }
-				if let connection = self.previewLayer?.connection, connection.isVideoOrientationSupported, connection.videoOrientation != selectedOrientation { connection.videoOrientation = selectedOrientation }
+				if let connection = self.previewLayer?.connection { self.applyOrientation(selectedOrientation, to: connection) }
 			}
 			do { self.writer = try AVAssetWriter(outputURL: URL(fileURLWithPath: path), fileType: .mov) }
 			catch { self.terminal("failed", error.localizedDescription) }
@@ -347,9 +347,24 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 		if let connection = video.connection(with: .video) {
 			connection.automaticallyAdjustsVideoMirroring = false
 			if connection.isVideoMirroringSupported { connection.isVideoMirrored = false }
-			if connection.isVideoOrientationSupported { connection.videoOrientation = orientation }
+			applyOrientation(orientation, to: connection)
 		}
-		if let connection = previewLayer?.connection, connection.isVideoOrientationSupported { connection.videoOrientation = orientation }
+		if let connection = previewLayer?.connection { applyOrientation(orientation, to: connection) }
+	}
+	private func applyOrientation(_ orientation: AVCaptureVideoOrientation, to connection: AVCaptureConnection) {
+		if #available(iOS 17.0, *) {
+			let angle: CGFloat
+			switch orientation {
+			case .portrait: angle = 90
+			case .portraitUpsideDown: angle = 270
+			case .landscapeRight: angle = 0
+			case .landscapeLeft: angle = 180
+			@unknown default: angle = 90
+			}
+			if connection.isVideoRotationAngleSupported(angle), connection.videoRotationAngle != angle { connection.videoRotationAngle = angle }
+		} else if connection.isVideoOrientationSupported, connection.videoOrientation != orientation {
+			connection.videoOrientation = orientation
+		}
 	}
 	private func removeOverlay(_ epoch: Int? = nil) {
 		DispatchQueue.main.async {
@@ -463,7 +478,7 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 		if switching { completeSwitch(message, keepOverlay: true) }
 		unacknowledgedInput = nil
 		if let previous {
-			exchangeInput(previous) { possible in
+			exchangeInput(previous) { [self] possible in
 				let epoch = self.sourceEpoch
 				self.queue.asyncAfter(deadline: .now() + 5) { [weak self] in
 					guard let self, self.sourceEpoch == epoch, self.restoringPreview, !self.released else { return }
