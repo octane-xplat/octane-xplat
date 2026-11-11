@@ -140,10 +140,19 @@ try:
     check(call(accessible, 'org.a11y.atspi.Action', 'DoAction', GLib.Variant('(i)', (0,)))[0], 'AT-SPI activation accepted')
     wait_for(lambda e: e['kind'] == 'press' and e['detail'] in ['virtual', 'accessibility'], 'AT-SPI action reaches public Pressable')
     check(count('press') == prior + 1, 'AT-SPI activation delivered exactly once')
-    wait_for(lambda e: e['kind'] == 'retired', 'component cleanup', seconds=20)
+    xdo('windowfocus', window)
+    current = [e['detail'] for e in events if e['kind'] == 'geometry'][-1]['motion']
+    drag(current['x'] + 30, current['y'] + 30, 30, release=False)
+    retired = wait_for(lambda e: e['kind'] == 'retired', 'active component cleanup', seconds=20)
+    check(all(value is None for value in retired['detail'].values()), 'retirement clears native refs and handles')
+    quiet = len(events)
+    xdo('mouseup', 1)
+    time.sleep(.15)
+    check(len(events) == quiet, 'retired callbacks stay silent through OS pointer release')
     check(child.wait(timeout=3) == 0, 'native host exits cleanly')
     print('PACKED_GTK_COMPONENTS_OK', flush=True)
 finally:
+    xdo('mouseup', 1)
     if child.poll() is None:
         child.terminate()
         child.wait(timeout=3)

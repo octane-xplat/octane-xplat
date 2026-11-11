@@ -136,9 +136,14 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 18000, () => {
     field: scene.field,
   })
 
-  other.destroy()
-  window.destroy()
-  loop.quit()
+  // Keep the owned native window alive briefly so OS release can prove that
+  // retired component callbacks stay silent, rather than merely losing a process.
+  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+    other.destroy()
+    window.destroy()
+    loop.quit()
+    return false
+  })
   return false
 })
 
