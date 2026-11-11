@@ -16,7 +16,10 @@ function run(cmd, args) {
     encoding: 'utf8',
     maxBuffer: 16 * 1024 * 1024,
   })
-  if (result.status !== 0) throw new Error(`${cmd} failed: ${result.stderr}\n${result.stdout}`)
+  if (result.status !== 0)
+    throw new Error(
+      `${cmd} ${args.join(' ')} failed (${result.error?.message ?? result.signal ?? result.status}): ${result.stderr}\n${result.stdout}`,
+    )
   return result.stdout.trim()
 }
 if (mode === 'build') {
@@ -206,7 +209,7 @@ if (mode === 'build') {
     )
     throw error
   } finally {
-    spawnSync('xcrun', ['simctl', 'terminate', udid, id])
+    spawnSync('xcrun', ['simctl', 'terminate', udid, id], { timeout: 10000 })
     run('xcrun', ['simctl', 'shutdown', udid])
   }
 }
