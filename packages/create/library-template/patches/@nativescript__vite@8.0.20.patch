@@ -1752,7 +1752,7 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a0
          transformed = await tryTransformRequest(transformRequest, importHintCandidate, timeoutMs);
          if (transformed?.code) {
 diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
-index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..be8606aacbab30d6b70341ef9ef01ce0a94a4777 100644
+index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..1d1f693189d670fa8ddc99dfc530a3aee44d78c3 100644
 --- a/hmr/server/websocket-ns-m.js
 +++ b/hmr/server/websocket-ns-m.js
 @@ -6,6 +6,7 @@ import { isRuntimeGraphExcludedPath } from './runtime-graph-filter.js';
@@ -1763,7 +1763,21 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..be8606aacbab30d6b70341ef9ef01ce0
  import { setDeviceModuleHeaders } from './route-helpers.js';
  import { RAW_QUERY_PATTERN } from './constants.js';
  import { CSS_MODULE_RE, buildCssRegisterSnippetFromVar, normalizeCssForDevice } from './css-device-module.js';
-@@ -98,7 +99,7 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -28,7 +29,12 @@ export function registerNsModuleServerRoute(server, options) {
+     // pipeline. Keyed by a hash of Vite's transform output, so HMR edits
+     // invalidate implicitly. `NS_VITE_HMR_DISABLE_NSM_MEMO=1` opts out.
+     const memoDisabled = process.env.NS_VITE_HMR_DISABLE_NSM_MEMO === '1' || process.env.NS_VITE_HMR_DISABLE_NSM_MEMO === 'true';
+-    const responseMemo = createNsMResponseMemo();
++    // Capacity must cover the boot crawl's whole closure (maxUrls default
++    // 3000) with headroom — the crawl itself fills the memo, and a smaller
++    // LRU evicts the earliest entries, which are exactly the modules the
++    // device fetches first on its own walk of the same graph.
++    const configuredMemoMax = Number.parseInt(process.env.NS_VITE_HMR_NSM_MEMO_MAX || '', 10);
++    const responseMemo = createNsMResponseMemo({ maxEntries: Number.isFinite(configuredMemoMax) && configuredMemoMax > 0 ? configuredMemoMax : 8000 });
+     // Deps bundle (see deps-bundle.ts): once a boot recording exists, the
+     // recorded node_modules closure is served as ONE esbuild payload and the
+     // canonical /ns/m/node_modules/... URLs become thin registry shims.
+@@ -98,7 +104,7 @@ export function registerNsModuleServerRoute(server, options) {
              // internal virtual modules (e.g., \0nsvite:nsconfig-json for
              // ~/package.json) that don't exist on disk and must NOT run
              // through the device post-processing pipeline below.
@@ -1772,7 +1786,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..be8606aacbab30d6b70341ef9ef01ce0
                  try {
                      // First try Vite's transform pipeline directly
                      const vr = await sharedTransformRequest(spec);
-@@ -167,8 +168,21 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -167,8 +173,21 @@ export function registerNsModuleServerRoute(server, options) {
                      // Workspace css outside the vite root must be anchored to /@fs or
                      // `?inline` is denied and the DOM css module (__vite__updateStyle)
                      // is served instead.
@@ -1796,7 +1810,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..be8606aacbab30d6b70341ef9ef01ce0
                      const inlineCode = inlineRes?.code || '';
                      // `?inline` output is `export default "<compiled css>"`.
                      const m = inlineCode.match(/export\s+default\s+("(?:[^"\\]|\\.)*")\s*;?/s);
-@@ -178,7 +192,14 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -178,7 +197,14 @@ export function registerNsModuleServerRoute(server, options) {
                              css = JSON.parse(m[1]);
                          }
                          catch { }
@@ -1812,7 +1826,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..be8606aacbab30d6b70341ef9ef01ce0
                          const out = `// [ns:m][css] ${spec}\n` + `const __ns_css_text__ = ${JSON.stringify(css)};\n` + buildCssRegisterSnippetFromVar(spec, '__ns_css_text__') + `export default __ns_css_text__;\n`;
                          res.statusCode = 200;
                          res.end(out);
-@@ -191,14 +212,38 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -191,14 +217,38 @@ export function registerNsModuleServerRoute(server, options) {
                      if (verbose)
                          console.warn('[ns:m][css] inline compile failed', spec, cssErr?.message);
                  }
@@ -1853,7 +1867,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..be8606aacbab30d6b70341ef9ef01ce0
                  // A type-only .ts module legitimately transforms to EMPTY code
                  // (e.g. a workspace lib's `interfaces.ts` holding only `export
                  // type ...`). Every candidate gate in the resolution pipeline
-@@ -230,6 +275,7 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -230,6 +280,7 @@ export function registerNsModuleServerRoute(server, options) {
                  transformRequest: transformWithTimeout,
                  resolveId: resolvePluginContainerId,
                  loadVirtualId,
@@ -1861,7 +1875,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..be8606aacbab30d6b70341ef9ef01ce0
              });
              let transformed = resolution.transformed;
              const resolvedCandidate = resolution.resolvedCandidate;
-@@ -494,76 +540,109 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -494,76 +545,109 @@ export function registerNsModuleServerRoute(server, options) {
                          },
                      });
                      // Resolve and verify each static import that asks for default
