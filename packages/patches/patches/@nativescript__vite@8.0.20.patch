@@ -1088,10 +1088,27 @@ index 51ad398cefe75c918e887bd9506d9152259b957e..57dc2be15705a5ac8b5393852fd5de41
                      return `${prefix}${httpOriginSafe}${httpSpec}${suffix}`;
                  }
 diff --git a/hmr/server/shared-transform-request.js b/hmr/server/shared-transform-request.js
-index 08cf93fadb4b869ecfc8d3135a4d3d771d08db32..b49a8c7c062315f0a2baeeb40c23f0ff00cac8b6 100644
+index 08cf93fadb4b869ecfc8d3135a4d3d771d08db32..f32614cb802846ef74c3020eb925273273a92032 100644
 --- a/hmr/server/shared-transform-request.js
 +++ b/hmr/server/shared-transform-request.js
-@@ -45,21 +45,31 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+@@ -5,6 +5,7 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+     const queue = [];
+     const maxConcurrent = Math.max(1, Math.floor(options.maxConcurrent ?? 1));
+     const resultCacheTtlMs = Math.max(0, Math.floor(options.resultCacheTtlMs ?? 0));
++    const maxRecentResults = Math.max(1, Math.floor(options.maxRecentResults ?? 512));
+     const getResultCacheKey = options.getResultCacheKey ?? ((url) => url);
+     let activeCount = 0;
+     const getCacheGeneration = (cacheKey) => cacheGenerations.get(cacheKey) ?? 0;
+@@ -36,7 +37,7 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+             expiresAt: Date.now() + resultCacheTtlMs,
+             result,
+         });
+-        if (recentResults.size > 512) {
++        if (recentResults.size > maxRecentResults) {
+             const oldestKey = recentResults.keys().next().value;
+             if (oldestKey) {
+                 recentResults.delete(oldestKey);
+@@ -45,21 +46,31 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
      };
      const runNext = () => {
          while (activeCount < maxConcurrent) {
@@ -1127,7 +1144,7 @@ index 08cf93fadb4b869ecfc8d3135a4d3d771d08db32..b49a8c7c062315f0a2baeeb40c23f0ff
                  let started;
                  resolveStarted?.();
                  try {
-@@ -72,10 +82,11 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+@@ -72,10 +83,11 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
                      activeCount = Math.max(0, activeCount - 1);
                      runNext();
                  });
@@ -1141,7 +1158,7 @@ index 08cf93fadb4b869ecfc8d3135a4d3d771d08db32..b49a8c7c062315f0a2baeeb40c23f0ff
      };
      const withTimeout = (entry, url, timeoutMs) => {
          if (!(timeoutMs > 0)) {
-@@ -93,7 +104,8 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+@@ -93,7 +105,8 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
              });
          }));
      };
@@ -1151,7 +1168,7 @@ index 08cf93fadb4b869ecfc8d3135a4d3d771d08db32..b49a8c7c062315f0a2baeeb40c23f0ff
          pruneRecentResults();
          const cacheKey = getResultCacheKey(url);
          const generation = getCacheGeneration(cacheKey);
-@@ -110,19 +122,23 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+@@ -110,19 +123,23 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
          // cacheKey.
          const existingExecution = inFlight.get(cacheKey);
          if (existingExecution && existingExecution.generation === generation) {
@@ -2067,7 +2084,7 @@ index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..f857f4a5a5956af229e447ed04bf1a52
              start: node.start,
              end: node.end,
 diff --git a/hmr/server/websocket.js b/hmr/server/websocket.js
-index e6a14437f8990e2c631f23eb8db21aa0b28b5759..23c4a6586f48c188e2e3a2095c17f9ae97b70d50 100644
+index e6a14437f8990e2c631f23eb8db21aa0b28b5759..eb43e0883d2b6e14bf7e88be4da99f4024a0b0e8 100644
 --- a/hmr/server/websocket.js
 +++ b/hmr/server/websocket.js
 @@ -1,3 +1,5 @@
@@ -2121,7 +2138,27 @@ index e6a14437f8990e2c631f23eb8db21aa0b28b5759..23c4a6586f48c188e2e3a2095c17f9ae
                          if (normalized.type !== 'custom')
                              return;
                          // Root-component guard. Analog's in-place
-@@ -501,6 +518,19 @@ function createHmrWebSocketPlugin(opts, strategy) {
+@@ -435,11 +452,19 @@ function createHmrWebSocketPlugin(opts, strategy) {
+             // is safe. Override with `NS_VITE_HMR_TRANSFORM_CACHE_MS`.
+             const configuredTransformCacheMs = Number.parseInt(process.env.NS_VITE_HMR_TRANSFORM_CACHE_MS || '', 10);
+             const transformCacheMs = Number.isFinite(configuredTransformCacheMs) && configuredTransformCacheMs >= 0 ? configuredTransformCacheMs : 60000;
++            // The recent-results cache sits under every transform — including
++            // the /ns/core/* per-module fallbacks the response memo never
++            // sees. It must hold the boot crawl's whole closure (maxUrls
++            // default 3000): a smaller FIFO cap evicts warmed entries before
++            // the device fetches them on the next boot.
++            const configuredTransformCacheMax = Number.parseInt(process.env.NS_VITE_HMR_TRANSFORM_CACHE_MAX || '', 10);
++            const transformCacheMax = Number.isFinite(configuredTransformCacheMax) && configuredTransformCacheMax > 0 ? configuredTransformCacheMax : 4096;
+             sharedTransformRequest = createSharedTransformRequestRunner((url) => server.transformRequest(url), (url, timeoutMs) => {
+                 console.warn('[ns:m] slow transformRequest for', url, '(>' + timeoutMs + 'ms)');
+             }, {
+                 maxConcurrent: transformConcurrency,
+                 resultCacheTtlMs: transformCacheMs,
++                maxRecentResults: transformCacheMax,
+                 getResultCacheKey: (url) => canonicalizeTransformRequestCacheKey(url, pluginRoot || process.cwd()),
+             });
+             // Startup banner — prints once per dev server process (verbose only)
+@@ -501,6 +526,19 @@ function createHmrWebSocketPlugin(opts, strategy) {
                      // Boot recording sees every request first: the `/__ns_dev__/session`
                      // boot signal opens a recording window, prefetchable module routes
                      // get recorded on 2xx completion.
@@ -2141,7 +2178,7 @@ index e6a14437f8990e2c631f23eb8db21aa0b28b5759..23c4a6586f48c188e2e3a2095c17f9ae
                      const finishRecord = bootRecorder?.noteRequest(`${urlObj.pathname}${urlObj.search || ''}`);
                      if (finishRecord) {
                          const recordOnce = () => finishRecord(res.statusCode || 0);
-@@ -796,6 +826,21 @@ function createHmrWebSocketPlugin(opts, strategy) {
+@@ -796,6 +834,21 @@ function createHmrWebSocketPlugin(opts, strategy) {
                      ensureInitialGraphPopulationStarted(server);
                  }
                  catch { }
