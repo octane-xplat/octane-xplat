@@ -389,19 +389,33 @@ finger cancels a one-pointer pan; it cannot restart until every finger lifts.
 Callback changes preserve the active contact. For axis intent, pinch, composition,
 signals, and scroll suspension, use [gesture handles](gestures.md).
 
+`event.sample.translation` is cumulative movement since the gesture claimed
+input — it does not include where the card already was. When the user grabs
+the card again while a return spring is still running, resume from the
+stopped position: on `start`, stop playback and store the handoff origin —
+`x.get()` minus the start sample's translation, which can already be nonzero
+when activation waited on a threshold — then write `origin + translation`
+on each update. Without the origin, the first update after a regrab snaps
+the card back to its resting position:
+
 ```tsx
+import { useRef } from 'octane'
 import { motion, useMotionValue } from '@octane-xplat/motion'
 
 export function PanCard() {
   const x = useMotionValue(0)
+  const origin = useRef(0)
 
   return (
     <motion.View
       style={{ x }}
       onPan={(event) => {
-        if (event.phase === 'start') x.stop()
-        if (event.phase !== 'finish') x.set(event.sample.translation.x)
-        if (event.phase === 'finish') {
+        if (event.phase === 'start') {
+          x.stop()
+          origin.current = x.get() - event.sample.translation.x
+        } else if (event.phase === 'update') {
+          x.set(origin.current + event.sample.translation.x)
+        } else {
           const velocity = event.terminal.outcome === 'ended' ? event.terminal.sample.velocity?.x ?? 0 : 0
           void x.animate(0, { type: 'spring', velocity })
         }
@@ -410,6 +424,14 @@ export function PanCard() {
   )
 }
 ```
+
+The same handoff applies to `useAnimation`: `x.stop()`, take
+`origin = x.value - start translation`, then write each update with
+`x.to(origin + event.sample.translation.x, { duration: 0 })` — a zero
+duration sets the value without starting a timed run. A `finish` with a
+`cancelled` outcome still settles; keep that settle interruptible by
+stopping it on the next `start`, as above. [RegrabbableMedia](gestures.md#finish-once-and-handle-interruption)
+shows the same composition with gesture handles.
 
 ## Combine press and focus feedback
 
@@ -1309,9 +1331,11 @@ On AppKit the default property is `translateX`. Supported properties are
 Translations use points with positive Y downward; rotation uses degrees.
 Unsupported AppKit properties throw. When macOS Reduce Motion is enabled,
 transforms snap to their destination, including when the setting changes during
-playback; opacity may still fade. This hook has no MotionConfig, Presence,
-variant, or completion-promise contract. Use the motion leaf for those
-capabilities on its documented targets. `setTranslate` also remains available.
+playback; opacity may still fade. This hook has no MotionConfig, Presence, or
+variant contract — use the motion leaf for those capabilities on its
+documented targets — but `to` and `spring` do return a completion promise;
+check its `status` before acting on it, as the next section shows.
+`setTranslate` also remains available.
 
 On native macOS, Motion, this hook and CSS keyframes share a display-synchronized
 scheduler. Pending animation callbacks keep it active; finishing or cancelling the
@@ -1368,6 +1392,15 @@ export function MovingCard() {
   )
 }
 ```
+
+A resolved promise only means the run ended — check `result.status ===
+'finished'` before running work that depends on the destination, because a
+cancelled or failed run left the value elsewhere. Work scheduled outside the
+animation's promise is not covered by its status at all: a `setTimeout` that
+hides a surface after a close animation will still fire if the surface is
+regrabbed mid-close, hiding the live copy. Give that delayed work its own
+owner — a generation counter, or a cleanup from the animation result — so an
+interrupted close cannot retire a surface that is open again.
 
 ### Gesture event migration
 
