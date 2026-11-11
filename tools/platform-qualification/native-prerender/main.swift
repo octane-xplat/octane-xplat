@@ -3,6 +3,15 @@ import MasonCore
 
 // Mechanism probe only: display-link progress does not prove compositor presentation.
 final class ProbeDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]?) -> Bool { true }
+    func application(_ application: UIApplication, configurationForConnecting session: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let config = UISceneConfiguration(name: "Probe", sessionRole: session.role)
+        config.delegateClass = ProbeScene.self
+        return config
+    }
+}
+
+final class ProbeScene: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     var runtimeStarted = false
     var frames = 0
@@ -22,7 +31,8 @@ final class ProbeDelegate: UIResponder, UIApplicationDelegate {
         try! JSONSerialization.data(withJSONObject: events, options: [.prettyPrinted, .sortedKeys]).write(to: url, options: .atomic)
     }
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options: UIScene.ConnectionOptions) {
+        guard let windowScene = scene as? UIWindowScene else { preconditionFailure("Expected window scene") }
         record("native-launch")
         let controller = UIViewController()
         root = NSCMason.shared.createView()
@@ -45,7 +55,7 @@ final class ProbeDelegate: UIResponder, UIApplicationDelegate {
         }
         precondition(cursor == data.count && labels.count == 2)
         controller.view = root
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = UIWindow(windowScene: windowScene)
         window.rootViewController = controller
         self.window = window
         window.makeKeyAndVisible()
@@ -54,7 +64,6 @@ final class ProbeDelegate: UIResponder, UIApplicationDelegate {
         record("native-mounted", ["root": String(describing: Unmanaged.passUnretained(root).toOpaque()), "node": String(describing: root.node), "labels": labels.map { $0.text! }, "frames": labels.map { NSCoder.string(for: $0.frame) }])
         link = CADisplayLink(target: self, selector: #selector(tick))
         link!.add(to: .main, forMode: .common)
-        return true
     }
 
     @objc func tick() {

@@ -100,7 +100,7 @@ if (mode === 'build') {
   )
   writeFileSync(
     join(app, 'Info.plist'),
-    `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict><key>CFBundleIdentifier</key><string>${id}</string><key>CFBundleExecutable</key><string>PrerenderProbe</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleName</key><string>PrerenderProbe</string><key>CFBundleVersion</key><string>1</string><key>CFBundleShortVersionString</key><string>1.0</string><key>LSRequiresIPhoneOS</key><true/><key>UILaunchScreen</key><dict/></dict></plist>`,
+    `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict><key>CFBundleIdentifier</key><string>${id}</string><key>CFBundleExecutable</key><string>PrerenderProbe</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleName</key><string>PrerenderProbe</string><key>CFBundleVersion</key><string>1</string><key>CFBundleShortVersionString</key><string>1.0</string><key>LSRequiresIPhoneOS</key><true/><key>UILaunchScreen</key><dict/><key>UIApplicationSceneManifest</key><dict><key>UIApplicationSupportsMultipleScenes</key><false/><key>UISceneConfigurations</key><dict/></dict></dict></plist>`,
   )
   for (const path of [join(app, 'Frameworks/NativeScript.framework'), app])
     run('codesign', ['--force', '--sign', '-', path])
@@ -140,6 +140,10 @@ if (mode === 'build') {
     if (createHash('sha256').update(readFileSync(path)).digest('hex') !== expected)
       throw new Error('Built artifact changed; rebuild before running: ' + path)
   }
+  const report = resolve(homedir(), 'dev/reports/octane-xplat/native-prerender-bootstrap')
+  mkdirSync(report, { recursive: true })
+  cpSync(join(scratch, 'build.json'), join(report, 'build.json'))
+  writeFileSync(join(report, 'result.json'), '[]')
   try {
     run('xcrun', ['simctl', 'bootstatus', udid, '-b'])
     run('xcrun', ['simctl', 'install', udid, app])
@@ -149,24 +153,37 @@ if (mode === 'build') {
       const { unlinkSync } = await import('node:fs')
       unlinkSync(prior)
     }
-    run('xcrun', ['simctl', 'launch', udid, id])
+    const launch = run('xcrun', ['simctl', 'launch', udid, id])
+    const pid = Number(launch.match(/:\s*(\d+)\s*$/)?.[1])
+    if (!pid) throw new Error('Missing launched PID: ' + launch)
     let result
     for (let i = 0; i < 60; i++) {
       await new Promise((r) => setTimeout(r, 500))
-      const container = run('xcrun', ['simctl', 'get_app_container', udid, id, 'data'])
-      const file = join(container, 'Documents/result.json')
+      const file = prior
       if (existsSync(file)) {
         result = JSON.parse(readFileSync(file, 'utf8'))
+        writeFileSync(join(report, 'result.json'), JSON.stringify(result, null, 2))
         if (result.some((e) => e.event === 'passed')) break
+      }
+      try {
+        process.kill(pid, 0)
+      } catch (error) {
+        if (error.code === 'ESRCH')
+          throw new Error('Probe exited before completion: ' + JSON.stringify(result))
+        throw error
       }
     }
     if (!result?.some((e) => e.event === 'passed'))
       throw new Error('Probe did not finish: ' + JSON.stringify(result))
-    const report = resolve(homedir(), 'dev/reports/octane-xplat/native-prerender-bootstrap')
-    mkdirSync(report, { recursive: true })
-    cpSync(join(scratch, 'build.json'), join(report, 'build.json'))
     writeFileSync(join(report, 'result.json'), JSON.stringify(result, null, 2))
     console.log(JSON.stringify({ report, events: result }, null, 2))
+    writeFileSync(join(report, 'status.json'), JSON.stringify({ passed: true }))
+  } catch (error) {
+    writeFileSync(
+      join(report, 'status.json'),
+      JSON.stringify({ passed: false, error: String(error) }),
+    )
+    throw error
   } finally {
     spawnSync('xcrun', ['simctl', 'terminate', udid, id])
     run('xcrun', ['simctl', 'shutdown', udid])
