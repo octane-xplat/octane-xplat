@@ -21,10 +21,10 @@ threading.Thread(target=collect, args=(child.stdout,), daemon=True).start()
 threading.Thread(target=collect, args=(child.stderr, 'STDERR '), daemon=True).start()
 
 
-def wait_for(predicate, name, seconds=6):
+def wait_for(predicate, name, seconds=6, since=0):
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
-        for event in list(events):
+        for event in list(events)[since:]:
             if predicate(event):
                 return event
         if child.poll() is not None:
@@ -45,6 +45,23 @@ def check(ok, name):
 
 def count(kind):
     return sum(event['kind'] == kind for event in events)
+
+
+def settled_scroll():
+    deadline = time.monotonic() + 5
+    previous = None
+    stable_since = time.monotonic()
+    while time.monotonic() < deadline:
+        samples = [event['detail']['block'] for event in events if event['kind'] == 'geometry']
+        if samples:
+            current = samples[-1]
+            if previous is None or abs(current - previous) > .1:
+                previous = current
+                stable_since = time.monotonic()
+            elif time.monotonic() - stable_since > .65:
+                return current
+        time.sleep(.05)
+    raise AssertionError('Native wheel scrolling did not settle within the input bound')
 
 
 try:
@@ -71,7 +88,7 @@ try:
     start_x, start_y = button['x'] + 30, button['y'] + 30
     drag(start_x, start_y, 100)
     wait_for(lambda e: e['kind'] == 'drag-finish', 'Motion terminal')
-    geometry = wait_for(lambda e: e['kind'] == 'geometry' and e['detail']['x'] > 70, 'native transform')['detail']
+    geometry = wait_for(lambda e: e['kind'] == 'geometry' and abs(e['detail']['x'] - 80) < 2, 'native transform')['detail']
     check(count('press') == 0, 'nested press suppressed after drag')
     check(abs(geometry['x'] - 80) < 2, 'scaled parent converts 100 window units to 80 Motion units')
     check(abs(geometry['motion']['x'] - ready['motion']['x'] - 100) < 2, 'actual rendered bounds move 100 units')
@@ -97,15 +114,17 @@ try:
     sx, sy = scroll['x'] + scroll['width'] / 2, scroll['y'] + scroll['height'] - 30
     move(sx, sy)
     xdo('click', '--repeat', 5, '--delay', 60, 5)
-    scrolled = wait_for(lambda e: e['kind'] == 'geometry' and e['detail']['block'] > 0, 'OS wheel scroll')['detail']['block']
+    wait_for(lambda e: e['kind'] == 'geometry' and e['detail']['block'] > 0, 'OS wheel scroll')
+    scrolled = settled_scroll()
     drag(sx, sy, 80)
     wait_for(lambda e: e['kind'] == 'reveal-finish', 'reveal over scroll viewport')
     time.sleep(.4)
     latest = [e['detail'] for e in events if e['kind'] == 'geometry'][-1]
     check(abs(latest['block'] - scrolled) < 1, 'horizontal reveal preserves vertical scroll offset')
     move(sx, sy)
+    reverse_start = len(events)
     xdo('click', '--repeat', 3, '--delay', 60, 4)
-    wait_for(lambda e: e['kind'] == 'geometry' and e['detail']['block'] < scrolled, 'OS wheel scroll resumes after reveal')
+    wait_for(lambda e: e['kind'] == 'geometry' and e['detail']['block'] < scrolled, 'OS wheel scroll resumes after reveal', since=reverse_start)
 
     drag(start_x + 100, start_y, 30, release=False)
     xdo('windowfocus', other)
