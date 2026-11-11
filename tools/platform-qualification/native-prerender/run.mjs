@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { mkdirSync, readFileSync, writeFileSync, cpSync, existsSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync, cpSync, existsSync, unlinkSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { homedir } from 'node:os'
 import { createHash } from 'node:crypto'
@@ -153,14 +153,20 @@ if (mode === 'build') {
   mkdirSync(report, { recursive: true })
   cpSync(join(scratch, 'build.json'), join(report, 'build.json'))
   writeFileSync(join(report, 'result.json'), '[]')
+  writeFileSync(join(report, 'status.json'), JSON.stringify({ passed: false, state: 'running' }))
+  for (const name of ['stdout.log', 'stderr.log', 'entry-stage.txt', 'entry-error.txt']) {
+    const path = join(report, name)
+    if (existsSync(path)) unlinkSync(path)
+  }
+  let installed
   try {
     run('xcrun', ['simctl', 'bootstatus', udid, '-b'])
     run('xcrun', ['simctl', 'install', udid, app])
-    const installed = run('xcrun', ['simctl', 'get_app_container', udid, id, 'data'])
+    installed = run('xcrun', ['simctl', 'get_app_container', udid, id, 'data'])
     const prior = join(installed, 'Documents/result.json')
-    if (existsSync(prior)) {
-      const { unlinkSync } = await import('node:fs')
-      unlinkSync(prior)
+    for (const name of ['result.json', 'entry-stage.txt', 'entry-error.txt']) {
+      const path = join(installed, 'Documents', name)
+      if (existsSync(path)) unlinkSync(path)
     }
     const stdout = join(installed, 'Documents/stdout.log')
     const stderr = join(installed, 'Documents/stderr.log')
@@ -209,6 +215,12 @@ if (mode === 'build') {
     )
     throw error
   } finally {
+    if (installed) {
+      for (const name of ['stdout.log', 'stderr.log', 'entry-stage.txt', 'entry-error.txt']) {
+        const path = join(installed, 'Documents', name)
+        if (existsSync(path)) cpSync(path, join(report, name))
+      }
+    }
     spawnSync('xcrun', ['simctl', 'terminate', udid, id], { timeout: 10000 })
     run('xcrun', ['simctl', 'shutdown', udid])
   }
