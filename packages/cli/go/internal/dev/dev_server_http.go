@@ -11,6 +11,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -143,6 +144,10 @@ func (server *devServer) request(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.URL.Path == "/devtools" {
 		server.devtoolsSocket(w, r)
+		return
+	}
+	if r.URL.Path == "/devtools/app" || r.URL.Path == "/devtools/servers" || strings.HasPrefix(r.URL.Path, "/devtools/app/") || strings.HasPrefix(r.URL.Path, "/devtools/dist/") {
+		server.devtoolsApp(w, r)
 		return
 	}
 	if r.Method != "POST" || r.URL.Path != "/rpc" || r.URL.RawPath != "" || r.URL.RawQuery != "" || r.URL.ForceQuery ||

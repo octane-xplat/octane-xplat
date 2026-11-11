@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Octane Xplat Devtools</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header>
+      <span class="brand">devtools</span>
+      <select id="server" aria-label="Dev server"></select>
+      <button id="refresh" title="Rescan dev server records">Refresh</button>
+      <span id="state" class="badge">disconnected</span>
+    </header>
+    <nav>
+      <button data-tab="sessions" class="active">Sessions</button>
+      <button data-tab="actions">Actions</button>
+      <button data-tab="logs">Logs</button>
+    </nav>
+    <main id="content"></main>
+    <script type="module" src="panel.js"></script>
+  </body>
+</html>

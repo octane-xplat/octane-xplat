@@ -138,6 +138,7 @@ type devServerStore struct {
 	root      *os.Root
 	lease     *os.File
 	app       string
+	directory string
 	published *devServerRecord
 }
 
@@ -179,7 +180,7 @@ func openDevServerStore(parent, appRoot string) (*devServerStore, error) {
 		}
 		return nil, errors.New("a dev server is already running or starting for this app")
 	}
-	return &devServerStore{root: root, lease: file, app: app}, nil
+	return &devServerStore{root: root, lease: file, app: app, directory: directory}, nil
 }
 
 func (store *devServerStore) publish(record devServerRecord) error {
