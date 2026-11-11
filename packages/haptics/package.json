@@ -26,6 +26,7 @@
 		"src",
 		"platforms",
 		"scripts",
+		"nativescript.config.ts",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
 	],
@@ -60,6 +61,7 @@
 		"@nativescript/core": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
 		"octane": "catalog:",
+		"nativescript": "9.1.1",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
@@ -87,8 +89,5 @@
 			"ios": "9.1.0"
 		}
 	},
-	"types": "./types/generated/index.d.ts",
-	"bin": {
-		"xplat-prepare-haptics-ios": "./scripts/prepare-ios.mjs"
-	}
+	"types": "./types/generated/index.d.ts"
 }

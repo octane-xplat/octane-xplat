@@ -212,6 +212,30 @@ built on the application context can play patterns and realtime but throws on
 every preset lookup. The leaf maps to the `SystemNotification*` names and
 reports `capabilities().presets` only for an Activity-context engine.
 
+Pulsar iOS 1.4.0's `AudioSimulator.swift` enables synthesized sound in Debug
+and simulator builds, and disabling sound can deactivate the shared audio
+session even when the simulator's audio engine was never configured. Xplat
+pins the source revision and hashes in
+[`prepare-ios.mjs`](../../../packages/haptics/scripts/prepare-ios.mjs), patches
+those paths, and requires the added `Pulsar.xplatSilent()` factory in its Swift
+bridge so an unpatched dependency cannot silently link. Reassess this patch
+when upgrading Pulsar; remove it only after upstream preserves silent feedback
+and unrelated audio-session ownership in these conditions.
+
+The haptics package's `nativescript.config.ts` prepares that source lazily in
+its `ios.SPMPackages` getter. NativeScript 9.1.1 reads this property during
+`handleNativeDependenciesChange`, before Swift package resolution, and includes
+`platforms/ios/src` through `preparePluginNativeCode`. The package-owned cache
+uses an absolute path, so discovery works outside the app's working directory
+and with isolated dependency layouts. Loading the config alone does not fetch
+source. This uses plugin configuration rather than installed filesystem hooks:
+it does not require postinstall trust or `ns hooks install` under Bun.
+App-authored Pulsar entries override the package declaration and must be removed
+when migrating. The packed consumer tests exercise the actual NativeScript
+loader and discovery methods; the iOS build check additionally prepares fresh
+upstream source and compiles the patched engine and bridge. Neither check
+establishes tactile output or live audio-session coexistence.
+
 `@octane-xplat/sounds` uses `@nativescript/audio-context` 1.3.3 on iOS/Android,
 preloaded HTML audio on web, and independent `AVAudioPlayer` voices on macOS. The mobile implementation decodes each effect once and routes
 overlapping sources through per-voice gain nodes. Android

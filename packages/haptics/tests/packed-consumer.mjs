@@ -12,13 +12,18 @@ import {
   writeFileSync,
 } from 'node:fs'
 
-import { tmpdir } from 'node:os'
+import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { verifyNativeConfig } from './native-config.mjs'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
-const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-haptics-consumer-'))
+const scratch = join(homedir(), 'agent-scratch/octane-xplat/haptics-auto-ios')
+
+mkdirSync(scratch, { recursive: true })
+
+const temporary = mkdtempSync(join(scratch, 'packed-'))
 const packOutput = join(temporary, 'pack')
 const extractedRoot = join(temporary, 'extracted')
 
@@ -193,11 +198,13 @@ try {
   const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
   const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
-  assert.equal(packedManifest.bin['xplat-prepare-haptics-ios'], './scripts/prepare-ios.mjs')
+  assert.equal(packedManifest.bin, undefined, 'iOS preparation needs no consumer command')
   assert.match(
     readFileSync(join(packedRoot, 'scripts/prepare-ios.mjs'), 'utf8'),
     /^#!\/usr\/bin\/env node/,
   )
+
+  await verifyNativeConfig(packedRoot, { offline: true })
 
   const exportMaps = [
     workspaceManifest.exports,

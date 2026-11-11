@@ -1,5 +1,3 @@
-import { execFileSync } from 'node:child_process'
-import { resolve } from 'node:path'
 import { NativeScriptConfig } from '@nativescript/core'
 
 export default {
@@ -15,28 +13,6 @@ export default {
   android: {
     v8Flags: '--expose_gc',
     markingMode: 'none',
-  },
-  ios: {
-    SPMPackages: [
-      {
-        name: 'Pulsar',
-        libs: ['Pulsar'],
-        path: execFileSync(
-          process.execPath,
-          [
-            resolve(__dirname, '../../packages/haptics/scripts/prepare-ios.mjs'),
-            resolve(__dirname, '.xplat/pulsar-ios'),
-          ],
-          { encoding: 'utf8' },
-        ).trim(),
-      },
-    ],
-    NativeSource: [
-      {
-        name: 'XplatPulsarBridge',
-        path: '../../packages/haptics/platforms/ios/src/**/*.swift',
-      },
-    ],
   },
   bundler: 'vite',
   bundlerConfigPath: 'vite.config.mts',

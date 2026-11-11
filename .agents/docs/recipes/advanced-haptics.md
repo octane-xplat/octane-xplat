@@ -14,7 +14,7 @@ selection service. Package publication is outside this workflow.
 
 - Add only the optional haptics package; do not add its dependencies to `@octane-xplat/ui`.
 - Check target capability before relying on patterns or realtime gesture feedback.
-- On iOS, prepare the pinned silent Pulsar package and rebuild the native app; microphone capture needs an explicit recording policy.
+- On iOS, install the haptics package in the native app's dependencies and rebuild; the plugin automatically prepares pinned silent Pulsar and includes its bridge. Microphone capture needs an explicit recording policy.
 - Stop gesture feedback on release, cancellation, and owner cleanup.
 
 ## Acceptance criteria

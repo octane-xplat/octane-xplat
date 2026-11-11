@@ -1,10 +1,10 @@
 // Build evidence only: this does not qualify audible or physical device output.
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readdirSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { preparePulsar } from '../scripts/prepare-ios.mjs'
+import { verifyNativeConfig } from './native-config.mjs'
 
 if (process.platform !== 'darwin') {
   throw new Error('iOS build qualification requires macOS and Xcode')
@@ -31,68 +31,84 @@ if (!process.argv.includes('--reserved')) {
     { stdio: 'inherit' },
   )
 } else {
-  const scratch = join(homedir(), 'agent-scratch/octane-xplat/crisp-cricket/ios-haptics')
+  const scratch = join(homedir(), 'agent-scratch/octane-xplat/haptics-auto-ios')
 
   mkdirSync(scratch, { recursive: true })
 
   const work = mkdtempSync(join(scratch, 'build-'))
-  const pulsar = preparePulsar(join(work, 'Pulsar'))
-  const swiftFiles = (directory) =>
-    readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
-      entry.isDirectory()
-        ? swiftFiles(join(directory, entry.name))
-        : entry.name.endsWith('.swift')
-          ? [join(directory, entry.name)]
-          : [],
-    )
+  try {
+    const packageRoot = fileURLToPath(new URL('..', import.meta.url))
+    const pack = join(work, 'pack')
+    const extracted = join(work, 'extracted')
 
-  const sdk = execFileSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], {
-    encoding: 'utf8',
-  }).trim()
+    mkdirSync(pack)
+    mkdirSync(extracted)
+    execFileSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], {
+      cwd: packageRoot,
+      stdio: 'inherit',
+    })
+    const archive = readdirSync(pack).find((name) => name.endsWith('.tgz'))
 
-  const flags = ['-sdk', sdk, '-target', 'arm64-apple-ios13.0-simulator', '-swift-version', '6']
+    execFileSync('tar', ['-xzf', join(pack, archive), '-C', extracted])
+    const installed = join(extracted, 'package')
+    const pulsar = await verifyNativeConfig(installed)
+    const swiftFiles = (directory) =>
+      readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
+        entry.isDirectory()
+          ? swiftFiles(join(directory, entry.name))
+          : entry.name.endsWith('.swift')
+            ? [join(directory, entry.name)]
+            : [],
+      )
 
-  for (const debug of [true, false]) {
-    const output = join(work, debug ? 'Debug' : 'Release')
+    const sdk = execFileSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], {
+      encoding: 'utf8',
+    }).trim()
 
-    mkdirSync(output)
+    const flags = ['-sdk', sdk, '-target', 'arm64-apple-ios13.0-simulator', '-swift-version', '6']
 
-    const mode = debug ? ['-D', 'DEBUG'] : []
+    for (const debug of [true, false]) {
+      const output = join(work, debug ? 'Debug' : 'Release')
 
-    execFileSync(
-      'xcrun',
-      [
-        'swiftc',
-        ...flags,
-        ...mode,
-        '-emit-module',
-        '-module-name',
-        'Pulsar',
-        '-emit-module-path',
-        join(output, 'Pulsar.swiftmodule'),
-        ...swiftFiles(join(pulsar, 'Sources')),
-      ],
-      { stdio: 'inherit' },
-    )
+      mkdirSync(output)
 
-    execFileSync(
-      'xcrun',
-      [
-        'swiftc',
-        ...flags,
-        ...mode,
-        '-typecheck',
-        '-I',
-        output,
-        resolve(
-          fileURLToPath(new URL('../platforms/ios/src/XplatPulsarBridge.swift', import.meta.url)),
-        ),
-      ],
-      { stdio: 'inherit' },
-    )
+      const mode = debug ? ['-D', 'DEBUG'] : []
 
-    console.log(
-      `Patched Pulsar and bridge: ${debug ? 'Debug' : 'Release'} iOS arm64 simulator compile passed`,
-    )
+      execFileSync(
+        'xcrun',
+        [
+          'swiftc',
+          ...flags,
+          ...mode,
+          '-emit-module',
+          '-module-name',
+          'Pulsar',
+          '-emit-module-path',
+          join(output, 'Pulsar.swiftmodule'),
+          ...swiftFiles(join(pulsar, 'Sources')),
+        ],
+        { stdio: 'inherit' },
+      )
+
+      execFileSync(
+        'xcrun',
+        [
+          'swiftc',
+          ...flags,
+          ...mode,
+          '-typecheck',
+          '-I',
+          output,
+          resolve(installed, 'platforms/ios/src/XplatPulsarBridge.swift'),
+        ],
+        { stdio: 'inherit' },
+      )
+
+      console.log(
+        `Patched Pulsar and bridge: ${debug ? 'Debug' : 'Release'} iOS arm64 simulator compile passed`,
+      )
+    }
+  } finally {
+    rmSync(work, { recursive: true, force: true })
   }
 }

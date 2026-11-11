@@ -54,43 +54,32 @@ but ignore.
 
 ## Set up iOS
 
-From the app folder, prepare the pinned Pulsar 1.4.0 package. This downloads
-its source with Git and applies Xplat's sound-simulation fix. Git and network
-access are needed on the first run; later runs reuse the validated local copy.
-Keep `.xplat/` in the app's `.gitignore`.
+Install `@octane-xplat/haptics` in the native app's dependencies, then rebuild
+the iOS app. NativeScript automatically includes the Swift bridge and prepares
+the pinned Pulsar 1.4.0 dependency. No preparation command or haptics-specific
+`nativescript.config.ts` entries are needed.
 
 ```sh
-bun run xplat-prepare-haptics-ios .xplat/pulsar-ios
+bun add @octane-xplat/haptics
+bun run xplat build --targets ios
 ```
 
-In `nativescript.config.ts`, use the prepared local package and include the
-haptics bridge. Replace an existing remote Pulsar entry, then rebuild the native
-app. A JavaScript refresh cannot replace the linked Swift package. A build error
-about `Pulsar.xplatSilent` means the app still links an unpatched dependency.
+The first iOS preparation downloads Pulsar with Git and applies Xplat's
+sound-simulation fix, so Git and network access are required. Later preparations
+reuse the validated copy inside the installed haptics package's `.xplat/`
+folder. Web and Android do not run this Swift preparation.
 
-```ts
-import type { NativeScriptConfig } from '@nativescript/core'
-
-export default {
-  ios: {
-    SPMPackages: [
-      { name: 'Pulsar', libs: ['Pulsar'], path: '.xplat/pulsar-ios' },
-    ],
-    NativeSource: [
-      {
-        name: 'XplatPulsarBridge',
-        path: './node_modules/@octane-xplat/haptics/platforms/ios/src/**/*.swift',
-      },
-    ],
-  },
-} satisfies NativeScriptConfig
-```
+If upgrading from manual setup, remove the `Pulsar` entry from
+`ios.SPMPackages` and the `XplatPulsarBridge` entry from `ios.NativeSource` in
+`nativescript.config.ts`. App-authored Swift package entries override plugin
+entries. A build error about `Pulsar.xplatSilent` means the app still links an
+unpatched dependency. A JavaScript refresh cannot replace a native rebuild.
 
 The prepared package keeps feedback silent in Debug, Release, and the simulator.
 Disabling sound simulation does not deactivate another service's audio session.
 A simulator cannot prove tactile output; verify feedback on a supported iPhone.
-If preparation reports a modified cache, choose a fresh destination and update
-its configuration path rather than overwriting local changes.
+If preparation reports a modified cache, preserve your changes by moving the
+reported cache folder elsewhere, then rebuild to prepare a fresh copy.
 
 ## Haptics while using the microphone
 

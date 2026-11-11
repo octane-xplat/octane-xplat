@@ -11,10 +11,15 @@ so do not enable it globally in a haptics service. Camera leases restore the
 prior policy after the last opted-in microphone owner releases; external audio
 owners must coordinate writes. Physical output remains a device check.
 
-For advanced haptics, use the [prepared local Pulsar package](../../../../../docs/packages/package-haptics.md#set-up-ios)
-and rebuild the native app. Remote Pulsar 1.4.0 adds synthesized audio in Debug
+For advanced haptics, install the package directly in the native app's dependencies
+and [rebuild the native app](../../../../../docs/packages/package-haptics.md#set-up-ios).
+NativeScript's plugin configuration prepares patched Pulsar lazily when collecting
+iOS Swift dependencies and discovers the bridge from `platforms/ios/src`.
+Do not add app-level `SPMPackages` or `NativeSource` entries for haptics; remove
+older manual entries because an app's Pulsar entry overrides the plugin's.
+Remote Pulsar 1.4.0 adds synthesized audio in Debug
 and simulator builds; its sound-disable method can deactivate the shared audio
-session. The preparation helper pins and patches this behavior and preserves
+session. The package's preparation helper pins and patches this behavior and preserves
 cached local modifications by refusing to overwrite them.
 
 ## Windows audio import boundary

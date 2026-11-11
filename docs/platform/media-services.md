@@ -25,8 +25,8 @@ From your app folder, install the package for the feature you need:
 | Speech-to-text dictation           | `bun add @octane-xplat/speech-recognition` |
 
 The packages include their JavaScript and Android plugin dependencies.
-Advanced haptics on iOS also needs the Pulsar Swift package and source
-configuration described below. Pulsar supplies its native vibration features. The two
+The haptics package also prepares its Pulsar Swift dependency and includes its
+bridge automatically during iOS native preparation. The two
 haptics APIs serve different needs: `platform.haptics` keeps impact,
 notification, and selection feedback; `@octane-xplat/haptics` adds named
 presets, timed patterns, gesture-driven control, cancellation, and capability
@@ -49,9 +49,9 @@ compile against Android API 36 or later for Pulsar 1.3.0; the app target SDK
 and minimum supported Android version remain separate settings. The harness
 uses compile SDK 36, target SDK 35, and minimum SDK 24. Pulsar supports Android
 API 24+ at runtime.
-On iOS, follow [haptics setup](../packages/package-haptics.md#set-up-ios) to
-prepare the patched local Swift package and link the bridge, then rebuild the
-native app. The remote Pulsar 1.4.0 package enables synthesized sound in Debug
+On iOS, [install the haptics package and rebuild](../packages/package-haptics.md#set-up-ios).
+The first native preparation needs Git and network access to prepare patched
+Pulsar; later preparations reuse validated source. The remote Pulsar 1.4.0 package enables synthesized sound in Debug
 and simulator builds; the prepared package keeps feedback silent without
 deactivating another service's audio session.
 
