@@ -1,5 +1,5 @@
 diff --git a/helpers/global-defines.js b/helpers/global-defines.js
-index e7390cb182cafe3b7307a25585280655d6ad5fad..4e0e337a2616cf53684c963562b76b48bb406111 100644
+index e7390cb..4e0e337 100644
 --- a/helpers/global-defines.js
 +++ b/helpers/global-defines.js
 @@ -179,6 +179,51 @@ export function setUserDefineEntries(define) {
@@ -55,7 +55,7 @@ index e7390cb182cafe3b7307a25585280655d6ad5fad..4e0e337a2616cf53684c963562b76b48
  export function getUserDefineEntries() {
      return userDefineEntries;
 diff --git a/helpers/project.js b/helpers/project.js
-index f6777fa5e64e667cbc56c7e76c4c32c5ab76a911..fdc1f974884e26030c0084d75c1e51a1e5968db2 100644
+index f6777fa..fdc1f97 100644
 --- a/helpers/project.js
 +++ b/helpers/project.js
 @@ -73,7 +73,11 @@ function denoConfigHasWorkspace(dir) {
@@ -88,7 +88,7 @@ index f6777fa5e64e667cbc56c7e76c4c32c5ab76a911..fdc1f974884e26030c0084d75c1e51a1
                  return current;
          }
 diff --git a/helpers/ts-config-paths.js b/helpers/ts-config-paths.js
-index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640fc56c786f 100644
+index 27013b5..53a2e7d 100644
 --- a/helpers/ts-config-paths.js
 +++ b/helpers/ts-config-paths.js
 @@ -113,15 +113,20 @@ function resolveTsConfigPath(fullPath, platform, verbose, debugId) {
@@ -140,7 +140,7 @@ index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640f
          const basePath = `${fullPath}${ext}`;
          if (fs.existsSync(basePath)) {
 diff --git a/helpers/typescript-check.js b/helpers/typescript-check.js
-index a05696b679b3feecd1bafa267de44b59db559162..e909d6e25b3142f48d13cae2f2c4c8c0dced36e7 100644
+index a05696b..e909d6e 100644
 --- a/helpers/typescript-check.js
 +++ b/helpers/typescript-check.js
 @@ -7,14 +7,16 @@ import { getProjectRootPath, getProjectTSConfigPath } from './project.js';
@@ -214,7 +214,7 @@ index a05696b679b3feecd1bafa267de44b59db559162..e909d6e25b3142f48d13cae2f2c4c8c0
                  const output = ts.formatDiagnosticsWithColorAndContext(diagnostics, getFormatHost(ts));
                  (failOnError ? console.error : console.warn)(output);
 diff --git a/helpers/typescript.js b/helpers/typescript.js
-index fe9c9fe948862def734df7bc5b817a9989155019..8d6b16a7043be959afaa0c1e16aefb09fbf2f142 100644
+index fe9c9fe..8d6b16a 100644
 --- a/helpers/typescript.js
 +++ b/helpers/typescript.js
 @@ -6,23 +6,33 @@ let loaded;
@@ -262,7 +262,7 @@ index fe9c9fe948862def734df7bc5b817a9989155019..8d6b16a7043be959afaa0c1e16aefb09
  /**
   * Logged once per process. A `@NativeClass` source that is not downleveled
 diff --git a/hmr/client/hot-context.js b/hmr/client/hot-context.js
-index 120bc26fec96d1056701e4c3eb7b78987b40ab8f..f17cea64a1f0f8f87f4c0df856080789ddfa3c14 100644
+index 120bc26..f17cea6 100644
 --- a/hmr/client/hot-context.js
 +++ b/hmr/client/hot-context.js
 @@ -74,6 +74,47 @@ const VERBOSE = (() => {
@@ -325,7 +325,7 @@ index 120bc26fec96d1056701e4c3eb7b78987b40ab8f..f17cea64a1f0f8f87f4c0df856080789
          return g.__NS_HOT_REGISTRY__;
      }
 diff --git a/hmr/helpers/ast-normalizer.js b/hmr/helpers/ast-normalizer.js
-index 77f5533a289902b644f2dba4c8a558f5a00c8314..5c1d57f34a5e863ae3e684012a99f9bb8796e974 100644
+index 77f5533..5c1d57f 100644
 --- a/hmr/helpers/ast-normalizer.js
 +++ b/hmr/helpers/ast-normalizer.js
 @@ -86,9 +86,10 @@ export function astNormalizeModuleImportsAndHelpers(code, opts) {
@@ -342,7 +342,7 @@ index 77f5533a289902b644f2dba4c8a558f5a00c8314..5c1d57f34a5e863ae3e684012a99f9bb
                  return null;
 diff --git a/hmr/server/boot-graph-crawl.js b/hmr/server/boot-graph-crawl.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..ceb5a30bf6d4f747a3130f8968ae0f5ac4363ee9
+index 0000000..ceb5a30
 --- /dev/null
 +++ b/hmr/server/boot-graph-crawl.js
 @@ -0,0 +1,187 @@
@@ -534,7 +534,7 @@ index 0000000000000000000000000000000000000000..ceb5a30bf6d4f747a3130f8968ae0f5a
 +    return state;
 +}
 diff --git a/hmr/server/css-device-module.js b/hmr/server/css-device-module.js
-index 0d7cd968eac690a85411cf3d6a24323a3d3a3992..98094d6ccfb918d00249d8087aebdd994b64244d 100644
+index 0d7cd96..98094d6 100644
 --- a/hmr/server/css-device-module.js
 +++ b/hmr/server/css-device-module.js
 @@ -41,4 +41,15 @@ export function buildCssRegisterSnippet(tag, cssText) {
@@ -555,7 +555,7 @@ index 0d7cd968eac690a85411cf3d6a24323a3d3a3992..98094d6ccfb918d00249d8087aebdd99
  //# sourceMappingURL=css-device-module.js.map
 \ No newline at end of file
 diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
-index 395c29e9b9b552fbf30c4a7131121a0d841df116..e2523548534dda72042efe318beeeb05c05f73e5 100644
+index 395c29e..e252354 100644
 --- a/hmr/server/deps-bundle.js
 +++ b/hmr/server/deps-bundle.js
 @@ -53,21 +53,22 @@
@@ -705,7 +705,7 @@ index 395c29e9b9b552fbf30c4a7131121a0d841df116..e2523548534dda72042efe318beeeb05
          if (!target)
              return { names: null, hasDefault: false };
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
-index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d19f8ace7 100644
+index 71574c4..0061d9c 100644
 --- a/hmr/server/device-transform-helpers.js
 +++ b/hmr/server/device-transform-helpers.js
 @@ -79,7 +79,11 @@ function bareSpecifierFromFlatDepPath(depPath) {
@@ -722,7 +722,7 @@ index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d
          return code;
      }
 diff --git a/hmr/server/hmr-module-graph.js b/hmr/server/hmr-module-graph.js
-index 8cff593b8ac8d8eff82ebdd398c1305a8408d308..92f6d194924b288864bcaca4fc42ef805d048e4f 100644
+index 8cff593..92f6d19 100644
 --- a/hmr/server/hmr-module-graph.js
 +++ b/hmr/server/hmr-module-graph.js
 @@ -1,3 +1,4 @@
@@ -760,7 +760,7 @@ index 8cff593b8ac8d8eff82ebdd398c1305a8408d308..92f6d194924b288864bcaca4fc42ef80
      // app virtual root and known framework/.ts/.js entries already in the graph).
 diff --git a/hmr/server/hmr-module-id.js b/hmr/server/hmr-module-id.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..13a0c29d4b0fad502730062ddba081016514c440
+index 0000000..13a0c29
 --- /dev/null
 +++ b/hmr/server/hmr-module-id.js
 @@ -0,0 +1,30 @@
@@ -795,7 +795,7 @@ index 0000000000000000000000000000000000000000..13a0c29d4b0fad502730062ddba08101
 +    return id.startsWith('/') ? id : '/' + id;
 +}
 diff --git a/hmr/server/process-code-for-device.js b/hmr/server/process-code-for-device.js
-index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..808ed238e795fd935d2a34623479fc08a285d547 100644
+index 1f02ba5..808ed23 100644
 --- a/hmr/server/process-code-for-device.js
 +++ b/hmr/server/process-code-for-device.js
 @@ -1,3 +1,5 @@
@@ -859,7 +859,7 @@ index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..808ed238e795fd935d2a34623479fc08
          result = `// [hmr-sanitize] stripped virtual /@id/ side-effect imports\n${result}`;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 51ad398cefe75c918e887bd9506d9152259b957e..57dc2be15705a5ac8b5393852fd5de411a88fd50 100644
+index 51ad398..57dc2be 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
 @@ -1,8 +1,9 @@
@@ -1088,7 +1088,7 @@ index 51ad398cefe75c918e887bd9506d9152259b957e..57dc2be15705a5ac8b5393852fd5de41
                      return `${prefix}${httpOriginSafe}${httpSpec}${suffix}`;
                  }
 diff --git a/hmr/server/shared-transform-request.js b/hmr/server/shared-transform-request.js
-index 08cf93fadb4b869ecfc8d3135a4d3d771d08db32..f32614cb802846ef74c3020eb925273273a92032 100644
+index 08cf93f..f32614c 100644
 --- a/hmr/server/shared-transform-request.js
 +++ b/hmr/server/shared-transform-request.js
 @@ -5,6 +5,7 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
@@ -1195,7 +1195,7 @@ index 08cf93fadb4b869ecfc8d3135a4d3d771d08db32..f32614cb802846ef74c3020eb9252732
          return withTimeout(entry, url, timeoutMs);
      });
 diff --git a/hmr/server/transform-cache-invalidation.js b/hmr/server/transform-cache-invalidation.js
-index c4ee7fbd75d8e630e1702b08f4c1b6f7fc4f27bd..27a2e64215c592eec176fe9fdc6f5ccad7a8ca51 100644
+index c4ee7fb..27a2e64 100644
 --- a/hmr/server/transform-cache-invalidation.js
 +++ b/hmr/server/transform-cache-invalidation.js
 @@ -1,3 +1,4 @@
@@ -1242,7 +1242,7 @@ index c4ee7fbd75d8e630e1702b08f4c1b6f7fc4f27bd..27a2e64215c592eec176fe9fdc6f5cca
  //# sourceMappingURL=transform-cache-invalidation.js.map
 \ No newline at end of file
 diff --git a/hmr/server/vite-plugin.js b/hmr/server/vite-plugin.js
-index 15c6c7293826767ce7fd45feb6b03cb64a4bdbb5..1f66ca8ae896fad9ee21eabdf3bb75f609bd7132 100644
+index 15c6c72..1f66ca8 100644
 --- a/hmr/server/vite-plugin.js
 +++ b/hmr/server/vite-plugin.js
 @@ -4,7 +4,7 @@ import path from 'path';
@@ -1265,7 +1265,7 @@ index 15c6c7293826767ce7fd45feb6b03cb64a4bdbb5..1f66ca8ae896fad9ee21eabdf3bb75f6
          resolveId(id) {
              if (id === VIRTUAL_ID)
 diff --git a/hmr/server/websocket-core-bridge.js b/hmr/server/websocket-core-bridge.js
-index 0d58dfc3e2254656cd910ddf2dde7845dd1cf595..8d57de97e60bbab854737f33391c2c6e345c64de 100644
+index 0d58dfc..8d57de9 100644
 --- a/hmr/server/websocket-core-bridge.js
 +++ b/hmr/server/websocket-core-bridge.js
 @@ -12,10 +12,12 @@ const REGEX_PRECEDING_KEYWORD_RE = /(?:^|[^$\w])(?:return|typeof|instanceof|in|o
@@ -1407,7 +1407,7 @@ index 0d58dfc3e2254656cd910ddf2dde7845dd1cf595..8d57de97e60bbab854737f33391c2c6e
          else {
              i++;
 diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
-index 00b89ff3ae13b1c2b219a4c35c0450f97ac5ffc9..13574882621df21e59c0c1eaa2dfae05585a2681 100644
+index 00b89ff..1357488 100644
 --- a/hmr/server/websocket-module-bindings.js
 +++ b/hmr/server/websocket-module-bindings.js
 @@ -5,8 +5,8 @@ import * as PAT from './constants.js';
@@ -1497,7 +1497,7 @@ index 00b89ff3ae13b1c2b219a4c35c0450f97ac5ffc9..13574882621df21e59c0c1eaa2dfae05
          // realm's import map; in a worker serve (vendorImportsAsHttp) it must not
          // win over the /ns/m HTTP rewrite.
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
-index 0081819906b9df7480408697b1afadb149e26e31..9a912371fdd79976e6c2d87f2497f25b91e6df4d 100644
+index 0081819..9a91237 100644
 --- a/hmr/server/websocket-module-specifiers.js
 +++ b/hmr/server/websocket-module-specifiers.js
 @@ -1,4 +1,5 @@
@@ -1719,7 +1719,7 @@ index 0081819906b9df7480408697b1afadb149e26e31..9a912371fdd79976e6c2d87f2497f25b
  //# sourceMappingURL=websocket-module-specifiers.js.map
 \ No newline at end of file
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a095cb4610 100644
+index 0879633..2c3a747 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
 @@ -27,10 +27,15 @@ const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'v
@@ -1812,7 +1812,7 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a0
          transformed = await tryTransformRequest(transformRequest, importHintCandidate, timeoutMs);
          if (transformed?.code) {
 diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
-index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6ea2cb12e 100644
+index fcdcd69..00e7834 100644
 --- a/hmr/server/websocket-ns-m.js
 +++ b/hmr/server/websocket-ns-m.js
 @@ -6,10 +6,11 @@ import { isRuntimeGraphExcludedPath } from './runtime-graph-filter.js';
@@ -1940,7 +1940,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
              });
              let transformed = resolution.transformed;
              const resolvedCandidate = resolution.resolvedCandidate;
-@@ -479,20 +516,7 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -479,91 +530,111 @@ export function registerNsModuleServerRoute(server, options) {
              try {
                  const devCheck = process.env.NODE_ENV !== 'production';
                  if (devCheck) {
@@ -1960,29 +1960,108 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
 -                    });
 +                    const imports = collectStaticImportDefaultIntents(code);
                      // Resolve and verify each static import that asks for default
++                    // Each candidate's target transform + verdict runs
++                    // concurrently (the shared runner dedupes identical
++                    // targets across importers); results are applied in
++                    // import order so the first missing-default importer
++                    // still produces the same thrown module.
++                    const defaultImportChecks = [];
                      for (const imp of imports) {
                          if (!imp.wantsDefault)
-@@ -513,6 +537,8 @@ export function registerNsModuleServerRoute(server, options) {
-                                     continue;
-                                 }
-                                 else if (u.pathname.startsWith('/ns/m')) {
-+                                    // The CSS route synthesizes a default string export after compilation.
-+                                    if (CSS_MODULE_RE.test(u.pathname)) continue;
-                                     // Resolve the import target through the SAME
-                                     // canonical pipeline the /ns/m route itself uses
-                                     // (websocket-ns-m-request.ts) instead of a third
-@@ -532,6 +558,7 @@ export function registerNsModuleServerRoute(server, options) {
-                                                 },
-                                                 resolveId: resolvePluginContainerId,
-                                                 loadVirtualId,
-+                                                notifyServedDependencyFile,
-                                             });
-                                             targetCode = targetResolution.transformed?.code || '';
+                             continue;
+                         // Only check our served endpoints and app modules
+                         if (/^https?:\/\/[^\s]+\/ns\//.test(imp.src) || /^https?:\/\/[^\s]+\/.+/.test(imp.src)) {
+                             const u = new URL(imp.src, 'http://localhost');
+-                            // Fetch target module's sanitized code using server.transformRequest or by routing through our own endpoints heuristically
+-                            let targetCode = '';
+-                            try {
+-                                if (u.pathname.startsWith('/ns/asm')) {
+-                                    // Reconstruct: call our own assembler handler to get code (preferred)
+-                                    const target = await server.transformRequest(imp.src.replace(/^https?:\/\/[^/]+/, ''));
+-                                    targetCode = target?.code || '';
+-                                }
+-                                else if (u.pathname.startsWith('/ns/sfc')) {
+-                                    // Delegator re-exports default from /ns/asm — skip; assembler will be checked when imported by upstream
+-                                    continue;
+-                                }
+-                                else if (u.pathname.startsWith('/ns/m')) {
+-                                    // Resolve the import target through the SAME
+-                                    // canonical pipeline the /ns/m route itself uses
+-                                    // (websocket-ns-m-request.ts) instead of a third
+-                                    // hand-rolled copy of candidate expansion.
+-                                    try {
+-                                        const targetContextResult = createNsMRequestContext(u.pathname, serverRoot, APP_VIRTUAL_WITH_SLASH, monorepoWorkspaceRoot);
+-                                        if (targetContextResult.kind === 'context') {
+-                                            const targetResolution = await resolveNsMTransformedModule({
+-                                                context: targetContextResult.value,
+-                                                transformRequest: async (url) => {
+-                                                    try {
+-                                                        return await server.transformRequest(url);
+-                                                    }
+-                                                    catch {
+-                                                        return null;
+-                                                    }
+-                                                },
+-                                                resolveId: resolvePluginContainerId,
+-                                                loadVirtualId,
+-                                            });
+-                                            targetCode = targetResolution.transformed?.code || '';
++                            defaultImportChecks.push((async () => {
++                                // Fetch target module's sanitized code using server.transformRequest or by routing through our own endpoints heuristically
++                                let targetCode = '';
++                                try {
++                                    if (u.pathname.startsWith('/ns/asm')) {
++                                        // Reconstruct: call our own assembler handler to get code (preferred)
++                                        const target = await sharedTransformRequest(imp.src.replace(/^https?:\/\/[^/]+/, ''), 120000, crawlPriority).catch(() => null);
++                                        targetCode = target?.code || '';
++                                    }
++                                    else if (u.pathname.startsWith('/ns/sfc')) {
++                                        // Delegator re-exports default from /ns/asm — skip; assembler will be checked when imported by upstream
++                                        return null;
++                                    }
++                                    else if (u.pathname.startsWith('/ns/m')) {
++                                        // The CSS route synthesizes a default string export after compilation.
++                                        if (CSS_MODULE_RE.test(u.pathname)) return null;
++                                        // Resolve the import target through the SAME
++                                        // canonical pipeline the /ns/m route itself uses
++                                        // (websocket-ns-m-request.ts) instead of a third
++                                        // hand-rolled copy of candidate expansion.
++                                        try {
++                                            const targetContextResult = createNsMRequestContext(u.pathname, serverRoot, APP_VIRTUAL_WITH_SLASH, monorepoWorkspaceRoot);
++                                            if (targetContextResult.kind === 'context') {
++                                                const targetResolution = await resolveNsMTransformedModule({
++                                                    context: targetContextResult.value,
++                                                    transformRequest: async (url) => {
++                                                        try {
++                                                            return await sharedTransformRequest(url, 120000, crawlPriority);
++                                                        }
++                                                        catch {
++                                                            return null;
++                                                        }
++                                                    },
++                                                    resolveId: resolvePluginContainerId,
++                                                    loadVirtualId,
++                                                    notifyServedDependencyFile,
++                                                });
++                                                targetCode = targetResolution.transformed?.code || '';
++                                            }
                                          }
-@@ -546,7 +573,17 @@ export function registerNsModuleServerRoute(server, options) {
-                             catch { }
-                             if (!targetCode)
-                                 continue;
++                                        catch { }
++                                    }
++                                    else if (u.pathname.startsWith('/ns/rt') || u.pathname.startsWith('/ns/core')) {
++                                        // Bridges export named/default as needed; skip default check
++                                        return null;
+                                     }
+-                                    catch { }
+-                                }
+-                                else if (u.pathname.startsWith('/ns/rt') || u.pathname.startsWith('/ns/core')) {
+-                                    // Bridges export named/default as needed; skip default check
+-                                    continue;
+                                 }
+-                            }
+-                            catch { }
+-                            if (!targetCode)
+-                                continue;
 -                            const hasDefault = /\bexport\s+default\b/.test(targetCode) || /export\s*\{\s*default\s*(?:as\s*default)?\s*\}/.test(targetCode);
 -                            if (!hasDefault) {
 -                                // CJS/UMD modules won't have `export default` — they get CJS-wrapped
@@ -2045,7 +2124,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
                  }
              }
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
-index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..8d5c3ad3236b8d3e470d0c4a32905d6b4574d928 100644
+index b9e3ab6..8d5c3ad 100644
 --- a/hmr/server/websocket-served-module-helpers.js
 +++ b/hmr/server/websocket-served-module-helpers.js
 @@ -1,7 +1,10 @@
@@ -2163,7 +2242,7 @@ index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..8d5c3ad3236b8d3e470d0c4a32905d6b
  export function hoistTopLevelStaticImports(code) {
      const imports = collectTopLevelImportRecords(code);
 diff --git a/hmr/server/websocket.js b/hmr/server/websocket.js
-index e6a14437f8990e2c631f23eb8db21aa0b28b5759..eb43e0883d2b6e14bf7e88be4da99f4024a0b0e8 100644
+index e6a1443..eb43e08 100644
 --- a/hmr/server/websocket.js
 +++ b/hmr/server/websocket.js
 @@ -1,3 +1,5 @@
@@ -2280,7 +2359,7 @@ index e6a14437f8990e2c631f23eb8db21aa0b28b5759..eb43e0883d2b6e14bf7e88be4da99f40
          },
          async handleHotUpdate(ctx) {
 diff --git a/hmr/shared/vendor/manifest-collect.js b/hmr/shared/vendor/manifest-collect.js
-index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..234dd31bbdf72bbf831accbf23464a872ef5aa90 100644
+index 7b3afd4..d77d547 100644
 --- a/hmr/shared/vendor/manifest-collect.js
 +++ b/hmr/shared/vendor/manifest-collect.js
 @@ -527,7 +527,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
@@ -2519,11 +2598,10 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..234dd31bbdf72bbf831accbf23464a87
          .map((token) => token.trim())
          .filter(Boolean);
  }
-\ No newline at end of file
 -//# sourceMappingURL=manifest-collect.js.map
 \ No newline at end of file
 diff --git a/hmr/shared/vendor/manifest.js b/hmr/shared/vendor/manifest.js
-index 54ba11ef9c329df049fa93b01b2ce47c9fb1ac3e..f7e3d0d1bd71919584834ef5a56e42f74ad2cf28 100644
+index 54ba11e..f7e3d0d 100644
 --- a/hmr/shared/vendor/manifest.js
 +++ b/hmr/shared/vendor/manifest.js
 @@ -6,7 +6,7 @@ import { collectVendorModules } from './manifest-collect.js';
@@ -2546,7 +2624,7 @@ index 54ba11ef9c329df049fa93b01b2ce47c9fb1ac3e..f7e3d0d1bd71919584834ef5a56e42f7
          // Stub compiled `.node` addons (fsevents & co.) — unloadable by esbuild and
          // unrunnable on device; a throwing stub preserves optional-dep semantics.
 diff --git a/hmr/shared/vendor/vendor-esbuild-plugins.js b/hmr/shared/vendor/vendor-esbuild-plugins.js
-index 4855a85322188435072c21bb72c60ea16d514b37..cd3c60f273d813dac2df00c8450f0efcb2dda70b 100644
+index 4855a85..cd3c60f 100644
 --- a/hmr/shared/vendor/vendor-esbuild-plugins.js
 +++ b/hmr/shared/vendor/vendor-esbuild-plugins.js
 @@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
