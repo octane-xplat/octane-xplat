@@ -136,7 +136,8 @@ const entry = ${JSON.stringify(entry)}
 export default async ({ mode }) => {
  const settings = await macos(mode, { root, hmr: false, entry })
  return { ...settings, build: { ...settings.build, outDir: ${JSON.stringify(directory)}, emptyOutDir: false,
-  lib: { entry, formats: ['cjs'], fileName: () => 'devtools.cjs' } } }
+  lib: { entry, formats: ['cjs'], fileName: () => 'devtools.cjs' } },
+  define: { ...(settings.define ?? {}), __XPLAT_DEVTOOLS_PREFERRED_ROOT__: ${JSON.stringify(JSON.stringify(root))} } }
 }
 `,
   )

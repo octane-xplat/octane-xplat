@@ -154,3 +154,24 @@ body {
 	flex-shrink: 0;
 	font-family: ui-monospace, "SF Mono", Menlo, monospace;
 }
+
+/* Desktop shell — target header and server picker (Shell.macos.tsrx). */
+.dt-target-bar {
+	align-items: center;
+	gap: 8px;
+	padding: 0 8px;
+	height: 30px;
+	flex-shrink: 0;
+	border-bottom-width: 1px;
+	border-bottom-color: #e3e3e3;
+	background-color: #fafafa;
+}
+.dt-target-name { font-weight: 600; font-size: 12px; }
+.dt-targeted { flex: 1; min-height: 0; width: 100%; }
+.dt-pick-row {
+	padding: 8px 10px;
+	border-bottom-width: 1px;
+	border-bottom-color: #f1f1f1;
+}
+.dt-pick-name { font-weight: 600; font-size: 13px; }
+.dt-pick-path { color: #999999; font-size: 11px; }
