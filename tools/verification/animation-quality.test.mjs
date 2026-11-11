@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { evaluate, scenarios } from './animation-quality/metrics.mjs'
+import { recorderArguments } from './animation-quality/recorder-args.mjs'
 
 const fixture = () => ({
   schema: 1,
@@ -58,4 +59,34 @@ test('zero or missing presentation frames cannot qualify zero-hitch output', () 
   assert.throws(() => evaluate(run), /presentation frame count/)
   delete run.results[0].frameCount
   assert.throws(() => evaluate(run), /presentation frame count/)
+})
+
+test('Instruments launches the owned app and does not pass recorder options to it', () => {
+  const args = recorderArguments({
+    device: 'physical-device',
+    bundle: 'org.octanexplat.animationquality',
+    output: '/tmp/run.trace',
+    recordingOptions: '/tmp/options.json',
+    diagnosticCosts: false,
+  })
+
+  assert.equal(args[0], 'xctrace')
+  assert.equal(args[args.indexOf('--template') + 1], 'Animation Hitches')
+  assert.equal(args[args.indexOf('--launch') + 1], '--')
+  assert.deepEqual(args.slice(-2), ['--', 'org.octanexplat.animationquality'])
+  assert.equal(args.includes('--attach'), false)
+  assert.equal(args.includes('180s'), true)
+})
+
+test('diagnostic Instruments launch keeps Time Profiler and os_signpost', () => {
+  const args = recorderArguments({
+    device: 'physical-device',
+    bundle: 'org.octanexplat.animationquality',
+    output: '/tmp/run.trace',
+    recordingOptions: '/tmp/options.json',
+    diagnosticCosts: true,
+  })
+
+  assert.equal(args[args.indexOf('--template') + 1], 'Time Profiler')
+  assert.equal(args[args.indexOf('--instrument') + 1], 'os_signpost')
 })

@@ -42,6 +42,7 @@ declare const __XPLAT_ANIMATION_INPUT_DEBUG__: boolean
 const inputDebug = __XPLAT_ANIMATION_INPUT_DEBUG__
 const inputEvents: { event: string; data: unknown }[] = []
 const results: object[] = []
+let resultWrites: Promise<void> = Promise.resolve()
 const inputLog = (event: string, data: unknown) => {
   if (inputDebug && inputEvents.length < 100) {
     const serialized = JSON.stringify(data)
@@ -178,11 +179,13 @@ function Benchmark() {
     return layer ? Number(layer.transform.m41) : null
   }
 
-  const finish = () => {
+  const finish = (updateStatus = true) => {
     clearTimers()
     AnimationQualityTrace.end()
     running = false
-    setStatus('done')
+    if (updateStatus) {
+      setStatus('saving')
+    }
 
     const environment = AnimationQualityTrace.environment()
     const result = {
@@ -204,10 +207,31 @@ function Benchmark() {
 
     if (results.length < 100) {
       results.push(result)
-      // Persist only after the measured interval, never from the frame loop.
-      File.fromPath(
-        path.join(knownFolders.documents().path, 'animation-quality-results.json'),
-      ).writeTextSync(JSON.stringify(results))
+      // Use NativeScript's async iOS write so a Finish tap does not block the UI thread.
+      const write = resultWrites
+        .catch(() => undefined)
+        .then(() =>
+          File.fromPath(
+            path.join(knownFolders.documents().path, 'animation-quality-results.json'),
+          ).writeText(JSON.stringify(results)),
+        )
+
+      resultWrites = write.then(() => undefined)
+      void write.then(
+        () => {
+          if (updateStatus) {
+            setStatus('done')
+          }
+        },
+        (error: unknown) => {
+          console.error('ANIMATION_QUALITY_WRITE_FAILED ' + String(error))
+          if (updateStatus) {
+            setStatus('error')
+          }
+        },
+      )
+    } else if (updateStatus) {
+      setStatus('done')
     }
 
     console.log('ANIMATION_QUALITY ' + JSON.stringify(result))
@@ -220,7 +244,7 @@ function Benchmark() {
     }
 
     if (running) {
-      finish()
+      finish(false)
     }
 
     idleObservation.current = null
@@ -325,7 +349,7 @@ function Benchmark() {
         >
           <Text>Dispose</Text>
         </Pressable>
-        <Pressable testID="finish" onPress={finish}>
+        <Pressable testID="finish" onPress={() => finish()}>
           <Text>Finish</Text>
         </Pressable>
         <Pressable

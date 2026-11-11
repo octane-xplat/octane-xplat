@@ -84,8 +84,8 @@ No browser or device performance task belongs in lightweight PR CI.
    ```
 
    The runner reserves that device, verifies both automatic-attachment policies,
-   installs only the benchmark bundle, launches before Instruments attaches, and
-   runs serial XCTest trials without performance diagnostics. The tests use
+   installs only the benchmark bundle, launches measured runs through Instruments,
+   and runs serial XCTest trials without performance diagnostics. The tests use
    `activate()` to preserve the profiled process. It records Animation Hitches
    plus the benchmark's signpost subsystem, exports nonvisual XML tables and
    copies the app's bounded result journal. Each test gets its own trace and

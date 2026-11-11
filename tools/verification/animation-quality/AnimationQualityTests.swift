@@ -8,14 +8,25 @@ final class AnimationQualityTests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
-        // The recording runner launches the installed Release app before attaching.
+        // The recording runner launches the installed Release app through Instruments.
         // activate() also launches it for standalone functional execution.
         app.activate()
-        XCTAssertTrue(app.staticTexts["status"].waitForExistence(timeout: 15))
+        XCTAssertTrue(
+            app.staticTexts["status"].waitForExistence(timeout: 15),
+            "Benchmark status text did not appear. App UI: \(app.debugDescription)",
+        )
     }
 
     private func button(_ id: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: id).firstMatch
+    }
+
+    private func waitForStatus(_ value: String) {
+        let status = app.staticTexts
+            .matching(identifier: "status")
+            .matching(NSPredicate(format: "label == %@", value))
+            .firstMatch
+        XCTAssertTrue(status.waitForExistence(timeout: 10), "Status did not become: " + value)
     }
 
     private func play(_ scenario: String) {
@@ -41,6 +52,7 @@ final class AnimationQualityTests: XCTestCase {
         // between baselines; use Instruments' active-animation durations.
         Thread.sleep(forTimeInterval: 2)
         button("finish").tap()
+        waitForStatus("done")
     }
 
     private func benchmark(_ scenario: String) {
@@ -61,6 +73,7 @@ final class AnimationQualityTests: XCTestCase {
         // Keep the same owner through all presentations, then release it.
         button("select-tween").tap()
         button("finish").tap()
+        waitForStatus("done")
     }
     func testScroll() { benchmark("scroll") }
 
@@ -102,6 +115,7 @@ final class AnimationQualityTests: XCTestCase {
         let outcome = XCTWaiter.wait(for: [expectation], timeout: 15)
         let status = app.staticTexts["status"].label
         button("finish").tap()
+        waitForStatus("done")
         XCTAssertEqual(outcome, .completed, "Idle check ended with status: " + status)
     }
 }

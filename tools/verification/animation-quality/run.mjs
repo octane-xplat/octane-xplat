@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { mkdir, open, readFile, writeFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { recorderArguments } from './recorder-args.mjs'
 
 // Physical devices only. Installation touches only this benchmark's bundle.
 const args = process.argv.slice(2)
@@ -186,49 +187,23 @@ let failed = false
 
 for (const test of selected ? [selected] : tests) {
   const stem = join(output, test)
-  const launched = JSON.parse(
-    command('xcrun', [
-      'devicectl',
-      'device',
-      'process',
-      'launch',
-      '--device',
-      device,
-      '--terminate-existing',
-      '--json-output',
-      '-',
-      bundle,
-    ]),
-  )
-
-  const pid = launched.result.process.processIdentifier
+  let pid
   let recorder
   let recording = ''
   let recorded
 
   try {
     if (!functional) {
-      // Give Instruments' device process inventory time to see a fresh launch.
-      await new Promise((done) => setTimeout(done, 3000))
-      recorder = spawn('xcrun', [
-        'xctrace',
-        'record',
-        '--device',
-        device,
-        '--attach',
-        diagnosticCosts ? executable : String(pid),
-        '--template',
-        diagnosticCosts ? 'Time Profiler' : 'Animation Hitches',
-        '--instrument',
-        'os_signpost',
-        '--recording-options',
-        join(output, 'recording-options.json'),
-        '--time-limit',
-        '180s',
-        '--output',
-        stem + '.trace',
-        '--no-prompt',
-      ])
+      recorder = spawn(
+        'xcrun',
+        recorderArguments({
+          device,
+          bundle,
+          output: stem + '.trace',
+          recordingOptions: join(output, 'recording-options.json'),
+          diagnosticCosts,
+        }),
+      )
 
       recorded = new Promise((done) => recorder.once('close', (code) => done(code)))
       await new Promise((ready, reject) => {
@@ -257,6 +232,24 @@ for (const test of selected ? [selected] : tests) {
           reject(Error('Instruments exited before recording: ' + recording))
         })
       })
+    }
+
+    if (functional) {
+      const launched = JSON.parse(
+        command('xcrun', [
+          'devicectl',
+          'device',
+          'process',
+          'launch',
+          '--device',
+          device,
+          '--terminate-existing',
+          '--json-output',
+          '-',
+          bundle,
+        ]),
+      )
+      pid = launched.result.process.processIdentifier
     }
 
     console.log(`${test}: ${functional ? 'functional check' : 'recording started'}; running XCTest`)
@@ -379,16 +372,18 @@ for (const test of selected ? [selected] : tests) {
     }
 
     await writeFile(stem + '.recording.log', recording)
-    command('xcrun', [
-      'devicectl',
-      'device',
-      'process',
-      'terminate',
-      '--device',
-      device,
-      '--pid',
-      String(pid),
-    ])
+    if (pid !== undefined) {
+      command('xcrun', [
+        'devicectl',
+        'device',
+        'process',
+        'terminate',
+        '--device',
+        device,
+        '--pid',
+        String(pid),
+      ])
+    }
   }
 }
 
