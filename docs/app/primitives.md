@@ -384,12 +384,12 @@ Check width separately when using nested media stages on iOS.
 
 ### Safe-area edges
 
-`SafeArea` stacks its children vertically and stretches them across the available
-width. In a parent with a bounded height, it and `ScrollableArea` can shrink to
-fit, leaving the content inside the scroll viewport tall enough to scroll.
-Ordinary vertical pages and cards need no extra width declarations. Give the
-outer host a height when you want an independently scrolling region; an
-unbounded document can still grow with its content.
+`SafeArea` uses block layout by default, so ordinary block children fill the
+available width without becoming flex items. A scroll viewport inside a bounded
+parent can shrink and is capped at that parent's content height; its content
+stays tall enough to scroll. Give the outer host a height when you want an
+independently scrolling region. An unbounded document can still grow with its
+content.
 
 ```tsx
 import { SafeArea, ScrollableArea, VStack, Text } from '@octane-xplat/ui'
@@ -409,6 +409,25 @@ export function NotesPage() {
     </VStack>
   )
 }
+```
+
+Choose flex explicitly when children need flex alignment or must share the
+remaining height with a header. This class works on web and native; use `VStack`
+inside the safe area when you want a separate column container.
+
+```tsx
+import { SafeArea, ScrollableArea, VStack, Text } from '@octane-xplat/ui'
+
+export function PageWithHeader() {
+  return <VStack height={480}><SafeArea className="safe-column">
+    <Text>Notes</Text>
+    <ScrollableArea><Text>Scrollable notes</Text></ScrollableArea>
+  </SafeArea></VStack>
+}
+```
+
+```css
+.safe-column { display: flex; flex-direction: column; }
 ```
 
 `SafeArea` keeps content clear of the system bars, notch, and home

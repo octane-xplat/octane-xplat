@@ -97,6 +97,25 @@ function ShortPage() {
   )
 }
 
+function SafeAreaMode(props: { mode: 'block' | 'class' | 'style' }) {
+  return (
+    <VStack width={320} height={240}>
+      <SafeArea
+        edges={[]}
+        className={props.mode === 'class' ? 'page-safe-flex' : undefined}
+        style={props.mode === 'style' ? { display: 'flex', flexDirection: 'row' } : undefined}
+      >
+        <VStack id="mode-first" width={120} height={40}>
+          <Text>First</Text>
+        </VStack>
+        <VStack id="mode-second" width={120} height={40}>
+          <Text>Second</Text>
+        </VStack>
+      </SafeArea>
+    </VStack>
+  )
+}
+
 function frame(ctx: ProbeContext, id: string) {
   const box = ctx.inspect(id).frame
 
@@ -167,14 +186,45 @@ async function checkPage(ctx: ProbeContext, width: number, refreshable: boolean)
 
   scroll!.scrollToOffset({ block: 0 })
   await ctx.waitFor(() => Math.abs(frame(ctx, 'card-0').y - before) <= 1)
+  return viewport
 }
 
 export async function run(ctx: ProbeContext) {
-  for (const width of [320, 375, 428]) {
-    await checkPage(ctx, width, false)
+  for (const mode of ['block', 'class', 'style'] as const) {
+    await ctx.mount(SafeAreaMode, { mode })
+    await ctx.waitFor(() => (ctx.inspect('mode-second').frame?.height ?? 0) > 0)
+
+    const first = frame(ctx, 'mode-first')
+    const second = frame(ctx, 'mode-second')
+
+    ctx.record(`SafeArea ${mode}`, { first, second })
+    ctx.assert(`${mode} first width preserved`, Math.abs(first.width - 120) <= 1)
+    if (mode === 'block') {
+      ctx.assert('block children flow vertically', second.y >= first.y + first.height - 1)
+      ctx.assert('block children share left edge', Math.abs(second.x - first.x) <= 1)
+    } else {
+      ctx.assert(`${mode} flex override flows horizontally`, second.x >= first.x + first.width - 1)
+      ctx.assert(`${mode} flex children share top edge`, Math.abs(second.y - first.y) <= 1)
+    }
   }
 
-  await checkPage(ctx, 375, true)
+  let normalHeight = 0
+
+  for (const width of [320, 375, 428]) {
+    const viewport = await checkPage(ctx, width, false)
+
+    if (width === 375) {
+      normalHeight = viewport.height
+    }
+  }
+
+  const refreshed = await checkPage(ctx, 375, true)
+
+  ctx.assert(
+    'refresh indicator overlays without taking viewport height',
+    Math.abs(refreshed.height - normalHeight) <= 1,
+  )
+
   for (const axis of ['inline', 'both'] as const) {
     await ctx.mount(Intrinsic, { axis })
     await ctx.waitFor(() => (ctx.inspect('wide').frame?.width ?? 0) > 0)

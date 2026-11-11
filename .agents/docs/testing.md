@@ -293,7 +293,8 @@ regressions through their owning Turbo task rather than a second wrapper.
 ## Shared page geometry
 
 UI owns a nonvisual regression using the same theme imports and fixture CSS on
-Chromium and native hosts. It measures narrow page/card/text/control bounds,
+Chromium and native hosts. It checks SafeArea block flow and class/style flex
+overrides, measures narrow page/card/text/control bounds,
 scrolls the real viewport through its portable handle, and preserves intentional
 wide content with inline/both-axis scrolling. It runs outside the PR gate:
 

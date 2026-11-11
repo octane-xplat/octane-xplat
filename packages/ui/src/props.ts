@@ -2096,7 +2096,8 @@ export interface ScrollableAreaHandle {
  *  they only apply on the block axis on web/iOS/Android. macOS does not
  *  support pull-to-refresh; use an app-owned refresh action.
  *  The viewport can shrink inside a bounded flex parent (min-width and
- *  min-height default to zero); its content retains its scrollable extent.
+ *  min-height default to zero), and max-height defaults to 100% of its containing
+ *  block when that height is definite. Its content retains its scrollable extent.
  *  An unbounded parent still permits content-sized height.
  *
  * @example
@@ -2562,8 +2563,9 @@ export interface ScreenProps {
 export type SafeAreaEdge = 'top' | 'right' | 'bottom' | 'left'
 
 /** Container that consumes system safe-area insets as padding. `edges` selects which edges (default all four); each inset is consumed once — nested SafeAreas pad only for what's left, and `KeyboardAvoiding` subtracts a consumed bottom inset. `edges={[]}` makes it neutral; `ignoreSafeArea` is the deprecated spelling of that.
- * Children flow vertically and stretch across the available width. The wrapper
- * can shrink inside a bounded flex parent; authored styles override these defaults.
+ * Uses block layout by default; children are not implicitly flex items. The wrapper
+ * can shrink inside a bounded flex parent. Choose display:flex explicitly for
+ * flex alignment and height distribution; authored styles override the defaults.
  *
  * @example
  * ```tsx

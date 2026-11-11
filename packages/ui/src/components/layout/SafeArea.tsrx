@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { styleRecord } from '../../internal/layout/style-merge'
 import { useContext } from 'octane'
 import type { SafeAreaProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
@@ -27,16 +27,13 @@ export function SafeArea(props: SafeAreaProps): unknown @{
     id={props.id}
     ref={(host: any) => applyEscapeProps(host, props)}
     className={cx('vx-safe-area', props.className)}
-    style={mergeStyle(
-      { display: 'flex' },
-      {
-        ...styleRecord(props.style),
-        paddingTop: applied.top,
-        paddingRight: applied.right,
-        paddingBottom: applied.bottom,
-        paddingLeft: applied.left,
-      },
-    )}
+    style={{
+      ...styleRecord(props.style),
+      paddingTop: applied.top,
+      paddingRight: applied.right,
+      paddingBottom: applied.bottom,
+      paddingLeft: applied.left,
+    }}
   >
     <ConsumedInsetsProvider value={provided}>{props.children}</ConsumedInsetsProvider>
   </masonview>

@@ -111,8 +111,7 @@
 
 	/* Safe-area values are zero when the viewport has no display cutout. */
 	.vx-safe-area {
-		display: flex;
-		flex-direction: column;
+		display: block;
 		flex-shrink: 1;
 		min-width: 0;
 		min-height: 0;
@@ -722,10 +721,10 @@
 		justify-content: center;
 		height: 64px;
 	}
-	@platform gtk {
+	@platform ios, android, windows, gtk {
 		.vx-refresh-wrap {
-			grid-template-rows: 1fr;
-			grid-template-columns: 1fr;
+			grid-template-rows: minmax(0, 1fr);
+			grid-template-columns: minmax(0, 1fr);
 			overflow: hidden;
 		}
 		.vx-refresh-wrap > * {
@@ -2723,14 +2722,15 @@
 
 	/* ---------- scrollable area ---------- */
 
-	/* Viewports may shrink within a bounded page; their content must retain
-	   its intrinsic extent so it can scroll. Do not change the global
-	   shrink default or constrain content along a scrolling axis. */
+	/* Viewports may shrink within flex parents and stay within a definite
+	   block parent's content height. In an indefinite block the percentage
+	   maximum is unconstrained. Content retains its intrinsic scroll extent. */
 	.vx-scrollable,
 	.vx-refresh-wrap {
 		flex-shrink: 1;
 		min-width: 0;
 		min-height: 0;
+		max-height: 100%;
 	}
 
 	/* xplat-web-only:start — the content box carries padding; overflow +

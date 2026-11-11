@@ -28,7 +28,7 @@ the behavior differences between DOM and NativeScript.
 
 - AC7: Native Screens use their assigned host bounds from first mount; a prepared Frame-navigated Page fills its native bounds and SafeArea alone supplies system-bar padding. Explain embedded-host limits and avoid compensating margins.
 
-- AC8: Ordinary SafeArea → ScrollableArea → vertical page/card compositions fit their available width without per-container width fixes. Paragraphs and wrapping control rows fit narrow hosts; bounded viewports retain usable vertical scrolling, including refreshable regions. Intentional wide content remains scrollable with inline/both axes.
+- AC8: SafeArea defaults to block flow and permits class/style flex overrides. Ordinary SafeArea → ScrollableArea → vertical page/card compositions fit their available width without per-container width fixes. Paragraphs and wrapping control rows fit narrow hosts; bounded viewports retain usable vertical scrolling, including refreshable regions. Intentional wide content remains scrollable with inline/both axes.
 
 ## Documentation
 

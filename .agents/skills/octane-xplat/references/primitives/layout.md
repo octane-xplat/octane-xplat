@@ -159,9 +159,11 @@ export function DragSurface() {
 
 ## Vertical page sizing
 
-`SafeArea` is a column wrapper with stretching children. It and `ScrollableArea`
-allow shrinking inside a bounded host; content retains its intrinsic scroll
-extent. Do not add width:100%/min-width:0 recipes to each ordinary vertical card
+`SafeArea` uses block layout, not an implicit flex column. It and `ScrollableArea`
+allow shrinking inside a bounded flex host; scroll viewports also default to
+max-height:100% of a definite containing block. Content retains its scroll extent.
+Choose an explicit display:flex class/style or a `VStack` for flex alignment and
+remaining-height distribution among siblings. Do not add width:100%/min-width:0 recipes to each ordinary vertical card
 to compensate for native measurement. Keep explicit widths for intentionally
 wide content and choose `axis="inline"` or `axis="both"` to scroll it. A bounded
 outer height is still needed for an independently scrolling region.
