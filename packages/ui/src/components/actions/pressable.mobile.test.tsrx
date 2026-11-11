@@ -1,228 +1,212 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { afterEach, expect, it, vi } from 'vitest'
-
-const nativeListeners = vi.hoisted(
-  () => new WeakMap<object, Map<string, (event: unknown) => void>>(),
-)
-
-vi.mock('@nativescript/core', () => ({
-  GestureTypes: { tap: 1, doubleTap: 2 },
-  View: class {
-    addEventListener(type: string, callback: (event: unknown) => void) {
-      let listeners = nativeListeners.get(this)
-
-      if (!listeners) {
-        listeners = new Map()
-        nativeListeners.set(this, listeners)
-      }
-
-      listeners.set(type, callback)
-    }
-    removeEventListener(type: string) {
-      nativeListeners.get(this)?.delete(type)
-    }
-  },
-  isAndroid: false,
-  isIOS: false,
-  ScrollView: class {},
-  Utils: { layout: { getDisplayDensity: () => 2.625 } },
-}))
+import {
+  createNativeGestureContainer,
+  NativeGestureView,
+  nativeGestureSubscriptions,
+} from '../../../tests/native-gesture-object-driver'
 
 import {
-  createObjectContainer,
-  createObjectDriver,
-  createUniversalRoot,
-  flushUniversalSync,
-} from 'octane/universal/native'
+  createNativeGestureDriver,
+  dispatchFixtureContacts,
+} from '../../../tests/native-gesture-surface'
 
-import { Pressable } from './Pressable.tsrx'
+import { createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import type { InputFrame } from '../../gestures/owner'
 import type { PressableProps } from '../../props'
+import { Pressable } from './Pressable.tsrx'
 
-const roots: Array<{ unmount(): void }> = []
+// Normalized contact/SDK semantic dispatch, not a native recognizer or OS test.
+vi.mock('../../gestures/native-surface', () => import('../../../tests/native-gesture-surface'))
+vi.mock('@nativescript/core', () => ({ View: NativeGestureView, isAndroid: true, isIOS: false }))
+
+const roots: { unmount(): void }[] = []
 
 afterEach(() => {
   roots.splice(0).forEach((root) => root.unmount())
-  vi.unstubAllGlobals()
 })
 
 function setup(props: PressableProps = {}) {
-  vi.stubGlobal('android', {
-    view: { ViewConfiguration: { get: () => ({ getScaledTouchSlop: () => 21 }) } },
-  })
-
-  const container = createObjectContainer('nativescript')
-  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const container = createNativeGestureContainer()
+  const root = createUniversalRoot(container, createNativeGestureDriver(container))
 
   roots.push(root)
 
-  const render = (next: PressableProps) => flushUniversalSync(() => root.render(Pressable, next))
+  const render = (value: PressableProps) => flushUniversalSync(() => root.render(Pressable, value))
 
   render(props)
 
   const host = container.children[0]
-  const dispatch = (name: string, data: object) =>
-    flushUniversalSync(() => {
-      if (name === 'tap' || name === 'doubleTap') {
-        const handler = nativeListeners.get(host)?.get(name)
+  let time = 0
+  const contacts = (
+    type: InputFrame['type'],
+    y: number,
+    count = type === 'up' || type === 'cancel' ? 0 : 1,
+  ) => {
+    const changed = { id: 'one', kind: 'touch' as const, window: { x: 0, y }, screen: null }
+    const current = Array.from({ length: count }, (_, index) => ({
+      ...changed,
+      id: index === 0 ? 'one' : 'two',
+    }))
 
-        if (handler) {
-          handler(data)
-        } else {
-          container.dispatchEvent(host, name, data)
-        }
-      } else {
-        container.dispatchEvent(host, name, data)
-      }
-    })
-
-  return { render, dispatch, root, host, container }
-}
-
-function motion(action: number, rawY: number, downTime = 100) {
-  return {
-    getActionMasked: () => action,
-    getRawX: () => 540,
-    getRawY: () => rawY,
-    getDownTime: () => downTime,
-    getPointerCount: () => 1,
+    flushUniversalSync(() =>
+      dispatchFixtureContacts(container, {
+        type,
+        time: (time += 100),
+        changed,
+        contacts: current,
+        hitPath: [host],
+      }),
+    )
   }
+
+  const tap = (pointer = true) =>
+    container.dispatchEvent(host, 'tap', pointer ? { android: {} } : {})
+
+  return { root, host, container, render, contacts, tap }
 }
 
-it('retains a draft after a slow moving-host pan even when Android emits tap', () => {
+it('retains a draft after a moving-host pan and ignores its trailing native activation', () => {
   let draft = 'unsaved'
   const onPan = vi.fn()
-  const { dispatch } = setup({
+  const env = setup({
     onPan,
     onPress: () => {
       draft = ''
     },
   })
 
-  dispatch('touch', { action: 'down', android: motion(0, 321), view: { _context: {} } })
-  for (const [rawY, localY, dy] of [
-    [322, 62, 0.4],
-    [350, 68, 11.2],
-    [395, 70, 28.3],
-  ]) {
-    const event = { ...motion(2, rawY), getY: () => localY }
+  env.contacts('down', 0)
+  env.contacts('move', 20)
+  env.host.translateY = 20
+  env.contacts('move', 80)
+  env.contacts('up', 80)
+  env.tap()
+  expect(onPan.mock.calls[0][0].phase).toBe('start')
 
-    dispatch('touch', { action: 'move', android: event })
-    dispatch('pan', { state: 2, deltaX: 0, deltaY: dy, android: { current: event } })
-  }
+  const finishes = onPan.mock.calls.filter(([event]) => event.phase === 'finish')
 
-  dispatch('pan', { state: 3, deltaX: 0, deltaY: 28.3, android: { current: motion(1, 401) } })
-  dispatch('tap', { android: motion(1, 401) }) // can precede touch-up observer
-  dispatch('touch', { action: 'up', android: motion(1, 401) })
-  expect(onPan).toHaveBeenCalledTimes(4)
+  expect(finishes).toHaveLength(1)
+  expect(finishes[0][0].terminal.sample.translation.y).toBe(80)
   expect(draft).toBe('unsaved')
+  env.contacts('down', 20)
+  env.contacts('up', 20)
+  env.tap()
+  expect(draft).toBe('')
 })
 
-it('keeps ordinary taps and tiny pan jitter, and accepts the next contact after a rejected drag', () => {
+it('keeps tiny jitter and a fresh tap after rejecting a drag', () => {
   const onPress = vi.fn()
-  const { dispatch } = setup({ onPress, onPan: vi.fn() })
+  const env = setup({ onPress, onPan: vi.fn() })
 
-  for (const [time, travel] of [
-    [100, 80],
-    [200, 2],
-    [300, 0],
-  ]) {
-    dispatch('touch', { action: 'down', android: motion(0, 321, time), view: { _context: {} } })
-    dispatch('touch', { action: 'move', android: motion(2, 321 + travel, time) })
-    dispatch('pan', {
-      state: 1,
-      deltaX: 0,
-      deltaY: travel,
-      android: { current: motion(2, 321 + travel, time) },
-    })
-
-    dispatch('touch', { action: 'up', android: motion(1, 321 + travel, time) })
-    dispatch('tap', { android: motion(1, 321 + travel, time) })
+  for (const distance of [80, 2, 0]) {
+    env.contacts('down', 0)
+    env.contacts('move', distance)
+    env.contacts('up', distance)
+    env.tap()
   }
 
   expect(onPress).toHaveBeenCalledTimes(2)
 })
 
-it('rejects cancelled, multi-contact, and returned-to-origin contacts without affecting the next tap', () => {
+it('rejects cancelled, multi-contact and returned-to-origin sequences', () => {
   for (const kind of ['cancel', 'multi', 'return']) {
-    const onPress = vi.fn()
-    const onPressOut = vi.fn()
-    const { dispatch } = setup({ onPress, onPressOut })
+    const onPress = vi.fn(),
+      onPressOut = vi.fn()
 
-    dispatch('touch', { action: 'down', android: motion(0, 321), view: { _context: {} } })
-    dispatch('touch', {
-      action: kind === 'cancel' ? 'cancel' : 'move',
-      android: {
-        ...motion(kind === 'cancel' ? 3 : 2, kind === 'return' ? 401 : 321),
-        getPointerCount: () => (kind === 'multi' ? 2 : 1),
-      },
-    })
+    const env = setup({ onPress, onPressOut })
 
-    dispatch('tap', { android: motion(1, 321) })
-    expect(onPress).not.toHaveBeenCalled()
+    env.contacts('down', 0)
     if (kind === 'cancel') {
-      expect(onPressOut).toHaveBeenCalledOnce()
+      env.contacts('cancel', 0)
+    } else if (kind === 'multi') {
+      env.contacts('down', 0, 2)
+    } else {
+      env.contacts('move', 80)
+      env.contacts('move', 0)
     }
+
+    env.tap()
+    expect(onPress).not.toHaveBeenCalled()
+    expect(onPressOut).toHaveBeenCalledOnce()
+    env.contacts('up', 0)
+    env.contacts('down', 0)
+    env.contacts('up', 0)
+    env.tap()
+    expect(onPress).toHaveBeenCalledOnce()
   }
 })
 
-it('does not activate an old contact after disabling or removing its pan owner', () => {
-  const onPress = vi.fn()
-  const pan = vi.fn()
-  const { dispatch, render } = setup({ onPress, onPan: pan })
+it('does not revive a held contact after disabling or removing its pan owner', () => {
+  const onPress = vi.fn(),
+    onPan = vi.fn()
 
-  dispatch('touch', { action: 'down', android: motion(0, 321), view: { _context: {} } })
-  render({ onPress, disabled: true, onPan: pan })
-  render({ onPress, onPan: pan })
-  dispatch('tap', { android: motion(1, 321) })
+  const env = setup({ onPress, onPan })
+
+  env.contacts('down', 0)
+  env.render({ onPress, onPan, disabled: true })
+  env.render({ onPress, onPan })
+  env.contacts('up', 0)
+  env.tap()
   expect(onPress).not.toHaveBeenCalled()
-  dispatch('touch', { action: 'down', android: motion(0, 321, 200), view: { _context: {} } })
-  render({ onPress })
-  dispatch('tap', { android: motion(1, 321, 200) })
+  env.contacts('down', 0)
+  env.contacts('move', 80)
+  env.render({ onPress })
+  env.contacts('up', 80)
+  env.tap()
   expect(onPress).not.toHaveBeenCalled()
 })
 
-it('reads new callbacks without cancelling a held contact, and retains iOS/accessibility activation', () => {
+it('updates callbacks during a contact and preserves independent virtual activation', async () => {
   const first = vi.fn(),
     latest = vi.fn(),
     onDoublePress = vi.fn()
 
-  const { dispatch, render } = setup({ onPress: first, onDoublePress, onPan: vi.fn() })
+  const env = setup({ onPress: first, onDoublePress, onPan: vi.fn() })
 
-  dispatch('touch', { action: 'down', android: motion(0, 321), view: { _context: {} } })
-  render({ onPress: latest, onDoublePress, onPan: vi.fn() })
-  dispatch('tap', { android: motion(1, 321) })
+  env.contacts('down', 0)
+  env.render({ onPress: latest, onDoublePress, onPan: vi.fn() })
+  env.contacts('up', 0)
+  env.tap()
   expect(first).not.toHaveBeenCalled()
   expect(latest).toHaveBeenCalledOnce()
-  dispatch('touch', { action: 'move', android: motion(2, 401) })
-  dispatch('doubleTap', { android: motion(1, 401) })
+  env.tap(false)
+  expect(latest).toHaveBeenCalledTimes(2)
+  expect(latest.mock.calls[0][0].source).toBe('pointer')
+  expect(latest.mock.calls[1][0].source).toBe('virtual')
+  env.contacts('down', 0)
+  env.contacts('move', 80)
+  env.container.dispatchEvent(env.host, 'doubleTap', { android: {} })
+  await Promise.resolve()
   expect(onDoublePress).not.toHaveBeenCalled()
-  dispatch('tap', { ios: {} })
-  dispatch('tap', {})
-  expect(latest).toHaveBeenCalledTimes(3)
+  env.contacts('up', 80)
 })
 
-it('keeps contact ownership separate for independent mounted controls', () => {
+it('keeps independent roots and contacts separate', () => {
   const outerPress = vi.fn(),
     innerPress = vi.fn()
 
   const outer = setup({ onPress: outerPress, onPan: vi.fn() })
   const inner = setup({ onPress: innerPress })
 
-  outer.dispatch('touch', { action: 'down', android: motion(0, 321), view: { _context: {} } })
-  outer.dispatch('touch', { action: 'move', android: motion(2, 401) })
-  inner.dispatch('touch', { action: 'down', android: motion(0, 401, 200), view: { _context: {} } })
-  inner.dispatch('tap', { android: motion(1, 401, 200) })
-  outer.dispatch('tap', { android: motion(1, 401) })
+  outer.contacts('down', 0)
+  outer.contacts('move', 80)
+  inner.contacts('down', 0)
+  inner.contacts('up', 0)
+  inner.tap()
+  outer.contacts('up', 80)
+  outer.tap()
   expect(innerPress).toHaveBeenCalledOnce()
   expect(outerPress).not.toHaveBeenCalled()
 })
 
-it('binds the NativeScript base gesture channel and removes it on unmount', () => {
-  const { root, host, container } = setup({ onPress: vi.fn(), onDoublePress: vi.fn() })
+it('removes SDK semantic subscriptions on unmount', () => {
+  const onPress = vi.fn()
+  const env = setup({ onPress, onDoublePress: vi.fn() })
 
-  expect([...nativeListeners.get(host)!.keys()]).toEqual(['tap', 'doubleTap'])
-  // Mason maps a string tap subscription to click with no contact metadata.
-  expect(() => container.dispatchEvent(host, 'tap', { type: 'click' })).toThrow(/no "tap" listener/)
-  root.unmount()
-  expect(nativeListeners.get(host)?.size).toBe(0)
+  expect(nativeGestureSubscriptions(env.host)).toEqual(['tap', 'doubleTap'])
+  env.root.unmount()
+  expect(nativeGestureSubscriptions(env.host)).toEqual([])
+  expect(() => env.tap()).toThrow(/unknown event target/)
+  expect(onPress).not.toHaveBeenCalled()
 })

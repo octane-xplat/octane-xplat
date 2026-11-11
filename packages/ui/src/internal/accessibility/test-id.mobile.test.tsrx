@@ -1,7 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { createNativeGestureDriver } from '../../../tests/native-gesture-surface'
+
+vi.mock('../../gestures/native-surface', () => import('../../../tests/native-gesture-surface'))
+
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import { createUniversalRoot } from 'octane/universal/native'
 
 vi.mock('@nativescript/core', async () => ({
   View: (await import('../../../tests/native-gesture-object-driver')).NativeGestureView,
@@ -42,7 +46,7 @@ function nodes(children: any[]): any[] {
 describe('automation identity binding (renderer evidence, not OS qualification)', () => {
   it('updates and clears a retained host without changing id, labels, roles, or child identity', () => {
     const container = createObjectContainer('nativescript')
-    const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+    const root = createUniversalRoot(container, createNativeGestureDriver(container))
     const props = { id: 'legacy', accessibilityLabel: 'Open item', accessibilityRole: 'button' }
 
     root.render(ActionWithChild, { ...props, testID: 'item.a.open' })
@@ -65,7 +69,7 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
 
   it.each([View, Stack])('assigns container identity only to its host', (Component) => {
     const container = createObjectContainer('nativescript')
-    const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+    const root = createUniversalRoot(container, createNativeGestureDriver(container))
 
     root.render(ContainerWithChild, { Component })
     expect(
@@ -81,7 +85,7 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
     'targets the editable field rather than the input shell',
     (Component) => {
       const container = createObjectContainer('nativescript')
-      const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+      const root = createUniversalRoot(container, createNativeGestureDriver(container))
 
       root.render(Component, { testID: 'entry', icon: false, hasClear: false })
 

@@ -231,6 +231,21 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 
 ## Gesture owner checks
 
+Compiled native component fixtures that exercise the real owner use
+`packages/ui/tests/native-gesture-surface.ts` with the object driver. Its
+surface supplies declared logical bounds, not native hit testing. Deliver
+normalized contact frames through `dispatchFixtureContacts`; SDK semantic
+activation stays on `createNativeGestureContainer`'s separate tap channel.
+This preserves press/drag/cancellation behavior without forging UITouch or
+MotionEvent objects, and does not establish OS recognition or coordinate conversion.
+
+```ts
+const container = createNativeGestureContainer()
+const root = createUniversalRoot(container, createNativeGestureDriver(container))
+// Mock only the native-surface module, then mount the actual shared components.
+```
+
+
 The shared gesture system has three focused checks. Run the state-machine
 and web-adapter unit cases, the native bridge and compiled hook/object-driver
 cases, and browser input separately from device qualification:

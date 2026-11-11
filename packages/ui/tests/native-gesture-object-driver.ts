@@ -48,3 +48,7 @@ export function createNativeGestureContainer(renderer = 'nativescript'): NativeG
 
   return container
 }
+
+export function nativeGestureSubscriptions(host: object): readonly string[] {
+  return [...(listeners.get(host)?.keys() ?? [])]
+}

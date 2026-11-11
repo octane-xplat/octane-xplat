@@ -1,10 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { createNativeGestureDriver } from '../../tests/native-gesture-surface'
+
+vi.mock('../gestures/native-surface', () => import('../../tests/native-gesture-surface'))
+
 import { createNativeGestureContainer as createObjectContainer } from '../../tests/native-gesture-object-driver'
-import {
-  createObjectDriver,
-  createUniversalRoot,
-  flushUniversalSync,
-} from 'octane/universal/native'
+import { createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 
 import { expect, it, vi } from 'vitest'
 
@@ -47,7 +47,7 @@ it('activates an intact checked value through the native link and owning flow', 
   }
 
   const container = createObjectContainer('nativescript')
-  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const root = createUniversalRoot(container, createNativeGestureDriver(container))
   const props = {
     router: fixture.router,
     destination: checked.destination,
@@ -60,9 +60,7 @@ it('activates an intact checked value through the native link and owning flow', 
   try {
     root.render(CheckedLinks, { ...props, disabled: true })
     await settle()
-    expect(() =>
-      container.dispatchEvent(link(), 'tap', { eventName: 'tap', object: link() }),
-    ).toThrow('no "tap" listener')
+    container.dispatchEvent(link(), 'tap', { eventName: 'tap', object: link() })
 
     expect(fixture.loads).toBe(0)
     root.render(CheckedLinks, { ...props, cancel: true })

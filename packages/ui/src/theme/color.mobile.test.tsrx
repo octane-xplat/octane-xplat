@@ -1,18 +1,19 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { createNativeGestureDriver } from '../../tests/native-gesture-surface'
+
+vi.mock('../gestures/native-surface', () => import('../../tests/native-gesture-surface'))
 vi.mock('../components/media/svg', () => ({
   glyphSvgMarkup: () => null,
   isSvgSrc: () => false,
   svgSource: () => null,
 }))
 
+import { createNativeGestureContainer as createObjectContainer } from '../../tests/native-gesture-object-driver'
+import { dispatchFixtureContacts } from '../../tests/native-gesture-surface'
 import { describe, expect, it, vi } from 'vitest'
-import {
-  createObjectContainer,
-  createObjectDriver,
-  createUniversalRoot,
-} from 'octane/universal/native'
+import { createUniversalRoot } from 'octane/universal/native'
 
-vi.mock('@nativescript/core', () => ({
+vi.mock('@nativescript/core', async () => ({
   // ui-svg's index.common.ts evaluates NS decorators at import.
   Property: class {
     constructor(_opts?: any) {}
@@ -20,7 +21,7 @@ vi.mock('@nativescript/core', () => ({
   },
   CSSType: () => () => {},
   registerElement: () => {},
-  View: class {},
+  View: (await import('../../tests/native-gesture-object-driver')).NativeGestureView,
   isIOS: false,
   isAndroid: true,
 }))
@@ -31,7 +32,7 @@ import { ColorPicker } from '../components/forms/ColorPicker.tsrx'
 
 function mount(component: any, props: any) {
   const container = createObjectContainer('nativescript')
-  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const root = createUniversalRoot(container, createNativeGestureDriver(container))
 
   root.render(component, props)
   return { container, root, host: container.children[0] }
@@ -42,8 +43,23 @@ const pan = (
   host: any,
   events: { deltaX: number; deltaY: number; state: number }[],
 ) => {
+  let time = 0
+
   for (const e of events) {
-    container.dispatchEvent(host, 'pan', { ...e, view: host })
+    const contact = {
+      id: 'one',
+      kind: 'touch' as const,
+      window: { x: e.deltaX, y: e.deltaY },
+      screen: null,
+    }
+
+    dispatchFixtureContacts(container, {
+      type: e.state === 1 ? 'down' : e.state === 3 ? 'up' : 'move',
+      time: (time += 20),
+      contacts: e.state === 3 ? [] : [contact],
+      changed: contact,
+      hitPath: [host],
+    })
   }
 }
 
@@ -79,8 +95,8 @@ describe('native color suite', () => {
       { deltaX: 50, deltaY: 0, state: 3 },
     ])
 
-    expect(change).toHaveBeenCalled()
-    expect(end).toHaveBeenCalled()
+    expect(change).toHaveBeenLastCalledWith('#00ffff')
+    expect(end).toHaveBeenCalledExactlyOnceWith('#00ffff')
     root.unmount()
   })
 
