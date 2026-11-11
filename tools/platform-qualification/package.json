@@ -9,7 +9,7 @@
     "verify:windows-gestures": "node desktop-gestures/verify-windows.mts",
     "probe:prerender:build": "node native-prerender/run.mjs build",
     "probe:prerender:ios": "node native-prerender/run.mjs run",
-    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js"
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs"
   },
   "devDependencies": {
     "@octane-xplat/nativescript-octane": "workspace:*",
