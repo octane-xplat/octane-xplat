@@ -812,6 +812,17 @@ a production workaround. The candidate 30-second source repair has not been
 rebuilt or release-qualified. Upstream should reconcile request/retry,
 server-transform and total graph deadlines, and preserve the original
 fetch-failure reason in fallback diagnostics. Raising only the async session
-timeout is insufficient. Xplat carries no production runtime patch; no
-upstream issue or repair has been submitted for this finding. HMR correctness
-and usable-screen startup remain unqualified by this investigation.
+timeout is insufficient. No upstream issue or repair has been submitted for
+this finding.
+
+Xplat mitigates server-side rather than patching the runtime: the canonical
+@nativescript/vite 8.0.20 patch adds a boot graph crawl that walks the same
+served-code specifier graph the device traverses — through the real /ns/*
+middleware — during the prepare/install window, so the runtime's async walk
+hits warmed transforms and memoized responses instead of cold pipelines that
+outlast its 5-second request budget. Crawl traffic marks
+`x-ns-vite-boot-crawl` and queues behind live device demand in the shared
+transform runner's priority lanes; the dev link-check's nested target
+transforms share that runner (deduped, still checked) and each target's
+default-export verdict is cached by served code. The runtime's budget,
+request/retry and graph deadlines remain upstream's to reconcile.
