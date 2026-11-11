@@ -340,6 +340,199 @@ index 77f5533a289902b644f2dba4c8a558f5a00c8314..5c1d57f34a5e863ae3e684012a99f9bb
          const realIdPrefixed = (src) => {
              if (!src || !src.startsWith('/@id/'))
                  return null;
+diff --git a/hmr/server/boot-graph-crawl.js b/hmr/server/boot-graph-crawl.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..ceb5a30bf6d4f747a3130f8968ae0f5ac4363ee9
+--- /dev/null
++++ b/hmr/server/boot-graph-crawl.js
+@@ -0,0 +1,187 @@
++import { resolveProjectMainEntryPath } from './vite-plugin.js';
++// Boot graph crawl — server-side pre-warm of the device module graph.
++//
++// NativeScript iOS gives every module fetch a 5-second request budget (async
++// graph-walk and synchronous resolver alike), while a cold Vite transform can
++// take longer — the runtime's async walk then marks the dependency failed,
++// `LoadHttpModuleForUrl` falls back to a blocking synchronous fetch, and
++// hundreds of serial cold transforms blow the boot budget entirely. The
++// device walks the same served-code specifier graph this crawl traverses:
++// every reachable `/ns/*` URL is fetched through the real middleware, which
++// populates the shared transform cache and the /ns/m response memo during
++// the prepare/install window before the app launches. Device requests then
++// hit warm transforms and memoized responses instead of cold pipelines.
++//
++// The crawl only reads: it issues ordinary GETs through the existing
++// middleware, mutates no module state, and never blocks shutdown. Requests
++// carry `x-ns-vite-boot-crawl` so shared transform queueing can keep device
++// demand ahead of warm-up work (see shared-transform-request's priority).
++export const BOOT_CRAWL_HEADER = 'x-ns-vite-boot-crawl';
++const BOOT_CRAWL_HEADER_VALUE = '1';
++// The session descriptor mints recording sessions and is fetched exactly
++// once per device boot — the crawl is warm-up traffic, not a boot signal.
++const CRAWL_SKIP_PATHS = new Set(['/__ns_dev__/session', '/ns-hmr']);
++// `?t=169…` cache-busters are freshly minted per request (same policy as the
++// boot recorder) — crawling them only mints dead variants.
++const VOLATILE_T_PARAM_RE = /[?&]t=\d+(?:&|$)/;
++// Quoted strings in served JS that resolve onto the device's fetchable URL
++// spaces: /ns/* module/bridge routes and the served vendor bundle.
++const CRAWL_URL_RE = /["'`]([^"'`]*?\/(?:ns\/(?!hmr\b)[A-Za-z][^"'`]*|@nativescript\/vendor\.mjs))["'`]/g;
++/**
++ * Extract every `/ns/*` (and vendor bundle) URL the device would fetch from a
++ * served module body. Returns deduplicated `pathname+search` strings relative
++ * to the dev-server origin — the served code emits absolute URLs on the
++ * device-reachable host, but only the path component matters for crawling.
++ */
++export function extractBootCrawlUrls(code) {
++    const urls = new Set();
++    if (typeof code !== 'string' || !code)
++        return urls;
++    for (const match of code.matchAll(CRAWL_URL_RE)) {
++        let pathname;
++        try {
++            pathname = new URL(match[1], 'http://boot-crawl.invalid').pathname;
++        }
++        catch {
++            continue;
++        }
++        if (!pathname)
++            continue;
++        if (CRAWL_SKIP_PATHS.has(pathname))
++            continue;
++        const search = match[1].includes('?') ? match[1].slice(match[1].indexOf('?')) : '';
++        const pathWithSearch = search ? `${pathname}${search}` : pathname;
++        if (VOLATILE_T_PARAM_RE.test(pathWithSearch))
++            continue;
++        urls.add(pathWithSearch);
++    }
++    return urls;
++}
++/**
++ * Seed set covering the dev-client bootstrap (which names the entry-runtime,
++ * hot-context, css-handler, launch-bridge and core-bridge modules), the
++ * single-payload bundles, and the application entry itself.
++ */
++export function bootCrawlSeedPaths(projectRoot) {
++    return [
++        '/__ns_dev__/client',
++        '/ns/import-map.json',
++        '/@nativescript/vendor.mjs',
++        '/ns/deps-bundle.mjs',
++        '/ns/core-bundle.mjs',
++        '/ns/core',
++        `/ns/m${resolveProjectMainEntryPath(projectRoot)}`,
++    ];
++}
++/**
++ * Walk the served module graph with bounded concurrency. Each 2xx response
++ * body is scanned for child /ns/* specifiers that are queued for their own
++ * fetch, so the traversal reaches exactly the modules the runtime's async
++ * walk would request. `fetchImpl` defaults to global fetch against `origin`
++ * with the crawl header set; `signal` aborts the walk on server shutdown.
++ */
++export async function runBootGraphCrawl(options) {
++    const origin = options.origin;
++    const concurrency = Math.max(1, Math.floor(options.concurrency ?? 6));
++    const maxUrls = Math.max(concurrency, Math.floor(options.maxUrls ?? 3000));
++    const fetchImpl = options.fetchImpl ?? ((path) => fetch(`${origin}${path}`, { headers: { [BOOT_CRAWL_HEADER]: BOOT_CRAWL_HEADER_VALUE }, signal: options.signal }));
++    const visited = new Set();
++    const pending = [];
++    const enqueue = (path) => {
++        if (!path || visited.has(path))
++            return;
++        if (visited.size + pending.length >= maxUrls)
++            return;
++        pending.push(path);
++    };
++    for (const seed of options.seeds || []) {
++        enqueue(seed);
++    }
++    const keepAlive = Math.max(1, Math.floor(options.crawlWhileDeviceActive ?? 2));
++    const yieldMs = Math.max(10, Math.floor(options.deviceYieldMs ?? 100));
++    const yieldPause = () => new Promise((resolve) => setTimeout(resolve, yieldMs));
++    const worker = async (workerIndex) => {
++        for (;;) {
++            // Device traffic takes priority: while the app is actively
++            // fetching, excess crawl workers pause so live demand owns the
++            // transform lanes; a small residual keeps warming the tail.
++            // They resume once demand goes quiet — a boot burst or aborted
++            // boot must not retire the crawl while a warming frontier
++            // remains.
++            if (options.signal?.aborted)
++                return;
++            if (workerIndex >= keepAlive && pending.length && options.isDeviceActive?.()) {
++                await yieldPause();
++                continue;
++            }
++            const path = pending.shift();
++            if (!path)
++                return;
++            visited.add(path);
++            let body;
++            try {
++                const response = await fetchImpl(path);
++                if (!response || response.status < 200 || response.status >= 300) {
++                    response?.body?.cancel?.().catch(() => { });
++                    continue;
++                }
++                body = await response.text();
++            }
++            catch {
++                continue;
++            }
++            for (const child of extractBootCrawlUrls(body)) {
++                enqueue(child);
++            }
++        }
++    };
++    await Promise.all(Array.from({ length: concurrency }, (_v, i) => worker(i)));
++    return { visited };
++}
++/**
++ * Start the background crawl once the dev server is listening. Returns a
++ * handle whose `stop()` aborts the walk; `done` resolves with the visited
++ * path set (or the crawl error, which is logged and never rethrown).
++ */
++export function startBootGraphCrawl(server, options = {}) {
++    const verbose = !!options.verbose;
++    const log = (line) => {
++        if (verbose)
++            console.info(line);
++    };
++    const controller = new AbortController();
++    const state = { done: null, stop: () => controller.abort() };
++    const launch = () => {
++        const address = server.httpServer?.address?.();
++        if (!address || typeof address !== 'object' || !address.port)
++            return;
++        const host = !address.address || address.address === '::' || address.address === '0.0.0.0' || address.address === '::1'
++            ? '127.0.0.1'
++            : address.address;
++        const configuredConcurrency = Number.parseInt(process.env.NS_VITE_HMR_BOOT_CRAWL_CONCURRENCY || '', 10);
++        const concurrency = Number.isFinite(configuredConcurrency) && configuredConcurrency > 0 ? configuredConcurrency : 6;
++        const t0 = Date.now();
++        state.done = runBootGraphCrawl({
++            origin: `http://${host}:${address.port}`,
++            seeds: options.seeds || bootCrawlSeedPaths(server.config?.root || process.cwd()),
++            concurrency,
++            signal: controller.signal,
++            isDeviceActive: options.isDeviceActive,
++        }).then(({ visited }) => {
++            log(`[hmr-ws][boot-crawl] pre-warmed ${visited.size} modules in ${Date.now() - t0}ms`);
++            return visited;
++        }, (error) => {
++            log(`[hmr-ws][boot-crawl] crawl failed (non-fatal): ${error?.message || error}`);
++            return new Set();
++        });
++    };
++    const httpServer = server.httpServer;
++    if (!httpServer)
++        return state;
++    if (httpServer.listening)
++        launch();
++    else
++        httpServer.once('listening', launch);
++    httpServer.once('close', () => controller.abort());
++    return state;
++}
 diff --git a/hmr/server/css-device-module.js b/hmr/server/css-device-module.js
 index 0d7cd968eac690a85411cf3d6a24323a3d3a3992..98094d6ccfb918d00249d8087aebdd994b64244d 100644
 --- a/hmr/server/css-device-module.js
@@ -894,6 +1087,113 @@ index 51ad398cefe75c918e887bd9506d9152259b957e..57dc2be15705a5ac8b5393852fd5de41
                  if (httpOriginSafe) {
                      return `${prefix}${httpOriginSafe}${httpSpec}${suffix}`;
                  }
+diff --git a/hmr/server/shared-transform-request.js b/hmr/server/shared-transform-request.js
+index 08cf93fadb4b869ecfc8d3135a4d3d771d08db32..f32614cb802846ef74c3020eb925273273a92032 100644
+--- a/hmr/server/shared-transform-request.js
++++ b/hmr/server/shared-transform-request.js
+@@ -5,6 +5,7 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+     const queue = [];
+     const maxConcurrent = Math.max(1, Math.floor(options.maxConcurrent ?? 1));
+     const resultCacheTtlMs = Math.max(0, Math.floor(options.resultCacheTtlMs ?? 0));
++    const maxRecentResults = Math.max(1, Math.floor(options.maxRecentResults ?? 512));
+     const getResultCacheKey = options.getResultCacheKey ?? ((url) => url);
+     let activeCount = 0;
+     const getCacheGeneration = (cacheKey) => cacheGenerations.get(cacheKey) ?? 0;
+@@ -36,7 +37,7 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+             expiresAt: Date.now() + resultCacheTtlMs,
+             result,
+         });
+-        if (recentResults.size > 512) {
++        if (recentResults.size > maxRecentResults) {
+             const oldestKey = recentResults.keys().next().value;
+             if (oldestKey) {
+                 recentResults.delete(oldestKey);
+@@ -45,21 +46,31 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+     };
+     const runNext = () => {
+         while (activeCount < maxConcurrent) {
+-            const next = queue.shift();
+-            if (!next) {
++            // Highest priority first; FIFO among equals so device demand (0)
++            // always outranks auxiliary work (< 0) such as the link-check's
++            // nested transforms and the boot graph crawl.
++            let nextIndex = -1;
++            for (let i = 0; i < queue.length; i++) {
++                if (nextIndex === -1 || queue[i].priority > queue[nextIndex].priority) {
++                    nextIndex = i;
++                }
++            }
++            if (nextIndex === -1) {
+                 return;
+             }
++            const next = queue.splice(nextIndex, 1)[0].task;
+             activeCount += 1;
+             next();
+         }
+     };
+-    const schedule = (task) => {
++    const schedule = (task, priority = 0) => {
+         let resolveStarted = null;
+         const started = new Promise((resolve) => {
+             resolveStarted = resolve;
+         });
++        const queueEntry = { task: null, priority };
+         const execution = new Promise((resolve, reject) => {
+-            queue.push(() => {
++            queueEntry.task = () => {
+                 let started;
+                 resolveStarted?.();
+                 try {
+@@ -72,10 +83,11 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+                     activeCount = Math.max(0, activeCount - 1);
+                     runNext();
+                 });
+-            });
++            };
++            queue.push(queueEntry);
+             runNext();
+         });
+-        return { execution, started };
++        return { execution, started, queueEntry };
+     };
+     const withTimeout = (entry, url, timeoutMs) => {
+         if (!(timeoutMs > 0)) {
+@@ -93,7 +105,8 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+             });
+         }));
+     };
+-    const runner = ((url, timeoutMs = 120000) => {
++    const runner = ((url, timeoutMs = 120000, callOptions) => {
++        const priority = Number.isFinite(callOptions?.priority) ? Math.floor(callOptions.priority) : 0;
+         pruneRecentResults();
+         const cacheKey = getResultCacheKey(url);
+         const generation = getCacheGeneration(cacheKey);
+@@ -110,19 +123,23 @@ export function createSharedTransformRequestRunner(transformRequest, onTimeout,
+         // cacheKey.
+         const existingExecution = inFlight.get(cacheKey);
+         if (existingExecution && existingExecution.generation === generation) {
++            // An urgent caller promotes a still-queued low-priority entry.
++            if (existingExecution.queueEntry && priority > existingExecution.queueEntry.priority) {
++                existingExecution.queueEntry.priority = priority;
++            }
+             return withTimeout(existingExecution, url, timeoutMs);
+         }
+         const scheduled = schedule(async () => {
+             const result = await Promise.resolve(transformRequest(url));
+             rememberRecentResult(url, result, generation);
+             return result;
+-        });
++        }, priority);
+         const execution = scheduled.execution.finally(() => {
+             if (inFlight.get(cacheKey)?.execution === execution) {
+                 inFlight.delete(cacheKey);
+             }
+         });
+-        const entry = { execution, started: scheduled.started, cacheKey, generation };
++        const entry = { execution, started: scheduled.started, queueEntry: scheduled.queueEntry, cacheKey, generation };
+         inFlight.set(cacheKey, entry);
+         return withTimeout(entry, url, timeoutMs);
+     });
 diff --git a/hmr/server/transform-cache-invalidation.js b/hmr/server/transform-cache-invalidation.js
 index c4ee7fbd75d8e630e1702b08f4c1b6f7fc4f27bd..27a2e64215c592eec176fe9fdc6f5ccad7a8ca51 100644
 --- a/hmr/server/transform-cache-invalidation.js
@@ -1528,7 +1828,21 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
  import { cleanCode, collectImportDependencies, isWorkerEntryModuleId, processCodeForDevice, rewriteImports } from './websocket-device-transform.js';
  import { REQUIRE_GUARD_SNIPPET } from './require-guard.js';
  import { getServerOrigin } from './server-origin.js';
-@@ -98,7 +99,7 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -28,7 +29,12 @@ export function registerNsModuleServerRoute(server, options) {
+     // pipeline. Keyed by a hash of Vite's transform output, so HMR edits
+     // invalidate implicitly. `NS_VITE_HMR_DISABLE_NSM_MEMO=1` opts out.
+     const memoDisabled = process.env.NS_VITE_HMR_DISABLE_NSM_MEMO === '1' || process.env.NS_VITE_HMR_DISABLE_NSM_MEMO === 'true';
+-    const responseMemo = createNsMResponseMemo();
++    // Capacity must cover the boot crawl's whole closure (maxUrls default
++    // 3000) with headroom — the crawl itself fills the memo, and a smaller
++    // LRU evicts the earliest entries, which are exactly the modules the
++    // device fetches first on its own walk of the same graph.
++    const configuredMemoMax = Number.parseInt(process.env.NS_VITE_HMR_NSM_MEMO_MAX || '', 10);
++    const responseMemo = createNsMResponseMemo({ maxEntries: Number.isFinite(configuredMemoMax) && configuredMemoMax > 0 ? configuredMemoMax : 8000 });
+     // Deps bundle (see deps-bundle.ts): once a boot recording exists, the
+     // recorded node_modules closure is served as ONE esbuild payload and the
+     // canonical /ns/m/node_modules/... URLs become thin registry shims.
+@@ -98,7 +104,7 @@ export function registerNsModuleServerRoute(server, options) {
              // internal virtual modules (e.g., \0nsvite:nsconfig-json for
              // ~/package.json) that don't exist on disk and must NOT run
              // through the device post-processing pipeline below.
@@ -1537,7 +1851,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
                  try {
                      // First try Vite's transform pipeline directly
                      const vr = await sharedTransformRequest(spec);
-@@ -167,8 +168,21 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -167,8 +173,21 @@ export function registerNsModuleServerRoute(server, options) {
                      // Workspace css outside the vite root must be anchored to /@fs or
                      // `?inline` is denied and the DOM css module (__vite__updateStyle)
                      // is served instead.
@@ -1561,7 +1875,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
                      const inlineCode = inlineRes?.code || '';
                      // `?inline` output is `export default "<compiled css>"`.
                      const m = inlineCode.match(/export\s+default\s+("(?:[^"\\]|\\.)*")\s*;?/s);
-@@ -178,7 +192,14 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -178,7 +197,14 @@ export function registerNsModuleServerRoute(server, options) {
                              css = JSON.parse(m[1]);
                          }
                          catch { }
@@ -1577,7 +1891,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
                          const out = `// [ns:m][css] ${spec}\n` + `const __ns_css_text__ = ${JSON.stringify(css)};\n` + buildCssRegisterSnippetFromVar(spec, '__ns_css_text__') + `export default __ns_css_text__;\n`;
                          res.statusCode = 200;
                          res.end(out);
-@@ -191,12 +212,27 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -191,14 +217,38 @@ export function registerNsModuleServerRoute(server, options) {
                      if (verbose)
                          console.warn('[ns:m][css] inline compile failed', spec, cssErr?.message);
                  }
@@ -1603,10 +1917,22 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
 +                    console.log('[ns:m] dependency file changed outside the watcher; invalidating transform caches', file);
 +                purgeTransformCachesForHotUpdate({ file, server, sharedTransformRequest, verbose, label: 'ns:m-deps' });
 +            };
++            // The link-check's per-import "does the target export a default"
++            // verdict only depends on the target's served code, not on the
++            // importer — cache it so every barrel importing the same module
++            // doesn't pay a nested transform + AST walk again. Keyed by target
++            // code so an edited file's verdict naturally revalidates.
++            const defaultExportVerdicts = registerNsModuleServerRoute.defaultExportVerdicts ??= new Map();
++            // Boot-crawl traffic is warm-up only: queue it behind live device
++            // demand so a crawling wave can never starve the app's own walk.
++            const crawlPriority = req.headers?.['x-ns-vite-boot-crawl'] ? { priority: -10 } : undefined;
              const transformWithTimeout = async (url, timeoutMs = 120000) => {
-                 const r = await sharedTransformRequest(url, timeoutMs);
+-                const r = await sharedTransformRequest(url, timeoutMs);
++                const r = await sharedTransformRequest(url, timeoutMs, crawlPriority);
                  // A type-only .ts module legitimately transforms to EMPTY code
-@@ -230,6 +266,7 @@ export function registerNsModuleServerRoute(server, options) {
+                 // (e.g. a workspace lib's `interfaces.ts` holding only `export
+                 // type ...`). Every candidate gate in the resolution pipeline
+@@ -230,6 +280,7 @@ export function registerNsModuleServerRoute(server, options) {
                  transformRequest: transformWithTimeout,
                  resolveId: resolvePluginContainerId,
                  loadVirtualId,
@@ -1658,20 +1984,66 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..644138bdef14f64ec68ae377b910ebd6
                              if (!targetCode)
                                  continue;
 -                            const hasDefault = /\bexport\s+default\b/.test(targetCode) || /export\s*\{\s*default\s*(?:as\s*default)?\s*\}/.test(targetCode);
-+                            // Inspect exports, not source text: compilers emit aliases such as
-+                            // `export { Screen as default }`, and comments/strings are not exports.
-+                            const targetAst = babelParse(targetCode, {
-+                                sourceType: 'module',
-+                                plugins: MODULE_IMPORT_ANALYSIS_PLUGINS,
-+                            });
-+                            const hasDefault = targetAst.program.body.some((node) =>
-+                                node.type === 'ExportDefaultDeclaration' ||
-+                                (node.type === 'ExportNamedDeclaration' && node.exportKind !== 'type' &&
-+                                    node.specifiers.some((specifier) => specifier.exportKind !== 'type' &&
-+                                        (specifier.exported?.name === 'default' || specifier.exported?.value === 'default'))));
-                             if (!hasDefault) {
-                                 // CJS/UMD modules won't have `export default` — they get CJS-wrapped
-                                 // by the serving pipeline. Only warn, don't fatally block the importer.
+-                            if (!hasDefault) {
+-                                // CJS/UMD modules won't have `export default` — they get CJS-wrapped
+-                                // by the serving pipeline. Only warn, don't fatally block the importer.
+-                                const hasCjsPattern = /\bmodule\s*\.\s*exports\b/.test(targetCode) || /\bexports\s*\.\s*\w/.test(targetCode);
+-                                if (hasCjsPattern) {
+-                                    if (verbose) {
+-                                        console.warn(`[ns:m][link-check] CJS module without export default: ${u.pathname} (will be CJS-wrapped at serve time)`);
++                                catch { }
++                                if (!targetCode)
++                                    return null;
++                                // Inspect exports, not source text: compilers emit aliases such as
++                                // `export { Screen as default }`, and comments/strings are not exports.
++                                const verdictKey = u.pathname + '\0' + targetCode.length + '\0' + targetCode.slice(0, 64);
++                                let hasDefault = defaultExportVerdicts.get(verdictKey);
++                                if (hasDefault === undefined) {
++                                    const targetAst = babelParse(targetCode, {
++                                        sourceType: 'module',
++                                        plugins: MODULE_IMPORT_ANALYSIS_PLUGINS,
++                                    });
++                                    hasDefault = targetAst.program.body.some((node) =>
++                                    node.type === 'ExportDefaultDeclaration' ||
++                                    (node.type === 'ExportNamedDeclaration' && node.exportKind !== 'type' &&
++                                        node.specifiers.some((specifier) => specifier.exportKind !== 'type' &&
++                                            (specifier.exported?.name === 'default' || specifier.exported?.value === 'default'))));
++                                    if (defaultExportVerdicts.size > 4096) {
++                                        defaultExportVerdicts.clear();
+                                     }
+-                                    continue;
++                                    defaultExportVerdicts.set(verdictKey, hasDefault);
+                                 }
+-                                const msg = `[link-check] Missing default export in ${u.pathname}${u.search} (imported by ${resolvedCandidate || spec})`;
+-                                // Emit a module that throws to surface the exact offender
+-                                res.statusCode = 200;
+-                                res.end(`throw new Error(${JSON.stringify(msg)});\nexport {};`);
+-                                return;
++                                return { u, targetCode, hasDefault };
++                            })());
++                        }
++                    }
++                    for (const check of await Promise.all(defaultImportChecks)) {
++                        if (!check || check.hasDefault)
++                            continue;
++                        const { u, targetCode } = check;
++                        // CJS/UMD modules won't have `export default` — they get CJS-wrapped
++                        // by the serving pipeline. Only warn, don't fatally block the importer.
++                        const hasCjsPattern = /\bmodule\s*\.\s*exports\b/.test(targetCode) || /\bexports\s*\.\s*\w/.test(targetCode);
++                        if (hasCjsPattern) {
++                            if (verbose) {
++                                console.warn(`[ns:m][link-check] CJS module without export default: ${u.pathname} (will be CJS-wrapped at serve time)`);
+                             }
++                            continue;
+                         }
++                        const msg = `[link-check] Missing default export in ${u.pathname}${u.search} (imported by ${resolvedCandidate || spec})`;
++                        // Emit a module that throws to surface the exact offender
++                        res.statusCode = 200;
++                        res.end(`throw new Error(${JSON.stringify(msg)});\nexport {};`);
++                        return;
+                     }
+                 }
+             }
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
 index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..8d5c3ad3236b8d3e470d0c4a32905d6b4574d928 100644
 --- a/hmr/server/websocket-served-module-helpers.js
@@ -1791,7 +2163,7 @@ index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..8d5c3ad3236b8d3e470d0c4a32905d6b
  export function hoistTopLevelStaticImports(code) {
      const imports = collectTopLevelImportRecords(code);
 diff --git a/hmr/server/websocket.js b/hmr/server/websocket.js
-index e6a14437f8990e2c631f23eb8db21aa0b28b5759..2b9fb450511b6e114b6e7e7ac8a48831b4a09dc9 100644
+index e6a14437f8990e2c631f23eb8db21aa0b28b5759..eb43e0883d2b6e14bf7e88be4da99f4024a0b0e8 100644
 --- a/hmr/server/websocket.js
 +++ b/hmr/server/websocket.js
 @@ -1,3 +1,5 @@
@@ -1800,7 +2172,38 @@ index e6a14437f8990e2c631f23eb8db21aa0b28b5759..2b9fb450511b6e114b6e7e7ac8a48831
  import { readFileSync } from 'fs';
  import { WebSocketServer } from 'ws';
  import * as path from 'path';
-@@ -341,6 +343,13 @@ function createHmrWebSocketPlugin(opts, strategy) {
+@@ -35,6 +37,7 @@ import { cleanCode, collectImportDependencies, rewriteImports, shouldRemapImport
+ import { classifyBootRoute, createColdBootRequestCounter, formatPopulateInitialGraphSummary, formatServerStartupBanner } from './perf-instrumentation.js';
+ import { isCoreGlobalsReference, isNativeScriptCoreModule, isNativeScriptPluginModule, resolveVendorFromCandidate } from './websocket-module-specifiers.js';
+ import { createSharedTransformRequestRunner } from './shared-transform-request.js';
++import { startBootGraphCrawl } from './boot-graph-crawl.js';
+ import { maybeSendConnectCssSync } from './css-connect-sync.js';
+ import { isSocketClientOpen } from './socket-utils.js';
+ import { getGlobalScope } from '../shared/runtime/global-scope.js';
+@@ -171,6 +174,12 @@ function createHmrWebSocketPlugin(opts, strategy) {
+     // set so the next boot's closure/archive covers node_modules bodies the
+     // graph walk cannot see. Created in configureServer (needs the root).
+     let bootRecorder = null;
++    // Live device demand for the boot crawl: in-flight non-crawl requests
++    // plus a trailing quiet window count as active. A plain "seen" latch
++    // would park excess crawl workers forever after first contact — the
++    // crawl must keep warming through inter-request gaps and after aborted
++    // boots or the warm frontier never reaches the device.
++    const deviceTraffic = { inflight: 0, quietUntil: 0 };
+     // Single source for the strategy-hook dependency bag: `handleHotUpdate`
+     // (the Vite hook) and the device custom-event dispatch (`configureServer`'s
+     // ws message pump) must hand strategies the exact same context.
+@@ -224,7 +233,8 @@ function createHmrWebSocketPlugin(opts, strategy) {
+         // constructed yet.
+         const bulkTransform = (rel) => {
+             if (sharedTransformRequest) {
+-                return sharedTransformRequest(rel);
++                // Background warm-up: queue behind live device/boot demand.
++                return sharedTransformRequest(rel, 120000, { priority: -5 });
+             }
+             return server.transformRequest(rel);
+         };
+@@ -341,6 +351,13 @@ function createHmrWebSocketPlugin(opts, strategy) {
                          // to reach the device, since they drive the
                          // in-place `ɵɵreplaceMetadata` template-swap path.
                          // Filter the relay to those.
@@ -1814,6 +2217,68 @@ index e6a14437f8990e2c631f23eb8db21aa0b28b5759..2b9fb450511b6e114b6e7e7ac8a48831
                          if (normalized.type !== 'custom')
                              return;
                          // Root-component guard. Analog's in-place
+@@ -435,11 +452,19 @@ function createHmrWebSocketPlugin(opts, strategy) {
+             // is safe. Override with `NS_VITE_HMR_TRANSFORM_CACHE_MS`.
+             const configuredTransformCacheMs = Number.parseInt(process.env.NS_VITE_HMR_TRANSFORM_CACHE_MS || '', 10);
+             const transformCacheMs = Number.isFinite(configuredTransformCacheMs) && configuredTransformCacheMs >= 0 ? configuredTransformCacheMs : 60000;
++            // The recent-results cache sits under every transform — including
++            // the /ns/core/* per-module fallbacks the response memo never
++            // sees. It must hold the boot crawl's whole closure (maxUrls
++            // default 3000): a smaller FIFO cap evicts warmed entries before
++            // the device fetches them on the next boot.
++            const configuredTransformCacheMax = Number.parseInt(process.env.NS_VITE_HMR_TRANSFORM_CACHE_MAX || '', 10);
++            const transformCacheMax = Number.isFinite(configuredTransformCacheMax) && configuredTransformCacheMax > 0 ? configuredTransformCacheMax : 4096;
+             sharedTransformRequest = createSharedTransformRequestRunner((url) => server.transformRequest(url), (url, timeoutMs) => {
+                 console.warn('[ns:m] slow transformRequest for', url, '(>' + timeoutMs + 'ms)');
+             }, {
+                 maxConcurrent: transformConcurrency,
+                 resultCacheTtlMs: transformCacheMs,
++                maxRecentResults: transformCacheMax,
+                 getResultCacheKey: (url) => canonicalizeTransformRequestCacheKey(url, pluginRoot || process.cwd()),
+             });
+             // Startup banner — prints once per dev server process (verbose only)
+@@ -501,6 +526,19 @@ function createHmrWebSocketPlugin(opts, strategy) {
+                     // Boot recording sees every request first: the `/__ns_dev__/session`
+                     // boot signal opens a recording window, prefetchable module routes
+                     // get recorded on 2xx completion.
++                    if (!req.headers?.['x-ns-vite-boot-crawl']) {
++                        deviceTraffic.inflight += 1;
++                        let released = false;
++                        const endDeviceRequest = () => {
++                            if (released)
++                                return;
++                            released = true;
++                            deviceTraffic.inflight -= 1;
++                            deviceTraffic.quietUntil = Date.now() + 1500;
++                        };
++                        res.once('finish', endDeviceRequest);
++                        res.once('close', endDeviceRequest);
++                    }
+                     const finishRecord = bootRecorder?.noteRequest(`${urlObj.pathname}${urlObj.search || ''}`);
+                     if (finishRecord) {
+                         const recordOnce = () => finishRecord(res.statusCode || 0);
+@@ -796,6 +834,21 @@ function createHmrWebSocketPlugin(opts, strategy) {
+                     ensureInitialGraphPopulationStarted(server);
+                 }
+                 catch { }
++                // Pre-warm the device module graph over the same /ns/*
++                // middleware the app will hit. NativeScript iOS gives every
++                // module fetch a 5s request budget; a cold transform can
++                // exceed it, so the runtime's async walk times out and
++                // collapses into serial blocking sync fetches that abort the
++                // boot. Crawling during the prepare/install window leaves the
++                // transform cache and /ns/m memo warm for the device's walk.
++                // Crawl transforms queue behind live device demand
++                // (priority -10) and the walk aborts on server close.
++                if (process.env.NS_VITE_HMR_DISABLE_BOOT_CRAWL !== '1' && process.env.NS_VITE_HMR_DISABLE_BOOT_CRAWL !== 'true') {
++                    try {
++                        startBootGraphCrawl(server, { verbose, isDeviceActive: () => deviceTraffic.inflight > 0 || Date.now() < deviceTraffic.quietUntil });
++                    }
++                    catch { }
++                }
+             };
+         },
+         async handleHotUpdate(ctx) {
 diff --git a/hmr/shared/vendor/manifest-collect.js b/hmr/shared/vendor/manifest-collect.js
 index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..234dd31bbdf72bbf831accbf23464a872ef5aa90 100644
 --- a/hmr/shared/vendor/manifest-collect.js

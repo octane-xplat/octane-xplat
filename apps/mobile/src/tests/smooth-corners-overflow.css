@@ -1,0 +1,24 @@
+/* octane-xplat#204 — authored overflow classes must beat the component's
+   visible default on the native flattened cascade. Cover the layered form
+   Bamboo emits and a plain authored rule; either must resolve to hidden on
+   the inner content host. */
+@layer utilities {
+	.sc-204-layered {
+		overflow: hidden;
+	}
+}
+
+.sc-204-plain {
+	overflow: hidden;
+}
+
+.sc-204-visible {
+	overflow: visible;
+}
+
+/* Stand-in for the deleted framework declaration — same unlayered form as
+   the pre-#204 `.vx-smooth-corners { overflow: visible }` rule, on a name no
+   component uses so the rule cannot leak into other specs. */
+.fw-204-visible {
+	overflow: visible;
+}

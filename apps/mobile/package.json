@@ -51,6 +51,7 @@
 		"@octane-xplat/secure-storage": "workspace:*",
 		"@octane-xplat/share": "workspace:*",
 		"@octane-xplat/sheet": "workspace:*",
+		"@octane-xplat/smooth-corners": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
 		"@valor/nativescript-websockets": "2.0.3",
