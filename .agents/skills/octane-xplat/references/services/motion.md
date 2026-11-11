@@ -235,3 +235,11 @@ import { motion } from '@octane-xplat/motion'
 
 <motion.View animate={{ opacity: 1 }} initial={{ opacity: 0 }} transition={{ duration: 0.3 }} />
 ```
+
+Desktop gesture adapter tests do not establish public Motion behavior. Use the
+[packed component gates](../../../../../tools/platform-qualification/desktop-gestures/README.md#packed-public-components)
+to catch renderer ref subscriptions, transformed parent coordinates, real native
+editing/scrolling boundaries and semantic activation. GTK qualification requires
+the pinned Mason facade, not Gtk.Box fallback. Query AT-SPI/UIA/AX through an
+independent client before claiming service-level accessibility; a direct native
+method call remains handler-route evidence.

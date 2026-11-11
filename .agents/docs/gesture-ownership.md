@@ -116,6 +116,15 @@ native eligibility. Commit new handlers without replacing contact observers.
 AppKit's action store retains explicit pointer, keyboard and accessibility origin
 at the dispatch boundary. Managed interception runs after the renderer's disabled
 and lifecycle checks; ordinary action ownership is unchanged without an interceptor.
+Shared presses subscribe to the scoped keyboard dispatcher for unmodified Enter
+and Space; prevent the native default only for an eligible focused owner. A
+lazy `NativeClass` base's `keyDown` method is not sufficient native registration.
+The eager native action base in `accessible-host.ts` supplies AX action selectors
+before Mason subclasses are allocated; semantic properties retain their native
+push path. Never replace an AX-service check with a direct JS method call.
+Coordinate conversion includes backing-layer transforms before the adapter
+freezes the parent plane. NSView-only conversion mis-scales a Motion drag under
+a transformed parent even when its nested button still receives the input.
 Mouse qualification uses window-targeted native events posted through the OS queue.
 A direct accessibility method call is handler-route evidence, not screen-reader
 qualification. A background probe without a key window cannot qualify OS keyboard
@@ -208,6 +217,14 @@ or popover), filters ancestor delivery by Gdk surface and copies mouse data,
 and resets pending native gesture tracking only when the owner claims. Editing,
 adjustable and hosted native controls remain boundaries. Semantic Mason buttons
 keep role-specific keyboard bindings and acquire focus on pointer press. The
+persistent ref surface supports focus/blur subscriptions with native controller
+cleanup so Motion can mount without relying on raw GTK signals. Semantic Mason
+controls expose a parameterless GAction through the existing press registration;
+AT-SPI actions carry virtual provenance independently of active pointer cohorts.
+Retirement disconnects the action and its callbacks. A role or label alone does
+not establish an accessibility action. Use the
+[packed public-component gate](../../tools/platform-qualification/desktop-gestures/README.md#packed-public-components)
+to exercise this boundary through the service and real input. The
 preset resolves signal imports beside the selected universal runtime; mixing
 Node/default export trees creates independent hook-owner registries. GJS roots
 install a Promise-backed `queueMicrotask` when absent because Octane's signal
@@ -220,12 +237,25 @@ One managed callback per visual input root feeds the shared owner. Popup visual
 trees own separate input roots even when they share XamlRoot; Motion parent
 conversion rejects a parent in another root. The pinned beta.24 API
 uses `NSWinRT.dotnet.asDelegate` for managed callbacks; `NSWinRT.asDelegate` is for
-WinRT delegates. Native semantic peers use beta.24's WinRT subclass projection,
-marking pointer/key dispatch synchronously. Typed managed subscriptions deliver
-Click/LayoutUpdated and release them explicitly. In the beta.24 OS gate,
-property-assigned Click on the composed JS peer did not deliver; ordinary
-button delivery and typed native subscriptions did. Keep this bounded bridge
-limitation visible rather than reverting to pointer-down timing heuristics.
+WinRT delegates. Native semantic peers and their transparent templates are
+constructed in the existing managed bridge. Their WinUI overrides mark the
+pointer/key origin synchronously; typed Click/LayoutUpdated subscriptions carry
+that origin and release explicitly. The packed Core consumer lost a JS-composed
+peer's ButtonBase identity at managed ingress; assigning its WinRT-created
+template across that boundary also failed. Do not infer this integration from a
+standalone WinRT peer gate or revert to pointer-down timing heuristics.
+Raw native views cross this same boundary through the runtime's public pointer
+key and an explicit C#/WinRT UIElement projection. The JS surface retains the
+source view throughout the native call and observation lease; no pointer escapes
+into public gesture events. Object-typed `OriginalSource` can likewise arrive
+as `IInspectable` for custom Mason classes; query its known UIElement base
+before walking the visual ancestry, including parents returned through the
+base DependencyObject API. Native transport IDs use canonical IUnknown keys as
+opaque strings, avoiding managed-wrapper identity and numeric precision loss. The JS surface, observed
+root and active hit elements retain their native views; no identity cache outlives
+those leases. Temporary COM queries release on the UI thread. A managed-button hit-path
+pass does not qualify an ordinary Mason track. Readiness queries XamlRoot directly rather
+than probing mobile member names on a WinRT proxy.
 Windows frames and managed holds use cancellable WinUI DispatcherQueue timers
 through the existing owner scheduler. The isolated beta.24 host did not execute
 a JavaScript timeout despite its template pump; do not qualify the native
@@ -252,6 +282,9 @@ OS window insertion for hidden descendants; native adapter attachment then
 rejects a missing window. The maintained [Drawer input fixture](../../packages/drawer/tests/fixtures/drawer-input.mobile.tsrx)
 exercises the composed host. Common hosts and imperative leaves work around
 this by retrying after committed load/layout only when the native view is
-attached (Android `isAttachedToWindow`, iOS `window`). Cleanup invalidates queued
+attached (Android `isAttachedToWindow`, iOS `window`, Windows XamlRoot).
+Imperative framework owners share this deferred lifecycle with the component
+hooks; a NativeScript ref may arrive before its native-view property exists.
+Cleanup invalidates queued
 attachment callbacks. Reassess the readiness gate if upstream guarantees
 window insertion before `loaded`; do not remove it on build evidence alone.

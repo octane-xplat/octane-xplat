@@ -6,6 +6,8 @@
 		"packages/linux-gtk-renderer/src/gi.d.ts"
 	],
 	"tasks": {
+		"build:desktop-components": { "dependsOn": ["^typegen", "^build"], "cache": false, "outputs": [] },
+		"qualify:macos-components": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
 		"@octane-xplat/haptics#test:ios-build": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
 		"test:dev-bridge": { "dependsOn": ["^typegen"], "outputs": [] },
 		"test:accessibility": { "dependsOn": ["^typegen"], "outputs": [] },

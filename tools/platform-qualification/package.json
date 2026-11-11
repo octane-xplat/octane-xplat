@@ -3,11 +3,26 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+    "build:desktop-components": "node desktop-gestures/build-components.mjs",
+    "qualify:macos-components": "node desktop-gestures/macos-host.mjs",
     "build:windows-gestures": "node desktop-gestures/build-windows.mjs",
     "verify:windows-gestures": "node desktop-gestures/verify-windows.mjs"
   },
   "devDependencies": {
+    "@nativescript-community/octane": "catalog:",
+    "@nativescript/core": "catalog:",
+    "@octane-xplat/cli": "workspace:*",
+    "@octane-xplat/jsx": "workspace:*",
+    "@octane-xplat/linux-gtk": "workspace:*",
+    "@octane-xplat/macos-appkit": "workspace:*",
+    "@octane-xplat/motion": "workspace:*",
+    "@octane-xplat/platform": "workspace:*",
     "@octane-xplat/ui": "workspace:*",
+    "@tsrx/content-mapper": "catalog:",
+    "@types/node": "26.6.6",
+    "octane": "catalog:",
+    "typescript": "catalog:",
     "vite": "catalog:"
   }
 }
