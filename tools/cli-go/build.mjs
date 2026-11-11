@@ -245,9 +245,6 @@ if (flags.includes('--test') || devServerRace) {
     notices.push(
       readFileSync(join(moduleDirectory, 'NOTICE.txt'), 'utf8'),
       readFileSync(join(moduleDirectory, 'licenses/tokenizers-js.txt'), 'utf8'),
-      'NativeScript Go library\n' +
-        readFileSync(join(root, 'packages/cli/vendor/nativescript-cli/LICENSE'), 'utf8'),
-      readFileSync(join(root, 'packages/cli/vendor/nativescript-cli/assets/NOTICES.txt'), 'utf8'),
     )
 
     for (const [name, version, license] of [

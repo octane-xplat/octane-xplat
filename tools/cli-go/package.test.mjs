@@ -45,20 +45,6 @@ test('production package installs a direct native bin through the optional host 
 
   assert.ok(payload)
 
-  const notices = run('tar', ['-xOf', payload.archive, 'package/THIRD-PARTY-NOTICES.txt']).stdout
-
-  assert.ok(
-    notices.includes(
-      readFileSync(join(root, 'packages/cli/vendor/nativescript-cli/LICENSE'), 'utf8'),
-    ),
-  )
-
-  assert.ok(
-    notices.includes(
-      readFileSync(join(root, 'packages/cli/vendor/nativescript-cli/assets/NOTICES.txt'), 'utf8'),
-    ),
-  )
-
   // Workspace dependencies not yet on npm at this version resolve through
   // the same tarball override a consumer test would use.
   const depTarball = join(scratch, 'docs-search.tgz')

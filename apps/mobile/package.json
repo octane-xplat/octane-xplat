@@ -7,7 +7,7 @@
 		"ios": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev ios",
 		"android": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev android",
 		"debug:ios": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && ns debug ios",
-		"build:ios": "xplat build --targets ios",
+		"build:ios": "ns build ios",
 		"bench:animation:ios": "node scripts/build-animation-quality.mjs",
 		"bench:vlist:ios": "node scripts/bench-virtual-list.ts ios",
 		"bench:vlist:android": "node scripts/bench-virtual-list.ts android",
@@ -15,9 +15,9 @@
 		"test:ios:fonts": "NS_PLATFORM=ios vitest run src/tests/variable-font src/tests/font-family-inherit",
 		"test:android": "ns test android",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
-		"demos:ios": "XPLAT_DOCS_DEMOS=1 xplat dev ios --no-hmr",
-		"demos:android": "XPLAT_DOCS_DEMOS=1 xplat dev android --no-hmr",
-		"demos:build:ios": "XPLAT_DOCS_DEMOS=1 xplat build --targets ios"
+		"demos:ios": "XPLAT_DOCS_DEMOS=1 ns run ios --no-hmr",
+		"demos:android": "XPLAT_DOCS_DEMOS=1 ns run android --no-hmr",
+		"demos:build:ios": "XPLAT_DOCS_DEMOS=1 ns build ios"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.1.0",

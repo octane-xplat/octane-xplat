@@ -55,19 +55,6 @@ never fall back to a TypeScript CLI, and a native executable embeds neither
 Node nor Bun. See
 [project build plugins](../../../../docs/packages/package-build.md).
 
-Simulator/emulator development and debug iOS/Android builds use the NativeScript
-Go library in-process, with the app's official `@nativescript/vite` and platform runtime. `xplat dev --no-hmr`
-restarts after edits. Release signing, device archives and `--copy-to` require
-`XPLAT_NATIVE_ENGINE=upstream` and the project's installed upstream CLI; failures
-do not silently switch engines. Physical-device and Windows workflows retain
-their separate setup. See the [CLI guide](../../../../docs/packages/package-cli.md)
-and [native release guide](../../../../docs/start/native-release.md).
-
-```sh
-bun run xplat dev ios --no-hmr
-XPLAT_NATIVE_ENGINE=upstream bun run xplat build --targets android --release
-```
-
 ```ts
 import { native } from '@octane-xplat/cli/vite'
 // Optional separate package: import { native } from '@octane-xplat/build/vite'

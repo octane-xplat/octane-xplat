@@ -66,6 +66,3 @@ packages/*/platforms/android/*.aar
 
 # Built desktop transport qualification fixture.
 /tools/platform-qualification/dist-windows-gestures/
-
-# Per-project NativeScript library build state
-.xplat-ns/

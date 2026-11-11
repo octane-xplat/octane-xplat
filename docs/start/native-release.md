@@ -103,14 +103,12 @@ explains the two iOS numbers.
 ## Build one release target
 
 Choose a declared target explicitly so a release job does not build every
-platform in the app. Release signing still uses the project’s installed
-`nativescript` CLI: select it with `XPLAT_NATIVE_ENGINE=upstream`. The embedded
-engine currently covers simulator/emulator development and debug builds.
+platform in the app:
 
 ```sh
-XPLAT_NATIVE_ENGINE=upstream bun run xplat build --targets android --release
+bun run xplat build --targets android --release
 # On a Mac with the iOS toolchain:
-XPLAT_NATIVE_ENGINE=upstream bun run xplat build --targets ios --release
+bun run xplat build --targets ios --release
 ```
 
 Xplat regenerates routes and calls NativeScript's release build. **Build
@@ -165,7 +163,7 @@ read -s ANDROID_KEY_PASSWORD
 Use your real key path and alias. Run the signed build in that same shell:
 
 ```sh
-XPLAT_NATIVE_ENGINE=upstream bun run xplat build --targets android --release --aab \
+bun run xplat build --targets android --release --aab \
   --key-store-path "$ANDROID_UPLOAD_KEYSTORE" \
   --key-store-alias "$ANDROID_UPLOAD_ALIAS" \
   --key-store-password-env ANDROID_KEYSTORE_PASSWORD \
@@ -242,7 +240,7 @@ directly from the CLI — `--for-device` selects device signing, and
 `--provision`/`--team-id` select the distribution profile and team:
 
 ```sh
-XPLAT_NATIVE_ENGINE=upstream bun run xplat build --targets ios --release --for-device \
+bun run xplat build --targets ios --release --for-device \
   --provision "Packing App Store" --copy-to dist/packing.ipa
 ```
 
