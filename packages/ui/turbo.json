@@ -2,6 +2,15 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"test:svg:web": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false
+		},
+		"test:svg:ios": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+		},
 		"test:layout:web": {
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"cache": false,

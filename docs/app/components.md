@@ -924,6 +924,25 @@ export function BrandArea() {
 }
 ```
 
+For SVG artwork that should follow `Icon.color`, register its inner shapes as
+`markup` and use `fill="currentColor"` or `stroke="currentColor"`. Nested `color`
+scopes and fixed paints keep their authored colors. Register a file as `src`
+when it should keep its own color context; `Icon.color` does not tint that file.
+
+```tsx
+import { createIconRegistry, Icon } from '@octane-xplat/ui'
+
+const icons = createIconRegistry()
+icons.registerIcon('compass', {
+  viewBox: '0 0 32 32',
+  markup: '<circle cx="16" cy="16" r="13" fill="none" stroke="currentColor"/><circle cx="16" cy="16" r="2" fill="#f59e0b"/>',
+})
+
+export function Compass({ color }: { color: string }) {
+  return <Icon name="compass" registry={icons} color={color} size={32} />
+}
+```
+
 Indicators draw the selection mark; the owning control keeps focus,
 interaction, and accessibility semantics. `registerIndicator` and
 `registerIndicators` replace named marks; mounted controls re-render with
