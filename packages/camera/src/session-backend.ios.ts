@@ -1120,19 +1120,21 @@ export function createSessionBackend(
           return
         }
 
-        // Single-shot AF/AE at the point — the Apple AVCam
-        // tap-to-focus convention; the device locks after metering.
-        if (focus) {
-          captureDevice.focusPointOfInterest = devicePoint
-          captureDevice.focusMode = focusModeAutoFocus
-        }
+        try {
+          // Single-shot AF/AE at the point — the Apple AVCam
+          // tap-to-focus convention; the device locks after metering.
+          if (focus) {
+            captureDevice.focusPointOfInterest = devicePoint
+            captureDevice.focusMode = focusModeAutoFocus
+          }
 
-        if (expose) {
-          captureDevice.exposurePointOfInterest = devicePoint
-          captureDevice.exposureMode = exposureModeAutoExpose
+          if (expose) {
+            captureDevice.exposurePointOfInterest = devicePoint
+            captureDevice.exposureMode = exposureModeAutoExpose
+          }
+        } finally {
+          captureDevice.unlockForConfiguration()
         }
-
-        captureDevice.unlockForConfiguration()
       } catch {
         // A missed metering pass must not fault the session.
       }

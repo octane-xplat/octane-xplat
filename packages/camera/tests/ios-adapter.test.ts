@@ -797,7 +797,7 @@ describe('iOS displayed-preview readiness', () => {
   })
 })
 
-describe('iOS zoom control', () => {
+describe('iOS focus and zoom control', () => {
   function setupZoom() {
     const native = model.bridge()
 
@@ -861,5 +861,66 @@ describe('iOS zoom control', () => {
 
     expect(session.zoomState()).toBeUndefined()
     session.setZoom(2)
+  })
+
+  it.each([
+    'focusPointOfInterest',
+    'focusMode',
+    'exposurePointOfInterest',
+    'exposureMode',
+    'success',
+    'lock-refused',
+  ])('balances the metering configuration lock: %s', (scenario) => {
+    const { session } = setupZoom()
+    const device = model.devices[0]
+    const keys = [
+      'focusPointOfInterestSupported',
+      'exposurePointOfInterestSupported',
+      'focusPointOfInterest',
+      'focusMode',
+      'exposurePointOfInterest',
+      'exposureMode',
+    ]
+    const original = Object.getOwnPropertyDescriptors(device)
+    const lock = vi.spyOn(device, 'lockForConfiguration').mockReturnValue(scenario !== 'lock-refused')
+    const unlock = vi.spyOn(device, 'unlockForConfiguration')
+    const write = vi.fn()
+    for (const key of keys) {
+      Object.defineProperty(device, key, key.endsWith('Supported')
+        ? { configurable: true, value: true }
+        : {
+            configurable: true,
+            set() {
+              write(key)
+              if (key === scenario) {
+                throw new Error('metering refused')
+              }
+            },
+          })
+    }
+    model.layers.at(-1)!.captureDevicePointOfInterestForPoint = () => ({ x: 0.5, y: 0.5 })
+    try {
+      expect(() => session.focusAtPoint({ x: 0.5, y: 0.5 })).not.toThrow()
+      expect(lock).toHaveBeenCalledOnce()
+      expect(unlock).toHaveBeenCalledTimes(scenario === 'lock-refused' ? 0 : 1)
+      if (scenario === 'success') {
+        expect(write).toHaveBeenCalledTimes(4)
+      } else if (scenario === 'lock-refused') {
+        expect(write).not.toHaveBeenCalled()
+      } else {
+        expect(write).toHaveBeenLastCalledWith(scenario)
+      }
+    } finally {
+      for (const key of keys) {
+        if (original[key]) {
+          Object.defineProperty(device, key, original[key])
+        } else {
+          Reflect.deleteProperty(device, key)
+        }
+      }
+      lock.mockRestore()
+      unlock.mockRestore()
+      session.dispose()
+    }
   })
 })
