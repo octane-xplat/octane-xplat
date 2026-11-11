@@ -176,7 +176,10 @@
 		"bench:routing-types": "node scripts/bench-routing-types.ts",
 		"typecheck:scripts": "tsc --runExternalCode -p scripts/tsconfig.json",
 		"test:gestures:native": "vitest run --config vitest.native.config.mts src/gestures",
-		"test:packed:drawer": "node tests/drawer-packed-consumer.mjs"
+		"test:packed:drawer": "node tests/drawer-packed-consumer.mjs",
+		"test:layout:web": "node ../../tools/probe/cli.ts run tests/fixtures/page-layout/page.tsrx --target web --timeout 30000",
+		"test:layout:ios": "node ../../tools/probe/cli.ts run tests/fixtures/page-layout/page.tsrx --target ios --timeout 30000",
+		"test:layout:android": "node ../../tools/probe/cli.ts run tests/fixtures/page-layout/page.tsrx --target android --timeout 30000"
 	},
 	"dependencies": {
 		"@octane-xplat/camera": "workspace:*",

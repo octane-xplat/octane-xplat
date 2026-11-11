@@ -111,6 +111,11 @@
 
 	/* Safe-area values are zero when the viewport has no display cutout. */
 	.vx-safe-area {
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 1;
+		min-width: 0;
+		min-height: 0;
 		padding-top: constant(safe-area-inset-top);
 		padding-right: constant(safe-area-inset-right);
 		padding-bottom: constant(safe-area-inset-bottom);
@@ -2717,6 +2722,16 @@
 	}
 
 	/* ---------- scrollable area ---------- */
+
+	/* Viewports may shrink within a bounded page; their content must retain
+	   its intrinsic extent so it can scroll. Do not change the global
+	   shrink default or constrain content along a scrolling axis. */
+	.vx-scrollable,
+	.vx-refresh-wrap {
+		flex-shrink: 1;
+		min-width: 0;
+		min-height: 0;
+	}
 
 	/* xplat-web-only:start — the content box carries padding; overflow +
    overscroll/keyboard semantics are set inline by useScrollableArea. */

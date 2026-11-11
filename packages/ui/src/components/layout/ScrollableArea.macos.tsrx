@@ -75,7 +75,7 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
     )}
     id={props.id}
     testID={props.testID}
-    className={cx(props.className)}
+    className={cx('vx-scrollable', props.className)}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel ?? props.label}
     accessibilityHint={props.accessibilityHint}

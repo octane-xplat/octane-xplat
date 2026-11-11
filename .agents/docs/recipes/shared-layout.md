@@ -2,7 +2,7 @@
 
 ID: shared-layout
 Targets: web, ios, android
-Related APIs: Screen, SafeArea, prepareFullScreenPage, Grid, LayoutChildProps, Stack, HStack, VStack, StackItem, Absolute, Center, Section, AspectRatio, FormLayout, InputGroup, InputGroupText
+Related APIs: Screen, SafeArea, ScrollableArea, prepareFullScreenPage, Grid, LayoutChildProps, Stack, HStack, VStack, StackItem, Absolute, Center, Section, AspectRatio, FormLayout, InputGroup, InputGroupText
 
 ## Starting point
 
@@ -28,6 +28,8 @@ the behavior differences between DOM and NativeScript.
 
 - AC7: Native Screens use their assigned host bounds from first mount; a prepared Frame-navigated Page fills its native bounds and SafeArea alone supplies system-bar padding. Explain embedded-host limits and avoid compensating margins.
 
+- AC8: Ordinary SafeArea → ScrollableArea → vertical page/card compositions fit their available width without per-container width fixes. Paragraphs and wrapping control rows fit narrow hosts; bounded viewports retain usable vertical scrolling, including refreshable regions. Intentional wide content remains scrollable with inline/both axes.
+
 ## Documentation
 
 - AC1: [Flow layout](../../../docs/app/primitives.md#the-components-you-reach-for-first) and maintained [LayoutDemo](../../../packages/demos/src/LayoutDemo.tsrx).
@@ -40,3 +42,5 @@ the behavior differences between DOM and NativeScript.
 - AC6: [Retained screen layers](../../../docs/app/primitives.md#layer-a-screen-over-retained-content), [agent guidance](../../skills/octane-xplat/references/primitives/layout.md#retained-screen-layers), maintained [geometry fixture](../../../examples/probes/screen-layers.tsrx), and [intrinsic-content/parent-resize regression](../../../apps/mobile/src/tests/foreign-screen-height.spec.tsrx).
 
 - AC7: [Safe-area edges and the native Page host](../../../docs/app/primitives.md#safe-area-edges), [Page measurement tests](../../../packages/ui/src/components/layout/full-screen-page.mobile.test.ts), and [native first-mount fixture](../../../examples/probes/screen-safe-area.ios.tsrx).
+
+- AC8: [Page defaults](../../../docs/app/primitives.md#safe-area-edges), [agent layout guidance](../../skills/octane-xplat/references/primitives/layout.md#vertical-page-sizing), and [shared geometry and scrolling regression](../../../packages/ui/tests/fixtures/page-layout/page.tsrx).

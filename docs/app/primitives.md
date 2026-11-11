@@ -384,6 +384,33 @@ Check width separately when using nested media stages on iOS.
 
 ### Safe-area edges
 
+`SafeArea` stacks its children vertically and stretches them across the available
+width. In a parent with a bounded height, it and `ScrollableArea` can shrink to
+fit, leaving the content inside the scroll viewport tall enough to scroll.
+Ordinary vertical pages and cards need no extra width declarations. Give the
+outer host a height when you want an independently scrolling region; an
+unbounded document can still grow with its content.
+
+```tsx
+import { SafeArea, ScrollableArea, VStack, Text } from '@octane-xplat/ui'
+
+export function NotesPage() {
+  return (
+    <VStack height={480}>
+      <SafeArea>
+        <ScrollableArea>
+          <VStack padding={6} gap={4}>
+            <VStack padding={4}>
+              <Text>Long notes wrap inside the available card width.</Text>
+            </VStack>
+          </VStack>
+        </ScrollableArea>
+      </SafeArea>
+    </VStack>
+  )
+}
+```
+
 `SafeArea` keeps content clear of the system bars, notch, and home
 indicator by padding the edges you select. `edges` takes any of `'top'`,
 `'right'`, `'bottom'`, and `'left'` and defaults to all four;

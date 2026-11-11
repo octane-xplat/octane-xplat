@@ -156,3 +156,21 @@ export function DragSurface() {
   </View>
 }
 ```
+
+## Vertical page sizing
+
+`SafeArea` is a column wrapper with stretching children. It and `ScrollableArea`
+allow shrinking inside a bounded host; content retains its intrinsic scroll
+extent. Do not add width:100%/min-width:0 recipes to each ordinary vertical card
+to compensate for native measurement. Keep explicit widths for intentionally
+wide content and choose `axis="inline"` or `axis="both"` to scroll it. A bounded
+outer height is still needed for an independently scrolling region.
+
+```tsx
+import { SafeArea, ScrollableArea, VStack, Text } from '@octane-xplat/ui'
+export function Notes() {
+  return <VStack height={480}><SafeArea><ScrollableArea>
+    <VStack padding={6}><Text>Notes wrap within the page.</Text></VStack>
+  </ScrollableArea></SafeArea></VStack>
+}
+```

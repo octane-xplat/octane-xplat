@@ -289,3 +289,21 @@ packaged bytes and platform boundaries when those are the contract; they do not
 prove runtime behavior. When both variants already run the same behavior cases,
 requiring identical implementation text adds no behavioral evidence. Run shared
 regressions through their owning Turbo task rather than a second wrapper.
+
+## Shared page geometry
+
+UI owns a nonvisual regression using the same theme imports and fixture CSS on
+Chromium and native hosts. It measures narrow page/card/text/control bounds,
+scrolls the real viewport through its portable handle, and preserves intentional
+wide content with inline/both-axis scrolling. It runs outside the PR gate:
+
+```sh
+bun run turbo run test:layout:web --filter=@octane-xplat/ui
+bun run turbo run test:layout:ios --filter=@octane-xplat/ui -- --device DEVICE_UDID
+bun run turbo run test:layout:android --filter=@octane-xplat/ui -- --device DEVICE_SERIAL
+```
+
+Native runs require the host resource reservation and an authorized existing
+device. The probe host supplies a LAN coordinator for physical iOS and isolates
+its app identity from consumer apps. These checks establish geometry and
+programmatic scroll behavior, not OS hit-testing or painted pixel parity.

@@ -2,6 +2,21 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"test:layout:web": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+		},
+		"test:layout:ios": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+		},
+		"test:layout:android": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+		},
 		"test:windows": {
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"outputs": []
