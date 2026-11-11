@@ -94,6 +94,12 @@ try {
     const { workshopService } = await import('./workshop-worker.ts')
 
     data = await workshopService(request, requestFile, resultFile)
+  } else if (request.operation === 'devtools-desktop') {
+    service = true
+
+    const { devtoolsDesktopService } = await import('./devtools-worker.ts')
+
+    data = await devtoolsDesktopService(request, requestFile, resultFile)
   } else if (request.operation === 'workshop-init-plan') {
     const { workshopInitPlan } = await import('./workshop-worker.ts')
 

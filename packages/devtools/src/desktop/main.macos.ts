@@ -10,9 +10,9 @@ import { createHostedWindow, runMacOSApp } from '@octane-xplat/macos-appkit/host
 import type { HostedWindowController } from '@octane-xplat/macos-appkit/host'
 import type { UniversalRoot } from 'octane/universal/native'
 import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
-import { listDevtoolsServers, nwDevSocket } from '@octane-xplat/devtools/macos'
-import type { ListedDevtoolsServer } from '@octane-xplat/devtools/macos'
-import { App } from '@octane-xplat/devtools/panel'
+import { listDevtoolsServers, nwDevSocket } from '../macos/index.macos.ts'
+import type { ListedDevtoolsServer } from '../macos/index.macos.ts'
+import { App } from '../panel/index.ts'
 import { writeFileSync } from 'node:fs'
 import { Placeholder } from './Placeholder.macos.tsrx'
 

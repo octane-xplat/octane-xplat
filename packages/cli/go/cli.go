@@ -9,6 +9,7 @@ import (
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/code"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/add"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/clean"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/devtools"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/doctor"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/fonts"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/format"
@@ -86,6 +87,7 @@ func init() {
 		"updates init": updates.Command,
 		"upgrade":      upgrade.Command,
 		"dev":          dev.Command,
+		"devtools":     devtools.Command,
 		"build":        build.Command,
 		"routes":       routes.Command,
 		"patches check": func(ctx context.Context, values map[string]any) error {

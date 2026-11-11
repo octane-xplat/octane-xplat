@@ -1085,8 +1085,10 @@
         "@octane-xplat/ui": "workspace:*",
       },
       "devDependencies": {
+        "@nativescript/macos-node-api": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "@types/node": "26.6.6",

@@ -34,6 +34,14 @@
 			"types": "./src/macos/index.macos.ts",
 			"default": "./src/macos/index.macos.ts"
 		},
+		"./desktop": {
+			"types": "./src/desktop/index.macos.ts",
+			"default": "./src/desktop/index.macos.ts"
+		},
+		"./desktop-node": {
+			"types": "./dist/host/desktop.d.ts",
+			"default": "./dist/host/desktop.js"
+		},
 		"./panel": {
 			"types": "./src/panel/index.ts",
 			"default": "./src/panel/index.ts"
@@ -62,8 +70,10 @@
 		"octane": ">=0.6.3 <1"
 	},
 	"devDependencies": {
+		"@nativescript/macos-node-api": "catalog:",
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:",
 		"@types/node": "26.6.6",

@@ -8,8 +8,14 @@
 		"declaration": true,
 		"outDir": "dist",
 		"rootDir": "src",
-		"rewriteRelativeImportExtensions": true
+		"rewriteRelativeImportExtensions": true,
+		// Computed dynamic imports (host/desktop.ts resolves the selected
+		// project's engine) get a __rewriteRelativeImportExtension call that
+		// noEmitHelpers would strip — emit it inline instead.
+		"noEmitHelpers": false
 	},
 	"include": ["src/**/*.ts"],
-	"exclude": ["src/panel"]
+	// panel ships as a Vite bundle; desktop ships as source via ./desktop and
+	// is bundled by the launcher's generated config — neither emits from tsc.
+	"exclude": ["src/panel", "src/desktop"]
 }
