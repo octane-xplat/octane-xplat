@@ -172,6 +172,21 @@ configuration need that setup separately; a simple case cannot establish their
 integration just by importing them. Dependency changes may require reinstalling
 the workspace before probing.
 
+## Test startup before the JavaScript engine
+
+A normal probe runs inside an initialized JS host. It cannot establish that a
+screen was constructed before engine initialization. Use the isolated
+[native bootstrap probe](../../tools/platform-qualification/native-prerender/README.md)
+for that mechanism boundary. It mounts Mason/UIKit content from a minimal
+binary fixture before explicitly starting NativeScript, then checks an in-place
+bridge update. Its native runtime dependencies are supplied as prebuilt SDKs.
+The fixture is not the production IR and does not implement Octane hydration.
+
+Reserve the existing simulator through the resource broker. Keep compositor
+presentation evidence separate: display-link progress, native mounting and
+layout counters alone do not establish a presented frame. NativeScript wrapper
+adoption, style/default ownership and lifecycle need their own qualification.
+
 ## Read the evidence
 
 Single runs emit one JSON object with a `results` array; watch emits one JSON
