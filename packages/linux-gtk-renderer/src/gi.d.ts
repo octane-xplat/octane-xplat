@@ -313,6 +313,7 @@ declare module 'gi://Gtk?version=4.0' {
 
     class EventControllerFocus extends EventController {
       constructor()
+      is_focus(): boolean
     }
 
     class EventControllerKey extends EventController {
@@ -611,6 +612,7 @@ declare module 'gi://Gdk?version=4.0' {
 
 declare module 'gi://GObject' {
   namespace GObject {
+    function type_name(type: unknown): string
     const Value: any
     const TYPE_INT: any
     const TYPE_DOUBLE: any
@@ -652,6 +654,11 @@ declare module 'gi://Gio' {
       set_enabled(enabled: boolean): void
       set_state(state: unknown): void
       [key: string]: any
+    }
+
+    class SimpleActionGroup {
+      static new(): SimpleActionGroup
+      add_action(action: SimpleAction): void
     }
 
     /** GMenuModel — menu structure handed to `set_menubar`. Sections express

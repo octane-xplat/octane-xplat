@@ -1,5 +1,6 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
+import Gio from 'gi://Gio'
 import type { ElementNode } from './index.js'
 import { registerRadioNode, navigateRadio, radioChecked } from './radio-keyboard.js'
 
@@ -59,6 +60,9 @@ export function bindPressKeys(node: ElementNode) {
     focus: any = null,
     togglePointer: any = null
 
+  let actionGroup: Gio.SimpleActionGroup | null = null
+  let action: Gio.SimpleAction | null = null
+
   const pointerRole = () =>
     [
       Gtk.AccessibleRole.BUTTON,
@@ -69,6 +73,25 @@ export function bindPressKeys(node: ElementNode) {
     ].includes(view.get_accessible_role())
 
   const ensure = () => {
+    // GTK's generic widget AT-SPI peer exports enabled, parameterless GActions.
+    // A button role alone does not supply an activation action. Reuse the
+    // semantic tap route, with virtual provenance independent of held keys
+    // or a pointer sequence owned by an ancestor.
+    if (!disposed && !action && pointerRole() && listeners.has('tap')) {
+      actionGroup = Gio.SimpleActionGroup.new()
+      action = Gio.SimpleAction.new('activate', null)
+      connect(action, 'activate', () => {
+        if (!disposed && view.is_sensitive() && view.is_visible() && pointerRole()) {
+          listeners.get('tap')?.('virtual')
+        }
+      })
+
+      actionGroup.add_action(action)
+      view.insert_action_group('octane', actionGroup)
+      connect(view, 'state-flags-changed', () => ensure())
+    }
+
+    action?.set_enabled(!disposed && pointerRole() && listeners.has('tap') && view.is_sensitive())
     if (disposed || !view.get_focusable()) {
       return
     }
@@ -176,6 +199,7 @@ export function bindPressKeys(node: ElementNode) {
         ensure()
       } else {
         listeners.delete(type)
+        ensure()
         if (listeners.size === 0) {
           cancel(false)
         }
@@ -185,6 +209,7 @@ export function bindPressKeys(node: ElementNode) {
     clear() {
       cancel(false)
       listeners.clear()
+      ensure()
     },
     dispose() {
       if (disposed) {
@@ -192,6 +217,13 @@ export function bindPressKeys(node: ElementNode) {
       }
 
       disposed = true
+      action?.set_enabled(false)
+      if (actionGroup) {
+        view.insert_action_group('octane', null)
+      }
+
+      actionGroup = null
+      action = null
       unregisterRadioNode()
       cancel(false)
       listeners.clear()

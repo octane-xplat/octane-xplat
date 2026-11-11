@@ -3965,8 +3965,8 @@ function connectEvent(
   const handler = (..._args: any[]) => dispatch(payloadFor(node, type))
 
   if (type === 'tap') {
-    node.pressKeys?.set(type, () =>
-      dispatch({ eventName: type, object: view, activationSource: 'keyboard' }),
+    node.pressKeys?.set(type, (source = 'keyboard') =>
+      dispatch({ eventName: type, object: view, activationSource: source }),
     )
   }
 

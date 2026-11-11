@@ -21,6 +21,8 @@ type RefEvent =
   | 'layoutChanged'
   | 'scroll'
   | 'pan'
+  | 'focus'
+  | 'blur'
   | 'fontChanged'
   | 'accessibilityIncrement'
   | 'accessibilityDecrement'
@@ -94,6 +96,9 @@ export function bindPublicInstance(
   let panHost: typeof subscribePan | null = subscribePan
   let disposePan: (() => void) | null = null
   let disposeFont: (() => void) | null = null
+  let focus: Gtk.EventControllerFocus | null = null
+  let focusSignals: number[] = []
+  let ownsFocus = false
   let motion: ReturnType<typeof bindMotion> | null = null
   let disposed = false
   let tick: number | null = null
@@ -268,6 +273,19 @@ export function bindPublicInstance(
     }
   }
 
+  const stopFocus = () => {
+    if (focus) {
+      for (const id of focusSignals) {
+        focus.disconnect(id)
+      }
+
+      view.remove_controller(focus)
+      focus = null
+      focusSignals = []
+      ownsFocus = false
+    }
+  }
+
   const stop = () => {
     if (tick !== null) {
       view.remove_tick_callback(tick)
@@ -411,6 +429,8 @@ export function bindPublicInstance(
         'layoutChanged',
         'scroll',
         'pan',
+        'focus',
+        'blur',
         'fontChanged',
         'accessibilityIncrement',
         'accessibilityDecrement',
@@ -427,6 +447,21 @@ export function bindPublicInstance(
     }
 
     set.add(listener)
+    if ((name === 'focus' || name === 'blur') && !focus) {
+      focus = new Gtk.EventControllerFocus()
+      focusSignals = [
+        focus.connect('notify::is-focus', () => {
+          const next = focus?.is_focus() ?? false
+          if (next !== ownsFocus) {
+            ownsFocus = next
+            emit(next ? 'focus' : 'blur')
+          }
+        }),
+      ]
+
+      view.add_controller(focus)
+    }
+
     if (name === 'accessibilityIncrement' || name === 'accessibilityDecrement') {
       range.refresh()
     }
@@ -473,9 +508,14 @@ export function bindPublicInstance(
     if (!listeners.get('layoutChanged')?.size) {
       stop()
     }
+
+    if (!listeners.get('focus')?.size && !listeners.get('blur')?.size) {
+      stopFocus()
+    }
   }
 
   return () => {
+    stopFocus()
     disposePan?.()
     disposePan = null
     panHost = null
