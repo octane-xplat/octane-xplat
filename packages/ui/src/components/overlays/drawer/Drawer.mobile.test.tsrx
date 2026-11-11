@@ -16,7 +16,7 @@ vi.mock('@nativescript/core/animation-frame', () => ({
   cancelAnimationFrame() {},
 }))
 
-vi.mock('@octane-xplat/ui/internal/gesture-input', () => ({
+vi.mock('../../../gestures/external', () => ({
   attachOwnedPan: () => () => {},
   useInputCallbackGuard:
     () =>
@@ -26,7 +26,7 @@ vi.mock('@octane-xplat/ui/internal/gesture-input', () => ({
     },
 }))
 
-vi.mock('@octane-xplat/ui', () => {
+vi.mock('../../actions/Pressable.tsrx', () => {
   function Pressable(props: Record<string, unknown>) {
     return <masonview {...props} />
   }

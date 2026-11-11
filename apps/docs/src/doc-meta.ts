@@ -122,7 +122,6 @@ export const GROUPS = [
       'package-desktop-webview',
       'package-docs-search',
       'package-dnd-kit',
-      'package-drawer',
       'package-effects',
       'package-files',
       'package-form',

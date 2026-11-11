@@ -158,23 +158,15 @@ target; apps that import those subpaths declare their plugins directly. Missing
 required peer declarations are warnings, not a hard failure, because some
 native capabilities are optional.
 
-The starter does not declare drawer plugins. `@octane-xplat/drawer` owns
-ui-drawer and its aligned gesturehandler dependency; unrelated UI platform
-widgets have no drawer import edge. Its mobile implementation provides edge
-opening and drag dismissal through the same Drawer API used on web/desktop.
+Drawer is exported from UI and uses its shared input owner and animation engine; neither the starter nor Drawer adds ui-drawer or gesturehandler. Other features may still need their own plugins. Keep explicit controls and disable Drawer gestures when content needs native horizontal scrolling. See the [Drawer ownership and qualification limits](../native-drawer.md).
 
 ```tsx
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 
 export function Example() {
-  return <Drawer defaultOpen main={null} drawer={null} />
+  return <Drawer isGestureEnabled={false} main={null} drawer={null} />
 }
 ```
-
-NativeScript CLI 9.1.1 traverses transitive runtime dependencies. The iOS
-`GestureHandlerDelegate` protocol must be compiled, but that does not inherently
-require an app-direct declaration. See the [drawer implementation evidence](../native-drawer.md)
-for source evidence, qualification, and the historical barrel-coupling review.
 
 ### Editor diagnostics and typecheck authority
 

@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './drawer.css'
 import { mergeStyle } from './style-merge'
 import { useState } from 'octane'
-import type { DrawerProps } from './props'
+import type { DrawerProps } from '../../../props'
 import { cx } from '@octane-xplat/lib'
 
 /** Composed desktop/web Drawer. Mobile uses the same props with native edge gestures. */

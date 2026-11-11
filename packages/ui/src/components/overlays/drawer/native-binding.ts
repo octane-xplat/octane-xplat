@@ -1,6 +1,6 @@
-import type { PanAdmission } from '@octane-xplat/ui/internal/gesture-input'
+import type { PanAdmission } from '../../../gestures/external'
 import type { AnimationResult, GestureSession, PanGestureOptions } from '@octane-xplat/ui'
-import type { DrawerProps } from './props'
+import type { DrawerProps } from '../../../props'
 
 /** Presentation only. Input always belongs to the UI root coordinator. */
 export interface DrawerPresentation {
@@ -56,7 +56,7 @@ export function bindDrawer(
     if (read().onError) {
       read().onError!(error)
     } else {
-      console.error('[octane-xplat/drawer] animation failed', error)
+      console.error('[Drawer] animation failed', error)
     }
   }
 

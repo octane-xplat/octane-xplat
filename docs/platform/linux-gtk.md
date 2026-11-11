@@ -1153,7 +1153,7 @@ and desktop entry; settings under
 - `presentation="bottom-sheet"` opens a real `BottomSheet` in a modal
   overlay layer; `presentation="adaptive"` picks the sheet on touch seats
   and the anchored popover on fine-pointer desktops. The shared
-  toast/drawer/lightbox/palette contracts are covered — `Drawer` resolves the `gtk` export condition from `@octane-xplat/drawer` and docks a modal panel over a scrim — but the toast edge
+  toast/drawer/lightbox/palette contracts are covered — `Drawer` resolves the `gtk` export condition from `@octane-xplat/ui` and docks a modal panel over a scrim — but the toast edge
   stacks are corner overlay layers rather than per-edge windows, and
   `Lightbox` video falls back to alt text (the video widget lives in
   `@octane-xplat/video`).

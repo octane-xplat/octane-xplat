@@ -1,6 +1,6 @@
 ID: drawer
 Targets: web, ios, android, macos
-Related APIs: @octane-xplat/drawer, Drawer, DrawerProps, onOpenChange
+Related APIs: @octane-xplat/ui, Drawer, DrawerProps, onOpenChange
 
 # Add an optional navigation drawer
 
@@ -15,7 +15,7 @@ gesture plugin.
 
 ## Acceptance criteria
 
-- AC1: The reader installs the drawer package and migrates old UI root and platform-specific drawer imports without app-direct plugin declarations.
+- AC1: The reader imports Drawer from UI and migrates the removed drawer package and platform-specific imports without app-direct plugin declarations.
 - AC2: The reader composes accessible open/close controls, owns state through open/onOpenChange or defaultOpen, and receives user dismissal without callback echoes from prop updates.
 - AC3: On iOS/Android, edge opening and drag closing work by default, with explicit gesture and reduced-motion configuration and target qualification limits described. Edge admission precedes movement; nested
   buttons retain taps, claimed drags suppress trailing activation, and extra

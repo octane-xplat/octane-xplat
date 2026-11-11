@@ -52,7 +52,6 @@
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
-		"@octane-xplat/drawer": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"octane": "catalog:",

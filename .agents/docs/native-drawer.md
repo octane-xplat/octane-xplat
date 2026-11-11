@@ -1,9 +1,9 @@
 # Mobile Drawer ownership
 
-`@octane-xplat/drawer` owns the navigation panel. UI must not import or re-export this leaf. The mobile implementation composes Mason views, shared semantic backdrop activation, and a one-contact pan attached through UI's internal gesture-input subpath. It no longer imports ui-drawer, calls install(), or requires gesturehandler. Other features/harnesses can still own those dependencies independently.
+`@octane-xplat/ui` owns the navigation panel. Decision #157 returns Drawer to UI after removal of its separate plugin cost. The mobile implementation composes Mason views, shared semantic backdrop activation, and a one-contact pan attached directly through UI's internal gesture owner. It no longer imports ui-drawer, calls install(), or requires gesturehandler. Other features/harnesses can still own those dependencies independently.
 
 ```tsx
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 
 <Drawer open={open} onOpenChange={setOpen} main={mainContent} drawer={navigationContent} />
 ```
@@ -33,13 +33,13 @@ The native host is no longer a PluginDrawer instance. Plugin imperative methods 
 </>
 ```
 
-The public leaf and export conditions stay stable; web/desktop retain their existing explicit-control subset. Npm dependency resolution no longer adds a Drawer-origin mobile plugin chain for web-only consumers. A host may still install gesturehandler for another feature, so test package costs with a minimal consumer rather than assuming it disappears from a whole app. NativeScript renderer/core peers and one Octane runtime remain required.
+Import Drawer and DrawerProps from UI; the separate drawer package is removed without aliases. Platform behavior stays unchanged; web/desktop retain their explicit-control subset. Npm dependency resolution no longer adds a Drawer-origin mobile plugin chain for web-only consumers. A host may still install gesturehandler for another feature, so test package costs with a minimal consumer rather than assuming it disappears from a whole app. NativeScript renderer/core peers and one Octane runtime remain required.
 
 ## Qualification boundaries
 
 The maintained controller tests cover geometry readiness, controlled/uncontrolled requests, latest commands, regrab progress, stale settles, cancellation, errors and disposal. Common-owner tests cover edge/sign rejection before claim and sticky exclusion after extra pointers. Handler/adapter tests are separate from OS input; packed declarations/bundles are separate from installed native runtime.
 
-Use `packages/drawer/tests/fixtures/drawer-input.tsrx` with real OS input and textual telemetry for edge open, nested-button close drag and fresh tap. Retain run evidence in local reports and Silo. No native gesture, scrolling or accessibility claim follows merely from a host mounting or a synthetic Back event.
+Use `packages/ui/tests/fixtures/drawer-input.tsrx` with real OS input and textual telemetry for edge open, nested-button close drag and fresh tap. Retain run evidence in local reports and Silo. No native gesture, scrolling or accessibility claim follows merely from a host mounting or a synthetic Back event.
 
 Broader qualification obligations include held-contact scroll direction changes and momentum, system-edge navigation precedence, concurrent pinch, native editing/slider priority, resize/safe areas, OS reduced-motion and VoiceOver/TalkBack focus navigation. The maintained fixture covers scrolling before and after Drawer gestures; this does not prove all native input compositions. Physical left remains the contract; RTL logical-edge support is not claimed. Web Escape/focus wrapping/return focus remain distinct from native accessibility behavior. UI BottomSheet's private grabber pan and platform-authentic sheet presenters are unchanged.
 

@@ -1,13 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './drawer.css'
 import { Application, isAndroid, isIOS, type View } from '@nativescript/core'
 import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/animation-frame'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'octane'
 import { useSignal$ } from 'octane/signals/client'
 import { cx } from '@octane-xplat/lib'
-import { attachOwnedPan, useInputCallbackGuard } from '@octane-xplat/ui/internal/gesture-input'
-import { createAnimatedValue } from '@octane-xplat/ui/internal/animated-value'
-import { Pressable } from '@octane-xplat/ui'
-import type { DrawerProps } from './props'
+import { attachOwnedPan, useInputCallbackGuard } from '../../../gestures/external'
+import { createAnimatedValue } from '../../../internal/platform/animated-value'
+import { Pressable } from '../../actions/Pressable.tsrx'
+import type { DrawerProps } from '../../../props'
 import { bindDrawer, type DrawerBinding } from './native-binding'
 import { applyNativeDrawerProps } from './native-host-props'
 

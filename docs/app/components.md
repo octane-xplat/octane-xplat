@@ -1505,7 +1505,7 @@ export function Example() {
 | `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`              |
 | `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                    |
 | `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`              |
-| `Drawer` (`@octane-xplat/drawer`) | Edge drawer                                       | `main`, `drawer`, `open`, `defaultOpen`, `onOpenChange`, `onDismiss`           |
+| `Drawer` (`@octane-xplat/ui`) | Edge drawer                                       | `main`, `drawer`, `open`, `defaultOpen`, `onOpenChange`, `onDismiss`           |
 
 Use `Dialog` for optional or informational modal content and `AlertDialog` when
 the user must choose an action. `BottomSheet` is the shared in-window surface;
@@ -1737,7 +1737,7 @@ export function FileActions() {
 }
 ```
 
-[Install or migrate Drawer](drawer.md) for mobile edge gestures and the shared
+[Use or migrate Drawer](drawer.md) for mobile edge gestures and the shared
 web/desktop panel API.
 
 

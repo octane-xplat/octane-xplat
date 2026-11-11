@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { bindDrawer, drawerDestination, type DrawerPresentation } from './native-binding'
-import type { DrawerProps } from './props'
+import type { DrawerProps } from '../../../props'
 import type { AnimationResult, PanSample } from '@octane-xplat/ui'
 
 function setup(initial: DrawerProps = {}) {

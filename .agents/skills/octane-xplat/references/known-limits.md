@@ -371,7 +371,7 @@ qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
 - GJS lacks `AbortController`; the palette leaf installs a minimal shim for `command-palette-state`.
 - Anchored toasts live in a Popover surface, so their bounds are a separate Gdk surface — compare `surface.get_position`, not window-space bounds.
 - `presentation="bottom-sheet"` still throws (slice D2b); `Lightbox` `type:"video"` renders the alt-text fallback.
-- `Drawer` lives in `@octane-xplat/drawer` (post-extraction). Its GTK Escape arbitration is leaf-owned — a bubble-phase window key controller after the renderer's layer-stack sink — so a ui layer registered before an opening drawer keeps Escape priority while covered; dialogs/sheets/popovers opened on top still dismiss first.
+- `Drawer` lives in `@octane-xplat/ui` (returned to UI after removing its plugin dependency). Its GTK Escape arbitration is leaf-owned — a bubble-phase window key controller after the renderer's layer-stack sink — so a ui layer registered before an opening drawer keeps Escape priority while covered; dialogs/sheets/popovers opened on top still dismiss first.
 
 ### Overlays D2b (bottom sheets / menu-sheet)
 - `view.on("pan")` emits **numeric** states `began=1, moved=2, ended=3, cancelled=0` with cumulative `dx/dy` and px/s `vx/vy` — the `connectEvent` dispatcher sends strings but `public-instance` remaps them in the emit wrapper.

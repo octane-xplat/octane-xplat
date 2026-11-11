@@ -147,7 +147,7 @@ harnesses; they are not consumer dependencies. Internal guidance lives in
 
 ## Drawer input ownership
 
-Mobile `@octane-xplat/drawer` uses the shared pan owner, with edge admission before claim and a cancelable presentation timeline. Keep `open`/`onOpenChange` and explicit controls; do not add raw native pan observers or plugin settings through `ios`/`android`. A cancelled one-contact drag cannot restart before all contacts lift. Web/desktop retain explicit controls; platform-native sheets remain separate. See [Drawer](../../../docs/app/drawer.md) and [ownership limits](../../docs/native-drawer.md). When an effect calls a controller through a stable ref, explicitly list the controlled props that trigger synchronization; indirect reads inside the controller do not declare those effect dependencies.
+Mobile `Drawer` from `@octane-xplat/ui` uses the shared pan owner, with edge admission before claim and a cancelable presentation timeline. Keep `open`/`onOpenChange` and explicit controls; do not add raw native pan observers or plugin settings through `ios`/`android`. A cancelled one-contact drag cannot restart before all contacts lift. Web/desktop retain explicit controls; platform-native sheets remain separate. See [Drawer](../../../docs/app/drawer.md) and [ownership limits](../../docs/native-drawer.md). When an effect calls a controller through a stable ref, explicitly list the controlled props that trigger synchronization; indirect reads inside the controller do not declare those effect dependencies.
 
 ## Framework expectation mismatches
 

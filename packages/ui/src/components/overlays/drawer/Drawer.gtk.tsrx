@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './drawer.css'
 import Gdk from 'gi://Gdk?version=4.0'
 import Gtk from 'gi://Gtk?version=4.0'
 import { useEffect, useRef, useState } from 'octane'
@@ -8,25 +9,12 @@ import {
 } from 'octane/universal/native'
 
 import { cx } from '@octane-xplat/lib'
-import * as gtkUi from '@octane-xplat/ui'
+import { themeSchemeClasses } from '../../../theme/theme-host'
 import { mergeStyle } from './style-merge'
-import type { DrawerProps } from './props'
+import type { DrawerProps } from '../../../props'
 
 const createPortal = (children: unknown, target: unknown) =>
   createUniversalPortal(children as UniversalRenderable, target)
-
-// `themeSchemeClasses` is a gtk/macos barrel export — the package's default
-// types (what the shared cross-leaf typecheck resolves) do not declare it.
-// Reading through the namespace keeps one ui module instance in the bundle,
-// so the root Theme's scope class and the resolved scheme reach the
-// detached panel host the same way they do for ui's own overlay leaves.
-const themeSchemeClasses: () => string =
-  typeof gtkUi === 'object' &&
-  gtkUi !== null &&
-  'themeSchemeClasses' in gtkUi &&
-  typeof gtkUi.themeSchemeClasses === 'function'
-    ? gtkUi.themeSchemeClasses
-    : () => ''
 
 /** Open drawer registrations, in overlay creation order — the Gtk.Overlay
  *  stacks layer children in add order, so the last entry is the topmost

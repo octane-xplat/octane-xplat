@@ -1465,20 +1465,7 @@ use the widget tree (`get_name`, label text). Limits unchanged: X11/Xvfb
 only; `view.animate` stays translate-only (lightbox zoom writes scale
 directly); `presentation="bottom-sheet"` still throws (slice D2b).
 
-Post-merge, `Drawer` moved to `@octane-xplat/drawer` (upstream extraction);
-the GTK leaf was re-ported into `packages/drawer/src/Drawer.gtk.tsrx`. It
-cannot reach ui's shared layer stack — the renderer's `installKeyMonitor`
-keeps a single window Escape sink and a vendored stack copy would steal it —
-so dismissal is leaf-owned: each open drawer adds a bubble-phase
-`Gtk.EventControllerKey` on its window root that only fires after the
-renderer sink, letting ui-registered layers claim Escape first; among
-drawers, last-opened wins (overlay add order == z-order). One ordering gap
-remains: a ui layer registered before an opening drawer keeps Escape
-priority while covered. `createPortal` comes from `octane/universal/native`
-and `themeSchemeClasses` from the `@octane-xplat/ui` gtk barrel (peer dep,
-namespace-read because default types don't declare it). The fixture moved
-to the package import path and gained onOpenChange checks —
-`ui-drawer.test.mjs` runs 19 assertions.
+`Drawer` now lives in UI at `packages/ui/src/components/overlays/drawer/Drawer.gtk.tsrx` (decision #157). The package move preserves its existing dismissal ordering: each open drawer adds a bubble-phase `Gtk.EventControllerKey` after the renderer's shared-layer Escape sink; UI dialogs, sheets and popovers get first refusal, then the last-opened drawer dismisses. A UI layer registered before a covered drawer still has Escape priority. Consolidating that ordering with the shared layer stack is a separate behavior change. The leaf imports `themeSchemeClasses` directly from UI's theme host and keeps `createPortal` from `octane/universal/native`. The existing `ui-drawer.test.mjs` service/input gate remains the qualification entry point; moving files does not establish a new OS-input pass.
 
 ### Bottom sheets and menu-sheet (slice D2b)
 

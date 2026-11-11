@@ -18,7 +18,6 @@
     "@octane-xplat/camera": "workspace:*",
     "@octane-xplat/canvas": "workspace:*",
     "@octane-xplat/charts": "workspace:*",
-    "@octane-xplat/drawer": "workspace:*",
     "@octane-xplat/files": "workspace:*",
     "@octane-xplat/gif": "workspace:*",
     "@octane-xplat/icons": "workspace:*",

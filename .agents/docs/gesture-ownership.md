@@ -279,7 +279,7 @@ configuration. Native horizontal reservations must exist before contact. A
 per-down policy write cannot promise to revoke scrolling already admitted by
 the native engine. With NativeScript core 9.1.3 on Android, `loaded` can precede
 OS window insertion for hidden descendants; native adapter attachment then
-rejects a missing window. The maintained [Drawer input fixture](../../packages/drawer/tests/fixtures/drawer-input.mobile.tsrx)
+rejects a missing window. The maintained [Drawer input fixture](../../packages/ui/tests/fixtures/drawer-input.mobile.tsrx)
 exercises the composed host. Common hosts and imperative leaves work around
 this by retrying after committed load/layout only when the native view is
 attached (Android `isAttachedToWindow`, iOS `window`, Windows XamlRoot).

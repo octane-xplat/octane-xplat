@@ -14,6 +14,7 @@ import {
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
+import { tsrx } from '@octane-xplat/cli/vite'
 import { octane } from 'octane/compiler/vite'
 
 const { nativeScriptRenderer } = await import('@nativescript-community/octane/config')
@@ -42,15 +43,13 @@ function pack(source, destination) {
 
 try {
   const packed = pack(packageRoot, join(temporary, 'drawer'))
-  const installed = join(temporary, 'node_modules/@octane-xplat/drawer')
+  const installed = join(temporary, 'node_modules/@octane-xplat/ui')
 
   mkdirSync(dirname(installed), { recursive: true })
   cpSync(packed, installed, { recursive: true })
 
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
 
-  assert.equal(manifest.dependencies['@nativescript-community/ui-drawer'], undefined)
-  assert.equal(manifest.dependencies['@nativescript-community/gesturehandler'], undefined)
   // Install only declared dependencies/peers. No UI workspace dev plugins leak
   // into this consumer's node_modules.
   for (const dependency of new Set([
@@ -67,7 +66,7 @@ try {
   writeFileSync(join(temporary, 'package.json'), '{"type":"module"}')
   writeFileSync(
     join(temporary, 'consumer.tsx'),
-    `import { Drawer, type DrawerProps } from '@octane-xplat/drawer'
+    `import { Drawer, type DrawerProps } from '@octane-xplat/ui'
 const props: DrawerProps = { open: false, onOpenChange: (open) => void open, width: 320 }
 export const view = <Drawer {...props} />
 void view
@@ -100,14 +99,17 @@ void view
 
   const webEntry = join(temporary, 'web-entry.ts')
 
-  writeFileSync(webEntry, "export { Drawer } from '@octane-xplat/drawer'\n")
+  writeFileSync(webEntry, "export { Drawer } from '@octane-xplat/ui'\n")
 
   const bundle = await build({
     configFile: false,
     root: temporary,
     logLevel: 'error',
-    plugins: [octane({ ssr: false })],
-    resolve: { conditions: ['web'] },
+    plugins: [tsrx('web'), octane({ ssr: false })],
+    resolve: {
+      conditions: ['web'],
+      extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.ts', '.mjs', '.js', '.json'],
+    },
     build: { write: false, lib: { entry: webEntry, formats: ['es'] } },
   })
 
@@ -120,8 +122,8 @@ void view
     }
   }
 
-  // Check actual native UI platform barrels with third-party native runtimes
-  // externalized. Any drawer install/register side effect remains in output.
+  // Compile the packed native Drawer root export with host runtimes external.
+  // This checks mobile suffix selection without evaluating a device runtime.
   const nativeCompiler = () =>
     octane({
       ssr: false,
@@ -131,20 +133,17 @@ void view
       },
     })
 
-  for (const [platform, symbol] of [
-    ['ios', 'LiquidGlass'],
-    ['android', 'MaterialSwitch'],
-  ]) {
+  for (const platform of ['ios', 'android']) {
     writeFileSync(
       join(temporary, 'widget.ts'),
-      `export { ${symbol} } from '${join(repoRoot, 'packages/ui/src', platform, 'index.ts')}'`,
+      `export { Drawer } from '${join(installed, 'src/index.ts')}'`,
     )
 
     const output = await build({
       configFile: false,
       root: temporary,
       logLevel: 'error',
-      plugins: [nativeCompiler()],
+      plugins: [tsrx(platform), nativeCompiler()],
       resolve: {
         conditions: ['native'],
         alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }],
@@ -173,13 +172,14 @@ void view
       (result) => result.output,
     )) {
       if (chunk.type === 'chunk') {
+        assert.match(chunk.code, /vx-drawer--mobile/)
         assert.doesNotMatch(chunk.code, /ui-drawer|gesturehandler|xplatDrawer/)
       }
     }
   }
 
   console.log(
-    'Drawer packed declarations: six targets; web bundle excludes native plugins; unrelated native UI barrels exclude drawer initialization.',
+    'Drawer packed declarations: six targets; web bundle excludes native plugins; native Drawer bundles exclude retired engines.',
   )
 } finally {
   rmSync(temporary, { recursive: true, force: true })

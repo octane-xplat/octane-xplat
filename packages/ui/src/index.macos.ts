@@ -437,3 +437,6 @@ export {
 
 export { generateThemeCss } from './theme/theme-css'
 export { useTheme, useThemeName } from './theme/use-theme.tsrx'
+
+export { Drawer } from './components/overlays/drawer/Drawer.macos.tsrx'
+export type { DrawerProps } from './props'

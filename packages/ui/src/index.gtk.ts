@@ -431,3 +431,6 @@ export { WebView } from './components/media/WebView.tsrx'
 
 export { useTooltip } from './components/overlays/use-tooltip.tsrx'
 export { postToHost } from './components/media/webview-post'
+
+export { Drawer } from './components/overlays/drawer/Drawer.gtk.tsrx'
+export type { DrawerProps } from './props'

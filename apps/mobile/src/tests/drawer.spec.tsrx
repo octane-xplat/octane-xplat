@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { describe, expect, it } from 'vitest'
 import { Application, isAndroid, type View } from '@nativescript/core'
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 import { Text } from '@octane-xplat/ui'
 import { mountXplat, waitUntil } from '@octane-xplat/platform/testing'
 

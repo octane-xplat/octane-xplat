@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import './drawer.css'
 import { useEffect, useRef, useState } from 'octane'
-import type { DrawerProps } from './props'
+import type { DrawerProps } from '../../../props'
 import type { JSX } from 'octane/jsx-runtime'
 
 function applyWebProps(node: any, bag?: Record<string, any>) {

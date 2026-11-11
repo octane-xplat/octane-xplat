@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, Text, View } from '@octane-xplat/ui'
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 
 export function DrawerProbe() @{
   const [open, setOpen] = useState(false)

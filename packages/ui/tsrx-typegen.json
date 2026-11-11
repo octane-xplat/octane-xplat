@@ -156,11 +156,6 @@
 					],
 					"types": "./types/generated/routing/core.d.ts"
 				},
-				"./internal/animated-value": {
-					"source": "src/internal/platform/animated-value.ts",
-					"runtime": ["./src/internal/platform/animated-value.ts"],
-					"types": "./types/generated/internal/platform/animated-value.d.ts"
-				},
 				"./internal/gesture-input": {
 					"source": "src/gestures/external.ts",
 					"runtime": [

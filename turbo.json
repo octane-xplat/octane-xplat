@@ -212,6 +212,7 @@
 		},
 		// Packs the package and installs the tarball in a temp consumer — side
 		// effects outside outputs/, keep uncached.
+		"test:packed:drawer": { "dependsOn": ["typegen", "build"], "cache": false },
 		"test:packed": {
 			"dependsOn": ["typegen", "build", "build:assets"],
 			"cache": false

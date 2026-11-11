@@ -23,7 +23,7 @@ increment/decrement on iOS, Android and AppKit (hue 10°, brightness 5%);
 AppKit keyboard/VoiceOver delivery is unqualified. `Slider` follows pan
 deltas and does not jump to a tapped track position. On web it is a Tab stop:
 Arrow keys change 1% of its range, and Home/End choose the bounds. Pair
-`value` with `onValueChange` to display the change. `Drawer` lives in the optional `@octane-xplat/drawer` package and includes
+`value` with `onValueChange` to display the change. `Drawer` is exported from `@octane-xplat/ui` and includes
 edge opening and drag dismissal on mobile. Pair controlled `open` with
 `onOpenChange`; web/desktop require explicit controls. Read the
 [drawer guide](../../../../../docs/app/drawer.md) when adding or migrating one. `TextInput`, `TextArea`, and
@@ -33,7 +33,7 @@ scroll behavior belong to the platform.
 ```tsx
 import { useState } from 'octane'
 import { Switch, Slider, Spinner, TextInput } from '@octane-xplat/ui'
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 
 export function Controls() {
   const [packed, setPacked] = useState(false)

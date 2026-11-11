@@ -238,7 +238,7 @@ function packageEntry(packageRoot: string, condition: string) {
 
 const sharedRendererExports = exportNames(join(root, 'packages/ui/src/index.shared.ts'))
 
-for (const pkg of ['pager', 'video', 'drawer']) {
+for (const pkg of ['pager', 'video']) {
   const packageRoot = join(root, `packages/${pkg}`)
   const web = exportNames(packageEntry(packageRoot, 'web'))
   const native = exportNames(packageEntry(packageRoot, 'native'))

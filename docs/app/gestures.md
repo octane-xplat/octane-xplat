@@ -314,10 +314,10 @@ export function SwipeAction(props: { next(): void }) {
 
 ## Drawer input
 
-Mobile `Drawer` from `@octane-xplat/drawer` uses this same owner. Its closed-edge opening and open-panel closing claim a one-contact horizontal pan; extra fingers cancel it until the cohort lifts. Keep explicit controls and controlled state callbacks. Platform-authentic native sheet presenters remain separate input boundaries.
+Mobile `Drawer` from `@octane-xplat/ui` uses this same owner. Its closed-edge opening and open-panel closing claim a one-contact horizontal pan; extra fingers cancel it until the cohort lifts. Keep explicit controls and controlled state callbacks. Platform-authentic native sheet presenters remain separate input boundaries.
 
 ```tsx
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 
 <Drawer open={open} onOpenChange={setOpen} main={mainContent} drawer={navigationContent} />
 ```

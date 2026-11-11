@@ -990,8 +990,8 @@
     ],
     "file": "ads-BannerAd.stories.ts"
   },
-  "drawer-Drawer": {
-    "package": "@octane-xplat/drawer",
+  "ui-Drawer": {
+    "package": "@octane-xplat/ui",
     "symbol": "Drawer",
     "module": "../leaves.web.tsrx",
     "export": "DrawerExample",

@@ -49,7 +49,6 @@
         "@octane-xplat/camera": "workspace:*",
         "@octane-xplat/canvas": "workspace:*",
         "@octane-xplat/charts": "workspace:*",
-        "@octane-xplat/drawer": "workspace:*",
         "@octane-xplat/files": "workspace:*",
         "@octane-xplat/gif": "workspace:*",
         "@octane-xplat/icons": "workspace:*",
@@ -197,7 +196,6 @@
         "@octane-xplat/canvas": "workspace:*",
         "@octane-xplat/context-menu": "workspace:*",
         "@octane-xplat/date-picker": "workspace:*",
-        "@octane-xplat/drawer": "workspace:*",
         "@octane-xplat/effects": "workspace:*",
         "@octane-xplat/files": "workspace:*",
         "@octane-xplat/geolocation": "workspace:*",
@@ -1014,7 +1012,6 @@
         "@octane-xplat/canvas": "workspace:*",
         "@octane-xplat/context-menu": "workspace:*",
         "@octane-xplat/date-picker": "workspace:*",
-        "@octane-xplat/drawer": "workspace:*",
         "@octane-xplat/effects": "workspace:*",
         "@octane-xplat/files": "workspace:*",
         "@octane-xplat/gif": "workspace:*",
@@ -1117,40 +1114,6 @@
         "@types/node": "26.6.6",
         "typescript": "catalog:",
       },
-    },
-    "packages/drawer": {
-      "name": "@octane-xplat/drawer",
-      "version": "0.20.0",
-      "dependencies": {
-        "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/lib": "workspace:*",
-      },
-      "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
-        "@nativescript/core": "catalog:",
-        "@nativescript/types": "catalog:",
-        "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/macos-appkit": "workspace:*",
-        "@octane-xplat/ui": "workspace:*",
-        "@octanejs/vite-plugin": "catalog:",
-        "@tsrx/content-mapper": "catalog:",
-        "jsdom": "catalog:",
-        "octane": "catalog:",
-        "tsrx-typegen": "workspace:*",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-        "vitest": "catalog:",
-      },
-      "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
-        "@nativescript/core": ">=9.1.0 <10",
-        "@octane-xplat/ui": ">=0.18.0 <1",
-        "octane": ">=0.6.3 <1",
-      },
-      "optionalPeers": [
-        "@nativescript-community/octane",
-        "@nativescript/core",
-      ],
     },
     "packages/effects": {
       "name": "@octane-xplat/effects",
@@ -1805,7 +1768,6 @@
       },
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/drawer": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -4366,8 +4328,6 @@
     "@octane-xplat/dnd-kit": ["@octane-xplat/dnd-kit@workspace:packages/dnd-kit"],
 
     "@octane-xplat/docs-search": ["@octane-xplat/docs-search@workspace:packages/docs-search"],
-
-    "@octane-xplat/drawer": ["@octane-xplat/drawer@workspace:packages/drawer"],
 
     "@octane-xplat/effects": ["@octane-xplat/effects@workspace:packages/effects"],
 

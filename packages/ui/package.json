@@ -132,10 +132,6 @@
 			"types": "./types/generated/routing/web-host.web.d.ts",
 			"default": "./src/routing/web-host.web.ts"
 		},
-		"./internal/animated-value": {
-			"types": "./types/generated/internal/platform/animated-value.d.ts",
-			"default": "./src/internal/platform/animated-value.ts"
-		},
 		"./internal/gesture-input": {
 			"types": "./types/generated/gestures/external.d.ts",
 			"web": "./src/gestures/external.web.ts",
@@ -179,7 +175,8 @@
 		"check:ui-barrels": "node scripts/sync-ui-barrels.ts --check",
 		"bench:routing-types": "node scripts/bench-routing-types.ts",
 		"typecheck:scripts": "tsc --runExternalCode -p scripts/tsconfig.json",
-		"test:gestures:native": "vitest run --config vitest.native.config.mts src/gestures"
+		"test:gestures:native": "vitest run --config vitest.native.config.mts src/gestures",
+		"test:packed:drawer": "node tests/drawer-packed-consumer.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/camera": "workspace:*",

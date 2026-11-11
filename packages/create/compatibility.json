@@ -31,7 +31,6 @@
 		"@octane-xplat/desktop-webview",
 		"@octane-xplat/dnd-kit",
 		"@octane-xplat/docs-search",
-		"@octane-xplat/drawer",
 		"@octane-xplat/effects",
 		"@octane-xplat/files",
 		"@octane-xplat/fingerprint",

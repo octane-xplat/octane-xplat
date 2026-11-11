@@ -2,12 +2,10 @@
 
 > Add a navigation panel with mobile edge gestures and shared open/close controls.
 
-Install the drawer package when your app needs a sliding navigation panel.
-Mobile input uses the same gesture owner as shared buttons, sliders, and drag
-surfaces. Drawer does not install ui-drawer or gesturehandler.
+Use `Drawer` from the shared UI package. Mobile input uses the same gesture owner as shared buttons, sliders, and drag surfaces, with no separate drawer package or plugin setup.
 
-```sh
-bun add @octane-xplat/drawer
+```tsx
+import { Drawer } from '@octane-xplat/ui'
 ```
 
 Use the same `Drawer` import on web, iOS, Android, macOS, Windows, and GTK4/GJS (Linux). On phones,
@@ -17,7 +15,7 @@ recognizer. The content and its appearance belong to your app.
 
 ```tsx
 import { useState } from 'octane'
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 import { Button, Text, View } from '@octane-xplat/ui'
 
 export function NavigationDrawer() {
@@ -46,7 +44,7 @@ either callback. Keep visible open and close controls for people who do not
 use gestures.
 
 ```tsx
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 
 export function InitiallyOpenDrawer() {
   return <Drawer defaultOpen main={null} drawer={null} onDismiss={() => console.log('Closed')} />
@@ -59,7 +57,7 @@ explicit controls. Mobile animation honors the OS reduced-motion setting, and
 `reducedMotion` can also disable it explicitly.
 
 ```tsx
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 
 export function FixedPanel() {
   return <Drawer width={320} isGestureEnabled={false} reducedMotion main={null} drawer={null} />
@@ -68,14 +66,10 @@ export function FixedPanel() {
 
 ## Migrate existing drawers
 
-**Breaking change:** `Drawer` and `DrawerProps` no longer come from
-`@octane-xplat/ui`. `SideDrawer` and `DrawerLayout` and their prop aliases are
-removed from the UI platform subpaths. All three become the same `Drawer`
-component. Keep your existing main and panel content, and connect
-`onOpenChange` for controlled visibility.
+**Breaking change:** import `Drawer` and `DrawerProps` from `@octane-xplat/ui`. Remove `@octane-xplat/drawer` from your dependencies. The former `SideDrawer` and `DrawerLayout` platform aliases remain removed. Keep your existing content, state callbacks and shared props.
 
 ```tsx
-import { Drawer, type DrawerProps } from '@octane-xplat/drawer'
+import { Drawer, type DrawerProps } from '@octane-xplat/ui'
 
 export function AppDrawer(props: DrawerProps) {
   return <Drawer {...props} />
@@ -105,7 +99,7 @@ swipe — supply an explicit open and close control like on desktop.
 
 ## Native host migration
 
-**Breaking change:** mobile Drawer no longer creates a ui-drawer host. Keep the same import, content, state callbacks and width. Remove ui-drawer-only settings from `ios`/`android`, including `gestureHandlerOptions`, `shouldPan`, `translationFunction`, and `animationFunction`; these and function-valued native overrides now throw a configuration error. Use the shared props to disable gestures or animation. Drawer no longer requires its former plugin chain; remove an app-direct plugin declaration only when no other installed feature needs it.
+**Breaking change:** mobile Drawer no longer creates a ui-drawer host. After updating the import to UI, keep the same content, state callbacks and width. Remove ui-drawer-only settings from `ios`/`android`, including `gestureHandlerOptions`, `shouldPan`, `translationFunction`, and `animationFunction`; these and function-valued native overrides now throw a configuration error. Use the shared props to disable gestures or animation. Drawer no longer requires its former plugin chain; remove an app-direct plugin declaration only when no other installed feature needs it.
 
 ```tsx
 <Drawer open={open} onOpenChange={setOpen} width={280}

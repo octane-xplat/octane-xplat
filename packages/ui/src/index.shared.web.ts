@@ -1316,3 +1316,6 @@ export {
 export type { InternationalizationProviderProps, InternationalizationMessages } from './props'
 export { useAnnounce } from './components/content/use-announce.web'
 export type { AnnouncePoliteness } from './components/content/use-announce.web'
+
+export { Drawer } from './components/overlays/drawer/Drawer.web.tsrx'
+export type { DrawerProps } from './props'

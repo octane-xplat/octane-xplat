@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 import { useState } from 'octane'
 import {
   Pressable,

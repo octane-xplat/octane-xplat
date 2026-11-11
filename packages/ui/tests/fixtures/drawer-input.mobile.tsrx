@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { File, knownFolders, Utils } from '@nativescript/core'
 import { useState } from 'octane'
-import { Drawer } from '@octane-xplat/drawer'
+import { Drawer } from '@octane-xplat/ui'
 import { Button, Text, View, ScrollableArea, TextInput, Slider } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../tools/probe/context'
 
