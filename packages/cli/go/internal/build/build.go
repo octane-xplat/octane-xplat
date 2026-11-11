@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/mobile"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/osfs"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/project"
@@ -103,6 +104,10 @@ func availableBuildTargets(ctx context.Context, projectRoot string) ([]string, e
 
 func PrepareBuildEngines(ctx context.Context, projectRoot string, selected []string) ([]projectBuildEngine, error) {
 	engines := []projectBuildEngine{}
+	embedded, err := mobile.UseLibrary(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if _, err := project.NodeExecutable(ctx); err != nil {
 		return nil, errors.New("Node is required for the project's build engines")
 	}
@@ -118,6 +123,10 @@ func PrepareBuildEngines(ctx context.Context, projectRoot string, selected []str
 			}
 			if kind == "windows" && runtime.GOOS != "windows" {
 				return nil, errors.New("Windows NativeScript builds require Windows")
+			}
+			if kind != "windows" && embedded {
+				err = mobile.Preflight(ctx, projectRoot)
+				break
 			}
 			entry, err = project.InstalledProjectEntry(projectRoot, "nativescript", "bin", "ns")
 		case "macos":
@@ -216,6 +225,14 @@ func Command(ctx context.Context, values map[string]any) error {
 	if err != nil {
 		return err
 	}
+	embedded, err := mobile.UseLibrary(ctx)
+	if err != nil {
+		return err
+	}
+	if embedded && (slices.Contains(selected, "ios") || slices.Contains(selected, "android")) &&
+		(release || artifacts.forDevice || artifacts.provision != "" || artifacts.teamID != "" || artifacts.copyTo != "") {
+		return errors.New("release signing, device archives and --copy-to are not qualified by the embedded NativeScript engine; set XPLAT_NATIVE_ENGINE=upstream for the project's existing signing and archive workflow")
+	}
 	engines, err := PrepareBuildEngines(ctx, projectRoot, selected)
 	if err != nil {
 		return err
@@ -255,6 +272,20 @@ func Command(ctx context.Context, values map[string]any) error {
 			}
 			continue
 		}
+		if embedded && (engine.Platform == "ios" || engine.Platform == "android") {
+			client, e := mobile.New(ctx, os.Stderr)
+			if e != nil {
+				return e
+			}
+			built, e := client.Build(ctx, mobile.Request(projectRoot, engine.Platform, false))
+			if e != nil {
+				return mobile.Error(e)
+			}
+			for _, artifact := range built.Artifacts {
+				fmt.Printf("Artifact: %s (%s)\n", artifact.Path, artifact.Kind)
+			}
+			continue
+		}
 		args := []string{"node", engine.Entry, "build"}
 		if engine.Platform != "web" {
 			native, secrets := artifacts.nativeScriptArgs(engine.Platform, release)
@@ -290,6 +321,6 @@ func Command(ctx context.Context, values map[string]any) error {
 
 func EngineContracts() map[string]string {
 	return map[string]string{
-		"web": "project-vite", "ios": "project-nativescript", "android": "project-nativescript", "windows": "project-nativescript", "macos": "project-packaging-worker", "linux": "project-packaging-worker",
+		"web": "project-vite", "ios": "embedded-nativescript-library", "android": "embedded-nativescript-library", "windows": "project-nativescript", "macos": "project-packaging-worker", "linux": "project-packaging-worker",
 	}
 }

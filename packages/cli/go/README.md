@@ -61,12 +61,16 @@ compiler, plugin or configuration execution, never a general CLI fallback.
 Main `dev` selects native SDK targets, preflights project engine entries, publishes
 initial routes and watches their sources, then owns the selected project engines.
 Run it from the application directory. Node and the selected project's Vite,
-NativeScript or optional macOS build worker must be installed first.
+official `@nativescript/vite` and platform runtime, or optional macOS build
+worker must be installed first. Simulator/emulator development embeds the public
+NativeScript Go library; `--no-hmr` selects restart mode. The pinned source lives
+in `../vendor/nativescript-cli`; initialize repository submodules before building.
 
 ```sh
 /absolute/path/to/xplat-go dev web
 /absolute/path/to/xplat-go dev macos
 /absolute/path/to/xplat-go dev ios --device SIMULATOR_ID
+/absolute/path/to/xplat-go dev android --no-hmr
 /absolute/path/to/xplat-go dev --targets web,android
 ```
 
@@ -429,8 +433,11 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 
 `build` preflights selected project engines before baked-route generation and
 runs targets in declaration order. Web uses the installed Vite executable;
-NativeScript targets invoke the installed `nativescript` bin with `--release`
-when requested, plus the validated store-artifact options: Android `--aab`,
+Debug iOS/Android targets call the pinned NativeScript Go library in-process;
+its results supply the artifact identity and path. Release signing, device archives
+and copy-to remain explicit upstream operations (`XPLAT_NATIVE_ENGINE=upstream`),
+using the installed `nativescript` bin with `--release` when requested, plus
+validated store-artifact options: Android `--aab`,
 `--key-store-path`/`--key-store-alias` and the `*-env` password references
 (also `xplat.targets.android.signing`, which refuses raw password keys), iOS
 `--for-device`/`--provision`/`--team-id`, and `--copy-to` on a single native

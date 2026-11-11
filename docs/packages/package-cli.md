@@ -4,7 +4,8 @@
 > targets you plan to ship.
 >
 > Status: `0.x` — the API surface is still moving. iOS/Android targets need
-> the NativeScript toolchain (Xcode/JDK + `ns`).
+> Node, the installed NativeScript runtimes and official Vite package, plus
+> Xcode for iOS or the Android SDK/JDK for Android.
 
 For a new app, start with the [creator](https://octane-xplat.goddardai.org/package-create). The CLI runs
 configured web, iOS, and Android targets, plus opt-in experimental macOS,
@@ -75,6 +76,26 @@ selection still applies.
 bun run xplat build --targets web,android
 ```
 
+Simulator/emulator development and debug iOS/Android builds use the reusable
+NativeScript Go library inside `xplat`. Keep the app's installed `@nativescript/vite`,
+platform runtime and Vite config. Development uses HMR by default. Use `--no-hmr`
+when each source edit should restart the app instead of applying a live patch:
+
+```sh
+bun run xplat dev ios
+bun run xplat dev android --no-hmr
+bun run xplat build --targets ios
+```
+
+Release signing, device archives and `--copy-to` require the explicit upstream
+engine and the project's installed `nativescript` package. This choice keeps
+those existing workflows available while their embedded replacements remain
+unqualified; a debug build failure never silently selects another engine.
+
+```sh
+XPLAT_NATIVE_ENGINE=upstream bun run xplat build --targets android --release
+```
+
 Phone targets accept the store-artifact options of the release workflow:
 `--aab` and `--key-store-path`/`--key-store-alias` plus
 `--key-store-password-env`/`--key-store-alias-password-env` for Android
@@ -85,12 +106,12 @@ produced artifact to a file or directory on a single-target build. The
 command prints each produced `Artifact: <path> (<type>)`.
 
 ```sh
-bun run xplat build --targets android --release --aab \
+XPLAT_NATIVE_ENGINE=upstream bun run xplat build --targets android --release --aab \
   --key-store-path "$ANDROID_UPLOAD_KEYSTORE" --key-store-alias upload \
   --key-store-password-env ANDROID_KEYSTORE_PASSWORD \
   --key-store-alias-password-env ANDROID_KEY_PASSWORD \
   --copy-to dist/app-release.aab
-bun run xplat build --targets ios --release --for-device --copy-to dist/app.ipa
+XPLAT_NATIVE_ENGINE=upstream bun run xplat build --targets ios --release --for-device --copy-to dist/app.ipa
 ```
 
 See [Release an iOS or Android app](https://octane-xplat.goddardai.org/native-release)

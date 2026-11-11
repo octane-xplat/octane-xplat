@@ -77,6 +77,10 @@ function run(dir, args = [], env = {}) {
   })
 }
 
+function upstreamRun(dir, args = [], env = {}) {
+  return run(dir, args, { ...env, XPLAT_NATIVE_ENGINE: 'upstream' })
+}
+
 function status(r, code) {
   assert.equal(r.status, code, r.stdout + r.stderr)
 }
@@ -164,6 +168,32 @@ test('preflight rejects every missing engine before route baking or earlier targ
   assert.equal(existsSync(join(dir, 'routes.gen.web.ts')), false)
 })
 
+test('mobile builds use the embedded engine without automatic upstream fallback', () => {
+  const dir = isolated(
+    { 'nativescript.config.ts': 'export default {}' },
+    { devDependencies: { '@nativescript/android': '9.1.1' } },
+  )
+
+  fakePackage(
+    dir,
+    'nativescript',
+    { bin: { ns: './run.mjs' } },
+    "import{writeFileSync}from'node:fs';writeFileSync('upstream-ran','unexpected')",
+  )
+
+  const debug = run(dir, ['--targets', 'android'], { XPLAT_NATIVE_ENGINE: 'go' })
+
+  status(debug, 1)
+  assert.match(debug.stderr, /vite/)
+  assert.equal(existsSync(join(dir, 'upstream-ran')), false)
+
+  const release = run(dir, ['--targets', 'android', '--release'], { XPLAT_NATIVE_ENGINE: '' })
+
+  status(release, 1)
+  assert.match(release.stderr, /XPLAT_NATIVE_ENGINE=upstream/)
+  assert.equal(existsSync(join(dir, 'upstream-ran')), false)
+})
+
 test('NativeScript engine receives selected platform/release argv and failure stops later builds', () => {
   const dir = isolated(
     { 'nativescript.config.ts': 'export default {}' },
@@ -177,7 +207,7 @@ test('NativeScript engine receives selected platform/release argv and failure st
     `console.log(JSON.stringify({argv:process.argv.slice(2),cwd:process.cwd()}));console.error('ns stderr π');process.exitCode=7`,
   )
 
-  const r = run(dir, ['--targets', 'android', '--release'])
+  const r = upstreamRun(dir, ['--targets', 'android', '--release'])
 
   status(r, 1)
 
@@ -202,7 +232,7 @@ test('Android store options forward validated argv; passwords arrive only from e
     `import{writeFileSync,mkdirSync}from'node:fs';import{dirname}from'node:path';const a=process.argv.slice(2);const i=a.indexOf('--key-store-password'),j=a.indexOf('--key-store-alias-password');const dest=a[a.indexOf('--copy-to')+1];mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,'aab-bytes');console.log(JSON.stringify({argv:a.map((v,k)=>k===i+1||k===j+1?'***':v),storePw:a[i+1]===process.env.FIXTURE_STORE_PW,keyPw:a[j+1]===process.env.FIXTURE_KEY_PW}));`,
   )
 
-  const r = run(
+  const r = upstreamRun(
     dir,
     [
       '--targets',
@@ -283,7 +313,7 @@ test('xplat.targets.android.signing config supplies the keystore and env referen
     `const a=process.argv.slice(2);const i=a.indexOf('--key-store-password'),j=a.indexOf('--key-store-alias-password');console.log(JSON.stringify({argv:a.map((v,k)=>k===i+1||k===j+1?'***':v),storePw:a[i+1]===process.env.FIXTURE_STORE_PW,keyPw:a[j+1]===process.env.FIXTURE_KEY_PW}));`,
   )
 
-  const r = run(dir, ['--targets', 'android', '--release', '--aab'], {
+  const r = upstreamRun(dir, ['--targets', 'android', '--release', '--aab'], {
     FIXTURE_STORE_PW: 'config-store-π',
     FIXTURE_KEY_PW: 'config-key-π',
   })
@@ -397,7 +427,7 @@ test(
       `import{writeFileSync,mkdirSync}from'node:fs';mkdirSync('platforms/ios/build/Release-iphoneos',{recursive:true});writeFileSync('platforms/ios/build/Release-iphoneos/Fixture.ipa','ipa-bytes');console.log(JSON.stringify({argv:process.argv.slice(2)}));`,
     )
 
-    const r = run(dir, [
+    const r = upstreamRun(dir, [
       '--targets',
       'ios',
       '--release',
@@ -444,7 +474,7 @@ test(
       `import{writeFileSync,mkdirSync}from'node:fs';import{dirname}from'node:path';const a=process.argv.slice(2);const dest=a[a.indexOf('--copy-to')+1];mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,'ipa-bytes');console.log(JSON.stringify({argv:a}));`,
     )
 
-    const r = run(dir, [
+    const r = upstreamRun(dir, [
       '--targets',
       'ios',
       '--release',

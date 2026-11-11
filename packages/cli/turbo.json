@@ -3,8 +3,8 @@
 	"extends": ["//"],
 	"tasks": {
 		// The release worker bundles the creator's Node compatibility export.
-		"build:go": { "dependsOn": ["create-octane-xplat#build"] },
-		"build:go-onnx": { "dependsOn": ["create-octane-xplat#build"] },
+		"build:go": { "dependsOn": ["create-octane-xplat#build"], "inputs": ["$TURBO_DEFAULT$", "vendor/nativescript-cli/**", "../../tools/cli-go/**"] },
+		"build:go-onnx": { "dependsOn": ["create-octane-xplat#build"], "inputs": ["$TURBO_DEFAULT$", "vendor/nativescript-cli/**", "../../tools/cli-go/**"] },
 		"test:optimizer": { "dependsOn": ["build", "^build"], "outputs": [] },
 		"test:toolchain": { "dependsOn": ["build", "^build"], "outputs": [] },
 		"test:markdown": {

@@ -9,3 +9,6 @@
 [submodule "packages/image-manipulator/platforms/macos/vendor/libwebp"]
 	path = packages/image-manipulator/platforms/macos/vendor/libwebp
 	url = https://github.com/webmproject/libwebp.git
+[submodule "packages/cli/vendor/nativescript-cli"]
+	path = packages/cli/vendor/nativescript-cli
+	url = https://github.com/octane-xplat/nativescript-cli.git

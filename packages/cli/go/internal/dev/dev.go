@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/history"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/mobile"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/project"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/routes"
@@ -15,18 +16,24 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 )
 
 type devEngine struct {
-	Target    devTarget
-	Args      []string
-	MacWorker string
-	Directory string
+	NativeScript bool
+	Target       devTarget
+	Args         []string
+	MacWorker    string
+	Directory    string
 }
 
 func prepareDevEngines(ctx context.Context, projectRoot string, targets []devTarget) ([]devEngine, error) {
+	embedded, err := mobile.UseLibrary(ctx)
+	if err != nil {
+		return nil, err
+	}
 	node, err := project.NodeExecutable(ctx)
 	if err != nil {
 		return nil, errors.New("Node is required for project development engines")
@@ -51,6 +58,13 @@ func prepareDevEngines(ctx context.Context, projectRoot string, targets []devTar
 			}
 			if target.Kind == "windows" && runtime.GOOS != "windows" {
 				return nil, errors.New("Windows NativeScript development requires Windows")
+			}
+			if embedded && target.Kind != "windows" && !target.Physical {
+				if err := mobile.Preflight(ctx, projectRoot); err != nil {
+					return nil, err
+				}
+				engine.NativeScript = true
+				break
 			}
 			entry, err := project.InstalledProjectEntry(projectRoot, "nativescript", "bin", "ns")
 			if err != nil {
@@ -228,6 +242,7 @@ func promptDevTargets(ctx context.Context, all []devTarget, input *os.File) ([]d
 }
 
 func Command(parent context.Context, values map[string]any) (failure error) {
+	restart, _ := values["no-hmr"].(bool)
 	ctx, stopPipes := proc.DevPipeContext(parent)
 	defer stopPipes()
 	ctx = context.WithValue(ctx, proc.ProcessGraceKey{}, 3*time.Second)
@@ -269,6 +284,11 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	engines, err := prepareDevEngines(ctx, projectRoot, chosen)
 	if err != nil {
 		return err
+	}
+	for i, engine := range engines {
+		if restart && !engine.NativeScript && slices.Contains([]string{"ios", "android", "windows"}, engine.Target.Kind) {
+			engines[i].Args = append(engine.Args, "--no-hmr")
+		}
 	}
 	// Interactive framework type declarations are a real project-installed engine.
 	typegen, err := devTypegenEngine(projectRoot, proc.ForegroundInput(ctx))
@@ -403,6 +423,9 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 				input := proc.ForegroundInput(ctx)
 				if input != nil && proc.BuildTerminal(input) {
 					input = nil
+				}
+				if engine.NativeScript {
+					return mobile.Run(ctx, projectRoot, engine.Target.Kind, engine.Target.Device, restart, out, diagnostics)
 				}
 				if engine.MacWorker != "" {
 					return runMacDevWorker(ctx, projectRoot, engine.MacWorker, input, out, diagnostics, capture)
