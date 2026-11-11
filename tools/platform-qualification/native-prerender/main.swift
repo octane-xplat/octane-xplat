@@ -85,6 +85,8 @@ final class ProbeScene: UIResponder, UIWindowSceneDelegate {
         precondition(StartProbeRuntime())
         runtimeStarted = true
         record("engine-init-end")
+        RunProbeApplication()
+        record("js-entry-end")
         precondition(labels.first?.text == "Updated through NativeScript bridge")
         precondition(root === oldRoot && root.node === oldNode)
         precondition(zip(labels, oldLabels).allSatisfy { $0 === $1 })

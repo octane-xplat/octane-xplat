@@ -89,6 +89,9 @@ if (mode === 'build') {
   cpSync(join(runtime, 'NativeScript.framework'), join(app, 'Frameworks/NativeScript.framework'), {
     recursive: true,
   })
+  mkdirSync(join(app, 'app'), { recursive: true })
+  cpSync(join(source, 'entry.js'), join(app, 'app/main.js'))
+  writeFileSync(join(app, 'app/package.json'), JSON.stringify({ main: 'main.js' }))
   const text = ['Native home screen', 'JavaScript starts later']
   writeFileSync(
     join(app, 'screen.bin'),
@@ -112,7 +115,10 @@ if (mode === 'build') {
         mason,
         runtime,
         sourceHashes: Object.fromEntries(
-          ['main.swift', 'Runtime.m', 'Runtime.h'].map((n) => [n, hash(join(source, n))]),
+          ['main.swift', 'Runtime.m', 'Runtime.h', 'entry.js'].map((n) => [
+            n,
+            hash(join(source, n)),
+          ]),
         ),
         masonHash: hash(join(mason, 'MasonCore.framework/MasonCore')),
         runtimeHash: hash(join(app, 'Frameworks/NativeScript.framework/NativeScript')),
@@ -153,9 +159,22 @@ if (mode === 'build') {
       const { unlinkSync } = await import('node:fs')
       unlinkSync(prior)
     }
-    const launch = run('xcrun', ['simctl', 'launch', udid, id])
+    const stdout = join(installed, 'Documents/stdout.log')
+    const stderr = join(installed, 'Documents/stderr.log')
+    writeFileSync(stdout, '')
+    writeFileSync(stderr, '')
+    const launch = run('xcrun', [
+      'simctl',
+      'launch',
+      '--stdout=' + stdout,
+      '--stderr=' + stderr,
+      udid,
+      id,
+    ])
     const pid = Number(launch.match(/:\s*(\d+)\s*$/)?.[1])
     if (!pid) throw new Error('Missing launched PID: ' + launch)
+    cpSync(stdout, join(report, 'stdout.log'))
+    cpSync(stderr, join(report, 'stderr.log'))
     let result
     for (let i = 0; i < 60; i++) {
       await new Promise((r) => setTimeout(r, 500))
@@ -163,6 +182,8 @@ if (mode === 'build') {
       if (existsSync(file)) {
         result = JSON.parse(readFileSync(file, 'utf8'))
         writeFileSync(join(report, 'result.json'), JSON.stringify(result, null, 2))
+        cpSync(stdout, join(report, 'stdout.log'))
+        cpSync(stderr, join(report, 'stderr.log'))
         if (result.some((e) => e.event === 'passed')) break
       }
       try {
