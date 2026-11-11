@@ -1,0 +1,12 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"typegen": { "outputs": ["types/**"] },
+		// The Vite plugin runtime-imports the emitted @octane-xplat/devtools/backend.
+		"build": {
+			"dependsOn": ["^build", "typegen"],
+			"outputs": ["dist/**", "types/**"]
+		}
+	}
+}

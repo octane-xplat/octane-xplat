@@ -1,0 +1,36 @@
+{
+	"name": "tweaks-playground",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"xplat": "xplat",
+		"dev": "xplat dev web",
+		"build": "vite build",
+		"test": "vitest run --config vitest.web.config.mts",
+		"test:e2e": "node test/e2e.mjs",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+		"styles:generate": "bamboo codegen",
+		"postinstall": "bun run styles:generate"
+	},
+	"dependencies": {
+		"@octane-xplat/bamboo": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/tweaks": "workspace:*",
+		"@octane-xplat/ui": "workspace:*",
+		"octane": "catalog:"
+	},
+	"devDependencies": {
+		"@bamboocss/dev": "1.60.1",
+		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/devtools": "workspace:*",
+		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/oxc": "0.20.0",
+		"jsdom": "catalog:",
+		"playwright": "1.63.0",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
+	}
+}

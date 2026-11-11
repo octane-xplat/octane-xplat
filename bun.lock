@@ -263,6 +263,30 @@
         "vitest": "catalog:",
       },
     },
+    "apps/tweaks-playground": {
+      "name": "tweaks-playground",
+      "version": "0.0.0",
+      "dependencies": {
+        "@octane-xplat/bamboo": "workspace:*",
+        "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/platform": "workspace:*",
+        "@octane-xplat/tweaks": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
+        "octane": "catalog:",
+      },
+      "devDependencies": {
+        "@bamboocss/dev": "1.60.1",
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/devtools": "workspace:*",
+        "@octanejs/vite-plugin": "catalog:",
+        "@tsrx/oxc": "0.20.0",
+        "jsdom": "catalog:",
+        "playwright": "1.63.0",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
     "apps/web": {
       "name": "@xplat/web",
       "version": "0.0.0",
@@ -2983,6 +3007,30 @@
         "vite": "catalog:",
       },
     },
+    "packages/tweaks": {
+      "name": "@octane-xplat/tweaks",
+      "version": "0.20.0",
+      "dependencies": {
+        "@octane-xplat/devtools": "workspace:*",
+        "@tsrx/oxc": "0.20.0",
+        "magic-string": "1.4.5",
+      },
+      "devDependencies": {
+        "@bamboocss/node": "1.60.1",
+        "@types/node": "26.6.6",
+        "octane": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+      "peerDependencies": {
+        "@bamboocss/node": ">=1.56",
+        "octane": ">=0.14.0 <1",
+        "vite": ">=5",
+      },
+      "optionalPeers": [
+        "@bamboocss/node",
+      ],
+    },
     "packages/typegen-fixture": {
       "name": "tsrx-typegen-fixture",
       "version": "0.0.0",
@@ -4515,6 +4563,8 @@
     "@octane-xplat/tracking-transparency": ["@octane-xplat/tracking-transparency@workspace:packages/tracking-transparency"],
 
     "@octane-xplat/tray": ["@octane-xplat/tray@workspace:packages/tray"],
+
+    "@octane-xplat/tweaks": ["@octane-xplat/tweaks@workspace:packages/tweaks"],
 
     "@octane-xplat/ui": ["@octane-xplat/ui@workspace:packages/ui"],
 
@@ -6819,6 +6869,8 @@
     "tunnel": ["tunnel@0.0.6", "", {}, "sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg=="],
 
     "turbo": ["turbo@2.11.4", "", { "optionalDependencies": { "@turbo/darwin-64": "2.11.4", "@turbo/darwin-arm64": "2.11.4", "@turbo/linux-64": "2.11.4", "@turbo/linux-arm64": "2.11.4", "@turbo/windows-64": "2.11.4", "@turbo/windows-arm64": "2.11.4" }, "bin": { "turbo": "bin/turbo" } }, "sha512-nedZtJ2hjWpU/JBFq7Aj1GQBxQ56si+kIUmNZBUX35O35TIuhSBR6/u3yHHmk81U+RBdBcVjvLQ3/iOFzMwKsA=="],
+
+    "tweaks-playground": ["tweaks-playground@workspace:apps/tweaks-playground"],
 
     "type-fest": ["type-fest@0.7.1", "", {}, "sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg=="],
 

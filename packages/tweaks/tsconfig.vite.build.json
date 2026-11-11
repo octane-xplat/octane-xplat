@@ -1,0 +1,18 @@
+{
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"lib": ["ESNext"],
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"target": "ES2022",
+		"noEmit": false,
+		"declaration": true,
+		"outDir": "dist",
+		"rootDir": "src",
+		"rewriteRelativeImportExtensions": true,
+		"noEmitHelpers": false
+	},
+	"include": ["src/vite/**/*", "src/protocol.ts"]
+}
