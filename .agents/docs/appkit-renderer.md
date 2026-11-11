@@ -309,6 +309,14 @@ query those snapshots and action availability. Semantic-only hosts need no
 click allocation. Replacing or retiring a semantic lease invalidates its
 adjustments without changing another view owner's metadata.
 
+The AX action base uses eager `NSView.extend` registration before the lazy
+`NativeClass`/Mason subclasses. Allocating only a subclass did not install the
+base's Press selector: an independent AX client found the named button but
+received action-unsupported. Keep semantic property getters on the existing
+native push path; forcing the whole lazy base to build recursed through native
+property accessors. The [packed component gate](../../tools/platform-qualification/desktop-gestures/README.md#packed-public-components)
+qualifies the service route separately from direct handler calls.
+
 Folded text owns its click recognizer and AX custom-action dispatch in
 `text-elements.ts`. Each node/view lifetime has distinct slots, including when
 several labels have identical link names. A view owner retires the old node

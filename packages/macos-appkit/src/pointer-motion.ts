@@ -1,3 +1,5 @@
+import { layerViewPoint } from './layer-point.ts'
+
 export interface PointerMotionHandlers {
   move(x: number, y: number): void
   exit(): void
@@ -12,7 +14,7 @@ export function viewPoint(
     return null
   }
 
-  const point = view.convertPointFromView(windowPoint, null)
+  const point = layerViewPoint(view, windowPoint)
   const bounds = view.bounds
 
   if (!point || !bounds) {

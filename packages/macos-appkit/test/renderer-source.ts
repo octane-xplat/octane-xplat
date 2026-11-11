@@ -563,6 +563,9 @@ export function rendererSource(): string {
         .replace(/deps\.directory\.containers\(\)/g, '[...appKitContainers]')
         .replace(/deps\.directory\.hasHost\(/g, 'ownedRoots.has(')
         .replace(/deps\.boxPaint\.dispose\b/g, 'disposeBoxPaint')
+        // VM method fixtures replace the native action base with their NSView
+        // boundary. Factory tests and the packed AX-service gate own registration.
+        .replace('extends NativeActionHost', 'extends NSView')
         .replace(/\bdeps\s*\.\s*\w+\s*\.\s*/g, '')
 
       if (
