@@ -2,6 +2,8 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		// The dist bundle reads the vendored packages' built dist files.
+		"build": { "dependsOn": ["^typegen", "@octane-xplat/lib#build", "create-octane-xplat#build"] },
 		// The release worker bundles the creator's Node compatibility export.
 		"build:go": { "dependsOn": ["create-octane-xplat#build"], "inputs": ["$TURBO_DEFAULT$", "vendor/nativescript-cli/**", "../../tools/cli-go/**"] },
 		"build:go-onnx": { "dependsOn": ["create-octane-xplat#build"], "inputs": ["$TURBO_DEFAULT$", "vendor/nativescript-cli/**", "../../tools/cli-go/**"] },

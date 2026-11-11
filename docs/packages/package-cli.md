@@ -241,7 +241,7 @@ project's compatible CLI installation; no separate build package is required. Fo
 currently supported engines:
 
 ```sh
-bun add --dev vite@8.3.0 @tsrx/core@0.5.5 @octane-xplat/lib@0.19.0 \
+bun add --dev vite@8.3.0 @tsrx/core@0.5.5 \
   postcss@8.5.32 postcss-load-config@6.0.1 marked@18.1.2 \
   @babel/core@8.0.9 @babel/plugin-transform-unicode-property-regex@8.0.1 \
   @babel/plugin-transform-unicode-sets-regex@8.0.1
