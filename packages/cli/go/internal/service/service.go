@@ -1,4 +1,4 @@
-package workshop
+package service
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-type serviceStart struct {
+type Start struct {
 	Protocol  string `json:"protocol"`
 	Version   int    `json:"version"`
 	ID        string `json:"id"`
@@ -30,7 +30,7 @@ type serviceStart struct {
 	URL       string `json:"url,omitempty"`
 }
 
-func readServiceStart(path, id, projectPath, operation, target string) (bool, error) {
+func ReadStart(path, id, projectPath, operation, target string) (bool, error) {
 	info, err := os.Lstat(path)
 	if os.IsNotExist(err) || osfs.FileSharingViolation(err) {
 		return false, nil
@@ -57,7 +57,7 @@ func readServiceStart(path, id, projectPath, operation, target string) (bool, er
 	if err != nil {
 		return false, err
 	}
-	var frame serviceStart
+	var frame Start
 	if len(bytes) > 64<<10 || json.Unmarshal(bytes, &frame) != nil {
 		return false, errors.New("invalid service startup JSON")
 	}
@@ -89,7 +89,7 @@ func readServiceStart(path, id, projectPath, operation, target string) (bool, er
 	return true, nil
 }
 
-func serviceObserver(ctx context.Context, path, id, projectPath, operation, target string, budget time.Duration, started *atomic.Bool, cancel context.CancelCauseFunc) func() {
+func Observer(ctx context.Context, path, id, projectPath, operation, target string, budget time.Duration, started *atomic.Bool, cancel context.CancelCauseFunc) func() {
 	stop := make(chan struct{})
 	done := make(chan struct{})
 	var once sync.Once
@@ -100,7 +100,7 @@ func serviceObserver(ctx context.Context, path, id, projectPath, operation, targ
 		tick := time.NewTicker(25 * time.Millisecond)
 		defer tick.Stop()
 		read := func() bool {
-			ok, err := readServiceStart(path, id, projectPath, operation, target)
+			ok, err := ReadStart(path, id, projectPath, operation, target)
 			if err != nil {
 				cancel(err)
 				return true
@@ -132,7 +132,7 @@ func serviceObserver(ctx context.Context, path, id, projectPath, operation, targ
 	return func() { once.Do(func() { close(stop) }); <-done }
 }
 
-func runServiceWorker(ctx context.Context, projectPath, worker, operation, target string, payload map[string]any, startupBudget time.Duration, input, output, diagnostics *os.File) (project.WorkerResult, error) {
+func RunWorker(ctx context.Context, projectPath, worker, operation, target string, payload map[string]any, startupBudget time.Duration, input, output, diagnostics *os.File) (project.WorkerResult, error) {
 	child, cancel := context.WithCancelCause(ctx)
 	defer cancel(nil)
 	var started atomic.Bool
@@ -159,7 +159,7 @@ func runServiceWorker(ctx context.Context, projectPath, worker, operation, targe
 		request["serviceStateFile"] = state
 		request["resourceRoot"] = resources
 		request["profileRoot"] = profile
-		return serviceObserver(child, state, id, projectPath, operation, target, startupBudget, &started, cancel), nil
+		return Observer(child, state, id, projectPath, operation, target, startupBudget, &started, cancel), nil
 	}
 	result, err := project.RunPreparedWorker(child, projectPath, worker, operation, payload, input, output, diagnostics, prepare)
 	var cleanup *proc.CleanupError

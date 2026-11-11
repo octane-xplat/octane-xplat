@@ -11,6 +11,7 @@ import (
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/doctor"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/osfs"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/service"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/project"
 	"os"
 	"path/filepath"
@@ -374,7 +375,7 @@ func DevCommand(ctx context.Context, values map[string]any) error {
 		return err
 	}
 	defer release()
-	_, err = runServiceWorker(ctx, projectPath, worker, "workshop-dev", target, payload, 5*time.Minute, proc.ForegroundInput(ctx), os.Stdout, os.Stderr)
+	_, err = service.RunWorker(ctx, projectPath, worker, "workshop-dev", target, payload, 5*time.Minute, proc.ForegroundInput(ctx), os.Stdout, os.Stderr)
 	return err
 }
 

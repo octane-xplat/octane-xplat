@@ -1,4 +1,4 @@
-package workshop
+package service
 
 import (
 	"context"
@@ -18,18 +18,18 @@ import (
 func TestServiceStartupEvidence(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "service.json")
-	base := serviceStart{Protocol: "octane-project-service", Version: 1, ID: "request", Project: root, Operation: "workshop-dev", Target: "web", Kind: "web-listening", URL: "http://localhost:5173/"}
+	base := Start{Protocol: "octane-project-service", Version: 1, ID: "request", Project: root, Operation: "workshop-dev", Target: "web", Kind: "web-listening", URL: "http://localhost:5173/"}
 	for _, test := range []struct {
 		name   string
-		change func(*serviceStart)
+		change func(*Start)
 		valid  bool
 	}{
-		{"actual local listener", func(*serviceStart) {}, true},
-		{"wrong identity", func(f *serviceStart) { f.ID = "other" }, false},
-		{"no project default", func(f *serviceStart) { f.Project = "" }, false},
-		{"foreign listener", func(f *serviceStart) { f.URL = "http://example.com:5173/" }, false},
-		{"wrong scope", func(f *serviceStart) { f.Kind = "native-host-spawned"; f.PID = 42 }, false},
-		{"no implicit port", func(f *serviceStart) { f.URL = "http://localhost/" }, false},
+		{"actual local listener", func(*Start) {}, true},
+		{"wrong identity", func(f *Start) { f.ID = "other" }, false},
+		{"no project default", func(f *Start) { f.Project = "" }, false},
+		{"foreign listener", func(f *Start) { f.URL = "http://example.com:5173/" }, false},
+		{"wrong scope", func(f *Start) { f.Kind = "native-host-spawned"; f.PID = 42 }, false},
+		{"no implicit port", func(f *Start) { f.URL = "http://localhost/" }, false},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			frame := base
@@ -38,7 +38,7 @@ func TestServiceStartupEvidence(t *testing.T) {
 			if err := os.WriteFile(path, bytes, 0600); err != nil {
 				t.Fatal(err)
 			}
-			ok, err := readServiceStart(path, "request", root, "workshop-dev", "web")
+			ok, err := ReadStart(path, "request", root, "workshop-dev", "web")
 			if (err == nil && ok) != test.valid {
 				t.Fatalf("admission=%v err=%v", ok, err)
 			}
@@ -55,7 +55,7 @@ func TestServiceStartupEvidence(t *testing.T) {
 		}
 		bytes, _ := json.Marshal(frame)
 		_ = os.WriteFile(path, bytes, 0600)
-		if ok, err := readServiceStart(path, "request", root, "workshop-dev", target); !ok || err != nil {
+		if ok, err := ReadStart(path, "request", root, "workshop-dev", target); !ok || err != nil {
 			t.Fatalf("%s: %v", target, err)
 		}
 	}
@@ -67,7 +67,7 @@ func TestServiceObserverDeadlineAndFinalRead(t *testing.T) {
 	ctx, cancel := context.WithCancelCause(context.Background())
 	defer cancel(nil)
 	var started atomic.Bool
-	stop := serviceObserver(ctx, path, "request", root, "workshop-dev", "web", 30*time.Millisecond, &started, cancel)
+	stop := Observer(ctx, path, "request", root, "workshop-dev", "web", 30*time.Millisecond, &started, cancel)
 	select {
 	case <-ctx.Done():
 	case <-time.After(time.Second):
@@ -80,8 +80,8 @@ func TestServiceObserverDeadlineAndFinalRead(t *testing.T) {
 	ctx2, cancel2 := context.WithCancelCause(context.Background())
 	defer cancel2(nil)
 	var final atomic.Bool
-	finish := serviceObserver(ctx2, path, "request", root, "workshop-dev", "web", time.Second, &final, cancel2)
-	frame := serviceStart{Protocol: "octane-project-service", Version: 1, ID: "request", Project: root, Operation: "workshop-dev", Target: "web", Kind: "web-listening", URL: "http://localhost:5173/"}
+	finish := Observer(ctx2, path, "request", root, "workshop-dev", "web", time.Second, &final, cancel2)
+	frame := Start{Protocol: "octane-project-service", Version: 1, ID: "request", Project: root, Operation: "workshop-dev", Target: "web", Kind: "web-listening", URL: "http://localhost:5173/"}
 	bytes, _ := json.Marshal(frame)
 	if err := os.WriteFile(path, bytes, 0600); err != nil {
 		t.Fatal(err)
@@ -120,7 +120,7 @@ if(mode==='started'){console.log('service stdout');console.error('service stderr
 			// short deadline is covered independently without process startup.
 			ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 			defer cancel()
-			result, err := runServiceWorker(ctx, project, worker, "workshop-dev", "web", map[string]any{"target": "web"}, 5*time.Second, nil, nil, nil)
+			result, err := RunWorker(ctx, project, worker, "workshop-dev", "web", map[string]any{"target": "web"}, 5*time.Second, nil, nil, nil)
 			switch mode {
 			case "started":
 				if err != nil || result.Process.Cancelled || !strings.Contains(result.Process.Stdout, "service stdout") || !strings.Contains(result.Process.Stderr, "service stderr") {
