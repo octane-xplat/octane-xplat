@@ -85,3 +85,26 @@ For iOS fonts, use the pinned NativeScript behavior as the reference. `NativeScr
 A snapshot’s applied values are not the control’s native defaults. Preserve the original native defaults separately before startup styling, then establish live property ownership at adoption. A stock property reset, native-baseline restoration and setter replay can avoid direct per-property cache manipulation, but each required native property family must be verified against ordinary creation and later removal. A font-only comparison does not establish general style ownership.
 
 Use NativeScript’s supported embedding delegate when handing an existing window/controller to Application. The default core SwiftUI host registers one before runtime setup. A custom host that omits it can initialize the root under two UI contexts and tear down the adopted children. Page/Frame ownership, safe-area geometry, lifecycle forwarding and actual/native caches still need their own checks. Compare measured dimensions under the same constraints with ordinary creation: measured size and the final stretched frame are not interchangeable.
+
+## Qualify root-scoped view creation
+
+`driver-root-factory.patch` is an isolated experiment against `@nativescript-community/octane` 0.2.5 **with the repository’s canonical driver patch already applied**. It adds a per-root factory during command application. It is not registered in the patch manifest or used by ordinary apps. `check-driver.mjs` copies an explicit installed driver into a new scratch directory, applies the experimental patch there, and executes that source against a small host boundary. It never changes the supplied installation.
+
+```sh
+export XPLAT_PRERENDER_DRIVER_ROOT=/absolute/path/to/node_modules/@nativescript-community/octane
+bun turbo run probe:prerender:driver:check --filter=@xplat/platform-qualification
+```
+
+The check covers aborted batches, text folding, ordinary creation, undefined fallback, same-root and cross-root ownership rejection, reuse after disposal, Mason defaults, and cleanup after a later creation fails. Its result includes source/patch hashes and `nativeQualified:false`. This is a driver command test, not an Octane reconciliation or native lifecycle test. The separate native Home experiment exercises actual compiled shared components, Page integration, state updates, native identities and independent sibling disposal.
+
+In the experiment, the factory receives transient Octane command IDs, host tags and initial props. Returning `undefined` selects normal registered creation. A returned object must be a NativeScript `ViewBase` without a live driver owner. The factory does not run during preparation/abort, for logical text nodes, or for element-registry hot replacement. It does run for command-driven recreation. For example, after validating the complete prepared tree, an adoption host can supply a root-local lookup:
+
+```ts
+const root = createNativeScriptRoot(host, {
+  createView(id, type, props) {
+    return claims.get(id)
+  },
+})
+```
+
+The lookup alone is not hydration. The host must first match the complete prepared logical tree to the artifact, bind ordinary wrappers to existing native objects, preserve canonical native defaults, and consume each claim once. Never serialize Octane command IDs or replace the global element registry to claim a screen. Clear the claims after the initial commit so later creation follows the normal path. A failed apply is not rolled back: dispose that root and release any unconsumed native claims before fallback. The experimental patch makes remove/destroy tolerate hosts that never reached creation, allowing that disposal path.
