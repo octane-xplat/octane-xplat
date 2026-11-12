@@ -11,7 +11,7 @@
 		"test:e2e": "node test/e2e.mts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"styles:generate": "bamboo codegen",
-		"postinstall": "bun run styles:generate"
+		"gen": "bun run styles:generate"
 	},
 	"dependencies": {
 		"@octane-xplat/bamboo": "workspace:*",

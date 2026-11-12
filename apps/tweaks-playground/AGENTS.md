@@ -14,3 +14,9 @@ inline/bamboo style sites, pick, and Save under `xplat dev web`.
   occupied; Vite uses strict port binding to avoid testing another app.
 - `src/editor-tabs.web.test.tsx` checks the separate editors and scoped
   save/revert messages in jsdom; this does not qualify native OS input.
+
+Root `bun install` generates `src/styled-system/` through this workspace's
+Turbo `gen` task, which prepares Bamboo's compiled config first. Keep codegen
+out of workspace install hooks: they run before root type generation.
+For explicit regeneration, run `bun run turbo run gen --filter=tweaks-playground`
+from the repository root. Builds, tests, and typechecks depend on this task.

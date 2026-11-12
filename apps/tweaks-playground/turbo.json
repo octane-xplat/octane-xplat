@@ -2,8 +2,13 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
-		"test": { "dependsOn": ["^build"] },
-		"test:e2e": { "dependsOn": ["^build", "@octane-xplat/cli#build:go"], "passThroughEnv": ["TWEAKS_TEST_PORT"], "cache": false },
-		"typecheck": { "dependsOn": ["^build"] }
+		"gen": {
+			"dependsOn": ["@octane-xplat/bamboo#typegen"],
+			"outputs": ["src/styled-system/**"]
+		},
+		"build": { "dependsOn": ["^typegen", "gen"] },
+		"test": { "dependsOn": ["^build", "gen"] },
+		"test:e2e": { "dependsOn": ["^build", "gen", "@octane-xplat/cli#build:go"], "passThroughEnv": ["TWEAKS_TEST_PORT"], "cache": false },
+		"typecheck": { "dependsOn": ["^build", "gen"] }
 	}
 }

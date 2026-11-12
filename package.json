@@ -20,7 +20,7 @@
 		"test": "turbo run test test:native && node --test examples/auth/server-verification.test.mts && bun run test:scripts",
 		"typegen": "turbo run typegen",
 		"typegen:watch": "turbo watch typegen --continue always",
-		"postinstall": "bun run typegen && turbo run gen --filter=@xplat/app",
+		"postinstall": "bun run typegen && turbo run gen --filter=@xplat/app --filter=tweaks-playground",
 		"check:consumer": "node scripts/verify-consumer.ts",
 		"dev:masonkit": "node links/masonkit.ts",
 		"build:packages": "turbo run typegen build build:assets --filter=./packages/*",
