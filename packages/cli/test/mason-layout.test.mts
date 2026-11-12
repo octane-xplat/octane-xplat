@@ -23,7 +23,7 @@ const inline = driver.slice(
 const unsetValue = Symbol('unset')
 const nativeStyles = new WeakMap()
 const api = runInNewContext(
-  `${inline}\n${helpers}\n;({ applyStyle, applyMasonDefaults, applyMasonChildLayout, releaseMasonChildLayout })`,
+  `${inline}\n${helpers}\n;({ isMasonContainer, applyStyle, applyMasonDefaults, applyMasonChildLayout, releaseMasonChildLayout })`,
   {
     unsetValue,
     Utils: { layout: { toDeviceIndependentPixels: (value) => value / 3 } },
@@ -405,4 +405,14 @@ test('foreign hidden visibility reaches Mason without removing its layout slot',
   f.classStyle({})
   api.applyMasonChildLayout(f.node, {})
   assert.equal(f.leaf().visibility, 'visible')
+})
+
+test('custom Mason containers enter foreign-child style synchronization', () => {
+  const material = { _styleHelper: {}, insertChild() {}, removeChild() {} }
+
+  assert.equal(api.isMasonContainer('liquidglass', material), true)
+  assert.equal(api.isMasonContainer('liquidglass', { insertChild() {}, removeChild() {} }), false)
+  assert.equal(api.isMasonContainer('label', { _styleHelper: {} }), false)
+  assert.equal(api.isMasonContainer('masonview', {}), true)
+  assert.equal(api.isMasonContainer('scrollview', {}), true)
 })

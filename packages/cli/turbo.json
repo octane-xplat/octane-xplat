@@ -11,6 +11,7 @@
 			"dependsOn": [],
 			"outputs": []
 		},
+		"test:mason-layout": { "dependsOn": [], "outputs": [] },
 		"test:native-runtime": {
 			"dependsOn": ["build"],
 			"outputs": []

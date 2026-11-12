@@ -213,7 +213,7 @@ function instantiate(type: string): ViewBase {
     throw new Error(`NativeScript driver: <${type}> is not a registered element.`)
   }
   const view = new Element()
-  if (MASON_CONTAINER_TAGS.has(type)) {
+  if (isMasonContainer(type, view)) {
     applyMasonDefaults(type, view)
   }
   return view
@@ -252,7 +252,7 @@ function updateProps(node: HostNode, next: Readonly<Record<string, unknown>>): v
   if (
     node.parent !== null &&
     !isPortalTarget(node.parent) &&
-    MASON_CONTAINER_TAGS.has(node.parent.type)
+    isMasonContainer(node.parent.type, node.parent.view)
   ) {
     applyMasonChildLayout(node, node.parent)
   }
@@ -293,15 +293,15 @@ function setProp(node: HostNode, view: ViewBase, name: string, value: unknown): 
   }
   // Mason cutover — all layout props are style-only: warn when a former
   // prop name arrives on a mason container or a child of one.
-  if (MASON_CONTAINER_TAGS.has(node.type)) {
+  if (isMasonContainer(node.type, view)) {
     applyMasonContainerProp(node, view, name, value)
   }
   if (
     MASON_STYLE_ONLY_PROPS.has(name) &&
-    (MASON_CONTAINER_TAGS.has(node.type) ||
+    (isMasonContainer(node.type, view) ||
       (node.parent !== null &&
         !isPortalTarget(node.parent) &&
-        MASON_CONTAINER_TAGS.has(node.parent.type)))
+        isMasonContainer(node.parent.type, node.parent.view)))
   ) {
     warnStyleOnlyProp(node, name)
   }
@@ -449,9 +449,21 @@ function inlineStyleKeys(style: string): Set<string> {
 // --- Mason layout cutover ---------------------------------------------------
 // masonview is the single layout intrinsic — all layout is expressed in CSS
 // props (display/flex/grid/position), forwarded onto the node's mason Style.
-// scrollview stays the platform scroll shell (MasonKit Scroll). Dispatch is
-// by node tag, so nothing below re-derives the view's class.
+// scrollview stays the platform scroll shell (MasonKit Scroll). Custom Mason
+// containers keep the same child-style contract through their inherited style
+// helper and child-list capabilities (for example LiquidGlass).
 const MASON_CONTAINER_TAGS = new Set(['masonview', 'scrollview'])
+
+function isMasonContainer(type: string, view: ViewBase | null | undefined): boolean {
+  return (
+    MASON_CONTAINER_TAGS.has(type) ||
+    (view !== null &&
+      view !== undefined &&
+      Reflect.get(view, '_styleHelper') !== undefined &&
+      typeof Reflect.get(view, 'insertChild') === 'function' &&
+      typeof Reflect.get(view, 'removeChild') === 'function')
+  )
+}
 
 // Props whose CssProperty is registered on core's layout classes, never on
 // MasonKit's ViewBase — `view.flexDirection` would store a dead field, so the
@@ -1142,7 +1154,11 @@ function attach(container: NativeScriptContainer, node: HostNode): void {
   addViewChild(parentView, node.view, index)
   // The child's mason leaf node exists only once the parent has attached it;
   // synchronize effective styles after attachment.
-  if (parent !== null && !isPortalTarget(parent) && MASON_CONTAINER_TAGS.has(parent.type)) {
+  if (
+    parent !== null &&
+    !isPortalTarget(parent) &&
+    isMasonContainer(parent.type, parent.view)
+  ) {
     for (const sibling of childrenOf(container, parent)) {
       applyMasonChildLayout(sibling, parent)
     }
@@ -1342,7 +1358,7 @@ function recreateView(container: NativeScriptContainer, node: HostNode): void {
       }
     }
   }
-  if (MASON_CONTAINER_TAGS.has(node.type)) {
+  if (isMasonContainer(node.type, node.view)) {
     for (const child of node.children) {
       releaseMasonChildLayout(child.view)
       applyMasonChildLayout(child, node)
