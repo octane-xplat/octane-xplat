@@ -503,7 +503,9 @@ addition and numeric-radius readback fix from Mason source commit
 (local, pending publication) until a Mason release includes it. No Swift/Kotlin
 ABI change is required.
 The handle is cleared before measurement/style writes and disposed on host
-cleanup; intervening authored paint writes are preserved. Fresh public Style
+cleanup; intervening authored `view.style` writes are preserved. Direct native
+writes or independently created Style writers must not race this handle.
+Fresh public Style
 wrappers fall back to the native radius buffer when fast numeric writes leave
 the CSS string empty, retaining density conversion. The iOS/Android
 container probe verifies actual native geometry and the engine's paint values.
