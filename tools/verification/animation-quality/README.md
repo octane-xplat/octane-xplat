@@ -124,7 +124,8 @@ No browser or device performance task belongs in lightweight PR CI.
 
 For input failures only, build with `XPLAT_ANIMATION_INPUT_DEBUG=1` before the
 build command. This enables a bounded, app-owned text journal of input, hit-test
-ancestry and errors at `Documents/animation-input-diagnostic.json`. It writes
+ancestry, native sheet attachment and recognizer state, and errors at
+`Documents/animation-input-diagnostic.json`. It writes
 during interaction and invalidates performance results. Rebuild without that
 variable for measurement; the default has no input journal writes.
 

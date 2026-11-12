@@ -124,6 +124,34 @@ function Benchmark() {
     },
     [],
   )
+  const saveSheetClose = useMemo(
+    () => (value: object | null) => {
+      if (value instanceof NativeView) {
+        controls.current.sheetClose = value
+      } else {
+        delete controls.current.sheetClose
+      }
+    },
+    [],
+  )
+
+  useEffect(() => {
+    if (!inputDebug || !sheet) {
+      return
+    }
+
+    const timer = setTimeout(() => {
+      const host = controls.current.sheetClose
+
+      inputLog('sheet-native-state', {
+        loaded: host?.isLoaded ?? null,
+        attached: Boolean(host?.ios?.window),
+        recognizers: String(host?.ios?.gestureRecognizers ?? null),
+      })
+    }, 700)
+
+    return () => clearTimeout(timer)
+  }, [sheet])
 
   const inspectStart = () => {
     const view = controls.current.start?.ios
@@ -460,6 +488,9 @@ function Benchmark() {
             content={() => (
               <Pressable
                 testID="close-sheet"
+                ref={inputDebug ? saveSheetClose : undefined}
+                onPressIn={inputDebug ? () => inputLog('sheet-close-down', {}) : undefined}
+                onPressOut={inputDebug ? () => inputLog('sheet-close-up', {}) : undefined}
                 onPress={() => {
                   inputLog('sheet-close', { sheet, status })
                   setSheet(false)
