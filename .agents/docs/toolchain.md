@@ -709,6 +709,14 @@ experience of agents writing Octane-xplat code effectively.
   Verified host-level with classic tsc 5.9.3 (dual `View`/`Page` identity
   errors reproduce when the linked copy's packageId differs; paths removes
   all of them) and reporter-verified on the consumer build in the issue.
+- Native Vite resolution deduplicates `octane` and
+  `@nativescript-community/octane` to the app installation. The unit-testing
+  overlay also deduplicates `@nativescript/unit-test-runner`: a linked
+  platform `/testing` module must share the host registry created by the app's
+  `createVitestHostPage`. Separate copies can time out before component
+  assertions. `packages/cli/test/vite-native-runtime.test.mjs` builds a linked
+  fixture with competing copies and checks renderer/host identity; native
+  sourcemaps remain the runtime graph check.
 - pnpm 11 resolves `link:` dep manifests before the app's `preinstall` hooks
   run: a spec pointing through a path created mid-install (e.g. a consumer's
   sibling-checkout symlink) yields the `node_modules` symlink but no

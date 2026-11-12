@@ -927,6 +927,8 @@ function unitTestingOverlay(projectRoot, appRequire, env) {
       }),
     },
     resolve: {
+      // Linked platform/testing must share createVitestHostPage's app-owned registry.
+      dedupe: ['@nativescript/unit-test-runner'],
       alias: [{ find: /^vitest$/, replacement: shimPath }],
     },
     plugins: [
@@ -1126,6 +1128,8 @@ export async function native(env, opts = {}) {
       },
       resolve: {
         conditions: nativePlatform() === 'windows' ? ['windows', 'native'] : ['native'],
+        // Linked UI/platform sources must share the app's renderer element registry.
+        dedupe: ['octane', '@nativescript-community/octane'],
         // The compiler retargets hook imports to @nativescript-community/
         // octane, but the deps-bundle scanner sees source-level 'octane'
         // first — without this it vendors octane/dist/index.js (the full

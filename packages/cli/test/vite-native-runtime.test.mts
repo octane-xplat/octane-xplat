@@ -330,6 +330,117 @@ export { View, Style }`,
         }
       },
     )
+
+    await t.test(
+      'linked native components share the app renderer and test-host registry',
+      async () => {
+        writeFileSync(
+          join(root, 'package.json'),
+          JSON.stringify({
+            name: 'app',
+            main: 'src/index.ts',
+            dependencies: { '@octane-xplat/nativescript-mason-core': 'file:./core.tgz' },
+          }),
+        )
+
+        mkdirSync(join(root, 'src'), { recursive: true })
+        writeFileSync(join(root, 'src/test.ts'), '')
+        makePackage(
+          '@nativescript/unit-test-runner',
+          {
+            exports: { './testing': './testing.js', './runtime/shim': './index.js' },
+          },
+          'export {}',
+        )
+
+        writeFileSync(
+          join(root, 'node_modules/@nativescript/unit-test-runner/testing.js'),
+          'export const host = {}',
+        )
+
+        writeFileSync(
+          join(root, 'node_modules/@nativescript-community/octane/driver.js'),
+          'export const driver = {}',
+        )
+
+        const linked = join(root, 'linked')
+
+        for (const [name, file, source] of [
+          ['@nativescript/unit-test-runner', 'testing.js', 'export const host = {}'],
+          ['@nativescript-community/octane', 'driver.js', 'export const driver = {}'],
+        ]) {
+          const dir = join(linked, 'node_modules', name)
+
+          mkdirSync(dir, { recursive: true })
+          writeFileSync(
+            join(dir, 'package.json'),
+            JSON.stringify({
+              name,
+              type: 'module',
+              exports: { ['./' + file.slice(0, -3)]: './' + file },
+            }),
+          )
+
+          writeFileSync(join(dir, file), source)
+        }
+
+        writeFileSync(
+          join(linked, 'index.js'),
+          `
+export { host as linkedHost } from '@nativescript/unit-test-runner/testing'
+export { driver as linkedDriver } from '@nativescript-community/octane/driver'
+`,
+        )
+
+        writeFileSync(
+          join(root, 'entry.js'),
+          `
+import { host } from '@nativescript/unit-test-runner/testing'
+import { driver } from '@nativescript-community/octane/driver'
+import { linkedHost, linkedDriver } from './linked/index.js'
+export const sameHost = host === linkedHost
+export const sameDriver = driver === linkedDriver
+`,
+        )
+
+        process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({
+          platform: 'ios',
+          unitTesting: true,
+        })
+
+        const config = await native('production', { extra: { resolve: { dedupe: ['app-owned'] } } })
+        const { build } = await import('vite')
+        const result = await build({
+          ...config,
+          configFile: false,
+          logLevel: 'silent',
+          build: {
+            ...config.build,
+            write: false,
+            minify: false,
+            lib: { entry: join(root, 'entry.js'), formats: ['es'] },
+          },
+        })
+
+        const chunk = [result]
+          .flat()
+          .flatMap((bundle) => bundle.output)
+          .find((chunk) => chunk.type === 'chunk')
+
+        const actual = await import(
+          'data:text/javascript;base64,' + Buffer.from(chunk.code).toString('base64')
+        )
+
+        assert.equal(actual.sameHost, true, 'mount and createVitestHostPage must own one registry')
+        assert.equal(
+          actual.sameDriver,
+          true,
+          'linked components must use the app renderer registry',
+        )
+
+        assert.ok(config.resolve.dedupe.includes('app-owned'))
+      },
+    )
   } finally {
     process.chdir(cwd)
     if (vendorExclude === undefined) {
