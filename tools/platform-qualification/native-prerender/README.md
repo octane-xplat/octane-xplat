@@ -46,3 +46,16 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 ```
 
 The task uses an explicit umbrella header and the generator's packaged Clang resources. Each invocation writes to a new directory under `~/agent-scratch/octane-xplat/native-prerender-control-metadata`. It rejects compiler error diagnostics even when the generator returns zero, checks required interface declarations, and records input/framework/output hashes. The printed directory contains `metadata.bin`, YAML declarations, diagnostics and a manifest. This qualifies header generation only; the baseline build still uses its supplied runtime metadata. Linking TNSWidgets and executing real wrapper adoption remain separate checks.
+
+## First real screen
+
+`Home.tsrx` and `home.css` define the selected purpose-built milestone with real shared `VStack`, `HStack`, `Text` and `Button` components. Initial data is explicit (`name` and `initialCompleted`); actions increment or reset progress without changing the host topology. The CSS includes light/dark colors. This screen is the next producer/adoption target, separate from the disposable two-label XPR0 mechanism fixture. It is not yet wired to the native IR loader or qualified on a device.
+
+Check compilation with an installed Octane toolchain:
+
+```sh
+export XPLAT_PRERENDER_TOOLCHAIN_ROOT=/absolute/path/to/installed/app
+bun turbo run probe:prerender:home:check --filter=@xplat/platform-qualification
+```
+
+This check compiles the authored component. It does not execute the real shared-component dependency closure, typecheck public props, apply CSS, or qualify native rendering/hydration. Those checks remain required before using the screen as the startup path.

@@ -1,0 +1,79 @@
+.prerender-home {
+  flex: 1;
+  padding: 24px;
+  gap: 24px;
+  background-color: #f5f7fb;
+  color: #172033;
+}
+
+.prerender-home-header,
+.prerender-home-card {
+  gap: 8px;
+}
+
+.prerender-home-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3655b3;
+}
+
+.prerender-home-title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.prerender-home-muted {
+  font-size: 15px;
+  color: #596579;
+}
+
+.prerender-home-card {
+  padding: 20px;
+  border-radius: 20px;
+  background-color: #ffffff;
+}
+
+.prerender-home-summary {
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.prerender-home-card-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.prerender-home-badge {
+  font-size: 11px;
+  color: #3655b3;
+}
+
+.prerender-home-count {
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.prerender-home-actions {
+  gap: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .prerender-home {
+    background-color: #101827;
+    color: #f4f6fb;
+  }
+
+  .prerender-home-card {
+    background-color: #1d293c;
+  }
+
+  .prerender-home-muted {
+    color: #b4bfd1;
+  }
+
+  .prerender-home-eyebrow,
+  .prerender-home-badge {
+    color: #a8bbff;
+  }
+}
