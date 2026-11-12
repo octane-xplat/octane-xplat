@@ -136,6 +136,13 @@ retain the registration if the same host returns. Actual host replacement detach
 immediately, component cleanup disposes synchronously, and a remaining null ref
 cancels before the next OS input turn.
 
+Native `loaded` can precede window attachment. A retained UIKit sheet can reuse
+the same size, so another `layoutChanged` is not guaranteed. The shared native
+interaction hook retries readiness once on an animation frame after its loaded
+microtask. Coalesce duplicate events and cancel the retry on unload, host
+replacement, or disposal. Never keep a frame loop alive for a detached host.
+Keep real-input repeated presentation separate from object-driver lifecycle tests.
+
 Native bridged point/size/rect fields need explicit numeric copies. Do not spread
 Objective-C structs: their fields can be non-enumerable. Translation freezes its
 axis basis at first contact, including a dormant multi-contact recognizer; its

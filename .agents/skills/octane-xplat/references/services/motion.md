@@ -147,6 +147,11 @@ export function SharedCard({ expanded }: { expanded: boolean }) {
 
 ## Gestures
 
+When maintaining native attachment, follow the [host lifetime rules](../../../../docs/gesture-ownership.md#semantic-participants-and-host-lifetime).
+Native `loaded` can precede window attachment on retained sheet reuse; preserve
+the shared hook's cancellable, single-frame readiness retry instead of adding
+app timers or relying on a size change.
+
 Use the shared owner through `usePanGesture$`, `usePinchGesture$`, and `gestures`. Callback updates preserve a session. Samples separate local/window/screen positions from translation; nullable velocity is in logical units/second. Commit actions only on `onEnd`; `onCancel` is interruption. `onFinalize` follows either once. A second finger cancels an exact-one-pointer pan until all lift. Do not synthesize cancelled events or suppress clicks in apps. See [gesture contracts and migration](../../../../../docs/app/gestures.md).
 
 ```tsx

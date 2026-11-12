@@ -14,14 +14,23 @@ import { useInteractionHost } from './host.tsrx'
 import { usePanGesture$ } from './hooks.tsrx'
 import { interactionTarget } from './target'
 
+const hostEvents = vi.hoisted(() => new Map<string, Set<(event: unknown) => void>>())
 const harness = vi.hoisted(() => ({
   root: {},
   host: {
     nativeViewProtected: {},
     style: { touchAction: 'auto' },
     isLoaded: true,
-    on() {},
-    off() {},
+    on(name: string, listener: (event: unknown) => void) {
+      if (!hostEvents.has(name)) {
+        hostEvents.set(name, new Set())
+      }
+
+      hostEvents.get(name)?.add(listener)
+    },
+    off(name: string, listener: (event: unknown) => void) {
+      hostEvents.get(name)?.delete(listener)
+    },
   },
   observed: 0,
   unobserved: 0,
@@ -263,5 +272,101 @@ it('allows a cancellation callback to schedule a normal component update during 
     expect(calls).toContain('new:start')
   } finally {
     root.unmount()
+  }
+})
+
+it('rebinds a retained host after window attachment without a layout event and cancels pending retries', async () => {
+  const root = createUniversalRoot(
+    createObjectContainer('nativescript'),
+    createObjectDriver('nativescript'),
+  )
+
+  const native: { window: object | null } = { window: null }
+  const originalNative = harness.host.nativeViewProtected
+  const frames = new Map<number, (time: number) => void>()
+  let nextFrame = 0
+  const observed = harness.observed,
+    unobserved = harness.unobserved
+
+  const emit = (name: string) => {
+    for (const listener of [...(hostEvents.get(name) ?? [])]) {
+      listener({})
+    }
+  }
+
+  const frame = () => {
+    const pending = [...frames.values()]
+
+    frames.clear()
+    for (const callback of pending) {
+      callback(0)
+    }
+  }
+
+  vi.stubGlobal('requestAnimationFrame', (callback: (time: number) => void) => {
+    frames.set(++nextFrame, callback)
+    return nextFrame
+  })
+
+  vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id))
+  harness.host.nativeViewProtected = native
+  try {
+    flushUniversalSync(() => root.render(Convenience, { onPan: () => {} }))
+    emit('loaded')
+    emit('loaded')
+    await Promise.resolve()
+    expect(frames.size).toBe(1)
+    expect(harness.observed).toBe(observed)
+    native.window = {}
+    frame()
+    expect(harness.observed - observed).toBe(1)
+    expect(frames.size).toBe(0)
+
+    harness.host.isLoaded = false
+    native.window = null
+    emit('unloaded')
+    expect(harness.unobserved - unobserved).toBe(1)
+    harness.host.isLoaded = true
+    emit('loaded')
+    await Promise.resolve()
+    expect(frames.size).toBe(1)
+    native.window = {}
+    frame()
+    expect(harness.observed - observed).toBe(2)
+
+    harness.host.isLoaded = false
+    native.window = null
+    emit('unloaded')
+    harness.host.isLoaded = true
+    emit('loaded')
+    await Promise.resolve()
+
+    const stale = [...frames.values()][0]
+
+    emit('unloaded')
+    expect(frames.size).toBe(0)
+    emit('loaded')
+    await Promise.resolve()
+    expect(frames.size).toBe(1)
+    stale(0)
+    expect(frames.size).toBe(1)
+    frame()
+    expect(frames.size).toBe(0) // No polling while the host stays detached.
+    expect(harness.observed - observed).toBe(2)
+
+    emit('loaded')
+    await Promise.resolve()
+    expect(frames.size).toBe(1)
+    root.unmount()
+    expect(frames.size).toBe(0)
+    native.window = {}
+    stale(0)
+    expect(harness.observed - observed).toBe(2)
+    expect([...hostEvents.values()].every((listeners) => listeners.size === 0)).toBe(true)
+  } finally {
+    root.unmount()
+    harness.host.nativeViewProtected = originalNative
+    harness.host.isLoaded = true
+    vi.unstubAllGlobals()
   }
 })

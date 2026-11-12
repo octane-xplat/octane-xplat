@@ -32,6 +32,8 @@ export function useNativeInteractionHost(
   const convenience = convenienceRef.current
   const lifecycleRef = useRef<InteractionHostRef<object> | null>(null)
   const observed = useRef<NativeGestureView | null>(null)
+  const pendingLoad = useRef<number | null>(null)
+  const loadEpoch = useRef(0)
   const committed = useRef<InteractionBindingOptions>({})
   const ref = useRef<InteractionBinding<NativeGestureView> | null>(null)
 
@@ -40,14 +42,24 @@ export function useNativeInteractionHost(
   }
 
   const binding = ref.current
+  const cancelLoad = useCallback(() => {
+    loadEpoch.current++
+    if (pendingLoad.current !== null) {
+      cancelAnimationFrame(pendingLoad.current)
+      pendingLoad.current = null
+    }
+  }, [])
+
   const clearLoaded = useCallback(() => {
+    cancelLoad()
     observed.current?.off('loaded', loaded)
     if (isReady) {
       observed.current?.off('layoutChanged', loaded)
     }
+
     observed.current?.off('unloaded', unloaded)
     observed.current = null
-  }, [])
+  }, [cancelLoad])
 
   const sync = useCallback(() => {
     const host = lifecycleRef.current?.host ?? null,
@@ -72,23 +84,58 @@ export function useNativeInteractionHost(
       if (isReady) {
         host.on('layoutChanged', loaded)
       }
+
       host.on('unloaded', unloaded)
     }
 
     if (isReady ? isReady(host) : host.isLoaded !== false) {
+      cancelLoad()
       binding.commit(host, current)
     }
-  }, [binding, clearLoaded, isReady])
+  }, [binding, cancelLoad, clearLoaded, isReady])
 
   const loaded = useCallback(() => {
     if (isReady) {
-      queueMicrotask(sync)
+      const epoch = loadEpoch.current
+
+      queueMicrotask(() => {
+        if (loadEpoch.current !== epoch) {
+          return
+        }
+
+        sync()
+        if (loadEpoch.current !== epoch) {
+          return
+        }
+
+        const host = observed.current
+
+        // A retained UIKit host can reload before entering its window without
+        // changing size. Retry once on a frame; do not poll detached hosts.
+        if (!host || host.isLoaded === false || isReady(host) || pendingLoad.current !== null) {
+          return
+        }
+
+        pendingLoad.current = requestAnimationFrame(() => {
+          if (loadEpoch.current !== epoch) {
+            return
+          }
+
+          pendingLoad.current = null
+          if (observed.current === host && host.isLoaded !== false) {
+            sync()
+          }
+        })
+      })
     } else {
       sync()
     }
   }, [isReady, sync])
 
-  const unloaded = useCallback(() => binding.detach(), [binding])
+  const unloaded = useCallback(() => {
+    cancelLoad()
+    binding.detach()
+  }, [binding, cancelLoad])
 
   if (!lifecycleRef.current) {
     lifecycleRef.current = createInteractionHostRef<object>(
