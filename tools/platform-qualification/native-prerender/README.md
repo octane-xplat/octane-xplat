@@ -76,6 +76,33 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"C
 
 Each invocation writes three object files, compiler arguments and an input/output hash manifest below `~/agent-scratch/octane-xplat/native-prerender-home-helpers`. Link all three, including the Swift `HomeStyleSnapshot` extension, with the host, Mason, TNSWidgets, CoreText and core’s native text helpers. The command creates no app and runs no device; its output explicitly records `linked:false` and `runtimeQualified:false`. Follow the plan’s separate native geometry, style ownership and hydration gates.
 
+## Experimental Home binary codec
+
+`home-codec.mjs` writes `XPH1`; `home-native/HomeArtifact.swift` reads it using Foundation and CryptoKit before any view creation. Both produce the same semantic object as the resolved JSON projection. Check the writer and native reader together, optionally supplying an actual AOT Home projection:
+
+```sh
+export XPLAT_HOME_CODEC_INPUT=/absolute/path/to/resolved.json
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Check Home binary codec"}' -- bun turbo run test:prerender:codec --filter=@xplat/platform-qualification
+```
+
+The command compiles a host-native Swift checker, exercises valid and malformed inputs, and retains evidence under `~/agent-scratch/octane-xplat/native-prerender-home-codec`. It starts no simulator and does not establish iOS mounting or hydration. Without the optional input, the actual-Home case is explicitly skipped; synthetic codec cases still run.
+
+The fixed 80-byte header uses little-endian integers:
+
+| Offset | Field |
+| --- | --- |
+| 0 | Four-byte magic `XPH1` |
+| 4 | Version `u16=1`, reserved flags `u16=0` |
+| 8 | Total bytes `u32`, visual node count `u32` |
+| 16 | Expected build identity, 32 bytes |
+| 48 | Payload SHA-256, 32 bytes |
+
+The payload contains a scope string, initial-data object, ordered node records, then light and dark style records. Each node stores a one-byte container/Label kind, a `u32` parent index (`0xffffffff` for the root), text and portable props. Paths and child lists are derived from parent order. Each theme has one style/provenance record per node. Literal tags represent null, booleans, finite little-endian float64 numbers, UTF-8 strings, arrays and objects; strings and collections have `u32` lengths. No JSON text, native pointers, transient renderer IDs, Mason buffer offsets or native struct layouts are embedded.
+
+Bounds are 1 MiB total, 1,024 nodes, 65,536 bytes per string, literal depth below 16, 1,024 array entries, 256 object entries and 100,000 literal values. The reader rejects unknown versions/flags/tags, bad references, duplicate keys, unsupported style names, invalid UTF-8, non-finite numbers, trailing bytes and mismatched checksums/build identities. The host must supply the expected build digest from its producer/runtime/CSS/initial-data inputs; a checksum provides corruption detection, not authenticity. Unsupported native property values still require semantic lowering validation before mounting.
+
+This is a compatibility experiment, not the frozen production IR. It retains resolved style names and provenance for inspectability; it makes no size or speed claim. Compiler-stable logical identities, environment invalidation, a complete control/property ABI and failure fallback remain separate contracts. JSON is the optional debug projection of the same data, rather than a separate rendering path.
+
 ## Boundaries for native style loading
 
 Keep selector matching and cascade resolution in the producer for a known initial tree. Native loading still needs explicit property conversion: numeric Mason lengths use physical pixels, UIKit frames and fonts use logical points, and percentages remain fractions. Read scale from the owning window’s screen and convert each length once. The native border-radius string parser already applies scale; pass the logical radius to it. Multiplying it first triples effective radii at scale3. Mason dimension type codes differ from length/percentage type codes; use the named enums from the exact SDK header rather than sharing numeric tags between setters. Lower colors to the same rounded ARGB bytes as live NativeScript Color; the SDK’s UIColor-to-Mason conversion can truncate alpha.

@@ -12,6 +12,10 @@
 		"qualify:macos-components": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
 		"@xplat/platform-qualification#probe:prerender:home:check": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_TOOLCHAIN_ROOT"] },
 		"@xplat/platform-qualification#probe:prerender:driver:check": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_DRIVER_ROOT"] },
+		"@xplat/platform-qualification#test:prerender:codec": {
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_HOME_CODEC_INPUT"]
+		},
 		"@xplat/platform-qualification#test:prerender:adoption": {},
 		"@xplat/platform-qualification#probe:prerender:build": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_*", "GODDARD_*"] },
 		"@xplat/platform-qualification#probe:prerender:home:helpers": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_*", "GODDARD_*"] },
