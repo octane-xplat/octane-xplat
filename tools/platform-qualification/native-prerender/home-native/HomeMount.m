@@ -1,5 +1,6 @@
 #import "HomeMount.h"
 #import <objc/runtime.h>
+#import <float.h>
 #import "FontLowering.h"
 #import "UIView+NativeScript.h"
 #import <TNSWidgets/TNSWidgets.h>
@@ -125,12 +126,20 @@ static void Snapshot(UIView *view, NSString *path, NSMutableArray *rows) {
     Require(records.count == 19 && styles.count == records.count, @"Unexpected first-screen topology");
     Require(scale > 0 && isfinite(scale), @"Invalid owning screen scale");
     NSMutableArray<UIView *> *views = [NSMutableArray new];
-    // Validate parent ordering before creation. The trusted producer supplies the property contract.
+    // The native reader validates both themes before this mounting boundary.
     for (NSUInteger index=0; index<records.count; index++) {
         NSDictionary *record = records[index];
         Require([record[@"index"] unsignedIntegerValue] == index && [styles[index][@"index"] unsignedIntegerValue] == index, @"Noncanonical index");
         Require([@[@"masonview",@"label"] containsObject:record[@"kind"]], @"Unknown host kind");
         Require(index == 0 ? record[@"parent"] == NSNull.null : [record[@"parent"] unsignedIntegerValue] < index, @"Invalid parent ordering");
+        // Decoding validated property semantics. Check owning-scale conversion
+        // for every record before allocating the first native view.
+        NSDictionary *values = styles[index][@"style"];
+        for (NSString *key in @[@"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"minWidth", @"height"]) {
+            if (!values[key]) continue;
+            double pixels = (double)[values[key] floatValue] * scale;
+            Require(isfinite(pixels) && pixels <= FLT_MAX, @"Scaled length exceeds native range");
+        }
     }
     [NSCMason.shared setDeviceScale:scale];
     for (NSUInteger index=0; index<records.count; index++) {

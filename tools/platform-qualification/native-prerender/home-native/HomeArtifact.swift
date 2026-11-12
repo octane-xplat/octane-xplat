@@ -12,6 +12,51 @@ enum HomeArtifact {
         "maxWidth", "minWidth", "paddingBottom", "paddingLeft", "paddingRight",
         "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace",
     ]
+    // Keep this fixed-screen value contract aligned with HomeMount and FontLowering.
+    // Structural validity alone does not make a native setter safe to call.
+    private static func validateStyleValue(_ value: Any, key: String) throws {
+        let number = value as? NSNumber
+        let numeric = number != nil && CFGetTypeID(value as CFTypeRef) != CFBooleanGetTypeID()
+        let scalar = numeric ? number!.doubleValue : .nan
+        let nonnegativeFloat = scalar >= 0 && Float(scalar).isFinite
+        let text = value as? String
+        let valid: Bool
+        switch key {
+        case "display": valid = text == "flex"
+        case "flexDirection": valid = text == "row" || text == "column"
+        case "alignItems": valid = text == "center"
+        case "justifyContent": valid = text == "center" || text == "space-between"
+        case "maxWidth": valid = text == "100%"
+        case "cornerShape": valid = text == "squircle"
+        case "whiteSpace": valid = text == "normal" || text == "nowrap"
+        case "textOverflow": valid = text == "clip" || text == "ellipsis"
+        case "userSelect": valid = text == "none"
+        case "borderWidth": valid = numeric && scalar == 0
+        case "fontWeight": valid = numeric && (100...900).contains(scalar) && scalar.truncatingRemainder(dividingBy: 100) == 0
+        case "fontSize": valid = nonnegativeFloat && scalar > 0
+        case "fontFamily":
+            let trim = CharacterSet(charactersIn: " \t\"'")
+            valid = text.map { !$0.components(separatedBy: ",").contains { $0.trimmingCharacters(in: trim).isEmpty } } ?? false
+        case "backgroundColor", "color": valid = text.map(validColor) ?? false
+        case "flexGrow", "flexShrink", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "rowGap", "columnGap", "minWidth", "height", "lineHeight", "borderRadius":
+            valid = nonnegativeFloat
+        default: valid = false
+        }
+        guard valid else { throw Invalid(reason: "unsupported style value: " + key) }
+    }
+    private static func validColor(_ text: String) -> Bool {
+        if text.hasPrefix("#") {
+            return text.utf8.count == 7 && text.dropFirst().allSatisfy { "0123456789abcdefABCDEF".contains($0) }
+        }
+        guard text.hasPrefix("rgba("), text.hasSuffix(")") else { return false }
+        let parts = text.dropFirst(5).dropLast().components(separatedBy: ",")
+        guard parts.count == 4 else { return false }
+        for (index, part) in parts.enumerated() {
+            guard let value = Double(part.trimmingCharacters(in: .whitespaces)), value.isFinite,
+                  value >= 0, value <= (index == 3 ? 1 : 255) else { return false }
+        }
+        return true
+    }
     private struct Reader {
         let bytes: [UInt8]
         var offset = 0
@@ -104,8 +149,8 @@ enum HomeArtifact {
                       let cssKeys = try reader.literal() as? [String],
                       let inheritedKeys = try reader.literal() as? [String] else { throw Invalid(reason: "style record") }
                 for (key, value) in style {
-                    // CFBoolean also bridges to NSNumber; exclude it explicitly.
-                    guard styleKeys.contains(key), value is String || (value is NSNumber && CFGetTypeID(value as CFTypeRef) != CFBooleanGetTypeID()) else { throw Invalid(reason: "unsupported style property") }
+                    guard styleKeys.contains(key) else { throw Invalid(reason: "unsupported style property") }
+                    try validateStyleValue(value, key: key)
                 }
                 for keys in [cssKeys, inheritedKeys] {
                     guard Set(keys).count == keys.count, keys.allSatisfy({ style[$0] != nil }) else { throw Invalid(reason: "style provenance") }

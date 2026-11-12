@@ -142,6 +142,48 @@ test('native reader rejects header incompatibility, wrong build, checksums and t
   for (const end of [0, 79, 80, data.length - 1]) rejects(data.subarray(0, end))
   rejects(resigned(Buffer.concat([data, Buffer.from([0])])))
 })
+test('native reader rejects unsupported setter values in either theme before mounting', () => {
+  for (const [key, value] of [
+    ['display', 'block'],
+    ['flexDirection', 'row-reverse'],
+    ['alignItems', 'stretch'],
+    ['justifyContent', 'start'],
+    ['maxWidth', '80%'],
+    ['cornerShape', 'invalid'],
+    ['whiteSpace', 'pre'],
+    ['textOverflow', 'fade'],
+    ['userSelect', 'text'],
+    ['fontFamily', 'Arial,,Helvetica'],
+    ['fontFamily', 12],
+    ['fontSize', 0],
+    ['fontSize', '15px'],
+    ['fontWeight', 550],
+    ['fontWeight', '600'],
+    ['borderWidth', 1],
+    ['borderRadius', -1],
+    ['paddingTop', '24px'],
+    ['height', -1],
+    ['lineHeight', 1e100],
+    ['color', '#12zz34'],
+    ['color', '#fff'],
+    ['color', 'rgba(1, 2, 3, 2)'],
+    ['color', 'rgba(-1, 2, 3, 1)'],
+    ['color', 'rgba(1, 2, 300, 1)'],
+    ['color', 'rgba(1, 2, nan, 1)'],
+    ['color', 'rgba(1, 2, 3, 1)trailing'],
+    ['backgroundColor', 123],
+  ]) {
+    for (const theme of ['light', 'dark']) {
+      const input = structuredClone(fixture)
+      // Put a bad value on the last node, including the unused theme. All
+      // records must pass preflight, rather than failing halfway through mount.
+      input.variants[theme].at(-1).style[key] = value
+      const result = native(encodeHome(input, build))
+      assert.equal(result.status, 1, `${theme}.${key}: ${result.stderr}`)
+      assert.match(result.stderr, /unsupported style value/)
+    }
+  }
+})
 test('native reader rejects malformed payloads even with a matching checksum', () => {
   const data = encodeHome(fixture, build)
   const scopeBytes = Buffer.byteLength(fixture.scope)
