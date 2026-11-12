@@ -13,6 +13,7 @@ import {
   type DevtoolsServerRecord,
   type SessionSnapshot,
 } from '../client.ts'
+
 import type { DevSocket } from '../types.ts'
 
 export type DevSocketFactory = (url: string) => DevSocket | undefined
@@ -60,30 +61,46 @@ export class PanelModel {
     this.logTarget$.set(null)
 
     const conn = connectDevtools(record, socket ? { socket } : {})
+
     this.conn = conn
 
     conn.onState((state) => {
       this.connState$.set(state)
       this.panel$.set(conn.panel)
+      // The ready frame seeds sessions/backends without firing their
+      // listeners — read the snapshots when the connection goes live.
+      if (state === 'live') {
+        this.sessions$.set(conn.sessions())
+        this.backends$.set(conn.backends())
+        this.subscribeLogs()
+      }
     })
+
     conn.onSessions((sessions) => {
       this.sessions$.set(sessions)
     })
+
     conn.onBackends((backends) => {
       this.backends$.set(backends)
       this.subscribeLogs()
     })
+
     conn.subscribe((message) => {
       if (message.channel === 'xplat-actions' && isOutcome(message.data)) {
         const actionId = this.requests.get(message.data.outcome.requestId)
+
         if (actionId) {
           this.runs.set(actionId, message.data.outcome)
           this.runs$.set(new Map(this.runs))
         }
       }
+
       if (message.channel === 'xplat-logs' && isLogFrame(message.data)) {
         this.logs.push(...message.data.records)
-        if (this.logs.length > LOG_KEEP) this.logs.splice(0, this.logs.length - LOG_KEEP)
+        if (this.logs.length > LOG_KEEP) {
+          this.logs.splice(0, this.logs.length - LOG_KEEP)
+        }
+
         this.logs$.set([...this.logs])
       }
     })
@@ -91,6 +108,12 @@ export class PanelModel {
     this.connState$.set(conn.state)
     this.panel$.set(conn.panel)
     this.subscribeLogs()
+  }
+
+  /** The live panel connection — panel plugins talk to sessions/backends
+   *  through it instead of opening their own. */
+  get connection(): DevtoolsConnection | null {
+    return this.conn
   }
 
   invoke(session: SessionSnapshot, actionId: string) {
@@ -119,14 +142,19 @@ export class PanelModel {
 
   private subscribeLogs() {
     const backend = this.backends$.getSnapshot().find((ref) => ref.channel === 'xplat-logs')
-    if (!backend || backend.targetId === this.logTarget$.getSnapshot() || !this.conn) return
+
+    if (!backend || backend.targetId === this.logTarget$.getSnapshot() || !this.conn) {
+      return
+    }
 
     this.logTarget$.set(backend.targetId)
     this.conn.sendToBackend('xplat-logs', backend.targetId, { type: 'subscribe' })
   }
 }
 
-function isOutcome(data: unknown): data is { type: 'outcome'; outcome: ActionRun & { requestId: string } } {
+function isOutcome(
+  data: unknown,
+): data is { type: 'outcome'; outcome: ActionRun & { requestId: string } } {
   return (
     typeof data === 'object' &&
     data !== null &&
@@ -145,5 +173,8 @@ function isLogFrame(data: unknown): data is { records: LogLine[] } {
 
 function nextRequestId(counter: number): string {
   const crypto = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto
-  return typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : `req-${Date.now()}-${counter}`
+
+  return typeof crypto?.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `req-${Date.now()}-${counter}`
 }

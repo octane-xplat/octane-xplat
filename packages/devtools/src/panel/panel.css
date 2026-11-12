@@ -76,6 +76,9 @@ body {
 .dt-badge-connecting { background-color: #fdf3d7; color: #8a6d1a; }
 .dt-badge-closed { background-color: #f6e2e2; color: #c92a2a; }
 .dt-main { flex: 1; flex-basis: 0px; height: 0; min-height: 0; width: 100%; }
+/* Plugin tabs own their own scrolling; the host just stretches them. */
+.dt-plugin-host { flex: 1; flex-basis: 0px; height: 0; min-height: 0; width: 100%; }
+.dt-plugin-host > * { flex: 1; min-height: 0; }
 .dt-content { width: 100%; padding: 8px 10px 24px; flex-shrink: 0; }
 .dt-empty { color: #999999; padding: 24px 4px; }
 .dt-heading {

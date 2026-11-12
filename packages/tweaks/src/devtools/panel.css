@@ -1,0 +1,148 @@
+/* Sculpted's inspector proportions and field chrome, adapted to a shared
+   AppKit/web surface. CSS is registered by xplatMacOS before the first render. */
+.tweaks-panel,
+.panel-property-menu {
+	background-color: #ffffff;
+	color: #172033;
+	font-family: system-ui, sans-serif;
+	font-size: 13px;
+	line-height: 18px;
+}
+.tweaks-panel {
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+	min-width: 380px;
+}
+.panel-header { padding: 10px 12px 8px;  flex-shrink: 0; gap: 6px; }
+.panel-toolbar,
+.panel-section-heading,
+.panel-status-line,
+.panel-footer-actions,
+.panel-row,
+.panel-button-content,
+.panel-option-content { align-items: center; gap: 6px; }
+.panel-toolbar { min-height: 24px; }
+.panel-server,
+.panel-spacer,
+.panel-disclosure { flex: 1; min-width: 0; }
+.panel-server-select { width: 100%; }
+.panel-server-select .vx-select-trigger { border-width: 0; background-color: transparent; min-height: 24px; padding: 0; }
+/* Keep the document's intrinsic height out of the viewport's flex basis. */
+.panel-scroll { flex: 1; flex-basis: 0px; height: 0; min-height: 0; width: 100%; }
+.panel-content { width: 100%; padding: 12px; gap: 12px; flex-shrink: 0; }
+.panel-scroll > * { width: 100%; align-self: stretch; flex-shrink: 0; }
+.panel-rule { height: 1px; width: 100%; flex-shrink: 0; background-color: #e6ebf2; }
+.panel-section { gap: 4px; min-width: 0; }
+.panel-heading { font-size: 16px; font-weight: 700; line-height: 20px; }
+.panel-section-heading { min-height: 26px; }
+.panel-tweak-group { gap: 4px; }
+.panel-tweak-group + .panel-tweak-group { margin-top: 8px; }
+.panel-entry { gap: 2px; }
+.panel-row { min-height: 28px; }
+.panel-property-name,
+.panel-value,
+.panel-code,
+.panel-source { font-family: monospace; font-size: 12px; }
+.panel-property-name { flex: 1; min-width: 0; }
+.panel-property-name--deleted { text-decoration: line-through; color: #667085; }
+.panel-control { width: 176px; flex-shrink: 0; min-width: 0; gap: 6px; align-items: center; }
+.panel-control--boolean { justify-content: space-between; }
+.panel-control > .vx-input-shell { flex: 1; min-width: 0; }
+.panel-control > .vx-select,
+.panel-control > .vx-inputnumber { width: 100%; min-width: 0; }
+.panel-slider { flex: 1; min-width: 0; }
+.panel-control > .panel-number-exact { width: 62px; flex-shrink: 0; }
+.panel-field.vx-inputnumber { padding: 0; }
+.panel-field.vx-inputnumber .vx-inputnumber-step { width: 14px; padding: 0; }
+.panel-field.vx-inputnumber .vx-input-shell { flex: 1; min-width: 0; }
+.panel-color-swatch { width: 16px; height: 16px; border-radius: 3px; border-width: 1px; border-color: #d6dde8; flex-shrink: 0; }
+.panel-field,
+.panel-field .vx-input,
+.panel-field .vx-select-trigger {
+	min-width: 0;
+	min-height: 26px;
+	border-width: 1px; border-color: #d6dde8;
+	border-radius: 6px;
+	padding: 4px 6px;
+	font-size: 12px;
+	font-family: monospace;
+	line-height: 16px;
+	color: #172033;
+	background-color: #ffffff;
+}
+/* Number/select chrome belongs to their wrapper; avoid double field borders. */
+.vx-inputnumber.panel-field .vx-input,
+.vx-select.panel-field .vx-select-trigger { border-width: 0; background-color: transparent; padding: 0; min-height: 18px; }
+.panel-field--changed,
+.panel-field--changed .vx-input,
+.panel-field--changed .vx-select-trigger { border-color: #93c5fd; background-color: #eff6ff; }
+.panel-value--changed { color: #2563eb; }
+.panel-field--invalid { border-color: #fca5a5; background-color: #fef2f2; }
+.panel-field:disabled,
+.panel-field.vx-input--disabled,
+.panel-field.vx-input--readonly { background-color: #f8fafc; color: #98a2b3; }
+.panel-note { color: #667085; font-size: 12px; line-height: 17px; }
+.panel-status--offline,
+.panel-error { color: #9a3412; font-size: 12px; }
+.panel-unsaved { color: #2563eb; }
+.panel-action { flex-shrink: 0; }
+.panel-action--icon,
+.panel-action-slot { width: 24px; height: 24px; flex-shrink: 0; }
+.panel-button { min-height: 24px; padding: 4px 6px; border-radius: 6px; background-color: transparent; justify-content: center; }
+.panel-action--icon .panel-button { width: 24px; height: 24px; padding: 0; align-items: center; }
+.panel-button-content { justify-content: center; }
+.panel-button-label { font-size: 12px; line-height: 16px; }
+.panel-disclosure .panel-button { align-items: flex-start; padding-left: 0; }
+.panel-disclosure .panel-button-label { font-weight: 600; }
+.panel-button--active { background-color: #eff6ff; }
+.panel-button--primary { background-color: #172033; }
+.panel-button--disabled { opacity: 0.5; }
+.panel-file-group { margin-top: 8px; gap: 4px; }
+.panel-source { color: #475467; }
+.panel-style-site { padding-top: 8px;  gap: 4px; }
+.panel-property-filter { width: 100%; }
+.panel-filter-state { align-items: center; gap: 6px; }
+.panel-footer { padding: 8px 12px;  flex-shrink: 0; gap: 4px; }
+.panel-footer-actions { min-height: 28px; }
+.panel-property-popover { padding: 0; border-width: 1px; border-color: #d6dde8; border-radius: 6px; background-color: #ffffff; }
+.panel-property-menu { width: 300px; padding: 6px; gap: 6px; }
+.panel-property-options { height: 224px; width: 100%; }
+.panel-property-option { padding: 7px 8px; min-height: 32px; border-radius: 4px; }
+.panel-property-option--active { background-color: #eef2f7; }
+.panel-option-content { justify-content: space-between; }
+.panel-custom-property { gap: 6px; }
+@platform web {
+	html, body, #root { margin: 0; width: 100%; height: 100%; }
+	body { background: #ffffff; }
+	* { box-sizing: border-box; }
+	.tweaks-panel { max-width: 480px; }
+	.panel-button { cursor: pointer; }
+	.panel-button:hover:not(.panel-button--disabled) { background-color: #eef2f7; }
+	.panel-button--primary:hover:not(.panel-button--disabled) { background-color: #344054; }
+	.panel-button:focus-visible, .panel-field:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+	.panel-property-option:hover { background-color: #eef2f7; }
+}
+
+/* AppKit text fields do not implement CSS padding. Put the same inset on the
+   shared field shell so text and border geometry match on both renderers. */
+.panel-control > .vx-input-shell {
+ padding: 4px 6px;
+ min-height: 26px;
+ border-width: 1px;
+ border-color: #d6dde8;
+ border-radius: 6px;
+ background-color: #ffffff;
+}
+.panel-control--changed > .vx-input-shell { border-color: #93c5fd; background-color: #eff6ff; }
+.panel-control--disabled > .vx-input-shell { background-color: #f8fafc; }
+.panel-control--invalid > .vx-input-shell { border-color: #fca5a5; background-color: #fef2f2; }
+.panel-control > .vx-input-shell .panel-field { padding: 0; border-width: 0; min-height: 16px; background-color: transparent; }
+@platform macos {
+	/* The AppKit scroll document is measured intrinsically before percentage
+	   widths resolve. Seed its minimum with the utility window's 380px width
+	   so the shared percentage-sized rows have a real containing block. */
+	.panel-scroll > *,
+	.panel-content { min-width: 380px; }
+	.panel-scroll > * { min-height: var(--panel-content-height, 0px); }
+}

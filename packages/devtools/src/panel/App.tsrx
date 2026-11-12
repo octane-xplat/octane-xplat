@@ -14,29 +14,35 @@ import {
   VStack,
   type ScrollableAreaHandle,
 } from '@octane-xplat/ui'
+
 import type { DevtoolsServerRecord, SessionSnapshot } from '../client.ts'
 import type { DevSocket } from '../types.ts'
 import { PanelModel, type ActionRun, type LogLine } from './model'
+import { resolveDevtoolsPanelPlugins, type DevtoolsPanelPlugin } from './plugin.ts'
 
 export interface DevtoolsPanelProps {
   /** The dev-server discovery record this panel connects to. */
   record: DevtoolsServerRecord
   /** Socket factory override — macOS passes nwDevSocket (no host WebSocket). */
   socket?: (url: string) => DevSocket | undefined
+  /** Panel plugins appended after the built-in tabs (desktop only — the
+   *  prebuilt web bundle under /devtools/app/ passes none). */
+  plugins?: readonly DevtoolsPanelPlugin[]
+  /** Tab to show on mount; ignored when it names no known tab. */
+  initialTab?: string
 }
 
-type Tab = 'sessions' | 'actions' | 'logs'
-
-const TABS: { id: Tab; label: string }[] = [
+const TABS = [
   { id: 'sessions', label: 'Sessions' },
   { id: 'actions', label: 'Actions' },
   { id: 'logs', label: 'Logs' },
-]
+] as const
 
 const LOG_DISPLAY = 300
 
 function SessionRow(props: { session: SessionSnapshot }) @{
   const session = props.session
+
   <HStack className="dt-row">
     <Text className="dt-name">{session.sessionId.slice(0, 8)}</Text>
     <Text className="dt-meta">{session.platform ?? ''}</Text>
@@ -56,6 +62,7 @@ function ActionRow(props: {
 }) @{
   const action = props.action
   const run = props.run
+
   <>
     <HStack className="dt-row">
       <Text className="dt-name">{action.id}</Text>
@@ -76,7 +83,9 @@ function ActionRow(props: {
     @if (run && run.status !== 'running') {
       <VStack className={['dt-outcome', `dt-outcome-${run.status}`]}>
         <Text className="dt-outcome-status">{run.status}</Text>
-        {run.error ? <Text className="dt-pre">{JSON.stringify(run.error, null, 2)}</Text> : null}
+        {run.error ? (
+          <Text className="dt-pre">{JSON.stringify(run.error, null, 2)}</Text>
+        ) : null}
         {run.result !== undefined ? (
           <Text className="dt-pre">{JSON.stringify(run.result, null, 2)}</Text>
         ) : null}
@@ -87,6 +96,7 @@ function ActionRow(props: {
 
 function LogRow(props: { record: LogLine }) @{
   const record = props.record
+
   <HStack className={['dt-log-line', `dt-log-${record.level}`]}>
     <Text className="dt-level">{record.level}</Text>
     <Text className="dt-text">{record.line}</Text>
@@ -96,7 +106,16 @@ function LogRow(props: { record: LogLine }) @{
 
 export function App(props: DevtoolsPanelProps) @{
   const model = useLazyRef(() => new PanelModel())
-  const [tab, setTab] = useState<Tab>('sessions')
+  const plugins = useLazyRef(() => resolveDevtoolsPanelPlugins(props.plugins ?? []))
+  const tabs = [
+    ...TABS,
+    ...plugins.current.map((plugin) => ({ id: plugin.id, label: plugin.title })),
+  ]
+
+  const [tab, setTab] = useState<string>(
+    tabs.some((item) => item.id === props.initialTab) ? props.initialTab! : 'sessions',
+  )
+
   const scrollRef = useRef<ScrollableAreaHandle | null>(null)
 
   useEffect(() => {
@@ -122,11 +141,13 @@ export function App(props: DevtoolsPanelProps) @{
 
   const badge = connState === 'live' ? `live — ${panel ?? ''}` : connState
   const withActions = sessions.filter((session) => session.actions?.length)
+  const pluginTab = plugins.current.find((plugin) => plugin.id === tab)
+  const connection = model.current.connection
 
   <VStack className="dt-root">
     <HStack className="dt-nav">
       <HStack className="dt-tabs">
-        @for (const item of TABS; key item.id) {
+        @for (const item of tabs; key item.id) {
           <Pressable
             className={['dt-tab', tab === item.id && 'dt-tab-active']}
             onPress={() => setTab(item.id)}
@@ -137,67 +158,80 @@ export function App(props: DevtoolsPanelProps) @{
       </HStack>
       <Text className={['dt-badge', `dt-badge-${connState}`]}>{badge}</Text>
     </HStack>
-    <ScrollableArea className="dt-main" ref={scrollRef}>
-      <VStack className="dt-content">
-        @if (tab === 'sessions') {
-          <>
-            <Text className={['dt-heading', 'dt-heading-first']}>{`Sessions (${sessions.length})`}</Text>
-            @if (!sessions.length) {
-              <Text className="dt-empty">No app sessions connected.</Text>
-            }
-            @for (const session of sessions; key session.sessionId) {
-              <SessionRow session={session} />
-            }
-            <Text className="dt-heading">{`Backends (${backends.length})`}</Text>
-            @if (!backends.length) {
-              <Text className="dt-empty">No engine backends connected.</Text>
-            }
-            @for (const backend of backends; key `${backend.channel}:${backend.targetId}`) {
-              <HStack className="dt-row">
-                <Text className="dt-name">{backend.channel}</Text>
-                <Text className="dt-meta">{backend.targetId}</Text>
-              </HStack>
-            }
-          </>
-        } @else if (tab === 'actions') {
-          <>
-            @if (!withActions.length) {
-              <Text className="dt-empty">No session declares dev actions.</Text>
-            }
-            @for (const session of withActions; key session.sessionId) {
-              <>
-                <Text className={['dt-heading', 'dt-heading-first']}>
-                  {`${session.sessionId.slice(0, 8)} — ${session.platform ?? 'app'}`}
-                </Text>
-                @for (const action of session.actions ?? []; key action.id) {
-                  <ActionRow
-                    action={action}
-                    run={runs.get(action.id)}
-                    onRun={() => model.current.invoke(session, action.id)}
-                  />
-                }
-              </>
-            }
-          </>
-        } @else {
-          <>
-            <HStack className="dt-toolbar">
-              <Text className="dt-meta">
-                {logTarget ? `target ${logTarget}` : 'no xplat-logs backend'}
-              </Text>
-              <HStack className="dt-right">
-                <Button label="Clear" onPress={() => model.current.clearLogs()} />
-              </HStack>
-            </HStack>
-            @if (!logs.length) {
-              <Text className="dt-empty">No log records yet.</Text>
-            }
-            @for (const record of logs.slice(-LOG_DISPLAY); index i; key i) {
-              <LogRow record={record} />
-            }
-          </>
+    @if (pluginTab) {
+      // Plugin tabs own their own scrolling — no dt-main ScrollableArea.
+      <VStack className="dt-plugin-host">
+        @if (connection) {
+          <pluginTab.Panel connection={connection} state={connState} />
         }
       </VStack>
-    </ScrollableArea>
+    } @else {
+      <ScrollableArea className="dt-main" ref={scrollRef}>
+        <VStack className="dt-content">
+          @if (tab === 'sessions') {
+            <>
+              <Text
+                className={['dt-heading', 'dt-heading-first']}
+              >{`Sessions (${sessions.length})`}</Text>
+              @if (!sessions.length) {
+                <Text className="dt-empty">No app sessions connected.</Text>
+              }
+              @for (const session of sessions; key session.sessionId) {
+                <SessionRow session={session} />
+              }
+              <Text className="dt-heading">{`Backends (${backends.length})`}</Text>
+              @if (!backends.length) {
+                <Text className="dt-empty">No engine backends connected.</Text>
+              }
+              @for (const backend of backends; key `${backend.channel}:${backend.targetId}`) {
+                <HStack className="dt-row">
+                  <Text className="dt-name">{backend.channel}</Text>
+                  <Text className="dt-meta">{backend.targetId}</Text>
+                </HStack>
+              }
+            </>
+          } @else if (tab === 'actions') {
+            <>
+              @if (!withActions.length) {
+                <Text className="dt-empty">
+                  No session declares dev actions.
+                </Text>
+              }
+              @for (const session of withActions; key session.sessionId) {
+                <>
+                  <Text className={['dt-heading', 'dt-heading-first']}>
+                    {`${session.sessionId.slice(0, 8)} — ${session.platform ?? 'app'}`}
+                  </Text>
+                  @for (const action of session.actions ?? []; key action.id) {
+                    <ActionRow
+                      action={action}
+                      run={runs.get(action.id)}
+                      onRun={() => model.current.invoke(session, action.id)}
+                    />
+                  }
+                </>
+              }
+            </>
+          } @else {
+            <>
+              <HStack className="dt-toolbar">
+                <Text className="dt-meta">
+                  {logTarget ? `target ${logTarget}` : 'no xplat-logs backend'}
+                </Text>
+                <HStack className="dt-right">
+                  <Button label="Clear" onPress={() => model.current.clearLogs()} />
+                </HStack>
+              </HStack>
+              @if (!logs.length) {
+                <Text className="dt-empty">No log records yet.</Text>
+              }
+              @for (const record of logs.slice(-LOG_DISPLAY); index i; key i) {
+                <LogRow record={record} />
+              }
+            </>
+          }
+        </VStack>
+      </ScrollableArea>
+    }
   </VStack>
 }

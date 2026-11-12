@@ -13,6 +13,7 @@
 		"@octane-xplat/devtools": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/tweaks": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"octane": "catalog:"
 	},

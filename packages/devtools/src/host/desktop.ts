@@ -13,6 +13,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 export const DEVTOOLS_DESKTOP_LIFECYCLE_VERSION = 1
 
+export { discoverDevtoolsPanels, devtoolsPanels } from './panels.ts'
+export type { DiscoveredDevtoolsPanel } from './panels.ts'
+
 interface MacOSDevEngine {
   runMacOSDev(
     appRoot: string,
@@ -34,9 +37,11 @@ interface MacOSDevEngine {
 // Resolve the selected project's explicit engine, never a global fallback.
 async function loadMacOSDevEngine(project: string): Promise<MacOSDevEngine> {
   const require = createRequire(join(project, 'package.json'))
+
   for (let at = project; ; at = dirname(at)) {
     const candidate = join(at, 'node_modules/@octane-xplat/macos-build')
     let found = false
+
     try {
       lstatSync(candidate)
       found = true
@@ -45,9 +50,11 @@ async function loadMacOSDevEngine(project: string): Promise<MacOSDevEngine> {
         throw error
       }
     }
+
     if (found) {
       const root = realpathSync(candidate)
       let entry: string
+
       try {
         entry = realpathSync(require.resolve('@octane-xplat/macos-build/dev-engine'))
       } catch (error) {
@@ -56,23 +63,29 @@ async function loadMacOSDevEngine(project: string): Promise<MacOSDevEngine> {
           { cause: error },
         )
       }
+
       if (!entry.startsWith(root + sep) || !statSync(entry).isFile()) {
         throw new Error(
           'Reinstall @octane-xplat/macos-build: its development engine must stay inside the selected package',
         )
       }
+
       const api = (await import(pathToFileURL(entry).href)) as MacOSDevEngine
+
       if (typeof api.runMacOSDev !== 'function') {
         throw new Error(
           'Update @octane-xplat/macos-build in the selected project: development engine API is missing',
         )
       }
+
       return api
     }
+
     if (dirname(at) === at) {
       break
     }
   }
+
   throw new Error(
     'Install the macOS project engine before launching devtools: bun add -D @octane-xplat/macos-build',
   )
@@ -99,6 +112,7 @@ export async function devtoolsDesktop({
   const root = realpathSync(cwd ?? process.cwd())
   const { runMacOSDev } = await loadMacOSDevEngine(root)
   const require = createRequire(join(root, 'package.json'))
+
   for (const name of [
     '@octane-xplat/macos-appkit',
     '@nativescript/macos-node-api',
@@ -121,6 +135,7 @@ export async function devtoolsDesktop({
   const directory = profileRoot
     ? await mkdtemp(join(profileRoot, 'session-'))
     : await mkdtemp(join(tmpdir(), 'octane-devtools-desktop-'))
+
   // This module runs from src/ in the monorepo and dist/host/ in an install —
   // the desktop entry is shipped as source, so resolve through src/ either way.
   const source = dirname(fileURLToPath(import.meta.url)).replace('/dist/', '/src/')
@@ -130,12 +145,13 @@ export async function devtoolsDesktop({
   await writeFile(
     join(directory, 'devtools.config.ts'),
     `import { macos } from '@octane-xplat/cli/macos/vite'
+import { devtoolsPanels } from '@octane-xplat/devtools/desktop-node'
 const root = ${JSON.stringify(root)}
 const entry = ${JSON.stringify(entry)}
 
 export default async ({ mode }) => {
  const settings = await macos(mode, { root, hmr: false, entry })
- return { ...settings, build: { ...settings.build, outDir: ${JSON.stringify(directory)}, emptyOutDir: false,
+ return { ...settings, plugins: [...(settings.plugins ?? []), devtoolsPanels({ root })], build: { ...settings.build, outDir: ${JSON.stringify(directory)}, emptyOutDir: false,
   lib: { entry, formats: ['cjs'], fileName: () => 'devtools.cjs' } },
   define: { ...(settings.define ?? {}), __XPLAT_DEVTOOLS_PREFERRED_ROOT__: ${JSON.stringify(JSON.stringify(root))} } }
 }

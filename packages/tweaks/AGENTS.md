@@ -14,6 +14,16 @@ devtools panel, written back to source only on Save.
   Octane plugins). The plugin must not runtime-import `.ts` source such as
   `protocol.ts` from outside `src/vite/` — shared message types are
   type-imported only.
+- `src/devtools/` — the Tweaks devtools panel (`./devtools` subpath, source
+  shipped). `octaneXplat.devtoolsPanel` in package.json points here; the
+  devtools desktop app's `devtoolsPanels` Vite plugin default-imports the
+  module (a `defineDevtoolsPanel` result) into its bundle. Transport is the
+  plugin's `connection` prop — `sendToBackend('tweaks', targetId, msg)` plus
+  `from:'backend'` frames for the selected target; `model.ts` picks among
+  `backends()` with channel `tweaks` (auto-selects a sole backend, `hello`
+  on select and on reappearance). Panel icons are inlined `IconifyIcon`
+  data — never `icons:` virtual specifiers, which consumer configs cannot
+  resolve. The AppKit scroll-measure hook lives in the `.macos` leaf.
 - `test/` — `node --test` unit tests (`test:e2e` in `apps/tweaks-playground`
   is the transport integration test).
 

@@ -1,13 +1,36 @@
 {
-	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"contentMappers": [
+		{
+			"package": "@tsrx/content-mapper",
+			"extensions": [
+				".tsrx"
+			]
+		}
+	],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"types": ["node"],
-		"lib": ["ESNext", "DOM", "DOM.Iterable"]
+		"types": [
+			"node"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
 	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*.ts", "src/**/*.tsx"]
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsx",
+				"src/**/*.tsrx"
+			]
+		},
+		"macos": {
+			"include": [
+				"src/devtools/**/*.ts",
+				"src/devtools/**/*.tsrx"
+			]
 		}
 	}
 }

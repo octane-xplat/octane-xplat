@@ -23,8 +23,11 @@
 	},
 	"devDependencies": {
 		"@bamboocss/dev": "1.60.1",
+		"@nativescript/macos-node-api": "catalog:",
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/devtools": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
+		"@octane-xplat/macos-build": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/oxc": "0.20.0",
 		"jsdom": "catalog:",

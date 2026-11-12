@@ -45,7 +45,13 @@
 			"types": "./types/generated/vite/index.d.ts",
 			"default": "./dist/vite/index.js"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./devtools": {
+			"types": "./types/generated/devtools/index.d.ts",
+			"web": "./src/devtools/index.ts",
+			"native": "./src/devtools/index.ts",
+			"default": "./src/devtools/index.ts"
+		}
 	},
 	"scripts": {
 		"build": "bun run typegen && tsc --runExternalCode -p tsconfig.vite.build.json",
@@ -55,6 +61,9 @@
 	},
 	"dependencies": {
 		"@octane-xplat/devtools": "workspace:*",
+		"@octane-xplat/icons": "workspace:*",
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/ui": "workspace:*",
 		"@tsrx/oxc": "0.20.0",
 		"magic-string": "1.4.5"
 	},
@@ -64,15 +73,19 @@
 		"@bamboocss/node": ">=1.56"
 	},
 	"devDependencies": {
+		"@bamboocss/node": "1.60.1",
+		"@octane-xplat/jsx": "workspace:*",
 		"@types/node": "26.6.6",
 		"octane": "catalog:",
 		"typescript": "catalog:",
-		"vite": "catalog:",
-		"@bamboocss/node": "1.60.1"
+		"vite": "catalog:"
 	},
 	"peerDependenciesMeta": {
 		"@bamboocss/node": {
 			"optional": true
 		}
+	},
+	"octaneXplat": {
+		"devtoolsPanel": "./devtools"
 	}
 }

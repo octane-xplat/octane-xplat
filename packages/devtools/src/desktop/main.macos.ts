@@ -16,13 +16,12 @@ import { Shell } from './Shell.macos.tsrx'
 declare const __XPLAT_DEVTOOLS_PREFERRED_ROOT__: string
 
 const PREFERRED_ROOT =
-  typeof __XPLAT_DEVTOOLS_PREFERRED_ROOT__ === 'string'
-    ? __XPLAT_DEVTOOLS_PREFERRED_ROOT__
-    : null
+  typeof __XPLAT_DEVTOOLS_PREFERRED_ROOT__ === 'string' ? __XPLAT_DEVTOOLS_PREFERRED_ROOT__ : null
 
 const SELFTEST = process.env.DEVTOOLS_SELFTEST === '1'
 const VIEWDUMP = process.env.DEVTOOLS_VIEWDUMP ?? '/tmp/devtools-desktop-viewtree.json'
 const SELFTEST_PICK = Number.parseInt(process.env.DEVTOOLS_SELFTEST_PICK ?? '', 10)
+const SELFTEST_TAB = process.env.DEVTOOLS_SELFTEST_TAB
 
 const selftest: { pick?: (index: number) => void } = {}
 
@@ -36,6 +35,21 @@ runMacOSApp(
     window.contentMinSize = { width: 380, height: 360 }
     root.render(Shell as never, {
       preferredRoot: PREFERRED_ROOT,
+      initialTab: SELFTEST_TAB,
+      onKeepOnTop: (onTop: boolean) => {
+        // NSFloatingWindowLevel (3) above NSNormalWindowLevel (0).
+        const level = onTop ? 3 : 0
+        const host = window as unknown as {
+          setLevel?: (level: number) => void
+          level?: number
+        }
+
+        if (typeof host.setLevel === 'function') {
+          host.setLevel(level)
+        } else {
+          host.level = level
+        }
+      },
       onTitle: (title: string) => {
         window.title = title
       },
@@ -61,6 +75,7 @@ runMacOSApp(
         try {
           const raw = (v as never as Record<string, unknown>)[prop]
           const t = typeof raw === 'function' ? raw.call(v) : raw
+
           if (typeof t === 'string' && t.length) {
             node.text = t
           } else if (t && typeof t === 'object') {
@@ -70,6 +85,7 @@ runMacOSApp(
       }
 
       const subs = v.subviews
+
       if (subs && typeof subs.count === 'number' && subs.count > 0) {
         node.children = []
         for (let i = 0; i < subs.count; i++) {
@@ -93,6 +109,7 @@ runMacOSApp(
         const json = JSON.stringify({
           windows: [{ title: String(window.title ?? ''), tree: viewTree(window.contentView) }],
         })
+
         writeFileSync(path, json)
         console.log(`[selftest] viewtree written ${path} bytes=${json.length}`)
       } catch (error) {
