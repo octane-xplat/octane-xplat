@@ -1202,10 +1202,14 @@ function scheduleAnnounce(state: RegistryState) {
     return
   }
 
+  const bridge = state.bridge
+
   state.announceScheduled = true
   queueMicrotask(() => {
     state.announceScheduled = false
-    void announceOnce(state.bridge as BridgeRuntime)
+    if (state.bridge === bridge && bridge.announcing) {
+      void announceOnce(bridge)
+    }
   })
 }
 
@@ -1247,9 +1251,17 @@ async function announceOnce(rt: BridgeRuntime) {
       body: JSON.stringify(snapshot(state, state.appLabel)),
     })
 
+    if (!rt.announcing) {
+      return
+    }
+
     rt.state = res.ok ? 'live' : 'degraded'
     rt.lastError = res.ok ? undefined : `announce failed: HTTP ${res.status}`
   } catch (error) {
+    if (!rt.announcing) {
+      return
+    }
+
     rt.state = 'degraded'
     rt.lastError = `announce failed: ${(error as Error)?.message ?? error}`
   }
@@ -1465,6 +1477,10 @@ async function pollLoop(rt: BridgeRuntime) {
         },
       )
 
+      if (!rt.polling) {
+        return
+      }
+
       if (res.status === 404) {
         // The bridge forgot this instance — re-announce before polling again.
         await announceOnce(rt)
@@ -1486,6 +1502,10 @@ async function pollLoop(rt: BridgeRuntime) {
         cancel?: string[]
       }
 
+      if (!rt.polling) {
+        return
+      }
+
       for (const request of work.invocations ?? []) {
         void dispatchInvocation(rt, request)
       }
@@ -1494,6 +1514,10 @@ async function pollLoop(rt: BridgeRuntime) {
         requestCancel(requestId)
       }
     } catch (error) {
+      if (!rt.polling) {
+        return
+      }
+
       rt.state = 'degraded'
       rt.lastError = `poll failed: ${(error as Error)?.message ?? error}`
       await sleep(1_500)

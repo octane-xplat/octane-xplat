@@ -178,6 +178,22 @@ test('no endpoint means the bridge stays inert instead of pretending a channel',
   assert.match(bridge.lastError, /no dev-bridge endpoint/i)
 })
 
+test('stopping a bridge safely drains a queued handler announcement', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+  const action = api.defineDevAction(declaration({ id: 'cleanup.queued' }))
+  const handle = api.startDevActionBridge()
+  const detach = api.attachDevActionHandler(action, () => ({}))
+
+  // Attachment queued an announcement; stop and dispose in the same turn.
+  handle.stop()
+  detach()
+  action.dispose()
+  await new Promise((resolve) => setImmediate(resolve))
+  assert.equal(handle.state, 'stopped')
+  assert.equal(api.listDevActions().length, 0)
+})
+
 test('the app announces its registry; mutations re-announce a new revision', async (t) => {
   const bridge = await makeBridge(t)
   const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
