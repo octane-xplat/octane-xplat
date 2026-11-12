@@ -161,11 +161,13 @@ if (mode === 'build') {
     'entry-error.txt',
     'selector-parity.json',
     'entry-details.json',
+    'cleanup-errors.json',
   ]) {
     const path = join(report, name)
     if (existsSync(path)) unlinkSync(path)
   }
   let installed
+  let probeFailed = false
   try {
     run('xcrun', ['simctl', 'bootstatus', udid, '-b'])
     run('xcrun', ['simctl', 'install', udid, app])
@@ -222,12 +224,14 @@ if (mode === 'build') {
     console.log(JSON.stringify({ report, events: result }, null, 2))
     writeFileSync(join(report, 'status.json'), JSON.stringify({ passed: true }))
   } catch (error) {
+    probeFailed = true
     writeFileSync(
       join(report, 'status.json'),
       JSON.stringify({ passed: false, error: String(error) }),
     )
     throw error
   } finally {
+    const cleanupErrors = []
     if (installed) {
       for (const name of [
         'stdout.log',
@@ -237,11 +241,32 @@ if (mode === 'build') {
         'selector-parity.json',
         'entry-details.json',
       ]) {
-        const path = join(installed, 'Documents', name)
-        if (existsSync(path)) cpSync(path, join(report, name))
+        try {
+          const path = join(installed, 'Documents', name)
+          if (existsSync(path)) cpSync(path, join(report, name))
+        } catch (error) {
+          cleanupErrors.push(error)
+        }
       }
     }
     spawnSync('xcrun', ['simctl', 'terminate', udid, id], { timeout: 10000 })
-    run('xcrun', ['simctl', 'shutdown', udid])
+    try {
+      run('xcrun', ['simctl', 'shutdown', udid])
+    } catch (error) {
+      // simctl exits 149 when a failed boot already left the device shut down.
+      if (!String(error).includes('Unable to shutdown device in current state: Shutdown'))
+        cleanupErrors.push(error)
+    }
+    if (cleanupErrors.length) {
+      writeFileSync(join(report, 'cleanup-errors.json'), JSON.stringify(cleanupErrors.map(String)))
+      if (!probeFailed) {
+        writeFileSync(
+          join(report, 'status.json'),
+          JSON.stringify({ passed: false, cleanupFailed: true }),
+        )
+        throw new AggregateError(cleanupErrors, 'Native probe cleanup failed')
+      }
+      console.error('Native probe cleanup also failed: ' + cleanupErrors.map(String).join('; '))
+    }
   }
 }
