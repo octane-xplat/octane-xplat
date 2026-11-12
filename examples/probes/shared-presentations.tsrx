@@ -141,6 +141,6 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('handler opens controlled dialog', ctx.inspect('presentation-status').text, 'dialog')
   ctx.record(
     'evidence',
-    'Handler dispatch only; AppKit presentation/focus/lifecycle checks live in apps/macos/test/verify-overlays.mjs',
+    'Handler dispatch only; AppKit presentation/focus/lifecycle checks live in apps/macos/test/verify-overlays.mts',
   )
 }

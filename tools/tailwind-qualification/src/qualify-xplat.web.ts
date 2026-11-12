@@ -35,7 +35,7 @@ await mkdir(output, { recursive: true })
 
 const packed = spawnSync(
   process.execPath,
-  [resolve(directory, '../packed-consumer.mjs'), '--output', output],
+  [resolve(directory, '../packed-consumer.mts'), '--output', output],
   { encoding: 'utf8', timeout: 180000, maxBuffer: 8 * 1024 * 1024 },
 )
 

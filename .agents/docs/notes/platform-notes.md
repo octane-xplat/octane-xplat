@@ -328,7 +328,7 @@ function binding still asks NativeScript to resolve it and remains unsupported
 when the runtime has no implementation. Reading these bindings still asks
 NativeScript to resolve them and may fail when runtime metadata does not
 support their native representation. The regression test is
-`packages/platform/tests/ios-types.test.mjs`.
+`packages/platform/tests/ios-types.test.mts`.
 
 Evidence: packed consumer smoke runs on iOS 27 reported `CGVectorMake` missing
 from CoreGraphics, `NSMakeCollectable` missing from Foundation, and aborts at

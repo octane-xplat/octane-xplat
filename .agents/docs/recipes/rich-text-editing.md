@@ -88,8 +88,8 @@ the platform file-suffix boundary for divergent imports.
   `lexical-probe` demo verifies the native conversion path on-device.
 
 - AC8: [macOS AppKit editing](../../../docs/app/rich-text.md#macos-appkit-editing),
-  [isolated WebKit fixture](../../../packages/richtext/test/verify-wk.mjs), and
-  [packed AppKit consumer](../../../packages/richtext/test/packed-consumer.mjs).
+  [isolated WebKit fixture](../../../packages/richtext/test/verify-wk.mts), and
+  [packed AppKit consumer](../../../packages/richtext/test/packed-consumer.mts).
 - AC9: [Web engine extensions](../../../docs/app/rich-text.md#web-engine-extensions);
   `packages/tiptap/src/TiptapEditor.web.test.tsrx` covers the schema/command
   and StarterKit-replacement behavior.

@@ -66,7 +66,7 @@
 		"lint": "xplat lint",
 		"lint:fix": "xplat lint --fix",
 		"test": "vitest run",
-		"test:packed": "node tests/packed-consumer.mjs",
+		"test:packed": "node tests/packed-consumer.mts",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "bun run test:packed",
 		"format": "xplat fmt",

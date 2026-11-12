@@ -57,7 +57,7 @@ Rouzer route tree are outside this recipe's scope.
 
 - AC12: [Recovering failed reads](../../../docs/app/data.md#recovering-failed-reads), [scheduler regressions](../../../packages/ui/src/data/query-cache.test.ts), and [platform environment leaves](../../../packages/platform/src/environment.ts).
 
-- AC13: [Refresh and writes](../../../docs/app/data.md#refresh-and-writes), [cache update regressions](../../../packages/ui/src/data/query-cache.test.ts), and [packed type contracts](../../../packages/ui/tests/packed-consumer.mjs).
+- AC13: [Refresh and writes](../../../docs/app/data.md#refresh-and-writes), [cache update regressions](../../../packages/ui/src/data/query-cache.test.ts), and [packed type contracts](../../../packages/ui/tests/packed-consumer.mts).
 
 - AC14: [Preparing the next screen](../../../docs/app/data.md#preparing-the-next-screen), [prepared-user route](../../../packages/app/src/app/cached-user.tsrx), and [operation regressions](../../../packages/ui/src/data/query-cache.test.ts).
 

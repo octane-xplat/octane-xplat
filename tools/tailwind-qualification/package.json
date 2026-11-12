@@ -6,8 +6,8 @@
     "test": "node --test src/*.test.ts",
     "qualify": "node src/qualify.ts",
     "qualify:xplat": "node src/qualify-xplat.ts",
-    "qualify:app": "node packed-consumer.mjs --app",
-    "measure:cost": "node packed-consumer.mjs --measure-cost",
+    "qualify:app": "node packed-consumer.mts --app",
+    "measure:cost": "node packed-consumer.mts --measure-cost",
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
     "prepare:browser": "playwright install chromium"
   },

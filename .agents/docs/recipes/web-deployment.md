@@ -27,11 +27,11 @@ and controls its build, HTTPS, routing and cache settings.
 
 - AC1: [Lint and format source](../../../docs/testing/testing.md#lint-and-format-source), [Preview and publish Web](../../../docs/start/toolchain.md#preview-and-publish-web), the maintained [starter scripts](../../../packages/create/template/package.json) and [Web config](../../../packages/create/template/vite.config.ts), and the [packed-consumer verifier](../../../scripts/verify-consumer.ts).
 
-  [Explicit build selection](../../../docs/packages/package-cli.md) fails before code generation or builds when any requested kind is unavailable; [command regressions](../../../tools/cli-go/build-command.test.mjs) cover mixed selections and valid multi-target dispatch.
-  [Separate project build plugins](../../../docs/packages/package-build.md) documents the optional Vite import migration; the [packed plugin consumer](../../../tools/cli-go/build-tools-consumer.mjs) checks the installed build/server boundary, not publication or browser behavior.
+  [Explicit build selection](../../../docs/packages/package-cli.md) fails before code generation or builds when any requested kind is unavailable; [command regressions](../../../tools/cli-go/build-command.test.mts) cover mixed selections and valid multi-target dispatch.
+  [Separate project build plugins](../../../docs/packages/package-build.md) documents the optional Vite import migration; the [packed plugin consumer](../../../tools/cli-go/build-tools-consumer.mts) checks the installed build/server boundary, not publication or browser behavior.
   The [experimental native CLI](../../../docs/packages/package-cli.md#native-executable)
   can run the project's checker on macOS and web build jobs on macOS and the
-  qualified Ubuntu x64 and Windows 11 x64 hosts (Bun 1.4.4 on Windows). The [packed build consumer](../../../tools/cli-go/build-tools-consumer.mjs)
+  qualified Ubuntu x64 and Windows 11 x64 hosts (Bun 1.4.4 on Windows). The [packed build consumer](../../../tools/cli-go/build-tools-consumer.mts)
   exercises canonical route/baking, Vite output and cancellation; it does not
   qualify browser preview, deployment or all of AC1. Its catalog still owns
   command availability for the rest of this workflow.

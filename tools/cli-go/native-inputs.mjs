@@ -6,7 +6,7 @@ export const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex'
 export function nativeInputs(root) {
   const files = ['packages/cli/go', 'tools/cli-go'].flatMap((directory) =>
     readdirSync(join(root, directory), { recursive: true })
-      .filter((file) => /\.(go|mod|sum|json|mjs|py|txt)$/.test(file))
+      .filter((file) => /\.(go|mod|sum|json|mts|mjs|py|txt)$/.test(file))
       .map((file) => directory + '/' + file.replaceAll('\\', '/')),
   )
 

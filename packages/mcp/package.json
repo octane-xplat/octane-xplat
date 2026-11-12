@@ -36,9 +36,9 @@
 		"start": "node src/xplat-mcp.ts",
 		"build": "vite build",
 		"prepack": "bun run build",
-		"test": "bun run build && node --test tests/*.test.mjs",
-		"test:docs-search": "node --test tests/docs.test.mjs",
-		"test:consumer": "bun run build && node tests/consumer-workflow.mjs",
+		"test": "bun run build && node --test tests/*.test.mts",
+		"test:docs-search": "node --test tests/docs.test.mts",
+		"test:consumer": "bun run build && node tests/consumer-workflow.mts",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json"
 	},
 	"dependencies": {

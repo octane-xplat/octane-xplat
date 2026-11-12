@@ -800,10 +800,10 @@ The scope itself registers/disconnects blockers; instance or owner lifetime
 cleanup releases their held work. Document unload and OS exit remain separate.
 
 ```sh
-node apps/web/scripts/routing-contract.mjs
+node apps/web/scripts/routing-contract.mts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 ```
 
 Executed runtime checks passed 88 production Chromium assertions, 238 iOS and
@@ -859,7 +859,7 @@ OS keyboard/pointer input and assistive-technology behavior remain unqualified.
 The renderer's 285 tests and the existing 28 native modal protocol cases pass.
 
 ```sh
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 node --test packages/macos-appkit/test/*.test.ts
 pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/native-modal-router-host.mobile.test.tsrx
 ```
@@ -918,7 +918,7 @@ not itself install an automatic route watcher.
 
 ```sh
 pnpm --filter @octane-xplat/cli build
-node --test packages/cli/test/route-generation.test.mjs packages/cli/test/route-data.test.mjs
+node --test packages/cli/test/route-generation.test.mts packages/cli/test/route-data.test.mts
 ```
 
 The focused generation/data suite passed 30 checks, including generated consumer
@@ -965,7 +965,7 @@ publish or announce success. Arbitrary loader effects/work ignoring cancellation
 are not undone; filesystem data outside watched inputs still needs regeneration.
 
 ```sh
-node --test packages/cli/test/route-watch*.test.mjs packages/cli/test/route-generation*.test.mjs packages/cli/test/route-data.test.mjs
+node --test packages/cli/test/route-watch*.test.mts packages/cli/test/route-generation*.test.mts packages/cli/test/route-data.test.mts
 ```
 
 The built CLI fixture starts a real Vite server, observes generated contract
@@ -998,7 +998,7 @@ The mobile fixtures also run this protocol in a named pane.
 Control refs are released when their entry leaves history.
 
 ```sh
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 ```
 
 The shared protocol uses public text/scroll primitives and explicit native focus

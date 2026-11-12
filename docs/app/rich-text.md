@@ -406,8 +406,8 @@ with `bun run --filter @octane-xplat/richtext --filter @octane-xplat/tiptap
 `bun run turbo run test:packed --filter=@octane-xplat/richtext`. These checks require an
 Apple Silicon Mac with Xcode’s command-line tools.
 
-The maintained [isolated WebKit fixture](../../packages/richtext/test/verify-wk.mjs)
-and [packed AppKit consumer](../../packages/richtext/test/packed-consumer.mjs) check
+The maintained [isolated WebKit fixture](../../packages/richtext/test/verify-wk.mts)
+and [packed AppKit consumer](../../packages/richtext/test/packed-consumer.mts) check
 local engine loading, HTML/JSON interchange, refs, controlled updates, and
 teardown without screenshots. Command dispatch is separate from real OS
 keyboard input, selection, and hit-testing; those interactions remain

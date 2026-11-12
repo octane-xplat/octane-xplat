@@ -142,7 +142,7 @@ database, a content directory, or a host framework's own route model.
   Includes a public host factory, inferred catalog, checked pane names, toolbar
   providers, rendered-commit acknowledgement and app/window cleanup.
   Maintained cross-renderer example: `packages/ui/tests/pane-router-example.tsrx`;
-  packed runtime: `apps/web/scripts/routing-pane-packed.mjs`.
+  packed runtime: `apps/web/scripts/routing-pane-packed.mts`.
   [Configured Tabs](../../../docs/app/navigation.md#use-named-panes-with-the-canonical-client)
   covers default-client pane ownership and controlled selection.
   Shared renderer cases: `packages/ui/tests/router-scope-cases.tsrx`, exercised

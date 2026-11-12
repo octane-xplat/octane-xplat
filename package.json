@@ -17,7 +17,7 @@
 		"submodules": "node scripts/ensure-submodules.ts",
 		"check:css": "node scripts/check-css.ts",
 		"gen:css-registry": "node scripts/gen-css-registry.ts",
-		"test": "turbo run test test:native && node --test examples/auth/server-verification.test.mjs && bun run test:scripts",
+		"test": "turbo run test test:native && node --test examples/auth/server-verification.test.mts && bun run test:scripts",
 		"typegen": "turbo run typegen",
 		"typegen:watch": "turbo watch typegen --continue always",
 		"postinstall": "bun run typegen && turbo run gen --filter=@xplat/app",
@@ -29,8 +29,8 @@
 		"check": "bun run lint && bun run check:css && bun run check:docs && bun run check:doc-examples && bun run check:recipes && bun run check:changelog && bun run check:compatibility && bun run check:patches && turbo run check:ui-barrels --filter=@octane-xplat/ui && bun run check:decisions && turbo run check:metallib --filter=@octane-xplat/effects && bun run check:vendored",
 		"validate": "bun run check && bun run typecheck && bun run test",
 		"test:packed": "turbo run test:packed --filter='./packages/*' --concurrency=2",
-		"test:scripts": "node --test --test-concurrency=2 scripts/*.test.mjs",
-		"test:release": "node --test scripts/release-*.test.mjs scripts/publish-release.test.mjs scripts/verify-release-evidence.test.mjs",
+		"test:scripts": "node --test --test-concurrency=2 scripts/*.test.mts",
+		"test:release": "node --test scripts/release-*.test.mts scripts/publish-release.test.mts scripts/verify-release-evidence.test.mts",
 		"check:optional-services": "node scripts/check-optional-services.ts",
 		"check:pack": "turbo run pack:check --filter='./packages/*' --concurrency=2",
 		"typecheck:scripts": "tsc --runExternalCode -p scripts/tsconfig.json",
@@ -38,7 +38,7 @@
 		"check:compatibility": "node scripts/sync-compatibility.ts --check",
 		"check:docs": "node scripts/check-docs.ts",
 		"check:doc-examples": "node scripts/check-doc-examples.ts",
-		"test:docs": "node --test scripts/check-docs.test.mjs"
+		"test:docs": "node --test scripts/check-docs.test.mts"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",

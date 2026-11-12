@@ -1,4 +1,4 @@
-// Appended to the maintained writer by ios-writer-simulator.mjs, so private
+// Appended to the maintained writer by ios-writer-simulator.mts, so private
 // test access never ships in the framework or crosses the NativeScript bridge.
 import AudioToolbox
 

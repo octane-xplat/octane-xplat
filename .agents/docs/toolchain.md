@@ -114,7 +114,7 @@ consumer's `node_modules` instead of the framework repository. The
 [Windows canonical-path adapter](../../packages/cli/go/canonical_windows.go)
 opens the target and uses `GetFinalPathNameByHandle`, handling extended DOS and
 UNC names. Keep this local to physical identity instead of changing the process's
-global `GODEBUG` behavior. The [native index gate](../../tools/cli-go/docs-index.test.mjs)
+global `GODEBUG` behavior. The [native index gate](../../tools/cli-go/docs-index.test.mts)
 checks linked checkout discovery and rejects an external docs junction; build
 success alone does not establish either runtime property.
 
@@ -415,7 +415,7 @@ experience of agents writing Octane-xplat code effectively.
   `src/vite.d.ts` declares the public function and shares only `CssPlatform`
   with the implementation through `css-platform.types.ts`. Keep the small function
   declaration explicit rather than re-exporting the implementation. The focused
-  [consumer regression](../../packages/cli/test/postcss-consumer.mjs) installs
+  [consumer regression](../../packages/cli/test/postcss-consumer.mts) installs
   both patches, checks the real public declaration entry with
   `skipLibCheck: false`, and verifies that the implementation stays outside the program.
   Reassess the compiler limitation when upgrading TypeScript or PostCSS;
@@ -438,7 +438,7 @@ experience of agents writing Octane-xplat code effectively.
   Registry-store directories and undeclared links do not widen access. Without
   this discovery, the native CSS route fails with `ERR_DENIED_ID` for `?inline`
   (observed with Vite 8.3.0 and NativeScript Vite 8.0.17). The native HTTP regression
-  in `packages/cli/test/vite-fs-allow.test.mjs` checks stylesheet registration and
+  in `packages/cli/test/vite-fs-allow.test.mts` checks stylesheet registration and
   rejection of unrelated files. This fixes preset discovery, without disabling
   Vite's filesystem boundary.
   NativeScript Vite 8.0.20 now discovers installed source links for nested
@@ -456,7 +456,7 @@ experience of agents writing Octane-xplat code effectively.
   retains only packages with subpath-only exports and no root entry: upstream
   can still vendor those, but the generated bare import has no root to load.
   Evidence: the published 8.0.20 collector and
-  `packages/cli/test/vite-vendor-exclude.test.mjs`; this is host evidence,
+  `packages/cli/test/vite-vendor-exclude.test.mts`; this is host evidence,
   not device verification.
 
   ```json
@@ -487,7 +487,7 @@ experience of agents writing Octane-xplat code effectively.
   The [upstream source repair and tests](../../tools/platform-qualification/patches/native-vendor-entry-source.patch)
   are retained locally against NativeScript Vite 8.0.20 and 8.0.21; no follow-up PR has
   been submitted from this task. The installed-patch regressions live in
-  `packages/cli/test/vite-vendor-exclude.test.mjs`, including the Android dev
+  `packages/cli/test/vite-vendor-exclude.test.mts`, including the Android dev
   vendor build hook. Remove this hunk when an adopted upstream release
   classifies the requested entry under the same conditions as its bundler.
   The patched Android dev vendor hook and first-boot deps bundle (188 modules)
@@ -510,7 +510,7 @@ experience of agents writing Octane-xplat code effectively.
   rejection and the existing CJS handling; it does not change app source or
   disable link checking. Remove this hunk when an adopted upstream release
   recognizes these exports. The real HTTP regression in
-  `packages/cli/test/vite-default-export.test.mjs` compares the link check with
+  `packages/cli/test/vite-default-export.test.mts` compares the link check with
   Node's ESM namespace and exercises target edits, including loss of a default.
   HTTP checks alone do not qualify device startup or HMR.
 
@@ -551,7 +551,7 @@ experience of agents writing Octane-xplat code effectively.
   (`TypeError: __octaneUniversalPlan is not a function`). The canonical
   patch locates the package's `package.json` through Node's `node_modules`
   ancestor chain instead. The installed-patch regression lives in
-  `packages/cli/test/vite-vendor-specifier-fold.test.mjs`; device evidence
+  `packages/cli/test/vite-vendor-specifier-fold.test.mts`; device evidence
   is the hoisted-workspace iOS boot. Remove this hunk when an adopted
   upstream release resolves installed package metadata through ancestor
   `node_modules`.
@@ -564,7 +564,7 @@ experience of agents writing Octane-xplat code effectively.
   exclusion, `apps/windows`' full MasonKit disabled the mobile
   MasonKit-to-core alias, and iOS dev boot threw
   `MasonListDelegate is not defined`. The regressions live in
-  `packages/cli/test/vite-deps-alias.test.mjs`. Remove this hunk when upstream
+  `packages/cli/test/vite-deps-alias.test.mts`. Remove this hunk when upstream
   esbuild dev passes honor Vite aliases.
 - **Two more pnpm-layout fixes live in the canonical 8.0.20 patch.**
   - **Bare imports from packages.** In upstream, `rewriteImports` sends a
@@ -573,7 +573,7 @@ experience of agents writing Octane-xplat code effectively.
     dependency the app does not declare then returns 404. Example: storybook
     imports its sibling `@storybook/global`. The patch looks the package up
     from the importing file and serves it through `/ns/m/@fs/<package dir>`.
-    Regression: `packages/cli/test/vite-rewrite-imports-fallback.test.mjs`.
+    Regression: `packages/cli/test/vite-rewrite-imports-fallback.test.mts`.
   - **`stacktrace-js` force-include.** Upstream adds `stacktrace-js` to the
     vendor bundle when `require.resolve` can find it. That check honors
     `NODE_PATH`, and pnpm's bin shims add `node_modules/.pnpm/node_modules`
@@ -581,7 +581,7 @@ experience of agents writing Octane-xplat code effectively.
     added, and esbuild then cannot resolve it. The patch checks the project's
     `node_modules` folders on disk instead and skips the hidden
     `.pnpm` and `.bun` hoists.
-    Regression: `packages/cli/test/vite-vendor-always-include.test.mjs`.
+    Regression: `packages/cli/test/vite-vendor-always-include.test.mts`.
 
   Both are upstream bugs that have not been reported yet.
 
@@ -598,7 +598,7 @@ experience of agents writing Octane-xplat code effectively.
   in transaction ordering while excluding dependencies, tests and declarations.
   Remove these hunks when the adopted upstream releases preserve those IDs and
   serve shared hot reimports. The maintained real-HTTP/Octane-strategy regression
-  is `packages/cli/test/vite-shared-hmr.test.mjs`; it covers native-host,
+  is `packages/cli/test/vite-shared-hmr.test.mts`; it covers native-host,
   workspace-shared and external-source edits. Host checks do not establish
   device HMR or qualify route creation/removal watching.
 
@@ -887,7 +887,7 @@ bun run --filter @xplat/web smoke:routing-watch
 ```
 
 Evidence is the maintained temporary TSX fixture in
-`apps/web/scripts/routing-watch.mjs`, its local run and the public JSX export map
+`apps/web/scripts/routing-watch.mts`, its local run and the public JSX export map
 in `packages/jsx/package.json`. This establishes the narrow warning; it does not
 establish a general failure of web development or attribute a defect to a specific
 upstream implementation. No dependency-discovery disabling, runtime facade shim
@@ -1000,7 +1000,7 @@ compiler-defined function component; a native host name such as `'label'`
 fails with `Universal roots accept only compiler-defined universal components.`
 Typechecking and bundling do not catch this mismatch. The
 [upstream component contract](https://github.com/octanejs/octane/blob/octane%400.16.3/packages/octane/src/universal-core.ts)
-and `packages/ui/tests/windows-pressable.test.mjs` establish the boundary.
+and `packages/ui/tests/windows-pressable.test.mts` establish the boundary.
 
 Use literal native tags in conditional branches. Variables holding compiled
 function components, including Link's router adapter, remain a separate path.

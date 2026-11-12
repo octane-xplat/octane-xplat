@@ -3,9 +3,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:ios-api": "node ../native-api.mjs ios",
-		"test:macos-api": "node ../native-api.mjs macos",
-		"test:gtk-api": "node ../gtk-api.mjs"
+		"test:ios-api": "node ../native-api.mts ios",
+		"test:macos-api": "node ../native-api.mts macos",
+		"test:gtk-api": "node ../gtk-api.mts"
 	},
 	"packageManager": "bun@1.4.4"
 }

@@ -59,7 +59,7 @@
 		"build": "tsc --runExternalCode -p tsconfig.build.json && vite build --config vite.panel.config.mjs",
 		"typegen": "tsc --runExternalCode -p tsconfig.build.json",
 		"typecheck": "node ../../scripts/typecheck.ts",
-		"test": "node --test tests/*.test.mjs"
+		"test": "node --test tests/*.test.mts"
 	},
 	"dependencies": {
 		"@octane-xplat/platform": "workspace:*",

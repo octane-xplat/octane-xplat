@@ -26,7 +26,7 @@ an app-owned custom URL scheme; verified HTTPS app links are a separate workflow
 
 Static route names, including Unicode, round-trip through the shared URL codec;
 see the [incoming-link guide](../../../docs/app/navigation.md#handle-incoming-links)
-and [codec regressions](../../../packages/lib/tests/route-pattern.test.mjs).
+and [codec regressions](../../../packages/lib/tests/route-pattern.test.mts).
 
 - AC1: [Route files](../../../docs/app/navigation.md#open-your-first-route) and [incoming links](../../../docs/app/navigation.md#handle-incoming-links).
 - AC2: [Listener wiring](../../../docs/app/navigation.md#handle-incoming-links), [scheme registration](../../../docs/app/navigation.md#register-a-custom-scheme), and [cold/warm reproduction](../../../docs/app/navigation.md#reproduce-launch-and-fallback-behavior). Maintained release harness: `apps/mobile/src/navigation-entry.mobile.ts`.

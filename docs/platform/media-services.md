@@ -414,7 +414,7 @@ Background playback means playback can continue while the app is running
 without focus; it does not promise playback after the app quits. If the native
 code is absent, construction stays safe and `supported` is false. Audio output
 from real speakers or headphones needs a separate listening check. The
-maintained [packed macOS check](../../packages/audio/tests/verify-macos.mjs)
+maintained [packed macOS check](../../packages/audio/tests/verify-macos.mts)
 uses silent audio to test the native engine and injects output failures to test
 cleanup; neither demonstrates audible playback or physical route failures.
 

@@ -21,8 +21,8 @@
 		}
 	},
 	"scripts": {
-		"test:macos-movie-storage": "node tests/movie-storage.macos.mjs",
-		"test:macos-media-delegate": "node tests/media-delegate.macos.mjs"
+		"test:macos-movie-storage": "node tests/movie-storage.macos.mts",
+		"test:macos-media-delegate": "node tests/media-delegate.macos.mts"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",

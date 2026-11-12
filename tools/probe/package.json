@@ -5,10 +5,10 @@
 	"type": "module",
 	"scripts": {
 		"probe": "node cli.ts",
-		"test": "node --test --test-concurrency=2 *.test.mjs",
+		"test": "node --test --test-concurrency=2 *.test.mts",
 		"test:query-cache-runtime": "node query-cache-runtime.ts",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test:gestures:web": "node gesture-input.web.mjs"
+		"test:gestures:web": "node gesture-input.web.mts"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",

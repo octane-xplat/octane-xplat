@@ -32,11 +32,11 @@ The reader owns a leaf package and knows its intended C/ObjC public boundary.
 ## Documentation
 
 - AC1: [C leaf example](../../../docs/platform/macos-native.md#write-and-install-a-c-leaf).
-- AC2: [Language boundaries](../../../docs/platform/macos-native.md#choose-a-language-and-public-boundary) and [language fixtures](../../../packages/cli/test/verify-macos-native.mjs).
-- AC3: [Native inputs and dependencies](../../../docs/platform/macos-native.md#declare-native-build-inputs) and [runtime verification](../../../packages/cli/test/verify-macos-native.mjs).
-- AC4: [Rebuilds and cache behavior](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose) and [runtime verification](../../../packages/cli/test/verify-macos-native.mjs).
-- AC5: [Development lifecycle](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose), [experimental Nim sessions](../../../docs/packages/package-macos-build.md#start-a-development-session), [reference consumer verification](../../../tools/cli-go/macos-build-consumer.mjs), and [native session consumer](../../../tools/cli-go/macos-build-consumer.mjs).
+- AC2: [Language boundaries](../../../docs/platform/macos-native.md#choose-a-language-and-public-boundary) and [language fixtures](../../../packages/cli/test/verify-macos-native.mts).
+- AC3: [Native inputs and dependencies](../../../docs/platform/macos-native.md#declare-native-build-inputs) and [runtime verification](../../../packages/cli/test/verify-macos-native.mts).
+- AC4: [Rebuilds and cache behavior](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose) and [runtime verification](../../../packages/cli/test/verify-macos-native.mts).
+- AC5: [Development lifecycle](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose), [experimental Nim sessions](../../../docs/packages/package-macos-build.md#start-a-development-session), [reference consumer verification](../../../tools/cli-go/macos-build-consumer.mts), and [native session consumer](../../../tools/cli-go/macos-build-consumer.mts).
 - AC6: [Packaging and signing](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose) and [evidence boundaries](../../../docs/platform/macos-native.md#evidence-and-maintainer-tooling).
-- AC7: [Prerequisites](../../../docs/platform/macos-native.md#prepare-the-app), [diagnostics and clean](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose), and [validation tests](../../../packages/cli/test/macos-native.test.mjs).
-- AC8: [Maintainer tooling](../../../docs/platform/macos-native.md#evidence-and-maintainer-tooling) and [runtime verification](../../../packages/cli/test/verify-macos-native.mjs).
-- AC9: [Ship a prebuilt dynamic library](../../../docs/platform/macos-native.md#ship-a-prebuilt-dynamic-library), [validation tests](../../../packages/cli/test/macos-native.test.mjs), and [consumer verification](../../../packages/macos-appkit/test/packed-consumer.ts).
+- AC7: [Prerequisites](../../../docs/platform/macos-native.md#prepare-the-app), [diagnostics and clean](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose), and [validation tests](../../../packages/cli/test/macos-native.test.mts).
+- AC8: [Maintainer tooling](../../../docs/platform/macos-native.md#evidence-and-maintainer-tooling) and [runtime verification](../../../packages/cli/test/verify-macos-native.mts).
+- AC9: [Ship a prebuilt dynamic library](../../../docs/platform/macos-native.md#ship-a-prebuilt-dynamic-library), [validation tests](../../../packages/cli/test/macos-native.test.mts), and [consumer verification](../../../packages/macos-appkit/test/packed-consumer.ts).

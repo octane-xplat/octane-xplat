@@ -1,6 +1,6 @@
 // Real-runtime regression case for the packaged iOS conversion engine.
 // Runs inside a release-built NativeScript app on an owned simulator (driven
-// by tests/ios-runtime.mjs): exercises the public convertGif/releaseVideo
+// by tests/ios-runtime.mts): exercises the public convertGif/releaseVideo
 // contract, encoded-container verification, bounded worst-case frame work,
 // cancellation while encoding, temporary-file ownership, and main-isolate
 // responsiveness — written to qualify the retained TypeScript worker research

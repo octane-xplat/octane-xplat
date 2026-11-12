@@ -219,7 +219,7 @@ Set `XPLAT_LOG_CONSOLE=1` to include frontend console messages during normal run
 
 For automated verification in a headless Linux environment, install `xvfb`,
 `dbus-x11`, `gnome-keyring`, and `notification-daemon`, then start the test with
-Xvfb and a private D-Bus session. The [consumer verifier](../../packages/cli/test/verify-linux-consumer.mjs)
+Xvfb and a private D-Bus session. The [consumer verifier](../../packages/cli/test/verify-linux-consumer.mts)
 starts those services and verifies the extracted archive, per-user installer,
 real Octane mount, persistent secrets across app restarts, isolation between
 app IDs, and second-instance link delivery. From the repository root:
@@ -228,7 +228,7 @@ app IDs, and second-instance link delivery. From the repository root:
 mkdir -p /tmp/xplat-linux-packs
 bun run --cwd packages/cli pack --pack-destination /tmp/xplat-linux-packs
 bun run --cwd packages/platform pack --pack-destination /tmp/xplat-linux-packs
-node packages/cli/test/verify-linux-consumer.mjs \
+node packages/cli/test/verify-linux-consumer.mts \
   /tmp/xplat-linux-packs/octane-xplat-cli-0.7.3.tgz \
   /tmp/xplat-linux-packs/octane-xplat-platform-0.7.3.tgz
 ```

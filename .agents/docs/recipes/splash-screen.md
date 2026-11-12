@@ -28,7 +28,7 @@ screen. Native binary building/signing already works.
 
 ## Documentation
 
-- AC1: [Install and arm before startup](../../../docs/packages/package-splash-screen.md#keep-the-launch-screen-until-a-page-loads), [maintained native helper](../../../packages/splash-screen/examples/startup.mobile.ts) and [cold release fixture](../../../packages/splash-screen/tests/ios-runtime.mjs).
+- AC1: [Install and arm before startup](../../../docs/packages/package-splash-screen.md#keep-the-launch-screen-until-a-page-loads), [maintained native helper](../../../packages/splash-screen/examples/startup.mobile.ts) and [cold release fixture](../../../packages/splash-screen/tests/ios-runtime.mts).
 - AC2: [Required data and failure](../../../docs/packages/package-splash-screen.md#wait-for-required-data-and-handle-failure) and [runtime lifecycle cases](../../../packages/splash-screen/tests/runtime.ios.ts).
 - AC3: [Exit animation](../../../docs/packages/package-splash-screen.md#choose-an-exit-animation), [public contract](../../../packages/splash-screen/src/types.ts) and [shared tests](../../../packages/splash-screen/tests/service.test.ts).
 - AC4: [Native lifetime and handoff](../notes/splash-screen.md#native-lifetime) and [runtime cases](../../../packages/splash-screen/tests/runtime.ios.ts).

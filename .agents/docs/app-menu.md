@@ -90,7 +90,7 @@ Apps provide their own action callbacks. Alt/F10 menu-bar semantics and automati
 multi-window propagation are not implemented.
 
 Use the maintained packed-package driver in
-`packages/app-menu/tests/windows-runtime.mjs` with the runtime path and SSH host
+`packages/app-menu/tests/windows-runtime.mts` with the runtime path and SSH host
 shown in its public guide. It uses UI Automation text/structure and native
 SendInput; it neither captures nor analyzes images. The driver uses right Control
 for ordinary chords and left Control for Control+Alt chords: the pinned host's

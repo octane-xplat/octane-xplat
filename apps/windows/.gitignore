@@ -1,5 +1,5 @@
 # Generated NativeScript host, build intermediates and native binaries.
 /platforms/
 
-# Desktop-shell journey sources staged by tools/verification/desktop-shell/windows.mjs.
+# Desktop-shell journey sources staged by tools/verification/desktop-shell/windows.ts.
 /src/.desktop-shell-journey/

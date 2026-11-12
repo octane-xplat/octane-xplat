@@ -55,8 +55,8 @@
 		"test:sticky:web": "node ../../tools/probe/cli.ts run tests/fixtures/sticky.web.tsrx --target web",
 		"test:sticky:ios": "node ../../tools/probe/cli.ts run tests/fixtures/sticky.ios.tsrx --target ios",
 		"test:sticky:android": "node ../../tools/probe/cli.ts run tests/fixtures/sticky.android.tsrx --target android",
-		"test:packed": "node tests/packed-consumer.mjs",
-		"test:os-input": "node tests/os-input.mjs"
+		"test:packed": "node tests/packed-consumer.mts",
+		"test:os-input": "node tests/os-input.mts"
 	},
 	"dependencies": {
 		"@octane-xplat/jsx": "workspace:*",

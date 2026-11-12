@@ -44,7 +44,7 @@ The action-control surface is qualified on GTK: `Button`, `IconButton`,
 and `MoreMenu` are curated root exports covered by earlier slice fixtures
 (buttons/menus real-input checks), and slice I adds `SelectableCard`
 selection toggles proven with real X11 clicks in the
-[typeahead fixture](../../../packages/linux-gtk-renderer/test/ui-typeahead.test.mjs).
+[typeahead fixture](../../../packages/linux-gtk-renderer/test/ui-typeahead.test.mts).
 This partially covers AC1–AC3 on the GTK target; keyboard/focus contracts
 and the web/native link distinctions need their own assessment. Record GTK
 coverage separately from execution evidence in gtk_recipe_checks.

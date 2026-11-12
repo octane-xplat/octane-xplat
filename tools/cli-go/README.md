@@ -388,7 +388,7 @@ staged tarball. It verifies the postinstall selects the real host image,
 the native bin and package-manager command run, and the bundled release
 worker upgrades an older project. The stager's manifest/inventory and
 install-native's unsupported-host exit are covered in
-`stage-release.test.mjs` (run by the same task).
+`stage-release.test.mts` (run by the same task).
 
 `test:go-registry` exercises the same production layout through a private
 loopback registry — all five payload packages publish beside the CLI. It

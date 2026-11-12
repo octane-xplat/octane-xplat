@@ -131,7 +131,7 @@
 			]
 		},
 		"test:intl": {
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/intl-test-utils.mjs"],
+			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/intl-test-utils.mts"],
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"outputs": []
 		},

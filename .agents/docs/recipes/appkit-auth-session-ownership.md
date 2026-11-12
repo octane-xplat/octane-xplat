@@ -26,7 +26,7 @@ failure and late callbacks.
 
 ## Documentation
 
-- AC1: [Public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), Octane services reference, fix note, [model cases](../../../packages/platform/tests/auth-session.macos.test.mjs) and [target note](../exploration.md#operational-evidence).
-- AC2: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership) and [model cases](../../../packages/platform/tests/auth-session.macos.test.mjs) cover observer registration and owned teardown.
-- AC3: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership) and [model cases](../../../packages/platform/tests/auth-session.macos.test.mjs) cover partial registration, reentry and removal-failure limits.
-- AC4: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), [model cases](../../../packages/platform/tests/auth-session.macos.test.mjs), [manual cancellation fixture](../../../examples/probes/auth-session.macos.tsrx) and [target note](../exploration.md#operational-evidence). example.com is not a real authentication provider.
+- AC1: [Public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), Octane services reference, fix note, [model cases](../../../packages/platform/tests/auth-session.macos.test.mts) and [target note](../exploration.md#operational-evidence).
+- AC2: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership) and [model cases](../../../packages/platform/tests/auth-session.macos.test.mts) cover observer registration and owned teardown.
+- AC3: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership) and [model cases](../../../packages/platform/tests/auth-session.macos.test.mts) cover partial registration, reentry and removal-failure limits.
+- AC4: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), [model cases](../../../packages/platform/tests/auth-session.macos.test.mts), [manual cancellation fixture](../../../examples/probes/auth-session.macos.tsrx) and [target note](../exploration.md#operational-evidence). example.com is not a real authentication provider.

@@ -5,9 +5,9 @@
   "scripts": {
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
     "build:desktop-components": "node desktop-gestures/build-components.mjs",
-    "qualify:macos-components": "node desktop-gestures/macos-host.mjs",
+    "qualify:macos-components": "node desktop-gestures/macos-host.mts",
     "build:windows-gestures": "node desktop-gestures/build-windows.mjs",
-    "verify:windows-gestures": "node desktop-gestures/verify-windows.mjs"
+    "verify:windows-gestures": "node desktop-gestures/verify-windows.mts"
   },
   "devDependencies": {
     "@nativescript-community/octane": "catalog:",

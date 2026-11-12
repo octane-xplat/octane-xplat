@@ -54,10 +54,10 @@
 		"typegen": "tsrx-typegen --target lingui && node scripts/build-intl-data.mjs",
 		"prepack": "bun run build && bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"test": "node --test --test-concurrency=1 tests/*.test.mjs",
+		"test": "node --test --test-concurrency=1 tests/*.test.mts",
 		"build": "tsc --runExternalCode -p tsconfig.build.json",
-		"test:packed": "node tests/packed-consumer.mjs",
-		"test:intl": "node --test tests/intl.mjs",
+		"test:packed": "node tests/packed-consumer.mts",
+		"test:intl": "node --test tests/intl.mts",
 		"typecheck": "tsc --runExternalCode -p tsconfig.types.json --emitDeclarationOnly false --declaration false --isolatedDeclarations false --noEmit"
 	},
 	"dependencies": {

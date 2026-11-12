@@ -38,7 +38,7 @@ if (
   (selected && ![...tests, 'DiagnosticCosts'].includes(selected))
 ) {
   throw Error(
-    'Usage: node run.mjs AUTHORIZED_PHYSICAL_UDID XCTESTRUN APP NEW_OUTPUT_DIRECTORY [Tween|Spring|Drag|Retarget|Layout|Shared|Sheet|Scroll|DisposalAndResume|DiagnosticCosts] [--functional]',
+    'Usage: node run.ts AUTHORIZED_PHYSICAL_UDID XCTESTRUN APP NEW_OUTPUT_DIRECTORY [Tween|Spring|Drag|Retarget|Layout|Shared|Sheet|Scroll|DisposalAndResume|DiagnosticCosts] [--functional]',
   )
 }
 

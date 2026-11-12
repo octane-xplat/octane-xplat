@@ -80,7 +80,7 @@ Unit 9 adds the three pinned InternationalizationProvider examples, with
 live French strings, sparse overrides and RTL pagination. The focused browser
 journey also checks announcement-region DOM state and the existing grid-focus
 example. Run it against a production preview with
-`node scripts/verify-web.mjs --locale-only --browser=chromium` (also Firefox
+`node scripts/verify-web.mts --locale-only --browser=chromium` (also Firefox
 and WebKit). Actual assistive-technology delivery and native hosts remain
 unqualified; see the unit-9 section in [coverage](docs/coverage.md).
 

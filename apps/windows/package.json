@@ -8,8 +8,8 @@
 		"windows": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev windows",
 		"build:windows": "ns build windows",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
-		"test:keyboard": "node --test ../../scripts/windows-keyboard-regression.test.mjs ../../scripts/windows-pointer-regression.test.mjs",
-		"test:filesystem": "node --test ../../scripts/windows-filesystem-regression.test.mjs"
+		"test:keyboard": "node --test ../../scripts/windows-keyboard-regression.test.mts ../../scripts/windows-pointer-regression.test.mts",
+		"test:filesystem": "node --test ../../scripts/windows-filesystem-regression.test.mts"
 	},
 	"dependencies": {
 		"@nativescript-community/observable": "2.0.11",

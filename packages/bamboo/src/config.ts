@@ -42,7 +42,7 @@ const portableProperties = [
 
 // Token names mirror every --color-* / --radius-* / --space-* variable the
 // @octane-xplat/ui default theme (theme/chrome.css `:root, .ns-root` block)
-// declares. tests/theme-tokens.test.mjs fails when the lists drift apart.
+// declares. tests/theme-tokens.test.mts fails when the lists drift apart.
 const colors = Object.fromEntries(
   [
     'primary',

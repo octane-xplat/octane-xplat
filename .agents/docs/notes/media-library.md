@@ -64,8 +64,8 @@ were not run because these exports deliberately have no device-library backend.
 
 ## Nonvisual iOS dialog fixture
 
-[The iOS driver](../../../packages/media-library/tests/ios-runtime.mjs) uses
-[an accessibility helper](../../../packages/media-library/tests/ios-dialogs.mjs)
+[The iOS driver](../../../packages/media-library/tests/ios-runtime.mts) uses
+[an accessibility helper](../../../packages/media-library/tests/ios-dialogs.mts)
 pinned to Maestro CLI 2.11.0. Source review of that exact version established
 that MCP inspect_screen opens the selected device using text accessibility
 inspection; the helper then uses only the reviewed viewHierarchy and touch HTTP
@@ -100,7 +100,7 @@ with a NativeClass decorator and a BigInt literal failed to parse; removing both
 made it run. The trigger was not isolated, so this is not evidence of a specific
 upstream decorator or BigInt defect. The maintained implementation uses neither.
 
-The [AppKit feasibility script](../../../packages/media-library/tests/macos-feasibility.mjs)
+The [AppKit feasibility script](../../../packages/media-library/tests/macos-feasibility.mts)
 and private Turbo driver provide the narrow host checks above. Runtime
 qualification must stay separate from source and declaration success.
 

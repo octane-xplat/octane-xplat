@@ -1,6 +1,6 @@
 // Web leaf contract — a modeled Web Speech API exercises the leaf's event
 // wiring, error mapping, permission paths, and cleanup. This does not
-// establish real recognizer behavior; tests/web-chrome-runtime.mjs does.
+// establish real recognizer behavior; tests/web-chrome-runtime.mts does.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import { speechRecognition } from '../src/index.web'

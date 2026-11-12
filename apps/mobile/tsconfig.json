@@ -55,6 +55,7 @@
 		"../../packages/lingui/tests",
 		"../../packages/*/test",
 		"../../packages/*/tests",
+		"../../packages/*/e2e/*.mts",
 		"../../packages/*/vitest.*.config.*",
 		"../../packages/*/dist",
 		"../../packages/*/types",

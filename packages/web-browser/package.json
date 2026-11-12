@@ -53,8 +53,8 @@
 		"pack:check": "tsrx-typegen --pack-check",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "node --experimental-strip-types --test tests/*.test.ts",
-		"test:packed": "node tests/packed-consumer.mjs",
-		"test:macos-runtime": "node tests/packed-consumer.mjs --macos-runtime"
+		"test:packed": "node tests/packed-consumer.mts",
+		"test:macos-runtime": "node tests/packed-consumer.mts --macos-runtime"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

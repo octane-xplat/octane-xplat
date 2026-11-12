@@ -43,7 +43,7 @@ Runtime-verified on macOS 27.2 (local Mac): pane id
 AppleScript pane enumeration on `skymac.local` (arm64, macOS 26.6.2)
 timed out — anchors verified on the local host only.
 
-Tests: `platform/tests/open-url.macos.test.mjs` — 6/6 pass (pane URL +
+Tests: `platform/tests/open-url.macos.test.mts` — 6/6 pass (pane URL +
 app fallback covered).
 
 ### Calendar — `calendar/src/calendar.macos.ts` (EventKit)
@@ -91,7 +91,7 @@ returns the shot (mirrors mobile best-effort semantics). `types.ts`
 comment updated.
 
 Also repaired a stale portion of
-`media/tests/photo-capture.macos.test.mjs`: its `requireShim` predated the
+`media/tests/photo-capture.macos.test.mts`: its `requireShim` predated the
 files-package refactor (`files.macos.ts` now imports
 `./file-pick-filter.macos`, `./mime-extensions`, `./file-bytes`) — added
 stubs; the suite was broken on main before this task.

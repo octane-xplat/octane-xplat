@@ -13,7 +13,7 @@
 // override it in top-level compilerOptions (browser-only packages set /dom).
 //
 // TYPECHECK_ENVIRONMENTS keeps the per-platform resolution settings for
-// *consumers* of a packed package (tests/packed-consumer.mjs) — a real
+// *consumers* of a packed package (tests/packed-consumer.mts) — a real
 // consumer app still typechecks one platform's selection.
 import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'

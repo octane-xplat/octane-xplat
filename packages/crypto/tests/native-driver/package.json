@@ -3,9 +3,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:ios-runtime": "node ../ios-runtime.mjs",
-		"test:ios-bridge": "node ../ios-bridge.mjs",
-		"test:macos-consumer": "node ../macos-consumer.mjs"
+		"test:ios-runtime": "node ../ios-runtime.mts",
+		"test:ios-bridge": "node ../ios-bridge.mts",
+		"test:macos-consumer": "node ../macos-consumer.mts"
 	},
 	"packageManager": "bun@1.4.4"
 }

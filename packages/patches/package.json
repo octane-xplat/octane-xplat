@@ -24,7 +24,7 @@
 	},
 	"scripts": {
 		"prepack": "node ../../scripts/sync-patches.ts --package-only",
-		"pack:check": "node ../../scripts/check-packed-patches.mjs",
-		"test:packed": "node ../../scripts/check-packed-patches.mjs --install"
+		"pack:check": "node ../../scripts/check-packed-patches.mts",
+		"test:packed": "node ../../scripts/check-packed-patches.mts --install"
 	}
 }

@@ -400,7 +400,7 @@ try {
       )
 
       assert.ok(
-        existsSync(join(libraryDir, 'tests/packed-consumer.mjs')),
+        existsSync(join(libraryDir, 'tests/packed-consumer.mts')),
         'library starter missed packed-consumer check',
       )
 

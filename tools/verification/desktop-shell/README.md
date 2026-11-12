@@ -19,7 +19,7 @@ image capture.
     `keepAppResident`, `createGlobalShortcuts`, platform `storage`.
 - `macos-input.c` — AX-tree queries and CGEvent posting at the HID tap,
   compiled by the runner with `xcrun clang`.
-- `macos.mjs` — the runner (`--phase build|journey|all`).
+- `macos.mts` — the runner (`--phase build|journey|all`).
 
 ## Running
 
@@ -31,7 +31,7 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"d
 
 DESKTOP_SHELL_WORK=research/desktop-shell/<same-dir> \
 goddard-agent resource run --json '{"resources":{"desktop_input":1},"purpose":"desktop-shell journey"}' \
-  -- node tools/verification/desktop-shell/macos.mjs --phase journey
+  -- node tools/verification/desktop-shell/macos.mts --phase journey
 ```
 
 ### Remote journey host (`DESKTOP_SHELL_MACOS_HOST`)
@@ -48,7 +48,7 @@ a README declaring everything in it disposable.
 DESKTOP_SHELL_WORK=research/desktop-shell/<same-dir> \
 DESKTOP_SHELL_MACOS_HOST=skymac.local \
 goddard-agent resource run --json '{"resources":{"exclusive":["device:skymac"],"desktop_input":1},"purpose":"desktop-shell journey (skymac)"}' \
-  -- node tools/verification/desktop-shell/macos.mjs --phase journey
+  -- node tools/verification/desktop-shell/macos.mts --phase journey
 ```
 
 On an SSH session host, `macos-input trusted` reports
@@ -93,7 +93,7 @@ evidence; README declares it disposable — remove manually when done).
   (`@octane-xplat/linux-gtk/host`), `openWindow`, `appMenu`, `createTray` +
   `keepAppResident`, `createGlobalShortcuts({ appId })`, platform `storage`.
   `journey.ts`/`App.tsrx`/`Inspector.tsrx` are shared unchanged with macOS.
-- `linux.mjs` — the runner (`--phase build|journey|all`).
+- `linux.mts` — the runner (`--phase build|journey|all`).
 - `linux/container/` — Dockerfile (Debian trixie: gjs, GTK4, Xvfb, openbox, xdotool,
   pyatspi, at-spi2, KDE portal + kglobalacceld), `run.sh` (emits
   `STEP|name|inputClass|result|detail`), `ax.py` (pyatspi helper),
@@ -105,7 +105,7 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"d
 
 DESKTOP_SHELL_WORK=research/desktop-shell/<same-dir> \
 goddard-agent resource run --json '{"resources":{"exclusive":["device:andromeda"]},"purpose":"desktop-shell linux journey"}' \
-  -- node tools/verification/desktop-shell/linux.mjs --phase journey
+  -- node tools/verification/desktop-shell/linux.mts --phase journey
 ```
 
 ## Linux input classes
@@ -163,7 +163,7 @@ interactive session.
 - `app/main.windows.ts` — mounts through `renderNativeScriptApp`, supplies the
   Inspector through `Application.setWindowContentResolver`, and adds a
   Windows-only `Open Inspector` app-menu item.
-- `windows.mjs` — the runner (`--phase build|journey|all`).
+- `windows.mts` — the runner (`--phase build|journey|all`).
 - `windows/driver.ps1` — the in-session driver: SendInput for keyboard and
   mouse, and UI Automation for names, control types, focus, and Invoke.
 
@@ -171,7 +171,7 @@ interactive session.
 bunx turbo run test:desktop-shell:windows --filter=@xplat/verification -- --phase build
 
 goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"]},"purpose":"desktop-shell windows journey"}' \
-  -- node tools/verification/desktop-shell/windows.mjs --phase journey
+  -- node tools/verification/desktop-shell/windows.mts --phase journey
 ```
 
 ## Windows input classes

@@ -87,7 +87,7 @@ new owned base if the browser refuses or fails to acknowledge the traversal.
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts src/routing-core.test.ts src/default-router-runtime.test.ts src/routing-package.test.ts src/browser-route-transitions.web.test.ts
-node apps/web/scripts/routing-contract.mjs
+node apps/web/scripts/routing-contract.mts
 ```
 
 Fresh native release runs passed **184 iOS** and **196 Android assertions**.
@@ -123,7 +123,7 @@ exports, lint and recipe-link checks also pass.
 
 ```sh
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/render-router-host.mobile.test.tsrx src/native-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/router-hooks.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 ```
 
 Frame/OS Back, native modal-dismissal preparation and cross-stack pane redirects
@@ -163,7 +163,7 @@ source/types for this increment, and Windows has no VM.
 
 ```sh
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 ```
 
 ## Declared and runtime contract checks
@@ -177,7 +177,7 @@ renderer cases check explicit-instance ownership and missing-instance errors.
 ```sh
 bun run --cwd packages/ui vitest run src/routing-package.test.ts src/router-instance.test.ts src/route-registry.test.ts src/define-route.test.ts src/router-hooks.web.test.tsrx
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
-node --test packages/cli/test/route-generation.test.mjs
+node --test packages/cli/test/route-generation.test.mts
 ```
 
 After migrating the fixtures to immutable declared contracts, production
@@ -242,8 +242,8 @@ behavior. Linux and Windows have source/type evidence for this refinement;
 Windows has no VM. Owned mobile devices were shut down after qualification.
 
 ```sh
-node apps/web/scripts/routing-contract.mjs
-node apps/macos/test/verify-routing.mjs
+node apps/web/scripts/routing-contract.mts
+node apps/macos/test/verify-routing.mts
 ```
 
 The AppKit fixture also migrated its synthetic file catalog to generated-style
@@ -279,8 +279,8 @@ do not establish OS touch/hit-testing. Linux and Windows have source/type
 coverage for this refinement; Windows runtime remains unavailable.
 
 ```sh
-node apps/web/scripts/routing-contract.mjs
-node apps/macos/test/verify-routing.mjs
+node apps/web/scripts/routing-contract.mts
+node apps/macos/test/verify-routing.mts
 ```
 
 ## Loading and recovery feedback
@@ -310,8 +310,8 @@ and Windows have source/type evidence for this refinement; no Windows VM was
 available. The owned mobile devices were shut down afterward.
 
 ```sh
-node apps/web/scripts/routing-contract.mjs
-node apps/macos/test/verify-routing.mjs
+node apps/web/scripts/routing-contract.mts
+node apps/macos/test/verify-routing.mts
 ```
 
 ## Browser root-owner teardown
@@ -327,7 +327,7 @@ application-owned stores are preserved.
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts
-node apps/web/scripts/routing-contract.mjs
+node apps/web/scripts/routing-contract.mts
 ```
 
 Only browser runtime behavior changed. Native targets retain the preceding
@@ -349,7 +349,7 @@ plus real View Transition completion, custom forward/Back types, animated modal
 retention, overlapping animation, reduced motion and unsupported-browser skips.
 
 ```sh
-node apps/web/scripts/routing-contract.mjs
+node apps/web/scripts/routing-contract.mts
 ```
 
 Window scroll restoration, decoded fragments, modal scroll preservation, direct
@@ -507,7 +507,7 @@ not depend on a Linux runtime.
 
 ```sh
 bun run --filter @octane-xplat/linux-gtk typecheck
-node --test packages/linux-gtk-renderer/test/build.test.mjs
+node --test packages/linux-gtk-renderer/test/build.test.mts
 bun run --cwd packages/linux-gtk-renderer vite build --config test/fixtures/vite.routing.config.mjs
 ```
 
@@ -549,7 +549,7 @@ animation snapshots or establish OS hit-testing.
 ```sh
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 ```
 
 
@@ -561,7 +561,7 @@ preservation of the previous valid artifact after an invalid bake.
 
 ```sh
 bun run --filter @octane-xplat/cli build
-node --test packages/cli/test/route-data.test.mjs packages/cli/test/route-generation.test.mjs
+node --test packages/cli/test/route-data.test.mts packages/cli/test/route-generation.test.mts
 ```
 
 Production checks passed **14 web**, **180 iOS**, **193 Android** and **118 AppKit**
@@ -577,7 +577,7 @@ bun run --filter @xplat/web build
 node apps/web/scripts/navigation.ts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 ```
 
 ## Callable Standard Schema search validation
@@ -697,7 +697,7 @@ a modal redirect without restoring the rejected target.
 
 ```sh
 bun run --cwd packages/ui vitest run src/routing-core.test.ts src/router-instance.test.ts src/browser-router-host.web.test.tsrx src/router-hooks.web.test.tsrx src/default-router-runtime.test.ts src/routing-package.test.ts
-node apps/web/scripts/routing-contract.mjs
+node apps/web/scripts/routing-contract.mts
 ```
 
 Fresh release runs passed **210 iOS** and **223 Android assertions**. They check
@@ -738,7 +738,7 @@ retains its output union, and erased optional loaders remain unknown.
 
 ```sh
 bun run --cwd packages/ui vitest run src/route-table.test.ts src/define-route.test.ts src/routing-core.test.ts src/routing-package.test.ts
-node --test packages/cli/test/route-generation.test.mjs
+node --test packages/cli/test/route-generation.test.mts
 bun run --filter @octane-xplat/ui pack:check
 ```
 
@@ -821,7 +821,7 @@ context once. Browser Back/Forward refusal corrects URL position; a later attemp
 can proceed in its original direction.
 
 ```sh
-node apps/web/scripts/routing-contract.mjs
+node apps/web/scripts/routing-contract.mts
 ```
 
 Native release checks use real iOS edge swipes and Android Back key events, then
@@ -835,7 +835,7 @@ predictive animation, interactive modal dismissal, document unload or process ex
 ```sh
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 ```
 
 Focused controller/protocol tests cover multiple registrations, reset, removal,
@@ -864,8 +864,8 @@ closure and whole-owner cleanup. AppKit modal effects report skipped separately
 from successful navigation. No screenshots were captured or inspected.
 
 ```sh
-node apps/macos/test/verify-routing.mjs
-node apps/macos/test/verify-overlays.mjs
+node apps/macos/test/verify-routing.mts
+node apps/macos/test/verify-overlays.mts
 ```
 
 The renderer's **285 tests**, including per-view native-layout reentry and hidden
@@ -897,8 +897,8 @@ It launches no browser engine and captures no images.
 
 ```sh
 bun run --filter @octane-xplat/cli build
-node --test packages/cli/test/route-watch*.test.mjs packages/cli/test/route-generation*.test.mjs packages/cli/test/route-data.test.mjs
-node --test packages/cli/test/web-targets.test.mjs
+node --test packages/cli/test/route-watch*.test.mts packages/cli/test/route-generation*.test.mts packages/cli/test/route-data.test.mts
+node --test packages/cli/test/web-targets.test.mts
 ```
 
 Web target detection checks all six conventional Vite configuration formats
@@ -918,7 +918,7 @@ qualification. The owned-process group tests skip Windows rather than claiming
 POSIX cleanup there.
 
 ```sh
-node --test packages/cli/test/route-watch-lifecycle.test.mjs
+node --test packages/cli/test/route-watch-lifecycle.test.mts
 ```
 
 The final local generation/watch suite passed 43 tests on macOS/Node, including
@@ -962,7 +962,7 @@ TypeScript/JavaScript helpers cannot create phantom screen contracts.
 ```sh
 bun run --filter @octane-xplat/ui typegen
 bun run --filter @octane-xplat/cli build
-node --test packages/cli/test/route-platform-contracts.test.mjs
+node --test packages/cli/test/route-platform-contracts.test.mts
 ```
 
 The fixture runs consumer TypeScript programs with web, native, macOS, Linux and
@@ -1158,7 +1158,7 @@ readiness check; the routing bundle is unchanged. The next command prints a
 
 ```sh
 XPLAT_ROUTING_ARTIFACT_DIR="$PWD/research/routing-effects" bun run --filter @xplat/web smoke:routing
-node apps/linux/scripts/routing-effects-build.mjs \
+node apps/linux/scripts/routing-effects-build.mts \
   "/absolute/path/from/artifactDirectory" "$PWD/research/routing-effects"
 ```
 
@@ -1194,7 +1194,7 @@ released refs. The shared protocol is
 ```sh
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_UDID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mjs
+node apps/macos/test/verify-routing.mts
 bun run --cwd packages/ui vitest run src/scrollable-area-offset.test.ts
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx
 ```
@@ -1244,7 +1244,7 @@ bun run --cwd packages/ui vitest run src/routing-package.test.ts src/define-rout
 XPLAT_ROUTING_UI_PACKAGE="/absolute/path/to/extracted/package" \
   bun run --cwd packages/ui vitest run src/routing-package.test.ts
 XPLAT_ROUTING_UI_PACKAGE="/absolute/path/to/extracted/package" \
-  node --test packages/cli/test/route-platform-contracts.test.mjs
+  node --test packages/cli/test/route-platform-contracts.test.mts
 ```
 
 Qualification on 2026-10-20 passed 235 focused routing tests, 78 native object-driver
@@ -1289,7 +1289,7 @@ its guards/loaders and accepts plain or null-prototype field objects.
 ```sh
 bun run --filter @octane-xplat/cli build
 bun run --cwd packages/ui vitest run src/routing-package.test.ts src/define-route.test.ts src/routing-core.test.ts
-node --test packages/cli/test/route-generation.test.mjs packages/cli/test/route-platform-contracts.test.mjs
+node --test packages/cli/test/route-generation.test.mts packages/cli/test/route-platform-contracts.test.mts
 ```
 
 The 53-task UI/CLI dependent gate passes. Current runtime regressions pass 111

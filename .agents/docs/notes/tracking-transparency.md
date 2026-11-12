@@ -47,7 +47,7 @@ pending writes. Only in-flight promises are shared; completed IDs are not cached
   response handling.
 - Combined source and maintained examples typecheck; seven isolated packed
   declaration consumers pass without native ambient types.
-- tests/native-api.mjs asserts the package ships no iOS native wrapper
+- tests/native-api.mts asserts the package ships no iOS native wrapper
   sources, that the iPhoneSimulator SDK still carries AppTrackingTransparency
   and AdSupport, and that the shipped @nativescript/types-ios declarations
   still expose the members the backend binds.

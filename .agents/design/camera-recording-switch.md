@@ -142,7 +142,7 @@ Native-state and encoded-timing evidence only; no pixels were inspected.
   Full evidence: `~/dev/reports/octane-xplat/camera-recording-switch.md`.
 - Simulator generated-media tests (four scenarios: source gap/resume, stop,
   limit, injected microphone loss) verify encoded packet timing without real
-  cameras. Maintained at `packages/camera/tests/ios-writer-simulator.mjs`.
+  cameras. Maintained at `packages/camera/tests/ios-writer-simulator.mts`.
 - Shared/backend tests cover invalid phases, overlap rejection, cancelled
   acquisition, provisional-commit races, immutable starting configuration
   and rollback paths (`packages/camera/tests/switch.test.ts` and adapter

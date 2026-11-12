@@ -30,7 +30,7 @@ outside this recipe's scope.
 - AC1: [File variants and resolution order](../../../docs/platform/module-resolution.md#file-variants) and [choosing a variant](../../../docs/platform/module-resolution.md#choosing-a-variant).
 - AC2: [Resolution order](../../../docs/platform/module-resolution.md#file-variants)
   and [generated route leaves](../../../docs/app/navigation.md#what-the-route-generator-writes).
-  Maintained catalog-build fixture: `packages/cli/test/route-generation.test.mjs`;
+  Maintained catalog-build fixture: `packages/cli/test/route-generation.test.mts`;
   it checks evaluated module identity on seven target graphs without implying
   device or Windows host runtime qualification.
 - AC3: [TypeScript, .tsrx shims, and target commands](../../../docs/platform/module-resolution.md#typescript).
@@ -39,4 +39,4 @@ outside this recipe's scope.
   command qualification on macOS does not establish app runtime behavior on a target.
 - AC4: [Linux compatibility resolution](../../../docs/platform/module-resolution.md#file-variants) and [experimental Linux target](../../../docs/start/toolchain.md#experimental-linux-target-webkitgtk-webview).
 
-- AC5: [CSS file variants](../../../docs/platform/module-resolution.md#css-file-variants) and the maintained [CSS pipeline tests](../../../packages/cli/test/css-platform.test.mjs).
+- AC5: [CSS file variants](../../../docs/platform/module-resolution.md#css-file-variants) and the maintained [CSS pipeline tests](../../../packages/cli/test/css-platform.test.mts).

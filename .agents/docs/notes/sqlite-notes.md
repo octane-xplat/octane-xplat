@@ -153,7 +153,7 @@ interop.Pointer` isn't re-entrant as a destructor arg (share the
   closed-db reject with `SqliteError`, `getSync`/`getArraySync` work on the
   napi backend). An earlier "confirmed on 4.1.1" note upstream was
   inaccurate. The leaf delegates `get`/`getArray` to the plugin directly;
-  `tests/get-contract.test.mjs` guards the shared-path contract against
+  `tests/get-contract.test.mts` guards the shared-path contract against
   version bumps.
 - Upstream packaging bug (`@nativescript-community/sqlite-bridge@4.1.1`):
   every `NSSqliteBridge.xcframework` slice carries a bare
@@ -174,7 +174,7 @@ interop.Pointer` isn't re-entrant as a destructor arg (share the
   NSSqliteBridge.xcframework plus a second modulemap-carrying library
   xcframework fails with exactly that `Multiple commands produce` error;
   with the patch applied the same project builds and links, and slice
-  headers still reach `include/`. `tests/ios-packaging.test.mjs` asserts the
+  headers still reach `include/`. `tests/ios-packaging.test.mts` asserts the
   installed plugin family carries no bare maps and the patch covers every
   published slice.
 - ~~`threading: true` on-device behavior~~ — obsolete under 4.1.1: the
@@ -198,7 +198,7 @@ NativeScript 9.1.1, plugin 4.1.1): the maintained
 passed 9/9 — commit persists, rollback removes its write, ordinary INSERT/SELECT
 complete, and an awaited transaction insert commits and reads back. The reported
 deadlock does not reproduce under the 4.x backend. Requalify only after a plugin
-major bump. The [launcher](../../../packages/sqlite/tests/android-runtime.mjs)
+major bump. The [launcher](../../../packages/sqlite/tests/android-runtime.mts)
 requires an explicitly owned, booted host (`XPLAT_SQLITE_ANDROID_DEVICE`):
 
 ```sh
@@ -209,4 +209,4 @@ Also fixed in the same pass: `openDatabase` returned before the plugin's
 async open settled — `db.ready` was never awaited, so a failed open resolved
 a broken handle and an early first call submitted against an unset native
 handle. The leaf now awaits `ready`, matching the macOS leaf's fail-fast
-open; regression coverage in `tests/transactions.test.mjs`.
+open; regression coverage in `tests/transactions.test.mts`.

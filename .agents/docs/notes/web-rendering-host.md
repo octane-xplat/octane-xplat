@@ -25,7 +25,7 @@ bundle against a production browser bundle; matching data, entry IDs and
 
 A `display: contents` div around those provider children gives the compiler a
 stable element root. The maintained
-[host regression](../../../packages/web-host/test/host.test.mjs) checks preserved
+[host regression](../../../packages/web-host/test/host.test.mts) checks preserved
 node identity, `useId`, interaction, zero recoverable mismatches, no initial
 loader replay and later preparation. It runs Octane's compiled browser bundle
 in jsdom. This does not qualify physical input, layout or accessibility.

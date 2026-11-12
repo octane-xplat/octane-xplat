@@ -88,7 +88,7 @@ NOT projected (null): `SpeechRecognitionUI`, `SpeechRecognitionQualityDegradatio
 
 ## Probe files (uncommitted, under packages/speech-recognition/tests/)
 
-- `windows-probe.mjs` — node/vite runner (needs SHORTCUTS-style env or
+- `windows-probe.mts` — node/vite runner (needs SHORTCUTS-style env or
   defaults host=windy, runtime=bin path) — couldn't run here (node not
   permitted in this agent); kept for interactive use.
 - `fixtures/speech-probe.windows.js` — readable probe bundle (source of truth)

@@ -28,4 +28,4 @@ property checks from actual OS preference and visual qualification.
 - AC2: [Accessible name](../../../docs/packages/package-rolling-text.md#what-screen-readers-hear), [options](../../../docs/packages/package-rolling-text.md#options), [macOS qualification](../../../packages/rolling-text/UPSTREAM.md#macos-qualification).
 - AC3: [Limits](../../../docs/packages/package-rolling-text.md#limits), [macOS text styles](../../../docs/packages/package-rolling-text.md#macos-text-styles), [macOS qualification](../../../packages/rolling-text/UPSTREAM.md#macos-qualification).
 
-- AC4: [Native segmentation](../../../docs/packages/package-rolling-text.md#native-text-segmentation), [isolated bundle check](../../../packages/rolling-text/tests/intl.mjs).
+- AC4: [Native segmentation](../../../docs/packages/package-rolling-text.md#native-text-segmentation), [isolated bundle check](../../../packages/rolling-text/tests/intl.mts).

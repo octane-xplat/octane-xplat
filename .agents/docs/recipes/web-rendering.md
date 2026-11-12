@@ -32,12 +32,12 @@ The app owner can compile and deploy separate server and browser entries.
 ## Documentation
 
 - AC1: [Web rendering guide](../../../docs/platform/web-rendering.md#try-the-maintained-example), [build example](../../../packages/web-host/example/build.mjs), [srvx server](../../../packages/web-host/example/serve.mjs).
-- AC2: [Document and app shell](../../../docs/platform/web-rendering.md#author-the-whole-document), [hydration regression](../../../packages/web-host/test/host.test.mjs).
+- AC2: [Document and app shell](../../../docs/platform/web-rendering.md#author-the-whole-document), [hydration regression](../../../packages/web-host/test/host.test.mts).
 - AC3: [Public projection](../../../docs/platform/web-rendering.md#choose-what-reaches-the-screen-and-browser), [HTTP and cache behavior](../../../docs/platform/web-rendering.md#mix-server-and-client-rendering).
 - AC4: [Rendering mode and limits](../../../docs/platform/web-rendering.md#mix-server-and-client-rendering), [implementation evidence](../notes/web-rendering-host.md).
 
-- AC5: [Keep server code out of clients](../../../docs/platform/web-rendering.md#keep-server-code-out-of-clients), maintained `example/context.server.ts`, and `test/server-boundary.test.mjs`.
+- AC5: [Keep server code out of clients](../../../docs/platform/web-rendering.md#keep-server-code-out-of-clients), maintained `example/context.server.ts`, and `test/server-boundary.test.mts`.
 
-- AC6: [Generate static pages](../../../docs/platform/web-rendering.md#generate-static-pages), maintained `example/build.mjs` and `example/serve.mjs`, `test/host.test.mjs` and `test/prerender.test.mjs`.
+- AC6: [Generate static pages](../../../docs/platform/web-rendering.md#generate-static-pages), maintained `example/build.mjs` and `example/serve.mjs`, `test/host.test.mts` and `test/prerender.test.mts`.
 
-- AC7: [Hashed manifest assets](../../../docs/platform/web-rendering.md#try-the-maintained-example), [show a not-found page](../../../docs/platform/web-rendering.md#show-a-not-found-page), maintained `example/`, `test/assets.test.mjs` and `test/packed-consumer.web.mjs` via `test:packed`.
+- AC7: [Hashed manifest assets](../../../docs/platform/web-rendering.md#try-the-maintained-example), [show a not-found page](../../../docs/platform/web-rendering.md#show-a-not-found-page), maintained `example/`, `test/assets.test.mts` and `test/packed-consumer.web.mts` via `test:packed`.

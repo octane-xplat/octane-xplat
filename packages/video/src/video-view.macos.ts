@@ -4,7 +4,7 @@
  *  JS-involved NSURLSession ever crosses the bridge (runtime-verified:
  *  setTimeout polling, main-queue notification blocks and seek completions all
  *  deliver while an AVPlayer remote transfer is in flight — see
- *  tests/verify-macos.mjs). */
+ *  tests/verify-macos.mts). */
 import {
   AVLayerVideoGravityResize,
   AVLayerVideoGravityResizeAspect,

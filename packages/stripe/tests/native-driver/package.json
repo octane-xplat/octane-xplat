@@ -3,9 +3,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:ios-bridge": "node ../ios-bridge.mjs",
-		"test:ios-runtime": "node ../ios-runtime.mjs",
-		"test:ios-spm": "node ../ios-spm.mjs"
+		"test:ios-bridge": "node ../ios-bridge.mts",
+		"test:ios-runtime": "node ../ios-runtime.mts",
+		"test:ios-spm": "node ../ios-spm.mts"
 	},
 	"packageManager": "bun@1.4.4"
 }

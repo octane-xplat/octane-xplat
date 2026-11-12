@@ -111,7 +111,7 @@ directories; it shares the existing per-workspace and per-project caches.
 The fallback search remains first-match because the served URL no longer
 contains the importer; this does not resolve conflicting dependency versions.
 
-Evidence: [the maintained regression](../../../packages/cli/test/vite-node-modules-fallback.test.mjs)
+Evidence: [the maintained regression](../../../packages/cli/test/vite-node-modules-fallback.test.mts)
 checks mapping and real Vite loading, including extensionless `/ns/m` HTTP
 requests returning 200 with and without `?v=123`. Its HTTP adapter calls the
 upstream request/transform helpers without starting device/session services.
@@ -272,12 +272,12 @@ select another config loader ([source](https://github.com/NativeScript/nativescr
 Vite's bundled config can still externalize installed dependencies; switching
 loaders is not a substitute for publishing executable Node entry points.
 
-The [Bamboo packed check](../../../packages/bamboo/tests/packed-consumer.mjs)
+The [Bamboo packed check](../../../packages/bamboo/tests/packed-consumer.mts)
 installs real tarballs outside the workspace and checks plain Node imports plus
 Vite 8.3.0 config loading with `bundle`, `native`, and `runner`. The
-[Lingui packed check](../../../packages/lingui/tests/packed-consumer.mjs) checks
+[Lingui packed check](../../../packages/lingui/tests/packed-consumer.mts) checks
 a plain Node extractor import and actual catalog extraction with authored TSRX
-origins. The [UI packed check](../../../packages/ui/tests/packed-consumer.mjs)
+origins. The [UI packed check](../../../packages/ui/tests/packed-consumer.mts)
 loads parity helpers directly with Node from the unpacked tarball under
 `node_modules`. These are host-tooling checks, not iOS packaging or launch evidence.
 The published Bamboo 0.16.0 error was reproduced with Vite 8.3.0 on Node 26.10.0;
@@ -438,7 +438,7 @@ checks both workspace and publish export maps in those modes; NativeScript's
 third-party ambient declarations require `skipLibCheck: true` in its temporary
 consumer, while package export paths and declaration closure remain checked by
 `--pack-check`. The component and service leaves carry the same harness in
-`tests/packed-consumer.mjs` — `pnpm test:packed` runs every package's packed
+`tests/packed-consumer.mts` — `pnpm test:packed` runs every package's packed
 consumer and `pnpm check:pack` runs every pack-check.
 
 ```sh
@@ -773,7 +773,7 @@ or encoded URLs) to `ns:css-updates`. Those fetch adapted text from the same
 empty sheet becomes a harmless comment so the existing tagged remove/add
 client path clears deleted rules without replacing global `app.css`.
 
-`packages/cli/test/vite-virtual-css.test.mjs` starts real Vite HTTP serving with
+`packages/cli/test/vite-virtual-css.test.mts` starts real Vite HTTP serving with
 the installed NativeScript route and a minimal virtual CSS plugin. It checks
 imports, registration JavaScript, queued registration, native units/platform
 filtering/layer conversion, Vite reload payloads, adapted HMR responses, the

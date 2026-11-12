@@ -54,9 +54,9 @@
 		"build": "vite build",
 		"prepack": "bun run build",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test:library": "node test/library-guide.mjs",
-		"test": "node --test test/*.test.mjs",
-		"test:scaffold": "node --test test/scaffold.test.mjs"
+		"test:library": "node test/library-guide.mts",
+		"test": "node --test test/*.test.mts",
+		"test:scaffold": "node --test test/scaffold.test.mts"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.8.1",

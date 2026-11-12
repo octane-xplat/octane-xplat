@@ -1,6 +1,6 @@
 // Probe case — real SpeechRecognizer session on an Android emulator,
 // driven by `bun run probe run` and orchestrated by
-// tests/android-emulator-proof.mjs (permission grant + BoomAudio speech).
+// tests/android-emulator-proof.mts (permission grant + BoomAudio speech).
 // Console markers are the host contract:
 //   SPEAK_NOW      — the session is about to start; play the phrase
 //   SPEECH_EVENT … — engine events as they arrive (evidence)

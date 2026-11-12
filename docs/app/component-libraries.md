@@ -42,7 +42,7 @@ travel-controls/
   tsconfig.types.json          declaration generation settings
   tsrx-typegen.json             public source/type entrypoints
   types/                       generated declarations, ignored by Git
-  tests/packed-consumer.mjs     checks a real tarball with plain TypeScript
+  tests/packed-consumer.mts     checks a real tarball with plain TypeScript
 ```
 
 The maintained [library template](../../packages/create/library-template/README.md)

@@ -16,6 +16,19 @@ one disposable scratch tree per task, with implementation work and retained
 evidence outside it. Reuse the host's persistent repository checkout between
 runs; a new run folder does not require another clone or dependency tree.
 
+## Node test sources
+
+Write repository Node tests and their Node helpers as `.mts` files. Node runs
+these sources directly with type stripping; keep imports explicit (`./helper.mts`)
+and use erasable TypeScript syntax. The explicit ES-module suffix keeps Node
+harnesses outside platform source `*.ts` globs. Apps with broader source includes
+must exclude Node test runners explicitly. Keep `.mjs` inputs when a test
+specifically exercises JavaScript module loading or a JavaScript-only fixture
+runtime.
+Update the owning workspace's test scripts and any snapshot file filters when
+adding or moving test entrypoints. Runtime execution does not typecheck a test;
+a file is checked only when its owning TypeScript configuration includes it.
+
 ## AppKit component tests
 
 The UI's native test task has separate mobile and AppKit Vitest modes. Select

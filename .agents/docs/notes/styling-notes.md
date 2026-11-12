@@ -198,7 +198,7 @@ already contains part of that work; its patch completes the missing behavior.
 The separate invalid `color-mix()` converter repair in the latter upstream commit
 is not included. Generated modern colors remain rejected by the native adapter.
 
-`packages/cli/test/native-css-variables.test.mjs` executes the installed Core
+`packages/cli/test/native-css-variables.test.mts` executes the installed Core
 evaluator, Style variable maps, and CssState against modeled platform boundaries.
 Those checks establish the listed substitution and update cases, not native
 layout, painting, or full CSS dependency-cycle semantics. Verify release-tag or
@@ -501,7 +501,7 @@ an asynchronous return even though the runtime awaits it; Xplat uses a narrow
 type adapter. Evidence: source inspection of `packages/vite/src/node/idResolver.ts`,
 `packages/vite/src/node/plugins/css.ts`, and `packages/vite/src/types/alias.d.ts`
 in [Vite 8.3.0](https://github.com/vitejs/vite/tree/v8.3.0/packages/vite/src),
-plus `packages/cli/test/css-platform.test.mjs` build and dev-server tests.
+plus `packages/cli/test/css-platform.test.mts` build and dev-server tests.
 Remove the adapter when the declarations accept async resolvers; replace the
 alias hook when Vite exposes a CSS import resolver extension. This is build
 and dev-server evidence, not native runtime qualification.
@@ -545,7 +545,7 @@ Evidence: source inspection of Bamboo 1.56.2
 [`prune-static-css.ts`](https://github.com/gajus/bamboocss/blob/1.56.2/packages/vite/src/prune-static-css.ts),
 [`plugin.ts`](https://github.com/gajus/bamboocss/blob/1.56.2/packages/vite/src/plugin.ts),
 and [`css-output-module.ts`](https://github.com/gajus/bamboocss/blob/1.56.2/packages/vite/src/css-output-module.ts),
-plus `packages/bamboo/tests/platform.test.mjs`. Filename and source-map
+plus `packages/bamboo/tests/platform.test.mts`. Filename and source-map
 adaptation follows the upstream MIT-licensed output adapter's approach.
 The integration is pinned to the named finalizers and must be rechecked on
 Bamboo upgrades. An upstream API for platform-excluded classes or a sanctioned
@@ -556,14 +556,14 @@ evidence.
 
 ### Qualification on 2026-10-18
 
-The maintained `packages/cli/test/css-platform.test.mjs` checks replacement,
+The maintained `packages/cli/test/css-platform.test.mts` checks replacement,
 fallback, explicit composition, `@import`, user aliases, raw and inline
 imports, sibling addition/removal, nested conditions, layers, keyframes,
 invalid syntax, and existing PostCSS configuration. Sibling existence changes
 restart Vite because its import-resolution cache survives module invalidation;
 ordinary stylesheet edits retain Vite's normal CSS HMR.
 
-`apps/web/scripts/platform-css.mjs` verifies actual computed browser styles
+`apps/web/scripts/platform-css.mts` verifies actual computed browser styles
 without image capture. An isolated UI probe also passed on web and the iPhone
 18 Pro simulator: web selected `.web.css` and measured blue text with 11px
 padding; iOS selected the shared sheet and measured the iOS color with 13 DIP

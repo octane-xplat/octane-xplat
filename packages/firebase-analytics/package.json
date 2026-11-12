@@ -52,7 +52,7 @@
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"typecheck": "node ../../scripts/typecheck.ts",
-		"test:web": "node tests/runtime.web.mjs"
+		"test:web": "node tests/runtime.web.mts"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

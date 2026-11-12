@@ -4,7 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "node --env-file=.env src/serve.ts",
-		"test": "node --test src/*.test.mjs",
+		"test": "node --test src/*.test.mts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
 	},
 	"dependencies": {

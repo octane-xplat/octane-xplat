@@ -308,9 +308,9 @@ denial, logs, and owned browser/server/profile cleanup. It also checks that
 the fixture declaration and handler are absent from production artifacts.
 
 ```sh
-node packages/mcp/tests/prepare-consumer.mjs /tmp/new-xplat-mcp-app
+node packages/mcp/tests/prepare-consumer.mts /tmp/new-xplat-mcp-app
 bun run --cwd /tmp/new-xplat-mcp-app install
-node packages/mcp/tests/consumer-workflow.mjs /tmp/new-xplat-mcp-app
+node packages/mcp/tests/consumer-workflow.mts /tmp/new-xplat-mcp-app
 ```
 
 The default run supplies browser-event evidence. On macOS, reserve the full
@@ -320,11 +320,11 @@ previously active application and reports when restoration is unconfirmed.
 The runner captures no images.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"MCP consumer OS keyboard acceptance"}' -- node packages/mcp/tests/consumer-workflow.mjs /tmp/new-xplat-mcp-app --os-input
+goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"MCP consumer OS keyboard acceptance"}' -- node packages/mcp/tests/consumer-workflow.mts /tmp/new-xplat-mcp-app --os-input
 ```
 
 The packed-artifact lane qualifies the same checks against release-evidence
-packaging: `prepare-packed-consumer.mjs` packs the needed packages, scaffolds
+packaging: `prepare-packed-consumer.ts` packs the needed packages, scaffolds
 through the packed `create-octane-xplat` bin, installs `file:` tarballs (no
 registry/latest resolution for framework packages), and tags the framework
 HEAD as `v<installed version>` in a local bare release fixture. The runner
@@ -337,8 +337,8 @@ locked, and the run reports that block honestly.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"packed MCP stdio consumer acceptance"}' -- bash -c '
-  node packages/mcp/tests/prepare-packed-consumer.mjs /tmp/xplat-packed-mcp &&
-  node packages/mcp/tests/packed-stdio-consumer.mjs /tmp/xplat-packed-mcp'
+  node packages/mcp/tests/prepare-packed-consumer.mts /tmp/xplat-packed-mcp &&
+  node packages/mcp/tests/packed-stdio-consumer.mts /tmp/xplat-packed-mcp'
 ```
 
 For an existing consumer, declare actions behind the development build gate.

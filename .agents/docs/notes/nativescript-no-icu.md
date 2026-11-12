@@ -131,7 +131,7 @@ incomplete ones. Locale 5.3.12's feature checks replace Node 26.12.0's Locale;
 module deduplication and complete locale initialization matter when composing
 leaves. Keep the common FormatJS versions aligned when upgrading.
 
-The maintained `tests/intl.mjs` in each leaf builds its consuming module and
+The maintained `tests/intl.mts` in each leaf builds its consuming module and
 runs it with Intl absent in a fresh Node process. It checks independence and
 excluded APIs; web bundle checks ensure no FormatJS modules are included.
 Lingui also covers partial Intl, regional data fallback, named time zones, and

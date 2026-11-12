@@ -23,6 +23,6 @@ and launch failures without claiming permission changes.
 
 ## Documentation
 
-- AC1: [Opening settings](../../../docs/platform/platform-services.md#open-settings), [package example](../../../docs/packages/package-platform.md) and [bridge regressions](../../../packages/platform/tests/open-url.macos.test.mjs).
+- AC1: [Opening settings](../../../docs/platform/platform-services.md#open-settings), [package example](../../../docs/packages/package-platform.md) and [bridge regressions](../../../packages/platform/tests/open-url.macos.test.mts).
 - AC2: [Opening settings](../../../docs/platform/platform-services.md#open-settings), [AppKit Services screen](../../../packages/app/src/Services.macos.tsrx) and [maintained AppKit probe](../../../examples/probes/open-settings.macos.tsrx). Gap: real System Settings launch/presentation, activation, usage after denied permissions and sandbox/packaged behavior require separate target qualification.
-- AC3: [Bridge regressions](../../../packages/platform/tests/open-url.macos.test.mjs) and [target progress](../exploration.md#operational-evidence). Gap: tests, declaration/type checks, package resolution and native runtime require execution evidence. Browser settings remain unsupported; this source implementation does not qualify other desktop targets.
+- AC3: [Bridge regressions](../../../packages/platform/tests/open-url.macos.test.mts) and [target progress](../exploration.md#operational-evidence). Gap: tests, declaration/type checks, package resolution and native runtime require execution evidence. Browser settings remain unsupported; this source implementation does not qualify other desktop targets.

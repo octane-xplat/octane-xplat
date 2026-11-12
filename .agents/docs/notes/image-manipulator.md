@@ -54,8 +54,8 @@ and the [public package guide](../../../docs/packages/package-image-manipulator.
 - No OS-input, live camera, picker, screenshot, or visual-analysis claim is made.
 
 The maintained runtime fixture lives in
-[`tests/macos-runtime.mjs`](../../../packages/image-manipulator/tests/macos-runtime.mjs)
-and [`tests/ios-runtime.mjs`](../../../packages/image-manipulator/tests/ios-runtime.mjs).
+[`tests/macos-runtime.mts`](../../../packages/image-manipulator/tests/macos-runtime.mts)
+and [`tests/ios-runtime.mts`](../../../packages/image-manipulator/tests/ios-runtime.mts).
 Its private `native-driver` workspace allows Turbo to run copied source on the
 remote test host without modifying that host's existing tracked files. AppKit
 reuses a prebuilt host; iOS builds one isolated probe app and reuses it on reruns.

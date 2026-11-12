@@ -97,7 +97,7 @@ production Vite config that emits one CommonJS host bundle.
   Maintained [non-visual smoke checks](../../../apps/macos/README.md#non-visual-smoke-checks)
   require the complete shared sweep and document unsupported leaf boundaries.
 - AC8: [Packaged host API](../../../apps/macos/README.md#packaging-proof) and the
-  [independent fixture check](../../../packages/cli/test/verify-macos-jsc.mjs).
+  [independent fixture check](../../../packages/cli/test/verify-macos-jsc.mts).
 
 - AC9: [macOS native leaf guide](../../../docs/platform/macos-native.md) and the
   [native source recipe](macos-native-code.md).
@@ -126,11 +126,11 @@ change the criterion.
   `CFBundleIconFile`. Shutdown removes the temporary bundle.
 
 Documentation: [Development app identity](../../../docs/start/toolchain.md#experimental-appkit-target).
-Maintained coverage: [Development bundle tests](../../../packages/cli/test/macos-dev-bundle.test.mjs).
+Maintained coverage: [Development bundle tests](../../../packages/cli/test/macos-dev-bundle.test.mts).
 Visual Dock/Cmd-Tab appearance requires separate runtime verification.
 
 AC12 regression checks: renderer `test/appearance.test.ts`, UI
-`tests/color-scheme.macos.test.mjs`, and the maintained native case:
+`tests/color-scheme.macos.test.mts`, and the maintained native case:
 
 ```sh
 bun run probe run examples/probes/appearance.macos.ts --target macos

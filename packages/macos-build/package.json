@@ -30,7 +30,7 @@
 		"build": "vite build --config vite.package.config.ts",
 		"prepack": "bun run build",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test:packed": "node ../../tools/cli-go/macos-build-consumer.mjs"
+		"test:packed": "node ../../tools/cli-go/macos-build-consumer.mts"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",

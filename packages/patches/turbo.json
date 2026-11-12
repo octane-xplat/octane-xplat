@@ -5,7 +5,7 @@
 			"dependsOn": [],
 			"inputs": [
 				"$TURBO_DEFAULT$",
-				"../../scripts/check-packed-patches.mjs",
+				"../../scripts/check-packed-patches.mts",
 				"../create/compatibility.*",
 				"../create/scaffold.ts",
 				"../create/template/**",

@@ -46,7 +46,7 @@ criterion. They run on the host without GTK, a VM, screenshots or input
 injection:
 
 ```sh
-node --test tools/probe/linux-gtk-evidence.test.mjs
+node --test tools/probe/linux-gtk-evidence.test.mts
 ```
 
 Proof repairs must preserve the original evidence and selection-settle/echo
@@ -91,7 +91,7 @@ The maintained regression uses ordinary fake child processes and does not
 launch GJS, GTK, a VM or OS input:
 
 ```sh
-node --test tools/probe/linux-gtk-orchestrate.test.mjs
+node --test tools/probe/linux-gtk-orchestrate.test.mts
 ```
 
 It checks successful completion, error exit propagation, and timeout cleanup

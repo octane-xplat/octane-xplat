@@ -49,7 +49,7 @@ standalone presentation part remains available — see
 and the maintained
 [GTK case](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-selector-main.ts).
 
-The public-root [typeahead fixture](../../../packages/linux-gtk-renderer/test/ui-typeahead.test.mjs)
+The public-root [typeahead fixture](../../../packages/linux-gtk-renderer/test/ui-typeahead.test.mts)
 adds real X11 input evidence (35 assertions): `Typeahead` typed query and
 result pick with close (AC2 partial — clear/edit/restore cycles, custom
 result content and disabled reason are not exercised), `Tokenizer` Return-add,

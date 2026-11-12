@@ -163,7 +163,7 @@ is a client-routed SPA — adaptation recorded.
 Record format: `upstream/candidate revision · route/example · host/renderer ·
 initial state · input mechanism · expected/observed result · evidence ·
 verdict`. Candidate revision is the commit that last touched the checked
-surface; evidence is the named check in `scripts/verify-web.mjs`, run under
+surface; evidence is the named check in `scripts/verify-web.mts`, run under
 Playwright 1.63.0 Chromium against `vite build` + `vite preview` (production
 bundle, not dev/HMR). Input is real browser automation (Playwright
 click/fill/goto through the Chromium input pipeline) — not DOM dispatch.
@@ -323,8 +323,8 @@ remain owned by their family/page units.
 Each row below uses the pinned oracle and the candidate commit identified
 above. Host is Chromium/DOM; initial state is a fresh route navigation; input
 is browser navigation; expected/observed result is rendered ported content
-with no pending placeholder. Evidence is `scripts/verify-media.mjs`, invoked
-by `scripts/verify-web.mjs --media-only`. Final result: **84/84 checks passed**, against the production build in Chromium.
+with no pending placeholder. Evidence is `scripts/verify-media.mts`, invoked
+by `scripts/verify-web.mts --media-only`. Final result: **84/84 checks passed**, against the production build in Chromium.
 `turbo run typecheck --filter=...@octane-xplat/ui` passed (58 tasks); the focused
 UI suite passed 34 tests. Recipe/link checks passed. Diff-scoped lint is clean;
 shared-file lint retains an unchanged curly-brace violation in source-registry
@@ -412,7 +412,7 @@ ComponentsDemo, parity fixture, table-props test).
 
 ### Runtime evidence (unit 6 — web/Chromium, `vite build` + `vite preview`)
 
-`node scripts/verify-web.mjs` covers all 20 unit-6 routes with rendered-content
+`node scripts/verify-web.mts` covers all 20 unit-6 routes with rendered-content
 checks plus behavior journeys: sort asc→desc via header button, select-all →
 toolbar count → unselect-all, page swap, column-settings hide, keyboard
 column resize, popover filter apply, inline enum filter, invoice
@@ -432,7 +432,7 @@ Upstream for every row: `ebd939b665361a078015377c0dfe50cc3c1d70a4`.
 Candidate source: `8484dfab7`. Host: **web / Chromium**, production Vite
 bundle. Input: Playwright browser pointer, keyboard and text entry; results
 are checked through DOM/text state. Evidence: maintained
-[`verify-authored.mjs`](../scripts/verify-authored.mjs), **34/34 checks pass**.
+[`verify-authored.mjs`](../scripts/verify-authored.mts), **34/34 checks pass**.
 Route loads in this table include a no-placeholder assertion. The source
 commit was checked with package typecheck, production build and scoped lint.
 
@@ -686,7 +686,7 @@ for this unit.
 Focused browser command (after the sandbox build and preview):
 
 ```sh
-node apps/astryx-sandbox/scripts/verify-web.mjs --rich-tables-only --browser=chromium --base=http://127.0.0.1:4277
+node apps/astryx-sandbox/scripts/verify-web.mts --rich-tables-only --browser=chromium --base=http://127.0.0.1:4277
 ```
 
 Use `--browser=firefox` or `--browser=webkit` for the other engines. Assertions
@@ -775,7 +775,7 @@ Source view resolves the running files by their exact template basenames.
 
 Upstream: `ebd939b665361a078015377c0dfe50cc3c1d70a4` (Astryx 0.6.4).
 Candidate: unit-9 commit containing this section, based on `4308093a8`.
-The maintained check is `scripts/verify-web.mjs --locale-only --browser=<engine>`;
+The maintained check is `scripts/verify-web.mts --locale-only --browser=<engine>`;
 assertions use real Playwright clicks/keyboard input and DOM text/state only.
 No screenshots or pixel-parity checks are used.
 
@@ -900,7 +900,7 @@ authored page or composed page-template claims.
 
 Upstream: `ebd939b665361a078015377c0dfe50cc3c1d70a4` (0.6.4).
 Candidate: the unit-10 commit containing this section, based on `c7d029e25`.
-Maintained browser entry: `scripts/verify-web.mjs --content-chat-only --browser=<engine>`.
+Maintained browser entry: `scripts/verify-web.mts --content-chat-only --browser=<engine>`.
 Checks use DOM text/state and browser input, with separately labelled synthetic
 speech callbacks. Each row below shares the upstream/candidate revisions above.
 
@@ -997,8 +997,8 @@ updated separately by coverage generation).
 ### Verification evidence
 
 Production preview and behavior checks live in
-`scripts/verify-pages.mjs` (route-content asserts for all 55 pages plus the
-existing pointer/keyboard journeys) and the shared `scripts/verify-web.mjs`
+`scripts/verify-pages.mts` (route-content asserts for all 55 pages plus the
+existing pointer/keyboard journeys) and the shared `scripts/verify-web.mts`
 pattern for the whole-app host bar. Results are recorded in the unit-12 commit
 report; checks use DOM text/state and real browser input only — no visual
 assertions.
@@ -1030,7 +1030,7 @@ substitute was used. Blockers now cover template rows via
 
 ### Verification
 
-`scripts/verify-coverage.mjs` replays the join and asserts every one of the
+`scripts/verify-coverage.mts` replays the join and asserts every one of the
 771 routes renders its recorded status (ported content vs. honest
 blocked/pending placeholder), plus rendered-content and behavior checks for
 the newly ported families (cite attribution, inline `<code>` runs, linked

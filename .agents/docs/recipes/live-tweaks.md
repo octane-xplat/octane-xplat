@@ -42,8 +42,8 @@ Bamboo style drafts preview on web only.
 
 ## Documentation
 
-- AC1: [Tweaks guide](../../../docs/packages/package-tweaks.md), [transport e2e](../../../apps/tweaks-playground/test/e2e.mjs)
-- AC2: [Setup](../../../docs/packages/package-tweaks.md#set-up-tweaks), [packed consumer regression](../../../packages/toolchain/test/packed.mjs)
-- AC3: [Devtools guide](../../../docs/packages/package-devtools.md), [discovery regressions](../../../packages/devtools/tests/panels.test.mjs)
-- AC4: [Save/Revert](../../../docs/packages/package-tweaks.md#edit-a-running-app), [packed consumer regression](../../../packages/toolchain/test/packed.mjs)
-- AC5: [Panel plugin API](../../../docs/packages/package-devtools.md#add-a-panel-plugin), [discovery regressions](../../../packages/devtools/tests/panels.test.mjs)
+- AC1: [Tweaks guide](../../../docs/packages/package-tweaks.md), [transport e2e](../../../apps/tweaks-playground/test/e2e.mts)
+- AC2: [Setup](../../../docs/packages/package-tweaks.md#set-up-tweaks), [packed consumer regression](../../../packages/toolchain/test/packed.mts)
+- AC3: [Devtools guide](../../../docs/packages/package-devtools.md), [discovery regressions](../../../packages/devtools/tests/panels.test.mts)
+- AC4: [Save/Revert](../../../docs/packages/package-tweaks.md#edit-a-running-app), [packed consumer regression](../../../packages/toolchain/test/packed.mts)
+- AC5: [Panel plugin API](../../../docs/packages/package-devtools.md#add-a-panel-plugin), [discovery regressions](../../../packages/devtools/tests/panels.test.mts)

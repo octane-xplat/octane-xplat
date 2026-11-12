@@ -3,9 +3,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:ios-runtime": "node ../ios-runtime.mjs",
-		"test:macos-consumer": "node ../macos-consumer.mjs",
-		"test:macos-engine": "node ../macos-engine.mjs"
+		"test:ios-runtime": "node ../ios-runtime.mts",
+		"test:macos-consumer": "node ../macos-consumer.mts",
+		"test:macos-engine": "node ../macos-engine.mts"
 	},
 	"packageManager": "bun@1.4.4"
 }

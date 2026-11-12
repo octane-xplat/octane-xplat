@@ -284,7 +284,7 @@ conservatively. Application documents and preferences are left intact.
 
 ## Release lifecycle evidence (2026-10-10)
 
-The maintained `packages/updates/tests/native-lifecycle.mjs` passed on an iPhone
+The maintained `packages/updates/tests/native-lifecycle.mts` passed on an iPhone
 18 Pro simulator running iOS 27.0 (unsigned Release build) and Android emulator
 API 35 (non-debuggable Release build signed with the development test key).
 Both runs staged version 2, booted and confirmed it, staged version 3 whose

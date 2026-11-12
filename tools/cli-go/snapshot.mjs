@@ -46,7 +46,7 @@ function copy(file) {
 
 try {
   for (const file of readdirSync(import.meta.dirname)) {
-    if (/\.(go|mod|sum|mjs|py|json|md|txt)$/.test(file) || file === 'licenses') {
+    if (/\.(go|mod|sum|mts|mjs|py|json|md|txt)$/.test(file) || file === 'licenses') {
       copy('tools/cli-go/' + file)
     }
   }
@@ -193,35 +193,35 @@ try {
   const manifest = JSON.parse(readFileSync(join(source, 'package.json')))
 
   manifest.scripts = {
-    'test:go-dev-server:portable': 'node --test tools/cli-go/dev-server.test.mjs',
-    'test:go-dev:portable': 'node --test tools/cli-go/dev.test.mjs',
-    'test:go-workshop:portable': 'node --test tools/cli-go/workshop.test.mjs',
-    'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
-    'test:go-clean:portable': 'node --test tools/cli-go/clean.test.mjs',
-    'test:go-patches:portable': 'node --test tools/cli-go/patches.test.mjs',
+    'test:go-dev-server:portable': 'node --test tools/cli-go/dev-server.test.mts',
+    'test:go-dev:portable': 'node --test tools/cli-go/dev.test.mts',
+    'test:go-workshop:portable': 'node --test tools/cli-go/workshop.test.mts',
+    'test:go-unit:portable': 'node tools/cli-go/unit-portable.mts',
+    'test:go-clean:portable': 'node --test tools/cli-go/clean.test.mts',
+    'test:go-patches:portable': 'node --test tools/cli-go/patches.test.mts',
     'test:go-response-roots:portable':
-      'node --test --test-name-pattern=response.roots tools/cli-go/doctor.test.mjs tools/cli-go/patches.test.mjs',
-    'test:go-doctor:portable': 'node --test tools/cli-go/doctor.test.mjs',
-    'test:go-foreground-input:portable': 'node --test tools/cli-go/foreground-input.test.mjs',
-    'test:go-release-worker:portable': 'node --test tools/cli-go/release-worker.test.mjs',
-    'test:go-package:portable': 'node --test tools/cli-go/package.test.mjs',
-    'test:go-registry:portable': 'node --test tools/cli-go/registry-package.test.mjs',
-    'test:go-fonts:portable': 'node --test tools/cli-go/fonts.test.mjs',
-    'test:go-updates:portable': 'node --test tools/cli-go/updates.test.mjs',
-    'test:go-add:portable': 'node --test tools/cli-go/add.test.mjs',
-    'test:go-upgrade:portable': 'node --test tools/cli-go/upgrade.test.mjs',
-    'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
-    'test:go-linux-build:portable': 'node --test tools/cli-go/linux-build.test.mjs',
-    'test:go-build:portable': 'node --test tools/cli-go/build-command.test.mjs',
-    'test:go-lint:portable': 'node --test tools/cli-go/lint.test.mjs',
-    'test:go-fmt:portable': 'node --test tools/cli-go/format.test.mjs',
-    'test:go-typecheck:portable': 'node --test tools/cli-go/typecheck.test.mjs',
+      'node --test --test-name-pattern=response.roots tools/cli-go/doctor.test.mts tools/cli-go/patches.test.mts',
+    'test:go-doctor:portable': 'node --test tools/cli-go/doctor.test.mts',
+    'test:go-foreground-input:portable': 'node --test tools/cli-go/foreground-input.test.mts',
+    'test:go-release-worker:portable': 'node --test tools/cli-go/release-worker.test.mts',
+    'test:go-package:portable': 'node --test tools/cli-go/package.test.mts',
+    'test:go-registry:portable': 'node --test tools/cli-go/registry-package.test.mts',
+    'test:go-fonts:portable': 'node --test tools/cli-go/fonts.test.mts',
+    'test:go-updates:portable': 'node --test tools/cli-go/updates.test.mts',
+    'test:go-add:portable': 'node --test tools/cli-go/add.test.mts',
+    'test:go-upgrade:portable': 'node --test tools/cli-go/upgrade.test.mts',
+    'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mts',
+    'test:go-linux-build:portable': 'node --test tools/cli-go/linux-build.test.mts',
+    'test:go-build:portable': 'node --test tools/cli-go/build-command.test.mts',
+    'test:go-lint:portable': 'node --test tools/cli-go/lint.test.mts',
+    'test:go-fmt:portable': 'node --test tools/cli-go/format.test.mts',
+    'test:go-typecheck:portable': 'node --test tools/cli-go/typecheck.test.mts',
     'measure:go-cli:portable': 'node tools/cli-go/measure.mjs',
     'measure:go-cli-onnx:portable': 'node tools/cli-go/measure.mjs --onnx',
-    'test:go:portable': 'node tools/cli-go/qualify.mjs',
-    'test:go-model:portable': 'node tools/cli-go/model-portable.mjs',
-    'test:go-doc-snapshot:portable': 'node --test tools/cli-go/doc-snapshot.test.mjs',
-    'test:go-doc-index:portable': 'node --test tools/cli-go/docs-index-portable.mjs',
+    'test:go:portable': 'node tools/cli-go/qualify.mts',
+    'test:go-model:portable': 'node tools/cli-go/model-portable.mts',
+    'test:go-doc-snapshot:portable': 'node --test tools/cli-go/doc-snapshot.test.mts',
+    'test:go-doc-index:portable': 'node --test tools/cli-go/docs-index-portable.mts',
   }
 
   writeFileSync(join(source, 'package.json'), JSON.stringify(manifest))

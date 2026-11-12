@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:ios-runtime": "node ../ios-runtime.mjs"
+		"test:ios-runtime": "node ../ios-runtime.mts"
 	},
 	"packageManager": "bun@1.4.4"
 }

@@ -176,7 +176,7 @@ table hooks for numbering, expansion, grouping, status and trees keep their
 JSX in named components and return `tableSlot` descriptors, which the Table
 leaves render through `TableSlot`. The AppKit barrel build passes with this
 workaround; the maintained
-`tests/table-universal.test.mjs` checks all five hooks with HMR on and off.
+`tests/table-universal.test.mts` checks all five hooks with HMR on and off.
 The packed consumer also uses the current `Table data` and column-level
 `renderCell` contract. These are compiler, build and declaration checks.
 Remove the authoring restriction only after an Octane upgrade passes equivalent

@@ -457,12 +457,12 @@ The maintained [Android conformance case](../../packages/camera/tests/movie-capt
 exercises real CameraX finalization, source inactivity, denied and enabled audio,
 non-overwrite destinations, lifecycle notification dispatch, disposal, and
 reopening after process restart in an Android API 35 emulator. The
-[browser conformance runner](../../packages/camera/tests/browser-conformance.web.mjs)
+[browser conformance runner](../../packages/camera/tests/browser-conformance.web.mts)
 exercises real Chromium MediaRecorder, media parsing, IndexedDB, and reopening
 after reload. The browser's persistent-storage grant and hidden-page state are
 injected test seams. They do not prove browser persistence approval or OS page
 suspension. The
-[WebKitGTK conformance runner](../../packages/camera/tests/webkitgtk-conformance.linux.mjs)
+[WebKitGTK conformance runner](../../packages/camera/tests/webkitgtk-conformance.linux.mts)
 requires Linux, GJS, and WebKitGTK 6.0. It runs the real packaged GJS/WebKitGTK host under Xvfb with WebKit's mock capture
 devices: real permission flow, shared-stream preview, MP4 finalization,
 app-private file commit, hidden-page interruption, preview detach,
@@ -475,7 +475,7 @@ audio, and oversized timers.
 
 ```sh
 bun run turbo run test --filter=@octane-xplat/camera
-node packages/camera/tests/browser-conformance.web.mjs
+node packages/camera/tests/browser-conformance.web.mts
 bun run probe run packages/camera/tests/movie-capture.android.tsrx \
   --target android --device DEVICE_ID --deps @octane-xplat/camera --timeout 130000
 bun run probe run packages/camera/tests/movie-capture.macos.tsrx \

@@ -1316,10 +1316,10 @@ MetadataListItem, Timeline, Item, List, ListItem, Toolbar, Step, Stepper,
 Pagination, FieldLabel and FieldStatus (~40 types beside). Availability is
 153 values and 180 types.
 
-Two maintained fixtures pass without skips. `ui-buttons.test.mjs` (33
+Two maintained fixtures pass without skips. `ui-buttons.test.ts` (33
 checks, real X11 input) proves button activation, isDisabled suppression
 (own and group-inherited), ToggleButton pressed-toggle round trips,
-ClickableCard press, keyboard Enter activation and teardown. `ui-display.test.mjs`
+ClickableCard press, keyboard Enter activation and teardown. `ui-display.test.ts`
 (49 checks, property-only) mounts every display leaf and asserts folded
 text and metadata reach the node graph.
 
@@ -1340,7 +1340,7 @@ Image, Thumbnail, thumbHashUri, the Avatar family (Avatar, AvatarStatusDot,
 AvatarGroup, AvatarGroupOverflow) and User are now public GTK exports
 (16 types beside). Availability is 161 values and 196 types.
 
-`ui-images.test.mjs` (21 checks, input:false) mounts them through the
+`ui-images.test.ts` (21 checks, input:false) mounts them through the
 public root: a data: PNG lands a Gdk.Texture with real intrinsic dims (4x4),
 `contentFit` maps onto the picture's stretch, a bad src surfaces
 `imageError` with no texture, Avatar shows initials on absent src,
@@ -1363,7 +1363,7 @@ DropdownMenu, ContextMenu, MoreMenu, DropdownMenuContext and
 useDropdownMenuContext are now public GTK exports (15 menu types beside).
 Availability is 193 values and 252 types.
 
-`ui-menus.test.mjs` (31 checks, real X11 input) mounts them through the
+`ui-menus.test.ts` (31 checks, real X11 input) mounts them through the
 public root: the trigger press opens the anchored listbox, item/checkbox/
 radio/submenu/section/separator/disabled rows all render, item select fires
 and closes the menu, checkbox items keep it open (`hasCloseOnSelect`
@@ -1371,7 +1371,7 @@ default), ContextMenu opens on a real long-press, outside-click and Escape
 dismiss, submenu opens and closes the whole menu on select, focus returns to the
 trigger, keyboard Enter opens, a DropdownMenuLink fires, and `presentation="bottom-sheet"` throws the clear slice-D error while
 
-`ui-layers.test.mjs` (15 checks, real X11 input: `xdotool` click + pointer
+`ui-layers.test.ts` (15 checks, real X11 input: `xdotool` click + pointer
 motion) qualifies `Breadcrumbs`/`BreadcrumbItem`, `usePopover`, `useLayer`,
 `HoverCard` and `useHoverCard` on GTK. Breadcrumbs renders the current crumb,
 href link crumbs and the maxVisibleItems overflow menu. `usePopover`'s trigger
@@ -1411,7 +1411,7 @@ eager window-level key controller into `layer-stack` via
 suppression leaves nothing inside the host focused, so the sink binds on
 the window root itself.
 
-`ui-overlays.test.mjs` runs 23 checks with real X11 input: controlled and
+`ui-overlays.test.ts` runs 23 checks with real X11 input: controlled and
 `defaultOpen` dialogs, scrim claiming/dismiss, topmost-layer Escape,
 imperative show+resolve, `AlertDialog` action resolution, `LayerContext`
 values, `FocusScope` mount and full teardown (overlay children removed,
@@ -1453,8 +1453,8 @@ capture-phase on the window root and palette focus re-grabs on `map`;
 `compute_bounds(window)` sees transforms where `compute_bounds(self)`
 does not; `items` takes `key`-shaped `CommandPaletteMenuItem` rows.
 
-`ui-toast.test.mjs` runs 37 assertions, `ui-lightbox.test.mjs` 20,
-`ui-palette.test.mjs` 16 and `ui-drawer.test.mjs` 17 — all with real X11
+`ui-toast.test.ts` runs 37 assertions, `ui-lightbox.test.ts` 20,
+`ui-palette.test.ts` 16 and `ui-drawer.test.ts` 17 — all with real X11
 input (clicks, drags, double-click, arrow/Escape keys, typed queries).
 Harness additions: a single-invocation xdotool `drag` (per-process spawn
 overhead sank release velocity below `GtkGestureSwipe` threshold) and
@@ -1465,7 +1465,7 @@ use the widget tree (`get_name`, label text). Limits unchanged: X11/Xvfb
 only; `view.animate` stays translate-only (lightbox zoom writes scale
 directly); `presentation="bottom-sheet"` still throws (slice D2b).
 
-`Drawer` now lives in UI at `packages/ui/src/components/overlays/drawer/Drawer.gtk.tsrx` (decision #157). The package move preserves its existing dismissal ordering: each open drawer adds a bubble-phase `Gtk.EventControllerKey` after the renderer's shared-layer Escape sink; UI dialogs, sheets and popovers get first refusal, then the last-opened drawer dismisses. A UI layer registered before a covered drawer still has Escape priority. Consolidating that ordering with the shared layer stack is a separate behavior change. The leaf imports `themeSchemeClasses` directly from UI's theme host and keeps `createPortal` from `octane/universal/native`. The existing `ui-drawer.test.mjs` service/input gate remains the qualification entry point; moving files does not establish a new OS-input pass.
+`Drawer` now lives in UI at `packages/ui/src/components/overlays/drawer/Drawer.gtk.tsrx` (decision #157). The package move preserves its existing dismissal ordering: each open drawer adds a bubble-phase `Gtk.EventControllerKey` after the renderer's shared-layer Escape sink; UI dialogs, sheets and popovers get first refusal, then the last-opened drawer dismisses. A UI layer registered before a covered drawer still has Escape priority. Consolidating that ordering with the shared layer stack is a separate behavior change. The leaf imports `themeSchemeClasses` directly from UI's theme host and keeps `createPortal` from `octane/universal/native`. The existing `ui-drawer.test.ts` service/input gate remains the qualification entry point; moving files does not establish a new OS-input pass.
 
 ### Bottom sheets and menu-sheet (slice D2b)
 
@@ -1503,7 +1503,7 @@ subpaths, and a GTK barrel export would violate the Names contract.
 `Gdk.Display` seat capabilities (TOUCH → sheet; desktop X11 → popover).
 `MoreMenu.gtk.tsrx` renders its direct item list in the sheet branch.
 
-`ui-sheet.test.mjs` runs 79 assertions with real X11 input (clicks,
+`ui-sheet.test.ts` runs 79 assertions with real X11 input (clicks,
 grabs, drags, Escape, scrim taps). Siblings re-verified green: ui-menus
 34 (its slice-D throw check now asserts the sheet opens), ui-overlays
 23, ui-toast 37, ui-popover 73, ui-layers 49. Limits: X11/Xvfb only;
@@ -1551,7 +1551,7 @@ not work on GTK: the index does not tree-shake (`screen.tsrx`/
 the whole platform barrel would fail the bundle. A platform-side
 `a11y.gtk.ts` was tried first and removed for this reason.
 
-`ui-theme.test.mjs` runs 53 assertions with real X11 input: hook and
+`ui-theme.test.ts` runs 53 assertions with real X11 input: hook and
 imperative scheme reads, an OS-scheme flip via the settings flag,
 preference-over-system resolution, the generated theme's light/dark
 token rules resolving in the cascade (`computedStyle.color` on real
@@ -1590,7 +1590,7 @@ leaf — the shared leaf's role+label forwarding lands on the new
 landmark roles in `A11Y_ROLES`. `useKeyboard`/`useGridFocus` get GTK
 leaves; `useFocus`/`useFocusRing` use the shared leaf unchanged.
 
-`ui-focus.test.mjs` runs 71 assertions with real X11 input: normalized
+`ui-focus.test.ts` runs 71 assertions with real X11 input: normalized
 key fields (key/code/modifiers), real preventDefault/stopPropagation
 insertion suppression, `useKeyboard` on an ancestor seeing descendant
 keys, `useFocus`/`useFocusWithin` on real Tab boundaries, ring visible
@@ -1634,13 +1634,13 @@ and `windows.gtk.ts` + the renderer `GtkWindowService` open a real
 `useResizable`/`ResizeHandle` run the shared leaves unchanged.
 
 Two maintained fixtures qualify the slice with real X11 input.
-`ui-nav.test.mjs` (29 assertions): `Screen` mount, `NavigationMenu`
+`ui-nav.test.ts` (29 assertions): `Screen` mount, `NavigationMenu`
 `to=` typed-destination navigation to `/docs` and back, `NavLink` route
 mode, external `href` reaching the openUri seam, standalone `TabList`
 `layout="fill"` selection, `TabMenu` popover open+pick, `Tabs`
 activation with pane retention (a counter survives the switch),
 `RouteOutlet` initial/commit rendering with covered-pane hidden
-retention, and `NavIcon`. `ui-appshell.test.mjs` (41 assertions):
+retention, and `NavIcon`. `ui-appshell.test.ts` (41 assertions):
 `AppShell`/`TopNav`/`SideNav`/`SafeArea`/`KeyboardAvoiding` mounts,
 `TopNavItem`/`SideNavItem` real clicks, `TopNavMenu` and
 `NavHeadingMenu` open+pick+close, `useResizable`/`ResizeHandle` real
@@ -1719,14 +1719,14 @@ markup and wires `activate-link` for tappable spans; date/time fields and
 menus resolve `'adaptive'` through the same coarse-pointer signal.
 
 Five maintained fixtures qualify the slice with real X11 input:
-`ui-typeahead.test.mjs` (35 assertions: typeahead option pick,
+`ui-typeahead.test.ts` (35 assertions: typeahead option pick,
 BaseTypeahead create/pick, Token remove/click, Tokenizer Return-add and
-create, ComplexSelector commit, SelectableCard toggle), `ui-dates.test.mjs`
+create, ComplexSelector commit, SelectableCard toggle), `ui-dates.test.ts`
 (35: typed date commit, calendar popover day pick, range pick, time sheet
 wheel scroll+pick, datetime month pick preserving the time part),
-`ui-dates-cal.test.mjs` (14: Calendar single/range and the calendar
-hooks), `ui-powersearch.test.mjs` (11: field token add, filter editor
-apply, token press reopening the editor), and `ui-colors.test.mjs` (16:
+`ui-dates-cal.test.ts` (14: Calendar single/range and the calendar
+hooks), `ui-powersearch.test.ts` (11: field token add, filter editor
+apply, token press reopening the editor), and `ui-colors.test.ts` (16:
 RichText fold/markup/link tap, ColorArea/ColorSlider drags,
 ColorField/ColorPicker commits). 135 slice-I Equal/Assert type contracts
 compile clean in ui-types.gtk.ts.
@@ -1749,7 +1749,7 @@ when an app mounts `<webview>`). `src`/`html` loading, `onLoad`/
 imperative `WebViewHandle` (`reload`, `goBack`, `goForward`,
 `stopLoading`, `native`) follow the macOS contract; the shared
 `onLoadStarted`/`onLoadFinished`/`onLoadError` names also fire. The leaf
-is `WebView.gtk.tsrx`. Slice J fixture `ui-webview.test.mjs` passes 28
+is `WebView.gtk.tsrx`. Slice J fixture `ui-webview.test.ts` passes 28
 assertions on the real WebKit web process: mount, inline + `data:` loads,
 load ordering, DNS failure -> `onError` (no spurious `onLoad` on the
 error page cycle), scroll freeze injection, `matchContents` resize,

@@ -30,9 +30,9 @@ messages from that page. The host has GJS, GTK4, WebKitGTK 6.0 and a session D-B
 ## Documentation
 
 - AC1: [GTK WebView messaging](../../../docs/platform/linux-gtk.md#embed-web-content)
-  and the maintained [WebView runtime fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mjs).
+  and the maintained [WebView runtime fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mts).
 - AC2: [GTK message lifetime](../../../docs/platform/linux-gtk.md#embed-web-content)
-  and the maintained [WebView runtime fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mjs).
+  and the maintained [WebView runtime fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mts).
 - AC3: [GTK messaging limits](../../../docs/platform/linux-gtk.md#embed-web-content).
 
 The fixture runs the actual helper inside WebKit documents and checks callback

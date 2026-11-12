@@ -289,7 +289,7 @@ that file. Keep the extension explicit in the qualification entry and
 `noEmitOnError: true` in the app config so both checker paths stop a build on
 diagnostics. Unlike registry Vite 8.0.21, this preview already supplies Windows
 suffixes in both paths; it needs no local suffix patch. The installed-plugin
-regression `scripts/windows-vite-typecheck.test.mjs` reproduces the extensionless
+regression `scripts/windows-vite-typecheck.test.mts` reproduces the extensionless
 failure, checks Windows leaf selection and rejects a real type error through
 each compiler. Revisit the explicit-import workaround when upstream
 [`hasTsrxImports`](https://github.com/NativeScript/NativeScript/blob/abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b/packages/vite/helpers/typescript-check.ts)
@@ -301,7 +301,7 @@ setter unions on `View` and its layout subclasses. The Core patch gives `View`
 an `unknown` symbol index, so a `FlexboxLayout` or `StackLayout` can be passed to
 `addChild` without casts. Named properties retain their declared types, and
 dynamic symbol values require narrowing before use. The maintained
-`scripts/windows-core-view-types.test.mjs` checks the installed declaration and
+`scripts/windows-core-view-types.test.mts` checks the installed declaration and
 reproduces the original assignability failure when that line is removed.
 This is TypeScript evidence; it does not establish native layout behavior.
 

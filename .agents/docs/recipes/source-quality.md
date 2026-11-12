@@ -14,11 +14,11 @@ do not establish runtime behavior on a browser or device.
 The experimental Nim executable has a separate, partial migration path: native
 lint requires Node and a project-installed `@octane-xplat/lint`; native formatting
 on macOS requires Node and project-installed `@octane-xplat/fmt@0.3.0`. Native
-format/check/stdin have a [formatter gate](../../../tools/cli-go/format.test.mjs);
+format/check/stdin have a [formatter gate](../../../tools/cli-go/format.test.mts);
 complete starter-script workflow verification remains separate. The extra engine
 installation still does not satisfy AC1's CLI-only installation. Keep those gaps explicit rather than treating the smaller download as
 full workflow coverage. See the [native CLI setup](../../../docs/packages/package-cli.md#native-executable)
-and [packed-engine qualification](../../../tools/cli-go/lint.test.mjs).
+and [packed-engine qualification](../../../tools/cli-go/lint.test.mts).
 
 ## Requirements
 
@@ -38,9 +38,9 @@ and [packed-engine qualification](../../../tools/cli-go/lint.test.mjs).
 
 ## Documentation
 
-- AC1: [CLI runtime and standalone executable](../../../docs/packages/package-cli.md#single-file-executable), [Lint and format source](../../../docs/testing/testing.md#lint-and-format-source), [rule coverage](../../../docs/packages/package-lint.md#what-gets-checked), and the [CLI integration tests](../../../tools/cli-go/lint.test.mjs).
-- AC2: [Lint behavior and exit codes](../../../docs/packages/package-cli.md#lint-and-format), [fixes](../../../docs/testing/testing.md#lint-and-format-source), and the [CLI integration tests](../../../tools/cli-go/lint.test.mjs).
-- AC3: [Selection and ignores](../../../docs/packages/package-lint.md#what-gets-checked) and the [selection, ignore and boundary tests](../../../tools/cli-go/lint.test.mjs).
-- AC4: [Project configuration](../../../docs/packages/package-lint.md#project-configuration) and the [configuration parity tests](../../../tools/cli-go/lint.test.mjs).
-- AC5: [Separate lint and format commands](../../../docs/testing/testing.md#lint-and-format-source), [app scripts](../../../packages/create/template/package.json), [library scripts](../../../packages/create/library-template/package.json), and the [format command tests](../../../tools/cli-go/format.test.mjs).
-- AC6: [Standalone command and direct Node example](../../../docs/packages/package-lint.md) and the [compatibility integration test](../../../tools/cli-go/lint.test.mjs).
+- AC1: [CLI runtime and standalone executable](../../../docs/packages/package-cli.md#single-file-executable), [Lint and format source](../../../docs/testing/testing.md#lint-and-format-source), [rule coverage](../../../docs/packages/package-lint.md#what-gets-checked), and the [CLI integration tests](../../../tools/cli-go/lint.test.mts).
+- AC2: [Lint behavior and exit codes](../../../docs/packages/package-cli.md#lint-and-format), [fixes](../../../docs/testing/testing.md#lint-and-format-source), and the [CLI integration tests](../../../tools/cli-go/lint.test.mts).
+- AC3: [Selection and ignores](../../../docs/packages/package-lint.md#what-gets-checked) and the [selection, ignore and boundary tests](../../../tools/cli-go/lint.test.mts).
+- AC4: [Project configuration](../../../docs/packages/package-lint.md#project-configuration) and the [configuration parity tests](../../../tools/cli-go/lint.test.mts).
+- AC5: [Separate lint and format commands](../../../docs/testing/testing.md#lint-and-format-source), [app scripts](../../../packages/create/template/package.json), [library scripts](../../../packages/create/library-template/package.json), and the [format command tests](../../../tools/cli-go/format.test.mts).
+- AC6: [Standalone command and direct Node example](../../../docs/packages/package-lint.md) and the [compatibility integration test](../../../tools/cli-go/lint.test.mts).

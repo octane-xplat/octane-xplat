@@ -30,7 +30,7 @@
 	"scripts": {
 		"build": "vite build",
 		"prepack": "bun run build",
-		"test": "bun run build && node tests/pack-check.mjs && node tests/packed-consumer.mjs",
+		"test": "bun run build && node tests/pack-check.mts && node tests/packed-consumer.mts",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json"
 	},
 	"devDependencies": {

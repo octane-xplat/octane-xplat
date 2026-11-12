@@ -60,10 +60,10 @@ The reader knows the platform-services pattern and per-target leaf resolution.
   core-macros-only contract.
 - AC3: [Setup](../../../docs/app/localization.md#setup) — the extractor wiring and
   scripts; [status](../../../docs/app/localization.md#verification-status) for the
-  remaining native-bundle check. The [packed extraction check](../../../packages/lingui/tests/packed-consumer.mjs) verifies the installed Node extractor and authored message origins.
+  remaining native-bundle check. The [packed extraction check](../../../packages/lingui/tests/packed-consumer.mts) verifies the installed Node extractor and authored message origins.
 - AC4: [Rendering and switching](../../../docs/app/localization.md#rendering-localized-text)
   and [persistence](../../../docs/app/localization.md#switching-and-persisting).
-  The [real-engine lifecycle regression](../../../packages/lingui/tests/locale-lifecycle.test.mjs)
+  The [real-engine lifecycle regression](../../../packages/lingui/tests/locale-lifecycle.test.mts)
   covers overlapping catalog loads on the Node host; it does not qualify native
   catalog bundling or component rendering.
 - AC5: [Detection](../../../docs/app/localization.md#locale-detection) — per-target
@@ -75,4 +75,4 @@ The reader knows the platform-services pattern and per-target leaf resolution.
   [RTL example](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider03RtlDirection.web.tsrx).
 
 - AC8: [Native formatting data](../../../docs/app/localization.md#native-formatting-data),
-  [isolated native bundle checks](../../../packages/lingui/tests/intl.mjs).
+  [isolated native bundle checks](../../../packages/lingui/tests/intl.mts).

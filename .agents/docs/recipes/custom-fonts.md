@@ -52,7 +52,7 @@ files can be refreshed, while conflicting unregistered files remain protected.
 - AC2: [Styling screens — Font-family tokens](../../../docs/app/styling.md#font-family-tokens).
 - AC3: [Styling screens — Font-family tokens](../../../docs/app/styling.md#font-family-tokens).
 - AC4: [Styling screens — Font-family tokens](../../../docs/app/styling.md#font-family-tokens);
-  merge and idempotency behavior is covered by `packages/cli/test/fonts.test.mjs`.
+  merge and idempotency behavior is covered by `packages/cli/test/fonts.test.mts`.
 - AC5: [Styling screens — Font-family tokens](../../../docs/app/styling.md#font-family-tokens);
-  conversion preserves name metadata per `packages/cli/test/fonts.test.mjs`
+  conversion preserves name metadata per `packages/cli/test/fonts.test.mts`
   (`woff2ToSfnt`, real `@fontsource-variable/inter` fixture).

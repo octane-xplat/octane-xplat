@@ -28,8 +28,8 @@ provisioning and app-store approval are outside the client workflow.
 
 ## Documentation
 
-- AC1: [Binary setup](../../../docs/app/updates.md#set-up-the-binary-once), [client configuration](../../../docs/app/updates.md#create-one-client), and [prepare hook checks](../../../packages/updates/tests/prepare.test.mjs).
-- AC2: [Check and install](../../../docs/app/updates.md#check-and-install), [publish and validate](../../../docs/app/updates.md#publish-and-validate), and [client failure coverage](../../../packages/updates/tests/client.test.mjs).
-- AC3: [Startup confirmation](../../../docs/app/updates.md#create-one-client), [state inspection](../../../docs/app/updates.md#check-and-install), the [startup helper](../../../examples/updates/startup.mobile.ts), and [release lifecycle regression](../../../packages/updates/tests/native-lifecycle.mjs).
-- AC4: [Recover a release](../../../docs/app/updates.md#recover-a-release), [native guard regression](../../../packages/updates/tests/native-guard.test.mjs), and [release lifecycle regression](../../../packages/updates/tests/native-lifecycle.mjs).
-- AC5: [Scope and qualification](../../../docs/app/updates.md), [integrity and other targets](../../../docs/app/updates.md#integrity-and-other-targets), and [packed declarations](../../../packages/updates/tests/packed-consumer.mjs).
+- AC1: [Binary setup](../../../docs/app/updates.md#set-up-the-binary-once), [client configuration](../../../docs/app/updates.md#create-one-client), and [prepare hook checks](../../../packages/updates/tests/prepare.test.mts).
+- AC2: [Check and install](../../../docs/app/updates.md#check-and-install), [publish and validate](../../../docs/app/updates.md#publish-and-validate), and [client failure coverage](../../../packages/updates/tests/client.test.mts).
+- AC3: [Startup confirmation](../../../docs/app/updates.md#create-one-client), [state inspection](../../../docs/app/updates.md#check-and-install), the [startup helper](../../../examples/updates/startup.mobile.ts), and [release lifecycle regression](../../../packages/updates/tests/native-lifecycle.mts).
+- AC4: [Recover a release](../../../docs/app/updates.md#recover-a-release), [native guard regression](../../../packages/updates/tests/native-guard.test.mts), and [release lifecycle regression](../../../packages/updates/tests/native-lifecycle.mts).
+- AC5: [Scope and qualification](../../../docs/app/updates.md), [integrity and other targets](../../../docs/app/updates.md#integrity-and-other-targets), and [packed declarations](../../../packages/updates/tests/packed-consumer.mts).

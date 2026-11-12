@@ -57,7 +57,7 @@ Those remain separate gates. Preserve source identities and artifact hashes
 beside retained logs; scratch alone is not evidence storage.
 
 GTK's maintained public-component mouse gate belongs to
-`packages/linux-gtk-renderer/test/shared-gestures.test.mjs` and the workspace's
+`packages/linux-gtk-renderer/test/shared-gestures.test.mts` and the workspace's
 `build:gestures`/`test:gestures` Turbo tasks. Run it in the existing Linux GJS/X11
 environment with xdotool; it skips rather than claiming success on other hosts.
 A Gtk.Box fallback pass does not qualify the pinned Mason native library.

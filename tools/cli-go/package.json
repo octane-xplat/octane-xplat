@@ -6,12 +6,12 @@
 		"build:go": "node build.mjs",
 		"build:go-tests": "node build.mjs --test-binary",
 		"build:go-onnx": "node build.mjs --onnx",
-		"test:go": "node qualify.mjs",
+		"test:go": "node qualify.mts",
 		"test:go-unit": "node build.mjs --test",
 		"test:go-dev-server-race": "node build.mjs --test-dev-server-race",
-		"test:go-model": "node model.test.mjs",
+		"test:go-model": "node model.test.mts",
 		"snapshot:go": "node snapshot.mjs",
 		"snapshot:go-routes": "node snapshot.mjs --routes",
-		"prepare:go-android-reports": "node android-reports-real.mjs --prepare"
+		"prepare:go-android-reports": "node android-reports-real.mts --prepare"
 	}
 }

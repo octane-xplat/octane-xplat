@@ -485,7 +485,7 @@ removing an earlier hook shifts every later slot onto a different hook's
 record, so a `useRef` slot can inherit a host ref object as unrelated user
 storage; ref cleanup then crashes (`null.set`/`null.delete`) in
 `runCommitTasks`. Host reproduction:
-`packages/ui/tests/universal-hmr.test.mjs` compiles two revisions of the same
+`packages/ui/tests/universal-hmr.test.mts` compiles two revisions of the same
 module and drives `wrapper[UNIVERSAL_HMR].update` under `flushUniversalSync`.
 Until upstream emits a hook signature HMR can compare, there is no dispatch-time
 signal to detect the mismatch — the slot symbols are identical by design.
@@ -521,7 +521,7 @@ update; the device still re-fetches the module through its normal HMR/app
 reload path. `@nativescript/vite@8.0.21` (Windows preview) is not covered —
 its npm and pkg.pr.new tarballs diverge in these files, so a single shared
 patch cannot target both safely. Regression coverage:
-`packages/cli/test/vite-ns-m-dep-freshness.test.mjs`. Tracking:
+`packages/cli/test/vite-ns-m-dep-freshness.test.mts`. Tracking:
 [#161](https://github.com/octane-xplat/octane-xplat/issues/161).
 ## NativeScript 9.1.3: iOS variable-font computed weights
 

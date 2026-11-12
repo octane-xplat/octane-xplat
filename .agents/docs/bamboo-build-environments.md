@@ -20,7 +20,7 @@ It neither disables pruning nor filters diagnostics. Keep every actual SSR
 target, including assetless ones, in that list. Default behavior is unchanged.
 See the [consumer example](../../docs/packages/package-bamboo.md#custom-builders-with-unused-environments).
 
-The maintained `packages/bamboo/tests/build-environments.test.mjs` uses real
+The maintained `packages/bamboo/tests/build-environments.test.mts` uses real
 Vite 8.3.0 builds in child processes so `beforeExit` warnings are observable. It
 covers the unused SSR registry, an incomplete declared run, excluded/unknown
 targets, written CSS and HTML/manifest references, pruning an unreachable

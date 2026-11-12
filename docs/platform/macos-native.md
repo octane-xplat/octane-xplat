@@ -307,8 +307,8 @@ The maintained language fixtures live in
 `packages/cli/test/fixtures/macos-native-app`. From this repository:
 
 ```sh
-node --test packages/cli/test/macos-native.test.mjs
-node packages/cli/test/verify-macos-native.mjs
+node --test packages/cli/test/macos-native.test.mts
+node packages/cli/test/verify-macos-native.mts
 node packages/cli/test/verify-macos-native-consumer.mjs
 ```
 

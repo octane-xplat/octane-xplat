@@ -8,12 +8,12 @@
 		"parity": "node parity-coverage.ts && node parity-check.ts",
 		"parity:macos": "node qualify.ts parity:macos",
 		"smoke:macos": "node qualify.ts smoke:macos",
-		"test:desktop-shell:macos": "node desktop-shell/macos.mjs",
+		"test:desktop-shell:macos": "node desktop-shell/macos.mts",
 		"test:e2e": "node test-e2e.ts",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test": "node --test *.test.mjs && python3 -B -m unittest discover -s animation-quality -p '*_test.py'",
-		"test:desktop-shell:linux": "node desktop-shell/linux.mjs",
-		"test:desktop-shell:windows": "node desktop-shell/windows.mjs"
+		"test": "node --test *.test.mts && python3 -B -m unittest discover -s animation-quality -p '*_test.py'",
+		"test:desktop-shell:linux": "node desktop-shell/linux.mts",
+		"test:desktop-shell:windows": "node desktop-shell/windows.mts"
 	},
 	"devDependencies": {
 		"@octane-xplat/ui": "workspace:*",

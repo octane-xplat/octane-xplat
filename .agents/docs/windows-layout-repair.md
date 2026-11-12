@@ -112,9 +112,9 @@ used for the final Windows geometry and OS tests.
 - [Native source and maintained test patch](../../tools/platform-qualification/patches/windows-layout/native-padding.patch)
 - [Core source patch](../../tools/platform-qualification/patches/windows-layout/core-percent-source.patch)
 - [Minimal core package JS patch](../../tools/platform-qualification/patches/windows-layout/core-percent-package.patch)
-- [Source/package helper test](../../tools/platform-qualification/windows-layout/percent-sizing.test.mjs)
+- [Source/package helper test](../../tools/platform-qualification/windows-layout/percent-sizing.test.mts)
 - [Native geometry case](../../tools/platform-qualification/windows-layout/native-geometry.windows.ts) and
-  [output checker](../../tools/platform-qualification/windows-layout/check-native-output.mjs)
+  [output checker](../../tools/platform-qualification/windows-layout/check-native-output.mts)
 - [Popover case](../../tools/platform-qualification/windows-layout/popover-case.windows.tsrx),
   [entry](../../tools/platform-qualification/windows-layout/popover-index.windows.ts), and
   [real OS resize/click script](../../tools/platform-qualification/windows-layout/popover-os-input.ps1)
@@ -132,8 +132,8 @@ runtime-tested candidate.
 Run helper checks with either source or patched package JS:
 
 ```sh
-node tools/platform-qualification/windows-layout/percent-sizing.test.mjs research/windows-layout-upstream/packages/core/ui/core/view/index.windows.ts
-node tools/platform-qualification/windows-layout/percent-sizing.test.mjs apps/windows/node_modules/@nativescript/core/ui/core/view/index.windows.js
+node tools/platform-qualification/windows-layout/percent-sizing.test.mts research/windows-layout-upstream/packages/core/ui/core/view/index.windows.ts
+node tools/platform-qualification/windows-layout/percent-sizing.test.mts apps/windows/node_modules/@nativescript/core/ui/core/view/index.windows.js
 ```
 
 For native checks, copy the geometry entry into the isolated Windows lab app,
@@ -141,7 +141,7 @@ prepare it, and launch interactively with the candidate widget DLL/WinMD. Feed
 its UTF-8 console log to:
 
 ```sh
-node tools/platform-qualification/windows-layout/check-native-output.mjs path/to/console.log
+node tools/platform-qualification/windows-layout/check-native-output.mts path/to/console.log
 ```
 
 For Popover, copy the retained case as `src/windows-ui-case.tsrx` and its entry

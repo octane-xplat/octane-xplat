@@ -67,7 +67,7 @@ export async function exchangeHostedCallback(attemptId: string, callbackURL: str
 Run the boundary tests from the repo root:
 
 ```sh
-node --test examples/auth/server-verification.test.mjs
+node --test examples/auth/server-verification.test.mts
 ```
 
 They use injected adapters to verify rejection and replay boundaries. They do

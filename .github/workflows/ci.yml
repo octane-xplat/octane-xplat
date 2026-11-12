@@ -79,7 +79,7 @@ jobs:
       - name: Test
         run: >-
           bun run turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
-          node --test examples/auth/server-verification.test.mjs && bun run test:scripts
+          node --test examples/auth/server-verification.test.mts && bun run test:scripts
 
       - name: Build web app
         run: bun run turbo run build --filter=@xplat/web

@@ -192,7 +192,7 @@ UI chat fixtures qualify native keyboard geometry and retained reading pixels.
 - AC7: [Conversation keyboard guide](../../../docs/app/software-keyboard.md#keep-a-conversation-steady), [ChatDemo](../../../packages/demos/src/ChatDemo.tsrx), and maintained [iOS chat fixture](../../../packages/ui/tests/fixtures/chat.ios.tsrx).
 - AC8: [Conversation keyboard guide](../../../docs/app/software-keyboard.md#keep-a-conversation-steady), [browser fixture](../../../packages/ui/tests/fixtures/chat.web.tsrx), and [AppKit fixture](../../../packages/ui/tests/fixtures/chat.macos.tsrx).
 
-The [packed keyboard/UI consumer](../../../packages/keyboard/tests/packed-consumer.mjs)
+The [packed keyboard/UI consumer](../../../packages/keyboard/tests/packed-consumer.mts)
 checks chat follow policies and panel-height props under six platform conditions
 and two TypeScript resolver modes. [Final qualification](../keyboard.md#final-workflow-qualification)
 keeps chat's programmatic scrolling/geometry evidence separate from OS typing

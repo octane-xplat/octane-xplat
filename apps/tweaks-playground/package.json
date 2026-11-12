@@ -8,7 +8,7 @@
 		"dev": "xplat dev web",
 		"build": "vite build",
 		"test": "vitest run --config vitest.web.config.mts",
-		"test:e2e": "node test/e2e.mjs",
+		"test:e2e": "node test/e2e.mts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"styles:generate": "bamboo codegen",
 		"postinstall": "bun run styles:generate"

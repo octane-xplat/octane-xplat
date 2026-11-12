@@ -64,7 +64,7 @@
 	},
 	"scripts": {
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test:packed": "node tests/packed-consumer.mjs"
+		"test:packed": "node tests/packed-consumer.mts"
 	},
 	"devDependencies": {
 		"@nativescript/core": "catalog:",

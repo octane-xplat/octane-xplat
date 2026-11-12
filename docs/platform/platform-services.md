@@ -958,13 +958,13 @@ app's permissions or data. Then capture once after an already-granted permission
 confirm a non-null result, release it, and verify the app-created preview is gone.
 The [nonvisual browser probe](../../apps/web/scripts/optional-services.ts) uses a
 synthetic file-input payload and never renders or inspects an image. The
-[cleanup tests](../../packages/media/tests/cleanup.test.mjs) inject read/conversion
+[cleanup tests](../../packages/media/tests/cleanup.test.mts) inject read/conversion
 failures; they do not qualify camera hardware or native permission dialogs.
-The [macOS selection checks](../../packages/media/tests/macos-picker.test.mjs)
+The [macOS selection checks](../../packages/media/tests/macos-picker.test.mts)
 inject panel/codec/filesystem responses for cancellation, invalid data, cleanup,
 single/multiple picks and repeated selection. Packed consumer checks exercise
 the macOS public entries. Real panel interaction remains a separate runtime gate.
-The isolated [AppKit runtime check](../../packages/media/tests/macos-runtime.mjs)
+The isolated [AppKit runtime check](../../packages/media/tests/macos-runtime.mts)
 uses real PNG/JPEG conversion and file IO with an injected panel; it confirms
 dimensions and file-byte round-trips without displaying an image.
 
@@ -989,7 +989,7 @@ a missing or busy camera, or closing the window returns `null`, so keep the
 previous image. Preparation and shutter work time out after 15 seconds. The
 [maintained action](../../examples/media/capture-photo.macos.ts) also ignores
 late results after its screen owner ends. Deterministic sheet checks inject the
-camera backend, while the [real-host checks](../../packages/camera/tests/macos-native.mjs)
+camera backend, while the [real-host checks](../../packages/camera/tests/macos-native.mts)
 (`bun run --filter @octane-xplat/camera test:macos-runtime`) run the packed
 TypeScript host and sheet inside the real AppKit/JSC host against the attached
 hardware: on a camera-equipped, permission-granted Mac they validate session
@@ -1253,7 +1253,7 @@ To check the integration on a configured app:
    `UnavailabilityError`; use `webAuthn` or ordinary navigation. Catch web credential rejection and handle
    a null credential before posting to your RP.
 
-`node --test packages/platform/tests/auth-session.test.mjs` exercises adapter
+`node --test packages/platform/tests/auth-session.test.mts` exercises adapter
 callback/cancel/error behavior with mocked NativeScript APIs. It does not qualify
 system-browser behavior or a real relying-party exchange on iOS/Android.
 Incoming-link routing after authentication belongs to the

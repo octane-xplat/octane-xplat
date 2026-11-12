@@ -40,11 +40,11 @@ candidate reports those same 13 passes plus all 17 existing pointer passes:
 
 ```sh
 WINDOWS_CORE_SOURCE="$PWD/research/windows-input-contracts/core/packages/core" \
-  node --test scripts/windows-input-regression.test.mjs
-node --test scripts/windows-input-regression.test.mjs scripts/windows-pointer-regression.test.mjs
+  node --test scripts/windows-input-regression.test.mts
+node --test scripts/windows-input-regression.test.mts scripts/windows-pointer-regression.test.mts
 ```
 
-[The maintained test](../../scripts/windows-input-regression.test.mjs) evaluates
+[The maintained test](../../scripts/windows-input-regression.test.mts) evaluates
 actual source or installed JS with a mocked base/bridge. It covers plain and
 multiline input, native input/submit dispatch, readonly/disabled restoration
 orders, stale text/focus/submit delegates, unload/reload/disposal, secure swaps,

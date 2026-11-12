@@ -41,7 +41,7 @@
 		"build": "vite build",
 		"prepack": "bun run build",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test": "node --test --test-concurrency=1 ../../scripts/xplat-rules.test.mjs"
+		"test": "node --test --test-concurrency=1 ../../scripts/xplat-rules.test.mts"
 	},
 	"dependencies": {
 		"@tsrx/core": "0.5.5",

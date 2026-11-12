@@ -30,7 +30,7 @@ Eighteen source tests pass, including the original reproduction. Seventeen
 maintained tests execute the actual installed patched JavaScript:
 
 ```sh
-node --test scripts/windows-pointer-regression.test.mjs
+node --test scripts/windows-pointer-regression.test.mts
 ```
 
 They cover independent removal/readdition, dispatch mutation, registration

@@ -520,7 +520,7 @@ Current limits:
   underneath app CSS.
 
 Runtime evidence so far: GJS 1.90.1 + GTK 4.24.1 on macOS (Homebrew),
-headless driver checks in `test/css.test.mjs` and `test/mason.test.mjs`.
+headless driver checks in `test/css.test.mts` and `test/mason.test.mts`.
 They cover selectors, inheritance, `var()`, inline precedence, state
 selectors driven by real GTK state flags, media queries after a window
 resize, borders read back from the style context, transforms and picking,
@@ -550,7 +550,7 @@ For a focused maintained runtime fixture, pass its file through Turbo so
 dependency builds and declaration generation still run first:
 
 ```sh
-xvfb-run -a pnpm exec turbo run test:runtime --filter=@octane-xplat/linux-gtk -- test/ui-icon.test.mjs
+xvfb-run -a pnpm exec turbo run test:runtime --filter=@octane-xplat/linux-gtk -- test/ui-icon.test.mts
 ```
 
 ## Portal targets

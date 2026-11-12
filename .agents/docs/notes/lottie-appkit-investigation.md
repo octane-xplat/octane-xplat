@@ -134,7 +134,7 @@ builds the real leaf and adapter through the production macOS builder. Run it
 from the repository root:
 
 ```sh
-pnpm exec node packages/lottie/tests/appkit-feasibility/run.mjs
+pnpm exec node packages/lottie/tests/appkit-feasibility/run.mts
 ```
 
 It creates disposable build artifacts in ignored `research/` and starts the

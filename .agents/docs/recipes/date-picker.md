@@ -86,8 +86,8 @@ picker bundled with `@octane-xplat/files`.
 the `useCalendarDays`/`useCalendarConstraints`/`useCalendarNavigation`
 hooks are curated GTK root exports — this covers the AC1 date-control
 portion only (`FileInput`/`@octane-xplat/files` have no GTK surface). The
-public-root [dates fixture](../../../packages/linux-gtk-renderer/test/ui-dates.test.mjs)
-(35 assertions) and [calendar fixture](../../../packages/linux-gtk-renderer/test/ui-dates-cal.test.mjs)
+public-root [dates fixture](../../../packages/linux-gtk-renderer/test/ui-dates.test.mts)
+(35 assertions) and [calendar fixture](../../../packages/linux-gtk-renderer/test/ui-dates-cal.test.mts)
 (14 assertions) run real X11 input: typed date commits, calendar popover
 day picks, range picks, time sheet wheel scroll+pick, and datetime month
 picks that preserve the time part — contributing to AC2 and the

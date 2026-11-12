@@ -35,15 +35,15 @@ cleanup restricted to owned resources.
 - AC1: [Bound documentation](../../../docs/packages/package-mcp.md#retrieve-the-apps-documentation), [consumer lane](../../../docs/packages/package-mcp.md#run-the-consumer-acceptance-lane)
 - AC2: [Runtime lifecycle](../../../docs/packages/package-mcp.md#build-run-and-stop-an-app), [bounded inspection](../../../docs/packages/package-mcp.md#inspect-and-interact-with-chromium)
 - AC3: [Input mechanisms](../../../docs/packages/package-mcp.md#inspect-and-interact-with-chromium), [OS journey](../../../docs/packages/package-mcp.md#run-the-consumer-acceptance-lane)
-- AC4: [Declare, invoke, and assert an action](../../../docs/testing/development-actions.md), [agent authoring guidance](../../skills/octane-xplat/references/development-actions.md), [app declaration and acceptance](../../../docs/packages/package-mcp.md#run-the-consumer-acceptance-lane), [maintained runners](../../../packages/mcp/tests/consumer-workflow.mjs)
+- AC4: [Declare, invoke, and assert an action](../../../docs/testing/development-actions.md), [agent authoring guidance](../../skills/octane-xplat/references/development-actions.md), [app declaration and acceptance](../../../docs/packages/package-mcp.md#run-the-consumer-acceptance-lane), [maintained runners](../../../packages/mcp/tests/consumer-workflow.mts)
 - AC5: [Capture gate](../../../docs/packages/package-mcp.md#inspect-and-interact-with-chromium), [cleanup](../../../docs/packages/package-mcp.md#build-run-and-stop-an-app)
 - AC6: [Remaining acceptance](../../../docs/packages/package-mcp.md#remaining-acceptance)
-- AC7: [Local search setup](../../../docs/packages/package-cli.md#local-documentation-search), [MCP documentation tools](../../../docs/packages/package-mcp.md#retrieve-the-apps-documentation), [deterministic retrieval tests](../../../packages/docs-search/tests/search.test.mjs), [real-model smoke](../../../packages/docs-search/tests/model-smoke.mjs), and [version-binding tests](../../../packages/cli/test/mcp-docs.test.mjs). The model smoke is a separate local task, outside the PR gate.
+- AC7: [Local search setup](../../../docs/packages/package-cli.md#local-documentation-search), [MCP documentation tools](../../../docs/packages/package-mcp.md#retrieve-the-apps-documentation), [deterministic retrieval tests](../../../packages/docs-search/tests/search.test.mts), [real-model smoke](../../../packages/docs-search/tests/model-smoke.mts), and [version-binding tests](../../../packages/cli/test/mcp-docs.test.mts). The model smoke is a separate local task, outside the PR gate.
 
-The packed-stdio lane ([prepare](../../../packages/mcp/tests/prepare-packed-consumer.mjs), [runner](../../../packages/mcp/tests/packed-stdio-consumer.mjs)) exercises the same criteria against packed tarballs over stdin/stdout.
+The packed-stdio lane ([prepare](../../../packages/mcp/tests/prepare-packed-consumer.mts), [runner](../../../packages/mcp/tests/packed-stdio-consumer.mts)) exercises the same criteria against packed tarballs over stdin/stdout.
 
 The `xplat` CLI projects the same services through agent commands; the packed
-agent lane ([runner](../../../tools/cli-go/build-tools-consumer.mjs)) verifies
+agent lane ([runner](../../../tools/cli-go/build-tools-consumer.mts)) verifies
 the discovery/retrieval subset plus the web session journey — build, launch,
 session readiness/build-job polling, diagnostics, inspect, dom-event and os-input interaction,
 capture gating, dev-action discovery/invocation, and ownership-safe cleanup —

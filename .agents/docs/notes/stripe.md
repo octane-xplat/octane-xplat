@@ -83,7 +83,7 @@ app must recover through server order state. Android runtime is unverified.
   exactly26.15.1 and attached the three requested product declarations. It did
   not establish that all three names were valid exported products; the later
   native build exposed the StripeCore mistake described below. The maintained
-  tests/ios-spm.mjs checks the real Xcode pins after NativeScript prepare, which
+  tests/ios-spm.mts checks the real Xcode pins after NativeScript prepare, which
   already invokes dependency resolution; it avoids a second resolution command.
   Its private Turbo driver uses the existing reference checkout and an archive
   packed locally with scripts disabled. Public dependencies are linked from

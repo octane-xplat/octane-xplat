@@ -42,13 +42,13 @@
 		"typegen": "tsrx-typegen --project tsconfig.types.json",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
-		"test:packed": "node tests/packed-consumer.mjs",
+		"test:packed": "node tests/packed-consumer.mts",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"test:browser": "node tests/browser.web.mjs",
-		"test:ios-runtime": "node tests/ios-runtime.mjs",
-		"test:ios-bridge": "node tests/ios-bridge.mjs",
-		"test:macos-consumer": "node tests/macos-consumer.mjs"
+		"test:browser": "node tests/browser.web.mts",
+		"test:ios-runtime": "node tests/ios-runtime.mts",
+		"test:ios-bridge": "node tests/ios-bridge.mts",
+		"test:macos-consumer": "node tests/macos-consumer.mts"
 	},
 	"dependencies": {
 		"@octane-xplat/lib": "workspace:*",

@@ -30,7 +30,7 @@ to extend the frame beneath system safe areas when that is desired.
 ## GTK coverage
 
 `WebView` is a curated GTK root export backed by WebKitGTK 6.0. The
-public-root [webview fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mjs)
+public-root [webview fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mts)
 runs 28 assertions against a real WebKit web process: `src`/`html` loads,
 load ordering, DNS-failure `onError` without a spurious `onLoad`, scroll
 freeze, `matchContents` resize, `onLayoutContent` measured size, and

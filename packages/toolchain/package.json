@@ -33,7 +33,7 @@
 	],
 	"scripts": {
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
-		"test:packed": "node test/packed.mjs",
+		"test:packed": "node test/packed.mts",
 		"postinstall": "node install-native.mjs",
 		"prepack": "node install-native.mjs --prepare-package",
 		"postpack": "node install-native.mjs"

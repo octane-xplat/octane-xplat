@@ -175,7 +175,7 @@ from which to obtain changing insets.
 .chrome { padding-top: env(safe-area-inset-top, 0px); }
 ```
 
-The maintained regression is `packages/cli/test/vite-safe-area-css.test.mjs`.
+The maintained regression is `packages/cli/test/vite-safe-area-css.test.mts`.
 It tests host-side conversion and diagnostics, not device layout. Remove this
 warning only when the adopted native runtime resolves these functions against
 live safe-area values and device tests establish the behavior.

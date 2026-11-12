@@ -26,7 +26,7 @@ Unit/build lanes on `2a5ec81ad` + this branch's fixes:
 - `macos-appkit` authored suite: **647 pass / 17 fail** — identical to the
   documented main state (vm-slice realm + unrelated feature tests). Owned by
   the renderer test-debt task; not regressed by this work.
-- `media tests/macos-runtime.mjs`: **APPKIT_MEDIA_RUNTIME_OK, 48 assertions**
+- `media tests/macos-runtime.mts`: **APPKIT_MEDIA_RUNTIME_OK, 48 assertions**
   in the real JSC host — actual PNG/JPEG decode, JPEG encode and Foundation
   file IO (injected panel/sheet; no OS permission/camera).
 
@@ -79,7 +79,7 @@ Research probes (gitignored `research/probes-cases/`):
    backend after the host env-loop pump; `research/gif-runtime/
    animated-image-runtime.macos.ts` 24/24 and `ts-port-verify.macos.tsrx`
    18/18 through the mounted `<AnimatedImage>` path, plus maintained
-   `packages/gif/tests/appkit-runtime.mjs` 20 assertions): remote HTTP(S)
+   `packages/gif/tests/appkit-runtime.mts` 20 assertions): remote HTTP(S)
    GIF loads and animates (16×12 then 32×24 replacement), intrinsic size
    follows the image, hitTest stays nil, hide/unhide gates `animates`, a
    cleared source drops the in-flight remote result, 404 leaves the surface
@@ -98,7 +98,7 @@ Research probes (gitignored `research/probes-cases/`):
    unqualified in `docs/app/primitives.md`.
 
 6. **Deterministic GC-finalization crash blocks overlay-surface
-   qualification.** `apps/macos/test/verify-overlays.mjs` (repaired launch
+   qualification.** `apps/macos/test/verify-overlays.mts` (repaired launch
    path, below) and a research overlay probe both die with `EXC_BREAKPOINT`
    (reported as SIGKILL) 4/4 identical stacks: during a JSC sweep,
    `IsoHeapCellType::finishSweep` → JS finalizer →
@@ -121,14 +121,14 @@ Research probes (gitignored `research/probes-cases/`):
      map as one arg → `metadata.nsmd not found`; now selects host arch.
    - `examples/probes/charts.macos.tsrx`: asserted `image` before the
      deferred local decode ran (race); now waits for it.
-   - `apps/macos/test/verify-overlays.mjs`: shim-only bootstrap predated
+   - `apps/macos/test/verify-overlays.mts`: shim-only bootstrap predated
      the native-leaf loader (`libxplatmason.dylib is not loaded`) and the
      generated entry missed `import 'virtual:bamboo.css'`; now builds the
      native artifact and writes the real bootstrap.
-   - `packages/media/tests/photo-capture.macos.test.mjs` +
+   - `packages/media/tests/photo-capture.macos.test.mts` +
      `macos-runtime.mjs`: the `file-pick-filter.macos` split left fixture
      require-shims throwing; real leaf modules now load.
-   - `packages/ui/tests/packed-consumer.mjs`: read `exports['.'].macos.types`
+   - `packages/ui/tests/packed-consumer.mts`: read `exports['.'].macos.types`
      — stale after `8c9e2f567` collapsed export maps; uses `exports['.'].types`.
 
 8. **`gif` packed consumer fails on main** (pre-existing, not fixed):

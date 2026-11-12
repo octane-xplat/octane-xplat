@@ -182,7 +182,7 @@ API name is insufficient. Seed new recipes from actual developer workflows,
 including undocumented ones, rather than just the existing page inventory.
 
 Run `bun run check:recipes` (also part of `bun run lint`). It checks structure, IDs,
-criterion mappings, and local links/Markdown heading anchors. Regression tests run with `node --test scripts/check-recipes.test.mjs`.
+criterion mappings, and local links/Markdown heading anchors. Regression tests run with `node --test scripts/check-recipes.test.mts`.
 It does not judge prose completeness, execute examples, or require access to Silo.
 
 At handoff, identify affected recipes, doc changes, checks, and remaining gaps.

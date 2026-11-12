@@ -53,7 +53,7 @@ No changes were made to Octane's universal runtime or the shared Text adapter.
 - [Mobile native case](../../tools/platform-qualification/windows-rich-text/mobile-case.tsrx)
 - [Windows native case](../../tools/platform-qualification/windows-rich-text/native-case.tsrx),
   [inspection entry](../../tools/platform-qualification/windows-rich-text/native-index.ts), and
-  [output assertions](../../tools/platform-qualification/windows-rich-text/check-native-output.mjs)
+  [output assertions](../../tools/platform-qualification/windows-rich-text/check-native-output.mts)
 
 The source patch applies to the unmodified upstream0.2.4 source. It includes the
 existing source equivalents of the canonical undefined-prop and visibility
@@ -136,7 +136,7 @@ Copy `native-case.tsrx` as `src/windows-ui-case.tsrx` and `native-index.ts` as
 reorder, rich-removal and unmount stages. Read console.log as UTF8 and run:
 
 ```sh
-node tools/platform-qualification/windows-rich-text/check-native-output.mjs console.log
+node tools/platform-qualification/windows-rich-text/check-native-output.mts console.log
 ```
 
 Passing requires ordered combined text, native weights400/700, inherited

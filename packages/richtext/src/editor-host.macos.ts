@@ -10,7 +10,7 @@
  *  arrive as a callable JS function — a manually declared `id` parameter
  *  marshals WebKit's signature-less block as an opaque CallbackObject and the
  *  navigation policy cannot be answered (probe-verified on the AppKit/JSC
- *  host; see test/verify-wk.mjs). */
+ *  host; see test/verify-wk.mts). */
 import {
   NSAutoresizingMaskOptions,
   NSObject,

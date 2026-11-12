@@ -14,7 +14,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { audioResponse } from '../../packages/audio/tests/fixture-server.mjs'
+import { audioResponse } from '../../packages/audio/tests/fixture-server.mts'
 
 const repo = fileURLToPath(new URL('../../', import.meta.url))
 const args = process.argv.slice(2)

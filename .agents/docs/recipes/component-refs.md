@@ -48,6 +48,6 @@ Callback/nested-array ref forms, cleanup during replacement, attachment-hook
 composition and migration need their own GTK assessment. `WebView`'s
 imperative handle (`reload`, `goBack`, `goForward`, `stopLoading`, `native`)
 is qualified through the
-[webview fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mjs);
+[webview fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mts);
 other control handles remain unqualified. Record GTK coverage separately
 from execution evidence in gtk_recipe_checks.

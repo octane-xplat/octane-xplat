@@ -12,7 +12,7 @@ prebuilt host 2026-10-25: `ws://` handshake, `Sec-WebSocket-Protocol`
 negotiation, text and binary (`ArrayBuffer`) echo, peer-initiated close with
 code/reason, local `close(code, reason)`, refused-connection `error` +
 `close(1006)`, and constructor/`send`/`close` validation errors. Maintained
-regression: `node packages/cli/test/verify-macos-websocket.mjs` (Apple
+regression: `node packages/cli/test/verify-macos-websocket.mts` (Apple
 Silicon only; spawns a real RFC 6455 server and the prebuilt host).
 
 `binaryType` defaults to and stays `'arraybuffer'` — the host has no `Blob`.
@@ -49,7 +49,7 @@ Silicon only; spawns a real RFC 6455 server and the prebuilt host).
   cluster-front overrides. Runtime-verified 2026-11-02 on the rebuilt
   prebuilt: ws/download/stream/upload tasks expose their concrete members,
   `instanceof` reports the front and its ancestors, and
-  `macos-class-cluster.test.mjs` is the regression. The `shim.js`
+  `macos-class-cluster.test.ts` is the regression. The `shim.js`
   `setPrototypeOf` repoint is now a no-op (members resolve at wrap time)
   and stays as a harmless guard.
 - **jsi parity**: the same defect exists in the shared jsi backend
@@ -102,7 +102,7 @@ script bug.
   `globalScope_` and would pin a live wrapper for the app's lifetime — and
   deletes the dead ref before erasing (upstream dropped it). A live
   replacement's entry survives. Regression:
-  `macos-pointer-cache.test.mjs` — 30 seeded keys exercise the window; the
+  `macos-pointer-cache.test.ts` — 30 seeded keys exercise the window; the
   pre-hardening binary loses every live entry, the shipped build loses none.
 - **Removal condition**: upstream pointer-cache lifecycle that never mutates
   the map during a bridged call, or moves all erase operations off the
@@ -126,7 +126,7 @@ The native block cache also performs JS reference reads/creation outside its
 mutex: those operations can trigger GC and reenter block disposal. Captured
 reference identity protects replacement entries when a stale read retires.
 No native monitor or JS callback is retained for the process as a workaround.
-The maintained `macos-block-finalization.test.mjs` cycles removed native
+The maintained `macos-block-finalization.test.ts` cycles removed native
 monitor blocks under allocation pressure, requires retired callbacks to become
 unreachable through WeakRef, and checks normal host shutdown. Companion
 pointer-cache, incoming-block and foreign-IMP regressions cover the existing
@@ -159,7 +159,7 @@ and fixed 2026-11-02:
   spin nested run loops; teardown invalidates the sources, destroys
   env/platform, closes the sentinel, and drains before `uv_loop_close`.
 - Runtime-verified (probe `research/jsc-loop-probe/` + maintained test
-  `packages/cli/test/macos-event-loop.test.mjs`): serial `NSOperationQueue`
+  `packages/cli/test/macos-event-loop.test.mts`): serial `NSOperationQueue`
   ops deliver and unwedge, `dispatch_async` global-queue blocks deliver, and
   `NSURLSession.dataTaskWithURL` completion blocks deliver real responses
   (HTTP 200). Delivery runs JS on the main thread and fires in
@@ -174,7 +174,7 @@ Still **not** delivered (distinct upstream questions, not loop starvation):
 The gif retention reason (starved `NSURLSession` completions) is removed and
 the TS port is requalified 2026-11-02: remote HTTP(S), file and `data:` loads
 deliver through the mounted `<AnimatedImage>` path (24/24 + 18/18 probe
-assertions) and the maintained `packages/gif/tests/appkit-runtime.mjs` host
+assertions) and the maintained `packages/gif/tests/appkit-runtime.mts` host
 check. The Swift leaf is gone.
 
 ## Foreign-thread method/function IMPs (upstream, patched)
@@ -199,7 +199,7 @@ jsi backend marshals all of them); the method/function napi paths did not.
   until `ret` is filled, so IMP return semantics (including the NSError
   out-param special case) are unchanged; a dead bridge state returns a zeroed
   `ret` instead of parking on a run loop that will never run. Runtime-verified
-  2026-11-02 on the rebuilt prebuilt: `macos-foreign-imp.test.mjs` — detached
+  2026-11-02 on the rebuilt prebuilt: `macos-foreign-imp.test.ts` — detached
   `NSThread` IMPs deliver, an `NSInvocationOperation` synchronous `id` return
   crosses the boundary, a marshal posted mid-delivery queues, and the process
   survives where it previously segfaulted. The `JSFunctionCallback` branch
@@ -239,7 +239,7 @@ shape). The jsi backend has the identical gap but is not the shipped backend
   JS-registered block round-tripping back into JS resolves to the original
   JS function without copying. The `isBlock=false` C-function-pointer
   branches are untouched. Runtime-verified 2026-11-02 on the rebuilt
-  prebuilt: `macos-block-lifetime.test.mjs` — freed heap and clobbered
+  prebuilt: `macos-block-lifetime.test.ts` — freed heap and clobbered
   stack blocks on both paths fire on async invoke where the stock
   framework died (SIGBUS exit 138 / SIGSEGV exit 139). Probe harness:
   `research/block-lifetime-probe/`.
@@ -255,7 +255,7 @@ unchanged by the pump): `AVPlayer`/`AVPlayerItem` remote HTTP(S) loading runs
 entirely inside AVFoundation — no JS-involved session exists — so
 `setTimeout`, main-queue `NSNotificationCenter` blocks, and
 `seekToTimeToleranceBeforeToleranceAfterCompletionHandler` all completed even
-while the loop starved (`tests/verify-macos.mjs` under
+while the loop starved (`tests/verify-macos.mts` under
 `test:macos-runtime`). A native pipeline whose callbacks only ever fire on
 the main runloop remains a safe TypeScript port.
 
@@ -323,7 +323,7 @@ legitimately unimplemented on class-cluster declaring classes.
   sites, so property synthesis only flows ancestor → descendant
   (superclass and refined-protocol walks). The regenerated nsmd +
   `packages/macos-appkit/types` revert the ~43 phantom records to their
-  declared methods; `macos-metagen-derived-members.test.mjs` is the
+  declared methods; `macos-metagen-derived-members.test.ts` is the
   direction-of-synthesis regression.
 - **Dispatch guard stays**: `patches/nativescript-runtimes.patch` also
   guards every selector dispatch in `ClassMember.mm`
@@ -340,7 +340,7 @@ legitimately unimplemented on class-cluster declaring classes.
   The metagen fix cannot remove the ~300 header-declared accessors
   unimplemented on their declaring class (e.g. `NSObject.candidates:`,
   class-cluster bases), so the guard remains required —
-  `macos-bridge-selectors.test.mjs` exercises both paths with
+  `macos-bridge-selectors.test.ts` exercises both paths with
   `NSObject.candidates(null)` and an `NSObject.extend` subclass exposing
   `candidates:`. Receivers that implement a message only through
   `forwardInvocation:` while returning `NO` from `respondsToSelector:`

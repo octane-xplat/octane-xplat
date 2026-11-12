@@ -34,7 +34,7 @@ TypeScript 7's native compiler does not expose it. The API renderer supplies a
 temporary compiler context linked to `typescript-classic`, while package
 declaration generation keeps its own compiler and dependency links. Retain this
 boundary until exports-md supports the native compiler; a package typecheck does
-not verify API-page rendering. `apps/docs/api.test.mjs` covers the renderer.
+not verify API-page rendering. `apps/docs/api.test.mts` covers the renderer.
 
 ## Review six things
 
@@ -160,7 +160,7 @@ and installed declarations: expanding upstream SDK indexes overwhelmed the
 reference (over 64 MB). These aliases contain no package-authored TSDoc.
 Package pages remain authored; generated API pages are ignored build output.
 The API task's prerequisites must include every public package's `typegen` and
-`build` scripts; `apps/docs/api.test.mjs` checks this when packages are added.
+`build` scripts; `apps/docs/api.test.mts` checks this when packages are added.
 
 The pinned `exports-md` 0.2.20 has rendering constraints (see upstream
 [`findTsrxConfig`](https://github.com/aleclarson/exports-md/blob/main/src/typescript.ts)
@@ -174,7 +174,7 @@ and [declaration indexing](https://github.com/aleclarson/exports-md/blob/main/sr
   an independent constant. A renamed re-export can replace the canonical
   function's heading with its legacy name in the renderer. Preserve runtime
   identity and check both headings; the source-only tooling regression in
-  `apps/docs/api.test.mjs` covers this boundary.
+  `apps/docs/api.test.mts` covers this boundary.
 
   ```ts
   export function current() {}

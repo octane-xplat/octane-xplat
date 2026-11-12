@@ -76,10 +76,10 @@ try {
       process.execPath,
       [
         '--test',
-        'packages/platform/tests/auth-session.test.mjs',
-        'packages/media/tests/cleanup.test.mjs',
-        'examples/auth/server-verification.test.mjs',
-        'packages/audio/tests/audio.ios.test.mjs',
+        'packages/platform/tests/auth-session.test.mts',
+        'packages/media/tests/cleanup.test.mts',
+        'examples/auth/server-verification.test.mts',
+        'packages/audio/tests/audio.ios.test.mts',
       ],
       { cwd: root, stdio: 'inherit' },
     )

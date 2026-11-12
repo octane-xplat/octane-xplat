@@ -1,7 +1,7 @@
 param([string]$Directory, [string]$Runtime, [string]$Identity)
 # In-session journey driver for the Windows desktop-shell app. Runs inside the
 # interactive session (scheduled task) so SendInput and UIA reach the desktop.
-# Emits STEP|name|inputClass|result|detail lines that windows.mjs parses.
+# Emits STEP|name|inputClass|result|detail lines that windows.ts parses.
 $ErrorActionPreference='Stop'
 $ProgressPreference='SilentlyContinue'
 $dir=$Directory

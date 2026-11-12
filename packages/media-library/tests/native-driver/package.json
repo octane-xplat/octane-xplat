@@ -3,8 +3,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:macos-feasibility": "node ../macos-feasibility.mjs",
-		"test:ios-runtime": "node ../ios-runtime.mjs"
+		"test:macos-feasibility": "node ../macos-feasibility.mts",
+		"test:ios-runtime": "node ../ios-runtime.mts"
 	},
 	"packageManager": "bun@1.4.4"
 }

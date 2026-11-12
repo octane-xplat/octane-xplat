@@ -27,8 +27,8 @@ working native release build. The app owns signing and OTA backend deployment.
 
 ## Documentation
 
-- AC1: [Node install and first comparison](../../../docs/packages/package-fingerprint.md) and [packed consumer](../../../packages/fingerprint/tests/packed-consumer.mjs).
-- AC2: [Custom inputs and coverage](../../../docs/packages/package-fingerprint.md#include-a-custom-native-input) and [source tests](../../../packages/fingerprint/tests/fingerprint.test.mjs).
-- AC3: [Compare with an OTA binary](../../../docs/packages/package-fingerprint.md#compare-with-an-ota-binary), [binary setup](../../../docs/app/updates.md#set-up-the-binary-once) and [hook tests](../../../packages/updates/tests/prepare.test.mjs).
-- AC4: [Publish and validate](../../../docs/app/updates.md#publish-and-validate), [publisher dry runs](../../../tools/ota-server/publisher.test.mjs) and [native guard](../../../packages/updates/tests/native-guard.test.mjs).
-- AC5: [Recovery](../../../docs/app/updates.md#recover-a-release), [maintained lifecycle](../../../packages/updates/tests/native-lifecycle.mjs) and [qualification record](../notes/fingerprint.md#verification-and-limits).
+- AC1: [Node install and first comparison](../../../docs/packages/package-fingerprint.md) and [packed consumer](../../../packages/fingerprint/tests/packed-consumer.mts).
+- AC2: [Custom inputs and coverage](../../../docs/packages/package-fingerprint.md#include-a-custom-native-input) and [source tests](../../../packages/fingerprint/tests/fingerprint.test.mts).
+- AC3: [Compare with an OTA binary](../../../docs/packages/package-fingerprint.md#compare-with-an-ota-binary), [binary setup](../../../docs/app/updates.md#set-up-the-binary-once) and [hook tests](../../../packages/updates/tests/prepare.test.mts).
+- AC4: [Publish and validate](../../../docs/app/updates.md#publish-and-validate), [publisher dry runs](../../../tools/ota-server/publisher.test.mts) and [native guard](../../../packages/updates/tests/native-guard.test.mts).
+- AC5: [Recovery](../../../docs/app/updates.md#recover-a-release), [maintained lifecycle](../../../packages/updates/tests/native-lifecycle.mts) and [qualification record](../notes/fingerprint.md#verification-and-limits).

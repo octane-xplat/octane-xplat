@@ -109,7 +109,7 @@ property-proxy path, not proof that all AppKit/Core Animation APIs fail. No
 upstream patch is added. The numeric controller is the qualified local path;
 retest the proxy assignment before replacing it after a host upgrade.
 
-`node apps/macos/test/verify-routing.mjs` passed 202 checks with the new
+`node apps/macos/test/verify-routing.mts` passed 202 checks with the new
 public-import fixture. New assertions read intermediate native opacity,
 settled identity/translation, separate commitment/completion, reverse Back,
 replacement, failure, concurrent flows and owner disposal. Deterministic tests

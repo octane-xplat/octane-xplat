@@ -60,7 +60,7 @@ runs [handler-driven harness checks](harness-selftest.web.js) inside the real
 GTK WebView under Xvfb. It checks mount/state, textarea growth, routes, virtual
 list mount bounds and empty state, sheets, overlays, and unhandled page errors.
 It does not measure pixels or physical input. The [packed consumer
-verifier](../../../packages/cli/test/verify-linux-consumer.mjs) separately checks
+verifier](../../../packages/cli/test/verify-linux-consumer.mts) separately checks
 archive relocation, installation, host services, keyring persistence and app
 isolation, and URI forwarding with an app outside the workspace.
 

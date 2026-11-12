@@ -2,7 +2,7 @@
  * Package self-check — exercises the shared contract surface through the same
  * module specifiers consumers use, so `bun run typecheck` catches declaration
  * drift that skipLibCheck would otherwise mask. The packed-consumer fixture
- * (tests/packed-consumer.mjs) proves resolution from a real tarball.
+ * (tests/packed-consumer.mts) proves resolution from a real tarball.
  *
  * The `native`-conditioned View binding is asserted in selfcheck.mobile.ts —
  * shared-file rules keep `@nativescript/*` imports out of this file.

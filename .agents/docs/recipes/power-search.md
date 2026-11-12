@@ -32,7 +32,7 @@ operator, and value filters. The reader knows controlled component state.
 
 `PowerSearch`, `PowerSearchToken`, `PowerSearchFilterEditor` and
 `usePowerSearchConfig` are curated GTK root exports. The public-root
-[power-search fixture](../../../packages/linux-gtk-renderer/test/ui-powersearch.test.mjs)
+[power-search fixture](../../../packages/linux-gtk-renderer/test/ui-powersearch.test.mts)
 runs 11 assertions with real X11 input: typing a field token, opening the
 filter editor, applying a filter, and pressing a token to reopen its
 editor. This contributes to AC1 and the typeahead/popover portions of AC3

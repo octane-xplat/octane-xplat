@@ -138,14 +138,14 @@ adapter those runs proved is the direct ancestor of `src/index.ts`.
 
 - `pnpm --filter @octane-xplat/linux-gtk typecheck` — clean
 - `pnpm --filter @octane-xplat/jsx typecheck` — clean (`gtk.d.ts` compiles)
-- `node --test test/build.test.mjs` (in the package) — 2 tests pass on macOS:
+- `node --test test/build.test.mts` (in the package) — 2 tests pass on macOS:
   1. `linuxGtk` compiles `test/fixtures` into one ESM bundle with
      `gi://` imports external, `universalPlan` emitted, no DOM globals;
   2. a `.linux.ts` leaf reachable in a GTK bundle fails with the
      `xplat boundary` error.
-- `node --test packages/cli/test/tsconfig-envs.test.mjs` — 9 pass (suffix
+- `node --test packages/cli/test/tsconfig-envs.test.mts` — 9 pass (suffix
   order invariant intact)
-- `node --test scripts/xplat-rules.test.mjs` — 3 pass
+- `node --test scripts/xplat-rules.test.mts` — 3 pass
 - `scripts/lint-tsrx.mjs` — no new violations
 - `pnpm probe doctor` — run on macOS; linux target correctly reports
   unavailable ("Run this command in a real Linux environment; no macOS
@@ -154,7 +154,7 @@ adapter those runs proved is the direct ancestor of `src/index.ts`.
 **Runtime-proven (mason binding, this change):** driver command handling
 and the Mason layout path ran under real GJS 1.90.1 + GTK 4.24.1 (Homebrew,
 macOS — GJS and GTK are the genuine libraries; the host OS differs from the
-Linux target). `test/mason.test.mjs` builds `test/fixtures/src/mason-smoke.ts`
+Linux target). `test/mason.test.mts` builds `test/fixtures/src/mason-smoke.ts`
 and drives `gtkDriver` batches headlessly: `masonview` instantiates the
 `XplatMasonView` host, children attach via `insert_before`, a row of two
 labels computes `alpha` at its measured text width and `beta` flex-grown,
@@ -254,7 +254,7 @@ reach widgets through a per-node `xplat-n<id>` class + `Gtk.CssProvider`;
 (GTK's default is `none`); `text-align` maps to `xalign`/`justify`;
 unsupported CSS properties warn once per name (`[linux-gtk-css]`).
 
-**Runtime-proven (this change):** `test/css.test.mjs` builds
+**Runtime-proven (this change):** `test/css.test.mts` builds
 `test/fixtures/src/css-smoke.ts` (which imports a real `.css` file, so the
 CLI injection is exercised end to end) and drives `gtkDriver` batches
 headlessly under real GJS 1.90.1 + GTK 4.24.1 (Homebrew, macOS — genuine
@@ -271,10 +271,10 @@ Theme delivery: `registerStylesheet` of `@octane-xplat/ui` `tokens.css` +
 `chrome.css` (961 rule bodies) completes in ~13 ms under GJS 1.90.1.
 
 **Build-proven (this change):** `node --test
-packages/cli/test/vite-inline-stylesheets.test.mjs` — 2 pass, including an
+packages/cli/test/vite-inline-stylesheets.test.mts` — 2 pass, including an
 ES-format GTK-shaped case (push statement prepended before the `gi://`
 import, `@platform gtk` kept / `@platform web` stripped, px→dip).
-`node --test test/style-css.test.mjs` — 9 pass on the GI-free
+`node --test test/style-css.test.mts` — 9 pass on the GI-free
 `src/style-css.ts` mapping.
 
 **NOT proven:** same boundary as above — no Linux-host run, no OS input,
@@ -284,7 +284,7 @@ no visual review.
 
 The first pass left state, resize, and animation gaps; these landed after
 it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
-`test/css.test.mjs` or `test/mason.test.mjs`:
+`test/css.test.mts` or `test/mason.test.mts`:
 
 - **Cascade output:** `computeCascade(..., { borderLonghands: true })` —
   per-side borders and per-corner radii stay separate (AppKit keeps the
@@ -392,7 +392,7 @@ runtime checks actual widget visibility rather than inferring it from local
 state retention.
 
 ```sh
-node --test packages/linux-gtk-renderer/test/build.test.mjs
+node --test packages/linux-gtk-renderer/test/build.test.mts
 pnpm --filter @octane-xplat/linux-gtk typecheck
 pnpm --filter @octane-xplat/linux-gtk exec vite build --config test/fixtures/vite.routing.config.mjs
 ```
@@ -2014,7 +2014,7 @@ at zero size, avoiding GtkText negative inner allocations.
 
 Real Linux evidence: Ubuntu24.04.5 amd64, GJS1.80.2, GTK4.14.5, X11/Xvfb,
 task-local XDG runtime and D-Bus session, the existing beta5 Mason archive and
-XplatMason typelib. test/visibility.test.mjs passes25 geometry, native mapping,
+XplatMason typelib. test/visibility.test.mts passes25 geometry, native mapping,
 focus release, editor identity/text, prop precedence, removal and cleanup
 assertions. The direct-source toggle-fields probe also passes17 assertions
 including real X11 label clicks and rejected-action rollback. Those field
@@ -2344,7 +2344,7 @@ navigation. Six focused typegen/renderer tasks pass. Logs: guest
 /tmp/gtk-segmented-contracts.log and andromeda
 /tmp/gtk-segmented-contracts-types.log.
 
-New cases share test/gjs-ui-fixture.mjs for the existing build/native-prerequisite,
+New cases share test/gjs-ui-fixture.mts for the existing build/native-prerequisite,
 result and optional F12 input protocol. Baselines explicitly disable input;
 OS runs report actual keyboard/click execution separately. Standalone behavior
 is checked through native role/focus, rather than treating serialized props as
@@ -2860,7 +2860,7 @@ compiler upgrades.
 
 ## GTK Selector and MultiSelector finite-list qualification
 
-`ui-selector.test.mjs` drives `fixtures/src/ui-selector-main.ts` +
+`ui-selector.test.ts` drives `fixtures/src/ui-selector-main.ts` +
 `fixtures/src/ui-selector.gtk.tsrx` through the shared Select/SelectView
 leaves. The trigger, menu and search field are real GTK widgets; the menu
 portals through the GTK Popover session. 70 checks, all passing with no
@@ -2892,7 +2892,7 @@ skips; the OS phase uses real xdotool clicks and keystrokes
   controllers, returns `popoverChromeUsers()` to 0 and leaves stale anchors
   unable to create popups.
 
-Log: guest `/tmp/gtk-run.log` (`run-gtk.sh test/ui-selector.test.mjs`).
+Log: guest `/tmp/gtk-run.log` (`run-gtk.sh test/ui-selector.test.mts`).
 
 Limits: X11/Xvfb evidence only — no Wayland/xdg-popup constraint, visual or
 AT-client qualification. Arrow-key navigation inside the listbox is not in
@@ -2900,7 +2900,7 @@ the shared SelectView contract (web-only leaf), so it is out of scope here.
 
 ## GTK utilities, i18n, theme-registry and link-context qualification
 
-`ui-utilities.test.mjs` drives `fixtures/src/ui-utilities-main.ts` through
+`ui-utilities.test.ts` drives `fixtures/src/ui-utilities-main.ts` through
 the public barrel: 47 checks, all passing with no skips (`input:false` —
 pure-function and hook evidence needs no OS input).
 
@@ -2928,20 +2928,20 @@ pure-function and hook evidence needs no OS input).
   only run inside compiler-built components, so they qualify through their
   consumer components in later slices.
 
-Log: guest `/tmp/gtk-run.log` (`run-gtk.sh test/ui-utilities.test.mjs`).
+Log: guest `/tmp/gtk-run.log` (`run-gtk.sh test/ui-utilities.test.mts`).
 Limits: GJS function-level evidence only; hook lifecycle covered via its
 consumer component slice, not standalone.
 
 ## GTK button and display-primitive qualification
 
-`ui-buttons.test.mjs` drives `fixtures/src/ui-buttons-main.ts` through the
+`ui-buttons.test.ts` drives `fixtures/src/ui-buttons-main.ts` through the
 public barrel: 33 checks, all passing with real X11 input — button
 activation fires, `isDisabled` (own prop and ButtonGroup context) blocks
 activation, `ToggleButton` reports pressed/unpressed, `ClickableCard`
 activates, `grab_focus`+Return activates the focused Button, unmount frees
 the node registry.
 
-`ui-display.test.mjs` (`input:false`): 49 checks mount every B1 display
+`ui-display.test.ts` (`input:false`): 49 checks mount every B1 display
 leaf through `createGtkRoot` and assert folded children/props text reaches
 `container.nodes` — Heading/Kbd/Code/CodeBlock/Blockquote/Chip/Alert/
 Banner/EmptyState/ListItem/MetadataListItem/Link/Card text plus all mount
@@ -2956,7 +2956,7 @@ visual/pixel, IME or assistive-client evidence.
 
 ## GTK image/avatar qualification
 
-`ui-images.test.mjs` drives `fixtures/src/ui-images-main.ts`: 21 checks,
+`ui-images.test.ts` drives `fixtures/src/ui-images-main.ts`: 21 checks,
 all passing (`input:false` — the image element's `src`/`stretch`/`placeholder`
 and the picture binding's `isLoading`/`imageSource`/`imageError` carry the
 contract; no OS input needed). A data: PNG decodes through GdkPixbuf to a
@@ -2978,14 +2978,14 @@ true scale-down fit).
 
 ## GTK menu qualification
 
-`ui-menus.test.mjs` drives `fixtures/src/ui-menus-main.ts`: 31 checks, all
+`ui-menus.test.ts` drives `fixtures/src/ui-menus-main.ts`: 31 checks, all
 passing, real X11 input. The fixture covers the shared anchored-menu
 contract end to end — Button-trigger open, every MenuOption kind rendering,
 select semantics (item closes, checkbox stays open by default,
 radio closes), disabled rows inert, ContextMenu long-press, outside/Escape
 dismiss, MoreMenu, and the bottom-sheet presentation error.
 
-Two renderer-side pieces: a `hold`/`holdMs` action in `gjs-ui-fixture.mjs`
+Two renderer-side pieces: a `hold`/`holdMs` action in `gjs-ui-fixture.ts`
 (mousedown + sleep + mouseup) so GestureLongPress gets a real OS gesture,
 and the popup `point()` coordinate walk (surface parent chain +
 `get_surface_transform`) that popup content needs. No renderer runtime
@@ -3002,7 +3002,7 @@ visual/pixel, IME or AT-client evidence.
 
 ## GTK overlay host qualification
 
-`ui-overlays.test.mjs` drives `fixtures/src/ui-overlays-main.ts`: 23 checks,
+`ui-overlays.test.ts` drives `fixtures/src/ui-overlays-main.ts`: 23 checks,
 all passing, real X11 input. The fixture covers the in-window overlay
 contract — uncontrolled `defaultOpen` mount, controlled `isOpen` toggle,
 modal scrim claiming outside presses (background counter stays 0) and
@@ -3034,8 +3034,8 @@ visual/pixel, IME or AT-client evidence.
 
 ## Slice D2a evidence — toasts, lightbox, palette, drawer
 
-`ui-toast.test.mjs` (37 checks), `ui-lightbox.test.mjs` (20),
-`ui-palette.test.mjs` (16) and `ui-drawer.test.mjs` (17) all pass with real
+`ui-toast.test.ts` (37 checks), `ui-lightbox.test.ts` (20),
+`ui-palette.test.ts` (16) and `ui-drawer.test.ts` (17) all pass with real
 X11 input on GJS 1.80.2 / GTK 4.14.5 / Xvfb. Siblings re-verified:
 ui-overlays 23, ui-popover 73, ui-menus 32, ui-layers 49, ui-portal 48,
 ui-slider 141.
@@ -3112,7 +3112,7 @@ Wayland, pixel, IME or AT-client evidence).
   values on GTK (the astryx stack warns 'Junk at end of value'); the
   result JSON must carry `osInput`/`gtk` fields.
 
-`ui-theme.test.mjs`: 53 assertions, real OS input, guest GJS 1.80.2 /
+`ui-theme.test.ts`: 53 assertions, real OS input, guest GJS 1.80.2 /
 GTK 4.14.5 — scheme reads, OS flip, preference-over-system, theme
 scope classes + generated CSS in the cascade, media re-eval on real
 resize, clipboard round-trips, announce delivery, applyThemeClasses.
@@ -3120,7 +3120,7 @@ Logs: guest `/tmp/gtk-run.log`, `/tmp/gtk-run-e2.log`.
 
 ## Slice D2b evidence — bottom sheets and menu-sheet
 
-`ui-sheet.test.mjs` (79 checks) passes with real X11 input on
+`ui-sheet.test.ts` (79 checks) passes with real X11 input on
 GJS 1.80.2 / GTK 4.14.5 / Xvfb. Siblings re-verified: ui-menus 34,
 ui-overlays 23, ui-toast 37, ui-popover 73, ui-layers 49.
 
@@ -3350,5 +3350,5 @@ inline `style` props reach Pango attributes (recorded limit).
 
 ### WebView intrinsic (slice J)
 
-`webview` instantiates a lazy-resolved `WebKit.WebView` (imports.gi, version 6.0 — GTK4 pairing) in `src/webview-instance.ts`, mirroring macos-renderer/src/webview.ts state machine. Document props are read from `node.props` by `updateWebView` once per apply; the six document event props (`onLoad`/`onError`/`onLayoutContent`/`onLoadStarted`/`onLoadFinished`/`onLoadError`) stay ordinary props fired from GI navigation signals, so they bypass the universal event-command path and the unclassified-on* warning. `load-failed` returning true suppresses the error page and reports `onError`/`onLoadError`; a `failed` flag stops the trailing error-document FINISHED from emitting `onLoad`; cancelled loads (`NetworkError.CANCELLED` or superseded) report nothing. `scrollEnabled`/`matchContents`/`onLayoutContent` run `evaluate_javascript` (6-arg GJS binding — scroll freeze + `scrollHeight` measure); `matchContents` resizes via `set_size_request`. `disposeWebView` disconnects signals + `stop_loading` on destroy/recreate. Evidence: `test/ui-webview.test.mjs` — 28 assertions on the real web process (mount, data:/inline loads, load ordering, DNS error path, scroll freeze, matchContents, handle nav, stopLoading cancel, teardown).
+`webview` instantiates a lazy-resolved `WebKit.WebView` (imports.gi, version 6.0 — GTK4 pairing) in `src/webview-instance.ts`, mirroring macos-renderer/src/webview.ts state machine. Document props are read from `node.props` by `updateWebView` once per apply; the six document event props (`onLoad`/`onError`/`onLayoutContent`/`onLoadStarted`/`onLoadFinished`/`onLoadError`) stay ordinary props fired from GI navigation signals, so they bypass the universal event-command path and the unclassified-on* warning. `load-failed` returning true suppresses the error page and reports `onError`/`onLoadError`; a `failed` flag stops the trailing error-document FINISHED from emitting `onLoad`; cancelled loads (`NetworkError.CANCELLED` or superseded) report nothing. `scrollEnabled`/`matchContents`/`onLayoutContent` run `evaluate_javascript` (6-arg GJS binding — scroll freeze + `scrollHeight` measure); `matchContents` resizes via `set_size_request`. `disposeWebView` disconnects signals + `stop_loading` on destroy/recreate. Evidence: `test/ui-webview.test.mts` — 28 assertions on the real web process (mount, data:/inline loads, load ordering, DNS error path, scroll freeze, matchContents, handle nav, stopLoading cancel, teardown).
 

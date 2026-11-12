@@ -31,7 +31,7 @@
     "typegen": "tsc --runExternalCode -p tsconfig.build.json",
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
     "test": "node --test test/*.test.ts",
-    "test:packed": "node ../../tools/tailwind-qualification/packed-consumer.mjs"
+    "test:packed": "node ../../tools/tailwind-qualification/packed-consumer.mts"
   },
   "dependencies": {
     "@tailwindcss/node": "4.3.5",

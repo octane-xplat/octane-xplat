@@ -79,7 +79,7 @@ hook from JS; `hideWindowsOnClose` is unimplemented. Visibility
 enumeration sees the WinUI window only intermittently — hide/show/toggle
 themselves work.
 
-The runtime driver `tests/windows-runtime.mjs` needs a signed-in Windows
+The runtime driver `tests/windows-runtime.mts` needs a signed-in Windows
 host (`TRAY_WINDOWS_HOST`, `TRAY_WINDOWS_RUNTIME`); it stages the app,
 registers the package through an interactive scheduled task (Add-AppxPackage
 is denied from session 0), and launches via `explorer.exe shell:AppsFolder`.

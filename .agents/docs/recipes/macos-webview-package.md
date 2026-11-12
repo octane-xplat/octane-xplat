@@ -45,5 +45,5 @@ its shared DOM frontend inside the system WKWebView.
   `CFBundleIconFile`. Shutdown removes the temporary bundle.
 
 Documentation: [Development app identity](../../../docs/start/toolchain.md#experimental-appkit-target).
-Maintained coverage: [Development bundle tests](../../../packages/cli/test/macos-dev-bundle.test.mjs).
+Maintained coverage: [Development bundle tests](../../../packages/cli/test/macos-dev-bundle.test.mts).
 Visual Dock/Cmd-Tab appearance requires separate runtime verification.

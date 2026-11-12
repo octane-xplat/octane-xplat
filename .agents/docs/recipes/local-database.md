@@ -48,7 +48,7 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
   method surface and transaction semantics.
 - AC3: [Local database](../../../docs/app/local-storage.md) —
   `getUserVersion`/`setUserVersion` as the migration hook; [completion and errors](../../../docs/app/local-storage.md#open-a-saved-packing-list)
-  and [host regressions](../../../packages/sqlite/tests/transactions.test.mjs)
+  and [host regressions](../../../packages/sqlite/tests/transactions.test.mts)
   cover version writes and queue ordering with modeled native backends.
 - AC4: [Local database](../../../docs/app/local-storage.md) —
   `persistent` flag semantics; [known limits](../../../docs/testing/known-limits.md) —

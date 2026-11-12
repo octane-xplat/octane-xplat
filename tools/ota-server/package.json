@@ -8,7 +8,7 @@
 		"deploy": "wrangler deploy",
 		"publish:bundle": "node scripts/publish-bundle.ts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
-		"test": "node --test *.test.mjs"
+		"test": "node --test *.test.mts"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "5.20260928.1",

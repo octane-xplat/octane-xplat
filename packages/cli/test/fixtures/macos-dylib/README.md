@@ -11,7 +11,7 @@ generator links their `libclang`), CMake, Node, and the `opensrc` CLI. From the
 repository root:
 
 ```sh
-node packages/cli/test/verify-macos-dylib.mjs
+node packages/cli/test/verify-macos-dylib.mts
 ```
 
 The runner fetches the generator source at the same NativeScript revision used
@@ -44,7 +44,7 @@ has a ten-second timeout. Failure stops the runner with the captured diagnostic.
 
 ## Minimum pipeline
 
-The [runner](../../verify-macos-dylib.mjs) compiles
+The [runner](../../verify-macos-dylib.mts) compiles
 [xplat-probe.c](xplat-probe.c) as an arm64 dylib targeting macOS 13.5. It passes
 three `import=` arguments to the pinned generator: Foundation, dlfcn, and the
 absolute path of [xplat-probe.h](xplat-probe.h). Matching `include=` arguments

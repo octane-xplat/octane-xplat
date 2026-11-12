@@ -101,7 +101,7 @@ Check Notification Center as well as banner behavior when testing your app.
 
 ## Verification boundary
 
-The maintained [AppKit fixture](../../packages/notifications/tests/verify-macos.mjs)
+The maintained [AppKit fixture](../../packages/notifications/tests/verify-macos.mts)
 compiles and loads the native leaf, checks metadata selectors, constructs a real
 immediate request, and tests permission/error/thread and submission behavior
 with an intercepted notification center. The

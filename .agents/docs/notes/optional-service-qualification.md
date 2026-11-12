@@ -22,7 +22,7 @@ the table remain unchanged.
 ## Fresh results and boundaries
 
 macOS image selection uses the normal AppKit file picker, with no Photos-library
-request. The [selection tests](../../../packages/media/tests/macos-picker.test.mjs)
+request. The [selection tests](../../../packages/media/tests/macos-picker.test.mts)
 exercise deterministic panel/codec/filesystem responses through public entries:
 cancel, invalid data, write/conversion cleanup, ordered single/multiple results,
 repeated selection and app-owned preview release. The same suite runs against

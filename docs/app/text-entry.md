@@ -376,11 +376,11 @@ runtime evidence and exact remaining cases belong in
 [input readiness notes](../../.agents/docs/notes/input-readiness-notes.md).
 
 The maintained [GTK text-entry fixture](../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
-and [runner](../../packages/linux-gtk-renderer/test/ui-text-entry.test.mjs)
+and [runner](../../packages/linux-gtk-renderer/test/ui-text-entry.test.mts)
 exercise Gtk.Entry with actual X11 typing, controlled rejection/acceptance and
-selection/cursor checks. The [multiline renderer fixture](../../packages/linux-gtk-renderer/test/ui-text-view.test.mjs)
+selection/cursor checks. The [multiline renderer fixture](../../packages/linux-gtk-renderer/test/ui-text-view.test.mts)
 checks a low-level textview with actual X11 selection replacement, Return and
-Tab. The [direct-source sizing fixture](../../packages/linux-gtk-renderer/test/ui-text-area.test.mjs)
+Tab. The [direct-source sizing fixture](../../packages/linux-gtk-renderer/test/ui-text-area.test.mts)
 checks row allocation, growth caps, CSS font updates and actual X11 internal
 keyboard/wheel scrolling. Public TextArea,
 IME composition, OSK/overlay avoidance,

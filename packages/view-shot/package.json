@@ -44,12 +44,12 @@
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
-		"test:ios-api": "node tests/native-api.mjs ios",
-		"test:macos-api": "node tests/native-api.mjs macos",
-		"test:gtk-api": "node tests/gtk-api.mjs",
-		"test:packed": "node tests/packed-consumer.mjs",
-		"test:component": "node tests/runtime.web.mjs",
-		"test:web-graph": "node tests/web-graph.mjs"
+		"test:ios-api": "node tests/native-api.mts ios",
+		"test:macos-api": "node tests/native-api.mts macos",
+		"test:gtk-api": "node tests/gtk-api.mts",
+		"test:packed": "node tests/packed-consumer.mts",
+		"test:component": "node tests/runtime.web.mts",
+		"test:web-graph": "node tests/web-graph.mts"
 	},
 	"dependencies": {
 		"@octane-xplat/lib": "workspace:*",

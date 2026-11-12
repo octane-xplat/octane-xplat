@@ -89,7 +89,7 @@ and [the maintained Android case](../../packages/camera/tests/movie-switch.andro
 The [iOS qualification case](../../packages/camera/tests/movie-switch.ios.tsrx)
 checks native connection metadata, incoming audio coverage, encoded timing,
 stop/limit races, actual background/foreground recovery and the public factory.
-Run it through the [device controller](../../packages/camera/tests/ios-device.mjs)
+Run it through the [device controller](../../packages/camera/tests/ios-device.mts)
 on an unlocked, paired physical phone. The controller signs/builds under one
 broker reservation, releases build capacity, then reserves the phone. It uses
 per-run tokens and launches Settings to background the isolated probe before
@@ -106,7 +106,7 @@ Standalone source findings, platform evidence and the private consumer migration
 belong in `~/dev/reports/octane-xplat/camera-recording-switch.md`. Qualification
 must distinguish encoded timing and native source events from visual results.
 
-The native writer has a [generated-media simulator test](../../packages/camera/tests/ios-writer-simulator.mjs).
+The native writer has a [generated-media simulator test](../../packages/camera/tests/ios-writer-simulator.mts).
 It appends a test-only Swift extension to a temporary copy of the maintained
 writer, feeds generated video and PCM audio, and reads compressed packet
 metadata without decoding images. The inspector expands batched samples and

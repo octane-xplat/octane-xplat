@@ -3,8 +3,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:macos-runtime": "node ../macos-runtime.mjs",
-		"test:ios-runtime": "node ../ios-runtime.mjs"
+		"test:macos-runtime": "node ../macos-runtime.mts",
+		"test:ios-runtime": "node ../ios-runtime.mts"
 	},
 	"packageManager": "bun@1.4.4"
 }

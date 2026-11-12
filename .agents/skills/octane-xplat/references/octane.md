@@ -293,7 +293,7 @@ export const tabs = [{ id: 'home', render: HomeTab }] as const
 For a data-returning hook, keep its JSX in a named component and return a
 `{ component, props }` descriptor that a component instantiates. The table
 plugin hooks return `tableSlot(...)` descriptors, and the Table leaves render
-them through `TableSlot`. `tests/table-universal.test.mjs` checks the AppKit
+them through `TableSlot`. `tests/table-universal.test.mts` checks the AppKit
 compilation of these hooks with HMR on and off.
 
 ```tsrx

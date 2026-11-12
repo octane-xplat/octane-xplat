@@ -436,10 +436,10 @@ pnpm, Node headers, and Homebrew development headers; `--install` updates the
 CLI's prebuilt files and checksums. Its scratch clones and outputs stay under
 gitignored `research/`.
 
-From the repository root, run `node packages/cli/test/verify-macos-jsc.mjs`
+From the repository root, run `node packages/cli/test/verify-macos-jsc.mts`
 to build an independent unsigned fixture app, boot its packaged executable,
 and check the unsupported-import diagnostic. Run
-`node packages/cli/test/verify-macos-websocket.mjs` to exercise the host's
+`node packages/cli/test/verify-macos-websocket.mts` to exercise the host's
 `WebSocket` global against a real echo server. Both scripts leave artifacts
 under gitignored `research/` for inspection.
 
@@ -490,7 +490,7 @@ the in-repository sweep covers its shared harness, not every AppKit API.
 
 The shared `@octane-xplat/ui` `WebView` embeds WKWebView inside an AppKit screen;
 it is separate from the system WebView app-shell backend above.
-Run `bun run --cwd apps/macos node test/verify-webview.mjs` from the
+Run `bun run --cwd apps/macos node test/verify-webview.mts` from the
 repository root for the isolated compiled component fixture. It exercises real
 WebKit load callbacks, reload, HTML replacement, local-file history and errors,
 content measurement and unmount cleanup without screenshots. Delegate tests run with

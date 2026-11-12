@@ -56,7 +56,7 @@
 		"test:gestures": "node ../../tools/probe/cli.ts run test/fixtures/gestures.macos.tsrx --target macos",
 		"test:portals": "node ../../tools/probe/cli.ts run test/fixtures/portal-lifecycle.macos.tsrx --target macos",
 		"test:overflow": "node ../../tools/probe/cli.ts run test/fixtures/text-overflow.macos.tsrx --target macos",
-		"test:animation-runtime": "node test/animation-runtime.mjs",
+		"test:animation-runtime": "node test/animation-runtime.mts",
 		"test:packed": "node --experimental-strip-types test/packed-consumer.ts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
 	},
