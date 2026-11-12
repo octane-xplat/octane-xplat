@@ -51,6 +51,8 @@ const headers = [
   'QuartzCore/QuartzCore.h',
   'CoreText/CoreText.h',
   'TNSWidgets/TNSWidgets.h',
+  'UIView+NativeScript.h',
+  'NativeScriptUtils.h',
   'MasonCore/Mason.h',
   'MasonCore/MasonCore-Swift.h',
 ]
@@ -78,6 +80,7 @@ const args = [
   '-F' + join(sdk, 'System/Library/SubFrameworks'),
   '-F' + mason,
   '-I' + join(mason, 'include'),
+  '-I' + join(core, 'platforms/ios/src'),
   '-F' + widgets,
   '-Wno-deprecated-declarations',
 ]
@@ -119,6 +122,15 @@ for (const name of classes) {
     throw new Error('Missing native interface metadata: ' + name)
 }
 const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('hex')
+const requiredMethods = [
+  'nativeScriptSetTextDecorationAndTransformTextDecorationLetterSpacingLineHeight',
+  'nativeScriptSetFormattedTextDecorationAndTransformLetterSpacingLineHeight',
+  'nativeScriptSetFormattedTextStrokeColor',
+]
+for (const name of requiredMethods) {
+  if (!new RegExp('JsName: +' + name + '\\s*$', 'm').test(yaml))
+    throw new Error('Missing NativeScript text helper metadata: ' + name)
+}
 const manifest = {
   sdkVersion,
   generatorHash: hash(generator),
@@ -127,6 +139,13 @@ const manifest = {
   widgetsHash: hash(join(widgets, 'TNSWidgets.framework/TNSWidgets')),
   metadataHash: hash(join(work, 'metadata.bin')),
   requiredInterfaces: classes,
+  requiredMethods,
+  nativeHelperHeaderHashes: Object.fromEntries(
+    ['UIView+NativeScript.h', 'NativeScriptUtils.h'].map((name) => [
+      name,
+      hash(join(core, 'platforms/ios/src', name)),
+    ]),
+  ),
   qualification:
     'Clean header generation and interface presence only; native bridge/runtime behavior remains separate.',
 }
