@@ -54,6 +54,7 @@ const headers = [
   'TNSWidgets/TNSWidgets.h',
   'UIView+NativeScript.h',
   'NativeScriptUtils.h',
+  'NativeScriptEmbedder.h',
   'MasonCore/Mason.h',
   'MasonCore/MasonCore-Swift.h',
 ]
@@ -110,6 +111,7 @@ const classes = [
   'UIApplication',
   'UIWindowScene',
   'TNSLabel',
+  'NativeScriptEmbedder',
   'NSCMason',
   'MasonUIView',
   'MasonNode',
@@ -122,7 +124,7 @@ for (const name of classes) {
   if (!item || !/^    Type: +Interface\s*$/m.test(item[0]))
     throw new Error('Missing native interface metadata: ' + name)
 }
-const protocols = ['WKNavigationDelegate', 'WKUIDelegate']
+const protocols = ['WKNavigationDelegate', 'WKUIDelegate', 'NativeScriptEmbedderDelegate']
 for (const name of protocols) {
   const item = yaml.match(
     new RegExp('^  - Name: +' + name + '\\s*$([\\s\\S]*?)(?=^  - Name:|$(?![\\s\\S]))', 'm'),
@@ -151,7 +153,7 @@ const manifest = {
   requiredProtocols: protocols,
   requiredMethods,
   nativeHelperHeaderHashes: Object.fromEntries(
-    ['UIView+NativeScript.h', 'NativeScriptUtils.h'].map((name) => [
+    ['UIView+NativeScript.h', 'NativeScriptUtils.h', 'NativeScriptEmbedder.h'].map((name) => [
       name,
       hash(join(core, 'platforms/ios/src', name)),
     ]),
