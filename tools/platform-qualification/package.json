@@ -11,7 +11,7 @@
     "probe:prerender:ios": "node native-prerender/run.mjs run",
     "probe:prerender:home:check": "node native-prerender/check-home.mjs",
     "probe:prerender:metadata": "node native-prerender/metadata.mjs",
-    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs && node --check native-prerender/check-home.mjs"
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs && node --check native-prerender/check-home.mjs && node --check native-prerender/compile-home-helpers.mjs"
   },
   "devDependencies": {
     "@octane-xplat/nativescript-octane": "workspace:*",
