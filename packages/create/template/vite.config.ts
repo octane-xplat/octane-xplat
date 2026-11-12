@@ -1,11 +1,21 @@
-import { defineConfig, octane, css, boundary, devBridge, nodeEnvDefine } from 'octane-xplat/vite'
+import {
+  defineConfig,
+  octane,
+  css,
+  boundary,
+  devBridge,
+  nodeEnvDefine,
+  tweaks,
+} from 'octane-xplat/vite'
 
 // The web build. For native (iOS/Android), the same source runs through
 // @nativescript-community/vite-octane with `conditions: ['native']`, the
 // .ios/.android/.mobile suffix chain, and the unsuffixed native default — see
 // the octane-xplat repo's apps/mobile/vite.config.mts.
 export default defineConfig(({ mode }) => ({
-  plugins: [css('web'), ...octane(), boundary('web'), devBridge()],
+  // tweaks() instruments useTweak calls for the devtools Tweaks tab; it must
+  // run before the Octane plugins.
+  plugins: [tweaks(), css('web'), ...octane(), boundary('web'), devBridge()],
   define: nodeEnvDefine(mode),
   server: { port: 5200 },
   resolve: {

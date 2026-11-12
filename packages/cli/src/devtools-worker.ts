@@ -5,25 +5,43 @@ import { createRequire } from 'node:module'
 import { dirname, join, sep, basename } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-function devtoolsEntry(project: string): string {
-  const require = createRequire(join(project, 'package.json'))
-
+// The devtools package may be a direct project install or ride inside the
+// octane-xplat umbrella (Bun isolated layouts hide transitive deps from the
+// project root). Walk ancestors for either anchor and resolve desktop-node
+// through the anchor's own package so each layout's visibility rules apply.
+export function devtoolsEntry(project: string): string {
   for (let at = project; ; at = dirname(at)) {
-    const candidate = join(at, 'node_modules/@octane-xplat/devtools')
-    let found = false
+    for (const anchor of ['@octane-xplat/devtools', 'octane-xplat']) {
+      const host = join(at, 'node_modules', anchor)
+      let found = false
 
-    try {
-      lstatSync(candidate)
-      found = true
-    } catch (error) {
-      if (error.code !== 'ENOENT') {
+      try {
+        lstatSync(host)
+        found = true
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error
+        }
+      }
+
+      if (!found) {
+        continue
+      }
+
+      const require = createRequire(join(host, 'package.json'))
+      let root: string
+      let entry: string
+
+      try {
+        root = dirname(realpathSync(require.resolve('@octane-xplat/devtools/package.json')))
+        entry = realpathSync(require.resolve('@octane-xplat/devtools/desktop-node'))
+      } catch (error) {
+        if (error.code === 'MODULE_NOT_FOUND' || error.code === 'ERR_MODULE_NOT_FOUND') {
+          continue // an octane-xplat without the devtools dep — keep looking
+        }
+
         throw error
       }
-    }
-
-    if (found) {
-      const root = realpathSync(candidate)
-      const entry = realpathSync(require.resolve('@octane-xplat/devtools/desktop-node'))
 
       if (!entry.startsWith(root + sep) || !statSync(entry).isFile()) {
         throw new Error(
@@ -39,9 +57,7 @@ function devtoolsEntry(project: string): string {
     }
   }
 
-  throw new Error(
-    'Install @octane-xplat/devtools in the selected project: bun add -D @octane-xplat/devtools',
-  )
+  throw new Error('Install octane-xplat in the selected project: bun add -D octane-xplat')
 }
 
 // A receipt admits the operation; it never claims host or panel readiness.

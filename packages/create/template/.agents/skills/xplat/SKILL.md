@@ -153,6 +153,11 @@ export function BrowserGreeting() { return <p>Hello</p> }
 - `references/styling.md` — tokens, the portable CSS subset, dark mode.
 - `references/navigation.md` — file routes, links, params, stacks, modals.
 - `references/platform.md` — device services and writing your own leaf.
+- Live tweaks: wrap an editable literal in `useTweak` from
+  `octane-xplat/tweaks`, run `bun run dev`, then edit values and styles from
+  the Tweaks tab in `bun run xplat devtools` (macOS host). Save writes the
+  new literal back to source. Details:
+  https://octane-xplat.goddardai.org/package-tweaks
 - Current limits and platform boundaries:
   https://octane-xplat.goddardai.org/known-limits
 - Full framework docs, one file:

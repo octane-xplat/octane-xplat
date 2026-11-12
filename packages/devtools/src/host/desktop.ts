@@ -123,9 +123,7 @@ export async function devtoolsDesktop({
     try {
       require.resolve(name)
     } catch {
-      throw new Error(
-        `Devtools desktop prerequisite missing: ${name}; use the matching versions from your app's macOS setup`,
-      )
+      throw new Error(`Devtools desktop prerequisite missing: bun add -D ${name}`)
     }
   }
 

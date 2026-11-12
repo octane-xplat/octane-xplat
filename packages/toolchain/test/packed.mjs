@@ -13,7 +13,8 @@ import {
 
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { stageRelease } from '../../../tools/cli-go/stage-release.mjs'
 import { nativeFixture, hostTarget } from '../../../tools/cli-go/stage-fixture.mjs'
 
@@ -139,7 +140,11 @@ try {
   writeFileSync(
     join(app, 'main.web.tsrx'),
     `import { createRoot } from 'octane'
-function App() @{ <h1>Toolchain ready</h1> }
+import { useTweak } from 'octane-xplat/tweaks'
+function App() @{
+  const label = useTweak('Toolchain ready')
+  return <h1>{label}</h1>
+}
 createRoot(document.getElementById('root')!).render(<App />)
 `,
   )
@@ -162,8 +167,8 @@ createRoot(document.getElementById('root')!).render(<App />)
 
   writeFileSync(
     join(app, 'vite.config.ts'),
-    `import { defineConfig, octane, css, boundary } from 'octane-xplat/vite'
-export default defineConfig({ plugins: [css('web'), ...octane(), boundary('web')] })
+    `import { defineConfig, octane, css, boundary, tweaks } from 'octane-xplat/vite'
+export default defineConfig({ plugins: [tweaks(), css('web'), ...octane(), boundary('web')] })
 `,
   )
 
@@ -209,6 +214,70 @@ export default defineConfig({ plugins: [css('web'), ...octane(), boundary('web')
   run('bun', ['run', 'xplat', 'fmt', '--check'], app)
   run('bun', ['run', 'xplat', 'build', '--targets', 'web'], app)
   assert.match(readFileSync(join(app, 'dist/index.html'), 'utf8'), /assets/)
+
+  // The app imports the tweaks runtime only through the umbrella. The
+  // production build must keep the literal and strip the tweaks client.
+  assert.ok(
+    createRequire(join(app, 'package.json')).resolve('octane-xplat/tweaks').endsWith('tweaks.js'),
+    'octane-xplat/tweaks resolves',
+  )
+
+  const bundle = readdirSync(join(app, 'dist', 'assets'))
+    .filter((file) => file.endsWith('.js'))
+    .map((file) => readFileSync(join(app, 'dist', 'assets', file), 'utf8'))
+    .join('\n')
+
+  assert.ok(bundle.includes('Toolchain ready'), 'bundle keeps the useTweak literal')
+  assert.ok(
+    !bundle.includes('useTweak') && !bundle.includes('openDevChannel'),
+    'bundle strips useTweak instrumentation and the tweaks client',
+  )
+
+  // Resolve the toolchain's own dependencies from its install location —
+  // an isolated consumer has only `octane-xplat` in its dependencies.
+  const toolchainRequire = createRequire(
+    createRequire(join(app, 'package.json')).resolve('octane-xplat/package.json'),
+  )
+
+  const { discoverDevtoolsPanels } = await import(
+    pathToFileURL(toolchainRequire.resolve('@octane-xplat/devtools/desktop-node')).href
+  )
+
+  assert.deepEqual(
+    discoverDevtoolsPanels(app).map((panel) => panel.name),
+    ['@octane-xplat/tweaks'],
+    'devtools panel discovery reaches umbrella dependencies',
+  )
+
+  const { createServer } = await import(pathToFileURL(toolchainRequire.resolve('vite')).href)
+  const server = await createServer({
+    root: app,
+    configFile: join(app, 'vite.config.ts'),
+    server: { middlewareMode: true },
+    logLevel: 'silent',
+  })
+
+  try {
+    const transformed = await server.transformRequest('/main.web.tsrx')
+
+    // The Octane compiler wraps the instrumented call in a slot helper, so
+    // assert on the injected `file#id` argument after the literal.
+    assert.match(
+      transformed.code,
+      /['"]Toolchain ready['"]\s*,\s*['"][^'"]*#[^'"]+['"]/,
+      'dev transform injects the tweak id',
+    )
+
+    const devEntry = await server.pluginContainer.resolveId(
+      '@octane-xplat/tweaks/dev',
+      join(app, 'main.web.tsrx'),
+    )
+
+    assert.ok(devEntry?.id, 'injected @octane-xplat/tweaks/dev resolves in an umbrella-only layout')
+  } finally {
+    await server.close()
+  }
+
   writeFileSync(join(app, 'main.web.tsrx'), 'const broken: number = "wrong"\n')
 
   const failure = spawnSync('bun', ['run', 'xplat', 'typecheck'], {

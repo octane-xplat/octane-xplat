@@ -16,13 +16,20 @@
 		"./vite": {
 			"types": "./vite.d.ts",
 			"default": "./vite.js"
-		}
+		},
+		"./tweaks": {
+			"types": "./tweaks.d.ts",
+			"default": "./tweaks.js"
+		},
+		"./package.json": "./package.json"
 	},
 	"files": [
 		"bin",
 		"vite.js",
 		"vite.d.ts",
-		"install-native.mjs"
+		"install-native.mjs",
+		"tweaks.js",
+		"tweaks.d.ts"
 	],
 	"scripts": {
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
@@ -33,8 +40,10 @@
 	},
 	"dependencies": {
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/devtools": "workspace:*",
 		"@octane-xplat/fmt": "0.3.0",
 		"@octane-xplat/lint": "workspace:*",
+		"@octane-xplat/tweaks": "workspace:*",
 		"@octanejs/vite-plugin": "0.5.0",
 		"@tsrx/oxc": "0.20.0",
 		"typescript": "7.1.0-beta",
