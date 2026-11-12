@@ -365,6 +365,13 @@ uncharacterized. On iOS the preference is observed through
 `animator_duration_scale` at 500 ms while subscribed (plus
 `ValueAnimator.areAnimatorsEnabled()` on API 26+) and refreshes on resume.
 
+Reduced-motion subscriptions share one lazy platform observer per module/runtime.
+Android retains one 500 ms poll plus one resume listener while there are readers;
+iOS and AppKit share their notification token, and web shares a media-query
+listener. The last unsubscribe releases the underlying resource. Generation
+checks ignore queued callbacks after release/reacquisition. This changes
+subscription cost, not the platform preference or MotionConfig policy.
+
 ## macOS package boundary
 
 Motion and RollingText have a separate macOS package build. This is package

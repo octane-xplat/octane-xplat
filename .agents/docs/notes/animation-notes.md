@@ -120,6 +120,14 @@ This is a `packages/ui` native compatibility bug (recorded in Silo
 `feedback_observations`), not a motion limitation; delete the shim once ui
 stops constructing `Intl` objects at module scope.
 
+### Reduced-motion observer lifetime
+
+Reduced-motion readers share one platform subscription. Android has one poll
+and one resume listener for the active reader set, not one timer per host. The
+last unsubscribe stops observation; queued old notifications cannot reach a
+new reader generation. Source and stub tests qualify resource ownership, not
+live OS preference delivery or device energy use.
+
 ### NativeScript upstream gaps this feature depends on
 
 - `@nativescript-community/octane@0.2.5` exposes no batch/commit signal.

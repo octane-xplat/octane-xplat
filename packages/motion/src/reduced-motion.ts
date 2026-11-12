@@ -1,3 +1,4 @@
+import { createSharedObserver, type SharedObserver } from './shared-observer'
 import { Application, Device, Utils } from '@nativescript/core'
 
 export function readReducedMotion(): boolean {
@@ -33,12 +34,17 @@ export function readReducedMotion(): boolean {
 // iOS posts a notification on preference change; Android has no event, so it
 // polls only while subscribed (also catches developer-setting changes) and
 // refreshes on resume.
-export function observeReducedMotion(notify: () => void): () => void {
+function startObservation(notify: () => void): () => void {
   if (Application.ios) {
+    const application = Application.ios
     const name = (globalThis as any).UIAccessibilityReduceMotionStatusDidChangeNotification
-    const observer = Application.ios.addNotificationObserver(name, notify)
+    const observer = application.addNotificationObserver(name, notify)
 
-    return () => Application.ios.removeNotificationObserver(observer, name)
+    return () => application.removeNotificationObserver(observer, name)
+  }
+
+  if (!(globalThis as any).android) {
+    return () => {}
   }
 
   let previous = readReducedMotion()
@@ -59,3 +65,6 @@ export function observeReducedMotion(notify: () => void): () => void {
     Application.off(Application.resumeEvent, check)
   }
 }
+
+/** Share one platform observer across all mounted Motion readers. */
+export const observeReducedMotion: SharedObserver = createSharedObserver(startObservation)

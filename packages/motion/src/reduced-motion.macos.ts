@@ -1,10 +1,12 @@
+import { createSharedObserver, type SharedObserver } from './shared-observer'
+
 export function readReducedMotion(): boolean {
   return Boolean(
     (globalThis as any).NSWorkspace?.sharedWorkspace?.accessibilityDisplayShouldReduceMotion,
   )
 }
 
-export function observeReducedMotion(notify: () => void): () => void {
+function startObservation(notify: () => void): () => void {
   const platform = globalThis as any
   const workspace = platform.NSWorkspace?.sharedWorkspace
   // AppKit posts accessibility display changes on the workspace's center,
@@ -37,3 +39,6 @@ export function observeReducedMotion(notify: () => void): () => void {
     center.removeObserver(observer)
   }
 }
+
+/** Share one platform observer across all mounted Motion readers. */
+export const observeReducedMotion: SharedObserver = createSharedObserver(startObservation)

@@ -577,7 +577,9 @@ respect that preference, especially for movement that is not essential.
 `MotionConfig` supplies inherited transition defaults and a `reducedMotion`
 policy: `never` (default), `always`, or `user`. Reduced motion settles transforms
 immediately while allowing opacity fades. `useReducedMotion` observes the system
-preference independently of config. Imperative gesture settling should use it
+preference independently of config. Mounted readers share one platform observer;
+the last reader leaving releases it. Android uses one 500 ms poll and one resume
+listener for the active reader set. Imperative gesture settling should use it
 to choose immediate playback when appropriate. Pass configuration separately
 into overlays with their own Octane root.
 
