@@ -128,6 +128,9 @@ ancestry, native sheet attachment and recognizer state, and errors at
 `Documents/animation-input-diagnostic.json`. It writes
 during interaction and invalidates performance results. Rebuild without that
 variable for measurement; the default has no input journal writes.
+Sheet diagnostics include ref identity, loaded/unloaded events before and after
+microtasks, and SDK tap/touch observer counts. A loaded view can still be outside
+its UIKit window; compare both fields when investigating retained presentations.
 
 The Swift bridge uses `beginAnimationInterval`, requesting Apple's animation
 metrics through the custom `XCTOSSignpostMetric`. A `ScenarioName` signpost event

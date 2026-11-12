@@ -1,5 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Application, File, Frame, Page, knownFolders, path } from '@nativescript/core'
+import {
+  Application,
+  File,
+  Frame,
+  GestureTypes,
+  Page,
+  knownFolders,
+  path,
+} from '@nativescript/core'
+
 import { View as NativeView } from '@nativescript/core'
 import { install } from '@nativescript-community/gesturehandler'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
@@ -51,6 +60,17 @@ const inputLog = (event: string, data: unknown) => {
     File.fromPath(
       path.join(knownFolders.documents().path, 'animation-input-diagnostic.json'),
     ).writeTextSync(JSON.stringify(inputEvents))
+  }
+}
+
+function sheetInputState(host: NativeView | undefined) {
+  return {
+    loaded: host?.isLoaded ?? null,
+    attached: Boolean(host?.ios?.window),
+    native: String(host?.ios ?? null),
+    recognizers: String(host?.ios?.gestureRecognizers ?? null),
+    tapObservers: host?.getGestureObservers(GestureTypes.tap)?.length ?? 0,
+    touchObservers: host?.getGestureObservers(GestureTypes.touch)?.length ?? 0,
   }
 }
 
@@ -116,6 +136,7 @@ function Benchmark() {
   const samples = sampleRef.current
   const idleObservation = useRef<{ before: number; after: number; elapsedMs: number } | null>(null)
   const controls = useRef<Record<string, NativeView>>({})
+  const releaseSheetInput = useRef<(() => void) | null>(null)
   const saveStart = useMemo(
     () => (value: object | null) => {
       if (value instanceof NativeView) {
@@ -124,11 +145,37 @@ function Benchmark() {
     },
     [],
   )
+
   const saveSheetClose = useMemo(
     () => (value: object | null) => {
+      releaseSheetInput.current?.()
+      releaseSheetInput.current = null
       if (value instanceof NativeView) {
         controls.current.sheetClose = value
+
+        let alive = true
+        const record = (event: string) => {
+          inputLog(event, sheetInputState(value))
+          queueMicrotask(() => {
+            if (alive) {
+              inputLog(event + '-settled', sheetInputState(value))
+            }
+          })
+        }
+
+        const loaded = () => record('sheet-close-loaded')
+        const unloaded = () => record('sheet-close-unloaded')
+
+        value.on('loaded', loaded)
+        value.on('unloaded', unloaded)
+        inputLog('sheet-close-ref', sheetInputState(value))
+        releaseSheetInput.current = () => {
+          alive = false
+          value.off('loaded', loaded)
+          value.off('unloaded', unloaded)
+        }
       } else {
+        inputLog('sheet-close-ref-cleared', {})
         delete controls.current.sheetClose
       }
     },
@@ -143,11 +190,7 @@ function Benchmark() {
     const timer = setTimeout(() => {
       const host = controls.current.sheetClose
 
-      inputLog('sheet-native-state', {
-        loaded: host?.isLoaded ?? null,
-        attached: Boolean(host?.ios?.window),
-        recognizers: String(host?.ios?.gestureRecognizers ?? null),
-      })
+      inputLog('sheet-native-state', sheetInputState(host))
     }, 700)
 
     return () => clearTimeout(timer)
@@ -194,6 +237,8 @@ function Benchmark() {
   useEffect(
     () => () => {
       clearTimers()
+      releaseSheetInput.current?.()
+      releaseSheetInput.current = null
       AnimationQualityTrace.end()
       running = false
     },
@@ -235,6 +280,7 @@ function Benchmark() {
 
     if (results.length < 100) {
       results.push(result)
+
       // Use NativeScript's async iOS write so a Finish tap does not block the UI thread.
       const write = resultWrites
         .catch(() => undefined)
