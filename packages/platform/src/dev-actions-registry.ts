@@ -22,6 +22,12 @@
 // - Duplicate ids throw; disposing the returned handle removes the action
 //   (component-owned registrations end with their owner).
 
+import {
+  DevReadinessError,
+  type DevReadinessScope,
+  type DevReadinessSnapshot,
+} from './dev-readiness-state'
+
 import type { AppDebugSocket } from './dev-bridge-socket'
 import { devBridgeEndpoint, devBridgePlatform, devBridgeSocket } from './dev-bridge'
 import {
@@ -60,6 +66,8 @@ export type DevActionInfo = {
     readyWhen?: string | undefined
     platforms?: DevPlatform[] | undefined
   }
+  /** Registered work owned by selected handlers; separate from invocation availability. */
+  readiness?: DevReadinessSnapshot[]
   /** Current/last execution record. */
   execution: DevActionExecution | undefined
 }[]
@@ -202,7 +210,26 @@ interface DeclarationEntry {
   key: string
 }
 
+/** One dispatch-start participant; success describes its handler, not painted pixels. */
+export interface DevActionHandlerOutcome {
+  /** Position in the dispatch-start cohort. */
+  handler: number
+  /** Static owner label supplied at attachment. */
+  label?: string
+  /** A cancelled invocation can leave later participants unrun. */
+  status: 'not-run' | 'succeeded' | 'failed' | 'cancelled'
+}
+
+/** Options for a directly attached handler. Component hooks bind readiness through context. */
+export interface DevActionHandlerOptions {
+  /** Static owner label, without user data. */
+  label?: string
+  /** Readiness owner to await after execution; omitted for unscoped handlers. */
+  readiness?: DevReadinessScope
+}
+
 interface HandlerEntry {
+  readiness?: DevReadinessScope
   run: DevActionRun
   label?: string
 }
@@ -369,6 +396,8 @@ interface DevActionOutcome {
   result?: Record<string, unknown>
   error?: { code: string; message: string; failures?: DevActionFailure[] }
   partialEffects?: string[]
+  handlers?: DevActionHandlerOutcome[]
+  readiness?: DevReadinessSnapshot[]
   completedAt: string
 }
 
@@ -467,6 +496,12 @@ const declarations = (state: RegistryState) =>
   [...state.actions.values()].map((entry) => {
     const spec = entry.spec
     const live = liveAvailability(state, entry)
+    const attached = state.handlers.get(spec.id) ?? []
+    const selected = entry.kind === 'effect' ? attached : attached.slice(-1)
+    const scopes = new Set(
+      selected.flatMap((handler) => (handler.readiness ? [handler.readiness] : [])),
+    )
+
     const routed = entry.kind === 'action' && spec.route !== undefined
 
     return {
@@ -487,6 +522,7 @@ const declarations = (state: RegistryState) =>
         ready: live.ready,
         ...(live.reason ? { reason: live.reason } : {}),
       },
+      readiness: [...scopes].map((scope) => scope.snapshot()),
       execution: spec.execution,
     }
   })
@@ -613,7 +649,7 @@ function attachHandler(
   id: string,
   kind: 'action' | 'effect',
   run: DevActionRun,
-  options?: { label?: string },
+  options?: DevActionHandlerOptions,
 ): () => void {
   if (typeof run !== 'function') {
     throw new Error(
@@ -630,6 +666,7 @@ function attachHandler(
 
   const handler: HandlerEntry = {
     run,
+    readiness: options?.readiness,
     ...(options?.label !== undefined ? { label: options.label } : {}),
   }
 
@@ -640,6 +677,8 @@ function attachHandler(
   } else {
     state.handlers.set(id, [handler])
   }
+
+  const stopReadiness = handler.readiness?.subscribe(() => scheduleAnnounce(state))
 
   // Availability changed even though the announced contract did not —
   // re-announce without bumping the registry revision.
@@ -654,6 +693,7 @@ function attachHandler(
     }
 
     detached = true
+    stopReadiness?.()
 
     const list = state.handlers.get(id)
 
@@ -689,7 +729,7 @@ function attachHandler(
 export function attachDevActionHandler(
   action: DevActionDefinition | string,
   run: DevActionRun,
-  options?: { label?: string },
+  options?: DevActionHandlerOptions,
 ): () => void {
   if (typeof action !== 'string' && action.kind !== 'action') {
     throw new Error(`"${action.id}" is a dev ${action.kind}; use attachDevEffectHandler`)
@@ -702,7 +742,7 @@ export function attachDevActionHandler(
 export function attachDevEffectHandler(
   effect: DevEffectDefinition | string,
   run: DevActionRun,
-  options?: { label?: string },
+  options?: DevActionHandlerOptions,
 ): () => void {
   if (typeof effect !== 'string' && effect.kind !== 'effect') {
     throw new Error(`"${effect.id}" is a dev ${effect.kind}; use attachDevActionHandler`)
@@ -1772,6 +1812,10 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
     }
 
     let invocationFailures: DevActionFailure[] | undefined
+    const participants: DevActionHandlerOutcome[] = []
+    const readiness: DevReadinessSnapshot[] = []
+    const scopes = new Set<DevReadinessScope>()
+    const deadline = Date.now() + (spec.execution?.timeoutMs ?? 30_000)
 
     try {
       let handlers = [...(state.handlers.get(spec.id) ?? [])]
@@ -1878,6 +1922,20 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 
       let result: Record<string, unknown> | undefined
 
+      const cohort = entry.kind === 'effect' ? handlers : handlers.slice(-1)
+
+      for (const handler of cohort) {
+        if (handler.readiness) {
+          scopes.add(handler.readiness)
+        }
+
+        participants.push({
+          handler: handlers.indexOf(handler),
+          label: handler.label,
+          status: 'not-run',
+        })
+      }
+
       if (entry.kind === 'effect') {
         // Broadcast: every handler attached at dispatch start runs, in
         // attach order, and failures don't stop the remaining handlers.
@@ -1885,10 +1943,18 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
         const failureMessages: string[] = []
 
         for (const [index, handler] of handlers.entries()) {
+          if (running.controller.signal.aborted) {
+            throw new Error('cancelled')
+          }
+
           running.active.add(handler)
           try {
             await handler.run(input.value, context)
+            participants[index]!.status = running.controller.signal.aborted
+              ? 'cancelled'
+              : 'succeeded'
           } catch (error) {
+            participants[index]!.status = running.controller.signal.aborted ? 'cancelled' : 'failed'
             if (running.controller.signal.aborted) {
               throw error
             }
@@ -1900,8 +1966,6 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
             }
 
             failureMessages.push(record.message)
-          } finally {
-            running.active.delete(handler)
           }
         }
 
@@ -1936,12 +2000,48 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
         running.active.add(handler)
         try {
           result = (await handler.run(input.value, context)) as Record<string, unknown> | undefined
+          participants[0]!.status = running.controller.signal.aborted ? 'cancelled' : 'succeeded'
         } catch (thrown) {
+          participants[0]!.status = running.controller.signal.aborted ? 'cancelled' : 'failed'
           invocationFailures = [toFailureRecord(handlerIndex, handler.label, thrown)]
           throw thrown
-        } finally {
-          running.active.delete(handler)
         }
+      }
+
+      if (running.controller.signal.aborted) {
+        throw new Error('cancelled')
+      }
+
+      const waitController = new AbortController()
+      const abortWait = () => waitController.abort()
+
+      context.signal.addEventListener('abort', abortWait, { once: true })
+      if (context.signal.aborted) {
+        abortWait()
+      }
+
+      try {
+        const settled = await Promise.all(
+          [...scopes].map((scope) =>
+            scope.wait({
+              signal: waitController.signal,
+              timeoutMs: Math.min(10_000, Math.max(1, Math.floor((deadline - Date.now()) / 2))),
+            }),
+          ),
+        )
+
+        readiness.push(...settled)
+      } catch (error) {
+        readiness.splice(0, readiness.length, ...[...scopes].map((scope) => scope.snapshot()))
+        partialEffects.push('handlers completed; registered work did not settle')
+        throw error
+      } finally {
+        waitController.abort()
+        context.signal.removeEventListener('abort', abortWait)
+      }
+
+      if (running.controller.signal.aborted) {
+        throw new Error('cancelled')
       }
 
       const output = validateActionOutput(spec.result, result)
@@ -1966,22 +2066,33 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
             completedAt: new Date().toISOString(),
           }
 
-      await postOutcome(rt, outcome)
+      await postOutcome(rt, { ...outcome, handlers: participants, readiness })
     } catch (error) {
+      if (!readiness.length) {
+        readiness.push(...[...scopes].map((scope) => scope.snapshot()))
+      }
+
       await postOutcome(
         rt,
         running.controller.signal.aborted
           ? {
               requestId: request.requestId,
               status: 'cancelled',
+              handlers: participants,
+              readiness,
               ...(partialEffects.length ? { partialEffects } : {}),
               completedAt: new Date().toISOString(),
             }
           : {
               requestId: request.requestId,
               status: 'failed',
+              handlers: participants,
+              readiness,
               error: {
-                code: error instanceof DevNavigationError ? error.code : 'execution_failure',
+                code:
+                  error instanceof DevNavigationError || error instanceof DevReadinessError
+                    ? error.code
+                    : 'execution_failure',
                 message: (error as Error)?.message ?? String(error),
                 ...(invocationFailures?.length ? { failures: invocationFailures } : {}),
               },

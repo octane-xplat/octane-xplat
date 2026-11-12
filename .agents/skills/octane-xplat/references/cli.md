@@ -55,6 +55,8 @@ connections. Direct loopback transport requires same-host reachability and a
 runtime WebSocket implementation. NativeScript has an experimental project-Vite
 relay with registration, read-only invocation/status and short-client lifetime
 evidence on an API 35 ARM64 Android emulator and an iOS 27 arm64 simulator.
+Both native gates additionally cover fixture mutation/readback, scoped registered-work
+waits/timeouts, owner-detach cancellation and unknown disconnect outcomes.
 Reconnect/HMR, physical devices and other runtimes remain unqualified,
 and non-browser UI adapters remain unqualified. Actual Chromium action invocation and programmatic interaction have macOS
 evidence; protocol checks do not qualify browser UI behavior on other hosts. Browser console

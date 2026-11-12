@@ -10,6 +10,7 @@ import { cpSync, mkdirSync, readFileSync, realpathSync, symlinkSync, writeFileSy
 import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { scratchRun } from './scratch.mjs'
+import { devActionFixture, qualifyDevActionFixture } from './dev-action-fixture.mjs'
 
 assert.equal(
   process.platform,
@@ -236,6 +237,7 @@ put(join(app, 'tsconfig.json'), {
 for (const name of [
   'dev-actions-registry.ts',
   'dev-actions-schema.ts',
+  'dev-readiness-state.ts',
   'dev-bridge-socket.ts',
   'dev-bridge.ts',
 ]) {
@@ -245,10 +247,7 @@ for (const name of [
   })
 }
 
-put(
-  join(app, 'src/index.ts'),
-  `import '@valor/nativescript-websockets';import {Application,Label} from '@nativescript/core';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.ios.read',title:'Read iOS fixture',description:'Observe owned fixture',effects:{summary:'Read only'},result:{fields:{value:{type:'integer'}}},run:()=>({value:1})});console.log('GO_IOS_RELAY_READY');Application.run({create:()=>{const label=new Label();label.text='Owned CLI relay fixture';return label}});\n`,
-)
+put(join(app, 'src/index.ts'), devActionFixture('ios'))
 
 let dev, failure
 const evidence = {
@@ -346,6 +345,7 @@ try {
   assert.ok(appLine, `No UIKitApplication:${appId} entry in launchctl list`)
   evidence.pidAfterClientExit = appLine.trim().split(/\s+/)[0]
   assert.match(evidence.pidAfterClientExit, /^\d+$/)
+  evidence.actions = await qualifyDevActionFixture(query, until, 'ios')
   evidence.passed = true
 } catch (error) {
   failure = error

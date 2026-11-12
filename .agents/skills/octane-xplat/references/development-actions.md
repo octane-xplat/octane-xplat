@@ -78,6 +78,22 @@ sessions; NativeScript frames match by line text, so an occasional frame may
 stay raw). Keep secrets out
 of thrown errors — they cross the dev channel verbatim.
 
+## Own readiness through context
+
+Mount `DevActionScope` from `@octane-xplat/platform/dev-actions/readiness` behind the development gate around a screen. Descendant action/effect hooks bind the nearest scope automatically; nested scopes join their parent. `useDevReadiness(pending, staticLabel)` from `/dev-actions` reports custom pending work with automatic update/unmount cleanup. Shared `useQuery$` readers report development loading/fetching/paused/error state automatically. These labels must never contain data or keys. See the [registered-work guide](../../../../docs/testing/development-actions.md#wait-for-a-screens-registered-work).
+
+```tsx
+if (import.meta.env.DEV) {
+  useDevReadiness(isPreparing, 'Preparing preview')
+}
+```
+
+Readiness is a post-handler wait, distinct from invocation availability. Keep scopes screen-local. Use `{ waitForReadiness: false }` for diagnostics and escape actions that must run while the scope is pending. A readiness timeout can follow successful handlers; inspect `handlers`, `readiness`, and partial effects before retrying. Only work registered in the scope is covered. Native frame presentation, image decoding, custom clients, animations and foreground route identity are not automatically established. Module-owned handlers can attach an explicit scope; do not make component authors pass it through each callback.
+
+```json
+{"handlers":[{"handler":0,"label":"Preview","status":"succeeded"}],"readiness":[{"scope":"Preview","revision":3,"pending":["Preparing preview"]}]}
+```
+
 ## Choose what to cover
 
 Actions invoke handlers; they never deliver input. Cover reachable behaviors
@@ -113,7 +129,7 @@ carries the full rationale and examples.
 
 Prefer actions that declare `route`: the app navigates to that URL itself when
 the handler's screen is not mounted, waits for attach + readiness, then runs.
-Check the listing's `location` first to see where the app is. If the needed
+Automatic routing only runs when the handler is absent. For a retained/mounted screen, invoke `xplat.navigate` explicitly when foreground location matters. Check the listing's `location` first to see where the app is. If the needed
 action has no `availability.route`, fall back to invoking `xplat.navigate`
 (registered in dev builds by generated routes) with `{ "url": "/path" }`
 before the target action — and remember it never navigates back. Its
@@ -138,9 +154,13 @@ export default defineConfig({ plugins: [devBridge()] })
 
 The Go CLI has actual macOS Chromium and headless
 AppKit action registration/invocation/status evidence. The Go NativeScript
-project-Vite relay also has actual registration, read-only invocation/status,
+project-Vite relay also has registration, read-only invocation/status,
 short-client lifetime and foreground cleanup evidence on an API 35 ARM64 Android
-emulator and an iOS 27 arm64 simulator. Reconnect/HMR, physical devices, other
+emulator and an iOS 27 arm64 simulator. Both native gates additionally cover
+fixture mutation/readback, scoped registered-work waits/timeouts, owner-detach
+cancellation and unknown in-flight disconnect outcomes. These are native-view
+state checks, not a native-renderer context or pixel qualification.
+Reconnect/HMR, physical devices, other
 runtimes, Windows and Linux app-runtime
 coverage must not be inferred from their shared registry or host protocol tests.
 Declaring an action's platforms does not establish transport support.

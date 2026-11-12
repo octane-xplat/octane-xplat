@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'octane'
+import { useContext, useEffect, useRef } from 'octane'
 import {
   attachDevActionHandler,
   attachDevEffectHandler,
@@ -11,12 +11,16 @@ import {
   type DevEffectDefinition,
 } from './dev-actions-registry'
 
+import { DevReadinessContext } from './dev-readiness-context'
+
 type ReadyProbe = Exclude<DevActionAvailability['ready'], boolean | undefined>
 
 /** Options for the useDevAction/useDevEffect hooks. */
 export interface DevActionHookOptions {
   /** false detaches the handler without unmounting (e.g. an unfocused tab). Default true. */
   enabled?: boolean
+  /** false lets diagnostics/escape actions return while scoped work is pending. Default true. */
+  waitForReadiness?: boolean
   /** Owner name reported in failure records (e.g. the component name). */
   label?: string
 }
@@ -28,6 +32,8 @@ export interface DevActionHookOptions {
  * handler always runs the latest render's `run` closure.
  */
 export function useDevAction(spec: DevActionSpec, options?: DevActionHookOptions): void {
+  const owner = useContext(DevReadinessContext)
+  const readiness = options?.waitForReadiness === false ? undefined : owner
   const enabled = options?.enabled !== false
   const label = options?.label
   const runRef = useRef(spec.run)
@@ -63,14 +69,14 @@ export function useDevAction(spec: DevActionSpec, options?: DevActionHookOptions
     const detach = attachDevActionHandler(
       spec.id,
       (input, context) => runRef.current(input, context),
-      { label },
+      { label, readiness: readiness ?? undefined },
     )
 
     return () => {
       detach()
       release()
     }
-  }, [spec.id, enabled, label, key])
+  }, [spec.id, enabled, label, key, readiness])
 }
 
 /**
@@ -83,6 +89,8 @@ export function useDevActionHandler(
   run: DevActionRun,
   options?: DevActionHookOptions,
 ): void {
+  const owner = useContext(DevReadinessContext)
+  const readiness = options?.waitForReadiness === false ? undefined : owner
   const enabled = options?.enabled !== false
   const label = options?.label
   const runRef = useRef(run)
@@ -95,8 +103,9 @@ export function useDevActionHandler(
 
     return attachDevActionHandler(action, (input, context) => runRef.current(input, context), {
       label,
+      readiness: readiness ?? undefined,
     })
-  }, [action, enabled, label])
+  }, [action, enabled, label, readiness])
 }
 
 /** Attach a handler to a dev effect while this component is mounted; every attached handler runs per invocation. */
@@ -105,6 +114,8 @@ export function useDevEffect(
   run: DevActionRun,
   options?: DevActionHookOptions,
 ): void {
+  const owner = useContext(DevReadinessContext)
+  const readiness = options?.waitForReadiness === false ? undefined : owner
   const enabled = options?.enabled !== false
   const label = options?.label
   const runRef = useRef(run)
@@ -117,6 +128,7 @@ export function useDevEffect(
 
     return attachDevEffectHandler(effect, (input, context) => runRef.current(input, context), {
       label,
+      readiness: readiness ?? undefined,
     })
-  }, [effect, enabled, label])
+  }, [effect, enabled, label, readiness])
 }

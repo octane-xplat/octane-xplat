@@ -17,6 +17,7 @@ import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { scratchRun } from './scratch.mjs'
+import { devActionFixture, qualifyDevActionFixture } from './dev-action-fixture.mjs'
 
 assert.equal(
   process.platform,
@@ -43,7 +44,7 @@ const java =
 
 const adb = join(sdk, 'platform-tools/adb'),
   avd = 'elegant-fir-probe',
-  device = 'emulator-5588'
+  device = 'emulator-5556'
 
 const scratch = realpathSync(scratchRun(root, 'go-native-android'))
 const app = join(scratch, 'app'),
@@ -231,6 +232,7 @@ put(join(app, 'tsconfig.json'), {
 for (const name of [
   'dev-actions-registry.ts',
   'dev-actions-schema.ts',
+  'dev-readiness-state.ts',
   'dev-bridge-socket.ts',
   'dev-bridge.ts',
 ]) {
@@ -240,10 +242,7 @@ for (const name of [
   })
 }
 
-put(
-  join(app, 'src/index.ts'),
-  `import '@valor/nativescript-websockets';import {Application,Label} from '@nativescript/core';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.android.read',title:'Read Android fixture',description:'Observe owned fixture',effects:{summary:'Read only'},result:{fields:{value:{type:'integer'}}},run:()=>({value:1})});console.log('GO_ANDROID_RELAY_READY');Application.run({create:()=>{const label=new Label();label.text='Owned CLI relay fixture';return label}});\n`,
-)
+put(join(app, 'src/index.ts'), devActionFixture('android'))
 
 mkdirSync(env.GRADLE_USER_HOME)
 put(
@@ -291,7 +290,7 @@ try {
     '-avd',
     avd,
     '-port',
-    '5588',
+    '5556',
     '-no-window',
     '-no-audio',
     '-no-snapshot',
@@ -313,7 +312,7 @@ try {
       return result.status === 0 && result.stdout.trim() === '1'
     },
     'Designated emulator boot deadline',
-    120000,
+    300000,
   )
 
   assert.equal(command(adb, ['-s', device, 'emu', 'avd', 'name']).trim().split(/\r?\n/)[0], avd)
@@ -385,6 +384,7 @@ try {
   assert.equal(dev.ended, false, 'Short-lived CLI clients stopped foreground dev')
   evidence.pidAfterClientExit = command(adb, ['-s', device, 'shell', 'pidof', appId]).trim()
   assert.match(evidence.pidAfterClientExit, /^\d+(?: \d+)*$/)
+  evidence.actions = await qualifyDevActionFixture(query, until, 'android')
   evidence.passed = true
 } catch (error) {
   failure = error

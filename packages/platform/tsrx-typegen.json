@@ -52,6 +52,11 @@
 						"./types/generated/testing.mobile.d.ts"
 					]
 				},
+				"./dev-actions/readiness": {
+					"source": "src/dev-actions-readiness.ts",
+					"runtime": ["./src/dev-actions-readiness.ts"],
+					"types": ["./types/generated/dev-actions-readiness.d.ts"]
+				},
 				"./dev-actions": {
 					"source": "src/dev-actions.ts",
 					"runtime": [
