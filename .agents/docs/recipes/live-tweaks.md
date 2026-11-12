@@ -29,13 +29,14 @@ Bamboo style drafts preview on web only.
   config; dev transforms inject tweak ids and the injected
   `@octane-xplat/tweaks/dev` import resolves in an umbrella-only install.
 - AC3: Open `xplat devtools` against a running `xplat dev` server, reach
-  the Tweaks tab, select a backend when several exist, and read the empty
+  the Tweaks and Styles tabs, select a backend when several exist, and read the empty
   state when none is running.
 - AC4: Persist edits: Save writes source literals and style sites back to
-  files; Revert discards drafts; production bundles contain no tweaks
-  client or instrumentation.
+  files for the selected editor only, including unmounted entries; Revert
+  discards only that editor's drafts. Property/pick filters do not narrow Save.
+  Production bundles contain no tweaks client or instrumentation.
 - AC5: A package ships a devtools panel via `octaneXplat.devtoolsPanel`
-  plus a `defineDevtoolsPanel` module; the desktop bundle discovers it from
+  plus a `defineDevtoolsPanel` module (or several subpaths for several tabs); the desktop bundle discovers it from
   project or umbrella dependencies and skips invalid entries with a
   warning.
 

@@ -52,8 +52,8 @@ bun run xplat dev web
 ```
 
 Open devtools in a second terminal. It finds running `xplat dev` servers,
-opens your app automatically, and shows the Tweaks tab next to the
-built-in tabs:
+opens your app automatically, and shows separate Tweaks and Styles tabs
+next to the built-in tabs:
 
 ```sh
 bun run xplat devtools
@@ -78,15 +78,35 @@ export function Card() @{
 }
 ```
 
-Edits apply live to every mounted instance. Click **Save changes to
-source** to write the new values back to the source literals; **Revert
-all** drops unsaved edits and returns to the literals in your files.
+Edits apply live to every mounted instance. Click **Save tweaks to source**
+to write the new values back to the source literals; **Revert tweaks**
+drops unsaved value edits and returns to the literals in your files.
+These actions leave pending changes in Styles untouched.
 
-The Tweaks tab can also draft style changes: it lists inline `style={{…}}`
-objects and bamboo `css()` sites the plugin found in your source, lets you edit
-them live in the running web app, and writes them back on Save alongside
-the tweak values. **Pick element** narrows the style list to the site you
-click in the web app.
+## Edit styles
+
+Open the **Styles** tab to edit inline `style={{…}}` objects and Bamboo
+`css()` calls found by the same plugin. For example, add this component to
+an app with `tweaks()` configured, then open its screen:
+
+```tsrx
+import { Text, View } from '@octane-xplat/ui'
+
+export function StyledCard() @{
+  <View style={{ padding: 16, borderRadius: 8 }}>
+    <Text>Try changing the padding in Styles.</Text>
+  </View>
+}
+```
+
+Change `padding` in Styles to preview the result in the running web app.
+**Pick element** narrows the list to the element you click; **Filter
+properties** searches its properties. Dynamic expressions remain read-only.
+
+**Save styles to source** writes style edits to your files; **Revert styles**
+discards unsaved style edits. Neither action changes pending Tweaks values.
+Each tab's unsaved count and Save include its own edits to components that
+are no longer on screen. Property and element filters do not narrow Save.
 
 ## Limits
 
@@ -95,7 +115,7 @@ click in the web app.
 - The native devtools app runs on macOS only and builds itself with the
   macOS host packages. Add them once:
   `bun add -D @octane-xplat/macos-build @octane-xplat/macos-appkit @nativescript/macos-node-api`.
-  The browser `/devtools/app/` panel has no Tweaks tab.
+  The browser `/devtools/app/` panel has neither editor tab.
 - Style drafts preview on web only; Save still writes the source edit for
   inline styles on any target.
 - Save rewrites your source files — commit or check the diff before

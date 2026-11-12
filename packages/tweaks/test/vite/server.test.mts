@@ -592,3 +592,42 @@ test('pick broadcast, picked relay to all panels, new session while picking', as
     'a2 pick after values',
   )
 })
+
+test('scoped revert preserves dirty entries in the other editor even when unmounted', async (t) => {
+  const h = start(t, {
+    'src/a.tsx': `import { useTweak } from '@octane-xplat/tweaks'
+const a = useTweak(8)
+export function Card() { return <View style={{ padding: 4 }} /> }`,
+  })
+
+  const tweakId = [...h.manifest.keys()][0]
+  const styleId = extractStyles(
+    `export function Card() { return <View style={{ padding: 4 }} /> }`,
+    'src/a.tsx',
+  ).sites[0].entry.id
+
+  h.panelMessage('p', { type: 'hello' })
+  await h.panelNext('p', 'state')
+  h.hub.overrides.set(tweakId, 20)
+  h.hub.styleDrafts.set(styleId, { set: { padding: 12 }, delete: [] })
+  h.panelMessage('p', { type: 'revert', scope: 'tweaks' })
+  await h.panelNext('p', 'state')
+  assert.equal(h.hub.overrides.get(tweakId), 8)
+  assert.equal(h.hub.styleDrafts.get(styleId)?.set.padding, 12)
+  h.hub.overrides.set(tweakId, 20)
+  h.panelMessage('p', { type: 'revert', scope: 'styles' })
+  await h.panelNext('p', 'state')
+  assert.equal(h.hub.overrides.get(tweakId), 20)
+  assert.equal(h.hub.styleDrafts.has(styleId), false)
+})
+
+test('save and preview responses identify the requesting editor', async (t) => {
+  const h = start(t)
+
+  for (const scope of ['tweaks', 'styles']) {
+    h.panelMessage('p', { type: 'savePreview', scope })
+    assert.equal((await h.panelNext('p', 'savePreview')).scope, scope)
+    h.panelMessage('p', { type: 'save', scope })
+    assert.equal((await h.panelNext('p', 'saveResult')).scope, scope)
+  }
+})

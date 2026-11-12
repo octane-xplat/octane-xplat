@@ -8,7 +8,7 @@ import {
 } from '../src/devtools/model.ts'
 
 import type { BackendRef, SessionSnapshot } from '@octane-xplat/devtools/panel'
-import type { PanelEntry } from '../src/protocol.ts'
+import type { EditorScope, PanelEntry } from '../src/protocol.ts'
 
 // Fake TweaksPanelPort — stands in for the devtools connection: records
 // sendToBackend frames and lets tests emit backend/sessions/state events.
@@ -105,12 +105,12 @@ const stateMsg = (entries: PanelEntry[], unmountedDirty = [], styles: unknown[] 
   unmountedDirty,
 })
 
-function setup(backends: BackendRef[] = [T1]) {
+function setup(backends: BackendRef[] = [T1], scope: EditorScope = 'tweaks') {
   const port = new FakePort()
 
   port.backendList = backends
 
-  const model = new TweaksPanelModel(port)
+  const model = new TweaksPanelModel(port, scope)
 
   model.start()
   return { model, port }
@@ -218,7 +218,17 @@ test('dirty count includes unmountedDirty; revert/save payloads', () => {
     'target-1',
     stateMsg(
       [entry({ dirty: true })],
-      [{ id: 'f#hidden', file: 'f', name: 'hidden', group: null, override: 2, value: 1 }],
+      [
+        {
+          kind: 'tweak',
+          id: 'f#hidden',
+          file: 'f',
+          name: 'hidden',
+          group: null,
+          override: 2,
+          value: 1,
+        },
+      ],
     ),
   )
 
@@ -227,11 +237,21 @@ test('dirty count includes unmountedDirty; revert/save payloads', () => {
   model.save()
   assert.deepEqual(
     port.sent.slice(-2).map((s) => s.data),
-    [{ type: 'revert' }, { type: 'save' }],
+    [
+      { type: 'revert', scope: 'tweaks' },
+      { type: 'save', scope: 'tweaks' },
+    ],
   )
 
   assert.equal(model.saving, true)
-  port.emitBackend('target-1', { type: 'saveResult', ok: true, saved: ['f'], errors: [] })
+  port.emitBackend('target-1', {
+    type: 'saveResult',
+    scope: 'tweaks',
+    ok: true,
+    saved: ['f'],
+    errors: [],
+  })
+
   assert.equal(model.saving, false)
   assert.deepEqual(model.saveResult?.saved, ['f'])
 })
@@ -251,7 +271,7 @@ test('switching targets clears selection state', () => {
 })
 
 test('style dirty count, draft display, number coercion, add-name validation', () => {
-  const { model, port } = setup()
+  const { model, port } = setup([T1], 'styles')
 
   port.emitBackend('target-1', { ...stateMsg([]), styles: [STYLE_SITE] })
   assert.equal(model.dirtyCount(), 0)
@@ -315,7 +335,7 @@ const STYLE_SITE = {
 } as never
 
 test('restoring an added style property removes its draft addition', () => {
-  const { model, port } = setup()
+  const { model, port } = setup([T1], 'styles')
 
   port.emitBackend('target-1', {
     ...stateMsg([]),
@@ -358,10 +378,11 @@ test('save preview: request sends savePreview, response shows diff, confirm/canc
   model.requestPreview()
   assert.equal(model.previewing, true)
   assert.equal(model.preview, null)
-  assert.deepEqual(lastSent(port)?.data, { type: 'savePreview' })
+  assert.deepEqual(lastSent(port)?.data, { type: 'savePreview', scope: 'tweaks' })
 
   const previewMsg = {
     type: 'savePreview',
+    scope: 'tweaks',
     files: [{ file: 'f', diff: '@@ -1,1 +1,1 @@\n-old\n+new' }],
     truncated: false,
     errors: [],
@@ -379,7 +400,7 @@ test('save preview: request sends savePreview, response shows diff, confirm/canc
   port.emitBackend('target-1', previewMsg)
   model.confirmSave()
   assert.equal(model.preview, null)
-  assert.deepEqual(lastSent(port)?.data, { type: 'save' })
+  assert.deepEqual(lastSent(port)?.data, { type: 'save', scope: 'tweaks' })
   assert.equal(model.saving, true)
 })
 
@@ -390,6 +411,7 @@ test('a state change while the preview is open marks it stale; confirm refused',
   model.requestPreview()
   port.emitBackend('target-1', {
     type: 'savePreview',
+    scope: 'tweaks',
     files: [{ file: 'f', diff: 'd' }],
     truncated: false,
     errors: [],
@@ -406,6 +428,7 @@ test('a state change while the preview is open marks it stale; confirm refused',
   model.requestPreview()
   port.emitBackend('target-1', {
     type: 'savePreview',
+    scope: 'tweaks',
     files: [{ file: 'f', diff: 'd2' }],
     truncated: false,
     errors: [],
@@ -413,11 +436,11 @@ test('a state change while the preview is open marks it stale; confirm refused',
 
   assert.equal(model.previewStale, false)
   model.confirmSave()
-  assert.deepEqual(lastSent(port)?.data, { type: 'save' })
+  assert.deepEqual(lastSent(port)?.data, { type: 'save', scope: 'tweaks' })
 })
 
 test('pick filter narrows groupedStyles and is pruned/cleared', () => {
-  const { model, port } = setup()
+  const { model, port } = setup([T1], 'styles')
   const s1 = { ...STYLE_SITE, id: 'f1#a' }
   const s2 = { ...STYLE_SITE, id: 'f2#b' }
 
@@ -445,7 +468,7 @@ test('pick filter narrows groupedStyles and is pruned/cleared', () => {
 })
 
 test('dispose cancels an in-progress pick on the selected target', () => {
-  const { model, port } = setup()
+  const { model, port } = setup([T1], 'styles')
 
   port.emitBackend('target-1', { ...stateMsg([]), picking: true })
   model.dispose()
@@ -474,4 +497,61 @@ test('target labels append the session platform when known', () => {
   ])
 
   assert.equal(model.targetLabel(T1), 'target-1 — web')
+})
+
+test('editor models isolate mounted/unmounted changes and responses on one connection', () => {
+  const port = new FakePort()
+
+  port.backendList = [T1]
+
+  const tweaks = new TweaksPanelModel(port, 'tweaks')
+  const styles = new TweaksPanelModel(port, 'styles')
+
+  tweaks.start()
+  styles.start()
+  port.emitBackend(
+    'target-1',
+    stateMsg(
+      [entry({ dirty: true, override: 8 })],
+      [
+        { kind: 'tweak', id: 'hidden-tweak', override: 5 },
+        { kind: 'style', id: 'hidden-style', override: 'draft' },
+      ],
+      [{ ...STYLE_SITE, dirty: true }],
+    ),
+  )
+
+  assert.equal(tweaks.entries.length, 1)
+  assert.equal(tweaks.styles.length, 0)
+  assert.equal(styles.entries.length, 0)
+  assert.equal(styles.styles.length, 1)
+  assert.equal(tweaks.dirtyCount(), 2)
+  assert.equal(styles.dirtyCount(), 2)
+  styles.revertAll()
+  assert.deepEqual(lastSent(port)?.data, { type: 'revert', scope: 'styles' })
+  styles.requestPreview()
+  port.emitBackend('target-1', {
+    type: 'savePreview',
+    scope: 'styles',
+    files: [],
+    errors: [],
+    truncated: false,
+  })
+
+  assert.ok(styles.preview)
+  assert.equal(tweaks.preview, null)
+  styles.save()
+  port.emitBackend('target-1', {
+    type: 'saveResult',
+    scope: 'styles',
+    ok: true,
+    saved: ['f'],
+    errors: [],
+  })
+
+  assert.equal(styles.saving, false)
+  assert.ok(styles.saveResult?.ok)
+  assert.equal(tweaks.saveResult, null)
+  tweaks.dispose()
+  styles.dispose()
 })

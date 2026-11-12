@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     xplatDevBridge(),
   ],
   define: xplatNodeEnvDefine(mode),
-  server: { port: 5200 },
+  server: { port: Number(process.env.TWEAKS_TEST_PORT ?? 5200), strictPort: true },
   resolve: {
     conditions: ['web'],
     extensions: [

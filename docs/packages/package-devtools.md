@@ -15,7 +15,7 @@ bun run xplat devtools    # native devtools window, in a second terminal
 `xplat devtools` discovers running `xplat dev` servers, opens your own
 project automatically when it can, and shows a picker when several are
 running. Built-in tabs cover sessions, actions, and logs; packages can
-add their own tabs — [tweaks](package-tweaks.md) ships the first one.
+add their own tabs — [tweaks](package-tweaks.md) supplies the Tweaks and Styles editors.
 
 On macOS the devtools window is native and can float above other windows
 (the Keep on top toggle in its header). The native host needs the macOS
@@ -53,6 +53,17 @@ connection `state` (`'connecting' | 'live' | 'closed'`) as props. It sends
 to app-side backends with `connection.sendToBackend(channel, targetId,
 message)` and filters incoming frames through `connection.subscribe` —
 see `@octane-xplat/tweaks/devtools` for a complete panel.
+
+A package can contribute several tabs by listing export subpaths in display
+order. Each module default-exports its own `defineDevtoolsPanel` result:
+
+```json
+{
+  "octaneXplat": {
+    "devtoolsPanel": ["./devtools", "./devtools/styles"]
+  }
+}
+```
 
 Discovered panels are collected from the project's `dependencies` and
 `devDependencies` — and from `octane-xplat`'s own dependencies when the

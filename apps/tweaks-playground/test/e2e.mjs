@@ -10,7 +10,7 @@ import { chromium } from 'playwright'
 import { connectDevtools } from '@octane-xplat/devtools/client'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
-const PORT = 5200
+const PORT = Number(process.env.TWEAKS_TEST_PORT ?? 5200)
 const XPLAT = path.resolve(ROOT, '../../research/go-cli/xplat-go-darwin-arm64-cli')
 const CACHE = fs.mkdtempSync(path.join(os.tmpdir(), 'xplat-dev-cache-'))
 const RECORDS = path.join(CACHE, 'dev-servers-v1')
@@ -472,30 +472,44 @@ async function main() {
     assert.equal(await overlay.count(), 0)
     console.log('· Escape cancels the pick')
 
-    // 4d. Save preview: same plan Save would apply — per-file unified diff,
-    // nothing written to disk.
-    panel.send({ type: 'savePreview' })
+    // 4d. Both tabs preview only their own plan, without writing files.
+    for (const scope of ['tweaks', 'styles']) {
+      panel.send({ type: 'savePreview', scope })
 
-    const preview = await next('savePreview')
+      const preview = await next('savePreview')
 
-    assert.deepEqual(preview.errors, [], JSON.stringify(preview.errors))
-    assert.equal(preview.truncated, false)
+      assert.equal(preview.scope, scope)
+      assert.deepEqual(preview.errors, [], JSON.stringify(preview.errors))
+      assert.equal(preview.truncated, false)
 
-    const appDiff = preview.files.find((f) => f.file === 'src/App.tsrx')
+      const appDiff = preview.files.find((f) => f.file === 'src/App.tsrx')
 
-    assert.ok(appDiff, 'preview has a diff for src/App.tsrx')
-    assert.match(appDiff.diff, /^-.*useTweak\(8,/m, 'diff removes the old radius literal')
-    assert.match(appDiff.diff, /^\+.*useTweak\(30,/m, 'diff adds the new radius literal')
-    assert.match(appDiff.diff, /^\+.*marginTop: 9/m, 'diff covers the inline style draft')
-    assert.equal(fs.readFileSync(APP_FILE, 'utf8'), originalSource, 'preview wrote nothing')
-    console.log('· savePreview returns the planned diff without writing')
+      assert.ok(appDiff, 'preview has a diff for src/App.tsrx')
+
+      const additions = appDiff.diff
+        .split('\n')
+        .filter((line) => line.startsWith('+'))
+        .join('\n')
+
+      if (scope === 'tweaks') {
+        assert.match(additions, /useTweak\(30,/)
+        assert.doesNotMatch(additions, /marginTop: 9/)
+      } else {
+        assert.match(additions, /marginTop: 9/)
+        assert.doesNotMatch(additions, /useTweak\(30,/)
+      }
+
+      assert.equal(fs.readFileSync(APP_FILE, 'utf8'), originalSource, 'preview wrote nothing')
+    }
+
+    console.log('· editor previews include only their own changes')
 
     // 5. Save: counter to 3, save writes the literal, state survives.
     await page.locator('[data-testid="counter.increment"]').click()
     await page.locator('[data-testid="counter.increment"]').click()
     await page.locator('[data-testid="counter.increment"]').click()
     assert.equal(await page.locator('[data-testid="counter.value"]').innerText(), '3')
-    panel.send({ type: 'save' })
+    panel.send({ type: 'save', scope: 'tweaks' })
 
     const saveResult = await next('saveResult')
 
@@ -508,6 +522,15 @@ async function main() {
       source,
       /useTweak\(30, \{ input: \{ type: 'number', min: 0, max: 40, step: 1 \} \}/,
     )
+
+    assert.doesNotMatch(source, /marginTop: 9/, 'Tweaks save leaves style drafts pending')
+    panel.send({ type: 'save', scope: 'styles' })
+
+    const styleSaveResult = await next('saveResult')
+
+    assert.equal(styleSaveResult.scope, 'styles')
+    assert.equal(styleSaveResult.ok, true, JSON.stringify(styleSaveResult.errors))
+    assert.match(fs.readFileSync(APP_FILE, 'utf8'), /marginTop: 9/)
 
     // HMR suppressed → counter state survives and the page did not reload.
     assert.equal(await page.locator('[data-testid="counter.value"]').innerText(), '3')

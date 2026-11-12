@@ -26,7 +26,7 @@ import {
 import { Icon, type IconifyIcon } from '@octane-xplat/icons'
 import { useStore } from '@octane-xplat/ui/data'
 import type { DevtoolsPanelPluginProps } from '@octane-xplat/devtools/panel'
-import type { PanelEntry, PanelStyleEntry } from '../protocol.ts'
+import type { EditorScope, PanelEntry, PanelStyleEntry } from '../protocol.ts'
 import { displayValue, HEX_COLOR_RE, TweaksPanelModel } from './model'
 
 import { usePanelContent } from './use-panel-content'
@@ -771,15 +771,17 @@ function PanelHeader(props: { model: TweaksPanelModel }) @{
             />
           )}
         </View>
-        <Action
-          id="pick"
-          label={snap.picking ? 'Cancel pick' : 'Pick element'}
-          icon={heroicons.cursorArrowRays}
-          iconOnly
-          active={snap.picking}
-          disabled={disabled || !snap.clients.some((c) => c.label === 'web')}
-          onPress={() => model.pick(!snap.picking)}
-        />
+        {model.scope === 'styles' ? (
+          <Action
+            id="pick"
+            label={snap.picking ? 'Cancel pick' : 'Pick element'}
+            icon={heroicons.cursorArrowRays}
+            iconOnly
+            active={snap.picking}
+            disabled={disabled || !snap.clients.some((c) => c.label === 'web')}
+            onPress={() => model.pick(!snap.picking)}
+          />
+        ) : null}
       </HStack>
       <HStack className="panel-status-line">
         <Text id="status" className={['panel-note', !connected && 'panel-status--offline']}>
@@ -844,9 +846,14 @@ function PanelContent(props: { model: TweaksPanelModel }) @{
             No tweaks backend — run the app with `xplat dev`
           </Text>
         ) : null}
-        {connected && snap.entries.length === 0 ? (
+        {connected && model.scope === 'tweaks' && snap.entries.length === 0 ? (
           <Text id="entries.empty" className="panel-note">
             No tweaks on screen. Open a screen that calls useTweak.
+          </Text>
+        ) : null}
+        {connected && model.scope === 'styles' && snap.styles.length === 0 ? (
+          <Text id="styles.empty" className="panel-note">
+            No styles on screen. Open a screen with inline styles or Bamboo css() calls.
           </Text>
         ) : null}
         {groups.length ? (
@@ -968,7 +975,7 @@ function PanelFooter(props: { model: TweaksPanelModel }) @{
       <HStack className="panel-footer-actions">
         <Action
           id="revert-all"
-          label="Revert all"
+          label={model.scope === 'styles' ? 'Revert styles' : 'Revert tweaks'}
           icon={heroicons.arrowPath}
           disabled={disabled || dirty === 0}
           onPress={() => model.revertAll()}
@@ -976,7 +983,7 @@ function PanelFooter(props: { model: TweaksPanelModel }) @{
         <View className="panel-spacer" />
         <Action
           id="save"
-          label="Save changes to source"
+          label={model.scope === 'styles' ? 'Save styles to source' : 'Save tweaks to source'}
           icon={heroicons.arrowDownTray}
           iconOnly
           primary
@@ -988,8 +995,8 @@ function PanelFooter(props: { model: TweaksPanelModel }) @{
   )
 }
 
-export function TweaksPanel(props: DevtoolsPanelPluginProps) @{
-  const modelRef = useLazyRef(() => new TweaksPanelModel(props.connection))
+function EditorPanel(props: DevtoolsPanelPluginProps & { scope: EditorScope }) @{
+  const modelRef = useLazyRef(() => new TweaksPanelModel(props.connection, props.scope))
   const model = modelRef.current
 
   useEffect(() => {
@@ -997,11 +1004,19 @@ export function TweaksPanel(props: DevtoolsPanelPluginProps) @{
     return () => model.dispose()
   }, [])
 
-  <VStack id="tweaks-panel" className="tweaks-panel">
+  <VStack id={`${props.scope}-panel`} className="tweaks-panel">
     <PanelHeader model={model} />
     <View className="panel-rule" />
     <PanelContent model={model} />
     <View className="panel-rule" />
     <PanelFooter model={model} />
   </VStack>
+}
+
+export function TweaksPanel(props: DevtoolsPanelPluginProps) @{
+  <EditorPanel connection={props.connection} state={props.state} scope="tweaks" />
+}
+
+export function StylesPanel(props: DevtoolsPanelPluginProps) @{
+  <EditorPanel connection={props.connection} state={props.state} scope="styles" />
 }

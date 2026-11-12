@@ -14,8 +14,9 @@ devtools panel, written back to source only on Save.
   Octane plugins). The plugin must not runtime-import `.ts` source such as
   `protocol.ts` from outside `src/vite/` — shared message types are
   type-imported only.
-- `src/devtools/` — the Tweaks devtools panel (`./devtools` subpath, source
-  shipped). `octaneXplat.devtoolsPanel` in package.json points here; the
+- `src/devtools/` — the Tweaks and Styles devtools panels (`./devtools` and
+  `./devtools/styles` subpaths, source shipped). `octaneXplat.devtoolsPanel`
+  in package.json lists both; the
   devtools desktop app's `devtoolsPanels` Vite plugin default-imports the
   module (a `defineDevtoolsPanel` result) into its bundle. Transport is the
   plugin's `connection` prop — `sendToBackend('tweaks', targetId, msg)` plus
@@ -61,5 +62,9 @@ imports from its own package.
   pass-through — bamboo sites mount on web only.
 - `pick`/`picked` implement web click-to-pick (`state.picking`); `savePreview`
   returns the same plan Save would write as capped per-file unified diffs.
+  Editor models filter state by scope and send that scope on save, preview,
+  and revert; the backend applies it before planning writes, including
+  unmounted entries. Responses echo scope because both tabs share one hub
+  panel connection. Omitted scope explicitly operates on both editors.
   The backend cannot see panel disconnects — the panel sends `pick:false` on
   unmount to end a pick.

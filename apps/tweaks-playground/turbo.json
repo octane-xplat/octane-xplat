@@ -3,6 +3,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"test": { "dependsOn": ["^build"] },
+		"test:e2e": { "dependsOn": ["^build", "@octane-xplat/cli#build:go"], "passThroughEnv": ["TWEAKS_TEST_PORT"], "cache": false },
 		"typecheck": { "dependsOn": ["^build"] }
 	}
 }

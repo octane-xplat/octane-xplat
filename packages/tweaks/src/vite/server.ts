@@ -1,5 +1,6 @@
 import type {
   AppToServer,
+  EditorScope,
   PanelEntry,
   PanelToServer,
   ServerToApp,
@@ -61,8 +62,8 @@ export interface ServerDeps {
   getEntry(id: string): TweakEntry | undefined
   getStyleEntry(id: string): StyleEntry | undefined
   compileStyle?(id: string, draft: StyleDraft): Promise<{ className: string; css: string } | null>
-  save(): Promise<SaveReport>
-  savePreview?(): Promise<SavePreviewReport>
+  save(scope?: EditorScope): Promise<SaveReport>
+  savePreview?(scope?: EditorScope): Promise<SavePreviewReport>
   log(message: string): void
 }
 
@@ -238,6 +239,16 @@ export class TweaksServer {
   }
 
   private async onPanelMessage(panel: string, message: PanelToServer) {
+    if (
+      (message.type === 'save' || message.type === 'savePreview' || message.type === 'revert') &&
+      message.scope !== undefined &&
+      message.scope !== 'tweaks' &&
+      message.scope !== 'styles'
+    ) {
+      this.deps.log('[tweaks] ignoring invalid editor scope')
+      return
+    }
+
     if (message.type === 'hello') {
       this.sendToPanel(this.stateMessage(), panel)
       return
@@ -335,7 +346,13 @@ export class TweaksServer {
         [...this.overrides.keys()].filter((id) => this.isDirty(id)).concat(dirtyStyle)
 
       for (const id of ids) {
-        if (this.styleDrafts.has(id)) {
+        const style = this.styleDrafts.has(id)
+
+        if ((message.scope === 'tweaks' && style) || (message.scope === 'styles' && !style)) {
+          continue
+        }
+
+        if (style) {
           this.styleDrafts.delete(id)
           continue
         }
@@ -363,6 +380,7 @@ export class TweaksServer {
         this.sendToPanel(
           {
             type: 'savePreview',
+            scope: message.scope,
             files: [],
             truncated: false,
             errors: [{ file: '', message: 'busy: a save is already in progress' }],
@@ -373,14 +391,15 @@ export class TweaksServer {
         return
       }
 
-      const report = await this.deps.savePreview()
+      const report = await this.deps.savePreview(message.scope)
 
-      this.sendToPanel({ type: 'savePreview', ...report }, panel)
+      this.sendToPanel({ type: 'savePreview', scope: message.scope, ...report }, panel)
     } else if (message.type === 'save') {
       if (this.saving) {
         this.sendToPanel(
           {
             type: 'saveResult',
+            scope: message.scope,
             ok: false,
             saved: [],
             errors: [{ file: '', message: 'busy: a save is already in progress' }],
@@ -393,9 +412,9 @@ export class TweaksServer {
 
       this.saving = true
       try {
-        const report = await this.deps.save()
+        const report = await this.deps.save(message.scope)
 
-        this.sendToPanel({ type: 'saveResult', ...report }, panel)
+        this.sendToPanel({ type: 'saveResult', scope: message.scope, ...report }, panel)
         this.broadcastState()
       } finally {
         this.saving = false

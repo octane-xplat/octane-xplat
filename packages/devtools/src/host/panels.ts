@@ -1,6 +1,6 @@
 // Panel-plugin discovery for the devtools desktop bundle: a package opts in
 // with `"octaneXplat": { "devtoolsPanel": "./devtools" }` in its package.json
-// (the value names one of its own export subpaths; that module must
+// (a subpath or an array of subpaths; each module must
 // default-export a DevtoolsPanelPlugin). `devtoolsPanels` serves the
 // discovered modules as `virtual:octane-devtools-panels` to the desktop app's
 // Shell — the generated `xplat devtools` config and the apps/devtools harness
@@ -128,31 +128,38 @@ export function discoverDevtoolsPanels(projectRoot: string): DiscoveredDevtoolsP
 
       const fail = (why: string) => warn(`skipping devtools panel candidate "${name}" — ${why}`)
 
-      if (typeof field !== 'string' || !field.startsWith('./') || field.includes('..')) {
-        fail(`octaneXplat.${FIELD} must be an export subpath like "./devtools"`)
-        continue
-      }
+      const subpaths: unknown[] = Array.isArray(field) ? field : [field]
 
-      let file: string
+      for (const subpath of subpaths) {
+        if (typeof subpath !== 'string' || !subpath.startsWith('./') || subpath.includes('..')) {
+          fail(
+            `octaneXplat.${FIELD} must be an export subpath like "./devtools" or an array of subpaths`,
+          )
 
-      try {
-        file = realpathSync(requireFrom.resolve(`${name}/${field.slice(2)}`))
-      } catch (error) {
-        fail(`cannot resolve ${name}/${field.slice(2)} — ${String(error)}`)
-        continue
-      }
-
-      try {
-        if (!file.startsWith(packageRoot + sep) || !statSync(file).isFile()) {
-          fail(`resolved panel module escapes its package root — ${file}`)
           continue
         }
-      } catch {
-        fail(`resolved panel module is not a file — ${file}`)
-        continue
-      }
 
-      out.push({ name, file })
+        let file: string
+
+        try {
+          file = realpathSync(requireFrom.resolve(`${name}/${subpath.slice(2)}`))
+        } catch (error) {
+          fail(`cannot resolve ${name}/${subpath.slice(2)} — ${String(error)}`)
+          continue
+        }
+
+        try {
+          if (!file.startsWith(packageRoot + sep) || !statSync(file).isFile()) {
+            fail(`resolved panel module escapes its package root — ${file}`)
+            continue
+          }
+        } catch {
+          fail(`resolved panel module is not a file — ${file}`)
+          continue
+        }
+
+        out.push({ name, file })
+      }
     }
   }
 

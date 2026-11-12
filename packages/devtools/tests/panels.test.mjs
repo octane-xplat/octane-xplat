@@ -190,3 +190,25 @@ test('stable order: project deps alphabetical, then umbrella deps', (t) => {
     ['apple', 'octane-xplat', 'zebra', 'umb-one'].filter((n) => n !== 'octane-xplat'),
   )
 })
+
+test('discovers multiple tabs from one package in declared order, skipping invalid subpaths', (t) => {
+  const f = makeProject(t)
+  const seen = warnings(t)
+  const manifest = f.panelManifest(['./devtools', '../escape', './styles'])
+
+  manifest.exports['./styles'] = './src/styles.ts'
+  f.project({ dependencies: { alpha: '1.0.0' } })
+  f.dep('alpha', manifest)
+  f.write('node_modules/alpha/src/styles.ts', 'export default {}\n')
+
+  const panels = discoverDevtoolsPanels(f.root)
+
+  assert.deepEqual(
+    panels.map((panel) => panel.name),
+    ['alpha', 'alpha'],
+  )
+
+  assert.ok(panels[0].file.endsWith('/src/devtools/index.ts'))
+  assert.ok(panels[1].file.endsWith('/src/styles.ts'))
+  assert.equal(seen.length, 1)
+})

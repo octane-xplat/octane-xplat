@@ -259,3 +259,45 @@ test('a plan with errors still previews the writable files', async (t) => {
   assert.equal(preview.files[0].file, 'src/b.tsx')
   assert.match(preview.errors.find((e) => e.id === 'src/a.tsx#a')?.message ?? '', /no longer found/)
 })
+
+for (const scope of ['tweaks', 'styles'] as const) {
+  test(`${scope} preview and save leave the other editor's changes pending in the same file`, async (t) => {
+    const root = dir(t)
+    const code = `import { useTweak } from '@octane-xplat/tweaks'
+const size = useTweak(8)
+export function Card() { return <View style={{ padding: 4 }} /> }
+`
+
+    const { manifest, styleManifest } = buildManifests(root, { 'src/card.tsx': code })
+    const tweakId = [...manifest.keys()][0]
+    const styleId = [...styleManifest.keys()][0]
+    const overrides = new Map([[tweakId, 20]])
+    const styleDrafts = new Map([[styleId, { set: { padding: 12 }, delete: [] }]])
+    const opts = {
+      root,
+      scope,
+      manifest,
+      styleManifest,
+      overrides,
+      styleDrafts,
+      isDirty: () => true,
+      isStyleDirty: () => true,
+    }
+
+    const preview = await previewSave(opts)
+    const expected =
+      scope === 'tweaks'
+        ? code.replace('useTweak(8)', 'useTweak(20)')
+        : code.replace('padding: 4', 'padding: 12')
+
+    assert.deepEqual(preview.errors, [])
+    assert.equal(applyUnifiedDiff(code, preview.files[0].diff), expected)
+
+    const result = await saveOverrides(opts)
+
+    assert.equal(result.ok, true)
+    assert.equal(fs.readFileSync(path.join(root, 'src/card.tsx'), 'utf8'), expected)
+    assert.equal(overrides.get(tweakId), 20)
+    assert.equal(styleDrafts.get(styleId)?.set.padding, 12)
+  })
+}

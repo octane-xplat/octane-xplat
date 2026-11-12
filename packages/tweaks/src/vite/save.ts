@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import type { StyleDraft, TweakEntry, TweakValue } from '../protocol.ts'
+import type { EditorScope, StyleDraft, TweakEntry, TweakValue } from '../protocol.ts'
 import { extract, type ExtractedTweak } from './extract.ts'
 import { serializeLiteral } from './serialize.ts'
 import { extractStyles, type StyleSite } from './styles.ts'
@@ -27,6 +27,7 @@ export interface Edit {
 }
 
 export interface PlanOptions {
+  scope?: EditorScope
   root: string
   manifest: Map<string, { entry: TweakEntry; tweak: ExtractedTweak }>
   styleManifest?: Map<string, StyleSite>
@@ -64,7 +65,7 @@ export async function planSave(opts: PlanOptions): Promise<SavePlan> {
   const fileContents = new Map<string, string>()
 
   for (const [id, override] of opts.overrides) {
-    if (!opts.isDirty(id)) {
+    if (opts.scope === 'styles' || !opts.isDirty(id)) {
       continue
     }
 
@@ -123,7 +124,7 @@ export async function planSave(opts: PlanOptions): Promise<SavePlan> {
   // file contains exactly the expected property set — the safety net. Any
   // mismatch aborts the whole save before a single write.
   for (const [id, draft] of opts.styleDrafts ?? new Map<string, StyleDraft>()) {
-    if (!opts.isStyleDirty?.(id)) {
+    if (opts.scope === 'tweaks' || !opts.isStyleDirty?.(id)) {
       continue
     }
 
@@ -177,7 +178,7 @@ export async function planSave(opts: PlanOptions): Promise<SavePlan> {
   // full style-site set to still parse with the expected properties. Any
   // deviation aborts the save outright.
   for (const [id, draft] of opts.styleDrafts ?? new Map<string, StyleDraft>()) {
-    if (!opts.isStyleDirty?.(id)) {
+    if (opts.scope === 'tweaks' || !opts.isStyleDirty?.(id)) {
       continue
     }
 

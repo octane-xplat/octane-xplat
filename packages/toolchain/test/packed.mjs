@@ -245,7 +245,7 @@ export default defineConfig({ plugins: [tweaks(), css('web'), ...octane(), bound
 
   assert.deepEqual(
     discoverDevtoolsPanels(app).map((panel) => panel.name),
-    ['@octane-xplat/tweaks'],
+    ['@octane-xplat/tweaks', '@octane-xplat/tweaks'],
     'devtools panel discovery reaches umbrella dependencies',
   )
 

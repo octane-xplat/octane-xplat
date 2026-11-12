@@ -8,6 +8,7 @@
 import type { ReadableStore } from '@octane-xplat/ui/data'
 import type { BackendRef, DevtoolsConnection, SessionSnapshot } from '@octane-xplat/devtools/panel'
 import type {
+  EditorScope,
   PanelEntry,
   PanelStyleEntry,
   PanelToServer,
@@ -108,7 +109,10 @@ export class TweaksPanelModel {
   serverName: string | null = null
   serverRoot: string | null = null
 
-  constructor(conn: TweaksPanelPort) {
+  readonly scope: EditorScope
+
+  constructor(conn: TweaksPanelPort, scope: EditorScope = 'tweaks') {
+    this.scope = scope
     this.conn = conn
     this.connState = conn.state
     this.sessions = conn.sessions()
@@ -311,7 +315,7 @@ export class TweaksPanelModel {
     // already JSON; field validation happens on the narrowed type union.
     const message = data as ServerToPanel
 
-    if (message.type === 'picked') {
+    if (message.type === 'picked' && this.scope === 'styles') {
       this.pickFilter = message.ids.length ? message.ids : null
       this.notify()
       return
@@ -322,10 +326,13 @@ export class TweaksPanelModel {
       this.serverName = message.server.name
       this.serverRoot = message.server.root
       this.clients = message.clients
-      this.entries = message.entries
-      this.styles = message.styles ?? []
-      this.unmountedDirty = message.unmountedDirty ?? []
-      this.picking = message.picking ?? false
+      this.entries = this.scope === 'tweaks' ? message.entries : []
+      this.styles = this.scope === 'styles' ? (message.styles ?? []) : []
+      this.unmountedDirty = (message.unmountedDirty ?? []).filter((entry) =>
+        this.scope === 'styles' ? entry.kind === 'style' : entry.kind === 'tweak',
+      )
+
+      this.picking = this.scope === 'styles' && (message.picking ?? false)
       // Prune filter ids whose site is no longer mounted.
       if (this.pickFilter) {
         const mounted = new Set(this.styles.map((s) => s.id))
@@ -341,11 +348,11 @@ export class TweaksPanelModel {
       }
 
       this.notify()
-    } else if (message.type === 'saveResult') {
+    } else if (message.type === 'saveResult' && message.scope === this.scope && this.saving) {
       this.saving = false
       this.saveResult = { ok: message.ok, saved: message.saved, errors: message.errors }
       this.notify()
-    } else if (message.type === 'savePreview') {
+    } else if (message.type === 'savePreview' && message.scope === this.scope && this.previewing) {
       this.previewing = false
       // A late response racing a Confirm must not reopen the view.
       if (this.saving) {
@@ -389,12 +396,12 @@ export class TweaksPanelModel {
 
   revert(id: string) {
     this.saveResult = null
-    this.send({ type: 'revert', ids: [id] })
+    this.send({ type: 'revert', scope: this.scope, ids: [id] })
   }
 
   revertAll() {
     this.saveResult = null
-    this.send({ type: 'revert' })
+    this.send({ type: 'revert', scope: this.scope })
   }
 
   save() {
@@ -404,7 +411,7 @@ export class TweaksPanelModel {
 
     this.saving = true
     this.saveResult = null
-    this.send({ type: 'save' })
+    this.send({ type: 'save', scope: this.scope })
     this.notify()
   }
 
@@ -417,7 +424,7 @@ export class TweaksPanelModel {
     this.previewing = true
     this.previewStale = false
     this.previewFingerprint = this.dirtyFingerprint()
-    this.send({ type: 'savePreview' })
+    this.send({ type: 'savePreview', scope: this.scope })
     this.notify()
   }
 

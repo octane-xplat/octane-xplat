@@ -51,6 +51,9 @@ export type ServerToApp =
     }
   | { type: 'pick'; active: boolean }
 
+/** Which editor owns an operation. Omit scope to operate on both editors. */
+export type EditorScope = 'tweaks' | 'styles'
+
 export type PanelToServer =
   // First message a panel sends: the backend answers with a `state` frame
   // to that panel only.
@@ -58,11 +61,11 @@ export type PanelToServer =
   | { type: 'set'; id: string; value: TweakValue }
   | { type: 'styleSet'; id: string; path: string[]; value: StyleValue }
   | { type: 'styleDelete'; id: string; path: string[] }
-  | { type: 'revert'; ids?: string[] } // omitted = all dirty
-  | { type: 'save' }
+  | { type: 'revert'; scope?: EditorScope; ids?: string[] } // omitted ids = all dirty in scope
+  | { type: 'save'; scope?: EditorScope }
   // Ask the server to compute what `save` would write right now — same plan,
   // nothing written. Answered with a `savePreview` message.
-  | { type: 'savePreview' }
+  | { type: 'savePreview'; scope?: EditorScope }
   | { type: 'pick'; active: boolean }
 
 export interface UnmountedDirtyEntry {
@@ -128,12 +131,14 @@ export type ServerToPanel =
     }
   | {
       type: 'saveResult'
+      scope?: EditorScope
       ok: boolean
       saved: string[]
       errors: { id?: string; file: string; message: string }[]
     }
   | {
       type: 'savePreview'
+      scope?: EditorScope
       // Per file that would change: a unified-diff body (@@ hunks with
       // ' '/'-'/'+' lines) computed from the same plan Save applies.
       files: { file: string; diff: string }[]

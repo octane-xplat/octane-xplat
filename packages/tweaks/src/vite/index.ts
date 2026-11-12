@@ -7,6 +7,7 @@ import MagicString from 'magic-string'
 import { connectDevBackend } from '@octane-xplat/devtools/backend'
 import type {
   AppToServer,
+  EditorScope,
   PanelToServer,
   ServerToApp,
   ServerToPanel,
@@ -162,9 +163,10 @@ export function tweaks(options: TweaksPluginOptions = {}): Plugin {
 
   // Snapshot of the current plan inputs — shared by Save and its preview so
   // the diff is computed from exactly what Save would write.
-  function planOptions(): PlanOptions {
+  function planOptions(scope?: EditorScope): PlanOptions {
     return {
       root,
+      scope,
       manifest,
       styleManifest,
       overrides: hub?.overrides ?? new Map(),
@@ -174,8 +176,8 @@ export function tweaks(options: TweaksPluginOptions = {}): Plugin {
     }
   }
 
-  async function save() {
-    const result = await saveOverrides(planOptions())
+  async function save(scope?: EditorScope) {
+    const result = await saveOverrides(planOptions(scope))
 
     // Record what we wrote so the resulting file-change event does not HMR
     // (the running module still holds the old literal; a reload would lose
@@ -267,7 +269,7 @@ export function tweaks(options: TweaksPluginOptions = {}): Plugin {
             return await compileBambooObject(root, { properties: site.entry.properties, draft })
           },
           save,
-          savePreview: () => previewSave(planOptions()),
+          savePreview: (scope) => previewSave(planOptions(scope)),
           log: (m) => server.config.logger.info(m),
         },
         backend,
