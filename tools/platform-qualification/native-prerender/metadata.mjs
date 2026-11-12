@@ -50,6 +50,7 @@ const headers = [
   'UIKit/UIKit.h',
   'QuartzCore/QuartzCore.h',
   'CoreText/CoreText.h',
+  'WebKit/WebKit.h',
   'TNSWidgets/TNSWidgets.h',
   'UIView+NativeScript.h',
   'NativeScriptUtils.h',
@@ -121,6 +122,14 @@ for (const name of classes) {
   if (!item || !/^    Type: +Interface\s*$/m.test(item[0]))
     throw new Error('Missing native interface metadata: ' + name)
 }
+const protocols = ['WKNavigationDelegate', 'WKUIDelegate']
+for (const name of protocols) {
+  const item = yaml.match(
+    new RegExp('^  - Name: +' + name + '\\s*$([\\s\\S]*?)(?=^  - Name:|$(?![\\s\\S]))', 'm'),
+  )
+  if (!item || !/^    Type: +Protocol\s*$/m.test(item[0]))
+    throw new Error('Missing native protocol metadata: ' + name)
+}
 const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('hex')
 const requiredMethods = [
   'nativeScriptSetTextDecorationAndTransformTextDecorationLetterSpacingLineHeight',
@@ -139,6 +148,7 @@ const manifest = {
   widgetsHash: hash(join(widgets, 'TNSWidgets.framework/TNSWidgets')),
   metadataHash: hash(join(work, 'metadata.bin')),
   requiredInterfaces: classes,
+  requiredProtocols: protocols,
   requiredMethods,
   nativeHelperHeaderHashes: Object.fromEntries(
     ['UIView+NativeScript.h', 'NativeScriptUtils.h'].map((name) => [
