@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <circle id="compass-ring" cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2"/>
+  <path id="compass-needle" d="M20 9 18 18 9 23 14 14Z" fill="currentColor"/>
+  <circle id="compass-center" cx="16" cy="16" r="2" fill="#f59e0b" stroke="#7c2d12"/>
+  <g color="#166534" fill="currentColor">
+    <path id="scope-green" d="M1 1h2v2H1Z"/>
+    <g style="color:#7e22ce"><path id="scope-purple" d="M4 1h2v2H4Z"/></g>
+    <g color="inherit"><path id="scope-inherit" d="M7 1h2v2H7Z"/></g>
+    <g color="currentColor"><path id="scope-current" d="M10 1h2v2H10Z"/></g>
+    <path id="scope-none" fill="none" stroke="#7c2d12" d="M13 1h2v2H13Z"/>
+  </g>
+  <style>.scoped { color: #0891b2; fill: currentColor; stroke: #7c2d12 }</style>
+  <path id="scope-class" class="scoped" d="M16 1h2v2H16Z"/>
+  <path id="scope-inline" color="#166534" style="color:#7e22ce;fill:currentColor;stroke:none" d="M19 1h2v2H19Z"/>
+  <path id="scope-sibling" fill="currentColor" d="M22 1h2v2H22Z"/>
+</svg>

@@ -34,7 +34,7 @@ does not qualify the complete action-control composition below.
 - AC2: [Groups, toggles, and overflow menus](../../../docs/app/interactive-actions.md#add-a-button).
 - AC3: [Interactive cards and links](../../../docs/app/interactive-actions.md#interactive-cards).
 - AC4: [Button compatibility](../../../docs/app/interactive-actions.md#button-states-and-actions).
-- AC5: [Icon registry scope](../../../docs/app/components.md#component-index) and its scoped registry example.
+- AC5: [Icon registry scope](../../../docs/app/components.md#content), its scoped registry example, and the [imported SVG color fixture](../../../packages/ui/tests/fixtures/icon-currentcolor/case.tsrx) for registered markup tint versus external source colors.
 
 
 ## GTK coverage

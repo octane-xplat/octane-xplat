@@ -20,6 +20,26 @@ export function Person() {
 
 ```
 
+## Registered SVG icon colors
+
+Use registered `markup` with `currentColor` fill/stroke for artwork that follows
+`Icon.color`; keep literal paints for fixed details and nested `color` for local
+scopes. A glyph's `src` retains its own document colors. On iOS the vendored
+SVGView resolves currentColor before SVGKit creates layers; do not replace the
+word across SVG strings. Verify decoded vector paints when changing that path,
+not just source strings or decoder success. See [the SVGKit limit](../../../../docs/upstream-limitations.md#svgkit-currentcolor-paints-fall-back-to-black).
+
+```tsx
+import { createIconRegistry, Icon } from '@octane-xplat/ui'
+const icons = createIconRegistry()
+icons.registerIcon('ring', {
+  markup: '<circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/>',
+})
+export function Ring() {
+  return <Icon name="ring" registry={icons} color="#2563eb" />
+}
+```
+
 ## Camera selection and recording
 
 Use idle `configure` before arming automatic recording. During a take, use

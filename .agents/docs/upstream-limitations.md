@@ -404,6 +404,36 @@ iPhone 13 Pro Max: 2 CAShapeLayers with 2 paths but 0 filled / 0 stroked).
   makes `SVGUseElement` apply its own attributes to the instance tree;
   removing the expansion then restores upstream parsing.
 
+## SVGKit: currentColor paints fall back to black
+
+Akylas/SVGKit `3.x` revision `58e603a5a3e6e937ff4c8c0f33c0c5a6b3bbdf5b`
+passes `currentColor` directly from `SVGHelperUtilities.parsePaintColorForElement`
+to `SVGColorFromString`; its unknown-name fallback is opaque black (#237).
+The Icon wrapper's `color` attribute alone cannot fix this. The authored
+literal paints remain correct, so parsing success is insufficient evidence.
+
+- Xplat stance: the maintained `ui-svg` fork resolves fill/stroke currentColor
+  on SVGKit's parsed DOM before its lazy CALayer construction. It asks the
+  existing local stylesheet/inline/presentation cascade for each element and
+  carries color and unresolved inherited paints through the element tree.
+  It snapshots all results before adding resolved inline paint declarations;
+  a parent's resolution therefore cannot freeze a child's different color.
+  Explicit paints, `none`, URLs, and text are untouched. SVGKit's existing
+  stylesheet support remains the limit; this is not a new general CSS engine.
+- Consumer scope: every iOS SVGView decode path (Icon, Image, Meter, file,
+  resource, and markup) resolves the document's own color context. Only
+  registered Icon markup/path wrappers receive `Icon.color`; external Icon
+  sources do not acquire that tint contract. Android uses AndroidSVG and
+  other hosts retain their own decoders.
+- Regression: `packages/ui/tests/fixtures/icon-currentcolor/case.tsrx` imports
+  a real authored SVG through raw/default/URL imports and reads iOS
+  CAShapeLayer fill/stroke values, or browser computed paints. It covers
+  reactive blue/rose, fixed amber/brown, nested and sibling color scopes,
+  inline/stylesheet precedence, `inherit`, `currentColor` on color, and `none`.
+  These checks inspect vector/DOM state, never raster pixels.
+- Removal: recheck the upstream paint parser when updating SVGKit; remove the
+  resolver only after those native vector-state regressions pass without it.
+
 ## @nativescript-community/sentry: filtering and lifecycle gaps (4.6.49)
 
 Verified from plugin source at 4.6.49 (`wrapper.ios.js`, `wrapper.android.js`,

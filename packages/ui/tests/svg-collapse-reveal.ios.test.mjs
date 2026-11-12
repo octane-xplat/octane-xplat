@@ -58,6 +58,10 @@ runInNewContext(compiled, {
       }
     }
 
+    if (name === './svg-current-color.ios') {
+      return { resolveSvgCurrentColor: (image) => image }
+    }
+
     if (name === './svg-use') {
       return { resolveSvgUse: (markup) => markup }
     }
