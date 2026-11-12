@@ -108,3 +108,20 @@ const root = createNativeScriptRoot(host, {
 ```
 
 The lookup alone is not hydration. The host must first match the complete prepared logical tree to the artifact, bind ordinary wrappers to existing native objects, preserve canonical native defaults, and consume each claim once. Never serialize Octane command IDs or replace the global element registry to claim a screen. Clear the claims after the initial commit so later creation follows the normal path. A failed apply is not rolled back: dispose that root and release any unconsumed native claims before fallback. The experimental patch makes remove/destroy tolerate hosts that never reached creation, allowing that disposal path.
+
+## Match before claiming
+
+`match-tree.mjs` checks the initial container/Label visual projection, complete portable host props, flattened Label text, logical node count and reachability. It returns a map from this prepared batch’s transient command IDs to artifact-local visual indices. It does not mutate either tree or consume native claims. The caller still verifies native classes, environment/build compatibility and wrapper ownership. Logical text ownership and generic stable compiler addresses remain separate IR work.
+
+```js
+const addresses = matchPreparedVisualTree(prepared.batch.commands, artifact.nodes, 27)
+// Only after successful matching may the root factory consume these claims.
+```
+
+Run the device-free contract cases through the owning workspace:
+
+```sh
+bun turbo run test:prerender:adoption --filter=@xplat/platform-qualification
+```
+
+These cases reject changed props/inline styles, text, kinds and addresses, duplicate or unreachable nodes, invalid insertion order/anchors, unknown initial mutations and nonportable property values. They do not establish native rendering or make this fixed-subset matcher an untrusted production IR validator.
