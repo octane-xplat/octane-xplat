@@ -63,6 +63,8 @@ host[native_] = nativeHost
 host.setNativeView(nativeHost)
 host.width = '100%'
 host.height = '100%'
+host.style.display = 'flex'
+host.style.flexDirection = 'column'
 host.className = 'ns-root ' + (scheme === 'dark' ? 'ns-dark' : 'xds-light')
 host.css = sheets.map((sheet) => sheet.css).join('\n')
 const wrappers = nativeViews.map((native, index) => {
@@ -210,6 +212,10 @@ function accept() {
     }
     layout()
     identities()
+    nativeViews.forEach((native, index) => {
+      if (oldTexts[index] !== null)
+        check(native.text === oldTexts[index], 'Adoption changed initial Label text')
+    })
     const geometryDifferences = []
     nativeViews.forEach((view, index) => {
       const actual = {
@@ -381,6 +387,175 @@ function accept() {
         siblingViews.find((view) => view.id === 'home-greeting').text === 'Welcome back, Blair',
       'Ordinary sibling initial state differs',
     )
+    // Use identical seed data: the isolation sibling deliberately has different
+    // text, which would make a geometry comparison invalid.
+    const layoutHost = new View()
+    layoutHost._setupAsRootView({})
+    layoutHost.width = '100%'
+    layoutHost.height = '100%'
+    layoutHost.style.display = 'flex'
+    layoutHost.style.flexDirection = 'column'
+    layoutHost.className = host.className
+    layoutHost.css = host.css
+    layoutHost.callLoaded()
+    const layoutRoot = createNativeScriptRoot(layoutHost)
+    const layoutPrepared = layoutRoot.prepare(Home, resolved.seed)
+    check(layoutPrepared.status === 'prepared', 'Layout reference Home suspended')
+    layoutPrepared.commit()
+    const layoutViews = []
+    function collectLayout(view) {
+      layoutViews.push(view)
+      if (view instanceof View)
+        for (let index = 0; index < view.getChildrenCount(); index++)
+          collectLayout(view.getChildAt(index))
+    }
+    collectLayout(layoutHost.getChildAt(0))
+    check(layoutViews.length === 19, 'Layout reference topology differs')
+    function measureAt(view, targetWidth, targetHeight, originX, originY) {
+      view.measure(
+        Utils.layout.makeMeasureSpec(targetWidth, Utils.layout.EXACTLY),
+        Utils.layout.makeMeasureSpec(targetHeight, Utils.layout.EXACTLY),
+      )
+      view.layout(originX, originY, originX + targetWidth, originY + targetHeight)
+    }
+    const constraintDifferences = []
+    function nativeBox(native) {
+      const frame = native.frame
+      const global = native.convertRectToView(native.bounds, window)
+      const insets = native.safeAreaInsets
+      return {
+        frame: {
+          x: frame.origin.x,
+          y: frame.origin.y,
+          width: frame.size.width,
+          height: frame.size.height,
+        },
+        window: {
+          x: global.origin.x,
+          y: global.origin.y,
+          width: global.size.width,
+          height: global.size.height,
+        },
+        insets: { top: insets.top, left: insets.left, bottom: insets.bottom, right: insets.right },
+      }
+    }
+    const viewportAtStart = { ...nativeBox(nativeHost), layout: paint(nativeHost, 0).layoutValues }
+    const layoutPasses = []
+    for (const [targetWidth, targetHeight] of [
+      [Utils.layout.toDevicePixels(320), Utils.layout.toDevicePixels(640)],
+      [Utils.layout.toDevicePixels(640), Utils.layout.toDevicePixels(320)],
+      [width, height],
+    ]) {
+      measureAt(host, targetWidth, targetHeight, left, top)
+      measureAt(layoutHost, targetWidth, targetHeight, 0, 0)
+      identities()
+      layoutPasses.push({
+        targetWidth,
+        targetHeight,
+        viewport: { ...nativeBox(nativeHost), layout: paint(nativeHost, 0).layoutValues },
+        home: nativeBox(nativeViews[0]),
+        header: nativeBox(nativeViews[1]),
+        labels: [2, 3].map((index) => nativeBox(nativeViews[index])),
+      })
+      wrappers.forEach((view, index) => {
+        const actual = view.nativeViewProtected.frame
+        const expected = layoutViews[index].nativeViewProtected.frame
+        const computed = oldNodes[index].computedLayout
+        const computedFrame = [computed.x, computed.y, computed.width, computed.height].map(
+          (value) => Utils.layout.toDeviceIndependentPixels(value),
+        )
+        const actualFrame = [
+          actual.origin.x,
+          actual.origin.y,
+          actual.size.width,
+          actual.size.height,
+        ]
+        actualFrame.forEach((value, field) => {
+          if (
+            !Number.isFinite(value) ||
+            !Number.isFinite(computedFrame[field]) ||
+            Math.abs(value - computedFrame[field]) > 0.5
+          )
+            constraintDifferences.push({
+              targetWidth,
+              targetHeight,
+              index,
+              field,
+              native: value,
+              mason: computedFrame[field],
+            })
+        })
+        const values = [
+          actual.origin.x,
+          actual.origin.y,
+          actual.size.width,
+          actual.size.height,
+          view.getMeasuredWidth(),
+          view.getMeasuredHeight(),
+        ]
+        const reference = [
+          expected.origin.x,
+          expected.origin.y,
+          expected.size.width,
+          expected.size.height,
+          layoutViews[index].getMeasuredWidth(),
+          layoutViews[index].getMeasuredHeight(),
+        ]
+        values.forEach((value, field) => {
+          if (
+            !Number.isFinite(value) ||
+            !Number.isFinite(reference[field]) ||
+            Math.abs(value - reference[field]) > 0.5
+          )
+            constraintDifferences.push({
+              targetWidth,
+              targetHeight,
+              index,
+              field,
+              adopted: value,
+              ordinary: reference[field],
+            })
+        })
+      })
+    }
+    writeProbeDiagnostic(
+      'entry-details.json',
+      JSON.stringify({
+        passed: false,
+        phase: 'layout-constraints',
+        constraintDifferences,
+        viewportAtStart,
+        layoutPasses,
+      }),
+    )
+    check(
+      constraintDifferences.length === 0,
+      'Adopted Home layout cache differs from ordinary Home: ' +
+        JSON.stringify(constraintDifferences),
+    )
+    nativeViews.forEach((native, index) => {
+      const frame = native.frame
+      const restored = {
+        x: frame.origin.x,
+        y: frame.origin.y,
+        width: frame.size.width,
+        height: frame.size.height,
+      }
+      for (const key of Object.keys(restored))
+        check(
+          Number.isFinite(restored[key]) && Math.abs(restored[key] - oldFrames[index][key]) <= 0.5,
+          'Home geometry did not return after viewport resize: ' +
+            JSON.stringify({ index, key, before: oldFrames[index][key], after: restored[key] }),
+        )
+    })
+    layoutRoot.unmount()
+    check(
+      layoutHost.getChildrenCount() === 0 &&
+        layoutHost.nativeViewProtected.subviews.count === 0 &&
+        layoutViews.every((view) => !view.isLoaded),
+      'Layout reference did not dispose',
+    )
+    check(hookCalls === 19, 'Layout reference consumed adoption claims')
     let fallbackCalls = 0
     const fallbackHost = new View()
     fallbackHost._setupAsRootView({})
@@ -609,6 +784,12 @@ function accept() {
                                       sameNativeViews: true,
                                       sameMasonNodes: true,
                                       initialGeometryPreserved: true,
+                                      layoutConstraintParity: true,
+                                      nativeFramesMatchMason: true,
+                                      viewportGeometryRestored: true,
+                                      layoutPasses,
+                                      viewportAtStart,
+                                      osOrientationQualified: false,
                                       nativePaintParity: true,
                                       scheme,
                                       rootScopedClaims: true,

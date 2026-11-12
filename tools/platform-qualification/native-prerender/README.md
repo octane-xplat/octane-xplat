@@ -110,7 +110,7 @@ The real-screen experiment has separate native and JavaScript entry points:
 | Source | Role |
 | --- | --- |
 | [HomeBootstrap.swift](home-native/HomeBootstrap.swift) | Binary decode, native Home mount, explicit engine gate and identity assertions |
-| [home-adoption.ios.js](home-adoption.ios.js) | Prepared-tree matching, root-scoped claims, Page handoff, Button updates, sibling isolation and compared style removal |
+| [home-adoption.ios.js](home-adoption.ios.js) | Prepared-tree matching, root-scoped claims, Page handoff, resize/restore parity, Button updates, sibling isolation and compared style removal |
 | [home-fallback.ios.js](home-fallback.ios.js) | Stale-theme rejection before claims, ordinary Home mount and current-theme/Button checks |
 | [home-primitives.ts](home-primitives.ts) | Four actual shared primitive exports, avoiding unrelated public-barrel imports |
 
@@ -119,6 +119,20 @@ These are private qualification fixtures, not app bootstrap APIs. The host build
 The positive fixture reads binary before engine initialization, then checks the same nineteen native objects through live adoption. The failure fixture requires compiling Swift with `-D XPLAT_PRERENDER_STALE_THEME` and selecting `home-fallback.ios.js`: it changes the owning window theme before JS starts. JavaScript rejects the stale preparation without consuming claims, detaches the old native root through Mason and mounts a fresh Home. These cases must use distinct input-bound build identities. A launcher must check the app identifier, binary decode event, nineteen visual nodes and the matching final result kind; accepting any generic `passed` event can run the wrong fixture.
 
 The host waits on display-link progress and checks window attachment; compositor presentation remains unqualified. The fixtures intentionally retain diagnostic handles and cover a fixed tree. They do not establish leak freedom, arbitrary environment changes, rollback after partial native application, OS touch or startup performance. The complete host build/producer pipeline still requires an experimental adapter; the maintained compile-only and codec commands above do not build this app.
+
+The native and live hosts use an explicit flex-column viewport so Home's flex growth has the same parent policy before and after adoption. The viewport belongs to the host, outside the nineteen artifact views:
+
+```swift
+root.style.display = .Flex
+root.style.flexDirection = .Column
+```
+
+```js
+host.style.display = 'flex'
+host.style.flexDirection = 'column'
+```
+
+The adoption fixture measures at two changed sizes and the original size, checks all native frames against Mason's computed layout and an ordinary Home, and requires every original frame to return. These are programmatic constraint checks, not OS rotation coverage. On iOS, the Mason foreign-descendant bridge must flush pending UIKit layout before Core lays out foreign views; otherwise Core can clip their frames against stale safe-area insets. The focused fork repair is Mason commit `4040e7d2` (`packages/nativescript-masonkit/common.ts`). Keep that prerequisite when assembling the isolated host SDK; the fixture does not patch installed dependencies.
 
 ## Boundaries for native style loading
 

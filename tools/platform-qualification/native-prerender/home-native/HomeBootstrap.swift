@@ -61,6 +61,9 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
         home = PrerenderHomeMount.mount(artifact, theme: theme, scale: window.screen.scale)
         root = NSCMason.shared.createView()
+        // The host owns the viewport; Home's flex growth uses its vertical axis.
+        root.style.display = .Flex
+        root.style.flexDirection = .Column
         root.addView(home)
         outer.addSubview(root)
         let width = Float(content.width * window.screen.scale), height = Float(content.height * window.screen.scale)

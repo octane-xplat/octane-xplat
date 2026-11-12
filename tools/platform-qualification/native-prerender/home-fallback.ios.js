@@ -35,6 +35,8 @@ host[native_] = nativeHost
 host.setNativeView(nativeHost)
 host.width = '100%'
 host.height = '100%'
+host.style.display = 'flex'
+host.style.flexDirection = 'column'
 host.className = 'ns-root ' + (scheme === 'dark' ? 'ns-dark' : 'xds-light')
 host.css = sheets.map((sheet) => sheet.css).join('\n')
 let claimCalls = 0
