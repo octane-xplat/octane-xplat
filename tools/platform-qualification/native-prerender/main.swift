@@ -1,5 +1,6 @@
 import UIKit
 import MasonCore
+import os.signpost
 
 // Mechanism probe only: display-link progress does not prove compositor presentation.
 final class ProbeDelegate: UIResponder, UIApplicationDelegate {
@@ -19,9 +20,11 @@ final class ProbeScene: UIResponder, UIWindowSceneDelegate {
     var root: MasonUIView!
     var labels: [UILabel] = []
     var events: [[String: Any]] = []
+    let traceLog = OSLog(subsystem: "org.octanexplat.prerenderbootstrap", category: "bootstrap")
     let started = ProcessInfo.processInfo.systemUptime
 
     func record(_ name: String, _ extra: [String: Any] = [:]) {
+        os_signpost(.event, log: traceLog, name: "BootstrapStage", "%{public}@", name as NSString)
         var event = extra
         event["event"] = name
         event["ms"] = (ProcessInfo.processInfo.systemUptime - started) * 1000

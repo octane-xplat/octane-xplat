@@ -154,7 +154,14 @@ if (mode === 'build') {
   cpSync(join(scratch, 'build.json'), join(report, 'build.json'))
   writeFileSync(join(report, 'result.json'), '[]')
   writeFileSync(join(report, 'status.json'), JSON.stringify({ passed: false, state: 'running' }))
-  for (const name of ['stdout.log', 'stderr.log', 'entry-stage.txt', 'entry-error.txt']) {
+  for (const name of [
+    'stdout.log',
+    'stderr.log',
+    'entry-stage.txt',
+    'entry-error.txt',
+    'selector-parity.json',
+    'entry-details.json',
+  ]) {
     const path = join(report, name)
     if (existsSync(path)) unlinkSync(path)
   }
@@ -164,7 +171,13 @@ if (mode === 'build') {
     run('xcrun', ['simctl', 'install', udid, app])
     installed = run('xcrun', ['simctl', 'get_app_container', udid, id, 'data'])
     const prior = join(installed, 'Documents/result.json')
-    for (const name of ['result.json', 'entry-stage.txt', 'entry-error.txt']) {
+    for (const name of [
+      'result.json',
+      'entry-stage.txt',
+      'entry-error.txt',
+      'selector-parity.json',
+      'entry-details.json',
+    ]) {
       const path = join(installed, 'Documents', name)
       if (existsSync(path)) unlinkSync(path)
     }
@@ -216,7 +229,14 @@ if (mode === 'build') {
     throw error
   } finally {
     if (installed) {
-      for (const name of ['stdout.log', 'stderr.log', 'entry-stage.txt', 'entry-error.txt']) {
+      for (const name of [
+        'stdout.log',
+        'stderr.log',
+        'entry-stage.txt',
+        'entry-error.txt',
+        'selector-parity.json',
+        'entry-details.json',
+      ]) {
         const path = join(installed, 'Documents', name)
         if (existsSync(path)) cpSync(path, join(report, name))
       }
