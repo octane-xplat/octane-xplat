@@ -12,9 +12,15 @@ static UIColor *Color(NSString *source) {
         Require([[NSScanner scannerWithString:[source substringFromIndex:1]] scanHexInt:&value], @"Invalid hex color");
         return [UIColor colorWithRed:((value >> 16) & 255)/255.0 green:((value >> 8) & 255)/255.0 blue:(value & 255)/255.0 alpha:1];
     }
-    float r, g, b, a;
-    Require(sscanf(source.UTF8String, "rgba(%f, %f, %f, %f)", &r, &g, &b, &a) == 4, @"Unsupported color");
+    double r, g, b, a;
+    Require(sscanf(source.UTF8String, "rgba(%lf, %lf, %lf, %lf)", &r, &g, &b, &a) == 4, @"Unsupported color");
     return [UIColor colorWithRed:r/255 green:g/255 blue:b/255 alpha:a];
+}
+static uint32_t ARGB(UIColor *color) {
+    CGFloat r, g, b, a;
+    Require([color getRed:&r green:&g blue:&b alpha:&a], @"Expected resolved background color");
+    // Match NativeScript Color's byte rounding; UIColor-to-Mason conversion truncates alpha.
+    return ((uint32_t)lround(a*255) << 24) | ((uint32_t)lround(r*255) << 16) | ((uint32_t)lround(g*255) << 8) | (uint32_t)lround(b*255);
 }
 static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
@@ -42,7 +48,7 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
         Require([@[@"center",@"space-between"] containsObject:values[@"justifyContent"]], @"Unsupported justification");
         style.justifyContent = [values[@"justifyContent"] isEqual:@"center"] ? MasonJustifyContentCenter : MasonJustifyContentSpaceBetween;
     }
-    if (values[@"backgroundColor"]) [style setBackgroundColorWithUi:Color(values[@"backgroundColor"])];
+    if (values[@"backgroundColor"]) style.backgroundColor = ARGB(Color(values[@"backgroundColor"]));
     if (values[@"borderRadius"]) style.borderRadius = [NSString stringWithFormat:@"%gpx", [values[@"borderRadius"] doubleValue]*scale];
     if (values[@"cornerShape"]) style.cornerShape = values[@"cornerShape"];
     // Font/color inheritance was resolved by the producer. Container values do not paint text.
@@ -62,10 +68,27 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     // userSelect is not a native Style paint property in the live reference.
     [style updateNativeStyle];
 }
+static NSDictionary *Paint(UIView *view) {
+    MasonStyle *style = [NSCMason.shared styleForView:view];
+    NSMutableDictionary *result = [@{@"backgroundColor":@(style.backgroundColor),@"borderRadius":style.borderRadius,@"cornerShape":style.cornerShape} mutableCopy];
+    if ([view isKindOfClass:UILabel.class]) {
+        UILabel *label = (UILabel *)view;
+        CGFloat r, g, b, a;
+        Require([label.textColor getRed:&r green:&g blue:&b alpha:&a], @"Expected a resolved text color");
+        result[@"textColor"] = @[@(r),@(g),@(b),@(a)];
+        UIFont *font = label.font;
+        if (label.attributedText.length > 0) {
+            id attributedFont = [label.attributedText attribute:NSFontAttributeName atIndex:0 effectiveRange:NULL];
+            if ([attributedFont isKindOfClass:UIFont.class]) font = attributedFont;
+        }
+        result[@"font"] = @{@"fontName":font.fontName,@"pointSize":@(font.pointSize),@"ascender":@(font.ascender),@"descender":@(font.descender),@"lineHeight":@(font.lineHeight),@"leading":@(font.leading),@"capHeight":@(font.capHeight),@"xHeight":@(font.xHeight)};
+    }
+    return result;
+}
 static void Snapshot(UIView *view, NSString *path, NSMutableArray *rows) {
     CGRect frame=view.frame;
     BOOL label=[view isKindOfClass:UILabel.class];
-    [rows addObject:@{@"path":path,@"kind":label ? @"label":@"masonview",@"text":label ? (((UILabel *)view).text ?: @"") : @"",@"frame":@{@"x":@(frame.origin.x),@"y":@(frame.origin.y),@"width":@(frame.size.width),@"height":@(frame.size.height)}}];
+    [rows addObject:@{@"paint":Paint(view),@"path":path,@"kind":label ? @"label":@"masonview",@"text":label ? (((UILabel *)view).text ?: @"") : @"",@"frame":@{@"x":@(frame.origin.x),@"y":@(frame.origin.y),@"width":@(frame.size.width),@"height":@(frame.size.height)}}];
     if (!label) for (NSUInteger index=0;index<view.subviews.count;index++) Snapshot(view.subviews[index],[path stringByAppendingFormat:@"/%lu",(unsigned long)index],rows);
 }
 @implementation PrerenderHomeMount
