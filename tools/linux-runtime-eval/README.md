@@ -113,11 +113,11 @@ dbus-run-session -- xvfb-run -a env XPLAT_MASON_TYPELIB=/path/to/facade-dir LD_L
 dbus-run-session -- xvfb-run -a python3 tools/linux-runtime-eval/port/cdp-check.py /path/to/prepared/ns-linux tools/linux-runtime-eval/dist/bench-native/app.js
 ```
 
-Native C frames in the CPU profile can carry the wrong symbol name ([triniwiz/linux-runtime#12](https://github.com/triniwiz/linux-runtime/issues/12)), so attribute only JavaScript frames.
+With `0.1.0-alpha.2`, native C frames in the CPU profile can carry the wrong symbol name, so attribute only JavaScript frames. Upstream fixed this after alpha.2 ([triniwiz/linux-runtime#12](https://github.com/triniwiz/linux-runtime/issues/12)); this probe has not been rerun on a newer release.
 
 One local workaround hides a known gap; keep it in mind when reading results:
 
-- The runtime exposes C structs only under their struct tags, such as `_graphene_rect_t`, not their typedef names ([triniwiz/linux-runtime#13](https://github.com/triniwiz/linux-runtime/issues/13)). The projection's struct lookup doesn't try `_graphene_rect_t`, so for Graphene out-parameters it falls back to raw memory with a field map taken from GI. The struct is present in the metadata.
+- `0.1.0-alpha.2` exposes C structs only under their struct tags, such as `_graphene_rect_t`, not their typedef names. `0.1.0-alpha.3` adds the typedef names ([triniwiz/linux-runtime#13](https://github.com/triniwiz/linux-runtime/issues/13)). The projection's struct lookup doesn't try `_graphene_rect_t`, so for Graphene out-parameters it falls back to raw memory with a field map taken from GI. The struct is present in the metadata.
 
 ## Integration boundaries
 
