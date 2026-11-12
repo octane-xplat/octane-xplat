@@ -12,6 +12,7 @@ export function attachProjection(node: ProjectionNode, adapter: HostAdapter): Ho
   })
 
   return {
+    styles: adapter.styles,
     pan: adapter.pan?.bind(adapter),
     read: adapter.read.bind(adapter),
     restore: adapter.restore.bind(adapter),

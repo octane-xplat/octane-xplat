@@ -58,3 +58,25 @@ it('preserves an authored paint update made during projection and restores on de
   host.restore()
   expect(element.style.borderTopLeftRadius).toBe('30px')
 })
+
+it('keeps animated radius leases separate from projection correction and restores the actual baseline', () => {
+  const element = document.createElement('div')
+  element.style.borderTopLeftRadius = '10px'
+  document.body.append(element)
+  const host = attachHost(element)
+  const write: ProjectionWrite = {
+    delta: createDelta(),
+    treeScale: { x: 2, y: 2 },
+    latest: {},
+    target: { x: { min: 0, max: 200 }, y: { min: 0, max: 200 } },
+  }
+  host.project!(write)
+  host.styles!.write({ borderTopLeftRadius: '30px', clipPath: 'inset(10px)' })
+  expect(element.style.borderTopLeftRadius).toBe('15% 15%')
+  expect(element.style.clipPath).toBe('inset(10px)')
+  host.project!(null)
+  expect(element.style.borderTopLeftRadius).toBe('30px')
+  host.styles!.release()
+  expect(element.style.borderTopLeftRadius).toBe('10px')
+  expect(element.style.clipPath).toBe('')
+})

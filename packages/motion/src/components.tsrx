@@ -1,3 +1,4 @@
+import { MotionTargetError, channelKeys, isMotionChannel, type MotionData } from './value-codec'
 import { attachProjection } from './projection/adapter'
 import { createContext, useRef, useLayoutEffect, useContext } from 'octane'
 import { View, HStack, Pressable } from '@octane-xplat/ui'
@@ -19,7 +20,8 @@ import { projectionRoot } from './projection/root'
 import { layoutSupported } from './projection/barrier'
 import type { AnimationType } from './projection/types'
 import type {
-  MotionKey,
+  MotionProperty,
+  BoundMotionValue,
   MotionProps,
   MotionViewProps,
   MotionRowProps,
@@ -39,6 +41,23 @@ const GESTURE_PROPS: Record<
 > = {
   press: { target: 'whileTap', transition: 'whileTapTransition' },
   focus: { target: 'whileFocus', transition: 'whileFocusTransition' },
+}
+
+function assignTarget(target: Target, key: MotionProperty, value: MotionData | undefined): void {
+  if (key === 'opacity' || key === 'scale' || key === 'scaleX' || key === 'scaleY') {
+    if (value !== undefined && typeof value !== 'number') {
+      throw new MotionTargetError(
+        'invalid-value',
+        key,
+        value,
+        'this channel requires a finite number',
+      )
+    }
+
+    target[key] = value
+  } else {
+    target[key] = value
+  }
 }
 
 function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
@@ -78,7 +97,12 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
     for (const key of keys) {
       if (resolved.target[key] !== undefined && source.style?.[key] instanceof MotionValue) {
-        throw new Error(`motion: ${key} has both an animate target and a MotionValue writer`)
+        throw new MotionTargetError(
+          'conflicting-owner',
+          key,
+          source.style?.[key],
+          'has both an animate target and a MotionValue writer',
+        )
       }
     }
 
@@ -141,8 +165,9 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
     projRef.current = null
   }
 
-  resolve(props.whileTap)
-  resolve(props.whileFocus)
+  const resolvedTap = resolve(props.whileTap)
+  const resolvedFocus = resolve(props.whileFocus)
+
   if (props.whileTapTransition) {
     validateTransitionInput(props.whileTapTransition)
   }
@@ -185,41 +210,82 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   current.channelsOnly ||= Boolean(props.whileTap || props.whileFocus)
 
   const style: Record<string, unknown> = {}
-  const bindings: [MotionKey, number | MotionValue][] = []
+  const bindings: [MotionProperty, MotionData | BoundMotionValue][] = []
 
   for (const [key, value] of Object.entries(props.style ?? {})) {
-    if (keys.includes(key as MotionKey)) {
+    if (keys.includes(key as MotionProperty)) {
+      if (!(value instanceof MotionValue) && !channelKeys.some((channel) => channel === key)) {
+        style[key] = value
+        continue
+      }
+
       if (
         !(value instanceof MotionValue) &&
-        (typeof value !== 'number' || !Number.isFinite(value))
+        typeof value !== 'number' &&
+        typeof value !== 'string'
       ) {
-        throw new Error(`motion: invalid style ${key}`)
+        throw new MotionTargetError('invalid-value', key, value, 'invalid style value')
       }
 
       if (
         value instanceof MotionValue &&
-        (resolvedAnimate.target[key as MotionKey] !== undefined ||
-          resolvedExit.target[key as MotionKey] !== undefined ||
-          resolvedInitial.target[key as MotionKey] !== undefined)
+        (resolvedAnimate.target[key as MotionProperty] !== undefined ||
+          resolvedExit.target[key as MotionProperty] !== undefined ||
+          resolvedInitial.target[key as MotionProperty] !== undefined)
       ) {
-        throw new Error(`motion: ${key} has both an animate target and a MotionValue writer`)
+        throw new MotionTargetError(
+          'conflicting-owner',
+          key,
+          value,
+          'has both an animate target and a MotionValue writer',
+        )
       }
 
-      bindings.push([key as MotionKey, value as number | MotionValue])
+      bindings.push([key as MotionProperty, value as MotionData | BoundMotionValue])
     } else {
       if (
         value instanceof MotionValue ||
         ['transform', 'translateX', 'translateY', 'animation', 'transition'].includes(key)
       ) {
-        throw new Error(`motion: unsupported or conflicting style ${key}`)
+        throw new MotionTargetError(
+          value instanceof MotionValue ? 'unsupported-property' : 'conflicting-owner',
+          key,
+          value,
+          `unsupported or conflicting style ${key}`,
+        )
       }
 
       style[key] = value
     }
   }
 
+  const boundNames = bindings
+    .filter(([, value]) => value instanceof MotionValue)
+    .map(([key]) => key)
+
+  const writtenNames = [
+    ...boundNames,
+    ...Object.keys(resolvedAnimate.target),
+    ...Object.keys(resolvedInitial.target),
+    ...Object.keys(resolvedExit.target),
+    ...Object.keys(resolvedTap.target),
+    ...Object.keys(resolvedFocus.target),
+  ]
+
+  if (
+    writtenNames.includes('borderRadius') &&
+    writtenNames.some((key) => key !== 'borderRadius' && key.endsWith('Radius'))
+  ) {
+    throw new MotionTargetError(
+      'conflicting-owner',
+      'borderRadius',
+      props.style,
+      'radius shorthand and longhand writers overlap',
+    )
+  }
+
   const previous = useRef(bindings)
-  const boundKeys = useRef<MotionKey[]>([])
+  const boundKeys = useRef<MotionProperty[]>([])
   const firstBinding = useRef(true)
   const firstAnimation = useRef(true)
   const inheritedRun = useRef<{ label: string; resolved: string } | null>(null)
@@ -232,6 +298,13 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   }
 
   current.controller.onUpdate = (snapshot) => latest.current.onUpdate?.(snapshot)
+  current.controller.onError = (error) => {
+    if (latest.current.onMotionError) {
+      latest.current.onMotionError(error)
+    } else {
+      console.error(error)
+    }
+  }
 
   const animateTarget = useRef(resolvedAnimate.target)
 
@@ -256,8 +329,28 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   const reconcileGestures = (timing = playbackTransition(playback.current.transition)) => {
     const base = { ...current.base }
 
+    for (const key of keys) {
+      if (!isMotionChannel(key)) {
+        const authored = latest.current.style?.[key]
+
+        if (typeof authored === 'number' || typeof authored === 'string') {
+          assignTarget(base, key, authored)
+        }
+
+        if (
+          base[key] === undefined &&
+          (current.gestureTarget[key] !== undefined || composed({})[key] !== undefined)
+        ) {
+          const baseline = current.adapter?.styles?.read(key)
+
+          assignTarget(base, key, baseline)
+          assignTarget(current.base, key, baseline)
+        }
+      }
+    }
+
     for (const [key, value] of previous.current) {
-      base[key] = value instanceof MotionValue ? value.get() : value
+      assignTarget(base, key, value instanceof MotionValue ? value.get() : value)
     }
 
     Object.assign(base, animateTarget.current)
@@ -270,7 +363,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       const before = current.gestureTarget[key]
 
       if ((overlay[key] !== undefined || before !== undefined) && next !== before) {
-        target[key] = next
+        assignTarget(target, key, next)
       }
     }
 
@@ -315,13 +408,14 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
         ? attachProjection(projRef.current, current.rawAdapter)
         : current.rawAdapter
 
+      current.controller.attach(current.adapter)
       if (!current.initialized) {
-        const baseline = current.adapter.read()
+        const baseline: Target = current.adapter.read()
 
-        current.base = { ...baseline }
+        current.base = { ...baseline, ...resolvedInitial.target }
 
         for (const [key, value] of previous.current) {
-          baseline[key] = value instanceof MotionValue ? value.get() : value
+          assignTarget(baseline, key, value instanceof MotionValue ? value.get() : value)
         }
 
         current.controller.seed(baseline)
@@ -332,7 +426,6 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
         current.initialized = true
       }
 
-      current.controller.attach(current.adapter)
       controllers.set(host, current.controller)
       configureDrag()
       if (current.adapter.gesture) {
@@ -387,10 +480,13 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       if (current.gestureTarget[key] !== undefined && rest[key] === undefined) {
         const binding = previous.current.find(([name]) => name === key)?.[1]
 
-        rest[key] =
+        assignTarget(
+          rest,
+          key,
           binding instanceof MotionValue
             ? binding.get()
-            : (binding ?? current.base[key] ?? defaults[key])
+            : (binding ?? current.base[key] ?? defaults[key]),
+        )
       }
     }
 
@@ -431,9 +527,14 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
         const resolved = resolve(latest.current.exit, latest.current)
 
-        for (const key of Object.keys(resolved.target) as MotionKey[]) {
+        for (const key of Object.keys(resolved.target) as MotionProperty[]) {
           if (!(key in returning.current)) {
-            returning.current[key] = snapshot[key]
+            assignTarget(
+              returning.current,
+              key,
+              snapshot[key] ??
+                (!isMotionChannel(key) ? current.adapter?.styles?.read(key) : undefined),
+            )
           }
         }
 
@@ -552,7 +653,25 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       }
 
       if (value instanceof MotionValue) {
-        off.push(value.on('change', (next) => current.controller.set(key, next)))
+        off.push(value.bindResolution({}, key, () => current.adapter?.styles?.references()))
+        off.push(
+          value.on('change', (next: MotionData) => {
+            try {
+              current.controller.set(key, next)
+            } catch (error) {
+              if (!(error instanceof MotionTargetError)) {
+                throw error
+              }
+
+              value.stop()
+              if (latest.current.onMotionError) {
+                latest.current.onMotionError(error)
+              } else {
+                console.error(error)
+              }
+            }
+          }),
+        )
       }
     }
 
@@ -574,7 +693,20 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       (axis) => {
         const binding = previous.current.find(([key]) => key === axis)?.[1]
 
-        return binding instanceof MotionValue ? binding : current.controller.value(axis)
+        if (binding instanceof MotionValue) {
+          if (!binding.isNumeric()) {
+            throw new MotionTargetError(
+              'conflicting-owner',
+              axis,
+              binding.get(),
+              'drag bindings must use logical numeric values',
+            )
+          }
+
+          return binding
+        }
+
+        return current.controller.value(axis)
       },
       () => playback.current.reduced,
       () => latest.current,
@@ -680,6 +812,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
     onAnimationStart,
     onAnimationComplete,
     onUpdate,
+    onMotionError,
     style: ignoredStyle,
     ref: ignoredRef,
     ...rest

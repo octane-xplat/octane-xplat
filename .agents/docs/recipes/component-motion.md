@@ -15,8 +15,8 @@ behavior, and respect reduced motion and component disposal.
 
 ## Acceptance criteria
 
-- AC1: Install the leaf and animate supported numeric channels on mount and prop changes using documented units.
-- AC2: Bind numeric values without per-frame renders and stop owned playback/subscriptions on disposal. Lifecycle callbacks may stop, destroy, or replace playback without reviving obsolete work.
+- AC1: Install the leaf and animate registered numeric/unit/compound targets on mount and prop changes using documented units.
+- AC2: Bind number/string values without per-frame renders and stop owned playback/subscriptions on disposal. Lifecycle callbacks may stop, destroy, or replace playback without reviving obsolete work.
 - AC3: Configure reduced motion and recognize unsupported capabilities and platform verification limits.
 
 - AC4: Retain live component state during exit, reverse without remounting, disable exiting input, and distinguish boundary disposal from completed exit.
@@ -26,6 +26,8 @@ behavior, and respect reduced motion and component disposal.
 - AC6: Compose active focus and press per channel (press wins shared channels), return to the current base in either release order, and preserve independent playback, cancellation, prop removal and disposal under reduced motion.
 
 - AC7: Choose duration/bounce springs with documented completion timing, or physical springs for velocity continuity; understand physical-input precedence and preserve repeats, cancellation and reduced motion.
+
+- AC8: Preserve crop geometry through interruption/reversal, drag cancellation and resize; reject incompatible paths/units/properties before replacing playback; retain Mason clip ownership through layout/redraw and release styles, bindings, observers and pending frames on removal. Distinguish source/object-driver geometry from rendered video and OS-input qualification.
 
 ## Documentation
 
@@ -40,3 +42,5 @@ behavior, and respect reduced motion and component disposal.
 - AC6: [Compose feedback](../../../docs/app/animation-gestures.md#combine-press-and-focus-feedback), [shared conformance](../../../packages/motion/test/gesture-contract.ts), [compiled web](../../../packages/motion/src/gesture-composition.web.test.tsrx), and [compiled native](../../../packages/motion/src/gesture-composition.mobile.test.tsrx). Native object-driver tests establish policy and adapter dispatch, not OS input.
 
 - AC7: [Spring modes](../../../docs/app/animation-gestures.md#animate-a-component), [maintained example](../../../packages/motion/examples/MotionDemo.tsrx), and [timing/trajectory regressions](../../../packages/motion/src/engine.test.ts). Pure clock tests establish generator contracts, not device frame pacing.
+
+- AC8: [Size, unit and clipping workflow](../../../docs/app/animation-values.md), [VideoCropSurface](../../../packages/motion/examples/VideoCropSurface.tsrx), [geometry model](../../../packages/motion/examples/video-geometry.ts), [codec contracts](../../../packages/motion/src/value-codec.test.ts), [retarget/cleanup contracts](../../../packages/motion/src/expanded-targets.test.ts), and [compiled bindings](../../../packages/motion/src/expanded-bindings.web.test.tsrx). The maintained nonvisual probes exercise [Chromium](../../../packages/motion/tests/expanded-values.web.ts), [iOS native mask geometry](../../../packages/motion/tests/expanded-values.ios.tsrx), and [Android style/lifecycle](../../../packages/motion/tests/expanded-values.android.tsrx). Runtime media appearance, OS gestures and device pacing require independent evidence.

@@ -1,20 +1,21 @@
-import type { Target, Transition, DragInfo } from './types'
+import type { MotionData, ValueReferences } from './value-codec'
+import type { ResolvedTarget, Transition, DragInfo, StyleProperty } from './types'
 import type { Measurement, ProjectionWrite } from './projection/types'
 
 export interface DelegatedRequest {
   /** Channels the caller asked to animate. */
-  target: Target
+  target: ResolvedTarget
   /** Full channel-space destination: retained values plus the target. */
-  dest: Target
+  dest: ResolvedTarget
   /** Effective native destination — `scale` folded into scaleX/scaleY. */
-  eff: Target
+  eff: ResolvedTarget
   transition: Transition
 }
 
 /** A run handed to the platform animator; presentation state stays readable. */
 export interface DelegatedRun {
   /** Reads current rendered values in effective channels (scale folded). */
-  sample(): Target
+  sample(): ResolvedTarget
   /** Stops the run at its presentation state; the model is synced to it. */
   cancel(): void
   finished: Promise<'finished' | 'cancelled'>
@@ -34,10 +35,21 @@ export interface PanCallbacks {
   end(event: any, info: DragInfo): void
 }
 
+export interface StyleAdapter {
+  platform: string
+  references(): ValueReferences
+  read(key: StyleProperty): MotionData | undefined
+  write(values: Partial<Record<StyleProperty, MotionData>>): void
+  release(key?: StyleProperty): void
+  observe?(callback: () => void): () => void
+  validate?(key: StyleProperty): void
+}
+
 export interface HostAdapter {
+  styles?: StyleAdapter
   pan?(axis: true | 'x' | 'y', callbacks: PanCallbacks): () => void
-  read(): Target
-  write(values: Target): void
+  read(): ResolvedTarget
+  write(values: ResolvedTarget): void
   restore(): void
   /**
    * Run a declarative tween on the platform animator. Returns null to fall

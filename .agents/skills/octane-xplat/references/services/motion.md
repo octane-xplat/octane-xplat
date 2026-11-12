@@ -248,3 +248,34 @@ editing/scrolling boundaries and semantic activation. GTK qualification requires
 the pinned Mason facade, not Gtk.Box fallback. Query AT-SPI/UIA/AX through an
 independent client before claiming service-level accessibility; a direct native
 method call remains handler-route evidence.
+
+For sizes and animated clipping, use Motion's registered style targets or
+number/string bindings. Prefer a numeric progress value for gesture-controlled
+video crops. Keep clip ownership in Mason's `style.clipPath`; do not add app
+mask layers or private redraw/layout wrappers. Use matching shapes/path topology
+and explicit initial clip values; incompatibility is an error. Lengths are
+logical CSS pixels/DIP, including `px` on native. Follow the
+[values guide](../../../../../docs/app/animation-values.md) for reference boxes,
+resize promises, unsupported syntax, error handling and desktop limits.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View style={{ width: 240, height: 160 }} initial={{ clipPath: 'inset(20% round 16px)' }} animate={{ clipPath: 'inset(0% round 0px)' }} />
+```
+
+Expanded values run on the existing JS engine; do not assume acceleration or
+physical-device pacing from codec or native geometry checks. A crop host whose
+app owns transform geometry should use `layout={false}`. Derived `useTransform`
+values are read-only; update their source. Keep a separate value per relative
+coordinate space when bound measurements differ.
+
+```tsx
+import { motion, useMotionValue, useTransform } from '@octane-xplat/motion'
+
+export function Crop() {
+  const p$ = useMotionValue(0)
+  const clip$ = useTransform(p$, [0, 1], ['inset(10%)', 'inset(0%)'])
+  return <motion.View layout={false} style={{ width: 240, height: 160, clipPath: clip$ }} />
+}
+```

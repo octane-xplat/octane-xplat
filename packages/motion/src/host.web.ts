@@ -1,3 +1,4 @@
+import { attachStyles } from './styles.web'
 import { observeOwnedPress } from '@octane-xplat/ui/internal/gesture-input'
 import { captureViewportOffset } from './projection/viewport-offset.web'
 import { radiusKeys } from './projection/paint'
@@ -12,7 +13,7 @@ import {
 
 import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
 import type { Box, Measurement, ProjectionWrite } from './projection/types'
-import type { Target } from './types'
+import type { ResolvedTarget } from './types'
 
 /** Every element a motion host has attached to; lets the mutation filter
  *  recognize our own style writes. */
@@ -30,7 +31,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
 
   motionHostElements.add(node)
 
-  let latestValues: Target = {}
+  let latestValues: ResolvedTarget = {}
   let projecting = false
   const paintKeys = [...radiusKeys, 'boxShadow'] as const
   let paintSaved: Record<string, string> | undefined
@@ -72,7 +73,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
     paintApplied = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
   }
 
-  const write = (values: Target) => {
+  const write = (values: ResolvedTarget) => {
     latestValues = { ...latestValues, ...values }
     if (values.opacity !== undefined) {
       node.style.opacity = String(Math.min(1, Math.max(0, values.opacity)))
@@ -88,7 +89,24 @@ export function attachHost(node: HTMLElement): HostAdapter {
     y: { min: rect.top, max: rect.bottom },
   })
 
+  const styles = attachStyles(node)
+  let latestProjection: import('./projection/types').ProjectionWrite | null = null
+  const ownedStyles = {
+    ...styles,
+    write(values: Parameters<typeof styles.write>[0]) {
+      restorePaint()
+      styles.write(values)
+      if (latestProjection) {
+        correctPaint(latestProjection)
+      }
+    },
+    release(key?: Parameters<typeof styles.release>[0]) {
+      restorePaint()
+      styles.release(key)
+    },
+  }
   return {
+    styles: ownedStyles,
     pan: (axis, callbacks) => attachPan(node, axis, callbacks),
     read: () => ({
       opacity: Number(computed.opacity || 1),
@@ -140,6 +158,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
       }
     },
     project(write: ProjectionWrite | null) {
+      latestProjection = write
       if (!write) {
         restorePaint()
         projecting = false

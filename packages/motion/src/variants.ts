@@ -3,7 +3,7 @@ import { isOrchestrated, validateTransitionInput } from './engine'
 import type { AnimationResult } from './engine'
 import type {
   AnimationDefinition,
-  MotionKey,
+  MotionProperty,
   Target,
   TransitionInput,
   Variants,
@@ -22,7 +22,7 @@ export function resolveVariant(
   variants?: Variants,
   custom?: any,
 ): {
-  target: Partial<Record<MotionKey, number>>
+  target: Target
   transition: TransitionInput | undefined
 } {
   const target: Target = {}
@@ -76,7 +76,7 @@ export function playbackTransition(input: TransitionInput, delay = 0): Transitio
 
     for (const [key, value] of Object.entries(timing)) {
       if (key !== 'default' && value) {
-        result[key as MotionKey] = {
+        result[key as MotionProperty] = {
           ...value,
           delay: (value.delay ?? timing.default?.delay ?? 0) + delay,
         }

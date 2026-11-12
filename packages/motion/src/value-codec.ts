@@ -35,6 +35,7 @@ export const lengthKeys = [
   'borderBottomLeftRadius',
 ] as const
 export const compoundKeys = ['borderRadius', 'boxShadow', 'clipPath'] as const
+/** Registered targets, shared by validation, bindings and per-property timing. */
 export type MotionProperty =
   | (typeof channelKeys)[number]
   | (typeof lengthKeys)[number]
@@ -45,6 +46,7 @@ export const propertyKeys: readonly MotionProperty[] = [
   ...compoundKeys,
 ]
 
+/** Stable reason category for target/binding failures. */
 export type TargetErrorCode =
   | 'unsupported-property'
   | 'unsupported-platform'
@@ -56,10 +58,15 @@ export type TargetErrorCode =
 /** A rejected Motion value. Validation never silently snaps an incompatible clip. */
 export class MotionTargetError extends Error {
   readonly name: string = 'MotionTargetError'
+  /** Stable failure category. */
   readonly code: TargetErrorCode
+  /** Rejected property, or empty for an unbound value. */
   readonly property: string
+  /** Rejected input. */
   readonly value: unknown
+  /** Human-readable cause and required constraint. */
   readonly reason: string
+  /** Host platform when known, otherwise shared. */
   readonly platform: string
   constructor(
     code: TargetErrorCode,
@@ -78,6 +85,7 @@ export class MotionTargetError extends Error {
 }
 
 export interface ValueReferences {
+  measured?: boolean
   width: number
   height: number
   parentWidth?: number
@@ -112,6 +120,10 @@ const fail = (
 const finite = (n: number, property: string, value: unknown) =>
   Number.isFinite(n) ? n : fail(property, value, 'expected finite coordinates')
 const formatted = (n: number) => String(Object.is(n, -0) ? 0 : Number(n.toFixed(6)))
+
+export function isMotionChannel(key: string): key is (typeof channelKeys)[number] {
+  return channelKeys.some((channel) => channel === key)
+}
 
 export function isMotionProperty(key: string): key is MotionProperty {
   return propertyKeys.some((name) => name === key)
@@ -165,8 +177,31 @@ function length(text: string, property: string, refs?: ValueReferences, basis?: 
   if (!unit || unit === 'px' || unit === 'dip') {
     return { number, unit: 'px' }
   }
+  if (
+    unit === '%' &&
+    ((property.startsWith('border') && property.endsWith('Width')) ||
+      property === 'rowGap' ||
+      property === 'columnGap')
+  ) {
+    return fail(
+      property,
+      text,
+      'percentage border widths and gaps are outside the supported subset',
+    )
+  }
   if (!refs) {
     return { number, unit }
+  }
+  if (
+    unit === '%' &&
+    refs.measured === false &&
+    (basis !== undefined ||
+      property === 'x' ||
+      property === 'y' ||
+      property === 'borderRadius' ||
+      corners.has(property))
+  ) {
+    return fail(property, text, 'relative values require a measured host', 'unresolved-reference')
   }
   const metric =
     unit === '%'
@@ -197,14 +232,22 @@ function scalar(value: MotionData, property: string, refs?: ValueReferences): Pa
     refs,
   )
   const channel = channelKeys.some((key) => key === property)
+  const nonNegative =
+    Boolean(property) &&
+    !channel &&
+    !property.startsWith('margin') &&
+    !['top', 'right', 'bottom', 'left'].includes(property)
   return {
     numbers: [slot.number],
     signature: 'scalar',
     units: [slot.unit],
-    serialize: ([n]) =>
-      (channel && ['', 'px', 'deg'].includes(slot.unit)) || (typeof value === 'number' && !property)
+    serialize: ([number]) => {
+      const n = nonNegative ? Math.max(0, number) : number
+      return (channel && ['', 'px', 'deg'].includes(slot.unit)) ||
+        (typeof value === 'number' && !property)
         ? n
-        : formatted(n) + slot.unit,
+        : formatted(n) + slot.unit
+    },
   }
 }
 
@@ -220,7 +263,12 @@ function tokens(text: string): string[] {
   return text.trim().split(/\s+/).filter(Boolean)
 }
 
-function compound(slots: Slot[], template: string, signature = template): ParsedValue {
+function compound(
+  slots: Slot[],
+  template: string,
+  signature = template,
+  nonNegative: number[] = [],
+): ParsedValue {
   // Upstream handles token extraction and serialization, after semantic validation.
   const info = analyseComplexValue(template)
   const serialize = buildTransformer(info)
@@ -228,7 +276,8 @@ function compound(slots: Slot[], template: string, signature = template): Parsed
     numbers: slots.map((slot) => slot.number),
     units: slots.map((slot) => slot.unit),
     signature: signature.replace(/0(?:px|dip|%|vw|vh|em|rem)/g, '#'),
-    serialize: (numbers) => serialize(numbers),
+    serialize: (numbers) =>
+      serialize(numbers.map((n, i) => (nonNegative.includes(i) ? Math.max(0, n) : n))),
   }
 }
 
@@ -292,7 +341,12 @@ function clip(value: string, refs?: ValueReferences): ParsedValue {
       h === undefined ? undefined : Math.max(0, h),
     )
     const template = `inset(${slots.map((slot) => `0${slot.unit}`).join(' ')} round ${radius.text})`
-    return compound([...slots, ...radius.slots], template)
+    return compound(
+      [...slots, ...radius.slots],
+      template,
+      template,
+      radius.slots.map((_, i) => i + 4),
+    )
   }
   if (shape === 'polygon') {
     const groups = body.split(',').map((part) => part.trim())
@@ -353,6 +407,8 @@ function clip(value: string, refs?: ValueReferences): ParsedValue {
       .slice(sizes.length)
       .map((slot) => `0${slot.unit}`)
       .join(' ')})`,
+    undefined,
+    sizes.map((_, i) => i),
   )
 }
 
@@ -502,7 +558,9 @@ function path(body: string): ParsedValue {
               ? ' ' +
                 a
                   .map((v, j) =>
-                    name === 'A' && (j === 3 || j === 4) ? command.split(':')[j - 2] : formatted(v),
+                    name === 'A' && (j === 3 || j === 4)
+                      ? command.split(':')[j - 2]
+                      : formatted(name === 'A' && j < 2 ? Math.max(0, v) : v),
                   )
                   .join(' ')
               : '')
@@ -532,6 +590,9 @@ function shadow(text: string, refs?: ValueReferences): ParsedValue {
     }
     while (parts.length < 4) {
       parts.push('0')
+    }
+    if (parts.some((part) => /%|(?:vw|vh)$/i.test(part))) {
+      return fail(property, text, 'shadow lengths cannot use percentages or viewport units')
     }
     const slots = parts.map((part) => length(part, property, refs))
     if (slots.some((slot) => !['px', 'em', 'rem'].includes(slot.unit))) {
@@ -590,25 +651,46 @@ export function parseMotionValue(
   const text = String(value).trim()
   if (
     property === 'clipPath' ||
-    (!property && /^(inset|circle|ellipse|polygon|path)\(/.test(text))
+    (!property && (text === 'none' || /^(inset|circle|ellipse|polygon|path)\(/.test(text)))
   ) {
     return clip(text, refs)
   }
-  if (corners.has(property) && tokens(text).length === 2) {
-    const pair = tokens(text).map((part, axis) =>
+  if (corners.has(property)) {
+    const parts = tokens(text)
+    if (parts.length === 1) {
+      parts.push(parts[0])
+    }
+    if (parts.length !== 2) {
+      return fail(property, value, 'expected one or two corner radii')
+    }
+    const pair = parts.map((part, axis) =>
       length(part, property, refs, axis ? refs?.height : refs?.width),
     )
     if (pair.some((slot) => slot.number < 0)) {
       return fail(property, value, 'radii cannot be negative')
     }
-    return compound(pair, pair.map((slot) => `0${slot.unit}`).join(' '))
+    return compound(pair, pair.map((slot) => `0${slot.unit}`).join(' '), undefined, [0, 1])
   }
   if (property === 'borderRadius') {
     const radius = radii(text, property, refs)
-    return compound(radius.slots, radius.text)
+    return compound(
+      radius.slots,
+      radius.text,
+      radius.text,
+      radius.slots.map((_, i) => i),
+    )
   }
-  if (property === 'boxShadow') {
+  if (property === 'boxShadow' || (!property && text.includes('rgba('))) {
     return shadow(text, refs)
+  }
+  if (!property && (tokens(text).length > 1 || text.includes('/'))) {
+    const radius = radii(text, 'borderRadius', refs)
+    return compound(
+      radius.slots,
+      radius.text,
+      radius.text,
+      radius.slots.map((_, i) => i),
+    )
   }
   const parsed = scalar(value, property, refs)
   if (

@@ -39,6 +39,7 @@ export const GROUPS = [
       'liquid-glass',
       'localization',
       'animation-gestures',
+      'animation-values',
       'gestures',
       'keyboard-clipboard',
       'keyboard-shortcuts',

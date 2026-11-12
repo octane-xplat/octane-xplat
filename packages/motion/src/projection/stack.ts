@@ -2,12 +2,12 @@ import { mixValues } from 'motion-dom'
 import { copyBoxInto, createBox, transformBox, removeBoxTransforms } from './geometry'
 import type { ProjectionNode } from './node'
 import type { Box } from './types'
-import type { Target } from '../types'
+import type { ResolvedTarget } from '../types'
 import type { AnimationResult } from '../engine'
 
 interface Snapshot {
   box: Box
-  values: Target
+  values: ResolvedTarget
 }
 
 /** Convert a presented content box to another member's content coordinate space. */
@@ -39,7 +39,7 @@ export class SharedStack {
   lead?: ProjectionNode
   private outgoing?: ProjectionNode
   private pending?: Snapshot
-  private fromValues: Target = {}
+  private fromValues: ResolvedTarget = {}
   private leadFromOpacity = 0
   private exits = new Map<ProjectionNode, ((result: AnimationResult) => void)[]>()
   transitioning: boolean = false

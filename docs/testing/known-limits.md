@@ -591,7 +591,7 @@ lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
 
 ## Motion leaf
 
-`@octane-xplat/motion` supports numeric transforms and opacity on web/iOS/Android,
+`@octane-xplat/motion` supports numeric transforms and opacity plus registered size, spacing, border, shadow and clip targets on web/iOS/Android (see [values and limits](../app/animation-values.md)),
 plus `whileTap`/`whileFocus`, lifecycle callbacks, `motion.create`, `useAnimate`,
 repeat/per-key transitions, duration/bounce springs, bounded variants with custom
 resolvers, inherited animate labels, and child stagger/when timing. Exit/interaction
@@ -603,7 +603,7 @@ children; nested `layout` children keep their size inside a scaling parent.
 Geometry checks do not establish visual appearance or physical OS input.
 `layoutId`/`LayoutGroup` shared handoffs and retained crossfades are supported.
 `layoutScroll`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
-CSS/SVG properties are excluded. Border-radius and
+CSS/SVG properties are excluded. Expanded targets use JS playback, and experimental desktop rejects them. Native clipping requires Mason ownership; video-surface appearance and device pacing need separate qualification. Border-radius and
 box-shadow use scale correction; native corners and scalar blur/spread are approximate under nonuniform scale. Multiple web or Mason core shadows are not corrected. Fixed-position web containers exclude outside scroll; fixed descendants of transformed containers remain unqualified. Browser overflow scroll offsets are detected automatically. On
 native, `rotate` with a non-uniform parent scale is approximate.
 Existing CSS transforms need an outer container.

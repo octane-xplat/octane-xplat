@@ -1,6 +1,6 @@
 import { runAnimation, isOrchestrated } from '../engine'
 import type { AnimationControls } from '../engine'
-import type { Transition, TransitionInput, Target } from '../types'
+import type { Transition, TransitionInput, ResolvedTarget } from '../types'
 import {
   applyBoxDelta,
   applyTreeDeltas,
@@ -66,7 +66,7 @@ export class ProjectionNode {
   isAnimationBlocked: boolean = false
   private dragProjectionHeld = false
   private onDragLayoutShift?: (shift: Point) => void
-  latestValues: Target = {}
+  latestValues: ResolvedTarget = {}
   hooks?: ProjectionNodeHooks
 
   layout?: Measurement
@@ -178,7 +178,7 @@ export class ProjectionNode {
     this.root.invalidate('commit')
   }
 
-  setLatestValues(values: Target): void {
+  setLatestValues(values: ResolvedTarget): void {
     this.latestValues = values
   }
 

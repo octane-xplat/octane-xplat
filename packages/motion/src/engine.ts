@@ -1,12 +1,7 @@
+import { propertyKeys, type MotionProperty } from './value-codec'
 import { inertia, keyframes, spring } from 'motion-dom'
 import type { Clock } from './clock-types.js'
-import type {
-  Transition,
-  TransitionInput,
-  TransitionOrchestration,
-  MotionKey,
-  RepeatType,
-} from './types.js'
+import type { Transition, TransitionInput, TransitionOrchestration, RepeatType } from './types.js'
 
 /** Terminal status; cancellation never masquerades as completion. */
 export type AnimationResult = 'finished' | 'cancelled' | 'replaced'
@@ -17,7 +12,7 @@ export interface AnimationControls {
   stop(reason?: Exclude<AnimationResult, 'finished'>): void
 }
 
-const MOTION_KEYS: MotionKey[] = ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate']
+const MOTION_KEYS: readonly MotionProperty[] = propertyKeys
 
 /** Platform animators take one timing curve per run — cubic-bezier only. */
 const BEZIER_EASES = new Set(['linear', 'easeIn', 'easeOut', 'easeInOut'])
@@ -46,7 +41,7 @@ export function isOrchestrated(t: TransitionInput | undefined): t is TransitionO
   return 'default' in t || 'layout' in t || MOTION_KEYS.some((key) => key in t)
 }
 
-export function resolveTransition(t: TransitionInput, key: MotionKey): Transition {
+export function resolveTransition(t: TransitionInput, key: MotionProperty): Transition {
   return isOrchestrated(t) ? { ...t.default, ...t[key] } : t
 }
 
@@ -219,7 +214,7 @@ export function validateTransitionInput(t: TransitionInput): void {
 
     validateTransition({ staggerChildren, delayChildren, when })
     for (const [key, value] of Object.entries(channels)) {
-      if (key !== 'default' && key !== 'layout' && !MOTION_KEYS.includes(key as MotionKey)) {
+      if (key !== 'default' && key !== 'layout' && !MOTION_KEYS.includes(key as MotionProperty)) {
         throw new Error(`motion: unsupported transition ${key}`)
       }
 

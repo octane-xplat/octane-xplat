@@ -1,4 +1,4 @@
-import type { Target, TransitionInput } from '../types'
+import type { ResolvedTarget, TransitionInput } from '../types'
 
 /** One geometric axis of a box. */
 export interface Axis {
@@ -55,7 +55,7 @@ export interface ProjectionWrite {
   /** Current layout target before user channel transforms, for corner correction. */
   target?: Box
   treeScale: Point
-  latest: Target
+  latest: ResolvedTarget
 }
 
 /** Platform hook that runs the update pass after layout and before paint. */

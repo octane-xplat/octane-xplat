@@ -1,23 +1,23 @@
 import type { DelegatedRequest, DelegatedRun } from './host-types'
 import { bezierPoints, isBezierEase } from './engine'
 import { delegationStats, trackDelegatedRun } from './delegation'
-import type { Target } from './types'
+import type { ResolvedTarget } from './types'
 
 // All declarative channels map onto compositor-accelerated WAAPI properties:
 // the spatial channels share one transform keyframe pair, opacity animates
 // on its own property.
-const TRANSFORM_KEYS: (keyof Target)[] = ['x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate']
+const TRANSFORM_KEYS: (keyof ResolvedTarget)[] = ['x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate']
 
 // Matched function lists make WAAPI interpolate each channel numerically —
 // the same order the adapter's write() composes (matrix = T·S·R). The scale
 // channel arrives already folded into scaleX/scaleY on the request's `eff`.
-const transform = (values: Target) =>
+const transform = (values: ResolvedTarget) =>
   `translateX(${values.x ?? 0}px) translateY(${values.y ?? 0}px) scaleX(${values.scaleX ?? 1}) scaleY(${values.scaleY ?? 1}) rotate(${values.rotate ?? 0}deg)`
 
 // Computed transform matrices exclude transform-origin; translation is
 // already in authored channel space. For the
 // T·S·R order: a = sx·cos θ, b = sy·sin θ, c = -sx·sin θ, d = sy·cos θ.
-function decompose(v: number[]): Target {
+function decompose(v: number[]): ResolvedTarget {
   const [a, b, c, d, e, f] = v.length === 16 ? [v[0], v[1], v[4], v[5], v[12], v[13]] : v
   const scaleX = Math.hypot(a, c)
   const scaleY = Math.hypot(b, d)
@@ -45,10 +45,10 @@ function decompose(v: number[]): Target {
   }
 }
 
-function readChannels(node: HTMLElement, fallback: Target): Target {
+function readChannels(node: HTMLElement, fallback: ResolvedTarget): ResolvedTarget {
   const computed = getComputedStyle(node)
   const opacity = Number(computed.opacity)
-  const base: Target = {
+  const base: ResolvedTarget = {
     ...fallback,
     opacity: Number.isFinite(opacity) ? opacity : (fallback.opacity ?? 1),
   }
@@ -69,7 +69,7 @@ function readChannels(node: HTMLElement, fallback: Target): Target {
 function waapiRun(
   node: HTMLElement,
   req: DelegatedRequest,
-  write: (t: Target) => void,
+  write: (t: ResolvedTarget) => void,
 ): DelegatedRun | null {
   if (typeof node.animate !== 'function') {
     return null
@@ -111,7 +111,7 @@ function waapiRun(
     return null
   }
 
-  const sample = (): Target => {
+  const sample = (): ResolvedTarget => {
     last = readChannels(node, last)
     return { ...last }
   }
@@ -169,7 +169,7 @@ function waapiRun(
 export function delegatedRun(
   node: HTMLElement,
   req: DelegatedRequest,
-  write: (t: Target) => void,
+  write: (t: ResolvedTarget) => void,
 ): DelegatedRun | null {
   if (!isBezierEase(req.transition.ease)) {
     delegationStats().fallback++

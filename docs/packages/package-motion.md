@@ -2,7 +2,7 @@
 
 > Declarative motion and retained presence for Octane on web, iOS and Android
 
-Declarative numeric motion for Octane UI on web, iOS, Android, and the experimental macOS host. Use
+Declarative motion for Octane UI on web, iOS, and Android, with a bounded experimental macOS subset. Use
 `motion.View`, `motion.Row`, or `motion.Pressable` with `initial`, `animate`,
 and `transition`, or `drag` with numeric translation bounds. Bound motion
 values update hosts without rendering each frame.
@@ -100,3 +100,5 @@ animation after release.
 See [dragging through layout changes](https://octane-xplat.goddardai.org/animation-gestures#keep-dragging-through-layout-changes).
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-motion).
+
+For size, mixed-unit, and clipping targets, follow [animate sizes, units, and clipping](../app/animation-values.md). Expanded style targets require a supported web or mobile host.

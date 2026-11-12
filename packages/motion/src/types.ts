@@ -1,5 +1,7 @@
 import type { View, HStack, Pressable } from '@octane-xplat/ui'
 import type { MotionValue } from './value.js'
+import type { MotionData, MotionProperty } from './value-codec'
+export type { MotionData, MotionProperty } from './value-codec'
 
 type ViewProps = Parameters<typeof View>[0]
 type HStackProps = Parameters<typeof HStack>[0]
@@ -8,7 +10,16 @@ type PressableProps = Parameters<typeof Pressable>[0]
 /** Supported channels. Translation is CSS pixels/DIP; rotation is degrees. */
 export type MotionKey = 'opacity' | 'x' | 'y' | 'scale' | 'scaleX' | 'scaleY' | 'rotate'
 /** Absolute numeric destinations; omitted channels retain their current values. */
-export type Target = Partial<Record<MotionKey, number>>
+export type NumericTarget = Partial<Record<MotionKey, number>>
+/** Registered style properties beyond the transform/opacity channels. */
+export type StyleProperty = Exclude<MotionProperty, MotionKey>
+/** Host-ready samples: transform channels have already resolved to logical lengths/degrees. */
+export type ResolvedTarget = NumericTarget & Partial<Record<StyleProperty, MotionData>>
+/** Absolute destinations. Lengths accept logical px/dip, %, vw/vh and em/rem; rotate accepts deg/rad/turn. */
+export type Target = Omit<NumericTarget, 'x' | 'y' | 'rotate'> &
+  Partial<Record<'x' | 'y' | 'rotate' | StyleProperty, MotionData>>
+/** A numeric or string value bound to one registered property. */
+export type BoundMotionValue = MotionValue<number> | MotionValue<string> | MotionValue<MotionData>
 /** Tween easing, including a CSS-compatible cubic Bezier tuple. */
 export type Ease =
   | 'linear'
@@ -91,22 +102,23 @@ export type TransitionOrchestration = ChildOrchestration & {
   default?: Transition
   /** Timing for layout-projection animations driven by `layout`. */
   layout?: Transition
-} & Partial<Record<MotionKey, Transition>>
+} & Partial<Record<MotionProperty, Transition>>
 
 /** A flat transition or per-channel overrides. */
 export type TransitionInput = Transition | TransitionOrchestration
 
 /** Labels resolve against this host's variants, in array order. */
 export type VariantLabels = string | string[]
-/** An inline numeric target or labels resolved by the host. */
+/** An inline registered target or labels resolved by the host. */
 export type AnimationDefinition = Target | VariantLabels
-/** A numeric variant destination with an optional run transition override. */
+/** A registered variant destination with an optional run transition override. */
 export type VariantTarget = Target & { transition?: TransitionInput }
 /** Host-local definitions; pure resolvers receive this host's custom value. */
 export type Variants = Record<string, VariantTarget | ((custom: any) => VariantTarget)>
 
-/** Static platform styles plus numeric motion-value bindings. */
-export type MotionStyle = Record<string, unknown> & Partial<Record<MotionKey, number | MotionValue>>
+/** Static platform styles plus registered number/string MotionValue bindings. */
+export type MotionStyle = Record<string, unknown> &
+  Partial<Record<MotionProperty, MotionData | BoundMotionValue>>
 /** Translation limits in CSS pixels/DIP. Omitted edges are unbounded. */
 export interface DragConstraints {
   /** Left-edge drag constraint (dips). */
@@ -138,6 +150,8 @@ export type DragCallback = (event: any, info: DragInfo) => void
 
 /** Supported declarative motion controls. */
 export interface MotionProps {
+  /** Receives invalid later binding samples; the last valid presentation is retained. */
+  onMotionError?: (error: import('./value-codec').MotionTargetError) => void
   /** Enable pointer dragging (true/axis/lock options). */
   drag?: boolean | 'x' | 'y'
   /** Numeric translation bounds; measured ref constraints are deferred. */
@@ -195,7 +209,7 @@ export interface MotionProps {
   /** A value animation settled. */
   onAnimationComplete?: () => void
   /** Per-frame snapshot while any channel animates. */
-  onUpdate?: (latest: Target) => void
+  onUpdate?: (latest: ResolvedTarget) => void
 }
 
 /** View layout and accessibility props with motion controls. */

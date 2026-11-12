@@ -3,22 +3,22 @@
 The behavioral reference is `@octanejs/motion` source package version 0.1.56,
 inspected from Octane main on 2026-09-29. Its UPSTREAM.md pins Motion 12.42.2
 (commit `40e8756c63b258c9dd07de9501cb788410eefb02`). This package pins
-`motion-dom@14.7.1` and bundles its pure numeric generators and interpolation.
+`motion-dom@14.7.1` and bundles its pure generators, complex-value tokenizer/transformer, color serialization, and interpolation.
 The adapter is original code; it does not copy upstream's DOM host factory.
 
 | Contract                                         | Upstream reference under packages/motion                                                 | Xplat implementation / evidence                                                                                                                                      |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Initial and changing targets, equal destinations | src/index.ts; tests/conformance/rerender.test.ts, effects.test.ts                        | Compiled wrappers over UI; components.web.test.tsrx                                                                                                                  |
 | Numeric spring/tween samples                     | Motion's motion-dom animation/generators                                                 | Reused generators; engine.test.ts compares irregular-time samples                                                                                                    |
-| Stable value, subscriptions, style replacement   | src/useMotionValue.ts; tests/conformance/motionValue.test.ts                             | Numeric adapter with native clock; components.web.test.tsrx                                                                                                          |
+| Stable value, subscriptions, style replacement   | src/useMotionValue.ts; tests/conformance/motionValue.test.ts                             | Typed number/string adapter with native clock; components.web.test.tsrx                                                                                                          |
 | Spring set versus jump; follow source            | src/useSpring.ts; tests/conformance/useSpring.test.ts                                    | Owned spring interception and cleanup; hook tests                                                                                                                    |
-| Derived numeric values                           | src/useTransform.ts; tests/conformance/useTransform.test.ts                              | Upstream interpolation, direct subscriptions; hook tests                                                                                                             |
+| Derived number/string values                           | src/useTransform.ts; tests/conformance/useTransform.test.ts                              | Upstream interpolation, direct subscriptions; hook tests                                                                                                             |
 | Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts                            | Context inheritance; spring transforms settle immediately on live preference changes while opacity can keep animating (`components.web.test.tsrx`, `engine.test.ts`) |
 | Exit lifecycle                                   | src/index.ts; tests/conformance/exit.test.ts                                             | Deliberate live-subtree retention on both leaves; presence.web.test.tsrx and native presence test                                                                    |
 | Retained hosts on native                         | Not a DOM binding concern                                                                | components.mobile.test.tsrx uses the universal object driver                                                                                                         |
 | Bounded drag                                     | src/index.ts pointer-drag binding; upstream/src/gestures/drag                            | Numeric constraints, scalar elasticity, callbacks, JS velocity spring; drag.test.ts and web/native handler tests                                                     |
 | Interaction targets                              | whileTap/whileFocus gesture bindings                                                     | Active press > focus > current base per channel; compiled web/native gesture-composition tests                                                                       |
-| Variant labels and bounded orchestration         | src/context.ts; src/index.ts variant inheritance/stagger                                 | variants.test.ts, web/native compiled host tests; numeric resolution before Controller                                                                               |
+| Variant labels and bounded orchestration         | src/context.ts; src/index.ts variant inheritance/stagger                                 | variants.test.ts, web/native compiled host tests; typed resolution before Controller                                                                               |
 | Scoped imperative runs                           | useAnimate                                                                               | Controller registry keyed on host nodes; `ref` accepts callback refs and `{current}` scopes                                                                          |
 | Inertia                                          | `type: 'inertia'` imperative transition (drag release); motion-dom's `inertia` generator | `type: 'inertia'` on `MotionValue.animate`/`runAnimation` — target ignored; `power`/`timeConstant`/`min`/`max`/`bounceStiffness`/`bounceDamping`; engine.test.ts     |
 | Custom host components                           | motion.create / motion.<tag>                                                             | `motion.create(Component)` wraps shared-UI leaves; DOM tag proxy excluded                                                                                            |
@@ -29,7 +29,7 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
 
 ## Deliberate boundaries
 
-- Numeric values only. No CSS strings, keyframe arrays, `whileHover`/`whileInView`, or broad framework-neutral re-export.
+- Registered number/string values only; see [expanded values](#expanded-values-and-host-ownership). No arbitrary CSS targets, keyframe arrays, `whileHover`/`whileInView`, or broad framework-neutral re-export.
   `layout` projection itself is supported; see the section below. Bounded drag,
   variants, `whileTap`, `whileFocus`, lifecycle callbacks
   (`onAnimationStart`/`onAnimationComplete`/`onUpdate`), `motion.create`, and
@@ -44,7 +44,7 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
   does not alter imperative value.animate calls: consult useReducedMotion there.
 - Timing uses a monotonic platform clock (`System.nanoTime`/`CADisplayLink`-derived
   on native, `performance.now` on web) with NativeScript's vsync scheduler.
-- The same generator runs on web/native. Declarative tweens delegate to the
+- The same generator runs on web/native. Eligible numeric transform/opacity tweens delegate to the
   platform animator (`UIViewPropertyAnimator` on iOS, `ViewPropertyAnimator`
   on Android, WAAPI `element.animate` on web) with per-frame presentation
   tracking so interruption hands off value and velocity to the JS engine;
@@ -165,7 +165,7 @@ Input qualification belongs to the shared UI adapter and mounted public consumer
 
 ## Variants (decision #93)
 
-`variants` maps labels to numeric targets with an optional `transition`, or to
+`variants` maps labels to registered targets with an optional `transition`, or to
 `(custom) => target` resolvers. The host's `custom` is passed to its own resolver;
 current values and velocities are not resolver arguments. `initial`, `animate`,
 `exit`, `whileTap`, and `whileFocus` accept targets, labels, or label arrays.
@@ -627,3 +627,48 @@ Existing engine and object-driver tests cover irregular-time spring samples,
 retargeting, cancellation, disposal and live Reduce Motion propagation. Physical
 frame pacing, native idle wakeups, background/resume and genuine preference
 notification still require the benchmark's independent device qualification.
+
+## Expanded values and host ownership
+
+The public [values guide](../../docs/app/animation-values.md) owns supported
+properties, units, shape grammar, errors and application composition. The
+property registry and semantic codecs are local: upstream complex tokenization
+is a building block, not a CSS/SVG validator or unit resolver.
+`analyseComplexValue`, `buildTransformer`, and `color.transform` are imported
+from the existing pinned `motion-dom@14.7.1` dependency, without a new parser
+dependency or copied vendored source. Upstream source reference:
+[Motion 14.7.1](https://github.com/motiondivision/motion/tree/9ba8846b6819172cb829e65a9f46433a4de377ab/packages/motion-dom/src/value).
+
+A parsed value retains canonical numeric slots and a structure signature.
+Compatible slots reuse the existing generator/clock; compound playback emits
+one sample after the frame's slots update. Path normalization/compatibility,
+reference resolution, property validation and style leases remain Xplat's
+responsibility. Incompatible values fail before replacing playback; only an
+explicit immediate tween can snap. Range transforms follow the same strict
+compatibility rule, rather than upstream's permissive incompatible-string mix.
+
+Layout and clip references are host-owned logical measurements. Relative
+retargeting preserves displayed state and one logical completion promise;
+time-based runs retain remaining time, physical springs retain slot velocity.
+A shared relative binding must resolve identically in every bound space.
+Expanded targets use JS playback; retaining the existing acceleration path
+requires the original numeric channels and eligible timing. This avoids
+independent native and JS destinations for one expanded run. Per-frame parsing,
+serialization, native style invalidation and layout can still cost frame time;
+there is no physical-device performance qualification for expanded values.
+
+Native writers use the public `View.style` channel. Mason owns clip installation,
+redraw, layout and resize; Motion owns sampled values and releases its style
+lease on detach. No app mask or replacement of `_redrawNativeBackground` or
+`onLayout` is required. NativeScript Mason core beta.8's canonical engine source
+is `packages/nativescript-mason-core/src-native/ios/Mask.swift` (not the legacy
+kit copy); `MasonMaskLayer` has its own translated frame and an internal vector
+layer. Geometry checks must include those layer origins.
+Android path coordinates cross the engine density boundary once. Video
+surface pixel clipping still requires separate media-host qualification.
+Experimental desktop adapters reject expanded targets explicitly.
+
+Maintained codec, string-value, expanded-target, compiled binding and
+video-geometry tests cover syntax, compatibility, interruption, resize promises,
+read-only mappings and cleanup. They establish policy and geometry contracts;
+object-driver tests do not establish OS input, pixel output or frame pacing.

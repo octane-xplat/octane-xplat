@@ -12,6 +12,15 @@ export const clock = {
   cancel: (id: number) => clearTimeout(id),
 }
 
-export const Utils = { layout: { toDevicePixels: (value: number) => value * 2 } }
+export const Utils = {
+  layout: {
+    toDevicePixels: (value: number) => value * 2,
+    toDeviceIndependentPixels: (value: number) => value / 2,
+  },
+}
 
 export const Application = {}
+
+export const isIOS = true
+export const isAndroid = false
+export const unsetValue = Symbol('unsetValue')

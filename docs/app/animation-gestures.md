@@ -25,7 +25,7 @@ bun add @octane-xplat/motion
 It works alongside `@octane-xplat/ui`. Import
 `motion` and wrap content in `motion.View`, `motion.Row`, or `motion.Pressable`.
 They preserve the corresponding UI primitive's layout, accessibility, and input
-props. Supply `initial` and `animate` numeric targets and a `transition`.
+props. Supply `initial` and `animate` targets and a `transition`.
 `initial={false}` starts at the destination without an entry animation.
 
 ```tsx
@@ -58,7 +58,7 @@ export function Example() {
 }
 ```
 
-Supported channels are `opacity`, `x`, `y`, `scale`, `scaleX`, `scaleY`, and
+The original numeric channels are `opacity`, `x`, `y`, `scale`, `scaleX`, `scaleY`, and
 `rotate`. Translation uses DIP on native and CSS pixels on web; rotation uses
 degrees. On Android, pass logical DIP values directly; Motion handles display
 density for native tweens and interrupted samples. Transition duration and delay use **seconds**. Choose a tween with
@@ -123,7 +123,7 @@ import { motion } from '@octane-xplat/motion'
 [MotionDemo](../../packages/motion/examples/MotionDemo.tsrx) is the maintained
 example for changing destinations and gesture settling. A signal read in the
 component's `animate` expression subscribes that component normally; equal
-numeric destinations do not restart when unrelated state renders. In the demo,
+destinations do not restart when unrelated state renders. In the demo,
 Toggle motion should move the destination 80 units; dragging is bounded to
 ±120 units and release settles at zero. When adapting its relative source
 import to an app, import from `@octane-xplat/motion`.
@@ -165,11 +165,15 @@ export function RotatedCard() {
 }
 ```
 
+For sizes, mixed units, rounded crops, paths, and video transitions, follow
+[animate sizes, units, and clipping](animation-values.md). Those targets use the
+same transition and interruption machinery.
+
 ## Coordinate variants
 
 Use named variants when several hosts should respond to one state change.
 Children without their own `animate` inherit the parent's label and resolve it
-against their own maps. Each child keeps its own transition and numeric target.
+against their own maps. Each child keeps its own transition and target.
 
 ```tsx
 import { motion } from '@octane-xplat/motion'
@@ -225,7 +229,7 @@ Label arrays, such as `animate={['visible', 'selected']}`, merge left to right;
 later channels win and the last specified variant transition overrides the
 host/config transition. Missing labels are ignored. Use
 `variants={{ visible: (custom) => ({ x: custom }) }}` with `custom={40}` for a
-host-specific target. Resolvers must return supported numeric channels.
+host-specific target. Resolvers must return registered target properties.
 `initial={false}` also inherits, so the whole subtree starts at its destination.
 
 ```tsx
@@ -278,7 +282,7 @@ export function Panel(props: { open: boolean }) {
 
 ## Bind values and gestures
 
-`useMotionValue(number)` returns an owned numeric value. Bind it through the
+`useMotionValue(number)` or `useMotionValue(string)` returns an owned value. Bind it through the
 motion host's `style`, then call `set`, `jump`, `stop`, or
 `animate(destination, transition)`. Animations return a `finished` promise with
 `finished`, `cancelled`, or `replaced`; only successful declarative animations
@@ -348,8 +352,8 @@ x.animate(x.get(), {
 })
 ```
 
-`useTransform` maps numeric ranges or applies a single/multiple-input numeric
-transformer. `useSpring` follows a value or creates a settable spring: `set`
+`useTransform` maps numeric input ranges to numbers or compatible strings, or applies a single/multiple-input
+transformer. Derived handles are read-only. `useSpring` follows a value or creates a settable spring: `set`
 animates and `jump` snaps. `useMotionValueEvent` subscribes without a render.
 MotionValue get reads are imperative, not Octane signal subscriptions.
 
@@ -435,7 +439,7 @@ shows the same composition with gesture handles.
 
 ## Combine press and focus feedback
 
-Press takes priority over focus for each property they share. Other properties keep animating. Ending or cancelling press reveals active focus; ending both returns to the current `animate` target, numeric `style`, or host default. Updating those targets while held changes the eventual return destination. Removing a gesture prop clears that gesture. Gesture-enabled hosts use per-frame JavaScript animation so each property can keep its own playback on web and native.
+Press takes priority over focus for each property they share. Other properties keep animating. Ending or cancelling press reveals active focus; ending both returns to the current `animate` target, static `style`, or host default. Updating those targets while held changes the eventual return destination. Removing a gesture prop clears that gesture. Gesture-enabled hosts use per-frame JavaScript animation so each property can keep its own playback on web and native.
 
 ```tsx
 import { motion } from '@octane-xplat/motion'

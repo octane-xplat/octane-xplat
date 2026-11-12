@@ -1,11 +1,15 @@
 import type { DelegatedRequest, DelegatedRun } from './host-types'
 import { bezierPoints, isBezierEase } from './engine'
 import { delegationStats, trackDelegatedRun } from './delegation'
-import type { Target } from './types'
+import type { ResolvedTarget } from './types'
 
 const platform = globalThis as any
 
-function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): DelegatedRun | null {
+function iosRun(
+  node: any,
+  req: DelegatedRequest,
+  write: (t: ResolvedTarget) => void,
+): DelegatedRun | null {
   const view = node.ios ?? node.nativeViewProtected
 
   if (!view?.layer || !platform.UIViewPropertyAnimator) {
@@ -37,7 +41,7 @@ function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): D
     eff.scaleY ?? 1,
   )
 
-  const sample = (): Target => {
+  const sample = (): ResolvedTarget => {
     const layer = view.layer.presentationLayer?.() ?? view.layer
     const tr = layer.transform
 
@@ -120,7 +124,7 @@ function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): D
 function androidRun(
   node: any,
   req: DelegatedRequest,
-  write: (t: Target) => void,
+  write: (t: ResolvedTarget) => void,
 ): DelegatedRun | null {
   const view = node.nativeViewProtected ?? node.android
   const android = platform.android
@@ -183,7 +187,7 @@ function androidRun(
     }
   }
 
-  const sample = (): Target => ({
+  const sample = (): ResolvedTarget => ({
     opacity: view.getAlpha(),
     x: view.getTranslationX() / density,
     y: view.getTranslationY() / density,
@@ -242,7 +246,7 @@ function androidRun(
 export function delegatedRun(
   node: any,
   req: DelegatedRequest,
-  write: (t: Target) => void,
+  write: (t: ResolvedTarget) => void,
 ): DelegatedRun | null {
   // Dispatch on platform-object presence — no @nativescript/core import, so
   // this module stays loadable in the object-driver test environment. Eases

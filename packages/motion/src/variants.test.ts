@@ -32,9 +32,9 @@ describe('variant resolution', () => {
     ).toEqual({ target: { x: 20, opacity: 0, y: 30 }, transition: { duration: 2 } })
   })
 
-  it('passes custom to resolvers and validates the returned numeric target', () => {
+  it('passes custom to resolvers and validates the returned target syntax', () => {
     expect(resolveVariant('a', { a: (custom) => ({ x: custom }) }, 7).target).toEqual({ x: 7 })
-    expect(() => resolveVariant('a', { a: () => ({ x: '10px' as any }) })).toThrow('finite numeric')
+    expect(() => resolveVariant('a', { a: () => ({ x: '10wombats' }) })).toThrow('numeric length')
     expect(() => resolveVariant('a', { a: { transition: { staggerChildren: -1 } } })).toThrow(
       'staggerChildren',
     )

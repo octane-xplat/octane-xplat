@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.types.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "isolatedDeclarations": false
+  },
+  "include": ["examples/VideoCropSurface.tsrx", "examples/video-geometry.ts"],
+  "exclude": []
+}

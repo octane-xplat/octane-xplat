@@ -1,8 +1,9 @@
+import { attachStyles } from './styles'
 import { observeOwnedPress } from '@octane-xplat/ui/internal/gesture-input'
 import { captureViewportOffset } from './projection/viewport-offset'
 import { correctNativePaint, radiusKeys } from './projection/paint'
-import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
-import type { Target } from './types'
+import type { DelegatedRequest, DelegatedRun, HostAdapter, StyleAdapter } from './host-types'
+import type { ResolvedTarget } from './types'
 import { attachPan } from './pan'
 import { delegatedRun } from './driver'
 import { measureNativeBox } from './projection/measure'
@@ -28,7 +29,7 @@ export function attachHost(node: any): HostAdapter {
     throw new Error('motion: put existing transforms on an outer container')
   }
 
-  let latestValues: Target = { ...original, scale: 1 }
+  let latestValues: ResolvedTarget = { ...original, scale: 1 }
   const write = (values: any) => {
     latestValues = { ...latestValues, ...values }
     if (values.opacity !== undefined) {
@@ -94,7 +95,27 @@ export function attachHost(node: any): HostAdapter {
     paintApplied = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
   }
 
+  const styles =
+    node.style && typeof node.getActualSize === 'function' ? attachStyles(node) : undefined
+  let latestProjection: import('./projection/types').ProjectionWrite | null = null
+  const ownedStyles: StyleAdapter | undefined = styles
+    ? {
+        ...styles,
+        write(values) {
+          restorePaint()
+          styles.write(values)
+          if (latestProjection) {
+            correctPaint(latestProjection)
+          }
+        },
+        release(key) {
+          restorePaint()
+          styles.release(key)
+        },
+      }
+    : undefined
   return {
+    styles: ownedStyles,
     pan: (axis, callbacks) => attachPan(node, axis, callbacks),
     measureLayout() {
       const box = measureNativeBox(node)
@@ -113,6 +134,7 @@ export function attachHost(node: any): HostAdapter {
       // render() rewrites every hasProjected node each frame anyway.
     },
     project(projection) {
+      latestProjection = projection
       if (projection === null) {
         restorePaint()
         write(latestValues)

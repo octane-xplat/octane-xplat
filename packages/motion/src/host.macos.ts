@@ -3,7 +3,7 @@ import { captureViewportOffset } from './projection/viewport-offset'
 import { setLayoutProjectionScale } from '@octane-xplat/macos-appkit'
 import { paintScale } from './projection/paint'
 import type { HostAdapter } from './host-types'
-import type { Target } from './types'
+import type { ResolvedTarget } from './types'
 import { attachPan } from './pan.macos'
 import { measureNativeBox } from './projection/measure.macos'
 
@@ -32,8 +32,8 @@ export function attachHost(node: any): HostAdapter {
     throw new Error('motion: put existing transforms on an outer container')
   }
 
-  let latestValues: Target = { ...original }
-  const write = (values: Target) => {
+  let latestValues: ResolvedTarget = { ...original }
+  const write = (values: ResolvedTarget) => {
     latestValues = { ...latestValues, ...values }
 
     const transforms: [string, number][] = []

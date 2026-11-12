@@ -31,3 +31,8 @@ export { Presence } from './presence.tsrx'
 export type { TextMorphProps, TextMorphRun, TextMorphCancel } from './text-morph/props'
 
 export { LayoutGroup } from './projection/group.tsrx'
+
+export { MotionTargetError } from './value-codec'
+export type { TargetErrorCode } from './value-codec'
+
+export type { AnimateScope, ScopedAnimate, UseAnimateResult } from './hooks.tsrx'

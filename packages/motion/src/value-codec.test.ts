@@ -15,6 +15,7 @@ const refs = {
 describe('unit and clip codecs', () => {
   it('resolves percentages against each property reference, retaining authored angle windings', () => {
     expect(parseMotionValue('50%', 'x', refs).numbers).toEqual([100])
+    expect(parseMotionValue('50%', 'borderTopLeftRadius', refs).numbers).toEqual([100, 50])
     expect(parseMotionValue('50%', 'height', refs).numbers).toEqual([150])
     expect(parseMotionValue('50%', 'paddingTop', refs).numbers).toEqual([200])
     expect(parseMotionValue('1turn', 'rotate', refs).numbers).toEqual([360])
@@ -46,6 +47,11 @@ describe('unit and clip codecs', () => {
     expect(parseMotionValue('20% 30%', 'borderTopLeftRadius', refs).numbers).toEqual([40, 30])
     expect(() => parseMotionValue('20%', 'opacity', refs)).toThrow(/unitless/)
     expect(() => parseMotionValue('10deg', 'x', refs)).toThrow(/angle/)
+    expect(() => parseMotionValue('10%', 'borderTopWidth', refs)).toThrow(/subset/)
+    expect(() => parseMotionValue('10%', 'rowGap', refs)).toThrow(/subset/)
+    expect(() => parseMotionValue('0px 2vw 4px rgba(0,0,0,1)', 'boxShadow', refs)).toThrow(
+      /viewport/,
+    )
     expect(() => parseMotionValue('10%', 'width', { width: 200, height: 100 })).toThrow(
       /definite reference/,
     )
