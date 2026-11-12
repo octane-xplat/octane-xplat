@@ -44,3 +44,21 @@ its generated declarations and app files:
 bun run typegen
 bun run turbo run gen --filter=@xplat/app
 ```
+
+## Develop the mobile core package
+
+For iOS and Android, build the local fork's `nativescript-mason-core` package
+and select it explicitly:
+
+```sh
+ln -s /path/to/nativescript-mason links/nativescript-mason
+bun run dev:masonkit --core
+realpath apps/mobile/node_modules/@octane-xplat/nativescript-mason-core
+```
+
+The resolved path must end in `dist/packages/nativescript-mason-core` in that
+checkout. Its build must include the native artifacts for the target being
+run; rebuilding JavaScript alone does not change the native framework linked
+into an app. Follow the local fork's core build instructions. The hook also
+links the core package's declared runtime dependencies from the mobile app into the external dist, so native discovery can resolve them. The same
+manifest restoration and lockfile preservation apply to this option.
