@@ -1,8 +1,26 @@
 #import "HomeMount.h"
+#import <objc/runtime.h>
 #import "FontLowering.h"
 #import "UIView+NativeScript.h"
 #import <TNSWidgets/TNSWidgets.h>
 
+static char PrerenderDefaultsKey;
+@interface UIView (PrerenderDefaults)
+- (NSDictionary *)prerenderDefaults;
+@end
+@implementation UIView (PrerenderDefaults)
+- (NSDictionary *)prerenderDefaults { return objc_getAssociatedObject(self, &PrerenderDefaultsKey); }
+@end
+static void CaptureDefaults(UIView *view) {
+    MasonStyle *style = [NSCMason.shared styleForView:view];
+    NSMutableDictionary *defaults = [@{@"borderRadius":style.borderRadius.length ? style.borderRadius : @"0"} mutableCopy];
+    if ([view isKindOfClass:UILabel.class]) {
+        UILabel *label = (UILabel *)view;
+        defaults[@"font"] = label.font;
+        defaults[@"textColor"] = label.textColor;
+    }
+    objc_setAssociatedObject(view, &PrerenderDefaultsKey, defaults, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 static void Require(BOOL condition, NSString *message) {
     if (!condition) [NSException raise:NSInvalidArgumentException format:@"%@", message];
 }
@@ -42,14 +60,21 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     if (values[@"minWidth"]) [style setMinSizeWidth:[values[@"minWidth"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if (values[@"maxWidth"]) { Require([values[@"maxWidth"] isEqual:@"100%"], @"Unsupported maximum width"); [style setMaxSizeWidth:1 :MasonDimensionCompatTypePercent]; }
     if (values[@"height"]) [style setSizeHeight:[values[@"height"] floatValue]*scale :MasonDimensionCompatTypePoints];
-    if (values[@"borderWidth"]) { Require([values[@"borderWidth"] doubleValue] == 0, @"Unsupported border width"); [style setBorderWidth:0 :0]; }
+    // The examined SDK bulk border-width setter writes padding. Use its edge setters.
+    if (values[@"borderWidth"]) {
+        Require([values[@"borderWidth"] doubleValue] == 0, @"Unsupported border width");
+        [style setBorderLeftWidth:0 :MasonLengthPercentageCompatTypePoints];
+        [style setBorderRightWidth:0 :MasonLengthPercentageCompatTypePoints];
+        [style setBorderTopWidth:0 :MasonLengthPercentageCompatTypePoints];
+        [style setBorderBottomWidth:0 :MasonLengthPercentageCompatTypePoints];
+    }
     if (values[@"alignItems"]) { Require([values[@"alignItems"] isEqual:@"center"], @"Unsupported alignment"); style.alignItems = MasonAlignItemsCenter; }
     if (values[@"justifyContent"]) {
         Require([@[@"center",@"space-between"] containsObject:values[@"justifyContent"]], @"Unsupported justification");
         style.justifyContent = [values[@"justifyContent"] isEqual:@"center"] ? MasonJustifyContentCenter : MasonJustifyContentSpaceBetween;
     }
     if (values[@"backgroundColor"]) style.backgroundColor = ARGB(Color(values[@"backgroundColor"]));
-    if (values[@"borderRadius"]) style.borderRadius = [NSString stringWithFormat:@"%gpx", [values[@"borderRadius"] doubleValue]*scale];
+    if (values[@"borderRadius"]) style.borderRadius = [NSString stringWithFormat:@"%gpx", [values[@"borderRadius"] doubleValue]];
     if (values[@"cornerShape"]) style.cornerShape = values[@"cornerShape"];
     // Font/color inheritance was resolved by the producer. Container values do not paint text.
     if ([view isKindOfClass:UILabel.class]) {
@@ -71,6 +96,8 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
 static NSDictionary *Paint(UIView *view) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
     NSMutableDictionary *result = [@{@"backgroundColor":@(style.backgroundColor),@"borderRadius":style.borderRadius,@"cornerShape":style.cornerShape} mutableCopy];
+    result[@"layoutValues"] = [view valueForKey:@"prerenderLayoutValues"];
+    result[@"effectiveRadii"] = [view valueForKey:@"prerenderEffectiveRadii"];
     if ([view isKindOfClass:UILabel.class]) {
         UILabel *label = (UILabel *)view;
         CGFloat r, g, b, a;
@@ -109,11 +136,14 @@ static void Snapshot(UIView *view, NSString *path, NSMutableArray *rows) {
     for (NSUInteger index=0; index<records.count; index++) {
         NSDictionary *record = records[index];
         UIView *view;
-        if ([record[@"kind"] isEqual:@"label"]) { TNSLabel *label = [TNSLabel new]; label.text = record[@"text"]; view=label; }
+        if ([record[@"kind"] isEqual:@"label"]) { TNSLabel *label = [TNSLabel new]; label.userInteractionEnabled = YES; label.text = record[@"text"]; view=label; }
         else view = [NSCMason.shared createView];
         view.accessibilityIdentifier = [NSString stringWithFormat:@"prerender-%lu", (unsigned long)index];
         [views addObject:view];
         if (index > 0) { UIView *parent=views[[record[@"parent"] unsignedIntegerValue]]; Require([parent isKindOfClass:MasonUIView.class], @"Label cannot contain visual children"); [(MasonUIView *)parent addView:view]; }
+        // Match Core Label creation and the driver foreign-leaf minimum, before authored styles.
+        if ([view isKindOfClass:UILabel.class]) [[NSCMason.shared styleForView:view] setMinSizeWidth:0 :MasonDimensionCompatTypePoints];
+        CaptureDefaults(view);
         Apply(view, styles[index][@"style"], scale);
     }
     return (MasonUIView *)views[0];

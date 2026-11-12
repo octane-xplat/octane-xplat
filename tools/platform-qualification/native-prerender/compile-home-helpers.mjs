@@ -24,9 +24,13 @@ const sdk = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'])
 const widgets = join(core, 'platforms/ios/TNSWidgets.xcframework/ios-arm64_x86_64-simulator')
 const hash = (file) => createHash('sha256').update(readFileSync(file)).digest('hex')
 const inputs = [
-  ...['FontLowering.h', 'FontLowering.m', 'HomeMount.h', 'HomeMount.m'].map((name) =>
-    join(source, name),
-  ),
+  ...[
+    'FontLowering.h',
+    'FontLowering.m',
+    'HomeMount.h',
+    'HomeMount.m',
+    'HomeStyleSnapshot.swift',
+  ].map((name) => join(source, name)),
   ...[
     'NativeScriptUtils.h',
     'NativeScriptUtils.m',
@@ -35,6 +39,14 @@ const inputs = [
   ].map((name) => join(core, 'platforms/ios/src', name)),
   join(mason, 'MasonCore.framework/Headers/MasonCore-Swift.h'),
   join(mason, 'MasonCore.framework/MasonCore'),
+  join(
+    mason,
+    'MasonCore.framework/Modules/MasonCore.swiftmodule/arm64-apple-ios-simulator.swiftmodule',
+  ),
+  join(
+    mason,
+    'MasonCore.framework/Modules/MasonCore.swiftmodule/arm64-apple-ios-simulator.swiftinterface',
+  ),
   join(widgets, 'TNSWidgets.framework/TNSWidgets'),
   join(core, 'package.json'),
   resolve(import.meta.dirname, '../../../packages/cli/patches/@nativescript__core@9.1.3.patch'),
@@ -71,6 +83,31 @@ for (const name of ['FontLowering', 'HomeMount']) {
   run('xcrun', args)
   objects.push({ path: object, sha256: hash(object) })
 }
+const snapshotObject = join(work, 'HomeStyleSnapshot.o')
+const snapshotArgs = [
+  'swiftc',
+  '-parse-as-library',
+  '-emit-object',
+  '-sdk',
+  sdk,
+  '-target',
+  'arm64-apple-ios15.6-simulator',
+  '-module-name',
+  'XplatPrerenderHomeHelpers',
+  '-F',
+  mason,
+  '-I',
+  join(mason, 'include'),
+  join(source, 'HomeStyleSnapshot.swift'),
+  '-o',
+  snapshotObject,
+]
+writeFileSync(
+  join(work, 'HomeStyleSnapshot-command.json'),
+  JSON.stringify({ command: 'xcrun', args: snapshotArgs }, null, 2),
+)
+run('xcrun', snapshotArgs)
+objects.push({ path: snapshotObject, sha256: hash(snapshotObject) })
 for (const [file, expected] of Object.entries(inputHashes)) {
   if (hash(file) !== expected) throw new Error('Input changed during compilation: ' + file)
 }
