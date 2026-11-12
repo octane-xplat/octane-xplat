@@ -92,7 +92,7 @@ test('flipCommandsY mirrors for y-up (macOS) layer space', () => {
   assert.equal(flipped[0].y, H) // top edge → bottom in y-up
   for (const c of flipped) {
     if (c.c === 'A') {
-      assert.ok(c.sweepDeg < 0 || c.sweepDeg === 0)
+      assert.ok(c.sweepDeg <= 0)
     }
   }
 })

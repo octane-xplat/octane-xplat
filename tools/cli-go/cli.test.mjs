@@ -62,22 +62,6 @@ function cli(args, options = {}) {
   return { status: result.status, value }
 }
 
-function normal(value) {
-  if (Array.isArray(value)) {
-    return value.map(normal)
-  }
-
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([key]) => !['grantedAt', 'selectedAt'].includes(key))
-        .map(([key, item]) => [key, normal(item)]),
-    )
-  }
-
-  return value
-}
-
 test('all descriptors expose truthful native schemas outside a project', () => {
   for (const command of goReference.descriptors) {
     const actual = cli([...command.path, '--schema'])

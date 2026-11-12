@@ -419,7 +419,7 @@ export function inputRows(m: Resolve): CheckRow[] {
 }
 
 /** Asserts platform-natural input geometry for the target. */
-export function inputNaturalRows(m: Resolve, target: string): CheckRow[] {
+export function inputNaturalRows(m: Resolve, _target: string): CheckRow[] {
   const field = m('field')
   // Since the field-chrome rework the input carries Astryx's 14px/20px text
   // metrics everywhere, so the natural line box is 20 on every host rather

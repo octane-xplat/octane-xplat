@@ -181,7 +181,7 @@ test('AppKit duplicate readers own independent subscriptions and method receiver
     second = source.subscribe(listener)
 
   assert.equal(windows.size, 2)
-  for (const notify of [...windows]) {
+  for (const notify of Array.from(windows)) {
     notify()
   }
 
@@ -189,7 +189,7 @@ test('AppKit duplicate readers own independent subscriptions and method receiver
   first()
   first()
   assert.equal(windows.size, 1)
-  for (const notify of [...windows]) {
+  for (const notify of Array.from(windows)) {
     notify()
   }
 
@@ -220,14 +220,14 @@ test('AppKit native callback and cleanup failures cannot revive readers or block
     calls++
   })
 
-  for (const notify of [...windows]) {
+  for (const notify of Array.from(windows)) {
     assert.doesNotThrow(notify)
   }
 
   assert.equal(calls, 1)
   assert.doesNotThrow(first)
   assert.doesNotThrow(second)
-  for (const notify of [...windows]) {
+  for (const notify of Array.from(windows)) {
     notify()
   }
 

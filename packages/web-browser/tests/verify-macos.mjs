@@ -9,13 +9,11 @@ import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:http'
 import { cp, mkdir, symlink, writeFile } from 'node:fs/promises'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle, macOSHostArch } from '../../cli/src/macos/jsc-host/runtime.ts'
-
-const here = dirname(fileURLToPath(import.meta.url))
 
 const ONE = `<!doctype html><title>Page One</title><body>
 <iframe src="data:text/html,<p>framed</p>"></iframe>

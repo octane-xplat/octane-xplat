@@ -55,18 +55,6 @@ const findView = (id: string): any => {
   return null
 }
 
-const hasText = (needle: string): boolean => {
-  for (const n of (container as any).nodes.values()) {
-    try {
-      if (JSON.stringify(n.props).includes(needle)) {
-        return true
-      }
-    } catch {}
-  }
-
-  return false
-}
-
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
@@ -233,7 +221,6 @@ async function run() {
   )
 
   // ColorField — type a hex value and commit with Return.
-  const cfield = findView('cfield')
   const entry = (() => {
     for (const n of (container as any).nodes.values()) {
       for (let cur = n; cur; cur = cur.parent) {

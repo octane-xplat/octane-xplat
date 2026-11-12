@@ -11,7 +11,7 @@ function fakeClock() {
     now: () => time,
     advance: (ms: number) => {
       time += ms
-      for (const [key, timer] of [...timers]) {
+      for (const [key, timer] of Array.from(timers)) {
         if (timer.at <= time) {
           timers.delete(key)
           timer.fn()

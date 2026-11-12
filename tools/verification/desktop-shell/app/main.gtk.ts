@@ -1,3 +1,4 @@
+import 'octane/signals'
 import { runGtkApp, setWindowContentResolver } from '@octane-xplat/linux-gtk/host'
 import { storage } from '@octane-xplat/platform'
 import { openWindow } from '@octane-xplat/ui'

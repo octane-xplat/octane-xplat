@@ -12,4 +12,5 @@ const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 
 window.title = 'libjsc NativeScript smoke'
 window.makeKeyAndOrderFront(app)
+// eslint-disable-next-line no-unused-expressions -- The script completion value is the JavaScriptCore smoke result.
 window.title

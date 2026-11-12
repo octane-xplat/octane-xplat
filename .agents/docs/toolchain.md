@@ -795,7 +795,14 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   separate blocking CI check; recipe structure runs in the PR hygiene job.
   Consumer apps and libraries use `xplat lint [paths...] [--fix]`; the CLI
   depends on `@octane-xplat/lint`, which owns Oxlint and the shared file
-  selector for regular source and TSRX. `xplat-lint` is a compatible bin.
+  selector for regular source and TSRX. Root `xplat/no-unknown-class.allow`
+  lists reviewed, unstyled component hooks whose names resemble CSS classes;
+  preserve those hooks instead of renaming them to a fuzzy match. Generated
+  Tailwind classes are allowed only in the owning qualification fixture. The
+  iOS `icon-currentcolor/paint.ios.ts` fixture references ambient SVGKit
+  declarations by path; importing that declaration file would emit a runtime
+  import, so its triple-slash-reference exception is scoped to that file.
+  `xplat-lint` is a compatible bin.
   Starters use the bundled preset without a config or separate lint deps;
   a root strict-JSON `.oxlintrc.json` replaces it, or extends the package's
   `config.json` to retain defaults. Both passes use root ignorePatterns,

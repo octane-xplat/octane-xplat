@@ -197,7 +197,7 @@ it('feeds one root owner and keeps non-pointer actions independent of a claimed 
         cancelReason: null,
       })
 
-      for (const callback of [...observers.values()]) {
+      for (const callback of Array.from(observers.values())) {
         callback(frame)
       }
     }

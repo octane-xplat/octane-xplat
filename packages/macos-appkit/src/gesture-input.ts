@@ -178,7 +178,7 @@ function observeWindow(window: NSWindow, content: NSView, dispatch: ContactObser
   if (!root) {
     const observers = new Set<ContactObserver>()
     const notify: ContactObserver = (frame, identity) => {
-      for (const observer of [...observers]) {
+      for (const observer of Array.from(observers)) {
         if (observers.has(observer)) {
           observer(frame, identity)
         }

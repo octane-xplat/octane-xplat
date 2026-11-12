@@ -1,5 +1,5 @@
 import { Application, View } from '@nativescript/core'
-import { createAppleBackend, type NativeView } from './backend.apple'
+import { createAppleBackend } from './backend.apple'
 import type { CaptureBackend } from './backend-types'
 
 export const backend: CaptureBackend = createAppleBackend({

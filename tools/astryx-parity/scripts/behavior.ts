@@ -252,7 +252,7 @@ async function toggleProbes(
   baseUrl: string,
   record: (probe: string, step: string, value: unknown) => void,
   name: 'checkbox' | 'switch',
-  eventPrefix: string,
+  _eventPrefix: string,
 ) {
   const url = `${baseUrl}/${name}/behavior`
   const controlKey = name === 'checkbox' ? 'box' : 'switch'

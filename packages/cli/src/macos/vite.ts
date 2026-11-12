@@ -81,7 +81,10 @@ export async function macos(env, options = {}) {
           : []),
         { find: /^octane$/, replacement: 'octane/universal/native' },
         { find: /^@nativescript-community\/octane$/, replacement: renderer },
-        { find: './escape-props', replacement: resolveApp(`${renderer}/compat/escape-props`) },
+        {
+          find: /(^|.*\/)escape-props$/,
+          replacement: resolveApp(`${renderer}/compat/escape-props`),
+        },
         {
           find: /^@nativescript\/core$/,
           replacement: resolveApp(`${renderer}/compat/native-core`),

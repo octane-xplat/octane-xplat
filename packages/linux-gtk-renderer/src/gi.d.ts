@@ -458,7 +458,7 @@ declare module 'gi://GLib' {
   namespace GLib {
     class MainLoop {
       constructor(context: unknown, isRunning: boolean)
-      static new(context: unknown, isRunning: boolean): MainLoop
+      static new: (context: unknown, isRunning: boolean) => MainLoop
       run(): void
       quit(): void
     }
@@ -647,7 +647,7 @@ declare module 'gi://Gio' {
     }
 
     class SimpleAction {
-      static new(name: string, parameterType: unknown): SimpleAction
+      static new: (name: string, parameterType: unknown) => SimpleAction
       static new_stateful(name: string, parameterType: unknown, state: unknown): SimpleAction
       connect(signal: string, handler: (...args: any[]) => unknown): number
       disconnect(id: number): void
@@ -657,7 +657,7 @@ declare module 'gi://Gio' {
     }
 
     class SimpleActionGroup {
-      static new(): SimpleActionGroup
+      static new: () => SimpleActionGroup
       add_action(action: SimpleAction): void
     }
 
@@ -673,7 +673,7 @@ declare module 'gi://Gio' {
     }
 
     class MenuItem {
-      static new(label: string | null, detailedActionName: string | null): MenuItem
+      static new: (label: string | null, detailedActionName: string | null) => MenuItem
       set_attribute_value(name: string, value: unknown): void
       set_section(section: Menu | null): void
       set_submenu(submenu: Menu | null): void

@@ -1,5 +1,5 @@
 import type { ResizableBasisSource } from './resize-state'
-import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
+import { appKitHost } from '../../internal/platform/host-bridge'
 
 /** AppKit basis — the `containerRef` view's frame when supplied, else the
  *  host window's size via the bridge when it reports one. */

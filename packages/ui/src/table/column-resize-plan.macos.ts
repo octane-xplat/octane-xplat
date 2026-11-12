@@ -1,4 +1,3 @@
-import type { TableColumn } from '../props'
 import type { TablePlugin } from './types'
 import type { UseTableColumnResizeConfig } from './use-table-column-resize.tsrx'
 

@@ -143,7 +143,7 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}): {
   const listeners = new Set<() => void>()
   const commit = (next: ListSnapshot<T>) => {
     snapshot = next
-    for (const listener of [...listeners]) {
+    for (const listener of Array.from(listeners)) {
       listener()
     }
   }

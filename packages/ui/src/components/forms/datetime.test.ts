@@ -2,14 +2,10 @@ import { describe, expect, it } from 'vitest'
 import {
   adjustTime,
   combineDateTime,
-  currentISOTime,
   effectivePresentation,
   formatDateValue,
   formatDisplayTime12h,
-  formatISOTime,
   isTimeInRange,
-  parseDateInput,
-  parseISOTime,
   parseTimeInput,
   plainDateAddDays,
   plainDateAddMonths,
@@ -19,15 +15,7 @@ import {
   splitDateTime,
 } from './datetime'
 
-import {
-  applyRangePick,
-  buildMonthGrid,
-  computeDayCellState,
-  createDateDisabledCheck,
-  getInitialFocusDate,
-  monthStart,
-  navigationBounds,
-} from './calendar-core'
+import { applyRangePick, buildMonthGrid, createDateDisabledCheck } from './calendar-core'
 
 describe('PlainDate math', () => {
   it('round-trips ISO parsing', () => {

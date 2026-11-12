@@ -66,18 +66,6 @@ const findView = (id: string): any => nodes().find((n) => n?.props?.id === id)?.
 const hasText = (needle: string, rootId: string | null = null): boolean =>
   nodes().some((n) => nodeHasText(n, needle) && isUnder(n, rootId))
 
-const textsUnder = (rootId: string): string[] => {
-  const out: string[] = []
-
-  for (const n of nodes()) {
-    if (typeof n?.props?.text === 'string' && isUnder(n, rootId)) {
-      out.push(n.props.text)
-    }
-  }
-
-  return out
-}
-
 const findLabel = (text: string, rootId: string | null = null): any => {
   for (const n of nodes()) {
     if (!nodeHasText(n, text) || !isUnder(n, rootId)) {

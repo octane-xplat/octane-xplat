@@ -236,7 +236,6 @@ async function run() {
   const fwA = findView('fw-a')
   const fwB = findView('fw-b')
   const focusBtn = findView('focus-btn')
-  const focusBtnDisabled = findView('focus-btn-disabled')
   const tfRing = findView('tf-ring')
   const kbField = findView('kb-field')
   const cells = [0, 1, 2, 3, 4, 5].map((i) => findView('cell-' + i))

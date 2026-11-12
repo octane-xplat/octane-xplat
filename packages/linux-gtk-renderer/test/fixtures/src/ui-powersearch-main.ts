@@ -102,43 +102,6 @@ const findLabel = (text: string): any => {
   return null
 }
 
-const findInClass = (needle: string, classSub: string): any => {
-  for (const n of (container as any).nodes.values()) {
-    try {
-      if (!JSON.stringify(n.props).includes(needle)) {
-        continue
-      }
-    } catch {
-      continue
-    }
-
-    let hit = false
-
-    for (let cur = n; cur; cur = cur.parent) {
-      if (typeof cur?.props?.className === 'string' && cur.props.className.includes(classSub)) {
-        hit = true
-        break
-      }
-    }
-
-    if (!hit) {
-      continue
-    }
-
-    let cur = n
-
-    while (cur && !cur.view) {
-      cur = cur.parent
-    }
-
-    if (cur?.view) {
-      return cur.view
-    }
-  }
-
-  return null
-}
-
 // Find a node whose own text prop equals `text`, then return the view of the
 // ancestor carrying a className containing `classSub` (for popover rows).
 const findTextInClass = (text: string, classSub: string): any => {

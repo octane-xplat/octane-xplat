@@ -2,7 +2,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import Gdk from 'gi://Gdk?version=4.0'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { CalProbe, InputsProbe, state } from './ui-dates.gtk.tsrx'
+import { CalProbe, state } from './ui-dates.gtk.tsrx'
 
 Gtk.init()
 
@@ -81,54 +81,6 @@ const findView = (id: string): any => {
     if (n?.props?.id === id) {
       return n.view
     }
-  }
-
-  return null
-}
-
-const findByTypeUnder = (type: string, ancestorId: string): any => {
-  for (const n of (container as any).nodes.values()) {
-    if (n?.type !== type) {
-      continue
-    }
-
-    for (let cur = n; cur; cur = cur.parent) {
-      if (cur?.props?.id === ancestorId) {
-        return n.view
-      }
-    }
-  }
-
-  return null
-}
-
-const hasText = (needle: string): boolean => {
-  for (const n of (container as any).nodes.values()) {
-    try {
-      if (JSON.stringify(n.props).includes(needle)) {
-        return true
-      }
-    } catch {}
-  }
-
-  return false
-}
-
-const findLabel = (text: string): any => {
-  for (const n of (container as any).nodes.values()) {
-    try {
-      if (JSON.stringify(n.props).includes(text)) {
-        let cur = n
-
-        while (cur && !cur.view) {
-          cur = cur.parent
-        }
-
-        if (cur?.view) {
-          return cur.view
-        }
-      }
-    } catch {}
   }
 
   return null
@@ -240,42 +192,6 @@ const findUnder = (needle: string, ancestorId?: string): any => {
 }
 
 // Popover/layer content is portalled — scope by an ancestor's className.
-const findInClass = (needle: string, classSub: string): any => {
-  for (const n of (container as any).nodes.values()) {
-    try {
-      if (!JSON.stringify(n.props).includes(needle)) {
-        continue
-      }
-    } catch {
-      continue
-    }
-
-    let hit = false
-
-    for (let cur = n; cur; cur = cur.parent) {
-      if (typeof cur?.props?.className === 'string' && cur.props.className.includes(classSub)) {
-        hit = true
-        break
-      }
-    }
-
-    if (!hit) {
-      continue
-    }
-
-    let cur = n
-
-    while (cur && !cur.view) {
-      cur = cur.parent
-    }
-
-    if (cur?.view) {
-      return cur.view
-    }
-  }
-
-  return null
-}
 
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
@@ -301,42 +217,6 @@ const point = (widget: any): { x: number; y: number } => {
   const [wx, wy] = window.get_surface_transform()
 
   return { x: x + wx, y: y + wy }
-}
-
-const describePoint = (tag: string, widget: any) => {
-  try {
-    const native = widget.get_native()
-    const [ok, rect] = widget.compute_bounds(native)
-    const [tx, ty] = native.get_surface_transform()
-    const chain: any[] = []
-
-    for (
-      let s = native.get_surface();
-      s && typeof s.get_parent === 'function';
-      s = s.get_parent()
-    ) {
-      chain.push({ name: s.constructor?.name, pos: [s.get_position_x?.(), s.get_position_y?.()] })
-    }
-
-    const [wx, wy] = window.get_surface_transform()
-
-    diag('GEOM', {
-      tag,
-      native: native?.constructor?.name,
-      ok,
-      rect: ok
-        ? { x: rect.origin.x, y: rect.origin.y, w: rect.size.width, h: rect.size.height }
-        : null,
-      tx,
-      ty,
-      chain,
-      wx,
-      wy,
-      root: widget.get_root?.()?.constructor?.name,
-    })
-  } catch (e) {
-    diag('GEOM-ERR', { tag, e: String(e) })
-  }
 }
 
 const clickAt = async (widget: any) => {

@@ -12,7 +12,6 @@ const interop = api && api.interop
 const u32 = (v) => ({ type: 'u32', value: v })
 const i32 = (v) => ({ type: 'i32', value: v })
 const ptr = (v) => ({ type: 'pointer', value: v })
-const wstr = (v) => ({ type: 'wstr', value: v })
 const call = (dll, fn, ret, ...args) => win32.call(dll, fn, ret, ...args)
 const bufferAddress = (buf) => {
   const p = interop.pointerFromBuffer(buf)
@@ -23,17 +22,6 @@ const bufferAddress = (buf) => {
 const pinned = []
 const utf16ptr = (s) => {
   const b = new Uint16Array(s.length + 1)
-
-  for (let i = 0; i < s.length; i++) {
-    b[i] = s.charCodeAt(i)
-  }
-
-  pinned.push(b)
-  return bufferAddress(b)
-}
-
-const asciiptr = (s) => {
-  const b = new Uint8Array(s.length + 1)
 
   for (let i = 0; i < s.length; i++) {
     b[i] = s.charCodeAt(i)
@@ -62,7 +50,7 @@ try {
       ptr(0),
     ),
   )
-} catch (e) {}
+} catch {}
 
 const wrB = new ArrayBuffer(8)
 const wrV = new DataView(wrB)
@@ -88,7 +76,7 @@ const log = (m) => {
       ptr(wrA),
       ptr(0),
     )
-  } catch (e) {}
+  } catch {}
 }
 
 const step = (name, fn) => {
@@ -102,8 +90,6 @@ const step = (name, fn) => {
     return undefined
   }
 }
-
-const hex = (v) => '0x' + Number(v).toString(16)
 
 step('GetTickCount', () => call('kernel32.dll', 'GetTickCount', 'u32'))
 step('winui-window', () => {

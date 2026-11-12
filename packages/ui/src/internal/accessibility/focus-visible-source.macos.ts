@@ -47,7 +47,7 @@ export function createAppKitFocusVisibleSource(
     }
 
     state = { isFocusVisible, inputModality, isSupported: supported }
-    for (const notify of [...listeners]) {
+    for (const notify of Array.from(listeners)) {
       notify()
     }
   }

@@ -203,7 +203,7 @@ export function createAsyncListData<T, C = string>(
   const listeners = new Set<() => void>()
   const emit = () => {
     snap = makeSnapshot()
-    for (const listener of [...listeners]) {
+    for (const listener of Array.from(listeners)) {
       listener()
     }
   }

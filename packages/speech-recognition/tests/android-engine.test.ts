@@ -455,6 +455,7 @@ describe('android permissions', () => {
     context.permission = -1
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line unicorn/no-new-array -- Preallocate indexed output; preserve the requested array length.
     ;(Array as any).create = (_type: string, count: number) => new Array(count)
 
     const leaf = await loadService()

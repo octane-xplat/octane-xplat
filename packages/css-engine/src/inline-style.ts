@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference -- Load ambient css-tree types without a runtime import of a declaration file.
 /// <reference path="./vendor/css-tree.d.ts" />
 import * as cssTree from 'css-tree'
 import { cssValueToStyle } from './cascade.ts'

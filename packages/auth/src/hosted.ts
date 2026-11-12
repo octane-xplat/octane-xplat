@@ -90,7 +90,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
       if (!creds && saved === false) {
         throw new Error('hostedAuth: unable to remove stored credentials')
       }
-    } catch (cause) {
+    } catch {
       if (!creds) {
         // Never expose platform errors, which may include sensitive key details.
         throw new Error('hostedAuth: unable to remove stored credentials')

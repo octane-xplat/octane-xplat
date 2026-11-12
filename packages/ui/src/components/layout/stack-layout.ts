@@ -1,5 +1,4 @@
 import type {
-  StackPaddingProps,
   StackProps,
   StackItemProps,
   StackMainAlignment,

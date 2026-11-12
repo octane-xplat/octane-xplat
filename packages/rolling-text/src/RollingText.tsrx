@@ -2,7 +2,7 @@
 import { mergeStyle } from './style-merge'
 import type { RollingTextProps } from './props'
 import { useRollingText } from './use-rolling.tsrx'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from './native/escape-props'
 import { layoutChildProps } from './layout-child'
 
 /** Single-line label whose text rolls per unit when `value` changes. The row

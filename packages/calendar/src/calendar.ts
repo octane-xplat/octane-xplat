@@ -7,9 +7,7 @@ import type { Calendar, CalendarEvent, CalendarInfo, NewEvent, PermissionResult 
 
 declare const EKEventStore: any
 declare const EKEntityTypeEvent: number | undefined
-declare const EKAuthorizationStatus: any
 declare const EKEvent: any
-declare const NSPredicate: any
 declare const NSDate: any
 
 let store: any = null

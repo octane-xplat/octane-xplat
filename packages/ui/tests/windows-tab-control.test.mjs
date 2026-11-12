@@ -319,7 +319,7 @@ function fixture() {
     createdTabs,
     tasks,
     flushTasks() {
-      for (const [id, callback] of [...tasks]) {
+      for (const [id, callback] of Array.from(tasks)) {
         tasks.delete(id)
         callback()
       }

@@ -90,6 +90,7 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
   }
 
   const maximumValue = (quantisedMax + 1) / 166
+  // eslint-disable-next-line unicorn/no-new-array -- Preallocate indexed output; preserve the requested array length.
   const colors: [number, number, number][] = new Array(numX * numY)
 
   colors[0] = [

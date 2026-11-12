@@ -745,7 +745,7 @@ test('CSS media resize observer installs once, scopes to container windows, and 
         evals++
         return env.width >= 50
       },
-      windowMediaSize: (w: any) => ({ width, height: 40 }),
+      windowMediaSize: (_w: any) => ({ width, height: 40 }),
       mediaSharedEnv: () => ({ colorScheme: 'light', reducedMotion: false }),
       restyleContainer: (c: any) => {
         restyles.push(c)

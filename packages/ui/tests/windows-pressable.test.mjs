@@ -359,7 +359,6 @@ const windowsTabs = compiled(
     '../media/Icon.tsrx': icon,
     '../content/Text.tsrx': tabText,
     './TabList.tsrx': tabs,
-    './tab-menu.tsrx': tabMenu,
   },
 )
 

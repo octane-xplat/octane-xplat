@@ -80,7 +80,7 @@ export function createPaneRouterHost(
 
   const selected = (flow: string) => (isFrame(flow) ? frames!.host : panes.host)
   const notify = (change?: RouterHostChange) => {
-    for (const listener of [...listeners]) {
+    for (const listener of Array.from(listeners)) {
       listener(change)
     }
   }

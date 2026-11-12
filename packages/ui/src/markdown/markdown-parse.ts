@@ -24,7 +24,6 @@ import {
   isMarkdownPluginData,
   prepareMarkdownPlugins,
   reportMarkdownPluginFailure,
-  type MarkdownExtensionNode,
   type PreparedMarkdownPlugins,
   type PreparedSyntaxContribution,
 } from './markdown-plugins.ts'
@@ -613,6 +612,7 @@ function extractLinkDefinitions(
 } {
   const lines = input.split('\n')
   const defs = new Map<string, string>()
+  // eslint-disable-next-line unicorn/no-new-array -- Preallocate indexed output; preserve the requested array length.
   const keep = new Array<boolean>(lines.length).fill(true)
   let atBoundary = true
   const fences = topLevelFences()

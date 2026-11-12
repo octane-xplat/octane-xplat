@@ -89,6 +89,7 @@ test('pager attaches page hosts before activating clip constraints and removes r
     Object.defineProperty(NSView.prototype, name, {
       configurable: true,
       get() {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias -- The nested method has its own receiver; retain the outer instance.
         const owner = this
 
         return {

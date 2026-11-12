@@ -159,7 +159,7 @@ test('AppKit live URL fanout isolates consumers and begins new readers on the ne
 
   let added = false
 
-  h.host.onDeepLink((url) => {
+  h.host.onDeepLink((_url) => {
     if (!added) {
       added = true
       h.host.onDeepLink((next) => observed.push(`new:${next}`))

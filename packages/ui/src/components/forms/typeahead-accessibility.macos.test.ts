@@ -50,7 +50,7 @@ function fixture() {
     }
 
   const notify = (object = window) => {
-    for (const callback of [...observers.values()]) {
+    for (const callback of Array.from(observers.values())) {
       callback({ object })
     }
   }

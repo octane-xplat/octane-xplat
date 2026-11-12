@@ -1270,7 +1270,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 
       disposed = true
       state.disposed = true
-      for (const target of [...state.stagedMovies.keys()]) {
+      for (const target of Array.from(state.stagedMovies.keys())) {
         const url = NSURL.URLWithString(target)
 
         if (url != null) {

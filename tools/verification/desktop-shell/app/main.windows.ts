@@ -1,3 +1,4 @@
+import 'octane/signals'
 import { Application, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { storage } from '@octane-xplat/platform'

@@ -123,7 +123,6 @@ const SNI_NAME = 'org.kde.StatusNotifierItem'
 const SNI_PATH = '/StatusNotifierItem'
 const SNI_WATCHER_NAME = 'org.kde.StatusNotifierWatcher'
 const SNI_WATCHER_PATH = '/StatusNotifierWatcher'
-const DBUSMENU_IFACE = 'com.canonical.dbusmenu'
 const DBUSMENU_PATH = '/MenuBar'
 const DBUS_PROPERTIES = 'org.freedesktop.DBus.Properties'
 const FREEDESKTOP = 'org.freedesktop.DBus'
@@ -254,7 +253,7 @@ function iconPixmaps(path: string): Pixmap[] {
 
   try {
     loaded = GdkPixbuf.Pixbuf.new_from_file(path)
-  } catch (error) {
+  } catch {
     throw new TrayError('invalid-icon', `tray icon file is not readable: ${path}`)
   }
 
@@ -488,6 +487,7 @@ class GtkTray implements Tray {
   }
 
   private sniImplementation() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias -- The nested method has its own receiver; retain the outer instance.
     const tray = this
 
     return {
@@ -581,6 +581,7 @@ class GtkTray implements Tray {
   }
 
   private menuImplementation() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias -- The nested method has its own receiver; retain the outer instance.
     const tray = this
 
     return {
@@ -959,7 +960,7 @@ function openSessionConnection(): TrayDBusConnection {
 function sessionBus(): TrayDBusConnection {
   try {
     return gio.bus_get_sync(gio.BusType.SESSION, null)
-  } catch (error) {
+  } catch {
     throw new TrayError(
       'no-session-bus',
       'cannot connect to the D-Bus session bus; a tray icon needs a desktop session',

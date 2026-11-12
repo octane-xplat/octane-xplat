@@ -1,3 +1,4 @@
+import 'octane/signals'
 import '@nativescript/macos-node-api'
 import { runMacOSApp, setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
 import {

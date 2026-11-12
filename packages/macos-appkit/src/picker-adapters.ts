@@ -70,7 +70,7 @@ export function createPickerAdapters(deps: PickerAdapterDependencies): PickerAda
         deps.pickerElements.applyBuiltinListPickerProp(node, name, value)
         return true
       },
-      afterProps(node, patch) {
+      afterProps(node, _patch) {
         deps.pickerElements.syncListPicker(node)
       },
 
@@ -180,7 +180,7 @@ export function createPickerAdapters(deps: PickerAdapterDependencies): PickerAda
         deps.pickerElements.applyBuiltinSegmentedBarProp(node, name, value)
         return true
       },
-      afterProps(node, patch) {
+      afterProps(node, _patch) {
         deps.pickerElements.syncSegmentedBar(node)
       },
       prepareDispose: deps.pickerElements.disposeBuiltinSegmentedChildren,

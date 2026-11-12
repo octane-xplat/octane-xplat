@@ -79,7 +79,7 @@ export function createAppKitFocusWithinDispatcher(
     const previous = targets.get(window) ?? null
 
     targets.set(window, target)
-    for (const binding of [...bindings.values()]) {
+    for (const binding of Array.from(bindings.values())) {
       if (bindings.get(binding.view) !== binding) {
         continue
       }

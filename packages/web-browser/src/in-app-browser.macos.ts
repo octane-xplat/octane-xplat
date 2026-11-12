@@ -28,8 +28,6 @@ import {
   NSStackView,
   NSTextField,
   NSThread,
-  NSInvocation,
-  NSMethodSignature,
   NSURL,
   NSURLRequest,
   NSURLErrorCancelled,
@@ -69,24 +67,6 @@ const setAccessibilityLabel = (view: NSObject, label: string): void => {
 // -[NSBlock invoke] is not bridged as a JS member, so a method-shaped
 // signature (v@:<args>, selector 'invoke', args at index >=2) is used to call
 // the block's own parameters through the invocation.
-const blockArg = (type: number, value: unknown): interop.Reference => {
-  const ref = new interop.Reference(type)
-
-  ;(ref as { value?: unknown }).value = value
-  return ref
-}
-
-const callBlock = (block: unknown, argEncoding: string, ...args: interop.Reference[]): void => {
-  const signatureObject = NSMethodSignature.signatureWithObjCTypes('v@:' + argEncoding)
-  const invocation = NSInvocation.invocationWithMethodSignature(signatureObject)
-
-  invocation.selector = 'invoke'
-  for (let i = 0; i < args.length; i++) {
-    invocation.setArgumentAtIndex(args[i], i + 2)
-  }
-
-  invocation.invokeWithTarget(block)
-}
 
 // _Block_copy retains a heap block (and promotes a stack block) so the
 // FunctionPointer's invoke path stays valid past the delegate callback.

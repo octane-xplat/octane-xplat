@@ -1,5 +1,5 @@
 import { isIOS } from '@nativescript/core'
-import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
+import { hostGlobal } from '../../internal/platform/host-bridge'
 import { REFRESH_HEADER_HEIGHT, dampenPull } from './refresh-metrics'
 
 export interface RefreshConfig {

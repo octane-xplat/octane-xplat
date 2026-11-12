@@ -46,7 +46,6 @@ import type { MdNodeBase } from './markdown-ast.ts'
 
 type AnyExtension = MarkdownExtensionNode
 type Phrasing = Exclude<MdInline, MdExtension> | (AnyExtension & { readonly display: 'inline' })
-type Block = Exclude<MdNode, MdExtension> | (AnyExtension & { readonly display: 'block' })
 
 // ---------------------------------------------------------------------------
 // createMarkdownTextTransform (plugins/textTransform.ts)
@@ -67,7 +66,7 @@ export interface MarkdownTextTransformContext {
   readonly parentType: 'heading' | 'paragraph' | 'strong' | 'emphasis' | 'delete' | 'tableCell'
 }
 
-export interface MarkdownTextTransformOptions<Node extends MarkdownExtensionNode = never> {
+export interface MarkdownTextTransformOptions<_Node extends MarkdownExtensionNode = never> {
   /** Global expression matched against eligible built-in prose only. */
   readonly pattern: RegExp
   /**
@@ -659,6 +658,7 @@ function clonePluginData(value: unknown, ancestors?: ReadonlySet<object>): Markd
   let clone: MarkdownPluginData
 
   if (Array.isArray(value)) {
+    // eslint-disable-next-line unicorn/no-new-array -- Preallocate indexed output; preserve the requested array length.
     const items = new Array<MarkdownPluginData>(value.length)
 
     for (let index = 0; index < value.length; index++) {

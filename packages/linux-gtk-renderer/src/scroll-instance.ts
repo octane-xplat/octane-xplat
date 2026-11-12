@@ -136,7 +136,9 @@ export function bindScrolling(view: GtkView, notify: Notify): () => void {
     Object.defineProperty(view, name, {
       configurable: true,
       get: () => offset(axis),
-      set: (value) => scroll(axis, Number(value)),
+      set: (value) => {
+        scroll(axis, Number(value))
+      },
     })
   }
 

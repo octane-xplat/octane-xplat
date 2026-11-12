@@ -56,16 +56,6 @@ const findView = (id: string): any => {
   return null
 }
 
-const findByType = (type: string, pred?: (n: any) => boolean): any => {
-  for (const n of (container as any).nodes.values()) {
-    if (n?.type === type && (!pred || pred(n))) {
-      return n.view
-    }
-  }
-
-  return null
-}
-
 const findByTypeUnder = (type: string, ancestorId: string): any => {
   for (const n of (container as any).nodes.values()) {
     if (n?.type !== type) {

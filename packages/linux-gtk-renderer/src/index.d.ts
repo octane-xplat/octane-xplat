@@ -1,4 +1,4 @@
-/// <reference path="./gi.d.ts" />
+import './gi.js'
 import type Gtk from 'gi://Gtk?version=4.0'
 import type { UniversalHostDriver, UniversalRootOptions } from 'octane/universal/native'
 

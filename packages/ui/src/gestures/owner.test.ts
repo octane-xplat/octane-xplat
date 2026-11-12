@@ -52,7 +52,7 @@ function fixture(input: GestureInput, controllers: readonly GestureController[])
     errors,
     release,
     frame() {
-      for (const callback of [...frames]) {
+      for (const callback of Array.from(frames)) {
         frames.delete(callback)
         callback()
       }

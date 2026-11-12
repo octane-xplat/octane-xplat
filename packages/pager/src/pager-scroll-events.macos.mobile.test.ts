@@ -63,7 +63,7 @@ function fixture(fail = false) {
   )
 
   const emit = (part: string, object: any = view) => {
-    for (const observer of [...observers.values()]) {
+    for (const observer of Array.from(observers.values())) {
       if (observer.name === part) {
         observer.callback({ object })
       }

@@ -3,7 +3,7 @@ export function notifyAppKitListeners<T>(
   listeners: ReadonlySet<T>,
   invoke: (listener: T) => void,
 ): void {
-  for (const listener of [...listeners]) {
+  for (const listener of Array.from(listeners)) {
     if (!listeners.has(listener)) {
       continue
     }

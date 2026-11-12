@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { expect, it } from 'vitest'
 import { createRouteRegistry, RouteRegistrationError } from './route-registry'
-import { defineRoutes, defineRuntimeRoutes } from './route-table'
+import { defineRuntimeRoutes } from './route-table'
 import type { RouteManifest } from '../props'
 
 const screen = () => null

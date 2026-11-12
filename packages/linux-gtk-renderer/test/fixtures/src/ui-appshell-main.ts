@@ -5,7 +5,7 @@ import { createGtkRoot, registerStylesheet } from '@octane-xplat/linux-gtk'
 import { openWindow } from '@octane-xplat/ui'
 import tokensCss from '@octane-xplat/ui/theme/tokens.css?raw'
 import chromeCss from '@octane-xplat/ui/theme/chrome.css?raw'
-import { AppShellProbe, ChildWindow, events, state } from './ui-appshell.gtk.tsrx'
+import { AppShellProbe, ChildWindow, state } from './ui-appshell.gtk.tsrx'
 
 Gtk.init()
 
@@ -146,24 +146,6 @@ keyCtl.connect('key-pressed', (_c, keyval) => {
 
   return false
 })
-
-const describe = (w: any): string => {
-  if (!w) {
-    return 'null'
-  }
-
-  try {
-    return (
-      (w.constructor?.name ?? 'w') +
-      ':' +
-      String(w.get_css_name?.() ?? '') +
-      ':' +
-      String(w.get_accessible_role?.() ?? '')
-    )
-  } catch {
-    return 'err'
-  }
-}
 
 /** What widget actually receives a click at a screen point. */
 const pickAt = (c: { x: number; y: number }): any => {

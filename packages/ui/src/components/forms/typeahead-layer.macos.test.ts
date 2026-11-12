@@ -99,7 +99,7 @@ function fixture() {
 
   const token = () => [...publications].reverse().find((entry) => entry.target)?.target.token
   const notify = (object = window) => {
-    for (const callback of [...observers.values()]) {
+    for (const callback of Array.from(observers.values())) {
       callback({ object })
     }
   }

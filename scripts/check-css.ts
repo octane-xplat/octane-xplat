@@ -14,7 +14,7 @@
 // it's in DROPPED_INTENTIONAL below — the documented "native ignores this
 // on purpose" set.
 import { parsePlatformCss } from '../packages/cli/src/css-platform.ts'
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
 import { globSync } from 'node:fs'
 

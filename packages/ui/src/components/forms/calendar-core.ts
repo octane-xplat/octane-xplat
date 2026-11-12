@@ -7,7 +7,6 @@
 import {
   plainDateAddDays,
   plainDateAddMonths,
-  plainDateCompare,
   plainDateCreate,
   plainDateDiffDays,
   plainDateFromISO,

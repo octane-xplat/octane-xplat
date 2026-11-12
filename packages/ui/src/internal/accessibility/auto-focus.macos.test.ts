@@ -74,7 +74,7 @@ function fixture(mode = 'normal') {
   )
 
   const emit = (object: unknown = window, name = 'NSWindowDidUpdateNotification') => {
-    for (const observer of [...observers.values()]) {
+    for (const observer of Array.from(observers.values())) {
       if (observer.name === name) {
         observer.callback({ object })
       }

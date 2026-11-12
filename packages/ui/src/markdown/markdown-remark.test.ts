@@ -16,7 +16,6 @@ import {
 
 import {
   createMarkdownRemarkTransform,
-  type MarkdownRemarkFile,
   type MarkdownRemarkPlugin,
   type MarkdownRemarkRoot,
 } from './markdown-remark.ts'
@@ -31,7 +30,7 @@ type MutableNode = {
 function visit(node: MutableNode, visitor: (node: MutableNode) => void): void {
   visitor(node)
   if (Array.isArray(node.children)) {
-    for (const entry of [...node.children]) {
+    for (const entry of Array.from(node.children)) {
       visit(entry, visitor)
     }
   }
@@ -556,6 +555,7 @@ describe('remark adapter — rejection matrix', () => {
     },
     {
       name: 'a plugin that returns a promise from its attacher',
+      // eslint-disable-next-line unicorn/no-thenable -- Adversarial thenable fixture verifies synchronous plugin rejection.
       plugin: (() => ({ then: () => undefined })) as never,
       reason: /asynchronous plugin/,
     },
@@ -838,6 +838,7 @@ describe('remark adapter — a refused promise is never left unhandled', () => {
   it('refuses a thenable whose then throws', () => {
     const { root, result, reports } = runAdapter('Body.', () => () => {
       return {
+        // eslint-disable-next-line unicorn/no-thenable -- Adversarial thenable fixture verifies synchronous plugin rejection.
         then() {
           throw new Error('hostile then')
         },

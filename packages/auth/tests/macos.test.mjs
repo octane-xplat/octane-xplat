@@ -215,7 +215,7 @@ function loadApple({
       return classCount
     },
     post(name, object) {
-      for (const token of [...observers]) {
+      for (const token of Array.from(observers)) {
         if (token.name === name && (token.object == null || token.object === object)) {
           token.callback({ object })
         }

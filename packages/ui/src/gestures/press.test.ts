@@ -142,7 +142,7 @@ it('claims a hold before its action and never activates a tap or late timer from
   const f = fixture({ longPressDelay: 500, onLongPress: () => calls.push('hold') })
 
   f.down()
-  for (const timer of [...f.timers]) {
+  for (const timer of Array.from(f.timers)) {
     timer()
   }
 
@@ -153,7 +153,7 @@ it('claims a hold before its action and never activates a tap or late timer from
   expect(f.timers.size).toBe(0)
   f.down()
   f.press.cancel()
-  for (const timer of [...f.timers]) {
+  for (const timer of Array.from(f.timers)) {
     timer()
   }
 

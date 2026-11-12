@@ -4,18 +4,10 @@
 // verify created/updated/removed markers plus out-of-process System Events.
 import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync,
-  existsSync,
-} from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs'
 
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../../..', import.meta.url))

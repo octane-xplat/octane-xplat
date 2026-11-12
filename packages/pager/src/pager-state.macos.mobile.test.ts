@@ -14,7 +14,7 @@ function fixture(extra: { page?: number; defaultPage?: number } = {}) {
 
   let busy = false,
     immediate = true,
-    report = (_: number) => {}
+    report = (_event: number) => {}
 
   const writes: { offset: number; animated: boolean }[] = [],
     changes: number[] = []

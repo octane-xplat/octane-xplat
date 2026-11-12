@@ -51,7 +51,6 @@ const pagesRoot = path.join(templatesRoot, 'pages')
 const sandboxSrc = path.join(astryxRoot, 'apps/sandbox/src/app')
 
 /** @type {Map<string, {kind: string, source: string, family?: string, name?: string, doc?: string, group?: string}>} */
-const byRoute = new Map()
 
 // Block templates: blocks/components/<Family>/<Name>.tsx → /templates/<Name>/
 const templateSources = new Map() // route → {source, doc}

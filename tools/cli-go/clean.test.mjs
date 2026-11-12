@@ -77,26 +77,6 @@ function success(result) {
   assert.equal(result.signal, null)
 }
 
-function tree(dir) {
-  const files = []
-  function walk(path, prefix = '') {
-    for (const entry of readdirSync(path, { withFileTypes: true })) {
-      const name = prefix + entry.name,
-        full = join(path, entry.name)
-
-      if (entry.isDirectory()) {
-        files.push([name + '/'])
-        walk(full, name + '/')
-      } else {
-        files.push([name, readFileSync(full, 'utf8')])
-      }
-    }
-  }
-
-  walk(dir)
-  return files.sort((a, b) => a[0].localeCompare(b[0]))
-}
-
 const outputs = Object.fromEntries(
   [
     'dist',

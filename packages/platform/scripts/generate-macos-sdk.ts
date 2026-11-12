@@ -786,12 +786,6 @@ for (const file of files) {
     continue
   }
 
-  const needsRuntime = owned.some((n) => {
-    const p = typeParams.get(n)
-
-    return p && /\b(interop|objc|NativeObject|NativeClass)\./.test(p[0])
-  })
-
   const fwBase =
     SKIP_DL.has(base) || base.startsWith('_')
       ? ''

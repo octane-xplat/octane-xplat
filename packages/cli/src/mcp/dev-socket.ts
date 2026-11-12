@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { IncomingMessage } from 'node:http'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createRequire } from 'node:module'
 import { realpathSync } from 'node:fs'

@@ -1612,7 +1612,7 @@ export function reportMarkdownPluginFailure(
   warnPluginOnce(key, message, error)
 }
 
-export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
+export function applyMarkdownTransforms<_Node extends MarkdownExtensionNode>(
   root: MdDoc,
   plugins: PreparedMarkdownPlugins | undefined,
   source: string,

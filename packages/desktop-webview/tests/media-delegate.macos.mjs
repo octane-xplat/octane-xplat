@@ -230,9 +230,11 @@ setTimeout(finalizeRound, 0)
     child.once('error', reject)
     child.once('close', (code, signal) => {
       clearTimeout(timeout)
-      code === 0
-        ? resolveOutput(text)
-        : reject(new Error(`host exited ${code} ${signal}: ${text.slice(-4000)}`))
+      if (code === 0) {
+        resolveOutput(text)
+      } else {
+        reject(new Error(`host exited ${code} ${signal}: ${text.slice(-4000)}`))
+      }
     })
   })
 

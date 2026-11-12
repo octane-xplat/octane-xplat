@@ -2,12 +2,9 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 import { checkPackedPackage, verifyPackedPackage } from '../dist/pack-check.js'
 
-const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const fixtureRoot = resolve(toolRoot, '../typegen-fixture')
 const ts = createRequire(import.meta.url)('typescript-classic')
 const root = mkdtempSync(join(tmpdir(), 'tsrx-typegen-pack-fixture-'))
 

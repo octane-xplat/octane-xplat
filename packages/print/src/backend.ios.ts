@@ -54,7 +54,8 @@ type Reply = (payload: Payload) => void
 
 let busy = false
 let htmlTask: HtmlTask | undefined
-let picker: UIPrinterPickerController | undefined
+// Keep the picker alive until its completion handler responds.
+let _picker: UIPrinterPickerController | undefined
 let network: NSURLSessionDataTask | undefined
 const owned = new Set<string>()
 
@@ -70,7 +71,7 @@ const failure = (code = 'ERR_PRINT_FAILED'): Payload => ({
 function respond(value: Payload, reply: Reply) {
   htmlTask?.dispose()
   htmlTask = undefined
-  picker = undefined
+  _picker = undefined
   network = undefined
   busy = false
 
@@ -520,7 +521,7 @@ function select(presenter: UIViewController, reply: Reply): void {
   const controller =
     UIPrinterPickerController.printerPickerControllerWithInitiallySelectedPrinter(null)
 
-  picker = controller
+  _picker = controller
 
   const accepted = controller.presentFromRectInViewAnimatedCompletionHandler(
     CGRectMake(

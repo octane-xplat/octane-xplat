@@ -20,7 +20,7 @@ function refreshRoots() {
   try {
     do {
       rootsPending = false
-      for (const refresh of [...rootReaders]) {
+      for (const refresh of Array.from(rootReaders)) {
         try {
           refresh()
         } catch {}

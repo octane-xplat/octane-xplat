@@ -1,12 +1,7 @@
 import { type ContentOwner } from './owned-content'
 import { appKitHost } from '../../internal/platform/host-bridge'
 import { ImperativeSheetPanel } from './bottom-sheet-panel.macos.tsrx'
-import type {
-  BottomSheetHandle,
-  BottomSheetOpenOptions,
-  ModalOpenResult,
-  OpenBottomSheet,
-} from '../../props'
+import type { BottomSheetHandle, ModalOpenResult, OpenBottomSheet } from '../../props'
 
 interface ActiveSheet {
   controller?: { close(): void; closedPromise: Promise<unknown> }

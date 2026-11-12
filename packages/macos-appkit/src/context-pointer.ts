@@ -39,7 +39,7 @@ export function createAppKitContextPointerDispatcher<View extends PointerView>(
       return result
     }
 
-    for (const notify of [...observers]) {
+    for (const notify of Array.from(observers)) {
       if (!observers.has(notify)) {
         continue
       }
@@ -78,7 +78,7 @@ export function createAppKitContextPointerDispatcher<View extends PointerView>(
     ) {
       const owned = owners.get(view)
 
-      for (const handler of [...(owned ?? [])]) {
+      for (const handler of Array.from(owned ?? [])) {
         if (owners.get(view) !== owned || !owned?.has(handler)) {
           continue
         }

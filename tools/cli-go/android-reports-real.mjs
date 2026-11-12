@@ -1,14 +1,7 @@
 // Explicit owned Android exit-info qualification. No images or user apps.
 import assert from 'node:assert/strict'
 import { spawnSync, spawn } from 'node:child_process'
-import {
-  mkdirSync,
-  writeFileSync,
-  readFileSync,
-  existsSync,
-  mkdtempSync,
-  readdirSync,
-} from 'node:fs'
+import { mkdirSync, writeFileSync, readFileSync, existsSync, mkdtempSync } from 'node:fs'
 
 import { homedir } from 'node:os'
 import { resolve, join } from 'node:path'
@@ -237,6 +230,8 @@ if (process.argv.includes('--prepare')) {
     }),
   )
 
+  const failures = []
+
   try {
     const deadline = Date.now() + 120000
 
@@ -330,7 +325,11 @@ if (process.argv.includes('--prepare')) {
     console.log(
       'Qualified real Android exit record and native original retention; no NativeScript deployment or image qualification claimed',
     )
-  } finally {
+  } catch (error) {
+    failures.push(error)
+  }
+
+  try {
     const ownedDevice = () => {
       const result = spawnSync(adb, ['-s', device, 'emu', 'avd', 'name'], {
         env,
@@ -364,6 +363,12 @@ if (process.argv.includes('--prepare')) {
     assert.equal(ownedDevice(), false, 'Owned emulator cleanup is unconfirmed')
 
     writeFileSync(join(work, 'android-reports-emulator.log'), output)
+  } catch (error) {
+    failures.push(error)
+  }
+
+  if (failures.length) {
+    throw new AggregateError(failures, 'Android report qualification or cleanup failed')
   }
 } else {
   throw new Error('Choose --prepare or --run')

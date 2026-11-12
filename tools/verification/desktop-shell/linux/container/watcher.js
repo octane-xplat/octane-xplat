@@ -18,7 +18,7 @@ const log = Gio.File.new_for_path('/journey/watcher-registered.txt')
 
 try {
   log.delete(null)
-} catch (e) {}
+} catch {}
 
 const exp = Gio.DBusExportedObject.wrapJSObject(XML, {
   get IsStatusNotifierHostRegistered() {
@@ -29,7 +29,7 @@ const exp = Gio.DBusExportedObject.wrapJSObject(XML, {
       const [, b] = log.load_contents(null)
 
       return new TextDecoder().decode(b).trim().split('\n').filter(Boolean)
-    } catch (e) {
+    } catch {
       return []
     }
   },
@@ -42,7 +42,7 @@ const exp = Gio.DBusExportedObject.wrapJSObject(XML, {
     s.write_all(String(name) + '\n', null)
     s.close(null)
   },
-  RegisterStatusNotifierHost(name) {},
+  RegisterStatusNotifierHost(_name) {},
 })
 
 const bus = Gio.bus_get_sync(Gio.BusType.SESSION, null)

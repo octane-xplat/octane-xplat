@@ -68,7 +68,7 @@ export function createSubscriptions(deps: Dependencies) {
         const failures = new FailureCollector()
 
         keyboardSubscriptionsByNode.delete(node)
-        for (const off of [...leases]) {
+        for (const off of Array.from(leases)) {
           failures.run('subscription release', off)
         }
 
@@ -142,7 +142,7 @@ export function createSubscriptions(deps: Dependencies) {
         const failures = new FailureCollector()
 
         fileDropSubscriptionsByNode.delete(node)
-        for (const off of [...leases]) {
+        for (const off of Array.from(leases)) {
           failures.run('subscription release', off)
         }
 
@@ -216,7 +216,7 @@ export function createSubscriptions(deps: Dependencies) {
         const failures = new FailureCollector()
 
         contextSubscriptionsByNode.delete(node)
-        for (const off of [...leases]) {
+        for (const off of Array.from(leases)) {
           failures.run('subscription release', off)
         }
 

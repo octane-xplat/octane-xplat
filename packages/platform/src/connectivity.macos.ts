@@ -74,7 +74,7 @@ function publish(
     return
   }
 
-  for (const callback of [...listeners]) {
+  for (const callback of Array.from(listeners)) {
     if (monitor !== owner || bridge() !== owner.bridge) {
       break
     }

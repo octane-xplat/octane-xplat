@@ -3,7 +3,7 @@
 // token types, thresholds, and output shapes). Pure string/regex work: safe
 // on every target.
 import type { CodeToken, SyntaxToken, TokenLine } from '../props'
-import { appKitHost, hostGlobal } from '../internal/platform/host-bridge'
+import { hostGlobal } from '../internal/platform/host-bridge'
 
 export type { SyntaxToken, TokenLine } from '../props'
 

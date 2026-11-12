@@ -28,7 +28,7 @@ function emitter() {
       listeners.get(name)?.delete(fn)
     },
     emit(name, args) {
-      for (const fn of [...(listeners.get(name) ?? [])]) {
+      for (const fn of Array.from(listeners.get(name) ?? [])) {
         fn(args)
       }
     },

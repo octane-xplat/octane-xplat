@@ -5,7 +5,6 @@ import {
   dispatchTraySelect,
   normalizeTrayOptions,
   normalizeTrayUpdate,
-  resolvePlatformIcon,
   validateTrayMenu,
 } from '../src/menu'
 

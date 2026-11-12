@@ -1,3 +1,4 @@
+import 'octane/signals'
 import { createStore } from '@octane-xplat/ui/data'
 import type { WindowHandle } from '@octane-xplat/ui'
 import { storage } from '@octane-xplat/platform'

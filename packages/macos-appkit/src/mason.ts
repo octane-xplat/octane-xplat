@@ -1053,7 +1053,7 @@ export function installMasonElement(next: MasonDeps) {
     } else if (type === 'liquidglass') {
       // Keep the glass host factory (backdrop + blur observers); mason
       // owns the child geometry only.
-      const { create, dispose, ...rest } = behavior
+      const { create: _create, dispose: _dispose, ...rest } = behavior
 
       next.registerElementType(type, rest)
     } else {

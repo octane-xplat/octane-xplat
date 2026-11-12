@@ -319,6 +319,7 @@ async function run() {
     nativeWrites++
   })
 
+  // eslint-disable-next-line no-self-assign -- Verify an identical imperative write does not trigger a native update.
   view.text = view.text
   check('identical imperative writes do not touch GtkEditable', nativeWrites === 0)
   view.disconnect(changed)

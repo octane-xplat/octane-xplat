@@ -4,9 +4,6 @@ import { createCameraHost, type CameraHost } from './camera-host.macos.ts'
 // the same ObjC name so the media package's declare-const lookup still binds.
 // App-owned still-photo UI: no microphone input, movie output or Photos writes.
 declare const objc: { import(framework: string): void }
-declare const NSObject: any
-declare const NativeClass: (cls: unknown) => void
-declare const interop: any
 
 declare const NSApplication: any
 declare const NSWindow: any
@@ -16,13 +13,10 @@ declare const NSTextField: any
 declare const NSColor: any
 declare const NSImage: any
 declare const NSBitmapImageRep: any
-declare const NSWindowDelegate: any
 declare const NSNotificationCenter: any
 declare const NSOperationQueue: any
 declare const NSFileManager: any
 declare const NSUUID: any
-declare const NSData: any
-declare const NSNumber: any
 declare const NSMutableDictionary: any
 
 declare const NSWindowWillCloseNotification: string

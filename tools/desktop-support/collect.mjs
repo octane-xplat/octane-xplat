@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync, existsSync, statSync, writeFileSync } from 'node:fs'
-import { resolve, dirname, relative, join } from 'node:path'
+import { dirname, relative, join } from 'node:path'
 import { createRequire } from 'node:module'
 import { execFileSync } from 'node:child_process'
 import { localOutputFile } from './local-output.mjs'
@@ -581,7 +581,7 @@ for (const p of pkgs.values()) {
           continue
         }
 
-        const { code, typeOnly, exportName, name, via, ...rest } = e
+        const { code, typeOnly: _typeOnly, exportName: _exportName, name: _name, via, ...rest } = e
 
         out.targets[t] = {
           entry: b.entry,

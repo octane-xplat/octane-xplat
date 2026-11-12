@@ -23,8 +23,14 @@ export class Observable {
   private _listeners: Map<string, Set<(args: ObservableEvent) => void>> | undefined
 
   on(event: string, callback: (args: ObservableEvent) => void) {
-    ;(this._listeners ??= new Map()).get(event)?.add(callback) ??
-      this._listeners!.set(event, new Set([callback]))
+    const listeners = (this._listeners ??= new Map())
+    const callbacks = listeners.get(event)
+
+    if (callbacks) {
+      callbacks.add(callback)
+    } else {
+      listeners.set(event, new Set([callback]))
+    }
   }
 
   once(event: string, callback: (args: ObservableEvent) => void) {
@@ -101,6 +107,7 @@ export class Property<Owner, T> {
   register(cls: new (...args: any[]) => Owner) {
     const proto: any = cls.prototype
     const key = this.name
+    // eslint-disable-next-line @typescript-eslint/no-this-alias -- The nested method has its own receiver; retain the outer instance.
     const self = this
 
     ;(proto.__propertyTable ??= Object.create(

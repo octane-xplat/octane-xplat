@@ -11,7 +11,7 @@ import { linuxGtk } from '../dist/linux-gtk/vite.js'
 // The .server boundary must hold inside every app-facing preset, not only in
 // custom pipelines that add serverBoundary() by hand. These builds run the
 // real presets over a stubbed app so a leak fails the way an app's build would.
-test('native presets reject .server imports and erase named re-exports', async (t) => {
+test('native presets reject .server imports and erase named re-exports', async (_t) => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-server-boundary-')))
   const cwd = process.cwd()
   const bundlerEnv = process.env.NATIVESCRIPT_BUNDLER_ENV
@@ -94,7 +94,7 @@ test('native presets reject .server imports and erase named re-exports', async (
       },
       {
         'index.js': 'export {}',
-        'compat/escape-props.js': 'export {}',
+        'compat/escape-props.js': 'export const applyEscapeProps = () => "HOST_ESCAPE_SENTINEL"',
         'compat/native-core.js': 'export {}',
         'intrinsics.js': 'export {}',
       },
@@ -111,9 +111,14 @@ test('native presets reject .server imports and erase named re-exports', async (
       },
       {
         'index.js': 'export {}',
-        'compat/escape-props.js': 'export {}',
+        'compat/escape-props.js': 'export const applyEscapeProps = () => "HOST_ESCAPE_SENTINEL"',
         'compat/native-core.js': 'export {}',
       },
+    )
+
+    writeFileSync(
+      join(root, 'entry-escape.ts'),
+      'export { applyEscapeProps } from "./native/escape-props"',
     )
 
     const require = createRequire(import.meta.url)
@@ -162,6 +167,21 @@ test('native presets reject .server imports and erase named re-exports', async (
       () => linuxGtk('production', { root, entry: join(root, 'entry-leak.ts') }),
     ]) {
       const config = await preset()
+      // The real preset must redirect nested native helpers before resolution;
+      // this fixture deliberately has no native/escape-props source file.
+      const escapeBuild = await build({
+        ...config,
+        configFile: false,
+        logLevel: 'silent',
+        build: {
+          ...config.build,
+          write: false,
+          minify: false,
+          lib: { ...config.build.lib, entry: join(root, 'entry-escape.ts') },
+        },
+      })
+
+      assert.match(JSON.stringify(escapeBuild), /HOST_ESCAPE_SENTINEL/)
 
       await assert.rejects(
         build({

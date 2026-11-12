@@ -93,9 +93,11 @@ interface TrayTargetCallbacks {
 
 // This toolchain's TypeScript cannot parse computed-name methods
 // (['sel:'](arg: T)), so the selector members are assigned to the prototype
-// inside the static block — before NativeClass runs — and typed through an
-// interface merge.
+// inside the static block — before NativeClass runs. Declare their types
+// without emitting fields that would shadow the installed prototype methods.
 class TrayTarget extends NSObject {
+  declare 'trayButtonClicked:': (sender: NSObject) => void
+  declare 'trayMenuItemSelected:': (sender: NSMenuItem) => void
   static ObjCExposedMethods = {
     'trayButtonClicked:': { params: [NSObject], returns: interop.types.void },
     'trayMenuItemSelected:': { params: [NSObject], returns: interop.types.void },
@@ -122,11 +124,6 @@ class TrayTarget extends NSObject {
 
     registerTrayClass(this)
   }
-}
-
-interface TrayTarget {
-  'trayButtonClicked:'(sender: NSObject): void
-  'trayMenuItemSelected:'(sender: NSMenuItem): void
 }
 
 function trayImage(icon: TrayIcon, label: string): NSImage {

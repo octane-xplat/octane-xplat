@@ -69,7 +69,7 @@ export function runNativeJourney(options) {
         } catch {}
       }
 
-      for (const waiter of [...waiters]) {
+      for (const waiter of Array.from(waiters)) {
         if (waiter.match(line)) {
           waiters = waiters.filter((w) => w !== waiter)
           clearTimeout(waiter.timer)

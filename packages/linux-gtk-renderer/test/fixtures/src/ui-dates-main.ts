@@ -102,18 +102,6 @@ const findByTypeUnder = (type: string, ancestorId: string): any => {
   return null
 }
 
-const hasText = (needle: string): boolean => {
-  for (const n of (container as any).nodes.values()) {
-    try {
-      if (JSON.stringify(n.props).includes(needle)) {
-        return true
-      }
-    } catch {}
-  }
-
-  return false
-}
-
 const findLabel = (text: string): any => {
   for (const n of (container as any).nodes.values()) {
     try {
@@ -169,59 +157,6 @@ const findDayCell = (needle: string): any => {
 // Same as pickDayCell but the cell's logical ancestor chain must carry
 // `ancestorId` — popover portals keep parentage into their host subtree, so
 // this picks cells of the RIGHT field's popover when several are open.
-const pickDayCellUnder = (needle: string, ancestorId: string): any => {
-  for (const n of (container as any).nodes.values()) {
-    try {
-      if (!JSON.stringify(n.props).includes(needle)) {
-        continue
-      }
-    } catch {
-      continue
-    }
-
-    for (let cur = n; cur; cur = cur.parent) {
-      const cn = cur?.props?.className
-
-      if (
-        typeof cn !== 'string' ||
-        !cn.includes('vx-calendar-day') ||
-        cn.includes('--empty') ||
-        cn.includes('--outside')
-      ) {
-        continue
-      }
-
-      let inScope = false
-
-      for (let a = cur; a; a = a.parent) {
-        if (a?.props?.id === ancestorId) {
-          inScope = true
-          break
-        }
-      }
-
-      if (!inScope) {
-        continue
-      }
-
-      const v = cur.view
-
-      if (!v || !v.get_mapped?.()) {
-        continue
-      }
-
-      try {
-        const c = point(v)
-
-        if (c.x >= 0 && c.x <= 700 && c.y >= 0 && c.y <= 720) {
-          return v
-        }
-      } catch {}
-    }
-  }
-
-  return null
-}
 
 const findDayCellNode = (needle: string): any => {
   for (const n of (container as any).nodes.values()) {
@@ -812,20 +747,6 @@ async function run() {
   // The popover month tracks the input's pending value — read the shown
   // month title and pick day 15 of it adaptively.
   let monthTitle = ''
-  const MONTHS: Record<string, string> = {
-    January: '01',
-    February: '02',
-    March: '03',
-    April: '04',
-    May: '05',
-    June: '06',
-    July: '07',
-    August: '08',
-    September: '09',
-    October: '10',
-    November: '11',
-    December: '12',
-  }
 
   for (const n of (container as any).nodes.values()) {
     try {

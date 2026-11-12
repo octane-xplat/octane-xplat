@@ -53,7 +53,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
   let nextKey = 1
 
   backend.onExit(() => {
-    for (const instance of [...instances]) {
+    for (const instance of Array.from(instances)) {
       void instance.dispose()
     }
   })

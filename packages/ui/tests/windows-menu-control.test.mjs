@@ -23,7 +23,6 @@ function fixture() {
   let taskId = 0,
     viewId = 0
 
-  const popups = [{ Child: { id: 'foreign-menu', name: 'Unrelated', minimum: 17 } }]
   const focused = { current: null }
   class View {
     _domId = ++viewId
@@ -55,7 +54,7 @@ function fixture() {
     }
     disposeNativeView() {}
     _tearDownUI() {
-      for (const child of [...this.children]) {
+      for (const child of Array.from(this.children)) {
         this._removeViewFromNativeVisualTree(child)
       }
 

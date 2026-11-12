@@ -41,7 +41,7 @@ const writeFile = (): void => {
 // The file APIs' *Sync variants are stubs on this host (readTextSync yields
 // "undefined", writeTextSync reports success without writing); only the async
 // calls perform real IO.
-const load: Promise<unknown> = (async () => {
+const _load: Promise<unknown> = (async () => {
   try {
     const path = storePath()
 

@@ -126,7 +126,7 @@ function sourceUrl(src: string): any {
   return null
 }
 
-function attachItem(state: VideoState, view: any) {
+function attachItem(state: VideoState, _view: any) {
   const src = String(state.props.src ?? '')
   const generation = ++state.generation
 

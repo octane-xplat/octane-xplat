@@ -377,7 +377,7 @@ const {
   applyProps,
   nodeClasses,
   flushStyleDirty,
-  markStyleDirty,
+  markStyleDirty: _markStyleDirty,
 } = runSlice(
   slices.join('\n') +
     source.slice(source.indexOf('function applyProps'), source.indexOf('function detach')) +
@@ -635,7 +635,7 @@ registerStylesheet(
 for (const type of ['masonview', 'scrollview']) {
   test(`${type} resolves layout style > class > props independent of property order`, () => {
     for (const reversed of [false, true]) {
-      const item = node(type, { orientation: 1 })
+      const orderedItem = node(type, { orientation: 1 })
       const entries = Object.entries({
         style: { flexDirection: 'row', gap: 12, alignItems: 'end', justifyContent: 'end' },
         className: 'flex-col gap-2 items-center justify-center',
@@ -644,6 +644,13 @@ for (const type of ['masonview', 'scrollview']) {
         alignItems: 'stretch',
         justifyContent: 'start',
       })
+
+      applyProps(orderedItem, Object.fromEntries(reversed ? entries.reverse() : entries))
+      flushStyleDirty(orderedItem.container)
+      assert.equal(orderedItem.computedStyle.flexDirection, 'row')
+      assert.equal(orderedItem.computedStyle.gap, 12)
+
+      const item = node(type, { orientation: 1 })
 
       applyProps(item, { className: 'flex-col gap-2' })
       flushStyleDirty(item.container)
@@ -793,7 +800,7 @@ test('percent borderRadius resolves against min(width, height) and re-resolves o
   assert.equal(frameObservers.length, 1, 'frame observer installed while % radius is in effect')
 
   item.view.frame.size.width = 40
-  for (const cb of [...frameObservers]) {
+  for (const cb of Array.from(frameObservers)) {
     cb()
   }
 

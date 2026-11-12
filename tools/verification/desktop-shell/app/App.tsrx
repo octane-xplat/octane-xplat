@@ -1,3 +1,4 @@
+import 'octane/signals'
 import { useStore } from '@octane-xplat/ui/data'
 import { Button } from '@octane-xplat/ui'
 import { Text } from '@octane-xplat/ui'

@@ -25,7 +25,6 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
-  writeFileSync,
 } from 'node:fs'
 
 import { readFile, writeFile } from 'node:fs/promises'
@@ -99,13 +98,6 @@ function host(cmd, argv, opts = {}) {
 const OS_INPUT_CLASS = REMOTE ? 'in-process-native' : 'os-input'
 
 /** Fails fast — kept so the recorded reason for the dead lane survives. */
-function codexExec() {
-  throw new Error('codex computer-use unavailable on the SSH host (Apple Events -1743)')
-}
-
-function remotePid() {
-  return remote(`pgrep -f ${shellQuote(`${PRODUCT}.app/Contents/MacOS`)} | tail -1`)
-}
 
 const evidence = {
   sourceCommit: exec('git', ['rev-parse', 'HEAD'], repo),
@@ -1069,7 +1061,7 @@ async function journeyPhase() {
       input('key', 13, 'cmd')
       await app.wait('JOURNEY INSPECTOR_CLOSED', 15000)
 
-      const extras = JSON.parse(input('extras', pid))
+      JSON.parse(input('extras', pid))
 
       input('press', pid, 'desktop-shell-journey')
       await sleep(500)

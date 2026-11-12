@@ -1,4 +1,4 @@
-/// <reference path="./assets.d.ts" />
+import './assets.d.ts'
 /**
  * Shared native JSX contract — the renderer-neutral element, prop, event, and
  * ref surface consumed through `@octane-xplat/jsx/jsx-runtime` under the

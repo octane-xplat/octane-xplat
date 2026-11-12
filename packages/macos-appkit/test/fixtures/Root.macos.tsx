@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from './style-merge'
+import './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const rootRefs = { host: { current: null as any }, child: { current: null as any } }

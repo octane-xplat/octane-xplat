@@ -11,7 +11,7 @@
 // runtime + registered package on the box; re-runs reuse it.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -43,7 +43,6 @@ const run = (script, timeout = 240_000) =>
   )
 
 const identity = 'org.xplat.trayprobe'
-const id = Date.now().toString(36)
 const remote = 'C:\\Users\\alecs\\xplat-trayprobe-runtime'
 const logPath = 'C:\\Users\\alecs\\xplat-tray-selftest.txt'
 
@@ -102,7 +101,6 @@ try {
   if (!pfn) {
     console.log('registering package via session-1 task (may take minutes)')
 
-    const reg = remote + '\\register.ps1'
     const regLocal = join(temporary, 'register.ps1')
 
     writeFileSync(

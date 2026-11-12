@@ -31,7 +31,7 @@ test('project status reports identity, versions, capabilities, and boundaries', 
 
   const { client, transport } = await connect(root, {
     handlers: {
-      status: (call) =>
+      status: (_call) =>
         ok(
           statusFixture(
             {

@@ -242,6 +242,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
   let capturing = false
   let interrupted = false
   let finalizeTimer: ReturnType<typeof setTimeout> | undefined
+  // eslint-disable-next-line no-unused-vars -- Retain the native delegate until recording completes.
   let delegate: unknown
   let delegateKey: number | undefined
 

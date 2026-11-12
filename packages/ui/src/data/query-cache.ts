@@ -1675,7 +1675,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 
       let count = 0
 
-      for (const raw of [...entries.values()]) {
+      for (const raw of Array.from(entries.values())) {
         if (raw.definition !== definition || !matches(raw, filter) || !raw.state$.get().hasData) {
           continue
         }
@@ -1708,7 +1708,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 
       const removals: Promise<void>[] = []
 
-      for (const entry of [...entries.values()]) {
+      for (const entry of Array.from(entries.values())) {
         if (matches(entry, filter)) {
           retire(entry)
           if (eviction.purgePersisted && entry.persist) {
@@ -1740,7 +1740,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       }
 
       unsubscribe = undefined
-      for (const entry of [...entries.values()]) {
+      for (const entry of Array.from(entries.values())) {
         try {
           retire(entry)
         } catch (error) {

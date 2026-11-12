@@ -30,7 +30,6 @@ import {
 import type { ProjectionRoot } from './root'
 import type { SharedStack } from './stack'
 import type {
-  Axis,
   Box,
   Delta,
   Measurement,
@@ -791,7 +790,12 @@ export function resolveLayoutTransition(input: TransitionInput | undefined): Tra
     return { ...defaultLayoutTransition }
   }
 
-  const { staggerChildren, delayChildren, when, ...transition } = resolved
+  const {
+    staggerChildren: _staggerChildren,
+    delayChildren: _delayChildren,
+    when: _when,
+    ...transition
+  } = resolved
 
   return transition
 }

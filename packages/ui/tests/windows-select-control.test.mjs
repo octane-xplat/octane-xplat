@@ -249,7 +249,7 @@ function fixture() {
   }
 
   function flush() {
-    for (const [id, callback] of [...tasks]) {
+    for (const [id, callback] of Array.from(tasks)) {
       tasks.delete(id)
       callback()
     }

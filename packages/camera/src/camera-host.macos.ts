@@ -7,7 +7,6 @@
 // detached threads carry no ordering.
 declare const objc: { import(framework: string): void }
 declare const NSObject: any
-declare const NativeClass: (cls: unknown) => void
 declare const interop: any
 
 const g = globalThis as any
@@ -26,14 +25,12 @@ declare const AVCaptureFileOutputRecordingDelegate: any
 declare const AVCapturePhotoCaptureDelegate: any
 declare const AVURLAsset: any
 declare const AVAssetTrack: any
-declare const NSError: any
 declare const NSBundle: any
 declare const NSFileManager: any
 declare const NSMutableDictionary: any
 declare const NSNotificationCenter: any
 declare const NSOperationQueue: any
 declare const NSURL: any
-declare const NSNumber: any
 
 declare const AVMediaTypeVideo: string
 declare const AVMediaTypeAudio: string
@@ -201,16 +198,15 @@ export function createCameraHost(): CameraHost {
   let movieOutput: any
   let photoOutput: any
   let photoReply: ((data: any) => void) | undefined
-  let photoDelegate: any
+  // AVFoundation keeps a weak delegate; retain its wrapper until completion.
+  let _photoDelegate: any
   let claimedCameraIds = new Set<string>()
   let previewLayer: any
   let previewView: WeakRef<any> | null = null
-  let configuredCameraId: string | undefined
   let rotationAngle: number | undefined
   let emit: ((message: string) => void) | undefined
   let observers: any[] = []
   let disposed = false
-  let recordingPath: string | undefined
   let recordingDelegate: any
   let startPollTimer: ReturnType<typeof setInterval> | undefined
 
@@ -642,7 +638,6 @@ export function createCameraHost(): CameraHost {
     }
 
     claimedCameraIds = new Set([deviceId])
-    configuredCameraId = deviceId
     applyOrientation(videoConnection)
     applyOrientation(previewLayer?.connection)
     return null
@@ -858,7 +853,6 @@ export function createCameraHost(): CameraHost {
 
       const url = NSURL.fileURLWithPath(path)
 
-      recordingPath = path
       movieOutput.maxRecordedDuration =
         maximumDurationMs > 0
           ? CMTimeMakeWithSeconds(maximumDurationMs / 1000, 1000)
@@ -979,12 +973,12 @@ export function createCameraHost(): CameraHost {
 
       const delegate = photoDelegateClass().new()
 
-      photoDelegate = delegate
+      _photoDelegate = delegate
       delegate.onPhoto = (photo: any, error: any) => {
         const callback = photoReply
 
         photoReply = undefined
-        photoDelegate = undefined
+        _photoDelegate = undefined
         callback?.(
           error == null && photo != null
             ? typed(photo, AVCapturePhoto).fileDataRepresentation()
@@ -1021,7 +1015,7 @@ export function createCameraHost(): CameraHost {
       previewLayer = undefined
       previewView = null
       photoReply = undefined
-      photoDelegate = undefined
+      _photoDelegate = undefined
       if (startPollTimer !== undefined) {
         clearInterval(startPollTimer)
         startPollTimer = undefined

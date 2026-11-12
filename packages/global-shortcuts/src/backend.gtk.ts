@@ -120,7 +120,8 @@ interface PendingBind {
 
 let conn: PortalConnection | null = null
 let connFailed = false
-let subscriptions: number[] = []
+// These signal subscriptions share the process-wide connection lifetime.
+let _subscriptions: number[] = []
 let session: string | null = null
 let sessionPromise: Promise<string | null> | null = null
 let appId: string | null = null
@@ -162,7 +163,7 @@ function ensureConnection(): PortalConnection | null {
       null,
     )
 
-    subscriptions = [
+    _subscriptions = [
       conn.signal_subscribe(
         PORTAL_NAME,
         REQUEST_IFACE,

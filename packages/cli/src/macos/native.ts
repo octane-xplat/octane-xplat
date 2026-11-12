@@ -3,7 +3,6 @@ import { execFile } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import fs, { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises'
-import { createRequire } from 'node:module'
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
@@ -60,27 +59,6 @@ function strings(value, label, fallback = []) {
   }
 
   return value
-}
-
-function nodeModulePaths(dir) {
-  const paths = []
-  let current = dir
-
-  while (true) {
-    if (basename(current) !== 'node_modules') {
-      paths.push(join(current, 'node_modules'))
-    }
-
-    const parent = dirname(current)
-
-    if (parent === current) {
-      break
-    }
-
-    current = parent
-  }
-
-  return paths
 }
 
 function nativeFiles(root, dir = root, seen = new Set()) {

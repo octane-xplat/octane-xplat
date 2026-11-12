@@ -188,7 +188,7 @@ class Controller<T extends GestureSample, O extends GestureOptions, K extends 'p
   }
 
   private notifyConfiguration() {
-    for (const listener of [...this.configurationListeners]) {
+    for (const listener of Array.from(this.configurationListeners)) {
       listener()
     }
   }

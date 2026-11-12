@@ -59,6 +59,7 @@ export const VIRTUAL_LIST_BENCH_FIXED_ITEMS: VirtualListBenchItem[] = VIRTUAL_LI
 )
 
 const rowOffsets = (() => {
+  // eslint-disable-next-line unicorn/no-new-array -- Preallocate indexed output; preserve the requested array length.
   const offsets = new Array<number>(VIRTUAL_LIST_BENCH_ROW_COUNT + 1)
 
   offsets[0] = 0

@@ -1,13 +1,5 @@
 import assert from 'node:assert/strict'
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'

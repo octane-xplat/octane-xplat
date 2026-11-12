@@ -14,7 +14,6 @@ import {
 } from 'node:fs'
 
 import { dirname } from 'node:path'
-// @ts-expect-error — planRoutes ships as untyped source consumed by type stripping.
 import { planRoutes } from '../packages/cli/src/route-generator.ts'
 
 const args = process.argv.slice(2)

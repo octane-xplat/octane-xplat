@@ -103,7 +103,7 @@ function injectKeys(targetName) {
     el.setAttribute('data-sf-ignore', '')
   }
 
-  for (const el of [...doc.querySelectorAll('nav *')]) {
+  for (const el of Array.from(doc.querySelectorAll('nav *'))) {
     const text = el.textContent?.trim()
 
     if (text !== 'Sandbox' && text !== 'Audits') {

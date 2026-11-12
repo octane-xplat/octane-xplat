@@ -38,6 +38,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: packages/cli/go/go.mod
+          cache-dependency-path: packages/cli/go/go.sum
 
       - name: Install dependencies
         run: bun install --frozen-lockfile

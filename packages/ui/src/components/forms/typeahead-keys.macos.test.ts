@@ -8,7 +8,7 @@ function fixture() {
   view.window = window
 
   let input: any = view,
-    notify = (_: any) => {}
+    notify = (_event: any) => {}
 
   const state = {
       open: true,

@@ -174,7 +174,7 @@ export const webBrowser: WebBrowser = {
     return isIOS ? Promise.resolve() : withTabsClient(packageName, (client) => client.warmUp(0))
   },
 
-  coolDown(packageName?: string): Promise<void> {
+  coolDown(_packageName?: string): Promise<void> {
     if (isIOS) {
       return Promise.resolve()
     }

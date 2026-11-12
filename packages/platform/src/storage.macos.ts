@@ -111,7 +111,7 @@ function flushStore(owner: AppKitHost | undefined, store: Store): boolean {
   store.busy = true
   try {
     // One bounded snapshot: writes made reentrantly remain pending.
-    for (const [key, mutation] of [...store.pending]) {
+    for (const [key, mutation] of Array.from(store.pending)) {
       if (installedHost() !== owner) {
         return false
       }

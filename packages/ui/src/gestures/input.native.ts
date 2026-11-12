@@ -127,7 +127,7 @@ function retain(surface: NativeGestureSurface) {
       stream: createNativeContactStream((frame) => {
         owner.dispatch(frame)
         if (frame.type === 'up' && !frame.contacts.length) {
-          for (const press of [...presses]) {
+          for (const press of Array.from(presses)) {
             press.activate('pointer')
           }
         }

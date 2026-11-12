@@ -137,7 +137,7 @@ const present = (options: SurfaceOptions) =>
 const dispatch = (event: any) => {
   let value: any = { window: nativeWindow, ...event }
 
-  for (const fn of [...monitors]) {
+  for (const fn of Array.from(monitors)) {
     if (!value) {
       break
     }
@@ -309,7 +309,7 @@ test('owner close disposes every root and does not report user dismissal', async
   const first = present({ onDismiss: () => calls++ }),
     second = present({ onDismiss: () => calls++ })
 
-  for (const notify of [...observers]) {
+  for (const notify of Array.from(observers)) {
     notify()
   }
 

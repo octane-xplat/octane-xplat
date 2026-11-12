@@ -121,30 +121,28 @@ function installLexicalDomShim(zeed: any): void {
       let proxy = styleCache.get(this)
 
       if (!proxy) {
-        const el = this
-
         proxy = new Proxy(
           {},
           {
             get: (_t, k) => {
               if (k === 'setProperty') {
-                return (prop: string, value: string) => writeStyleProp(el, prop, value)
+                return (prop: string, value: string) => writeStyleProp(this, prop, value)
               }
 
               if (k === 'removeProperty') {
                 return (prop: string) => {
-                  writeStyleProp(el, prop, '')
+                  writeStyleProp(this, prop, '')
                   return ''
                 }
               }
 
               if (k === 'cssText') {
-                return cssText(el)
+                return cssText(this)
               }
 
               if (k === 'getPropertyValue') {
                 return (prop: string) => {
-                  const raw = cssText(el)
+                  const raw = cssText(this)
                     .split(';')
                     .map((s: string) => s.trim())
                     .find((r: string) => r.startsWith(prop + ':'))
@@ -154,7 +152,7 @@ function installLexicalDomShim(zeed: any): void {
               }
 
               if (typeof k === 'string') {
-                const raw = cssText(el)
+                const raw = cssText(this)
                   .split(';')
                   .map((s: string) => s.trim())
                   .find((r: string) => r.startsWith(kebab(k) + ':'))
@@ -166,7 +164,7 @@ function installLexicalDomShim(zeed: any): void {
             },
             set: (_t, k, v) => {
               if (typeof k === 'string') {
-                writeStyleProp(el, k, v)
+                writeStyleProp(this, k, v)
               }
 
               return true

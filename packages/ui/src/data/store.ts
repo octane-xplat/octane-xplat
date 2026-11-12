@@ -27,7 +27,7 @@ export function createStore<T>(initial: T): Store<T> {
     }
 
     value = next
-    for (const l of [...listeners]) {
+    for (const l of Array.from(listeners)) {
       l()
     }
   }

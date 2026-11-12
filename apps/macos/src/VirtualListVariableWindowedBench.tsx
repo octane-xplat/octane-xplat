@@ -20,6 +20,7 @@ const items: BenchItem[] = Array.from({ length: count }, (_, index) => ({
   height: HEIGHTS[index % HEIGHTS.length],
 }))
 
+// eslint-disable-next-line unicorn/no-new-array -- Preallocate indexed output; preserve the requested array length.
 const offsets = new Array<number>(items.length + 1)
 
 offsets[0] = 0

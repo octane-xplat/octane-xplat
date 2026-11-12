@@ -146,6 +146,7 @@ export function appKitFileTypeFilter(
   for (const token of tokens) {
     if (token.startsWith('.')) {
       if (
+        // eslint-disable-next-line no-control-regex -- The control-character range is intentional input validation.
         !/^\.[^/\\\s,*?\u0000-\u001f]+$/u.test(token) ||
         token
           .slice(1)

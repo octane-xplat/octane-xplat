@@ -114,7 +114,7 @@ function fixture(flipped = true) {
   )
 
   const emit = (name: string, object: any) => {
-    for (const token of [...observers]) {
+    for (const token of Array.from(observers)) {
       if (
         !token.removed &&
         token.name === name &&

@@ -5,7 +5,7 @@
 // seam, per #59). The client assigns the id so the controller is available
 // synchronously. Unbridged dev degrades to the web window path.
 import type { OpenWindowOptions, WindowHandle } from '../../props'
-import { appKitHost, hostGlobal } from './host-bridge'
+import { hostGlobal } from './host-bridge'
 import { openWebWindow } from './windows.web'
 
 /** LinuxWindowHandle is the shared `WindowHandle` — retitled through the

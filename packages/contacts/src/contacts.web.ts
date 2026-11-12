@@ -39,7 +39,7 @@ export const contacts: Contacts = {
     return Promise.resolve(picker() ? 'granted' : 'unsupported')
   },
 
-  async getAll(options?: GetContactsOptions): Promise<Contact[]> {
+  async getAll(_options?: GetContactsOptions): Promise<Contact[]> {
     const p = picker()
 
     if (!p) {

@@ -11,6 +11,7 @@ interface Segmenter {
   segment(value: string): Iterable<Segmentation>
 }
 
+// eslint-disable-next-line no-control-regex -- The control-character range is intentional input validation.
 const ASCII_ONLY = /^[\x00-\x7F]+$/
 
 // Lazy so runtimes without Intl.Segmenter (older JSC) never touch the

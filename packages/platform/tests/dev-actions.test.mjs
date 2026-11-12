@@ -537,7 +537,7 @@ test('output that violates the result contract reports a failure, not a silent p
 })
 
 const declaration = (over = {}) => {
-  const { run, ...rest } = spec(over)
+  const { run: _run, ...rest } = spec(over)
 
   return rest
 }
@@ -1032,7 +1032,7 @@ const makeNavigator = (over = {}) => {
       return () => navigator.listeners.delete(listener)
     },
     emit() {
-      for (const listener of [...navigator.listeners]) {
+      for (const listener of Array.from(navigator.listeners)) {
         listener()
       }
     },

@@ -96,6 +96,21 @@
 			{
 				"exclude": [
 					"scripts/"
+				],
+				"allow": [
+					"vx-chatdict-bar",
+					"vx-chattools-status",
+					"vx-field--status-detached",
+					"vx-fieldstatus-icon",
+					"vx-lightbox-image",
+					"vx-link--external",
+					"vx-meter",
+					"vx-select-option",
+					"vx-select-option--on",
+					"vx-step-content",
+					"vx-step-node",
+					"vx-switch-row",
+					"vx-tree-label"
 				]
 			}
 		],
@@ -111,5 +126,30 @@
 		"xplat/no-destination-cast": "error",
 		"xplat/no-interpolated-route-path": "error",
 		"xplat/require-default-tsrx": "error"
-	}
+	},
+	"overrides": [
+		{
+			"files": [
+				"tools/tailwind-qualification/fixtures/app/**"
+			],
+			"rules": {
+				"xplat/no-unknown-class": [
+					"warn",
+					{
+						"allow": [
+							"flex"
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": [
+				"packages/ui/tests/fixtures/icon-currentcolor/paint.ios.ts"
+			],
+			"rules": {
+				"typescript/triple-slash-reference": "off"
+			}
+		}
+	]
 }

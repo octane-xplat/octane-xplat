@@ -413,12 +413,12 @@ export function createGestureOwner(scheduler: GestureScheduler) {
 
     run.phase = 'active'
     consumed = true
-    for (const press of [...presses]) {
+    for (const press of Array.from(presses)) {
       press.controller.cancel()
     }
 
     // Dormant multi-contact recognizers remain idle, not superseded.
-    for (const other of [...runs]) {
+    for (const other of Array.from(runs)) {
       if (other === run || other.phase !== 'possible') {
         continue
       }
@@ -483,7 +483,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
         .map((host) => targets.get(host)?.target)
         .find((target) => target !== undefined) ?? null
 
-    for (const press of [...presses]) {
+    for (const press of Array.from(presses)) {
       press.controller.cancel()
     }
 
@@ -590,7 +590,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       }
 
       if (frame.type !== 'down' || frame.contacts.length > 1) {
-        for (const press of [...activePresses]) {
+        for (const press of Array.from(activePresses)) {
           press.controller.update(frame)
         }
       }
@@ -600,7 +600,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
       }
 
       // Evaluate every candidate's validity before deciding winners or waiting.
-      for (const run of [...runs]) {
+      for (const run of Array.from(runs)) {
         if (run.controller.disposed || !run.controller.owner) {
           continue
         }
@@ -706,7 +706,7 @@ export function createGestureOwner(scheduler: GestureScheduler) {
         publish(run)
       }
 
-      for (const run of [...runs]) {
+      for (const run of Array.from(runs)) {
         if (run.phase === 'possible' && run.last && canActivate(run)) {
           let ready = false
 
@@ -850,13 +850,13 @@ export function createGestureOwner(scheduler: GestureScheduler) {
           }
 
           consumed = true
-          for (const other of [...presses]) {
+          for (const other of Array.from(presses)) {
             if (other !== attachment) {
               other.controller.cancel()
             }
           }
 
-          for (const run of [...runs]) {
+          for (const run of Array.from(runs)) {
             if (run.phase === 'active') {
               terminal(run, 'cancelled', 'superseded')
             } else if (run.phase === 'possible' || run.phase === 'idle') {
@@ -990,13 +990,13 @@ export function createGestureOwner(scheduler: GestureScheduler) {
     }
 
     transaction(() => {
-      for (const press of [...presses]) {
+      for (const press of Array.from(presses)) {
         if (contains(press.host)) {
           press.controller.cancel()
         }
       }
 
-      for (const run of [...runs]) {
+      for (const run of Array.from(runs)) {
         if (!contains(run.attachment.host)) {
           continue
         }
@@ -1046,14 +1046,14 @@ export function createGestureOwner(scheduler: GestureScheduler) {
             lastFrame = { ...lastFrame, type: 'cancel', contacts: [] }
           }
 
-          for (const press of [...presses]) {
+          for (const press of Array.from(presses)) {
             press.controller.dispose()
           }
 
           presses.clear()
           suspensions.clear()
           activePresses = []
-          for (const run of [...runs]) {
+          for (const run of Array.from(runs)) {
             if (run.last) {
               run.last = Object.freeze({
                 ...run.last,

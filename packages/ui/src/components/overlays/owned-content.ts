@@ -121,7 +121,7 @@ export function createContentOwner(): {
 
       const errors: unknown[] = []
 
-      for (const root of [...roots]) {
+      for (const root of Array.from(roots)) {
         try {
           root.dispose()
         } catch (error) {

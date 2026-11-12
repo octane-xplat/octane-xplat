@@ -119,7 +119,7 @@ export async function thumbHashUri(src: string): Promise<string> {
 
   try {
     pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, null)
-  } catch (error) {
+  } catch {
     throw new Error('thumbHashUri: could not decode image source')
   }
 

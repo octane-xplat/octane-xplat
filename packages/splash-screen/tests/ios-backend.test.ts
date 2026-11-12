@@ -203,7 +203,7 @@ afterEach(() => {
 const importBackend = () => import('../src/backend.ios')
 
 function fireVisible(window: unknown) {
-  for (const observer of [...stubs.observers]) {
+  for (const observer of Array.from(stubs.observers)) {
     if (observer.name === 'UIWindowDidBecomeVisibleNotification') {
       observer.run({ object: window })
     }
@@ -211,7 +211,7 @@ function fireVisible(window: unknown) {
 }
 
 function fireHidden(window: unknown) {
-  for (const observer of [...stubs.observers]) {
+  for (const observer of Array.from(stubs.observers)) {
     if (observer.name === 'UIWindowDidBecomeHiddenNotification' && observer.object === window) {
       observer.run({ object: window })
     }

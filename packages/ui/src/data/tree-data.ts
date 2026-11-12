@@ -120,7 +120,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
   const listeners = new Set<() => void>()
   const commit = (next: TreeSnapshot<T>) => {
     snapshot = next
-    for (const listener of [...listeners]) {
+    for (const listener of Array.from(listeners)) {
       listener()
     }
   }

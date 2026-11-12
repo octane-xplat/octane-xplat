@@ -135,7 +135,6 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
   let cancellable: any
   let markup: string | null = null
   let rendered: string | null = null
-  let placeholderSource: unknown
   let placeholderTexture: any = null
   const renderSvg = () => {
     if (!markup || disposed) {
@@ -246,7 +245,6 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
         return
       }
 
-      placeholderSource = value
       if (value == null || value === '') {
         placeholderTexture = null
         return
@@ -290,7 +288,7 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
       generation++
       cancellable?.cancel()
       markup = rendered = null
-      placeholderSource = placeholderTexture = null
+      placeholderTexture = null
       view.set_paintable(null)
       view.imageSource = null
       view.isLoading = false

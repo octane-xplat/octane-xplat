@@ -201,7 +201,7 @@ export function createAppKitKeyboardDispatcher(
       return result
     }
 
-    for (const observe of [...observers]) {
+    for (const observe of Array.from(observers)) {
       observe({ type: Number(event.type), modifierFlags: Number(event.modifierFlags ?? 0) })
     }
 
@@ -289,7 +289,7 @@ export function createAppKitKeyboardDispatcher(
 
       const owned = subscriptions.get(view)
 
-      for (const handlers of [...(owned ?? [])]) {
+      for (const handlers of Array.from(owned ?? [])) {
         if (subscriptions.get(view) === owned && owned?.has(handlers)) {
           handlers[name]?.(payload)
         }

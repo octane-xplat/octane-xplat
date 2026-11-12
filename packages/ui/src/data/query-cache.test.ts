@@ -517,7 +517,7 @@ function environment(initial: QueryEnvironmentSnapshot) {
     },
     set(next: QueryEnvironmentSnapshot) {
       snapshot = next
-      for (const listener of [...listeners]) {
+      for (const listener of Array.from(listeners)) {
         listener(next)
       }
     },

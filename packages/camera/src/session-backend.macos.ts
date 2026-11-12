@@ -20,30 +20,6 @@ import type {
 
 declare const NSFileManager: any
 
-interface CameraHost {
-  attachPreview(view: object): string | null
-  detachPreview(): void
-  installObserver(emit: (message: string) => void): void
-  permissionStatus(kind: string): string
-  requestPermissionReply(kind: string, reply: (status: string) => void): void
-  devices(): string
-  audioDeviceAvailable(): boolean
-  audioInputAttached(): boolean
-  activeDeviceId(): string | null
-  configure(options: { cameraId?: string; audio?: boolean; rotationAngle?: number }): string | null
-  /** Optional so a host built before the metering leaf shipped degrades
-   *  to a no-op instead of a selector error. */
-  focusAtPoint?(point: { x: number; y: number }): boolean
-  supportsRotationAngles(): boolean
-  movieDirectory(): string | null
-  startRecording(path: string, maximumDurationMs: number): string | null
-  stopRecording(): void
-  recording(): boolean
-  recordedMs(): number
-  previewSize(): string
-  dispose(): void
-}
-
 type HostEvent =
   | { type: 'recordingStarted'; fileUrl: string; audio: boolean }
   | {

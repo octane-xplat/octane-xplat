@@ -264,7 +264,7 @@ export function bindPublicInstance(
   }
 
   const emit = (eventName: RefEvent, detail: Record<string, unknown> = {}) => {
-    for (const listener of [...(listeners.get(eventName) ?? [])]) {
+    for (const listener of Array.from(listeners.get(eventName) ?? [])) {
       if (disposed) {
         break
       }

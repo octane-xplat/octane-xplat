@@ -1,4 +1,4 @@
-/// <reference path="../assets.d.ts" />
+import '../assets.d.ts'
 /**
  * `@octane-xplat/jsx/dom/jsx-runtime` — the DOM JSX contract.
  *

@@ -36,8 +36,6 @@ interface AppKitMenuHandle {
   dispose(): void
 }
 
-type InstallApplicationMenu = (nodes: readonly AppKitMenuNode[]) => AppKitMenuHandle | null
-
 const NS_OPTION = 1 << 19
 const NS_COMMAND = 1 << 20
 

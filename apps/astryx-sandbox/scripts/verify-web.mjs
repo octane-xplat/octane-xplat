@@ -528,7 +528,7 @@ try {
     () => getComputedStyle(document.querySelector('.sb-chart-bar')).backgroundColor,
   )
 
-  check('useTheme resolves accent into chart', /^rgb/.test(barColor ?? ''), `bg=${barColor}`)
+  check('useTheme resolves accent into chart', (barColor ?? '').startsWith('rgb'), `bg=${barColor}`)
 
   // Palette page: both mode columns render under one route. Fullscreen
   // authored pages live inside the preview shell's embed iframe (unit 3) —
@@ -1044,8 +1044,6 @@ try {
     .locator('th', { hasText: 'Age' })
     .locator('button, [role="button"], .vx-table-sort-button')
     .first()
-
-  const firstCell = () => page.locator('tbody tr td').nth(1).textContent()
 
   check(
     'sortable header button present',

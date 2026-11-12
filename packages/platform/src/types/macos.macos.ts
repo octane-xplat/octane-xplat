@@ -195,7 +195,7 @@ export * from './macos-impl/vecLib.js'
 export * from './macos-impl/vmnet.js'
 export type { NSClass, NSPoint, NSSize, NSRect } from './macos/extras'
 
-import { _g, lazyGlobal } from './macos-impl/_rt.js'
+import { _g } from './macos-impl/_rt.js'
 
 export const CGPointMake: typeof import('./macos/objc-runtime').CGPointMake = _g.CGPointMake
 export const CGRectMake: typeof import('./macos/objc-runtime').CGRectMake = _g.CGRectMake

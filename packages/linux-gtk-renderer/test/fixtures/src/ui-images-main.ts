@@ -34,16 +34,6 @@ const findView = (id: string): any => {
   return null
 }
 
-const findNode = (id: string): any => {
-  for (const n of (container as any).nodes.values()) {
-    if (n?.props?.id === id) {
-      return n
-    }
-  }
-
-  return null
-}
-
 const hasText = (needle: string): boolean => {
   for (const n of (container as any).nodes.values()) {
     try {

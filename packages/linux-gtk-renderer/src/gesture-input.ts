@@ -99,7 +99,7 @@ function observeWindow(root: Gtk.NativeWidget, window: Gtk.Window, observer: Obs
     controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
     const notify = (frame: GtkContactFrame) => {
       const identity = String(++serial)
-      for (const listener of [...observers]) {
+      for (const listener of Array.from(observers)) {
         if (observers.has(listener)) {
           listener(frame, identity)
         }

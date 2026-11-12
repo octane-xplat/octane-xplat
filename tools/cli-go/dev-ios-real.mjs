@@ -5,15 +5,7 @@
 import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import {
-  cpSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  realpathSync,
-  symlinkSync,
-  writeFileSync,
-} from 'node:fs'
+import { cpSync, mkdirSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs'
 
 import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'

@@ -12,7 +12,7 @@ export function useGridFocus<T extends HTMLElement = HTMLElement>(
 ): GridFocusResult<T> {
   const ref = useRef<T | null>(null)
   const [focusIndex, setFocusIndex] = useState(0)
-  const { rows, columns } = options
+  const { rows: _rows, columns } = options
 
   const focusCell = (index: number) => {
     const host = ref.current

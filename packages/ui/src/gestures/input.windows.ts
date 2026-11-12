@@ -289,7 +289,7 @@ export function dispatchWindowsActivation(
   source: ActivationEvent['source'],
   kind?: 'double',
 ): void {
-  for (const observer of [...(activations.get(host) ?? [])]) {
+  for (const observer of Array.from(activations.get(host) ?? [])) {
     if (activations.get(host)?.has(observer)) {
       observer(source, kind)
     }

@@ -24,6 +24,6 @@ export interface GridFocusResult<T = any> {
 }
 
 /** Arrow-key focus navigation for a 2-D cell grid — no-op on the shared leaf; web and macOS have real implementations. */
-export function useGridFocus<T = any>(options: GridFocusOptions): GridFocusResult<T> {
+export function useGridFocus<T = any>(_options: GridFocusOptions): GridFocusResult<T> {
   return { ref: { current: null }, focusIndex: 0, onKeyDown: () => {} }
 }

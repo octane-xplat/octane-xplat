@@ -134,7 +134,7 @@ describe('projection node conformance', () => {
 
     childHost.state.box = box(0, 0, 50, 50)
 
-    const child = makeNode(root, childHost.hooks, parent)
+    makeNode(root, childHost.hooks, parent)
 
     commit()
     expect(parentHost.state.resets).toBe(0)
@@ -162,7 +162,7 @@ describe('projection node conformance', () => {
 
     childHost.state.box = box(0, 0, 50, 50)
 
-    const child = makeNode(root, childHost.hooks, parent)
+    makeNode(root, childHost.hooks, parent)
 
     commit()
     expect(parentHost.state.resets).toBe(0)

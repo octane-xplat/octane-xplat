@@ -1450,7 +1450,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
       (key) => previous[key] !== next[key],
     )
   ) {
-    for (const notify of [...node.fontObservers]) {
+    for (const notify of Array.from(node.fontObservers)) {
       notify()
     }
   }

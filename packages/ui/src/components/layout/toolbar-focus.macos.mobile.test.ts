@@ -120,7 +120,7 @@ function fixture() {
   )
 
   const notify = (owner = root.window) => {
-    for (const callback of [...observers.values()]) {
+    for (const callback of Array.from(observers.values())) {
       callback({ object: owner })
     }
   }

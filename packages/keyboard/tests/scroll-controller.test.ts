@@ -4,8 +4,8 @@ import { unknownFocusedInputState } from '@octane-xplat/platform/focused-input-s
 const f = vi.hoisted(() => ({
   focus: null as any,
   keyboard: null as any,
-  onFocus: (_: any) => {},
-  onKeyboard: (_: any) => {},
+  onFocus: (_event: any) => {},
+  onKeyboard: (_event: any) => {},
   manual: () => {},
   writes: [] as number[],
   cleaned: 0,

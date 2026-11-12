@@ -1,5 +1,5 @@
 import type { OpenWindowOptions, WindowHandle } from '../../props'
-import { appKitHost, hostGlobal } from './host-bridge'
+import { hostGlobal } from './host-bridge'
 
 // The handles this module minted, keyed to the host controller each wraps —
 // `parent` accepts a `WindowHandle` and forwards its controller to the

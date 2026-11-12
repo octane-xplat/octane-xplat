@@ -9,8 +9,12 @@ import { createServer } from 'vite'
 
 const ns = pathToFileURL(createRequire(import.meta.url).resolve('@nativescript/vite'))
 const { registerNsModuleServerRoute } = await import(new URL('./hmr/server/websocket-ns-m.js', ns))
-const { createSharedTransformRequestRunner } = await import(new URL('./hmr/server/shared-transform-request.js', ns))
-const { extractBootCrawlUrls, runBootGraphCrawl, BOOT_CRAWL_HEADER } = await import(new URL('./hmr/server/boot-graph-crawl.js', ns))
+const { createSharedTransformRequestRunner } = await import(
+  new URL('./hmr/server/shared-transform-request.js', ns)
+)
+const { extractBootCrawlUrls, runBootGraphCrawl } = await import(
+  new URL('./hmr/server/boot-graph-crawl.js', ns)
+)
 const { setProjectFlavor } = await import(new URL('./helpers/flavor.js', ns))
 
 setProjectFlavor('javascript')
@@ -21,11 +25,17 @@ setProjectFlavor('javascript')
 it('transform queue runs higher priority work first', async () => {
   const order = []
   const gate = Promise.withResolvers()
-  const runner = createSharedTransformRequestRunner(async (url) => {
-    if (url === 'blocker') await gate.promise
-    order.push(url)
-    return { code: `export const v = 1` }
-  }, undefined, { maxConcurrent: 1 })
+  const runner = createSharedTransformRequestRunner(
+    async (url) => {
+      if (url === 'blocker') {
+        await gate.promise
+      }
+      order.push(url)
+      return { code: `export const v = 1` }
+    },
+    undefined,
+    { maxConcurrent: 1 },
+  )
 
   const blocker = runner('blocker')
   const warm = runner('warm', 120000, { priority: -10 })
@@ -51,7 +61,10 @@ it('extracts device-fetchable URLs from served code', () => {
   assert.ok(urls.has('/ns/m/packages/ui/src/b.tsrx?import'))
   assert.ok(urls.has('/ns/core/ui/image'))
   assert.ok(!urls.has('/ns/m/src/t.ts?t=1700000000'), 'volatile URL must not be crawled')
-  assert.ok(!urls.has('/__ns_dev__/session'), 'session descriptor is a boot signal, not warm-up traffic')
+  assert.ok(
+    !urls.has('/__ns_dev__/session'),
+    'session descriptor is a boot signal, not warm-up traffic',
+  )
   assert.ok(![...urls].some((u) => u.includes('ns-hmr')))
 })
 
@@ -101,7 +114,11 @@ it('crawl walks and pre-warms the served module closure', async (t) => {
   writeFileSync(join(root, 'src', 'mid.mjs'), `export { leaf } from './leaf.mjs'`)
   writeFileSync(join(root, 'src', 'leaf.mjs'), `export const leaf = 42`)
 
-  const { visited } = await runBootGraphCrawl({ origin, seeds: ['/ns/m/src/entry.mjs'], concurrency: 2 })
+  const { visited } = await runBootGraphCrawl({
+    origin,
+    seeds: ['/ns/m/src/entry.mjs'],
+    concurrency: 2,
+  })
   assert.ok(visited.has('/ns/m/src/entry.mjs'))
   assert.ok(visited.has('/ns/m/src/mid'), 'crawl must follow served import specifiers')
   assert.ok(visited.has('/ns/m/src/leaf'), 'crawl must reach the graph tail')
@@ -121,7 +138,7 @@ it('crawl workers resume after device traffic goes quiet', async () => {
   let deviceActive = true
   let inflight = 0
   let maxInflight = 0
-  const fetchImpl = async (path) => {
+  const fetchImpl = async (_path) => {
     inflight += 1
     maxInflight = Math.max(maxInflight, inflight)
     await new Promise((resolve) => setTimeout(resolve, 10))
@@ -141,6 +158,10 @@ it('crawl workers resume after device traffic goes quiet', async () => {
   assert.ok(maxInflight <= 1, 'excess workers must yield while device traffic is live')
   deviceActive = false
   const { visited } = await crawl
-  assert.equal(visited.size, paths.length, 'paused workers must finish the queue after traffic quiets')
+  assert.equal(
+    visited.size,
+    paths.length,
+    'paused workers must finish the queue after traffic quiets',
+  )
   assert.ok(maxInflight > 1, 'resumed workers must fetch in parallel again')
 })

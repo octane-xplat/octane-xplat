@@ -101,6 +101,7 @@ describe('isWebViewMessage', () => {
 })
 
 describe('WEBVIEW_DRAIN_SCRIPT', () => {
+  // eslint-disable-next-line no-eval -- Execute the exact injected WebView script against the test globals.
   const drain = () => (0, eval)(WEBVIEW_DRAIN_SCRIPT)
 
   it('returns the queued values as a JSON array and empties the outbox', () => {
