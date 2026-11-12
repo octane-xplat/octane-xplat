@@ -15,6 +15,11 @@
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
 			"cache": false
 		},
+		"test:visibility": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"cache": false,
+			"passThroughEnv": ["NS_PLATFORM", "NS_DEVICE", "GODDARD_*", "XPLAT_VLIST_APP_ID", "DEVELOPER_DIR", "JAVA_HOME", "ANDROID_HOME", "ANDROID_SDK_ROOT"]
+		},
 		"test:ios:fonts": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
 			"cache": false,

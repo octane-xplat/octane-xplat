@@ -12,6 +12,7 @@
 		"bench:vlist:ios": "node scripts/bench-virtual-list.ts ios",
 		"bench:vlist:android": "node scripts/bench-virtual-list.ts android",
 		"test:ios": "ns test ios",
+		"test:visibility": "XPLAT_TEXT_VISIBILITY_TESTS=1 vitest run src/tests/collapsed-text.spec.tsrx src/tests/text-visibility.spec.tsrx --maxWorkers=1 --no-file-parallelism",
 		"test:ios:fonts": "NS_PLATFORM=ios vitest run src/tests/variable-font src/tests/font-family-inherit",
 		"test:android": "ns test android",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",

@@ -35,7 +35,7 @@ index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..85c447ecf9952d28019f3093faab1600
   * Mount an Octane component into an existing NativeScript view.
   *
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..0f0e395ce195862db32ef5539e086de84b8828d2 100644
+index 8bc563add4cb675a12651184b63805b10224274d..adc349a55dc06599645ce13e254e8846f1dd860d 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -1,8 +1,11 @@
@@ -284,7 +284,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..0f0e395ce195862db32ef5539e086de8
 +// Only leaf layout longhands: core expands shorthands before notifying.
 +// Read the effective NS style, never copy authored values into another tier.
 +const MASON_LEAF_STYLE_KEYS = [
-+    'display',
++    'display', 'visibility',
 +    'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
 +    'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
 +    'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf',
@@ -456,7 +456,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..0f0e395ce195862db32ef5539e086de8
 +        if (changed)
 +            parent.view?.requestLayout?.();
 +    };
-+    const handlers = [...MASON_LEAF_STYLE_KEYS, 'visibility'].map(key => {
++    const handlers = MASON_LEAF_STYLE_KEYS.map(key => {
 +        const handler = () => sync();
 +        view.style.on?.(key + 'Change', handler);
 +        return [key + 'Change', handler];

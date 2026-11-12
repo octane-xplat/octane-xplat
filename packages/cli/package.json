@@ -81,7 +81,7 @@
 		"prepack": "node install-native.mjs --prepare-package && bun run build",
 		"test": "node --test --test-concurrency=2 test/*.test.mts test/*.test.ts",
 		"test:docs-search": "node --test test/mcp-docs.test.mts",
-		"test:native-runtime": "node --test test/vite-native-runtime.test.mts",
+		"test:native-runtime": "node --test test/vite-native-runtime.test.mts test/mason-layout.test.mts",
 		"test:markdown": "node --test test/markdown-rich.test.ts",
 		"test:typecheck-envs": "node --test test/tsconfig-envs.test.mts",
 		"test:routes": "node --test --test-concurrency=2 test/route-*.test.mts",

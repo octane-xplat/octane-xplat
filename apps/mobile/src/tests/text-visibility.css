@@ -1,0 +1,5 @@
+.visibility-label { width: 80; height: 30; }
+.visibility-row { flex-direction: row; }
+.visibility-hidden { visibility: hidden; }
+.visibility-collapse { visibility: collapse; }
+.visibility-visible { visibility: visible; }

@@ -40,6 +40,26 @@ beta.126, measuring collapsed Text as zero while falling back to `sizeThatFits`
 can cause endless invalidation (issue #45). Omit collapsed nodes from layout
 and restore their layout participation on visibility changes.
 
+The 0.2.5 renderer patch also mirrors resolved `visibility` into the foreign
+Mason node, not only `collapse` into `display:none`. Core 9.1.3 sets a hidden
+Label's UIView.hidden correctly outside Mason. With core beta.8, Mason's layout
+pass reasserts drawing state from its node visibility; leaving that field at
+`visible` can re-expose the UIView while preserving the hidden layout slot.
+Keep the effective NativeScript cascade as the source, batch both fields, and
+retain native-recreation/detach cleanup. Drop this part of the bridge when
+upstream synchronizes foreign visibility through the same lifecycle.
+
+Beta.8's `Style.fromView` declaration restricts the owner to Mason `View`, even
+though its implementation binds foreign NativeScript views too. The native
+regression's read-only diagnostic contains one documented owner assertion at
+that boundary; it does not imply the Label has Mason container methods.
+
+The maintained public regression and raw-label comparison live in
+`apps/mobile/src/tests/text-visibility.spec.tsrx`; see
+[the focused command and evidence limits](../testing.md#public-text-visibility-regression).
+UIView/layer flags and sibling geometry isolate suppression-state behavior;
+they do not establish inspected pixels or OS hit-testing.
+
 ## Image measurement
 
 Core 9.1.3 with Mason beta.110 can mark an unsized image exact before its bitmap

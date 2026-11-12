@@ -242,6 +242,36 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 - [AppKit verification](appkit-verification.md) — layout, overlays, and packed-consumer scope.
 - [iOS animation quality](../../tools/verification/animation-quality/README.md) — isolated Release fixture, real-input XCTest source, Instruments metrics, per-device baselines and evidence limits; excluded from lightweight PR CI.
 
+## Public Text visibility regression
+
+`apps/mobile/src/tests/text-visibility.spec.tsrx` drives public signal-backed
+inline/class visibility and compiler-owned conditional blocks in simple and
+layered Screen/Grid layouts. It checks hidden slot retention, collapsed slot
+removal, changed hidden text, fresh remount identity, parent resize, heartbeat
+and public handler delivery. Native drawing-state assertions read the actual
+UIView/layer or Android visibility; these are not inspected-pixel or OS-input
+checks. A separate native Label control compares Mason hosting with a plain
+NativeScript StackLayout. Keep the original imperative #45/#50 regressions.
+
+Reserve the selected existing device and native build slot, boot that owned
+device, then run the focused suite (no simulator cloning or parallel workers).
+The task sets `XPLAT_TEXT_VISIBILITY_TESTS=1`; Android skips Google Services
+configuration for this UI-only suite, allowing a separate test app id without
+editing service credentials. It does not qualify Firebase integration:
+
+```sh
+NS_PLATFORM=ios NS_DEVICE=DEVICE_UDID bun run turbo run test:visibility --filter=@xplat/mobile
+NS_PLATFORM=android NS_DEVICE=DEVICE_ID bun run turbo run test:visibility --filter=@xplat/mobile -- --exclude src/tests/collapsed-text.spec.tsrx
+```
+
+The Android command selects the public suite; the legacy #45/#50 cases are
+iOS-only.
+
+The focused public web Text test runs through the UI `test` task with
+`src/components/content/text-visibility.web.test.tsrx`. It checks DOM styles,
+content and conditional identity under jsdom, not browser geometry. Web removal
+uses explicit `display:none`; CSS `visibility:collapse` is layout-dependent.
+
 ## Gesture owner checks
 
 Compiled native component fixtures that exercise the real owner use

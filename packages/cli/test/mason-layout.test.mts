@@ -384,3 +384,32 @@ test('visibility never overrides authored display none and survives native recre
   api.applyMasonChildLayout(f.node, {})
   assert.equal(f.leaf().display, 'flex')
 })
+
+test('foreign hidden visibility reaches Mason without removing its layout slot', () => {
+  const f = foreign()
+
+  f.classStyle({ visibility: 'hidden', width: 80, height: 30 })
+  api.applyMasonChildLayout(f.node, {})
+  assert.equal(f.leaf().visibility, 'hidden')
+  assert.equal(f.leaf().display, 'flex')
+  assert.equal(f.leaf().width, 80)
+  for (let cycle = 0; cycle < 3; cycle++) {
+    api.applyStyle(f.node, f.view, { visibility: 'collapse' })
+    assert.equal(f.leaf().display, 'none')
+    assert.equal(f.leaf().visibility, 'collapse')
+    api.applyStyle(f.node, f.view, { visibility: 'visible' })
+    assert.equal(f.leaf().visibility, 'visible')
+    assert.equal(f.leaf().display, 'flex')
+    api.applyStyle(f.node, f.view, {})
+    assert.equal(f.leaf().visibility, 'hidden')
+    f.view.nativeViewProtected = {}
+    f.view.emit('loaded')
+    assert.equal(f.leaf().visibility, 'hidden')
+  }
+
+  api.releaseMasonChildLayout(f.view)
+  assert.equal(f.view.style.listenerCount(), 0)
+  f.classStyle({})
+  api.applyMasonChildLayout(f.node, {})
+  assert.equal(f.leaf().visibility, 'visible')
+})

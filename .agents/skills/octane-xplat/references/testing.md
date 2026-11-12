@@ -102,6 +102,14 @@ container layout. Keep native host plugins in runtime
 `dependencies`: JavaScript resolution from a devDependency does not include the
 plugin binaries in `ns prepare`. See the [host integration contract](../../../docs/notes/masonkit-layout-evaluation.md#native-host-integration).
 
+The native preset keeps the app's Octane/renderer registries shared across linked
+framework sources. Its unit-testing overlay also keeps one test-host registry;
+use the preset instead of adding a second renderer or manually mounting a
+separate host. For Text visibility changes, retain the public declarative
+mobile suite alongside the direct-property #45/#50 checks; see
+[the focused regression](../../../docs/testing.md#public-text-visibility-regression).
+Native suppression flags and geometry do not establish inspected pixels.
+
 The isolated runner’s `ctx.press(id)` supports loaded core tap observers and
 MasonKit’s click listener (its tap alias). It reports `event-handler-dispatch`;
 this remains synthesized input, not OS input or hit-testing.
