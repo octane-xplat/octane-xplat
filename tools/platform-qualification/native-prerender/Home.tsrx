@@ -16,7 +16,7 @@ export function Home(props: HomeProps) @{
   <VStack id="prerender-home" className="prerender-home">
     <VStack className="prerender-home-header">
       <Text className="prerender-home-eyebrow">YOUR DAY</Text>
-      <Text id="home-greeting" className="prerender-home-title">Welcome back, {props.name}</Text>
+      <Text id="home-greeting" className="prerender-home-title">{`Welcome back, ${props.name}`}</Text>
       <Text className="prerender-home-muted">A little progress goes a long way.</Text>
     </VStack>
 
