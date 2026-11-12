@@ -17,6 +17,7 @@ import * as application from '@nativescript/core/application'
 import * as applicationSettings from '@nativescript/core/application-settings'
 import * as platform from '@nativescript/core/platform'
 import * as uiImage from '@nativescript/core/ui/image'
+import * as coreView from '@nativescript/core/ui/core/view'
 import * as mason from '@octane-xplat/nativescript-mason-core'
 import * as cssParser from '@nativescript/core/css/parser'
 import * as editableTextBase from '@nativescript/core/ui/editable-text-base'
@@ -46,6 +47,7 @@ const modules = {
   // tns_modules dir that bundled apps don't ship.
   '@nativescript/core/platform': platform,
   '@nativescript/core/ui/image': uiImage,
+  '@nativescript/core/ui/core/view': coreView,
   // Reuse the host engine: bundling another copy re-registers Core CSS properties.
   '@octane-xplat/nativescript-mason-core': mason,
   // MasonKit-level plugins reach deeper core subpaths (layout/style property
