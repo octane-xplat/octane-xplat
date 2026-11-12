@@ -1,3 +1,4 @@
+import { createPaintPresentation } from '@octane-xplat/nativescript-mason-core/paint-presentation'
 import { expect, it } from 'vitest'
 import { attachHost } from '../host'
 import { createDelta } from './geometry'
@@ -13,7 +14,7 @@ it('corrects Mason native paint strings without replacing Core stylesheet state'
     scaleY: 1,
     rotate: 0,
     style: authored,
-    _styleHelper: paint,
+    createPaintPresentation: () => createPaintPresentation(paint, () => paint),
   }
 
   const host = attachHost(view)
@@ -46,7 +47,7 @@ it('preserves the intentional user scale of native paint while compensating layo
     scaleY: 1,
     rotate: 0,
     style: {},
-    _styleHelper: paint,
+    createPaintPresentation: () => createPaintPresentation(paint, () => paint),
   }
 
   // Attach before the user channel takes ownership; existing transforms remain rejected.
@@ -63,4 +64,34 @@ it('preserves the intentional user scale of native paint while compensating layo
   expect(view.scaleX).toBe(2)
   expect(paint.boxShadow).toContain('12px')
   expect(Number(paint.borderRadius) * view.scaleX).toBe(40)
+})
+
+it('releases the Mason paint owner on adapter disposal without resetting frozen motion channels', () => {
+  const paint = { borderRadius: '20', boxShadow: 'none' }
+  const view = {
+    opacity: 1,
+    translateX: 0,
+    translateY: 0,
+    scaleX: 1,
+    scaleY: 1,
+    rotate: 0,
+    style: {},
+    createPaintPresentation: () => createPaintPresentation(paint, () => paint),
+  }
+
+  const host = attachHost(view)
+  const delta = createDelta()
+
+  delta.x.scale = delta.y.scale = 0.5
+  host.project!({ delta, treeScale: { x: 1, y: 1 }, latest: {} })
+  expect(() => view.createPaintPresentation()).toThrow(/owner/)
+  host.write({ x: 50 })
+  host.dispose!()
+  expect(paint.borderRadius).toBe('20')
+  expect(view.translateX).toBe(50)
+
+  const next = view.createPaintPresentation()
+
+  next.dispose()
+  host.dispose!()
 })

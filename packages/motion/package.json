@@ -65,6 +65,7 @@
 		"motion-dom": "14.7.1"
 	},
 	"devDependencies": {
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.10",
 		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/macos-appkit": "workspace:*",

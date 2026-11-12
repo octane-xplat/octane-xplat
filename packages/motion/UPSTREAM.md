@@ -491,12 +491,21 @@ anchor without changing AppKit's anchor or position.
 
 Numeric corner radii and shadows are scale-corrected. Web reuses motion-dom's
 `correctBorderRadius` and `correctBoxShadow`; NativeScript core views correct resolved style lengths and parsed shadow lists.
-Mason core 1.0.0-beta.5 instead owns native CSS paint strings: its Core corner
+Mason core instead owns native CSS paint strings: its Core corner
 longhands can read zero despite an authored radius, and `boxShadow` is a string.
-For Mason views the adapter reads/writes `_styleHelper`'s radius/shadow strings,
-leaving Core stylesheet state untouched. This is a local integration with a
-private upstream seam, not a general NativeScript API. Replace the feature
-detection when Mason exposes a stable paint-projection API. The iOS/Android
+For Mason views the adapter acquires `ViewBase.createPaintPresentation()` and
+reads base radius/shadow strings through its handle. Mason owns temporary writes,
+restoration and single-owner enforcement; Motion owns the correction math.
+The adapter no longer accesses `_styleHelper`. The original beta.8 tarball
+lacks this API: the canonical Mason core patch supplies the JS/declaration
+addition and numeric-radius readback fix from Mason source commit
+`b0a3b4dbcc5c60169165301a733e2dba60f68229`
+(local, pending publication) until a Mason release includes it. No Swift/Kotlin
+ABI change is required.
+The handle is cleared before measurement/style writes and disposed on host
+cleanup; intervening authored paint writes are preserved. Fresh public Style
+wrappers fall back to the native radius buffer when fast numeric writes leave
+the CSS string empty, retaining density conversion. The iOS/Android
 container probe verifies actual native geometry and the engine's paint values.
 The string shadow path shares Motion's multiple-shadow fallback. AppKit uses renderer-owned paint scale
 compensation, preserving stylesheet values and mask/shadow ownership. Native

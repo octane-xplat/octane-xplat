@@ -1,3 +1,4 @@
+import type { PaintPresentation } from '@octane-xplat/nativescript-mason-core/paint-presentation'
 import { attachStyles } from './styles'
 import { observeOwnedPress } from '@octane-xplat/ui/internal/gesture-input'
 import { captureViewportOffset } from './projection/viewport-offset'
@@ -57,12 +58,15 @@ export function attachHost(node: any): HostAdapter {
     }
   }
 
-  // Mason core's native paint strings are authoritative; Core longhands can be stale.
-  const paintStyle = node._styleHelper ?? node.style
-  const paintKeys = node._styleHelper ? ['borderRadius', 'boxShadow'] : [...radiusKeys, 'boxShadow']
+  const hasPresentation = typeof node.createPaintPresentation === 'function'
+  let presentation: PaintPresentation | undefined
+  // Ordinary Core views retain the resolved-style adapter; Mason supplies its own lease.
+  const paintStyle = hasPresentation ? undefined : node.style
+  const paintKeys = [...radiusKeys, 'boxShadow']
   let paintSaved: Record<string, any> | undefined
   let paintApplied: Record<string, any> = {}
   const restorePaint = () => {
+    presentation?.clear()
     if (!paintSaved || !paintStyle) {
       return
     }
@@ -78,6 +82,26 @@ export function attachHost(node: any): HostAdapter {
 
   const correctPaint = (projection: import('./projection/types').ProjectionWrite) => {
     restorePaint()
+    if (hasPresentation) {
+      presentation ??= node.createPaintPresentation()
+      if (presentation) {
+        presentation.write(correctNativePaint(presentation.read(), projection))
+      }
+
+      return
+    }
+
+    const native = node.ios ?? node.android
+
+    if (
+      native &&
+      (typeof native.getStyle === 'function' || typeof native.style?.clipPath === 'string')
+    ) {
+      throw new Error(
+        'motion: Mason layout projection requires createPaintPresentation; update Mason core and framework patches',
+      )
+    }
+
     if (!paintStyle) {
       return
     }
@@ -97,6 +121,7 @@ export function attachHost(node: any): HostAdapter {
 
   const styles =
     node.style && typeof node.getActualSize === 'function' ? attachStyles(node) : undefined
+
   let latestProjection: import('./projection/types').ProjectionWrite | null = null
   const ownedStyles: StyleAdapter | undefined = styles
     ? {
@@ -114,7 +139,15 @@ export function attachHost(node: any): HostAdapter {
         },
       }
     : undefined
+
+  const disposePaint = () => {
+    restorePaint()
+    presentation?.dispose()
+    presentation = undefined
+  }
+
   return {
+    dispose: disposePaint,
     styles: ownedStyles,
     pan: (axis, callbacks) => attachPan(node, axis, callbacks),
     measureLayout() {
@@ -153,7 +186,7 @@ export function attachHost(node: any): HostAdapter {
     read: () => ({ ...original, scale: 1 }),
     write,
     restore: () => {
-      restorePaint()
+      disposePaint()
       write(original)
     },
     delegate: (req: DelegatedRequest): DelegatedRun | null => delegatedRun(node, req, write),

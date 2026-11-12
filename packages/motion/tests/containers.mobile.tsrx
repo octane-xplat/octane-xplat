@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { complex } from 'motion-dom'
+import { Style as MasonStyle } from '@octane-xplat/nativescript-mason-core'
 import { useState } from 'octane'
 import { View, ScrollableArea } from '@octane-xplat/ui'
 import type { ScrollableAreaHandle } from '@octane-xplat/ui'
@@ -144,7 +145,7 @@ export async function run(ctx: ProbeContext) {
   const paint = () => {
     const box = geometry(views.paint)
     const view = views.paint as any
-    const style = view._styleHelper ?? view.style
+    const style = MasonStyle.fromView(view, view.ios ?? view.android)
     const shadow =
       typeof style.boxShadow === 'string'
         ? {
@@ -171,8 +172,8 @@ export async function run(ctx: ProbeContext) {
     styleCorner: view.style.borderTopLeftRadius,
     styleShadow: view.style.boxShadow,
     viewRadius: view.borderRadius,
-    helperRadius: view._styleHelper?.borderRadius,
-    helperShadow: view._styleHelper?.boxShadow,
+    nativeRadius: MasonStyle.fromView(view, view.ios ?? view.android).borderRadius,
+    nativeShadow: MasonStyle.fromView(view, view.ios ?? view.android).boxShadow,
     styleClass: view.style.constructor?.name,
   })
 
@@ -194,7 +195,7 @@ export async function run(ctx: ProbeContext) {
   close(
     'restored radius',
     scalar(
-      (views.paint as any)._styleHelper?.borderRadius ?? views.paint.style.borderTopLeftRadius,
+      MasonStyle.fromView(views.paint as any, views.paint.ios ?? views.paint.android).borderRadius,
     ),
     20,
   )

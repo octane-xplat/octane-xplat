@@ -128,6 +128,17 @@ last unsubscribe stops observation; queued old notifications cannot reach a
 new reader generation. Source and stub tests qualify resource ownership, not
 live OS preference delivery or device energy use.
 
+### Native paint ownership
+
+Mason layout projection uses the public `ViewBase.createPaintPresentation()`
+lease. Mason owns native paint access and restoration; Motion corrects the
+returned base snapshot. Consumers must dispose the handle. The canonical beta.8
+patch provides this JS/declaration API until a Mason release includes it; it does
+not require new native binaries. The patch also repairs fresh public Style
+radius readback after fast numeric writes. Do not reintroduce `_styleHelper` access in the
+Motion adapter or replace clip/layout/background ownership. See
+[the Motion contract](../../../packages/motion/UPSTREAM.md#layout-projection).
+
 ### NativeScript upstream gaps this feature depends on
 
 - `@nativescript-community/octane@0.2.5` exposes no batch/commit signal.

@@ -628,6 +628,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       current.dragOff?.()
       current.gestureOff?.()
       current.controller.destroy()
+      current.rawAdapter?.dispose?.()
       current.host = undefined
       current.adapter = undefined
     },

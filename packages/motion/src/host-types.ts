@@ -51,6 +51,8 @@ export interface HostAdapter {
   read(): ResolvedTarget
   write(values: ResolvedTarget): void
   restore(): void
+  /** Release adapter-owned presentation resources at host detachment. */
+  dispose?(): void
   /**
    * Run a declarative tween on the platform animator. Returns null to fall
    * back to the JS engine.
