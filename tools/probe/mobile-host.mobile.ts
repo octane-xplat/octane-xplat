@@ -13,6 +13,9 @@ import {
 
 import * as core from '@nativescript/core'
 import * as animationFrame from '@nativescript/core/animation-frame'
+import * as abortcontroller from '@nativescript/core/abortcontroller'
+import * as debuggerModule from '@nativescript/core/debugger'
+import * as globals from '@nativescript/core/globals'
 import * as application from '@nativescript/core/application'
 import * as applicationSettings from '@nativescript/core/application-settings'
 import * as platform from '@nativescript/core/platform'
@@ -38,6 +41,11 @@ const modules = {
   '@nativescript/core': core,
   '@nativescript-community/gesturehandler': gesturehandler,
   '@nativescript/core/animation-frame': animationFrame,
+  // Canvas polyfills import these directly; cases must reuse the host's
+  // globals and AbortController rather than resolve unpacked core modules.
+  '@nativescript/core/abortcontroller': abortcontroller,
+  '@nativescript/core/debugger': debuggerModule,
+  '@nativescript/core/globals': globals,
   // Leaf/plugin Android entries import these subpaths directly; without a
   // map entry the case-side require misses outside the host's own graph.
   '@nativescript/core/application': application,
