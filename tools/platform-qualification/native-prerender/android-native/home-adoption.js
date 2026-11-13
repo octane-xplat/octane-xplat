@@ -208,6 +208,10 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         }
         for (const [id, index] of matched) claimState.map.set(id, index)
         check(claimState.map.size === 19, 'Home plan did not match all native records')
+        if (XPLAT_PRERENDER_HOME_ENTRY) {
+          check(window && claimState.hookCalls === 0, 'Home entry started after native claims')
+          acceptHomeApplication(activity, host, window)
+        }
         host._setupAsRootView(activity)
         host.callLoaded()
         activity.restoreHomeDefaults()
@@ -313,7 +317,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
               'Home logical child order differs',
             )
         })
-        if (window) acceptHomeApplication(activity, host, window)
+        if (window && !XPLAT_PRERENDER_HOME_ENTRY) acceptHomeApplication(activity, host, window)
         activity.recordHomeProof(
           JSON.stringify({
             phase: 'adopted',

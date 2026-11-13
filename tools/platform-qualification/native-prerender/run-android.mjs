@@ -591,7 +591,15 @@ try {
             proof.lifecycle.detached === proof.lifecycle.destroyed &&
             proof.catchUp === (epoch === begin.epoch) &&
             proof.componentStatePreserved === false &&
-            proof.normalEntry === false &&
+            proof.normalEntry === Boolean(build.home.entry) &&
+            (!build.home.entry ||
+              (proof.entryCounts?.factories === 1 &&
+                proof.entryCounts?.launches === 1 &&
+                proof.entryBeforeCommit === true &&
+                events.indexOf(proof) <
+                  events.findIndex(
+                    (event) => event.phase === 'adopted' && event.epoch === epoch,
+                  ))) &&
             events.some(
               (event) => event.event === 'native-content-adopted' && event.epoch === epoch,
             ),

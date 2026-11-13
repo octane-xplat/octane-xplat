@@ -49,6 +49,7 @@ const result = await Bun.build({
     XPLAT_PRERENDER_HOME_APPLICATION: String(
       process.env.XPLAT_PRERENDER_ANDROID_HOME_APPLICATION === '1',
     ),
+    XPLAT_PRERENDER_HOME_ENTRY: String(process.env.XPLAT_PRERENDER_ANDROID_HOME_ENTRY === '1'),
     XPLAT_PRERENDER_HOME_PARITY: String(process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'),
     __ANDROID__: 'true',
     __IOS__: 'false',

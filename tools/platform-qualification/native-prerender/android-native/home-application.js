@@ -7,6 +7,8 @@ const check = (value, reason) => {
 // Native super has already executed in this split native/JS host.
 const nativeSuperCompleted = () => {}
 let session
+let entryHost
+const entryCounts = { factories: 0, launches: 0 }
 const lifecycle = { ready: 0, opened: 0, attached: 0, detached: 0, created: 0, destroyed: 0 }
 if (XPLAT_PRERENDER_HOME_APPLICATION) {
   Application.on(Application.readyEvent, () => lifecycle.ready++)
@@ -22,7 +24,19 @@ if (XPLAT_PRERENDER_HOME_APPLICATION) {
     ])
       window.on(event, () => lifecycle[key]++)
   })
-  Application.run()
+  if (XPLAT_PRERENDER_HOME_ENTRY) {
+    Application.on(Application.launchEvent, () => entryCounts.launches++)
+    Application.run({
+      create() {
+        check(
+          entryHost && !entryHost.getChildrenCount(),
+          'Home entry owner was not prepared before commit',
+        )
+        entryCounts.factories++
+        return entryHost
+      },
+    })
+  } else Application.run()
 }
 
 export function prepareHomeApplication(activity) {
@@ -49,7 +63,24 @@ export function prepareHomeApplication(activity) {
 export function acceptHomeApplication(activity, host, window) {
   // Generic NativeWindow.setContent uses a non-Activity context first. Use
   // Android's actual content pipeline, as qualified by the two-label control.
-  activity._callbacks.resetActivityContent(activity, host)
+  if (XPLAT_PRERENDER_HOME_ENTRY) {
+    check(!entryHost && !activity.isWarmActivity(), 'Cold Home entry cannot restore owners')
+    entryHost = host
+    try {
+      activity._callbacks.onCreate(
+        activity,
+        activity.getLaunchState(),
+        activity.getIntent(),
+        nativeSuperCompleted,
+      )
+    } finally {
+      entryHost = undefined
+    }
+    check(
+      entryCounts.factories === 1 && entryCounts.launches === 1,
+      'Home entry ran more than once',
+    )
+  } else activity._callbacks.resetActivityContent(activity, host)
   if (activity.hasStarted()) activity._callbacks.onStart(activity, nativeSuperCompleted)
   if (activity.hasPostResumed()) activity._callbacks.onPostResume(activity, nativeSuperCompleted)
   check(
@@ -75,7 +106,9 @@ export function acceptHomeApplication(activity, host, window) {
       lifecycle: { ...lifecycle },
       catchUp: !activity.isWarmActivity(),
       componentStatePreserved: false,
-      normalEntry: false,
+      normalEntry: XPLAT_PRERENDER_HOME_ENTRY,
+      entryCounts: { ...entryCounts },
+      entryBeforeCommit: XPLAT_PRERENDER_HOME_ENTRY && host.getChildrenCount() === 0,
     }),
   )
 }
