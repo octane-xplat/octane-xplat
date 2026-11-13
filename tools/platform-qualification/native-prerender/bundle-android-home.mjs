@@ -34,6 +34,9 @@ const result = await Bun.build({
   target: 'browser',
   format: 'cjs',
   define: {
+    XPLAT_PRERENDER_HOME_LIFETIME: String(
+      process.env.XPLAT_PRERENDER_ANDROID_HOME_LIFETIME === '1',
+    ),
     XPLAT_PRERENDER_HOME_ATTACH_FAILURE: String(
       process.env.XPLAT_PRERENDER_ANDROID_HOME_FALLBACK === 'attach',
     ),

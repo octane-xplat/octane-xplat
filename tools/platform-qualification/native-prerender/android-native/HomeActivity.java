@@ -95,6 +95,7 @@ public final class HomeActivity extends AppCompatActivity {
     }
     public org.nativescript.mason.masonkit.View getViewport() { return scene.viewport; }
     public String getHomeTheme() { return scene.theme; }
+    public String snapshotRetiredHome() { return app().snapshotRetired(); }
     public void restoreHomeDefaults() { scene.restoreDefaults(); }
     public void recordHomeProof(String encoded) {
         try { app().record(new JSONObject(encoded).put("event", "home-proof").put("epoch", epoch)); }
@@ -269,7 +270,8 @@ public final class HomeActivity extends AppCompatActivity {
         destroyed = true; Choreographer.getInstance().removeFrameCallback(gate);
         if (scene != null) scene.windowRoot.removeCallbacks(runtimeStarter);
         getWindow().getDecorView().removeCallbacks(fallbackStarter);
+        if (bridgeReady && scene != null) app().observeRetirement(scene);
         if (bridgeReady) app().unbind(this);
-        record("activity-destroyed"); super.onDestroy();
+        record("activity-destroyed"); scene = null; fallbackRoot = null; super.onDestroy();
     }
 }

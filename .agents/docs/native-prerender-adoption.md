@@ -41,3 +41,38 @@ when failed insertion clears Core ownership and the native fault control passes
 without it. Empty child lists and cleared wrappers do not establish native or
 Rust-object deallocation. General commit/application exceptions still fail;
 the control recovers only from its distinct injected attachment error.
+
+## Give process image caches an Application context
+
+Core9.1.3's Android Activity-created handler calls `initImageCache` with the
+Activity. Its bundled widgets `Fetcher.getInstance(context)` stores the first
+context in the process singleton's `Worker.mContext` and does not replace it.
+See [Core's initialization](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/application/application.android.ts)
+and [the native singleton](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/ui-mobile-base/android/widgets/src/main/java/org/nativescript/widgets/image/Fetcher.java).
+An actual Android heap retaining-path analysis found that singleton keeping a
+retired Home Activity, its installed viewport, and all nineteen observed
+native views/Mason Java nodes alive after wrapper teardown and repeated GC.
+
+The cold native host initializes `Fetcher.getInstance(applicationContext)`
+before JS and Core's first Activity callback. Core still configures its ordinary
+image cache, but receives the already-created Application-bound singleton.
+This uses the existing native API, not a dependency patch. It must happen before
+the first singleton creation; a later `getInstance` call cannot repair an
+Activity-bound singleton. This contract is qualified for the owning cold
+Application host, not arbitrary embedding into an already-running process.
+
+Native claims also have their own retirement contract: restore attachment
+overrides, clear native/style caches and explicit native/parent/wrapper arrays,
+and release logical owner links when the scope is discarded. The factory
+closure captures only its claim state, rather than the whole Activity creation
+activation. The lifetime control requires the retired nineteen views and
+nineteen Mason Java Node objects to disappear through Java weak references,
+then verifies the warm Home still handles OS input. This establishes the
+bounded Java-object lifetime only, not Rust allocation counts or repeated-cycle
+memory stability.
+
+Revisit the eager singleton initialization if upstream normalizes its context
+to `getApplicationContext()` or Core supplies the Application directly. Remove
+it only after the retired-object control passes without it. Inspect strong
+retaining paths before diagnosing failed weak collection as a Mason engine
+leak; optional heap capture is documented with the fixture.

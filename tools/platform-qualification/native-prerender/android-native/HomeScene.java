@@ -189,6 +189,7 @@ public final class HomeScene {
         }
     }
     public android.view.View getView(int index) { return views.get(index); }
+    public Node getOriginalNode(int index) { return nodes.get(index); }
     public int count() { return views.size(); }
     public boolean laidOut() {
         for (android.view.View view : views)

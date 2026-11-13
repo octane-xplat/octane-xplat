@@ -12,7 +12,7 @@
 		"qualify:macos-components": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
 		"@xplat/platform-qualification#test:prerender:codec:android": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_JAVA_HOME", "XPLAT_HOME_CODEC_INPUT", "XPLAT_HOME_CODEC_PRODUCER"] },
 		"@xplat/platform-qualification#probe:prerender:android:build": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_*", "GODDARD_*"] },
-		"@xplat/platform-qualification#probe:prerender:android": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_ANDROID_BUILD", "GODDARD_*"] },
+		"@xplat/platform-qualification#probe:prerender:android": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_ANDROID_BUILD", "XPLAT_PRERENDER_ANDROID_DUMP_HEAP", "GODDARD_*"] },
 		"@xplat/platform-qualification#test:prerender:producer": {},
 		"@xplat/platform-qualification#probe:prerender:home:produce": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_TOOLCHAIN_ROOT", "XPLAT_PRERENDER_CSS_TOOLCHAIN_ROOT", "XPLAT_PRERENDER_HOME_PLATFORM"] },
 		"@xplat/platform-qualification#probe:prerender:appkit:build": { "cache": false, "passThroughEnv": ["GODDARD_*"] },

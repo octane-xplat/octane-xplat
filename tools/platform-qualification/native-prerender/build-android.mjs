@@ -55,6 +55,11 @@ const homeApplication = process.env.XPLAT_PRERENDER_ANDROID_HOME_APPLICATION ===
 if (homeApplication && !homeAdopt)
   throw new Error('Home Application handoff requires Home adoption')
 const homeFallback = process.env.XPLAT_PRERENDER_ANDROID_HOME_FALLBACK ?? ''
+const homeLifetime = process.env.XPLAT_PRERENDER_ANDROID_HOME_LIFETIME === '1'
+if (homeLifetime && (!homeApplication || !homeRecreate || !homeParity))
+  throw new Error(
+    'Retired Home lifetime control requires Application, forced recreation and parity',
+  )
 if (
   homeFallback &&
   (!['build', 'seed', 'attach'].includes(homeFallback) ||
@@ -297,7 +302,15 @@ if (homeProducer) {
     .update(
       JSON.stringify({
         producer: producer.buildHash,
-        options: { homeAdopt, homeParity, homeRecreate, homeInput, homeApplication, homeFallback },
+        options: {
+          homeAdopt,
+          homeParity,
+          homeRecreate,
+          homeInput,
+          homeApplication,
+          homeFallback,
+          homeLifetime,
+        },
         javascript: hash(join(work, 'app/src/main/assets/app/main.js')),
         native: Object.fromEntries(
           Object.entries(sourceHashes).map(([path, value]) => [path, value.sha256]),
@@ -326,6 +339,7 @@ if (homeProducer) {
     input: homeInput,
     application: homeApplication,
     fallback: homeFallback,
+    lifetime: homeLifetime,
     buildHash,
     producerBuildHash: producer.buildHash,
     producerArtifactHash: producer.artifactHash,
@@ -405,6 +419,7 @@ writeFileSync(
           (homeApplication ? '; Core Application/window explicit-content control' : '') +
           (homeParity ? '; fixed-environment independent style/layout parity control' : '') +
           (homeInput ? '; Android OS tap control' : '') +
+          (homeLifetime ? '; retired Java object weak-reference control' : '') +
           '; no main-entry/component-state restoration, full environment/CSS coverage, compositor/pixel presentation, deallocation or performance qualification'
         : applicationHandoff
           ? 'Native-first two-label Core Application/NativeWindow handoff, targeted cold lifecycle catch-up, one window/runtime across Activity recreation, retained root attachment and ordinary wrapper mutations; no Octane/Home, full Activity callbacks, arbitrary plugins, process-death/state restoration, CSS/viewport parity, presentation, deallocation or performance qualification'

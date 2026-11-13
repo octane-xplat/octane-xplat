@@ -73,6 +73,17 @@ function call(program, args, timeout = 30000, required = true) {
 }
 const device = (args, timeout = 30000, required = true) =>
   call(adb, ['-s', serial, ...args], timeout, required)
+async function captureHeap() {
+  // am opens its output as shell before handing the descriptor to the app.
+  const file =
+    '/data/local/tmp/xplat-home-' + driverHash.slice(0, 12) + '-' + process.pid + '.hprof'
+  try {
+    await device(['shell', 'am', 'dumpheap', build.id, file], 60000)
+    await device(['pull', file, join(report, 'retired-home.hprof')], 60000)
+  } finally {
+    await device(['shell', 'rm', '-f', file], 30000, false)
+  }
+}
 const devices = await call(adb, ['devices'])
 check(
   !devices.output.split('\n').some((line) => line.startsWith('emulator-')),
@@ -189,6 +200,17 @@ try {
       const homeFailure = events.find(
         (event) => event.event === 'home-proof' && event.phase === 'failed',
       )
+      if (
+        homeFailure &&
+        build.home?.lifetime &&
+        process.env.XPLAT_PRERENDER_ANDROID_DUMP_HEAP === '1'
+      ) {
+        try {
+          await captureHeap()
+        } catch (error) {
+          writeFileSync(join(report, 'heap-capture-error.txt'), String(error))
+        }
+      }
       check(!homeFailure, 'Home adoption failed: ' + homeFailure?.error)
       check(
         !events.some((event) => ['failed', 'native-layout-timeout'].includes(event.event)),
@@ -217,7 +239,12 @@ try {
           break
         const ready = completedHomeEpoch(events, Boolean(build.home.parity))
         const request = events.find((event) => event.event === 'recreation-requested')
-        if (ready !== undefined && (!build.home.recreate || (request && ready > request.epoch)))
+        if (
+          ready !== undefined &&
+          (!build.home.recreate || (request && ready > request.epoch)) &&
+          (!build.home.lifetime ||
+            events.some((event) => event.phase === 'retired-lifetime' && event.epoch === ready))
+        )
           break
       }
       const request = events.find((event) => event.event === 'recreation-requested')
@@ -540,6 +567,38 @@ try {
           proof.referenceDisposed &&
           proof.hookCalls === 19,
         'Independent Home reference/style-removal proof missing',
+      )
+    }
+    if (build.home.lifetime) {
+      const imageFetcher = events.find(
+        (event) => event.event === 'native-image-fetcher-initialized',
+      )
+      const request = events.find((event) => event.event === 'recreation-requested')
+      const retired = events.find(
+        (event) => event.phase === 'claims-retired' && event.epoch === request?.epoch,
+      )
+      const proof = events.find(
+        (event) => event.phase === 'retired-lifetime' && event.epoch === completedEpoch,
+      )
+      check(
+        imageFetcher?.context === 'application' &&
+          imageFetcher.runtimeStarted === false &&
+          imageFetcher.runtimeLibraryLoaded === false &&
+          events.indexOf(imageFetcher) < events.indexOf(begin) &&
+          retired?.releasedWrappers === 19 &&
+          retired.nativeArraysCleared &&
+          retired.wrapperHandlesCleared &&
+          events.indexOf(retired) < events.indexOf(proof) &&
+          proof?.retiredGenerations === 1 &&
+          proof.observedViews === 19 &&
+          proof.observedNodes === 19 &&
+          proof.aliveViews.length === 0 &&
+          proof.aliveNodes.length === 0 &&
+          proof.javaObjectsCollected &&
+          proof.attempts > 0 &&
+          proof.attempts <= 8 &&
+          proof.nativeDeallocationQualified === false,
+        'Retired Home Java weak-reference collection proof missing',
       )
     }
     if (build.home.input) {
