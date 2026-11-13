@@ -61,7 +61,7 @@ export function ChatDemo() @{
       @for (const message of messages; key message.id) {
         <ChatMessage sender={message.sender} density="compact" id={'chat-' + message.id}>
           <ChatMessageBubble variant={message.sender === 'user' ? 'filled' : 'ghost'}>
-            <ChatTokenizedText tokens={messageTokens}>{message.text}</ChatTokenizedText>
+            <ChatTokenizedText tokens={messageTokens} children={message.text} />
           </ChatMessageBubble>
           <ChatMessageMetadata
             timestamp={message.sender === 'assistant' ? 'Just now' : undefined}

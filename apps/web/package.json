@@ -22,7 +22,8 @@
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"test:platform-css": "node scripts/platform-css.mts",
 		"test:id": "node scripts/test-id.ts",
-		"sheet:readiness": "node scripts/sheet-readiness.ts"
+		"sheet:readiness": "node scripts/sheet-readiness.ts",
+		"smoke:showcase": "node scripts/showcase.mts"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

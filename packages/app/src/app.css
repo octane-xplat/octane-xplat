@@ -6,6 +6,8 @@
  * Theme palette + shared vocabulary live in @octane-xplat/ui/theme/tokens.css;
  * this file is screen dressing: sections, probe surfaces, and panel chrome. */
 
+@import './showcase.css';
+
 :root {
 	/* Geist is bundled for web, NativeScript, and the AppKit host so the
 	   parity fixtures measure one shared font face. */

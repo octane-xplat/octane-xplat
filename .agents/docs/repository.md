@@ -10,8 +10,8 @@ the universal-runtime driver over `@nativescript/core`).
 
 The framework exists and is published: `packages/ui` ships as
 `@octane-xplat/ui` on npm, `packages/cli` as `@octane-xplat/cli` (dev/build/
-doctor/typecheck). `packages/app` + `apps/web` + `apps/mobile` are the probe
-harness; `packages/demos` the seam-by-seam demo screens. `docs/` contains
+doctor/typecheck). `packages/app` + `apps/web` + `apps/mobile` host the confidence-focused kitchen sink
+and a separate `/harness` proving entry; `packages/demos` contains the retained seam-by-seam demo screens. `docs/` contains
 app-building guides. Internal implementation guidance and records live in
 [`.agents/docs/`](README.md); design decisions and proposals live in
 [`.agents/design/`](../design/README.md). Follow the
@@ -58,7 +58,7 @@ toolchain and lockstep release; see [native renderer ownership](toolchain.md#nat
 | `packages/cli`                                                                             | `@octane-xplat/cli` — `xplat` dev/build/doctor/typecheck/clean commands.                                                                                                                          |
 | `packages/build` | `@octane-xplat/build` — separately installed Vite presets, CSS/compiler plugins and development middleware; built from the CLI package's TypeScript plugin sources. |
 | `packages/macos-build` | `@octane-xplat/macos-build` — project-installed macOS packaging worker and verified JSC host assets; shares the TypeScript packager, while Go owns lifecycle and publication. |
-| `packages/app`, `packages/demos`                                                           | Probe harness app + seam-by-seam demo screens.                                                                                                                                                    |
+| `packages/app`, `packages/demos`                                                           | Visitor experiences, separate sanity harness, and retained seam-by-seam demo screens.                                                                                                                                                    |
 | `apps/web`, `apps/mobile`                                                                  | Entry shells + vite configs for the harness.                                                                                                                                                      |
 | `packages/create`, `packages/platform`                                                     | Project scaffolder; platform services seam.                                                                                                                                                       |
 | `packages/gif`, `packages/image`, `packages/canvas`, `packages/effects`, `packages/lottie` | Leaf packages — features that need a NativeScript plugin ship here, declaring the plugin as a real `dependency` (decision #51).                                                                   |

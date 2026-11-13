@@ -53,7 +53,7 @@ const page = await browser.newPage()
 
 try {
   page.on('pageerror', (error) => errors.push(error.stack ?? error.message))
-  await page.goto(base)
+  await page.goto(base + '/?harness')
   await page.getByRole('tab', { name: 'Apps', exact: true }).click()
   await page.getByRole('button', { name: 'Counter', exact: true }).click()
   await page.getByText('Demo count: 0', { exact: true }).waitFor()

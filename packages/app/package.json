@@ -28,7 +28,10 @@
 		"@octane-xplat/sqlite": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
-		"@xplat/demos": "workspace:*"
+		"@xplat/demos": "workspace:*",
+		"@octane-xplat/lexical": "workspace:*",
+		"@octane-xplat/image-crop": "workspace:*",
+		"@octane-xplat/image-manipulator": "workspace:*"
 	},
 	"devDependencies": {
 		"@bamboocss/dev": "1.60.1",

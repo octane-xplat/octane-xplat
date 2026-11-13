@@ -1,140 +1,52 @@
-# Showcase plan and demo evidence
+# Kitchen sink and sanity harness
 
-> Show what someone can build and improve with an agent. Keep planned
-> product examples separate from the harness's recorded test evidence.
+The kitchen sink earns confidence by demonstrating difficult interactions in coherent working experiences. Basic counters, control inventories, import checks, and renderer probes belong in the sanity harness or component workshop. Preserve those tests without using them as the visitor's opening experience.
 
 ## Product showcase
 
-Use these four roles, in this order, when presenting xplat. A trip planner
-with a packing checklist provides a coherent example throughout. It is an
-illustrative app brief, not an app shipped by this repository.
+A featured experience must resolve a meaningful doubt about building a serious app, produce an observable result, and offer something beyond a happy-path click. Prefer a small set of substantial experiences to an exhaustive component menu. A useful “Try this” challenge lets someone provoke failure, interrupt work, or revisit context and judge the result themselves.
 
-| Role                                                    | App outcome to show                                                                                                     | Platform label and evidence required                                                                                                                                                                                              |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A coherent app across all six targets                   | The same trip, itinerary, and packing flow on web, iOS, Android, macOS, Windows, and Linux.                             | Label every target. This is the intended showcase; the current checkout cannot demonstrate all six. The desktop targets are experimental; the Windows app has launched as a registered package but UI support remains incomplete. |
-| A shared edit reflected in running targets              | Ask an agent to group packing items by bag; save the shared screen and inspect the change in each running app.          | Name only the targets actually running. The existing web/iOS live-edit evidence is in the toolchain notes; it does not prove a six-target update loop.                                                                            |
-| One useful capability with a platform-specific response | Attach a photo to a trip item.                                                                                          | Label iOS/Android OS capture separately from web phone capture or desktop browser file selection. Include cancellation, denied access, and unsupported responses.                                                                 |
-| A focused platform-specific implementation              | Use `UISwitch` from `@octane-xplat/ui/ios` for a packing row’s packed toggle while keeping the shared props and action. | Show the `.ios` file and shared import, and verify the other target implementations. A planned example must not be presented as a working demo.                                                                                   |
+The visitor entry is `packages/app/src/showcase/Showcase.tsrx`. It composes:
 
-The [first-run guide](../../docs/start/toolchain.md) provides the setup command and an agent
-brief for the checklist. [Device services](../../docs/platform/platform-services.md) owns capture
-behavior and permissions; [platform variants](../../docs/platform/module-resolution.md) owns file
-selection. Prefer these app outcomes in product presentations. Counters and
-isolated controls remain useful diagnostic probes.
+| Experience | Owning source | What to demonstrate |
+| --- | --- | --- |
+| Data workspace | `showcase/DataWorkspace.tsrx`, `showcase/workspace.ts` | Shared cached data, bulk edits, rollback, retained filters/selection/page, and protected detail drafts. |
+| Document studio | `showcase/DocumentStudio.tsrx` | Real rich-text editing, undo/redo, local draft recovery, and a revision save that cannot replace newer edits. |
+| Conversation | `showcase/Conversation.tsrx` | Long history, docked composition, mentions, incoming messages, failed delivery and retry without duplicates. |
+| Fieldwork | `showcase/Fieldwork.tsrx` | Real image import/crop/encoding, separate source/output ownership, local note recovery, and truthful host export/share outcomes. |
+| Motion | `packages/demos/src/MotionPatterns.tsrx` | Responsive, interruptible interaction and coherent reduced-motion behavior. |
 
-## Existing harness evidence
+Use deterministic public fixtures and the real framework packages. Clearly identify simulated transports and session-only confirmation; a mock server response must not be presented as actual network synchronization. A control that only changes a success label does not prove saving. Preserve work on failure, cancellation, navigation, and replacement. Performance claims require actual target measurements, not a row count or a successful build.
 
-[`packages/demos`](../../packages/demos) contains small screens that exercise
-individual framework behaviors. They are not the four product examples above.
-The following mounting instructions and findings are the historical mobile/web
-exploration record, including old component names and limitations. For current
-public APIs use [building screens](../../docs/app/primitives.md), for current support use
-[known limits](../../docs/testing/known-limits.md), and for macOS evidence use the
-[AppKit harness notes](../../apps/macos/README.md).
+Do not feature unfinished experiences or silently substitute a basic screen for an unsupported capability. Report unavailable platform behavior in context. Shared source and web verification do not qualify native runtime, keyboard, accessibility, or pixels. Desktop targets remain experimental.
 
-The original iOS simulator sweep reported all 10 then-current demos mounting;
-web build/dev-transform and both typechecks also passed at that time. This is
-not a fresh verification of this checkout or of all six target platforms.
+## Separate proving entry
 
-## Mounting
+`packages/app/src/Harness.tsrx` preserves the original Home / Apps / Test shell and the complete `packages/demos/src/Gallery.tsrx` registry. Its entry is `/harness`; browser automation can launch `/?harness`. The harness links back to `/showcase`, which also works after an explicit harness-mode launch. Browser `?selfdrive` / `?selfdrive-os` and direct named `@test` / `@demos` URLs also select this shell. The visitor shell never schedules harness self-drive effects; the harness imports its sweep only after mounting.
 
-`Gallery` is wired in as the **Demos tab** in `App.tsrx` (index 2 — existing
-probes at 0/1 unaffected). It's a self-contained launcher: chip menu on top,
-selected demo below. Selection mounts fresh / unmounts on switch — deliberate,
-so timer cleanup is observable (`Stopwatch unmounted — timer dead` fires on
-leaving it).
+Keep stable probe IDs and the harness's route stacks. Basic controls, simple mini-apps, platform pickers, import probes, developer diagnostics, and performance qualification remain available there. The [component workshop](../../docs/testing/component-workshop.md) owns systematic component variants. Use [isolated probes](../docs/testing.md) for an individual investigation rather than continually adding controls to the visitor app.
 
-Web-only entry that doesn't touch the harness: `pnpm -C apps/web exec vite
-dev|build --config vite.democheck.ts` (serves `democheck.html` →
-`src/democheck.tsrx` mounting `Gallery` alone).
+The old `Gallery` is intentionally retained as a harness launcher, not the curated showcase. No basic demo needs deletion merely to remove it from the visitor experience. Introductory documentation can continue using simple, bounded examples.
+
+## Implementation constraints
+
+- Keep the visitor screens shared and put platform differences at file boundaries. Scope browser layout overrides to `showcase.css` web-only blocks.
+- The workspace uses `createQueryClient`, `defineQuery`, and `runOptimistic`. Preserve confirmed authority on rejected edits and prior results on failed refresh. Each module-store reader subscribes with `useStore`.
+- Rich editing uses the real editor facade. Local recovery and simulated revision confirmation are separate states. A save acknowledges the submitted revision, not whatever text happens to exist when it settles.
+- The document studio seeds the editor once and uses its handle for explicit document replacement. Feeding every emitted HTML serialization back through `value` stalled the web editing journey with repeated parsing, DOM replacement, and selection updates ([issue #266](https://github.com/octane-xplat/octane-xplat/issues/266)). The underlying cause is unconfirmed; do not reintroduce that feedback path without exercising actual typing, selection, formatting, and tab changes. The detail pane does not establish a BottomSheet focus defect: the stall also occurred without a sheet.
+- An imported image, an immutable rendered image, and an encoded result have different owners. Release refs and results only after consumers stop using them; late async outputs must be released rather than published to retired components.
+- Identity-stable standalone render functions are required for the tab specs: module-level JSX callbacks inside object literals do not receive native universal lowering.
+- TSRX template children are compiled render bodies. Data-only consumers such as `ChatTokenizedText` receive a string through an explicit `children={message.text}` prop.
+- Native retained children skip re-render when their props do not change. Do not depend on a parent render to refresh an unsubscribed module-store snapshot.
+
+## Verification entry points
+
+Run the visitor browser workflow through Turbo:
 
 ```sh
-pnpm -C apps/web exec vite dev --config vite.democheck.ts
-pnpm -C apps/web exec vite build --config vite.democheck.ts
+bun run turbo run smoke:showcase --filter=@xplat/web
 ```
 
-`@xplat/demos` is a declared dep of `apps/web`, `apps/mobile`, and
-`packages/app`. `demo.css` is imported by `apps/mobile/src/app.css` (`@import`)
-and `apps/web/src/main.tsrx`.
+`XPLAT_WEB_BROWSER` chooses the installed Chromium, Firefox, or WebKit engine. The runner starts its own preview unless `XPLAT_SHOWCASE_URL` identifies an owned running server. Captures are opt-in through `XPLAT_SHOWCASE_EVIDENCE`; do not enable or inspect images without the task's visual authorization. Keep browser tasks outside the lightweight PR gate.
 
-## Native sweep probe
-
-`packages/app/src/platform/demosweep.ts` (+ `.web.ts` no-op twin)
-drives the gallery on-device: switches to tab 2, taps each `menu-*` chip via
-the gesture-observer path (same technique as the entry probes), and asserts
-demo content in the view tree — `Loading…` before Weather's fake fetch
-resolves, `°` after, `500 rows` for the list, etc. It's a module side-effect
-import in `App.tsrx`, so it needs no changes to the harness entry.
-
-## The demos
-
-| Demo        | File                 | Catalog inspiration               | Why it's uniquely valuable                                                                                                                                                                                                                                                                                                                                                                                              |
-| ----------- | -------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Counter     | `Counter.tsrx`       | `counter-jsx`, `reactive-counter` | Smallest possible state→commit cycle. The null-hypothesis probe: when a bigger demo misbehaves, this isolates "is basic reactivity broken?" from everything else. Also the natural mount for measuring commit latency (the `darkMark` pattern from Home).                                                                                                                                                               |
-| Watch       | `WatchFace.tsrx`     | `watch`, `watch-date`             | Sustained 1 Hz commits — ~3.6k renders/hour makes it a leak/staleness detector no other demo provides. Plus compact centered layout and `Date` formatting with zero DOM globals.                                                                                                                                                                                                                                        |
-| Stopwatch   | `Stopwatch.tsrx`     | `stopwatch-jsx`                   | Effect lifecycle under load: `setInterval` commit stream + cleanup on gallery unmount, and rapid-fire lap appends through `@for`. Only demo where effect teardown is directly observable.                                                                                                                                                                                                                               |
-| Todo        | `Todo.tsrx`          | `todo-jsx`                        | The canonical keyed-mutation stress: insert/remove/toggle through the `List` leaf exercises the managed-ObservableArray splice+refresh patch on native — the operations most likely to desync cells. Also controlled `TextInput` round-trip and `@if` empty-state. `renderItem` is deliberately a per-commit closure: the leaf reads it off the host at `itemLoading`, so this stays correct _and_ tests that contract. |
-| Tic-Tac-Toe | `TicTacToe.tsrx`     | `tic-tac-toe`                     | Pure derived state — winner and status computed in render, zero effects. A 3×3 grid of identical Pressables via `@for` over a wrap container. Deterministic: same tap sequence must always produce the same board on both targets.                                                                                                                                                                                      |
-| Dialer      | `Dialer.tsrx`        | `dialer`                          | Tap-burst throughput — rapid `onPress`→state→commit round-trips, the input pattern most sensitive to event-dispatch latency. Fixed wrap grid of 12 identical keys; string append/backspace state.                                                                                                                                                                                                                       |
-| List ×500   | `VirtualList.tsrx`   | `virtual-list`                    | Volume stress: 500 recycled cells on native ListView plus prepend/remove-first/reverse on `items` — hammers the driver patch's splice path and cell rebinding at a scale Todo can't reach. Module-level `renderItem` keeps identity stable per the leaf contract.                                                                                                                                                       |
-| Weather     | `Weather.tsrx`       | `weather`                         | Async→state→render seam without a network: simulated fetch (timer + setState) drives a loading→data transition shaped exactly like a real platform-services call, so the pattern is proven before the fetch seam exists. Icon glyphs (☀⛅☁☂❄) double as a live font-coverage check (Q18).                                                                                                                               |
-| Keyframes   | `AnimShowcase.tsrx`  | `css-animation-showcase`          | The only sanctioned animation path (decision #22 — keyframes, ~12 animatable props, no transitions). Toggling `className` starts/stops `demo-pulse`/`demo-spin`/`demo-slide`; tests `animation-fill-mode: forwards` persistence and the no-`alternate` workaround (0/50/100 keyframes). First real content for `demo.css`.                                                                                              |
-| Reactivity  | `ReactiveProbe.tsrx` | `reactive-*` probes               | Reactivity granularity, read from the rendered tree (`renders=` counters). Verified on-device: bumping A re-renders parent + `plain-a`/`memo-a` only; `plain-b` is skipped **without memo** — the universal runtime prop-diffs children at commit time — and `memo-b` stays `renders=1`. First user-level `memo()` on either target.                                                                                    |
-
-## Coverage map (catalog → here)
-
-| Catalog category     | Covered by               | Deliberately skipped                                                               |
-| -------------------- | ------------------------ | ---------------------------------------------------------------------------------- |
-| Watch/wearable       | WatchFace                | analog faces (no canvas yet)                                                       |
-| Basic JSX apps       | Counter, Todo, Stopwatch | `static-card` (subsumed)                                                           |
-| Canvas/animation     | AnimShowcase             | `canvas-3d`, `bouncing-balls` — no canvas primitive exists                         |
-| UI components        | Dialer, VirtualList      | `settings`/`typography` — already harness surfaces                                 |
-| Games                | TicTacToe                | `sky-hop`, `tilt-breakout`, `button-tetris` — need frame loop / sensors / keyboard |
-| Device features      | Weather (mocked)         | camera/voice/hid/maps — need platform-services interfaces (problem #6)             |
-| Native experiments   | —                        | whole category is renderer experiments, not shared demos                           |
-| Reactive experiments | ReactiveProbe            | —                                                                                  |
-
-## Findings so far (lab, iOS sim)
-
-- **`@else if` chains compiled wrong for the universal target — FIXED
-  upstream (2026-09-23).** Root cause: `@else if` parses to an `IfStatement`
-  alternate, which `compileIfAst` routed through block codegen — the chained
-  `universalValue(...)` results were emitted as setup statements and the else
-  thunk returned an empty range, so every arm but the first rendered nothing.
-  Fix: route `IfStatement` alternates through `compileIfValueAst` like
-  `JSXIfExpression`, so the else thunk returns the chained `universalIf` call.
-  Fix pending upstream as
-  [octanejs/octane#1297](https://github.com/octanejs/octane/pull/1297)
-  with compile+mount regression coverage for chains and nested chains. Until a
-  release carries it, `text-coral-ns` applies the same one-line fix via
-  `pnpm patch` (`patches/octane@0.4.0.patch`); the sequential-`@if` workaround
-  there can be dropped once octane ≥ the release lands.
-- **Binary `@if`/`@else` works fully on native** — verified on-device via the
-  Counter `if-toggle` probe: else arm mounts when the condition starts false,
-  swaps to the then arm on flip, and swaps back (`if else mount` / `if then
-swap` / `if else swap` all OK). An earlier version of this doc blamed the
-  runtime for a Weather miss that turned out to be probe timing — the sweep
-  asserted `°` after the next demo had already mounted.
-- **Children-position ternaries also work and swap correctly** — Weather's
-  `{days === null ? <Text/> : <View>@for…</View>}` mounts `Loading…` then
-  swaps in the forecast on `setDays` (verified). Prefer whichever reads
-  better; `@else if` is off-limits on native only while octane stays on an
-  unpatched release (see above).
-- **`{expr}` calling a render function in children position works on both
-  targets** — `Gallery` dispatches `{RENDER[demo]()}` and `Cell` does
-  `{props.renderItem(item)}`. This is the portable dynamic-mount pattern.
-- **TSRX lexer rejects some non-ASCII in raw JSX text.** `<Text>✕</Text>`
-  fails at parse (`Unexpected character '✕'`); `{'✕'}` string containers are
-  fine (as is `…`/`°` raw — the rejected set isn't simply "non-ASCII").
-  Demos keep all glyphs in string expressions.
-- **`tsrx-tsc` uses each target's source set** —
-  `bun run turbo run typecheck --filter=@xplat/web` / `bun run turbo run typecheck --filter=@xplat/mobile` are the fast desk check before
-  any lab run.
-- **The universal runtime prop-diffs child components at commit time** —
-  verified by ReactiveProbe's render ledger: after bumping A, `plain-b`
-  stayed at `renders=1` with no `memo()` wrapper, and `memo-b` likewise.
-  Children only re-run when props change; `memo` is an explicit-compare
-  override, not the skip mechanism.
-- Sweep also incidentally verified: effect cleanup on unmount (stopwatch
-  interval cleared), per-press state commits under the sweep's 1.4s cadence,
-  and `chip-off` class toggling on menu chips.
+The original web smoke and navigation checks explicitly launch the sanity harness. Query ownership/rollback tests live with the workspace model. Build/typecheck evidence and actual browser/device behavior remain separate; handler dispatch does not prove OS input or hit-testing.
