@@ -201,8 +201,8 @@ export function css(platform: CssPlatform = 'web'): Plugin {
     name: 'xplat-platform-css',
     api: {
       platform,
-      // Optional compilers enable this for hosts using the patched cascade.
-      preserveLayers: false,
+      // Native hosts retain cascade layers without an optional compiler.
+      preserveLayers: true,
       defer: (id: string) => deferred.add(id),
       filter: (css: string, from?: string) => filterPlatformCss(css, platform, from),
       hasPlatformConditions,

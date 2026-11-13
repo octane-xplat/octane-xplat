@@ -139,7 +139,7 @@ it('serves virtual and file CSS through real native HTTP registration and HMR te
       const { code, type } = await get('/ns/m' + path)
 
       assert.match(type, /javascript/)
-      assert.doesNotMatch(code, /__vite__updateStyle|@vite\/client|@layer|999/)
+      assert.doesNotMatch(code, /__vite__updateStyle|@vite\/client|999/)
 
       const calls = []
       const context = { __NS_REGISTER_CSS__: (tag, text) => calls.push([tag, text]) }
@@ -273,5 +273,5 @@ it('defers Bamboo build adaptation until emitted assets, after validation', () =
 
   plugin.generateBundle.call(context, {}, { 'bamboo.css': asset })
   assert.match(asset.source, /31dip/)
-  assert.doesNotMatch(asset.source, /@layer/)
+  assert.match(asset.source, /@layer/)
 })

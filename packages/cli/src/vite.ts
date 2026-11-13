@@ -24,7 +24,6 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import postcss from 'postcss'
 import valueParser from 'postcss-value-parser'
-import { unwrapCssLayers } from './css-layers.ts'
 import { css } from './css-platform.ts'
 import { devBridge } from './mcp/dev-bridge.ts'
 import { nativeDevSocketPlugin } from './mcp/dev-socket.ts'
@@ -178,7 +177,6 @@ export function processNativeCss(
   options: {
     masonSafeAreaEnvironment?: boolean
     warned?: Set<string>
-    preserveLayers?: boolean
   } = {},
 ): string {
   const warned = options.warned ?? new Set()
@@ -191,10 +189,6 @@ export function processNativeCss(
     /\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g,
     '',
   )
-
-  if (!options.preserveLayers) {
-    code = unwrapCssLayers(code)
-  }
 
   // `@import` inlining reads the target file's raw text — it never
   // reaches this hook, so inlined css ships px units AND un-stripped
@@ -271,18 +265,14 @@ export function processNativeCss(
 export function pxToDip(options: { masonSafeAreaEnvironment?: boolean } = {}) {
   const warned = new Set()
   let isBuild = false
-  let preserveLayers = false
   const process = (code, id, warn) =>
-    processNativeCss(code, id, warn, { ...options, warned, preserveLayers })
+    processNativeCss(code, id, warn, { ...options, warned })
 
   return {
     name: 'xplat-native-css',
     enforce: 'pre',
     configResolved(config) {
       isBuild = config.command === 'build'
-      preserveLayers = config.plugins.some(
-        (plugin) => plugin.name === 'xplat-platform-css' && plugin.api?.preserveLayers === true,
-      )
     },
     // Per-file pass — covers dev serving where css is transformed
     // per module (the /ns/m bridge path).

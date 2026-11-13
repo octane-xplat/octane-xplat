@@ -1,57 +1,20 @@
 import assert from 'node:assert/strict'
-import { describe, it } from 'node:test'
-import { unwrapCssLayers } from '../dist/css-layers.js'
-
-describe('unwrapCssLayers', () => {
-  it('removes layer order statements and keeps rules from named layers', () => {
-    const css =
-      '@layer reset, app; @layer reset { .field { display: flex; } } @layer app { .field { color: red; } }'
-
-    assert.equal(unwrapCssLayers(css), '  .field { display: flex; }   .field { color: red; } ')
-  })
-
-  it('preserves nested braces, comments, strings, and non-layer at-rules', () => {
-    const css =
-      '@layer structure { /* } */ @media screen { .field::before { content: "}"; color: red; } } .note { content: "@layer app {"; } }'
-
-    assert.equal(
-      unwrapCssLayers(css),
-      ' /* } */ @media screen { .field::before { content: "}"; color: red; } } .note { content: "@layer app {"; } ',
-    )
-  })
-
-  it('leaves layer-like text inside comments and strings untouched', () => {
-    const css = '/* @layer ignored { } */ .field { content: "@layer ignored { }"; }'
-
-    assert.equal(unwrapCssLayers(css), css)
-  })
-
-  it('reports unclosed layer blocks', () => {
-    assert.throws(
-      () => unwrapCssLayers('@layer structure { .field { display:flex; }'),
-      /Unclosed @layer block/,
-    )
-  })
-})
-
-// Compilers using the patched native cascade retain layer metadata through
-// both serving and asset serialization; ordinary projects keep their path.
+import { it } from 'node:test'
+// Every native pipeline retains layers, including plain projects.
 import { processNativeCss, pxToDip, css } from '../dist/vite.js'
 
-it('retains layers and native units when the platform compiler opts in', () => {
+it('retains ordinary cascade layers and native units without compiler opt-in', () => {
   const source = '@layer utilities { .a.b { width: 12px; opacity: .25 } } .b { opacity: .75 }'
-  const preserved = processNativeCss(source, 'utility.css', () => {}, { preserveLayers: true })
+  const preserved = processNativeCss(source, 'utility.css', () => {})
 
   assert.match(preserved, /@layer utilities/)
   assert.match(preserved, /12dip/)
-  assert.doesNotMatch(
+  assert.match(
     processNativeCss(source, 'ordinary.css', () => {}),
     /@layer/,
   )
 
   const platform = css('ios')
-
-  platform.api.preserveLayers = true
 
   const pipeline = pxToDip()
 

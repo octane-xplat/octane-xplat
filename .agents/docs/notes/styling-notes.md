@@ -13,9 +13,10 @@ typography, borders, and state treatments in the later `xplat-chrome` layer.
 The optional `utilities.css` owns the curated helper classes in `utilities`;
 components keep private helper styles in structure/chrome and do not require it.
 Import selected sheets as JavaScript modules so NativeScript receives px-to-DIP conversion
-and web-only stripping. Default native builds unwrap the layer blocks. On the web,
-unlayered app CSS remains higher priority than package layers. Native builds
-preserve import order after unwrapping, so app styles follow the package rules.
+and web-only stripping. Native builds retain cascade-layer blocks and order
+statements through both per-file transforms and emitted assets. Unlayered app
+CSS outranks package layers on web and native; import order does not replace
+layer precedence.
 
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'
@@ -48,8 +49,7 @@ import './app.css'
 
 Package stylesheets must never ship an unlayered rule that competes with
 authored classes for the same property: it outranks every `@layer` block on
-web and the desktop engine, and survives only by registration order once the
-native transform flattens layers. Keep defaults inside an early declared
+web and native engines. Keep defaults inside an early declared
 layer, or rely on the platform's initial value when no declaration is needed
 (smooth-corners overflow, issue #204).
 
@@ -100,7 +100,7 @@ that these fixes remain pending.
 
 The adapter still targets NativeScript core rather than Xplat's Mason property
 surface. With the official Tailwind 4.3.5 compiler it removes `display` and
-`position` utilities. It also flattens cascade layers and arbitrary `@supports`
+`position` utilities. It preserves cascade layers but flattens arbitrary `@supports`
 blocks and removes `@property` registration. The maintained
 [qualification runner](../../../tools/tailwind-qualification/README.md)
 compares emitted declarations and browser CSS behavior before/after adaptation;
@@ -168,12 +168,14 @@ the extraction path supplies them; see
 [Vite's CSS plugin](https://github.com/vitejs/vite/blob/v8.3.6/packages/vite/src/node/plugins/css.ts)
 and [Tailwind's optimizer branch](https://github.com/tailwindlabs/tailwindcss/blob/v4.3.5/packages/@tailwindcss-postcss/src/index.ts).
 
-The default native build still unwraps layers. Optional compilers can set
-`css`'s `preserveLayers` coordination flag; both the mobile normalizer and
-desktop stylesheet serializer read it before transforming files or assets. The
-private Tailwind adapter enables it for the entire project, so generated and
-framework styles retain their relative layers. Keeping only the generated
-sheet's layers while flattening framework sheets would change precedence.
+All native builds retain ordinary cascade layers. The platform CSS plugin's
+`preserveLayers` capability is true by default; optional compilers do not need
+to enable a separate normalizer or serializer path. This matters when a leaf
+package imports structural defaults after the app's CSS: an unlayered app
+class still overrides those defaults. The maintained SmoothCorners/ViewShot
+geometry fixture exercises class/style changes and removal with this import
+order. Keeping only generated layers while flattening framework sheets would
+change precedence.
 Native pixel normalization walks declaration values, preserving selectors,
 directive arguments, quoted text, URLs, and media-query preludes.
 The desktop cascade's parser does not preserve declaration importance, and

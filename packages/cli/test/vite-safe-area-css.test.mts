@@ -44,7 +44,7 @@ test('warns on emitted Bamboo assets after deferred build conversion', () => {
   plugin.generateBundle.call(context, {}, { 'bamboo.css': asset })
   assert.equal(warnings.length, 1)
   assert.match(warnings[0], /^bamboo\.css: env/)
-  assert.doesNotMatch(asset.source, /@layer/)
+  assert.match(asset.source, /@layer/)
   assert.match(asset.source, /env\(safe-area-inset-top\)/)
 })
 

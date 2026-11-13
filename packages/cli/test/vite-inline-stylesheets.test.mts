@@ -62,7 +62,7 @@ it('collects .css assets, processes them, and prepends one push line to the entr
   assert.ok(cssA.includes('width:4dip'), 'px→dip applied')
   assert.ok(cssA.includes('.m'), 'macos block kept')
   assert.ok(!cssA.includes('.w {'), 'web block stripped')
-  assert.ok(!cssA.includes('@layer'), 'layer unwrapped')
+  assert.ok(cssA.includes('@layer'), 'cascade layer retained')
   assert.ok(cssA.includes('padding:2dip 4dip'), 'second sheet merged + processed')
 })
 
@@ -118,10 +118,8 @@ it('prepends the push before ESM imports for the GTK host', async () => {
   assert.ok(cssQ.includes('width:10dip'), 'media body still px→dip')
 })
 
-it('preserves opted-in cascade layers through desktop per-file and emitted CSS delivery', async () => {
+it('preserves ordinary cascade layers through desktop per-file and emitted CSS delivery', async () => {
   const platform = platformCss('macos')
-
-  platform.api.preserveLayers = true
 
   const out = join(dir, 'out-layered')
 
