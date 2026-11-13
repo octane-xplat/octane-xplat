@@ -32,7 +32,7 @@ Two structurally different integrations are possible:
   `index.windows.ts` for the whole widget surface over `Microsoft.UI.Xaml`,
   plus `windows` support in `@nativescript/vite` (the `/ns/m` HTTP-ESM +
   websocket HMR contract the windows runtime reimplements) and an open
-  `nativescript-cli#6065`. `@nativescript-community/octane`'s driver imports
+  `nativescript-cli#6065`. `@octane-xplat/nativescript-octane`'s driver imports
   core view classes with no platform branching, so on this path Windows is
   "the native default that also runs on desktop" — zero renderer code from us.
 - **Path B — Node-API host (the macOS pattern).** A `node` process loads

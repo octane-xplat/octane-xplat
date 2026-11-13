@@ -91,7 +91,7 @@ func isAppDirectory(path string, manifest map[string]any) bool {
 	}
 	hasDependency := false
 	for name := range Dependencies(manifest) {
-		if strings.HasPrefix(name, "@octane-xplat/") || name == "octane" || name == "@nativescript-community/octane" {
+		if strings.HasPrefix(name, "@octane-xplat/") || name == "octane" || name == "@octane-xplat/nativescript-octane" {
 			hasDependency = true
 			break
 		}

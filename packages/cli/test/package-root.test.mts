@@ -187,18 +187,18 @@ describe('hoisted workspace node_modules reads', () => {
     }
 
     makePkg(
-      join(ws, 'node_modules/@nativescript-community/vite-octane'),
+      join(ws, 'node_modules/@octane-xplat/vite-octane'),
       {
-        name: '@nativescript-community/vite-octane',
+        name: '@octane-xplat/vite-octane',
         main: 'index.js',
       },
       { 'index.js': 'export const octaneConfig = () => ({})' },
     )
 
     makePkg(
-      join(ws, 'node_modules/@nativescript-community/octane'),
+      join(ws, 'node_modules/@octane-xplat/nativescript-octane'),
       {
-        name: '@nativescript-community/octane',
+        name: '@octane-xplat/nativescript-octane',
         exports: { './config': './index.js', './driver': './driver.js' },
       },
       {

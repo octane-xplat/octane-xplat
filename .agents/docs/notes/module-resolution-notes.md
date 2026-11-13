@@ -157,7 +157,7 @@ resolution (orientation/size classes — `.land`, `.minWH600`) stay for assets.
 - **`.tsrx` is Octane-owned by extension** — no pragma needed. `.tsx`/`.ts`/
   `.js` need `/** @jsxImportSource … */` (value: `octane`, `octane/strong`, or
   a registered renderer's `intrinsics` id — i.e.
-  `/** @jsxImportSource @nativescript-community/octane */` claims a file for
+  `/** @jsxImportSource @octane-xplat/nativescript-octane */` claims a file for
   the NS renderer).
 - **Default dialect: `.tsrx` for all renderer-owned files** —
   shared, leaf, and route files. `.tsx` only for files that must not see

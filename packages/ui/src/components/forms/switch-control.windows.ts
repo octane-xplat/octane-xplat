@@ -1,5 +1,5 @@
 import { Property, View } from '@nativescript/core'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { Microsoft } from '@octane-xplat/platform/windows'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 

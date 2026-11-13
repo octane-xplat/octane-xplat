@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { SignInButton as PluginButton } from './apple-sign-in-button-view'
 import { appleAuth } from './apple'
 import type { AppleSignInButtonProps, SignInResult } from './types'

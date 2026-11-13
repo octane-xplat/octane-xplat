@@ -1,5 +1,5 @@
 import { Application } from '@nativescript/core'
-import { observeBatches } from '@nativescript-community/octane'
+import { observeBatches } from '@octane-xplat/nativescript-octane'
 import type { LayoutBarrier } from './types'
 
 export const layoutSupported = true

@@ -1,5 +1,5 @@
 import { GridLayout, getRootLayout } from '@nativescript/core'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import type { UniversalComponent } from 'octane/universal'
 import { OverlayPanel } from '../OverlayPanel.tsrx'
 

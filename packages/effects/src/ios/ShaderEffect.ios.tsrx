@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { GridLayout } from '@nativescript/core'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { getSwiftUIHostLifecycle, registerSwiftUIHost } from '@octane-xplat/lib'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import { SwiftUI, SwiftUIManager, UIDataDriver, registerSwiftUI } from '@nativescript/swift-ui'

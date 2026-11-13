@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { isAndroid } from '@nativescript/core'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { CameraPosition, DetectionType, MLKitView } from '@nativescript/mlkit-core'
 import type { BarcodeScannerHandle, BarcodeScannerProps } from './props'
 import { fromNativeFormat, toNativeFormats } from './format-map'

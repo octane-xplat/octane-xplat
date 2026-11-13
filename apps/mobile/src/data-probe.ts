@@ -3,7 +3,7 @@ import {
   createNativeScriptRoot,
   nativeScriptDriver,
   type NativeScriptContainer,
-} from '@nativescript-community/octane'
+} from '@octane-xplat/nativescript-octane'
 
 import { createUniversalRoot } from 'octane/universal/native'
 import { DataScreen, DataSharedReader, DataRetained, dataShared$ } from '@xplat/app/data-probe.tsrx'

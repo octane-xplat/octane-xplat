@@ -37,7 +37,7 @@ export function Leaf(props: ViewProps) @{
 - The `@jsxImportSource` pragma MUST be line 1 — any import/comment before
   it may select the wrong JSX types in projects with an older default.
 - Hooks import from `'octane'` even on native — the compiler retargets to
-  `@nativescript-community/octane`. The native build also aliases
+  `@octane-xplat/nativescript-octane`. The native build also aliases
   `octane` → `octane/universal/native` so dep-scanning doesn't vendor the
   DOM runtime.
 - For a compiled component typed as returning the facade's opaque JSX value,
@@ -69,7 +69,7 @@ export function ClassifiedLeaf(props: ViewProps) @{
 
 ## Removing props and inline styles
 
-The patched native driver receives the complete next prop bag, including
+The owned NativeScript driver receives the complete next prop bag, including
 static props. Do not merge update bags: a missing key removes its previous
 value. A never-applied `undefined` skips the setter; dropped/nullish values
 reset registered properties with `unsetValue` and ordinary fields with their
@@ -86,7 +86,7 @@ export function Preview({ expanded }: { expanded: boolean }) {
 ```
 
 The core 9.1 CSS refresh uses an isolated private hook, not a public reset API.
-Keep it when refreshing the patch until core provides an equivalent. See the
+Keep it when changing the driver until core provides an equivalent. See the
 [implementation note](../../../../docs/notes/primitive-notes.md) and
 [upstream PR #14](https://github.com/nativescript-community/octane/pull/14).
 
@@ -142,7 +142,7 @@ instead. Do not replace their content owners with new roots.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 // Host.mobile.tsx — the app supplies hostView after creating its native host.
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { GridLayout } from '@nativescript/core'
 
 function Content() {

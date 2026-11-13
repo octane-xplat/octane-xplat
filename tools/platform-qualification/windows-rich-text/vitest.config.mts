@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 const req = createRequire(new URL('../../../apps/windows/package.json', import.meta.url))
 const { octane } = await import(pathToFileURL(req.resolve('octane/compiler/vite')).href)
 const { nativeScriptRenderer } = await import(
-	pathToFileURL(req.resolve('@nativescript-community/octane/config')).href
+	pathToFileURL(req.resolve('@octane-xplat/nativescript-octane/config')).href
 )
 
 const octaneRoot = dirname(dirname(dirname(req.resolve('octane/universal/native'))))
@@ -20,7 +20,7 @@ const esm = (id: string) => {
 
 const driver = resolve(
 	process.env.RICH_TEXT_DRIVER ??
-		join(dirname(req.resolve('@nativescript-community/octane')), 'driver.js'),
+		join(dirname(req.resolve('@octane-xplat/nativescript-octane')), 'driver.js'),
 )
 
 export default defineConfig({
@@ -56,13 +56,13 @@ export default defineConfig({
 				replacement: req.resolve('@nativescript/core/ui/core/properties'),
 			},
 			{
-				find: /^@nativescript-community\/octane$/,
+				find: /^@octane-xplat\/nativescript-octane$/,
 				replacement: new URL('./renderer.ts', import.meta.url).pathname,
 			},
 		],
 	},
 	test: {
-		server: { deps: { inline: [/@nativescript-community\/octane/] } },
+		server: { deps: { inline: [/@octane-xplat\/nativescript-octane/] } },
 		include: ['tools/platform-qualification/windows-rich-text/*.test.{ts,tsrx}'],
 		environment: 'node',
 	},

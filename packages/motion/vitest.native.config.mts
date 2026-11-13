@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
 import { octane } from 'octane/compiler/vite'
-import { nativeScriptRenderer } from '@nativescript-community/octane/config'
+import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
 
 // Universal-renderer tests — same suffix chain + octane alias as the native
 // build, so leaves compile under the nativescript renderer and 'octane'
@@ -75,7 +75,7 @@ export default defineConfig({
       // whose index pulls @nativescript/core — not loadable in node.
       // Object-driver tests only need its universal-runtime re-exports.
       {
-        find: /^@nativescript-community\/octane$/,
+        find: /^@octane-xplat\/nativescript-octane$/,
         replacement: 'octane/universal/native',
       },
     ],

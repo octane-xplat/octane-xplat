@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { isAndroid } from '@nativescript/core'
 import { LottieView } from './vendor/ui-lottie/src/lottie'
 import type { LottieHandle, LottieProps } from './props'

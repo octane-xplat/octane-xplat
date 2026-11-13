@@ -24,7 +24,7 @@ bun add @octane-xplat/dnd-kit
 
 Import from the root package; web/native/macos export conditions select the
 platform implementation. Native apps also need the existing
-`@nativescript-community/octane` and `@nativescript/core` setup. The AppKit
+`@octane-xplat/nativescript-octane` and `@nativescript/core` setup. The AppKit
 entry ships source, like other macOS leaves — include its `src/**/*.tsx` and
 `src/**/*.tsrx` in the macOS renderer transform (the workspace config already
 does) — and it supplies AbortController/AbortSignal where JavaScriptCore lacks

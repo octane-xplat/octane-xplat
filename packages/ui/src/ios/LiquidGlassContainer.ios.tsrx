@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { LiquidGlassContainer as NSLiquidGlassContainer } from '@nativescript/core'
 import { LiquidGlassContainerView } from './liquid-glass-container-view.ios'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import type { LiquidGlassContainerProps } from '../props'
 import { cx } from '@octane-xplat/lib'

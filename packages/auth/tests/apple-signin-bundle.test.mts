@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { after, test } from 'node:test'
 import { createLogger, build } from 'vite'
 import { octane } from 'octane/compiler/vite'
-import { nativeScriptRenderer } from '@nativescript-community/octane/config'
+import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
 
 // Issue #165 — a consumer bundling the package root for Android must not
 // reference @nativescript/apple-sign-in's iOS-only SignInButton export.
@@ -93,7 +93,7 @@ async function bundle(target) {
         external: (id) =>
           id === '@nativescript/core' ||
           id.startsWith('@nativescript/core/') ||
-          id === '@nativescript-community/octane' ||
+          id === '@octane-xplat/nativescript-octane' ||
           id === '@nativescript-community/gesturehandler' ||
           id.startsWith('octane/'),
         output: { codeSplitting: false },

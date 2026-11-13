@@ -5,7 +5,7 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
 A single [Octane](https://github.com/octanejs/octane) codebase targeting web
 (DOM renderer) + iOS/Android
-([`@nativescript-community/octane`](https://github.com/nativescript-community/octane),
+([`@octane-xplat/nativescript-octane`](../../packages/nativescript-octane),
 the universal-runtime driver over `@nativescript/core`).
 
 The framework exists and is published: `packages/ui` ships as
@@ -39,6 +39,10 @@ Formatters and linters exclude
 
 See the [examples index](../../examples/README.md) for copyable examples and
 maintained diagnostic fixtures.
+
+The NativeScript renderer and Vite flavor are maintained as source in
+`packages/nativescript-octane` and `packages/vite-octane`. They use the repository
+toolchain and lockstep release; see [native renderer ownership](toolchain.md#native-renderer-ownership).
 
 ## Layout
 

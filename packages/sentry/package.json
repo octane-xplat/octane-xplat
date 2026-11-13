@@ -60,8 +60,8 @@
 	"devDependencies": {
 		"@sentry/cli": "3.8.2",
 		"vite": "catalog:",
-		"@nativescript-community/octane": "catalog:",
-		"@nativescript-community/vite-octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
+		"@octane-xplat/vite-octane": "workspace:*",
 		"@nativescript/vite": "8.0.20",
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.8",
@@ -76,12 +76,12 @@
 		"playwright": "1.63.0"
 	},
 	"peerDependencies": {
-		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": ">=9.1.0 <10",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
-		"@nativescript-community/octane": {
+		"@octane-xplat/nativescript-octane": {
 			"optional": true
 		},
 		"@nativescript/core": {

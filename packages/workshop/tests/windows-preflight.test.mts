@@ -35,7 +35,7 @@ function consumer({ complete = false, runtime = '1.0.0-beta.24' } = {}) {
     for (const name of [
       '@nativescript/windows',
       '@nativescript/core',
-      '@nativescript-community/octane',
+      '@octane-xplat/nativescript-octane',
       '@nativescript/vite',
       'nativescript',
       'vite',

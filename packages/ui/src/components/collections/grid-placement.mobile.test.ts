@@ -7,7 +7,7 @@ import {
   nativeScriptDriver,
   createNativeScriptContainer,
   releaseNativeScriptContainer,
-} from '../../../node_modules/@nativescript-community/octane/dist/driver.js'
+} from '../../../node_modules/@octane-xplat/nativescript-octane/dist/driver.js'
 
 import {
   PlacementCase,

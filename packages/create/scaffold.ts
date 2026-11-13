@@ -84,8 +84,8 @@ export const targets: Record<string, any> = {
       '@nativescript/types',
       'css',
       '@nativescript/vite',
-      '@nativescript-community/octane',
-      '@nativescript-community/vite-octane',
+      '@octane-xplat/nativescript-octane',
+      '@octane-xplat/vite-octane',
     ],
     files: [
       'nativescript.config.ts',
@@ -99,13 +99,13 @@ export const targets: Record<string, any> = {
       'src/failure-reporting.spec.ts',
     ],
     deps: [
-      '@nativescript-community/octane',
+      '@octane-xplat/nativescript-octane',
       '@nativescript/core',
       '@valor/nativescript-websockets',
     ],
     devDeps: [
       '@octane-xplat/workshop',
-      '@nativescript-community/vite-octane',
+      '@octane-xplat/vite-octane',
       '@nativescript/types',
       '@nativescript/unit-test-runner',
       '@nativescript/vite',

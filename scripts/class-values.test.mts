@@ -29,7 +29,7 @@ const normalizers = {
     'normalizeClass',
   ),
   NativeScript: normalizer(
-    uiRequire.resolve('@nativescript-community/octane').replace(/index\.js$/, 'driver.js'),
+    uiRequire.resolve('@octane-xplat/nativescript-octane').replace(/index\.js$/, 'driver.js'),
     'normalizeClass',
   ),
   macOS: normalizer(

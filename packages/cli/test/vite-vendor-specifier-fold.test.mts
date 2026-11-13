@@ -29,7 +29,7 @@ const makeWorkspace = () => {
 
 // A runtime plugin package (@nativescript-community/* is classified by prefix,
 // no nativescript metadata needed) whose root export resolves to a compiled
-// dist file — the same shape as @nativescript-community/octane.
+// dist file — the same shape as @octane-xplat/nativescript-octane.
 const makePlugin = (nodeModulesDir, name, pkgJson) => {
   const dir = join(nodeModulesDir, ...name.split('/'))
 

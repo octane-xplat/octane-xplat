@@ -1,4 +1,4 @@
-import { createNativeScriptRoot, type UniversalComponent } from '@nativescript-community/octane'
+import { createNativeScriptRoot, type UniversalComponent } from '@octane-xplat/nativescript-octane'
 import { composeStory } from 'storybook/preview-api'
 import type { ContentView } from '@nativescript/core'
 import type { StageHost, MountRequest } from '../session'

@@ -16,7 +16,7 @@ import {
 // The vendored plugin class — resolved through the leaf's registered
 // element so the probe exercises the same copy consumers get.
 import '@octane-xplat/lottie'
-import { ELEMENTS } from '@nativescript-community/octane'
+import { ELEMENTS } from '@octane-xplat/nativescript-octane'
 import { router } from '@xplat/app'
 import { getStack } from '@octane-xplat/ui/routing'
 import { java } from '@octane-xplat/platform/android'

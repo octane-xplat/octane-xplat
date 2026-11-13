@@ -1488,7 +1488,7 @@ export const NATIVE_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
 export const DOM_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx/dom */'
 
 const RETIRED_PRAGMAS = [
-  '@nativescript-community/octane',
+  '@octane-xplat/nativescript-octane',
   '@octane-xplat/macos-appkit',
   '@octane-xplat/macos-renderer',
   'octane',

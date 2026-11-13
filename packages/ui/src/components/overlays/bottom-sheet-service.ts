@@ -1,6 +1,6 @@
 import { afterContentCommit, type ContentOwner } from './owned-content'
 import { GridLayout } from '@nativescript/core'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import type { UniversalComponent } from 'octane/universal'
 import type { BottomSheetHandle, ModalOpenResult, OpenBottomSheet } from '../../props'
 import { currentRootLayoutFor, topRootLayout } from '../layout/root-layout'

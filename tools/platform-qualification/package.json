@@ -10,7 +10,7 @@
     "verify:windows-gestures": "node desktop-gestures/verify-windows.mts"
   },
   "devDependencies": {
-    "@nativescript-community/octane": "catalog:",
+    "@octane-xplat/nativescript-octane": "workspace:*",
     "@nativescript/core": "catalog:",
     "@octane-xplat/cli": "workspace:*",
     "@octane-xplat/jsx": "workspace:*",

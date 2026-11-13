@@ -48,7 +48,7 @@
 		"zeed-dom": "0.18.0"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",

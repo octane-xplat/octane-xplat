@@ -114,7 +114,7 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
 
     // Every retired pragma is rejected wherever it appears.
     for (const retired of [
-      '@nativescript-community/octane',
+      '@octane-xplat/nativescript-octane',
       '@octane-xplat/macos-appkit',
       '@octane-xplat/macos-renderer',
       'octane',

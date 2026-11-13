@@ -13,7 +13,7 @@
 	},
 	"dependencies": {
 		"@nativescript-community/observable": "2.0.11",
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript-community/perms": "3.0.12",
 		"@nativescript/canvas": "3.0.1",
 		"@nativescript/core": "https://pkg.pr.new/@nativescript/core@abae298",
@@ -80,7 +80,7 @@
 		"octane": "catalog:"
 	},
 	"devDependencies": {
-		"@nativescript-community/vite-octane": "catalog:",
+		"@octane-xplat/vite-octane": "workspace:*",
 		"@nativescript/types": "catalog:",
 		"@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@abae298",
 		"@nativescript/windows": "1.0.0-beta.24",

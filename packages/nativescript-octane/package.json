@@ -1,0 +1,88 @@
+{
+  "name": "@octane-xplat/nativescript-octane",
+  "version": "0.20.0",
+  "description": "Octane on NativeScript",
+  "keywords": [
+    "jsx",
+    "nativescript",
+    "octane",
+    "renderer"
+  ],
+  "homepage": "https://octane-xplat.goddardai.org/packages/package-nativescript-octane",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/octane-xplat/octane-xplat",
+    "directory": "packages/nativescript-octane"
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
+    "!src/**/*.spec.ts"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@nativescript/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./config": {
+      "@nativescript/source": "./src/config.ts",
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js",
+      "default": "./dist/config.js"
+    },
+    "./intrinsics": {
+      "@nativescript/source": "./src/intrinsics.ts",
+      "types": "./dist/intrinsics.d.ts",
+      "import": "./dist/intrinsics.js",
+      "default": "./dist/intrinsics.js"
+    },
+    "./jsx-runtime": {
+      "@nativescript/source": "./src/jsx-runtime.ts",
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js",
+      "default": "./dist/jsx-runtime.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc --runExternalCode -p tsconfig.build.json",
+    "typegen": "tsc --runExternalCode -p tsconfig.build.json",
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "prepack": "bun run build",
+    "test:packed": "node ../../tools/verification/native-octane-packed.mts nativescript-octane"
+  },
+  "devDependencies": {
+    "@nativescript/core": "catalog:",
+    "@nativescript/types": "catalog:",
+    "@octane-xplat/nativescript-masonkit": "1.0.0-beta.126",
+    "@tsrx/content-mapper": "catalog:",
+    "@types/node": "26.6.6",
+    "octane": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@nativescript/core": ">=9.1.0",
+    "@octane-xplat/nativescript-masonkit": ">=1.0.0-beta.126 <2",
+    "octane": ">=0.16.3 <1"
+  },
+  "peerDependenciesMeta": {
+    "@octane-xplat/nativescript-masonkit": {
+      "optional": true
+    }
+  }
+}

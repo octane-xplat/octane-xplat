@@ -163,7 +163,7 @@
 		"yaml": "2.9.1"
 	},
 	"devDependencies": {
-		"@nativescript-community/vite-octane": "0.2.1",
+		"@octane-xplat/vite-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@nativescript/vite": "8.0.20",
 		"@tsrx/content-mapper": "catalog:",

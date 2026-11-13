@@ -182,7 +182,7 @@ const devDependencies = Object.fromEntries(
     '@octane-xplat/cli',
     'nativescript',
     'vite',
-    '@nativescript-community/vite-octane',
+    '@octane-xplat/vite-octane',
     '@octanejs/vite-plugin',
   ].map((name) => [
     name,

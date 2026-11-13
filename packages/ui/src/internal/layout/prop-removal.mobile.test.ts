@@ -162,7 +162,7 @@ vi.mock('@nativescript/core', () => {
 async function mount(props: Record<string, unknown>) {
   const { PropRemoval } = await import('../../../tests/prop-removal.fixture.mobile.tsrx')
   const { nativeScriptDriver, createNativeScriptContainer, releaseNativeScriptContainer } =
-    await import('../../../node_modules/@nativescript-community/octane/dist/driver.js')
+    await import('../../../node_modules/@octane-xplat/nativescript-octane/dist/driver.js')
 
   const { LayoutBase } = await import('@nativescript/core')
   const host: any = new LayoutBase()

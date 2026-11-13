@@ -1,0 +1,83 @@
+{
+  "name": "@octane-xplat/vite-octane",
+  "version": "0.20.0",
+  "description": "Octane for @nativescript/vite",
+  "keywords": [
+    "hmr",
+    "nativescript",
+    "octane",
+    "vite"
+  ],
+  "homepage": "https://octane-xplat.goddardai.org/packages/package-vite-octane",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/octane-xplat/octane-xplat",
+    "directory": "packages/vite-octane"
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
+    "!src/**/*.spec.ts"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@nativescript/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "@nativescript/source": "./src/client/strategy.ts",
+      "types": "./dist/client/strategy.d.ts",
+      "import": "./dist/client/strategy.js",
+      "default": "./dist/client/strategy.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc --runExternalCode -p tsconfig.build.json",
+    "typegen": "tsc --runExternalCode -p tsconfig.build.json",
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "prepack": "bun run build",
+    "test:packed": "node ../../tools/verification/native-octane-packed.mts vite-octane"
+  },
+  "dependencies": {
+    "@octane-xplat/nativescript-octane": "workspace:*"
+  },
+  "devDependencies": {
+    "@nativescript/core": "catalog:",
+    "@nativescript/vite": "8.0.20",
+    "@octanejs/vite-plugin": "catalog:",
+    "@tsrx/content-mapper": "catalog:",
+    "@types/node": "26.6.6",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@nativescript/vite": ">=8.0.11",
+    "@octanejs/vite-plugin": ">=0.1.51",
+    "vite": "^8.0.0"
+  },
+  "nativescript": {
+    "vite": {
+      "flavor": "octane",
+      "config": {
+        "import": "octaneConfig",
+        "from": "@octane-xplat/vite-octane"
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane'
 import { Image } from '@octane-xplat/ui'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { isAndroid } from '@nativescript/core'
 import { Video as NSVideo, VideoFill } from '@nstudio/nativescript-exoplayer'
 import type { VideoHandle, VideoProps } from './props'

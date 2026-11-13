@@ -53,7 +53,7 @@ const dependencies = [
   '@nativescript/firebase-core',
   '@nativescript/firebase-messaging',
   'octane',
-  '@nativescript-community/octane',
+  '@octane-xplat/nativescript-octane',
   '@nativescript/core',
   '@nativescript/types',
 ]

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const driver = vi.hoisted(() => ({ renders: [] as any[], unmounts: 0, fail: false }))
 
-vi.mock('@nativescript-community/octane', () => ({
+vi.mock('@octane-xplat/nativescript-octane', () => ({
   defineUniversalComponent: (_target: string, component: unknown) => component,
   universalPlan: () => ({}),
   createNativeScriptRoot: () => ({

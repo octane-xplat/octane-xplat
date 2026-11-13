@@ -58,7 +58,7 @@
 		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
 		"octane": "catalog:",
@@ -70,12 +70,12 @@
 		"typescript-classic": "catalog:"
 	},
 	"peerDependencies": {
-		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": ">=9.1.0 <10",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
-		"@nativescript-community/octane": {
+		"@octane-xplat/nativescript-octane": {
 			"optional": true
 		},
 		"@nativescript/core": {

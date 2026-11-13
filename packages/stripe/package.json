@@ -51,7 +51,7 @@
 		"@stripe/stripe-js": "10.2.1"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/jsx": "workspace:*",

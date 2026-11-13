@@ -94,7 +94,7 @@ it('NativeScript driver permits retained suspense and delivers native taps and u
   // A direct driver import bypasses the object-driver alias for the renderer
   // entry. This is the installed package that the mobile app actually uses.
   const { nativeScriptDriver, createNativeScriptContainer, releaseNativeScriptContainer } =
-    await import('../../node_modules/@nativescript-community/octane/dist/driver.js')
+    await import('../../node_modules/@octane-xplat/nativescript-octane/dist/driver.js')
 
   const { LayoutBase } = await import('@nativescript/core')
 
@@ -146,7 +146,7 @@ it('NativeScript driver permits retained suspense and delivers native taps and u
 it('native leaf text slots create Label views, update text and release their hosts', async () => {
   const { NativeTextSlots } = await import('../../tests/text-slot.fixture.mobile.tsrx')
   const { nativeScriptDriver, createNativeScriptContainer, releaseNativeScriptContainer } =
-    await import('../../node_modules/@nativescript-community/octane/dist/driver.js')
+    await import('../../node_modules/@octane-xplat/nativescript-octane/dist/driver.js')
 
   const { LayoutBase, TextBase } = await import('@nativescript/core')
   const host: any = new LayoutBase()

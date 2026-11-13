@@ -10,7 +10,7 @@
  *  helpers — tap, enterText, waitUntil, nextRenderPass — directly; this
  *  module adds only what the upstream runner cannot know about. */
 import { ContentView, GestureTypes, type View, type ViewBase } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import {
   enterText,
   mount,

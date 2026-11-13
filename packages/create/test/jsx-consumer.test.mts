@@ -109,7 +109,7 @@ for (const targets of ['web', 'ios', 'android', 'web,ios,android', 'web+add-ios'
     ]) {
       assert.doesNotMatch(
         readFileSync(join(app, file), 'utf8'),
-        /@jsxImportSource @nativescript-community\/octane/,
+        /@jsxImportSource @octane-xplat\/nativescript-octane/,
       )
     }
 

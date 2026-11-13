@@ -23,7 +23,7 @@ vi.mock('@nativescript/core', () => ({
   },
 }))
 
-vi.mock('@nativescript-community/octane', async (importOriginal) => ({
+vi.mock('@octane-xplat/nativescript-octane', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   createNativeScriptRoot: () => ({ render() {}, unmount() {} }),
 }))

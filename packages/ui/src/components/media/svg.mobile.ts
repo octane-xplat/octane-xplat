@@ -1,4 +1,4 @@
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { SVGView } from '../../vendor/ui-svg/src'
 
 export { glyphSvgMarkup, isSvgSrc, svgSource } from './svg-source'

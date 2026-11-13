@@ -7,7 +7,7 @@ vi.mock('@nativescript/core', async () => {
 
 vi.mock('@nativescript/core/ui/core/properties', async () => {const mock=await import('./core-mock');return {_getStyleProperties:()=>mock.styleProperties}});
 import {createContext, useContext, useLayoutEffect} from 'octane';
-import {createNativeScriptRoot, flushUniversalSync} from '@nativescript-community/octane';
+import {createNativeScriptRoot, flushUniversalSync} from '@octane-xplat/nativescript-octane';
 import {signal$} from 'octane/signals';
 import {MockLayoutBase, MockTextBase} from './core-mock';
 import {Text} from '../../../packages/ui/src/components/content/Text.tsrx';

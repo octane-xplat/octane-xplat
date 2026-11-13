@@ -62,7 +62,7 @@ const isAppDir = (dir, manifest) => {
   const deps = allDeps(manifest)
   const xplatDep = Object.keys(deps).some(
     (name) =>
-      XPLAT_DEP.test(name) || name === 'octane' || name === '@nativescript-community/octane',
+      XPLAT_DEP.test(name) || name === 'octane' || name === '@octane-xplat/nativescript-octane',
   )
 
   return (xplatDep && hasRunnableConfig(dir, manifest)) || manifest?.xplat?.targets !== undefined

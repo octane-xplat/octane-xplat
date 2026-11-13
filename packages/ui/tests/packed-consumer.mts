@@ -74,7 +74,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
       ? ['octane', '@octanejs/vite-plugin', '@octane-xplat/camera', '@octane-xplat/jsx']
       : peers === 'required'
         ? ['octane']
-        : ['octane', '@nativescript-community/octane', '@nativescript/core', '@nativescript/types']
+        : ['octane', '@octane-xplat/nativescript-octane', '@nativescript/core', '@nativescript/types']
 
   // Internal utilities are runtime dependencies on every target.
   dependencies.push('@octane-xplat/lib', '@octane-xplat/platform')
@@ -685,7 +685,7 @@ if (import.meta.env.DEV) {
           jsx: 'react-jsx',
           jsxImportSource:
             target === 'native'
-              ? '@nativescript-community/octane'
+              ? '@octane-xplat/nativescript-octane'
               : target === 'macos'
                 ? '@octane-xplat/jsx'
                 : 'octane',

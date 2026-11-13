@@ -227,7 +227,7 @@ export async function linuxGtk(env, options = {}) {
         { find: /^octane\/universal\/native$/, replacement: universalNative },
         // Leaves that touch NativeScript defaults keep working inside a
         // GTK bundle via the renderer's compat shims.
-        { find: /^@nativescript-community\/octane$/, replacement: rendererEntry },
+        { find: /^@octane-xplat\/nativescript-octane$/, replacement: rendererEntry },
         // Workspace UI leaves import the selected renderer from their own graph;
         // resolve it through the app without adding a UI renderer dependency.
         { find: /^@octane-xplat\/linux-gtk$/, replacement: rendererEntry },

@@ -2,7 +2,7 @@
 import { useCallback, useContext } from 'octane'
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core'
 import type { RootLayout } from '@nativescript/core'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import type { UniversalComponent } from 'octane/universal'
 import type { ShowToastFn, ToastEntry, ToastHandle, ToastOptions, ToastPosition } from '../../props'
 import { ToastViewportContext } from './toast-context'

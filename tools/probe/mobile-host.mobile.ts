@@ -26,7 +26,7 @@ import * as utils from '@nativescript/core/utils'
 import lazy from '@nativescript/core/utils/lazy'
 import * as layoutHelper from '@nativescript/core/utils/layout-helper'
 import * as utilsTypes from '@nativescript/core/utils/types'
-import * as native from '@nativescript-community/octane'
+import * as native from '@octane-xplat/nativescript-octane'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
@@ -58,7 +58,7 @@ const modules = {
   '@nativescript/core/utils/lazy': lazy,
   '@nativescript/core/utils/layout-helper': layoutHelper,
   '@nativescript/core/utils/types': utilsTypes,
-  '@nativescript-community/octane': native,
+  '@octane-xplat/nativescript-octane': native,
   'octane/universal/native': native,
   'octane/signals': signals,
   'octane/signals/client': signalsClient,

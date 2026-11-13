@@ -95,7 +95,7 @@ function fixture() {
         return { View, Property }
       }
 
-      if (name === '@nativescript-community/octane') {
+      if (name === '@octane-xplat/nativescript-octane') {
         return {
           registerElement(name, Type) {
             assert.equal(name, 'xplatwindowscheckbox')

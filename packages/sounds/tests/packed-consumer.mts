@@ -51,7 +51,7 @@ function run(command, args, cwd) {
 const dependencies = [
   '@nativescript/audio-context',
   'octane',
-  '@nativescript-community/octane',
+  '@octane-xplat/nativescript-octane',
   '@nativescript/core',
   '@nativescript/types',
 ]

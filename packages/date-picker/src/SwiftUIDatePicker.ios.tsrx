@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI } from '@nativescript/swift-ui'
 import { useState } from 'octane'

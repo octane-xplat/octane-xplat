@@ -57,7 +57,7 @@ export default defineConfig(({ mode }) =>
         // packages' devDeps carry 9.1.2 — importers inside packages/* would
         // otherwise resolve a second core copy and split view identity.
         // Peer contexts can also duplicate the renderer's element registry.
-        dedupe: ['@nativescript/core', '@nativescript-community/octane'],
+        dedupe: ['@nativescript/core', '@octane-xplat/nativescript-octane'],
       },
     },
   }),

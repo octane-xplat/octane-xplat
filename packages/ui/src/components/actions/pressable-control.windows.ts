@@ -6,7 +6,7 @@ import {
 
 import type { ActivationEvent } from '../../gestures/types'
 import { Property, TextBase, View } from '@nativescript/core'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
 // Follow the callback contract across registry Core and the Windows preview.

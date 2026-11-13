@@ -89,7 +89,7 @@ function zipEntry(archive, name) {
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
   'octane',
-  '@nativescript-community/octane',
+  '@octane-xplat/nativescript-octane',
   '@nativescript/core',
   '@nativescript/types',
 ]

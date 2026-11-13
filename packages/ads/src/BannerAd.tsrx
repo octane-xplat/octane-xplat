@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useCallback, useRef } from 'octane'
 import { isAndroid } from '@nativescript/core'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { BannerAd as NativeBannerAd, BannerAdSize } from '@nativescript/google-mobile-ads'
 import type { BannerAdProps } from './props'
 

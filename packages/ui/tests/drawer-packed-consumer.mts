@@ -17,7 +17,7 @@ import { build } from 'vite'
 import { tsrx } from '@octane-xplat/cli/vite'
 import { octane } from 'octane/compiler/vite'
 
-const { nativeScriptRenderer } = await import('@nativescript-community/octane/config')
+const { nativeScriptRenderer } = await import('@octane-xplat/nativescript-octane/config')
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')

@@ -37,7 +37,7 @@ export function managedPackage(name: string, profile = 'default'): ManagedPackag
     return {
       version: compatibility.frameworkVersion,
       group: 'framework',
-      singleton: name === '@octane-xplat/ui',
+      singleton: name === '@octane-xplat/ui' || name === '@octane-xplat/nativescript-octane',
     }
   }
 

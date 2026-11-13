@@ -126,7 +126,7 @@ function fixture() {
         return { Property, View }
       }
 
-      if (name === '@nativescript-community/octane') {
+      if (name === '@octane-xplat/nativescript-octane') {
         return {
           registerElement(name, Type) {
             assert.equal(name, 'xplatwindowsslider')

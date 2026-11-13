@@ -9,7 +9,7 @@ import {
 } from 'octane'
 
 import { View } from '@nativescript/core'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import type { RichTextEditorHandle, RichTextEditorProps, RichTextFormat } from './types'
 import { layoutChildProps } from './layout-child'

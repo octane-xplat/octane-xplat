@@ -170,10 +170,10 @@ export function inspectCompatibility(
   // The patched NativeScript driver imports the mason engine for container
   // layout — apps using it must declare the package.
   if (
-    declared['@nativescript-community/octane'] &&
+    declared['@octane-xplat/nativescript-octane'] &&
     !declared[engine] &&
     !replacedEngines.some((name) => declared[name]) &&
-    !local.has('@nativescript-community/octane')
+    !local.has('@octane-xplat/nativescript-octane')
   ) {
     row(
       `compatibility mason engine ${engine}`,

@@ -1,6 +1,6 @@
 import 'octane/signals'
 import { Application, Page } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { storage } from '@octane-xplat/platform'
 import { openWindow } from '@octane-xplat/ui'
 import { appMenu } from '@octane-xplat/app-menu'

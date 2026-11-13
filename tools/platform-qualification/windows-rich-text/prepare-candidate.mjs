@@ -7,13 +7,13 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const source = resolve(process.argv[2] ?? '')
 if (!process.argv[2] || !existsSync(join(source, 'src/driver.ts'))) {
 	throw new Error(
-		'Pass the unmodified @nativescript-community/octane@0.2.4 source package path from opensrc.',
+		'Pass the unmodified @octane-xplat/nativescript-octane@0.2.4 source package path from opensrc.',
 	)
 }
 
 const manifest = JSON.parse(readFileSync(join(source, 'package.json'), 'utf8'))
-if (manifest.name !== '@nativescript-community/octane' || manifest.version !== '0.2.4') {
-	throw new Error('This candidate is pinned to @nativescript-community/octane@0.2.4.')
+if (manifest.name !== '@octane-xplat/nativescript-octane' || manifest.version !== '0.2.4') {
+	throw new Error('This candidate is pinned to @octane-xplat/nativescript-octane@0.2.4.')
 }
 
 const target = resolve(repo, process.argv[3] ?? 'research/windows-rich-text/candidate')
@@ -75,7 +75,7 @@ writeFileSync(
 )
 
 run('bun', ['run', 'tsc', '-p', join(target, 'tsconfig.driver.json')])
-const installed = dirname(dirname(req.resolve('@nativescript-community/octane')))
+const installed = dirname(dirname(req.resolve('@octane-xplat/nativescript-octane')))
 const packaged = join(target, 'package')
 cpSync(installed, packaged, { recursive: true })
 run(

@@ -14,7 +14,7 @@ for (const hmr of [false, true]) {
         hmr,
         renderer: {
           id: 'native',
-          module: '@nativescript-community/octane',
+          module: '@octane-xplat/nativescript-octane',
           target: 'universal',
           server: 'unsupported',
           text: 'host',

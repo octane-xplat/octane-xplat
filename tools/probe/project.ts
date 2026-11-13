@@ -116,7 +116,7 @@ export async function dependencies(target, caseFile, extra, dependencyAnchor = c
 
     for (const name of [
       '@nativescript/core',
-      '@nativescript-community/octane',
+      '@octane-xplat/nativescript-octane',
       // NativeScript collects plugin binaries from runtime dependencies.
       masonCorePackage,
       '@nativescript-community/gesturehandler',

@@ -1,5 +1,5 @@
 import { Application, File, Frame, GridLayout, Page, knownFolders } from '@nativescript/core'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { addBackInterceptor, getStack, registerStack } from '@octane-xplat/ui/routing'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { bindRouterFlow } from '../../../packages/ui/src/routing/router-instance'

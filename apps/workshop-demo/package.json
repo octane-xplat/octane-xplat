@@ -20,7 +20,7 @@
 		"octane": "catalog:"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@nativescript/macos-node-api": "catalog:",
 		"@nativescript/types": "catalog:",

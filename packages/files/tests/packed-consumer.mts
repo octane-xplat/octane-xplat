@@ -223,7 +223,7 @@ try {
   const require = createRequire(import.meta.url)
   const { build } = require('vite')
   const { octane } = require('@octanejs/vite-plugin')
-  const { nativeScriptRenderer } = require('@nativescript-community/octane/config')
+  const { nativeScriptRenderer } = require('@octane-xplat/nativescript-octane/config')
   const modules = join(temporary, 'node_modules/@octane-xplat')
 
   mkdirSync(modules, { recursive: true })

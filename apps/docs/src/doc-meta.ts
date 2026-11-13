@@ -110,6 +110,8 @@ export const GROUPS = [
       'package-canvas',
       'package-charts',
       'package-build',
+      'package-nativescript-octane',
+      'package-vite-octane',
 
       'package-cli',
       'package-toolchain',

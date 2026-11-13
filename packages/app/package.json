@@ -32,7 +32,7 @@
 	},
 	"devDependencies": {
 		"@bamboocss/dev": "1.60.1",
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",

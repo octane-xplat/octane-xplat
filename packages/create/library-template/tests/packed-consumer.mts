@@ -85,7 +85,7 @@ try {
         '@octane-xplat/jsx',
         '@octane-xplat/ui',
         ...(target === 'native'
-          ? ['@nativescript-community/octane', '@nativescript/core', '@nativescript/types']
+          ? ['@octane-xplat/nativescript-octane', '@nativescript/core', '@nativescript/types']
           : []),
       ]) {
         const source = join(packageRoot, 'node_modules', ...dependency.split('/'))

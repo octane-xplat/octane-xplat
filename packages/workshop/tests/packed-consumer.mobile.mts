@@ -53,7 +53,7 @@ write(
     dependencies: {
       '@octane-xplat/ui': tarballs['@octane-xplat/ui'],
       '@nativescript/core': '9.1.3',
-      '@nativescript-community/octane': '0.2.4',
+      '@octane-xplat/nativescript-octane': '0.2.4',
       octane: '0.14.0',
     },
     devDependencies: {
@@ -85,7 +85,7 @@ for (const name of ['ui', 'workshop', 'cli']) {
 
 for (const name of [
   '@octane-xplat/workshop',
-  '@nativescript-community/octane',
+  '@octane-xplat/nativescript-octane',
   '@octanejs/vite-plugin',
 ]) {
   assert.equal(
@@ -97,7 +97,7 @@ for (const name of [
 const load = (name) => import(pathToFileURL(req.resolve(name)).href)
 const { build } = await load('vite')
 const { octane } = await load('@octanejs/vite-plugin')
-const { nativeScriptRenderer } = await load('@nativescript-community/octane/config')
+const { nativeScriptRenderer } = await load('@octane-xplat/nativescript-octane/config')
 const { withWorkshopMobile } = await load('@octane-xplat/workshop/vite-mobile')
 const { WORKSHOP_CONTRACT_VERSION } = await loadSource(
   pathToFileURL(req.resolve('@octane-xplat/workshop')),

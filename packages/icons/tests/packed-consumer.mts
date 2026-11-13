@@ -79,7 +79,7 @@ try {
       for (const dependency of [
         'octane',
         '@iconify/types',
-        ...(target === 'native' ? ['@nativescript-community/octane'] : []),
+        ...(target === 'native' ? ['@octane-xplat/nativescript-octane'] : []),
         ...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-appkit'] : []),
       ]) {
         const destination = join(modules, dependency)
@@ -128,7 +128,7 @@ void element; void missing; void invalid; void valueElement; void bothElement; v
             jsx: 'react-jsx',
             jsxImportSource:
               target === 'native'
-                ? '@nativescript-community/octane'
+                ? '@octane-xplat/nativescript-octane'
                 : target === 'macos'
                   ? '@octane-xplat/jsx'
                   : 'octane',

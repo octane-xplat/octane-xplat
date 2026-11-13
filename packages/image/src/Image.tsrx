@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { ImageSource, isAndroid, isIOS, Screen } from '@nativescript/core'
 import { Img, initialize } from '@nativescript-community/ui-image'
 import { useMemo, useRef } from 'octane'

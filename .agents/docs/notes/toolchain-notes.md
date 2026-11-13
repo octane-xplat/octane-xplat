@@ -193,7 +193,7 @@ pnpm exec tsrx-tsc --noEmit -p apps/mobile/tsconfig.json
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `octane`                                                               | single copy per app — dedupe via package-manager `resolutions`/overrides                            |
 | `@octanejs/vite-plugin`                                                | declares the `octane` range it compiles for (0.1.52 ↔ octane 0.2.x) — must bracket the app's octane |
-| `@nativescript-community/octane`                                       | peer `octane >= 0.1.51`; `@nativescript/core >= 9.1`                                                |
+| `@octane-xplat/nativescript-octane`                                       | peer `octane >= 0.1.51`; `@nativescript/core >= 9.1`                                                |
 | `@nativescript/core`, runtimes (`ios`/`android`), `@nativescript/vite` | NS 9.1+ for HTTP ESM dev boot                                                                       |
 | Node                                                                   | `>= 22.22.2` for published Octane packages                                                          |
 
@@ -481,7 +481,7 @@ ship secrets into either bundle (native bundles are inspectable like web).
 - **Production (`ns build ios`)**: `vendor.mjs` contains zero DOM octane
   modules — no `dom-bindings`, `dom-stage`, `dom-tables`, `hydration/*`,
   `server-rpc-*`, `runtime.js`. Compiled `.tsrx` references
-  `@nativescript-community/octane` → `octane/universal/native` only, so
+  `@octane-xplat/nativescript-octane` → `octane/universal/native` only, so
   tree-shaking works. The one `document.createElement` in vendor.mjs is a
   `WKUserScript` string literal inside `@nativescript/core`'s WebView impl.
 - **Dev (`deps-bundle-ios-*.mjs`)**: eagerly vendors every `package.json`
@@ -567,7 +567,7 @@ ship secrets into either bundle (native bundles are inspectable like web).
   served under that store spelling while the vendor route serves the same
   package at `/ns/m/node_modules/<pkg>`. Two URL spellings evaluate two
   copies of the package's modules. On Android first boot,
-  `@nativescript-community/octane`'s `elements.js` evaluated twice:
+  `@octane-xplat/nativescript-octane`'s `elements.js` evaluated twice:
   `registerElement('svgview', …)` landed in the store copy's registry while
   the driver consulted the canonical copy's and threw
   `<svgview> is not a registered element`, so the root Page never rendered
@@ -619,7 +619,7 @@ removed. A separate retained patch is described below:
    `nativeScriptRenderers({validation})` (upstreamed in 0.2.1).
 
 **New invariant — one driver copy per app.** Invariant 3 (one `octane`)
-applies equally to `@nativescript-community/octane`: the 0.2.0→0.2.1 bump
+applies equally to `@octane-xplat/nativescript-octane`: the 0.2.0→0.2.1 bump
 left `packages/*` devDeps at 0.2.0, so the bundle embedded TWO drivers and
 whichever copy created a root owns its prop application — `renderItem`
 silently took the old driver's plain `view[name]=` path (no cells, no echo
@@ -629,7 +629,7 @@ the same version; the peer range in `packages/ui` is the contract.
 
 ### Retained driver patch
 
-`packages/cli/patches/@nativescript-community__octane@0.2.4.patch` skips
+`packages/nativescript-octane/src/driver.ts` skips
 `undefined` prop writes in the driver's `setProp` — NativeScript native
 setters coerce it (e.g. `editable` → `ios.userInteractionEnabled = NO`),
 leaving dead UI that still has its JS listeners. The root applies it through

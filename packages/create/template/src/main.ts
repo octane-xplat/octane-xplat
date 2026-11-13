@@ -1,7 +1,7 @@
 // Native entry — the iOS/Android twin of main.web.tsrx. Same App.tsrx,
 // different shell: a Frame hosting a Page that renders the universal root.
 import { Application, Frame, Page } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { App } from './App.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'

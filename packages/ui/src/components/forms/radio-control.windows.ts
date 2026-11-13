@@ -1,6 +1,6 @@
 import { Property, View } from '@nativescript/core'
 import { Microsoft, NSWinRT } from '@octane-xplat/platform/windows'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
 interface RadioSettings {

@@ -52,7 +52,7 @@
 		"shaders": "4.0.6"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
 		"octane": "catalog:",

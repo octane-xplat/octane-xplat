@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { LiquidGlass as NSLiquidGlass } from '@nativescript/core'
 import { LiquidGlassView } from './liquid-glass-view.ios'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { LiquidGlassProps } from '../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../components/overlays/escape-props'

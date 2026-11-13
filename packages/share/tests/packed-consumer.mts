@@ -51,7 +51,7 @@ const dependencies = [
   '@nativescript/social-share',
   '@octane-xplat/platform',
   'octane',
-  '@nativescript-community/octane',
+  '@octane-xplat/nativescript-octane',
   '@nativescript/core',
   '@nativescript/types',
 ]

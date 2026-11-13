@@ -1,5 +1,5 @@
 import { CSSType, Property, Utils, View } from '@nativescript/core'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 
 export { glyphSvgMarkup, isSvgSrc, svgSource } from './svg-source'
 

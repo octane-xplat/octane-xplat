@@ -468,7 +468,7 @@ app windows → the pass runs in the same CATransaction. Android uses `didApply`
 → one-shot globalLayout/preDraw listener pairs on every pending root VTO plus
 the decor view, with `postInvalidateOnAnimation()` forcing a traversal so the
 pass lands before the draw. Native batch observation depends on the local
-`observeBatches()` patch to `@nativescript-community/octane@0.2.5`
+`observeBatches()` patch to `@octane-xplat/nativescript-octane@0.2.5`
 (`packages/cli/patches/`), needed because neither `layoutChanged` nor rerender
 signals see reorders of unchanged children.
 

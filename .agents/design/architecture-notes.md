@@ -17,7 +17,7 @@ react-native. We never ship one compiled artifact to both.
 Octane ships `octane/universal/native`: a host-neutral runtime whose compiler
 emits a static `universalPlan` + slot table per component, applied at runtime as
 `create`/`update`/`insert`/`move`/`remove`/`destroy`/`event`/`visibility`
-commands by a host driver. `@nativescript-community/octane` implements that
+commands by a host driver. `@octane-xplat/nativescript-octane` implements that
 driver over `@nativescript/core` views. The renderer problem is solved; what
 remains is an app-level architecture problem: vocabulary, styling, navigation,
 services.

@@ -4,10 +4,10 @@ import { compile } from 'octane/compiler'
 
 describe('component compiler boundaries without capturing images', () => {
   for (const [file, target, module] of [
-    ['ViewShot.tsx', 'native', '@nativescript-community/octane'],
+    ['ViewShot.tsx', 'native', '@octane-xplat/nativescript-octane'],
     ['ViewShot.macos.tsx', 'macos', '@octane-xplat/macos-appkit'],
     ['ViewShot.gtk.tsx', 'gtk', '@octane-xplat/linux-gtk'],
-    ['use-view-shot.tsx', 'native', '@nativescript-community/octane'],
+    ['use-view-shot.tsx', 'native', '@octane-xplat/nativescript-octane'],
   ] as const) {
     for (const hmr of [false, true]) {
       it(`${file} compiles for ${target} with HMR ${hmr}`, () => {

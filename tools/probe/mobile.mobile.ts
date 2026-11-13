@@ -1,7 +1,7 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { install as installGestureHandler } from '@nativescript-community/gesturehandler'
 import { Application, Frame, GestureTypes, Page, isIOS, Utils } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 
 import { dispatchScrub } from './touch.ts'
 import { dispatchPress } from './press.ts'

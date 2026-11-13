@@ -14,7 +14,7 @@ routing and shared components ship in `@octane-xplat/ui`; use
 
 One source tree, two compilations. A shared `.tsrx` file is compiled by the
 DOM renderer (`octane`) in the web build and by the NativeScript universal
-renderer (`@nativescript-community/octane`) in the iOS/Android build. Files diverge with `.web` for browser code, `.mobile` for shared
+renderer (`@octane-xplat/nativescript-octane`) in the iOS/Android build. Files diverge with `.web` for browser code, `.mobile` for shared
 iOS/Android variants, and OS-specific suffixes such as `.ios`/`.android`; the
 unsuffixed module is the native default. Vite `resolve.extensions` and TypeScript
 `moduleSuffixes` select the implementation, and renderer ownership follows the
@@ -81,7 +81,7 @@ is the portable boundary). `.tsx` allowed for directive-free files.
 
 ```ts
 // apps/mobile/vite.config.mts
-import { octaneConfig } from '@nativescript-community/vite-octane'
+import { octaneConfig } from '@octane-xplat/vite-octane'
 export default octaneConfig({
   // + our config helper asserting:
   //   renderers.rules include: 'src/**/*.{tsx,tsrx}', 'packages/**/*.{tsx,tsrx}'

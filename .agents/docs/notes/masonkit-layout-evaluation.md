@@ -15,7 +15,7 @@ produce metadata. Follow the [toolchain](../toolchain.md) when changing plugin
 versions, aliases, or native artifacts; a JavaScript reload cannot verify a
 native correction.
 
-The `@nativescript-community/octane` 0.2.5 patch recognizes container capability
+The `@octane-xplat/nativescript-octane` 0.2.5 patch recognizes container capability
 rather than assuming every container extends `LayoutBase`: Mason's
 `ContainerView` does not. Remove that branch only when the upstream renderer
 supports the same host capability.

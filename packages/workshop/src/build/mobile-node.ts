@@ -30,8 +30,8 @@ export function mobilePrerequisites(root, target, host = process.platform, env =
 			configFile && /withWorkshopMobile/.test(readFileSync(configFile, 'utf8')),
 		),
 		'@nativescript/core': installed('@nativescript/core'),
-		'@nativescript-community/octane': installed('@nativescript-community/octane'),
-		'@nativescript-community/vite-octane': installed('@nativescript-community/vite-octane'),
+		'@octane-xplat/nativescript-octane': installed('@octane-xplat/nativescript-octane'),
+		'@octane-xplat/vite-octane': installed('@octane-xplat/vite-octane'),
 		'@valor/nativescript-websockets': installed('@valor/nativescript-websockets'),
 		'nativescript CLI': installed('nativescript'),
 	}

@@ -41,13 +41,13 @@ test('native preset loads without alien-signals in the app or Octane dependency 
     // Stub the upstream config boundary; exercise the built Xplat preset
     // and Vite's real merging without starting a native build or server.
     makePackage(
-      '@nativescript-community/vite-octane',
+      '@octane-xplat/vite-octane',
       { main: 'index.js' },
       'export const octaneConfig = () => ({})',
     )
 
     makePackage(
-      '@nativescript-community/octane',
+      '@octane-xplat/nativescript-octane',
       { exports: { './config': './index.js', './driver': './driver.js' } },
       'export const nativeScriptRenderer = {}',
     )
@@ -153,7 +153,7 @@ test('native preset loads without alien-signals in the app or Octane dependency 
 
         writeFileSync(join(directory, 'style.js'), "export const Style = 'core-style'")
         writeFileSync(
-          join(root, 'node_modules/@nativescript-community/octane/driver.js'),
+          join(root, 'node_modules/@octane-xplat/nativescript-octane/driver.js'),
           `
 import { View } from '@octane-xplat/nativescript-masonkit'
 import { Style } from '@octane-xplat/nativescript-masonkit/style'
@@ -163,7 +163,7 @@ export { View, Style }
 
         writeFileSync(
           join(root, 'entry.js'),
-          "export { View, Style } from '@nativescript-community/octane/driver'",
+          "export { View, Style } from '@octane-xplat/nativescript-octane/driver'",
         )
 
         writeFileSync(
@@ -359,7 +359,7 @@ export { View, Style }`,
         )
 
         writeFileSync(
-          join(root, 'node_modules/@nativescript-community/octane/driver.js'),
+          join(root, 'node_modules/@octane-xplat/nativescript-octane/driver.js'),
           'export const driver = {}',
         )
 
@@ -367,7 +367,7 @@ export { View, Style }`,
 
         for (const [name, file, source] of [
           ['@nativescript/unit-test-runner', 'testing.js', 'export const host = {}'],
-          ['@nativescript-community/octane', 'driver.js', 'export const driver = {}'],
+          ['@octane-xplat/nativescript-octane', 'driver.js', 'export const driver = {}'],
         ]) {
           const dir = join(linked, 'node_modules', name)
 
@@ -388,7 +388,7 @@ export { View, Style }`,
           join(linked, 'index.js'),
           `
 export { host as linkedHost } from '@nativescript/unit-test-runner/testing'
-export { driver as linkedDriver } from '@nativescript-community/octane/driver'
+export { driver as linkedDriver } from '@octane-xplat/nativescript-octane/driver'
 `,
         )
 
@@ -396,7 +396,7 @@ export { driver as linkedDriver } from '@nativescript-community/octane/driver'
           join(root, 'entry.js'),
           `
 import { host } from '@nativescript/unit-test-runner/testing'
-import { driver } from '@nativescript-community/octane/driver'
+import { driver } from '@octane-xplat/nativescript-octane/driver'
 import { linkedHost, linkedDriver } from './linked/index.js'
 export const sameHost = host === linkedHost
 export const sameDriver = driver === linkedDriver

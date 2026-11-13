@@ -1018,8 +1018,8 @@ export async function native(env, opts = {}) {
   const [{ mergeConfig, searchForWorkspaceRoot }, { octaneConfig }, { nativeScriptRenderer }] =
     await Promise.all([
       importApp('vite'),
-      importApp('@nativescript-community/vite-octane'),
-      importApp('@nativescript-community/octane/config'),
+      importApp('@octane-xplat/vite-octane'),
+      importApp('@octane-xplat/nativescript-octane/config'),
     ])
 
   const config = mergeConfig(
@@ -1034,7 +1034,7 @@ export async function native(env, opts = {}) {
               nativescript: {
                 ...nativeScriptRenderer,
                 intrinsics:
-                  '@octane-xplat/jsx' /* upstream hardcodes @nativescript-community/octane; the facade is the single JSX type source now */,
+                  '@octane-xplat/jsx' /* upstream hardcodes @octane-xplat/nativescript-octane; the facade is the single JSX type source now */,
               },
             },
             rules: opts.rules ?? nativeRules,
@@ -1098,7 +1098,7 @@ export async function native(env, opts = {}) {
           // Dev/HMR universal emit lowers JSX inside expression props
           // (e.g. `renderItem={(item) => <gridlayout>…}`) itself —
           // verified via dev-server transformRequest on both the
-          // @octane-xplat/jsx and @nativescript-community/octane
+          // @octane-xplat/jsx and @octane-xplat/nativescript-octane
           // pragmas: no jsx-runtime import reaches the output, so the
           // file's own @jsxImportSource pragma is inert here. Keep
           // .tsrx marked tsx anyway: if a construct survives the
@@ -1129,7 +1129,7 @@ export async function native(env, opts = {}) {
       resolve: {
         conditions: nativePlatform() === 'windows' ? ['windows', 'native'] : ['native'],
         // Linked UI/platform sources must share the app's renderer element registry.
-        dedupe: ['octane', '@nativescript-community/octane'],
+        dedupe: ['octane', '@octane-xplat/nativescript-octane'],
         // The compiler retargets hook imports to @nativescript-community/
         // octane, but the deps-bundle scanner sees source-level 'octane'
         // first — without this it vendors octane/dist/index.js (the full
@@ -1138,7 +1138,7 @@ export async function native(env, opts = {}) {
         alias: [
           { find: /^octane$/, replacement: 'octane/universal/native' },
           ...nativeCoreHttpAliases(appRequire),
-          // The canonical renderer patch keeps full MasonKit imports.
+          // The owned NativeScript renderer keeps full MasonKit imports.
           // Resolve them through the app's selected engine, including
           // /style: an isolated renderer cannot resolve the app's core
           // or Windows full-kit installation through its own ancestors.

@@ -122,7 +122,7 @@ try {
         'fonteditor-core',
         'pathkit-wasm',
         'svg2ttf',
-        ...(target === 'native' ? ['@nativescript-community/octane', '@nativescript/core'] : []),
+        ...(target === 'native' ? ['@octane-xplat/nativescript-octane', '@nativescript/core'] : []),
         ...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-appkit'] : []),
       ]) {
         const destination = join(modules, dependency)
@@ -165,7 +165,7 @@ try {
             jsx: 'react-jsx',
             jsxImportSource:
               target === 'native'
-                ? '@nativescript-community/octane'
+                ? '@octane-xplat/nativescript-octane'
                 : target === 'macos'
                   ? '@octane-xplat/jsx'
                   : 'octane',

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Application, Page } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { install as installGestureHandler } from '@nativescript-community/gesturehandler'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import LightboxGallery from './LightboxGallery.tsrx'

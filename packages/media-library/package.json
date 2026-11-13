@@ -53,7 +53,7 @@
 		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/image-manipulator": "workspace:*",

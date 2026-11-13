@@ -125,6 +125,30 @@ snapshot service passes that flag on Windows and qualifies a long-cache-path
 fixture. Do not shorten a failing fixture or change the user's global Git config
 to hide this boundary.
 
+## Native renderer ownership
+
+`packages/nativescript-octane` owns the NativeScript renderer source and
+`packages/vite-octane` owns its compiler configuration and HMR flavor. Both
+use Bun, Turbo, native TypeScript, and the existing Vitest runner. Their
+`NOTICE.md` files pin the upstream import and retain its MIT attribution.
+Do not restore the upstream Nx build or separate release workflow.
+
+The source includes the former 0.2.5 renderer and 0.2.1 flavor patches. Edit
+source and its tests directly; these packages no longer belong in the patch
+manifest. Core 9.1 exposes property-registry enumerators only through its internal
+`ui/core/properties` entry; the driver retains this isolated import for prop-reset
+semantics, alongside its private CSS refresh hook. The native-import lint rule
+exempts the two native-only packages; the deep-import exception stays on that
+one import, with its reason. The renderer keeps full MasonKit import specifiers as an optional
+peer; the native preset resolves them to the app's selected engine. Making
+full MasonKit a required dependency would add overlapping native artifacts
+to mobile apps that use Mason core.
+
+Both packages join the framework lockstep release. Before their first npm
+publication, complete the package stub and trusted-publisher setup described
+in [releases](releases.md). Local source ownership and builds do not establish
+registry availability or device behavior.
+
 ## Runtime dependency compatibility
 
 The content-mapper protocol is file-keyed, not specifier-keyed
@@ -544,7 +568,7 @@ experience of agents writing Octane-xplat code effectively.
   `nodeLinker: hoisted` workspace (the app's `node_modules` is empty and
   packages live at the workspace root) the exports reverse map comes out
   empty. A deep vendor specifier such as
-  `@nativescript-community/octane/dist/index.js` then fails to fold back to
+  `@octane-xplat/nativescript-octane/dist/index.js` then fails to fold back to
   the bare id, misses every `__nsVendorRegistry` key and alias, and device
   `require` resolves a module without the vendored exports — the app
   boot-crashes inside the first served UI module

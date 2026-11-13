@@ -51,7 +51,7 @@ const dependencies = [
   'shaders',
   'typegpu',
   '@octane-xplat/canvas',
-  '@nativescript-community/octane',
+  '@octane-xplat/nativescript-octane',
   '@nativescript/core',
   '@nativescript/types',
   '@nativescript/canvas',

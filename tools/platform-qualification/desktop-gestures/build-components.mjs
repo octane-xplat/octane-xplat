@@ -174,7 +174,7 @@ if (target === 'windows') {
   for (const name of [
     '@nativescript/core',
     '@nativescript/windows',
-    '@nativescript-community/octane',
+    '@octane-xplat/nativescript-octane',
     '@octane-xplat/nativescript-masonkit',
   ]) {
     manifest.dependencies[name] = original.dependencies[name] ?? original.devDependencies[name]
@@ -195,7 +195,7 @@ if (target === 'windows') {
     extra: {
       root: app,
       build: { outDir: join(app, 'dist') },
-      resolve: { dedupe: ['@nativescript/core', '@nativescript-community/octane'] },
+      resolve: { dedupe: ['@nativescript/core', '@octane-xplat/nativescript-octane'] },
     },
   })
 } else {

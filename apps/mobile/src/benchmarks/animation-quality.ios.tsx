@@ -11,7 +11,7 @@ import {
 
 import { View as NativeView } from '@nativescript/core'
 import { install } from '@nativescript-community/gesturehandler'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import { View, Pressable, Text, ScrollableArea } from '@octane-xplat/ui'
 import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'

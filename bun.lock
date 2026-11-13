@@ -179,21 +179,21 @@
       "dependencies": {
         "@nativescript-community/gesturehandler": "2.1.0",
         "@nativescript-community/observable": "2.0.11",
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/lightbox": "workspace:*",
         "@octane-xplat/nativescript-mason-core": "1.0.0-beta.8",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "octane": "catalog:",
       },
       "devDependencies": {
-        "@nativescript-community/vite-octane": "catalog:",
         "@nativescript/android": "9.1.1",
         "@nativescript/ios": "9.1.0",
         "@nativescript/types": "catalog:",
         "@nativescript/vite": "8.0.20",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/vite-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "typescript": "catalog:",
         "typescript-classic": "catalog:",
@@ -206,7 +206,6 @@
       "dependencies": {
         "@nativescript-community/gesturehandler": "2.1.0",
         "@nativescript-community/observable": "2.0.11",
-        "@nativescript-community/octane": "catalog:",
         "@nativescript-community/perms": "3.0.12",
         "@nativescript/canvas": "3.0.1",
         "@nativescript/core": "catalog:",
@@ -226,6 +225,7 @@
         "@octane-xplat/lottie": "workspace:*",
         "@octane-xplat/media": "workspace:*",
         "@octane-xplat/nativescript-mason-core": "1.0.0-beta.8",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/notifications": "workspace:*",
         "@octane-xplat/pager": "workspace:*",
         "@octane-xplat/picker": "workspace:*",
@@ -244,7 +244,6 @@
         "octane": "catalog:",
       },
       "devDependencies": {
-        "@nativescript-community/vite-octane": "catalog:",
         "@nativescript/android": "9.1.1",
         "@nativescript/ios": "9.1.0",
         "@nativescript/types": "catalog:",
@@ -254,6 +253,7 @@
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/vite-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "nativescript": "9.1.1",
@@ -319,7 +319,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@nativescript-community/observable": "2.0.11",
-        "@nativescript-community/octane": "catalog:",
         "@nativescript-community/perms": "3.0.12",
         "@nativescript/canvas": "3.0.1",
         "@nativescript/core": "https://pkg.pr.new/@nativescript/core@abae298",
@@ -354,6 +353,7 @@
         "@octane-xplat/media-library": "workspace:*",
         "@octane-xplat/motion": "workspace:*",
         "@octane-xplat/nativescript-masonkit": "1.0.0-beta.129",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/network": "workspace:*",
         "@octane-xplat/notifications": "workspace:*",
         "@octane-xplat/pager": "workspace:*",
@@ -386,13 +386,13 @@
         "octane": "catalog:",
       },
       "devDependencies": {
-        "@nativescript-community/vite-octane": "catalog:",
         "@nativescript/types": "catalog:",
         "@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@abae298",
         "@nativescript/windows": "1.0.0-beta.24",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/vite-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "nativescript": "9.1.2-dev.2026-09-24-36031892256",
         "typescript": "catalog:",
@@ -409,7 +409,6 @@
         "octane": "catalog:",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/macos-node-api": "catalog:",
         "@nativescript/types": "catalog:",
@@ -417,6 +416,7 @@
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/linux-gtk": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/workshop": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -434,22 +434,22 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/app": {
@@ -476,12 +476,12 @@
       },
       "devDependencies": {
         "@bamboocss/dev": "1.60.1",
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/bamboo": "workspace:*",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": "catalog:",
         "vite": "catalog:",
       },
@@ -518,8 +518,8 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -530,13 +530,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -551,10 +551,10 @@
         "@octane-xplat/secure-storage": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -564,13 +564,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/background-tasks": {
@@ -580,9 +580,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -590,13 +590,13 @@
         "typescript-classic": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/bamboo": {
@@ -629,22 +629,22 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/billing": {
@@ -654,9 +654,9 @@
         "@nativescript/payments": "4.0.1",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -664,13 +664,13 @@
         "typescript-classic": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/biometrics": {
@@ -682,9 +682,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -692,13 +692,13 @@
         "typescript-classic": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/build": {
@@ -742,22 +742,22 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/camera": {
@@ -769,10 +769,10 @@
         "mediabunny": "1.62.1",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/macos-node-api": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -783,15 +783,15 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
         "@nativescript/macos-node-api": "0.5.0-beta.0",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@nativescript/macos-node-api",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -803,10 +803,10 @@
         "@octane-xplat/jsx": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -815,15 +815,15 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@octane-xplat/macos-appkit",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/charts": {
@@ -838,9 +838,9 @@
         "d3-time-format": "4.1.1",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -856,14 +856,14 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": ">=0.6.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/cli": {
@@ -892,9 +892,9 @@
         "yaml": "2.9.1",
       },
       "devDependencies": {
-        "@nativescript-community/vite-octane": "0.2.1",
         "@nativescript/core": "catalog:",
         "@nativescript/vite": "8.0.20",
+        "@octane-xplat/vite-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "@types/node": "26.6.6",
         "abort-controller": "3.0.0",
@@ -912,22 +912,22 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/context-menu": {
@@ -940,9 +940,9 @@
         "@octane-xplat/lib": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -951,13 +951,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.1.51 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -1024,9 +1024,9 @@
         "@octane-xplat/jsx": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1035,13 +1035,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.1.51 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -1086,11 +1086,11 @@
         "zeed-dom": "0.18.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/nativescript-mason-core": "1.0.0-beta.8",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": "catalog:",
       },
       "peerDependencies": {
@@ -1141,9 +1141,9 @@
         "abort-controller": "3.0.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1153,13 +1153,13 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -1185,8 +1185,8 @@
         "@octane-xplat/lib": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1195,13 +1195,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/files": {
@@ -1214,11 +1214,11 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -1231,14 +1231,14 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": ">=0.6.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/fingerprint": {
@@ -1268,9 +1268,9 @@
         "firebase": "13.2.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/push": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1280,13 +1280,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/firebase-crashlytics": {
@@ -1297,9 +1297,9 @@
         "@nativescript/firebase-crashlytics": "5.0.2",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -1307,13 +1307,13 @@
         "typescript-classic": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/form": {
@@ -1324,9 +1324,9 @@
         "@tanstack/form-core": "1.33.5",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -1348,22 +1348,22 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/geolocation": {
@@ -1374,9 +1374,9 @@
         "@octane-xplat/lib": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -1384,13 +1384,13 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/gif": {
@@ -1402,9 +1402,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1413,13 +1413,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/global-shortcuts": {
@@ -1452,8 +1452,8 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "nativescript": "9.1.1",
@@ -1463,13 +1463,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -1483,9 +1483,9 @@
         "@octane-xplat/ui": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1494,14 +1494,14 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
         "vite": ">=5",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
         "vite",
       ],
@@ -1514,9 +1514,9 @@
         "@octane-xplat/jsx": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -1526,14 +1526,14 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": ">=0.10.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/image-crop": {
@@ -1544,9 +1544,9 @@
         "@octane-xplat/ui": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1556,15 +1556,15 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
         "@octane-xplat/macos-appkit": ">=0.8.0 <1",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@octane-xplat/macos-appkit",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -1577,10 +1577,10 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1605,9 +1605,9 @@
         "@octane-xplat/jsx": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1616,13 +1616,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -1653,8 +1653,8 @@
         "@octane-xplat/ui": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1664,13 +1664,13 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.11.0 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/lexical": {
@@ -1693,9 +1693,9 @@
       },
       "devDependencies": {
         "@lexical/history": "0.53.0",
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -1704,13 +1704,13 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -1732,12 +1732,12 @@
       },
       "devDependencies": {
         "@nativescript-community/gesturehandler": "2.0.45",
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "jsdom": "catalog:",
@@ -1750,15 +1750,15 @@
       },
       "peerDependencies": {
         "@nativescript-community/gesturehandler": "2.0.45",
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": ">=0.6.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
         "@nativescript-community/gesturehandler",
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/lingui": {
@@ -1778,8 +1778,8 @@
       "devDependencies": {
         "@lingui/cli": "6.11.0",
         "@lingui/format-json": "6.11.0",
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1790,14 +1790,14 @@
       },
       "peerDependencies": {
         "@lingui/cli": ">=6.5.0 <7",
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
         "@lingui/cli",
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -1849,10 +1849,10 @@
         "lottie-web": "5.13.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -1861,13 +1861,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/macos-appkit": {
@@ -1916,22 +1916,22 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/mcp": {
@@ -1965,9 +1965,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -1975,13 +1975,13 @@
         "typescript-classic": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/media-converter": {
@@ -2017,12 +2017,12 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/image-manipulator": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "jsdom": "catalog:",
@@ -2049,9 +2049,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/nativescript-mason-core": "1.0.0-beta.8",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": "catalog:",
       },
     },
@@ -2068,10 +2068,10 @@
         "motion-dom": "14.7.1",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "jsdom": "catalog:",
@@ -2082,15 +2082,15 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.1.51 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@octane-xplat/macos-appkit",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/nano-icons": {
@@ -2111,8 +2111,8 @@
         "svg2ttf": "6.1.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "@types/node": "26.6.6",
@@ -2123,16 +2123,38 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@octane-xplat/macos-appkit",
+        "@octane-xplat/nativescript-octane",
         "octane",
+      ],
+    },
+    "packages/nativescript-octane": {
+      "name": "@octane-xplat/nativescript-octane",
+      "version": "0.20.0",
+      "devDependencies": {
+        "@nativescript/core": "catalog:",
+        "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-masonkit": "1.0.0-beta.126",
+        "@tsrx/content-mapper": "catalog:",
+        "@types/node": "26.6.6",
+        "octane": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:",
+      },
+      "peerDependencies": {
+        "@nativescript/core": ">=9.1.0",
+        "@octane-xplat/nativescript-masonkit": ">=1.0.0-beta.126 <2",
+        "octane": ">=0.16.3 <1",
+      },
+      "optionalPeers": [
+        "@octane-xplat/nativescript-masonkit",
       ],
     },
     "packages/network": {
@@ -2144,8 +2166,8 @@
         "web-streams-polyfill": "4.5.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2158,13 +2180,13 @@
         "zod": "4.6.7",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -2177,21 +2199,21 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/pager": {
@@ -2203,10 +2225,10 @@
         "@octane-xplat/lib": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -2216,14 +2238,14 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": ">=0.18.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/patches": {
@@ -2239,9 +2261,9 @@
         "@octane-xplat/jsx": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2250,15 +2272,15 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
         "@octane-xplat/macos-appkit": ">=0.8.0 <1",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@octane-xplat/macos-appkit",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -2270,7 +2292,6 @@
         "@octane-xplat/lib": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/macos-node-api": "catalog:",
         "@nativescript/objc-node-api": "1.0.0-alpha.7",
@@ -2279,6 +2300,7 @@
         "@nativescript/types-ios": "catalog:",
         "@nativescript/unit-test-runner": "catalog:",
         "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2289,20 +2311,20 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
         "@nativescript/types-android": ">=9.1.1 <10",
         "@nativescript/types-ios": ">=9.1.3 <10",
         "@nativescript/unit-test-runner": ">=5.0.0 <6",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
         "vitest": ">=4.1.0 <5",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@nativescript/types-android",
         "@nativescript/types-ios",
         "@nativescript/unit-test-runner",
+        "@octane-xplat/nativescript-octane",
         "vitest",
       ],
     },
@@ -2315,22 +2337,22 @@
         "posthog-js-lite": "4.13.2",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/print": {
@@ -2364,8 +2386,8 @@
         "firebase": "13.2.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
@@ -2373,13 +2395,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -2391,8 +2413,8 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2402,13 +2424,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -2420,9 +2442,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tiptap/core": "3.32.2",
         "@tiptap/starter-kit": "3.32.2",
         "@tsrx/content-mapper": "catalog:",
@@ -2434,13 +2456,13 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -2455,10 +2477,10 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -2470,15 +2492,15 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@octane-xplat/macos-appkit",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/screen-orientation": {
@@ -2513,9 +2535,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -2523,13 +2545,13 @@
         "typescript-classic": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/sentry": {
@@ -2541,13 +2563,13 @@
         "@sentry/browser": "11.10.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
-        "@nativescript-community/vite-octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@nativescript/vite": "8.0.20",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/nativescript-mason-core": "1.0.0-beta.8",
+        "@octane-xplat/nativescript-octane": "workspace:*",
+        "@octane-xplat/vite-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@sentry/cli": "3.8.2",
         "@tsrx/content-mapper": "catalog:",
@@ -2559,13 +2581,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/shaders": {
@@ -2576,8 +2598,8 @@
         "shaders": "4.0.6",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2600,8 +2622,8 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2611,13 +2633,13 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -2631,9 +2653,9 @@
         "@octane-xplat/lib": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2642,13 +2664,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.1.51 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -2684,10 +2706,10 @@
         "@octane-xplat/jsx": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2697,13 +2719,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/sounds": {
@@ -2713,8 +2735,8 @@
         "@nativescript/audio-context": "1.3.3",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
@@ -2724,13 +2746,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -2797,22 +2819,22 @@
       "name": "@octane-xplat/store-review",
       "version": "0.20.0",
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/stripe": {
@@ -2823,11 +2845,11 @@
         "@stripe/stripe-js": "10.2.1",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "jsdom": "catalog:",
@@ -2854,10 +2876,10 @@
         "@tanstack/table-core": "9.3.1",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -2868,14 +2890,14 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": ">=0.6.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/tailwind": {
@@ -2916,9 +2938,9 @@
         "zeed-dom": "0.18.0",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -2927,13 +2949,13 @@
         "vitest": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
         "octane",
       ],
     },
@@ -3065,11 +3087,11 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "@tsrx/core": "0.2.4",
@@ -3123,9 +3145,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
@@ -3135,14 +3157,14 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": ">=0.6.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/view-shot": {
@@ -3174,6 +3196,28 @@
         "@nativescript/core",
       ],
     },
+    "packages/vite-octane": {
+      "name": "@octane-xplat/vite-octane",
+      "version": "0.20.0",
+      "dependencies": {
+        "@octane-xplat/nativescript-octane": "workspace:*",
+      },
+      "devDependencies": {
+        "@nativescript/core": "catalog:",
+        "@nativescript/vite": "8.0.20",
+        "@octanejs/vite-plugin": "catalog:",
+        "@tsrx/content-mapper": "catalog:",
+        "@types/node": "26.6.6",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:",
+      },
+      "peerDependencies": {
+        "@nativescript/vite": ">=8.0.11",
+        "@octanejs/vite-plugin": ">=0.1.51",
+        "vite": "^8.0.0",
+      },
+    },
     "packages/web-browser": {
       "name": "@octane-xplat/web-browser",
       "version": "0.20.0",
@@ -3181,9 +3225,9 @@
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -3191,13 +3235,13 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
+        "@octane-xplat/nativescript-octane",
       ],
     },
     "packages/web-host": {
@@ -3239,7 +3283,6 @@
         "tinyglobby": "0.2.17",
       },
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/macos-node-api": "catalog:",
         "@nativescript/types": "catalog:",
@@ -3247,6 +3290,7 @@
         "@octane-xplat/linux-gtk": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/macos-build": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -3254,23 +3298,23 @@
         "vite": "catalog:",
       },
       "peerDependencies": {
-        "@nativescript-community/octane": ">=0.2.4 <1",
         "@nativescript/core": ">=9.1.3 <10",
         "@nativescript/macos-node-api": "0.5.0-beta.0",
         "@octane-xplat/linux-gtk": ">=0.18.0 <1",
         "@octane-xplat/macos-appkit": ">=0.14.0 <1",
         "@octane-xplat/macos-build": ">=0.19.0 <1",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octanejs/vite-plugin": ">=0.1.61",
         "octane": ">=0.6.3 <1",
         "vite": ">=8",
       },
       "optionalPeers": [
-        "@nativescript-community/octane",
         "@nativescript/core",
         "@nativescript/macos-node-api",
         "@octane-xplat/linux-gtk",
         "@octane-xplat/macos-appkit",
         "@octane-xplat/macos-build",
+        "@octane-xplat/nativescript-octane",
         "vite",
       ],
     },
@@ -3344,13 +3388,13 @@
     "tools/platform-qualification": {
       "name": "@xplat/platform-qualification",
       "devDependencies": {
-        "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/linux-gtk": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/motion": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
@@ -3442,13 +3486,11 @@
     "@octanejs/tiptap@0.0.62": "packages/cli/patches/@octanejs__tiptap@0.0.62.patch",
     "@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch",
     "@nativescript-community/sqlite-bridge@4.1.1": "packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch",
-    "@nativescript-community/vite-octane@0.2.1": "packages/cli/patches/@nativescript-community__vite-octane@0.2.1.patch",
     "@octane-xplat/nativescript-mason-core@1.0.0-beta.8": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.8.patch",
-    "@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
     "@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
+    "@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
     "@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
     "@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21-pkgprnew.patch",
-    "@nativescript-community/octane@0.2.5": "packages/cli/patches/@nativescript-community__octane@0.2.5.patch",
     "@nstudio/nativescript-exoplayer@6.2.0": "packages/cli/patches/@nstudio__nativescript-exoplayer@6.2.0.patch",
     "@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
     "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
@@ -3516,8 +3558,6 @@
     },
   },
   "catalog": {
-    "@nativescript-community/octane": "0.2.5",
-    "@nativescript-community/vite-octane": "0.2.1",
     "@nativescript/core": "9.1.3",
     "@nativescript/macos-node-api": "0.5.0-beta.0",
     "@nativescript/types": "9.1.4",
@@ -4230,8 +4270,6 @@
 
     "@nativescript-community/observable": ["@nativescript-community/observable@2.0.11", "", {}, "sha512-G30bcw2gwvBB5ceJ23mEtej/iYVqXCrgLaMxOftNrno0wyg0RWuJQqDUFwO4bZdSRz8/um9oM1u/5SihmxJvBA=="],
 
-    "@nativescript-community/octane": ["@nativescript-community/octane@0.2.5", "", { "peerDependencies": { "@nativescript/core": ">=9.1.0", "octane": ">=0.1.51" } }, "sha512-WVTVORI3FpdRwSwg8GgoeKs8vvadAceQEPUppdXVN+cSzSKfH7lkdSHq7V6Sz9IVVqLgxgW8yEjHegvz0V6g3g=="],
-
     "@nativescript-community/perms": ["@nativescript-community/perms@3.0.12", "", {}, "sha512-pNRawjbDlRho3SnVB/HlpyHLHoAAxRZpIh/OaL2qP6QyYBdle1KFY+cyHEq2GpT47u/MAGUUiQ546uMewpHI4A=="],
 
     "@nativescript-community/sentry": ["@nativescript-community/sentry@4.6.49", "", { "dependencies": { "@nativescript-community/arraybuffers": "1.1.5", "@sentry/browser": "7.111.0", "@sentry/core": "7.111.0", "@sentry/hub": "7.111.0", "@sentry/integrations": "7.111.0", "@sentry/tracing": "7.111.0", "@sentry/types": "7.111.0", "@sentry/utils": "7.111.0", "stacktrace-parser": "0.1.11" } }, "sha512-js8G09pkQBLCOLHS1FfPoEqzIo+so/5946ch8BPsfiYI4advRjwc9ZFr6NlXMbNC2FsFAIsT+Sh+AprQeGuhDg=="],
@@ -4251,8 +4289,6 @@
     "@nativescript-community/ui-image": ["@nativescript-community/ui-image@5.0.18", "", {}, "sha512-GIDsv18G+RR8d6dAfuyYBqeSd9U82aZylaBeEAk1gN09UMmnc77LWIzss3V0LJTdZqM6h5V8VfUivEGBnqKPgw=="],
 
     "@nativescript-community/ui-pager": ["@nativescript-community/ui-pager@14.1.42", "", {}, "sha512-WFSJgdlKNf/VcYn6u2Bt21pScusXoUXXksf2EIKc1cl5BRS3siUKX/tsvItK0lsQNy0CrzgnMKuKxUuI/0GETQ=="],
-
-    "@nativescript-community/vite-octane": ["@nativescript-community/vite-octane@0.2.1", "", { "dependencies": { "@nativescript-community/octane": "0.2.5" }, "peerDependencies": { "@nativescript/vite": ">=8.0.11", "@octanejs/vite-plugin": ">=0.1.51", "vite": "^8.0.0" } }, "sha512-195CCVbUiPgr4y17fGdfI8K6FAbAtTJIzLEJ090mYYK2h7LYWHRmK2mFqrBuSXAmzm/MlgndZdXHTGuXvYjh8Q=="],
 
     "@nativescript/android": ["@nativescript/android@9.1.1", "", {}, "sha512-oDWfVnQtgQ0ctbfFWSugqGEZnYVjls82FqlO5UbA9HNwTNqdP4gqWwqHR80WKQngrbxlRHYDIuYv5S9kQfKhcw=="],
 
@@ -4510,7 +4546,9 @@
 
     "@octane-xplat/nativescript-mason-core": ["@octane-xplat/nativescript-mason-core@1.0.0-beta.8", "", { "dependencies": { "@nativescript/font-manager": "1.0.20" }, "peerDependencies": { "@nativescript/core": "~9.1.2" } }, "sha512-09QeP+Ju8E6g5/eeYoWpLjuimQLRcgMuo2MzMPhK027adBXZJm5SuEG+70my/WfxbfH/vAkDWbgD5J6bxIiN8w=="],
 
-    "@octane-xplat/nativescript-masonkit": ["@octane-xplat/nativescript-masonkit@1.0.0-beta.129", "", { "peerDependencies": { "@angular/core": ">=19.0.0", "@nativescript-community/react": ">=19.0.0", "@nativescript-community/svelte-native": ">=1.0.0", "@nativescript/angular": ">=19.0.0", "nativescript-vue": "^3.0.0" }, "optionalPeers": ["@angular/core", "@nativescript-community/react", "@nativescript-community/svelte-native", "@nativescript/angular", "nativescript-vue"] }, "sha512-g+M7Xq4hs30eH9CY1XnyIXRSSSeNBxHa4yY759R+wCPe96IO8cuYtDaHFzahyA8P955/tHuq1QUkJq5Xe/YP8w=="],
+    "@octane-xplat/nativescript-masonkit": ["@octane-xplat/nativescript-masonkit@1.0.0-beta.126", "", { "peerDependencies": { "@angular/core": ">=19.0.0", "@nativescript-community/react": ">=19.0.0", "@nativescript-community/svelte-native": ">=1.0.0", "@nativescript/angular": ">=19.0.0", "nativescript-vue": "^3.0.0" }, "optionalPeers": ["@angular/core", "@nativescript-community/react", "@nativescript-community/svelte-native", "@nativescript/angular", "nativescript-vue"] }, "sha512-Lx2PN1uOfDrLsCfLjJ6EckGiFiP5/9nCSftRXXhmgs/CtfrR4dq60iyUe+Scc3F90zHlRNvjbNkLO1Rtk8Gw6Q=="],
+
+    "@octane-xplat/nativescript-octane": ["@octane-xplat/nativescript-octane@workspace:packages/nativescript-octane"],
 
     "@octane-xplat/network": ["@octane-xplat/network@workspace:packages/network"],
 
@@ -4583,6 +4621,8 @@
     "@octane-xplat/video": ["@octane-xplat/video@workspace:packages/video"],
 
     "@octane-xplat/view-shot": ["@octane-xplat/view-shot@workspace:packages/view-shot"],
+
+    "@octane-xplat/vite-octane": ["@octane-xplat/vite-octane@workspace:packages/vite-octane"],
 
     "@octane-xplat/web-browser": ["@octane-xplat/web-browser@workspace:packages/web-browser"],
 
@@ -7475,6 +7515,8 @@
     "@xplat/windows/@nativescript/font-manager": ["@nativescript/font-manager@1.0.18", "", {}, "sha512-bPWqsE6oYRwdb4JVe60aSeAIgnjbpgObDGO3HEI2ghNFIOxI3+qXR7VkTRY3AFHyIljT9DCVWy3mcde9k5LO3A=="],
 
     "@xplat/windows/@nativescript/vite": ["@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298", { "dependencies": { "@babel/core": "7.29.7", "@babel/generator": "7.29.8", "@babel/parser": "7.29.9", "@babel/plugin-transform-typescript": "7.29.9", "@babel/plugin-transform-unicode-property-regex": "7.29.7", "@babel/traverse": "7.29.8", "@babel/types": "7.29.8", "@rollup/plugin-alias": "6.0.0", "@rollup/plugin-commonjs": "29.0.3", "@rollup/plugin-replace": "6.0.3", "css": "3.0.0", "esbuild": "0.27.7", "minimist": "1.2.8", "sass": "1.104.1", "vite": "8.3.0", "vite-plugin-static-copy": "4.1.1", "ws": "8.21.3" }, "peerDependencies": { "@analogjs/vite-plugin-angular": "^2.0.0", "@angular/build": "^21.0.0 || ^22.0.0", "@vitejs/plugin-vue": "^6.0.5", "@vitejs/plugin-vue-jsx": "^5.1.5", "@vue/compiler-sfc": "^3.5.0", "react-reconciler": "^0.32.0", "typescript": "*", "vite-plugin-solid": "^2.11.11", "vue-tsc": "^3.2.0" }, "optionalPeers": ["@analogjs/vite-plugin-angular", "@angular/build", "@vitejs/plugin-vue", "@vitejs/plugin-vue-jsx", "@vue/compiler-sfc", "react-reconciler", "typescript", "vite-plugin-solid", "vue-tsc"] }, "sha512-b4lW9meFZ3UIMDjp4Q2Agj0h9BteaTCp4bPx7antgtPaYDwrwM638mOnDJMd2u6BnDEGpqM4cnBqdM9YDEmbtw=="],
+
+    "@xplat/windows/@octane-xplat/nativescript-masonkit": ["@octane-xplat/nativescript-masonkit@1.0.0-beta.129", "", { "peerDependencies": { "@angular/core": ">=19.0.0", "@nativescript-community/react": ">=19.0.0", "@nativescript-community/svelte-native": ">=1.0.0", "@nativescript/angular": ">=19.0.0", "nativescript-vue": "^3.0.0" }, "optionalPeers": ["@angular/core", "@nativescript-community/react", "@nativescript-community/svelte-native", "@nativescript/angular", "nativescript-vue"] }, "sha512-g+M7Xq4hs30eH9CY1XnyIXRSSSeNBxHa4yY759R+wCPe96IO8cuYtDaHFzahyA8P955/tHuq1QUkJq5Xe/YP8w=="],
 
     "@xplat/windows/nativescript": ["nativescript@9.1.2-dev.2026-09-24-36031892256", "", { "dependencies": { "@foxt/js-srp": "0.0.3-patch2", "@nativescript/doctor": "2.0.18", "@nativescript/hook": "3.0.5", "@npmcli/arborist": "9.1.8", "@rigor789/resolve-package-path": "1.0.7", "axios": "1.18.1", "byline": "5.0.0", "chokidar": "3.6.0", "cli-table3": "0.6.5", "color": "4.2.3", "convert-source-map": "2.0.0", "detect-newline": "3.1.0", "email-validator": "2.0.4", "fast-glob": "3.3.3", "font-finder": "1.1.0", "glob": "10.5.0", "ios-device-lib": "0.9.6", "ios-mobileprovision-finder": "1.2.1", "ios-sim-portable": "4.5.3", "jimp": "1.6.1", "lodash": "4.18.1", "log4js": "6.9.1", "marked": "15.0.12", "marked-terminal": "7.3.0", "minimatch": "10.2.6", "mkdirp": "3.0.1", "mute-stream": "2.0.0", "nativescript-dev-xcode": "0.8.2", "open": "8.4.2", "ora": "5.4.1", "pacote": "21.0.4", "pbxproj-dom": "1.2.0", "plist": "3.1.0", "prettier": "3.9.6", "prompts": "2.4.2", "proper-lockfile": "4.1.2", "proxy-lib": "0.4.1", "qr-image": "3.2.0", "qrcode-terminal": "0.12.0", "semver": "7.7.3", "shelljs": "0.10.0", "simple-git": "3.36.0", "simple-plist": "1.4.0", "source-map": "0.8.0", "tar": "7.5.22", "ts-morph": "28.0.0", "tunnel": "0.0.6", "typescript": "5.7.3", "uuid": "11.1.1", "winreg": "1.2.5", "ws": "8.21.1", "xml2js": "0.6.2", "yargs": "17.7.2", "yazl": "3.3.1" }, "optionalDependencies": { "fsevents": "2.3.3" }, "hasInstallScript": true, "bin": { "ns": "bin/tns", "nsc": "bin/tns", "tns": "bin/tns", "nativescript": "bin/tns" } }, "sha512-zdc3aQeSoSLc1TUrIHXbMXhY9vL2u28ATFlLNgdi4Ue2L0kN1Xq5SFJjWTGIL18RipajoS6+gbqGCtf87guznA=="],
 

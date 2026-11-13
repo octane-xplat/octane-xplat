@@ -1,6 +1,6 @@
 import { install as installGestureHandler } from '@nativescript-community/gesturehandler'
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { App } from '@xplat/app'
 import { VirtualList as VirtualListDemo } from '@xplat/demos'

@@ -23,7 +23,7 @@
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.1.0",
 		"@nativescript-community/observable": "2.0.11",
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript-community/perms": "3.0.12",
 		"@nativescript/canvas": "3.0.1",
 		"@nativescript/core": "catalog:",
@@ -61,7 +61,7 @@
 		"octane": "catalog:"
 	},
 	"devDependencies": {
-		"@nativescript-community/vite-octane": "catalog:",
+		"@octane-xplat/vite-octane": "workspace:*",
 		"@nativescript/android": "9.1.1",
 		"@nativescript/ios": "9.1.0",
 		"@nativescript/types": "catalog:",

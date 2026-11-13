@@ -254,7 +254,7 @@ props, and prefetch APIs. The repo already uses it: `@octane-xplat/gif`'s
 registers its `Img` element:
 
 ```tsx
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { Img } from '@nativescript-community/ui-image'
 
 registerElement('feedimage', Img)

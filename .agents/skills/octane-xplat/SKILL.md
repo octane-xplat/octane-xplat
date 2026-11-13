@@ -6,7 +6,7 @@ description: Build or review Octane Xplat apps and framework components across w
 # Octane Cross-Platform Framework
 
 Build shared screens with Octane and `@octane-xplat/ui`. Web uses the DOM
-renderer; iOS/Android use NativeScript through `@nativescript-community/octane`.
+renderer; iOS/Android use NativeScript through `@octane-xplat/nativescript-octane`.
 Desktop hosts are experimental; choose the actual host before reusing a
 platform example. Platform divergence belongs at file boundaries.
 

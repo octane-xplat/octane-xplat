@@ -1,21 +1,14 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 
-// Exercise the shipped patch helpers without loading device-only Mason APIs.
-// This models NativeScript's resolved-style notifications, not native geometry.
-const patch = readFileSync(
-  new URL('../patches/@nativescript-community__octane@0.2.5.patch', import.meta.url),
-  'utf8',
+// Exercise the owned driver helpers without loading device-only Mason APIs.
+// This models resolved-style notifications, not native geometry.
+const driver = stripTypeScriptTypes(
+  readFileSync(new URL('../../nativescript-octane/src/driver.ts', import.meta.url), 'utf8'),
 )
-
-const driver = patch
-  .split('diff --git a/dist/elements.js')[0]
-  .split('\n')
-  .filter((line) => (line.startsWith('+') && !line.startsWith('+++')) || line.startsWith(' '))
-  .map((line) => line.slice(1))
-  .join('\n')
 
 const helpers = driver.slice(
   driver.indexOf('const MASON_CONTAINER_TAGS'),

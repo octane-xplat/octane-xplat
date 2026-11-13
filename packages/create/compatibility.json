@@ -65,6 +65,7 @@
 		"@octane-xplat/media-library",
 		"@octane-xplat/motion",
 		"@octane-xplat/nano-icons",
+		"@octane-xplat/nativescript-octane",
 		"@octane-xplat/network",
 		"@octane-xplat/notifications",
 		"@octane-xplat/pager",
@@ -100,6 +101,7 @@
 		"@octane-xplat/updates",
 		"@octane-xplat/video",
 		"@octane-xplat/view-shot",
+		"@octane-xplat/vite-octane",
 		"@octane-xplat/web-browser",
 		"@octane-xplat/web-host",
 		"@octane-xplat/workshop",
@@ -109,11 +111,6 @@
 	"packages": {
 		"octane": {
 			"version": "0.16.3",
-			"group": "runtime",
-			"singleton": true
-		},
-		"@nativescript-community/octane": {
-			"version": "0.2.5",
 			"group": "runtime",
 			"singleton": true
 		},
@@ -140,10 +137,6 @@
 		},
 		"@octanejs/vite-plugin": {
 			"version": "0.5.0",
-			"group": "bundler"
-		},
-		"@nativescript-community/vite-octane": {
-			"version": "0.2.1",
 			"group": "bundler"
 		},
 		"@nativescript/vite": {
@@ -248,7 +241,6 @@
 	},
 	"overrides": {
 		"@nativescript/vite>esbuild": "0.27.7",
-		"@nativescript-community/vite-octane>esbuild": "0.27.7",
 		"vite>esbuild": "0.27.7",
 		"regenerate": "1.5.0",
 		"oxlint-tsgolint": "7.0.2005",

@@ -21,7 +21,7 @@ const require = createRequire(import.meta.url)
 const { build } = await import(require.resolve('vite'))
 const { octane } = await import(require.resolve('@octanejs/vite-plugin'))
 const { nativeScriptRenderer } = await import(
-  require.resolve('@nativescript-community/octane/config')
+  require.resolve('@octane-xplat/nativescript-octane/config')
 )
 
 const ts = require('typescript-classic')

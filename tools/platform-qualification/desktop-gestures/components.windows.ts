@@ -1,7 +1,7 @@
 import { readScene } from './scene'
 import { NSWinRT } from '@octane-xplat/platform/windows'
 import { Application, Page, View } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import type { UniversalRoot } from 'octane/universal/native'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'

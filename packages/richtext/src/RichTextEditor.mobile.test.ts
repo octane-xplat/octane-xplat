@@ -448,7 +448,7 @@ vi.mock('@nativescript/core/ui/core/properties', () => ({
   _getStyleProperties: () => [],
 }))
 
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { RichTextEditor } from './RichTextEditor.android.tsrx'
 
 const CONTEXT = { name: 'activity-context' }

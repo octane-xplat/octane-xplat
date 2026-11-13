@@ -121,7 +121,7 @@ export async function checkMacOSMotionConsumer({
           find: /^@octane-xplat\/css-engine$/,
           replacement: join(repoRoot, 'packages/css-engine/src/index.ts'),
         },
-        { find: /^@nativescript-community\/octane$/, replacement: 'octane/universal/native' },
+        { find: /^@octane-xplat\/nativescript-octane$/, replacement: 'octane/universal/native' },
         {
           find: /^@nativescript\/core(?:\/animation-frame)?$/,
           replacement: join(repoRoot, 'packages/macos-appkit/src/native-core-shim.ts'),

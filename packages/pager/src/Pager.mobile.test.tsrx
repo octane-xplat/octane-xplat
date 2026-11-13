@@ -9,7 +9,7 @@ import {
 
 vi.mock('@nativescript/core', () => ({ GridLayout: class {}, isIOS: false, isAndroid: true }))
 vi.mock('@nativescript-community/ui-pager', () => ({ Pager: class {} }))
-vi.mock('@nativescript-community/octane', async (original) => ({
+vi.mock('@octane-xplat/nativescript-octane', async (original) => ({
   ...(await original<any>()),
   NATIVESCRIPT_RENDERER_ID: 'nativescript',
   registerElement() {},

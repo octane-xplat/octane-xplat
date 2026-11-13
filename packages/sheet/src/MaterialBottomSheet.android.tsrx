@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { bindNativeHostAttachment } from './native-host-lifecycle.android'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import {
   ComposeDataDriver,

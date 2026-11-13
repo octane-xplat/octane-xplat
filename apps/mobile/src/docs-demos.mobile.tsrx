@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Application, Frame, Page } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { useState } from 'octane'
 import { Screen, ScrollableArea, View, Pressable, Text } from '@octane-xplat/ui'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'

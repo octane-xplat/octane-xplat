@@ -6,6 +6,8 @@
 		"packages/linux-gtk-renderer/src/gi.d.ts"
 	],
 	"tasks": {
+		"@octane-xplat/nativescript-octane#typegen": { "outputs": ["dist/**"] },
+		"@octane-xplat/vite-octane#typegen": { "outputs": ["dist/**"] },
 		"build:desktop-components": { "dependsOn": ["^typegen", "^build"], "cache": false, "outputs": [] },
 		"qualify:macos-components": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
 		"@octane-xplat/haptics#test:ios-build": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },

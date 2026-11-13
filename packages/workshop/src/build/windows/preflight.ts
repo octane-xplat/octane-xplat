@@ -53,7 +53,7 @@ export function windowsPreflight(root, { platform = process.platform, run = comm
 	for (const name of [
 		'@nativescript/windows',
 		'@nativescript/core',
-		'@nativescript-community/octane',
+		'@octane-xplat/nativescript-octane',
 		'@nativescript/vite',
 		'nativescript',
 		'vite',

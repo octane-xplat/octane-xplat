@@ -35,7 +35,7 @@ DOM-free subset as real `dependencies` (decision #51 pattern — vetted list
 per `@mui/x-charts-vendor`: `d3-scale`, `d3-shape`, `d3-array`, `d3-format`,
 `d3-time-format`, `d3-path`), pinned exact after the JSC-safety check used
 for `@lisse/core`/`@tanstack/table-core`. Peers: `octane`,
-`@nativescript-community/octane`, `@nativescript/core`, and
+`@octane-xplat/nativescript-octane`, `@nativescript/core`, and
 `@octane-xplat/ui` (`>=0.6.0 <1`, the `video` precedent — the leaf renders
 `View`/`Text`/`Absolute` and consumes `svgview`).
 

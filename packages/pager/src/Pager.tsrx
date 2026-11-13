@@ -7,7 +7,7 @@ import {
   equalLayoutChildProps,
 } from '@octane-xplat/lib'
 
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 
 import {
   createPortal as createUniversalPortal,

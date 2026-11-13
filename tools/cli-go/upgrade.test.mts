@@ -195,7 +195,7 @@ test('Bun catalogs, native channel choices, patch bytes and excluded packages ag
       'apps/mobile/package.json': {
         private: true,
         dependencies: {
-          '@nativescript-community/octane': '0.0.1',
+          '@octane-xplat/nativescript-octane': '0.0.1',
           '@triniwiz/nativescript-masonkit': '1.0.0',
           '@octane-xplat/ui': '0.0.1',
         },

@@ -881,7 +881,7 @@ the retained 'First revision' label inside the assigned field proves
 the non-NSView, self-cycle and shared-host rejections. The assigned view is
 creation evidence through a JS callback, not OS-input evidence. One known
 upstream divergence is recorded in Silo `feedback_observations`: under
-`@nativescript-community/octane` the `creatingView` dispatch is deferred
+`@octane-xplat/nativescript-octane` the `creatingView` dispatch is deferred
 past `createNativeView`'s synchronous return inside a batch, so a
 prop-registered `onCreatingView` assignment cannot reach the returned
 native view there — the AppKit host delivers the documented contract

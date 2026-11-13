@@ -127,7 +127,7 @@ stops constructing `Intl` objects at module scope.
   reorder and parent move; Android edge-children only — P5: unchanged-prop
   children render 0 times on reorder — P7: one `didApply` per commit across
   app/modal/programmatic roots) requires a driver-level hook. Local patch:
-  `packages/cli/patches/@nativescript-community__octane@0.2.5.patch` plus the
+  `packages/nativescript-octane/src/driver.ts` plus the
   synced copy under `packages/patches/`; exports `observeBatches()` returning
   an unsubscribe with `willApply`/`didApply(container, commands, depth)`.
   Scope: batch observation only; no command mutation; a throwing observer is

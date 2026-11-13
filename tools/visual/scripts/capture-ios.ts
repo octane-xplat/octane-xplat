@@ -53,7 +53,7 @@ const manifest = {
   toolchain: {
     nativeCore: mobilePackage.dependencies['@nativescript/core'],
     nativeIOS: mobilePackage.devDependencies['@nativescript/ios'],
-    nativeOctane: mobilePackage.dependencies['@nativescript-community/octane'],
+    nativeOctane: mobilePackage.dependencies['@octane-xplat/nativescript-octane'],
     octane: mobilePackage.dependencies.octane,
     storybook: mobilePackage.devDependencies.storybook,
     playwright: visualPackage.devDependencies.playwright,

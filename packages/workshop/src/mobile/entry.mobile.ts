@@ -5,7 +5,7 @@ import type { WorkshopTarget } from '../contract'
 import { NativeWorkshopController } from '../native/controller'
 import { NativeWorkshopChrome } from '../native/chrome.tsrx'
 import { createMobileStageHost } from './mount.mobile'
-import { createNativeScriptRoot, type UniversalComponent } from '@nativescript-community/octane'
+import { createNativeScriptRoot, type UniversalComponent } from '@octane-xplat/nativescript-octane'
 import { android, androidx } from '@octane-xplat/platform/android'
 import {
   UIKeyCommand,

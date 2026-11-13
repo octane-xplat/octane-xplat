@@ -65,6 +65,8 @@
 			{
 				"exclude": [
 					"apps/mobile/",
+					"packages/nativescript-octane/",
+					"packages/vite-octane/",
 					"apps/windows/",
 					"packages/cli/test/fixtures/"
 				]

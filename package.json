@@ -65,8 +65,6 @@
 		],
 		"catalog": {
 			"octane": "0.16.3",
-			"@nativescript-community/octane": "0.2.5",
-			"@nativescript-community/vite-octane": "0.2.1",
 			"@nativescript/core": "9.1.3",
 			"@nativescript/types": "9.1.4",
 			"@nativescript/types-android": "9.1.1",
@@ -159,8 +157,6 @@
 		"@octane-xplat/nativescript-mason-core@1.0.0-beta.8": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.8.patch",
 		"css@3.0.0": "packages/cli/patches/css@3.0.0.patch",
 		"@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
-		"@nativescript-community/octane@0.2.5": "packages/cli/patches/@nativescript-community__octane@0.2.5.patch",
-		"@nativescript-community/vite-octane@0.2.1": "packages/cli/patches/@nativescript-community__vite-octane@0.2.1.patch",
 		"@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
 		"@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
 		"@octanejs/tiptap@0.0.62": "packages/cli/patches/@octanejs__tiptap@0.0.62.patch",

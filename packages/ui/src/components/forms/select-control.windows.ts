@@ -1,5 +1,5 @@
 import { ContentView, LayoutBase, Property, type View } from '@nativescript/core'
-import { registerElement } from '@nativescript-community/octane'
+import { registerElement } from '@octane-xplat/nativescript-octane'
 import { Microsoft, NSWinRT } from '@octane-xplat/platform/windows'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 

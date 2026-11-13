@@ -162,10 +162,10 @@ export function planUpgrade(dir: string): UpgradePlan {
     )
 
     if (
-      deps['@nativescript-community/octane'] &&
+      deps['@octane-xplat/nativescript-octane'] &&
       !deps[engine] &&
       !replacedEngines.some((name) => deps[name]) &&
-      !localSpecifier(deps['@nativescript-community/octane'])
+      !localSpecifier(deps['@octane-xplat/nativescript-octane'])
     ) {
       pkg.dependencies ??= {}
       pkg.dependencies[engine] = managedSpecifier(engine, profile)

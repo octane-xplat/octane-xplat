@@ -1,5 +1,5 @@
 import { Application, Page } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { WindowsUICase, changeRichText } from './windows-ui-case.tsrx'
 // Copy native-case.tsrx to the lab app's src/windows-ui-case.tsrx and this entry
 // to src/index.ts. Every guest write, prepare and launch requires the shared lease.

@@ -646,7 +646,7 @@ for (const t of targets.filter((t) => t !== 'web')) {
       } else if (edge.spec === './escape-props' && t !== 'windows') {
         r = { external: `${t}:compat/escape-props` }
       } else if (
-        edge.spec === '@nativescript-community/octane' ||
+        edge.spec === '@octane-xplat/nativescript-octane' ||
         edge.spec === 'octane' ||
         edge.spec.startsWith('octane/')
       ) {

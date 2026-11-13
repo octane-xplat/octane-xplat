@@ -70,7 +70,7 @@ function fixture(tag = 'xplatwindowsbutton') {
         return { Property, TextBase, View }
       }
 
-      if (name === '@nativescript-community/octane') {
+      if (name === '@octane-xplat/nativescript-octane') {
         return { registerElement: (tag, Type) => controls.set(tag, Type) }
       }
 

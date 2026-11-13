@@ -4,7 +4,7 @@ Path A of the windows investigation ([.agents/design/windows-notes.md](../../.ag
 decision #65): this scaffold is intended to run the shared harness on upstream's in-flight
 `@nativescript/core` windows platform ([NativeScript#11272](https://github.com/NativeScript/NativeScript/pull/11272)
 preview builds) inside the `@nativescript/windows` WinUI 3 host. No custom
-renderer — `@nativescript-community/octane` drives core views as on
+renderer — `@octane-xplat/nativescript-octane` drives core views as on
 iOS/Android, and `.windows.*` leaves sit ahead of the unsuffixed native default in
 the suffix chain.
 

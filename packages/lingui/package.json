@@ -74,7 +74,7 @@
 	"devDependencies": {
 		"@lingui/cli": "6.11.0",
 		"@lingui/format-json": "6.11.0",
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
 		"octane": "catalog:",
@@ -86,7 +86,7 @@
 	},
 	"peerDependencies": {
 		"@lingui/cli": ">=6.5.0 <7",
-		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": ">=9.1.0 <10",
 		"octane": ">=0.6.3 <1"
 	},
@@ -94,7 +94,7 @@
 		"@lingui/cli": {
 			"optional": true
 		},
-		"@nativescript-community/octane": {
+		"@octane-xplat/nativescript-octane": {
 			"optional": true
 		},
 		"@nativescript/core": {

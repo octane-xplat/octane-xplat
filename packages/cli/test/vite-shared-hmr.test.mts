@@ -9,7 +9,7 @@ import { createServer } from 'vite'
 
 const require = createRequire(import.meta.url)
 const ns = pathToFileURL(require.resolve('@nativescript/vite'))
-const octane = pathToFileURL(require.resolve('@nativescript-community/vite-octane'))
+const octane = pathToFileURL(require.resolve('@octane-xplat/vite-octane'))
 const { HmrModuleGraph } = await import(new URL('./hmr/server/hmr-module-graph.js', ns))
 const { computeHotContextId } = await import(new URL('./hmr/server/process-code-for-device.js', ns))
 const { rewriteImports } = await import(new URL('./hmr/server/rewrite-imports.js', ns))

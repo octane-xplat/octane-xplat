@@ -49,7 +49,7 @@
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
@@ -60,12 +60,12 @@
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
-		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": ">=9.1.0 <10",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
-		"@nativescript-community/octane": {
+		"@octane-xplat/nativescript-octane": {
 			"optional": true
 		},
 		"@nativescript/core": {

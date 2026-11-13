@@ -70,7 +70,7 @@ const card = <View className={classes} />
 Source/compiler evidence (2026-10-20): Octane 0.11.0's
 [`normalizeClass`](https://github.com/octanejs/octane/blob/0.11.0/packages/octane/src/class-names.ts)
 stringifies truthy numbers and omits `0` and `NaN`.
-`@nativescript-community/octane` 0.2.5 omits all numbers and declares a narrower
+`@octane-xplat/nativescript-octane` 0.2.5 omits all numbers and declares a narrower
 recursive type. Its local patch re-exports Octane's type and adds numeric
 normalization; remove those changes when upstream provides both. GTK also
 normalizes truthy numbers; macOS already does. Node contract tests cover these

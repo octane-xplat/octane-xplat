@@ -1,5 +1,5 @@
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { App } from '@xplat/app'
 import { probeSignal$ } from '@xplat/app/probe-state'
 import { bottomSheetHost as sheetHost } from '@xplat/app/platform/sheet'

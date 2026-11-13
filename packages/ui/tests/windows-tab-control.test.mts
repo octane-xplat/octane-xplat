@@ -257,7 +257,7 @@ function fixture() {
         return { View, ContentView: View, LayoutBase: View, Property }
       }
 
-      if (name === '@nativescript-community/octane') {
+      if (name === '@octane-xplat/nativescript-octane') {
         return { registerElement: (name, type) => types.set(name, type) }
       }
 

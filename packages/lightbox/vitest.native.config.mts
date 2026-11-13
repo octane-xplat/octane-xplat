@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
 import { octane } from 'octane/compiler/vite'
-import { nativeScriptRenderer } from '@nativescript-community/octane/config'
+import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
 
 const NATIVE_EXTS = [
   '.ios.tsrx',
@@ -50,7 +50,7 @@ export default defineConfig({
         replacement: resolve(configDir, 'test/gesturehandler.ts'),
       },
       { find: /^octane$/, replacement: 'octane/universal/native' },
-      { find: /^@nativescript-community\/octane$/, replacement: 'octane/universal/native' },
+      { find: /^@octane-xplat\/nativescript-octane$/, replacement: 'octane/universal/native' },
     ],
     extensions: NATIVE_EXTS,
   },

@@ -9,7 +9,7 @@ import {
 } from 'octane-xplat/vite'
 
 // The web build. For native (iOS/Android), the same source runs through
-// @nativescript-community/vite-octane with `conditions: ['native']`, the
+// @octane-xplat/vite-octane with `conditions: ['native']`, the
 // .ios/.android/.mobile suffix chain, and the unsuffixed native default — see
 // the octane-xplat repo's apps/mobile/vite.config.mts.
 export default defineConfig(({ mode }) => ({

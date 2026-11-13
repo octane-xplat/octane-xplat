@@ -14,7 +14,7 @@ const pkg = JSON.parse(await readFile(resolve(mobile, 'package.json'), 'utf8'))
 const dependencies = Object.fromEntries(
   [
     '@nativescript/core',
-    '@nativescript-community/octane',
+    '@octane-xplat/nativescript-octane',
     'octane',
     '@octane-xplat/ui',
     '@valor/nativescript-websockets',

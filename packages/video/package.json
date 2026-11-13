@@ -57,7 +57,7 @@
 		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
@@ -69,13 +69,13 @@
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
-		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": ">=9.1.0 <10",
 		"@octane-xplat/ui": ">=0.6.0 <1",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
-		"@nativescript-community/octane": {
+		"@octane-xplat/nativescript-octane": {
 			"optional": true
 		},
 		"@nativescript/core": {

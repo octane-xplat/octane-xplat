@@ -319,7 +319,7 @@ solution. Neither leaf removes the need for shared searchable/multi-selection
 UX, and plugin-backed functionality must stay outside dependency-free UI additions.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/nativescript-octane */
 // Region.ios.tsrx: platform-authentic picker, distinct from shared Selector.
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
 

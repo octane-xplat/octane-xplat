@@ -11,7 +11,7 @@ export default async function nativeCaseConfig(project, target) {
   const [{ octane }, { nativeScriptRenderer }, { css, boundary, native, nodeEnvDefine }] =
     await Promise.all([
       load('octane/compiler/vite'),
-      load('@nativescript-community/octane/config'),
+      load('@octane-xplat/nativescript-octane/config'),
       load('@octane-xplat/cli/vite'),
     ])
 
@@ -96,7 +96,7 @@ export default async function nativeCaseConfig(project, target) {
           id === '@nativescript/core' ||
           id.startsWith('@nativescript/core/') ||
           id === '@octane-xplat/nativescript-mason-core' ||
-          id === '@nativescript-community/octane' ||
+          id === '@octane-xplat/nativescript-octane' ||
           id === '@nativescript-community/gesturehandler' ||
           id.startsWith('octane/'),
         // The runner serves a single case.cjs — dynamic import() must not

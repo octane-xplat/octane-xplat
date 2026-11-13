@@ -370,7 +370,7 @@ existing Apple-oriented generated header omits; see the
 [recorded source limitations](../docs/notes/masonkit-layout-evaluation.md#core-c-interface-boundaries).
 
 The initial review examined the fork pinned at `1.0.0-beta.125` and the local
-[renderer patch](../../packages/cli/patches/@nativescript-community__octane@0.2.5.patch).
+[renderer source](../../packages/nativescript-octane/src/driver.ts).
 Xplat's renderer imports MasonKit's layout/scroll hosts and style surface while
 using NativeScript controls for ordinary text, inputs, buttons, and images.
 This is source evidence, not runtime verification of a lean variant.

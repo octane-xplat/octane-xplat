@@ -34,7 +34,7 @@ vi.mock('@nativescript/core', () => ({
   GridLayout: state.GridLayout,
 }))
 
-vi.mock('@nativescript-community/octane', async (importOriginal) => ({
+vi.mock('@octane-xplat/nativescript-octane', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   createNativeScriptRoot: (host: any) => {
     const root = { host, render: vi.fn(), unmount: vi.fn() }

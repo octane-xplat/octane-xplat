@@ -463,7 +463,7 @@ the native action bar when the Page should cover the whole window.
 
 ```ts
 import { Application, Frame, Page } from '@nativescript/core'
-import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { App } from './App.tsrx'
 

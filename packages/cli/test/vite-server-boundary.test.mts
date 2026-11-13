@@ -71,13 +71,13 @@ test('native presets reject .server imports and erase named re-exports', async (
     )
 
     makePackage(
-      '@nativescript-community/vite-octane',
+      '@octane-xplat/vite-octane',
       { main: 'index.js' },
       { 'index.js': 'export const octaneConfig = () => ({})' },
     )
 
     makePackage(
-      '@nativescript-community/octane',
+      '@octane-xplat/nativescript-octane',
       { exports: { './config': './index.js', './driver': './driver.js' } },
       { 'index.js': 'export const nativeScriptRenderer = {}', 'driver.js': 'export {}' },
     )

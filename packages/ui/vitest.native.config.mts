@@ -3,7 +3,7 @@ import { configDefaults, defineConfig } from 'vitest/config'
 import { APPKIT_EXTENSIONS, APPKIT_TESTS } from './vitest.appkit-options.mts'
 import { URL } from 'node:url'
 import { octane } from 'octane/compiler/vite'
-import { nativeScriptRenderer } from '@nativescript-community/octane/config'
+import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
 
 // Universal-renderer tests — same suffix chain + octane alias as the native
 // build, so leaves compile under the nativescript renderer and 'octane'
@@ -67,7 +67,7 @@ export default defineConfig({
       // whose index pulls @nativescript/core — not loadable in node.
       // Object-driver tests only need its universal-runtime re-exports.
       {
-        find: /^@nativescript-community\/octane$/,
+        find: /^@octane-xplat\/nativescript-octane$/,
         replacement: new URL('./tests/octane-native-shim.ts', import.meta.url).pathname,
       },
       // The mason layout plugin evaluates platform globals (__ANDROID__/

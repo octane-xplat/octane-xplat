@@ -50,7 +50,7 @@ function run(command, args, cwd) {
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
   'octane',
-  '@nativescript-community/octane',
+  '@octane-xplat/nativescript-octane',
   '@nativescript/core',
   '@nativescript/types',
   '@octane-xplat/macos-appkit',

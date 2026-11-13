@@ -5,10 +5,10 @@ import {
   nativeScriptDriver,
   observeBatches,
   releaseNativeScriptContainer,
-} from '../../../node_modules/@nativescript-community/octane/dist/driver.js'
+} from '../../../node_modules/@octane-xplat/nativescript-octane/dist/driver.js'
 
-import { registerElement } from '../../../node_modules/@nativescript-community/octane/dist/elements.js'
-import { NATIVESCRIPT_RENDERER_ID } from '../../../node_modules/@nativescript-community/octane/dist/config.js'
+import { registerElement } from '../../../node_modules/@octane-xplat/nativescript-octane/dist/elements.js'
+import { NATIVESCRIPT_RENDERER_ID } from '../../../node_modules/@octane-xplat/nativescript-octane/dist/config.js'
 
 // The installed driver is real; native host views are substituted. This does
 // not establish device layout or hit-testing.

@@ -57,7 +57,7 @@
 	},
 	"devDependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/jsx": "workspace:*",
@@ -75,7 +75,7 @@
 	},
 	"peerDependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",
-		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": ">=9.1.0 <10",
 		"@octane-xplat/ui": ">=0.6.0 <1",
 		"octane": ">=0.6.3 <1"
@@ -84,7 +84,7 @@
 		"@nativescript-community/gesturehandler": {
 			"optional": true
 		},
-		"@nativescript-community/octane": {
+		"@octane-xplat/nativescript-octane": {
 			"optional": true
 		},
 		"@nativescript/core": {

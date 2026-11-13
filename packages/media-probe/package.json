@@ -15,7 +15,7 @@
 		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"octane": "catalog:",
 		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.8"

@@ -47,7 +47,7 @@
 		"@octane-xplat/jsx": "workspace:*"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "catalog:",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",

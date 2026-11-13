@@ -2,7 +2,7 @@
 import './intl-shim'
 import { useState } from 'octane'
 import { motion } from '@octane-xplat/motion'
-import { observeBatches } from '@nativescript-community/octane'
+import { observeBatches } from '@octane-xplat/nativescript-octane'
 import { Application, Trace } from '@nativescript/core'
 import type { ProbeContext } from '../../tools/probe/context'
 
