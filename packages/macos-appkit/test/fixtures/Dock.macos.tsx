@@ -79,9 +79,8 @@ export default function Dock() {
               <label text={phase === 1 ? 'Updated ' + id : id} style={{ width: 40, height: 20 }} />
             </contentview>
           ))}
-        {phase === 8 ? (
-          <Fill />
-        ) : phase < 5 ? (
+        {phase === 8 && <Fill />}
+        {phase < 5 && (
           <contentview
             key="fill"
             id="dock-fill"
@@ -90,7 +89,8 @@ export default function Dock() {
           >
             <label id="dock-descendant" text="Fill" style={{ width: 60, height: 18 }} />
           </contentview>
-        ) : phase === 5 ? (
+        )}
+        {phase === 5 && (
           <masonview
             key="replacement"
             id="dock-fill"
@@ -99,10 +99,10 @@ export default function Dock() {
           >
             <label id="dock-descendant" text="Replacement" />
           </masonview>
-        ) : null}
+        )}
       </masonview>
       <masonview id="dock-other" style={{ width: 100, height: 80 }}>
-        {phase === 7 ? <Fill /> : null}
+        {phase === 7 && <Fill />}
       </masonview>
       <masonview id="percentage-dock" style={{ width: 200, height: 100, padding: 10 }}>
         <contentview

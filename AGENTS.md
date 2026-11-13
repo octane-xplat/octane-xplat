@@ -195,6 +195,8 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   imports of `octane` to the universal/native runtime.
 - Use TSRX `@if` blocks (and `@else` when needed) for conditional rendering in
   components. Avoid JSX ternaries such as `{condition ? <div /> : null}`.
+  Plain `.tsx` files cannot use TSRX directives, so use boolean `&&` child
+  expressions for optional or mutually exclusive branches there.
   Keep a single-element branch on three lines: the `@if` opener, JSX, and closing brace.
 
   ```tsrx

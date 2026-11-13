@@ -75,9 +75,8 @@ export default function Glass() {
               <label id={'glass-text-' + id} text={phase === 1 ? 'Updated ' + id : id} />
             </contentview>
           ))}
-        {phase < 5 ? (
-          <Moving />
-        ) : phase === 5 ? (
+        {phase < 5 && <Moving />}
+        {phase === 5 && (
           <contentview
             key="replacement"
             id="glass-moving"
@@ -86,9 +85,8 @@ export default function Glass() {
           >
             <label id="glass-replacement" text="Replacement" />
           </contentview>
-        ) : phase === 8 ? (
-          <Moving />
-        ) : null}
+        )}
+        {phase === 8 && <Moving />}
       </liquidglass>
       <liquidglass
         id="glass-tracks"
@@ -119,7 +117,7 @@ export default function Glass() {
         />
       </liquidglass>
       <liquidglass id="glass-other" style={{ width: 100, height: 40 }}>
-        {phase === 7 ? <Moving /> : null}
+        {phase === 7 && <Moving />}
       </liquidglass>
       <masonview id="advance-glass" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
         <label text="Advance glass" />

@@ -65,7 +65,7 @@ export default function Proxy() {
         }}
       >
         <contentview id="proxy-before" style={{ width: 40, height: 20 }} />
-        {phase < 5 ? (
+        {phase < 5 && (
           <proxyviewcontainer key="logical" id="proxy" ref={refs}>
             {ids
               .filter((id) => phase < 4 || id !== 'b')
@@ -80,13 +80,13 @@ export default function Proxy() {
                 </proxyviewcontainer>
               ))}
           </proxyviewcontainer>
-        ) : phase === 5 ? (
+        )}
+        {phase === 5 && (
           <proxyviewcontainer key="replacement" id="proxy" ref={refs}>
             <label id="proxy-replacement" text="Replacement" style={{ width: 40, height: 20 }} />
           </proxyviewcontainer>
-        ) : phase === 8 ? (
-          <ReturnedGroup />
-        ) : null}
+        )}
+        {phase === 8 && <ReturnedGroup />}
         <contentview id="proxy-after" style={{ width: 40, height: 20 }} />
       </masonview>
       <masonview
@@ -100,7 +100,7 @@ export default function Proxy() {
           alignContent: 'start',
         }}
       >
-        {phase === 7 ? <ReturnedGroup /> : null}
+        {phase === 7 && <ReturnedGroup />}
       </masonview>
       <masonview
         id="proxy-grid"

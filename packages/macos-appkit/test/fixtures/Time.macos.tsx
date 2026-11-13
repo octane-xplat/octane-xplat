@@ -79,7 +79,7 @@ export default function TimePicker() {
         )}
       </masonview>
       <contentview id="time-right" style={{ width: 240, height: 60 }}>
-        {phase === 4 ? content() : null}
+        {phase === 4 && content()}
       </contentview>
       <masonview id="advance-time" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
         <label text="Advance" />

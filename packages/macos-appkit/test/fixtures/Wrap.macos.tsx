@@ -72,7 +72,7 @@ export default function Wrap() {
               <label text={phase === 1 ? 'Updated ' + id : id} />
             </contentview>
           ))}
-        {phase === 6 ? (
+        {phase === 6 && (
           <masonview
             key="replacement"
             id="wrap-moving"
@@ -85,15 +85,14 @@ export default function Wrap() {
           >
             <label id="wrap-descendant" text="Replacement" />
           </masonview>
-        ) : phase < 6 || phase === 9 ? (
-          <Moving />
-        ) : null}
+        )}
+        {(phase < 6 || phase === 9) && <Moving />}
       </masonview>
       <masonview
         id="wrap-other"
         style={{ width: 120, height: 80, padding: 10, display: 'flex', flexWrap: 'wrap' }}
       >
-        {phase === 8 ? <Moving /> : null}
+        {phase === 8 && <Moving />}
       </masonview>
       <masonview
         id="wrap-resize"

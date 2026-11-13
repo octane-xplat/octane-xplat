@@ -29,7 +29,7 @@ export default function Content() {
         ref={contentRefs.host}
         style={{ width: phase === 1 ? 260 : 200, height: 80 }}
       >
-        {phase < 3 ? (
+        {phase < 3 && (
           <masonview
             key="first"
             id="content-child"
@@ -54,7 +54,8 @@ export default function Content() {
               }
             />
           </masonview>
-        ) : phase === 4 ? null : (
+        )}
+        {phase >= 3 && phase !== 4 && (
           <masonview
             key="replacement"
             id="content-child"

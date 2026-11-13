@@ -56,12 +56,10 @@ export default function SegmentItems() {
               />
             ),
           )}
-        {phase === 1 ? (
-          <segmentedbaritem key="inserted" id="item-inserted" title="Inserted" />
-        ) : null}
+        {phase === 1 && <segmentedbaritem key="inserted" id="item-inserted" title="Inserted" />}
       </segmentedbar>
       <contentview style={{ width: 220, height: 40 }}>
-        <segmentedbar id="item-other">{phase === 5 ? item() : null}</segmentedbar>
+        <segmentedbar id="item-other">{phase === 5 && item()}</segmentedbar>
       </contentview>
       <masonview id="advance-item" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
         <label text="Advance items" />

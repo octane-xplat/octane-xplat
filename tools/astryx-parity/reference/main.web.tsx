@@ -443,7 +443,8 @@ function StreamPump({ id }: { id: string }) {
       >
         mount
       </button>
-      {mounted ? <Markdown isStreaming>{text}</Markdown> : <i>gone</i>}
+      {mounted && <Markdown isStreaming>{text}</Markdown>}
+      {!mounted && <i>gone</i>}
     </span>
   )
 }

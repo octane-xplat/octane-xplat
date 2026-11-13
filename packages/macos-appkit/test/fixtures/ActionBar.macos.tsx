@@ -35,7 +35,7 @@ export default function ActionBar() {
       }}
     >
       <actionbar id="bar-natural" titleView={naturalTitle} />
-      {phase !== 6 ? (
+      {phase !== 6 && (
         <actionbar
           key={phase === 5 ? 'replacement' : 'first'}
           id="bar"
@@ -45,11 +45,9 @@ export default function ActionBar() {
           titleView={phase === 3 ? externalTitle : undefined}
           style={{ width: phase === 1 ? 300 : 240, height: 44 }}
         >
-          {phase === 2 ? (
-            <label id="bar-child" text="Custom" style={{ width: 60, height: 20 }} />
-          ) : null}
+          {phase === 2 && <label id="bar-child" text="Custom" style={{ width: 60, height: 20 }} />}
         </actionbar>
-      ) : null}
+      )}
       <masonview id="advance-bar" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
         <label text="Next" />
       </masonview>

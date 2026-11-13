@@ -12,11 +12,11 @@ export function PurchaseScreen({
   return (
     <VStack>
       <Text>{state.unlocked ? 'Premium unlocked' : 'Unlock Premium'}</Text>
-      {state.product ? (
+      {state.product && (
         <Text>
           {state.product.title}: {state.product.displayPrice ?? 'Price unavailable'}
         </Text>
-      ) : null}
+      )}
       <Text>{state.message}</Text>
       <Pressable
         disabled={state.busy || state.pending || state.unlocked || !state.product?.displayPrice}

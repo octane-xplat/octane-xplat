@@ -43,30 +43,29 @@ export default function Search() {
           },
         )}
       >
-        {phase < 6
-          ? (phase >= 3 ? ['b', 'a'] : ['a', 'b'])
-              .filter((id) => phase < 4 || id !== 'b')
-              .map((id) =>
-                id === 'a' && phase === 5 ? (
-                  <label key="replacement" id="search-a" text="Replacement" />
-                ) : (
-                  <searchbar
-                    key={id}
-                    id={'search-' + id}
-                    ref={id === 'a' ? refs : undefined}
-                    text={phase === 1 ? 'Updated ' + id : phase === 0 ? 'Initial ' + id : undefined}
-                    hint={phase === 1 ? 'Updated hint' : phase === 0 ? 'Find items' : undefined}
-                    onTextChange={phase < 3 ? change : undefined}
-                    onSubmit={phase < 3 ? submit : undefined}
-                    style={{ width: 200, height: 28 }}
-                  />
-                ),
-              )
-          : null}
-        {phase === 7 ? moving() : null}
+        {phase < 6 &&
+          (phase >= 3 ? ['b', 'a'] : ['a', 'b'])
+            .filter((id) => phase < 4 || id !== 'b')
+            .map((id) =>
+              id === 'a' && phase === 5 ? (
+                <label key="replacement" id="search-a" text="Replacement" />
+              ) : (
+                <searchbar
+                  key={id}
+                  id={'search-' + id}
+                  ref={id === 'a' ? refs : undefined}
+                  text={phase === 1 ? 'Updated ' + id : phase === 0 ? 'Initial ' + id : undefined}
+                  hint={phase === 1 ? 'Updated hint' : phase === 0 ? 'Find items' : undefined}
+                  onTextChange={phase < 3 ? change : undefined}
+                  onSubmit={phase < 3 ? submit : undefined}
+                  style={{ width: 200, height: 28 }}
+                />
+              ),
+            )}
+        {phase === 7 && moving()}
       </masonview>
       <contentview id="search-other" style={{ width: 220, height: 40 }}>
-        {phase === 6 || phase === 8 ? moving() : null}
+        {(phase === 6 || phase === 8) && moving()}
       </contentview>
       <masonview
         id="advance-search"

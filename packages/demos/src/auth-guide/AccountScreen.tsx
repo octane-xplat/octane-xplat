@@ -5,6 +5,9 @@ import type { createAccountSession } from './session'
 
 export function AccountScreen({ account }: { account: ReturnType<typeof createAccountSession> }) {
   const state = useStore(account.state)
+  const showSignOut = state.status === 'authenticated' || state.needsSignOutRetry
+  const showRestore = !showSignOut && state.status === 'error'
+  const showSignIn = !showSignOut && state.status === 'anonymous'
 
   useEffect(() => {
     void account.restore()
@@ -13,19 +16,21 @@ export function AccountScreen({ account }: { account: ReturnType<typeof createAc
   return (
     <VStack>
       <Text>{state.message}</Text>
-      {state.status === 'authenticated' || state.needsSignOutRetry ? (
+      {showSignOut && (
         <Pressable onPress={() => void account.signOut()}>
           <Text>{state.needsSignOutRetry ? 'Retry sign-out' : 'Sign out'}</Text>
         </Pressable>
-      ) : state.status === 'error' ? (
+      )}
+      {showRestore && (
         <Pressable onPress={() => void account.restore()}>
           <Text>Retry account check</Text>
         </Pressable>
-      ) : state.status === 'anonymous' ? (
+      )}
+      {showSignIn && (
         <Pressable onPress={() => void account.signIn()}>
           <Text>Sign in</Text>
         </Pressable>
-      ) : null}
+      )}
     </VStack>
   )
 }

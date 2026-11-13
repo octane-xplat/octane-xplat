@@ -11,7 +11,7 @@ export function __PortalTabItem(props: any) {
   return (
     <>
       <tabviewitem {...attributes} __portalContent={true} __onContentTarget={onTarget} />
-      {target ? createPortal(children as UniversalRenderable, target) : null}
+      {target && createPortal(children as UniversalRenderable, target)}
     </>
   )
 }
@@ -77,9 +77,8 @@ export function __PortalList(props: any) {
   return (
     <>
       <listview {...props} __onCellTarget={props.renderItem ? onTarget : undefined} />
-      {props.renderItem
-        ? cells.map((cell) => <CellPortal key={cell.id} cell={cell} render={props.renderItem} />)
-        : null}
+      {props.renderItem &&
+        cells.map((cell) => <CellPortal key={cell.id} cell={cell} render={props.renderItem} />)}
     </>
   )
 }

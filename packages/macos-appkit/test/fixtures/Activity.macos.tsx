@@ -56,7 +56,7 @@ export default function Activity() {
         )}
       </masonview>
       <contentview id="activity-right" style={{ width: 240, height: 60 }}>
-        {phase === 4 ? content() : null}
+        {phase === 4 && content()}
       </contentview>
       <masonview
         id="advance-activity"

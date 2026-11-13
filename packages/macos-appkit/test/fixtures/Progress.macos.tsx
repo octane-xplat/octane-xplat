@@ -68,7 +68,7 @@ export default function Progress() {
         )}
       </masonview>
       <contentview id="progress-right" style={{ width: 240, height: 60 }}>
-        {phase === 4 ? content() : null}
+        {phase === 4 && content()}
       </contentview>
       <masonview
         id="advance-progress"

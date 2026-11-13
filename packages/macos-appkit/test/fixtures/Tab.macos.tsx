@@ -80,9 +80,9 @@ export default function Tabs() {
           display: 'flex',
         }}
       >
-        {phase !== 4 && phase !== 6 ? content() : null}
+        {phase !== 4 && phase !== 6 && content()}
       </masonview>
-      <contentview id="tabs-right">{phase === 4 ? content() : null}</contentview>
+      <contentview id="tabs-right">{phase === 4 && content()}</contentview>
       <masonview id="advance-tabs" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>
         <label text="Advance" />
       </masonview>

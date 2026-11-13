@@ -29,6 +29,8 @@ platform example. Platform divergence belongs at file boundaries.
   `children`; native targets accept only a subset of `octane` runtime imports.
 - Use TSRX `@if` blocks (and `@else` when needed) for conditional rendering in
   components. Avoid JSX ternaries such as `{condition ? <div /> : null}`.
+  Plain `.tsx` files cannot use TSRX directives, so use boolean `&&` child
+  expressions for optional or mutually exclusive branches there.
   Keep a single-element branch on three lines: the `@if` opener, JSX, and closing brace.
 
   ```tsrx

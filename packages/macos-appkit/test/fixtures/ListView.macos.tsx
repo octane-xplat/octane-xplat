@@ -92,7 +92,7 @@ export default function ListView({ phase }: { phase: number }) {
         )}
       </masonview>
       <contentview id="listview-right" style={{ width: 260, height: 70 }}>
-        {phase === 4 ? content() : null}
+        {phase === 4 && content()}
       </contentview>
       <listview
         id="listview-default"

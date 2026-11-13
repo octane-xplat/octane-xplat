@@ -78,7 +78,7 @@ export default function SegmentedBar() {
         )}
       </masonview>
       <contentview id="segment-right" style={{ width: 240, height: 60 }}>
-        {phase === 4 ? content() : null}
+        {phase === 4 && content()}
       </contentview>
       <masonview
         id="advance-segment"

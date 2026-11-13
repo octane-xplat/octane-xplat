@@ -27,30 +27,29 @@ export default function Formatted() {
       color={phase < 2 ? '#ff0000' : undefined}
       backgroundColor={phase < 2 ? '#ffff00' : undefined}
     >
-      {phase === 5
-        ? null
-        : (phase >= 3 ? ['b', 'a'] : ['a', 'b'])
-            .filter((id) => phase !== 4 || id !== 'a')
-            .map((id) => (
-              <span
-                key={id}
-                id={'formatted-' + id}
-                ref={id === 'a' ? spanRef : undefined}
-                text={id === 'a' ? (phase === 1 ? 'Updated' : 'A') : 'B'}
-                fontWeight={id === 'a' && phase < 2 ? 'bold' : undefined}
-                fontStyle={id === 'a' && phase < 2 ? 'italic' : undefined}
-                textDecoration={id === 'a' && phase < 2 ? 'underline line-through' : undefined}
-              >
-                {id === 'a' ? (
-                  <span
-                    id="formatted-nested"
-                    text="n"
-                    color={phase < 2 ? '#0000ff' : undefined}
-                    style={phase < 2 ? { fontSize: 12 } : undefined}
-                  />
-                ) : null}
-              </span>
-            ))}
+      {phase !== 5 &&
+        (phase >= 3 ? ['b', 'a'] : ['a', 'b'])
+          .filter((id) => phase !== 4 || id !== 'a')
+          .map((id) => (
+            <span
+              key={id}
+              id={'formatted-' + id}
+              ref={id === 'a' ? spanRef : undefined}
+              text={id === 'a' ? (phase === 1 ? 'Updated' : 'A') : 'B'}
+              fontWeight={id === 'a' && phase < 2 ? 'bold' : undefined}
+              fontStyle={id === 'a' && phase < 2 ? 'italic' : undefined}
+              textDecoration={id === 'a' && phase < 2 ? 'underline line-through' : undefined}
+            >
+              {id === 'a' && (
+                <span
+                  id="formatted-nested"
+                  text="n"
+                  color={phase < 2 ? '#0000ff' : undefined}
+                  style={phase < 2 ? { fontSize: 12 } : undefined}
+                />
+              )}
+            </span>
+          ))}
     </formattedstring>
   )
 
@@ -62,38 +61,38 @@ export default function Formatted() {
       }}
     >
       <label id="formatted-parent" text="fallback" style={{ fontSize: 16, width: 240, height: 28 }}>
-        {phase !== 6 && phase < 9 ? content() : null}
+        {phase !== 6 && phase < 9 && content()}
       </label>
       <button id="formatted-button" text="Plain Button">
-        {phase === 6 ? null : (
+        {phase !== 6 && (
           <formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
             <span text={phase === 1 ? 'Updated Button' : 'Button'} />
           </formattedstring>
         )}
       </button>
       <textfield id="formatted-field" text="Plain Field">
-        {phase === 6 ? null : (
+        {phase !== 6 && (
           <formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
             <span text={phase === 1 ? 'Updated Field' : 'Field'} />
           </formattedstring>
         )}
       </textfield>
       <textview id="formatted-view" text="Plain View" style={{ height: 30 }}>
-        {phase === 6 ? null : (
+        {phase !== 6 && (
           <formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
             <span text={phase === 1 ? 'Updated View' : 'View'} />
           </formattedstring>
         )}
       </textview>
       <searchbar id="formatted-search" text="Plain Search">
-        {phase === 6 ? null : (
+        {phase !== 6 && (
           <formattedstring fontSize={phase < 2 ? (phase === 1 ? 24 : 20) : undefined}>
             <span text={phase === 1 ? 'Updated Search' : 'Search'} />
           </formattedstring>
         )}
       </searchbar>
       <button id="formatted-other" text="other">
-        {phase >= 9 ? content() : null}
+        {phase >= 9 && content()}
       </button>
       <masonview
         id="advance-formatted"

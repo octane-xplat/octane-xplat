@@ -217,7 +217,7 @@ function App(props: { platform: ReturnType<typeof createPaneRouterHost> }): any 
   return (
     <PersonProvider value={person}>
       <View key={ownerVersion} style={{ width: 640, height: 480 }}>
-        {chrome ? (
+        {chrome && (
           <View id="chrome-control">
             <NavigationChrome
               router={navigation}
@@ -226,14 +226,13 @@ function App(props: { platform: ReturnType<typeof createPaneRouterHost> }): any 
               destination={chrome.destination}
             />
           </View>
-        ) : null}
-        {owned ? (
+        )}
+        {owned && (
           <ClientRouteOutlet host={props.platform}>
             <Text id="base">Base</Text>
           </ClientRouteOutlet>
-        ) : (
-          <Text>Outside</Text>
         )}
+        {!owned && <Text>Outside</Text>}
         <ClientRouteOutlet host={props.platform} flow="other">
           <Text>Other base</Text>
         </ClientRouteOutlet>
@@ -338,13 +337,12 @@ function DefaultShell(): any {
   selectDefaultTab = setSelected
   return (
     <PersonProvider value="Default owner">
-      {configured ? (
+      {configured && (
         <RouteOutlet>
           <Tabs tabs={defaultTabs} selectedKey={selected} onSelectionChange={setSelected} />
         </RouteOutlet>
-      ) : (
-        <Text id="default-base">Default base</Text>
       )}
+      {!configured && <Text id="default-base">Default base</Text>}
     </PersonProvider>
   )
 }

@@ -67,7 +67,7 @@ export default function Placeholder() {
         )}
       </masonview>
       <contentview id="ph-right" style={{ width: 240, height: 60 }}>
-        {phase === 3 ? slot('c') : null}
+        {phase === 3 && slot('c')}
       </contentview>
       <placeholder id="ph-empty" style={{ width: 40, height: 20 }} />
       <masonview id="advance-ph" onTap={() => phase$.set(phase + 1)} style={{ display: 'flex' }}>

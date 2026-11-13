@@ -53,9 +53,8 @@ export default function Root() {
               <label id={'root-text-' + id} text={phase === 1 ? 'Updated ' + id : id} />
             </contentview>
           ))}
-        {phase < 5 ? (
-          <Moving />
-        ) : phase === 5 ? (
+        {phase < 5 && <Moving />}
+        {phase === 5 && (
           <contentview
             key="replacement"
             id="root-moving"
@@ -64,12 +63,11 @@ export default function Root() {
           >
             <label id="root-replacement" text="Replacement" />
           </contentview>
-        ) : phase === 8 ? (
-          <Moving />
-        ) : null}
+        )}
+        {phase === 8 && <Moving />}
       </rootlayout>
       <rootlayout id="root-other" style={{ width: 100, height: 40 }}>
-        {phase === 7 ? <Moving /> : null}
+        {phase === 7 && <Moving />}
       </rootlayout>
       <rootlayout id="root-natural">
         <contentview style={{ width: 52, height: 18 }} />
