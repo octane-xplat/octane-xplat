@@ -24,6 +24,52 @@ registered query depends on width, height or orientation, including currently
 unmatched rules. With no such query, Mason uses the actual viewport. This is
 conservative dependency handling, not a general responsive expression program.
 
+## Root-scoped creation is a maintained driver seam
+
+The owned `@octane-xplat/nativescript-octane` driver creates views through its
+element registry and adds `NativeScriptRootOptions.createView` to the
+container/root constructors as typed source.
+It runs only when a non-text host is created during command application.
+Returning undefined uses the ordinary registered constructor. Supplied wrappers
+must be ViewBase instances without a live driver owner or logical parent.
+
+```ts
+import type { ViewBase } from '@nativescript/core'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
+
+const claims = new Map<number, ViewBase>()
+const root = createNativeScriptRoot(host, {
+  createView(id) {
+    const view = claims.get(id)
+    claims.delete(id)
+    return view
+  },
+})
+```
+
+The host owns complete logical matching, native-class validation, native object
+association, default restoration, one-use claims and failure disposal. The hook
+does not provide hydration or rollback. Preparation/abort, logical text hosts
+and element-registry hot replacement do not call it. The seam is covered by the
+owned driver's unit suite (`packages/nativescript-octane/src/driver.spec.ts`).
+Keep this small driver extension separate from Octane's universal renderer;
+the current preparation/commit API needs no pre-render fork.
+
+## Native-owned iOS entry
+
+The `@nativescript/ios`9.1.0
+[stock launcher](https://github.com/NativeScript/ios/blob/9.1.0/project-template-ios/internal/main.m)
+guards its Objective-C main with NS_SWIFTUI_BOOT. Setting it to1 lets an app
+supply a native entry point and use Core embedding. This source seam is separate
+from normal SDK packaging and lifecycle qualification; the experimental Home
+embedding control does not establish the complete app workflow. The supporting
+prior-art research is commit 1aff21f, with the public source linked here so this
+guidance remains usable without that private repository.
+
+```xcconfig
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) NS_SWIFTUI_BOOT=1
+```
+
 ## Separate native layout, frame submission and presentation
 
 Android's hardware `registerFrameCommitCallback` establishes swap-chain

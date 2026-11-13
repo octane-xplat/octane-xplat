@@ -19,7 +19,7 @@ import {
   TabViewItem,
   TextBase,
   View,
-  type ViewBase,
+  ViewBase,
   unsetValue,
   Utils,
 } from '@nativescript/core'
@@ -84,7 +84,17 @@ interface PortalTarget {
   refs: number
 }
 
+export interface NativeScriptRootOptions {
+  /** Called only when a non-text host is created during apply. Undefined uses the registered constructor. */
+  createView?(
+    id: number,
+    type: string,
+    props: Readonly<Record<string, unknown>>,
+  ): ViewBase | undefined
+}
+
 export interface NativeScriptContainer {
+  readonly createView?: NativeScriptRootOptions['createView']
   readonly host: ViewBase
   readonly nodes: Map<number, HostNode>
   readonly children: HostNode[]
@@ -188,7 +198,7 @@ function createNode(
   const node: HostNode = {
     id,
     type,
-    view: type === TEXT ? null : instantiate(type),
+    view: type === TEXT ? null : createView(container, id, type, props),
     text: '',
     props,
     parent: null,
@@ -205,6 +215,36 @@ function createNode(
   }
   applyProps(node, props)
   return node
+}
+
+function createView(
+  container: NativeScriptContainer,
+  id: number,
+  type: string,
+  props: Readonly<Record<string, unknown>>,
+): ViewBase {
+  const view = container.createView?.(id, type, props)
+  if (view === undefined) {
+    return instantiate(type)
+  }
+  if (!(view instanceof ViewBase)) {
+    throw new TypeError('NativeScript root createView must return a ViewBase or undefined.')
+  }
+  const owner = viewOwners.get(view)
+  if (
+    owner &&
+    owner.node.view === view &&
+    owner.container.nodes.get(owner.node.id) === owner.node
+  ) {
+    throw new Error('NativeScript root createView returned a view owned by a live host node.')
+  }
+  if (view.parent) {
+    throw new Error('NativeScript root createView returned a view with an existing logical parent.')
+  }
+  if (MASON_CONTAINER_TAGS.has(type)) {
+    applyMasonDefaults(type, view)
+  }
+  return view
 }
 
 function instantiate(type: string): ViewBase {
@@ -1502,7 +1542,11 @@ function applyCommand(container: NativeScriptContainer, command: UniversalHostCo
       return
     }
     case 'remove': {
-      detach(container, expect(container, command.id))
+      const node = container.nodes.get(command.id)
+      // A failed apply can leave logical hosts that were never created.
+      if (node !== undefined) {
+        detach(container, node)
+      }
       return
     }
     case 'destroy': {
@@ -1594,9 +1638,13 @@ export function renderNativeScriptApp<P extends object>(
 }
 
 /** A live container: element re-registration recreates its views until `releaseNativeScriptContainer`. */
-export function createNativeScriptContainer(host: ViewBase): NativeScriptContainer {
+export function createNativeScriptContainer(
+  host: ViewBase,
+  options: NativeScriptRootOptions = {},
+): NativeScriptContainer {
   const container: NativeScriptContainer = {
     host,
+    createView: options.createView,
     nodes: new Map(),
     children: [],
     portalTargets: new Map(),
@@ -1611,8 +1659,11 @@ export function releaseNativeScriptContainer(container: NativeScriptContainer): 
 }
 
 /** Mount an Octane tree into an existing NativeScript view. */
-export function createNativeScriptRoot(host: ViewBase): UniversalRoot {
-  const container = createNativeScriptContainer(host)
+export function createNativeScriptRoot(
+  host: ViewBase,
+  options: NativeScriptRootOptions = {},
+): UniversalRoot {
+  const container = createNativeScriptContainer(host, options)
   const root = createUniversalRoot(container, nativeScriptDriver, {
     scheduleMicrotask: (callback) => {
       Promise.resolve().then(callback)

@@ -244,16 +244,16 @@ Use NativeScript’s supported embedding delegate when handing an existing windo
 
 ## Qualify root-scoped view creation
 
-`driver-root-factory.patch` is an isolated experiment against `@nativescript-community/octane` 0.2.5 **with the repository’s canonical driver patch already applied**. It adds a per-root factory during command application. It is not registered in the patch manifest or used by ordinary apps. `check-driver.mjs` copies an explicit installed driver into a new scratch directory, applies the experimental patch there, and executes that source against a small host boundary. It never changes the supplied installation.
+The owned `@octane-xplat/nativescript-octane` driver now owns the root-scoped view factory. `check-driver.mjs` copies an explicitly selected installed driver and executes it against a small host boundary; it neither overlays another patch nor changes that installation. Native startup/adoption remains experimental even though the driver hook is maintained centrally.
 
 ```sh
 export XPLAT_PRERENDER_DRIVER_ROOT=/absolute/path/to/node_modules/@nativescript-community/octane
 bun turbo run probe:prerender:driver:check --filter=@xplat/platform-qualification
 ```
 
-The check covers aborted batches, text folding, ordinary creation, undefined fallback, same-root and cross-root ownership rejection, reuse after disposal, Mason defaults, and cleanup after a later creation fails. Its result includes source/patch hashes and `nativeQualified:false`. This is a driver command test, not an Octane reconciliation or native lifecycle test. The separate native Home experiment exercises actual compiled shared components, Page integration, state updates, native identities and independent sibling disposal.
+The check covers aborted batches, text folding, ordinary creation, undefined fallback, same-root and cross-root ownership rejection, rejection of manually parented wrappers, reuse after disposal, Mason defaults, and cleanup after a later creation fails. Its result includes source/patch hashes and `nativeQualified:false`. This is a driver command test, not an Octane reconciliation or native lifecycle test. The separate native Home experiment exercises actual compiled shared components, Page integration, state updates, native identities and independent sibling disposal.
 
-In the experiment, the factory receives transient Octane command IDs, host tags and initial props. Returning `undefined` selects normal registered creation. A returned object must be a NativeScript `ViewBase` without a live driver owner. The factory does not run during preparation/abort, for logical text nodes, or for element-registry hot replacement. It does run for command-driven recreation. For example, after validating the complete prepared tree, an adoption host can supply a root-local lookup:
+The factory receives transient Octane command IDs, host tags and initial props. Returning `undefined` selects normal registered creation. A returned object must be a NativeScript `ViewBase` without a live driver owner or existing logical parent. The factory does not run during preparation/abort, for logical text nodes, or for element-registry hot replacement. It does run for command-driven recreation. For example, after validating the complete prepared tree, an adoption host can supply a root-local lookup:
 
 ```ts
 const root = createNativeScriptRoot(host, {
@@ -263,14 +263,16 @@ const root = createNativeScriptRoot(host, {
 })
 ```
 
-The lookup alone is not hydration. The host must first match the complete prepared logical tree to the artifact, bind ordinary wrappers to existing native objects, preserve canonical native defaults, and consume each claim once. Never serialize Octane command IDs or replace the global element registry to claim a screen. Clear the claims after the initial commit so later creation follows the normal path. A failed apply is not rolled back: dispose that root and release any unconsumed native claims before fallback. The experimental patch makes remove/destroy tolerate hosts that never reached creation, allowing that disposal path.
+The lookup alone is not hydration. The host must first match the complete prepared logical tree to the artifact, bind ordinary wrappers to existing native objects, preserve canonical native defaults, and consume each claim once. Never serialize Octane command IDs or replace the global element registry to claim a screen. Clear the claims after the initial commit so later creation follows the normal path. A failed apply is not rolled back: dispose that root and release any unconsumed native claims before fallback. The owned driver makes remove/destroy tolerate hosts that never reached creation, allowing that disposal path.
 
 ## Match before claiming
 
-`match-tree.mjs` checks the initial container/Label visual projection, complete portable host props, flattened Label text, logical node count and reachability. It returns a map from this prepared batch’s transient command IDs to artifact-local visual indices. It does not mutate either tree or consume native claims. The caller still verifies native classes, environment/build compatibility and wrapper ownership. Logical text ownership and generic stable compiler addresses remain separate IR work.
+Android uses `matchPreparedTree` from the reusable artifact package to compare every logical node, prop and text slot before any claim. It returns separate maps for logical and visual identities in this prepared batch. The iOS fixture still uses its older `match-tree.mjs` visual matcher during migration; flattened text and a node count do not establish complete text-slot ownership. Both paths require separate native-class, environment/build and wrapper-ownership checks.
 
 ```js
-const addresses = matchPreparedVisualTree(prepared.batch.commands, artifact.nodes, 27)
+import { matchPreparedTree } from '@octane-xplat/native-prerender'
+
+const addresses = matchPreparedTree(prepared.batch.commands, startup.nodes).visualByCommandId
 // Only after successful matching may the root factory consume these claims.
 ```
 
@@ -366,7 +368,7 @@ The bundler selects Android shared leaves, retargets Octane imports to one nativ
 
 Use the same device command with the printed adoption build directory. The live entry initializes Core's application context through its public custom-Application hook before shared components read the theme. It requires the selected OS theme, prepares and aborts without claiming/mutating views, then matches all27 logical nodes and19 visual records before enabling claims. Commit must consume exactly19 root-local claims. Instance attachment adapters skip native insertion only for the expected existing child and index, while running Mason's foreign-child bookkeeping; ordinary new children retain the ordinary method. Checks cover wrapper/native identity, logical parent/child order, actual Activity context, loading, native Mason/raw handles and zero native hierarchy churn.
 
-The native helper restores font, color, radius and canonical Label text defaults synchronously before commit initializes the live wrappers. This bounded journal is not full CSS/default-removal or font/layout parity qualification. The mode does not hand Home to Core Application/NativeWindow, test OS input, force Activity recreation, establish native deallocation, prove compositor presentation or measure release startup. The candidate driver and instance adapters remain private qualification seams; the production renderer, Core and Mason SDK sources are unchanged.
+The native helper restores font, color, radius and canonical Label text defaults synchronously before commit initializes the live wrappers. This bounded journal is not full CSS/default-removal or font/layout parity qualification. The mode does not hand Home to Core Application/NativeWindow, test OS input, force Activity recreation, establish native deallocation, prove compositor presentation or measure release startup. The driver factory is in the owned NativeScript driver; the instance adapters remain private qualification seams. Core and Mason SDK sources are unchanged by this control.
 
 ### Android independent Home style and layout comparison
 
@@ -521,7 +523,7 @@ export XPLAT_PRERENDER_ANDROID_MASON_ADOPT=1
 export XPLAT_PRERENDER_ANDROID_MASON_RUNTIME_ROOT=/absolute/path/to/pinned/mason/js-sdk
 ```
 
-The experimental per-root adapter checks the complete two-child native order before setup. During child setup it skips native insertion only when the child already belongs to that exact parent at the expected native index, then runs the existing Mason foreign-child bookkeeping. Other attachments call the ordinary wrapper method. Core establishes logical parentage and loading. This is a private probe of an adoption seam, using internal Mason methods; the shared SDK and production renderer are unchanged. Every bundled Mason/Core JS input is snapshotted and hash guarded.
+The experimental per-root adapter checks the complete two-child native order before setup. During child setup it skips native insertion only when the child already belongs to that exact parent at the expected native index, then runs the existing Mason foreign-child bookkeeping. Other attachments call the ordinary wrapper method. Core establishes logical parentage and loading. This is a private probe of an adoption seam, using internal Mason methods; the shared SDK is unchanged and the root factory comes from the owned NativeScript driver. Every bundled Mason/Core JS input is snapshotted and hash guarded.
 
 The control checks zero physical additions/removals during initial adoption, then uses ordinary wrapper operations to reverse and restore the two children and insert/remove a new Label. Native Java checks physical order, Mason child order, original node objects/raw handles and actual hierarchy-event counts after each step. It also requires empty native/Mason children and released Label handles on destruction, then repeats adoption and updates on the replacement Activity with one runtime. This does not prove native-object deallocation.
 

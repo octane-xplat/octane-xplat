@@ -20,6 +20,7 @@ import {
 import {
   createNativeScriptContainer,
   type NativeScriptContainer,
+  type NativeScriptRootOptions,
   nativeScriptDriver,
   releaseNativeScriptContainer,
 } from './driver.js'
@@ -74,8 +75,8 @@ afterEach(() => {
   }
 })
 
-function mount<H extends MockView>(host: H) {
-  const container = createNativeScriptContainer(host as unknown as core.ViewBase)
+function mount<H extends MockView>(host: H, options?: NativeScriptRootOptions) {
+  const container = createNativeScriptContainer(host as unknown as core.ViewBase, options)
   live.push(container)
   const dispatched: Array<{ listener: number; data: unknown }> = []
   container.root = {
@@ -489,5 +490,134 @@ describe('nativeScriptDriver', () => {
       priority: 'discrete',
     })
     expect(nativeScriptDriver.events?.classify('text')).toBeNull()
+  })
+
+  describe('root createView claims', () => {
+    it('claims only non-text hosts during apply, never during prepare', () => {
+      const supplied = new MockTextBase()
+      const calls: { id: number; type: string; props: Record<string, unknown> }[] = []
+      const { apply, container, host } = mount(new MockLayoutBase(), {
+        createView: (id, type, props) => {
+          calls.push({ id, type, props })
+          return supplied as unknown as core.ViewBase
+        },
+      })
+      const prepared = nativeScriptDriver.prepareBatch(
+        container,
+        {
+          renderer: 'nativescript',
+          version: 1,
+          commands: [create(1, 'label', { text: 'initial' })],
+        },
+        {} as never,
+      )
+      expect(calls).toHaveLength(0)
+      prepared.abort()
+      expect(calls).toHaveLength(0)
+      expect(container.nodes.size).toBe(0)
+
+      apply(
+        create(1, 'label', { text: 'initial' }),
+        insert(1),
+        create(2, '#text', { value: 'child' }),
+        insert(2, 1),
+      )
+      expect(calls).toEqual([{ id: 1, type: 'label', props: { text: 'initial' } }])
+      expect(container.nodes.get(1)?.view).toBe(supplied)
+      expect(supplied.text).toBe('child')
+      expect(host.children[0]).toBe(supplied)
+    })
+
+    it('falls back to the registered constructor when createView returns undefined', () => {
+      let calls = 0
+      const { apply, view } = mount(new MockLayoutBase(), {
+        createView: () => {
+          calls++
+          return undefined
+        },
+      })
+      apply(create(1, 'label'), insert(1))
+      expect(calls).toBe(1)
+      expect(view<MockTextBase>(1)).toBeInstanceOf(core.Label)
+    })
+
+    it('rejects a non-ViewBase claim and tolerates removing the never-created host', () => {
+      const { apply, container, host } = mount(new MockLayoutBase(), {
+        createView: () => ({}) as core.ViewBase,
+      })
+      expect(() => apply(create(1, 'label'))).toThrow(/must return a ViewBase or undefined/)
+      apply(remove(1), { op: 'destroy', id: 1 })
+      expect(container.nodes.size).toBe(0)
+      expect(host.children).toHaveLength(0)
+    })
+
+    it('rejects a view owned by a live host node', () => {
+      const supplied = new MockTextBase()
+      const first = mount(new MockLayoutBase(), {
+        createView: () => supplied as unknown as core.ViewBase,
+      })
+      first.apply(create(1, 'label'), insert(1))
+
+      const { apply } = mount(new MockLayoutBase(), {
+        createView: () => supplied as unknown as core.ViewBase,
+      })
+      expect(() => apply(create(1, 'label'))).toThrow(/owned by a live host node/)
+    })
+
+    it('rejects a view with an existing logical parent', () => {
+      const manualParent = new MockLayoutBase()
+      const manuallyOwned = new MockTextBase()
+      manualParent.insertChild(manuallyOwned as unknown as MockView, 0)
+      const { apply, host } = mount(new MockLayoutBase(), {
+        createView: () => manuallyOwned as unknown as core.ViewBase,
+      })
+      expect(() => apply(create(1, 'label'))).toThrow(/existing logical parent/)
+      apply(remove(1), { op: 'destroy', id: 1 })
+      expect(manuallyOwned.parent).toBe(manualParent)
+      expect(manualParent.children[0]).toBe(manuallyOwned)
+      expect(host.children).toHaveLength(0)
+    })
+
+    it('tolerates removing a host whose creation failed mid-batch', () => {
+      let calls = 0
+      const { apply, container, host } = mount(new MockLayoutBase(), {
+        createView: () => (++calls === 2 ? ({} as core.ViewBase) : undefined),
+      })
+      expect(() =>
+        apply(
+          create(1, 'label'),
+          insert(1),
+          event(1, 'tap', listener(1)),
+          create(2, 'label'),
+        ),
+      ).toThrow(/must return a ViewBase or undefined/)
+      apply(remove(2), { op: 'destroy', id: 2 }, remove(1), { op: 'destroy', id: 1 })
+      expect(container.nodes.size).toBe(0)
+      expect(host.children).toHaveLength(0)
+    })
+
+    it('allows reclaiming a view after its owner is destroyed', () => {
+      const supplied = new MockTextBase()
+      const first = mount(new MockLayoutBase(), {
+        createView: () => supplied as unknown as core.ViewBase,
+      })
+      first.apply(create(1, 'label'), insert(1))
+      first.apply(remove(1), { op: 'destroy', id: 1 })
+
+      const second = mount(new MockLayoutBase(), {
+        createView: () => supplied as unknown as core.ViewBase,
+      })
+      second.apply(create(1, 'label'), insert(1))
+      expect(second.view<MockTextBase>(1)).toBe(supplied)
+    })
+
+    it('applies Mason container defaults to a claimed container view', () => {
+      const claimed = new MockLayoutBase()
+      const { apply } = mount(new MockLayoutBase(), {
+        createView: () => claimed as unknown as core.ViewBase,
+      })
+      apply(create(1, 'masonview'))
+      expect(claimed.style['css:position']).toBe('relative')
+    })
   })
 })

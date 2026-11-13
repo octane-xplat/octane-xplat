@@ -3,7 +3,6 @@ import { createHash } from 'node:crypto'
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { execFileSync } from 'node:child_process'
 import vm from 'node:vm'
 
 const directory = process.env.XPLAT_PRERENDER_DRIVER_ROOT
@@ -19,9 +18,7 @@ const scratch = join(homedir(), 'agent-scratch/octane-xplat/native-prerender-dri
 mkdirSync(scratch, { recursive: true })
 const workdir = mkdtempSync(join(scratch, 'run-'))
 cpSync(join(resolve(directory), 'dist'), join(workdir, 'dist'), { recursive: true })
-const patch = join(import.meta.dirname, 'driver-root-factory.patch')
-execFileSync('git', ['apply', '--check', patch], { cwd: workdir, stdio: 'pipe' })
-execFileSync('git', ['apply', patch], { cwd: workdir, stdio: 'pipe' })
+const patch = resolve(import.meta.dirname, '../../../packages/cli/patches/@nativescript-community__octane@0.2.5.patch')
 const file = join(workdir, 'dist/driver.js')
 const source = readFileSync(file, 'utf8')
 
@@ -172,6 +169,16 @@ try {
   }
   assert.throws(() => apply(adopted, [create(3)]), /owned by a live host node/)
 
+  const manualParent = new LayoutBase()
+  const manuallyOwned = new Label()
+  manualParent.insertChild(manuallyOwned, 0)
+  const rejectedParent = container(() => manuallyOwned)
+  assert.throws(() => apply(rejectedParent, [create(1)]), /existing logical parent/)
+  apply(rejectedParent, [remove(1), destroy(1)])
+  assert.equal(manuallyOwned.parent, manualParent)
+  assert.equal(manualParent.children[0], manuallyOwned)
+  assert.equal(rejectedParent.host.children.length, 0)
+
   // A failed later creation must still allow existing attachments/listeners
   // and never-created logical hosts to be removed during root disposal.
   let partialCalls = 0
@@ -203,7 +210,7 @@ try {
   assert.equal(mason.style['css:position'], 'relative')
 
   // Registered constructors can fail too; cleanup must not depend on use of
-  // the experimental factory. Failed apply still has no rollback guarantee.
+  // the root factory. Failed apply still has no rollback guarantee.
   elements.set(
     'throws',
     class extends ViewBase {

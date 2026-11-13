@@ -67,6 +67,28 @@ export function ClassifiedLeaf(props: ViewProps) @{
   checked — a `document` in a helper slips through (that's what
   `xplat/no-dom-globals` catches).
 
+## Native object claims
+
+For framework native-host integration, the owned NativeScript driver offers
+root-scoped `createView` options. Keep native claims local to that root and
+validate the entire prepared logical tree before applying them. Never replace
+the global element registry to adopt existing objects. This advanced hook is
+not a public native hydration workflow; read the
+[ownership contract](../../../../docs/native-prerender-adoption.md#root-scoped-creation-is-a-maintained-driver-seam)
+before using it.
+
+```ts
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
+
+const root = createNativeScriptRoot(host, {
+  createView(id) {
+    const view = claims.get(id)
+    claims.delete(id)
+    return view // undefined selects the ordinary registered constructor
+  },
+})
+```
+
 ## Removing props and inline styles
 
 The owned NativeScript driver receives the complete next prop bag, including
