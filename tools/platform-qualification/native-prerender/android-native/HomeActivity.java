@@ -213,6 +213,7 @@ public final class HomeActivity extends AppCompatActivity {
             record("native-home-decoded");
             String theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
+            if (HomeBuild.STALE_THEME) theme = theme.equals("dark") ? "light" : "dark";
             scene = new HomeScene(this, artifact, theme);
             setContentView(scene.windowRoot);
             // Match Core's onActivityCreated window setup before the first

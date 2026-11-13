@@ -70,14 +70,14 @@ if (homeLifetime && (!homeApplication || !homeRecreate || !homeParity))
   )
 if (
   homeFallback &&
-  (!['build', 'seed', 'attach'].includes(homeFallback) ||
+  (!['build', 'seed', 'attach', 'theme'].includes(homeFallback) ||
     !homeApplication ||
     homeParity ||
     homeRecreate ||
     homeInput)
 )
   throw new Error(
-    'Home fallback control requires build/seed/attach mode and Home Application/adoption, without parity/recreation/input',
+    'Home fallback control requires build/seed/attach/theme mode and Home Application/adoption, without parity/recreation/input',
   )
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
@@ -339,6 +339,8 @@ if (homeProducer) {
       buildHash +
       '"; public static final boolean RECREATE = ' +
       homeRecreate +
+      '; public static final boolean STALE_THEME = ' +
+      (homeFallback === 'theme') +
       '; public static final int RECREATIONS = ' +
       homeRecreateCount +
       '; }\n',

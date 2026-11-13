@@ -334,6 +334,36 @@ try {
           events.indexOf(discarded) < events.indexOf(ordinary),
         'Live Home seed mismatch did not abort before claims and discard its unused native tree',
       )
+    } else if (build.home.fallback === 'theme') {
+      const denied = events.find(
+        (event) => event.phase === 'environment-rejected' && event.epoch === fallback?.epoch,
+      )
+      const discarded = events.find(
+        (event) => event.event === 'native-home-discarded' && event.epoch === fallback?.epoch,
+      )
+      check(
+        native &&
+          native.runtimeStarted === false &&
+          native.runtimeLibraryLoaded === false &&
+          native.nodes?.length === 19 &&
+          native.nodes.every((node) => node.attached && node.width > 0 && node.height > 0) &&
+          end?.runtimeStarted &&
+          events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
+          denied?.reason === 'theme' &&
+          denied.nativeTheme === native.theme &&
+          denied.nativeTheme !== denied.liveTheme &&
+          ordinary?.liveTheme === denied.liveTheme &&
+          denied.hookCalls === 0 &&
+          denied.wrappersAllocated === 0 &&
+          denied.preparedPlanCreated === false &&
+          discarded?.visualNodes === 19 &&
+          discarded.nativeChildren === 0 &&
+          discarded.masonChildren === 0 &&
+          events.indexOf(denied) < events.indexOf(discarded) &&
+          events.indexOf(discarded) < events.indexOf(ordinary) &&
+          !events.some((event) => event.phase === 'adopted'),
+        'Stale native Home theme was not rejected before wrapper creation and recovered with the live theme',
+      )
     } else {
       const failed = events.find(
         (event) => event.phase === 'claim-failure' && event.epoch === fallback?.epoch,

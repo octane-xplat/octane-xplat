@@ -87,7 +87,25 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           ? prepareHomeApplication(activity)
           : undefined
         const scheme = Application.systemAppearance() === 'dark' ? 'dark' : 'light'
-        check(scheme === activity.getHomeTheme(), 'Native/live Home theme differs')
+        if (scheme !== activity.getHomeTheme()) {
+          check(window, 'Theme recovery requires Application integration')
+          activity.recordHomeProof(
+            JSON.stringify({
+              phase: 'environment-rejected',
+              reason: 'theme',
+              nativeTheme: String(activity.getHomeTheme()),
+              liveTheme: scheme,
+              hookCalls: 0,
+              wrappersAllocated: 0,
+              preparedPlanCreated: false,
+            }),
+          )
+          activity.abandonUnclaimedHome('Native/live Home theme differs')
+          const ordinary = renderFallbackHome(activity, liveSeed, window)
+          root = ordinary.root
+          host = ordinary.host
+          return
+        }
         const natives = resolved.nodes.map((_, index) => activity.getView(index))
         const parents = natives.map((native) => native.getParent())
         host = new View()

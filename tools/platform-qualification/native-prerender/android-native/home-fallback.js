@@ -26,7 +26,11 @@ export function renderFallbackHome(activity, seed = resolved.seed, existingWindo
   prepared.commit()
   acceptHomeApplication(activity, host, window)
   activity.recordHomeProof(
-    JSON.stringify({ phase: 'ordinary-fallback', adoptionFactoryInstalled: false }),
+    JSON.stringify({
+      phase: 'ordinary-fallback',
+      adoptionFactoryInstalled: false,
+      liveTheme: scheme,
+    }),
   )
   activity.acceptFallbackRoot(host.nativeViewProtected)
   return { root, host }
