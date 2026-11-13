@@ -602,7 +602,50 @@ function accept() {
     rejectedFactory(() => ({}), 'must return a ViewBase or undefined')
     rejectedFactory(() => wrappers[2], 'owned by a live host node')
     const find = (id) => wrappers[resolved.nodes.findIndex((node) => node.props.id === id)]
-    function activate(view) {
+    const osInputRequested = NSFileManager.defaultManager.fileExistsAtPath(
+      NSHomeDirectory() + '/Documents/home-os-input',
+    )
+    let inputStep = 0
+    async function activate(view, expectedCount) {
+      if (osInputRequested) {
+        layout()
+        const native = view.nativeViewProtected
+        const box = native.convertRectToView(native.bounds, window)
+        const point = {
+          x: box.origin.x + box.size.width / 2,
+          y: box.origin.y + box.size.height / 2,
+        }
+        check(
+          native.window === window && box.size.width > 0 && box.size.height > 0,
+          'Input target is not attached with positive geometry',
+        )
+        check(
+          Number.isFinite(point.x) &&
+            Number.isFinite(point.y) &&
+            point.x >= 0 &&
+            point.y >= 0 &&
+            point.x < window.bounds.size.width &&
+            point.y < window.bounds.size.height,
+          'Input target lies outside the owning window',
+        )
+        writeProbeDiagnostic(
+          'input-ready.json',
+          JSON.stringify({
+            version: 1,
+            step: ++inputStep,
+            id: view.id,
+            point,
+            expectedCount,
+            window: { width: window.bounds.size.width, height: window.bounds.size.height },
+          }),
+        )
+        const deadline = Date.now() + 30000
+        while (find('home-completed').text !== expectedCount) {
+          check(Date.now() < deadline, 'OS tap did not update adopted Home: ' + view.id)
+          await new Promise((resolve) => setTimeout(resolve, 10))
+        }
+        return
+      }
       const observers = view.getGestureObservers(GestureTypes.tap)
       check(observers?.length > 0, 'Shared Button has no semantic tap listener')
       for (const observer of [...observers])
@@ -615,21 +658,25 @@ function accept() {
           android: undefined,
         })
     }
+    function reportFailure(error) {
+      writeProbeDiagnostic('entry-error.txt', String(error.stack ?? error))
+      throw error
+    }
     function guard(callback) {
       try {
-        callback()
+        const pending = callback()
+        if (pending instanceof Promise) pending.catch(reportFailure)
       } catch (error) {
-        writeProbeDiagnostic('entry-error.txt', String(error.stack ?? error))
-        throw error
+        reportFailure(error)
       }
     }
     setTimeout(
       () =>
-        guard(() => {
-          activate(find('home-complete'))
+        guard(async () => {
+          await activate(find('home-complete'), '4')
           setTimeout(
             () =>
-              guard(() => {
+              guard(async () => {
                 check(
                   find('home-completed').text === '4' &&
                     find('home-status').text === 'One more step completed.',
@@ -640,7 +687,7 @@ function accept() {
                   siblingCompleted.text === '7' && hookCalls === 19,
                   'First-screen update affected the sibling root',
                 )
-                activate(find('home-reset'))
+                await activate(find('home-reset'), '3')
                 setTimeout(
                   () =>
                     guard(() => {
@@ -802,7 +849,7 @@ function accept() {
                                       liveOwnershipRejected: true,
                                       sharedButtonUpdates: true,
                                       sharedResetUpdates: true,
-                                      osInputQualified: false,
+                                      osInputQualified: osInputRequested,
                                       styleRemovalQualified: false,
                                       pageIntegrationQualified: true,
                                       presentations,

@@ -126,10 +126,12 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         RunProbeApplication()
         record("js-entry-end")
         var attempts = 0
+        // The optional HID fixture waits for an external input driver.
+        let maximumAttempts = FileManager.default.fileExists(atPath: documents("home-os-input").path) ? 9000 : 300
         completionTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [self] timer in
             attempts += 1
             let completed = (try? JSONSerialization.jsonObject(with: Data(contentsOf: documents("entry-details.json")))) as? [String: Any]
-            guard completed?["passed"] as? Bool == true else { precondition(attempts < 300, "Shared Home adoption assertions did not complete"); return }
+            guard completed?["passed"] as? Bool == true else { precondition(attempts < maximumAttempts, "Shared Home adoption assertions did not complete"); return }
             timer.invalidate(); completionTimer = nil
             if home == nil {
                 precondition(oldViews.isEmpty && root.subviews.count == 1, "Artifact fallback root mismatch")

@@ -16,12 +16,16 @@
     "probe:prerender:home:helpers": "node native-prerender/compile-home-helpers.mjs",
     "probe:prerender:driver:check": "node native-prerender/check-driver.mjs",
     "test:prerender:adoption": "node --test native-prerender/match-tree.test.mjs"
-    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs && node --check native-prerender/check-home.mjs && node --check native-prerender/compile-home-helpers.mjs && node --check native-prerender/check-driver.mjs && node --check native-prerender/match-tree.mjs && node --check native-prerender/match-tree.test.mjs && node --check native-prerender/home-codec.mjs && node --check native-prerender/home-codec.test.mjs && node --check native-prerender/check-home-codec.mjs && node --check native-prerender/home-adoption.ios.js && node --check native-prerender/home-fallback.ios.js && node --check native-prerender/write-native-diagnostic.ios.js"
     "probe:prerender:home:helpers": "node native-prerender/compile-home-helpers.mjs",
     "probe:prerender:driver:check": "node native-prerender/check-driver.mjs",
     "test:prerender:adoption": "node --test native-prerender/match-tree.test.mjs",
     "test:prerender:codec": "node native-prerender/check-home-codec.mjs"
-    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs && node --check native-prerender/check-home.mjs && node --check native-prerender/compile-home-helpers.mjs && node --check native-prerender/check-driver.mjs && node --check native-prerender/match-tree.mjs && node --check native-prerender/match-tree.test.mjs && node --check native-prerender/home-codec.mjs && node --check native-prerender/home-codec.test.mjs && node --check native-prerender/check-home-codec.mjs"
+    "probe:prerender:home:helpers": "node native-prerender/compile-home-helpers.mjs",
+    "probe:prerender:driver:check": "node native-prerender/check-driver.mjs",
+    "test:prerender:adoption": "node --test native-prerender/match-tree.test.mjs",
+    "test:prerender:codec": "node native-prerender/check-home-codec.mjs",
+    "probe:prerender:home:input": "node native-prerender/drive-home-input.mjs"
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs && node --check native-prerender/check-home.mjs && node --check native-prerender/compile-home-helpers.mjs && node --check native-prerender/check-driver.mjs && node --check native-prerender/match-tree.mjs && node --check native-prerender/match-tree.test.mjs && node --check native-prerender/home-codec.mjs && node --check native-prerender/home-codec.test.mjs && node --check native-prerender/check-home-codec.mjs && node --check native-prerender/home-adoption.ios.js && node --check native-prerender/home-fallback.ios.js && node --check native-prerender/write-native-diagnostic.ios.js && node --check native-prerender/drive-home-input.mjs"
   },
   "devDependencies": {
     "@octane-xplat/nativescript-octane": "workspace:*",

@@ -143,6 +143,22 @@ host.style.flexDirection = 'column'
 
 The adoption fixture measures at two changed sizes and the original size, checks all native frames against Mason's computed layout and an ordinary Home, and requires every original frame to return. These are programmatic constraint checks, not OS rotation coverage. On iOS, the Mason foreign-descendant bridge must flush pending UIKit layout before Core lays out foreign views; otherwise Core can clip their frames against stale safe-area insets. The focused fork repair is Mason commit `4040e7d2` (`packages/nativescript-masonkit/common.ts`). Keep that prerequisite when assembling the isolated host SDK; the fixture does not patch installed dependencies.
 
+### Optional native touch qualification
+
+The adoption fixture normally invokes registered tap callbacks directly. An installed `home-os-input` marker in the app's Documents directory instead makes it wait for external HID taps. Each `input-ready.json` receipt names the button, its center in owning-window points, and the expected counter state:
+
+```json
+{"version":1,"step":1,"id":"home-complete","point":{"x":201,"y":400},"expectedCount":"4","window":{"width":402,"height":874}}
+```
+
+The host runner must install the app and own the designated simulator exclusively, clear old completion/error receipts, then start the input driver before launching the app. The driver creates the marker, starts a private `idb_companion` socket and writes `input-driver-ready.json`. The host waits for that ready file, launches the app, and accepts success only after both the native result and `os-input.json` pass:
+
+```sh
+bun turbo run probe:prerender:home:input --filter=@xplat/platform-qualification -- "$BUNDLE_ID" "$REPORT_DIRECTORY"
+```
+
+This command requires existing `idb` and `idb_companion` executables. It sends only HID taps on the designated simulator; it does not capture or inspect images. The driver validates both request steps, waits for the same nineteen-view adoption fixture to complete, and requires its OS-input flag. Its final receipt records the two actions and driver source hash. Stop the driver and let it clean up its companion/marker before shutting down the simulator and releasing the reservation. This remains a private host-fixture protocol, not an app interaction API.
+
 ## Boundaries for native style loading
 
 Keep selector matching and cascade resolution in the producer for a known initial tree. Native loading still needs explicit property conversion: numeric Mason lengths use physical pixels, UIKit frames and fonts use logical points, and percentages remain fractions. Read scale from the owning window’s screen and convert each length once. The native border-radius string parser already applies scale; pass the logical radius to it. Multiplying it first triples effective radii at scale3. Mason dimension type codes differ from length/percentage type codes; use the named enums from the exact SDK header rather than sharing numeric tags between setters. Lower colors to the same rounded ARGB bytes as live NativeScript Color; the SDK’s UIColor-to-Mason conversion can truncate alpha.
