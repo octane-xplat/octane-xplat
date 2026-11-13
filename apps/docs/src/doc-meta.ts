@@ -83,6 +83,7 @@ export const GROUPS = [
       'component-workshop',
       'test-identifiers',
       'maestro',
+      'smooth-corners',
       'argent',
       'development-actions',
       'diagnostics',

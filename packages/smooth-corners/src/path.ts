@@ -6,7 +6,7 @@
  *  Lisse curves (`squircle`/`superellipse`/`clothoid`/`arc`) delegate to
  *  `@lisse/core/path`; `continuous` is our own builder — the Rosenfeld
  *  `UIBezierPath` constants reproducing Apple's fixed continuous corner
- *  (~0.25 px from SwiftUI `.continuous`; Lisse issue #103 /
+ *  (an approximation of SwiftUI `.continuous`; Lisse issue #103 /
  *  tools/apple-continuous-export). */
 import {
   distributeAndNormalize,
@@ -17,6 +17,7 @@ import {
   DEFAULT_SMOOTHING,
 } from '@lisse/core/path'
 
+import { finite, validateCorners } from './validation.ts'
 import type { CurveBuilder, CurveBuilderInput } from '@lisse/core/path'
 import type { CornerConfig, CornerCurve, CornerOptions, PerCornerConfig } from './props'
 
@@ -68,6 +69,7 @@ function resolveOne(c: CornerConfig | number | undefined): Resolved {
 }
 
 function resolveOptions(options: CornerOptions): Corners {
+  validateCorners(options)
   if (typeof options === 'number') {
     const c = resolveOne(options)
 
@@ -456,11 +458,15 @@ export function generateCommands(
   height: number,
   options: CornerOptions,
 ): PathCommand[] {
-  if (width <= 0 || height <= 0) {
+  finite('width', width, 0)
+  finite('height', height, 0)
+
+  const corners = resolveOptions(options)
+
+  if (width === 0 || height === 0) {
     return RECT
   }
 
-  const corners = resolveOptions(options)
   const anyContinuous =
     corners.topLeft.curve === 'continuous' ||
     corners.topRight.curve === 'continuous' ||
@@ -615,6 +621,9 @@ export function commandsToD(cmds: PathCommand[]): string {
  *  `continuous` corner is involved (byte-identical to upstream, incl.
  *  capsule/blend fast paths), our serialization otherwise. */
 export function smoothPathD(width: number, height: number, options: CornerOptions): string {
+  finite('width', width, 0)
+  finite('height', height, 0)
+
   const corners = resolveOptions(options)
   const anyContinuous =
     corners.topLeft.curve === 'continuous' ||

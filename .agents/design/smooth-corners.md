@@ -54,16 +54,17 @@ src/
   props.ts                    shared props + CornerConfig types
   path.ts                     shared: generateCommands → PathCommand[]; 'continuous' (Rosenfeld)
                               builder + stitcher; delegates other curves to @lisse/core/path
-  SmoothCorners.tsrx          shared native leaf — isIOS dispatches to apply.ios/apply.android
-                              (dist/native is a single generic bundle, so per-OS *files* can't
-                              be selected by suffix there — runtime dispatch keeps both OSes right)
+  SmoothCorners.tsrx          explicit unsupported default
+  SmoothCorners.mobile.tsrx   shared mobile leaf; isIOS dispatches the native adapters
+  SmoothCorners.windows.tsrx  explicit unsupported WinUI boundary
+  SmoothCorners.gtk.tsrx      explicit unsupported GTK boundary
   apply.ios.ts                Mason CSS clipPath ownership + CGMutablePath border stroke/shadowPath
-  apply.android.ts            android.graphics.Path → Drawable + ViewOutlineProvider + elevation
+  apply.android.ts            Mason CSS clipPath + foreground border; outline only for explicit elevation
   layout-child.ts             layout-prop split: parent metadata → outer, flex props → inner
   layout-child.web.ts         same split folded into element style objects
   SmoothCorners.web.tsrx      clip-path: path(d) + SVG stroke overlay + shadow-only SVG filter
   SmoothCorners.macos.tsrx    AppKit surface/content layout and overflow
-  apply.macos.ts              NSBezierPath → CAShapeLayer paint/content masks and shadowPath
+  apply.macos.ts              Core Graphics commands → CAShapeLayer masks and shadowPath
   surface.ts                  shared decorative-surface layout and overflow predicate
 ```
 
@@ -97,34 +98,7 @@ export function FigmaCard() {
 }
 ```
 
-Layout props follow the shared leaf contract. `SmoothCornersProps` extends
-`LayoutChildProps` (row/col/rowSpan/colSpan/dock, left/top/right/bottom,
-horizontalAlignment/verticalAlignment, flexGrow/flexShrink/alignSelf/order)
-and `FlexContainerProps` (flexDirection, justifyContent, alignItems,
-flexWrap, gap/rowGap/columnGap). Parent-layout metadata lands on the outer
-wrapper — the node the parent reads as its child — while flex-container
-props style the inner host that owns the children. On web both fold into
-CSS; the flex props also imply `display: flex` on the inner box. On the
-native leaf the inner host is a gridlayout, so the flex-container props are
-web/macOS-only there (documented API subset, not silent divergence).
-
-The layout helpers omit unset keys; the renderer owns resetting removed
-props. Keep parent-layout metadata on the outer wrapper and child layout on
-the content host. The absolute painted surface must not affect either.
-
-```tsx
-import { SmoothCorners } from '@octane-xplat/smooth-corners'
-import { Text } from '@octane-xplat/ui'
-
-export function BadgedRow() {
-  return (
-    <SmoothCorners corners={16} left={12} top={8} flexDirection="row" alignItems="center" gap={8}>
-      <Text>Badge</Text>
-      <Text>Details</Text>
-    </SmoothCorners>
-  )
-}
-```
+The outer wrapper owns parent layout metadata and inline box geometry. The content host owns descendants and authored overflow; an absolute surface owns painting. Inline percentage dimensions, transforms and opacity belong to the outer wrapper once. Use an inner shared layout for row/column arrangements: the partial web/AppKit flex convenience props were removed rather than retained as silent mobile no-ops. Dynamic styles are property objects; static CSS belongs in `className`.
 
 `path.ts` emits a `PathCommand[]` (`M/L/C/A/Z`, absolute) — parse `@lisse/core`'s
 `generatePath()` `d` (emitters only produce `M l c a z`, circular arcs only)
@@ -168,27 +142,17 @@ export function ClippedCard() {
 | --- | --- | --- |
 | Web | Background and inside SVG border on a decorative path-clipped surface | Computed hidden overflow enables a matching content clip; a shadow-only SVG filter sits outside it |
 | iOS | Mason-owned path() clip on the decorative surface; a native inside-border stroke | Hidden content receives the same Mason clipPath; visible clears only the owned CSS value; outer shadowPath stays unclipped |
-| Android | Path-backed Drawable paints background and clips its own inside border stroke | Content outline clipping is conditional; outer elevation follows the curve without clipping children |
-| macOS (AppKit) | NSBezierPath/CAShapeLayer masks the decorative surface | Resolved hidden overflow enables the content mask; the outer shadowPath stays unclipped |
+| Android | Mason paints the path-clipped background; a foreground Drawable paints the inside border | Mason CSS path() owns optional child clipping and curved-region touch exclusion; outer android.elevation uses an outline |
+| macOS (AppKit) | Core Graphics/CAShapeLayer masks the decorative surface | Resolved hidden overflow enables the content mask; the outer shadowPath stays unclipped |
 | Linux / Windows webview | Uses the web leaf | Same browser implementation; native desktop renderer support is separate |
 
-Android gets a bonus: `Outline.setPath`/`setConvexPath` makes `elevation`
-shadows follow the curve for free. If an app needs exact child-clipping on
-API <30 with concave curves, the escape hatch is a Compose leaf
-(`@nativescript/jetpack-compose` — `clip(GenericShape)` clips arbitrary paths
-in software on all API levels); keep it out of v1 — a compose host per rounded
-element is heavy.
+Android outline paths are usable for elevation but do not imply arbitrary child clipping: Outline.canClip supports every shape only on API 33+, whereas setPath was added in API 30. Mason core 1.0.0-beta.8 implements CSS path clipping in ClipPath.kt/Mask.kt with an antialiased layer and native touch exclusion. Use that existing owner on every supported Android version; do not add an outline or rectangular fallback for content. The foreground border converts the entire logical path to device pixels once, preserving radius ratios at non-unit density. Restore component-owned CSS values, foregrounds and elevation outlines on detachment without clearing another owner's replacement.
 
-```ts
-// NativeScript Android contributor example: caller supplies the generated native Path.
-export function curveOutline(path: unknown) {
-  const android = (globalThis as any).android
-  const outline = new android.graphics.Outline()
-  if (android.os.Build.VERSION.SDK_INT >= 30) outline.setPath(path)
-  else outline.setConvexPath(path) // the supplied path must be convex on older Android
-  return outline
-}
-```
+`shadow` is explicitly supported on web/iOS/AppKit and throws on Android. `android.elevation` is native elevation in DIPs, with OS-controlled appearance. Web spread regenerates the larger/smaller silhouette, matching the native shadow-path approach. Portable border/shadow color syntax is CSS hex (alpha last), comma-separated rgb()/rgba(), or transparent; reject unsupported syntax rather than substituting black. Numeric validation rejects non-finite/negative radii and widths, smoothing outside [0,1], exponents below 2, and invalid shadow values before native drawing.
+
+The AppKit bridge does not expose NSBezierPath.CGPath: on the actual macos-node-api host that property is undefined, leaving CAShapeLayer.path null. Build the shared commands directly with CGPathCreateMutable/CGPathAdd* instead, following the renderer's existing Core Graphics path convention. The maintained AppKit fixture checks real mask/shadow paths; source mocks alone did not catch this seam.
+
+Native Windows/GTK have explicit throwing leaves until their path adapters are implemented and qualified. Do not treat a package import or the previous ordinary-corner Windows shell as smooth-corner support.
 
 On iOS, the generated curve goes through Mason’s CSS clip ownership. Do not
 substitute a direct CALayer mask or a redraw wrapper: overflow layout is a
@@ -206,6 +170,8 @@ the separate Tier 1 option described above.
   prop is the single source of truth on all leaves.
 
 ## Qualification boundaries
+
+Run the maintained [qualification commands](../../docs/testing/smooth-corners.md). The package owns uncached device/browser tasks; pass existing device IDs and reserve host resources.
 
 `packages/smooth-corners/tests/clipping.ios.tsrx` exercises the actual iOS
 component: default visible content, a Mason-owned decorative clip, background

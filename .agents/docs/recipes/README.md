@@ -115,6 +115,7 @@ Workflows:
 - [Add a platform-native single-selection picker](native-picker.md)
 - [Publish a typed component library](typed-component-library.md)
 - [Display formatted content and status](display-content.md)
+- [Shape a panel without changing child overflow](smooth-corners.md)
 - [Add portable date and file inputs](date-picker.md)
 - [Switch views with AppKit segments](appkit-segmented-control.md)
 - [Adapt a native macOS screen to its window](appkit-responsive-layout.md)

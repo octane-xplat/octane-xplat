@@ -1,29 +1,28 @@
+import type { ClassValue, CSSProperties } from 'octane/jsx-runtime'
+
 /** Shared props for `SmoothCorners` — identical on every leaf. */
 
 /** Corner curve family. `'continuous'` is Apple's corner (the default) —
- *  reproduced via the Rosenfeld `UIBezierPath` cubic constants, ~0.25 px
- *  from live SwiftUI `.continuous`. The rest delegate to `@lisse/core`:
+ *  approximated with the Rosenfeld `UIBezierPath` cubic constants. The rest delegate to `@lisse/core`:
  *  `squircle` = Figma's corner smoothing, `superellipse` = |x|^n+|y|^n=1,
  *  `clothoid` = Euler-spiral blend, `arc` = plain circular border-radius. */
 export type CornerCurve = 'continuous' | 'squircle' | 'superellipse' | 'clothoid' | 'arc'
 
 /** One corner's radius + curve family. */
 export interface CornerConfig {
-  /** Nominal corner radius in dips (matches `border-radius`). */
+  /** Finite, non-negative corner radius in logical pixels (DIPs on native). */
   radius: number
   /** Curve family. Default `'continuous'`. */
   curve?: CornerCurve
   /** 0–1 smoothing — used by `squircle`/`clothoid`, ignored elsewhere.
    *  Figma's "iOS" preset is 0.6; Lisse's closest-fit is 0.65. */
   smoothing?: number
-  /** Superellipse exponent (`n`); only `superellipse`. Default 4. */
+  /** Finite superellipse exponent (`n`), at least 2. Default 4. */
   exponent?: number
   /** Preserve smoothing when space is limited. Default true. */
   preserveSmoothing?: boolean
 }
 
-/** Per-corner configuration — each value is a CornerConfig or a radius
- *  shorthand. */
 /** Per-corner overrides — a bare number is shorthand for { radius }. */
 export interface PerCornerConfig {
   /** Top-left corner. */
@@ -44,13 +43,13 @@ export type CornerOptions = CornerConfig | PerCornerConfig | number
 export interface SmoothBorderConfig {
   /** Stroke width in dips, painted inside the clip edge. */
   width: number
-  /** Any color string the platform accepts (hex, rgba, named). */
+  /** CSS #rgb/#rgba/#rrggbb/#rrggbbaa, rgb(), rgba(), or transparent. */
   color: string
 }
 
 /** Drop-shadow applied with the same smoothed silhouette. */
 export interface SmoothShadowConfig {
-  /** Any color string the platform accepts (hex, rgba, named). */
+  /** CSS #rgb/#rgba/#rrggbb/#rrggbbaa, rgb(), rgba(), or transparent. */
   color?: string
   /** Shadow opacity 0-1. */
   opacity?: number
@@ -60,17 +59,15 @@ export interface SmoothShadowConfig {
   offsetY?: number
   /** Blur radius in dips. */
   blur?: number
-  /** Spread is web/iOS/macOS only — Android elevation cannot express it. */
+  /** Finite spread in logical pixels; negative values shrink the silhouette. */
   spread?: number
 }
 
 /** Metadata read by parent layouts — the shared LayoutChildProps contract,
  *  plus the edges and grid-cell alignments the AppKit absolute/grid parents
  *  consume (`right`/`bottom`, `horizontalAlignment`/`verticalAlignment`).
- *  On SmoothCorners these land on the outer wrapper — the node the parent
- *  layout sees as its child. Native forwards the attached attributes;
- *  `right`/`bottom` are honored by the AppKit absolute layout and web CSS
- *  only (NativeScript AbsoluteLayout reads left/top). */
+ *  These map to CSS grid, alignment and absolute edges on the outer Mason/DOM
+ *  wrapper. Use a shared Mason parent to interpret them on native. */
 export interface LayoutChildProps {
   /** Zero-based row index in the parent grid. */
   row?: number
@@ -104,50 +101,40 @@ export interface LayoutChildProps {
   order?: number
 }
 
-/** Flex-container props for the element's own children — RN vocabulary,
- *  applied to the inner flex host on web and the AppKit macOS leaf.
- *  The native leaf's inner container is a gridlayout, so these are
- *  web/macOS-only there. `gap` is a dip number (px on web). */
-export interface FlexContainerProps {
-  /** Main-axis distribution of children. */
-  justifyContent?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
-  /** Cross-axis alignment of children. */
-  alignItems?: 'start' | 'center' | 'end' | 'stretch' | 'baseline'
-  /** Child wrapping (boolean shorthand or wrap direction). */
-  flexWrap?: boolean | 'wrap' | 'nowrap' | 'wrap-reverse'
-  /** Gap between children — dips on native, px on web; FlexboxLayout only natively. */
-  gap?: number | string
-  /** Row gap — same units contract as `gap`. */
-  rowGap?: number | string
-  /** Column gap — same units contract as `gap`. */
-  columnGap?: number | string
+/** Android's native elevation shadow; distinct from a portable blur radius. */
+export interface SmoothAndroidConfig {
+  /** Finite, non-negative elevation in DIPs. Default 0. OS controls shadow appearance. */
+  elevation?: number
 }
 
 /** Props for the SmoothCorners element — a container with non-circular
- *  corner curves. */
-export interface SmoothCornersProps extends LayoutChildProps, FlexContainerProps {
+ *  corner curves. Invalid numeric/color inputs throw before native drawing.
+ * @example
+ * ```tsx
+ * import { SmoothCorners } from '@octane-xplat/smooth-corners'
+ * <SmoothCorners corners={24} style={{ width: 200, height: 120, backgroundColor: '#dbeafe' }} />
+ * ```
+ */
+export interface SmoothCornersProps extends LayoutChildProps {
   /** Radius/curve configuration — the single source of truth. `border-radius`
    *  in `style`/`className` is ignored on this element on every target. */
   corners: CornerOptions
   /** Border drawn inside the smoothed edge. */
   border?: SmoothBorderConfig
-  /** Drop shadow following the clip shape. Fidelity varies per target —
-   *  see the design note: Android uses `elevation` (fixed direction, no
-   *  offsets/spread); iOS/macOS use `shadowPath`; web uses
-   *  `filter: drop-shadow` (no spread). */
+  /** Path-shaped shadow on web, iOS and AppKit macOS. Throws on Android;
+   * use `android.elevation` there. Blur rendering is native to each engine. */
   shadow?: SmoothShadowConfig
-  /** Main-axis direction of the inner flex host — the renderer default is
-   *  column. Web/macOS-only like the rest of FlexContainerProps. */
-  flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
+  /** Explicit Android-only rendering options; ignored on other targets. */
+  android?: SmoothAndroidConfig
   /** Class list applied to the container element. */
-  className?: any
-  /** Inline style (string CSS or object). `border-radius` is ignored —
+  className?: ClassValue
+  /** Dynamic CSS property object. Use className for static CSS. `border-radius` is ignored —
    * use `corners`. Overflow defaults to `visible`: only the surface is
    * shaped. Set `overflow: 'hidden'` to clip descendants to the same curve.
    * The component's own shadow remains outside the content clip. */
-  style?: any
+  style?: CSSProperties
   /** Element id passed through to the host element. */
   id?: string
   /** Content the container lays out. */
-  children?: any
+  children?: unknown
 }

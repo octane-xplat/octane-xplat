@@ -3,6 +3,7 @@
  *  Native globals resolve lazily inside these functions so the module is import-safe on Android bundles. */
 import { Color } from '@nativescript/core'
 import { commandsToD, generateCommands } from './path'
+import { colorChannels } from './validation.ts'
 import type { PathCommand } from './path'
 import type { SmoothCornersProps } from './props'
 
@@ -59,6 +60,24 @@ function toCGPath(cmds: PathCommand[]): any {
 const ownedClips = new WeakMap<object, string>()
 const BORDER_KEY = '__smoothBorder'
 
+/** Release the CSS clip and decorative border before the host is detached. */
+export function disposeSmoothClip(view: any): void {
+  const owned = ownedClips.get(view)
+
+  if (owned !== undefined && view?.style?.clipPath === owned) {
+    view.style.clipPath = 'none'
+  }
+
+  ownedClips.delete(view)
+
+  const native = view?.ios
+
+  native?.[BORDER_KEY]?.removeFromSuperlayer()
+  if (native) {
+    native[BORDER_KEY] = null
+  }
+}
+
 function sizeOf(view: any): { w: number; h: number } | null {
   const size = view?.getActualSize?.()
 
@@ -114,12 +133,25 @@ export function applySmoothClip(view: any, props: SmoothCornersProps, clip = tru
     borderLayer.frame = v.layer.bounds
     borderLayer.path = toCGPath(commands)
     borderLayer.fillColor = null
-    borderLayer.strokeColor = new Color(border.color).ios.CGColor
+
+    const [r, g, b, a] = colorChannels(border.color)
+
+    borderLayer.strokeColor = new Color(Math.round(a * 255), r, g, b).ios.CGColor
     // Stroke centered on the edge; the mask clips the outer half.
     borderLayer.lineWidth = border.width * 2
   } else if (borderLayer) {
     borderLayer.removeFromSuperlayer()
     v[BORDER_KEY] = null
+  }
+}
+
+/** The outer host is private to the component; clear its shadow before detaching. */
+export function disposeSmoothShadow(view: any): void {
+  const layer = view?.ios?.layer
+
+  if (layer) {
+    layer.shadowPath = null
+    layer.shadowOpacity = 0
   }
 }
 
@@ -150,13 +182,21 @@ export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
   const w = size.w + spread * 2
   const h = size.h + spread * 2
 
+  if (w <= 0 || h <= 0) {
+    layer.shadowPath = null
+    layer.shadowOpacity = 0
+    return
+  }
+
   layer.shadowPath = toCGPath(generateCommands(w, h, props.corners))
   layer.shadowOffset = {
     width: (shadow.offsetX ?? 0) - spread,
     height: (shadow.offsetY ?? 0) - spread,
   }
 
-  layer.shadowColor = new Color(shadow.color ?? '#000000').ios.CGColor
+  const [r, g, b, a] = colorChannels(shadow.color ?? '#000000')
+
+  layer.shadowColor = new Color(Math.round(a * 255), r, g, b).ios.CGColor
   layer.shadowOpacity = shadow.opacity ?? 0.35
   layer.shadowRadius = shadow.blur ?? 0
 }

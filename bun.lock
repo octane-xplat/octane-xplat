@@ -2726,6 +2726,7 @@
       },
       "devDependencies": {
         "@nativescript/core": "catalog:",
+        "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/nativescript-octane": "workspace:*",

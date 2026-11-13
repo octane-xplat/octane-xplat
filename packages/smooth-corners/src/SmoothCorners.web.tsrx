@@ -1,13 +1,16 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { validateSurfaceProps } from './validation.ts'
 import type { JSX } from 'octane/jsx-runtime'
 import { useId, useLayoutEffect, useRef, useState } from 'octane'
-import { innerLayoutProps, outerLayoutProps, paintedStyle } from './layout-child.web'
+import { outerLayoutProps, paintedStyle } from './layout-child.web'
 import { smoothPathD } from './path'
-import { clipsChildren, contentPaintReset, surfaceLayout } from './surface'
+import { clipsChildren, contentLayout, contentPaintReset, surfaceLayout } from './surface'
 import type { SmoothCornersProps } from './props'
 
 /** Clip the painted surface independently; clip descendants only for hidden overflow. */
 export function SmoothCorners(props: SmoothCornersProps): JSX.Element @{
+  validateSurfaceProps(props, 'web')
+
   const shadowId = useId()
   const ref = useRef<HTMLDivElement | null>(null)
   const [box, setBox] = useState({ w: 0, h: 0, clip: false })
@@ -61,13 +64,27 @@ export function SmoothCorners(props: SmoothCornersProps): JSX.Element @{
   const d = smoothPathD(box.w, box.h, props.corners)
   const path = box.w > 0 && box.h > 0 ? `path("${d}")` : undefined
   const shadow = props.shadow
+  const spread = shadow?.spread ?? 0
   const shadowPadding = Math.max(
     1,
-    (shadow?.blur ?? 0) * 4 + Math.abs(shadow?.offsetX ?? 0) + Math.abs(shadow?.offsetY ?? 0),
+    (shadow?.blur ?? 0) * 4 +
+      Math.abs(spread) +
+      Math.abs(shadow?.offsetX ?? 0) +
+      Math.abs(shadow?.offsetY ?? 0),
   )
 
   return (
-    <div style={{ display: 'grid', position: 'relative', ...outerLayoutProps(props).style }}>
+    <div
+      className={props.className}
+      style={{
+        display: 'grid',
+        position: 'relative',
+        ...contentPaintReset,
+        padding: 0,
+        overflow: 'visible',
+        ...outerLayoutProps(props).style,
+      }}
+    >
       {shadow && box.w > 0 && box.h > 0 && (
         <svg
           aria-hidden="true"
@@ -91,7 +108,15 @@ export function SmoothCorners(props: SmoothCornersProps): JSX.Element @{
               <feComposite in2="offset" operator="in" />
             </filter>
           </defs>
-          <path d={d} filter={`url(#${shadowId})`} />
+          <path
+            d={smoothPathD(
+              Math.max(0, box.w + spread * 2),
+              Math.max(0, box.h + spread * 2),
+              props.corners,
+            )}
+            transform={`translate(${-spread} ${-spread})`}
+            filter={`url(#${shadowId})`}
+          />
         </svg>
       )}
       <div
@@ -99,10 +124,9 @@ export function SmoothCorners(props: SmoothCornersProps): JSX.Element @{
         id={props.id}
         className={['vx-smooth-corners', props.className]}
         style={{
-          position: 'relative',
           ...paintedStyle(props.style),
-          ...innerLayoutProps(props).style,
           ...contentPaintReset,
+          ...contentLayout,
           clipPath: box.clip ? path : undefined,
         }}
       >

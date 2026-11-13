@@ -429,7 +429,7 @@ export function useCompactTouchLayout$() {
 
 ## SmoothCorners overflow
 
-`@octane-xplat/smooth-corners` shapes the painted surface and defaults to visible child overflow. Request `overflow: hidden` for thumbnails or other content that must follow the curve. Keep the component’s own shadow outside that clip. See the [package guide](../../../../docs/packages/package-smooth-corners.md).
+`@octane-xplat/smooth-corners` shapes the painted surface and defaults to visible child overflow. Request `overflow: hidden` for thumbnails or other content that must follow the curve. Keep the component’s own shadow outside that clip. Use an inner shared layout for rows/columns; the wrapper has no flex-container props. Dynamic `style` accepts a property object. Border/shadow colors use CSS hex, comma-separated rgb()/rgba(), or transparent. `shadow` is web/iOS/AppKit-only and throws on Android; Android uses `android={{ elevation: 8 }}`. Native Windows/GTK throw instead of degrading to ordinary corners. See the [package guide](../../../../docs/packages/package-smooth-corners.md).
 
 ```css
 .thumbnail {

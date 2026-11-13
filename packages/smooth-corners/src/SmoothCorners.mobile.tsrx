@@ -1,25 +1,38 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { validateSurfaceProps } from './validation.ts'
 import { useCallback, useEffect, useRef } from 'octane'
 import { isIOS } from '@nativescript/core'
 import type { View } from '@nativescript/core'
-import { applySmoothClip as applyIosClip, applySmoothShadow as applyIosShadow } from './apply.ios'
+import {
+  applySmoothClip as applyIosClip,
+  applySmoothShadow as applyIosShadow,
+  disposeSmoothClip as disposeIosClip,
+  disposeSmoothShadow as disposeIosShadow,
+} from './apply.ios'
+
 import {
   applySmoothClip as applyAndroidClip,
   applySmoothShadow as applyAndroidShadow,
+  disposeSmoothClip as disposeAndroidClip,
+  disposeSmoothShadow as disposeAndroidShadow,
 } from './apply.android'
 
 import { outerLayoutProps, paintedStyle } from './layout-child'
 import type { SmoothCornersProps } from './props'
-import { clipsChildren, contentPaintReset, surfaceLayout } from './surface'
+import { clipsChildren, contentLayout, contentPaintReset, surfaceLayout } from './surface'
 
 type SmoothNativeView = View & { style: View['style'] & { overflowX?: string; overflowY?: string } }
 
 const applyClip = isIOS ? applyIosClip : applyAndroidClip
 const applyShadow = isIOS ? applyIosShadow : applyAndroidShadow
+const disposeShadow = isIOS ? disposeIosShadow : disposeAndroidShadow
+const disposeClip = isIOS ? disposeIosClip : disposeAndroidClip
 
 /** The decorative surface is masked independently of the content host.
  * Parent layout metadata remains on the outer wrapper. */
 export function SmoothCorners(props: SmoothCornersProps): unknown @{
+  validateSurfaceProps(props, isIOS ? 'ios' : 'android')
+
   const state = useRef<{
     inner: SmoothNativeView | null
     surface: SmoothNativeView | null
@@ -66,6 +79,11 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
         prev.off?.('layoutChanged', apply)
         prev.style?.off?.('overflowXChange', apply)
         prev.style?.off?.('overflowYChange', apply)
+        if (which !== 'outer') {
+          disposeClip(prev)
+        } else {
+          disposeShadow(prev)
+        }
       }
 
       s[which] = view
@@ -97,7 +115,14 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
   return (
     <masonview
       ref={bindOuter.current}
-      style={{ display: 'grid', overflow: 'visible', ...outerLayoutProps(props).style }}
+      className={props.className}
+      style={{
+        display: 'grid',
+        ...contentPaintReset,
+        padding: 0,
+        overflow: 'visible',
+        ...outerLayoutProps(props).style,
+      }}
     >
       <masonview
         ref={bindInner.current}
@@ -105,9 +130,9 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
         className={['vx-smooth-corners', props.className]}
         style={{
           display: 'grid',
-          position: 'relative',
           ...paintedStyle(props.style),
           ...contentPaintReset,
+          ...contentLayout,
         }}
       >
         <masonview

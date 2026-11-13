@@ -22,6 +22,9 @@ export const surfaceLayout = {
   maxHeight: 'none',
   margin: 0,
   padding: 0,
+  borderWidth: 0,
+  borderRadius: 0,
+  boxShadow: 'none',
   opacity: 1,
   transform: 'none',
   overflow: 'visible',
@@ -31,3 +34,24 @@ export const surfaceLayout = {
 export function clipsChildren(overflowX: unknown, overflowY: unknown = overflowX): boolean {
   return overflowX === 'hidden' && overflowY === 'hidden'
 }
+
+/** The content fills the wrapper; authored box geometry applies only outside. */
+export const contentLayout = {
+  boxSizing: 'border-box',
+  position: 'relative',
+  width: '100%',
+  height: '100%',
+  minWidth: 0,
+  minHeight: 0,
+  maxWidth: 'none',
+  maxHeight: 'none',
+  margin: 0,
+  left: 0,
+  top: 0,
+  right: 'auto',
+  bottom: 'auto',
+  alignSelf: 'stretch',
+  justifySelf: 'stretch',
+  opacity: 1,
+  transform: 'none',
+} as const

@@ -1,16 +1,20 @@
-/** Android smooth-corners apply — custom Drawable paints background +
- *  border along the generated path; a ViewOutlineProvider clips children
- *  (`setPath` API 30+, `setConvexPath` 21–29 for convex curves); `shadow`
- *  maps to `elevation`, which follows the outline. The `android` global is
- *  touched only inside functions so the module is import-safe on iOS. */
+/** Android uses Mason's CSS path clip for painting and descendants on every
+ * supported API. A foreground Drawable adds the inside border without
+ * replacing Mason's background. Outlines belong only to native elevation.
+ * Native globals are resolved lazily so this module is import-safe on iOS. */
 import { Color, Utils } from '@nativescript/core'
-import { generateCommands } from './path'
+import { commandsToD, generateCommands } from './path'
+import { colorChannels } from './validation.ts'
 import type { PathCommand } from './path'
 import type { SmoothCornersProps } from './props'
 
 declare const android: any
 
-const PATH_KEY = '__smoothPath'
+const ownedClips = new WeakMap<object, string>()
+const ownedBorders = new WeakMap<
+  object,
+  { drawable: any; foreground: any; previous: any; props: SmoothCornersProps; path: any }
+>()
 
 function toAndroidPath(cmds: PathCommand[]): any {
   const p = new android.graphics.Path()
@@ -39,10 +43,16 @@ function toAndroidPath(cmds: PathCommand[]): any {
     }
   }
 
+  // Generate in DIPs, then scale the entire path once (including every radius).
+  const scale = Utils.layout.toDevicePixels(1)
+  const matrix = new android.graphics.Matrix()
+
+  matrix.setScale(scale, scale)
+  p.transform(matrix)
   return p
 }
 
-function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }): any {
+function makeDrawable(state: { props: SmoothCornersProps; path: any }): any {
   const Drawable = (android.graphics.drawable.Drawable as any).extend({
     draw(canvas: any) {
       const path = state.path
@@ -51,16 +61,7 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
         return
       }
 
-      const bg = state.view?.backgroundColor ?? state.view?.style?.backgroundColor
       const border = state.props.border
-
-      if (bg) {
-        const paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
-
-        paint.setStyle(android.graphics.Paint.Style.FILL)
-        paint.setColor(new Color(bg).android)
-        canvas.drawPath(path, paint)
-      }
 
       if (border && border.width > 0 && border.color) {
         const paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
@@ -73,7 +74,10 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
 
         canvas.clipPath(path)
         paint.setStrokeWidth(Utils.layout.toDevicePixels(border.width) * 2)
-        paint.setColor(new Color(border.color).android)
+
+        const [r, g, b, a] = colorChannels(border.color)
+
+        paint.setColor(new Color(Math.round(a * 255), r, g, b).android)
         canvas.drawPath(path, paint)
         canvas.restoreToCount(checkpoint)
       }
@@ -88,68 +92,192 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
   return new Drawable()
 }
 
-/** Clip the inner box: outline provider + background/border drawable. */
+/** Mason owns the clip lifecycle, antialiasing and clipped-region touch exclusion. */
 export function applySmoothClip(view: any, props: SmoothCornersProps, clip = true): void {
-  const s = view?.[PATH_KEY] ?? (view[PATH_KEY] = { view, props, path: null, drawable: null })
+  const native = view?.android
+  const style = view?.style
 
-  s.props = props
-
-  const v = view?.android as any
-  const size = view?.getActualSize?.()
-
-  if (!v || !size || size.width <= 0 || size.height <= 0) {
+  if (!native || !style) {
     return
   }
 
-  s.path = toAndroidPath(
-    generateCommands(
-      Utils.layout.toDevicePixels(size.width),
-      Utils.layout.toDevicePixels(size.height),
-      props.corners,
-    ),
-  )
+  if (!clip) {
+    const owned = ownedClips.get(view)
 
-  const path = s.path
+    if (owned !== undefined && style.clipPath === owned) {
+      style.clipPath = 'none'
+    }
 
-  v.setOutlineProvider(
-    new ((android.view.ViewOutlineProvider as any).extend({
-      getOutline(target: any, outline: any) {
-        if (!path) {
-          return
-        }
-
-        if (android.os.Build.VERSION.SDK_INT >= 30) {
-          outline.setPath(path)
-        } else {
-          // Concave paths throw — degrade to the rect; the drawable
-          // still draws the correct background shape.
-          try {
-            outline.setConvexPath(path)
-          } catch {
-            outline.setRect(0, 0, target.getWidth(), target.getHeight())
-          }
-        }
-      },
-    }))(),
-  )
-
-  v.setClipToOutline(clip)
-  v.setClipChildren(clip)
-  v.setClipToPadding(clip)
-
-  if (!s.drawable) {
-    s.drawable = makeDrawable(s)
-    v.setBackground(s.drawable)
+    ownedClips.delete(view)
   }
 
-  s.drawable.setBounds(0, 0, v.getWidth(), v.getHeight())
-  v.invalidate()
+  const size = view.getActualSize?.()
 
-  // elevation shadows follow the outline — the curve, free.
-  v.setElevation(props.shadow ? Utils.layout.toDevicePixels(props.shadow.blur ?? 8) : 0)
+  if (!size || size.width <= 0 || size.height <= 0) {
+    return
+  }
+
+  const commands = generateCommands(size.width, size.height, props.corners)
+
+  if (clip) {
+    const value = `path("${commandsToD(commands)}")`
+
+    if (style.clipPath !== value) {
+      style.clipPath = value
+    }
+
+    ownedClips.set(view, value)
+  }
+
+  // Overflow is resolved by Mason; never replace its background/outline owner.
+  if (props.border && props.border.width > 0) {
+    let state = ownedBorders.get(view)
+
+    if (!state) {
+      state = {
+        drawable: null,
+        foreground: null,
+        previous: native.getForeground(),
+        props,
+        path: null,
+      }
+
+      state.drawable = makeDrawable(state)
+      state.foreground = state.previous
+        ? new android.graphics.drawable.LayerDrawable([state.previous, state.drawable])
+        : state.drawable
+
+      ownedBorders.set(view, state)
+      native.setForeground(state.foreground)
+    }
+
+    state.props = props
+    state.path = toAndroidPath(commands)
+    state.drawable.setBounds(0, 0, native.getWidth(), native.getHeight())
+  } else {
+    clearBorder(view)
+  }
+
+  native.invalidate()
 }
 
-/** Elevation belongs to the unclipped outer host, outside the content clip. */
+function clearBorder(view: any): void {
+  const state = ownedBorders.get(view)
+  const native = view?.android
+
+  if (state && native?.getForeground() === state.foreground) {
+    native.setForeground(state.previous)
+  }
+
+  ownedBorders.delete(view)
+}
+
+/** Release only the CSS value and foreground this adapter still owns. */
+export function disposeSmoothClip(view: any): void {
+  const owned = ownedClips.get(view)
+
+  if (owned !== undefined && view?.style?.clipPath === owned) {
+    view.style.clipPath = 'none'
+  }
+
+  ownedClips.delete(view)
+  clearBorder(view)
+}
+
+interface ElevationState {
+  provider: any
+  previousProvider: any
+  previousElevation: number
+  elevation: number
+  clipChildren: boolean
+  clipPadding: boolean
+  clipOutline: boolean
+  path: any
+  d: string
+}
+
+const ownedElevations = new WeakMap<object, ElevationState>()
+
+/** Restore the previous native owner only while our outline is still installed. */
+export function disposeSmoothShadow(view: any): void {
+  const state = ownedElevations.get(view)
+  const native = view?.android
+
+  if (state && native?.getOutlineProvider() === state.provider) {
+    native.setOutlineProvider(state.previousProvider)
+    if (native.getElevation() === state.elevation) {
+      native.setElevation(state.previousElevation)
+    }
+
+    native.setClipToOutline(state.clipOutline)
+    native.setClipChildren(state.clipChildren)
+    native.setClipToPadding(state.clipPadding)
+    native.invalidateOutline()
+  }
+
+  ownedElevations.delete(view)
+}
+
+/** Native elevation is explicitly Android-specific, outside the content clip. */
 export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
-  applySmoothClip(view, { ...props, border: undefined }, false)
+  const native = view?.android
+  const size = view?.getActualSize?.()
+
+  if (!native) {
+    return
+  }
+
+  if (!props.android?.elevation) {
+    disposeSmoothShadow(view)
+    return
+  }
+
+  if (!size || size.width <= 0 || size.height <= 0) {
+    return
+  }
+
+  const commands = generateCommands(size.width, size.height, props.corners)
+  const d = commandsToD(commands)
+  let state = ownedElevations.get(view)
+
+  if (!state) {
+    state = {
+      provider: null,
+      previousProvider: native.getOutlineProvider(),
+      previousElevation: native.getElevation(),
+      elevation: 0,
+      clipChildren: native.getClipChildren(),
+      clipPadding: native.getClipToPadding(),
+      clipOutline: native.getClipToOutline(),
+      path: toAndroidPath(commands),
+      d,
+    }
+
+    const current = state
+    const Provider = android.view.ViewOutlineProvider.extend({
+      getOutline(_target: any, outline: any) {
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+          outline.setPath(current.path)
+        } else {
+          outline.setConvexPath(current.path)
+        }
+      },
+    })
+
+    state.provider = new Provider()
+    ownedElevations.set(view, state)
+    native.setOutlineProvider(state.provider)
+    native.setClipToOutline(false)
+    native.setClipChildren(false)
+    native.setClipToPadding(false)
+  }
+
+  if (state.d !== d) {
+    state.d = d
+    state.path = toAndroidPath(commands)
+    native.invalidateOutline()
+  }
+
+  state.elevation = Utils.layout.toDevicePixels(props.android.elevation)
+  native.setElevation(state.elevation)
 }

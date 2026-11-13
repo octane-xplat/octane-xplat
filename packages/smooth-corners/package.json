@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/smooth-corners",
 	"version": "0.20.0",
-	"description": "Exact-match smooth corners for Octane xplat \u2014 one generated curve (Rosenfeld continuous, Figma squircle, superellipse, clothoid) painted natively with optional child clipping on web, iOS, Android, and macOS",
+	"description": "Shared smooth-corner geometry with native surface painting and optional child clipping for web, iOS, Android and AppKit macOS",
 	"keywords": [
 		"clip-path",
 		"corner-smoothing",
@@ -26,6 +26,7 @@
 		"!src/**/*.spec.*"
 	],
 	"type": "module",
+	"types": "./types/generated/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
@@ -44,28 +45,34 @@
 		"pack:check": "tsrx-typegen --pack-check",
 		"test": "node --test tests/*.test.mts",
 		"test:e2e": "node e2e/overflow.web.mts",
-		"typecheck": "node ../../scripts/typecheck.ts"
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test:android": "node tests/run-native.mts android",
+		"test:ios": "node tests/run-native.mts ios",
+		"test:macos-runtime": "node tests/run-native.mts macos",
+		"test:packed:web": "node tests/packed.web.mts",
+		"test:android-input": "node tests/android-input.mts"
 	},
 	"dependencies": {
 		"@lisse/core": "0.7.3",
 		"@octane-xplat/jsx": "workspace:*"
 	},
 	"devDependencies": {
-		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
+		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
 		"octane": "catalog:",
 		"playwright": "1.63.0",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:",
-		"@tsrx/content-mapper": "catalog:"
+		"vite": "catalog:"
 	},
 	"peerDependencies": {
-		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": ">=9.1.0 <10",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
@@ -75,6 +82,5 @@
 		"@nativescript/core": {
 			"optional": true
 		}
-	},
-	"types": "./types/generated/index.d.ts"
+	}
 }

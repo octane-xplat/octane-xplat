@@ -1,9 +1,4 @@
-import type { FlexContainerProps, LayoutChildProps, SmoothCornersProps } from './props'
-
-// start/end shorthand → flex-start/flex-end (NativeScript's value names; the
-// AppKit renderer accepts both forms).
-const FLEX_JUSTIFY: Record<string, string> = { start: 'flex-start', end: 'flex-end' }
-const FLEX_ALIGN: Record<string, string> = { start: 'flex-start', end: 'flex-end' }
+import type { LayoutChildProps } from './props'
 
 // The element's box geometry — parent layouts read the child's own style for
 // size and margins, so these keys must land on the outer wrapper. The rest
@@ -11,19 +6,34 @@ const FLEX_ALIGN: Record<string, string> = { start: 'flex-start', end: 'flex-end
 const OUTER_STYLE_KEYS = [
   'width',
   'height',
+  'minWidth',
+  'minHeight',
+  'maxWidth',
+  'maxHeight',
   'margin',
   'marginTop',
   'marginRight',
   'marginBottom',
   'marginLeft',
+  'position',
+  'left',
+  'top',
+  'right',
+  'bottom',
+  'flexGrow',
+  'flexShrink',
+  'flexBasis',
+  'alignSelf',
+  'justifySelf',
+  'order',
+  'gridRow',
+  'gridColumn',
+  'transform',
+  'opacity',
 ] as const
 
-const MARGIN_KEYS = ['margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'] as const
-
-/** The inner box's `style` — everything except margins, which belong to the
- *  element's border box and move out to the wrapper. Width/height stay: the
- *  AppKit inner stack cannot stretch along its parent's main axis, so it
- *  must keep its own size. */
+/** Content and paint styles exclude geometry owned by the outer wrapper.
+ * In particular, percentage sizes and transforms must apply exactly once. */
 export function paintedStyle(style: any): any {
   if (!style || typeof style !== 'object') {
     return style
@@ -31,7 +41,7 @@ export function paintedStyle(style: any): any {
 
   const next = { ...style }
 
-  for (const key of MARGIN_KEYS) {
+  for (const key of OUTER_STYLE_KEYS) {
     delete next[key]
   }
 
@@ -89,6 +99,40 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
     style.position = style.position ?? 'absolute'
   }
 
+  if (props.right !== undefined) {
+    style.right = props.right
+    style.position ??= 'absolute'
+  }
+
+  if (props.bottom !== undefined) {
+    style.bottom = props.bottom
+    style.position ??= 'absolute'
+  }
+
+  const horizontal = {
+    left: 'start',
+    center: 'center',
+    middle: 'center',
+    right: 'end',
+    stretch: 'stretch',
+  }
+
+  const vertical = {
+    top: 'start',
+    center: 'center',
+    middle: 'center',
+    bottom: 'end',
+    stretch: 'stretch',
+  }
+
+  if (props.horizontalAlignment !== undefined) {
+    style.justifySelf = horizontal[props.horizontalAlignment]
+  }
+
+  if (props.verticalAlignment !== undefined) {
+    style.alignSelf = vertical[props.verticalAlignment]
+  }
+
   for (const key of ['flexGrow', 'flexShrink', 'alignSelf', 'order'] as const) {
     if (props[key] !== undefined) {
       style[key] = props[key]
@@ -101,48 +145,6 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
     if (source[key] !== undefined) {
       style[key] = source[key]
     }
-  }
-
-  return { style }
-}
-
-/** Flex-container props — the INNER host's CSS layout style. Used by the
- *  macOS leaf (inner masonview); shared Stack-style props compile to the
- *  same style keys as on web. */
-export function innerLayoutProps(
-  props: FlexContainerProps & Pick<SmoothCornersProps, 'flexDirection'>,
-): {
-  style: Record<string, any>
-} {
-  const style: Record<string, any> = {}
-
-  if (props.flexDirection !== undefined) {
-    style.flexDirection = props.flexDirection
-  }
-
-  if (props.justifyContent !== undefined) {
-    style.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
-  }
-
-  if (props.alignItems !== undefined) {
-    style.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
-  }
-
-  if (props.flexWrap !== undefined) {
-    style.flexWrap =
-      props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
-  }
-
-  if (props.gap !== undefined) {
-    style.gap = props.gap
-  }
-
-  if (props.rowGap !== undefined) {
-    style.rowGap = props.rowGap
-  }
-
-  if (props.columnGap !== undefined) {
-    style.columnGap = props.columnGap
   }
 
   return { style }

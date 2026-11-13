@@ -1,14 +1,15 @@
 // DOM style, geometry and browser hit-testing only; no image capture.
 import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
-import { chromium } from 'playwright'
+import { chromium, firefox, webkit } from 'playwright'
 import { createServer } from 'vite'
 import { octane } from 'octane/compiler/vite'
 
 const server = await createServer({
   configFile: false,
-  root: fileURLToPath(new URL('./fixture', import.meta.url)),
+  root: process.env.XPLAT_SMOOTH_FIXTURE ?? fileURLToPath(new URL('./fixture', import.meta.url)),
   plugins: [octane({ ssr: false })],
+  optimizeDeps: { exclude: ['@octane-xplat/smooth-corners'] },
   resolve: {
     conditions: ['web'],
     dedupe: ['octane'],
@@ -21,7 +22,14 @@ let browser
 
 try {
   await server.listen()
-  browser = await chromium.launch({ headless: true })
+
+  const engine = { chromium, firefox, webkit }[process.env.XPLAT_WEB_BROWSER ?? 'chromium']
+
+  if (!engine) {
+    throw new Error('Unsupported XPLAT_WEB_BROWSER')
+  }
+
+  browser = await engine.launch({ headless: true })
 
   const page = await browser.newPage()
 
@@ -53,11 +61,39 @@ try {
         background: getComputedStyle(panel).backgroundColor,
         surfaceBackground: getComputedStyle(paint).backgroundColor,
         surfaceClip: getComputedStyle(paint).clipPath,
+        surfaceRadius: getComputedStyle(paint).borderRadius,
+        surfaceBorder: getComputedStyle(paint).borderTopWidth,
         width: bounds.width,
+        shadowWidth: panel.parentElement.querySelector('svg > path').getBBox().width,
+        shadowTransform: panel.parentElement.querySelector('svg > path').getAttribute('transform'),
         badgeReachable: document.elementFromPoint(badge.right - 5, badge.top + 10)?.id === 'badge',
         shadowOutsideClip: panel.parentElement.querySelector('svg > defs > filter') !== null,
       }
     })
+
+  const geometry = await page.evaluate(() => {
+    const percent = document.getElementById('percent')
+    const classOnly = document.getElementById('class-only')
+    const transformed = document.getElementById('transformed')
+
+    return {
+      percent: percent.offsetWidth,
+      percentOuter: percent.parentElement.offsetWidth,
+      classOnly: classOnly.offsetWidth,
+      classOuter: classOnly.parentElement.offsetWidth,
+      transformed: transformed.getBoundingClientRect().width,
+      contentOpacity: getComputedStyle(transformed).opacity,
+      outerOpacity: getComputedStyle(transformed.parentElement).opacity,
+    }
+  })
+
+  assert.equal(geometry.percent, 200)
+  assert.equal(geometry.percentOuter, 200)
+  assert.equal(geometry.classOnly, 200)
+  assert.equal(geometry.classOuter, 200)
+  assert.ok(Math.abs(geometry.transformed - 240) < 0.1)
+  assert.equal(geometry.contentOpacity, '1')
+  assert.equal(geometry.outerOpacity, '0.5')
 
   const initial = await read()
 
@@ -66,8 +102,12 @@ try {
   assert.equal(initial.background, 'rgba(0, 0, 0, 0)')
   assert.equal(initial.surfaceBackground, 'rgb(219, 234, 254)')
   assert.ok(initial.surfaceClip.startsWith('path('))
+  assert.equal(initial.surfaceRadius, '0px')
+  assert.equal(initial.surfaceBorder, '0px')
   assert.equal(initial.badgeReachable, true)
   assert.equal(initial.shadowOutsideClip, true)
+  assert.ok(Math.abs(initial.shadowWidth - (initial.width + 4)) < 0.01)
+  assert.equal(initial.shadowTransform, 'translate(-2 -2)')
   await page.locator('#badge').click({ position: { x: 65, y: 10 } })
   assert.equal(await page.locator('#clicks').textContent(), '1')
 

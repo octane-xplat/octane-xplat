@@ -4,7 +4,8 @@
 	"environments": {
 		"native": {
 			"files": [
-				"src/index.ts"
+				"src/index.ts",
+				"tests/public-types.ts"
 			]
 		},
 		"web": {

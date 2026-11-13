@@ -1,8 +1,4 @@
-import type { FlexContainerProps, LayoutChildProps, SmoothCornersProps } from './props'
-
-// start/end shorthand → flex-start/flex-end (valid in both engines).
-const FLEX_JUSTIFY: Record<string, string> = { start: 'flex-start', end: 'flex-end' }
-const FLEX_ALIGN: Record<string, string> = { start: 'flex-start', end: 'flex-end' }
+import type { LayoutChildProps } from './props'
 
 // Grid-cell alignment vocabulary → CSS self-alignment.
 const JUSTIFY_SELF: Record<string, string> = {
@@ -26,14 +22,31 @@ const ALIGN_SELF: Record<string, string> = {
 const OUTER_STYLE_KEYS = [
   'width',
   'height',
+  'minWidth',
+  'minHeight',
+  'maxWidth',
+  'maxHeight',
   'margin',
   'marginTop',
   'marginRight',
   'marginBottom',
   'marginLeft',
+  'position',
+  'left',
+  'top',
+  'right',
+  'bottom',
+  'flexGrow',
+  'flexShrink',
+  'flexBasis',
+  'alignSelf',
+  'justifySelf',
+  'order',
+  'gridRow',
+  'gridColumn',
+  'transform',
+  'opacity',
 ] as const
-
-const MARGIN_KEYS = ['margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'] as const
 
 /** The inner box's `style` — everything except margins, which belong to the
  *  element's border box and move out to the wrapper. */
@@ -44,7 +57,7 @@ export function paintedStyle(style: any): any {
 
   const next = { ...style }
 
-  for (const key of MARGIN_KEYS) {
+  for (const key of OUTER_STYLE_KEYS) {
     delete next[key]
   }
 
@@ -72,10 +85,38 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
     style.gridColumn = `span ${props.colSpan}`
   }
 
+  if (props.dock !== undefined) {
+    style.position = 'absolute'
+    if (props.dock === 'left' || props.dock === 'top' || props.dock === 'bottom') {
+      style.left = 0
+    }
+
+    if (props.dock === 'right' || props.dock === 'top' || props.dock === 'bottom') {
+      style.right = 0
+    }
+
+    if (props.dock === 'top' || props.dock === 'left' || props.dock === 'right') {
+      style.top = 0
+    }
+
+    if (props.dock === 'bottom' || props.dock === 'left' || props.dock === 'right') {
+      style.bottom = 0
+    }
+  }
+
   for (const key of ['left', 'top', 'right', 'bottom'] as const) {
     if (props[key] !== undefined) {
       style[key] = props[key]
     }
+  }
+
+  if (
+    props.left !== undefined ||
+    props.top !== undefined ||
+    props.right !== undefined ||
+    props.bottom !== undefined
+  ) {
+    style.position = 'absolute'
   }
 
   if (props.flexGrow !== undefined) {
@@ -110,61 +151,6 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
         style[key] = props.style[key]
       }
     }
-  }
-
-  return { style }
-}
-
-/** Flex-container props folded into the inner box's style. Emits
- *  `display: flex` only when a flex prop is present so a bare SmoothCorners
- *  keeps normal block flow; the default direction is column to match the
- *  renderers' stack default. */
-export function innerLayoutProps(
-  props: FlexContainerProps & Pick<SmoothCornersProps, 'flexDirection'>,
-): {
-  style: Record<string, any>
-} {
-  const hasFlex =
-    props.flexDirection !== undefined ||
-    props.justifyContent !== undefined ||
-    props.alignItems !== undefined ||
-    props.flexWrap !== undefined ||
-    props.gap !== undefined ||
-    props.rowGap !== undefined ||
-    props.columnGap !== undefined
-
-  if (!hasFlex) {
-    return { style: {} }
-  }
-
-  const style: Record<string, any> = {
-    display: 'flex',
-    flexDirection: props.flexDirection ?? 'column',
-  }
-
-  if (props.justifyContent !== undefined) {
-    style.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
-  }
-
-  if (props.alignItems !== undefined) {
-    style.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
-  }
-
-  if (props.flexWrap !== undefined) {
-    style.flexWrap =
-      props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
-  }
-
-  if (props.gap !== undefined) {
-    style.gap = props.gap
-  }
-
-  if (props.rowGap !== undefined) {
-    style.rowGap = props.rowGap
-  }
-
-  if (props.columnGap !== undefined) {
-    style.columnGap = props.columnGap
   }
 
   return { style }

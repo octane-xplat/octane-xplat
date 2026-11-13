@@ -116,10 +116,10 @@ it('authored overflow classes resolve hidden and install the squircle content cl
         `[probe204] ${tag} android clipToOutline=${v?.getClipToOutline?.()} clipChildren=${v?.getClipChildren?.()} outline=${v?.getOutlineProvider?.() ? 'set' : 'none'}`,
       )
 
-      // Android clips children through the outline provider setPath path.
-      expect(v?.getClipToOutline?.(), `${tag} clipToOutline`).toBe(true)
-      expect(v?.getClipChildren?.(), `${tag} clipChildren`).toBe(true)
-      expect(v?.getOutlineProvider?.(), `${tag} outline provider`).toBeTruthy()
+      // Mason owns the exact CSS path; outline clipping cannot represent
+      // arbitrary curves on every supported Android API level.
+      expect(v?.getStyle().getClipPath(), `${tag} native clipPath`).toBe(overflow.clip)
+      expect(v?.getClipToOutline?.(), `${tag} clipToOutline`).toBe(false)
     }
   }
 })

@@ -1,15 +1,14 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { outerLayoutProps, innerLayoutProps, paintedStyle } from '../src/layout-child.ts'
+import { outerLayoutProps, paintedStyle } from '../src/layout-child.ts'
 
 import {
   outerLayoutProps as outerLayoutPropsWeb,
-  innerLayoutProps as innerLayoutPropsWeb,
   paintedStyle as paintedStyleWeb,
 } from '../src/layout-child.web.ts'
 
 // GH#7: the leaf's two wrappers split the layout contract — parent-layout
-// metadata on the outer view, flex-container props on the inner host.
+// metadata on the outer view and painting on its decorative surface.
 
 test('outer style bag carries only parent-layout metadata as CSS keys', () => {
   const { style } = outerLayoutProps({
@@ -22,8 +21,6 @@ test('outer style bag carries only parent-layout metadata as CSS keys', () => {
     flexGrow: 1,
     alignSelf: 'stretch',
     order: 3,
-    justifyContent: 'center',
-    flexDirection: 'row',
   })
 
   assert.equal(style.gridRow, '2 / span 2')
@@ -45,37 +42,10 @@ test('outer style bag carries only parent-layout metadata as CSS keys', () => {
   assert.equal(style.dock, undefined)
 })
 
-test('inner style bag carries only flex-container props, mapped to host names', () => {
-  const { style } = innerLayoutProps({
-    flexDirection: 'row',
-    justifyContent: 'start',
-    alignItems: 'end',
-    flexWrap: true,
-    gap: 10,
-    rowGap: 4,
-    columnGap: 6,
-    left: 40,
-  })
-
-  assert.deepEqual(style, {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    flexWrap: 'wrap',
-    gap: 10,
-    rowGap: 4,
-    columnGap: 6,
-  })
-
-  assert.equal(innerLayoutProps({ flexWrap: false }).style.flexWrap, 'nowrap')
-  assert.equal(innerLayoutProps({ flexWrap: 'wrap-reverse' }).style.flexWrap, 'wrap-reverse')
-})
-
 test('unset props are omitted — the style bag replaces wholesale', () => {
   // The driver diffs the applied style keys — a key absent on the next
   // apply resets what it installed, so helpers omit rather than tombstone.
   assert.deepEqual(outerLayoutProps({}).style, {})
-  assert.deepEqual(innerLayoutProps({}).style, {})
 })
 
 test('outer style bag mirrors the element box geometry from style', () => {
@@ -92,7 +62,6 @@ test('outer style bag mirrors the element box geometry from style', () => {
 
 test('paintedStyle drops margins and keeps the rest', () => {
   assert.deepEqual(paintedStyle({ width: 10, margin: 4, marginTop: 2, backgroundColor: '#000' }), {
-    width: 10,
     backgroundColor: '#000',
   })
 
@@ -127,6 +96,7 @@ test('web outer style folds metadata into CSS', () => {
   assert.equal(style.justifySelf, 'end')
   assert.equal(style.alignSelf, 'start')
   assert.equal(style.dock, undefined)
+  assert.equal(style.position, 'absolute')
 
   const withBox = outerLayoutPropsWeb({ style: { width: 50, marginTop: 4, padding: 8 } }).style
 
@@ -135,17 +105,34 @@ test('web outer style folds metadata into CSS', () => {
   assert.equal(withBox.padding, undefined)
 })
 
-test('web inner style emits display:flex only when a flex prop is set', () => {
-  assert.deepEqual(innerLayoutPropsWeb({}).style, {})
+for (const [name, outer, painted] of [
+  ['native', outerLayoutProps, paintedStyle],
+  ['web', outerLayoutPropsWeb, paintedStyleWeb],
+]) {
+  test(`${name}: percentage dimensions, constraints, transforms and opacity belong to the wrapper once`, () => {
+    const input = {
+      width: '50%',
+      minWidth: 80,
+      maxWidth: 240,
+      transform: 'scale(1.2)',
+      opacity: 0.5,
+      padding: 8,
+    }
 
-  const { style } = innerLayoutPropsWeb({ gap: 8 })
+    assert.deepEqual(outer({ style: input }).style, {
+      width: '50%',
+      minWidth: 80,
+      maxWidth: 240,
+      transform: 'scale(1.2)',
+      opacity: 0.5,
+    })
 
-  assert.equal(style.display, 'flex')
-  assert.equal(style.flexDirection, 'column')
-  assert.equal(style.gap, 8)
-
-  const row = innerLayoutPropsWeb({ flexDirection: 'row', justifyContent: 'start' }).style
-
-  assert.equal(row.flexDirection, 'row')
-  assert.equal(row.justifyContent, 'flex-start')
-})
+    assert.deepEqual(painted(input), { padding: 8 })
+    assert.deepEqual(outer({ dock: 'right' }).style, {
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      bottom: 0,
+    })
+  })
+}

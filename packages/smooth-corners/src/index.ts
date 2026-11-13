@@ -7,6 +7,7 @@ export type {
   CornerCurve,
   CornerOptions,
   PerCornerConfig,
+  SmoothAndroidConfig,
   SmoothBorderConfig,
   SmoothCornersProps,
   SmoothShadowConfig,

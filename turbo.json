@@ -193,9 +193,15 @@
 		},
 		// Browser input/geometry checks run locally, outside the PR checks job.
 		"@octane-xplat/smooth-corners#test:e2e": {
+			"env": ["XPLAT_WEB_BROWSER"],
 			"dependsOn": ["^typegen", "^build"],
 			"cache": false
 		},
+		"@octane-xplat/smooth-corners#test:android": { "dependsOn": ["typegen", "@octane-xplat/cli#build"], "cache": false, "passThroughEnv": ["GODDARD_*", "TMPDIR", "ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME"] },
+		"@octane-xplat/smooth-corners#test:android-input": { "dependsOn": ["typegen", "@octane-xplat/cli#build"], "cache": false, "passThroughEnv": ["GODDARD_*", "TMPDIR", "ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME"] },
+		"@octane-xplat/smooth-corners#test:ios": { "dependsOn": ["typegen", "@octane-xplat/cli#build"], "cache": false, "passThroughEnv": ["GODDARD_*", "TMPDIR", "DEVELOPER_DIR"] },
+		"@octane-xplat/smooth-corners#test:macos-runtime": { "dependsOn": ["typegen", "@octane-xplat/cli#build"], "cache": false, "passThroughEnv": ["GODDARD_*", "TMPDIR"] },
+		"@octane-xplat/smooth-corners#test:packed:web": { "dependsOn": ["typegen", "^typegen"], "cache": false, "env": ["XPLAT_WEB_BROWSER"], "passThroughEnv": ["TMPDIR"] },
 		"@octane-xplat/lightbox#test:e2e": {
 			"dependsOn": ["^typegen", "^build"],
 			"env": ["XPLAT_WEB_BROWSER"],

@@ -1,3 +1,8 @@
 import type { SmoothCornersProps } from './props'
 
-export declare function SmoothCorners(props: SmoothCornersProps): unknown
+/** This target has no qualified smooth-path surface adapter. */
+export function SmoothCorners(_props: SmoothCornersProps): unknown {
+  throw new Error(
+    'SmoothCorners is unavailable on this renderer; use a supported web, iOS, Android or AppKit host',
+  )
+}

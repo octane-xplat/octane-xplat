@@ -1,96 +1,61 @@
 import { flipCommandsY, generateCommands } from './path'
+import { colorChannels } from './validation.ts'
 import type { PathCommand } from './path'
 import type { SmoothCornersProps } from './props'
 
-declare const NSBezierPath: any
+declare const CGPathCreateMutable: any
+declare const CGPathMoveToPoint: any
+declare const CGPathAddLineToPoint: any
+declare const CGPathAddCurveToPoint: any
+declare const CGPathAddArc: any
+declare const CGPathCloseSubpath: any
 declare const CAShapeLayer: any
 declare const NSColor: any
 declare const NSMakeSize: any
 
-/** '#rgb'/'#rrggbb'/'#rrggbbaa'/'rgba(r,g,b,a)' → NSColor. Keep the surface
- *  small — the AppKit target's CSS coverage is a curated subset anyway. */
 function colorValue(input: string | undefined): any {
-  if (!input) {
-    return NSColor.blackColor
-  }
+  const [r, g, b, a] = colorChannels(input ?? '#000000')
 
-  const hex = input.trim()
-
-  if (hex.startsWith('#')) {
-    const h = hex.slice(1)
-    const n =
-      h.length === 3
-        ? h
-            .split('')
-            .map((c) => c + c)
-            .join('')
-        : h
-
-    const int = parseInt(n, 16)
-    const hasAlpha = n.length === 8
-    const r = (int >> (hasAlpha ? 24 : 16)) & 0xff
-    const g = (int >> (hasAlpha ? 16 : 8)) & 0xff
-    const b = (int >> (hasAlpha ? 8 : 0)) & 0xff
-    const a = hasAlpha ? int & 0xff : 255
-
-    return NSColor.colorWithSRGBRedGreenBlueAlpha(r / 255, g / 255, b / 255, a / 255)
-  }
-
-  const m = hex.match(/^rgba?\(([^)]+)\)$/)
-
-  if (m) {
-    const [r, g, b, a = '1'] = m[1].split(',').map((s) => s.trim())
-
-    return NSColor.colorWithSRGBRedGreenBlueAlpha(
-      Number(r) / 255,
-      Number(g) / 255,
-      Number(b) / 255,
-      Number(a),
-    )
-  }
-
-  return NSColor.blackColor
+  return NSColor.colorWithSRGBRedGreenBlueAlpha(r / 255, g / 255, b / 255, a)
 }
 
-/** PathCommand[] → NSBezierPath. Commands are y-down (SVG); AppKit layer
- *  space is y-up unless the view is flipped — flip once here. */
-function toNSBezierPath(cmds: PathCommand[], h: number): any {
-  const flipped = flipCommandsY(cmds, h)
-  const bp = NSBezierPath.bezierPath()
+/** Build Core Graphics directly: the AppKit bridge does not expose
+ * NSBezierPath.CGPath. Mirror the shared y-down geometry once for layer space. */
+function toCGPath(cmds: PathCommand[], h: number): any {
+  const path = CGPathCreateMutable()
+  const rad = (degrees: number) => (degrees * Math.PI) / 180
 
-  for (const c of flipped) {
+  for (const c of flipCommandsY(cmds, h)) {
     switch (c.c) {
       case 'M':
-        bp.moveToPoint({ x: c.x, y: c.y })
+        CGPathMoveToPoint(path, null, c.x, c.y)
         break
       case 'L':
-        bp.lineToPoint({ x: c.x, y: c.y })
+        CGPathAddLineToPoint(path, null, c.x, c.y)
         break
       case 'C':
-        bp.curveToPointControlPoint1ControlPoint2(
-          { x: c.x, y: c.y },
-          { x: c.x1, y: c.y1 },
-          { x: c.x2, y: c.y2 },
-        )
-
+        CGPathAddCurveToPoint(path, null, c.x1, c.y1, c.x2, c.y2, c.x, c.y)
         break
       case 'A':
-        bp.appendBezierPathWithArcWithCenterRadiusStartAngleEndAngleClockwise(
-          { x: c.cx, y: c.cy },
+        CGPathAddArc(
+          path,
+          null,
+          c.cx,
+          c.cy,
           c.r,
-          c.startDeg,
-          c.startDeg + c.sweepDeg,
-          c.sweepDeg > 0,
+          rad(c.startDeg),
+          rad(c.startDeg + c.sweepDeg),
+          c.sweepDeg < 0,
         )
 
         break
       case 'Z':
-        bp.closePath()
+        CGPathCloseSubpath(path)
         break
     }
   }
 
-  return bp
+  return path
 }
 
 const MASK_KEY = '__smoothMask'
@@ -117,7 +82,7 @@ export function applySmoothClip(
 
   view.wantsLayer = true
 
-  const bp = toNSBezierPath(generateCommands(w, h, props.corners), h)
+  const path = toCGPath(generateCommands(w, h, props.corners), h)
 
   let mask = view[MASK_KEY] as any
 
@@ -126,7 +91,7 @@ export function applySmoothClip(
     view[MASK_KEY] = mask
   }
 
-  mask.path = bp.CGPath
+  mask.path = path
   view.layer.mask = mask
 
   let borderLayer = view[BORDER_KEY] as any
@@ -140,7 +105,7 @@ export function applySmoothClip(
     }
 
     borderLayer.frame = view.layer.bounds
-    borderLayer.path = bp.CGPath
+    borderLayer.path = path
     borderLayer.fillColor = null
     borderLayer.strokeColor = colorValue(border.color).CGColor
     borderLayer.lineWidth = border.width * 2
@@ -174,9 +139,16 @@ export function applySmoothShadow(
   const spread = shadow.spread ?? 0
   const gw = spread !== 0 ? w + spread * 2 : w
   const gh = spread !== 0 ? h + spread * 2 : h
-  const bp = toNSBezierPath(generateCommands(gw, gh, props.corners), gh)
 
-  layer.shadowPath = bp.CGPath
+  if (gw <= 0 || gh <= 0) {
+    layer.shadowPath = null
+    layer.shadowOpacity = 0
+    return
+  }
+
+  const path = toCGPath(generateCommands(gw, gh, props.corners), gh)
+
+  layer.shadowPath = path
   layer.shadowColor = colorValue(shadow.color).CGColor
   layer.shadowOpacity = shadow.opacity ?? 0.35
   layer.shadowRadius = shadow.blur ?? 0

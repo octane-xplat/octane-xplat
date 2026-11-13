@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { validateSurfaceProps } from './validation.ts'
 import { useCallback, useEffect, useRef } from 'octane'
-import { innerLayoutProps, outerLayoutProps, paintedStyle } from './layout-child'
+import { outerLayoutProps, paintedStyle } from './layout-child'
 import { applySmoothClip, applySmoothShadow } from './apply.macos'
 import type { SmoothCornersProps } from './props'
-import { contentPaintReset, surfaceLayout } from './surface'
+import { contentLayout, contentPaintReset, surfaceLayout } from './surface'
 import type { NativeEvent } from '@octane-xplat/jsx/jsx-runtime'
 
 interface SurfaceView {
@@ -34,6 +35,8 @@ function readLayout(event: NativeEvent<object>): SurfaceLayout {
 
 /** The painted surface is independent of the optional content clip. */
 export function SmoothCorners(props: SmoothCornersProps): unknown @{
+  validateSurfaceProps(props, 'macos')
+
   const state = useRef<{
     props: SmoothCornersProps
     inner: SurfaceLayout | null
@@ -85,17 +88,24 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
   return (
     <masonview
       onLayoutChanged={outerLayout}
-      style={{ display: 'flex', overflow: 'visible', ...outerLayoutProps(props).style }}
+      className={props.className}
+      style={{
+        display: 'grid',
+        ...contentPaintReset,
+        padding: 0,
+        overflow: 'visible',
+        ...outerLayoutProps(props).style,
+      }}
     >
       <masonview
         onLayoutChanged={innerLayout}
         id={props.id}
         className={['vx-smooth-corners', props.className]}
         style={{
-          display: 'flex',
-          ...innerLayoutProps(props).style,
+          display: 'grid',
           ...paintedStyle(props.style),
           ...contentPaintReset,
+          ...contentLayout,
         }}
       >
         <masonview
