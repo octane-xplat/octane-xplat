@@ -132,6 +132,19 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"C
 
 The command compiles a host-native Swift checker, exercises valid and malformed inputs, and retains evidence under `~/agent-scratch/octane-xplat/native-prerender-home-codec`. It starts no simulator and does not establish iOS mounting or hydration. Without the optional input, the actual-Home case is explicitly skipped; synthetic codec cases still run.
 
+`android-native/HomeArtifact.java` reads the same XPH1 format into immutable node/style records without Android, UI or NativeScript dependencies. Run its shared conformance cases on an existing JDK; optionally require direct decoding of the Android producer’s original binary/build identity as well:
+
+```sh
+export XPLAT_PRERENDER_JAVA_HOME=/absolute/path/to/existing/jdk17/Contents/Home
+export XPLAT_HOME_CODEC_PRODUCER=/absolute/path/to/android/producer/output
+export XPLAT_HOME_CODEC_INPUT="$XPLAT_HOME_CODEC_PRODUCER/resolved.json"
+bun turbo run test:prerender:codec:android --filter=@xplat/platform-qualification
+```
+
+The Java checker compiles with `--release 8`, checks the shared malformed-input/value suite, and prints a UTF-8 JSON debug projection. The optional producer check requires an Android manifest and compares the original `home.bin` against its complete `resolved.json` projection. Source, class and artifact fingerprints plus command logs go below `~/agent-scratch/octane-xplat/native-prerender-android-codec`. Neither this JDK-host check nor the Swift host check proves execution on Android ART, native setter safety, UI mounting, font/layout parity, hydration or startup speed. The Java reader is not yet part of the Android APK builder.
+
+Both readers preflight the complete artifact, including the unused theme. They reject unsupported style values, malformed UTF-8, duplicate keys/provenance, non-finite numbers, excessive literal nesting/collections, invalid tree links, incompatible headers/builds/checksums and trailing data. RGBA numeric tokens use decimal syntax consistently; Java numeric suffixes and hexadecimal floating literals are rejected. This remains a packaged fixed-screen contract, not a complete untrusted SSR input boundary or platform style lowerer.
+
 The fixed 80-byte header uses little-endian integers:
 
 | Offset | Field |

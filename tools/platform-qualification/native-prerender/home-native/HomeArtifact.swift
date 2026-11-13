@@ -52,7 +52,9 @@ enum HomeArtifact {
         let parts = text.dropFirst(5).dropLast().components(separatedBy: ",")
         guard parts.count == 4 else { return false }
         for (index, part) in parts.enumerated() {
-            guard let value = Double(part.trimmingCharacters(in: .whitespaces)), value.isFinite,
+            let token = part.trimmingCharacters(in: .whitespaces)
+            guard token.range(of: #"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$"#, options: .regularExpression) != nil,
+                  let value = Double(token), value.isFinite,
                   value >= 0, value <= (index == 3 ? 1 : 255) else { return false }
         }
         return true

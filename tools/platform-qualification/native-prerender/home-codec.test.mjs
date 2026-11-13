@@ -171,6 +171,8 @@ test('native reader rejects unsupported setter values in either theme before mou
     ['color', 'rgba(1, 2, 300, 1)'],
     ['color', 'rgba(1, 2, nan, 1)'],
     ['color', 'rgba(1, 2, 3, 1)trailing'],
+    ['color', 'rgba(1d, 2, 3, 1)'],
+    ['color', 'rgba(0x1p0, 2, 3, 1)'],
     ['backgroundColor', 123],
   ]) {
     for (const theme of ['light', 'dark']) {
@@ -183,6 +185,66 @@ test('native reader rejects unsupported setter values in either theme before mou
       assert.match(result.stderr, /unsupported style value/)
     }
   }
+})
+test('native reader bounds hostile literal collections/depth and rejects duplicate keys and non-finite numbers', () => {
+  const data = encodeHome(fixture, build)
+  const seedTag = 84 + Buffer.byteLength(fixture.scope)
+  const root = data.indexOf(Buffer.from([0, 255, 255, 255, 255, 0, 0, 0, 0]), seedTag)
+  assert.ok(root > seedTag)
+  const u32 = (value) => {
+    const bytes = Buffer.alloc(4)
+    bytes.writeUInt32LE(value)
+    return bytes
+  }
+  const text = (value) => Buffer.concat([u32(Buffer.byteLength(value)), Buffer.from(value)])
+  const replaceSeed = (seed) =>
+    resigned(Buffer.concat([data.subarray(0, seedTag), seed, data.subarray(root)]))
+  rejects(
+    replaceSeed(
+      Buffer.concat([
+        Buffer.from([6]),
+        u32(2),
+        text('duplicate'),
+        Buffer.from([0]),
+        text('duplicate'),
+        Buffer.from([0]),
+      ]),
+    ),
+  )
+  rejects(replaceSeed(Buffer.concat([Buffer.from([6]), u32(257)])))
+  rejects(
+    replaceSeed(
+      Buffer.concat([Buffer.from([6]), u32(1), text('array'), Buffer.from([5]), u32(1025)]),
+    ),
+  )
+  rejects(
+    replaceSeed(
+      Buffer.concat([
+        Buffer.from([6]),
+        u32(1),
+        text('deep'),
+        ...Array.from({ length: 16 }, () => Buffer.concat([Buffer.from([5]), u32(1)])),
+        Buffer.from([0]),
+      ]),
+    ),
+  )
+  const infinity = Buffer.alloc(8)
+  infinity.writeDoubleLE(Infinity)
+  rejects(
+    replaceSeed(
+      Buffer.concat([Buffer.from([6]), u32(1), text('number'), Buffer.from([3]), infinity]),
+    ),
+  )
+  const futureParent = Buffer.from(data)
+  const child = data.indexOf(Buffer.from(fixture.nodes[1].text), root) - 9
+  assert.equal(data[child], 1)
+  futureParent.writeUInt32LE(1, child + 1)
+  rejects(resigned(futureParent))
+  const key = data.indexOf(Buffer.from('fontSize'), root)
+  assert.ok(key > root)
+  const unknownStyle = Buffer.from(data)
+  unknownStyle.write('badStyle', key)
+  rejects(resigned(unknownStyle))
 })
 test('native reader rejects malformed payloads even with a matching checksum', () => {
   const data = encodeHome(fixture, build)
