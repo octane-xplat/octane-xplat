@@ -643,7 +643,7 @@ if (import.meta.env.DEV) {
 
   const scrollGuide = readFileSync(join(repoRoot, 'docs/app/primitives.md'), 'utf8')
     .split('## Move a scroll viewport')[1]
-    ?.split('## macOS scrolling and refresh')[0]
+    ?.split(/\n## /)[0]
 
   assert.ok(scrollGuide, 'portable scroll command guide exists')
 
