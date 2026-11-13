@@ -7,6 +7,14 @@ import {
   flushUniversalSync,
 } from 'octane/universal/native'
 
+// Scroll geometry and button actions use the recording driver; glyph encoding
+// belongs to the native image suite and requires a live AppKit host.
+vi.mock('../media/Icon.macos.tsrx', () => import('../../../tests/icon-mock.macos.tsrx'))
+vi.mock(
+  '../actions/Pressable.macos.tsrx',
+  () => import('../../../tests/button-pressable-mock.macos.tsrx'),
+)
+
 import { Carousel } from './Carousel.macos.tsrx'
 
 afterEach(() => {
@@ -15,8 +23,14 @@ afterEach(() => {
 })
 
 function mount(extra: any = {}) {
-  const container = createObjectContainer('nativescript'),
-    root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const container = createObjectContainer('nativescript')
+  const driver = createObjectDriver('nativescript')
+
+  // This suite invokes authored callbacks on recorded props. Native input
+  // delivery is qualified separately; do not classify them as driver events.
+  driver.events = { classify: () => null }
+
+  const root = createUniversalRoot(container, driver)
 
   const window = {},
     observers = new Map<any, any>(),
@@ -193,6 +207,7 @@ it('delivers the handle and buttons, measures proportional slides, and updates e
     ])
   } finally {
     f.root.unmount()
+    f.flush()
   }
 })
 
@@ -221,6 +236,7 @@ it('current loop/children metadata controls wrapping and disables navigation whe
     expect(f.slides()).toHaveLength(0)
   } finally {
     f.root.unmount()
+    f.flush()
   }
 })
 
@@ -262,6 +278,7 @@ it('resize/ref replacement and reduced-motion requests use current hosts; observ
     expect(f.one('vx-carousel-next').props.disabled).toBe(true)
   } finally {
     f.root.unmount()
+    f.flush()
   }
 
   const before = f.writes.length
@@ -271,7 +288,9 @@ it('resize/ref replacement and reduced-motion requests use current hosts; observ
   held.scrollTo(0)
   expect(f.writes).toHaveLength(before)
   expect(next.current).toBe(null)
-  expect(f.observers.size).toBe(0)
+  await vi.waitFor(() =>
+    expect([...f.observers.values()].map((observer) => observer.name)).toEqual([]),
+  )
 })
 
 it('hasSnap waits for native user tracking to finish and settle while ordinary scroll/animation callbacks do not schedule it', async () => {
@@ -307,6 +326,7 @@ it('hasSnap waits for native user tracking to finish and settle while ordinary s
     expect(f.writes).toHaveLength(writes)
   } finally {
     f.root.unmount()
+    f.flush()
   }
 })
 
@@ -334,13 +354,17 @@ it('programmatic moves, current hasSnap changes and unmount cancel pending nativ
     f.render(f.base)
     f.user('DidLiveScroll')
     f.root.unmount()
+    f.flush()
 
     const before = f.writes.length
 
     await vi.advanceTimersByTimeAsync(200)
     expect(f.writes).toHaveLength(before)
-    expect(f.observers.size).toBe(0)
+    await vi.waitFor(() =>
+      expect([...f.observers.values()].map((observer) => observer.name)).toEqual([]),
+    )
   } finally {
     f.root.unmount()
+    f.flush()
   }
 })
