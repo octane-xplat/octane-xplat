@@ -7,6 +7,7 @@ import { createNativeScriptRoot, registerElement } from '@nativescript-community
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
 import { matchPreparedVisualTree } from '../match-tree.mjs'
+import { renderFallbackHome } from './home-fallback.js'
 import {
   prepareHomeApplication,
   acceptHomeApplication,
@@ -25,9 +26,17 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
   new org.octanexplat.prerenderandroid.HomeBridge({
     onActivity(activity) {
       try {
-        check(!root && activity.getViewCount() === 19, 'Unexpected Home ownership/generation')
+        check(!root, 'Unexpected Home ownership/generation')
         const currentLease = { active: true, activity }
         lease = currentLease
+        if (activity.isFallback()) {
+          check(XPLAT_PRERENDER_HOME_APPLICATION, 'Home fallback requires Application integration')
+          const ordinary = renderFallbackHome(activity)
+          root = ordinary.root
+          host = ordinary.host
+          return
+        }
+        check(activity.getViewCount() === 19, 'Unexpected Home native count')
         // Public custom-Application initialization supplies Core's real app context
         // before shared render reads theme; Application/window handoff is later.
         if (!Application.android.nativeApp) Application.android.init(activity.getApplication())

@@ -404,6 +404,14 @@ Set `XPLAT_PRERENDER_ANDROID_HOME_INPUT=1` with the Home parity/adoption inputs 
 
 After the full Home commits, Android's real `ActivityCallbacks.resetActivityContent` installs the same wrapper root into its NativeWindow. Native `setContentView` skips physical replacement only for the exact already-installed viewport under the same Activity content parent. Start/stop/post-resume forwarding uses native phase facts and executes native super once. The checker requires one ready/open event, one registered primary window session, matching Application/window/wrapper root owners, and a native content-adoption receipt for both cold and accepted live generations. This explicit-content control creates fresh logical owners per Activity; normal main-entry restoration, Octane component-state preservation, complete Activity callbacks and deallocation remain separate gates.
 
+### Android rejected-IR fallback
+
+Build with `XPLAT_PRERENDER_ANDROID_HOME_FALLBACK=build`, Home adoption/Application inputs, and parity/recreation/input flags unset. The packager deliberately changes one build-identity byte while retaining the payload and checksum. The native host catches decoder validation rejection before constructing HomeScene, records whether the runtime/library has started, and posts ordinary startup. The JS path renders the same shared Home with `createNativeScriptRoot(host)` and no adoption factory, then hands that fresh root to Core Application/window ownership.
+
+The checker requires rejection before the only VM start, no decoded/adopted native Home receipt, no installed adoption factory, and all19 ordinary native records with the producer's kind/text/parent order and attached nonzero geometry. This first control covers stale-build preflight rejection and ordinary recovery only; post-claim failure rollback, missing assets, unsupported device inputs, fallback OS input, state restoration and deallocation remain separate gates.
+
+After a successful build writes its APK and input manifest, the packager removes that fresh run's reproducible compiler intermediates. It retains the APK, frozen source/SDK inputs, generated app sources and logs for verification. Repeated builds should not retain hundreds of megabytes of compiler output per run.
+
 ### Android Label wrapper ownership control
 
 Set `XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS=1` before the Android build command above to replace direct Java widget mutation with real Core9.1.3 `Label` wrappers. The build bundles actual Core globals/Label and their dependencies with Android resolution, snapshots every bundled JS input, and fingerprints the resulting APK. Bun1.4.4 is required for this optional bundle step. Use the same separate device command with its printed build directory.

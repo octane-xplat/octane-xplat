@@ -7,6 +7,7 @@ import {
   readFileSync,
   readdirSync,
   realpathSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs'
 import { homedir } from 'node:os'
@@ -53,6 +54,14 @@ if (homeInput && !homeParity) throw new Error('Home OS input control requires Ho
 const homeApplication = process.env.XPLAT_PRERENDER_ANDROID_HOME_APPLICATION === '1'
 if (homeApplication && !homeAdopt)
   throw new Error('Home Application handoff requires Home adoption')
+const homeFallback = process.env.XPLAT_PRERENDER_ANDROID_HOME_FALLBACK ?? ''
+if (
+  homeFallback &&
+  (homeFallback !== 'build' || !homeApplication || homeParity || homeRecreate || homeInput)
+)
+  throw new Error(
+    'Home fallback control requires build mode and Home Application/adoption, without parity/recreation/input',
+  )
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
   : 'org.octanexplat.prerenderbootstrap.android'
@@ -284,7 +293,7 @@ if (homeProducer) {
     .update(
       JSON.stringify({
         producer: producer.buildHash,
-        options: { homeAdopt, homeParity, homeRecreate, homeInput, homeApplication },
+        options: { homeAdopt, homeParity, homeRecreate, homeInput, homeApplication, homeFallback },
         javascript: hash(join(work, 'app/src/main/assets/app/main.js')),
         native: Object.fromEntries(
           Object.entries(sourceHashes).map(([path, value]) => [path, value.sha256]),
@@ -296,6 +305,7 @@ if (homeProducer) {
     )
     .digest('hex')
   Buffer.from(buildHash, 'hex').copy(artifact, 16)
+  if (homeFallback === 'build') artifact[16] ^= 1
   writeFileSync(join(work, 'app/src/main/assets/home.bin'), artifact)
   writeFileSync(
     join(work, 'app/src/main/java/org/octanexplat/prerenderandroid/HomeBuild.java'),
@@ -311,6 +321,7 @@ if (homeProducer) {
     recreate: homeRecreate,
     input: homeInput,
     application: homeApplication,
+    fallback: homeFallback,
     buildHash,
     producerBuildHash: producer.buildHash,
     producerArtifactHash: producer.artifactHash,
@@ -381,7 +392,9 @@ writeFileSync(
       applicationHandoff,
       applicationEntry,
       scope: home
-        ? 'Actual nineteen-view Android Home native-first XPH1 mount' +
+        ? (homeFallback
+            ? 'Stale Android Home IR preflight rejection and ordinary nineteen-view Core/Octane fallback control'
+            : 'Actual nineteen-view Android Home native-first XPH1 mount') +
           (homeAdopt ? '; real Octane prepare/commit wrapper adoption' : '') +
           (homeApplication ? '; Core Application/window explicit-content control' : '') +
           (homeParity ? '; fixed-environment independent style/layout parity control' : '') +
@@ -399,4 +412,7 @@ writeFileSync(
     2,
   ),
 )
+// Retain the APK, frozen inputs, generated sources and logs. This fresh run's
+// compiler intermediates are reproducible and otherwise accumulate per build.
+rmSync(join(work, 'app/build/intermediates'), { recursive: true, force: true })
 console.log('Android bootstrap build: ' + work)

@@ -17,6 +17,9 @@ public final class HomeActivity extends AppCompatActivity {
     private boolean applicationHandoff, started, postResumed;
     private Bundle launchState;
     private android.view.ViewParent installedParent;
+    private String fallbackReason;
+    private org.nativescript.mason.masonkit.View fallbackRoot;
+    private final Runnable fallbackStarter = this::startFallback;
     private int touchDowns, touchUps;
     private final Choreographer.FrameCallback gate = this::frame;
     private final Runnable runtimeStarter = this::startRuntime;
@@ -27,8 +30,47 @@ public final class HomeActivity extends AppCompatActivity {
     public boolean hasStarted() { return started; }
     public boolean hasPostResumed() { return postResumed; }
     public void enableApplicationHandoff() {
-        check(!applicationHandoff && scene.viewport.getParent() == findViewById(android.R.id.content), "Home handoff outside installed content");
-        applicationHandoff = true; installedParent = scene.viewport.getParent();
+        check(!applicationHandoff && (scene == null || scene.viewport.getParent() == findViewById(android.R.id.content)), "Home handoff outside installed content");
+        applicationHandoff = true; installedParent = findViewById(android.R.id.content);
+    }
+    public boolean isFallback() { return fallbackReason != null; }
+    public void acceptFallbackRoot(org.nativescript.mason.masonkit.View value) {
+        check(isFallback() && scene == null && fallbackRoot == null && !bridgeReady, "Unexpected fallback root");
+        fallbackRoot = value; bridgeReady = true;
+        fallbackRoot.postOnAnimation(new Runnable() {
+            private int attempts;
+            @Override public void run() {
+                if (destroyed) return;
+                try {
+                    org.json.JSONArray nodes = new org.json.JSONArray();
+                    for (int index = 0; index < value.getChildCount(); index++) observeFallback(value.getChildAt(index), -1, nodes);
+                    boolean laidOut = nodes.length() == 19 && value.hasWindowFocus();
+                    for (int index = 0; index < nodes.length(); index++) {
+                        JSONObject node = nodes.getJSONObject(index);
+                        laidOut &= node.getBoolean("attached") && node.getInt("width") > 0 && node.getInt("height") > 0;
+                    }
+                    if (!laidOut) {
+                        check(++attempts < 300, "Ordinary fallback layout timeout"); value.postOnAnimation(this); return;
+                    }
+                    app().record(new JSONObject().put("event", "fallback-layout").put("epoch", epoch)
+                        .put("nodes", nodes).put("ordinaryRender", true).put("adoptionClaims", 0));
+                } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
+            }
+        });
+    }
+    private void observeFallback(android.view.View view, int parent, org.json.JSONArray nodes) throws Exception {
+        int index = nodes.length();
+        check(view instanceof org.nativescript.mason.masonkit.View || view instanceof org.nativescript.widgets.StyleableTextView, "Unexpected fallback native kind");
+        JSONObject node = new JSONObject().put("index", index).put("parent", parent)
+            .put("kind", view instanceof org.nativescript.widgets.StyleableTextView ? "label" : "masonview")
+            .put("attached", view.isAttachedToWindow()).put("width", view.getWidth()).put("height", view.getHeight());
+        if (view instanceof org.nativescript.widgets.StyleableTextView)
+            node.put("text", ((org.nativescript.widgets.StyleableTextView) view).getText().toString());
+        nodes.put(node);
+        if (view instanceof android.view.ViewGroup) {
+            android.view.ViewGroup group = (android.view.ViewGroup) view;
+            for (int child = 0; child < group.getChildCount(); child++) observeFallback(group.getChildAt(child), index, nodes);
+        }
     }
     @Override public void setContentView(android.view.View view, android.view.ViewGroup.LayoutParams params) {
         if (applicationHandoff && scene != null && view == scene.viewport && view.getParent() != null) {
@@ -84,7 +126,7 @@ public final class HomeActivity extends AppCompatActivity {
         if (event.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) touchDowns++;
         if (event.getActionMasked() == android.view.MotionEvent.ACTION_UP) {
             touchUps++;
-            if (bridgeReady) {
+            if (bridgeReady && scene != null) {
                 final int sequence = touchUps;
                 final float x = event.getRawX(), y = event.getRawY();
                 scene.viewport.postDelayed(() -> {
@@ -140,7 +182,15 @@ public final class HomeActivity extends AppCompatActivity {
                     check(bytes.size() + count <= 1024 * 1024, "Home asset byte limit"); bytes.write(buffer, 0, count);
                 }
             }
-            HomeArtifact.Artifact artifact = HomeArtifact.decode(bytes.toByteArray(), HomeBuild.HASH);
+            HomeArtifact.Artifact artifact;
+            try { artifact = HomeArtifact.decode(bytes.toByteArray(), HomeBuild.HASH); }
+            catch (HomeArtifact.Invalid rejected) {
+                fallbackReason = rejected.getMessage();
+                app().record(new JSONObject().put("event", "ir-rejected").put("epoch", epoch).put("reason", fallbackReason)
+                    .put("homeAllocationStarted", false).put("runtimeStarted", com.tns.Runtime.isInitialized())
+                    .put("runtimeLibraryLoaded", com.tns.Runtime.nativeLibraryLoaded));
+                configureNativeWindow(); getWindow().getDecorView().post(fallbackStarter); return;
+            }
             check(artifact.nodes.size() == 19, "Wrong Home artifact");
             record("native-home-decoded");
             String theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
@@ -181,6 +231,13 @@ public final class HomeActivity extends AppCompatActivity {
             app().bind(this); check(bridgeReady, "Home JS verification missing"); scene.verify(); record("passed");
         } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
     }
+    private void startFallback() {
+        if (destroyed) return;
+        try {
+            if (!warm) { record("engine-init-begin"); app().startRuntime(); record("engine-init-end"); }
+            app().bind(this); check(bridgeReady && fallbackRoot != null, "Ordinary fallback bridge missing");
+        } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
+    }
     public void markBridgeReady() { check(!destroyed && !bridgeReady, "Duplicate Home bind"); scene.verify(); bridgeReady = true; }
     @Override protected void onStart() {
         super.onStart(); started = true;
@@ -197,6 +254,7 @@ public final class HomeActivity extends AppCompatActivity {
     @Override protected void onDestroy() {
         destroyed = true; Choreographer.getInstance().removeFrameCallback(gate);
         if (scene != null) scene.windowRoot.removeCallbacks(runtimeStarter);
+        getWindow().getDecorView().removeCallbacks(fallbackStarter);
         if (bridgeReady) app().unbind(this);
         record("activity-destroyed"); super.onDestroy();
     }

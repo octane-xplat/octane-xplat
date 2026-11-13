@@ -199,6 +199,7 @@ try {
       )
       check(!wrapperFailure, 'Wrapper control failed: ' + wrapperFailure?.error)
       if (build.home) {
+        if (build.home.fallback && events.some((event) => event.event === 'fallback-layout')) break
         const ready = completedHomeEpoch(events, Boolean(build.home.parity))
         const request = events.find((event) => event.event === 'recreation-requested')
         if (ready !== undefined && (!build.home.recreate || (request && ready > request.epoch)))
@@ -225,7 +226,60 @@ try {
   )
   const end = events.find((event) => event.event === 'engine-init-end')
   const success = events.find((event) => event.event === 'passed' && event.epoch === begin?.epoch)
-  if (build.home) {
+  if (build.home?.fallback) {
+    const rejected = events.find(
+      (event) => event.event === 'ir-rejected' && event.epoch === begin?.epoch,
+    )
+    const fallback = events.find(
+      (event) =>
+        event.event === 'fallback-layout' &&
+        !events.some(
+          (later) =>
+            later.epoch > event.epoch ||
+            (later.epoch === event.epoch && later.event === 'activity-destroyed'),
+        ),
+    )
+    const application = events.find(
+      (event) => event.phase === 'application' && event.epoch === fallback?.epoch,
+    )
+    const ordinary = events.find(
+      (event) => event.phase === 'ordinary-fallback' && event.epoch === fallback?.epoch,
+    )
+    const expected = JSON.parse(readFileSync(join(resolve(work), 'producer/resolved.json')))
+    check(
+      rejected &&
+        rejected.reason.includes('build mismatch') &&
+        rejected.homeAllocationStarted === false &&
+        rejected.runtimeStarted === false &&
+        rejected.runtimeLibraryLoaded === false &&
+        events.indexOf(rejected) < events.indexOf(begin) &&
+        end?.runtimeStarted &&
+        events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
+        !events.some((event) => event.event === 'native-home-decoded' || event.phase === 'adopted'),
+      'Stale IR was not rejected before native Home allocation and the only VM start',
+    )
+    check(
+      fallback?.ordinaryRender &&
+        fallback.adoptionClaims === 0 &&
+        ordinary?.adoptionFactoryInstalled === false &&
+        fallback.nodes?.length === 19 &&
+        fallback.nodes.every(
+          (node, index) =>
+            node.attached &&
+            node.width > 0 &&
+            node.height > 0 &&
+            node.index === index &&
+            node.parent === (expected.nodes[index].parent ?? -1) &&
+            node.kind === expected.nodes[index].kind &&
+            (node.kind !== 'label' || node.text === expected.nodes[index].text),
+        ) &&
+        application?.registrySize === 1 &&
+        application.sameRoot &&
+        application.lifecycle.ready === 1 &&
+        application.lifecycle.opened === 1,
+      'Ordinary fallback Home native tree or Core window proof missing',
+    )
+  } else if (build.home) {
     const decoded = events.find(
       (event) => event.event === 'native-home-decoded' && event.epoch === begin?.epoch,
     )
@@ -652,13 +706,17 @@ try {
       )
     }
   }
-  const phases = [
-    ...(build.home ? ['native-home-decoded', 'native-home-mounted'] : []),
-    'native-layout-before-runtime',
-    'engine-init-begin',
-    'engine-init-end',
-    'passed',
-  ].map((name) => events.findIndex((event) => event.event === name && event.epoch === begin?.epoch))
+  const phases = (
+    build.home?.fallback
+      ? ['ir-rejected', 'engine-init-begin', 'engine-init-end']
+      : [
+          ...(build.home ? ['native-home-decoded', 'native-home-mounted'] : []),
+          'native-layout-before-runtime',
+          'engine-init-begin',
+          'engine-init-end',
+          'passed',
+        ]
+  ).map((name) => events.findIndex((event) => event.event === name && event.epoch === begin?.epoch))
   check(
     phases.every(
       (index, position) => index >= 0 && (position === 0 || index > phases[position - 1]),
