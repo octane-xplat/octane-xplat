@@ -208,24 +208,27 @@ export function TopNavHeading(props: TopNavHeadingProps): unknown @{
 
   const lines = (
     <>
-      {props.superheading ? (
+      @if (props.superheading) {
         <Pressable
           disabled={!props.superheadingHref}
           onPress={() => activate(props.superheadingHref)}
         >
           <Text className="vx-topnav-heading-super">{props.superheading}</Text>
         </Pressable>
-      ) : null}
-      {props.heading ? (
+      }
+      @if (props.heading) {
         <Pressable disabled={!props.headingHref} onPress={() => activate(props.headingHref)}>
           <Text className="vx-topnav-heading-title">{props.heading}</Text>
         </Pressable>
-      ) : null}
-      {props.subheading ? (
-        <Pressable disabled={!props.subheadingHref} onPress={() => activate(props.subheadingHref)}>
+      }
+      @if (props.subheading) {
+        <Pressable
+          disabled={!props.subheadingHref}
+          onPress={() => activate(props.subheadingHref)}
+        >
           <Text className="vx-topnav-heading-sub">{props.subheading}</Text>
         </Pressable>
-      ) : null}
+      }
     </>
   )
 
@@ -348,11 +351,11 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
         { display: 'flex' },
       )}
     >
-      {props.icon != null ? (
+      @if (props.icon != null) {
         <masonview className="vx-topnav-item-icon" style={{ display: 'flex' }}>
           {navIcon(props.icon)}
         </masonview>
-      ) : null}
+      }
       {props.isIconOnly
         ? null
         : (props.children ?? <Text className="vx-topnav-item-label">{props.label}</Text>)}
@@ -385,16 +388,16 @@ function TopNavMenuRow(props: {
         { display: 'flex' },
       )}
     >
-      {props.item.icon != null ? (
+      @if (props.item.icon != null) {
         <masonview className="vx-topnavmenu-item-icon" style={{ display: 'flex' }}>
           {navIcon(props.item.icon)}
         </masonview>
-      ) : null}
+      }
       <masonview style={mergeStyle({ flexDirection: 'column', flexGrow: 1 }, { display: 'flex' })}>
         <Text className="vx-topnavmenu-item-title">{props.item.title}</Text>
-        {props.item.description != null ? (
+        @if (props.item.description != null) {
           <Text className="vx-topnavmenu-item-desc">{props.item.description}</Text>
-        ) : null}
+        }
       </masonview>
     </masonview>
   </Pressable>
@@ -506,11 +509,11 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps): unknown @{
         >
           {props.items}
         </MenuSurface>
-        {props.featured != null ? (
+        @if (props.featured != null) {
           <masonview className="vx-topnavmegamenu-featured" style={{ display: 'flex' }}>
             {props.featured}
           </masonview>
-        ) : null}
+        }
       </masonview>
     </Popover>
   </>
@@ -549,16 +552,16 @@ export function TopNavMegaMenuItem(
         { display: 'flex' },
       )}
     >
-      {props.icon != null ? (
+      @if (props.icon != null) {
         <masonview className="vx-topnavmegamenu-item-icon" style={{ display: 'flex' }}>
           {navIcon(props.icon, 20)}
         </masonview>
-      ) : null}
+      }
       <masonview style={mergeStyle({ flexDirection: 'column', flexGrow: 1 }, { display: 'flex' })}>
         <Text className="vx-topnavmegamenu-item-title">{props.title}</Text>
-        {props.description != null ? (
+        @if (props.description != null) {
           <Text className="vx-topnavmegamenu-item-desc">{props.description}</Text>
-        ) : null}
+        }
       </masonview>
     </masonview>
   </Pressable>
@@ -574,22 +577,22 @@ export function TopNavMegaMenuFeaturedCard(
     className={cx('vx-topnavmegamenu-card', props.className)}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
   >
-    {props.image != null ? (
+    @if (props.image != null) {
       <Image src={props.image} className="vx-topnavmegamenu-card-image" />
-    ) : null}
+    }
     <masonview
       className="vx-topnavmegamenu-card-body"
       style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
     >
       <Text className="vx-topnavmegamenu-card-title">{props.title}</Text>
-      {props.description != null ? (
+      @if (props.description != null) {
         <Text className="vx-topnavmegamenu-card-desc">{props.description}</Text>
-      ) : null}
-      {props.linkHref != null && props.linkLabel != null ? (
+      }
+      @if (props.linkHref != null && props.linkLabel != null) {
         <Pressable onPress={() => followHref(props.linkHref!)}>
           <Text className="vx-topnavmegamenu-card-link">{props.linkLabel}</Text>
         </Pressable>
-      ) : null}
+      }
       {props.children}
     </masonview>
   </masonview>

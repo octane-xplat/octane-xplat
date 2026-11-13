@@ -68,7 +68,9 @@ function MetadataListImpl(props: MetadataListProps): JSX.Element @{
       className={['vx-metadatalist', props.className]}
       style={props.style}
     >
-      {props.title != null ? <div className="vx-metadatalist-title">{props.title}</div> : null}
+      @if (props.title != null) {
+        <div className="vx-metadatalist-title">{props.title}</div>
+      }
       <dl
         id={contentId}
         className={['vx-metadatalist-list', listClass]}
@@ -76,7 +78,7 @@ function MetadataListImpl(props: MetadataListProps): JSX.Element @{
       >
         {childrenArray.length ? visibleChildren : props.children}
       </dl>
-      {isExceedMax ? (
+      @if (isExceedMax) {
         <button
           type="button"
           className="vx-metadatalist-toggle"
@@ -86,7 +88,7 @@ function MetadataListImpl(props: MetadataListProps): JSX.Element @{
         >
           {isShowAll ? 'Show less' : 'Show more'}
         </button>
-      ) : null}
+      }
     </div>
   </MetadataListProvider>
 }

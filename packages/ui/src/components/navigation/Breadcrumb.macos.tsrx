@@ -142,9 +142,12 @@ export function Breadcrumb(
             {props.overflowMenu}
           </DropdownMenu>
         )}
-        {index > 0 ? (
-          <label className="vx-breadcrumb-sep" text={typeof sep === 'string' ? sep : ''} />
-        ) : null}
+        @if (index > 0) {
+          <label
+            className="vx-breadcrumb-sep"
+            text={typeof sep === 'string' ? sep : ''}
+          />
+        }
         <BreadcrumbCrumb item={item} current={index === visibleArr.length - 1} />
       </masonview>
     }

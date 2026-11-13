@@ -49,12 +49,16 @@ export function SelectView(props: SelectViewProps): unknown @{
           text={props.triggerText}
         />
       )}
-      {busy ? (
-        <label className="vx-select-loading" text="Loading…" accessibilityLiveRegion="polite" />
-      ) : null}
-      {!props.isReadOnly ? (
+      @if (busy) {
+        <label
+          className="vx-select-loading"
+          text="Loading…"
+          accessibilityLiveRegion="polite"
+        />
+      }
+      @if (!props.isReadOnly) {
         <Icon name="xplat-chevron-down" className="vx-select-caret" size={14} />
-      ) : null}
+      }
       <xplatwindowsselect
         settings={{
           value: props.selected[0],
@@ -115,9 +119,12 @@ export function SelectView(props: SelectViewProps): unknown @{
               ) : (
                 <masonview style={{ display: 'flex', flexDirection: 'column' }}>
                   <label className="vx-menu-item-label" text={option.label ?? option.value} />
-                  {option.description ? (
-                    <label className="vx-select-description" text={option.description} />
-                  ) : null}
+                  @if (option.description) {
+                    <label
+                      className="vx-select-description"
+                      text={option.description}
+                    />
+                  }
                 </masonview>
               )}
             </masonview>

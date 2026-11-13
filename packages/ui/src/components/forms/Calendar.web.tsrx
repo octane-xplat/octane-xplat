@@ -505,9 +505,9 @@ export function Calendar(props: CalendarProps): JSX.Element @{
           aria-label={monthLabel(grid.year, grid.month, locale)}
         >
           <div className="vx-calendar-weeknames" role="row">
-            {props.hasWeekNumbers ? (
+            @if (props.hasWeekNumbers) {
               <span className="vx-calendar-weeknumber vx-calendar-weeknumber--head" />
-            ) : null}
+            }
             {grid.dayNames.map((name, i) => (
               <span key={i} className="vx-calendar-weekname" role="columnheader">
                 {name}
@@ -516,11 +516,11 @@ export function Calendar(props: CalendarProps): JSX.Element @{
           </div>
           {grid.weeks.map((week, w) => (
             <div key={w} className="vx-calendar-week" role="row">
-              {props.hasWeekNumbers ? (
+              @if (props.hasWeekNumbers) {
                 <span className="vx-calendar-weeknumber" role="rowheader">
                   {plainDateGetWeekNumber(week[0].date)}
                 </span>
-              ) : null}
+              }
               {week.map((day) => renderDay(grid, day))}
             </div>
           ))}

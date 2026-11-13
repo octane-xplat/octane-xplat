@@ -87,10 +87,12 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
       isDisabled={disabled}
     />
     <masonview className="vx-radio-label-col--appkit">
-      {props.label != null ? <label className="vx-radio-label" text={props.label} /> : null}
-      {props.description != null ? (
+      @if (props.label != null) {
+        <label className="vx-radio-label" text={props.label} />
+      }
+      @if (props.description != null) {
         <label className="vx-radio-description" text={props.description} />
-      ) : null}
+      }
     </masonview>
     {props.endContent != null ? (
       <masonview className="vx-radio-end--appkit">{props.endContent}</masonview>

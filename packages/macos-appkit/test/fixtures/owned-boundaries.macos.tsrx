@@ -48,18 +48,18 @@ export default function Case() {
   return (
     <Provider value="outside">
       <Provider value={name}>
-        {open ? (
+        @if (open) {
           <tabviewitem ref={tabRef} title="Owned">
             <TabContent />
           </tabviewitem>
-        ) : null}
+        }
         <masonview
           style={{
             flexDirection: 'column',
             display: 'flex',
           }}
         >
-          {open ? (
+          @if (open) {
             <>
               <tabview
                 id="owned-tabs-left"
@@ -80,7 +80,7 @@ export default function Case() {
                 style={{ width: 240, height: 120 }}
               />
             </>
-          ) : null}
+          }
         </masonview>
       </Provider>
     </Provider>

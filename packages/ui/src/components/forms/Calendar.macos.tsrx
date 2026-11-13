@@ -452,9 +452,9 @@ export function Calendar(props: CalendarProps): unknown @{
               { display: 'flex' },
             )}
           >
-            {props.hasWeekNumbers ? (
+            @if (props.hasWeekNumbers) {
               <label className="vx-calendar-weeknumber vx-calendar-weeknumber--head" />
-            ) : null}
+            }
             {grid.dayNames.map((name, i) => (
               <label key={i} className="vx-calendar-weekname" text={name} />
             ))}
@@ -468,12 +468,12 @@ export function Calendar(props: CalendarProps): unknown @{
                 { display: 'flex' },
               )}
             >
-              {props.hasWeekNumbers ? (
+              @if (props.hasWeekNumbers) {
                 <label
                   className="vx-calendar-weeknumber"
                   text={String(plainDateGetWeekNumber(week[0].date))}
                 />
-              ) : null}
+              }
               {week.map((day) => renderDay(grid, day))}
             </masonview>
           ))}

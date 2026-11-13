@@ -153,9 +153,12 @@ export function Breadcrumb(
             {props.overflowMenu}
           </DropdownMenu>
         )}
-        {index > 0 ? (
-          <label className="vx-breadcrumb-sep" text={typeof sep === 'string' ? sep : ''} />
-        ) : null}
+        @if (index > 0) {
+          <label
+            className="vx-breadcrumb-sep"
+            text={typeof sep === 'string' ? sep : ''}
+          />
+        }
         <BreadcrumbCrumb item={item} current={index === visible.length - 1} />
       </masonview>
     }
@@ -163,9 +166,9 @@ export function Breadcrumb(
       ? props.children
       : childCrumb.map((child: any, i: number) => (
           <masonview className="vx-breadcrumb-item" key={'c' + i}>
-            {all.length + i > 0 ? (
+            @if (all.length + i > 0) {
               <Text className="vx-breadcrumb-sep">{typeof sep === 'string' ? sep : ''}</Text>
-            ) : null}
+            }
             {child}
           </masonview>
         ))}

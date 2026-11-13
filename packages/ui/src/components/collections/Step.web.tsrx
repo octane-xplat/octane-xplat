@@ -60,14 +60,22 @@ export function Step(props: StepProps): JSX.Element @{
     {glyph}
     <span className="vx-step-body">
       <span className="vx-step-heading">
-        {props.label != null ? <span className="vx-step-label">{props.label}</span> : null}
-        {props.isOptional ? <span className="vx-step-optional">Optional</span> : null}
-        {props.endContent != null ? <span className="vx-step-end">{props.endContent}</span> : null}
+        @if (props.label != null) {
+          <span className="vx-step-label">{props.label}</span>
+        }
+        @if (props.isOptional) {
+          <span className="vx-step-optional">Optional</span>
+        }
+        @if (props.endContent != null) {
+          <span className="vx-step-end">{props.endContent}</span>
+        }
       </span>
       {props.description != null ? (
         <span className="vx-step-description">{props.description}</span>
       ) : null}
-      {props.children != null ? <span className="vx-step-content">{props.children}</span> : null}
+      @if (props.children != null) {
+        <span className="vx-step-content">{props.children}</span>
+      }
     </span>
   </div>
 }

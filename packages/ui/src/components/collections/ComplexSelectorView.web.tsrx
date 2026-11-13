@@ -50,9 +50,9 @@ export function ComplexSelectorView<Value>(
         {props.triggerLabel ??
           (props.value == null ? (props.placeholder ?? '') : String(props.value))}
       </span>
-      {props.isLoading || pending ? (
+      @if (props.isLoading || pending) {
         <span className="vx-complex-selector-spinner" role="status" aria-label="Loading" />
-      ) : null}
+      }
     </button>
   )
 
@@ -139,11 +139,11 @@ export function ComplexSelectorView<Value>(
     style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
   >
     {labelWithTooltip}
-    {props.description && !props.isLabelHidden ? (
+    @if (props.description && !props.isLabelHidden) {
       <div className="vx-field-description">{props.description}</div>
-    ) : null}
+    }
     {trigger}
-    {props.status?.message ? (
+    @if (props.status?.message) {
       <div
         className={cx(
           'vx-field-status',
@@ -153,7 +153,7 @@ export function ComplexSelectorView<Value>(
       >
         {props.status.message}
       </div>
-    ) : null}
+    }
     {popup}
   </div>
 }

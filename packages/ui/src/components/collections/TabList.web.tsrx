@@ -190,7 +190,7 @@ export function TabList(props: TabListProps): JSX.Element @{
       >
         {props.children}
       </div>
-      {hasScroll && overflowStart ? (
+      @if (hasScroll && overflowStart) {
         <button
           type="button"
           className="vx-tabscroll vx-tabscroll--start"
@@ -201,8 +201,8 @@ export function TabList(props: TabListProps): JSX.Element @{
         >
           <Icon name="xplat-chevron-left" size={16} />
         </button>
-      ) : null}
-      {hasScroll && overflowEnd ? (
+      }
+      @if (hasScroll && overflowEnd) {
         <button
           type="button"
           className="vx-tabscroll vx-tabscroll--end"
@@ -213,7 +213,7 @@ export function TabList(props: TabListProps): JSX.Element @{
         >
           <Icon name="xplat-chevron-right" size={16} />
         </button>
-      ) : null}
+      }
     </>
   )
 
@@ -313,20 +313,22 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
   const content = (
     <>
       <span className="vx-tab-hover" aria-hidden="true" />
-      {displayIcon != null ? (
+      @if (displayIcon != null) {
         <span className="vx-tab-icon">
           {navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16)}
         </span>
-      ) : null}
-      {showLabel ? (
+      }
+      @if (showLabel) {
         <span className="vx-tab-labelwrap">
           <span className="vx-tab-label">{props.label}</span>
           <span className="vx-tab-labelsizer" aria-hidden="true">
             {props.label}
           </span>
         </span>
-      ) : null}
-      {props.endContent != null ? <span className="vx-tab-end">{props.endContent}</span> : null}
+      }
+      @if (props.endContent != null) {
+        <span className="vx-tab-end">{props.endContent}</span>
+      }
       <span
         className={['vx-tab-indicator', isSelected && 'vx-tab-indicator--on']}
         aria-hidden="true"
@@ -416,9 +418,9 @@ export function TabMenu(props: TabMenuProps): JSX.Element @{
       >
         <Icon name="xplat-chevron-down" size={16} />
       </span>
-      {selected ? (
+      @if (selected) {
         <span className="vx-tab-indicator vx-tab-indicator--on" aria-hidden="true" />
-      ) : null}
+      }
     </button>
     <Popover
       anchor={anchor}
@@ -461,7 +463,9 @@ export function TabMenu(props: TabMenuProps): JSX.Element @{
               {option.icon != null ? navIcon(option.icon, 16) : null}
               {option.label}
             </span>
-            {ctx.value === option.value ? <Icon name="xplat-check" size={16} /> : null}
+            @if (ctx.value === option.value) {
+              <Icon name="xplat-check" size={16} />
+            }
           </div>
         }
       </div>

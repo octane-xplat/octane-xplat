@@ -69,15 +69,17 @@ function TimestampCard(props: { lines: readonly TimestampTooltipLine[] }) @{
     <div className="vx-timestamp-card-grid" style={{ gridTemplateColumns: template }}>
       {props.lines.map((line, i) => (
         <div key={i} className="vx-timestamp-card-row">
-          {hasLabelColumn ? (
+          @if (hasLabelColumn) {
             <div className="vx-timestamp-card-label">{line.label ?? ''}</div>
-          ) : null}
+          }
           <div className="vx-timestamp-card-value">{line.value}</div>
-          {hasActionColumn ? (
+          @if (hasActionColumn) {
             <div className="vx-timestamp-card-action">
-              {line.isCopyable ? <CopyButton value={line.value} /> : null}
+              @if (line.isCopyable) {
+                <CopyButton value={line.value} />
+              }
             </div>
-          ) : null}
+          }
         </div>
       ))}
     </div>

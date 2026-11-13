@@ -538,8 +538,10 @@ export function Image(props: LightboxImagePartProps): unknown @{
       id={props.id}
       testID={props.testID}
     >
-      {failed ? <label accessibilityLabel={alt}>{alt}</label> : null}
-      {src ? (
+      @if (failed) {
+        <label accessibilityLabel={alt}>{alt}</label>
+      }
+      @if (src) {
         <image
           key={src}
           ref={imgRef}
@@ -547,7 +549,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
           accessibilityLabel={alt}
           style={{ width: '100%', height: '100%' }}
         />
-      ) : null}
+      }
     </masonview>
   )
 }

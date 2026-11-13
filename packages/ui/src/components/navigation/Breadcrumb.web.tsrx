@@ -102,7 +102,9 @@ export function BreadcrumbItem(props: BreadcrumbItemProps): JSX.Element @{
   const href = props.href ?? props.to
 
   <span id={props.id} className={['vx-breadcrumb-crumb', props.className]} style={props.style}>
-    {props.startIcon ? <span className="vx-breadcrumb-icon">{props.startIcon}</span> : null}
+    @if (props.startIcon) {
+      <span className="vx-breadcrumb-icon">{props.startIcon}</span>
+    }
     {menu ? (
       <DropdownMenu
         hasChevron={false}

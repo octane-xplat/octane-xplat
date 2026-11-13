@@ -31,7 +31,9 @@ function NavigationMenuRow(props: {
     onPress={() => link.activateNative(followHref)}
   >
     <masonview style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-      {item.icon ? <Icon name={item.icon} size={16} /> : null}
+      @if (item.icon) {
+        <Icon name={item.icon} size={16} />
+      }
       <Text>{item.label}</Text>
     </masonview>
   </Pressable>

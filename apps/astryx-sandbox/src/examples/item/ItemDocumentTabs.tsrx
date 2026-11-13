@@ -21,7 +21,7 @@ export function ItemDocumentTabs() @{
     >
       {TABS.map((tab, i) => (
         <>
-          {i > 0 ? (
+          @if (i > 0) {
             <Divider
               orientation="vertical"
               style={{
@@ -29,7 +29,7 @@ export function ItemDocumentTabs() @{
                 visibility: TABS[i - 1]?.isActive || tab.isActive ? 'hidden' : 'visible',
               }}
             />
-          ) : null}
+          }
           <Item
             label={tab.name}
             density="compact"

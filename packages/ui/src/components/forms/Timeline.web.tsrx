@@ -15,15 +15,25 @@ export function Timeline(props: TimelineProps): JSX.Element @{
     {props.items.map((item: any, i: number) => (
       <div key={item.key} className="vx-timeline-item">
         <div className="vx-timeline-rail" aria-hidden="true">
-          <div className="vx-timeline-dot">{item.icon ? <Icon name={item.icon} /> : null}</div>
-          {i < props.items.length - 1 ? <div className="vx-timeline-line" /> : null}
+          <div className="vx-timeline-dot">
+            @if (item.icon) {
+              <Icon name={item.icon} />
+            }
+          </div>
+          @if (i < props.items.length - 1) {
+            <div className="vx-timeline-line" />
+          }
         </div>
         <div className="vx-timeline-body">
-          {item.time != null ? <span className="vx-timeline-time">{item.time}</span> : null}
-          {item.title != null ? <span className="vx-timeline-title">{item.title}</span> : null}
-          {item.description != null ? (
+          @if (item.time != null) {
+            <span className="vx-timeline-time">{item.time}</span>
+          }
+          @if (item.title != null) {
+            <span className="vx-timeline-title">{item.title}</span>
+          }
+          @if (item.description != null) {
             <span className="vx-timeline-desc">{item.description}</span>
-          ) : null}
+          }
         </div>
       </div>
     ))}

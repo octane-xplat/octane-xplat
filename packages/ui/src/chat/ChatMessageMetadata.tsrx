@@ -61,7 +61,9 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps): unknown @{
         {props.footer}
       </masonview>
     ) : null}
-    {hasFooter && hasStatus ? <label className="vx-chatmeta-sep" text="·" /> : null}
+    @if (hasFooter && hasStatus) {
+      <label className="vx-chatmeta-sep" text="·" />
+    }
     {hasStatus ? (
       <masonview
         className={cx('vx-chatmeta-status', `vx-chatmeta-status--${status}`)}

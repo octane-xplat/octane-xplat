@@ -16,7 +16,7 @@ export function Multiline(props: {
   maxLength?: number
 }) @{
   <View style={{ width: 260, height: 220 }}>
-    {props.mounted !== false ? (
+    @if (props.mounted !== false) {
       <textview
         id="multiline"
         text={props.value}
@@ -33,7 +33,7 @@ export function Multiline(props: {
         onBlur={() => focusEvents.push('blur')}
         style={{ width: 240, height: 150 }}
       />
-    ) : null}
+    }
     <textfield id="peer" text="Peer" style={{ width: 240, height: 32 }} />
   </View>
 }

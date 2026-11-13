@@ -60,7 +60,7 @@ export default function TypeaheadResultsProbe() {
               overflow: 'hidden',
             }}
           >
-            {shown ? (
+            @if (shown) {
               <BaseTypeahead
                 id="typeahead-results-preview"
                 searchSource={changed ? alternate : source}
@@ -73,7 +73,7 @@ export default function TypeaheadResultsProbe() {
                 accessibilityLabel="Choose a person"
                 renderItem={(item) => <Result item={item} />}
               />
-            ) : null}
+            }
           </masonview>
         </TeamProvider>
       </InternationalizationProvider>

@@ -100,7 +100,9 @@ export function TabMenu(props: TabMenuProps): unknown @{
             >
               {option.icon != null ? navIcon(option.icon, 16) : null}
               <Text className="vx-tabmenu-itemcontent">{option.label}</Text>
-              {ctx.value === option.value ? <Icon name="xplat-check" size={16} /> : null}
+              @if (ctx.value === option.value) {
+                <Icon name="xplat-check" size={16} />
+              }
             </View>
           </Pressable>
         }

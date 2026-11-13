@@ -25,7 +25,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps): unknown @{
       className={cx('vx-chatdict', props.className)}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
-      {isListening ? (
+      @if (isListening) {
         <masonview
           className="vx-chatdict-bars"
           style={mergeStyle(
@@ -42,11 +42,14 @@ export function ChatDictationButton(props: ChatDictationButtonProps): unknown @{
             const scale = 0.08 + Math.min(Math.pow(level / 0.2, 0.5), 1) * 0.92
 
             return (
-              <masonview className="vx-chatdict-bar" style={{ display: 'flex', scaleY: scale }} />
+              <masonview
+                className="vx-chatdict-bar"
+                style={{ display: 'flex', scaleY: scale }}
+              />
             )
           })}
         </masonview>
-      ) : null}
+      }
       <Button
         className={cx('vx-chatdict-btn', `vx-chatdict-btn--${size}`)}
         label={accessibleLabel}

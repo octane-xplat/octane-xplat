@@ -35,7 +35,7 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps): JSX.Element 
     ]}
     style={props.style}
   >
-    {canCollapse ? (
+    @if (canCollapse) {
       <div
         className="vx-chatdrawer-toggle"
         role="button"
@@ -74,7 +74,7 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps): JSX.Element 
           ]}
         />
       </div>
-    ) : null}
+    }
     <div
       id={contentId}
       className={[

@@ -451,15 +451,17 @@ export function MessagingShellTemplate() @{
               />
             }
           >
-            {messages.length > 0 ? (
+            @if (messages.length > 0) {
               <ChatMessageList density="balanced">
                 <ChatSystemMessage variant="divider">Tuesday, June 30</ChatSystemMessage>
-                <ChatSystemMessage>Sasha Ortiz joined #{selectedChannel.name}</ChatSystemMessage>
+                <ChatSystemMessage>
+                  Sasha Ortiz joined #{selectedChannel.name}
+                </ChatSystemMessage>
                 {messages.map((message) => (
                   <StreamMessageGroup key={message.id} message={message} />
                 ))}
               </ChatMessageList>
-            ) : null}
+            }
           </ChatLayout>
         </div>
       </StackItem>
@@ -547,11 +549,11 @@ export function MessagingShellTemplate() @{
           <LayoutPanel width={68} padding={0}>
             {workspaceRail}
           </LayoutPanel>
-          {!isSidebarHidden ? (
+          @if (!isSidebarHidden) {
             <LayoutPanel width={260} padding={0}>
               {channelSidebar}
             </LayoutPanel>
-          ) : null}
+          }
         </>
       }
       end={

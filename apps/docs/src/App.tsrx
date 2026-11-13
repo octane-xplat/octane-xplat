@@ -338,8 +338,12 @@ export function App() @{
                 <Text className={hit?.kind === 'api' ? 'hit-label mono' : 'hit-label'}>
                   {item.label}
                 </Text>
-                {hit?.context ? <Text className="hit-sub">{hit.context}</Text> : null}
-                {hit?.snippet ? <Text className="hit-sub hit-snip">{hit.snippet}</Text> : null}
+                @if (hit?.context) {
+                  <Text className="hit-sub">{hit.context}</Text>
+                }
+                @if (hit?.snippet) {
+                  <Text className="hit-sub hit-snip">{hit.snippet}</Text>
+                }
               </>
             )
           }}

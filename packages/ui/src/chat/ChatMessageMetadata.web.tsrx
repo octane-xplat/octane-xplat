@@ -48,9 +48,13 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps): JSX.Elemen
     style={props.style}
   >
     {hasTimestamp ? <span>{props.timestamp}</span> : null}
-    {hasTimestamp && (hasFooter || hasStatus) ? <span className="vx-chatmeta-sep">·</span> : null}
+    @if (hasTimestamp && (hasFooter || hasStatus)) {
+      <span className="vx-chatmeta-sep">·</span>
+    }
     {hasFooter ? props.footer : null}
-    {hasFooter && hasStatus ? <span className="vx-chatmeta-sep">·</span> : null}
+    @if (hasFooter && hasStatus) {
+      <span className="vx-chatmeta-sep">·</span>
+    }
     {hasStatus ? (
       <span
         className={['vx-chatmeta-status', `vx-chatmeta-status--${status}`]}

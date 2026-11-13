@@ -60,13 +60,15 @@ export function Banner(props: BannerProps): JSX.Element | null @{
         )
       ) : null}
       <div className="vx-banner-body">
-        {props.title != null ? <div className="vx-banner-title">{props.title}</div> : null}
-        {props.description != null ? (
+        @if (props.title != null) {
+          <div className="vx-banner-title">{props.title}</div>
+        }
+        @if (props.description != null) {
           <div className="vx-banner-desc">{props.description}</div>
-        ) : null}
+        }
       </div>
       {props.endContent}
-      {hasBody && collapsible ? (
+      @if (hasBody && collapsible) {
         <Collapsible
           className="vx-banner-collapse"
           trigger={<span className="vx-banner-collapse-label">Details</span>}
@@ -74,8 +76,8 @@ export function Banner(props: BannerProps): JSX.Element | null @{
         >
           <div className="vx-banner-content">{props.children}</div>
         </Collapsible>
-      ) : null}
-      {props.isDismissable || props.onDismiss ? (
+      }
+      @if (props.isDismissable || props.onDismiss) {
         <span
           className="vx-banner-dismiss"
           role="button"
@@ -90,8 +92,10 @@ export function Banner(props: BannerProps): JSX.Element | null @{
         >
           ✕
         </span>
-      ) : null}
+      }
     </div>
-    {hasBody && !collapsible ? <div className="vx-banner-content">{props.children}</div> : null}
+    @if (hasBody && !collapsible) {
+      <div className="vx-banner-content">{props.children}</div>
+    }
   </div>
 }

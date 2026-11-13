@@ -60,7 +60,7 @@ export function Citation(props: CitationProps): unknown @{
             style={{ width: 16, height: 16, borderRadius: 8 }}
           />
         ) : null}
-        {source.title != null ? (
+        @if (source.title != null) {
           <label
             className="vx-citation-title"
             whiteSpace="nowrap"
@@ -68,7 +68,7 @@ export function Citation(props: CitationProps): unknown @{
           >
             {source.title}
           </label>
-        ) : null}
+        }
       </>
     )
 

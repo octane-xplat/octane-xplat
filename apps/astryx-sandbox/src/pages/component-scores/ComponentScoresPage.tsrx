@@ -264,7 +264,9 @@ function Stat(props: { label: string; value: string; description?: string }) @{
       <Text type="large" weight="semibold" className="sb-tabular">
         {props.value}
       </Text>
-      {props.description ? <Text color="secondary">{props.description}</Text> : null}
+      @if (props.description) {
+        <Text color="secondary">{props.description}</Text>
+      }
     </VStack>
   </Card>
 }

@@ -12,7 +12,7 @@ export function PressKeys(props: {
   nestedRole?: 'button' | 'link'
 }) @{
   <View style={{ width: 300, height: 260 }}>
-    {(props.show ?? true) ? (
+    @if (props.show ?? true) {
       <Pressable
         id="key-button"
         ref={buttonRef}
@@ -26,7 +26,7 @@ export function PressKeys(props: {
       >
         <Text id="key-action-label">Action</Text>
       </Pressable>
-    ) : null}
+    }
     <Pressable
       id="key-link"
       accessibilityRole="link"

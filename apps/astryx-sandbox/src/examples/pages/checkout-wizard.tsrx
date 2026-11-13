@@ -301,7 +301,7 @@ export function CheckoutWizardTemplate() @{
         </Text>
         <Text type="body">{money(subtotal)}</Text>
       </HStack>
-      {discount > 0 ? (
+      @if (discount > 0) {
         <HStack hAlign="between">
           <Text type="body" color="secondary">
             Discount · {promo?.label}
@@ -310,7 +310,7 @@ export function CheckoutWizardTemplate() @{
             −{money(discount)}
           </Text>
         </HStack>
-      ) : null}
+      }
       <HStack hAlign="between">
         <Text type="body" color="secondary">
           Shipping
@@ -352,13 +352,13 @@ export function CheckoutWizardTemplate() @{
         onPress={() => setStep((s) => Math.max(0, s - 1))}
       />
       <StackItem size="fill" />
-      {Object.keys(currentErrors).length > 0 ? (
+      @if (Object.keys(currentErrors).length > 0) {
         <FieldStatus
           type="error"
           variant="detached"
           message={blockedMessage(Object.keys(currentErrors).length)}
         />
-      ) : null}
+      }
       <Button
         label={isLastStep ? `Place order · ${money(total)}` : 'Continue'}
         variant="primary"
@@ -412,18 +412,18 @@ export function CheckoutWizardTemplate() @{
           content={
             <VStack gap={6} padding={isNarrow ? 4 : 6}>
               {isNarrow ? summaryCard : null}
-              {isComplete ? (
+              @if (isComplete) {
                 <VStack gap={4}>
                   <Banner status="success" title="Order placed" />
                   <Heading level={2}>Thanks for your order</Heading>
                   <Text type="body" color="secondary">
-                    Order #TC-48291 is confirmed. A receipt is on its way to {email || 'your inbox'}{' '}
-                    — delivery {deliveryOption.window.toLowerCase()}.
+                    Order #TC-48291 is confirmed. A receipt is on its way to{' '}
+                    {email || 'your inbox'} — delivery {deliveryOption.window.toLowerCase()}.
                   </Text>
                 </VStack>
-              ) : null}
+              }
 
-              {!isComplete && step === 0 ? (
+              @if (!isComplete && step === 0) {
                 <VStack gap={5}>
                   <VStack gap={1}>
                     <Heading level={2}>Review your cart</Heading>
@@ -432,9 +432,9 @@ export function CheckoutWizardTemplate() @{
                       {money(FREE_SHIPPING_THRESHOLD)}.
                     </Text>
                   </VStack>
-                  {currentErrors.items ? (
+                  @if (currentErrors.items) {
                     <Banner status="error" title={currentErrors.items} />
-                  ) : null}
+                  }
                   <VStack gap={4}>
                     {items.map((item) => (
                       <HStack key={item.id} gap={4} vAlign="center">
@@ -447,21 +447,23 @@ export function CheckoutWizardTemplate() @{
                             <Text type="supporting" color="secondary">
                               {item.variant}
                             </Text>
-                            {item.isLimited ? (
+                            @if (item.isLimited) {
                               <Text
                                 type="supporting"
                                 style={{ color: 'var(--color-text-warning, #b54708)' }}
                               >
                                 Only a few left
                               </Text>
-                            ) : null}
+                            }
                           </VStack>
                         </StackItem>
                         <NumberInput
                           label={`Quantity for ${item.name}`}
                           isLabelHidden
                           value={item.qty}
-                          onValueChange={(v) => setQuantities((q) => ({ ...q, [item.id]: v ?? 0 }))}
+                          onValueChange={(v) =>
+                            setQuantities((q) => ({ ...q, [item.id]: v ?? 0 }))
+                          }
                           min={0}
                           max={10}
                           step={1}
@@ -492,24 +494,27 @@ export function CheckoutWizardTemplate() @{
                       </StackItem>
                       <Button label="Apply" variant="secondary" onPress={applyPromo} />
                     </HStack>
-                    {promoWasChecked && !appliedPromo ? (
-                      <Text type="supporting" style={{ color: 'var(--color-text-error, #d92d20)' }}>
+                    @if (promoWasChecked && !appliedPromo) {
+                      <Text
+                        type="supporting"
+                        style={{ color: 'var(--color-text-error, #d92d20)' }}
+                      >
                         That code is not valid.
                       </Text>
-                    ) : null}
-                    {appliedPromo ? (
+                    }
+                    @if (appliedPromo) {
                       <Text
                         type="supporting"
                         style={{ color: 'var(--color-text-success, #067647)' }}
                       >
                         {PROMOS[appliedPromo].label} applied.
                       </Text>
-                    ) : null}
+                    }
                   </VStack>
                 </VStack>
-              ) : null}
+              }
 
-              {!isComplete && step === 1 ? (
+              @if (!isComplete && step === 1) {
                 <FormLayout defaultOptionality="optional">
                   <VStack gap={1}>
                     <Heading level={2}>Where should it go?</Heading>
@@ -594,7 +599,7 @@ export function CheckoutWizardTemplate() @{
                           : undefined
                       }
                     />
-                    {country === 'us' ? (
+                    @if (country === 'us') {
                       <Selector
                         label="State"
                         isRequired
@@ -607,7 +612,7 @@ export function CheckoutWizardTemplate() @{
                             : undefined
                         }
                       />
-                    ) : null}
+                    }
                     <TextInput
                       label={postalRule.label}
                       isRequired
@@ -621,9 +626,9 @@ export function CheckoutWizardTemplate() @{
                     />
                   </FormLayout>
                 </FormLayout>
-              ) : null}
+              }
 
-              {!isComplete && step === 2 ? (
+              @if (!isComplete && step === 2) {
                 <FormLayout defaultOptionality="optional">
                   <VStack gap={1}>
                     <Heading level={2}>How fast do you need it?</Heading>
@@ -653,7 +658,7 @@ export function CheckoutWizardTemplate() @{
                     onChange={(v) => setIsGift(v ?? '')}
                     description="No prices on the packing slip."
                   />
-                  {isGift ? (
+                  @if (isGift) {
                     <TextArea
                       label="Gift note"
                       rows={2}
@@ -662,11 +667,11 @@ export function CheckoutWizardTemplate() @{
                       onChange={(v) => setDeliveryNote(v ?? '')}
                       placeholder="Happy birthday — hope the glaze matches the kitchen."
                     />
-                  ) : null}
+                  }
                 </FormLayout>
-              ) : null}
+              }
 
-              {!isComplete && step === 3 ? (
+              @if (!isComplete && step === 3) {
                 <FormLayout defaultOptionality="optional">
                   <VStack gap={1}>
                     <Heading level={2}>Payment</Heading>
@@ -738,7 +743,7 @@ export function CheckoutWizardTemplate() @{
                     description="Card details are encrypted in transit and never stored on this page."
                   />
                 </FormLayout>
-              ) : null}
+              }
 
               {!isComplete ? actions : null}
             </VStack>

@@ -24,11 +24,11 @@ export function StatusDot(props: StatusDotProps): JSX.Element @{
       ]}
       style={props.style}
     >
-      {isRenderable(props.icon) ? (
+      @if (isRenderable(props.icon)) {
         <span className="vx-statusdot-icon" aria-hidden="true">
           {props.icon}
         </span>
-      ) : null}
+      }
     </span>
   )
 

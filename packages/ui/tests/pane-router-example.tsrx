@@ -100,11 +100,11 @@ export function PaneRouterExample(props: { fixture: PaneExampleState }): any {
     <FixtureProvider value={fixture}>
       <PersonProvider value={person}>
         <View className="flex-1">
-          {shown ? (
+          @if (shown) {
             <RouterPane host={fixture.host} router={fixture.navigation}>
               <Text id="pane-example-base">Pane base</Text>
             </RouterPane>
-          ) : null}
+          }
           <RouterPane host={fixture.host} router={fixture.navigation} stack="other">
             <Text>Other base</Text>
           </RouterPane>

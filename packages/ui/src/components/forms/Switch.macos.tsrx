@@ -161,10 +161,12 @@ export function Switch(inputProps: SwitchProps): unknown @{
         onTap={isBlocked ? undefined : toggle}
       >
         <masonview className="vx-switch-thumb" style={{ backgroundColor: colors.surface }}>
-          {loading ? <ActivityIndicator size="xsm" accessibilityLabel="Loading" /> : null}
+          @if (loading) {
+            <ActivityIndicator size="xsm" accessibilityLabel="Loading" />
+          }
         </masonview>
       </masonview>
-      {hasText ? (
+      @if (hasText) {
         <AppKitLabelPress
           blocked={Boolean(isBlocked)}
           control={() => control.current}
@@ -184,9 +186,9 @@ export function Switch(inputProps: SwitchProps): unknown @{
             size={size}
           />
         </AppKitLabelPress>
-      ) : null}
+      }
     </masonview>
-    {ownChrome && props.status?.message != null ? (
+    @if (ownChrome && props.status?.message != null) {
       <label
         id={`${controlID}-status`}
         className={cx(
@@ -196,6 +198,6 @@ export function Switch(inputProps: SwitchProps): unknown @{
         )}
         text={props.status.message}
       />
-    ) : null}
+    }
   </masonview>
 }

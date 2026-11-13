@@ -40,8 +40,12 @@ export function Citation(props: CitationProps): JSX.Element @{
       <span className="vx-citation-num">{props.number}</span>
     ) : (
       <>
-        {iconNode != null ? <span className="vx-citation-icon">{iconNode}</span> : null}
-        {source.title != null ? <span className="vx-citation-title">{source.title}</span> : null}
+        @if (iconNode != null) {
+          <span className="vx-citation-icon">{iconNode}</span>
+        }
+        @if (source.title != null) {
+          <span className="vx-citation-title">{source.title}</span>
+        }
       </>
     )
 

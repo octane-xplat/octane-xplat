@@ -146,11 +146,11 @@ export function OverflowList(props: OverflowListProps): unknown @{
           style={mergeStyle({ flexDirection: 'row', gap: gap }, { display: 'flex' })}
         >
           {childArray}
-          {measureIndicator != null ? (
+          @if (measureIndicator != null) {
             <masonview style={mergeStyle({ flexDirection: 'row' }, { display: 'flex' })}>
               {measureIndicator}
             </masonview>
-          ) : null}
+          }
         </masonview>
       </scrollview>
     </masonview>

@@ -27,13 +27,13 @@ export function Chip(props: ChipProps): unknown @{
     accessibilityState={{ selected: props.selected, disabled: props.disabled }}
   >
     {props.children}
-    {props.onRemove ? (
+    @if (props.onRemove) {
       <label
         className="vx-chip-remove"
         text="✕"
         style={{ marginLeft: 6, width: 12, height: 16, textAlign: 'center' }}
         onTap={props.disabled ? undefined : props.onRemove}
       />
-    ) : null}
+    }
   </Pressable>
 }

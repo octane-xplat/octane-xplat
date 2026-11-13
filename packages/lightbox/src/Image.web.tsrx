@@ -843,9 +843,9 @@ export function Image(props: LightboxImageProps): JSX.Element {
         WebkitTouchCallout: 'none',
       }}
     >
-      {placeholder && !loaded ? (
+      @if (placeholder && !loaded) {
         <img src={placeholder} alt="" aria-hidden draggable={false} style={fill} />
-      ) : null}
+      }
       <img
         ref={imgRef as never}
         src={props.src ?? item?.src}

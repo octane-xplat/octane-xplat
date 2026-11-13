@@ -33,11 +33,11 @@ export function ChatSystemMessage(props: ChatSystemMessageProps): unknown @{
         className="vx-chatsys-content"
         style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
       >
-        {props.icon != null ? (
+        @if (props.icon != null) {
           <masonview className="vx-chatsys-icon" style={{ display: 'flex' }}>
             {props.icon}
           </masonview>
-        ) : null}
+        }
         {props.children}
       </masonview>
     </masonview>

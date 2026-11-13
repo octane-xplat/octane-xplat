@@ -69,12 +69,12 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
           (props.label as any)
         )
       ) : null}
-      {props.description != null ? (
+      @if (props.description != null) {
         <label className="vx-checkbox-description" text={props.description} />
-      ) : null}
+      }
     </masonview>
-    {props.endContent != null ? (
+    @if (props.endContent != null) {
       <masonview className="vx-checkboxlist-end--appkit">{props.endContent}</masonview>
-    ) : null}
+    }
   </masonview>
 }

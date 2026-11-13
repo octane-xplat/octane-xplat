@@ -189,11 +189,11 @@ export function BaseTypeaheadView<T extends SearchableItem>(
       }}
       onTextChange={appKitTextChange(props.onQueryChange)}
     />
-    {props.isSearching && busyLane == null ? (
+    @if (props.isSearching && busyLane == null) {
       <masonview className="vx-typeahead-loading" style={{ display: 'flex' }}>
         <ActivityIndicator busy={true} />
       </masonview>
-    ) : null}
+    }
     <TypeaheadResults
       anchor={props.anchor}
       input={() => live.current.inputRef.current}
@@ -217,16 +217,16 @@ export function BaseTypeaheadView<T extends SearchableItem>(
         }
         style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
       >
-        {props.results.length === 0 && props.hasSearched ? (
+        @if (props.results.length === 0 && props.hasSearched) {
           <masonview className="vx-typeahead-empty" style={{ display: 'flex' }}>
             <label text={props.emptyText} />
           </masonview>
-        ) : null}
+        }
         @for (const group of groups; key group.heading ?? 'ungrouped') {
           <>
-            {group.heading != null ? (
+            @if (group.heading != null) {
               <label className="vx-typeahead-group" text={group.heading} />
-            ) : null}
+            }
 
             @for (const item of group.items; index gi; key item.id + '-' + gi) {
               const index = props.results.indexOf(item)
@@ -263,9 +263,9 @@ export function BaseTypeaheadView<T extends SearchableItem>(
                     <TypeaheadItem item={item} />
                   )}
                 </masonview>
-                {isSelected ? (
+                @if (isSelected) {
                   <label className="vx-typeahead-option-check" text="✓" />
-                ) : null}
+                }
               </masonview>
             }
           </>

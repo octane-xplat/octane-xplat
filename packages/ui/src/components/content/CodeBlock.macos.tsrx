@@ -79,7 +79,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
               ),
             )}
           >
-            {hasLineNumbers ? (
+            @if (hasLineNumbers) {
               <label
                 text={String(lineNo)}
                 whiteSpace="nowrap"
@@ -92,7 +92,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
                   paddingRight: 8,
                 }}
               />
-            ) : null}
+            }
             <label
               text={line === '' ? ' ' : line}
               whiteSpace={props.isWrapped ? 'normal' : 'nowrap'}

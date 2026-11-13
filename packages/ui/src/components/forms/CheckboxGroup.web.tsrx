@@ -102,7 +102,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): JSX.Element @{
       ]}
       style={needsChrome ? undefined : props.style}
     >
-      {props.options?.length ? (
+      @if (props.options?.length) {
         <List
           density={density}
           hasDividers={props.hasDividers}
@@ -141,14 +141,14 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): JSX.Element @{
             )
           })}
         </List>
-      ) : null}
-      {props.children != null ? (
+      }
+      @if (props.children != null) {
         <CheckboxListProvider value={ctx}>
           <List density={density} hasDividers={props.hasDividers}>
             {props.children}
           </List>
         </CheckboxListProvider>
-      ) : null}
+      }
     </div>
   )
 

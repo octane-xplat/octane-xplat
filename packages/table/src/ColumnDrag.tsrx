@@ -93,7 +93,7 @@ export function ColumnDrag(props: {
 
   return (
     <Row className="vx-datagrid-handles">
-      {props.reorder ? (
+      @if (props.reorder) {
         <View
           id={props.id ? `${props.id}-drag` : undefined}
           className="vx-datagrid-handle"
@@ -102,8 +102,8 @@ export function ColumnDrag(props: {
         >
           <Text>↔</Text>
         </View>
-      ) : null}
-      {props.resize ? (
+      }
+      @if (props.resize) {
         <>
           <Pressable
             id={props.id ? `${props.id}-narrow` : undefined}
@@ -130,7 +130,7 @@ export function ColumnDrag(props: {
             <Text>+</Text>
           </Pressable>
         </>
-      ) : null}
+      }
     </Row>
   )
 }

@@ -190,16 +190,18 @@ export function LexicalEditor(props: LexicalEditorProps): JSX.Element @{
         }
         ErrorBoundary={LexicalErrorBoundary}
       />
-      {!props.web?.replacePlugins ? (
+      @if (!props.web?.replacePlugins) {
         <>
           <HistoryPlugin />
           <ListPlugin />
           <CheckListPlugin />
           <HorizontalRulePlugin />
           <LinkPlugin />
-          {props.autofocus ? <AutoFocusPlugin /> : null}
+          @if (props.autofocus) {
+            <AutoFocusPlugin />
+          }
         </>
-      ) : null}
+      }
       <OnChangePlugin onChange={emitChange} />
       <EditorRefPlugin editorRef={attach} />
       {props.web?.plugins}

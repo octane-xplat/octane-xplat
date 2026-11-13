@@ -277,7 +277,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
           {props.triggerText}
         </span>
       )}
-      {props.hasClear && props.selected.length && !blocked ? (
+      @if (props.hasClear && props.selected.length && !blocked) {
         <button
           type="button"
           className="vx-select-clear"
@@ -291,15 +291,15 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
         >
           <Icon name="xplat-clear" size={12} />
         </button>
-      ) : null}
-      {busy ? (
+      }
+      @if (busy) {
         <span className="vx-select-loading" role="status">
           Loading…
         </span>
-      ) : null}
-      {!props.isReadOnly ? (
+      }
+      @if (!props.isReadOnly) {
         <Icon name="xplat-chevron-down" className="vx-select-caret" size={14} />
-      ) : null}
+      }
     </div>
     {props.htmlName
       ? props.selected.map((value) => (
@@ -322,7 +322,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
       onDismiss={() => close()}
       className="vx-menu"
     >
-      {props.searchable ? (
+      @if (props.searchable) {
         <div className="vx-select-search-row">
           <input
             ref={(element: any) => {
@@ -340,7 +340,9 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
             aria-controls={listId}
             aria-autocomplete="list"
             aria-activedescendant={active ? optionId(active.value) : undefined}
-            placeholder={props.searchPlaceholder ?? translate('@astryx.selector.searchPlaceholder')}
+            placeholder={
+              props.searchPlaceholder ?? translate('@astryx.selector.searchPlaceholder')
+            }
             value={props.query}
             onInput={(event: any) => {
               props.onActiveValueChange?.(null)
@@ -348,7 +350,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
             }}
             onKeyDown={(event: KeyboardEvent) => onKey(event, true)}
           />
-          {props.query ? (
+          @if (props.query) {
             <button
               type="button"
               className="vx-select-search-clear"
@@ -361,10 +363,10 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
             >
               <Icon name="xplat-clear" size={12} />
             </button>
-          ) : null}
+          }
         </div>
-      ) : null}
-      {props.multiple && props.hasSelectAll ? (
+      }
+      @if (props.multiple && props.hasSelectAll) {
         <button
           type="button"
           id={props.id ? `${props.id}-select-all` : undefined}
@@ -372,14 +374,16 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
           disabled={props.pending || !props.enabled.length}
           aria-label={props.selectAllLabel ?? 'Select all'}
           aria-pressed={
-            props.selectAllState === 'indeterminate' ? 'mixed' : props.selectAllState === 'checked'
+            props.selectAllState === 'indeterminate'
+              ? 'mixed'
+              : props.selectAllState === 'checked'
           }
           onClick={props.onSelectAll}
         >
           <MultiInd state={props.selectAllState} />
           <span>{props.selectAllLabel ?? 'Select all'}</span>
         </button>
-      ) : null}
+      }
       <div
         id={listId}
         role="listbox"
@@ -389,11 +393,11 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
         className="vx-menu-list vx-select-list"
         style={{ maxHeight: props.maxMenuHeight ?? 280 }}
       >
-        {!props.shown.length && !busy ? (
+        @if (!props.shown.length && !busy) {
           <div role="presentation" className="vx-select-empty">
             {props.emptyText}
           </div>
-        ) : null}
+        }
         {props.groups.map((group, index) => {
           const rows = group.options.map((option) => (
             <div
@@ -439,16 +443,16 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
                 props.renderOption(option)
               ) : (
                 <>
-                  {option.icon != null ? (
+                  @if (option.icon != null) {
                     <span className="vx-select-option-icon" aria-hidden="true">
                       {option.icon}
                     </span>
-                  ) : null}
+                  }
                   <span className="vx-menu-item-label">
                     {option.label ?? option.value}
-                    {option.description ? (
+                    @if (option.description) {
                       <span className="vx-select-description">{option.description}</span>
-                    ) : null}
+                    }
                   </span>
                 </>
               )}
@@ -468,7 +472,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
         })}
       </div>
     </Popover>
-    {asSheet ? (
+    @if (asSheet) {
       <BottomSheet
         isOpen={props.open}
         onOpenChange={() => close()}
@@ -503,9 +507,11 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
                   ) : (
                     <span className="vx-menu-item-label">
                       {option.label ?? option.value}
-                      {option.description ? (
-                        <span className="vx-select-description">{option.description}</span>
-                      ) : null}
+                      @if (option.description) {
+                        <span className="vx-select-description">
+                          {option.description}
+                        </span>
+                      }
                     </span>
                   )}
                 </div>
@@ -526,7 +532,9 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
                     {props.renderOption ? (
                       props.renderOption(option)
                     ) : (
-                      <span className="vx-menu-item-label">{option.label ?? option.value}</span>
+                      <span className="vx-menu-item-label">
+                        {option.label ?? option.value}
+                      </span>
                     )}
                   </div>
                 ))}
@@ -535,6 +543,6 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
           )}
         </div>
       </BottomSheet>
-    ) : null}
+    }
   </>
 }

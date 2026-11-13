@@ -40,7 +40,9 @@ export function ColorField(props: ColorFieldProps): unknown @{
       styleRecord(props.style),
     )}
   >
-    {props.label ? <Text className="vx-color-field-label">{props.label}</Text> : null}
+    @if (props.label) {
+      <Text className="vx-color-field-label">{props.label}</Text>
+    }
     <TextInput
       id={props.id}
       className="vx-color-field-input"

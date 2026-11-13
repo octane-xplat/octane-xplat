@@ -29,12 +29,20 @@ export function PendingScreen(props: { row?: CoverageRow; title?: string }) {
             : 'screen'}{' '}
         is part of the pinned Astryx 0.6.4 baseline but has not been ported to Octane Xplat yet.
       </Text>
-      {blocker ? <Text>{blocker}</Text> : null}
-      {row?.source ? <Text className="sb-pending-meta">upstream: {row.source}</Text> : null}
-      {row?.doc?.componentsUsed?.length ? (
-        <Text className="sb-pending-meta">components: {row.doc.componentsUsed.join(', ')}</Text>
-      ) : null}
-      {row?.route ? <Text className="sb-pending-meta">route: {row.route}</Text> : null}
+      @if (blocker) {
+        <Text>{blocker}</Text>
+      }
+      @if (row?.source) {
+        <Text className="sb-pending-meta">upstream: {row.source}</Text>
+      }
+      @if (row?.doc?.componentsUsed?.length) {
+        <Text className="sb-pending-meta">
+          components: {row.doc.componentsUsed.join(', ')}
+        </Text>
+      }
+      @if (row?.route) {
+        <Text className="sb-pending-meta">route: {row.route}</Text>
+      }
     </VStack>
   )
 }

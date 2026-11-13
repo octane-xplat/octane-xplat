@@ -77,11 +77,11 @@ export function List(props: ListProps): unknown @{
       accessibilityState={nativeAccessibilityState(props.accessibilityState)}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
-      {props.header != null ? (
+      @if (props.header != null) {
         <masonview className="vx-list-header" style={{ display: 'flex' }}>
           {props.header}
         </masonview>
-      ) : null}
+      }
       {mapChildren(items, (child: any, index: number) => (
         <masonview
           className={cx(

@@ -124,9 +124,9 @@ export function Timestamp(props: TimestampProps): unknown @{
                 mergeStyle({ display: 'flex' }, { gap: 8 }),
               )}
             >
-              {line.label != null ? (
+              @if (line.label != null) {
                 <label className="vx-type-small vx-ink-muted" text={line.label} />
-              ) : null}
+              }
               <label className="vx-type-small" text={line.value} />
             </masonview>
           ))}

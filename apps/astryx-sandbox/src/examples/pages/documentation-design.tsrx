@@ -152,7 +152,7 @@ export function DocumentationDesignTemplate() @{
             <Text type="supporting" color="secondary">
               March 30, 2026 · Updated 5:40 p.m. PST
             </Text>
-            {isMobile ? (
+            @if (isMobile) {
               <Selector
                 label="On this page"
                 isLabelHidden
@@ -161,7 +161,7 @@ export function DocumentationDesignTemplate() @{
                 onValueChange={(v) => scrollToId(v ?? 'button')}
                 width="100%"
               />
-            ) : null}
+            }
           </VStack>
 
           <Card variant="muted" padding={0}>

@@ -152,7 +152,7 @@ export function ChatComposer(props: ChatComposerProps): unknown @{
         onTap={() => inputControlRef.current?.focus()}
         style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
       >
-        {props.headerActions || props.headerContext ? (
+        @if (props.headerActions || props.headerContext) {
           <masonview
             className="vx-chatcomposer-header"
             style={mergeStyle(
@@ -179,7 +179,7 @@ export function ChatComposer(props: ChatComposerProps): unknown @{
               {props.headerContext}
             </masonview>
           </masonview>
-        ) : null}
+        }
         <masonview
           className="vx-chatcomposer-inputarea"
           style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}

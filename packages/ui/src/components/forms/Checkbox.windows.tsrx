@@ -89,16 +89,19 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
         size={props.size === 'sm' ? 'sm' : 'md'}
         isDisabled={props.isDisabled}
       />
-      {(!props.isLabelHidden && props.label != null) || (!inField && props.description != null) ? (
+      @if (
+        (!props.isLabelHidden && props.label != null) ||
+        (!inField && props.description != null)
+      ) {
         <masonview style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-          {!props.isLabelHidden && props.label != null ? (
+          @if (!props.isLabelHidden && props.label != null) {
             <label className="vx-checkbox-label" text={props.label} />
-          ) : null}
-          {!inField && props.description != null ? (
+          }
+          @if (!inField && props.description != null) {
             <label className="vx-field-description" text={props.description} />
-          ) : null}
+          }
         </masonview>
-      ) : null}
+      }
       <xplatwindowscheckbox
         className="vx-checkbox-input-windows"
         style={{

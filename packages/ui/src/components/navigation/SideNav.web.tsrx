@@ -90,6 +90,7 @@ export function SideNav(props: SideNavProps): JSX.Element @{
         : props.collapsible
 
   const isCollapsible = props.collapsible != null && props.collapsible !== false
+  const showCollapseButton = isCollapsible && cfg?.hasButton !== false
   const controlled = cfg?.isCollapsed !== undefined
   const [uncontrolled, setUncontrolled] = useState(cfg?.defaultIsCollapsed ?? false)
   const collapsed = isCollapsible
@@ -140,28 +141,28 @@ export function SideNav(props: SideNavProps): JSX.Element @{
       <MobileNav {...props} className={['vx-sidenav', 'vx-sidenav--drawer', props.className]}>
         {props.topContent}
         {props.children}
-        {props.footer != null || props.footerIcons != null ? (
+        @if (props.footer != null || props.footerIcons != null) {
           <div className="vx-sidenav-drawerfooter">
             {props.footer}
-            {props.footerIcons != null ? (
+            @if (props.footerIcons != null) {
               <div className="vx-sidenav-drawericons">{props.footerIcons}</div>
-            ) : null}
+            }
           </div>
-        ) : null}
+        }
       </MobileNav>
     } @else {
       @if (renderMode === 'drawer-content') {
         <>
           {props.topContent}
           {props.children}
-          {props.footer != null || props.footerIcons != null ? (
+          @if (props.footer != null || props.footerIcons != null) {
             <div className="vx-sidenav-drawerfooter">
               {props.footer}
-              {props.footerIcons != null ? (
+              @if (props.footerIcons != null) {
                 <div className="vx-sidenav-drawericons">{props.footerIcons}</div>
-              ) : null}
+              }
             </div>
-          ) : null}
+          }
         </>
       } @else {
         <>
@@ -187,7 +188,10 @@ export function SideNav(props: SideNavProps): JSX.Element @{
                 style={props.style}
                 aria-label={props.label ?? 'Side navigation'}
               >
-                {props.header != null || props.topContent != null ? (
+                @if (
+                  props.header != null ||
+                  props.topContent != null
+                ) {
                   <div
                     className={[
                       'vx-sidenav-stickytop',
@@ -195,11 +199,11 @@ export function SideNav(props: SideNavProps): JSX.Element @{
                     ]}
                   >
                     {props.header}
-                    {props.topContent != null ? (
+                    @if (props.topContent != null) {
                       <div className="vx-sidenav-topcontent">{props.topContent}</div>
-                    ) : null}
+                    }
                   </div>
-                ) : null}
+                }
                 <div
                   className={[
                     'vx-sidenav-scrollable',
@@ -215,9 +219,11 @@ export function SideNav(props: SideNavProps): JSX.Element @{
                 >
                   {props.children}
                 </div>
-                {props.footer != null ||
-                props.footerIcons != null ||
-                (isCollapsible && cfg?.hasButton !== false) ? (
+                @if (
+                  props.footer != null ||
+                  props.footerIcons != null ||
+                  (isCollapsible && cfg?.hasButton !== false)
+                ) {
                   <div
                     className={[
                       'vx-sidenav-stickybottom',
@@ -232,16 +238,16 @@ export function SideNav(props: SideNavProps): JSX.Element @{
                       ]}
                     >
                       <SizeProvider value="sm">
-                        {isCollapsible && cfg?.hasButton !== false ? (
+                        @if (showCollapseButton) {
                           <SideNavCollapseButton />
-                        ) : null}
+                        }
                         {props.footerIcons}
                       </SizeProvider>
                     </div>
                   </div>
-                ) : null}
+                }
               </nav>
-              {showResizeHandle ? (
+              @if (showResizeHandle) {
                 <ResizeHandle
                   direction="horizontal"
                   position="overlay"
@@ -249,7 +255,7 @@ export function SideNav(props: SideNavProps): JSX.Element @{
                   label="Resize sidebar"
                   resizable={resizableHook.props}
                 />
-              ) : null}
+              }
             </div>
           </SideNavCollapseProvider>
         </>
@@ -271,9 +277,9 @@ export function SideNavSection(props: SideNavSectionProps): JSX.Element @{
     >
       <div className="vx-sidenav-section-title-group">
         <Text className="vx-sidenav-section-title">{props.title}</Text>
-        {props.subtitle != null ? (
+        @if (props.subtitle != null) {
           <Text className="vx-sidenav-section-subtitle">{props.subtitle}</Text>
-        ) : null}
+        }
       </div>
       {props.endContent}
     </div>
@@ -353,11 +359,11 @@ export function SideNavHeading(props: SideNavHeadingProps): JSX.Element @{
       </button>
     ) : (
       <>
-        {props.icon != null ? (
+        @if (props.icon != null) {
           <span className="vx-sidenav-heading-icon">{navIcon(props.icon, 20)}</span>
-        ) : null}
+        }
         <span className="vx-sidenav-heading-text">
-          {props.superheading ? (
+          @if (props.superheading) {
             <HeadingRow
               as={props.as}
               href={props.superheadingHref}
@@ -365,9 +371,9 @@ export function SideNavHeading(props: SideNavHeadingProps): JSX.Element @{
             >
               {props.superheading}
             </HeadingRow>
-          ) : null}
+          }
           {headingEl}
-          {props.subheading ? (
+          @if (props.subheading) {
             <HeadingRow
               as={props.as}
               href={props.subheadingHref}
@@ -375,7 +381,7 @@ export function SideNavHeading(props: SideNavHeadingProps): JSX.Element @{
             >
               {props.subheading}
             </HeadingRow>
-          ) : null}
+          }
         </span>
       </>
     )}
@@ -504,16 +510,23 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 
   const content = (
     <>
-      {displayIcon != null ? (
+      @if (displayIcon != null) {
         <span className="vx-sidenav-item-icon" aria-hidden="true">
           {navIcon(displayIcon, 16)}
         </span>
-      ) : null}
-      {!railCollapsed ? <span className="vx-sidenav-item-label">{props.label}</span> : null}
-      {!railCollapsed && props.endContent != null ? (
+      }
+      @if (!railCollapsed) {
+        <span className="vx-sidenav-item-label">{props.label}</span>
+      }
+      @if (!railCollapsed && props.endContent != null) {
         <span className="vx-sidenav-item-end">{props.endContent}</span>
-      ) : null}
-      {!railCollapsed && hasChildren && itemCfg != null && !independentToggle ? (
+      }
+      @if (
+        !railCollapsed &&
+        hasChildren &&
+        itemCfg != null &&
+        !independentToggle
+      ) {
         <span
           className={[
             'vx-sidenav-item-chevron',
@@ -522,7 +535,7 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
         >
           <Icon name="xplat-chevron-down" size={16} />
         </span>
-      ) : null}
+      }
     </>
   )
 
@@ -570,7 +583,7 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
           {content}
         </button>
       )}
-      {independentToggle ? (
+      @if (independentToggle) {
         <button
           type="button"
           className={[
@@ -583,17 +596,17 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
         >
           <Icon name="xplat-chevron-down" size={16} />
         </button>
-      ) : null}
-      {!railCollapsed && props.actions != null ? (
+      }
+      @if (!railCollapsed && props.actions != null) {
         <span className="vx-sidenav-item-actions">
           <SizeProvider value="sm">{props.actions}</SizeProvider>
         </span>
-      ) : null}
+      }
     </div>
-    {hasChildren && !railCollapsed && !childrenCollapsed ? (
+    @if (hasChildren && !railCollapsed && !childrenCollapsed) {
       <div className="vx-sidenav-item-children">{props.children}</div>
-    ) : null}
-    {railCollapsed && hasChildren ? (
+    }
+    @if (railCollapsed && hasChildren) {
       <Popover
         anchor={anchor}
         open={flyoutOpen}
@@ -602,11 +615,15 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
         className="vx-sidenav-flyout"
       >
         <div className="vx-sidenav-flyout-title">{props.label}</div>
-        <div className="vx-sidenav-flyout-list" role="menu" aria-label={`${props.label} submenu`}>
+        <div
+          className="vx-sidenav-flyout-list"
+          role="menu"
+          aria-label={`${props.label} submenu`}
+        >
           {props.children}
         </div>
       </Popover>
-    ) : null}
+    }
   </div>
 }
 
@@ -654,9 +671,9 @@ export function SideNavCollapseButton(
       {props.children ?? (
         <>
           <Icon name="xplat-chevron-left" size={16} />
-          {props.label != null ? (
+          @if (props.label != null) {
             <span className="vx-sidenav-collapsebtn-label">{props.label}</span>
-          ) : null}
+          }
         </>
       )}
     </button>

@@ -334,7 +334,7 @@ export function PaymentFormTemplate() @{
                         <RadioListItem value="paypal" label="PayPal" />
                         <RadioListItem value="gpay" label="Google Pay" />
                       </RadioList>
-                      {paymentMethod === 'card' ? (
+                      @if (paymentMethod === 'card') {
                         <VStack gap={3}>
                           <TextInput
                             label="Card number"
@@ -373,13 +373,13 @@ export function PaymentFormTemplate() @{
                             />
                           </FormLayout>
                         </VStack>
-                      ) : null}
+                      }
                       <CheckboxInput
                         label="Billing address is the same as shipping"
                         value={billingMatchesShipping}
                         onChange={(v) => setBillingMatchesShipping(v ?? '')}
                       />
-                      {!billingMatchesShipping ? (
+                      @if (!billingMatchesShipping) {
                         <VStack gap={3}>
                           <TextInput
                             label="Billing address"
@@ -409,7 +409,7 @@ export function PaymentFormTemplate() @{
                             />
                           </FormLayout>
                         </VStack>
-                      ) : null}
+                      }
                     </VStack>
                     <Divider />
 
@@ -423,7 +423,7 @@ export function PaymentFormTemplate() @{
                         value={addGiftMessage}
                         onChange={(v) => setAddGiftMessage(v ?? '')}
                       />
-                      {addGiftMessage ? (
+                      @if (addGiftMessage) {
                         <VStack gap={3}>
                           <FormLayout direction="horizontal">
                             <TextInput
@@ -445,7 +445,7 @@ export function PaymentFormTemplate() @{
                             onChange={(v) => setGiftMessage(v ?? '')}
                           />
                         </VStack>
-                      ) : null}
+                      }
                       <VStack gap={2}>
                         <HStack gap={2} vAlign="center">
                           <Icon name="sandbox-shield-check" size={16} color="secondary" />

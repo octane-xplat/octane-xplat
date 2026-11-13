@@ -15,8 +15,8 @@ export function Blockquote(props: BlockquoteProps): JSX.Element @{
     style={props.style}
   >
     {props.children}
-    {props.cite != null && props.cite !== false ? (
+    @if (props.cite != null && props.cite !== false) {
       <cite className="vx-blockquote-cite">{props.cite}</cite>
-    ) : null}
+    }
   </blockquote>
 }

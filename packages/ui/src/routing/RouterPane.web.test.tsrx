@@ -60,11 +60,11 @@ it('retains pane entries, provider values and entry-owned hooks in the real DOM 
     return (
       <Provider value="Avery">
         <RouterProvider router={navigation}>
-          {shown ? (
+          @if (shown) {
             <RouterPane host={host} router={navigation}>
               <p>Base</p>
             </RouterPane>
-          ) : null}
+          }
           <RouterPane host={host} router={navigation} stack="other">
             <p>Other base</p>
           </RouterPane>

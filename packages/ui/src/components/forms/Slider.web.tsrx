@@ -193,13 +193,13 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
         style={{ left: ratio(hi) * width }}
         aria-hidden="true"
       />
-      {isRange ? (
+      @if (isRange) {
         <div
           className="vx-slider-thumb vx-slider-thumb--lo"
           style={{ left: ratio(lo) * width }}
           aria-hidden="true"
         />
-      ) : null}
+      }
       {(props.marks ?? []).map((m) => (
         <div
           key={m.value}
@@ -207,11 +207,15 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
           style={{ left: ratio(m.value) * width }}
           aria-hidden="true"
         >
-          {m.label != null ? <span className="vx-slider-mark-label">{m.label}</span> : null}
+          @if (m.label != null) {
+            <span className="vx-slider-mark-label">{m.label}</span>
+          }
         </div>
       ))}
       {tooltip.renderTooltip(readout)}
-      {props.valueDisplay === 'text' ? <span className="vx-slider-value">{readout}</span> : null}
+      @if (props.valueDisplay === 'text') {
+        <span className="vx-slider-value">{readout}</span>
+      }
     </div>
   )
 

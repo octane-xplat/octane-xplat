@@ -25,14 +25,14 @@ export default function ImageMemoryCacheProbe() {
         public image-cache APIs, disk/HTTP invalidation or privacy purge. Native delivery/retention
         and packaging are unqualified.
       </Text>
-      {shown ? (
+      @if (shown) {
         <Image
           id="image-memory-preview"
           src={source}
           alt="Memory cache preview"
           style={{ width: 48, height: 48 }}
         />
-      ) : null}
+      }
       <Button label="Query decoded memory" pressAction={query} />
       <Button
         label="Evict this decoded image"

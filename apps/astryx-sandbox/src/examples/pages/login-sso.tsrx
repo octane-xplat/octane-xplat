@@ -101,7 +101,7 @@ export function LoginSsoTemplate() @{
     <Card padding={8} width="100%" maxWidth={400}>
       <VStack gap={4} hAlign="stretch">
         {/* ── Step 1: Email entry ── */}
-        {step === 'email' ? (
+        @if (step === 'email') {
           <>
             <VStack gap={1} hAlign="center">
               <Heading level={2} type="display-1">
@@ -162,10 +162,10 @@ export function LoginSsoTemplate() @{
               </Text>
             </VStack>
           </>
-        ) : null}
+        }
 
         {/* ── Step 2a: SSO provider detected ── */}
-        {step === 'sso-confirm' && provider ? (
+        @if (step === 'sso-confirm' && provider) {
           <>
             <VStack gap={2} hAlign="center">
               <Avatar name={provider.name} size={48} />
@@ -207,10 +207,10 @@ export function LoginSsoTemplate() @{
               />
             </VStack>
           </>
-        ) : null}
+        }
 
         {/* ── Step 2b: No SSO — password fallback ── */}
-        {step === 'password-fallback' ? (
+        @if (step === 'password-fallback') {
           <>
             <VStack gap={1} hAlign="center">
               <Heading level={2} type="display-1">
@@ -238,13 +238,13 @@ export function LoginSsoTemplate() @{
                       : undefined
                   }
                 />
-                {loginFailed ? (
+                @if (loginFailed) {
                   <VStack hAlign="end">
                     <Link href="#" color="secondary">
                       Forgot password?
                     </Link>
                   </VStack>
-                ) : null}
+                }
               </VStack>
 
               <Button
@@ -262,7 +262,7 @@ export function LoginSsoTemplate() @{
               />
             </VStack>
           </>
-        ) : null}
+        }
       </VStack>
     </Card>
   </Center>

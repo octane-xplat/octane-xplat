@@ -147,9 +147,13 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
                 item.variant === 'destructive' && 'vx-menu-item--destructive',
               )}
             >
-              {item.icon ? <Icon name={item.icon} /> : null}
+              @if (item.icon) {
+                <Icon name={item.icon} />
+              }
               <Text className="vx-menu-item-label">{item.label ?? item.key}</Text>
-              {item.description ? <Text>{item.description}</Text> : null}
+              @if (item.description) {
+                <Text>{item.description}</Text>
+              }
             </masonview>
           </xplatwindowsmenuitem>
         }

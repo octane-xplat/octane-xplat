@@ -36,18 +36,18 @@ export function Card(props: CardProps): unknown @{
       },
     )}
   >
-    {props.header != null ? (
+    @if (props.header != null) {
       <masonview className="vx-card-header" style={{ display: 'flex' }}>
         <TextSlot>{props.header}</TextSlot>
       </masonview>
-    ) : null}
+    }
     <masonview className="vx-card-body" style={{ display: 'flex' }}>
       <TextSlot>{props.children}</TextSlot>
     </masonview>
-    {props.footer != null ? (
+    @if (props.footer != null) {
       <masonview className="vx-card-footer" style={{ display: 'flex' }}>
         <TextSlot>{props.footer}</TextSlot>
       </masonview>
-    ) : null}
+    }
   </masonview>
 }

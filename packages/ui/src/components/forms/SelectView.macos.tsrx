@@ -107,16 +107,16 @@ function SelectOptionRow(input: {
       <TextSlot>{props.renderOption(option)}</TextSlot>
     ) : (
       <>
-        {option.icon != null ? (
+        @if (option.icon != null) {
           <masonview className="vx-select-option-icon" accessible={false}>
             <TextSlot>{option.icon}</TextSlot>
           </masonview>
-        ) : null}
+        }
         <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
           <label className="vx-menu-item-label" text={option.label ?? option.value} />
-          {option.description ? (
+          @if (option.description) {
             <label className="vx-select-description" text={option.description} />
-          ) : null}
+          }
         </masonview>
       </>
     )}
@@ -513,7 +513,7 @@ export function SelectView(props: SelectViewProps): unknown @{
           text={props.triggerText}
         />
       )}
-      {props.hasClear && props.selected.length && !blocked ? (
+      @if (props.hasClear && props.selected.length && !blocked) {
         <Pressable
           className="vx-select-clear"
           disabled={props.pending}
@@ -522,13 +522,17 @@ export function SelectView(props: SelectViewProps): unknown @{
         >
           <Icon name="xplat-clear" size={12} />
         </Pressable>
-      ) : null}
-      {busy ? (
-        <label className="vx-select-loading" text="Loading…" accessibilityLiveRegion={'polite'} />
-      ) : null}
-      {!props.isReadOnly ? (
+      }
+      @if (busy) {
+        <label
+          className="vx-select-loading"
+          text="Loading…"
+          accessibilityLiveRegion={'polite'}
+        />
+      }
+      @if (!props.isReadOnly) {
         <Icon name="xplat-chevron-down" className="vx-select-caret" size={14} />
-      ) : null}
+      }
     </masonview>
     <Popover
       anchor={anchor}
@@ -547,7 +551,7 @@ export function SelectView(props: SelectViewProps): unknown @{
         className="vx-select-surface--appkit"
         accessibilityRole="group"
       >
-        {props.searchable ? (
+        @if (props.searchable) {
           <masonview
             className="vx-select-search-row"
             style={mergeStyle({ flexDirection: 'row' }, { display: 'flex' })}
@@ -562,12 +566,16 @@ export function SelectView(props: SelectViewProps): unknown @{
               }
               accessibilityLabel={translate('@astryx.selector.searchOptions')}
               onTextChange={appKitTextChange((value) => {
-                if (live.current.open && !live.current.isDisabled && !live.current.isReadOnly) {
+                if (
+                  live.current.open &&
+                  !live.current.isDisabled &&
+                  !live.current.isReadOnly
+                ) {
                   live.current.onQueryChange(value)
                 }
               })}
             />
-            {props.query ? (
+            @if (props.query) {
               <Pressable
                 className="vx-select-search-clear"
                 accessibilityLabel="Clear search"
@@ -584,10 +592,10 @@ export function SelectView(props: SelectViewProps): unknown @{
               >
                 <Icon name="xplat-clear" size={12} />
               </Pressable>
-            ) : null}
+            }
           </masonview>
-        ) : null}
-        {props.multiple && props.hasSelectAll ? (
+        }
+        @if (props.multiple && props.hasSelectAll) {
           <masonview
             id={props.id ? `${props.id}-select-all` : undefined}
             className="vx-pressable vx-select-all"
@@ -621,7 +629,7 @@ export function SelectView(props: SelectViewProps): unknown @{
             <MultiInd state={props.selectAllState} />
             <label text={props.selectAllLabel ?? 'Select all'} />
           </masonview>
-        ) : null}
+        }
         <label
           className="vx-select-feedback"
           text={props.announcement}
@@ -647,16 +655,16 @@ export function SelectView(props: SelectViewProps): unknown @{
             }
             style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
           >
-            {!props.shown.length && !busy ? (
+            @if (!props.shown.length && !busy) {
               <label className="vx-select-empty" text={props.emptyText} />
-            ) : null}
+            }
             @for (const group of props.groups; index gi; key gi) {
               <masonview
                 style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
               >
-                {group.heading != null ? (
+                @if (group.heading != null) {
                   <label className="vx-select-group" text={group.heading} />
-                ) : null}
+                }
                 @for (const option of group.options; key option.value) {
                   <SelectOptionRow
                     option={option}

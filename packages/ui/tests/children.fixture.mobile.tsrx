@@ -37,7 +37,9 @@ export function ChangingChildren(props: any) @{
     {props.values.map((value: string) => (
       <label key={value} text={value} />
     ))}
-    {props.last ? <label text="last" /> : null}
+    @if (props.last) {
+      <label text="last" />
+    }
   </Rows>
 }
 

@@ -307,7 +307,9 @@ export default function PullRefreshGeometryProbe() {
         label={mounted ? 'Unmount reader' : 'Mount reader'}
         onPress={() => setMounted(!mounted)}
       />
-      {mounted ? <GeometryReader /> : null}
+      @if (mounted) {
+        <GeometryReader />
+      }
       <Text id="pull-refresh-geometry-status">
         {mounted ? 'Reader mounted; phase/docking qualification pending' : 'Reader unmounted'}
       </Text>

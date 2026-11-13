@@ -32,14 +32,14 @@ export function FieldLabel(props: FieldLabelProps): JSX.Element @{
     style={props.style}
   >
     <label htmlFor={props.inputID} className="vx-field-label">
-      {props.labelIcon != null ? (
+      @if (props.labelIcon != null) {
         <span className="vx-field-label-icon" aria-hidden="true">
           {props.labelIcon}
         </span>
-      ) : null}
+      }
       {props.label}
       {marker}
-      {props.labelTooltip != null ? (
+      @if (props.labelTooltip != null) {
         <Tooltip
           trigger={
             <span className="vx-field-label-tip" aria-hidden="true">
@@ -49,7 +49,7 @@ export function FieldLabel(props: FieldLabelProps): JSX.Element @{
           content={props.labelTooltip}
           placement="top"
         />
-      ) : null}
+      }
     </label>
     {props.description != null ? (
       <span className="vx-field-description">{props.description}</span>

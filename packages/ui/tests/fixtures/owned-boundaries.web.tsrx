@@ -26,7 +26,11 @@ export default function Case() {
     <>
       <span id="owner-state">{open ? 'open' : 'closed'}</span>
       <Name value="outside">
-        <Name value={name}>{open ? <Controls /> : null}</Name>
+        <Name value={name}>
+          @if (open) {
+            <Controls />
+          }
+        </Name>
       </Name>
     </>
   )

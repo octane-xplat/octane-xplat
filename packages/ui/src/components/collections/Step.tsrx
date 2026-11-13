@@ -48,13 +48,17 @@ export function Step(props: StepProps): unknown @{
     {glyph}
     <masonview className="vx-step-body" style={{ display: 'flex', flexDirection: 'column' }}>
       <masonview className="vx-step-heading" style={{ display: 'flex' }}>
-        {props.label != null ? <label className="vx-step-label" text={props.label} /> : null}
-        {props.isOptional ? <label className="vx-step-optional" text="Optional" /> : null}
-        {props.endContent != null ? (
+        @if (props.label != null) {
+          <label className="vx-step-label" text={props.label} />
+        }
+        @if (props.isOptional) {
+          <label className="vx-step-optional" text="Optional" />
+        }
+        @if (props.endContent != null) {
           <masonview className="vx-step-end" style={{ display: 'flex' }}>
             {props.endContent}
           </masonview>
-        ) : null}
+        }
       </masonview>
       {props.description != null ? (
         <label className="vx-step-description" text={props.description} />

@@ -34,7 +34,9 @@ export function ColorField(props: ColorFieldProps): JSX.Element {
       className={['vx-color-field', props.className]}
       style={typeof props.style === 'object' && props.style !== null ? props.style : undefined}
     >
-      {props.label ? <Text className="vx-color-field-label">{props.label}</Text> : null}
+      @if (props.label) {
+        <Text className="vx-color-field-label">{props.label}</Text>
+      }
       <TextInput
         id={props.id}
         testID={props.testID}

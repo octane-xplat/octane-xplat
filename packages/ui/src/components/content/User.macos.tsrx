@@ -17,10 +17,12 @@ export function User(props: UserProps): unknown @{
   >
     <Avatar src={props.src} fallback={props.fallback} alt={props.name} size={props.size} />
     <masonview className="vx-user-body" style={{ display: 'flex' }}>
-      {props.name != null ? <label className="vx-user-name" text={props.name} /> : null}
-      {props.description != null ? (
+      @if (props.name != null) {
+        <label className="vx-user-name" text={props.name} />
+      }
+      @if (props.description != null) {
         <label className="vx-user-desc" text={props.description} />
-      ) : null}
+      }
     </masonview>
   </masonview>
 }

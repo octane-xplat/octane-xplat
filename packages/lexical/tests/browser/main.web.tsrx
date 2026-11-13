@@ -48,7 +48,7 @@ function Smoke() {
       <button id="toggle-mount" onClick={() => setMounted((current) => !current)}>
         Toggle mount
       </button>
-      {mounted ? (
+      @if (mounted) {
         <LexicalEditor
           id="lexical-input"
           value={value}
@@ -72,7 +72,7 @@ function Smoke() {
             result.blur++
           }}
         />
-      ) : null}
+      }
     </>
   )
 }

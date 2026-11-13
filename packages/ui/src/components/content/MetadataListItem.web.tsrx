@@ -15,7 +15,9 @@ export function MetadataListItem(props: MetadataListItemProps): JSX.Element @{
 
   const labelContent = (
     <>
-      {isRenderable(props.icon) ? <span className="vx-metadatalist-icon">{props.icon}</span> : null}
+      @if (isRenderable(props.icon)) {
+        <span className="vx-metadatalist-icon">{props.icon}</span>
+      }
       {props.label}
     </>
   )

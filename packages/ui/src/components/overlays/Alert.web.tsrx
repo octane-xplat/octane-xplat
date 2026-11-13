@@ -16,9 +16,13 @@ export function Alert(props: AlertProps): JSX.Element @{
     style={props.style}
     role={tone === 'error' ? 'alert' : 'status'}
   >
-    {props.icon ? <Icon name={props.icon} className="vx-alert-icon" /> : null}
+    @if (props.icon) {
+      <Icon name={props.icon} className="vx-alert-icon" />
+    }
     <div className="vx-alert-body">
-      {props.title != null ? <span className="vx-alert-title">{props.title}</span> : null}
+      @if (props.title != null) {
+        <span className="vx-alert-title">{props.title}</span>
+      }
       {props.children}
     </div>
   </div>

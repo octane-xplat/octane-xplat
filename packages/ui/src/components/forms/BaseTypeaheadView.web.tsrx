@@ -151,11 +151,11 @@ export function BaseTypeaheadView<T extends SearchableItem>(
       readOnly={props.isFocusableDisabled || props.isReadOnly || undefined}
       autoComplete="off"
     />
-    {props.isSearching && busyLane == null ? (
+    @if (props.isSearching && busyLane == null) {
       <span className="vx-typeahead-loading" role="status" aria-label="Loading">
         <ActivityIndicator busy={true} />
       </span>
-    ) : null}
+    }
     <span className="vx-sr-only" role="status">
       {props.announcement}
     </span>
@@ -207,11 +207,11 @@ export function BaseTypeaheadView<T extends SearchableItem>(
                   <span className="vx-typeahead-option-content">
                     {props.renderItem ? props.renderItem(item) : <TypeaheadItem item={item} />}
                   </span>
-                  {isSelected ? (
+                  @if (isSelected) {
                     <span className="vx-typeahead-option-check" aria-hidden="true">
                       ✓
                     </span>
-                  ) : null}
+                  }
                 </div>
               )
             })

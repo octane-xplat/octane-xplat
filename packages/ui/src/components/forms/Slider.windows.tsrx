@@ -152,22 +152,22 @@ export function Slider(inputProps: SliderProps): unknown @{
       className={cx('vx-slider-body-windows', props.className)}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
-      {props.valueDisplay === 'tooltip' ? (
+      @if (props.valueDisplay === 'tooltip') {
         <masonview className="vx-slider-marks-windows">
-          {range ? (
+          @if (range) {
             <label
               className="vx-slider-tooltip-windows"
               text={format(lower)}
               style={{ position: 'absolute', translateX: thumbLeft(lower) }}
             />
-          ) : null}
+          }
           <label
             className="vx-slider-tooltip-windows"
             text={format(upper)}
             style={{ position: 'absolute', translateX: thumbLeft(upper) }}
           />
         </masonview>
-      ) : null}
+      }
       <masonview className="vx-slider-row-windows">
         <masonview
           ref={(host: View | null) => {
@@ -200,7 +200,7 @@ export function Slider(inputProps: SliderProps): unknown @{
               translateY: 12,
             }}
           />
-          {range ? (
+          @if (range) {
             <masonview
               className="vx-slider-thumb"
               style={{
@@ -210,7 +210,7 @@ export function Slider(inputProps: SliderProps): unknown @{
                 translateY: 4,
               }}
             />
-          ) : null}
+          }
           <masonview
             className="vx-slider-thumb"
             style={{
@@ -227,11 +227,15 @@ export function Slider(inputProps: SliderProps): unknown @{
               style={{ translateX: ratio(mark.value) * width, translateY: 10 }}
             />
           ))}
-          {range ? (
+          @if (range) {
             <xplatwindowsslider
               ref={lowerPeer}
               className="vx-slider-input-windows"
-              style={{ position: 'absolute', width, height: measured.bounds$.get()?.height ?? 0 }}
+              style={{
+                position: 'absolute',
+                width,
+                height: measured.bounds$.get()?.height ?? 0,
+              }}
               settings={{
                 value: lower,
                 min,
@@ -245,7 +249,7 @@ export function Slider(inputProps: SliderProps): unknown @{
               accessibilityHint={props.accessibilityHint}
               requestChange={(next) => request('lower', next)}
             />
-          ) : null}
+          }
           <xplatwindowsslider
             ref={upperPeer}
             className="vx-slider-input-windows"
@@ -264,11 +268,11 @@ export function Slider(inputProps: SliderProps): unknown @{
             requestChange={(next) => request('upper', next)}
           />
         </masonview>
-        {props.valueDisplay === 'text' ? (
+        @if (props.valueDisplay === 'text') {
           <label className="vx-slider-value" text={readout} />
-        ) : null}
+        }
       </masonview>
-      {marks.length ? (
+      @if (marks.length) {
         <masonview className="vx-slider-marks-windows" style={{ width }}>
           {marks.map((mark) => (
             <label
@@ -279,7 +283,7 @@ export function Slider(inputProps: SliderProps): unknown @{
             />
           ))}
         </masonview>
-      ) : null}
+      }
     </masonview>
   )
 

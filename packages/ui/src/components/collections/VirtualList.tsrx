@@ -866,7 +866,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       ref={(view: any) => observeLayout('content', view, onContentLayout)}
       style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
     >
-      {props.renderHeader ? (
+      @if (props.renderHeader) {
         <masonview
           className="vx-virtual-list-header"
           ref={(view: any) => observeLayout('header', view, onHeaderLayout)}
@@ -874,7 +874,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
         >
           {props.renderHeader()}
         </masonview>
-      ) : null}
+      }
       {entries.length === 0 ? (
         props.renderEmpty ? (
           <masonview
@@ -919,7 +919,10 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
                   >
                     {props.renderItem(entry.item, entry.index)}
                   </masonview>
-                  {hasSeparator && entry.index < entries.length - 1 ? (
+                  @if (
+                    hasSeparator &&
+                    entry.index < entries.length - 1
+                  ) {
                     <masonview
                       className="vx-virtual-list-separator"
                       style={mergeStyle(
@@ -929,21 +932,21 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
                     >
                       {props.renderSeparator?.()}
                     </masonview>
-                  ) : null}
+                  }
                 </>
               }
             </masonview>
           }
         </masonview>
       )}
-      {props.renderFooter ? (
+      @if (props.renderFooter) {
         <masonview
           className="vx-virtual-list-footer"
           style={mergeStyle({ flexDirection: 'column', flexShrink: 0 }, { display: 'flex' })}
         >
           {props.renderFooter()}
         </masonview>
-      ) : null}
+      }
     </masonview>
   </scrollview>
 }

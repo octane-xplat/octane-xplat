@@ -52,11 +52,11 @@ export function Citation(props: CitationProps): unknown @{
         ) : iconSrc != null ? (
           <image src={iconSrc} style={{ width: 16, height: 16, borderRadius: 8 }} />
         ) : null}
-        {source.title != null ? (
+        @if (source.title != null) {
           <label whiteSpace="nowrap" style={{ fontSize: 12, color: textColor(scheme) }}>
             {source.title}
           </label>
-        ) : null}
+        }
         <label style={{ fontSize: 11, color: mutedColor(scheme) }}>{props.number}</label>
       </>
     )

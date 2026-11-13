@@ -44,6 +44,8 @@ export function CachedImageDemo() @{
         )
       }}
     />
-    {cached ? <Text>{cached}</Text> : null}
+    @if (cached) {
+      <Text>{cached}</Text>
+    }
   </View>
 }

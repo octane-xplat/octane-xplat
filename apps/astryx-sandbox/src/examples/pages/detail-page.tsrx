@@ -197,18 +197,18 @@ function PageHeader(props: {
             </VStack>
           </VStack>
         </StackItem>
-        {!props.isNarrow ? (
+        @if (!props.isNarrow) {
           <HStack gap={2}>
             <Button label="Restock" variant="secondary" onPress={() => {}} />
             <Button label="Edit" variant="secondary" onPress={() => {}} />
           </HStack>
-        ) : null}
+        }
       </HStack>
 
       {/* Mobile: actions drop below the metadata as a full-width row. The
 			    VStack hAlign="stretch" wrapper is the full-width-button
 			    workaround — Button has no full-width prop (upstream #2600). */}
-      {props.isNarrow ? (
+      @if (props.isNarrow) {
         <HStack gap={2}>
           <StackItem size="fill">
             <VStack hAlign="stretch">
@@ -221,7 +221,7 @@ function PageHeader(props: {
             </VStack>
           </StackItem>
         </HStack>
-      ) : null}
+      }
 
       <HStack vAlign="center">
         <StackItem size="fill">
@@ -404,18 +404,22 @@ function TimelineSection() @{
                         {item.user}
                       </Text>
                       <Text type="body">{item.text}</Text>
-                      {item.changes ? (
+                      @if (item.changes) {
                         <VStack gap={1}>
                           {item.changes.map((change, j) => (
                             <HStack key={j} gap={2} vAlign="center">
-                              <Icon name="sandbox-pencil-square" size={16} color="secondary" />
+                              <Icon
+                                name="sandbox-pencil-square"
+                                size={16}
+                                color="secondary"
+                              />
                               <Text type="supporting" color="secondary">
                                 {change}
                               </Text>
                             </HStack>
                           ))}
                         </VStack>
-                      ) : null}
+                      }
                     </VStack>
                   </Card>
                   <HStack gap={3} vAlign="center">

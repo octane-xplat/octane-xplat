@@ -88,7 +88,7 @@ export function WebViewProbe(props: {
       onLoad={on('stop', 'load')}
       onError={on('stop', 'error')}
     />
-    {props.showMessages !== false ? (
+    @if (props.showMessages !== false) {
       <>
         <WebView
           id="wv-message"
@@ -105,6 +105,6 @@ export function WebViewProbe(props: {
           onMessage={(event) => messages.push({ ...event, handler: 'url' })}
         />
       </>
-    ) : null}
+    }
   </>
 }

@@ -157,10 +157,10 @@ function FileInputControl(inputProps: FileInputProps) @{
           >
             <Icon name="xplat-upload" size={14} />
             <label className="vx-fileinput-itemname" text={f.name} />
-            {f.size != null ? (
+            @if (f.size != null) {
               <label className="vx-fileinput-itemsize" text={formatFileSize(f.size)} />
-            ) : null}
-            {!isDisabled && !isBusy ? (
+            }
+            @if (!isDisabled && !isBusy) {
               <Pressable
                 className="vx-fileinput-itemremove"
                 accessibilityLabel={`Remove ${f.name}`}
@@ -168,7 +168,7 @@ function FileInputControl(inputProps: FileInputProps) @{
               >
                 <label text="×" />
               </Pressable>
-            ) : null}
+            }
           </masonview>
         ))}
       </masonview>

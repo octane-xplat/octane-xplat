@@ -13,7 +13,9 @@ export function FieldGroup(props: FieldGroupProps): JSX.Element @{
     role="group"
     aria-label={props.label}
   >
-    {props.label != null ? <span className="vx-fieldgroup-label">{props.label}</span> : null}
+    @if (props.label != null) {
+      <span className="vx-fieldgroup-label">{props.label}</span>
+    }
     {props.children}
   </div>
 }

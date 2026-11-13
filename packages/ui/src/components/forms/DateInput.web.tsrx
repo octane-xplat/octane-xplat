@@ -486,7 +486,7 @@ function DateInputControl(inputProps: CoreProps) @{
           onKeyDown={handleKeyDown}
         />
       )}
-      {canClear ? (
+      @if (canClear) {
         <button
           type="button"
           className="vx-dateinput-clear"
@@ -495,8 +495,10 @@ function DateInputControl(inputProps: CoreProps) @{
         >
           {'×'}
         </button>
-      ) : null}
-      {isBusy ? <ActivityIndicator busy className="vx-dateinput-spinner" /> : null}
+      }
+      @if (isBusy) {
+        <ActivityIndicator busy className="vx-dateinput-spinner" />
+      }
       <StatusGlyph status={props.status} variant={props.statusVariant} />
     </div>
   )

@@ -167,7 +167,9 @@ export function ListItem(props: ListItemProps): JSX.Element @{
       {descriptionNode}
       {props.children}
     </span>
-    {props.endContent != null ? <span className="vx-listitem-end">{props.endContent}</span> : null}
+    @if (props.endContent != null) {
+      <span className="vx-listitem-end">{props.endContent}</span>
+    }
     {hit}
   </li>
 }

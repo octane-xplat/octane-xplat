@@ -1531,7 +1531,9 @@ export function MarkdownPluginNodeRenderer(props: {
 export function MarkdownScreen(props: MarkdownScreenProps): unknown @{
   <Screen className="vx-app">
     <ScrollableArea padding={4}>
-      {props.data != null ? <Markdown data={props.data} /> : null}
+      @if (props.data != null) {
+        <Markdown data={props.data} />
+      }
     </ScrollableArea>
   </Screen>
 }

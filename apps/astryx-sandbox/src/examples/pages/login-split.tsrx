@@ -140,13 +140,13 @@ export function LoginSplitTemplate() @{
                                   : undefined
                               }
                             />
-                            {loginFailed ? (
+                            @if (loginFailed) {
                               <VStack hAlign="end">
                                 <Link href="#" color="secondary">
                                   Forgot your password?
                                 </Link>
                               </VStack>
-                            ) : null}
+                            }
                           </VStack>
                         </VStack>
 
@@ -179,11 +179,11 @@ export function LoginSplitTemplate() @{
                   </Center>
                 </StackItem>
 
-                {!isSuccess ? (
+                @if (!isSuccess) {
                   <Text type="supporting" color="secondary">
                     Don’t have an account? <Link href="#">Sign up</Link>
                   </Text>
-                ) : null}
+                }
               </VStack>
             </Section>
 

@@ -149,9 +149,9 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
             ) : (
               icon
             )}
-            {!props.isLabelHidden && props.label !== '' ? (
+            @if (!props.isLabelHidden && props.label !== '') {
               <Text className="vx-tab-label">{props.label}</Text>
-            ) : null}
+            }
             {props.endContent}
           </masonview>
           <masonview

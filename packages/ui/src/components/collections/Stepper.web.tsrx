@@ -40,12 +40,15 @@ export function Stepper(props: StepperProps): JSX.Element @{
           role="listitem"
           aria-current={active ? 'step' : undefined}
         >
-          {i > 0 ? (
+          @if (i > 0) {
             <div
-              className={['vx-stepper-line', done || active ? 'vx-stepper-line--done' : undefined]}
+              className={[
+                'vx-stepper-line',
+                done || active ? 'vx-stepper-line--done' : undefined,
+              ]}
               aria-hidden="true"
             />
-          ) : null}
+          }
           <div
             className={[
               'vx-step',
@@ -63,7 +66,9 @@ export function Stepper(props: StepperProps): JSX.Element @{
             }}
           >
             <span className="vx-step-dot">{done ? '✓' : i + 1}</span>
-            {step.label != null ? <span className="vx-step-label">{step.label}</span> : null}
+            @if (step.label != null) {
+              <span className="vx-step-label">{step.label}</span>
+            }
           </div>
         </div>
       )

@@ -11,12 +11,12 @@ function Gallery(props: { text?: boolean; explicit?: boolean }) {
   return (
     <Root media={media} defaultOpen>
       <Popup>
-        {props.text ? (
+        @if (props.text) {
           <>
             <Title id={props.explicit ? 'chosen-title' : undefined}>Photo details</Title>
             <Description>Taken by the coast</Description>
           </>
-        ) : null}
+        }
       </Popup>
     </Root>
   )

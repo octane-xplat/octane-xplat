@@ -97,7 +97,11 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
         size={props.size === 'sm' ? 'sm' : 'md'}
         isDisabled={props.isDisabled}
       />
-      {!inField && !props.isLabelHidden && (props.label != null || props.description != null) ? (
+      @if (
+        !inField &&
+        !props.isLabelHidden &&
+        (props.label != null || props.description != null)
+      ) {
         <FormField
           className="vx-checkbox-text"
           inputID={controlID}
@@ -111,9 +115,9 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
           isLoading={props.isLoading}
           size={props.size}
         />
-      ) : null}
+      }
     </masonview>
-    {!inField && props.status?.message != null ? (
+    @if (!inField && props.status?.message != null) {
       <label
         id={`${controlID}-status`}
         className={cx(
@@ -123,6 +127,6 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
         )}
         text={props.status.message}
       />
-    ) : null}
+    }
   </masonview>
 }

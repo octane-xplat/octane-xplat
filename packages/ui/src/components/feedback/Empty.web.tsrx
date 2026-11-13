@@ -21,9 +21,15 @@ export function Empty(props: EmptyProps): JSX.Element @{
         props.icon
       )
     ) : null}
-    {props.title != null ? <span className="vx-empty-title">{props.title}</span> : null}
-    {props.description != null ? <span className="vx-empty-desc">{props.description}</span> : null}
+    @if (props.title != null) {
+      <span className="vx-empty-title">{props.title}</span>
+    }
+    @if (props.description != null) {
+      <span className="vx-empty-desc">{props.description}</span>
+    }
     {props.children}
-    {props.actions != null ? <div className="vx-empty-actions">{props.actions}</div> : null}
+    @if (props.actions != null) {
+      <div className="vx-empty-actions">{props.actions}</div>
+    }
   </div>
 }

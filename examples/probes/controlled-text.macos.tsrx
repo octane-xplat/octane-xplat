@@ -42,20 +42,20 @@ export default function ControlledTextProbe() {
   return (
     <VStack gap={2}>
       <Button label="Remove / restore fields" onPress={() => setShown((value) => !value)} />
-      {shown ? (
+      @if (shown) {
         <TextInput
           id="controlled-field"
           label="Single-line composition"
           value={field}
           onChange={setField}
         />
-      ) : null}
+      }
       <Button
         label="Replace single line in five seconds"
         pressAction={() => replaceLater('field')}
       />
       <Text id="controlled-field-state">{field}</Text>
-      {shown ? (
+      @if (shown) {
         <TextArea
           id="controlled-note"
           label="Multiline composition"
@@ -64,7 +64,7 @@ export default function ControlledTextProbe() {
           placeholder="Add a note"
           placeholderTextColor={coloredPlaceholder ? '#68707e' : undefined}
         />
-      ) : null}
+      }
       <Button
         label="Toggle multiline placeholder color"
         onPress={() => setColoredPlaceholder((value) => !value)}

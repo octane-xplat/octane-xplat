@@ -53,11 +53,11 @@ function EndLane(props: {
     ref={props.laneRef}
     style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
   >
-    {isBusy ? (
+    @if (isBusy) {
       <masonview className="vx-typeahead-spinner" style={{ display: 'flex' }}>
         <ActivityIndicator busy={true} />
       </masonview>
-    ) : null}
+    }
     {props.endContent}
     {props.clear}
   </masonview>
@@ -399,7 +399,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
     >
       {startIcon}
       {tokens}
-      {isTruncated ? (
+      @if (isTruncated) {
         <label
           ref={(v: any) => {
             overflowRef.current = v
@@ -407,7 +407,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
           className="vx-tokenizer-overflow"
           text={overflowCount > 0 ? `+${overflowCount} more` : ''}
         />
-      ) : null}
+      }
     </masonview>
   )
 
@@ -494,7 +494,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
       >
         {startIcon}
         {tokens}
-        {isTruncated ? (
+        @if (isTruncated) {
           <label
             ref={(v: any) => {
               overflowRef.current = v
@@ -502,7 +502,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
             className="vx-tokenizer-overflow"
             text={overflowCount > 0 ? `+${overflowCount} more` : ''}
           />
-        ) : null}
+        }
         {fieldControls}
         <EndLane
           lane={busyLane}

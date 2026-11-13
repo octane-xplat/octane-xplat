@@ -155,11 +155,11 @@ export function NavHeadingMenuItem(
 
   const content = (
     <>
-      {props.icon != null ? (
+      @if (props.icon != null) {
         <span className="vx-navmenu-item-icon" aria-hidden="true">
           {typeof props.icon === 'string' ? <Icon name={props.icon} size={16} /> : props.icon}
         </span>
-      ) : null}
+      }
       <span className="vx-navmenu-item-content">
         {typeof props.label === 'string' ? (
           <Text className="vx-navmenu-item-label">{props.label}</Text>

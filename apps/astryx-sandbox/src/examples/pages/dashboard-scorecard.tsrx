@@ -454,11 +454,11 @@ function NarrativeBlock(props: { period: Period }) @{
 function SectionHeading(props: { title: string; hint?: string }) @{
   <HStack hAlign="between" vAlign="center" gap={3}>
     <Heading level={2}>{props.title}</Heading>
-    {props.hint ? (
+    @if (props.hint) {
       <Text type="supporting" color="secondary">
         {props.hint}
       </Text>
-    ) : null}
+    }
   </HStack>
 }
 
@@ -520,7 +520,9 @@ export function DashboardScorecardTemplate() @{
     content={
       <LayoutContent padding={6}>
         <VStack gap={10}>
-          {isNarrow ? <NarrativeBlock period={period} /> : null}
+          @if (isNarrow) {
+            <NarrativeBlock period={period} />
+          }
           <VStack gap={6}>
             <SectionHeading title="Scorecard" hint={PERIOD_SUBTITLE[period]} />
             <Grid columns={{ minWidth: 340 }} style={{ gap: 'var(--spacing-4)' }}>

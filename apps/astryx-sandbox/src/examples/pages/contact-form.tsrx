@@ -189,7 +189,9 @@ export function ContactFormTemplate() @{
                   />
                 ))}
               </HStack>
-              {errors.goals ? <Banner status="error" title={errors.goals} /> : null}
+              @if (errors.goals) {
+                <Banner status="error" title={errors.goals} />
+              }
             </VStack>
 
             <Selector

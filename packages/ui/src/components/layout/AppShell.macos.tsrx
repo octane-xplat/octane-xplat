@@ -145,22 +145,25 @@ export function AppShell(props: AppShellProps): unknown @{
         )}
         className="vx-appshell-header"
       >
-        {hasBanner ? (
+        @if (hasBanner) {
           <masonview className="vx-appshell-banner" style={{ display: 'flex' }}>
             {props.banner}
           </masonview>
-        ) : null}
+        }
         {topNavContent}
-        {shouldShowAutoToggle && !hasTopNav && hasSideNav ? (
+        @if (shouldShowAutoToggle && !hasTopNav && hasSideNav) {
           <masonview
             className="vx-appshell-mobilebar"
             accessibilityLabel="Mobile navigation"
-            style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+            style={mergeStyle(
+              { flexDirection: 'row', alignItems: 'center' },
+              { display: 'flex' },
+            )}
           >
             <SideNavRenderProvider value="topbar">{props.sideNav}</SideNavRenderProvider>
             <MobileNavToggle />
           </masonview>
-        ) : null}
+        }
       </masonview>
       <masonview
         style={mergeStyle(
@@ -169,7 +172,7 @@ export function AppShell(props: AppShellProps): unknown @{
         )}
         className="vx-appshell-middle"
       >
-        {showSideNavInline ? (
+        @if (showSideNavInline) {
           <masonview
             style={mergeStyle(
               { flexDirection: 'column' },
@@ -179,7 +182,7 @@ export function AppShell(props: AppShellProps): unknown @{
           >
             {props.sideNav}
           </masonview>
-        ) : null}
+        }
         <masonview
           style={mergeStyle(
             { flexDirection: 'column' },
@@ -194,26 +197,30 @@ export function AppShell(props: AppShellProps): unknown @{
         </masonview>
       </masonview>
       {/* Drawer overlay — last grid child paints on top of the shell. */}
-      {isBelowBreakpoint && !mobileNavDisabled ? (
+      @if (isBelowBreakpoint && !mobileNavDisabled) {
         <masonview
           className="vx-appshell-drawerhost"
           style={mergeStyle({ gridRow: '1 / span 2', gridColumn: '1' }, { display: 'grid' })}
         >
           {mobileNavEnabled && mobileNavConfigContent != null ? mobileNavConfigContent : null}
-          {mobileNavConfigContent == null ? (
+          @if (mobileNavConfigContent == null) {
             <>
-              {hasSideNav && !hasTopNav ? (
-                <SideNavRenderProvider value="drawer">{props.sideNav}</SideNavRenderProvider>
-              ) : null}
-              {hasTopNav ? (
+              @if (hasSideNav && !hasTopNav) {
+                <SideNavRenderProvider value="drawer">
+                  {props.sideNav}
+                </SideNavRenderProvider>
+              }
+              @if (hasTopNav) {
                 <TopNavMobileContentProvider value={drawerMobileContentValue}>
-                  <TopNavRenderProvider value="drawer">{props.topNav}</TopNavRenderProvider>
+                  <TopNavRenderProvider value="drawer">
+                    {props.topNav}
+                  </TopNavRenderProvider>
                 </TopNavMobileContentProvider>
-              ) : null}
+              }
             </>
-          ) : null}
+          }
         </masonview>
-      ) : null}
+      }
     </masonview>
   </AppShellMobileProvider>
 }

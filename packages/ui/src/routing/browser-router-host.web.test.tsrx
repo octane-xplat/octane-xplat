@@ -1316,11 +1316,11 @@ it('refuses history whose named outlet has ended instead of waiting for an impos
     remove = () => setShown(false)
     return (
       <ClientRouteOutlet host={platform}>
-        {shown ? (
+        @if (shown) {
           <ClientRouteOutlet host={platform} flow="left">
             <p>Left base</p>
           </ClientRouteOutlet>
-        ) : null}
+        }
       </ClientRouteOutlet>
     )
   }

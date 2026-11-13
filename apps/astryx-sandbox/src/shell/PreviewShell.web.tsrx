@@ -215,9 +215,9 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
           renderItem={(item: PreviewItem) => (
             <View className="sb-palette-item">
               <Text>{item.label}</Text>
-              {item.description ? (
+              @if (item.description) {
                 <Text className="sb-palette-item-desc">{item.description}</Text>
-              ) : null}
+              }
             </View>
           )}
         />
@@ -233,7 +233,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
           size="sm"
         />
 
-        {view === 'preview' && !isBlock ? (
+        @if (view === 'preview' && !isBlock) {
           <SegmentedControl
             options={[
               { value: 'desktop', label: 'Desktop' },
@@ -245,7 +245,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
             accessibilityLabel="Viewport size"
             size="sm"
           />
-        ) : null}
+        }
 
         <DropdownMenu
           button={{
@@ -283,7 +283,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
         />
       </View>
       <View className="sb-preview-body">
-        {sidebarOpen ? (
+        @if (sidebarOpen) {
           <View className="sb-preview-sidebar">
             <TreeList
               className="sb-preview-tree"
@@ -299,7 +299,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
               }}
             />
           </View>
-        ) : null}
+        }
         {view === 'preview' ? (
           isBlock ? (
             <View className="sb-preview-stage">{props.children}</View>

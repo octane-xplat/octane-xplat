@@ -50,7 +50,9 @@ export function Collapsible(props: CollapsibleProps): JSX.Element @{
     >
       {props.trigger}
     </Pressable>
-    {open ? <div className="vx-collapsible-content">{props.children}</div> : null}
+    @if (open) {
+      <div className="vx-collapsible-content">{props.children}</div>
+    }
   </div>
 }
 

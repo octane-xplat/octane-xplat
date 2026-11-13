@@ -356,7 +356,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
       onDismiss={triggerMenu.reset}
       selectItem={triggerMenu.selectItem}
     />
-    {tokens.length > 0 ? (
+    @if (tokens.length > 0) {
       <masonview
         className="vx-chatinput-tokens"
         style={mergeStyle({ flexDirection: 'row', flexWrap: 'wrap' }, { display: 'flex' })}
@@ -364,7 +364,10 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
         {tokens.map((t) => (
           <masonview
             className="vx-chatinput-tokenwrap"
-            style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+            style={mergeStyle(
+              { flexDirection: 'row', alignItems: 'center' },
+              { display: 'flex' },
+            )}
           >
             <ChatTokenChip token={t.token} />
             <label
@@ -376,7 +379,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
           </masonview>
         ))}
       </masonview>
-    ) : null}
+    }
     <textview
       ref={(v: any) => {
         viewRef.current = v

@@ -45,9 +45,9 @@ export function Tabs(props: TabsProps): any {
 
   return (
     <>
-      {props.tabs.some((tab) => !!tab.stack) ? (
+      @if (props.tabs.some((tab) => !!tab.stack)) {
         <TabRouteSelection {...props} select={selection.select} />
-      ) : null}
+      }
       <div
         id={props.id}
         className={['vx-tabs', props.className]}

@@ -41,9 +41,11 @@ export function LinkProviderCustomLink() @{
         <Link href="/dashboard">
           <Text type="body">Go to dashboard</Text>
         </Link>
-        {hit != null ? (
-          <Text className="sb-link-intercept">RouterLink intercepted navigation to: {hit}</Text>
-        ) : null}
+        @if (hit != null) {
+          <Text className="sb-link-intercept">
+            RouterLink intercepted navigation to: {hit}
+          </Text>
+        }
       </VStack>
     </LinkProvider>
   )

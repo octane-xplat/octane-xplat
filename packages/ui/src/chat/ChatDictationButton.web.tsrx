@@ -43,7 +43,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps): JSX.Elemen
         props.style,
       )}
     >
-      {isListening ? (
+      @if (isListening) {
         <span
           aria-hidden="true"
           className="vx-chatdict-bars"
@@ -65,7 +65,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps): JSX.Elemen
             )
           })}
         </span>
-      ) : null}
+      }
       <Button
         className={['vx-chatdict-btn', `vx-chatdict-btn--${size}`]}
         label={accessibleLabel}

@@ -108,7 +108,7 @@ export function usePresentation(
   return (
     <>
       <masonview ref={owner} style={mergeStyle({ display: 'flex' }, { width: 0, height: 0 })} />
-      {target ? (
+      @if (target) {
         <SurfaceContent
           target={target}
           component={component}
@@ -116,7 +116,7 @@ export function usePresentation(
           dark={dark}
           committed={() => surface.current?.update({})}
         />
-      ) : null}
+      }
     </>
   )
 }

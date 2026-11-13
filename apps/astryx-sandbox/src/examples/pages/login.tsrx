@@ -64,7 +64,9 @@ export function LoginTemplate() @{
             </Text>
           </VStack>
 
-          {error ? <Banner status="error" title={error} /> : null}
+          @if (error) {
+            <Banner status="error" title={error} />
+          }
 
           <TextInput
             label="Email"

@@ -253,7 +253,7 @@ function DateInputControl(inputProps: CoreProps) @{
           <label text={shown ? formatValue(shown) : (props.placeholder ?? 'Select a date')} />
         </Pressable>
       )}
-      {props.hasClear && shown != null && !isDisabled && !isBusy ? (
+      @if (props.hasClear && shown != null && !isDisabled && !isBusy) {
         <Pressable
           className="vx-dateinput-clear"
           accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`}
@@ -261,20 +261,20 @@ function DateInputControl(inputProps: CoreProps) @{
         >
           <label text="×" />
         </Pressable>
-      ) : null}
-      {statusText != null && props.statusVariant !== 'tooltip' ? (
+      }
+      @if (statusText != null && props.statusVariant !== 'tooltip') {
         <label
           className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
           text={statusText}
         />
-      ) : null}
-      {statusText != null && props.statusVariant === 'tooltip' ? (
+      }
+      @if (statusText != null && props.statusVariant === 'tooltip') {
         <label
           className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
           text={statusText}
           accessibilityLabel={props.status?.message}
         />
-      ) : null}
+      }
     </>
   )
 

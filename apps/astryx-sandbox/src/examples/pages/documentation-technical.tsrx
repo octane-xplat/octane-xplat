@@ -90,7 +90,7 @@ export function DocumentationTechnicalTemplate() @{
             <Text type="supporting" color="secondary">
               Last updated March 30, 2026
             </Text>
-            {isMobile ? (
+            @if (isMobile) {
               <Selector
                 label="On this page"
                 isLabelHidden
@@ -103,7 +103,7 @@ export function DocumentationTechnicalTemplate() @{
                 }}
                 width="100%"
               />
-            ) : null}
+            }
           </VStack>
 
           <Card>

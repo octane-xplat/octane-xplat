@@ -18,10 +18,12 @@ export function Empty(props: EmptyProps): unknown @{
     ) : (
       (props.icon ?? null)
     )}
-    {props.title != null ? <label className="vx-empty-title" text={props.title} /> : null}
-    {props.description != null ? (
+    @if (props.title != null) {
+      <label className="vx-empty-title" text={props.title} />
+    }
+    @if (props.description != null) {
       <label className="vx-empty-desc" text={props.description} />
-    ) : null}
+    }
     {props.children}
   </masonview>
 }

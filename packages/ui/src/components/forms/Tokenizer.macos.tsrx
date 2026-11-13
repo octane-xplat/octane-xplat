@@ -70,11 +70,11 @@ function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any
     className="vx-tokenizer-endlane"
     style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
   >
-    {isBusy ? (
+    @if (isBusy) {
       <masonview className="vx-typeahead-spinner" style={{ display: 'flex' }}>
         <ActivityIndicator busy={true} />
       </masonview>
-    ) : null}
+    }
     {props.endContent}
     {props.clear}
   </masonview>
@@ -782,14 +782,14 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
       >
         {startIcon}
         {isTruncated ? clippedTokens : tokens}
-        {isTruncated ? (
+        @if (isTruncated) {
           <label
             className="vx-tokenizer-overflow"
             ref={bindCounter}
             style={{ display: overflowCount > 0 ? 'flex' : 'none', flexShrink: 0 }}
             text={overflowCount > 0 ? `+${overflowCount} more` : ''}
           />
-        ) : null}
+        }
         {fieldControls}
         <EndLane lane={busyLane} endContent={props.endContent} clear={clearButton} />
       </masonview>

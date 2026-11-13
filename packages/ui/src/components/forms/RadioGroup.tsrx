@@ -105,18 +105,18 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
             isDisabled={disabled}
           />
           <masonview className="vx-radio-label-col" style={{ display: 'flex' }}>
-            {opt.label != null ? (
+            @if (opt.label != null) {
               <label className="vx-radio-label" text={opt.label} textWrap />
-            ) : null}
-            {opt.description != null ? (
+            }
+            @if (opt.description != null) {
               <label className="vx-radio-description" text={opt.description} textWrap />
-            ) : null}
+            }
           </masonview>
-          {opt.endContent != null ? (
+          @if (opt.endContent != null) {
             <masonview className="vx-radio-end" style={{ display: 'flex' }}>
               {opt.endContent}
             </masonview>
-          ) : null}
+          }
         </masonview>
       )
     })}

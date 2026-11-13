@@ -352,16 +352,18 @@ const ROW_STACK = '@container settings-panel (max-width: 480px)'
 
 function SettingsCard(props: { title?: string; children: any }) @{
   <VStack gap={1.5}>
-    {props.title != null ? (
+    @if (props.title != null) {
       <Text type="supporting" weight="semibold" color="secondary">
         {props.title}
       </Text>
-    ) : null}
+    }
     <Card padding={0} width="100%" variant="muted">
       <VStack gap={0}>
         {(Array.isArray(props.children) ? props.children : [props.children]).map((row, index) => (
           <VStack key={index} gap={0}>
-            {index > 0 ? <Divider variant="subtle" /> : null}
+            @if (index > 0) {
+              <Divider variant="subtle" />
+            }
             {row}
           </VStack>
         ))}
@@ -388,11 +390,11 @@ function SettingsRow(props: {
               <Text type="label">{props.title}</Text>
               {props.titleAccessory}
             </HStack>
-            {props.description != null ? (
+            @if (props.description != null) {
               <Text type="supporting" color="secondary">
                 {props.description}
               </Text>
-            ) : null}
+            }
           </VStack>
         </HStack>
       </StackItem>

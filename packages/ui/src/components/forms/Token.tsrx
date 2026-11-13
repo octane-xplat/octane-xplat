@@ -36,9 +36,11 @@ export function Token(props: TokenProps): unknown @{
   const content = (
     <>
       {icon}
-      {props.isLabelHidden ? null : <label className="vx-token-label" text={props.label} />}
+      @if (!props.isLabelHidden) {
+        <label className="vx-token-label" text={props.label} />
+      }
       {props.endContent}
-      {props.onRemove != null ? (
+      @if (props.onRemove != null) {
         <Pressable
           className="vx-token-remove"
           disabled={props.isDisabled}
@@ -47,7 +49,7 @@ export function Token(props: TokenProps): unknown @{
         >
           <label text="✕" />
         </Pressable>
-      ) : null}
+      }
     </>
   )
 

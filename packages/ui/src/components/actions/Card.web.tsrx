@@ -23,8 +23,12 @@ export function Card(props: CardProps): JSX.Element @{
       maxWidth: props.maxWidth,
     }}
   >
-    {props.header != null ? <div className="vx-card-header">{props.header}</div> : null}
+    @if (props.header != null) {
+      <div className="vx-card-header">{props.header}</div>
+    }
     <div className="vx-card-body">{props.children}</div>
-    {props.footer != null ? <div className="vx-card-footer">{props.footer}</div> : null}
+    @if (props.footer != null) {
+      <div className="vx-card-footer">{props.footer}</div>
+    }
   </div>
 }

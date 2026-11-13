@@ -206,7 +206,7 @@ export function IdeTemplate() @{
           start={
             isMobile ? undefined : (
               <>
-                {!startPanel.isCollapsed ? (
+                @if (!startPanel.isCollapsed) {
                   <LayoutPanel width={startPanel.size} hasDivider={false} padding={0}>
                     <Stack direction="vertical" style={styles.fileExplorer} gap={2}>
                       <TextInput
@@ -224,7 +224,7 @@ export function IdeTemplate() @{
                       />
                     </Stack>
                   </LayoutPanel>
-                ) : null}
+                }
                 <ResizeHandle
                   direction="horizontal"
                   hasDivider
@@ -268,7 +268,7 @@ export function IdeTemplate() @{
                         resizable={bottomPanel.props}
                         label="Resize terminal"
                       />
-                      {!bottomPanel.isCollapsed ? (
+                      @if (!bottomPanel.isCollapsed) {
                         <Stack
                           direction="vertical"
                           height={bottomPanel.size}
@@ -303,7 +303,7 @@ export function IdeTemplate() @{
                             />
                           </StackItem>
                         </Stack>
-                      ) : null}
+                      }
                     </Stack>
                   </LayoutContent>
                 }
@@ -318,7 +318,7 @@ export function IdeTemplate() @{
                         resizable={endPanel.props}
                         label="Resize properties panel"
                       />
-                      {!endPanel.isCollapsed ? (
+                      @if (!endPanel.isCollapsed) {
                         <LayoutPanel width={endPanel.size} hasDivider={false} padding={4}>
                           <Stack direction="vertical" gap={3} style={styles.propertiesPanel}>
                             <SegmentedControl
@@ -332,7 +332,11 @@ export function IdeTemplate() @{
                               <SegmentedControlItem label="History" value="history" />
                             </SegmentedControl>
                             {activePropertiesTab === 'properties' ? (
-                              <Stack direction="vertical" gap={3} style={styles.propertiesContent}>
+                              <Stack
+                                direction="vertical"
+                                gap={3}
+                                style={styles.propertiesContent}
+                              >
                                 <Stack direction="vertical" gap={1}>
                                   <Heading level={3} maxLines={1}>
                                     {activeFile}
@@ -348,7 +352,11 @@ export function IdeTemplate() @{
                                     </MetadataListItem>
                                   ))}
                                 </MetadataList>
-                                <Stack direction="vertical" gap={2} style={styles.propertyActions}>
+                                <Stack
+                                  direction="vertical"
+                                  gap={2}
+                                  style={styles.propertyActions}
+                                >
                                   <Button
                                     label="Format Document"
                                     size="sm"
@@ -377,11 +385,17 @@ export function IdeTemplate() @{
                                       key={item.label}
                                       label={item.label}
                                       endContent={
-                                        <Text type="supporting" color="secondary" maxLines={1}>
+                                        <Text
+                                          type="supporting"
+                                          color="secondary"
+                                          maxLines={1}
+                                        >
                                           {item.time}
                                         </Text>
                                       }
-                                      startContent={<span style={styles.historyTimelineDot} />}
+                                      startContent={
+                                        <span style={styles.historyTimelineDot} />
+                                      }
                                     />
                                   ))}
                                 </List>
@@ -389,7 +403,7 @@ export function IdeTemplate() @{
                             )}
                           </Stack>
                         </LayoutPanel>
-                      ) : null}
+                      }
                     </>
                   )
                 }

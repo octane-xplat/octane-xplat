@@ -116,7 +116,7 @@ export function MotionExample() {
       <LayoutGroup>
         <Button label="Toggle animated content" onPress={() => setVisible(!visible)} />
         <Presence present={visible}>
-          {visible ? (
+          @if (visible) {
             <motion.View
               key="message"
               initial={{ opacity: 0 }}
@@ -125,7 +125,7 @@ export function MotionExample() {
             >
               <Text>Animated content</Text>
             </motion.View>
-          ) : null}
+          }
         </Presence>
       </LayoutGroup>
     </MotionConfig>

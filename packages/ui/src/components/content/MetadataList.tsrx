@@ -54,7 +54,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
       className={cx('vx-metadatalist', props.className)}
       style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style) })}
     >
-      {props.title != null ? (
+      @if (props.title != null) {
         <masonview
           className="vx-metadatalist-title"
           style={mergeStyle({ display: 'flex' }, { marginBottom: 12 })}
@@ -67,7 +67,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
             props.title
           )}
         </masonview>
-      ) : null}
+      }
       {isHorizontal ? (
         <masonview
           className="vx-metadatalist-list vx-metadatalist--horizontal"
@@ -83,7 +83,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
           {childrenArray.length ? visibleChildren : props.children}
         </Grid>
       )}
-      {isExceedMax ? (
+      @if (isExceedMax) {
         <Pressable
           className="vx-metadatalist-toggle"
           accessibilityRole="button"
@@ -98,7 +98,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
             {isShowAll ? 'Show less' : 'Show more'}
           </label>
         </Pressable>
-      ) : null}
+      }
     </masonview>
   </MetadataListProvider>
 }

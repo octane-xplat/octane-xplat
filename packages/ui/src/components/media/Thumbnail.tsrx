@@ -79,7 +79,7 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
         ) : (
           <Icon name="xplat-doc-image" size={20} />
         )}
-        {isLoading && props.src != null ? (
+        @if (isLoading && props.src != null) {
           <masonview
             className="vx-thumbnail-overlay"
             style={mergeStyle(
@@ -89,8 +89,8 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
           >
             <ActivityIndicator busy={true} style={{ width: 16, height: 16 }} />
           </masonview>
-        ) : null}
-        {isRenderable(props.onRemove) ? (
+        }
+        @if (isRenderable(props.onRemove)) {
           <masonview
             style={mergeStyle(
               { justifySelf: 'end', alignSelf: 'start' },
@@ -115,7 +115,7 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
               <Icon name="xplat-clear" size={10} />
             </Pressable>
           </masonview>
-        ) : null}
+        }
       </>
     )
 

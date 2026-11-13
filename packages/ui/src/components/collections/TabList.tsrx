@@ -198,7 +198,9 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
         {displayIcon != null
           ? navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16)
           : null}
-        {showLabel ? <Text className="vx-tab-label">{props.label}</Text> : null}
+        @if (showLabel) {
+          <Text className="vx-tab-label">{props.label}</Text>
+        }
         {props.endContent != null ? props.endContent : null}
       </masonview>
       <masonview

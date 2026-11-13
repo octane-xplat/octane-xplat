@@ -45,9 +45,9 @@ export default function SwiftUIComponentPortals() {
 
   return (
     <NameProvider value={name}>
-      {sheetEnabled ? (
+      @if (sheetEnabled) {
         <SwiftUIBottomSheet open content={() => <ContextLabel surface="sheet" />} />
-      ) : null}
+      }
       <SwiftUIContextMenu
         items={[]}
         trigger={() => <ContextLabel surface="trigger" />}

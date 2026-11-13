@@ -15,7 +15,9 @@ export function DividerVertical() @{
       <HStack gap={4} align="stretch">
         {stats.map(([label, value, delta], i) => (
           <>
-            {i > 0 ? <Divider orientation="vertical" style={dividerFill} /> : null}
+            @if (i > 0) {
+              <Divider orientation="vertical" style={dividerFill} />
+            }
             <StackItem size="fill">
               <VStack gap={1}>
                 <Text type="label">{label}</Text>

@@ -165,9 +165,9 @@ function OverflowListImpl(props: OverflowListProps): JSX.Element @{
       style={{ gap }}
     >
       {childArray}
-      {measureIndicator != null ? (
+      @if (measureIndicator != null) {
         <div className="vx-overflowlist-measure-indicator">{measureIndicator}</div>
-      ) : null}
+      }
     </div>
     <div
       ref={(el: HTMLElement | null) => {

@@ -182,16 +182,16 @@ function FileInputControl(inputProps: FileInputProps) @{
   const dropzone = props.mode === 'dropzone'
   const itemContent = (
     <>
-      {files.length ? (
+      @if (files.length) {
         <ul className="vx-fileinput-list">
           {files.map((f: FileInputFile, i: number) => (
             <li key={`${f.uri}-${i}`} className="vx-fileinput-item">
               <Icon name="xplat-upload" size={14} />
               <span className="vx-fileinput-itemname">{f.name}</span>
-              {f.size != null ? (
+              @if (f.size != null) {
                 <span className="vx-fileinput-itemsize">{formatFileSize(f.size)}</span>
-              ) : null}
-              {!isDisabled && !isBusy ? (
+              }
+              @if (!isDisabled && !isBusy) {
                 <button
                   type="button"
                   className="vx-fileinput-itemremove"
@@ -200,18 +200,20 @@ function FileInputControl(inputProps: FileInputProps) @{
                 >
                   {'×'}
                 </button>
-              ) : null}
+              }
             </li>
           ))}
         </ul>
-      ) : null}
+      }
       {dropzone ? (
         <div className="vx-fileinput-dropzone-hint">
           <Icon name="xplat-upload" size={24} />
           <span>
             {isDisabled ? 'Upload disabled' : 'Drag & drop files here or click to browse'}
           </span>
-          {props.accept ? <span className="vx-fileinput-accept">{props.accept}</span> : null}
+          @if (props.accept) {
+            <span className="vx-fileinput-accept">{props.accept}</span>
+          }
         </div>
       ) : (
         <button
@@ -230,7 +232,7 @@ function FileInputControl(inputProps: FileInputProps) @{
           {files.length ? 'Choose more files' : 'Choose files'}
         </button>
       )}
-      {dropzone ? (
+      @if (dropzone) {
         <button
           type="button"
           id={inputId}
@@ -245,8 +247,8 @@ function FileInputControl(inputProps: FileInputProps) @{
         >
           Browse files
         </button>
-      ) : null}
-      {canClear ? (
+      }
+      @if (canClear) {
         <button
           type="button"
           className="vx-fileinput-clear"
@@ -259,8 +261,10 @@ function FileInputControl(inputProps: FileInputProps) @{
         >
           {'×'}
         </button>
-      ) : null}
-      {isBusy ? <ActivityIndicator busy className="vx-fileinput-spinner" /> : null}
+      }
+      @if (isBusy) {
+        <ActivityIndicator busy className="vx-fileinput-spinner" />
+      }
       {statusType ? (
         props.statusVariant === 'tooltip' && statusMessage ? (
           <Tooltip
@@ -277,14 +281,14 @@ function FileInputControl(inputProps: FileInputProps) @{
           </span>
         )
       ) : null}
-      {statusMessage && props.statusVariant !== 'tooltip' ? (
+      @if (statusMessage && props.statusVariant !== 'tooltip') {
         <span
           className={cx('vx-field-status', `vx-field-status--${statusType}`)}
           role={statusType === 'error' ? 'alert' : 'status'}
         >
           {statusMessage}
         </span>
-      ) : null}
+      }
       <input
         ref={(el: any) => {
           fileInput.current = el

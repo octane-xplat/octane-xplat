@@ -74,7 +74,7 @@ export default function TextEntryOwnershipProbe() {
         and preserve callback-chosen focus. Check real IME/caret/Return/clear/focus ordering after
         authorization; this runner only records mounting.
       </Text>
-      {shown ? (
+      @if (shown) {
         <VStack gap={2}>
           <TextInput
             id="text-entry-owner-preview"
@@ -124,7 +124,7 @@ export default function TextEntryOwnershipProbe() {
             }}
           />
         </VStack>
-      ) : null}
+      }
       <TextInput label="Next focus owner" ref={next} />
       <TextArea
         label="Uncontrolled message"

@@ -63,7 +63,9 @@ export function ComplexSelectorDeadlinePicker() @{
                 onChange={setCustomDate}
                 hasClear
               />
-              {error != null ? <Text type="supporting">{error}</Text> : null}
+              @if (error != null) {
+                <Text type="supporting">{error}</Text>
+              }
               <Button
                 variant="primary"
                 label="Apply"

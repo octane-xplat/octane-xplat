@@ -102,7 +102,7 @@ export function SettingsTemplate() @{
         <VStack gap={4}>
           {/* Mobile: the sidebar nav collapses to a horizontal, centered
 					    tab bar above the content. */}
-          {isNarrow ? (
+          @if (isNarrow) {
             <VStack hAlign="center">
               <TabList value={activeNav} onChange={setActiveNav}>
                 {NAV_ITEMS.map((item) => (
@@ -110,7 +110,7 @@ export function SettingsTemplate() @{
                 ))}
               </TabList>
             </VStack>
-          ) : null}
+          }
           <Grid style={{ gap: 'var(--spacing-10)' }} columns={{ minWidth: 320 }}>
             <VStack gap={1}>
               <Heading level={3}>Basic information</Heading>

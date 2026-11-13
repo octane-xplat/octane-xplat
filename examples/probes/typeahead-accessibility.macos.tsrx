@@ -35,7 +35,7 @@ export default function TypeaheadAccessibilityProbe() {
         behavior is unqualified.
       </Text>
       <TextInput label="Before search" />
-      {shown ? (
+      @if (shown) {
         <BaseTypeahead
           id="typeahead-ax-preview"
           searchSource={alternate ? replacement : source}
@@ -45,7 +45,7 @@ export default function TypeaheadAccessibilityProbe() {
           isReadOnly={blocked}
           accessibilityLabel="Choose a person"
         />
-      ) : null}
+      }
       <TextInput label="After search" />
       <Button label="Toggle read-only" onPress={() => setBlocked(!blocked)} />
       <Button label="Replace source" onPress={() => setAlternate(!alternate)} />

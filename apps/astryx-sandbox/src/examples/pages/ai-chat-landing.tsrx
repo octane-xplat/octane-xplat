@@ -378,7 +378,7 @@ export function AIChatLandingTemplate() @{
               ))}
             </ToggleButtonGroup>
 
-            {suggestions ? (
+            @if (suggestions) {
               <Grid columns={{ minWidth: 280 }} style={{ gap: 'var(--spacing-3)' }}>
                 {suggestions.map((suggestion) => (
                   <ClickableCard
@@ -400,7 +400,7 @@ export function AIChatLandingTemplate() @{
                   </ClickableCard>
                 ))}
               </Grid>
-            ) : null}
+            }
           </VStack>
         </VStack>
       </LayoutContent>

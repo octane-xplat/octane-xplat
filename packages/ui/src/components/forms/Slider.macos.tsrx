@@ -405,9 +405,9 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
                 className="vx-slider-mark-tick"
                 style={{ backgroundColor: colors.border }}
               />
-              {mark.label != null ? (
+              @if (mark.label != null) {
                 <label className="vx-slider-mark-label" text={mark.label} />
-              ) : null}
+              }
             </masonview>
           ))}
       </masonview>

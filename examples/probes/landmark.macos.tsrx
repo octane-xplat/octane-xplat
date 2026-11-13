@@ -15,7 +15,9 @@ function Region(
     gap={2}
   >
     <Text>{props.label}</Text>
-    {!props.empty ? <TextInput label={`${props.label} notes`} /> : null}
+    @if (!props.empty) {
+      <TextInput label={`${props.label} notes`} />
+    }
     {props.children}
   </VStack>
 }
@@ -41,9 +43,9 @@ export default function LandmarkProbe() @{
         <Region role="main" label="Workspace">
           <Region role="search" label="Nested search" />
         </Region>
-        {mountAside ? (
+        @if (mountAside) {
           <Region role="complementary" label="Empty aside" hidden={hideAside} empty />
-        ) : null}
+        }
       </VStack>
     </FocusScope>
   </VStack>

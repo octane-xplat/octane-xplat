@@ -54,16 +54,19 @@ export function Token(props: TokenProps): unknown @{
       {icon}
       <label className="vx-token-label" text={props.label} style={{ color: fg }} />
       {props.endContent}
-      {props.onRemove != null ? (
+      @if (props.onRemove != null) {
         <Pressable
           className="vx-token-remove"
           disabled={props.isDisabled}
           onPress={() => props.onRemove?.()}
           accessibilityLabel={'Remove ' + props.label}
         >
-          <label text="✕" style={{ color: fg, marginLeft: 4, width: 12, textAlign: 'center' }} />
+          <label
+            text="✕"
+            style={{ color: fg, marginLeft: 4, width: 12, textAlign: 'center' }}
+          />
         </Pressable>
-      ) : null}
+      }
     </>
   )
 

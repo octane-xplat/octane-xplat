@@ -281,13 +281,13 @@ export function FormWizardTemplate() @{
     }
     content={
       <LayoutContent>
-        {step === 0 ? (
+        @if (step === 0) {
           <VStack gap={5}>
             <VStack gap={1}>
               <Heading level={2}>Workspace details</Heading>
               <Text type="supporting" color="secondary">
-                Name your workspace and pick where its data lives. The region is permanent — moving
-                data later means a migration.
+                Name your workspace and pick where its data lives. The region is permanent —
+                moving data later means a migration.
               </Text>
             </VStack>
             <FormLayout defaultOptionality="optional">
@@ -298,7 +298,9 @@ export function FormWizardTemplate() @{
                 onChange={(v) => setName(v ?? '')}
                 placeholder="Acme Inc."
                 status={
-                  currentErrors.name ? { type: 'error', message: currentErrors.name } : undefined
+                  currentErrors.name
+                    ? { type: 'error', message: currentErrors.name }
+                    : undefined
                 }
               />
               <TextInput
@@ -309,7 +311,9 @@ export function FormWizardTemplate() @{
                 placeholder="acme"
                 description={`terrace.app/${slug.trim() || 'your-workspace'}`}
                 status={
-                  currentErrors.slug ? { type: 'error', message: currentErrors.slug } : undefined
+                  currentErrors.slug
+                    ? { type: 'error', message: currentErrors.slug }
+                    : undefined
                 }
               />
               <Selector
@@ -342,9 +346,9 @@ export function FormWizardTemplate() @{
               </RadioList>
             </FormLayout>
           </VStack>
-        ) : null}
+        }
 
-        {step === 1 ? (
+        @if (step === 1) {
           <VStack gap={5}>
             <VStack gap={1}>
               <Heading level={2}>Invite your team</Heading>
@@ -394,7 +398,7 @@ export function FormWizardTemplate() @{
                 labelPosition="start"
                 labelSpacing="spread"
               />
-              {sendNow ? (
+              @if (sendNow) {
                 <TextArea
                   label="Add a note to the invite"
                   rows={2}
@@ -403,18 +407,18 @@ export function FormWizardTemplate() @{
                   onChange={(v) => setInviteNote(v ?? '')}
                   placeholder="We're moving planning off email — join us here."
                 />
-              ) : null}
+              }
             </FormLayout>
           </VStack>
-        ) : null}
+        }
 
-        {step === 2 ? (
+        @if (step === 2) {
           <VStack gap={5}>
             <VStack gap={1}>
               <Heading level={2}>Choose a plan</Heading>
               <Text type="supporting" color="secondary">
-                Billed monthly per seat. Change plans or add capabilities at any time from workspace
-                settings.
+                Billed monthly per seat. Change plans or add capabilities at any time from
+                workspace settings.
               </Text>
             </VStack>
             <FormLayout defaultOptionality="optional">
@@ -431,9 +435,9 @@ export function FormWizardTemplate() @{
                       <VStack gap={2}>
                         <HStack gap={2} vAlign="center" hAlign="between">
                           <Text type="label">{p.label}</Text>
-                          {p.id === 'growth' ? (
+                          @if (p.id === 'growth') {
                             <Badge variant="success" label="Recommended" />
-                          ) : null}
+                          }
                         </HStack>
                         <Text type="large" weight="bold">
                           {p.pricePerSeat === 0 ? 'Free' : `${money(p.pricePerSeat)}/seat`}
@@ -455,7 +459,9 @@ export function FormWizardTemplate() @{
                 step={1}
                 description={`Includes you. ${plan.label} allows up to ${plan.seatLimit}.`}
                 status={
-                  currentErrors.seats ? { type: 'error', message: currentErrors.seats } : undefined
+                  currentErrors.seats
+                    ? { type: 'error', message: currentErrors.seats }
+                    : undefined
                 }
               />
               <CheckboxList
@@ -499,19 +505,19 @@ export function FormWizardTemplate() @{
               </HStack>
             </Card>
           </VStack>
-        ) : null}
+        }
 
-        {step === 3 ? (
+        @if (step === 3) {
           <VStack gap={5}>
             <VStack gap={1}>
               <Heading level={2}>Review and create</Heading>
               <Text type="supporting" color="secondary">
-                Nothing is saved until you create the workspace. Use the steps above to go back and
-                edit.
+                Nothing is saved until you create the workspace. Use the steps above to go
+                back and edit.
               </Text>
             </VStack>
 
-            {outstanding.length > 0 ? (
+            @if (outstanding.length > 0) {
               <Banner
                 status="error"
                 title={`${outstanding.length} ${outstanding.length === 1 ? 'step needs' : 'steps need'} attention`}
@@ -537,7 +543,7 @@ export function FormWizardTemplate() @{
                   </HStack>
                 </VStack>
               </Banner>
-            ) : null}
+            }
 
             <MetadataList orientation="vertical">
               <MetadataListItem label="Workspace name">{name.trim() || '—'}</MetadataListItem>
@@ -584,23 +590,26 @@ export function FormWizardTemplate() @{
                 value={acceptedTerms}
                 onChange={(v) => setAcceptedTerms(v ?? '')}
               />
-              {currentErrors.terms ? (
-                <Text type="supporting" style={{ color: 'var(--color-text-error, #d92d20)' }}>
+              @if (currentErrors.terms) {
+                <Text
+                  type="supporting"
+                  style={{ color: 'var(--color-text-error, #d92d20)' }}
+                >
                   {currentErrors.terms}
                 </Text>
-              ) : null}
+              }
             </VStack>
           </VStack>
-        ) : null}
+        }
       </LayoutContent>
     }
     footer={
       <LayoutFooter>
         <HStack gap={3} vAlign="center">
           <StackItem size="fill" style={footerZone}>
-            {STEPS[step].isOptional ? (
+            @if (STEPS[step].isOptional) {
               <Button label="Skip" variant="ghost" onPress={goSkip} />
-            ) : null}
+            }
           </StackItem>
           <Text type="supporting" color="secondary">
             {step + 1} of {STEPS.length}

@@ -178,12 +178,12 @@ export function ChatComposer(props: ChatComposerProps): JSX.Element @{
         ]}
         onClick={handleBodyClick}
       >
-        {props.headerActions || props.headerContext ? (
+        @if (props.headerActions || props.headerContext) {
           <div className="vx-chatcomposer-header">
             <div className="vx-chatcomposer-headerleft">{props.headerActions}</div>
             <div className="vx-chatcomposer-headerright">{props.headerContext}</div>
           </div>
-        ) : null}
+        }
         <div className="vx-chatcomposer-inputarea">{props.input ?? <ChatComposerInput />}</div>
         <div className="vx-chatcomposer-footer">
           <div className="vx-chatcomposer-footerleft">{props.footerActions}</div>

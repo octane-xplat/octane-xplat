@@ -956,7 +956,9 @@ export function DashboardAlertRailTemplate() @{
               />
             </Grid>
           </VStack>
-          {isNarrow ? <AlertsFeed /> : null}
+          @if (isNarrow) {
+            <AlertsFeed />
+          }
           <VStack gap={6}>
             <HStack gap={3} vAlign="center" hAlign="between" wrap="wrap">
               <VStack>
@@ -1008,7 +1010,9 @@ export function DashboardAlertRailTemplate() @{
                 <VStack gap={6}>
                   {uptimeEntries.map((entry, index) => (
                     <>
-                      {index > 0 ? <Divider /> : null}
+                      @if (index > 0) {
+                        <Divider />
+                      }
                       <UptimeRow key={entry.service} entry={entry} />
                     </>
                   ))}

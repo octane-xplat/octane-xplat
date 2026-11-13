@@ -19,6 +19,8 @@ export function FieldStatus(props: FieldStatusComponentProps): unknown @{
     ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
-    {props.message != null ? <label className="vx-fieldstatus-text" text={props.message} /> : null}
+    @if (props.message != null) {
+      <label className="vx-fieldstatus-text" text={props.message} />
+    }
   </masonview>
 }

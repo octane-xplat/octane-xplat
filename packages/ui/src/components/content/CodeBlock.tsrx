@@ -187,7 +187,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
               ),
             )}
           >
-            {hasLineNumbers ? (
+            @if (hasLineNumbers) {
               <label
                 className="vx-codeblock-gutter"
                 text={String(lineNo)}
@@ -201,8 +201,8 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
                   paddingRight: 8,
                 }}
               />
-            ) : null}
-            {diff != null ? (
+            }
+            @if (diff != null) {
               <label
                 className="vx-codeblock-diff-marker"
                 text={diff.glyphs[i] || ' '}
@@ -214,7 +214,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
                   paddingRight: 8,
                 }}
               />
-            ) : null}
+            }
             <NativeCodeLine
               line={diff != null ? (diffKind === 'header' ? line : diff.content[i]) : line}
               tokens={diffKind === 'header' ? [] : tokenLines[i]}

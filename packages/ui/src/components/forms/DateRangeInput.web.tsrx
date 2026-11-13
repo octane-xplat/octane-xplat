@@ -131,7 +131,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         <Icon name="xplat-calendar" size={16} />
         <span className="vx-daterangeinput-text">{displayText || 'Select a date range'}</span>
       </button>
-      {canClear ? (
+      @if (canClear) {
         <button
           type="button"
           className="vx-daterangeinput-clear"
@@ -143,8 +143,10 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         >
           {'×'}
         </button>
-      ) : null}
-      {isBusy ? <ActivityIndicator busy className="vx-daterangeinput-spinner" /> : null}
+      }
+      @if (isBusy) {
+        <ActivityIndicator busy className="vx-daterangeinput-spinner" />
+      }
       {statusType ? (
         props.statusVariant === 'tooltip' && props.status?.message ? (
           <Tooltip
@@ -188,7 +190,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
       className="vx-daterangeinput-popover"
     >
       <div className="vx-daterangeinput-dialog">
-        {props.presets?.length ? (
+        @if (props.presets?.length) {
           <div className="vx-daterangeinput-presets" role="group" aria-label="Presets">
             {props.presets.map((preset, index) => (
               <button
@@ -209,7 +211,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
               </button>
             ))}
           </div>
-        ) : null}
+        }
         <Calendar
           locale={props.locale}
           direction={props.direction}

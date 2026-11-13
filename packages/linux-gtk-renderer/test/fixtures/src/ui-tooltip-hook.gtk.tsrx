@@ -45,9 +45,9 @@ export function TooltipHookScene(props: {
           ref={props.split ? tip.interactionRef : tip.ref}
           style={{ width: 200, height: 36 }}
         >
-          {props.nested ? (
+          @if (props.nested) {
             <button id="hook-action" text="Action" style={{ width: 200, height: 36 }} />
-          ) : null}
+          }
         </View>
       ) : (
         <textfield

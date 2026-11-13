@@ -54,7 +54,7 @@ export default function AppKitCachedImageProbe() {
           setEvents([])
         }}
       />
-      {shown ? (
+      @if (shown) {
         <Image
           src={source}
           cachePolicy={bypass ? 'none' : 'memory-disk'}
@@ -68,7 +68,7 @@ export default function AppKitCachedImageProbe() {
           onError={() => setEvents((current) => [...current.slice(-5), 'load failed'])}
           style={{ width: 160, height: 100 }}
         />
-      ) : null}
+      }
       <Button
         label="Initialize default cache"
         pressAction={() => {

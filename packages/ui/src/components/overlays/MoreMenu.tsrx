@@ -90,7 +90,9 @@ export function MoreMenu(props: MoreMenuProps): unknown @{
                 item.onSelect?.()
               }}
             >
-              {item.icon ? <Icon name={item.icon} /> : null}
+              @if (item.icon) {
+                <Icon name={item.icon} />
+              }
               <label text={item.label ?? ''} />
             </MenuItemView>
           ))}

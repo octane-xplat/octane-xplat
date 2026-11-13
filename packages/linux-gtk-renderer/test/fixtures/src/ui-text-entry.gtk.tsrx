@@ -94,6 +94,8 @@ export function TextEntry(props: {
       isEnabled={!props.aliasDisabled}
       style={{ width: 200, height: 32 }}
     />
-    {props.controlledMode ? <ControlledEntry mode={props.controlledMode} /> : null}
+    @if (props.controlledMode) {
+      <ControlledEntry mode={props.controlledMode} />
+    }
   </View>
 }

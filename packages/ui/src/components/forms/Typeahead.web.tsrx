@@ -28,11 +28,11 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
   }
 
   <div className="vx-typeahead-endlane">
-    {isBusy ? (
+    @if (isBusy) {
       <span className="vx-typeahead-spinner" role="status" aria-label="Loading">
         <ActivityIndicator busy={true} />
       </span>
-    ) : null}
+    }
     {props.clear}
   </div>
 }
@@ -177,7 +177,7 @@ export function Typeahead<T extends SearchableItem>(
     >
       {startIcon}
       <div className="vx-typeahead-content">
-        {showToken && props.value ? (
+        @if (showToken && props.value) {
           <Token
             label={props.value.label}
             size={size}
@@ -188,7 +188,7 @@ export function Typeahead<T extends SearchableItem>(
               tokenRef.current = el
             }}
           />
-        ) : null}
+        }
         <BusyLaneProvider value={busyLane}>
           <BaseTypeahead
             searchSource={props.searchSource}

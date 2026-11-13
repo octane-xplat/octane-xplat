@@ -845,7 +845,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
         accessibilityLabel={timeLabelText}
         accessibilityState={{ disabled: isDisabled, invalid: !isTimeValid }}
       />
-      {timeOptions.length ? (
+      @if (timeOptions.length) {
         <Pressable
           className="vx-datetimeinput-timestoggle"
           accessibilityLabel="Show preset times"
@@ -867,8 +867,8 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
         >
           <Icon name="xplat-clock" size={14} />
         </Pressable>
-      ) : null}
-      {props.hasClear && shown != null && !isDisabled && !isBusy ? (
+      }
+      @if (props.hasClear && shown != null && !isDisabled && !isBusy) {
         <Pressable
           className="vx-datetimeinput-clear"
           accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date and time'}`}
@@ -876,14 +876,16 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
         >
           <label text="×" />
         </Pressable>
-      ) : null}
-      {statusText != null ? (
+      }
+      @if (statusText != null) {
         <label
           className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
           text={statusText}
-          accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined}
+          accessibilityLabel={
+            props.statusVariant === 'tooltip' ? props.status?.message : undefined
+          }
         />
-      ) : null}
+      }
     </masonview>
     <Popover
       anchor={anchor}

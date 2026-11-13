@@ -277,9 +277,9 @@ function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: numbe
                 </span>{' '}
                 {child.name}
               </button>
-              {open ? (
+              @if (open) {
                 <GroupView runtime={props.runtime} group={child} depth={props.depth + 1} />
-              ) : null}
+              }
             </div>
           )
         })}
@@ -299,7 +299,9 @@ function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: numbe
           <span className="xw-story-name">
             {entry.title.split('/').pop()?.trim() || entry.title}
           </span>
-          {!entry.load ? <span className="xw-story-badge">unsupported</span> : null}
+          @if (!entry.load) {
+            <span className="xw-story-badge">unsupported</span>
+          }
         </button>
       ))}
     </>
@@ -353,7 +355,7 @@ function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay
             : s.catalog.length}
         </span>
         <span className="xw-spacer" />
-        {props.mode === 'overlay' ? (
+        @if (props.mode === 'overlay') {
           <button
             type="button"
             className="xw-btn xw-close"
@@ -362,7 +364,7 @@ function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay
           >
             ×
           </button>
-        ) : null}
+        }
       </div>
       <div className="xw-search-wrap">
         <input
@@ -487,7 +489,9 @@ function ControlField(props: {
           commit(option as never)
         }}
       >
-        {!isSet ? <option value="">(unset)</option> : null}
+        @if (!isSet) {
+          <option value="">(unset)</option>
+        }
         {(control.options ?? []).map((o: unknown) => (
           <option key={String(o)} value={String(o)}>
             {String(o)}
@@ -546,12 +550,12 @@ function ControlField(props: {
           {key}
         </label>
         {field}
-        {unsettable && isSet ? (
+        @if (unsettable && isSet) {
           <button type="button" className="xw-btn xw-unset" onClick={() => commit(UNSET)}>
             Unset
           </button>
-        ) : null}
-        {!isSet && key in (props.definition.args ?? {}) ? (
+        }
+        @if (!isSet && key in (props.definition.args ?? {})) {
           <button
             type="button"
             className="xw-btn"
@@ -559,13 +563,13 @@ function ControlField(props: {
           >
             Default
           </button>
-        ) : null}
+        }
       </div>
-      {error ? (
+      @if (error) {
         <div className="xw-field-error" role="alert">
           {error}
         </div>
-      ) : null}
+      }
     </div>
   )
 }
@@ -583,7 +587,7 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
     >
       <div className="xw-panel-head">
         <span className="xw-panel-title">Controls</span>
-        {props.mode === 'overlay' ? (
+        @if (props.mode === 'overlay') {
           <button
             type="button"
             className="xw-btn xw-close"
@@ -592,7 +596,7 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
           >
             ×
           </button>
-        ) : null}
+        }
       </div>
       <div className="xw-panel-body">
         <div className="xw-section-title">Properties</div>
@@ -702,7 +706,7 @@ function StageView(props: { runtime: WorkshopRuntime }) {
             }
           }}
         />
-        {s.missingId ? (
+        @if (s.missingId) {
           <div className="xw-stage-note xw-error" role="alert">
             <p>
               Story <code>{s.missingId}</code> was not found in the catalog.
@@ -719,10 +723,12 @@ function StageView(props: { runtime: WorkshopRuntime }) {
               Browse stories
             </button>
           </div>
-        ) : null}
-        {session.phase === 'preparing' ||
-        session.phase === 'mounting' ||
-        session.phase === 'disposing' ? (
+        }
+        @if (
+          session.phase === 'preparing' ||
+          session.phase === 'mounting' ||
+          session.phase === 'disposing'
+        ) {
           <div className="xw-stage-note" role="status">
             {session.phase === 'preparing'
               ? 'Preparing fixtures…'
@@ -730,23 +736,23 @@ function StageView(props: { runtime: WorkshopRuntime }) {
                 ? 'Mounting…'
                 : 'Disposing…'}
           </div>
-        ) : null}
-        {session.phase === 'rebuilding' && !s.missingId ? (
+        }
+        @if (session.phase === 'rebuilding' && !s.missingId) {
           <div className="xw-stage-note xw-subtle" role="status">
             Rebuilding — remounting latest successful revision…
           </div>
-        ) : null}
-        {session.phase === 'failed' && failure ? (
+        }
+        @if (session.phase === 'failed' && failure) {
           <div className="xw-stage-note xw-error" role="alert">
             <p className="xw-error-title">
               {failure.phase} error{failure.storyId ? ` — ${failure.storyId}` : ''}
             </p>
             <pre className="xw-error-detail">{failure.message}</pre>
-            {failure.cause !== undefined ? (
+            @if (failure.cause !== undefined) {
               <pre className="xw-error-detail">{describeCause(failure.cause)}</pre>
-            ) : null}
+            }
             <div className="xw-error-actions">
-              {failure.phase === 'fixture' ? (
+              @if (failure.phase === 'fixture') {
                 <button
                   type="button"
                   className="xw-btn"
@@ -754,7 +760,7 @@ function StageView(props: { runtime: WorkshopRuntime }) {
                 >
                   Retry
                 </button>
-              ) : null}
+              }
               <button
                 type="button"
                 className="xw-btn"
@@ -766,14 +772,14 @@ function StageView(props: { runtime: WorkshopRuntime }) {
                 Reset
               </button>
             </div>
-            {session.stale ? (
+            @if (session.stale) {
               <p className="xw-subtle">
                 The last successful stage remains mounted and is marked stale.
               </p>
-            ) : null}
+            }
           </div>
-        ) : null}
-        {session.phase === 'restart-required' ? (
+        }
+        @if (session.phase === 'restart-required') {
           <div className="xw-stage-note xw-error" role="alert">
             <p className="xw-error-title">Restart required</p>
             <pre className="xw-error-detail">
@@ -783,17 +789,17 @@ function StageView(props: { runtime: WorkshopRuntime }) {
               Restart the workshop target (`xplat workshop dev`) to continue.
             </p>
           </div>
-        ) : null}
-        {session.phase === 'disconnected' ? (
+        }
+        @if (session.phase === 'disconnected') {
           <div className="xw-stage-note" role="status">
             Dev server disconnected — reconnecting…
           </div>
-        ) : null}
-        {session.stale && session.phase !== 'failed' ? (
+        }
+        @if (session.stale && session.phase !== 'failed') {
           <div className="xw-stale-badge" role="status">
             stale
           </div>
-        ) : null}
+        }
       </div>
     </main>
   )
@@ -927,19 +933,19 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
     <div className={`xw-root xw-${s.mode}`} ref={attachRoot}>
       <StatusBar runtime={props.runtime} />
       <div className="xw-body">
-        {s.mode === 'wide' && !s.catalogCollapsed ? (
+        @if (s.mode === 'wide' && !s.catalogCollapsed) {
           <CatalogPanel runtime={props.runtime} mode="wide" />
-        ) : null}
+        }
         <StageView runtime={props.runtime} />
-        {s.mode === 'wide' && !s.controlsCollapsed ? (
+        @if (s.mode === 'wide' && !s.controlsCollapsed) {
           <ControlsPanel runtime={props.runtime} mode="wide" />
-        ) : null}
-        {s.mode !== 'wide' && s.auxPanel === 'stories' ? (
+        }
+        @if (s.mode !== 'wide' && s.auxPanel === 'stories') {
           <CatalogPanel runtime={props.runtime} mode="overlay" />
-        ) : null}
-        {s.mode !== 'wide' && s.auxPanel === 'controls' ? (
+        }
+        @if (s.mode !== 'wide' && s.auxPanel === 'controls') {
           <ControlsPanel runtime={props.runtime} mode="overlay" />
-        ) : null}
+        }
       </div>
       <div className="xw-live" aria-live="polite" role="status">
         {s.session.phase === 'failed' ? 'Error: ' + String(s.session.failure?.message ?? '') : ''}

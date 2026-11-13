@@ -48,14 +48,14 @@ export function Icons(props: {
       registry={createIconRegistryForSource(props.remote)}
       size={20}
     />
-    {props.showRaw ? (
+    @if (props.showRaw) {
       <svgview
         id="raw-picture"
         src={props.dropRaw ? undefined : props.source}
         stretch="aspectFit"
         style={{ width: 40, height: 30 }}
       />
-    ) : null}
+    }
   </View>
 }
 

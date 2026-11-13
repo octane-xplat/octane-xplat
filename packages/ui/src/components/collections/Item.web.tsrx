@@ -37,21 +37,29 @@ function ItemView(props: ItemProps) @{
     accessibilityHint={props.accessibilityHint}
     accessibilityState={{ ...props.accessibilityState, selected: props.isSelected }}
   >
-    {props.startContent != null ? <StartContent>{props.startContent}</StartContent> : null}
-    {props.label != null || props.description != null ? (
+    @if (props.startContent != null) {
+      <StartContent>{props.startContent}</StartContent>
+    }
+    @if (props.label != null || props.description != null) {
       <Content>
-        {props.label != null ? <Text className="vx-item-title">{props.label}</Text> : null}
-        {props.description != null ? (
+        @if (props.label != null) {
+          <Text className="vx-item-title">{props.label}</Text>
+        }
+        @if (props.description != null) {
           <Description
-            className={props.descriptionLines != null ? 'vx-item-desc--clamp' : undefined}
+            className={
+              props.descriptionLines != null ? 'vx-item-desc--clamp' : undefined
+            }
           >
             {props.description}
           </Description>
-        ) : null}
+        }
       </Content>
-    ) : null}
+    }
     {props.children}
-    {props.endContent != null ? <EndContent>{props.endContent}</EndContent> : null}
+    @if (props.endContent != null) {
+      <EndContent>{props.endContent}</EndContent>
+    }
   </Pressable>
 }
 

@@ -133,11 +133,14 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
                 : ''
         }
       />
-      {state.status === 'error' ? (
-        <Pressable onPress={() => props.controller.search(state.query)} accessibilityLabel="Retry">
+      @if (state.status === 'error') {
+        <Pressable
+          onPress={() => props.controller.search(state.query)}
+          accessibilityLabel="Retry"
+        >
           <label text="Retry" />
         </Pressable>
-      ) : null}
+      }
       <scrollview className="vx-cmdk-list" style={{ height: options.maxHeight ?? 320 }}>
         <masonview
           className="vx-menu-list"
@@ -148,9 +151,9 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
               accessibilityLabel={group.heading ?? undefined}
               style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
             >
-              {group.heading != null ? (
+              @if (group.heading != null) {
                 <label className="vx-cmdk-heading" text={group.heading} />
-              ) : null}
+              }
               @for (const item of group.items; key item.id) {
                 <Pressable
                   ref={(view: any) => {
@@ -178,7 +181,9 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
                     props.options.renderItem(item, item.id === state.selected)
                   ) : (
                     <>
-                      {item.icon ? <Icon name={item.icon} /> : null}
+                      @if (item.icon) {
+                        <Icon name={item.icon} />
+                      }
                       <masonview
                         className="vx-cmdk-item-content"
                         style={mergeStyle(
@@ -187,16 +192,19 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
                         )}
                       >
                         <label className="vx-menu-item-label" text={item.label} />
-                        {item.description ? (
+                        @if (item.description) {
                           <label
                             className="vx-cmdk-description"
                             text={item.description}
                           />
-                        ) : null}
+                        }
                       </masonview>
-                      {item.shortcut ? (
-                        <label className="vx-cmdk-shortcut" text={item.shortcut} />
-                      ) : null}
+                      @if (item.shortcut) {
+                        <label
+                          className="vx-cmdk-shortcut"
+                          text={item.shortcut}
+                        />
+                      }
                     </>
                   )}
                 </Pressable>
@@ -205,11 +213,14 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
           }
         </masonview>
       </scrollview>
-      {props.options.footer != null && props.options.footer !== false ? (
+      @if (
+        props.options.footer != null &&
+        props.options.footer !== false
+      ) {
         <masonview className="vx-cmdk-footer" style={{ display: 'flex' }}>
           {props.options.footer}
         </masonview>
-      ) : null}
+      }
     </masonview>
   </LayerDepthProvider>
 }

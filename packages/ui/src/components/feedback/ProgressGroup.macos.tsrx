@@ -16,9 +16,9 @@ export function ProgressGroup(props: ProgressGroupProps): unknown @{
     @for (const item of props.items; key item.key) {
       <masonview className="vx-progressgroup-row" style={{ display: 'flex' }}>
         <Meter value={item.value} max={item.max} accessibilityLabel={item.label} />
-        {item.label != null ? (
+        @if (item.label != null) {
           <label className="vx-progressgroup-label" text={item.label} />
-        ) : null}
+        }
       </masonview>
     }
   </masonview>

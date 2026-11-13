@@ -33,7 +33,9 @@ function NavigationMenuRow(props: {
     aria-current={link.selected ? 'page' : undefined}
     onClick={link.activateWeb}
   >
-    {item.icon ? <Icon name={item.icon} size={16} /> : null}
+    @if (item.icon) {
+      <Icon name={item.icon} size={16} />
+    }
     {item.label}
   </Element>
 }

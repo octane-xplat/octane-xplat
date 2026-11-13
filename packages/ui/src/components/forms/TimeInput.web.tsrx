@@ -444,7 +444,7 @@ function TimeInputControl(inputProps: CoreProps) @{
           onKeyDown={handleKeyDown}
         />
       )}
-      {canClear ? (
+      @if (canClear) {
         <button
           type="button"
           className="vx-timeinput-clear"
@@ -453,8 +453,10 @@ function TimeInputControl(inputProps: CoreProps) @{
         >
           {'×'}
         </button>
-      ) : null}
-      {isBusy ? <ActivityIndicator busy className="vx-timeinput-spinner" /> : null}
+      }
+      @if (isBusy) {
+        <ActivityIndicator busy className="vx-timeinput-spinner" />
+      }
       <TimeStatusGlyph status={props.status} variant={props.statusVariant} />
     </div>
   )

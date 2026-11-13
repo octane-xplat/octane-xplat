@@ -36,7 +36,7 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
         ) : (
           <Icon name="xplat-doc-image" size={20} />
         )}
-        {isLoading && props.src != null ? (
+        @if (isLoading && props.src != null) {
           <masonview
             style={mergeStyle(
               { justifyContent: 'center', alignItems: 'center' },
@@ -45,8 +45,8 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
           >
             <ActivityIndicator busy={true} style={{ width: 16, height: 16 }} />
           </masonview>
-        ) : null}
-        {isRenderable(props.onRemove) ? (
+        }
+        @if (isRenderable(props.onRemove)) {
           <masonview
             className={cx('vx-thumbnail-remove')}
             style={mergeStyle(
@@ -58,7 +58,13 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
               },
               mergeStyle(
                 { display: 'flex' },
-                { borderRadius: 8, margin: 2, backgroundColor: '#0a0a0a', width: 16, height: 16 },
+                {
+                  borderRadius: 8,
+                  margin: 2,
+                  backgroundColor: '#0a0a0a',
+                  width: 16,
+                  height: 16,
+                },
               ),
             )}
             accessible={true}
@@ -72,7 +78,7 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
           >
             <Icon name="xplat-clear" size={10} color="#ffffff" />
           </masonview>
-        ) : null}
+        }
       </>
     )
 

@@ -146,8 +146,8 @@ export function Popover(props: PopoverProps): unknown @{
   }
 
   <>
-    {open && anchor ? (
+    @if (open && anchor) {
       <PopoverLayer {...props} open={open} anchorView={anchor} onDismiss={requestDismiss} />
-    ) : null}
+    }
   </>
 }

@@ -563,11 +563,11 @@ export function WorkItemDetailTemplate() @{
                               <Text type="body" weight="semibold">
                                 {entry.author}
                               </Text>
-                              {!isComment ? (
+                              @if (!isComment) {
                                 <Text type="supporting" color="secondary">
                                   {entry.body}
                                 </Text>
-                              ) : null}
+                              }
                               <StackItem size="fill" />
                               <Timestamp
                                 value={Date.parse(entry.time)}
@@ -577,7 +577,7 @@ export function WorkItemDetailTemplate() @{
                                 color="secondary"
                               />
                             </HStack>
-                            {isComment ? (
+                            @if (isComment) {
                               <>
                                 <Card variant="muted" padding={3}>
                                   <Text type="body">{entry.body}</Text>
@@ -586,7 +586,7 @@ export function WorkItemDetailTemplate() @{
                                   Reply
                                 </Link>
                               </>
-                            ) : null}
+                            }
                           </VStack>
                         </StackItem>
                       </HStack>

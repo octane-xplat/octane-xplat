@@ -30,7 +30,9 @@ export function ColorField(props: ColorFieldProps): unknown @{
   }
 
   <masonview className={cx('vx-color-field', props.className)} style={props.style}>
-    {props.label ? <Text className="vx-color-field-label">{props.label}</Text> : null}
+    @if (props.label) {
+      <Text className="vx-color-field-label">{props.label}</Text>
+    }
     <TextInput
       id={props.id}
       testID={props.testID}

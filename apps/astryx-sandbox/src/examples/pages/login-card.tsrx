@@ -127,13 +127,13 @@ export function LoginCardTemplate() @{
                     : undefined
                 }
               />
-              {loginFailed ? (
+              @if (loginFailed) {
                 <VStack hAlign="end">
                   <Link href="#" color="secondary">
                     Forgot password?
                   </Link>
                 </VStack>
-              ) : null}
+              }
             </VStack>
           </VStack>
 

@@ -58,7 +58,7 @@ export function SelectView(props: SelectViewProps): unknown @{
         className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}
         text={props.triggerText}
       />
-      {props.hasClear && props.selected.length && !blocked ? (
+      @if (props.hasClear && props.selected.length && !blocked) {
         <Pressable
           className="vx-select-clear"
           disabled={props.pending}
@@ -67,13 +67,17 @@ export function SelectView(props: SelectViewProps): unknown @{
         >
           <Icon name="xplat-clear" size={12} />
         </Pressable>
-      ) : null}
-      {busy ? (
-        <label className="vx-select-loading" text="Loading…" accessibilityLiveRegion={'polite'} />
-      ) : null}
-      {!props.isReadOnly ? (
+      }
+      @if (busy) {
+        <label
+          className="vx-select-loading"
+          text="Loading…"
+          accessibilityLiveRegion={'polite'}
+        />
+      }
+      @if (!props.isReadOnly) {
         <Icon name="xplat-chevron-down" className="vx-select-caret" size={14} />
-      ) : null}
+      }
     </Pressable>
     <Popover
       anchor={anchor}
@@ -82,7 +86,7 @@ export function SelectView(props: SelectViewProps): unknown @{
       onDismiss={() => props.onOpenChange(false)}
       className="vx-menu"
     >
-      {props.searchable ? (
+      @if (props.searchable) {
         <masonview
           className="vx-select-search-row"
           style={mergeStyle({ flexDirection: 'row' }, { display: 'flex' })}
@@ -108,7 +112,7 @@ export function SelectView(props: SelectViewProps): unknown @{
               onChange={props.onQueryChange}
             />
           </FieldProvider>
-          {props.query ? (
+          @if (props.query) {
             <Pressable
               className="vx-select-search-clear"
               accessibilityLabel="Clear search"
@@ -119,10 +123,10 @@ export function SelectView(props: SelectViewProps): unknown @{
             >
               <Icon name="xplat-clear" size={12} />
             </Pressable>
-          ) : null}
+          }
         </masonview>
-      ) : null}
-      {props.multiple && props.hasSelectAll ? (
+      }
+      @if (props.multiple && props.hasSelectAll) {
         <Pressable
           id={props.id ? `${props.id}-select-all` : undefined}
           className="vx-select-all"
@@ -133,7 +137,7 @@ export function SelectView(props: SelectViewProps): unknown @{
           <MultiInd state={props.selectAllState} />
           <label text={props.selectAllLabel ?? 'Select all'} />
         </Pressable>
-      ) : null}
+      }
       <label
         className="vx-select-feedback"
         text={props.announcement}
@@ -151,14 +155,14 @@ export function SelectView(props: SelectViewProps): unknown @{
           className="vx-menu-list vx-select-list"
           style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
         >
-          {!props.shown.length && !busy ? (
+          @if (!props.shown.length && !busy) {
             <label className="vx-select-empty" text={props.emptyText} />
-          ) : null}
+          }
           @for (const group of props.groups; index gi; key gi) {
             <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
-              {group.heading != null ? (
+              @if (group.heading != null) {
                 <label className="vx-select-group" text={group.heading} />
-              ) : null}
+              }
               @for (const option of group.options; key option.value) {
                 <masonview
                   id={props.id ? `${props.id}-option-${option.value}` : undefined}
@@ -205,12 +209,12 @@ export function SelectView(props: SelectViewProps): unknown @{
                       className="vx-menu-item-label"
                       text={option.label ?? option.value}
                     />
-                    {option.description ? (
+                    @if (option.description) {
                       <label
                         className="vx-select-description"
                         text={option.description}
                       />
-                    ) : null}
+                    }
                   </masonview>
                 </masonview>
               }

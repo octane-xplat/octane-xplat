@@ -30,11 +30,11 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
     className="vx-typeahead-endlane"
     style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
   >
-    {isBusy ? (
+    @if (isBusy) {
       <masonview className="vx-typeahead-spinner" style={{ display: 'flex' }}>
         <ActivityIndicator busy={true} />
       </masonview>
-    ) : null}
+    }
     {props.clear}
   </masonview>
 }
@@ -151,7 +151,7 @@ export function Typeahead<T extends SearchableItem>(inProps: TypeaheadProps<T>):
             ref={forwardedRef}
           />
         </BusyLaneProvider>
-        {showToken && props.value ? (
+        @if (showToken && props.value) {
           <Token
             label={props.value.label}
             size={size}
@@ -159,7 +159,7 @@ export function Typeahead<T extends SearchableItem>(inProps: TypeaheadProps<T>):
             isDisabled={props.isDisabled}
             className="vx-typeahead-token"
           />
-        ) : null}
+        }
       </masonview>
       <EndLane
         lane={busyLane}

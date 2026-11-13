@@ -14,7 +14,9 @@ export function FieldGroup(props: FieldGroupProps): unknown @{
     accessibilityRole="group"
     accessibilityLabel={props.label}
   >
-    {props.label != null ? <label className="vx-fieldgroup-label" text={props.label} /> : null}
+    @if (props.label != null) {
+      <label className="vx-fieldgroup-label" text={props.label} />
+    }
     {props.children}
   </masonview>
 }

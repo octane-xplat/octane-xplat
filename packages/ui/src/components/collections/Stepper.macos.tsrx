@@ -23,7 +23,7 @@ export function Stepper(props: StepperProps): unknown @{
           { display: 'flex' },
         )}
       >
-        {e.i > 0 ? (
+        @if (e.i > 0) {
           <masonview
             className={cx('vx-stepper-line', e.i <= current && 'vx-stepper-line--done')}
             style={mergeStyle(
@@ -35,7 +35,7 @@ export function Stepper(props: StepperProps): unknown @{
               },
             )}
           />
-        ) : null}
+        }
         <masonview
           className={cx(
             'vx-step',
@@ -69,9 +69,13 @@ export function Stepper(props: StepperProps): unknown @{
             )}
             text={e.i < current ? '✓' : String(e.i + 1)}
           />
-          {e.step.label != null ? (
-            <label className="vx-step-label" style={{ marginLeft: 6 }} text={e.step.label} />
-          ) : null}
+          @if (e.step.label != null) {
+            <label
+              className="vx-step-label"
+              style={{ marginLeft: 6 }}
+              text={e.step.label}
+            />
+          }
         </masonview>
       </masonview>
     }

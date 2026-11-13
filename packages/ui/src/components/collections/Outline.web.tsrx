@@ -267,13 +267,13 @@ export function Outline(props: OutlineProps): JSX.Element @{
     role="navigation"
   >
     <div className="vx-outline-track" role="list" onKeyDown={onKeyDown}>
-      {indicator ? (
+      @if (indicator) {
         <span
           className="vx-outline-indicator"
           aria-hidden="true"
           style={{ transform: `translateY(${indicator.top}px)`, height: indicator.height }}
         />
-      ) : null}
+      }
       {items.map((item) => {
         const isActive = item.id === activeId
 

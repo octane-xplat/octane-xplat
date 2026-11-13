@@ -20,7 +20,7 @@ export default function DateTimeDraftProbe() {
         before the date, then clear it. Check picker/keyboard/save interaction separately. The
         runner synthesizes no OS events.
       </Text>
-      {mounted ? (
+      @if (mounted) {
         <DateTimeInput
           id="datetime-draft-preview"
           label="Appointment"
@@ -39,7 +39,7 @@ export default function DateTimeDraftProbe() {
             })
           }
         />
-      ) : null}
+      }
       <Button
         label="Finish save"
         onPress={() => {

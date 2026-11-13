@@ -50,7 +50,9 @@ function TriggerMenuItems(props: TriggerMenuItemsProps) @{
 
   @for (const group of groupChatItems(props.state.items); index groupIndex; key groupIndex) {
     <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
-      {group.heading ? <label className="vx-chattrig-heading" text={group.heading} /> : null}
+      @if (group.heading) {
+        <label className="vx-chattrig-heading" text={group.heading} />
+      }
       @for (const item of group.items; key item.id) {
         const idx = flatIndex++
 

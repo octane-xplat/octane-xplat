@@ -23,12 +23,12 @@ export function Chip(props: ChipProps): unknown @{
     android={props.android}
   >
     {props.children}
-    {props.onRemove ? (
+    @if (props.onRemove) {
       <label
         className="vx-chip-remove"
         text="✕"
         onTap={props.disabled ? undefined : props.onRemove}
       />
-    ) : null}
+    }
   </Pressable>
 }

@@ -64,7 +64,9 @@ export function ComplexSelectorView<Value>(
               : String(props.value)
         }
       />
-      {props.isLoading || pending ? <ActivityIndicator busy={true} /> : null}
+      @if (props.isLoading || pending) {
+        <ActivityIndicator busy={true} />
+      }
     </Pressable>
   )
 

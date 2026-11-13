@@ -135,7 +135,9 @@ export function AppShell(props: AppShellProps): JSX.Element @{
         ]}
         role="banner"
       >
-        {hasBanner ? <div className="vx-appshell-banner">{props.banner}</div> : null}
+        @if (hasBanner) {
+          <div className="vx-appshell-banner">{props.banner}</div>
+        }
         {topNavContent}
       </div>
     ) : null
@@ -177,11 +179,11 @@ export function AppShell(props: AppShellProps): JSX.Element @{
         {headerContent}
         {autoMobileTopBar}
         <div className="vx-appshell-middle">
-          {showSideNavInline ? (
+          @if (showSideNavInline) {
             <div className={['vx-appshell-sidenav', 'vx-appshell-sidenav--' + variant]}>
               {props.sideNav}
             </div>
-          ) : null}
+          }
           <div
             id={MAIN_CONTENT_ID}
             className="vx-appshell-content"
@@ -201,18 +203,24 @@ export function AppShell(props: AppShellProps): JSX.Element @{
       </div>
 
       {shouldRenderConfigContent ? mobileNavConfigContent : null}
-      {isBelowBreakpoint && !mobileNavDisabled && !mobileNavConfigContent ? (
+      @if (
+        isBelowBreakpoint &&
+        !mobileNavDisabled &&
+        !mobileNavConfigContent
+      ) {
         <>
-          {hasSideNav && !hasTopNav ? (
-            <SideNavRenderProvider value="drawer">{props.sideNav}</SideNavRenderProvider>
-          ) : null}
-          {hasTopNav ? (
+          @if (hasSideNav && !hasTopNav) {
+            <SideNavRenderProvider value="drawer">
+              {props.sideNav}
+            </SideNavRenderProvider>
+          }
+          @if (hasTopNav) {
             <TopNavMobileContentProvider value={drawerMobileContentValue}>
               <TopNavRenderProvider value="drawer">{props.topNav}</TopNavRenderProvider>
             </TopNavMobileContentProvider>
-          ) : null}
+          }
         </>
-      ) : null}
+      }
     </div>
   </AppShellMobileProvider>
 }

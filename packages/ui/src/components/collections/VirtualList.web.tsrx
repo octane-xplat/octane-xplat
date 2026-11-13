@@ -592,11 +592,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
                 <div className="vx-virtual-list-item">
                   {props.renderItem(entry.item, entry.index)}
                 </div>
-                {hasSeparator && entry.index < entries.length - 1 ? (
+                @if (
+                  hasSeparator &&
+                  entry.index < entries.length - 1
+                ) {
                   <div className="vx-virtual-list-separator">
                     {props.renderSeparator?.()}
                   </div>
-                ) : null}
+                }
               </>
             }
           </div>

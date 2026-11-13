@@ -78,13 +78,13 @@ export function ChartLines(props: {
 
         return (
           <g key={si}>
-            {s.area ? (
+            @if (s.area) {
               <polygon
                 points={`${pad},${h - pad} ${shifted} ${SVG_W - pad},${h - pad}`}
                 fill={s.color}
                 fill-opacity="0.12"
               />
-            ) : null}
+            }
             <polyline
               points={shifted}
               fill="none"

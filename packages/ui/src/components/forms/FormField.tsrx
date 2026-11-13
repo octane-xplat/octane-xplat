@@ -65,7 +65,7 @@ export function FormField(props: FormFieldProps): unknown @{
             }
           }}
         />
-        {props.labelTooltip != null ? (
+        @if (props.labelTooltip != null) {
           <Tooltip
             trigger={
               <Pressable
@@ -80,7 +80,7 @@ export function FormField(props: FormFieldProps): unknown @{
             content={props.labelTooltip}
             placement="top"
           />
-        ) : null}
+        }
       </masonview>
     )
 

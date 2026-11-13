@@ -31,7 +31,9 @@ export default function ToolbarProbe() {
         endContent={
           <VStack>
             <ToggleButton id="toolbar-pin" label="Pin" />
-            {shown ? <Button label="Share" onPress={() => setResult('share')} /> : null}
+            @if (shown) {
+              <Button label="Share" onPress={() => setResult('share')} />
+            }
             <Toolbar
               label="Nested actions"
               startContent={<Button label="Nested action" onPress={() => setResult('nested')} />}

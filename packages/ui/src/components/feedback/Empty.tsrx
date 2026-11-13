@@ -20,20 +20,23 @@ export function Empty(props: EmptyProps): unknown @{
         props.icon
       )
     ) : null}
-    {props.title != null ? (
-      <label className="vx-empty-title" text={typeof props.title === 'string' ? props.title : ''} />
-    ) : null}
-    {props.description != null ? (
+    @if (props.title != null) {
+      <label
+        className="vx-empty-title"
+        text={typeof props.title === 'string' ? props.title : ''}
+      />
+    }
+    @if (props.description != null) {
       <label
         className="vx-empty-desc"
         text={typeof props.description === 'string' ? props.description : ''}
       />
-    ) : null}
+    }
     {typeof props.title === 'string' ? null : props.title}
     {typeof props.description === 'string' ? null : props.description}
     {props.children}
-    {props.actions != null ? (
+    @if (props.actions != null) {
       <masonview className="vx-empty-actions">{props.actions}</masonview>
-    ) : null}
+    }
   </masonview>
 }

@@ -21,7 +21,7 @@ export default function ImageLoadingProbe() {
           className={['image-frame', { selected: second }]}
           style={{ width: 48, height: 48 }}
         />
-        {second ? (
+        @if (second) {
           <Image
             id="image-second"
             src={pixel}
@@ -30,7 +30,7 @@ export default function ImageLoadingProbe() {
             contentFit="contain"
             style={{ width: 48, height: 48 }}
           />
-        ) : null}
+        }
       </HStack>
       <Button
         id="toggle-image"

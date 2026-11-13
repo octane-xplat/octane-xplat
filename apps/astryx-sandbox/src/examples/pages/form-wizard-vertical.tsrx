@@ -398,7 +398,7 @@ export function FormWizardVerticalTemplate() @{
             </Text>
           </VStack>
 
-          {step === 0 ? (
+          @if (step === 0) {
             <FormLayout defaultOptionality="optional">
               <TextInput
                 label="Display name"
@@ -425,7 +425,9 @@ export function FormWizardVerticalTemplate() @{
                 value={bio}
                 onChange={(v) => setBio(v ?? '')}
                 status={
-                  currentErrors.bio ? { type: 'error', message: currentErrors.bio } : undefined
+                  currentErrors.bio
+                    ? { type: 'error', message: currentErrors.bio }
+                    : undefined
                 }
               />
               <TextInput
@@ -435,9 +437,9 @@ export function FormWizardVerticalTemplate() @{
                 placeholder="you.com"
               />
             </FormLayout>
-          ) : null}
+          }
 
-          {step === 1 ? (
+          @if (step === 1) {
             <FormLayout defaultOptionality="optional">
               <TextInput
                 label="Book title"
@@ -445,7 +447,9 @@ export function FormWizardVerticalTemplate() @{
                 value={title}
                 onChange={(v) => setTitle(v ?? '')}
                 status={
-                  currentErrors.title ? { type: 'error', message: currentErrors.title } : undefined
+                  currentErrors.title
+                    ? { type: 'error', message: currentErrors.title }
+                    : undefined
                 }
               />
               <VStack gap={2}>
@@ -497,9 +501,13 @@ export function FormWizardVerticalTemplate() @{
                     </VStack>
                   )}
                 </Field>
-                {currentErrors.cover ? (
-                  <FieldStatus type="error" variant="detached" message={currentErrors.cover} />
-                ) : null}
+                @if (currentErrors.cover) {
+                  <FieldStatus
+                    type="error"
+                    variant="detached"
+                    message={currentErrors.cover}
+                  />
+                }
               </VStack>
               <TextInput
                 label="Subtitle"
@@ -549,7 +557,9 @@ export function FormWizardVerticalTemplate() @{
                 value={blurb}
                 onChange={(v) => setBlurb(v ?? '')}
                 status={
-                  currentErrors.blurb ? { type: 'error', message: currentErrors.blurb } : undefined
+                  currentErrors.blurb
+                    ? { type: 'error', message: currentErrors.blurb }
+                    : undefined
                 }
               />
               <MultiSelector
@@ -567,9 +577,9 @@ export function FormWizardVerticalTemplate() @{
                 }
               />
             </FormLayout>
-          ) : null}
+          }
 
-          {step === 2 ? (
+          @if (step === 2) {
             <FormLayout defaultOptionality="optional">
               <RadioList
                 label="Where the book is sold"
@@ -592,7 +602,7 @@ export function FormWizardVerticalTemplate() @{
                   description="Higher royalty share for 12 months of exclusivity."
                 />
               </RadioList>
-              {scope === 'selected' ? (
+              @if (scope === 'selected') {
                 <MultiSelector
                   label="Territories"
                   options={TERRITORIES}
@@ -605,7 +615,7 @@ export function FormWizardVerticalTemplate() @{
                       : undefined
                   }
                 />
-              ) : null}
+              }
               <FormLayout direction="horizontal" defaultOptionality="optional">
                 <DateInput
                   label="Release date"
@@ -675,9 +685,9 @@ export function FormWizardVerticalTemplate() @{
                 labelSpacing="spread"
               />
             </FormLayout>
-          ) : null}
+          }
 
-          {step === 3 ? (
+          @if (step === 3) {
             <FormLayout defaultOptionality="optional">
               <Card padding={4}>
                 <HStack gap={3} vAlign="center" wrap="wrap">
@@ -704,9 +714,13 @@ export function FormWizardVerticalTemplate() @{
                   />
                 </HStack>
               </Card>
-              {currentErrors.stripe ? (
-                <FieldStatus type="error" variant="detached" message={currentErrors.stripe} />
-              ) : null}
+              @if (currentErrors.stripe) {
+                <FieldStatus
+                  type="error"
+                  variant="detached"
+                  message={currentErrors.stripe}
+                />
+              }
               <Selector
                 label="Payout currency"
                 options={CURRENCIES}
@@ -736,9 +750,9 @@ export function FormWizardVerticalTemplate() @{
                 ))}
               </CheckboxList>
             </FormLayout>
-          ) : null}
+          }
 
-          {step === 4 ? (
+          @if (step === 4) {
             <FormLayout defaultOptionality="optional">
               <VStack gap={4}>
                 <VStack gap={2}>
@@ -762,7 +776,10 @@ export function FormWizardVerticalTemplate() @{
                   >
                     {title.trim() || '—'}
                   </MetadataListItem>
-                  <MetadataListItem label="Author" icon={<Icon name="sandbox-user" size={16} />}>
+                  <MetadataListItem
+                    label="Author"
+                    icon={<Icon name="sandbox-user" size={16} />}
+                  >
                     {penName.trim() || authorName.trim() || '—'}
                   </MetadataListItem>
                   <MetadataListItem
@@ -777,7 +794,10 @@ export function FormWizardVerticalTemplate() @{
                   >
                     {LANGUAGES.find((l) => l.value === language)?.label ?? language}
                   </MetadataListItem>
-                  <MetadataListItem label="Categories" icon={<Icon name="sandbox-tag" size={16} />}>
+                  <MetadataListItem
+                    label="Categories"
+                    icon={<Icon name="sandbox-tag" size={16} />}
+                  >
                     {categories.length === 0
                       ? '—'
                       : CATEGORIES.filter((c) => categories.includes(c.value))
@@ -826,23 +846,26 @@ export function FormWizardVerticalTemplate() @{
                     value={isConfirmed}
                     onChange={(v) => setIsConfirmed(v ?? '')}
                   />
-                  {currentErrors.confirm ? (
-                    <Text type="supporting" style={{ color: 'var(--color-text-error, #d92d20)' }}>
+                  @if (currentErrors.confirm) {
+                    <Text
+                      type="supporting"
+                      style={{ color: 'var(--color-text-error, #d92d20)' }}
+                    >
                       {currentErrors.confirm}
                     </Text>
-                  ) : null}
+                  }
                 </VStack>
               </VStack>
             </FormLayout>
-          ) : null}
+          }
 
-          {isSubmitted ? (
+          @if (isSubmitted) {
             <Banner
               status="success"
               title="Sent for review"
               description="The book enters the review queue now. Metadata stays editable while it is reviewed."
             />
-          ) : null}
+          }
         </VStack>
       </LayoutContent>
     }

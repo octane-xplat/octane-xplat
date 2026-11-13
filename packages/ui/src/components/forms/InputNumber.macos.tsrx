@@ -134,7 +134,7 @@ function InputNumberControl(
       busy: props.isLoading,
     }}
   >
-    {props.hasNumberSteppers !== false ? (
+    @if (props.hasNumberSteppers !== false) {
       <Pressable
         className="vx-inputnumber-step"
         disabled={isBlocked}
@@ -143,7 +143,7 @@ function InputNumberControl(
       >
         <Icon name="xplat-minus" size={14} />
       </Pressable>
-    ) : null}
+    }
     <TextInput
       ref={input}
       id={props.inputID}
@@ -163,8 +163,10 @@ function InputNumberControl(
       value={value == null ? '' : props.formatValue ? props.formatValue(value) : String(value)}
       onChange={(text: string) => request({ kind: 'edit', text })}
     />
-    {props.units != null ? <label className="vx-inputnumber-units" text={props.units} /> : null}
-    {props.hasNumberSteppers !== false ? (
+    @if (props.units != null) {
+      <label className="vx-inputnumber-units" text={props.units} />
+    }
+    @if (props.hasNumberSteppers !== false) {
       <Pressable
         className="vx-inputnumber-step"
         disabled={isBlocked}
@@ -173,8 +175,8 @@ function InputNumberControl(
       >
         <Icon name="xplat-plus" size={14} />
       </Pressable>
-    ) : null}
-    {props.hasClear && value != null && !isBlocked ? (
+    }
+    @if (props.hasClear && value != null && !isBlocked) {
       <Pressable
         className="vx-inputnumber-clear"
         accessibilityLabel="Clear value"
@@ -182,7 +184,7 @@ function InputNumberControl(
       >
         <Icon name="xplat-clear" size={12} />
       </Pressable>
-    ) : null}
+    }
   </masonview>
 }
 

@@ -23,8 +23,12 @@ export function User(props: UserProps): JSX.Element @{
   >
     <Avatar src={props.src} fallback={props.fallback} alt={props.name} size={props.size} />
     <div className="vx-user-body">
-      {props.name != null ? <span className="vx-user-name">{props.name}</span> : null}
-      {props.description != null ? <span className="vx-user-desc">{props.description}</span> : null}
+      @if (props.name != null) {
+        <span className="vx-user-name">{props.name}</span>
+      }
+      @if (props.description != null) {
+        <span className="vx-user-desc">{props.description}</span>
+      }
     </div>
   </div>
 }

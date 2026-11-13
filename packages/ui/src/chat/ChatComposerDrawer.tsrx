@@ -36,7 +36,7 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps): unknown @{
     className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
-    {canCollapse ? (
+    @if (canCollapse) {
       <masonview
         className="vx-chatdrawer-toggle"
         accessibilityRole={nativeAccessibilityRole('button')}
@@ -51,7 +51,10 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps): unknown @{
         {isCollapsed ? (
           <masonview
             className="vx-chatdrawer-summary"
-            style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+            style={mergeStyle(
+              { flexDirection: 'row', alignItems: 'center' },
+              { display: 'flex' },
+            )}
           >
             {props.collapsedSummary === undefined ? (
               <>
@@ -68,14 +71,14 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps): unknown @{
           <masonview className="vx-chatdrawer-handle" style={{ display: 'flex' }} />
         )}
       </masonview>
-    ) : null}
-    {!(canCollapse && isCollapsed) ? (
+    }
+    @if (!(canCollapse && isCollapsed)) {
       <masonview
         className="vx-chatdrawer-inner"
         style={mergeStyle({ flexDirection: 'row', flexWrap: 'wrap' }, { display: 'flex' })}
       >
         {props.children}
       </masonview>
-    ) : null}
+    }
   </masonview>
 }

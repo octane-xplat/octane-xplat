@@ -25,7 +25,7 @@ export function Chip(props: ChipProps): JSX.Element @{
     web={props.web}
   >
     {props.children}
-    {props.onRemove ? (
+    @if (props.onRemove) {
       <span
         className="vx-chip-remove"
         role="button"
@@ -39,6 +39,6 @@ export function Chip(props: ChipProps): JSX.Element @{
       >
         ✕
       </span>
-    ) : null}
+    }
   </Pressable>
 }

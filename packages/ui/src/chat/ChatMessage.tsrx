@@ -42,11 +42,11 @@ export function ChatMessage(props: ChatMessageProps): unknown @{
         props.accessibilityLabel ?? (!hasName ? `Message from ${props.sender}` : undefined)
       }
     >
-      {hasAvatar && !isUser ? (
+      @if (hasAvatar && !isUser) {
         <masonview className="vx-chatmsg-avatar" style={{ display: 'flex' }}>
           {props.avatar}
         </masonview>
-      ) : null}
+      }
       <masonview
         className={cx('vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`)}
         style={mergeStyle(
@@ -58,11 +58,11 @@ export function ChatMessage(props: ChatMessageProps): unknown @{
           { display: 'flex' },
         )}
       >
-        {hasName ? (
+        @if (hasName) {
           <masonview className="vx-chatmsg-name" style={{ display: 'flex' }}>
             {props.name}
           </masonview>
-        ) : null}
+        }
         <masonview
           className={cx(
             'vx-chatmsg-children',
@@ -79,17 +79,17 @@ export function ChatMessage(props: ChatMessageProps): unknown @{
         >
           {props.children}
         </masonview>
-        {hasMetadata ? (
+        @if (hasMetadata) {
           <masonview className="vx-chatmsg-meta" style={{ display: 'flex' }}>
             {props.metadata}
           </masonview>
-        ) : null}
+        }
       </masonview>
-      {hasAvatar && isUser ? (
+      @if (hasAvatar && isUser) {
         <masonview className="vx-chatmsg-avatar" style={{ display: 'flex' }}>
           {props.avatar}
         </masonview>
-      ) : null}
+      }
     </masonview>
   </ChatMessageProvider>
 }

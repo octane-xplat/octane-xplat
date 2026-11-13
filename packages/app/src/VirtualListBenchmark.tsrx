@@ -101,7 +101,9 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
     <Text id="vlist-bench-status" className="text-sm text-muted">
       {status}
     </Text>
-    {result ? <Text className="text-sm text-muted">{'Result: ' + result}</Text> : null}
+    @if (result) {
+      <Text className="text-sm text-muted">{'Result: ' + result}</Text>
+    }
     <VirtualList
       id="vlist-bench-list"
       ref={(handle: VirtualListHandle | null) => {

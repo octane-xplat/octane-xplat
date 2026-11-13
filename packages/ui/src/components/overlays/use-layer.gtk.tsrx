@@ -89,7 +89,7 @@ export function useLayer<O extends LayerOptions>(
 
       return (
         <>
-          {visible ? (
+          @if (visible) {
             <LayerPopover
               open={visible}
               anchor={fixed ? markerEl : anchorEl}
@@ -120,7 +120,7 @@ export function useLayer<O extends LayerOptions>(
             >
               {children}
             </LayerPopover>
-          ) : null}
+          }
           {fixed && (
             <masonview
               ref={(v: any) => {

@@ -29,11 +29,15 @@ export function Tooltips(props: {
 }) @{
   <Context value={props.value}>
     <View id="tooltip-root" style={{ width: 280, height: 900 }}>
-      {(props.show ?? true) ? (
+      @if (props.show ?? true) {
         <Tooltip
           id="tip-anchor"
           trigger={
-            <textfield id="tip-entry" text="Hover or focus" style={{ width: 200, height: 36 }} />
+            <textfield
+              id="tip-entry"
+              text="Hover or focus"
+              style={{ width: 200, height: 36 }}
+            />
           }
           content={<Content />}
           contentClassName="tip-custom"
@@ -43,7 +47,7 @@ export function Tooltips(props: {
           disabled={props.disabled}
           placement={props.placement}
         />
-      ) : null}
+      }
       <Tooltip
         id="plain-anchor"
         trigger={<button id="plain-button" text="Plain trigger" />}

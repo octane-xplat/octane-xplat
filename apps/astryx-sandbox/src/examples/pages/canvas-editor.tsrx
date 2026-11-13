@@ -618,7 +618,7 @@ export function CanvasEditorTemplate() @{
           />
         </HStack>
       </InspectorSection>
-      {selected.kind === 'text' ? (
+      @if (selected.kind === 'text') {
         <>
           <InspectorSection title="Content">
             <TextInput
@@ -671,8 +671,16 @@ export function CanvasEditorTemplate() @{
                 <input
                   type="color"
                   value={selected.color ?? '#ffffff'}
-                  onChange={(e) => updateSelected({ color: (e.target as HTMLInputElement).value })}
-                  style={{ width: 32, height: 24, padding: 0, border: 'none', background: 'none' }}
+                  onChange={(e) =>
+                    updateSelected({ color: (e.target as HTMLInputElement).value })
+                  }
+                  style={{
+                    width: 32,
+                    height: 24,
+                    padding: 0,
+                    border: 'none',
+                    background: 'none',
+                  }}
                 />
                 <TextInput
                   label="Text color"
@@ -726,8 +734,8 @@ export function CanvasEditorTemplate() @{
             />
           </InspectorSection>
         </>
-      ) : null}
-      {selected.kind === 'image' ? (
+      }
+      @if (selected.kind === 'image') {
         <InspectorSection title="Adjustments">
           {(
             [
@@ -761,7 +769,7 @@ export function CanvasEditorTemplate() @{
             />
           ))}
         </InspectorSection>
-      ) : null}
+      }
       <InspectorSection title="Shadow">
         <ShadowFields shadow={selected.shadow} onChange={(shadow) => updateSelected({ shadow })} />
       </InspectorSection>

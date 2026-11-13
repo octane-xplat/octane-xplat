@@ -29,7 +29,9 @@ export function ChatSystemMessage(props: ChatSystemMessageProps): JSX.Element @{
       role="status"
     >
       <span className="vx-chatsys-content">
-        {props.icon != null ? <span className="vx-chatsys-icon">{props.icon}</span> : null}
+        @if (props.icon != null) {
+          <span className="vx-chatsys-icon">{props.icon}</span>
+        }
         {props.children}
       </span>
     </div>

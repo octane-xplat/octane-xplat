@@ -135,7 +135,7 @@ function ArtifactActions(props: { onClose?: () => void }) @{
       isIconOnly
       onPress={() => {}}
     />
-    {props.onClose != null ? (
+    @if (props.onClose != null) {
       <Button
         label="Close document"
         variant="ghost"
@@ -144,7 +144,7 @@ function ArtifactActions(props: { onClose?: () => void }) @{
         isIconOnly
         onPress={props.onClose}
       />
-    ) : null}
+    }
   </>
 }
 
@@ -426,13 +426,13 @@ export function AIChatTemplate() @{
         ) : undefined
       }
     />
-    {isNarrow ? (
+    @if (isNarrow) {
       <Dialog isOpen={isArtifactDialogOpen} onOpenChange={setIsArtifactDialogOpen}>
         <DialogHeader title={ARTIFACT_TITLE} onOpenChange={setIsArtifactDialogOpen} />
         <LayoutContent>
           <ArtifactBody />
         </LayoutContent>
       </Dialog>
-    ) : null}
+    }
   </>
 }

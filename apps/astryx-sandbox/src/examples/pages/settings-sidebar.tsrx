@@ -118,7 +118,9 @@ function InfoRowItem(props: InfoRow) @{
           {props.value}
         </Text>
       </VStack>
-      {props.action ? <Link href="#">{props.action}</Link> : null}
+      @if (props.action) {
+        <Link href="#">{props.action}</Link>
+      }
     </HStack>
     <Divider />
   </>
@@ -277,15 +279,17 @@ export function SettingsSidebarTemplate() @{
     content={
       <LayoutContent padding={isNarrow ? 4 : 8}>
         <VStack gap={6}>
-          {activeNav === 'Login & security' ? (
+          @if (activeNav === 'Login & security') {
             <VStack gap={6}>
-              {!isNarrow ? <Heading level={2}>Login &amp; security</Heading> : null}
+              @if (!isNarrow) {
+                <Heading level={2}>Login &amp; security</Heading>
+              }
               <TabList value={activeTab} onChange={(v) => setActiveTab(v ?? '')} hasDivider>
                 <Tab value="login" label="Login" />
                 <Tab value="shared" label="Shared access" />
               </TabList>
 
-              {activeTab === 'login' ? (
+              @if (activeTab === 'login') {
                 <VStack gap={8}>
                   <VStack gap={0}>
                     <Heading level={3}>Login</Heading>
@@ -313,14 +317,18 @@ export function SettingsSidebarTemplate() @{
                               <Text type="body" weight="semibold">
                                 {device.label}
                               </Text>
-                              {device.badge ? <Badge label={device.badge} /> : null}
+                              @if (device.badge) {
+                                <Badge label={device.badge} />
+                              }
                             </HStack>
                             <Text type="supporting" color="secondary">
                               {device.location}
                             </Text>
                           </VStack>
                         </StackItem>
-                        {device.action ? <Link href="#">{device.action}</Link> : null}
+                        @if (device.action) {
+                          <Link href="#">{device.action}</Link>
+                        }
                       </HStack>
                     ))}
                     <Divider />
@@ -342,17 +350,17 @@ export function SettingsSidebarTemplate() @{
                     <Divider />
                   </VStack>
                 </VStack>
-              ) : null}
+              }
 
-              {activeTab === 'shared' ? (
+              @if (activeTab === 'shared') {
                 <VStack gap={8}>
                   <VStack gap={2}>
                     <Heading level={3}>Shared access</Heading>
                     <Divider />
                     <Text type="body" color="secondary">
-                      Review each request carefully before approving access. We&apos;ll email your
-                      employee or co-worker a 4-digit code that lets them log into your account with
-                      their trusted device.
+                      Review each request carefully before approving access. We&apos;ll
+                      email your employee or co-worker a 4-digit code that lets them log
+                      into your account with their trusted device.
                     </Text>
                   </VStack>
                   <Card variant="muted">
@@ -365,21 +373,23 @@ export function SettingsSidebarTemplate() @{
                           Adding devices from people you trust
                         </Text>
                         <Text type="body" color="secondary">
-                          When you approve a request, you grant someone full access to your account.
-                          They&apos;ll be able to change reservations and send messages on your
-                          behalf.
+                          When you approve a request, you grant someone full access to
+                          your account. They&apos;ll be able to change reservations and
+                          send messages on your behalf.
                         </Text>
                       </VStack>
                     </HStack>
                   </Card>
                 </VStack>
-              ) : null}
+              }
             </VStack>
-          ) : null}
+          }
 
-          {activeNav === 'Languages & currency' ? (
+          @if (activeNav === 'Languages & currency') {
             <VStack gap={6}>
-              {!isNarrow ? <Heading level={2}>Languages &amp; currency</Heading> : null}
+              @if (!isNarrow) {
+                <Heading level={2}>Languages &amp; currency</Heading>
+              }
               <VStack gap={0}>
                 {expandable(
                   'Language',
@@ -419,11 +429,13 @@ export function SettingsSidebarTemplate() @{
                 )}
               </VStack>
             </VStack>
-          ) : null}
+          }
 
-          {activeNav === 'Personal information' ? (
+          @if (activeNav === 'Personal information') {
             <VStack gap={6}>
-              {!isNarrow ? <Heading level={2}>Personal info</Heading> : null}
+              @if (!isNarrow) {
+                <Heading level={2}>Personal info</Heading>
+              }
               <VStack gap={0}>
                 {expandable(
                   'Legal name',
@@ -505,11 +517,13 @@ export function SettingsSidebarTemplate() @{
                 )}
               </VStack>
             </VStack>
-          ) : null}
+          }
 
-          {activeNav === 'Privacy' ? (
+          @if (activeNav === 'Privacy') {
             <VStack gap={6}>
-              {!isNarrow ? <Heading level={2}>Privacy</Heading> : null}
+              @if (!isNarrow) {
+                <Heading level={2}>Privacy</Heading>
+              }
               <VStack gap={8}>
                 <VStack gap={0}>
                   <Heading level={3}>Messages</Heading>
@@ -620,8 +634,8 @@ export function SettingsSidebarTemplate() @{
                           Committed to privacy
                         </Text>
                         <Text type="supporting" color="secondary">
-                          We&apos;re committed to keeping your data protected. See details in our{' '}
-                          <Link href="#">Privacy Policy</Link>.
+                          We&apos;re committed to keeping your data protected. See details in
+                          our <Link href="#">Privacy Policy</Link>.
                         </Text>
                       </VStack>
                     </HStack>
@@ -629,7 +643,7 @@ export function SettingsSidebarTemplate() @{
                 </VStack>
               </VStack>
             </VStack>
-          ) : null}
+          }
         </VStack>
       </LayoutContent>
     }

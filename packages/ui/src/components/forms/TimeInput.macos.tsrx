@@ -305,7 +305,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
           invalid: props.status?.type === 'error' || !isPendingValid,
         }}
       />
-      {props.hasClear && shown != null && !isDisabled && !isBusy ? (
+      @if (props.hasClear && shown != null && !isDisabled && !isBusy) {
         <Pressable
           className="vx-timeinput-clear"
           accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'time'}`}
@@ -323,14 +323,16 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
         >
           <label text="×" />
         </Pressable>
-      ) : null}
-      {statusText != null ? (
+      }
+      @if (statusText != null) {
         <label
           className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
           text={statusText}
-          accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined}
+          accessibilityLabel={
+            props.statusVariant === 'tooltip' ? props.status?.message : undefined
+          }
         />
-      ) : null}
+      }
     </masonview>
   )
 

@@ -222,7 +222,7 @@ export function Chart(props: ChartProps): JSX.Element @{
             {l.text}
           </div>
         ))}
-        {cursor && props.crosshair && !scene?.pie && plot ? (
+        @if (cursor && props.crosshair && !scene?.pie && plot) {
           <div
             style={{
               position: 'absolute',
@@ -234,8 +234,8 @@ export function Chart(props: ChartProps): JSX.Element @{
               pointerEvents: 'none',
             }}
           />
-        ) : null}
-        {cursor && (props.crosshair || props.tooltip) ? (
+        }
+        @if (cursor && (props.crosshair || props.tooltip)) {
           <div
             style={{
               position: 'absolute',
@@ -248,8 +248,8 @@ export function Chart(props: ChartProps): JSX.Element @{
               pointerEvents: 'none',
             }}
           />
-        ) : null}
-        {cursor && props.tooltip && tipText ? (
+        }
+        @if (cursor && props.tooltip && tipText) {
           <div
             style={{
               position: 'absolute',
@@ -266,7 +266,7 @@ export function Chart(props: ChartProps): JSX.Element @{
           >
             {tipText}
           </div>
-        ) : null}
+        }
       </div>
     </div>
     {legend === 'bottom' && scene ? legendRow(scene.legend, 'bottom') : null}

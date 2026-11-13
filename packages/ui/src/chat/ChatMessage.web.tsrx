@@ -35,13 +35,15 @@ export function ChatMessage(props: ChatMessageProps): JSX.Element @{
       aria-label={!hasName ? `Message from ${props.sender}` : undefined}
       aria-labelledby={hasName ? nameId : undefined}
     >
-      {hasAvatar ? <div className="vx-chatmsg-avatar">{props.avatar}</div> : null}
+      @if (hasAvatar) {
+        <div className="vx-chatmsg-avatar">{props.avatar}</div>
+      }
       <div className={['vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`]}>
-        {hasName ? (
+        @if (hasName) {
           <div id={nameId} className="vx-chatmsg-name">
             {props.name}
           </div>
-        ) : null}
+        }
         <div
           className={[
             'vx-chatmsg-children',
@@ -51,7 +53,9 @@ export function ChatMessage(props: ChatMessageProps): JSX.Element @{
         >
           {props.children}
         </div>
-        {hasMetadata ? <div className="vx-chatmsg-meta">{props.metadata}</div> : null}
+        @if (hasMetadata) {
+          <div className="vx-chatmsg-meta">{props.metadata}</div>
+        }
       </div>
     </article>
   </ChatMessageProvider>

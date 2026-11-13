@@ -102,7 +102,9 @@ export function MoreMenu(props: MoreMenuProps): JSX.Element @{
                 item.onSelect?.()
               }}
             >
-              {item.icon ? <Icon name={item.icon} /> : null}
+              @if (item.icon) {
+                <Icon name={item.icon} />
+              }
               {item.label}
             </MenuItemView>
           ))}

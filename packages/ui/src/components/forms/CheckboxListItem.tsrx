@@ -75,14 +75,14 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
           (props.label as any)
         )
       ) : null}
-      {props.description != null ? (
+      @if (props.description != null) {
         <label className="vx-checkbox-description" text={props.description} textWrap />
-      ) : null}
+      }
     </masonview>
-    {props.endContent != null ? (
+    @if (props.endContent != null) {
       <masonview className="vx-checkbox-end" style={{ display: 'flex' }}>
         {props.endContent}
       </masonview>
-    ) : null}
+    }
   </masonview>
 }

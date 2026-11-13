@@ -492,7 +492,7 @@ export function ThemePalettePreview(props: ThemePalettePreviewProps) @{
       >
         <View style={{ maxWidth: 1400, marginLeft: 'auto', marginRight: 'auto' }}>
           <Heading level={1}>{props.title}</Heading>
-          {props.subtitle ? (
+          @if (props.subtitle) {
             <Text
               style={{
                 fontSize: 13,
@@ -503,7 +503,7 @@ export function ThemePalettePreview(props: ThemePalettePreviewProps) @{
             >
               {props.subtitle}
             </Text>
-          ) : null}
+          }
           {modes.map((m) => (
             <Theme key={m} theme={props.theme} mode={m}>
               <View

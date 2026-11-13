@@ -33,7 +33,7 @@ export default function VideoProbe() {
           setSource(draft)
         }}
       />
-      {shown ? (
+      @if (shown) {
         <Video
           id="appkit-video"
           ref={player}
@@ -55,7 +55,7 @@ export default function VideoProbe() {
           }}
           onMutedChange={(next) => report(`muted: ${next}`)}
         />
-      ) : null}
+      }
       <Button label="Play / retry" onPress={() => player.current?.play()} />
       <Button label="Pause" onPress={() => player.current?.pause()} />
       <Button label="Seek to one second" onPress={() => player.current?.seekTo(1000)} />

@@ -80,7 +80,7 @@ function Toolbar(p: {
         />
       </masonview>
       <masonview style={{ display: 'flex' }} className="xw-toolbar-actions">
-        {!s.stageOnly ? (
+        @if (!s.stageOnly) {
           <>
             <ChromeButton
               text="Stories"
@@ -100,7 +100,7 @@ function Toolbar(p: {
             />
             <masonview style={{ display: 'flex' }} className="xw-toolbar-divider" />
           </>
-        ) : null}
+        }
         <ChromeButton
           text="Reset"
           accessibilityLabel="Reset story"
@@ -174,14 +174,14 @@ function CatalogGroup(p: {
                 p.controller.store.update((v) => ({ ...v, collapsedGroups: next }))
               }}
             />
-            {open ? (
+            @if (open) {
               <CatalogGroup
                 controller={p.controller}
                 prefix={name}
                 items={members}
                 query={p.query}
               />
-            ) : null}
+            }
           </masonview>
         )
       })}
@@ -238,9 +238,11 @@ function CatalogPanel(p: {
       </masonview>
       <scrollview className="xw-panel-scroll">
         <masonview style={{ display: 'flex' }} className="xw-catalog-body">
-          {s.catalogError ? <label className="xw-error" text={s.catalogError} textWrap /> : null}
+          @if (s.catalogError) {
+            <label className="xw-error" text={s.catalogError} textWrap />
+          }
           <CatalogGroup controller={p.controller} prefix="" items={entries} query={query} />
-          {!entries.length ? (
+          @if (!entries.length) {
             <label
               className="xw-empty"
               text={
@@ -250,7 +252,7 @@ function CatalogPanel(p: {
               }
               textWrap
             />
-          ) : null}
+          }
         </masonview>
       </scrollview>
     </masonview>
@@ -285,7 +287,7 @@ function ControlsPanel(p: {
       <scrollview className="xw-panel-scroll">
         <masonview style={{ display: 'flex' }} className="xw-inspector-body">
           <label className="xw-section-title" text="Properties" />
-          {!controls.length ? (
+          @if (!controls.length) {
             <label
               className="xw-empty"
               text={
@@ -295,7 +297,7 @@ function ControlsPanel(p: {
               }
               textWrap
             />
-          ) : null}
+          }
           {controls.map(([key, control]) => {
             const spec: ControlSpec = control
 
@@ -352,23 +354,27 @@ function ControlsPanel(p: {
                       />
                     </>
                   )}
-                  {story && isUnsettable(story, key) && key in currentProps ? (
+                  @if (
+                    story &&
+                    isUnsettable(story, key) &&
+                    key in currentProps
+                  ) {
                     <ChromeButton
                       text="Unset"
                       accessibilityLabel={`Unset ${key}`}
                       disabled={disabled}
                       onPress={() => commit(key, UNSET)}
                     />
-                  ) : null}
+                  }
                 </masonview>
-                {s.errors[key] ? (
+                @if (s.errors[key]) {
                   <label
                     className="xw-error"
                     text={s.errors[key]}
                     accessibilityLabel={s.errors[key]}
                     textWrap
                   />
-                ) : null}
+                }
               </masonview>
             )
           })}
@@ -414,21 +420,25 @@ function ControlsPanel(p: {
               expanded={showHost}
               onPress={() => setShowHost(!showHost)}
             />
-            {showHost ? (
+            @if (showHost) {
               <masonview style={{ display: 'flex' }} className="xw-host-details">
                 <label
                   className="xw-meta"
                   text={`${p.target} · experimental host, not runtime-qualified`}
                   textWrap
                 />
-                <label className="xw-meta" text={s.selectedId ?? 'No story selected'} textWrap />
-                {story?.capabilities?.length ? (
+                <label
+                  className="xw-meta"
+                  text={s.selectedId ?? 'No story selected'}
+                  textWrap
+                />
+                @if (story?.capabilities?.length) {
                   <label
                     className="xw-meta"
                     text={`Requires ${story.capabilities.join(', ')}. Selection does not grant permissions.`}
                     textWrap
                   />
-                ) : null}
+                }
                 <label className="xw-meta" text="Other targets open in a separate host." />
                 {WORKSHOP_TARGETS.map((target) => {
                   const selected = s.catalog.find((e) => e.id === s.selectedId)
@@ -437,7 +447,7 @@ function ControlsPanel(p: {
                   return <label key={target} className="xw-meta" text={text} textWrap />
                 })}
               </masonview>
-            ) : null}
+            }
           </masonview>
         </masonview>
       </scrollview>
@@ -541,7 +551,7 @@ export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
         }}
       />
       <masonview style={{ display: 'flex', position: 'relative' }} className="xw-body">
-        {showCatalog ? (
+        @if (showCatalog) {
           <masonview
             key="catalog"
             style={{
@@ -560,7 +570,7 @@ export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
               onClose={() => closePanel('stories')}
             />
           </masonview>
-        ) : null}
+        }
         <masonview
           key="preview"
           className="xw-stage-wrap"
@@ -589,7 +599,7 @@ export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
                 }}
               />
             </masonview>
-            {notice ? (
+            @if (notice) {
               <masonview
                 style={{
                   display: 'flex',
@@ -610,10 +620,10 @@ export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
                   />
                 </masonview>
               </masonview>
-            ) : null}
+            }
           </masonview>
         </masonview>
-        {showControls ? (
+        @if (showControls) {
           <masonview
             key="controls"
             style={{
@@ -630,7 +640,7 @@ export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
               onClose={() => closePanel('controls')}
             />
           </masonview>
-        ) : null}
+        }
       </masonview>
     </masonview>
   )

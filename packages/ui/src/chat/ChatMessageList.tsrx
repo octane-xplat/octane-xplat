@@ -100,20 +100,20 @@ export function ChatMessageList(props: ChatMessageListProps): unknown @{
         className="vx-chatlist-inner"
         style={mergeStyle({ flexDirection: 'column', flexGrow: 1, gap: gap }, { display: 'flex' })}
       >
-        {isLoadingTop ? (
+        @if (isLoadingTop) {
           <masonview
             className="vx-chatlist-loading"
             style={mergeStyle({ justifyContent: 'center' }, { display: 'flex' })}
           >
             <ActivityIndicator />
           </masonview>
-        ) : null}
-        {props.align !== 'top' ? (
+        }
+        @if (props.align !== 'top') {
           <masonview
             className="vx-chatlist-spacer"
             style={mergeStyle({ flexGrow: 1 }, { display: 'flex' })}
           />
-        ) : null}
+        }
         {hasMessages ? (
           props.messages!.map((m) => (
             <masonview

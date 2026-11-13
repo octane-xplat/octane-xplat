@@ -24,7 +24,7 @@ export default function FocusScopeProbe() {
         probe does not create another window.
       </Text>
       <Button id="scope-trigger" label="Edit details" onPress={() => setOpen(true)} />
-      {open ? (
+      @if (open) {
         <FocusScope id="scope" contain autoFocus restoreFocus accessibilityLabel="Details">
           <TextInput id="scope-first" label="Name" />
           <TextInput id="scope-disabled" label="Disabled field" isDisabled />
@@ -34,7 +34,7 @@ export default function FocusScopeProbe() {
             label="Open nested editor"
             onPress={() => setNested(true)}
           />
-          {nested ? (
+          @if (nested) {
             <FocusScope
               id="scope-nested"
               contain
@@ -57,7 +57,7 @@ export default function FocusScopeProbe() {
                 }}
               />
             </FocusScope>
-          ) : null}
+          }
           <Button
             id="scope-close"
             label="Close"
@@ -67,7 +67,7 @@ export default function FocusScopeProbe() {
             }}
           />
         </FocusScope>
-      ) : null}
+      }
     </VStack>
   )
 }

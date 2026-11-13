@@ -29,7 +29,9 @@ export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps): unkn
       onPress={props.onPress}
     >
       <Icon name="xplat-chevron-down" size={16} />
-      {props.label ? <label className="vx-chatscroll-label" text={props.label} /> : null}
+      @if (props.label) {
+        <label className="vx-chatscroll-label" text={props.label} />
+      }
     </Pressable>
   </masonview>
 }

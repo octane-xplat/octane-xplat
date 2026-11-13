@@ -190,7 +190,12 @@ function RangeControl(inputProps: DateRangeInputProps) @{
           <label className="vx-daterangeinput-text" text={displayText || 'Select a date range'} />
         </masonview>
       </Pressable>
-      {(props.hasClear ?? true) && shown != null && !isDisabled && !isBusy ? (
+      @if (
+        (props.hasClear ?? true) &&
+        shown != null &&
+        !isDisabled &&
+        !isBusy
+      ) {
         <Pressable
           className="vx-daterangeinput-clear"
           accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date range'}`}
@@ -198,14 +203,16 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         >
           <label text="×" />
         </Pressable>
-      ) : null}
-      {statusText != null ? (
+      }
+      @if (statusText != null) {
         <label
           className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
           text={statusText}
-          accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined}
+          accessibilityLabel={
+            props.statusVariant === 'tooltip' ? props.status?.message : undefined
+          }
         />
-      ) : null}
+      }
     </masonview>
     <Popover
       anchor={anchor}
@@ -218,7 +225,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         className="vx-daterangeinput-dialog"
         style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
       >
-        {props.presets?.length ? (
+        @if (props.presets?.length) {
           <scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
             <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
               {props.presets.map((preset, index) => (
@@ -261,7 +268,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
               ))}
             </masonview>
           </scrollview>
-        ) : null}
+        }
         <Calendar
           locale={props.locale}
           direction={props.direction}

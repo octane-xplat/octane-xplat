@@ -305,7 +305,7 @@ function DateInputControl(inputProps: DateInputProps) @{
           invalid: props.status?.type === 'error' || !isPendingValid,
         }}
       />
-      {props.hasClear && shown != null && !isDisabled && !isBusy ? (
+      @if (props.hasClear && shown != null && !isDisabled && !isBusy) {
         <Pressable
           className="vx-dateinput-clear"
           accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`}
@@ -317,14 +317,16 @@ function DateInputControl(inputProps: DateInputProps) @{
         >
           <label text="×" />
         </Pressable>
-      ) : null}
-      {statusText != null ? (
+      }
+      @if (statusText != null) {
         <label
           className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
           text={statusText}
-          accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined}
+          accessibilityLabel={
+            props.statusVariant === 'tooltip' ? props.status?.message : undefined
+          }
         />
-      ) : null}
+      }
     </masonview>
     <Popover
       anchor={anchor}

@@ -59,11 +59,11 @@ export function List(props: ListProps): unknown @{
       style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
       accessibilityLabel={props.accessibilityLabel}
     >
-      {props.header != null ? (
+      @if (props.header != null) {
         <masonview className="vx-list-header" style={{ display: 'flex' }}>
           {props.header}
         </masonview>
-      ) : null}
+      }
       {mapChildren(items, (child: any, index: number) => (
         <masonview
           className={cx(

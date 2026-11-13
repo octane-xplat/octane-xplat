@@ -48,11 +48,11 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element @{
         <span className={['vx-progressbar-label', isLabelHidden && 'vx-visually-hidden']}>
           {props.label}
         </span>
-        {!isIndeterminate && hasValueLabel ? (
+        @if (!isIndeterminate && hasValueLabel) {
           <span className="vx-progressbar-value" aria-hidden="true">
             {valueText}
           </span>
-        ) : null}
+        }
       </div>
     )}
     <div

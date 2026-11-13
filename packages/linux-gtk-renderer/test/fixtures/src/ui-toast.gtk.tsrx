@@ -104,11 +104,11 @@ export function ToastProbe() @{
       }}
     />
     <Button id="vp-dismiss-c" label="Dismiss C" onPress={() => handles.current.vpc?.dismiss()} />
-    {vp2Mounted ? (
+    @if (vp2Mounted) {
       <ToastViewport position="bottomStart" inset={{ bottom: 60, start: 50 }}>
         <ViewportProbes prefix="in" keep={keep} />
       </ToastViewport>
-    ) : null}
+    }
     <Button id="vp2-toggle" label="Toggle VP2" onPress={() => setVp2Mounted(!vp2Mounted)} />
     <Toast id="inline-toast" type="error" isAutoHide={false} body="inline-toast-body" />
     <Text id="picked">{mark}</Text>

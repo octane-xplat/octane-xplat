@@ -53,11 +53,15 @@ export function RadioListItem(props: RadioListItemProps): JSX.Element @{
       isDisabled={disabled}
     />
     <span className="vx-radio-label-col">
-      {props.label != null ? <span className="vx-radio-label">{props.label}</span> : null}
-      {props.description != null ? (
+      @if (props.label != null) {
+        <span className="vx-radio-label">{props.label}</span>
+      }
+      @if (props.description != null) {
         <span className="vx-radio-description">{props.description}</span>
-      ) : null}
+      }
     </span>
-    {props.endContent != null ? <span className="vx-radio-end">{props.endContent}</span> : null}
+    @if (props.endContent != null) {
+      <span className="vx-radio-end">{props.endContent}</span>
+    }
   </div>
 }

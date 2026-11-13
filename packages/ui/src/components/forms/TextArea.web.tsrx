@@ -128,11 +128,11 @@ export function TextArea(inputProps: TextAreaProps): JSX.Element @{
         }
       }}
     >
-      {props.startIcon != null ? (
+      @if (props.startIcon != null) {
         <span className="vx-textarea-icon" aria-hidden="true">
           {props.startIcon}
         </span>
-      ) : null}
+      }
       <textarea
         ref={(node: any) => {
           el.current = node
@@ -201,7 +201,10 @@ export function TextArea(inputProps: TextAreaProps): JSX.Element @{
         onFocus={props.onFocus}
         onBlur={props.onBlur}
       />
-      {props.status && (props.statusVariant ?? 'attached') === 'attached' ? (
+      @if (
+        props.status &&
+        (props.statusVariant ?? 'attached') === 'attached'
+      ) {
         <span className="vx-textarea-status">
           <span className="vx-input-status-icon" aria-hidden="true">
             <svg
@@ -220,13 +223,13 @@ export function TextArea(inputProps: TextAreaProps): JSX.Element @{
             </svg>
           </span>
         </span>
-      ) : null}
-      {props.maxLength != null ? (
+      }
+      @if (props.maxLength != null) {
         <span
           className="vx-textarea-counter"
           aria-hidden="true"
         >{`${value.length}/${props.maxLength}`}</span>
-      ) : null}
+      }
     </div>
   )
 

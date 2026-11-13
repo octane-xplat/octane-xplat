@@ -50,7 +50,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
         mergeStyle({ display: 'flex' }, { flexDirection: 'column', ...styleRecord(props.style) }),
       )}
     >
-      {props.title != null ? (
+      @if (props.title != null) {
         <masonview style={mergeStyle({ display: 'flex' }, { marginBottom: 12 })}>
           {typeof props.title === 'string' || typeof props.title === 'number' ? (
             <label whiteSpace="normal" style={{ fontWeight: 600 }}>
@@ -60,7 +60,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
             props.title
           )}
         </masonview>
-      ) : null}
+      }
       {isHorizontal ? (
         <masonview
           className="flex-row"
@@ -73,7 +73,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
           {visibleChildren}
         </Grid>
       )}
-      {isExceedMax ? (
+      @if (isExceedMax) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={isShowAll ? 'Show less' : 'Show more'}
@@ -86,7 +86,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
             {isShowAll ? 'Show less' : 'Show more'}
           </label>
         </Pressable>
-      ) : null}
+      }
     </masonview>
   </MetadataListProvider>
 }

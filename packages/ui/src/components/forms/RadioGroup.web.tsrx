@@ -96,12 +96,16 @@ export function RadioGroup(inputProps: RadioGroupProps): JSX.Element @{
             isDisabled={disabled}
           />
           <span className="vx-radio-label-col">
-            {opt.label != null ? <span className="vx-radio-label">{opt.label}</span> : null}
-            {opt.description != null ? (
+            @if (opt.label != null) {
+              <span className="vx-radio-label">{opt.label}</span>
+            }
+            @if (opt.description != null) {
               <span className="vx-radio-description">{opt.description}</span>
-            ) : null}
+            }
           </span>
-          {opt.endContent != null ? <span className="vx-radio-end">{opt.endContent}</span> : null}
+          @if (opt.endContent != null) {
+            <span className="vx-radio-end">{opt.endContent}</span>
+          }
         </div>
       )
     })}

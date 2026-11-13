@@ -96,13 +96,17 @@ export function ChatMessageList(props: ChatMessageListProps): JSX.Element @{
       style={props.style}
     >
       <div ref={innerRef} className="vx-chatlist-inner" style={{ gap: `${gap}px` }}>
-        {props.scrollToTopAction ? <div ref={sentinelRef} aria-hidden="true" /> : null}
-        {isLoadingTop ? (
+        @if (props.scrollToTopAction) {
+          <div ref={sentinelRef} aria-hidden="true" />
+        }
+        @if (isLoadingTop) {
           <div className="vx-chatlist-loading">
             <ActivityIndicator />
           </div>
-        ) : null}
-        {props.align !== 'top' ? <div className="vx-chatlist-spacer" aria-hidden="true" /> : null}
+        }
+        @if (props.align !== 'top') {
+          <div className="vx-chatlist-spacer" aria-hidden="true" />
+        }
         {hasMessages ? (
           props.messages!.map((m) => (
             <div key={chatMessageKey(m)} ref={markChatRow} className="vx-chatlist-message">

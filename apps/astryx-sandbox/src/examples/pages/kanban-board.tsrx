@@ -425,6 +425,7 @@ export function KanbanBoardTemplate() @{
             const colItems = itemsByColumn[col.id]
             const dropIndex = drag?.target?.column === col.id ? drag.target.index : -1
             const visibleIds = colItems.filter((it) => it.id !== drag?.id).map((it) => it.id)
+            const showDropLineAtEnd = dropIndex >= 0 && dropIndex === visibleIds.length
 
             return (
               <div
@@ -445,14 +446,14 @@ export function KanbanBoardTemplate() @{
                   </Text>
                 </HStack>
                 <div style={boardStyles.columnBody} title={col.tooltip}>
-                  {colItems.length === 0 && dropIndex < 0 ? (
+                  @if (colItems.length === 0 && dropIndex < 0) {
                     <EmptyState
                       title={col.emptyTitle}
                       description={col.emptyDescription}
                       icon={<Icon name={col.emptyIcon} size={24} color="secondary" />}
                       isCompact
                     />
-                  ) : null}
+                  }
                   {colItems.map((item) => {
                     const idxExcluding = visibleIds.indexOf(item.id)
                     const showLineBefore = dropIndex >= 0 && idxExcluding === dropIndex
@@ -466,7 +467,9 @@ export function KanbanBoardTemplate() @{
                           gap: 'var(--spacing-2)',
                         }}
                       >
-                        {showLineBefore ? <div style={boardStyles.dropLine} /> : null}
+                        @if (showLineBefore) {
+                          <div style={boardStyles.dropLine} />
+                        }
                         <WorkCard
                           item={item}
                           isDraggingSource={drag?.id === item.id}
@@ -482,9 +485,9 @@ export function KanbanBoardTemplate() @{
                       </div>
                     )
                   })}
-                  {dropIndex >= 0 && dropIndex === visibleIds.length ? (
+                  @if (showDropLineAtEnd) {
                     <div style={boardStyles.dropLine} />
-                  ) : null}
+                  }
                 </div>
               </div>
             )

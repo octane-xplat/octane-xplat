@@ -28,7 +28,9 @@ export function ChatLayoutScrollButton(
           onPress={props.onPress}
         >
           <Icon name="xplat-chevron-down" size={16} />
-          {props.label ? <span className="vx-chatscroll-label">{props.label}</span> : null}
+          @if (props.label) {
+            <span className="vx-chatscroll-label">{props.label}</span>
+          }
         </Pressable>
       </div>
     </div>

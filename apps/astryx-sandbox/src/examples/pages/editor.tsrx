@@ -400,7 +400,9 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
               <Text type="supporting" color="secondary">
                 {p.subheading || 'Subtitle text goes here'}
               </Text>
-              {p.buttonLabel ? <Button label={p.buttonLabel} onPress={() => {}} /> : null}
+              @if (p.buttonLabel) {
+                <Button label={p.buttonLabel} onPress={() => {}} />
+              }
             </VStack>
           </div>
         </Card>
@@ -479,11 +481,11 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
           <div onClick={props.onSelect} style={clickable}>
             <VStack gap={3}>
               <Heading level={3}>{p.heading || 'Features'}</Heading>
-              {p.description ? (
+              @if (p.description) {
                 <Text type="supporting" color="secondary">
                   {p.description}
                 </Text>
-              ) : null}
+              }
               <VStack gap={2}>
                 {items.map((item) => (
                   <HStack key={item.id} gap={3} vAlign="center">
@@ -771,13 +773,13 @@ export function EditorTemplate() @{
       content={
         <LayoutContent padding={8}>
           <VStack gap={4} style={canvasStyle(VIEWPORT_MAX[viewport])}>
-            {isMobile ? (
+            @if (isMobile) {
               <Button
                 label="Customize"
                 variant="secondary"
                 onPress={() => setIsCustomizeOpen(true)}
               />
-            ) : null}
+            }
             {blocks.map((block) => (
               <BlockPreview
                 key={block.id}
@@ -786,13 +788,13 @@ export function EditorTemplate() @{
                 onSelect={() => selectBlock(block.id)}
               />
             ))}
-            {blocks.length === 0 ? (
+            @if (blocks.length === 0) {
               <EmptyState
                 title="Empty canvas"
                 description="Add a block from the panel to start building."
                 icon={<Icon name="sandbox-squares-2x2" size={24} color="secondary" />}
               />
-            ) : null}
+            }
           </VStack>
         </LayoutContent>
       }

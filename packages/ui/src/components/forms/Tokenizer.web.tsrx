@@ -54,11 +54,11 @@ function EndLane(props: {
   }
 
   <div className="vx-tokenizer-endlane" ref={props.laneRef}>
-    {isBusy ? (
+    @if (isBusy) {
       <span className="vx-typeahead-spinner" role="status" aria-label="Loading">
         <ActivityIndicator busy={true} />
       </span>
-    ) : null}
+    }
     {props.endContent}
     {props.clear}
   </div>
@@ -457,7 +457,7 @@ export function Tokenizer<T extends SearchableItem>(
     >
       {startIcon}
       {tokens}
-      {isTruncated ? (
+      @if (isTruncated) {
         <span
           ref={(el: any) => {
             overflowRef.current = el
@@ -466,7 +466,7 @@ export function Tokenizer<T extends SearchableItem>(
         >
           {overflowCount > 0 ? `+${overflowCount} more` : ''}
         </span>
-      ) : null}
+      }
       {fieldControls}
       {hiddenInputs}
       <EndLane lane={busyLane} endContent={props.endContent} clear={clearButton} />
@@ -497,7 +497,7 @@ export function Tokenizer<T extends SearchableItem>(
             }
           }}
         >
-          {isTruncated ? (
+          @if (isTruncated) {
             <>
               {startIcon}
               {tokens}
@@ -510,7 +510,7 @@ export function Tokenizer<T extends SearchableItem>(
                 {overflowCount > 0 ? `+${overflowCount} more` : ''}
               </span>
             </>
-          ) : null}
+          }
         </div>
         <Popover
           anchor={wrapperRef}

@@ -37,7 +37,7 @@ export default function TypeaheadFocusProbe() {
         separate gaps. This runner synthesizes no native events.
       </Text>
       <TextInput label="Other editor" placeholder="Move focus here to leave the search field" />
-      {mounted ? (
+      @if (mounted) {
         <BaseTypeahead
           id="typeahead-preview"
           ref={input}
@@ -51,7 +51,7 @@ export default function TypeaheadFocusProbe() {
           accessibilityLabel="Find a person"
           onChangeQuery={(text) => setLast(text)}
         />
-      ) : null}
+      }
       <Button label="Focus search" onPress={() => input.current?.focus()} />
       <Button label="Blur owned search" onPress={() => input.current?.blur()} />
       <Button label="Set query to Ada" onPress={() => input.current?.setQuery('Ada')} />

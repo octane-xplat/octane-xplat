@@ -286,7 +286,9 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
         {displayIcon != null
           ? navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16)
           : null}
-        {showLabel ? <Text className="vx-tab-label">{props.label}</Text> : null}
+        @if (showLabel) {
+          <Text className="vx-tab-label">{props.label}</Text>
+        }
         {props.endContent != null ? props.endContent : null}
       </masonview>
       <masonview
@@ -563,7 +565,9 @@ function AppKitTabMenuOption(props: {
     >
       {props.option.icon != null ? navIcon(props.option.icon, 16) : null}
       <Text className="vx-tabmenu-itemcontent">{props.option.label}</Text>
-      {props.selected ? <Icon name="xplat-check" size={16} /> : null}
+      @if (props.selected) {
+        <Icon name="xplat-check" size={16} />
+      }
     </masonview>
   </Pressable>
 }

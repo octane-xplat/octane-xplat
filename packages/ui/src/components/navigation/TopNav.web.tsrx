@@ -99,11 +99,11 @@ export function TopNav(props: TopNavProps): JSX.Element @{
             {startContent}
           </div>
         </TopNavSlotProvider>
-        {hasCenter ? (
+        @if (hasCenter) {
           <TopNavSlotProvider value="center">
             <div className="vx-topnav-center">{props.centerContent}</div>
           </TopNavSlotProvider>
-        ) : null}
+        }
         <TopNavSlotProvider value="end">
           <div className="vx-topnav-end">{props.endContent}</div>
         </TopNavSlotProvider>
@@ -255,11 +255,11 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
 
   const content = (
     <>
-      {props.icon != null ? (
+      @if (props.icon != null) {
         <span className="vx-topnav-item-icon" aria-hidden="true">
           {navIcon(props.icon)}
         </span>
-      ) : null}
+      }
       {props.isIconOnly
         ? null
         : (props.children ?? <span className="vx-topnav-item-label">{props.label}</span>)}
@@ -488,9 +488,9 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps): JSX.Element @{
         >
           {props.items}
         </MenuSurface>
-        {props.featured != null ? (
+        @if (props.featured != null) {
           <div className="vx-topnavmegamenu-featured">{props.featured}</div>
-        ) : null}
+        }
       </div>
     </Popover>
   </>
@@ -554,19 +554,23 @@ export function TopNavMegaMenuFeaturedCard(
     className={['vx-topnavmegamenu-card', props.className]}
     style={props.style}
   >
-    {props.image != null ? (
-      <img className="vx-topnavmegamenu-card-image" src={props.image} alt={props.imageAlt ?? ''} />
-    ) : null}
+    @if (props.image != null) {
+      <img
+        className="vx-topnavmegamenu-card-image"
+        src={props.image}
+        alt={props.imageAlt ?? ''}
+      />
+    }
     <div className="vx-topnavmegamenu-card-body">
       <Text className="vx-topnavmegamenu-card-title">{props.title}</Text>
-      {props.description != null ? (
+      @if (props.description != null) {
         <Text className="vx-topnavmegamenu-card-desc">{props.description}</Text>
-      ) : null}
-      {props.linkHref != null && props.linkLabel != null ? (
+      }
+      @if (props.linkHref != null && props.linkLabel != null) {
         <a className="vx-topnavmegamenu-card-link" href={props.linkHref}>
           {props.linkLabel}
         </a>
-      ) : null}
+      }
       {props.children}
     </div>
   </div>

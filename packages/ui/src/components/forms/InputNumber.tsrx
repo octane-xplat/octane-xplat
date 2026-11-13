@@ -84,7 +84,7 @@ function InputNumberControl(inputProps: InputNumberProps): unknown @{
       busy: props.isLoading,
     })}
   >
-    {showSteppers ? (
+    @if (showSteppers) {
       <Pressable
         key="decrement"
         className="vx-inputnumber-step"
@@ -95,7 +95,7 @@ function InputNumberControl(inputProps: InputNumberProps): unknown @{
       >
         <label text="−" />
       </Pressable>
-    ) : null}
+    }
     <TextInput
       key="editor"
       id={props.id}
@@ -137,10 +137,10 @@ function InputNumberControl(inputProps: InputNumberProps): unknown @{
         }
       }}
     />
-    {props.units != null ? (
+    @if (props.units != null) {
       <label key="units" className="vx-inputnumber-units" text={props.units} />
-    ) : null}
-    {showSteppers ? (
+    }
+    @if (showSteppers) {
       <Pressable
         key="increment"
         className="vx-inputnumber-step"
@@ -151,8 +151,8 @@ function InputNumberControl(inputProps: InputNumberProps): unknown @{
       >
         <label text="+" />
       </Pressable>
-    ) : null}
-    {props.hasClear && value != null && !isBlocked ? (
+    }
+    @if (props.hasClear && value != null && !isBlocked) {
       <Pressable
         key="clear"
         className="vx-inputnumber-clear"
@@ -162,7 +162,7 @@ function InputNumberControl(inputProps: InputNumberProps): unknown @{
       >
         <label text="×" />
       </Pressable>
-    ) : null}
+    }
   </masonview>
 }
 

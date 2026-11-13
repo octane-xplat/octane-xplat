@@ -26,13 +26,13 @@ export function NavigationBlocking(): Renderable {
           void navigation.back()
         }}
       />
-      {blocker.status === 'blocked' ? (
+      @if (blocker.status === 'blocked') {
         <View className="sink-section">
           <Text>Leave without saving?</Text>
           <Button id="navigation-blocking-keep" label="Keep editing" onPress={blocker.reset} />
           <Button id="navigation-blocking-leave" label="Leave screen" onPress={blocker.proceed} />
         </View>
-      ) : null}
+      }
     </Screen>
   )
 }

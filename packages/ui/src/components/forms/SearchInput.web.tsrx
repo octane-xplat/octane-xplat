@@ -62,9 +62,9 @@ export function SearchInput(props: SearchInputProps): JSX.Element @{
     style={normStyle(props.style)}
     aria-busy={props.isLoading || undefined}
   >
-    {props.icon !== false ? (
+    @if (props.icon !== false) {
       <Icon name={props.icon ?? 'xplat-search'} size={16} className="vx-search-icon" />
-    ) : null}
+    }
     <input
       data-testid={props.testID}
       ref={(el: any) => {
@@ -90,10 +90,15 @@ export function SearchInput(props: SearchInputProps): JSX.Element @{
       onFocus={props.onFocus}
       onBlur={props.onBlur}
     />
-    {value !== '' && hasClear && !isBlocked ? (
-      <button type="button" className="vx-search-clear" aria-label="Clear search" onClick={clear}>
+    @if (value !== '' && hasClear && !isBlocked) {
+      <button
+        type="button"
+        className="vx-search-clear"
+        aria-label="Clear search"
+        onClick={clear}
+      >
         <Icon name="xplat-clear" size={12} />
       </button>
-    ) : null}
+    }
   </div>
 }

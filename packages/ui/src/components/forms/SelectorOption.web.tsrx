@@ -16,16 +16,18 @@ export function SelectorOption(props: SelectorOptionProps): JSX.Element @{
     ]}
     style={props.style}
   >
-    {props.icon != null ? (
+    @if (props.icon != null) {
       <span className="vx-selectoroption-icon" aria-hidden="true">
         {props.icon}
       </span>
-    ) : null}
+    }
     <span className="vx-selectoroption-text">
-      {props.label != null ? <span className="vx-selectoroption-label">{props.label}</span> : null}
-      {props.description != null ? (
+      @if (props.label != null) {
+        <span className="vx-selectoroption-label">{props.label}</span>
+      }
+      @if (props.description != null) {
         <span className="vx-selectoroption-description">{props.description}</span>
-      ) : null}
+      }
     </span>
   </span>
 }

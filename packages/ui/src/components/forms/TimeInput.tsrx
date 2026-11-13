@@ -235,7 +235,7 @@ function TimeInputControl(inputProps: CoreProps) @{
           />
         </Pressable>
       )}
-      {props.hasClear && shown != null && !isDisabled && !isBusy ? (
+      @if (props.hasClear && shown != null && !isDisabled && !isBusy) {
         <Pressable
           className="vx-timeinput-clear"
           accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'time'}`}
@@ -249,14 +249,16 @@ function TimeInputControl(inputProps: CoreProps) @{
         >
           <label text="×" />
         </Pressable>
-      ) : null}
-      {statusText != null ? (
+      }
+      @if (statusText != null) {
         <label
           className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
           text={statusText}
-          accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined}
+          accessibilityLabel={
+            props.statusVariant === 'tooltip' ? props.status?.message : undefined
+          }
         />
-      ) : null}
+      }
     </masonview>
     {surface === 'sheet' ? (
       <BottomSheet

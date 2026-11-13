@@ -45,7 +45,7 @@ export function GridControls(props: {
   return (
     <View>
       <Row className="vx-datagrid-controls">
-        {props.search ? (
+        @if (props.search) {
           <TextInput
             id={props.id ? `${props.id}-search` : undefined}
             className="flex-1"
@@ -57,16 +57,16 @@ export function GridControls(props: {
               table.setPageIndex(0)
             }}
           />
-        ) : null}
-        {props.settings ? (
+        }
+        @if (props.settings) {
           <Action
             id={props.id ? `${props.id}-settings` : undefined}
             label="Columns"
             onPress={() => setSettingsOpen(!settingsOpen)}
           />
-        ) : null}
+        }
       </Row>
-      {props.settings && settingsOpen ? (
+      @if (props.settings && settingsOpen) {
         <View className="vx-datagrid-settings">
           {columns.map((column: any, index: number) => (
             <Row key={column.id} className="vx-datagrid-controls">
@@ -75,7 +75,9 @@ export function GridControls(props: {
                 value={column.getIsVisible()}
                 isDisabled={!column.getCanHide()}
                 label={
-                  typeof column.columnDef.header === 'string' ? column.columnDef.header : column.id
+                  typeof column.columnDef.header === 'string'
+                    ? column.columnDef.header
+                    : column.id
                 }
                 accessibilityLabel={`Show ${column.id}`}
                 onChange={(checked) => column.toggleVisibility(checked)}
@@ -104,7 +106,7 @@ export function GridControls(props: {
             }}
           />
         </View>
-      ) : null}
+      }
     </View>
   )
 }

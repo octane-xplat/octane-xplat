@@ -67,7 +67,7 @@ export default function CheckboxListProbe() {
         isReadOnly={readonly}
         onChange={(next) => record('local', next)}
       />
-      {shown ? (
+      @if (shown) {
         <CheckboxInput
           id="owned-check"
           label="Parent-owned choice"
@@ -85,7 +85,7 @@ export default function CheckboxListProbe() {
             }
           }}
         />
-      ) : null}
+      }
       <Text id="owned-check-state">{`value:${checked}, accept:${accept}, disabled:${disabled}, readonly:${readonly}, remove:${removeNext}`}</Text>
       <Text id="check-requests">{requests}</Text>
     </VStack>

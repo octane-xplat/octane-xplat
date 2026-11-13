@@ -51,12 +51,12 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
       isDisabled={disabled}
     />
     <masonview className="vx-radio-label-col" style={{ display: 'flex' }}>
-      {props.label != null ? (
+      @if (props.label != null) {
         <label className="vx-radio-label" text={props.label} textWrap />
-      ) : null}
-      {props.description != null ? (
+      }
+      @if (props.description != null) {
         <label className="vx-radio-description" text={props.description} textWrap />
-      ) : null}
+      }
     </masonview>
     {props.endContent != null ? (
       <masonview className="vx-radio-end" style={{ display: 'flex' }}>

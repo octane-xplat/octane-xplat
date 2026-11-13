@@ -107,10 +107,12 @@ export function Switch(inputProps: SwitchProps): unknown @{
         style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
         onTap={isBlocked ? undefined : () => requestChange(!checked)}
       >
-        {props.label != null ? <label className="vx-field-label" text={props.label} /> : null}
-        {props.description != null ? (
+        @if (props.label != null) {
+          <label className="vx-field-label" text={props.label} />
+        }
+        @if (props.description != null) {
           <label className="vx-field-description" text={props.description} />
-        ) : null}
+        }
       </masonview>
     ) : null
 
@@ -131,7 +133,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
         {track}
         {!labelFirst ? labelCol : null}
       </masonview>
-      {props.status?.message != null ? (
+      @if (props.status?.message != null) {
         <masonview
           className={cx(
             'vx-field-status',
@@ -141,7 +143,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
         >
           <label text={props.status.message} />
         </masonview>
-      ) : null}
+      }
     </masonview>
   } @else {
     <>{track}</>

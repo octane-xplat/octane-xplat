@@ -84,7 +84,9 @@ function DataGridHeaderCell<TData extends RowData>(props: {
   ) : (
     <>
       <TemplateContent content={content} />
-      {canSort ? <Text>{sortIndicator(column)}</Text> : null}
+      @if (canSort) {
+        <Text>{sortIndicator(column)}</Text>
+      }
     </>
   )
 
@@ -108,7 +110,11 @@ function DataGridHeaderCell<TData extends RowData>(props: {
       ) : (
         <View id={props.id}>{inner}</View>
       )}
-      {!header.isPlaceholder && props.filters && column.getCanFilter() ? (
+      @if (
+        !header.isPlaceholder &&
+        props.filters &&
+        column.getCanFilter()
+      ) {
         <TextInput
           id={props.id ? `${props.id}-filter` : undefined}
           value={String(column.getFilterValue() ?? '')}
@@ -119,8 +125,12 @@ function DataGridHeaderCell<TData extends RowData>(props: {
             props.table.setPageIndex(0)
           }}
         />
-      ) : null}
-      {!header.isPlaceholder && column.columns.length === 0 && (props.resize || props.reorder) ? (
+      }
+      @if (
+        !header.isPlaceholder &&
+        column.columns.length === 0 &&
+        (props.resize || props.reorder)
+      ) {
         <ColumnDrag
           id={props.id}
           table={props.table}
@@ -130,7 +140,7 @@ function DataGridHeaderCell<TData extends RowData>(props: {
           direction={props.direction}
           state={props.state}
         />
-      ) : null}
+      }
     </View>
   )
 }
@@ -203,7 +213,7 @@ function DataGridBodyRow<TData extends RowData>(props: {
       accessibilityHint={props.position.label}
       accessibilityState={{ selected: row.getIsSelected?.() || undefined }}
     >
-      {props.selection ? (
+      @if (props.selection) {
         <View className="vx-datagrid-selection" web={{ role: 'cell' }}>
           <Checkbox
             id={props.idPrefix ? `${props.idPrefix}-select-${row.id}` : undefined}
@@ -214,7 +224,7 @@ function DataGridBodyRow<TData extends RowData>(props: {
             onChange={(checked) => row.toggleSelected(checked)}
           />
         </View>
-      ) : null}
+      }
       {content}
     </GridRow>
   )
@@ -282,7 +292,7 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
       accessibilityRole={props.accessibilityRole as any}
       accessibilityLabel={props.accessibilityLabel}
     >
-      {props.showGlobalFilter || props.showColumnSettings ? (
+      @if (props.showGlobalFilter || props.showColumnSettings) {
         <GridControls
           id={props.id}
           table={table}
@@ -290,8 +300,8 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
           search={props.showGlobalFilter}
           settings={props.showColumnSettings}
         />
-      ) : null}
-      {props.showRowSelection ? (
+      }
+      @if (props.showRowSelection) {
         <GridRow className="vx-datagrid-controls">
           <Text id={props.id ? `${props.id}-selected-count` : undefined}>
             {Object.values(state.rowSelection).filter(Boolean).length} selected
@@ -306,7 +316,7 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
           </Pressable>
           {props.renderSelectionActions?.(table)}
         </GridRow>
-      ) : null}
+      }
       <View
         id={props.id ? `${props.id}-table` : undefined}
         flexGrow={1}
@@ -324,9 +334,9 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
               className="vx-table-head"
               web={{ role: 'row', 'aria-rowindex': group.depth + 1 }}
             >
-              {props.showRowSelection ? (
+              @if (props.showRowSelection) {
                 <View className="vx-datagrid-selection" web={{ role: 'columnheader' }}>
-                  {group.depth === 0 ? (
+                  @if (group.depth === 0) {
                     <Checkbox
                       id={props.id ? `${props.id}-select-page` : undefined}
                       value={
@@ -340,9 +350,9 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
                       accessibilityLabel="Select current page"
                       onChange={(checked) => table.toggleAllPageRowsSelected(checked)}
                     />
-                  ) : null}
+                  }
                 </View>
-              ) : null}
+              }
               {group.headers.map((header: Header<DataGridFeatures, TData, any>) => (
                 <DataGridHeaderCell
                   key={header.id}
@@ -382,9 +392,14 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
           renderEmpty={props.renderEmpty}
         />
       </View>
-      {props.showPagination ? (
-        <GridPagination id={props.id} table={table} state={state} sizes={props.pageSizeOptions} />
-      ) : null}
+      @if (props.showPagination) {
+        <GridPagination
+          id={props.id}
+          table={table}
+          state={state}
+          sizes={props.pageSizeOptions}
+        />
+      }
     </View>
   )
 }

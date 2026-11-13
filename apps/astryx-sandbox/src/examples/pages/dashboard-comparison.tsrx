@@ -440,7 +440,7 @@ const acquisitionColumns: TableColumn<AcqRow>[] = [
 function SectionHeading(props: { title: string; hint?: string; icon?: string }) @{
   <HStack hAlign="between" vAlign="center" gap={3}>
     <HStack gap={3} vAlign="center">
-      {props.icon ? (
+      @if (props.icon) {
         <div
           style={{
             width: 'var(--spacing-8)',
@@ -454,14 +454,14 @@ function SectionHeading(props: { title: string; hint?: string; icon?: string }) 
         >
           <Icon name={props.icon} size={16} color="secondary" />
         </div>
-      ) : null}
+      }
       <Heading level={2}>{props.title}</Heading>
     </HStack>
-    {props.hint ? (
+    @if (props.hint) {
       <Text type="supporting" color="secondary">
         {props.hint}
       </Text>
-    ) : null}
+    }
   </HStack>
 }
 

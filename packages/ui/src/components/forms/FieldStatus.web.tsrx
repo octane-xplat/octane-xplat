@@ -33,6 +33,8 @@ export function FieldStatus(props: FieldStatusComponentProps): JSX.Element @{
         <path fillRule="evenodd" clipRule="evenodd" d={STATUS_ICON_PATHS[props.type]} />
       </svg>
     </span>
-    {props.message != null ? <span className="vx-fieldstatus-text">{props.message}</span> : null}
+    @if (props.message != null) {
+      <span className="vx-fieldstatus-text">{props.message}</span>
+    }
   </div>
 }

@@ -71,29 +71,40 @@ function CallRow(props: { call: ChatToolCallItem; hasClippedFocusRing?: boolean 
         )}
       </span>
       <span className="vx-chattools-name">{call.name}</span>
-      {call.node != null ? <Badge className="vx-chattools-node">{call.node}</Badge> : null}
-      {call.target != null ? <span className="vx-chattools-target">{call.target}</span> : null}
-      {call.additions != null || call.deletions != null || call.stats != null ? (
+      @if (call.node != null) {
+        <Badge className="vx-chattools-node">{call.node}</Badge>
+      }
+      @if (call.target != null) {
+        <span className="vx-chattools-target">{call.target}</span>
+      }
+      @if (
+        call.additions != null ||
+        call.deletions != null ||
+        call.stats != null
+      ) {
         <span className="vx-chattools-stats">
-          {call.additions != null ? (
+          @if (call.additions != null) {
             <span className="vx-chattools-add">+{call.additions}</span>
-          ) : null}
-          {call.deletions != null ? (
+          }
+          @if (call.deletions != null) {
             <span className="vx-chattools-del">-{call.deletions}</span>
-          ) : null}
+          }
           {call.stats}
         </span>
-      ) : null}
-      {call.duration != null && status === 'complete' ? (
+      }
+      @if (call.duration != null && status === 'complete') {
         <span className="vx-chattools-duration">{call.duration}</span>
-      ) : null}
-      {hasDetail ? (
+      }
+      @if (hasDetail) {
         <span
-          className={['vx-chattools-chev', isDetailOpen ? 'vx-chattools-chev--open' : undefined]}
+          className={[
+            'vx-chattools-chev',
+            isDetailOpen ? 'vx-chattools-chev--open' : undefined,
+          ]}
         >
           <Icon name="xplat-chevron-down" size={12} />
         </span>
-      ) : null}
+      }
     </div>
   )
 
@@ -184,18 +195,18 @@ export function ChatToolCalls(props: ChatToolCallsProps): JSX.Element | null @{
             )}
           </span>
           <span className="vx-chattools-name">{latest.name}</span>
-          {latest.target != null ? (
+          @if (latest.target != null) {
             <span className="vx-chattools-target">{latest.target}</span>
-          ) : null}
+          }
         </>
       )}
       <span className="vx-chattools-count">
-        {!isExpanded ? (
+        @if (!isExpanded) {
           <>
             <Icon name="xplat-wrench" size={12} />
             {props.calls.length}
           </>
-        ) : null}
+        }
       </span>
       <span className={['vx-chattools-chev', isExpanded ? 'vx-chattools-chev--open' : undefined]}>
         <Icon name="xplat-chevron-down" size={12} />

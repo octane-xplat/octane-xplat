@@ -109,7 +109,7 @@ export function TextInput(props: TextInputProps): JSX.Element @{
         fieldProps.isDisabled && 'vx-input-shell--disabled',
       )}
     >
-      {fieldProps.startIcon != null ? (
+      @if (fieldProps.startIcon != null) {
         <span className="vx-input-icon" aria-hidden="true">
           {typeof fieldProps.startIcon === 'string' ? (
             <Icon name={fieldProps.startIcon} size={16} />
@@ -117,7 +117,7 @@ export function TextInput(props: TextInputProps): JSX.Element @{
             fieldProps.startIcon
           )}
         </span>
-      ) : null}
+      }
       <input
         ref={(el: any) => {
           input.current = el
@@ -174,7 +174,7 @@ export function TextInput(props: TextInputProps): JSX.Element @{
         onFocus={fieldProps.onFocus}
         onBlur={fieldProps.onBlur}
       />
-      {fieldProps.hasClear && value !== '' && !isBlocked ? (
+      @if (fieldProps.hasClear && value !== '' && !isBlocked) {
         <button
           type="button"
           className="vx-input-clear"
@@ -189,10 +189,12 @@ export function TextInput(props: TextInputProps): JSX.Element @{
         >
           {'×'}
         </button>
-      ) : null}
-      {fieldProps.status &&
-      !fieldProps.inInputGroup &&
-      (fieldProps.statusVariant ?? 'attached') === 'attached' ? (
+      }
+      @if (
+        fieldProps.status &&
+        !fieldProps.inInputGroup &&
+        (fieldProps.statusVariant ?? 'attached') === 'attached'
+      ) {
         <span className="vx-input-status-icon" aria-hidden="true">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -209,7 +211,7 @@ export function TextInput(props: TextInputProps): JSX.Element @{
             />
           </svg>
         </span>
-      ) : null}
+      }
     </div>
   )
 

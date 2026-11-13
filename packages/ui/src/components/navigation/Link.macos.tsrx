@@ -52,8 +52,8 @@ export function Link(props: LinkProps): unknown @{
     <TextSlot className={cx(props.hasUnderline && !props.isStandalone && 'vx-link--underline')}>
       {props.children}
     </TextSlot>
-    {props.isExternalLink ? (
+    @if (props.isExternalLink) {
       <label className="vx-link-external" text="↗" accessible={false} />
-    ) : null}
+    }
   </Pressable>
 }

@@ -329,11 +329,11 @@ function LegendDot(props: { color: string; label: string }) @{
 function SectionHeading(props: { title: string; hint?: string }) @{
   <HStack hAlign="between" vAlign="center" gap={3}>
     <Heading level={2}>{props.title}</Heading>
-    {props.hint ? (
+    @if (props.hint) {
       <Text type="supporting" color="secondary">
         {props.hint}
       </Text>
-    ) : null}
+    }
   </HStack>
 }
 

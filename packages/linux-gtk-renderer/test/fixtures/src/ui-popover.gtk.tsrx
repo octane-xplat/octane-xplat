@@ -136,7 +136,9 @@ export function Scene(props: SceneProps) @{
     >
       <>
         <Content />
-        {props.nested ? <Nested dismissOnEscape={props.nestedDismissOnEscape} /> : null}
+        @if (props.nested) {
+          <Nested dismissOnEscape={props.nestedDismissOnEscape} />
+        }
       </>
     </Popover>
   </>

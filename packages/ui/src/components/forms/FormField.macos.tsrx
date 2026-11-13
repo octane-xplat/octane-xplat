@@ -51,7 +51,7 @@ export function FormField(props: FormFieldProps): unknown @{
         style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
       >
         <label id={labelId} className="vx-field-label" text={labelText} />
-        {props.labelTooltip != null ? (
+        @if (props.labelTooltip != null) {
           <Tooltip
             trigger={
               <Pressable
@@ -65,7 +65,7 @@ export function FormField(props: FormFieldProps): unknown @{
             content={props.labelTooltip}
             placement="top"
           />
-        ) : null}
+        }
       </masonview>
     )
 

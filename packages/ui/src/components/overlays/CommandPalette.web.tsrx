@@ -121,11 +121,11 @@ export function CommandPalette<T extends CommandPaletteItem>(
                 ? `${state.results.length} result${state.results.length === 1 ? '' : 's'}`
                 : ''}
       </div>
-      {state.status === 'error' ? (
+      @if (state.status === 'error') {
         <button type="button" onClick={() => controller.search(state.query)}>
           Retry
         </button>
-      ) : null}
+      }
       <div
         id={listId}
         role="listbox"
@@ -139,11 +139,11 @@ export function CommandPalette<T extends CommandPaletteItem>(
             role={group.heading != null ? 'group' : undefined}
             aria-label={group.heading ?? undefined}
           >
-            {group.heading != null ? (
+            @if (group.heading != null) {
               <div className="vx-cmdk-heading" aria-hidden="true">
                 {group.heading}
               </div>
-            ) : null}
+            }
             {group.items.map((item) => (
               <div
                 key={item.id}
@@ -168,14 +168,18 @@ export function CommandPalette<T extends CommandPaletteItem>(
                   props.renderItem(item, item.id === state.selected)
                 ) : (
                   <>
-                    {item.icon ? <Icon name={item.icon} /> : null}
+                    @if (item.icon) {
+                      <Icon name={item.icon} />
+                    }
                     <div className="vx-cmdk-item-content">
                       <span className="vx-menu-item-label">{item.label}</span>
-                      {item.description ? (
+                      @if (item.description) {
                         <span className="vx-cmdk-description">{item.description}</span>
-                      ) : null}
+                      }
                     </div>
-                    {item.shortcut ? <kbd className="vx-cmdk-shortcut">{item.shortcut}</kbd> : null}
+                    @if (item.shortcut) {
+                      <kbd className="vx-cmdk-shortcut">{item.shortcut}</kbd>
+                    }
                   </>
                 )}
               </div>
@@ -183,7 +187,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
           </div>
         ))}
       </div>
-      {props.footer !== false ? (
+      @if (props.footer !== false) {
         <div className="vx-cmdk-footer">
           {props.footer ?? (
             <>
@@ -192,7 +196,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
             </>
           )}
         </div>
-      ) : null}
+      }
     </div>
   </Overlay>
 }

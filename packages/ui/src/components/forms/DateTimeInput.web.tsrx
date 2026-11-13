@@ -791,7 +791,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
           </span>
         </>
       )}
-      {canClear ? (
+      @if (canClear) {
         <button
           type="button"
           className="vx-datetimeinput-clear"
@@ -800,13 +800,15 @@ function DateTimeInputControl(inputProps: CoreProps) @{
         >
           {'×'}
         </button>
-      ) : null}
-      {isBusy ? <ActivityIndicator busy className="vx-datetimeinput-spinner" /> : null}
-      {statusType ? (
+      }
+      @if (isBusy) {
+        <ActivityIndicator busy className="vx-datetimeinput-spinner" />
+      }
+      @if (statusType) {
         <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
           {STATUS_GLYPHS[statusType]}
         </span>
-      ) : null}
+      }
     </div>
   )
 

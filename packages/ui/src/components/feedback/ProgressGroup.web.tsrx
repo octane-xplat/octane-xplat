@@ -16,7 +16,9 @@ export function ProgressGroup(props: ProgressGroupProps): JSX.Element @{
     {props.items.map((item: any) => (
       <div key={item.key} className="vx-progressgroup-row">
         <Meter value={item.value} max={item.max} accessibilityLabel={item.label} />
-        {item.label != null ? <span className="vx-progressgroup-label">{item.label}</span> : null}
+        @if (item.label != null) {
+          <span className="vx-progressgroup-label">{item.label}</span>
+        }
       </div>
     ))}
   </div>

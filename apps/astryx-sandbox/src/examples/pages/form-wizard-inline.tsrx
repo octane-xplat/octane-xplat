@@ -469,9 +469,9 @@ export function FormWizardInlineTemplate() @{
                     ) : undefined
                   }
                 >
-                  {index === active ? (
+                  @if (index === active) {
                     <VStack paddingBlockEnd={2}>
-                      {index === 0 ? (
+                      @if (index === 0) {
                         <FormLayout defaultOptionality="optional">
                           <Selector
                             label="Repository"
@@ -503,9 +503,9 @@ export function FormWizardInlineTemplate() @{
                           </CheckboxList>
                           {stepActions('Continue', index)}
                         </FormLayout>
-                      ) : null}
+                      }
 
-                      {index === 1 ? (
+                      @if (index === 1) {
                         <FormLayout defaultOptionality="optional">
                           <CheckboxList
                             label="Jobs"
@@ -552,9 +552,9 @@ export function FormWizardInlineTemplate() @{
                           />
                           {stepActions('Start checks', index)}
                         </FormLayout>
-                      ) : null}
+                      }
 
-                      {index === 5 ? (
+                      @if (index === 5) {
                         <FormLayout defaultOptionality="optional">
                           <Card variant="muted" padding={4}>
                             <MetadataList orientation="vertical">
@@ -593,27 +593,27 @@ export function FormWizardInlineTemplate() @{
                           />
                           {stepActions('Enable continuous integration', index)}
                         </FormLayout>
-                      ) : null}
+                      }
 
                       {meta.kind === 'auto' ? autoBody(index) : null}
                     </VStack>
-                  ) : null}
+                  }
                 </Step>
               )
             })}
           </Stepper>
 
-          {hasFailure ? (
+          @if (hasFailure) {
             <Text type="supporting" color="secondary">
-              Setup is paused at the failed step above. Fix what it found and the remaining checks
-              will pick up from there.
+              Setup is paused at the failed step above. Fix what it found and the remaining
+              checks will pick up from there.
             </Text>
-          ) : null}
-          {isDone ? (
+          }
+          @if (isDone) {
             <Text type="supporting" color="secondary">
               All checks passed. Continuous integration is enabled for {repo.name}.
             </Text>
-          ) : null}
+          }
         </VStack>
       </LayoutContent>
     }

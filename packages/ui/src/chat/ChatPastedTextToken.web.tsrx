@@ -31,7 +31,7 @@ export function ChatPastedTextToken(props: {
         <div className="vx-chatpaste-text">{props.text}</div>
         <div className="vx-chatpaste-footer">
           <span className="vx-chatpaste-meta">{label}</span>
-          {props.onExpand ? (
+          @if (props.onExpand) {
             <Pressable
               className="vx-chatpaste-expand"
               onPress={props.onExpand}
@@ -39,7 +39,7 @@ export function ChatPastedTextToken(props: {
             >
               Expand
             </Pressable>
-          ) : null}
+          }
         </div>
       </div>
     }

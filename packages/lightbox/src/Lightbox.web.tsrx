@@ -126,7 +126,7 @@ export function Lightbox(props: LightboxProps): JSX.Element {
         <Close className="vx-lightbox-close">
           <Icon name="xplat-close" />
         </Close>
-        {count > 1 ? (
+        @if (count > 1) {
           <>
             <Prev className="vx-lightbox-prev">
               <Icon name="xplat-chevron-left" />
@@ -135,7 +135,7 @@ export function Lightbox(props: LightboxProps): JSX.Element {
               <Icon name="xplat-chevron-right" />
             </Next>
           </>
-        ) : null}
+        }
         <Counter />
         <Caption />
       </Popup>

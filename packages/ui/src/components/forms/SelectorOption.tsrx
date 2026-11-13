@@ -16,21 +16,25 @@ export function SelectorOption(props: SelectorOptionProps): unknown @{
     ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
-    {props.icon != null ? (
-      <masonview className="vx-selectoroption-icon" accessible={false} style={{ display: 'flex' }}>
+    @if (props.icon != null) {
+      <masonview
+        className="vx-selectoroption-icon"
+        accessible={false}
+        style={{ display: 'flex' }}
+      >
         {props.icon}
       </masonview>
-    ) : null}
+    }
     <masonview
       className="vx-selectoroption-text"
       style={{ display: 'flex', flexDirection: 'column' }}
     >
-      {props.label != null ? (
+      @if (props.label != null) {
         <label className="vx-selectoroption-label" text={props.label} />
-      ) : null}
-      {props.description != null ? (
+      }
+      @if (props.description != null) {
         <label className="vx-selectoroption-description" text={props.description} />
-      ) : null}
+      }
     </masonview>
   </masonview>
 }

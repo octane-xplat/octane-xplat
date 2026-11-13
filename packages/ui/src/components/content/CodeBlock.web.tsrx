@@ -194,14 +194,16 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
     {hasHeader ? (
       <div className="vx-codeblock-header">
         <div className="vx-codeblock-header-text">
-          {props.title != null ? <span className="vx-codeblock-title">{props.title}</span> : null}
-          {languageLabel != null ? (
+          @if (props.title != null) {
+            <span className="vx-codeblock-title">{props.title}</span>
+          }
+          @if (languageLabel != null) {
             <span className="vx-codeblock-lang">{languageLabel}</span>
-          ) : null}
+          }
         </div>
         <div className="vx-codeblock-header-actions">
           {copyButton}
-          {canCollapse ? (
+          @if (canCollapse) {
             <button
               type="button"
               className="vx-codeblock-collapse"
@@ -212,7 +214,7 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
             >
               <Icon name={isExpanded ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={14} />
             </button>
-          ) : null}
+          }
         </div>
       </div>
     ) : null}

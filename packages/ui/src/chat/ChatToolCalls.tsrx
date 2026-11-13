@@ -65,37 +65,43 @@ function CallRow(props: { call: ChatToolCallItem }) @{
         )}
       </masonview>
       <label className="vx-chattools-name" text={call.name} />
-      {call.node != null ? (
+      @if (call.node != null) {
         <Badge className="vx-chattools-node">
           <label text={call.node} />
         </Badge>
-      ) : null}
-      {call.target != null ? <label className="vx-chattools-target" text={call.target} /> : null}
-      {call.additions != null || call.deletions != null || call.stats != null ? (
+      }
+      @if (call.target != null) {
+        <label className="vx-chattools-target" text={call.target} />
+      }
+      @if (
+        call.additions != null ||
+        call.deletions != null ||
+        call.stats != null
+      ) {
         <masonview
           className="vx-chattools-stats"
           style={mergeStyle({ flexDirection: 'row' }, { display: 'flex' })}
         >
-          {call.additions != null ? (
+          @if (call.additions != null) {
             <label className="vx-chattools-add" text={`+${call.additions}`} />
-          ) : null}
-          {call.deletions != null ? (
+          }
+          @if (call.deletions != null) {
             <label className="vx-chattools-del" text={`-${call.deletions}`} />
-          ) : null}
+          }
           {call.stats}
         </masonview>
-      ) : null}
-      {call.duration != null && status === 'complete' ? (
+      }
+      @if (call.duration != null && status === 'complete') {
         <label className="vx-chattools-duration" text={call.duration} />
-      ) : null}
-      {hasDetail ? (
+      }
+      @if (hasDetail) {
         <masonview
           className={cx('vx-chattools-chev', isDetailOpen && 'vx-chattools-chev--open')}
           style={{ display: 'flex' }}
         >
           <Icon name="xplat-chevron-down" size={12} />
         </masonview>
-      ) : null}
+      }
     </masonview>
   )
 
@@ -188,9 +194,9 @@ export function ChatToolCalls(props: ChatToolCallsProps): unknown @{
             )}
           </masonview>
           <label className="vx-chattools-name" text={latest.name} />
-          {latest.target != null ? (
+          @if (latest.target != null) {
             <label className="vx-chattools-target" text={latest.target} />
-          ) : null}
+          }
         </>
       )}
       <masonview
@@ -200,12 +206,12 @@ export function ChatToolCalls(props: ChatToolCallsProps): unknown @{
           { display: 'flex' },
         )}
       >
-        {!isExpanded ? (
+        @if (!isExpanded) {
           <>
             <Icon name="xplat-wrench" size={12} />
             <label text={`${props.calls.length}`} />
           </>
-        ) : null}
+        }
       </masonview>
       <masonview
         className={cx('vx-chattools-chev', isExpanded && 'vx-chattools-chev--open')}

@@ -127,11 +127,11 @@ function NavigationFeedback() {
             ? ':' + state.result.phase
             : '')}
       </span>
-      {state.status === 'failed' ? (
+      @if (state.status === 'failed') {
         <button id="feedback-retry" onClick={() => navigator.retry()}>
           Retry navigation
         </button>
-      ) : null}
+      }
     </div>
   )
 }
@@ -221,7 +221,7 @@ function NavigationConfirmation(props: { id: string }) {
   return (
     <div>
       <output id="confirmation-status">{blocker.status}</output>
-      {blocker.status === 'blocked' ? (
+      @if (blocker.status === 'blocked') {
         <div role="dialog" aria-label="Unsaved changes">
           <p id="confirmation-action">{blocker.action}</p>
           <button onClick={blocker.proceed}>Leave screen</button>
@@ -235,7 +235,7 @@ function NavigationConfirmation(props: { id: string }) {
           </button>
           <button onClick={blocker.reset}>Keep editing</button>
         </div>
-      ) : null}
+      }
     </div>
   )
 }
@@ -259,11 +259,11 @@ function Item(props: { params: { id: string }; data: { title: string } }) {
       <button id="item" aria-label="Increment" onClick={() => setCount(count + 1)}>
         {props.params.id}:{props.data.title}:{count}
       </button>
-      {checked ? (
+      @if (checked) {
         <NavLink router={navigation} to={checked}>
           Open checked runtime
         </NavLink>
-      ) : null}
+      }
     </div>
   )
 }

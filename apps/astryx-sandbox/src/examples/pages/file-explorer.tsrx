@@ -476,16 +476,24 @@ export function FileExplorerTemplate() @{
               </Section>
             )
           })}
-          {selectedFile ? (
-            <Section padding={6} variant="transparent" style={{ ...scrollable, ...detailColumn }}>
+          @if (selectedFile) {
+            <Section
+              padding={6}
+              variant="transparent"
+              style={{ ...scrollable, ...detailColumn }}
+            >
               <VStack gap={4} hAlign="center">
                 <Avatar name={selectedFile.name} size={96} />
                 <VStack gap={1} hAlign="center">
                   <Text type="label">{selectedFile.name}</Text>
-                  <Text type="supporting">{getFileExtension(selectedFile.name)} Document</Text>
+                  <Text type="supporting">
+                    {getFileExtension(selectedFile.name)} Document
+                  </Text>
                 </VStack>
                 <MetadataList title="Information">
-                  <MetadataListItem label="Created">March 28, 2026 at 2:15 PM</MetadataListItem>
+                  <MetadataListItem label="Created">
+                    March 28, 2026 at 2:15 PM
+                  </MetadataListItem>
                   <MetadataListItem label="Modified">Yesterday, 10:27 PM</MetadataListItem>
                   <MetadataListItem label="Kind">
                     {getFileExtension(selectedFile.name)} Document
@@ -493,7 +501,7 @@ export function FileExplorerTemplate() @{
                 </MetadataList>
               </VStack>
             </Section>
-          ) : null}
+          }
         </HStack>
       </LayoutContent>
     }

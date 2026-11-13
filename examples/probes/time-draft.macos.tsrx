@@ -20,7 +20,7 @@ export default function TimeDraftProbe() {
         correction and removal. The runner does not synthesize input or qualify native editor/IME
         timing.
       </Text>
-      {mounted ? (
+      @if (mounted) {
         <TimeInput
           id="time-draft-preview"
           label="Start time"
@@ -38,7 +38,7 @@ export default function TimeDraftProbe() {
             })
           }
         />
-      ) : null}
+      }
       <Button
         label="Finish save"
         onPress={() => {

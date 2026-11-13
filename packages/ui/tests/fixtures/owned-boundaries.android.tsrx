@@ -71,7 +71,11 @@ export default function Case() {
   return (
     <Screen>
       <Provider value="outside">
-        <Provider value={name}>{open ? <Controls /> : null}</Provider>
+        <Provider value={name}>
+          @if (open) {
+            <Controls />
+          }
+        </Provider>
       </Provider>
     </Screen>
   )

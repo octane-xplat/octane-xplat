@@ -220,7 +220,7 @@ export function FormWizardDialogTemplate() @{
         }
         content={
           <LayoutContent>
-            {step === 0 ? (
+            @if (step === 0) {
               <FormLayout defaultOptionality="optional">
                 <TextInput
                   label="Report name"
@@ -230,7 +230,9 @@ export function FormWizardDialogTemplate() @{
                   placeholder="Weekly pipeline review"
                   description="Used as the email subject line."
                   status={
-                    currentErrors.name ? { type: 'error', message: currentErrors.name } : undefined
+                    currentErrors.name
+                      ? { type: 'error', message: currentErrors.name }
+                      : undefined
                   }
                 />
                 <Selector
@@ -260,9 +262,9 @@ export function FormWizardDialogTemplate() @{
                   ))}
                 </CheckboxList>
               </FormLayout>
-            ) : null}
+            }
 
-            {step === 1 ? (
+            @if (step === 1) {
               <FormLayout defaultOptionality="optional">
                 <Field label="How often" isGroupLabel>
                   <SegmentedControl
@@ -276,14 +278,14 @@ export function FormWizardDialogTemplate() @{
                     <SegmentedControlItem value="monthly" label="Monthly" />
                   </SegmentedControl>
                 </Field>
-                {cadence === 'weekly' ? (
+                @if (cadence === 'weekly') {
                   <Selector
                     label="Day of the week"
                     options={WEEKDAYS}
                     value={weekday}
                     onValueChange={(v) => setWeekday(v ?? '')}
                   />
-                ) : null}
+                }
                 <FormLayout direction="horizontal" defaultOptionality="optional">
                   <TimeInput
                     label="Send at"
@@ -320,9 +322,9 @@ export function FormWizardDialogTemplate() @{
                   description="Data is cut at the send time, so a report at 08:00 covers everything up to 08:00."
                 />
               </FormLayout>
-            ) : null}
+            }
 
-            {step === 2 ? (
+            @if (step === 2) {
               <FormLayout defaultOptionality="optional">
                 <MultiSelector
                   label="Recipients"
@@ -377,11 +379,14 @@ export function FormWizardDialogTemplate() @{
                 />
                 <Divider />
                 <MetadataList columns="single">
-                  <MetadataListItem label="Report">{name.trim() || 'Untitled'}</MetadataListItem>
+                  <MetadataListItem label="Report">
+                    {name.trim() || 'Untitled'}
+                  </MetadataListItem>
                   <MetadataListItem label="Runs">
                     {cadenceSummary}{' '}
-                    {TIMEZONES.find((t) => t.value === timezone)?.label.match(/\(([^)]+)\)/)?.[1] ??
-                      ''}
+                    {TIMEZONES.find((t) => t.value === timezone)?.label.match(
+                      /\(([^)]+)\)/,
+                    )?.[1] ?? ''}
                   </MetadataListItem>
                   <MetadataListItem label="Sent to">
                     {recipients.length === 0
@@ -390,7 +395,7 @@ export function FormWizardDialogTemplate() @{
                   </MetadataListItem>
                 </MetadataList>
               </FormLayout>
-            ) : null}
+            }
           </LayoutContent>
         }
         footer={
@@ -403,13 +408,13 @@ export function FormWizardDialogTemplate() @{
                 onPress={() => setStep((s) => Math.max(0, s - 1))}
               />
               <StackItem size="fill" />
-              {Object.keys(currentErrors).length > 0 ? (
+              @if (Object.keys(currentErrors).length > 0) {
                 <FieldStatus
                   type="error"
                   variant="detached"
                   message={blockedMessage(Object.keys(currentErrors).length)}
                 />
-              ) : null}
+              }
               <Button
                 label={isLastStep ? 'Schedule report' : 'Continue'}
                 variant="primary"

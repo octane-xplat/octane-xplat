@@ -29,8 +29,8 @@ export function Banner(props: BannerProps): unknown @{
     <masonview className="vx-banner-body" style={{ display: 'flex' }}>
       {props.children}
     </masonview>
-    {props.onDismiss ? (
+    @if (props.onDismiss) {
       <label className="vx-banner-dismiss" text="✕" onTap={props.onDismiss} />
-    ) : null}
+    }
   </masonview>
 }

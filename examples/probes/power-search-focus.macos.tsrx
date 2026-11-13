@@ -31,7 +31,7 @@ export default function PowerSearchFocusProbe() {
         packaging are unqualified.
       </Text>
       <TextInput label="Other focus owner" />
-      {shown ? (
+      @if (shown) {
         <PowerSearch
           id="power-search-focus-preview"
           config={config}
@@ -40,7 +40,7 @@ export default function PowerSearchFocusProbe() {
           hasAutoFocus={requested}
           isDisabled={disabled}
         />
-      ) : null}
+      }
       <Button label="Toggle search" onPress={() => setShown(!shown)} />
       <Button label="Toggle request" onPress={() => setRequested(!requested)} />
       <Button label="Toggle disabled" onPress={() => setDisabled(!disabled)} />
