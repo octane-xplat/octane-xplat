@@ -47,3 +47,17 @@ allocation. `layout.ts::pinLayoutChild` publishes a changed allocation through
 layout pass. The same width does not schedule another invalidation. Keep this
 feedback when changing layout ownership; the maintained page-layout fixture
 checks that long paragraphs grow vertically inside bounded content.
+
+## Dynamic content sizing
+
+Structural changes reconcile the containing Mason tree, not only the immediate
+parent. Otherwise a locally recomputed block can place its new children while
+its auto-sized ancestors keep the previous height. `mason-layout-scope.ts`
+follows projected layout ownership through transparent proxies and stops at
+foreign hosts and scroll documents. A scroll document keeps its own compute
+and extent pins even when its viewport participates in an outer Mason tree.
+Keep local dirty parents for projection synchronization and their own native
+layout work. Coalesce repeated parents, then reconcile ancestors before local
+parents so the new allocations precede document extent updates. The maintained
+block-flow fixture inserts, reorders and removes keyed children and checks both
+the resulting auto height and retained child identity.

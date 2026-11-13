@@ -89,7 +89,7 @@ export function createTree(deps: Dependencies) {
     }
 
     release('detach parent layout', () =>
-      deps.layout.queueLayoutReconcile(container, previousParent),
+      deps.layout.queueLayoutReconcile(container, previousParent, 'subtree'),
     )
 
     release('detach parent text', () => deps.textElements.syncText(previousParent))
@@ -279,7 +279,7 @@ export function createTree(deps: Dependencies) {
         parent.contentChild = node
       }
 
-      deps.layout.queueLayoutReconcile(container, parent ?? node)
+      deps.layout.queueLayoutReconcile(container, parent ?? node, 'subtree')
       if (node.type === 'placeholder') {
         node.adapter?.didAttach?.(node)
       }
@@ -317,7 +317,7 @@ export function createTree(deps: Dependencies) {
             .bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
 
           deps.nativeStyle.applySizeConstraints(node)
-          deps.layout.queueLayoutReconcile(container, parent)
+          deps.layout.queueLayoutReconcile(container, parent, 'subtree')
         } else if (['contentview', 'actionbar'].includes(parent.type ?? '')) {
           const previous = parent.contentChild
 
@@ -334,12 +334,12 @@ export function createTree(deps: Dependencies) {
           parentView.addSubview(deps.layout.layoutView(node))
           deps.layout.layoutView(node).translatesAutoresizingMaskIntoConstraints = false
           deps.nativeStyle.deactivateSizeConstraints(node)
-          deps.layout.queueLayoutReconcile(container, parent)
+          deps.layout.queueLayoutReconcile(container, parent, 'subtree')
         } else if (deps.registry.isManualLayoutParent(parent)) {
           parentView.addSubview(deps.layout.layoutView(node))
           deps.layout.layoutView(node).translatesAutoresizingMaskIntoConstraints = false
           deps.nativeStyle.deactivateSizeConstraints(node)
-          deps.layout.queueLayoutReconcile(container, parent)
+          deps.layout.queueLayoutReconcile(container, parent, 'subtree')
         } else {
           parentView.addSubview(deps.layout.layoutView(node))
           deps.layout.layoutView(node).translatesAutoresizingMaskIntoConstraints = false
@@ -457,7 +457,7 @@ export function createTree(deps: Dependencies) {
       expectedParent.view!.invalidateIntrinsicContentSize()
     }
 
-    deps.layout.queueLayoutReconcile(container, expectedParent)
+    deps.layout.queueLayoutReconcile(container, expectedParent, 'subtree')
     node.parent = null
     deps.textElements.syncText(expectedParent)
     if (expectedParent?.type === 'tabview') {

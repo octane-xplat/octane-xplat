@@ -203,7 +203,7 @@ export function createTextElements(deps: Dependencies) {
     })
 
     view.invalidateIntrinsicContentSize()
-    deps.layout.queueLayoutReconcile(node.container, node.parent)
+    deps.layout.queueLayoutReconcile(node.container, node.parent, 'subtree')
   }
 
   function setLabelText(node: ElementNode, text: any) {
@@ -617,7 +617,7 @@ export function createTextElements(deps: Dependencies) {
         deps.inputElements.fitTextView(parent)
       }
 
-      deps.layout.queueLayoutReconcile(parent.container, parent.parent)
+      deps.layout.queueLayoutReconcile(parent.container, parent.parent, 'subtree')
       return
     }
 

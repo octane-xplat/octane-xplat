@@ -26,6 +26,7 @@ import {
 
 import { scrollAxes } from './scroll-view'
 import { borderStyleSides, hiddenBorderStyle } from './border-styles.ts'
+import { MASON_CONTAINERS } from './mason-layout-scope.ts'
 
 // Element nodes carry open-ended fields; the bridge only needs the shape
 // below. Loose `any` matches the renderer's PropBag style.
@@ -193,13 +194,6 @@ export const MASON_STYLE_KEYS = new Set([
   'right',
   'bottom',
 ])
-
-/** Intrinsic types laid out by the Mason engine — masonview is the single
- *  layout container (scrollview keeps an NSScrollView chrome but mason-lays
- *  its document view; liquidglass is a grid-backed glass surface).
- *  Foreign-forever chrome: rootlayout, contentview, actionbar, page/frame,
- *  lists, tabview, overlays. */
-const MASON_CONTAINERS = new Set(['masonview', 'liquidglass', 'scrollview'])
 
 function edgeBox(value: any): { top: number; left: number; bottom: number; right: number } | null {
   if (value == null) {

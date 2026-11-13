@@ -6,6 +6,7 @@ import { legacyActionBoundary } from './legacy-action-boundary.ts'
 import { createAccessibilityState } from '../src/accessibility-state.ts'
 import { FailureCollector } from '../src/failures.ts'
 import { withLayoutBatch } from '../src/layout-batch.ts'
+import { masonLayoutRoot, MASON_CONTAINERS } from '../src/mason-layout-scope.ts'
 import { builtinFixtureHelpers } from './renderer-source.ts'
 import { correctProjectionRadii, correctProjectionShadows } from '../src/projection-paint.ts'
 import { normalizeHostStyleProps } from '../src/inline-style.ts'
@@ -76,6 +77,8 @@ const SLICE_BASE = {
   setTimeout,
   clearTimeout,
   withLayoutBatch,
+  masonLayoutRoot,
+  MASON_CONTAINERS,
   FailureCollector,
   normalizeHostStyleProps,
   borderStyleSides,

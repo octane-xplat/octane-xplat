@@ -10,6 +10,7 @@ import {
 
 import { createStickyPlacements } from './sticky-placement.ts'
 import { observeScrollGeometry } from './scroll-view'
+import { masonLayoutRoot } from './mason-layout-scope.ts'
 
 interface Dependencies {
   registry: Pick<Registry, 'cssNodesByView' | 'isManualLayoutParent' | 'adapterFor'>
@@ -277,9 +278,13 @@ export function createLayout(deps: Dependencies) {
     // assigns a width, feed that budget back through AppKit's text measure
     // so the next pass accounts for wrapping instead of clipping paragraphs.
     const textView = child.view
+
     if (
-      child.type === 'label' && width > 0 && textView &&
-      'preferredMaxLayoutWidth' in textView && textView.preferredMaxLayoutWidth !== width
+      child.type === 'label' &&
+      width > 0 &&
+      textView &&
+      'preferredMaxLayoutWidth' in textView &&
+      textView.preferredMaxLayoutWidth !== width
     ) {
       textView.preferredMaxLayoutWidth = width
       textView.invalidateIntrinsicContentSize()
@@ -558,7 +563,11 @@ export function createLayout(deps: Dependencies) {
    *  into one stack made that quadratic. Structural commands queue their dirty
    *  parents here; `prepareBatch.apply` drains the set once at the end. Outside
    *  a batch (no `layoutDirty` set) the reconcile runs immediately. */
-  function queueLayoutReconcile(container: RootContainer, parent: ElementNode | null | undefined) {
+  function queueLayoutReconcile(
+    container: RootContainer,
+    parent: ElementNode | null | undefined,
+    scope: 'local' | 'subtree' = 'local',
+  ) {
     if (!parent) {
       return
     }
@@ -584,13 +593,30 @@ export function createLayout(deps: Dependencies) {
     }
 
     const pending = container?.layoutDirty
+    // Content changes affect auto-sized ancestors. Geometry notifications and
+    // unchanged view props retain their local pass and must not reset scrolling.
+    const root = scope === 'subtree' ? masonLayoutRoot(parent) : parent
 
     if (pending) {
+      // Keep the local parent for projection synchronization, then compute its
+      // containing tree so auto-sized ancestors receive the new content size.
       pending.add(parent)
+      pending.add(root)
       return
     }
 
-    reconcileLayoutParent(parent)
+    if (
+      root !== parent &&
+      (parent.projectedChildren ||
+        parent.children.some((child) => child.type === 'proxyviewcontainer'))
+    ) {
+      deps.projection.syncProxyProjection(parent)
+    }
+
+    reconcileLayoutParent(root)
+    if (root !== parent) {
+      reconcileLayoutParent(parent)
+    }
   }
 
   /** Drain a batch's layout parents. Ancestor Mason passes traverse their whole
@@ -606,7 +632,23 @@ export function createLayout(deps: Dependencies) {
       }
     }
 
-    for (const parent of dirty) {
+    // Ancestors establish allocations first. Retain each local pass: scroll
+    // documents and native container adapters own work beyond descendant pins.
+    const ordered = [...dirty]
+      .map((parent) => {
+        let depth = 0
+        let ancestor = parent.layoutParent ?? parent.parent
+
+        while (ancestor) {
+          depth++
+          ancestor = ancestor.layoutParent ?? ancestor.parent
+        }
+
+        return { parent, depth }
+      })
+      .sort((a, b) => a.depth - b.depth)
+
+    for (const { parent } of ordered) {
       reconcileLayoutParent(parent)
     }
   }
