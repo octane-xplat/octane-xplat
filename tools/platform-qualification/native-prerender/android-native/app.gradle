@@ -1,0 +1,41 @@
+plugins { id 'com.android.application' }
+android {
+ namespace 'org.octanexplat.prerenderandroid'
+ compileSdk 36
+ defaultConfig { applicationId 'org.octanexplat.prerenderbootstrap.android'; minSdk 23; targetSdk 35; versionCode 1; versionName '1.0'; ndk { abiFilters 'arm64-v8a' } }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+}
+dependencies {
+ implementation files('../inputs/nativescript-runtime.aar','../inputs/nativescript-widgets.aar','../inputs/MasonCore.aar')
+ implementation 'androidx.multidex:multidex:2.0.1'
+ implementation 'androidx.appcompat:appcompat:1.7.1'
+ implementation 'androidx.core:core-ktx:1.13.1'
+ implementation 'androidx.exifinterface:exifinterface:1.3.6'
+ implementation 'com.github.bumptech.glide:glide:4.16.0'
+ implementation 'com.google.code.gson:gson:2.13.2'
+ implementation 'org.nativescript:fontmanager:1.0.20'
+ implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.0.21'
+ implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+}
+tasks.register('prepareProbeMetadata') {
+ dependsOn 'compileDebugJavaWithJavac'
+ doLast {
+  def stage = rootProject.file('metadata-work'); stage.mkdirs()
+  def output = file('src/main/assets/metadata'); output.mkdirs()
+  def paths = new LinkedHashSet<String>()
+  android.bootClasspath.each { paths.add(it.absolutePath) }
+  configurations.debugRuntimeClasspath.files.each { dep ->
+   if (dep.name.endsWith('.jar')) { paths.add(dep.absolutePath) }
+   else if (dep.name.endsWith('.aar')) {
+    def dir = new File(stage, 'dep-' + Integer.toHexString(dep.absolutePath.hashCode())); dir.mkdirs()
+    copy { from zipTree(dep); include 'classes.jar','libs/*.jar'; into dir }
+    fileTree(dir).matching { include '**/*.jar' }.files.each { paths.add(it.absolutePath) }
+   }
+  }
+  def compiled = tasks.named('compileDebugJavaWithJavac').get().destinationDirectory.get().asFile
+  paths.add(compiled.absolutePath)
+  new File(stage,'mdg-java-dependencies.txt').text = paths.join('\n') + '\n'
+  new File(stage,'mdg-java-out.txt').text = fileTree(compiled).matching { include '**/*.class' }.files.collect { it.absolutePath }.join('\n') + '\n'
+  new File(stage,'mdg-output-dir.txt').text = output.absolutePath + '\n'
+ }
+}

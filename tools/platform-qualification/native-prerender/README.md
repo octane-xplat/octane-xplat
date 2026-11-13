@@ -273,3 +273,34 @@ For this mode, the owning Home launcher must perform these steps:
 Keep the guarded Home launcher under a distinct filename or generate it after the native build. The experimental build generator writes `run.mjs`; that baseline launcher can run the older two-label probe. A Home launcher must verify the app identifier, binary build identity and nineteen-node native decode before accepting its result.
 
 The forced collection and bootstrap-release handshake are test mechanisms. Production ownership transfer must retire startup references when the live tree accepts ownership; it must not depend on forced GC or diagnostic files.
+
+
+## Android bootstrap mechanism
+
+The separate Android host tests native layout before engine initialization. A native Application subclass defers the stock NativeScript `onCreate` path while a plain Activity creates a Mason container and two Core `StyleableTextView` labels from XPR0. After three callbacks with nonzero layout, the stock Application initializer starts the runtime and its ordinary module entry installs one Java/JS bridge controller. The controller binds the actual current Activity, updates its original widget and releases that binding on destruction. Native assertions check unchanged views, child order, Mason node objects and raw Rust handles within each Activity. The runtime and its Java helpers are read-only inputs.
+
+Supply the qualified SDKs, an existing Android SDK platform36 and a Java installation. The fixture currently requires NativeScript Android9.1.1 and Core9.1.3:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_RUNTIME_ROOT=/absolute/path/to/@nativescript/android
+export XPLAT_PRERENDER_CORE_ROOT=/absolute/path/to/@nativescript/core
+export XPLAT_PRERENDER_ANDROID_MASON_SDK=/absolute/path/to/mason-core/android-host
+export XPLAT_PRERENDER_ANDROID_SDK=/absolute/path/to/android-sdk
+export XPLAT_PRERENDER_JAVA_HOME=/absolute/path/to/jdk-17
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build Android native bootstrap probe"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
+```
+
+The command snapshots the AARs, runtime Java/internal assets, wrapper and metadata generator into a fresh scratch project. It compiles Java, generates bridge metadata and assembles a debug APK. No device starts, no native dependency is rebuilt, and the shared SDK directories are unchanged. Gradle resolves the declared Android libraries through its normal dependency cache. Inspect the printed build directory and retained compile/metadata/assembly logs if a check fails.
+
+Release the build reservation, then use that directory for the device phase:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_BUILD=/absolute/path/to/printed/build/directory
+goddard-agent resource run --json '{"resources":{"exclusive":["android:elegant-fir-probe"],"resident_devices":1},"purpose":"Run Android native bootstrap probe"}' -- bun turbo run probe:prerender:android --filter=@xplat/platform-qualification
+```
+
+The runner reuses only the existing `elegant-fir-probe` AVD on Android35 ARM64. It refuses a second Android emulator, verifies the actual AVD console identity, installs its own `org.octanexplat.prerenderbootstrap.android` app, clears that app's previous receipt and retains app-UID-scoped logs. It shuts down its owned emulator before returning. Source, copied SDK, generated input, driver and APK hashes guard the run. Reports go to fresh directories below `~/dev/reports/octane-xplat/native-prerender-android-bootstrap`. No images are captured or inspected.
+
+The run also requests one Activity recreation after startup. It requires the old controller binding to be released, a replacement Activity to reach layout with its own original objects, and the same JS runtime/controller to bind it without reinitializing the engine. Pre-runtime Activity destruction cancels pending frame/startup callbacks. Native event history remains process-scoped and records Activity generations so a recreated instance cannot overwrite the initial proof. This handles the probe’s basic recreation flow; it does not forward the complete NativeScript Core Activity lifecycle or preserve component state through a renderer.
+
+A pass establishes this two-label mechanism only. The container currently wraps its content; full viewport sizing remains a separate check. NativeScript wrapper/Octane hydration, Android Home IR, full NativeScript Core Activity lifecycle handoff, CSS parity, compositor presentation, release performance, process-death restoration and renderer state across configuration changes remain unqualified. The artificial runtime delay and debug APK are unsuitable for startup-performance comparisons.
