@@ -14,7 +14,7 @@ import { join, resolve } from 'node:path'
 import { completedHomeEpoch } from './home-events.mjs'
 import { qualifyAndroidStartup } from './qualify-android-startup.mjs'
 
-// Own android:elegant-fir-probe + resident_devices for the entire run/cleanup.
+// Own android:elegant-fir-probe + resident_devices, or device:<explicit serial>.
 const work = process.env.XPLAT_PRERENDER_ANDROID_BUILD
 if (!work) throw new Error('Set XPLAT_PRERENDER_ANDROID_BUILD to the printed build directory')
 const build = JSON.parse(readFileSync(join(resolve(work), 'build.json'), 'utf8'))
@@ -69,8 +69,17 @@ for (const [path, digest] of Object.entries(build.generatedHashes))
   check(hash(path) === digest, 'Generated input changed: ' + path)
 const adb = join(build.sdk, 'platform-tools/adb')
 const emulator = join(build.sdk, 'emulator/emulator')
-const serial = 'emulator-5566',
-  avd = 'elegant-fir-probe'
+const physicalSerial = process.env.XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL
+const physical = physicalSerial !== undefined
+check(
+  !physical ||
+    (physicalSerial.length > 0 && !physicalSerial.startsWith('emulator-') && build.home?.startup),
+  'An explicit physical serial requires the matched Home startup fixture',
+)
+const serial = physical ? physicalSerial : 'emulator-5566'
+const avd = 'elegant-fir-probe'
+const deviceKind = physical ? 'physical' : 'emulator'
+let deviceIdentity
 let interruption,
   cleaning = false
 const commands = new Set()
@@ -133,14 +142,23 @@ async function captureHeap() {
   }
 }
 const devices = await call(adb, ['devices'])
-check(
-  !devices.output.split('\n').some((line) => line.startsWith('emulator-')),
-  'Another Android emulator is present; cannot start a second',
-)
-check(
-  (await call(emulator, ['-list-avds'])).output.split(/\r?\n/).includes(avd),
-  'Required existing AVD is missing',
-)
+if (physical)
+  check(
+    devices.output
+      .split(/\r?\n/)
+      .some((line) => line.split(/\s+/)[0] === serial && line.split(/\s+/)[1] === 'device'),
+    'Explicit physical device is not connected and authorized',
+  )
+else {
+  check(
+    !devices.output.split('\n').some((line) => line.startsWith('emulator-')),
+    'Another Android emulator is present; cannot start a second',
+  )
+  check(
+    (await call(emulator, ['-list-avds'])).output.split(/\r?\n/).includes(avd),
+    'Required existing AVD is missing',
+  )
+}
 const reports = join(homedir(), 'dev/reports/octane-xplat/native-prerender-android-bootstrap')
 mkdirSync(reports, { recursive: true })
 const sessionReport = mkdtempSync(join(reports, 'run-'))
@@ -177,7 +195,30 @@ async function finishTrace() {
 }
 async function runAttempt(trial, runToken, alive) {
   await device(['shell', 'am', 'force-stop', build.id])
-  if (build.variant === 'release' && trial.index === 0)
+  if (physical) {
+    const battery = await device(['shell', 'dumpsys', 'battery'], 5000, false)
+    const thermal = await device(['shell', 'dumpsys', 'thermalservice'], 5000, false)
+    const value = (text, pattern) => {
+      const match = text.match(pattern)
+      return match ? Number(match[1]) : null
+    }
+    writeFileSync(
+      join(report, 'device-conditions.json'),
+      JSON.stringify(
+        {
+          batteryLevel: value(battery.output, /^\s*level:\s*(\d+)/m),
+          batteryTemperatureTenthsC: value(battery.output, /^\s*temperature:\s*(\d+)/m),
+          thermalStatus: value(thermal.output, /Thermal Status:\s*(\d+)/i),
+          batteryQuerySucceeded: battery.status === 0,
+          thermalQuerySucceeded: thermal.status === 0,
+          scope: 'Read-only pre-launch observations; no power, thermal or display settings changed',
+        },
+        null,
+        2,
+      ),
+    )
+  }
+  if (build.variant === 'release' && trial.index === 0 && !physical)
     await device(['shell', 'pm', 'clear', build.id])
   else if (build.variant !== 'release')
     await device([
@@ -382,6 +423,21 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
   const end = events.find((event) => event.event === 'engine-init-end')
   const success = events.find((event) => event.event === 'passed' && event.epoch === begin?.epoch)
   if (build.home?.startup) {
+    const power = await device(['shell', 'dumpsys', 'power'], 5000, false)
+    const wakefulness = power.output.match(/mWakefulness=(\w+)/)?.[1] ?? null
+    writeFileSync(
+      join(report, 'startup-display-state.json'),
+      JSON.stringify(
+        {
+          wakefulness,
+          displayPower: power.output.match(/Display Power: state=(\w+)/)?.[1] ?? null,
+          querySucceeded: power.status === 0,
+          scope: 'Read-only display state before startup OS input; no raw power dump retained',
+        },
+        null,
+        2,
+      ),
+    )
     events = await qualifyAndroidStartup({
       build,
       path: startupPath,
@@ -1269,37 +1325,46 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
   await finishTrace()
   writeFileSync(
     join(report, 'status.json'),
-    JSON.stringify({ passed: true, driverHash, driverInputs, avd, api: 35, scope }),
+    JSON.stringify({
+      passed: true,
+      driverHash,
+      driverInputs,
+      deviceKind,
+      api: deviceIdentity.api,
+      scope,
+    }),
   )
   console.log(JSON.stringify({ report, passed: true, scope }, null, 2))
 }
 
 try {
-  const descriptor = openSync(join(report, 'emulator.log'), 'w')
-  child = spawn(
-    emulator,
-    [
-      '-avd',
-      avd,
-      '-port',
-      '5566',
-      '-no-window',
-      '-no-audio',
-      '-no-snapshot-load',
-      '-no-snapshot-save',
-      '-no-boot-anim',
-      '-gpu',
-      'swiftshader_indirect',
-    ],
-    { stdio: ['ignore', descriptor, descriptor] },
-  )
-  closeSync(descriptor)
-  child.on('error', (error) => {
-    childError = error
-  })
+  if (!physical) {
+    const descriptor = openSync(join(report, 'emulator.log'), 'w')
+    child = spawn(
+      emulator,
+      [
+        '-avd',
+        avd,
+        '-port',
+        '5566',
+        '-no-window',
+        '-no-audio',
+        '-no-snapshot-load',
+        '-no-snapshot-save',
+        '-no-boot-anim',
+        '-gpu',
+        'swiftshader_indirect',
+      ],
+      { stdio: ['ignore', descriptor, descriptor] },
+    )
+    closeSync(descriptor)
+    child.on('error', (error) => {
+      childError = error
+    })
+  }
   const alive = () => {
     if (childError) throw childError
-    check(child.exitCode === null && child.signalCode === null, 'Owned emulator exited')
+    if (child) check(child.exitCode === null && child.signalCode === null, 'Owned emulator exited')
     if (interruption) throw interruption
   }
   const bootDeadline = Date.now() + 180000
@@ -1311,17 +1376,47 @@ try {
     check(Date.now() < bootDeadline, 'Owned emulator boot timed out')
     await pause(1000)
   }
-  const identity = (await device(['emu', 'avd', 'name'])).output
-  writeFileSync(
-    join(report, 'device-identity.json'),
-    JSON.stringify({ serial, avd, consoleReply: identity }),
-  )
-  check(identity.split(/\r?\n/)[0].trim() === avd, 'Wrong booted AVD: ' + JSON.stringify(identity))
+  const api = Number((await device(['shell', 'getprop', 'ro.build.version.sdk'])).output)
+  const properties = {}
+  for (const key of [
+    'ro.product.manufacturer',
+    'ro.product.model',
+    'ro.product.cpu.abilist',
+    'ro.build.fingerprint',
+    'ro.kernel.qemu',
+  ])
+    properties[key] = (await device(['shell', 'getprop', key])).output
+  deviceIdentity = { deviceKind, serial, api, properties }
+  if (physical) {
+    check(
+      properties['ro.kernel.qemu'] !== '1' &&
+        properties['ro.product.cpu.abilist'].split(',').includes('arm64-v8a'),
+      'Explicit physical target must be an ARM64 phone, not an emulator',
+    )
+    check(
+      Number.isInteger(api) && api >= 35,
+      'Physical startup qualification requires Android35 or newer',
+    )
+  } else {
+    const identity = (await device(['emu', 'avd', 'name'])).output
+    check(
+      identity.split(/\r?\n/)[0].trim() === avd,
+      'Wrong booted AVD: ' + JSON.stringify(identity),
+    )
+    check(api === 35, 'Unexpected emulator Android API')
+    Object.assign(deviceIdentity, { avd, consoleReply: identity })
+  }
+  writeFileSync(join(report, 'device-identity.json'), JSON.stringify(deviceIdentity, null, 2))
   identityConfirmed = true
-  check(
-    (await device(['shell', 'getprop', 'ro.build.version.sdk'])).output === '35',
-    'Unexpected Android API',
-  )
+  if (physical) {
+    // OEM shells may prohibit pm clear. Reset only this disposable fixture,
+    // once before installation/warmups; retain its data for measured trials.
+    const existing = await device(['shell', 'pm', 'path', build.id], 5000, false)
+    if (existing.output.startsWith('package:')) {
+      const removed = await device(['uninstall', build.id], 30000)
+      check(removed.output === 'Success', 'Could not reset the disposable physical fixture')
+    }
+  }
   await device(['install', '-r', build.apk], 120000)
   installed = true
   uid = Number(
@@ -1373,7 +1468,9 @@ try {
       scope =
         'Matched release Home startup control (' +
         startupPath +
-        '); no artificial250ms delay or extra abort/parity probe; emulator only'
+        '); no artificial250ms delay or extra abort/parity probe; ' +
+        deviceKind +
+        ' device'
     const runToken = driverHash.slice(0, 12) + '-' + process.pid + '-' + trial.index
     await runAttempt(trial, runToken, alive)
     trialReports.push({ ...trial, report, runToken })
@@ -1393,10 +1490,16 @@ try {
           warmups: 4,
           pairs,
           appDataReset: 'before-warmups-only',
+          appDataResetMethod: physical
+            ? 'fixture-reinstall-before-session'
+            : 'pm-clear-before-warmups',
           apkInstalledOnce: true,
+          deviceKind,
           trials: trialReports,
           protocol:
-            'One installed APK/one emulator boot; app data reset only before warmups, force-stop between launches, alternating measured pairs, run tokens reject stale receipts; emulator pilot, not physical performance',
+            'One installed APK/one device session; app data reset only before warmups, force-stop between launches, alternating measured pairs, run tokens reject stale receipts; descriptive ' +
+            deviceKind +
+            ' pilot',
         },
         null,
         2,
@@ -1409,7 +1512,9 @@ try {
         driverHash,
         driverInputs,
         scope:
-          'Matched release emulator startup trial collection; analyze each trace before comparison',
+          'Matched release ' +
+          deviceKind +
+          ' startup trial collection; analyze each trace before comparison',
       }),
     )
     console.log(JSON.stringify({ report, pairs, passed: true }))
@@ -1417,6 +1522,31 @@ try {
 } catch (error) {
   failed = true
   failure = String(error)
+  if (installed && identityConfirmed) {
+    try {
+      const windows = await device(['shell', 'dumpsys', 'window', 'windows'], 5000, false)
+      const anrs = await device(['logcat', '-b', 'events', '-d', '-s', 'am_anr'], 5000, false)
+      writeFileSync(
+        join(report, 'failure-input-state.json'),
+        JSON.stringify(
+          {
+            focusOnFixture: windows.output.includes('mCurrentFocus=')
+              ? windows.output
+                  .split(/\r?\n/)
+                  .some((line) => line.includes('mCurrentFocus=') && line.includes(build.id))
+              : null,
+            fixtureWindows: windows.output.split(/\r?\n/).filter((line) => line.includes(build.id)),
+            fixtureAnrs: anrs.output.split(/\r?\n/).filter((line) => line.includes(build.id)),
+            scope: 'Only fixture window/ANR lines retained; unrelated windows and app logs omitted',
+          },
+          null,
+          2,
+        ),
+      )
+    } catch (diagnosticError) {
+      writeFileSync(join(report, 'failure-input-state-error.txt'), String(diagnosticError))
+    }
+  }
   if (report !== sessionReport)
     writeFileSync(
       join(sessionReport, 'status.json'),

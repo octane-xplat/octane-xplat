@@ -14,6 +14,18 @@ const report = resolve(required('XPLAT_PRERENDER_ANDROID_REPORT'))
 const processor = resolve(required('XPLAT_PRERENDER_TRACE_PROCESSOR'))
 const collection = JSON.parse(readFileSync(join(report, 'trials.json')))
 const status = JSON.parse(readFileSync(join(report, 'status.json')))
+const deviceIdentity = JSON.parse(readFileSync(join(report, 'device-identity.json')))
+check(
+  ['emulator', 'physical'].includes(deviceIdentity.deviceKind) &&
+    collection.deviceKind === deviceIdentity.deviceKind,
+  'Collection device identity differs',
+)
+const physical = deviceIdentity.deviceKind === 'physical'
+check(
+  collection.appDataResetMethod ===
+    (physical ? 'fixture-reinstall-before-session' : 'pm-clear-before-warmups'),
+  'Collection reset method differs from its declared target',
+)
 check(
   status.passed &&
     collection.warmups === 4 &&
@@ -71,6 +83,10 @@ for (const [index, trial] of collection.trials.entries()) {
       timing.health.length === 0,
     'Startup trial identity, nonce, process-cold order or trace health differs',
   )
+  check(
+    JSON.stringify(timing.deviceIdentity) === JSON.stringify(deviceIdentity),
+    'Startup trial device identity changed within the collection',
+  )
   previousStart = timing.processStartNanos
   observations.push({ ...trial, timing })
 }
@@ -127,18 +143,24 @@ const result = {
   queryHelperHash: hash(join(import.meta.dirname, 'android-trace-query.mjs')),
   processorHash: hash(processor),
   protocol: collection.protocol,
-  emulatorPilotQualified: true,
+  deviceIdentity,
+  emulatorPilotQualified: !physical,
+  physicalPilotQualified: physical,
   physicalPerformanceQualified: false,
   firstPossibleInputQualified: false,
   scope:
-    'Alternating paired emulator pilot observations; descriptive distributions only. First Home presentation uses the full frame chain. Live-tree acceptance is a commit/restoration milestone, not first possible input. OS tap functionality is verified per trial; no physical-device or production startup claim.',
+    'Alternating paired ' +
+    deviceIdentity.deviceKind +
+    ' pilot observations; descriptive distributions on this device only. First Home presentation uses the full frame chain. Live-tree acceptance is a commit/restoration milestone, not first possible input. OS tap functionality is verified per trial; no production startup or broader device claim.',
 }
 writeFileSync(join(report, 'startup-comparison.json'), JSON.stringify(result, null, 2))
 const number = (value) => value.toFixed(1)
 const lines = [
   '# Matched Android release startup pilot',
   '',
-  'One APK and one emulator boot; four predeclared warmups, app data retained for measured process-cold launches, alternating pairs. Every trace and OS-input control passed.',
+  'One APK and one ' +
+    deviceIdentity.deviceKind +
+    ' device session; four predeclared warmups, app data retained for measured process-cold launches, alternating pairs. Every trace and OS-input control passed.',
   '',
   '| Metric (ms from Android process start) | Native-first median (min–max) | Ordinary median (min–max) |',
   '| --- | --- | --- |',
@@ -172,10 +194,22 @@ lines.push(
     number(pairedDifferences.liveTreeAcceptedDeltaMs.median) +
     'ms. Negative means earlier. All observations and pair order remain in startup-comparison.json.',
   '',
-  'These are descriptive emulator results, not physical-device performance or first possible input latency. Live-tree acceptance includes any required Activity restoration. No pixel, physical-display or installed-size comparison is qualified by this pilot.',
+  'These are descriptive ' +
+    deviceIdentity.deviceKind +
+    ' results on this device, not production performance or first possible input latency. Live-tree acceptance includes any required Activity restoration. Presentation is platform-reported; no pixel or installed-size comparison is qualified by this pilot.',
   '',
 )
 writeFileSync(join(report, 'startup-comparison.md'), lines.join('\n'))
 console.log(
-  JSON.stringify({ report, summary, pairedDifferences, emulatorPilotQualified: true }, null, 2),
+  JSON.stringify(
+    {
+      report,
+      summary,
+      pairedDifferences,
+      emulatorPilotQualified: !physical,
+      physicalPilotQualified: physical,
+    },
+    null,
+    2,
+  ),
 )

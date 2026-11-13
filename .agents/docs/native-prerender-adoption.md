@@ -38,6 +38,10 @@ probe or pre-frame receipt serialization. Startup can reach configuration
 replacement earlier than a delayed control; retain logical owners and restore
 their native objects rather than replaying cold IR. A passing delayed cold
 entry alone does not qualify that ordering.
+Three stable safe-bound draws and a hardware frame-commit callback still do
+not guarantee display completion before engine initialization. Retain the
+independent presentation gate for startup trials; do not turn passing tree
+or input checks into a timing qualification when that gate rejects a trace.
 
 For paired trials, retain app data after predeclared warmups, force-stop each
 process, alternate order and reject stale receipts using launch tokens.
@@ -50,6 +54,10 @@ A commit/restore timestamp is not
 first possible input latency. The fixture's
 [startup protocol](../../tools/platform-qualification/native-prerender/README.md#matched-android-release-startup-controls)
 owns executable assertions; reports/Silo own measurements and current verdicts.
+The collector can select a physical phone only by explicit serial under a
+`device:<serial>` reservation. It never shuts that phone down. Keep device
+identity/API/firmware bound to each trial and distinguish a physical pilot
+from a production performance or first-working-input qualification.
 
 ## Keep cold adoption separate from warm owner restoration
 

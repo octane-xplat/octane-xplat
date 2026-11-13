@@ -433,6 +433,22 @@ bun turbo run probe:prerender:android --filter=@xplat/platform-qualification
 
 The collector installs once and resets only its disposable fixture data before four predeclared warmups (native, ordinary, ordinary, native). Measured pairs alternate their order. It force-stops between launches, retains app data/cache for subsequent trials, and binds receipts to unique launch tokens. Counts1..12 are accepted; every trial must pass, and failed collections remain failed. `trials.json` identifies warmups and measured reports; `trials-progress.json` preserves completed attempts if collection is interrupted. The owned emulator shuts down before analysis.
 
+For an authorized connected ARM64 phone running Android35 or newer, set its exact serial and reserve `device:<serial>` instead. Physical mode requires the startup fixture, checks that the selected target is connected and is not an emulator, records its model/API/build fingerprint, and never boots, reboots or shuts down the phone. It removes/reinstalls only the disposable `org.octanexplat.prerenderhome.android` fixture before the session; this avoids OEM restrictions on shell `pm clear`. Data persists throughout warmups/measured trials. Keep the phone unlocked and leave it available to the test; no security, display or power settings are changed. Android/API support is qualified only for targets actually run.
+
+```sh
+XPLAT_PRERENDER_ANDROID_BUILD="$STARTUP_BUILD_DIRECTORY" \
+XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL="$PHONE_SERIAL" \
+XPLAT_PRERENDER_ANDROID_TRACE=1 \
+XPLAT_PRERENDER_TRACE_PROCESSOR="$TRACE_PROCESSOR_BINARY" \
+XPLAT_PRERENDER_ANDROID_STARTUP_PAIRS=8 \
+goddard-agent resource run --json "{\"resources\":{\"exclusive\":[\"device:$PHONE_SERIAL\"]},\"purpose\":\"Physical Home startup pilot\"}" -- \
+bun turbo run probe:prerender:android --filter=@xplat/platform-qualification
+```
+
+Reports and analysis identify the device kind and require the same device identity across every trial. Physical and emulator pilot qualification are separate fields. Neither pilot establishes first possible input latency or production performance; the OS tap proves functional interaction after the observed readiness checks.
+
+Physical trials retain read-only battery/thermal observations before launch. Startup input also records a small display-state observation after readiness. On failure, the collector keeps only the fixture's window and ANR entries; it omits unrelated app/window lines. These diagnostics do not replace the input/frame assertions or make a failed collection eligible for comparison.
+
 Analyze the parent collection directory with an explicit Trace Processor binary:
 
 ```sh

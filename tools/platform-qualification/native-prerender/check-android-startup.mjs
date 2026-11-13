@@ -18,6 +18,13 @@ const build = JSON.parse(readFileSync(join(report, 'build.json')))
 const startup = JSON.parse(readFileSync(join(report, 'startup.json')))
 const capture = JSON.parse(readFileSync(join(report, 'trace-start.json')))
 const events = JSON.parse(readFileSync(join(report, 'result.json')))
+const deviceIdentity = JSON.parse(readFileSync(join(report, 'device-identity.json')))
+check(
+  ['physical', 'emulator'].includes(deviceIdentity.deviceKind) &&
+    status.deviceKind === deviceIdentity.deviceKind &&
+    status.api === deviceIdentity.api,
+  'Startup device identity or qualification target differs',
+)
 const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('hex')
 check(
   status.passed &&
@@ -135,6 +142,7 @@ const result = {
   verifierHash: hash(import.meta.filename),
   queryHelperHash: hash(join(import.meta.dirname, 'android-trace-query.mjs')),
   processName,
+  deviceIdentity,
   processStartNanos: startup.processStartNanos,
   markers,
   candidates,
@@ -149,7 +157,9 @@ const result = {
   speedupQualified: false,
   physicalPerformanceQualified: false,
   scope:
-    'Single emulator release startup observation; live-tree acceptance is not first possible input; OS tap verified separately; use the paired collector/analyzer for a warm-cache comparison',
+    'Single ' +
+    deviceIdentity.deviceKind +
+    ' release startup observation; live-tree acceptance is not first possible input; OS tap verified separately; use the paired collector/analyzer for a warm-cache comparison',
 }
 writeFileSync(join(report, 'startup-timing.json'), JSON.stringify(result, null, 2))
 console.log(JSON.stringify(result, null, 2))
