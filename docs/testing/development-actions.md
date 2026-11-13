@@ -161,103 +161,82 @@ if (import.meta.env.DEV) {
 
 ## Wait for a screen's registered work
 
-A [maintained cross-platform example](../../examples/dev-actions/readiness.tsrx) combines a fixture action and context-owned readiness.
-
-Wrap a development screen in `DevActionScope` to give its descendant actions a shared readiness owner. Component-owned actions and effects automatically use the nearest scope and wait for its registered work after their handlers return. Nested scopes contribute to their parent. Keep the wrapper behind the development gate so production uses the ordinary screen.
+Use the framework's [readiness scope](../app/readiness.md) around a screen. It works in production too; keep only action declarations behind the development gate. Descendant action/effect hooks automatically bind their nearest scope. The [maintained example](../../examples/dev-actions/readiness.tsrx) combines ordinary loading UI with a preparation action.
 
 ```tsx
-import { DevActionScope } from '@octane-xplat/platform/dev-actions/readiness'
+import { ReadinessScope } from '@octane-xplat/platform/readiness'
 import { Checkout } from './Checkout'
 
 export function CheckoutScreen() {
-  if (import.meta.env.DEV) {
-    return <DevActionScope label="Checkout"><Checkout /></DevActionScope>
-  }
-  return <Checkout />
+  return <ReadinessScope label="Checkout"><Checkout /></ReadinessScope>
 }
 ```
 
-Inside that scope, shared `useQuery$` readers automatically report initial loading, fetching, paused requests, and query errors as pending work in development. A query becomes ready when its state is `ready` and its fetch status is `idle`; a failed or paused query keeps the action waiting until recovery or the action deadline. Query keys, input values, and errors are not included in readiness labels.
+Shared queries register automatically, and custom work uses `useReadinessTask`. A query refresh with existing data keeps ordinary UI ready. Dev actions apply the stricter `includeBackground: true` wait: all registered work must succeed, including background refreshes. Failed work rejects promptly with `readiness_failed`; it does not stay pending until timeout. Labels are static, and snapshots omit query keys, input values and raw errors.
 
 ```tsx
-import { Text } from '@octane-xplat/ui'
-import { createQueryClient, defineQuery, useQuery$ } from '@octane-xplat/ui/data'
+import { useReadinessTask } from '@octane-xplat/platform/readiness'
+import { useDevAction } from '@octane-xplat/platform/dev-actions'
 
-const client = createQueryClient()
-const orders = defineQuery(['fixture-orders'], async (id: string) => ({ title: `Order ${id}` }))
-
-export function Checkout() {
-  const order = useQuery$(client, orders, 'dev-order')
-  if (!order) return <Text>Loading order…</Text>
-  return <Text>{order.data$.get().title}</Text>
-}
-```
-
-For other component-owned work, report a pending boolean with `useDevReadiness`. Context connects it to the nearest scope; changing the boolean or unmounting releases its registration. Use static labels without customer data. The hook is inert outside a scope. Image decoding, custom network clients, and animations need their own registrations; they are not inferred from arbitrary asynchronous code.
-
-```tsx
-import { Text } from '@octane-xplat/ui'
-import { useDevAction, useDevReadiness } from '@octane-xplat/platform/dev-actions'
-
-export function Preview(props: { loading: boolean }) {
+export function Preview(props: { loading: boolean; error?: unknown }) {
+  useReadinessTask({ label: 'Preparing preview', pending: props.loading, error: props.error })
   if (import.meta.env.DEV) {
-    useDevReadiness(props.loading, 'Preparing preview')
     useDevAction({
-      id: 'preview.inspect',
-      title: 'Inspect preview',
-      description: 'Confirm registered preview work has settled.',
+      id: 'preview.inspect', title: 'Inspect preview',
+      description: 'Confirm registered preview work succeeded.',
       effects: { summary: 'Reads local preview state' },
       execution: { timeoutMs: 5000, cancellable: true },
       run() { return {} },
     }, { label: 'Preview' })
   }
-  return <Text>{props.loading ? 'Preparing…' : 'Ready'}</Text>
+  return null
 }
 ```
 
-Availability and readiness answer different questions: `availability.ready` admits an invocation; scoped readiness waits after the handler, so preparation can resolve pending work. Successful readiness means registered work was empty across an event-loop turn. It does not certify foreground visibility, native frame presentation, future tasks, or unregistered work. Owner disposal, cancellation, or an expired readiness budget prevents success. The readiness wait uses at most half the remaining declared action time, capped at 10 seconds (also the default cap when no timeout is declared). Handler and navigation time reduce the remaining budget. The reserve leaves time to return a confirmed failure before the caller stops observing.
+Availability admits an invocation; readiness waits after its handler. The wait uses at most half the action's remaining declared time, capped at ten seconds, leaving time to report a confirmed outcome. Cancellation or owner disposal prevents success. Successful registered-work readiness does not certify foreground visibility, native frame presentation or unregistered work. A handler can succeed while the later readiness wait fails; inspect diagnostics before retrying.
 
 ```json
 {
   "status": "failed",
   "handlers": [{ "handler": 0, "label": "Preview", "status": "succeeded" }],
-  "readiness": [{ "scope": "Preview", "revision": 3, "pending": ["Preparing preview"] }],
-  "error": { "code": "readiness_timeout", "message": "readiness_timeout: Preview (Preparing preview)" }
+  "readiness": [{ "scope": "Preview", "revision": 3, "status": "blocked", "pending": [], "failures": [{ "label": "Preparing preview", "blocking": true }] }],
+  "error": { "code": "readiness_failed", "message": "readiness_failed: Preview" }
 }
 ```
 
-Diagnostics and escape actions sometimes need to run while work is still pending. Set `waitForReadiness: false` on those component hooks; the default remains to wait. Keep scopes close to each screen so an unrelated mounted screen does not block its sibling's actions.
+Diagnostics and escape actions can set `waitForReadiness: false` to return while work remains pending or failed. Keep scopes close to each screen so unrelated retained screens do not block sibling actions.
 
 ```tsx
 if (import.meta.env.DEV) {
   useDevAction({
-    id: 'preview.diagnostics', title: 'Inspect pending preview',
-    description: 'Read local state even while preparation is pending.',
+    id: 'preview.diagnostics', title: 'Inspect preview state',
+    description: 'Read local state while preparation is pending or failed.',
     effects: { summary: 'Reads local state' },
     run() { return {} },
   }, { label: 'Preview diagnostics', waitForReadiness: false })
 }
 ```
 
-Module-owned services can attach a readiness scope explicitly. Hold work before starting it and release it in `finally`; dispose the scope when its service ends. Component hooks bind their scope through context automatically.
+Module-owned handlers can attach a controller explicitly. The service owns its registration and disposes it and the handler when finished. Components get this binding through context automatically.
 
 ```ts
-import {
-  attachDevActionHandler, createDevReadinessScope, defineDevAction,
-} from '@octane-xplat/platform/dev-actions'
+import { createReadinessScope } from '@octane-xplat/platform/readiness/controller'
+import { attachDevActionHandler, defineDevAction } from '@octane-xplat/platform/dev-actions'
 
-const scope = createDevReadinessScope('Fixture service')
+const scope = createReadinessScope('Fixture service')
+const task = scope.register({ label: 'Fixture setup', pending: true })
 const prepare = defineDevAction({
   id: 'fixture.prepare', title: 'Prepare fixture',
   description: 'Prepare local fixture state.',
   effects: { summary: 'Updates fixture state', testData: true },
 })
 const detach = attachDevActionHandler(prepare, () => {
-  const release = scope.hold('Fixture setup')
-  try { return {} } finally { release() }
+  task.update({ label: 'Fixture setup', pending: false })
+  return {}
 }, { label: 'Fixture service', readiness: scope })
 // When the service ends:
 detach()
+task.dispose()
 prepare.dispose()
 scope.dispose()
 ```

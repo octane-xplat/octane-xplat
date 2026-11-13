@@ -33,7 +33,7 @@ async function loadDevActions(globals = {}) {
 
   const modules = {
     './dev-actions-schema': await compile('dev-actions-schema'),
-    './dev-readiness-state': await compile('dev-readiness-state'),
+    './readiness-state': await compile('readiness-state'),
     './dev-bridge': devBridgeSource,
   }
 
@@ -79,7 +79,7 @@ async function loadDevActions(globals = {}) {
     if (
       spec === './dev-actions-schema' ||
       spec === './dev-bridge' ||
-      spec === './dev-readiness-state'
+      spec === './readiness-state'
     ) {
       const inner = { ...sandbox, exports: {}, require: sandbox.require, console }
 
@@ -97,7 +97,7 @@ async function loadDevActions(globals = {}) {
     require: sandbox.require,
   })
 
-  return { exports: sandbox.exports, sandbox, readiness: sandbox.require('./dev-readiness-state') }
+  return { exports: sandbox.exports, sandbox, readiness: sandbox.require('./readiness-state') }
 }
 
 async function makeBridge(t) {
@@ -1786,7 +1786,7 @@ test('scoped actions await work registered by the handler and report timeout blo
     token: bridge.token,
   })
 
-  const scope = readiness.createDevReadinessScope('Checkout')
+  const scope = readiness.createReadinessScope('Checkout')
   const action = api.defineDevAction(
     declaration({ id: 'checkout.prepare', execution: { timeoutMs: 150 } }),
   )
@@ -1795,7 +1795,7 @@ test('scoped actions await work registered by the handler and report timeout blo
   const detach = api.attachDevActionHandler(
     action,
     () => {
-      release = scope.hold('Image decode')
+      release = scope.register({ label: 'Image decode', pending: true }).dispose
       return {}
     },
     { label: 'Checkout', readiness: scope },
@@ -1813,7 +1813,7 @@ test('scoped actions await work registered by the handler and report timeout blo
 
   assert.equal(outcome.status, 'failed')
   assert.equal(outcome.error.code, 'readiness_timeout')
-  assert.deepEqual(outcome.readiness[0].pending, ['Image decode'])
+  assert.deepEqual(outcome.readiness[0].pending, [{ label: 'Image decode', blocking: true }])
   assert.deepEqual(outcome.handlers, [{ handler: 0, label: 'Checkout', status: 'succeeded' }])
   release()
 })
@@ -1825,12 +1825,12 @@ test('scoped effects await released work and keep named participant failures', a
     token: bridge.token,
   })
 
-  const scope = readiness.createDevReadinessScope('Screen')
+  const scope = readiness.createReadinessScope('Screen')
   const effect = api.defineDevEffect(declaration({ id: 'screen.reset' }))
   const detach = api.attachDevEffectHandler(
     effect,
     () => {
-      const release = scope.hold('Loading fixture')
+      const release = scope.register({ label: 'Loading fixture', pending: true }).dispose
 
       setTimeout(release, 60)
       return {}
@@ -1882,7 +1882,7 @@ test('detaching a completed handler cancels its outstanding scoped readiness wai
     token: bridge.token,
   })
 
-  const scope = readiness.createDevReadinessScope('Owner')
+  const scope = readiness.createReadinessScope('Owner')
   const action = api.defineDevAction(
     declaration({ id: 'owner.prepare', execution: { timeoutMs: 2000, cancellable: true } }),
   )
@@ -1890,7 +1890,7 @@ test('detaching a completed handler cancels its outstanding scoped readiness wai
   const detach = api.attachDevActionHandler(
     action,
     () => {
-      scope.hold('Pending owner work')
+      scope.register({ label: 'Pending owner work', pending: true })
       return {}
     },
     { label: 'Owner', readiness: scope },
@@ -1918,7 +1918,7 @@ test('a completed long handler retains a readiness budget from its remaining exe
     token: bridge.token,
   })
 
-  const scope = readiness.createDevReadinessScope('Slow handler')
+  const scope = readiness.createReadinessScope('Slow handler')
   const action = api.defineDevAction(
     declaration({ id: 'slow.prepare', execution: { timeoutMs: 400 } }),
   )
@@ -1943,4 +1943,46 @@ test('a completed long handler retains a readiness budget from its remaining exe
   const outcome = await invokeRouteAction(bridge, instance, 'req_slow_ready', action.id)
 
   assert.equal(outcome.status, 'succeeded', JSON.stringify(outcome))
+})
+
+test('dev actions reject background failures promptly with safe diagnostics', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api, readiness } = await loadDevActions({
+    origin: bridge.origin,
+    token: bridge.token,
+  })
+
+  const scope = readiness.createReadinessScope('Feed')
+  const action = api.defineDevAction(declaration({ id: 'feed.assert' }))
+  const task = scope.register({
+    label: 'Background refresh',
+    pending: false,
+    error: Error('private'),
+    blocking: false,
+  })
+
+  const detach = api.attachDevActionHandler(action, () => ({}), { label: 'Feed', readiness: scope })
+
+  t.after(() => {
+    detach()
+    task.dispose()
+    action.dispose()
+    scope.dispose()
+    api.startDevActionBridge().stop()
+  })
+
+  assert.equal(scope.snapshot().status, 'ready')
+
+  const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+  const outcome = await invokeRouteAction(bridge, instance, 'req_background_failure', action.id)
+
+  assert.equal(outcome.status, 'failed')
+  assert.equal(outcome.error.code, 'readiness_failed')
+  assert.deepEqual(outcome.readiness[0].pending, [])
+  assert.deepEqual(outcome.readiness[0].failures, [
+    { label: 'Background refresh', blocking: false },
+  ])
+
+  assert.equal(outcome.handlers[0].status, 'succeeded')
+  assert.equal(JSON.stringify(outcome).includes('private'), false)
 })

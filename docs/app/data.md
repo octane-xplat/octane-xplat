@@ -1430,3 +1430,16 @@ await session.queries.dispose({ purgePersisted: true })
 ## Try a small demo
 
 [Try the packing list demo](../demos/packing-list.md) with bundled local content.
+
+## Observe a screen’s readiness
+
+Inside a [readiness scope](readiness.md), shared query readers automatically report initial loading, paused work and failures in all build modes. A refresh with usable data remains background work, so ordinary readiness stays ready; dev actions can require the refresh to succeed too.
+
+```tsx
+import { ReadinessScope } from '@octane-xplat/platform/readiness'
+import { Orders } from './Orders'
+
+export function OrderScreen() {
+  return <ReadinessScope label="Orders"><Orders /></ReadinessScope>
+}
+```

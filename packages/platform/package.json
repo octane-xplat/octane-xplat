@@ -56,10 +56,6 @@
 			"types": "./types/generated/testing.mobile.d.ts",
 			"native": "./src/testing.mobile.ts"
 		},
-		"./dev-actions/readiness": {
-			"types": "./types/generated/dev-actions-readiness.d.ts",
-			"default": "./src/dev-actions-readiness.ts"
-		},
 		"./dev-actions": {
 			"types": "./types/generated/dev-actions.d.ts",
 			"default": "./src/dev-actions.ts"
@@ -241,6 +237,14 @@
 		"./breakpoints.web.tsrx": {
 			"types": "./types/generated/breakpoints.d.ts",
 			"default": "./src/breakpoints.web.tsrx"
+		},
+		"./readiness": {
+			"types": "./types/generated/readiness.d.ts",
+			"default": "./src/readiness.ts"
+		},
+		"./readiness/controller": {
+			"types": "./types/generated/readiness-state.d.ts",
+			"default": "./src/readiness-state.ts"
 		}
 	},
 	"publishConfig": {
@@ -248,7 +252,7 @@
 	},
 	"scripts": {
 		"test": "node --test tests/*.test.mts && vitest run --config vitest.environment.config.mts",
-		"test:dev-bridge": "node --test --test-concurrency=2 tests/dev-bridge-endpoint.test.mts tests/dev-actions.test.mts tests/dev-readiness*.test.mts",
+		"test:dev-bridge": "node --test --test-concurrency=2 tests/dev-bridge-endpoint.test.mts tests/dev-actions.test.mts tests/readiness*.test.mts",
 		"test:connectivity:macos": "node tests/verify-connectivity-macos.mts",
 		"typegen": "tsrx-typegen --project tsconfig.types.json",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",

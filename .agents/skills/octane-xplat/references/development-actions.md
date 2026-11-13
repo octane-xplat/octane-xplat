@@ -78,20 +78,18 @@ sessions; NativeScript frames match by line text, so an occasional frame may
 stay raw). Keep secrets out
 of thrown errors — they cross the dev channel verbatim.
 
-## Own readiness through context
+## Use framework readiness
 
-Mount `DevActionScope` from `@octane-xplat/platform/dev-actions/readiness` behind the development gate around a screen. Descendant action/effect hooks bind the nearest scope automatically; nested scopes join their parent. `useDevReadiness(pending, staticLabel)` from `/dev-actions` reports custom pending work with automatic update/unmount cleanup. Shared `useQuery$` readers report development loading/fetching/paused/error state automatically. These labels must never contain data or keys. See the [registered-work guide](../../../../docs/testing/development-actions.md#wait-for-a-screens-registered-work).
+Mount `ReadinessScope` from `@octane-xplat/platform/readiness` around a screen in every build mode. Descendant action/effect hooks bind the nearest scope; nested scopes join their parent. Shared queries register initial loads, background refreshes and failures automatically. Custom work uses `useReadinessTask({label,pending,error,blocking?})`; `useReadiness$()` observes a read-only signal and requires a scope. See the [readiness guide](../../../../docs/app/readiness.md).
 
 ```tsx
-if (import.meta.env.DEV) {
-  useDevReadiness(isPreparing, 'Preparing preview')
-}
+useReadinessTask({ label: 'Preparing preview', pending: isPreparing, error: preparationError })
 ```
 
-Readiness is a post-handler wait, distinct from invocation availability. Keep scopes screen-local. Use `{ waitForReadiness: false }` for diagnostics and escape actions that must run while the scope is pending. A readiness timeout can follow successful handlers; inspect `handlers`, `readiness`, and partial effects before retrying. Only work registered in the scope is covered. Native frame presentation, image decoding, custom clients, animations and foreground route identity are not automatically established. Module-owned handlers can attach an explicit scope; do not make component authors pass it through each callback.
+Dev actions use a strict post-handler wait that includes background work. Normal UI can stay ready during a refresh with usable data. Failures are separate from pending work and cause `readiness_failed` promptly. Diagnostics/escape actions opt out with `waitForReadiness:false`. Module services use `/readiness/controller`; never pass controller handles through component callbacks. Snapshot task entries contain only `{label,blocking}`. Readiness does not establish native frames or foreground route identity.
 
 ```json
-{"handlers":[{"handler":0,"label":"Preview","status":"succeeded"}],"readiness":[{"scope":"Preview","revision":3,"pending":["Preparing preview"]}]}
+{"handlers":[{"handler":0,"label":"Preview","status":"succeeded"}],"readiness":[{"scope":"Preview","revision":3,"status":"blocked","pending":[],"failures":[{"label":"Preparing preview","blocking":true}]}]}
 ```
 
 ## Choose what to cover

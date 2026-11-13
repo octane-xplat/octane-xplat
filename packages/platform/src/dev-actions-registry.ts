@@ -22,11 +22,7 @@
 // - Duplicate ids throw; disposing the returned handle removes the action
 //   (component-owned registrations end with their owner).
 
-import {
-  DevReadinessError,
-  type DevReadinessScope,
-  type DevReadinessSnapshot,
-} from './dev-readiness-state'
+import { ReadinessError, type ReadinessController, type ReadinessSnapshot } from './readiness-state'
 
 import type { AppDebugSocket } from './dev-bridge-socket'
 import { devBridgeEndpoint, devBridgePlatform, devBridgeSocket } from './dev-bridge'
@@ -67,7 +63,7 @@ export type DevActionInfo = {
     platforms?: DevPlatform[] | undefined
   }
   /** Registered work owned by selected handlers; separate from invocation availability. */
-  readiness?: DevReadinessSnapshot[]
+  readiness?: ReadinessSnapshot[]
   /** Current/last execution record. */
   execution: DevActionExecution | undefined
 }[]
@@ -225,11 +221,11 @@ export interface DevActionHandlerOptions {
   /** Static owner label, without user data. */
   label?: string
   /** Readiness owner to await after execution; omitted for unscoped handlers. */
-  readiness?: DevReadinessScope
+  readiness?: ReadinessController
 }
 
 interface HandlerEntry {
-  readiness?: DevReadinessScope
+  readiness?: ReadinessController
   run: DevActionRun
   label?: string
 }
@@ -397,7 +393,7 @@ interface DevActionOutcome {
   error?: { code: string; message: string; failures?: DevActionFailure[] }
   partialEffects?: string[]
   handlers?: DevActionHandlerOutcome[]
-  readiness?: DevReadinessSnapshot[]
+  readiness?: ReadinessSnapshot[]
   completedAt: string
 }
 
@@ -1813,8 +1809,8 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 
     let invocationFailures: DevActionFailure[] | undefined
     const participants: DevActionHandlerOutcome[] = []
-    const readiness: DevReadinessSnapshot[] = []
-    const scopes = new Set<DevReadinessScope>()
+    const readiness: ReadinessSnapshot[] = []
+    const scopes = new Set<ReadinessController>()
     const deadline = Date.now() + (spec.execution?.timeoutMs ?? 30_000)
 
     try {
@@ -2025,6 +2021,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
           [...scopes].map((scope) =>
             scope.wait({
               signal: waitController.signal,
+              includeBackground: true,
               timeoutMs: Math.min(10_000, Math.max(1, Math.floor((deadline - Date.now()) / 2))),
             }),
           ),
@@ -2090,7 +2087,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
               readiness,
               error: {
                 code:
-                  error instanceof DevNavigationError || error instanceof DevReadinessError
+                  error instanceof DevNavigationError || error instanceof ReadinessError
                     ? error.code
                     : 'execution_failure',
                 message: (error as Error)?.message ?? String(error),

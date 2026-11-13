@@ -125,3 +125,15 @@ Rules for consumers:
 - This package provides services. Screen components and OS widgets live in [`@octane-xplat/ui`](https://octane-xplat.goddardai.org/primitives).
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-platform).
+
+## Screen readiness
+
+Use [readiness scopes](../app/readiness.md) to observe screen-owned loading and failures in every build mode. Shared queries join automatically; custom work reports state through context.
+
+```tsx
+import { ReadinessScope } from '@octane-xplat/platform/readiness'
+
+export function PreviewPanel(props: { children?: unknown }) {
+  return <ReadinessScope label="Preview">{props.children}</ReadinessScope>
+}
+```

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'octane'
-import { useDevReadinessSource } from '@octane-xplat/platform/use-dev-readiness-source.tsrx'
+import { useReadinessSource } from '@octane-xplat/platform/use-readiness-source.tsrx'
 import {
   canonicalQueryKey,
   type QueryClient,
@@ -9,8 +9,11 @@ import {
   type QueryState,
 } from './query-cache'
 
-const queryPending = (state: QueryState): boolean =>
-  state.status !== 'ready' || state.fetchStatus !== 'idle'
+const queryReadiness = (state: QueryState) => ({
+  pending: state.fetchStatus !== 'idle' || state.status === 'pending',
+  blocking: !state.hasData,
+  error: state.status === 'error' ? true : undefined,
+})
 
 /**
  * Observe shared data for this component's committed selection. Returns undefined
@@ -53,9 +56,7 @@ export function useQuery$<A extends QueryKeyPart, T>(
       ? observation.reader
       : undefined
 
-  if (import.meta.env.DEV) {
-    useDevReadinessSource(reader?.state$, queryPending, 'Shared query')
-  }
+  useReadinessSource(reader?.state$, queryReadiness, 'Shared query')
 
   return reader
 }

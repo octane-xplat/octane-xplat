@@ -11,7 +11,7 @@ import {
   type DevEffectDefinition,
 } from './dev-actions-registry'
 
-import { DevReadinessContext } from './dev-readiness-context'
+import { ReadinessContext } from './readiness-context'
 
 type ReadyProbe = Exclude<DevActionAvailability['ready'], boolean | undefined>
 
@@ -32,7 +32,7 @@ export interface DevActionHookOptions {
  * handler always runs the latest render's `run` closure.
  */
 export function useDevAction(spec: DevActionSpec, options?: DevActionHookOptions): void {
-  const owner = useContext(DevReadinessContext)
+  const owner = useContext(ReadinessContext)
   const readiness = options?.waitForReadiness === false ? undefined : owner
   const enabled = options?.enabled !== false
   const label = options?.label
@@ -89,7 +89,7 @@ export function useDevActionHandler(
   run: DevActionRun,
   options?: DevActionHookOptions,
 ): void {
-  const owner = useContext(DevReadinessContext)
+  const owner = useContext(ReadinessContext)
   const readiness = options?.waitForReadiness === false ? undefined : owner
   const enabled = options?.enabled !== false
   const label = options?.label
@@ -114,7 +114,7 @@ export function useDevEffect(
   run: DevActionRun,
   options?: DevActionHookOptions,
 ): void {
-  const owner = useContext(DevReadinessContext)
+  const owner = useContext(ReadinessContext)
   const readiness = options?.waitForReadiness === false ? undefined : owner
   const enabled = options?.enabled !== false
   const label = options?.label

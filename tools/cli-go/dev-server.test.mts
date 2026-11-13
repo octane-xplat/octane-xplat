@@ -553,7 +553,7 @@ test(
     for (const name of [
       'dev-actions-registry.ts',
       'dev-actions-schema.ts',
-      'dev-readiness-state.ts',
+      'readiness-state.ts',
       'dev-bridge-socket.ts',
     ]) {
       cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
@@ -959,7 +959,7 @@ test(
     for (const name of [
       'dev-actions-registry.ts',
       'dev-actions-schema.ts',
-      'dev-readiness-state.ts',
+      'readiness-state.ts',
       'dev-bridge-socket.ts',
     ]) {
       cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
@@ -1316,7 +1316,7 @@ test(
     for (const name of [
       'dev-actions-registry.ts',
       'dev-actions-schema.ts',
-      'dev-readiness-state.ts',
+      'readiness-state.ts',
       'dev-bridge-socket.ts',
     ]) {
       cpSync(join(root, 'packages/platform/src', name), join(f.app, name))

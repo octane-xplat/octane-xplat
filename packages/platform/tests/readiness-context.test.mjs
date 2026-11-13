@@ -32,10 +32,19 @@ test('compiled context owns nested readiness leases across updates and unmount',
         compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
       })
       .outputText.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, id) => {
-        const target = id === 'octane' ? runtime : imports[id]
+        const target =
+          id === 'octane'
+            ? runtime
+            : id.startsWith('octane/')
+              ? import.meta.resolve(id)
+              : imports[id]
 
         return target ? 'from ' + JSON.stringify(target) : match
       })
+      .replace(
+        /import\s*(['"])(octane\/[^'"]+)\1/g,
+        (_match, _quote, id) => 'import ' + JSON.stringify(import.meta.resolve(id)),
+      )
 
     const path = join(directory, name + '.mjs')
 
@@ -48,36 +57,35 @@ test('compiled context owns nested readiness leases across updates and unmount',
   try {
     const state = file(
       'state',
-      readFileSync(new URL('../src/dev-readiness-state.ts', import.meta.url), 'utf8'),
+      readFileSync(new URL('../src/readiness-state.ts', import.meta.url), 'utf8'),
     )
 
     const context = file(
       'context',
-      readFileSync(new URL('../src/dev-readiness-context.ts', import.meta.url), 'utf8'),
+      readFileSync(new URL('../src/readiness-context.ts', import.meta.url), 'utf8'),
     )
 
     const hooks = file(
       'hooks',
-      readFileSync(new URL('../src/dev-readiness.tsrx', import.meta.url), 'utf8'),
-      { './dev-readiness-state': state, './dev-readiness-context': context },
+      readFileSync(new URL('../src/readiness-scope.tsrx', import.meta.url), 'utf8'),
+      { './readiness-state': state, './readiness-context': context },
       true,
     )
 
     const work = file(
       'work',
-      readFileSync(new URL('../src/use-dev-readiness.tsrx', import.meta.url), 'utf8'),
-      { './dev-readiness-context': context },
+      readFileSync(new URL('../src/use-readiness-task.tsrx', import.meta.url), 'utf8'),
+      { './readiness-context': context },
       true,
     )
 
-    // The maintained example must also lower through the native compiler.
-    compile(
-      readFileSync(
-        new URL('../../../examples/dev-actions/readiness.tsrx', import.meta.url),
-        'utf8',
-      ),
-      'readiness-example.tsrx',
-      {
+    // Maintain native syntax coverage for loading, recovery and dev preparation.
+    for (const relative of [
+      'examples/dev-actions/readiness.tsrx',
+      'examples/readiness/loading.tsrx',
+      'examples/readiness/recovery.tsrx',
+    ]) {
+      compile(readFileSync(new URL('../../../' + relative, import.meta.url), 'utf8'), relative, {
         renderer: {
           id: 'nativescript',
           module: runtime,
@@ -85,13 +93,20 @@ test('compiled context owns nested readiness leases across updates and unmount',
           server: 'unsupported',
           text: 'host',
         },
-      },
+      })
+    }
+
+    const observer = file(
+      'observer',
+      readFileSync(new URL('../src/use-readiness.tsrx', import.meta.url), 'utf8'),
+      { './readiness-context': context },
+      true,
     )
 
     const sourceHook = file(
       'source-hook',
-      readFileSync(new URL('../src/use-dev-readiness-source.tsrx', import.meta.url), 'utf8'),
-      { './dev-readiness-context': context },
+      readFileSync(new URL('../src/use-readiness-source.tsrx', import.meta.url), 'utf8'),
+      { './readiness-context': context },
       true,
     )
 
@@ -108,36 +123,40 @@ test('compiled context owns nested readiness leases across updates and unmount',
     const registry = file(
       'registry',
       readFileSync(new URL('../src/dev-actions-registry.ts', import.meta.url), 'utf8'),
-      { './dev-actions-schema': schema, './dev-bridge': bridge, './dev-readiness-state': state },
+      { './dev-actions-schema': schema, './dev-bridge': bridge, './readiness-state': state },
     )
 
     const actions = file(
       'action-hooks',
       readFileSync(new URL('../src/use-dev-action.tsrx', import.meta.url), 'utf8'),
-      { './dev-actions-registry': registry, './dev-readiness-context': context },
+      { './dev-actions-registry': registry, './readiness-context': context },
       true,
     )
 
     const { listDevActions } = await import(registry)
     const fixture = file(
       'fixture',
-      `import {useContext} from 'octane';
-import {DevReadinessContext} from 'context';
-import {DevActionScope} from 'hooks';
-import {useDevReadiness} from 'work';
-import {useDevReadinessSource} from 'source-hook';
+      `import 'octane/signals';
+import {useContext} from 'octane';
+import {ReadinessContext} from 'context';
+import {ReadinessScope} from 'hooks';
+import {useReadinessTask} from 'work';
+import {useReadiness$} from 'observer';
+import {useReadinessSource} from 'source-hook';
 import {useDevAction} from 'actions';
 export function Child(props) {
- const scope=useContext(DevReadinessContext);
- useDevReadiness(props.pending,'Image');
- if(props.source) useDevReadinessSource(props.source,value=>value,'Query');
+ const scope=useContext(ReadinessContext);
+ useReadinessTask({label:'Image',pending:props.pending,error:props.error});
+ const readiness$=props.observe ? useReadiness$() : null;
+ props.observe?.(readiness$?.get().status);
+ if(props.source) useReadinessSource(props.source,value=>({pending:value}),'Query');
  useDevAction({id:'fixture.context',title:'Context fixture',description:'Owned fixture',effects:{summary:'Read only'},run:()=>({})},{label:'Child'});
  useDevAction({id:'fixture.diagnostics',title:'Diagnostics fixture',description:'Owned diagnostics',effects:{summary:'Read only'},run:()=>({})},{label:'Diagnostics',waitForReadiness:false});
  props.capture(scope);
  return <label text={props.pending?'Loading':'Ready'}/>;
 }
-export function App(props) {return <DevActionScope label="Root"><DevActionScope label="Nested"><Child pending={props.pending} capture={props.capture} source={props.source}/></DevActionScope></DevActionScope>;}`,
-      { context, hooks, work, 'source-hook': sourceHook, actions },
+export function App(props) {return <ReadinessScope label="Root"><ReadinessScope label="Nested"><Child pending={props.pending} capture={props.capture} source={props.source} error={props.error} observe={props.observe}/></ReadinessScope></ReadinessScope>;}`,
+      { context, hooks, work, observer, 'source-hook': sourceHook, actions },
       true,
     )
 
@@ -146,7 +165,11 @@ export function App(props) {return <DevActionScope label="Root"><DevActionScope 
 
     root = createUniversalRoot(host, createObjectDriver('nativescript'))
 
-    let scope
+    let scope, renderedStatus
+    const observe = (value) => {
+      renderedStatus = value
+    }
+
     const capture = (value) => {
       scope = value
     }
@@ -163,12 +186,12 @@ export function App(props) {return <DevActionScope label="Root"><DevActionScope 
       assert.fail('Context update did not commit')
     }
 
-    root.render(App, { pending: true, capture })
+    root.render(App, { pending: true, capture, observe })
     await until(() => scope?.snapshot().pending.length === 1)
 
     assert.deepEqual(
       listDevActions().find((action) => action.id === 'fixture.context').readiness[0].pending,
-      ['Image'],
+      [{ label: 'Image', blocking: true }],
     )
 
     assert.deepEqual(
@@ -176,14 +199,24 @@ export function App(props) {return <DevActionScope label="Root"><DevActionScope 
       [],
     )
 
+    await until(() => renderedStatus === 'pending')
+
     const initial = scope
     const controller = new AbortController()
     const wait = scope.wait({ signal: controller.signal, timeoutMs: 1000 })
 
-    root.render(App, { pending: false, capture })
+    root.render(App, { pending: false, capture, observe })
     await wait
+    await until(() => renderedStatus === 'ready')
     assert.equal(scope, initial)
     assert.deepEqual(scope.snapshot().pending, [])
+
+    root.render(App, { pending: false, error: new Error('private'), capture, observe })
+    await until(() => renderedStatus === 'blocked')
+    assert.equal(scope.snapshot().pending.length, 0)
+    await assert.rejects(scope.wait({ timeoutMs: 1000 }), { code: 'readiness_failed' })
+    root.render(App, { pending: false, capture, observe })
+    await until(() => renderedStatus === 'ready')
 
     let pending = true,
       notify
@@ -199,13 +232,14 @@ export function App(props) {return <DevActionScope label="Root"><DevActionScope 
     }
 
     root.render(App, { pending: false, capture, source })
-    await until(() => scope.snapshot().pending[0] === 'Query')
+    await until(() => scope.snapshot().pending[0]?.label === 'Query')
     pending = false
     notify()
     await scope.wait({ signal: controller.signal, timeoutMs: 1000 })
     assert.deepEqual(scope.snapshot().pending, [])
-    root.render(App, { pending: true, capture })
+    root.render(App, { pending: true, capture, observe })
     await until(() => scope.snapshot().pending.length === 1)
+    await until(() => renderedStatus === 'pending')
 
     const unmounted = scope.wait({ signal: controller.signal, timeoutMs: 1000 })
 

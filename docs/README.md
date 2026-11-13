@@ -71,6 +71,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Run a deferrable refresh                        | [Background work](platform/background-work.md)       |
 | Sell and restore a phone purchase               | [In-app purchases](platform/in-app-purchases.md)      |
 | Sign in and restore an account                 | [Authentication](app/authentication.md)               |
+| Show screen loading and failures | [Readiness](app/readiness.md) |
 | Load information from a server                  | [Fetching data](app/data.md)                           |
 | Save a setting, attach a photo, or share a link | [Using device features](platform/platform-services.md) |
 | Hash or encrypt app data | [Crypto](packages/package-crypto.md) |

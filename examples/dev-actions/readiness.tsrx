@@ -1,14 +1,18 @@
+import 'octane/signals'
 import { useState } from 'octane'
 import { Text } from '@octane-xplat/ui'
-import { DevActionScope } from '@octane-xplat/platform/dev-actions/readiness'
-import { useDevAction, useDevReadiness } from '@octane-xplat/platform/dev-actions'
+import { ReadinessScope, useReadinessTask, useReadiness$ } from '@octane-xplat/platform/readiness'
+import { useDevAction } from '@octane-xplat/platform/dev-actions'
 
 function Preview() {
   const [message, setMessage] = useState('Initial fixture')
   const [pending, setPending] = useState(false)
 
+  useReadinessTask({ label: 'Preparing local fixture', pending })
+
+  const readiness$ = useReadiness$()
+
   if (import.meta.env.DEV) {
-    useDevReadiness(pending, 'Preparing local fixture')
     useDevAction(
       {
         id: 'fixture.preview',
@@ -34,18 +38,14 @@ function Preview() {
     )
   }
 
-  return <Text>{message}</Text>
+  return <Text>{readiness$.get().status === 'pending' ? 'Preparing…' : message}</Text>
 }
 
-/** Mount this example in a development app, then invoke fixture.preview through xplat. */
+/** Ordinary UI observes readiness; development actions also await it automatically. */
 export function ReadinessExample() {
-  if (import.meta.env.DEV) {
-    return (
-      <DevActionScope label="Preview">
-        <Preview />
-      </DevActionScope>
-    )
-  }
-
-  return <Preview />
+  return (
+    <ReadinessScope label="Preview">
+      <Preview />
+    </ReadinessScope>
+  )
 }

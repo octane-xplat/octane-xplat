@@ -200,7 +200,13 @@ export interface DevActionOutcome {
     status: 'not-run' | 'succeeded' | 'failed' | 'cancelled'
   }[]
   /** Registered work only; not a frame presentation receipt. */
-  readiness?: { scope: string; revision: number; pending: string[] }[]
+  readiness?: {
+    scope: string
+    revision: number
+    status: 'ready' | 'pending' | 'blocked'
+    pending: { label: string; blocking: boolean }[]
+    failures: { label: string; blocking: boolean }[]
+  }[]
   completedAt: string
 }
 

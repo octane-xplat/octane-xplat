@@ -52,11 +52,6 @@
 						"./types/generated/testing.mobile.d.ts"
 					]
 				},
-				"./dev-actions/readiness": {
-					"source": "src/dev-actions-readiness.ts",
-					"runtime": ["./src/dev-actions-readiness.ts"],
-					"types": ["./types/generated/dev-actions-readiness.d.ts"]
-				},
 				"./dev-actions": {
 					"source": "src/dev-actions.ts",
 					"runtime": [
@@ -431,6 +426,24 @@
 					],
 					"types": [
 						"./types/generated/breakpoints.d.ts"
+					]
+				},
+				"./readiness": {
+					"source": "src/readiness.ts",
+					"runtime": [
+						"./src/readiness.ts"
+					],
+					"types": [
+						"./types/generated/readiness.d.ts"
+					]
+				},
+				"./readiness/controller": {
+					"source": "src/readiness-state.ts",
+					"runtime": [
+						"./src/readiness-state.ts"
+					],
+					"types": [
+						"./types/generated/readiness-state.d.ts"
 					]
 				}
 			}
