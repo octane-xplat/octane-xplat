@@ -498,8 +498,8 @@ reads base radius/shadow strings through its handle. Mason owns temporary writes
 restoration and single-owner enforcement; Motion owns the correction math.
 The adapter no longer accesses `_styleHelper`.
 [Mason core `1.0.0-beta.9`](https://github.com/octane-xplat/nativescript-mason/releases/tag/core-v1.0.0-beta.9)
-publishes this API and the numeric-radius readback fix. The framework pins that
-release; its remaining Mason patch only handles the independent iOS foreign-root
+publishes this API and the numeric-radius readback fix. The remaining framework
+Mason patch only handles the independent iOS foreign-root
 measurement limitation. No Swift/Kotlin ABI change is required.
 The handle is cleared before measurement/style writes and disposed on host
 cleanup; intervening authored `view.style` writes are preserved. Direct native
