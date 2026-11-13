@@ -177,6 +177,10 @@ try {
         !events.some((event) => ['failed', 'native-layout-timeout'].includes(event.event)),
         'Native bootstrap failed',
       )
+      const wrapperFailure = events.find(
+        (event) => event.event === 'wrapper-proof' && event.phase === 'failed',
+      )
+      check(!wrapperFailure, 'Wrapper control failed: ' + wrapperFailure?.error)
       const request = events.find((event) => event.event === 'recreation-requested')
       if (
         request &&
@@ -255,7 +259,12 @@ try {
             event.realLabelWrappers === 2 &&
             event.identitiesRetained &&
             event.contextsEstablished &&
-            event.loaded,
+            event.loaded &&
+            (!build.masonParent ||
+              (event.logicalMasonParent &&
+                event.matchedAttachmentOnly === Boolean(build.masonAdopt) &&
+                event.mutationsVerified &&
+                event.adoptionPhysicalAttachments === 0)),
         ),
         'Real Label wrapper adoption missing',
       )

@@ -24,6 +24,10 @@ const mason = required('XPLAT_PRERENDER_ANDROID_MASON_SDK')
 const sdk = required('XPLAT_PRERENDER_ANDROID_SDK')
 const javaHome = required('XPLAT_PRERENDER_JAVA_HOME')
 const labelWrappers = process.env.XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS === '1'
+const masonParent = process.env.XPLAT_PRERENDER_ANDROID_MASON_PARENT === '1'
+const masonAdopt = process.env.XPLAT_PRERENDER_ANDROID_MASON_ADOPT === '1'
+if (masonParent && !labelWrappers) throw new Error('Mason parent control requires Label wrappers')
+if (masonAdopt && !masonParent) throw new Error('Mason adoption requires parent control')
 const framework = join(runtime, 'framework')
 if (
   JSON.parse(readFileSync(join(runtime, 'package.json'))).version !== '9.1.1' ||
@@ -121,7 +125,18 @@ writeFileSync(
 if (labelWrappers) {
   const bundler = join(import.meta.dirname, 'bundle-android-label.mjs')
   sourceHashes[bundler] = { copy: bundler, sha256: hash(bundler) }
-  const bundled = spawnSync('bun', [bundler, core, work, join(source, 'label-entry.js')], {
+  const bundleArgs = [
+    bundler,
+    core,
+    work,
+    join(source, masonParent ? 'mason-parent-entry.js' : 'label-entry.js'),
+  ]
+  if (masonParent)
+    bundleArgs.push(
+      realpathSync(required('XPLAT_PRERENDER_ANDROID_MASON_RUNTIME_ROOT')),
+      masonAdopt ? 'adopt' : 'ordinary',
+    )
+  const bundled = spawnSync('bun', bundleArgs, {
     encoding: 'utf8',
     timeout: 60000,
     maxBuffer: 8 * 1024 * 1024,
@@ -189,9 +204,13 @@ writeFileSync(
       commands,
       id: 'org.octanexplat.prerenderbootstrap.android',
       labelWrappers,
-      scope: labelWrappers
-        ? 'Native bootstrap with two real Core Label wrappers, per-Activity release/rebind and text remeasurement; no logical Mason parent, Octane hydration, Core Application handoff, Home IR, viewport/CSS parity, presentation or performance qualification'
-        : 'Native Application/Activity bootstrap mechanism and binary two-label fixture; no Octane/wrapper hydration, Home IR, full viewport, CSS parity, compositor presentation or release performance qualification',
+      masonParent,
+      masonAdopt,
+      scope: masonParent
+        ? 'Real Mason/Label wrapper parent adoption control, child identity/order, normal reorder/insert/remove and Activity rebinding; no Octane, Home IR, Core Application handoff, general CSS parity, viewport, presentation, deallocation or performance qualification'
+        : labelWrappers
+          ? 'Native bootstrap with two real Core Label wrappers, per-Activity release/rebind and text remeasurement; no logical Mason parent, Octane hydration, Core Application handoff, Home IR, viewport/CSS parity, presentation or performance qualification'
+          : 'Native Application/Activity bootstrap mechanism and binary two-label fixture; no Octane/wrapper hydration, Home IR, full viewport, CSS parity, compositor presentation or release performance qualification',
     },
     null,
     2,

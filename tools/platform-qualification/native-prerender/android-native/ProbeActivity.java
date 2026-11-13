@@ -21,6 +21,7 @@ public final class ProbeActivity extends Activity {
     private Node firstNode, secondNode, rootNode;
     private long firstPtr, secondPtr, rootPtr;
     private int epoch, frames, frameAttempts;
+    private int hierarchyAdds, hierarchyRemoves;
     private boolean bridgeReady, destroyed, warm;
     private final Choreographer.FrameCallback frameCallback = this::beforeRuntimeFrame;
     private final Runnable runtimeStarter = this::startRuntime;
@@ -34,6 +35,18 @@ public final class ProbeActivity extends Activity {
     public static ProbeActivity getCurrent() { return current; }
     public StyleableTextView getFirstLabel() { return first; }
     public StyleableTextView getSecondLabel() { return second; }
+    public View getMasonHost() { return host; }
+    public void verifyOriginalTree(boolean reversed, int adds, int removes) {
+        check(host.getChildCount() == 2 && rootNode.getChildCount() == 2, "Tree cardinality changed");
+        check(host.getChildAt(0) == (reversed ? second : first) && host.getChildAt(1) == (reversed ? first : second), "Native child order differs");
+        check(rootNode.getChildAt(0) == (reversed ? secondNode : firstNode) && rootNode.getChildAt(1) == (reversed ? firstNode : secondNode), "Mason child order/identity differs");
+        check(host.getNode() == rootNode && mason.nodeForView(first) == firstNode && mason.nodeForView(second) == secondNode, "Original Mason nodes replaced");
+        check(rootNode.getNativePtr() == rootPtr && firstNode.getNativePtr() == firstPtr && secondNode.getNativePtr() == secondPtr, "Original Rust handles replaced");
+        check(hierarchyAdds == adds && hierarchyRemoves == removes, "Unexpected physical attachment/removal count");
+    }
+    public void verifyEmptyTree() {
+        check(host.getChildCount() == 0 && rootNode.getChildCount() == 0, "Disposed root retains children");
+    }
     public void recordWrapperProof(String value) {
         try {
             JSONObject row = new JSONObject(value).put("event", "wrapper-proof").put("epoch", epoch);
@@ -86,6 +99,10 @@ public final class ProbeActivity extends Activity {
             rootPtr = rootNode.getNativePtr();
             firstPtr = firstNode.getNativePtr();
             secondPtr = secondNode.getNativePtr();
+            host.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+                @Override public void onChildViewAdded(android.view.View parent, android.view.View child) { hierarchyAdds++; }
+                @Override public void onChildViewRemoved(android.view.View parent, android.view.View child) { hierarchyRemoves++; }
+            });
             setContentView(host, new ViewGroup.LayoutParams(-1, -1));
             record("native-mounted");
             if (warm) bindBridge();

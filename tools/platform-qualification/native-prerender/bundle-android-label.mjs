@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 
-const [core, work, entry] = process.argv.slice(2)
+const [core, work, entry, masonRuntime, attachmentMode] = process.argv.slice(2)
 if (!core || !work || !entry) throw new Error('Expected Core root, work directory and label entry')
 const require = createRequire(join(core, 'package.json'))
 const inputs = {}
@@ -15,6 +15,7 @@ const result = await Bun.build({
   format: 'cjs',
   target: 'browser',
   define: {
+    XPLAT_PRERENDER_ADOPT_PARENT: String(attachmentMode === 'adopt'),
     __ANDROID__: 'true',
     __IOS__: 'false',
     __APPLE__: 'false',
@@ -34,7 +35,10 @@ const result = await Bun.build({
           if (args.path === 'css-tree')
             return { path: require.resolve('css-tree/dist/csstree.esm') }
           let base
-          if (args.path.startsWith('@nativescript/core'))
+          if (args.path.startsWith('xplat-prerender:mason/')) {
+            if (!masonRuntime) throw new Error('Mason runtime root missing')
+            base = join(masonRuntime, args.path.slice('xplat-prerender:mason/'.length))
+          } else if (args.path.startsWith('@nativescript/core'))
             base = core + args.path.slice('@nativescript/core'.length)
           else if (args.path.startsWith('.')) base = resolve(dirname(args.importer), args.path)
           else return

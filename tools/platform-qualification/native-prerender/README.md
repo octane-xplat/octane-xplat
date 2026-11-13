@@ -313,3 +313,23 @@ Set `XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS=1` before the Android build command 
 Each Label claims its existing StyleableTextView through an instance `createNativeView` callback, after Core sets the Activity context. Ordinary setup/loading/property setters run; no replacement native label is constructed. The native fixture matches Core’s disabled font-padding default. The checker requires retained per-Activity native/Mason identity, established context/loading, a wrapper text update that remeasures the initial tree like the fresh recreated tree, and unchanged single-line height. Destruction unloads/tears down both wrappers, verifies empty context/native handles, retires their claim closures and drops the wrapper array before rebinding.
 
 The native Activity still owns the Mason container. These two wrappers have no NativeScript logical parent, and there is no Octane prepare/commit, root-factory claim transaction, Core Application/NativeWindow handoff or renderer-state restoration. Do not treat this control as Android Home hydration or full style/default parity. In particular, Mason’s ordinary Android child attachment calls native `addView`; adopting already-parented children needs a separately qualified attachment path before the complete tree can hydrate.
+
+
+### Android Mason parent adoption control
+
+The next bounded control adds the actual Mason View wrapper as the logical parent of the two real Labels. Select a pinned, compiled Mason JS SDK compatible with the selected native AAR, then enable this mode before the same build/device commands:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS=1
+export XPLAT_PRERENDER_ANDROID_MASON_PARENT=1
+export XPLAT_PRERENDER_ANDROID_MASON_ADOPT=1
+export XPLAT_PRERENDER_ANDROID_MASON_RUNTIME_ROOT=/absolute/path/to/pinned/mason/js-sdk
+```
+
+The experimental per-root adapter checks the complete two-child native order before setup. During child setup it skips native insertion only when the child already belongs to that exact parent at the expected native index, then runs the existing Mason foreign-child bookkeeping. Other attachments call the ordinary wrapper method. Core establishes logical parentage and loading. This is a private probe of an adoption seam, using internal Mason methods; the shared SDK and production renderer are unchanged. Every bundled Mason/Core JS input is snapshotted and hash guarded.
+
+The control checks zero physical additions/removals during initial adoption, then uses ordinary wrapper operations to reverse and restore the two children and insert/remove a new Label. Native Java checks physical order, Mason child order, original node objects/raw handles and actual hierarchy-event counts after each step. It also requires empty native/Mason children and released Label handles on destruction, then repeats adoption and updates on the replacement Activity with one runtime. This does not prove native-object deallocation.
+
+Omit `XPLAT_PRERENDER_ANDROID_MASON_ADOPT` to exercise the ordinary attachment path as a negative control. With the pinned SDK, initial child setup throws Android’s specified-child-already-has-a-parent exception. Preserve the failed run and its exact native log; a timeout or unrelated import failure is not that negative control. The runner reports wrapper failures immediately from the native receipt.
+
+This control still does not hydrate Octane, validate a prepared Home IR transaction, hand off Core Application/NativeWindow ownership or prove general CSS/default removal, viewport sizing, compositor presentation, process-death restoration or startup performance. Reorder/insert/remove here are synchronous wrapper operations, not OS input or a renderer reconciliation qualification.
