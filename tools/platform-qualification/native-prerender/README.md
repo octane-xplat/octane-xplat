@@ -142,7 +142,7 @@ Each invocation writes three object files, compiler arguments and an input/outpu
 
 ## Shared binary reader and native backend checks
 
-The reusable [native-prerender contract](../../../packages/native-prerender/README.md) owns XPI1 encoding, bounds, structural preflight and Swift/Java corruption conformance. Both hosts consume its complete logical snapshot and derive native visual records. `home-native/HomeArtifact.swift` and `android-native/HomeArtifact.java` separately check the fixed backend’s style values in both themes before mounting. Neither backend reimplements the binary parser.
+The reusable [native-prerender contract](../../../packages/native-prerender/README.md) owns XPI1 encoding, bounds, structural preflight and Swift/Java corruption conformance. Both hosts consume its complete logical snapshot and derive native visual records. Its `platforms/ios/MasonArtifact.swift` and `platforms/android/java/org/octanexplat/prerender/MasonArtifact.java` separately check the supported backend style values in both themes before mounting. Neither backend reimplements the binary parser. These backend adapters accept variable supported topology and seed data; the Home fixture retains its own screen assertions.
 
 ```sh
 export XPLAT_HOME_CODEC_PRODUCER=/absolute/path/to/ios/producer/output
@@ -187,7 +187,7 @@ The real-screen experiment has separate native and JavaScript entry points:
 | [home-fallback.ios.js](home-fallback.ios.js) | Artifact/decode or stale-theme rejection before claims, ordinary Home mount and current-theme/Button checks |
 | [home-primitives.ts](home-primitives.ts) | Four actual shared primitive exports, avoiding unrelated public-barrel imports |
 
-These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with the shared `StartupArtifact.swift` and backend `HomeArtifact.swift`, and links the three native helper objects plus the runtime/Core embedding helpers. It packages the XPI1 packet as `home.bin` and resolves `xplat-prerender:artifact`, `xplat-prerender:startup` and `xplat-prerender:styles` to the matching visual projection, complete logical artifact and normalized stylesheets. Retarget Octane imports to the native universal runtime and use the canonical managed driver patch. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
+These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with the shared `StartupArtifact.swift` and backend `MasonArtifact.swift` from `packages/native-prerender/platforms/ios`, and links the three native helper objects plus the runtime/Core embedding helpers. It packages the XPI1 packet as `home.bin` and resolves `xplat-prerender:artifact`, `xplat-prerender:startup` and `xplat-prerender:styles` to the matching visual projection, complete logical artifact and normalized stylesheets. Retarget Octane imports to the native universal runtime and use the canonical managed driver patch. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
 
 The maintained iOS runner accepts an explicitly prebuilt XPI1 Home fixture with the recorded build manifest and the isolated `controls-shared-home-xpi` app identity. The experimental host build adapter remains separate from normal NativeScript SDK integration.
 

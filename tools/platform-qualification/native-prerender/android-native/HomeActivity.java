@@ -1,5 +1,7 @@
 package org.octanexplat.prerenderandroid;
 
+import org.octanexplat.prerender.MasonArtifact;
+
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Choreographer;
@@ -296,9 +298,9 @@ public class HomeActivity extends AppCompatActivity {
                     check(bytes.size() + count <= 1024 * 1024, "Home asset byte limit"); bytes.write(buffer, 0, count);
                 }
             }
-            HomeArtifact.Artifact artifact;
-            try { artifact = HomeArtifact.decode(bytes.toByteArray(), HomeBuild.HASH); }
-            catch (HomeArtifact.Invalid rejected) {
+            MasonArtifact.Artifact artifact;
+            try { artifact = MasonArtifact.decode(bytes.toByteArray(), HomeBuild.HASH); }
+            catch (MasonArtifact.Invalid rejected) {
                 deferFallback("ir-rejected", rejected.getMessage()); return;
             }
             check(artifact.nodes.size() == 19, "Wrong Home artifact");

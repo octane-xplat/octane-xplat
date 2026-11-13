@@ -112,6 +112,13 @@ if (snapshot.supports(fontScale, width, height, reducedMotion)) {
 }
 ```
 
+The adjacent `MasonArtifact` adapters preflight supported native setter values in both themes and retain the complete snapshot alongside its visual projection. They impose no Home seed or node-count contract. Owning-scale conversion, font availability and actual native allocation remain mounting responsibilities.
+
+```java
+MasonArtifact.Artifact artifact = MasonArtifact.decode(bytes, installedBuild);
+// Native mount preflight must still check the owning device's density/fonts.
+```
+
 ## Verification
 
 ```sh

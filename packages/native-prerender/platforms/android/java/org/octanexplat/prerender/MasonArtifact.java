@@ -1,4 +1,4 @@
-package org.octanexplat.prerenderandroid;
+package org.octanexplat.prerender;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,10 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** XPI1 packaged Home backend preflight. No Android, NativeScript, UI or JS dependency. */
-public final class HomeArtifact {
+/** XPI1 Mason/Label backend preflight. No Android, NativeScript, UI or JS dependency. */
+public final class MasonArtifact {
     public static final class Invalid extends IllegalArgumentException {
-        Invalid(String reason) { super(reason); }
+        public Invalid(String reason) { super(reason); }
     }
     public static final class Node {
         public final int index, parent;

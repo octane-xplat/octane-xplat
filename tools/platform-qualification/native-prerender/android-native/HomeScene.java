@@ -1,5 +1,7 @@
 package org.octanexplat.prerenderandroid;
 
+import org.octanexplat.prerender.MasonArtifact;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -36,7 +38,7 @@ public final class HomeScene {
             throw new UnsupportedEnvironment("Native Home requires finite density>0 and fontScale1; density=" + density + " fontScale=" + scale);
     }
     private static final String SYSTEM_FAMILY = "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif";
-    public final HomeArtifact.Artifact artifact;
+    public final MasonArtifact.Artifact artifact;
     public final String theme;
     public final HomeViewport viewport;
     public final HomeViewport windowRoot;
@@ -70,14 +72,14 @@ public final class HomeScene {
     private static Point<LengthPercentage> copyRadius(Point<LengthPercentage> point) {
         return new Point<>(LengthPercentage.from(point.getX()), LengthPercentage.from(point.getY()));
     }
-    public HomeScene(android.app.Activity context, HomeArtifact.Artifact artifact, String theme) {
+    public HomeScene(android.app.Activity context, MasonArtifact.Artifact artifact, String theme) {
         this.artifact = artifact; this.theme = theme;
         density = context.getResources().getDisplayMetrics().density;
         validateEnvironment(context);
         check(artifact.nodes.size() == 19 && artifact.nodes.get(0).kind.equals("masonview"), "Expected actual nineteen-view Home");
         // Check both variants, including the currently unused one, before views.
-        for (List<HomeArtifact.StyleRecord> variant : artifact.variants.values()) {
-            for (HomeArtifact.StyleRecord row : variant) {
+        for (List<MasonArtifact.StyleRecord> variant : artifact.variants.values()) {
+            for (MasonArtifact.StyleRecord row : variant) {
                 Object family = row.style.get("fontFamily");
                 check(family == null || SYSTEM_FAMILY.equals(family), "Unsupported Home font family stack");
                 for (Map.Entry<String, Object> entry : row.style.entrySet()) {
@@ -92,9 +94,9 @@ public final class HomeScene {
         mason.setDeviceScale(density);
         viewport = new HomeViewport(context, mason);
         windowRoot = viewport;
-        List<HomeArtifact.StyleRecord> styles = artifact.variants.get(theme);
+        List<MasonArtifact.StyleRecord> styles = artifact.variants.get(theme);
         check(styles != null, "Unsupported Home theme");
-        for (HomeArtifact.Node row : artifact.nodes) {
+        for (MasonArtifact.Node row : artifact.nodes) {
             android.view.View view;
             if (row.kind.equals("label")) {
                 StyleableTextView text = new StyleableTextView(context);
@@ -207,14 +209,14 @@ public final class HomeScene {
     }
     public void verify() {
         verifyStructure();
-        for (HomeArtifact.Node row : artifact.nodes) {
+        for (MasonArtifact.Node row : artifact.nodes) {
             android.view.View view = views.get(row.index);
             if (view instanceof StyleableTextView) check(((StyleableTextView) view).getText().toString().equals(row.text), "Home text changed");
         }
     }
     public void verifyStructure() {
         check(additions == 0 && removals == 0, "Home physically reattached children");
-        for (HomeArtifact.Node row : artifact.nodes) {
+        for (MasonArtifact.Node row : artifact.nodes) {
             android.view.View view = views.get(row.index);
             check(view.getParent() == (row.parent < 0 ? viewport : views.get(row.parent)), "Home native parent changed");
             check(mason.nodeForView(view) == nodes.get(row.index) && nodes.get(row.index).getNativePtr() == handles.get(row.index), "Home Mason identity changed");

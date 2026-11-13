@@ -13,7 +13,7 @@ const work = mkdtempSync(join(root, 'run-'))
 const source = import.meta.dirname
 const producer = process.env.XPLAT_HOME_CODEC_PRODUCER
 const inputs = [
-  join(source, 'android-native/HomeArtifact.java'),
+  resolve(source, '../../../packages/native-prerender/platforms/android/java/org/octanexplat/prerender/MasonArtifact.java'),
   join(source, 'android-codec/HomeArtifactCheck.java'),
   import.meta.filename,
   join(source, 'home-backend.test.mjs'),

@@ -14,7 +14,7 @@ const source = import.meta.dirname
 const producer = process.env.XPLAT_HOME_CODEC_PRODUCER
 const inputs = [
   resolve(source, '../../../packages/native-prerender/platforms/ios/StartupArtifact.swift'),
-  join(source, 'home-native/HomeArtifact.swift'),
+  resolve(source, '../../../packages/native-prerender/platforms/ios/MasonArtifact.swift'),
   join(source, 'home-native/HomeArtifactCheck.swift'),
   join(source, 'home-backend.test.mjs'),
   import.meta.filename,

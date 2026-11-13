@@ -1,11 +1,11 @@
 import Foundation
 import CoreFoundation
 
-// Fixed Home backend preflight over the reusable XPI1 reader.
+// Mason/Label backend preflight over the reusable XPI1 reader.
 // No UI allocation or JS dependency; both themes must pass before mounting.
-enum HomeArtifact {
+enum XplatMasonArtifact {
     struct Invalid: Error { let reason: String }
-    // Keep this fixed-screen value contract aligned with HomeMount and FontLowering.
+    // Keep this backend value contract aligned with the native Mason mount and font lowerer.
     // Structural validity alone does not make a native setter safe to call.
     private static func validateStyleValue(_ value: Any, key: String) throws {
         let number = value as? NSNumber

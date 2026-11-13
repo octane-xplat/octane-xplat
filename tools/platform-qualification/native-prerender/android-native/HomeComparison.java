@@ -1,5 +1,7 @@
 package org.octanexplat.prerenderandroid;
 
+import org.octanexplat.prerender.MasonArtifact;
+
 import android.view.ViewGroup;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,15 +19,15 @@ final class HomeComparison {
     private static void check(boolean value, String reason) {
         if (!value) throw new IllegalStateException(reason);
     }
-    static List<android.view.View> collect(HomeArtifact.Artifact artifact, View viewport) {
+    static List<android.view.View> collect(MasonArtifact.Artifact artifact, View viewport) {
         check(viewport.getChildCount() == 1, "Reference viewport root count differs");
         List<android.view.View> views = new ArrayList<>();
         collect(artifact, viewport.getChildAt(0), 0, views);
         check(views.size() == artifact.nodes.size(), "Reference visual count differs");
         return views;
     }
-    private static void collect(HomeArtifact.Artifact artifact, android.view.View view, int index, List<android.view.View> views) {
-        HomeArtifact.Node row = artifact.nodes.get(index);
+    private static void collect(MasonArtifact.Artifact artifact, android.view.View view, int index, List<android.view.View> views) {
+        MasonArtifact.Node row = artifact.nodes.get(index);
         check(index == views.size(), "Reference visual order differs");
         check(row.kind.equals("label") ? view instanceof StyleableTextView : view instanceof View, "Reference native class differs");
         views.add(view);
@@ -41,10 +43,10 @@ final class HomeComparison {
     private static Object computed(float value, boolean laidOut) {
         return !laidOut || Float.isNaN(value) || Float.isInfinite(value) ? JSONObject.NULL : value;
     }
-    static JSONArray snapshot(HomeArtifact.Artifact artifact, List<android.view.View> views) throws Exception {
+    static JSONArray snapshot(MasonArtifact.Artifact artifact, List<android.view.View> views) throws Exception {
         Mason mason = Mason.Companion.getShared();
         JSONArray result = new JSONArray();
-        for (HomeArtifact.Node row : artifact.nodes) {
+        for (MasonArtifact.Node row : artifact.nodes) {
             android.view.View view = views.get(row.index);
             Style style = mason.styleForView(view);
             org.nativescript.mason.masonkit.Node node = mason.nodeForView(view);

@@ -72,21 +72,21 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         let artifact: [String: Any]
         do {
             guard let url = Bundle.main.url(forResource: "home", withExtension: "bin") else {
-                throw HomeArtifact.Invalid(reason: "missing artifact")
+                throw XplatMasonArtifact.Invalid(reason: "missing artifact")
             }
-            let decoded = try HomeArtifact.decode(Data(contentsOf: url), expectedBuildHash: homeBuildHash)
+            let decoded = try XplatMasonArtifact.decode(Data(contentsOf: url), expectedBuildHash: homeBuildHash)
             guard try decoded.snapshot.supports(
                 fontScale: UIApplication.shared.preferredContentSizeCategory == .large ? 1 : 0,
                 width: Double(content.width), height: Double(content.height),
                 reducedMotion: UIAccessibility.isReduceMotionEnabled
-            ) else { throw HomeArtifact.Invalid(reason: "launch constraints differ") }
+            ) else { throw XplatMasonArtifact.Invalid(reason: "launch constraints differ") }
             artifact = decoded.value
             guard let nodes = artifact["nodes"] as? [[String: Any]], nodes.count == 19,
                   nodes.first?["kind"] as? String == "masonview" else {
-                throw HomeArtifact.Invalid(reason: "unsupported Home topology")
+                throw XplatMasonArtifact.Invalid(reason: "unsupported Home topology")
             }
         } catch {
-            let reason = (error as? HomeArtifact.Invalid)?.reason ?? "artifact read failed"
+            let reason = (error as? XplatMasonArtifact.Invalid)?.reason ?? "artifact read failed"
             root.computeWithSize(width, height)
             root.markRootComputeApplied(width, height)
             root.layoutIfNeeded()

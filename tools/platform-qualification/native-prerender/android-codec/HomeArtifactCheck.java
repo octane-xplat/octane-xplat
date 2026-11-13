@@ -1,5 +1,7 @@
 package org.octanexplat.prerenderandroid;
 
+import org.octanexplat.prerender.MasonArtifact;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
@@ -40,10 +42,10 @@ public final class HomeArtifactCheck {
     }
     public static void main(String[] args) {
         try {
-            if (args.length != 2) throw new HomeArtifact.Invalid("expected artifact path and build hash");
-            if (Files.size(Paths.get(args[0])) > 1024 * 1024) throw new HomeArtifact.Invalid("size limit");
+            if (args.length != 2) throw new MasonArtifact.Invalid("expected artifact path and build hash");
+            if (Files.size(Paths.get(args[0])) > 1024 * 1024) throw new MasonArtifact.Invalid("size limit");
             byte[] bytes = Files.readAllBytes(Paths.get(args[0]));
-            System.out.write(json(HomeArtifact.decode(bytes, args[1]).projection()).getBytes(StandardCharsets.UTF_8));
+            System.out.write(json(MasonArtifact.decode(bytes, args[1]).projection()).getBytes(StandardCharsets.UTF_8));
         } catch (Exception error) {
             System.err.println("Home IR rejected: " + error.getMessage());
             System.exit(1);

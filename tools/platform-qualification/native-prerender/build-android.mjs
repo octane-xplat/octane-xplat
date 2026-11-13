@@ -241,7 +241,6 @@ for (const [name, destination] of [
 }
 if (homeProducer)
   for (const name of [
-    'HomeArtifact.java',
     'HomeScene.java',
     'HomeComparison.java',
     'HomeViewport.java',
@@ -254,14 +253,12 @@ if (homeProducer)
       sourceHashes,
     )
 if (homeProducer)
-  snapshot(
-    resolve(
-      import.meta.dirname,
-      '../../../packages/native-prerender/platforms/android/java/org/octanexplat/prerender/StartupArtifact.java',
-    ),
-    join(work, 'app/src/main/java/org/octanexplat/prerender/StartupArtifact.java'),
-    sourceHashes,
-  )
+  for (const name of ['StartupArtifact.java', 'MasonArtifact.java'])
+    snapshot(
+      resolve(import.meta.dirname, '../../../packages/native-prerender/platforms/android/java/org/octanexplat/prerender', name),
+      join(work, 'app/src/main/java/org/octanexplat/prerender', name),
+      sourceHashes,
+    )
 snapshot(import.meta.filename, join(work, 'sources/build-android.mjs'), sourceHashes)
 writeFileSync(
   join(work, 'build.gradle'),
