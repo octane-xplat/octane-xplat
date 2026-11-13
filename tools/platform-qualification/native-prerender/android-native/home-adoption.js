@@ -2,7 +2,7 @@ import '@nativescript/core/globals'
 import { Application, Utils } from '@nativescript/core'
 import { Label } from '@nativescript/core/ui/label'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
-import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
+import { native_, style_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import { createNativeScriptRoot, registerElement } from '@nativescript-community/octane'
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
@@ -21,6 +21,17 @@ const check = (value, message) => {
   if (!value) throw new Error(message)
 }
 registerElement('masonview', View)
+function retireClaims(host, wrappers) {
+  for (const wrapper of [host, ...wrappers]) {
+    if (wrapper instanceof View) {
+      wrapper[native_] = undefined
+      wrapper[style_] = undefined
+    } else
+      wrapper.createNativeView = () => {
+        throw new Error('Retired failed native claim')
+      }
+  }
+}
 let root, host, lease
 org.octanexplat.prerenderandroid.HomeApplication.installBridge(
   new org.octanexplat.prerenderandroid.HomeBridge({
@@ -64,9 +75,13 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           else wrapper.createNativeView = () => natives[index]
           return wrapper
         })
+        let attachmentCalls = 0
+        const injectedAttachmentFailure = new Error('Injected Android Home attachment failure')
         for (const wrapper of [host, ...wrappers.filter((view) => view instanceof View)]) {
           const attach = wrapper._addViewToNativeVisualTree
           wrapper._addViewToNativeVisualTree = function (child, atIndex = -1) {
+            if (XPLAT_PRERENDER_HOME_ATTACH_FAILURE && ++attachmentCalls === 17)
+              throw injectedAttachmentFailure
             const native = child.nativeViewProtected
             if (native && native.getParent() === this._view) {
               const { nativeIndex } = this._nativeAttachIndex(child, atIndex)
@@ -135,14 +150,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
               wrappersUnattached: true,
             }),
           )
-          host[native_] = undefined
-          for (const wrapper of wrappers) {
-            if (wrapper instanceof View) wrapper[native_] = undefined
-            else
-              wrapper.createNativeView = () => {
-                throw new Error('Retired unmatched native claim')
-              }
-          }
+          retireClaims(host, wrappers)
           const discarded = root
           activity.abandonUnclaimedHome(String(error))
           const ordinary = renderFallbackHome(activity, liveSeed, window)
@@ -164,8 +172,82 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         host.callLoaded()
         activity.restoreHomeDefaults()
         claiming = true
-        prepared.commit()
-        claiming = false
+        try {
+          prepared.commit()
+        } catch (error) {
+          if (error !== injectedAttachmentFailure || !window) throw error
+          claiming = false
+          const setupWrappers = wrappers.filter((view) => view._context === activity).length
+          check(
+            hookCalls === 19 && attachmentCalls === 17 && setupWrappers > 0,
+            'Injected failure did not reach partially established native ownership',
+          )
+          activity.recordHomeProof(
+            JSON.stringify({
+              phase: 'claim-failure',
+              hookCalls,
+              attachmentCalls,
+              setupWrappers,
+              injectedFailureObserved: true,
+            }),
+          )
+          root.unmount()
+          if (host.isLoaded) host.callUnloaded()
+          if (host._context) host._tearDownUI(true)
+          const residual = wrappers.map((view, index) => ({
+            index,
+            context: Boolean(view._context),
+            native: Boolean(view.nativeViewProtected),
+            loaded: view.isLoaded,
+            parent: Boolean(view.parent),
+          }))
+          activity.recordHomeProof(JSON.stringify({ phase: 'claim-cleanup-observation', residual }))
+          // Mason can remove a failed insertion from its child list while Core
+          // still retains parent/context. Only this failed scope owns these
+          // wrappers; use Core's removal seam for an unlisted child.
+          const owned = new Set([host, ...wrappers])
+          for (const view of wrappers.slice().reverse()) {
+            const parent = view.parent
+            if (parent) {
+              check(
+                owned.has(parent) && parent instanceof View,
+                'Failed claim escaped its owner scope',
+              )
+              if (parent.getChildIndex(view) >= 0) parent.removeChild(view)
+              else parent._removeView(view)
+            }
+            if (view.isLoaded) view.callUnloaded()
+            if (view._context) view._tearDownUI(true)
+          }
+          retireClaims(host, wrappers)
+          check(
+            host.getChildrenCount() === 0 &&
+              !host._context &&
+              !host.nativeViewProtected &&
+              wrappers.every(
+                (view) =>
+                  !view.parent && !view._context && !view.nativeViewProtected && !view.isLoaded,
+              ),
+            'Failed Home retained native handles, contexts or loading',
+          )
+          activity.abandonFailedHome(String(error))
+          activity.recordHomeProof(
+            JSON.stringify({
+              phase: 'failed-adoption-disposed',
+              releasedWrappers: wrappers.length,
+              hookCalls,
+              contextsCleared: true,
+              handlesCleared: true,
+              parentsCleared: true,
+            }),
+          )
+          const ordinary = renderFallbackHome(activity, liveSeed, window)
+          root = ordinary.root
+          host = ordinary.host
+          return
+        } finally {
+          claiming = false
+        }
         check(claims.size === 0 && hookCalls === 19, 'Home claims not consumed exactly once')
         const width = activity.getViewport().getWidth(),
           height = activity.getViewport().getHeight()

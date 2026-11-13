@@ -57,14 +57,14 @@ if (homeApplication && !homeAdopt)
 const homeFallback = process.env.XPLAT_PRERENDER_ANDROID_HOME_FALLBACK ?? ''
 if (
   homeFallback &&
-  (!['build', 'seed'].includes(homeFallback) ||
+  (!['build', 'seed', 'attach'].includes(homeFallback) ||
     !homeApplication ||
     homeParity ||
     homeRecreate ||
     homeInput)
 )
   throw new Error(
-    'Home fallback control requires build/seed mode and Home Application/adoption, without parity/recreation/input',
+    'Home fallback control requires build/seed/attach mode and Home Application/adoption, without parity/recreation/input',
   )
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'

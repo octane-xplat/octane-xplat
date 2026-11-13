@@ -211,10 +211,10 @@ public final class HomeScene {
         }
     }
     public JSONArray snapshot() throws Exception { return HomeComparison.snapshot(artifact, views); }
-    public void discard() {
-        verify();
-        check(viewport.getParent() instanceof ViewGroup, "Discarded Home was not installed");
-        ((ViewGroup) viewport.getParent()).removeView(viewport);
+    public void discard(boolean pristine) {
+        if (pristine) verify();
+        if (viewport.getParent() instanceof ViewGroup) ((ViewGroup) viewport.getParent()).removeView(viewport);
+        else check(viewport.getParent() == null, "Discarded Home has an unexpected parent");
         for (int index = views.size() - 1; index >= 0; index--) {
             android.view.View view = views.get(index);
             if (view instanceof ViewGroup) ((ViewGroup) view).removeAllViews();

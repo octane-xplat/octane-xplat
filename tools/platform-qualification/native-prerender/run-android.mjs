@@ -204,10 +204,13 @@ try {
           events.some(
             (event) =>
               event.event === 'fallback-layout' &&
-              (build.home.fallback !== 'seed' ||
+              (!['seed', 'attach'].includes(build.home.fallback) ||
                 events.some(
                   (disposed) =>
-                    disposed.phase === 'unmatched-disposed' && disposed.epoch === event.epoch,
+                    disposed.phase ===
+                      (build.home.fallback === 'seed'
+                        ? 'unmatched-disposed'
+                        : 'failed-adoption-disposed') && disposed.epoch === event.epoch,
                 )),
           )
         )
@@ -273,7 +276,7 @@ try {
           ),
         'Stale IR was not rejected before native Home allocation and the only VM start',
       )
-    else {
+    else if (build.home.fallback === 'seed') {
       const denied = events.find(
         (event) => event.phase === 'plan-rejected' && event.epoch === fallback?.epoch,
       )
@@ -303,6 +306,42 @@ try {
           events.indexOf(denied) < events.indexOf(discarded) &&
           events.indexOf(discarded) < events.indexOf(ordinary),
         'Live Home seed mismatch did not abort before claims and discard its unused native tree',
+      )
+    } else {
+      const failed = events.find(
+        (event) => event.phase === 'claim-failure' && event.epoch === fallback?.epoch,
+      )
+      const discarded = events.find(
+        (event) => event.event === 'native-home-discarded' && event.epoch === fallback?.epoch,
+      )
+      const disposed = events.find(
+        (event) => event.phase === 'failed-adoption-disposed' && event.epoch === fallback?.epoch,
+      )
+      check(
+        native &&
+          native.runtimeStarted === false &&
+          native.runtimeLibraryLoaded === false &&
+          native.nodes?.length === 19 &&
+          native.nodes[9].text === String(expected.seed.initialCompleted) &&
+          end?.runtimeStarted &&
+          events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
+          failed?.injectedFailureObserved &&
+          failed.hookCalls === 19 &&
+          failed.attachmentCalls === 17 &&
+          failed.setupWrappers > 0 &&
+          disposed?.releasedWrappers === 19 &&
+          disposed.hookCalls === 19 &&
+          disposed.contextsCleared &&
+          disposed.handlesCleared &&
+          disposed.parentsCleared &&
+          discarded?.visualNodes === 19 &&
+          discarded.nativeChildren === 0 &&
+          discarded.masonChildren === 0 &&
+          !events.some((event) => event.phase === 'adopted') &&
+          events.indexOf(failed) < events.indexOf(discarded) &&
+          events.indexOf(discarded) < events.indexOf(disposed) &&
+          events.indexOf(disposed) < events.indexOf(ordinary),
+        'Partial native attachment failure did not release claimed owners before ordinary recovery',
       )
     }
     check(
@@ -760,7 +799,7 @@ try {
   const phases = (
     build.home?.fallback === 'build'
       ? ['ir-rejected', 'engine-init-begin', 'engine-init-end']
-      : build.home?.fallback === 'seed'
+      : build.home?.fallback
         ? [
             'native-home-decoded',
             'native-home-mounted',

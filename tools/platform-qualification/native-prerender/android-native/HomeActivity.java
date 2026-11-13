@@ -35,9 +35,15 @@ public final class HomeActivity extends AppCompatActivity {
     }
     public boolean isFallback() { return fallbackReason != null; }
     public void abandonUnclaimedHome(String reason) {
+        discardNativeHome(reason, true);
+    }
+    public void abandonFailedHome(String reason) {
+        discardNativeHome(reason, false);
+    }
+    private void discardNativeHome(String reason, boolean pristine) {
         check(scene != null && !bridgeReady && !isFallback(), "Unexpected native Home discard");
         int count = scene.count();
-        scene.discard(); scene = null; fallbackReason = reason;
+        scene.discard(pristine); scene = null; fallbackReason = reason;
         try { app().record(new JSONObject().put("event", "native-home-discarded").put("epoch", epoch)
             .put("visualNodes", count).put("nativeChildren", 0).put("masonChildren", 0)); }
         catch (Exception error) { throw new RuntimeException(error); }
