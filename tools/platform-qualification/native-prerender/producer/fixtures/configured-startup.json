@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "entry": "./ConfiguredStartup.tsrx",
+  "exportName": "ConfiguredStartup",
+  "seed": { "title": "Configured initial screen", "labels": ["One", "Two"] },
+  "environment": { "width": 320, "height": 640, "reducedMotion": false }
+}

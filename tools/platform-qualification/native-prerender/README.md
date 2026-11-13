@@ -79,7 +79,7 @@ This check compiles the authored component. It does not execute the real shared-
 
 ## Produce Home without a device runtime
 
-The bounded producer evaluates the actual shared Home with Octane's native universal compiler and render-only preparation. Its build host supplies explicit mobile-platform/theme inputs and rejects native service reads, calls, allocations and writes. It records the unused SVG factory registration without calling that factory; SVG hosts remain unsupported. It prepares light and dark mode in separate processes, rejects changes to initial host props or topology, then uses the portable CSS engine to resolve both variants. It creates no native views and does not start NativeScript.
+The bounded producer runs under Node and bundles with the selected toolchain's Vite. It evaluates a configured component with Octane's native universal compiler and render-only preparation; the default configuration selects the actual shared Home. Its build host supplies explicit mobile-platform/theme inputs and rejects native service reads, calls, allocations and writes. It records the unused SVG factory registration without calling that factory; SVG hosts remain unsupported. It prepares light and dark mode in separate processes, rejects changes to initial host props or topology, then uses the portable CSS engine to resolve both variants. It creates no native views and does not start NativeScript.
 
 Run the producer with the workspace dependencies installed, or select an installed toolchain for the compiler/native CSS normalizer and a CSS-engine package for its parser dependencies:
 
@@ -99,9 +99,26 @@ The manifest records the selected platform and binds it into the producer identi
 
 The command prints a new output directory below `~/agent-scratch/octane-xplat/native-prerender-home-producer`. It contains XPI1 `startup.bin`, matching `startup.json`, `resolved.json`, `sheets.json`, separate prepared trees and a source/bundle fingerprint manifest. `resolved.json` is the derived visual/style projection; `startup.json` preserves complete logical ownership. The binary's build identity binds producer inputs; a native app packager must also bind its host/runtime inputs and encode the combined identity expected by its native loader. The existing Home native qualification host does that separately.
 
-This producer deliberately supports the selected nineteen-view Home, its explicit seed and a402×874 logical-point CSS environment with light/dark variants. It does not infer arbitrary component eligibility, evaluate client refs/effects, support structural theme changes or establish request-isolated SSR. The mobile live resolver remains the CSS parity reference. New environment dependencies, host kinds and native API use require explicit qualification; successful host generation alone does not establish native mounting, hydration or startup speed.
+The private JSON configuration selects a source entry, component export, literal seed and launch environment. Paths resolve relative to that configuration file. The default is [home.config.json](producer/home.config.json), with the nineteen-view Home and402×874 environment. Use the maintained smaller screen to exercise another topology and seed:
 
-The producer uses the reusable [native-prerender contract](../../../packages/native-prerender/README.md) for logical ownership and visual projection. It writes XPI1 `startup.bin` and matching `startup.json`, retaining all logical text slots and explicit launch constraints. Both native hosts consume that format and use the package’s complete logical matcher before claims. The new projection has no Home node-count constants, while this fixture continues to select the same Home source and seed. This remains separate from normal-app build integration.
+```sh
+export XPLAT_PRERENDER_PRODUCER_CONFIG="$PWD/tools/platform-qualification/native-prerender/producer/fixtures/configured-startup.json"
+bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualification
+```
+
+```json
+{
+  "version": 1,
+  "entry": "./ConfiguredStartup.tsrx",
+  "exportName": "ConfiguredStartup",
+  "seed": { "title": "Configured initial screen", "labels": ["One", "Two"] },
+  "environment": { "width": 320, "height": 640, "reducedMotion": false }
+}
+```
+
+The dedicated Vite plugin keeps one native Octane runtime, selects mobile leaves and collects imported CSS. It uses the existing four-export Button/HStack/Text/VStack facade; it does not load an app's Vite configuration, expose the full UI barrel or infer arbitrary component eligibility. The current IR setter subset still applies: for example, authored `width` is rejected. The smaller configuration exercises an inactive width media query; its packet must retain exact width/height launch guards. It does not evaluate client refs/effects, support structural theme changes or establish request-isolated SSR. The mobile live resolver remains the CSS parity reference. New environment dependencies, host kinds and native API use require explicit qualification; successful host generation alone does not establish native mounting, hydration or startup speed.
+
+The producer uses the reusable [native-prerender contract](../../../packages/native-prerender/README.md) for logical ownership and visual projection. It writes XPI1 `startup.bin` and matching `startup.json`, retaining all logical text slots and explicit launch constraints. Both native hosts consume that format and use the package’s complete logical matcher before claims. The new projection has no Home node-count constants, while the native Home mounting/adoption fixtures still require their selected Home source, seed and topology. A configurable producer does not make those native lowerers generic. This remains separate from normal-app build integration.
 
 Exercise the rejecting build-host boundary separately:
 

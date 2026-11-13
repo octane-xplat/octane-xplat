@@ -1,0 +1,17 @@
+.configured-startup {
+  flex: 1;
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+.configured-copy {
+  color: #123456;
+  font-size: 20px;
+}
+
+/* Inactive here, but a native launch at another width must still be guarded. */
+@media (min-width: 900px) {
+  .configured-startup {
+    padding: 24px;
+  }
+}

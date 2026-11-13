@@ -65,7 +65,7 @@ writeFileSync(
   JSON.stringify(
     {
       scope:
-        'Actual shared Home canonical visual tree and portable AOT cascade; experimental only; no native parity claim',
+        'Configured startup visual tree and portable AOT cascade; experimental only; no native parity claim',
       seed: input.seed,
       nodes,
       variants,

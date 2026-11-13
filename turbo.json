@@ -338,6 +338,10 @@
         "XPLAT_PRERENDER_TOOLCHAIN_ROOT",
         "XPLAT_PRERENDER_CSS_TOOLCHAIN_ROOT",
         "XPLAT_PRERENDER_HOME_PLATFORM"
+        "XPLAT_PRERENDER_HOME_PLATFORM",
+        "XPLAT_PRERENDER_PRODUCER_CONFIG"
+      ]
+    },
     "@xplat/platform-qualification#probe:prerender:appkit:build": {
       "passThroughEnv": ["GODDARD_*"]
     "@xplat/platform-qualification#probe:prerender:appkit:run": {

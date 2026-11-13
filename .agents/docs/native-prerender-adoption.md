@@ -24,6 +24,13 @@ dimensions only through media queries: retain exact dimension guards if any
 registered query depends on width, height or orientation, including currently
 unmatched rules. With no such query, Mason uses the actual viewport. This is
 conservative dependency handling, not a general responsive expression program.
+The private render-only producer uses Node and the selected project-installed
+Vite, with a JSON-selected entry/export/seed/environment. It keeps a dedicated
+build-host plugin and the four shared primitive facade; it does not load the
+app's Vite configuration or establish full UI-barrel eligibility. Generic
+logical projection and native decoding remain separate from the fixed Home
+native lowerers/adoption controls. See the fixture's
+[producer contract](../../tools/platform-qualification/native-prerender/README.md#produce-home-without-a-device-runtime).
 
 ## Root-scoped creation is a maintained driver seam
 

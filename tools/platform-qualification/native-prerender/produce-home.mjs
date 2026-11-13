@@ -4,12 +4,12 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { validateArtifact } from '@octane-xplat/native-prerender'
 import { encodeStartupArtifact, writeStartupJson } from '@octane-xplat/native-prerender/codec'
+import { parseProducerConfig } from './producer/config.mjs'
 
-if (typeof Bun === 'undefined') throw new Error('Home producer requires Bun 1.4.4')
 const source = import.meta.dirname
 const platform = process.env.XPLAT_PRERENDER_HOME_PLATFORM ?? 'ios'
 if (!['ios', 'android'].includes(platform))
@@ -25,6 +25,8 @@ const cssToolchain = createRequire(
     ? join(resolve(process.env.XPLAT_PRERENDER_CSS_TOOLCHAIN_ROOT), 'package.json')
     : join(repo, 'packages/css-engine/package.json'),
 )
+const vitePath = toolchain.resolve('vite')
+const { build } = await import(pathToFileURL(vitePath).href)
 const compilerPath = toolchain.resolve('octane/compiler')
 const normalizerPath = toolchain.resolve('@octane-xplat/cli/vite')
 const { compile } = await import(pathToFileURL(compilerPath).href)
@@ -54,14 +56,20 @@ function run(file, input) {
   if (result.status !== 0)
     throw new Error('Home producer worker: ' + (result.error?.message ?? result.stderr))
 }
+const configurationFile = resolve(
+  process.env.XPLAT_PRERENDER_PRODUCER_CONFIG ?? join(source, 'producer/home.config.json'),
+)
+const configuration = parseProducerConfig(read(configurationFile), configurationFile)
+const entryRoot = dirname(configuration.entry)
+const { seed, environment } = configuration
 const cssFiles = new Set()
 const nativeImports = []
 async function bundle(entry, name) {
-  const result = await Bun.build({
-    entrypoints: [entry],
-    outdir: join(work, name),
-    target: 'node',
-    format: 'esm',
+  const cssPrefix = '\0xplat-home-css:'
+  await build({
+    configFile: false,
+    root: repo,
+    logLevel: 'warn',
     define: {
       XPLAT_HOME_PLATFORM: JSON.stringify(platform),
       __IOS__: String(platform === 'ios'),
@@ -71,103 +79,123 @@ async function bundle(entry, name) {
       __VISIONOS__: 'false',
       __DEV__: 'false',
     },
+    ssr: { noExternal: true },
+    build: {
+      ssr: entry,
+      outDir: join(work, name),
+      target: 'node22',
+      minify: false,
+      emptyOutDir: true,
+      rolldownOptions: {
+        output: { format: 'es', entryFileNames: 'entry.mjs', codeSplitting: false },
+      },
+    },
     plugins: [
       {
         name: 'fixed-home-build-host',
-        setup(build) {
-          build.onLoad({ filter: /.*/, namespace: 'home-css' }, ({ path }) => {
+        enforce: 'pre',
+        load(id) {
+          if (id === '\0xplat-home-component')
+            return (
+              'export { ' +
+              configuration.exportName +
+              ' as StartupComponent } from ' +
+              JSON.stringify(configuration.entry)
+            )
+          if (id.startsWith(cssPrefix)) {
+            const path = Buffer.from(id.slice(cssPrefix.length), 'base64url').toString('utf8')
             cssFiles.add(path)
             read(path)
-            return { contents: 'export {}', loader: 'js' }
-          })
-          build.onLoad({ filter: /\.(?:ts|tsx|tsrx|mjs|js)$/ }, ({ path }) => {
-            if (!path.startsWith(repo + '/')) return
-            const contents = read(path)
-            if (
-              /\.(?:ts|tsx|tsrx)$/.test(path) &&
-              (path.startsWith(join(repo, 'packages/ui/')) || path.endsWith('Home.tsrx'))
-            ) {
-              const compiled = compile(contents, path, {
-                renderer: {
-                  id: 'nativescript',
-                  module: 'octane/universal/native',
-                  target: 'universal',
-                  server: 'unsupported',
-                  text: 'host',
-                },
-              })
-              const errors = compiled.diagnostics.filter((item) => item.severity === 'error')
-              if (errors.length) throw new Error(JSON.stringify(errors))
-              return { contents: compiled.code, loader: 'js' }
-            }
-            return { contents, loader: path.endsWith('.ts') ? 'ts' : 'js' }
-          })
-          build.onResolve({ filter: /.*/ }, (args) => {
-            if (args.path === '@nativescript/core') {
-              nativeImports.push({ importer: args.importer, request: args.path })
-              return { path: join(source, 'producer/native-api.mjs') }
-            }
-            if (args.path.startsWith('@nativescript/core/'))
-              throw new Error('Unsupported native module: ' + args.path)
-            if (
-              args.path === '@nativescript-community/octane' ||
-              args.path === '../../vendor/ui-svg/src'
-            ) {
-              if (args.importer !== join(repo, 'packages/ui/src/components/media/svg.mobile.ts'))
-                throw new Error('Unsupported native registry or SVG import: ' + args.importer)
-              nativeImports.push({ importer: args.importer, request: args.path })
-              return { path: join(source, 'producer/native-api.mjs') }
-            }
-            if (args.path === 'octane' || args.path.startsWith('octane/'))
-              return {
-                path: toolchain.resolve(
-                  args.path === 'octane' ? 'octane/universal/native' : args.path,
-                ),
-              }
-            const workspace = {
-              '@octane-xplat/ui': join(source, 'home-primitives.ts'),
-              '@octane-xplat/lib': join(repo, 'packages/lib/src/index.ts'),
-              '@octane-xplat/icons': join(repo, 'packages/icons/src/index.ts'),
-              '@octane-xplat/css-engine': join(repo, 'packages/css-engine/src/index.ts'),
-            }
-            if (Object.hasOwn(workspace, args.path)) return { path: workspace[args.path] }
-            if (['@csstools/css-calc', 'css-tree', 'css-what'].includes(args.path))
-              return { path: cssToolchain.resolve(args.path) }
-            if (!args.path.startsWith('.')) return
-            const path = resolve(dirname(args.importer), args.path)
-            if (path.endsWith('.css')) return { path, namespace: 'home-css' }
-            if (/\.(?:ts|tsx|tsrx)$/.test(path)) {
-              const stem = path.replace(/\.(?:ts|tsx|tsrx)$/, '')
-              const ext = path.slice(stem.length)
-              for (const candidate of [stem + '.' + platform + ext, stem + '.mobile' + ext, path])
-                if (existsSync(candidate)) return { path: candidate }
-            }
-            for (const ext of [
-              '.' + platform + '.tsrx',
-              '.mobile.tsrx',
-              '.tsrx',
-              '.' + platform + '.ts',
-              '.mobile.ts',
-              '.ts',
-              '.' + platform + '.js',
-              '.js',
-            ])
-              for (const candidate of [path + ext, join(path, 'index' + ext)])
-                if (existsSync(candidate)) return { path: candidate }
-          })
+            return 'export {}'
+          }
+          if (
+            (!id.startsWith(repo + '/') && !id.startsWith(entryRoot + '/')) ||
+            !/\.(?:ts|tsx|tsrx|mjs|js)$/.test(id)
+          )
+            return
+          const contents = read(id)
+          if (
+            /\.(?:ts|tsx|tsrx)$/.test(id) &&
+            (id.startsWith(join(repo, 'packages/ui/')) || id.startsWith(entryRoot + '/'))
+          ) {
+            const compiled = compile(contents, id, {
+              renderer: {
+                id: 'nativescript',
+                module: 'octane/universal/native',
+                target: 'universal',
+                server: 'unsupported',
+                text: 'host',
+              },
+            })
+            const errors = compiled.diagnostics.filter((item) => item.severity === 'error')
+            if (errors.length) throw new Error(JSON.stringify(errors))
+            return compiled.code
+          }
+          return contents
+        },
+        resolveId(request, importer) {
+          if (request === 'xplat-prerender:component') return '\0xplat-home-component'
+          if (request === '@nativescript/core') {
+            nativeImports.push({ importer, request })
+            return join(source, 'producer/native-api.mjs')
+          }
+          if (request.startsWith('@nativescript/core/'))
+            throw new Error('Unsupported native module: ' + request)
+          if (
+            request === '@nativescript-community/octane' ||
+            request === '../../vendor/ui-svg/src'
+          ) {
+            if (importer !== join(repo, 'packages/ui/src/components/media/svg.mobile.ts'))
+              throw new Error('Unsupported native registry or SVG import: ' + importer)
+            nativeImports.push({ importer, request })
+            return join(source, 'producer/native-api.mjs')
+          }
+          if (request === 'octane' || request.startsWith('octane/'))
+            return toolchain.resolve(request === 'octane' ? 'octane/universal/native' : request)
+          const workspace = {
+            '@octane-xplat/ui': join(source, 'home-primitives.ts'),
+            '@octane-xplat/lib': join(repo, 'packages/lib/src/index.ts'),
+            '@octane-xplat/icons': join(repo, 'packages/icons/src/index.ts'),
+            '@octane-xplat/css-engine': join(repo, 'packages/css-engine/src/index.ts'),
+          }
+          if (Object.hasOwn(workspace, request)) return workspace[request]
+          if (['@csstools/css-calc', 'css-tree', 'css-what'].includes(request))
+            return cssToolchain.resolve(request)
+          if ((!request.startsWith('.') && !isAbsolute(request)) || !importer) return
+          const path = isAbsolute(request) ? request : resolve(dirname(importer), request)
+          if (path.endsWith('.css')) return cssPrefix + Buffer.from(path).toString('base64url')
+          if (/\.(?:ts|tsx|tsrx)$/.test(path)) {
+            const stem = path.replace(/\.(?:ts|tsx|tsrx)$/, '')
+            const ext = path.slice(stem.length)
+            for (const candidate of [stem + '.' + platform + ext, stem + '.mobile' + ext, path])
+              if (existsSync(candidate)) return candidate
+          }
+          for (const ext of [
+            '.' + platform + '.tsrx',
+            '.mobile.tsrx',
+            '.tsrx',
+            '.' + platform + '.ts',
+            '.mobile.ts',
+            '.ts',
+            '.' + platform + '.js',
+            '.js',
+          ])
+            for (const candidate of [path + ext, join(path, 'index' + ext)])
+              if (existsSync(candidate)) return candidate
         },
       },
     ],
   })
-  if (!result.success) throw new Error(result.logs.join('\n'))
-  return result.outputs.find((output) => output.kind === 'entry-point').path
+  const output = join(work, name, 'entry.mjs')
+  if (!existsSync(output)) throw new Error('Render-only Vite build did not emit ' + output)
+  return output
 }
+read(vitePath)
 read(compilerPath)
 read(normalizerPath)
 read(import.meta.filename)
 read(createRequire(import.meta.url).resolve('@octane-xplat/native-prerender/codec'))
-const seed = { name: 'Alex', initialCompleted: 3 }
-const environment = { width: 402, height: 874, reducedMotion: false }
+read(join(source, 'producer/config.mjs'))
 const homeBundle = await bundle(join(source, 'producer/prepare-home.mjs'), 'home-bundle')
 const trees = {}
 for (const theme of ['light', 'dark']) {
@@ -197,7 +225,7 @@ const sheets = [
     ...cssFiles,
   ]),
 ].map((path) => {
-  const id = path.slice(repo.length + 1)
+  const id = path.startsWith(repo + '/') ? path.slice(repo.length + 1) : pathToFileURL(path).href
   return { id, css: processNativeCss(read(path), id, (message) => warnings.push(message)) }
 })
 json(join(work, 'sheets.json'), sheets)
@@ -220,6 +248,7 @@ const binding = {
   seed,
   environment,
   platform,
+  configuration,
 }
 const buildHash = createHash('sha256').update(JSON.stringify(binding)).digest('hex')
 const logicalNodes = trees.light.logicalNodes
@@ -267,9 +296,9 @@ json(join(work, 'build.json'), {
     .digest('hex'),
   logicalNodeCount: logicalNodes.length,
   scope:
-    'Fixed Home ' +
+    'Private configured Node/Vite ' +
     platform +
-    ' render-only producer, explicit environment, AOT theme variants and XPI1 encoding; not general eligibility, SSR or native runtime qualification',
+    ' render-only producer with four shared primitive exports, explicit environment, AOT theme variants and XPI1 encoding; not normal app integration, general eligibility, SSR or native runtime qualification',
 })
 console.log('Home producer output: ' + work)
 console.log(

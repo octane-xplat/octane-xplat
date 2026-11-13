@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { spawnSync } from 'node:child_process'
+import { parseProducerConfig } from './producer/config.mjs'
 import { compileLaunchConstraints } from './producer/launch-constraints.mjs'
 
 test('AOT launch guards retain every dimension-sensitive query and omit unread viewport inputs', () => {
@@ -89,4 +90,31 @@ test('Android build facts select Android without exposing native service objects
   )
 
   assert.equal(result.status, 0, result.stderr)
+})
+
+test('producer configuration resolves its entry and retains explicit seed and launch inputs', () => {
+  const value = {
+    version: 1,
+    entry: './screen.tsrx',
+    exportName: 'Startup',
+    seed: { title: 'Launch', count: 0 },
+    environment: { width: 320, height: 640, reducedMotion: true },
+  }
+  const config = parseProducerConfig(JSON.stringify(value), '/app/startup.json')
+  assert.equal(config.entry, '/app/screen.tsrx')
+  assert.deepEqual(config.seed, value.seed)
+  assert.deepEqual(config.environment, value.environment)
+  for (const replacement of [
+    null,
+    [],
+    { ...value, typo: true },
+    { ...value, version: 2 },
+    { ...value, entry: '' },
+    { ...value, exportName: 'x;sideEffect()' },
+    { ...value, seed: [] },
+    { ...value, environment: { ...value.environment, width: 0 } },
+    { ...value, environment: { ...value.environment, reducedMotion: 'false' } },
+  ])
+    assert.throws(() => parseProducerConfig(JSON.stringify(replacement), '/app/startup.json'))
+  assert.throws(() => parseProducerConfig(' '.repeat(1024 * 1024 + 1), '/app/startup.json'), /1MiB/)
 })

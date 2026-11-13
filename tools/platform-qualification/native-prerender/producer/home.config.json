@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "entry": "../Home.tsrx",
+  "exportName": "Home",
+  "seed": { "name": "Alex", "initialCompleted": 3 },
+  "environment": { "width": 402, "height": 874, "reducedMotion": false }
+}
