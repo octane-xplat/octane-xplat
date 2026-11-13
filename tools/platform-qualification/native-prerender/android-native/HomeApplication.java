@@ -71,6 +71,7 @@ public final class HomeApplication extends com.tns.NativeScriptApplication {
     void record(JSONObject event) {
         try {
             event.put("elapsedRealtimeNanos", android.os.SystemClock.elapsedRealtimeNanos());
+            event.put("debuggable", (getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0);
             android.os.Trace.beginSection("XplatHome:" + event.optString("event") + ":" + event.optInt("epoch"));
             android.os.Trace.endSection();
             event.put("runtimeStarts", runtimeStarts); events.put(event);

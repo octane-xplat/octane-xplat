@@ -1,9 +1,16 @@
 plugins { id 'com.android.application' }
+def probeVariant = providers.gradleProperty('probeVariant').getOrElse('debug')
+def probeCapital = probeVariant.capitalize()
 android {
  namespace 'org.octanexplat.prerenderandroid'
  compileSdk 36
  defaultConfig { applicationId 'org.octanexplat.prerenderbootstrap.android'; minSdk 23; targetSdk 35; versionCode 1; versionName '1.0'; ndk { abiFilters 'arm64-v8a' } }
  compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+ buildTypes {
+  debug { manifestPlaceholders = [receiptProviderEnabled: 'false'] }
+  // Disposable qualification signing only; no production key or shrinker change.
+  release { debuggable false; minifyEnabled false; signingConfig signingConfigs.debug; manifestPlaceholders = [receiptProviderEnabled: 'true'] }
+ }
 }
 dependencies {
  implementation files('../inputs/nativescript-runtime.aar','../inputs/nativescript-widgets.aar','../inputs/MasonCore.aar')
@@ -18,13 +25,13 @@ dependencies {
  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 }
 tasks.register('prepareProbeMetadata') {
- dependsOn 'compileDebugJavaWithJavac'
+ dependsOn 'compile' + probeCapital + 'JavaWithJavac'
  doLast {
   def stage = rootProject.file('metadata-work'); stage.mkdirs()
   def output = file('src/main/assets/metadata'); output.mkdirs()
   def paths = new LinkedHashSet<String>()
   android.bootClasspath.each { paths.add(it.absolutePath) }
-  configurations.debugRuntimeClasspath.files.each { dep ->
+  configurations.getByName(probeVariant + 'RuntimeClasspath').files.each { dep ->
    if (dep.name.endsWith('.jar')) { paths.add(dep.absolutePath) }
    else if (dep.name.endsWith('.aar')) {
     def dir = new File(stage, 'dep-' + Integer.toHexString(dep.absolutePath.hashCode())); dir.mkdirs()
@@ -32,7 +39,7 @@ tasks.register('prepareProbeMetadata') {
     fileTree(dir).matching { include '**/*.jar' }.files.each { paths.add(it.absolutePath) }
    }
   }
-  def compiled = tasks.named('compileDebugJavaWithJavac').get().destinationDirectory.get().asFile
+  def compiled = tasks.named('compile' + probeCapital + 'JavaWithJavac').get().destinationDirectory.get().asFile
   paths.add(compiled.absolutePath)
   new File(stage,'mdg-java-dependencies.txt').text = paths.join('\n') + '\n'
   new File(stage,'mdg-java-out.txt').text = fileTree(compiled).matching { include '**/*.class' }.files.collect { it.absolutePath }.join('\n') + '\n'

@@ -24,6 +24,9 @@ const core = realpathSync(required('XPLAT_PRERENDER_CORE_ROOT'))
 const mason = required('XPLAT_PRERENDER_ANDROID_MASON_SDK')
 const sdk = required('XPLAT_PRERENDER_ANDROID_SDK')
 const javaHome = required('XPLAT_PRERENDER_JAVA_HOME')
+const variant = process.env.XPLAT_PRERENDER_ANDROID_VARIANT ?? 'debug'
+if (!['debug', 'release'].includes(variant))
+  throw new Error('Android fixture variant must be debug or release')
 const labelWrappers = process.env.XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS === '1'
 const masonParent = process.env.XPLAT_PRERENDER_ANDROID_MASON_PARENT === '1'
 const masonAdopt = process.env.XPLAT_PRERENDER_ANDROID_MASON_ADOPT === '1'
@@ -44,6 +47,8 @@ if (
 )
   throw new Error('Home mount control cannot combine with two-label wrapper modes')
 const homeAdopt = process.env.XPLAT_PRERENDER_ANDROID_HOME_ADOPT === '1'
+if (variant === 'release' && !homeProducer)
+  throw new Error('Release qualification requires Home inputs')
 if (homeAdopt && !homeProducer) throw new Error('Home adoption requires an Android Home producer')
 const homeParity = process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'
 if (homeParity && !homeAdopt) throw new Error('Home parity requires Home adoption')
@@ -193,6 +198,14 @@ for (const [name, destination] of [
         .replaceAll(
           'FAIL_ON_PROJECT_REPOS',
           homeAdopt ? 'PREFER_SETTINGS' : 'FAIL_ON_PROJECT_REPOS',
+        )
+        .replace(
+          '</application>',
+          homeProducer
+            ? '<provider android:name="org.octanexplat.prerenderandroid.HomeReceiptProvider" android:authorities="' +
+                id +
+                '.receipts" android:exported="true" android:enabled="${receiptProviderEnabled}" />\n    </application>'
+            : '</application>',
         ),
     )
 }
@@ -202,6 +215,7 @@ if (homeProducer)
     'HomeScene.java',
     'HomeComparison.java',
     'HomeViewport.java',
+    'HomeReceiptProvider.java',
   ])
     snapshot(
       join(source, name),
@@ -215,7 +229,9 @@ writeFileSync(
 )
 writeFileSync(
   join(work, 'gradle.properties'),
-  'android.useAndroidX=true\nandroid.builder.sdkDownload=false\norg.gradle.jvmargs=-Xmx3g\norg.gradle.workers.max=2\n',
+  'android.useAndroidX=true\nandroid.builder.sdkDownload=false\norg.gradle.jvmargs=-Xmx3g\norg.gradle.workers.max=2\nprobeVariant=' +
+    variant +
+    '\n',
 )
 writeFileSync(join(work, 'local.properties'), 'sdk.dir=' + sdk.replaceAll('\\', '\\\\') + '\n')
 mkdirSync(join(work, 'app/src/main/assets/app'), { recursive: true })
@@ -320,6 +336,7 @@ if (homeProducer) {
         producer: producer.buildHash,
         options: {
           homeAdopt,
+          variant,
           homeParity,
           homeRecreate,
           homeRecreateCount,
@@ -405,7 +422,16 @@ run(
   join(work, 'metadata-work'),
   'metadata.log',
 )
-run('sh', [join(work, 'gradlew'), '--no-daemon', ':app:assembleDebug'], work, 'assemble.log')
+run(
+  'sh',
+  [
+    join(work, 'gradlew'),
+    '--no-daemon',
+    variant === 'release' ? ':app:assembleRelease' : ':app:assembleDebug',
+  ],
+  work,
+  'assemble.log',
+)
 for (const [path, input] of Object.entries({ ...inputs, ...sourceHashes }))
   if (
     hash(input.copy) !== input.sha256 ||
@@ -415,9 +441,9 @@ for (const [path, input] of Object.entries({ ...inputs, ...sourceHashes }))
 const generatedHashes = Object.fromEntries(
   files(join(work, 'app/src')).map((path) => [path, hash(path)]),
 )
-const apk = join(work, 'app/build/outputs/apk/debug/app-debug.apk')
+const apk = join(work, 'app/build/outputs/apk', variant, 'app-' + variant + '.apk')
 if (
-  JSON.parse(readFileSync(join(work, 'app/build/outputs/apk/debug/output-metadata.json')))
+  JSON.parse(readFileSync(join(work, 'app/build/outputs/apk', variant, 'output-metadata.json')))
     .applicationId !== id
 )
   throw new Error('Compiled Android application ID differs from this fixture')
@@ -426,6 +452,7 @@ writeFileSync(
   JSON.stringify(
     {
       apk,
+      variant,
       apkHash: hash(apk),
       sdk,
       sourceHashes,

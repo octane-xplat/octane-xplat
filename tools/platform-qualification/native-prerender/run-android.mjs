@@ -88,6 +88,20 @@ function call(program, args, timeout = 30000, required = true, input) {
 }
 const device = (args, timeout = 30000, required = true, input) =>
   call(adb, ['-s', serial, ...args], timeout, required, input)
+async function readReceipt(name, timeout = 5000, required = false) {
+  const args =
+    build.variant === 'release'
+      ? ['shell', 'content', 'read', '--uri', 'content://' + build.id + '.receipts/' + name]
+      : ['shell', 'run-as', build.id, 'cat', 'files/' + name]
+  const result = await device(args, timeout, false)
+  // Android's content CLI can print a provider error while returning exit0.
+  if (result.status === 0 && !result.output.startsWith('[')) result.status = 1
+  check(
+    !required || result.status === 0,
+    'Could not read fixture receipt: ' + name + ': ' + result.output + result.error,
+  )
+  return result
+}
 async function captureHeap() {
   // am opens its output as shell before handing the descriptor to the app.
   const file =
@@ -198,15 +212,17 @@ try {
   )
   check(Number.isSafeInteger(uid) && uid >= 10000, 'Missing app UID')
   await device(['shell', 'am', 'force-stop', build.id])
-  await device([
-    'shell',
-    'run-as',
-    build.id,
-    'rm',
-    '-f',
-    'files/probe-result.json',
-    'files/lifecycle-result.json',
-  ])
+  if (build.variant === 'release') await device(['shell', 'pm', 'clear', build.id])
+  else
+    await device([
+      'shell',
+      'run-as',
+      build.id,
+      'rm',
+      '-f',
+      'files/probe-result.json',
+      'files/lifecycle-result.json',
+    ])
   if (traceEnabled) {
     const config = `buffers { size_kb: 32768 fill_policy: RING_BUFFER }
 duration_ms: 10000
@@ -273,11 +289,7 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
   let events = []
   while (Date.now() < deadline) {
     alive()
-    const receipt = await device(
-      ['shell', 'run-as', build.id, 'cat', 'files/probe-result.json'],
-      5000,
-      false,
-    )
+    const receipt = await readReceipt('probe-result.json')
     if (receipt.status === 0) {
       events = JSON.parse(receipt.output)
       writeFileSync(join(report, 'result.json'), JSON.stringify(events, null, 2))
@@ -538,6 +550,10 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
       'Actual Home was not decoded/mounted/laid out before the runtime/library',
     )
     check(
+      native.debuggable === (build.variant !== 'release'),
+      'Runtime Android debuggable flag differs from selected fixture variant',
+    )
+    check(
       native.homeVisualNodes === 19 &&
         native.width === native.availableWidth &&
         native.height === native.availableHeight &&
@@ -783,13 +799,7 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
         const inputDeadline = Date.now() + 5000
         while (Date.now() < inputDeadline) {
           alive()
-          const receipt = await device([
-            'shell',
-            'run-as',
-            build.id,
-            'cat',
-            'files/probe-result.json',
-          ])
+          const receipt = await readReceipt('probe-result.json', 5000, true)
           events = JSON.parse(receipt.output)
           writeFileSync(join(report, 'result.json'), JSON.stringify(events, null, 2))
           check(
@@ -844,13 +854,7 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
       if (build.home.restore) {
         const readEvents = async () => {
           alive()
-          const receipt = await device([
-            'shell',
-            'run-as',
-            build.id,
-            'cat',
-            'files/probe-result.json',
-          ])
+          const receipt = await readReceipt('probe-result.json', 5000, true)
           events = JSON.parse(receipt.output)
           writeFileSync(join(report, 'result.json'), JSON.stringify(events, null, 2))
           check(
@@ -1197,6 +1201,41 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
       hash(build.apk) === build.apkHash,
     'Driver or APK changed during execution',
   )
+  if (build.variant === 'release') {
+    const rejected = await device(
+      [
+        'shell',
+        'content',
+        'read',
+        '--uri',
+        'content://' + build.id + '.receipts/not-a-receipt.json',
+      ],
+      5000,
+      false,
+    )
+    const writeRejected = await device(
+      [
+        'shell',
+        'content',
+        'write',
+        '--uri',
+        'content://' + build.id + '.receipts/probe-result.json',
+      ],
+      5000,
+      false,
+      '',
+    )
+    check(
+      [rejected, writeRejected].every((result) =>
+        (result.output + result.error).includes('Unknown read-only fixture receipt'),
+      ),
+      'Release receipt provider accepted an unknown file or a write',
+    )
+    writeFileSync(
+      join(report, 'receipt-provider-controls.json'),
+      JSON.stringify({ unknownFile: rejected, writeAttempt: writeRejected }, null, 2),
+    )
+  }
   await finishTrace()
   writeFileSync(
     join(report, 'status.json'),
@@ -1225,17 +1264,9 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
         const logs = await device(['logcat', '-d', '--uid=' + uid], 10000, false)
         writeFileSync(join(report, 'app-logcat.txt'), logs.output)
       }
-      const receipt = await device(
-        ['shell', 'run-as', build.id, 'cat', 'files/probe-result.json'],
-        5000,
-        false,
-      )
+      const receipt = await readReceipt('probe-result.json')
       if (receipt.status === 0) writeFileSync(join(report, 'native-result.json'), receipt.output)
-      const lifecycle = await device(
-        ['shell', 'run-as', build.id, 'cat', 'files/lifecycle-result.json'],
-        5000,
-        false,
-      )
+      const lifecycle = await readReceipt('lifecycle-result.json')
       if (lifecycle.status === 0)
         writeFileSync(join(report, 'lifecycle-result.json'), lifecycle.output)
       await device(['shell', 'am', 'force-stop', build.id], 10000, false)
