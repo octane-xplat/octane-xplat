@@ -20,7 +20,7 @@
     "probe:prerender:driver:check": "node native-prerender/check-driver.mjs",
     "test:prerender:adoption": "node --test native-prerender/match-tree.test.mjs",
     "test:prerender:codec": "node native-prerender/check-home-codec.mjs"
-    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs && node --check native-prerender/check-home.mjs && node --check native-prerender/compile-home-helpers.mjs && node --check native-prerender/check-driver.mjs && node --check native-prerender/match-tree.mjs && node --check native-prerender/match-tree.test.mjs && node --check native-prerender/home-codec.mjs && node --check native-prerender/home-codec.test.mjs && node --check native-prerender/check-home-codec.mjs && node --check native-prerender/home-adoption.ios.js && node --check native-prerender/home-fallback.ios.js && node --check native-prerender/write-native-diagnostic.ios.js && node --check native-prerender/drive-home-input.mjs && node --check native-prerender/check-appkit-measurement.mjs"
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs && node --check native-prerender/check-home.mjs && node --check native-prerender/compile-home-helpers.mjs && node --check native-prerender/check-driver.mjs && node --check native-prerender/match-tree.mjs && node --check native-prerender/match-tree.test.mjs && node --check native-prerender/home-codec.mjs && node --check native-prerender/home-codec.test.mjs && node --check native-prerender/check-home-codec.mjs && node --check native-prerender/home-adoption.ios.js && node --check native-prerender/home-fallback.ios.js && node --check native-prerender/write-native-diagnostic.ios.js && node --check native-prerender/drive-home-input.mjs && node --check native-prerender/check-appkit-measurement.mjs && node --check native-prerender/produce-home.mjs && node --check native-prerender/producer/native-api.mjs && node --check native-prerender/producer/prepare-home.mjs && node --check native-prerender/producer/project-home.mjs && node --check native-prerender/producer/resolve-home.mjs && node --check native-prerender/producer.test.mjs"
     "probe:prerender:home:helpers": "node native-prerender/compile-home-helpers.mjs",
     "probe:prerender:driver:check": "node native-prerender/check-driver.mjs",
     "test:prerender:adoption": "node --test native-prerender/match-tree.test.mjs",
@@ -29,7 +29,9 @@
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && node --check native-prerender/run.mjs && node --check native-prerender/entry.js && node --check native-prerender/metadata.mjs && node --check native-prerender/check-home.mjs && node --check native-prerender/compile-home-helpers.mjs && node --check native-prerender/check-driver.mjs && node --check native-prerender/match-tree.mjs && node --check native-prerender/match-tree.test.mjs && node --check native-prerender/home-codec.mjs && node --check native-prerender/home-codec.test.mjs && node --check native-prerender/check-home-codec.mjs && node --check native-prerender/home-adoption.ios.js && node --check native-prerender/home-fallback.ios.js && node --check native-prerender/write-native-diagnostic.ios.js && node --check native-prerender/drive-home-input.mjs"
     "probe:prerender:home:input": "node native-prerender/drive-home-input.mjs",
     "probe:prerender:appkit:build": "node native-prerender/check-appkit-measurement.mjs build",
-    "probe:prerender:appkit:run": "node native-prerender/check-appkit-measurement.mjs run"
+    "probe:prerender:appkit:run": "node native-prerender/check-appkit-measurement.mjs run",
+    "probe:prerender:home:produce": "bun native-prerender/produce-home.mjs",
+    "test:prerender:producer": "node --test native-prerender/producer.test.mjs"
   },
   "devDependencies": {
     "@octane-xplat/nativescript-octane": "workspace:*",
@@ -46,5 +48,8 @@
     "octane": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
+    "vite": "catalog:",
+    "@octane-xplat/css-engine": "workspace:*",
+    "@octane-xplat/cli": "workspace:*"
   }
 }
