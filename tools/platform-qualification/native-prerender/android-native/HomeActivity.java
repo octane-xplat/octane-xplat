@@ -96,6 +96,9 @@ public final class HomeActivity extends AppCompatActivity {
     public org.nativescript.mason.masonkit.View getViewport() { return scene.viewport; }
     public String getHomeTheme() { return scene.theme; }
     public String snapshotRetiredHome() { return app().snapshotRetired(); }
+    public String snapshotMasonStats() {
+        return new JSONObject(org.nativescript.mason.masonkit.Mason.Companion.getShared().debugStats()).toString();
+    }
     public void restoreHomeDefaults() { scene.restoreDefaults(); }
     public void recordHomeProof(String encoded) {
         try { app().record(new JSONObject(encoded).put("event", "home-proof").put("epoch", epoch)); }

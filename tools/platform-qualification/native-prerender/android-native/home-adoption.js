@@ -6,7 +6,7 @@ import { native_, style_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import { createNativeScriptRoot, registerElement } from '@nativescript-community/octane'
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
-import { qualifyRetiredHome } from './home-lifetime.js'
+import { captureMasonBaseline, qualifyRetiredHome } from './home-lifetime.js'
 import { AdoptionMismatch, matchPreparedVisualTree } from '../match-tree.mjs'
 import { renderFallbackHome } from './home-fallback.js'
 import {
@@ -299,6 +299,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         activity.recordHomeProof(
           JSON.stringify({
             phase: 'adopted',
+            masonStats: XPLAT_PRERENDER_HOME_LIFETIME ? captureMasonBaseline(activity) : undefined,
             visualOwners: 19,
             logicalNodesMatched: 27,
             hookCalls: claimState.hookCalls,

@@ -609,6 +609,11 @@ try {
           proof.aliveViews.length === 0 &&
           proof.aliveNodes.length === 0 &&
           proof.javaObjectsCollected &&
+          proof.nativeLiveNodesReturned &&
+          proof.masonStats.liveNodes >= 20 &&
+          proof.masonStats.liveNodes <= proof.masonBaseline.liveNodes &&
+          proof.masonStats.trackedNodes >= 20 &&
+          proof.masonStats.trackedNodes <= proof.masonBaseline.trackedNodes &&
           proof.attempts > 0 &&
           proof.attempts <= 8 &&
           proof.nativeDeallocationQualified === false,

@@ -71,6 +71,15 @@ then verifies the warm Home still handles OS input. This establishes the
 bounded Java-object lifetime only, not Rust allocation counts or repeated-cycle
 memory stability.
 
+The SDK's public `Mason.debugStats()` also permits a live-node check. Capture
+the accepted Home baseline before creating its hidden comparison root; a
+baseline that already includes temporary references can conceal retention.
+After retired Java objects collect, require native arena `liveNodes` and Java
+registry `trackedNodes` to return to that baseline, then exercise the current
+screen. Record buffer-pool counters separately: a larger free-slot pool can
+coexist with unchanged live nodes and active buffer memory. These are bounded
+allocation counters, not proof of whole-process or all native-byte reclamation.
+
 Revisit the eager singleton initialization if upstream normalizes its context
 to `getApplicationContext()` or Core supplies the Application directly. Remove
 it only after the retired-object control passes without it. Inspect strong
