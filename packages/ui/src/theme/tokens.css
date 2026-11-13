@@ -813,6 +813,10 @@
 		display: flex;
 		cursor: pointer;
 	}
+	/* The checkbox owns input; decorative track/thumb must not cover its hit area. */
+	.vx-switch[aria-hidden='true'] {
+		pointer-events: none;
+	}
 	/* xplat-web-only:end */
 
 	@platform macos {
