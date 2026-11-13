@@ -270,7 +270,10 @@ try {
   const success = events.find((event) => event.event === 'passed' && event.epoch === begin?.epoch)
   if (build.home?.fallback) {
     const rejected = events.find(
-      (event) => event.event === 'ir-rejected' && event.epoch === begin?.epoch,
+      (event) =>
+        event.event ===
+          (build.home.fallback === 'font-scale' ? 'environment-rejected-native' : 'ir-rejected') &&
+        event.epoch === begin?.epoch,
     )
     const fallback = events.find(
       (event) =>
@@ -288,10 +291,18 @@ try {
       (event) => event.phase === 'ordinary-fallback' && event.epoch === fallback?.epoch,
     )
     const expected = JSON.parse(readFileSync(join(resolve(work), 'producer/resolved.json')))
-    if (build.home.fallback === 'build')
+    if (['build', 'font-scale'].includes(build.home.fallback))
       check(
         rejected &&
-          rejected.reason.includes('build mismatch') &&
+          (build.home.fallback === 'build'
+            ? rejected.reason.includes('build mismatch')
+            : rejected.reason.includes('fontScale1') &&
+              Math.abs(rejected.fontScale - 1.3) < 0.0001 &&
+              Number.isFinite(rejected.density) &&
+              rejected.density > 0 &&
+              events.some(
+                (event) => event.event === 'native-home-decoded' && event.epoch === begin.epoch,
+              )) &&
           rejected.homeAllocationStarted === false &&
           rejected.runtimeStarted === false &&
           rejected.runtimeLibraryLoaded === false &&
@@ -299,9 +310,12 @@ try {
           end?.runtimeStarted &&
           events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
           !events.some(
-            (event) => event.event === 'native-home-decoded' || event.phase === 'adopted',
+            (event) =>
+              (build.home.fallback === 'build' && event.event === 'native-home-decoded') ||
+              event.event === 'native-home-mounted' ||
+              event.phase === 'adopted',
           ),
-        'Stale IR was not rejected before native Home allocation and the only VM start',
+        'IR or environment preflight did not reject before native Home allocation and the only VM start',
       )
     else if (build.home.fallback === 'seed') {
       const denied = events.find(
@@ -907,21 +921,28 @@ try {
   const phases = (
     build.home?.fallback === 'build'
       ? ['ir-rejected', 'engine-init-begin', 'engine-init-end']
-      : build.home?.fallback
+      : build.home?.fallback === 'font-scale'
         ? [
             'native-home-decoded',
-            'native-home-mounted',
-            'native-layout-before-runtime',
+            'environment-rejected-native',
             'engine-init-begin',
             'engine-init-end',
           ]
-        : [
-            ...(build.home ? ['native-home-decoded', 'native-home-mounted'] : []),
-            'native-layout-before-runtime',
-            'engine-init-begin',
-            'engine-init-end',
-            'passed',
-          ]
+        : build.home?.fallback
+          ? [
+              'native-home-decoded',
+              'native-home-mounted',
+              'native-layout-before-runtime',
+              'engine-init-begin',
+              'engine-init-end',
+            ]
+          : [
+              ...(build.home ? ['native-home-decoded', 'native-home-mounted'] : []),
+              'native-layout-before-runtime',
+              'engine-init-begin',
+              'engine-init-end',
+              'passed',
+            ]
   ).map((name) => events.findIndex((event) => event.event === name && event.epoch === begin?.epoch))
   check(
     phases.every(

@@ -24,6 +24,17 @@ import java.util.Map;
 
 /** Fixed shared Home lowerer; all records are preflighted before native allocation. */
 public final class HomeScene {
+    public static final class UnsupportedEnvironment extends IllegalArgumentException {
+        UnsupportedEnvironment(String reason) { super(reason); }
+    }
+    public static void validateEnvironment(Context context) {
+        if (android.os.Build.VERSION.SDK_INT < 28)
+            throw new UnsupportedEnvironment("Home font lowering requires Android28+");
+        float density = context.getResources().getDisplayMetrics().density;
+        float scale = context.getResources().getConfiguration().fontScale;
+        if (!Float.isFinite(density) || density <= 0 || scale != 1f)
+            throw new UnsupportedEnvironment("Native Home requires finite density>0 and fontScale1; density=" + density + " fontScale=" + scale);
+    }
     private static final String SYSTEM_FAMILY = "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif";
     public final HomeArtifact.Artifact artifact;
     public final String theme;
@@ -62,10 +73,8 @@ public final class HomeScene {
     public HomeScene(android.app.Activity context, HomeArtifact.Artifact artifact, String theme) {
         this.artifact = artifact; this.theme = theme;
         density = context.getResources().getDisplayMetrics().density;
-        check(android.os.Build.VERSION.SDK_INT >= 28, "Home font lowering requires Android28+");
+        validateEnvironment(context);
         check(artifact.nodes.size() == 19 && artifact.nodes.get(0).kind.equals("masonview"), "Expected actual nineteen-view Home");
-        check(Float.isFinite(density) && density > 0 && context.getResources().getConfiguration().fontScale == 1f,
-            "This fixed Home qualification requires density>0 and fontScale1");
         // Check both variants, including the currently unused one, before views.
         for (List<HomeArtifact.StyleRecord> variant : artifact.variants.values()) {
             for (HomeArtifact.StyleRecord row : variant) {

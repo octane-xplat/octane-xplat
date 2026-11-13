@@ -70,14 +70,14 @@ if (homeLifetime && (!homeApplication || !homeRecreate || !homeParity))
   )
 if (
   homeFallback &&
-  (!['build', 'seed', 'attach', 'theme'].includes(homeFallback) ||
+  (!['build', 'seed', 'attach', 'theme', 'font-scale'].includes(homeFallback) ||
     !homeApplication ||
     homeParity ||
     homeRecreate ||
     homeInput)
 )
   throw new Error(
-    'Home fallback control requires build/seed/attach/theme mode and Home Application/adoption, without parity/recreation/input',
+    'Home fallback control requires build/seed/attach/theme/font-scale mode and Home Application/adoption, without parity/recreation/input',
   )
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
@@ -341,6 +341,8 @@ if (homeProducer) {
       homeRecreate +
       '; public static final boolean STALE_THEME = ' +
       (homeFallback === 'theme') +
+      '; public static final boolean UNSUPPORTED_FONT_SCALE = ' +
+      (homeFallback === 'font-scale') +
       '; public static final int RECREATIONS = ' +
       homeRecreateCount +
       '; }\n',

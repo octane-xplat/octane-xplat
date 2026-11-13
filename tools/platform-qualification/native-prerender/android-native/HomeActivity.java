@@ -8,6 +8,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 public final class HomeActivity extends AppCompatActivity {
+    @Override protected void attachBaseContext(android.content.Context base) {
+        if (HomeBuild.UNSUPPORTED_FONT_SCALE) {
+            android.content.res.Configuration config = new android.content.res.Configuration(base.getResources().getConfiguration());
+            config.fontScale = 1.3f;
+            base = base.createConfigurationContext(config);
+        }
+        super.attachBaseContext(base);
+    }
     private HomeScene scene;
     private String nativeSnapshot;
     private org.nativescript.mason.masonkit.View reference;
@@ -203,18 +211,19 @@ public final class HomeActivity extends AppCompatActivity {
             HomeArtifact.Artifact artifact;
             try { artifact = HomeArtifact.decode(bytes.toByteArray(), HomeBuild.HASH); }
             catch (HomeArtifact.Invalid rejected) {
-                fallbackReason = rejected.getMessage();
-                app().record(new JSONObject().put("event", "ir-rejected").put("epoch", epoch).put("reason", fallbackReason)
-                    .put("homeAllocationStarted", false).put("runtimeStarted", com.tns.Runtime.isInitialized())
-                    .put("runtimeLibraryLoaded", com.tns.Runtime.nativeLibraryLoaded));
-                configureNativeWindow(); getWindow().getDecorView().post(fallbackStarter); return;
+                deferFallback("ir-rejected", rejected.getMessage()); return;
             }
             check(artifact.nodes.size() == 19, "Wrong Home artifact");
             record("native-home-decoded");
             String theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
             if (HomeBuild.STALE_THEME) theme = theme.equals("dark") ? "light" : "dark";
-            scene = new HomeScene(this, artifact, theme);
+            try {
+                HomeScene.validateEnvironment(this);
+                scene = new HomeScene(this, artifact, theme);
+            } catch (HomeScene.UnsupportedEnvironment rejected) {
+                deferFallback("environment-rejected-native", rejected.getMessage()); return;
+            }
             setContentView(scene.windowRoot);
             // Match Core's onActivityCreated window setup before the first
             // native frame, using its actual native helper without a JS runtime.
@@ -222,6 +231,16 @@ public final class HomeActivity extends AppCompatActivity {
             record("native-home-mounted");
             Choreographer.getInstance().postFrameCallback(gate);
         } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
+    }
+    private void deferFallback(String event, String reason) {
+        check(scene == null, "Preflight fallback already allocated Home");
+        fallbackReason = reason;
+        try { app().record(new JSONObject().put("event", event).put("epoch", epoch).put("reason", reason)
+            .put("homeAllocationStarted", false).put("runtimeStarted", com.tns.Runtime.isInitialized())
+            .put("runtimeLibraryLoaded", com.tns.Runtime.nativeLibraryLoaded)
+            .put("fontScale", getResources().getConfiguration().fontScale).put("density", getResources().getDisplayMetrics().density)); }
+        catch (org.json.JSONException error) { throw new RuntimeException(error); }
+        configureNativeWindow(); getWindow().getDecorView().post(fallbackStarter);
     }
     private void configureNativeWindow() {
         org.nativescript.widgets.Utils.enableEdgeToEdge(this, Integer.valueOf(0), Integer.valueOf(0),
