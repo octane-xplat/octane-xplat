@@ -22,17 +22,41 @@ const registry = JSON.parse(
   readFileSync(new URL('./ns-css-registry.json', import.meta.url), 'utf8'),
 )
 
-// Mason Core registers these on Style in addition to NativeScript Core's
-// registry (nativescript-mason-core 1.0.0-beta.8, properties.ts). Registration
-// permits declarations here; it does not establish clipping parity on devices.
-const SUPPORTED = new Set([...registry.properties, 'overflow', 'overflow-x', 'overflow-y'])
+// Mason Core registers these layout declarations on Style in addition to
+// NativeScript Core's registry (nativescript-mason-core 1.0.0-beta.10,
+// properties.ts). Registration permits Mason views to consume them; it does
+// not establish clipping parity on devices.
+const MASON_SUPPORTED = [
+  'display',
+  'grid-area',
+  'grid-auto-columns',
+  'grid-auto-flow',
+  'grid-auto-rows',
+  'grid-column',
+  'grid-column-end',
+  'grid-column-start',
+  'grid-column-gap',
+  'grid-gap',
+  'grid-row',
+  'grid-row-end',
+  'grid-row-gap',
+  'grid-row-start',
+  'grid-template-areas',
+  'grid-template-columns',
+  'grid-template-rows',
+  'justify-self',
+  'overflow',
+  'overflow-x',
+  'overflow-y',
+  'place-items',
+]
+const SUPPORTED = new Set([...registry.properties, ...MASON_SUPPORTED])
 
 // Props NS drops that we still write for web — each entry must carry the
 // reason it's intentional, matching a shared-css idiom in tokens.css.
 // Anything else dropped is an ERROR: wrap it in xplat-web-only or fix it.
 const DROPPED_INTENTIONAL = new Map(
   Object.entries({
-    display: 'element style owns the layout type on native (masonview display prop)',
     'border-style': 'native draws a solid border when width+color are set; style is web-only',
     'border-top-style': 'native draws a solid border when width+color are set; style is web-only',
     'border-bottom-style':
@@ -40,7 +64,6 @@ const DROPPED_INTENTIONAL = new Map(
     'border-left-style': 'native draws a solid border when width+color are set; style is web-only',
     'border-right-style': 'native draws a solid border when width+color are set; style is web-only',
     cursor: 'no pointer affordance on native touch platforms — web/desktop hint only',
-    'grid-area': 'vx-stack overlay on native = all children in cell 0,0 by default',
     'aspect-ratio': 'no native analog — kept for web-only surfaces',
     'user-select': 'no text-selection model on native pressables — dropped',
   }),

@@ -4,179 +4,122 @@ import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript-classic'
 
-const source = await readFile(
-  new URL('../src/ios/liquid-glass-view.ios.ts', import.meta.url),
-  'utf8',
-)
+const compile = async (name) =>
+  ts.transpile(await readFile(new URL(`../src/ios/${name}`, import.meta.url), 'utf8'), {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022,
+  })
 
-const compiled = ts.transpile(source, {
-  module: ts.ModuleKind.CommonJS,
-  target: ts.ScriptTarget.ES2022,
-})
+const compiled = await compile('liquid-glass-view.ios.ts')
+const containerCompiled = await compile('liquid-glass-container-view.ios.ts')
 
-const containerSource = await readFile(
-  new URL('../src/ios/liquid-glass-container-view.ios.ts', import.meta.url),
-  'utf8',
-)
-
-const containerCompiled = ts.transpile(containerSource, {
-  module: ts.ModuleKind.CommonJS,
-  target: ts.ScriptTarget.ES2022,
-})
-
-const PAD_BORDER_FIELDS = [
-  'effectivePaddingLeft',
-  'effectivePaddingTop',
-  'effectivePaddingRight',
-  'effectivePaddingBottom',
-  'effectiveBorderLeftWidth',
-  'effectiveBorderTopWidth',
-  'effectiveBorderRightWidth',
-  'effectiveBorderBottomWidth',
-]
-
-// Records the border-box spec minus the effective padding/border the child
-// sees, like a real layout measuring its content.
-function recordingMeasure(calls) {
-  return function (width, _height) {
-    const left = (this.effectivePaddingLeft ?? 0) + (this.effectiveBorderLeftWidth ?? 0)
-    const right = (this.effectivePaddingRight ?? 0) + (this.effectiveBorderRightWidth ?? 0)
-
-    calls.push(['measure', { left, right, content: width - left - right }])
-  }
-}
-
-// Mimics core 9.1.3's zero-padding onMeasure (NativeScript#11134): the
-// glass classes save, zero all eight effective padding/border fields, call
-// the real layout's onMeasure, and restore.
-function zeroPadBorder(self, fn) {
-  const saved = {}
-
-  for (const field of PAD_BORDER_FIELDS) {
-    saved[field] = self[field] ?? 0
-    self[field] = 0
-  }
-
-  try {
-    return fn()
-  } finally {
-    for (const field of PAD_BORDER_FIELDS) {
-      self[field] = saved[field]
-    }
-  }
-}
-
-function fixture(glassSupported) {
+// Effect/property replay and inherited host behavior, not UIKit geometry/input.
+function fixture(glassSupported, materialHost = true, container = false) {
   const setter = 'setGlassEffect'
   const calls = []
-  class GridLayout {}
+  class UIVisualEffectView {
+    display = 3
+    contentView = { host: {} }
+    effect = { kind: 'empty' }
+  }
 
-  GridLayout.prototype.onMeasure = recordingMeasure(calls)
-
-  class CoreLiquidGlass extends GridLayout {
-    onMeasure(width, height) {
-      return zeroPadBorder(this, () => super.onMeasure(width, height))
-    }
-    createNativeView() {
-      // Model core's root and child host, not UIKit hit testing.
-      const view = {
-        effect: { kind: glassSupported ? 'glass' : 'empty' },
-        contentView: { host: {} },
+  class CoreView {
+    setGlassEffect(value) {
+      if (glassSupported) {
+        this._applyGlassEffect(value, {
+          effectType: 'glass',
+          onCreate: () => calls.push(['create-overlay']),
+        })
       }
-
-      calls.push(['create', view])
-      return view
-    }
-    [setter](value) {
-      return this._applyGlassEffect(value, {
-        effectType: 'glass',
-        targetView: this.nativeViewProtected,
-      })
     }
     _applyGlassEffect(value, options) {
       calls.push(['set', value, options])
-      options.targetView.effect = { kind: glassSupported ? 'glass' : 'empty', value }
+      options.targetView.effect = { kind: options.effectType, value }
     }
     disposeNativeView() {
+      this.native = undefined
       calls.push(['dispose', this.nativeViewProtected])
       this.nativeViewProtected = undefined
     }
   }
 
-  const core = {
-    GridLayout,
-    LiquidGlass: CoreLiquidGlass,
-    Utils: { supportsGlass: () => glassSupported },
-  }
+  class MasonView extends CoreView {
+    get ios() {
+      return (this.native ??= {})
+    }
+    createNativeView() {
+      const view = this.ios
 
-  const blurEffect = { effectWithStyle: (style) => ({ kind: 'blur', style }) }
-
-  const context = vm.createContext({
-    exports: {},
-    require: (name) => {
-      if (name === '@nativescript/core') {
-        return core
-      }
-
-      if (name === '@octane-xplat/platform/ios') {
-        return { UIBlurEffect: blurEffect }
-      }
-
-      throw new Error(`Unexpected import: ${name}`)
-    },
-    UIBlurEffect: blurEffect,
-  })
-
-  vm.runInContext(compiled, context)
-  return { view: new context.exports.LiquidGlassView(), calls, setter, CoreLiquidGlass }
-}
-
-function containerFixture() {
-  const calls = []
-  class AbsoluteLayout {}
-
-  AbsoluteLayout.prototype.onMeasure = recordingMeasure(calls)
-
-  class CoreLiquidGlassContainer extends AbsoluteLayout {
+      calls.push(['create', view])
+      return view
+    }
     onMeasure(width, height) {
-      return zeroPadBorder(this, () => super.onMeasure(width, height))
+      calls.push(['mason-measure', width, height])
+    }
+    onLayout(...bounds) {
+      calls.push(['mason-layout', ...bounds])
     }
   }
 
-  const core = {
-    AbsoluteLayout,
-    LiquidGlassContainer: CoreLiquidGlassContainer,
+  class MaterialView extends MasonView {
+    get ios() {
+      return (this.native ??= new UIVisualEffectView())
+    }
+  }
+
+  if (materialHost) {
+    Object.defineProperty(MasonView, 'materialViewClass', { value: MaterialView })
   }
 
   const context = vm.createContext({
     exports: {},
     require: (name) => {
       if (name === '@nativescript/core') {
-        return core
+        return { View: CoreView, Utils: { supportsGlass: () => glassSupported } }
+      }
+
+      if (name === '@nativescript-community/octane') {
+        return { ELEMENTS: new Map([['masonview', MasonView]]) }
+      }
+
+      if (name === '@octane-xplat/platform/ios') {
+        return {
+          UIBlurEffect: { effectWithStyle: (style) => ({ kind: 'blur', style }) },
+          UIVisualEffectView,
+          UIVisualEffect: { new: () => ({ kind: 'empty' }) },
+        }
+      }
+
+      if (name === './liquid-glass-view.ios') {
+        return context.exports
       }
 
       throw new Error(`Unexpected import: ${name}`)
     },
   })
 
-  vm.runInContext(containerCompiled, context)
-  return {
-    view: new context.exports.LiquidGlassContainerView(),
-    calls,
-    CoreLiquidGlassContainer,
+  vm.runInContext(compiled, context)
+  if (container) {
+    vm.runInContext(containerCompiled, context)
   }
+
+  const Host = container
+    ? context.exports.LiquidGlassContainerView
+    : context.exports.LiquidGlassView
+
+  return { view: new Host(), calls, setter, MaterialView }
 }
 
-test('older iOS installs material on the same core root without replacing the child host', () => {
-  const { view, calls } = fixture(false)
-  const root = view.createNativeView()
+test('older iOS creates system material on the native effect root', () => {
+  const { view } = fixture(false)
+  const native = view.createNativeView()
 
-  assert.equal(root, calls[0][1])
-  assert.ok(root.contentView.host)
-  assert.deepEqual(root.effect, { kind: 'blur', style: 8 })
+  assert.equal(native, view.ios)
+  assert.ok(native.contentView.host)
+  assert.deepEqual(native.effect, { kind: 'blur', style: 8 })
 })
 
-test('older iOS property replay and updates preserve blur instead of an empty core effect', () => {
+test('older iOS retains system material on property replay and updates', () => {
   const { view, calls, setter } = fixture(false)
 
   view.nativeViewProtected = view.createNativeView()
@@ -191,11 +134,10 @@ test('older iOS property replay and updates preserve blur instead of an empty co
   assert.equal(calls.filter(([name]) => name === 'set').length, 0)
 })
 
-test('iOS 26+ forwards the exact config including explicit interaction and tint to core', () => {
+test('modern glass forwards exact tint/variant/interaction config to its native root', () => {
   const { view, calls, setter } = fixture(true)
 
   view.nativeViewProtected = view.createNativeView()
-  assert.equal(view.nativeViewProtected.effect.kind, 'glass')
   for (const interactive of [false, true]) {
     const config = { variant: 'clear', interactive, tint: '#123456', animateChangeDuration: 0 }
 
@@ -203,11 +145,12 @@ test('iOS 26+ forwards the exact config including explicit interaction and tint 
     assert.equal(calls.at(-1)[1], config)
     assert.equal(calls.at(-1)[2].targetView, view.nativeViewProtected)
     assert.equal(calls.at(-1)[2].effectType, 'glass')
-    assert.equal(view.nativeViewProtected.effect.value, config)
   }
+
+  assert.equal(calls.some(([name]) => name === 'create-overlay'), false)
 })
 
-test('native disposal stays inherited and a recreated root gets its own fallback', () => {
+test('native disposal stays inherited and recreation restores fallback on a fresh root', () => {
   const { view, calls } = fixture(false)
   const first = view.createNativeView()
 
@@ -219,11 +162,43 @@ test('native disposal stays inherited and a recreated root gets its own fallback
   const second = view.createNativeView()
 
   assert.notEqual(first, second)
-  assert.notEqual(first.contentView.host, second.contentView.host)
+  assert.ok(second.contentView.host)
   assert.deepEqual(second.effect, { kind: 'blur', style: 8 })
 })
 
-test('component registers the adapter and defaults interaction off while keeping layout and escapes', async () => {
+test('material roots inherit Mason measurement/placement and block default', () => {
+  const { view, calls, MaterialView } = fixture(true)
+
+  assert.ok(view instanceof MaterialView)
+  assert.equal(view.ios.display, 3)
+  view.onMeasure(353, 82)
+  view.onLayout(5, 7, 358, 89)
+  assert.deepEqual(calls, [
+    ['mason-measure', 353, 82],
+    ['mason-layout', 5, 7, 358, 89],
+  ])
+})
+
+test('grouping uses the same Mason root and native container effect; older systems stay inert', () => {
+  const { view, calls, setter, MaterialView } = fixture(true, true, true)
+
+  assert.ok(view instanceof MaterialView)
+
+  const root = view.createNativeView()
+  const config = { spacing: 12 }
+
+  view[setter](config)
+  assert.equal(calls.at(-1)[2].targetView, root)
+  assert.equal(calls.at(-1)[2].effectType, 'container')
+  assert.equal(calls.at(-1)[1], config)
+
+  const older = fixture(false, true, true)
+
+  older.view[older.setter](config)
+  assert.deepEqual(older.view.ios.effect, { kind: 'empty' })
+})
+
+test('component registers the material adapter and defaults interaction off while retaining escapes', async () => {
   const leaf = await readFile(new URL('../src/ios/LiquidGlass.ios.tsrx', import.meta.url), 'utf8')
 
   assert.match(leaf, /registerElement\('liquidglass', LiquidGlassView\)/)
@@ -233,44 +208,18 @@ test('component registers the adapter and defaults interaction off while keeping
   assert.match(leaf, /\{props\.children\}/)
 })
 
-test('LiquidGlass measures its content inside effective padding (issue #37)', () => {
-  const { view, calls, CoreLiquidGlass } = fixture(true)
-
-  view.effectivePaddingLeft = 19
-  view.effectivePaddingRight = 19
-  view.onMeasure(353, 82)
-  assert.deepEqual(calls.at(-1), ['measure', { left: 19, right: 19, content: 315 }])
-  assert.equal(view.effectivePaddingLeft, 19)
-  assert.equal(view.effectivePaddingRight, 19)
-
-  // Fixture sanity: core's zero-padding onMeasure reproduces the bug.
-  calls.length = 0
-  CoreLiquidGlass.prototype.onMeasure.call(view, 353, 82)
-  assert.deepEqual(calls.at(-1), ['measure', { left: 0, right: 0, content: 353 }])
-  assert.equal(view.effectivePaddingLeft, 19)
-})
-
-test('LiquidGlassContainer measures its content inside effective padding (issue #37)', () => {
-  const { view, calls, CoreLiquidGlassContainer } = containerFixture()
-
-  view.effectivePaddingLeft = 19
-  view.effectivePaddingRight = 19
-  view.onMeasure(353, 82)
-  assert.deepEqual(calls.at(-1), ['measure', { left: 19, right: 19, content: 315 }])
-  assert.equal(view.effectivePaddingLeft, 19)
-  assert.equal(view.effectivePaddingRight, 19)
-
-  calls.length = 0
-  CoreLiquidGlassContainer.prototype.onMeasure.call(view, 353, 82)
-  assert.deepEqual(calls.at(-1), ['measure', { left: 0, right: 0, content: 353 }])
-  assert.equal(view.effectivePaddingLeft, 19)
-})
-
-test('container registers the padding-aware core view', async () => {
+test('container registers the Mason material root', async () => {
   const leaf = await readFile(
     new URL('../src/ios/LiquidGlassContainer.ios.tsrx', import.meta.url),
     'utf8',
   )
 
   assert.match(leaf, /registerElement\('liquidglasscontainer', LiquidGlassContainerView\)/)
+})
+
+test('older core builds fail explicitly when the native material-root capability is absent', () => {
+  assert.throws(
+    () => fixture(true, false),
+    /requires Mason core with a native material layout root/,
+  )
 })

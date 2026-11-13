@@ -541,10 +541,10 @@ export interface AbsoluteProps extends AccessibilityProps {
   id?: string
 }
 
-/** Interactive glass surface — the element root IS the platform's glass
- *  effect view (NS `LiquidGlass`, a UIVisualEffectView hosting children).
- *  Real material on iOS 26+; inert layout on Android and older iOS;
- *  backdrop-filter approximation on web.
+/** iOS-native material surface with one Mason-owned layout box. Defaults to
+ *  block; normal className/style can select flex or grid. UIKit hosts children
+ *  in its effect contentView. Native glass on iOS 26+; system material blur on
+ *  earlier supported iOS versions. Import from the iOS platform subpath.
  *
  * @example
  * ```tsx
@@ -584,8 +584,8 @@ export interface LiquidGlassProps extends LayoutChildProps {
 }
 
 /** Merged-glass region — sibling glass elements inside morph together
- *  across `spacing` dips (NS `LiquidGlassContainer`, an AbsoluteLayout:
- *  children position via left/top).
+ *  across `spacing` dips. A Mason box backed by UIKit's grouping effect,
+ *  defaulting to block; className/style controls child layout.
  *
  * @example
  * ```tsx

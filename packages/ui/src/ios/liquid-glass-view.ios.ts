@@ -1,47 +1,97 @@
-import {
-  GridLayout,
-  LiquidGlass as NSLiquidGlass,
-  Utils,
-  type GlassEffectType,
-} from '@nativescript/core'
+import { View, Utils, type GlassEffectType } from '@nativescript/core'
+import { ELEMENTS } from '@nativescript-community/octane'
+import { UIBlurEffect, UIVisualEffect, UIVisualEffectView } from '@octane-xplat/platform/ios'
 
-import { UIBlurEffect, UIVisualEffectView } from '@octane-xplat/platform/ios'
-
-// UIBlurEffectStyle.SystemMaterial = 8 (iOS 13+). Numeric spelling keeps
-// NativeScript ambient const enums compatible with verbatimModuleSyntax.
 const SYSTEM_MATERIAL_BLUR_STYLE = 8
 
-/** Keep NativeScript's content host, layout and native-view lifecycle. */
-export class LiquidGlassView extends NSLiquidGlass {
-  /** Core 9.1.3 zeroes padding/border while measuring (NativeScript#11134), assuming the
-   *  parent already removed them. Mason and core parents pass the border-box spec, so
-   *  padded content measured at full width and overflowed by the padding (issue #37).
-   *  Measure as the GridLayout this view is; core's local-coordinate onLayout stays. */
-  onMeasure(widthMeasureSpec: number, heightMeasureSpec: number): void {
-    GridLayout.prototype.onMeasure.call(this, widthMeasureSpec, heightMeasureSpec)
+type MasonMaterialConstructor = new () => View
+
+function masonMaterialClass(): MasonMaterialConstructor {
+  const registered = ELEMENTS.get('masonview')
+  const material =
+    registered && 'materialViewClass' in registered ? registered.materialViewClass : undefined
+
+  if (typeof material !== 'function' || !(material.prototype instanceof View)) {
+    throw new Error('LiquidGlass requires Mason core with a native material layout root.')
   }
 
-  createNativeView(): globalThis.UIVisualEffectView {
-    const view = super.createNativeView() as UIVisualEffectView
+  // The registry erases the concrete host constructor. Validate the material
+  // capability and core ancestry once, then inherit Mason's complete lifecycle.
+  return material as MasonMaterialConstructor
+}
 
-    if (!Utils.supportsGlass()) {
-      view.effect = UIBlurEffect.effectWithStyle(SYSTEM_MATERIAL_BLUR_STYLE)
+/** One Mason box whose native root is UIKit's supported effect/content host. */
+export abstract class MasonMaterialView extends masonMaterialClass() {
+  protected abstract get materialEffectType(): 'glass' | 'container'
+  private materialView: UIVisualEffectView | undefined
+
+  constructor() {
+    super()
+    this.installMaterial(this.ios)
+  }
+
+  createNativeView(): UIVisualEffectView {
+    const view = super.createNativeView()
+
+    if (!(view instanceof UIVisualEffectView)) {
+      throw new Error('Mason did not create a UIKit material layout root.')
+    }
+
+    if (!this.materialView) {
+      this.installMaterial(view)
     }
 
     return view
   }
 
+  private initialEffect(): UIVisualEffect {
+    return !Utils.supportsGlass() && this.materialEffectType === 'glass'
+      ? UIBlurEffect.effectWithStyle(SYSTEM_MATERIAL_BLUR_STYLE)
+      : UIVisualEffect.new()
+  }
+
+  private installMaterial(view: unknown): void {
+    if (!(view instanceof UIVisualEffectView)) {
+      throw new Error('Mason did not create a UIKit material layout root.')
+    }
+
+    view.effect = this.initialEffect()
+    this.materialView = view
+  }
+
   protected _applyGlassEffect(
     value: GlassEffectType,
-    options: Parameters<NSLiquidGlass['_applyGlassEffect']>[1],
+    options: Parameters<View['_applyGlassEffect']>[1],
   ): UIVisualEffectView | undefined {
-    if (!Utils.supportsGlass() && options.targetView) {
-      // Core's native setter otherwise replaces the blur with an empty
-      // UIVisualEffect on initial property replay and later prop updates.
-      options.targetView.effect = UIBlurEffect.effectWithStyle(SYSTEM_MATERIAL_BLUR_STYLE)
+    const targetView = this.materialView
+
+    if (!targetView) {
       return undefined
     }
 
-    return super._applyGlassEffect(value, options)
+    if (!Utils.supportsGlass()) {
+      // Core would replace the older-system blur with an empty effect on replay.
+      // A grouping region remains an inert layout host on those systems.
+      targetView.effect = this.initialEffect()
+      return undefined
+    }
+
+    return super._applyGlassEffect(value, {
+      ...options,
+      effectType: this.materialEffectType,
+      targetView,
+      toGlassStyleFn: (variant) => (variant === 'clear' ? 1 : 0),
+    })
+  }
+
+  disposeNativeView(): void {
+    this.materialView = undefined
+    super.disposeNativeView()
+  }
+}
+
+export class LiquidGlassView extends MasonMaterialView {
+  protected get materialEffectType(): 'glass' {
+    return 'glass'
   }
 }

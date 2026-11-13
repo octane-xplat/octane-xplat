@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { LiquidGlassContainer as NSLiquidGlassContainer } from '@nativescript/core'
 import { LiquidGlassContainerView } from './liquid-glass-container-view.ios'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
@@ -14,13 +13,12 @@ declare module '@octane-xplat/jsx/intrinsics' {
   }
 }
 
-// The driver needs an intrinsic registration for the padding-aware core view.
+// Grouping and individual effects use the same Mason-owned layout contract.
 registerElement('liquidglasscontainer', LiquidGlassContainerView)
 
 /** LiquidGlassContainer — merged-glass region (UIGlassContainerEffect):
  *  glass siblings inside morph together across `spacing` dips. The native
- *  host is an AbsoluteLayout — children position via left/top, or nest a
- *  layout primitive inside and let the glass effects merge spatially.
+ *  host defaults to block; ordinary style/className selects flex or grid.
  *  Inert layout on iOS < 26. */
 export function LiquidGlassContainer(props: LiquidGlassContainerProps): unknown @{
   <liquidglasscontainer

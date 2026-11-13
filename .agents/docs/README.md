@@ -29,6 +29,9 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 ## Working records
 
+- [LiquidGlass layout ownership](liquid-glass.md) — one Mason node, native UIKit
+  content hosting, clipping and effect lifecycle boundaries.
+
 - [Local versioned docs retrieval](docs-retrieval.md) — search/version boundaries,
   model loading constraints, and host verification.
 - [Camera changes during a movie take](camera-recording-switch.md) — recorder

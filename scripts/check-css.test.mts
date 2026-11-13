@@ -42,9 +42,10 @@ test('CSS audit validates native blocks with authored line positions', () => {
   assert.doesNotMatch(result.stdout, /cursor: pointer/)
 })
 
-test('CSS audit accepts Mason overflow registrations while rejecting unknown properties', () => {
+test('CSS audit accepts Mason layout registrations while rejecting unknown properties', () => {
   const accepted = audit({
-    'card.css': '.card { overflow: visible; overflow-x: hidden; overflow-y: auto }',
+    'card.css':
+      '.card { display: grid; grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr); grid-row: 1 / span 1; grid-column: 1 / span 1; grid-area: 1 / 1; justify-self: start; overflow: visible; overflow-x: hidden; overflow-y: auto }',
   })
 
   assert.equal(accepted.status, 0, accepted.stdout + accepted.stderr)

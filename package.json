@@ -155,7 +155,7 @@
 	"patchedDependencies": {
 		"octane@0.17.0": "packages/cli/patches/octane@0.17.0.patch",
 		"@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
-		"@octane-xplat/nativescript-mason-core@1.0.0-beta.8": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.8.patch",
+		"@octane-xplat/nativescript-mason-core@1.0.0-beta.10": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.10.patch",
 		"css@3.0.0": "packages/cli/patches/css@3.0.0.patch",
 		"@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
 		"@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Absolute, Center, HStack, Pressable, Screen, Text, View, VStack } from '@octane-xplat/ui'
+import { Absolute, HStack, Pressable, Screen, Text, View, VStack } from '@octane-xplat/ui'
 import { useSignal$ } from 'octane/signals/client'
 import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
 
@@ -72,48 +72,33 @@ export function GlassDemo() @{
       </LiquidGlass>
     </Absolute>
 
-    {/* Centered dynamic content — the glass host lays children out with
-	    core GridLayout, not Mason flex, so centering styles on the glass
-	    element itself do not apply. `glass-centered` lets a `Center`
-	    child own flex layout inside the glass; `glass-sibling` keeps the
-	    glass childless beside a sized `Center` sibling. Both re-center
-	    the glyph on every size change and after hide/reveal. */}
+    {/* The material itself owns centering, including dynamic children. */}
     <HStack className="gap-4" vAlign="center">
-      <LiquidGlass id="glass-centered" style={{ width: 140, height: 84, borderRadius: 20 }}>
-        <Center>
-          @if (glyphVisible$.get()) {
-            <View
-              id="glass-centered-glyph"
-              style={{
-                width: glyphSize,
-                height: glyphSize,
-                borderRadius: glyphSize / 2,
-                backgroundColor: '#7c3aed',
-              }}
-            />
-          } @else {
-            <Text className="text-sm">hidden</Text>
-          }
-        </Center>
+      <LiquidGlass
+        id="glass-centered"
+        style={{
+          width: 140,
+          height: 84,
+          borderRadius: 20,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        @if (glyphVisible$.get()) {
+          <View
+            id="glass-centered-glyph"
+            style={{
+              width: glyphSize,
+              height: glyphSize,
+              borderRadius: glyphSize / 2,
+              backgroundColor: '#7c3aed',
+            }}
+          />
+        } @else {
+          <Text className="text-sm">hidden</Text>
+        }
       </LiquidGlass>
-      <Absolute style={{ width: 140, height: 84 }}>
-        <LiquidGlass id="glass-sibling" style={{ width: 140, height: 84, borderRadius: 20 }} />
-        <Center id="glass-sibling-center" style={{ width: 140, height: 84 }}>
-          @if (glyphVisible$.get()) {
-            <View
-              id="glass-sibling-glyph"
-              style={{
-                width: glyphSize,
-                height: glyphSize,
-                borderRadius: glyphSize / 2,
-                backgroundColor: '#0ea5e9',
-              }}
-            />
-          } @else {
-            <Text className="text-sm">hidden</Text>
-          }
-        </Center>
-      </Absolute>
       <VStack className="gap-2">
         <Pressable onPress={() => glyphStep$.set(glyphStep$.get() + 1)}>
           <Text>Cycle glyph size</Text>
@@ -135,24 +120,37 @@ export function GlassDemo() @{
       </Pressable>
     </LiquidGlass>
 
-    {/* Merged-glass region — siblings morph together across spacing.
-		    AbsoluteLayout host: children position via left/top. */}
+    {/* Mason positions the effect siblings inside UIKit's grouping host. */}
     <LiquidGlassContainer id="glass-container" spacing={16} style={{ height: 120 }}>
       <LiquidGlass
         id="glass-a"
-        left={20}
-        top={20}
-        style={{ width: 120, height: 48, borderRadius: 24 }}
+        className="items-center justify-center"
+        style={{
+          display: 'flex',
+          position: 'absolute',
+          left: 20,
+          top: 20,
+          width: 120,
+          height: 48,
+          borderRadius: 24,
+        }}
       >
-        <Text style={{ padding: 12 }}>merge A</Text>
+        <Text>merge A</Text>
       </LiquidGlass>
       <LiquidGlass
         id="glass-b"
-        left={120}
-        top={40}
-        style={{ width: 120, height: 48, borderRadius: 24 }}
+        className="items-center justify-center"
+        style={{
+          display: 'flex',
+          position: 'absolute',
+          left: 120,
+          top: 40,
+          width: 120,
+          height: 48,
+          borderRadius: 24,
+        }}
       >
-        <Text style={{ padding: 12 }}>merge B</Text>
+        <Text>merge B</Text>
       </LiquidGlass>
     </LiquidGlassContainer>
   </Screen>

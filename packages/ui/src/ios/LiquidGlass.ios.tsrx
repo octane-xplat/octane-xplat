@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { LiquidGlass as NSLiquidGlass } from '@nativescript/core'
 import { LiquidGlassView } from './liquid-glass-view.ios'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { LiquidGlassProps } from '../props'
@@ -7,7 +6,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../components/overlays/escape-props'
 import { layoutChildProps } from '../components/layout/layout-child'
 
-// The driver needs an intrinsic registration for the fallback-aware core view.
+// Retain the intrinsic ABI while Mason owns the single container box.
 registerElement('liquidglass', LiquidGlassView)
 
 /** System material blur before iOS 26; native glass on iOS 26+.

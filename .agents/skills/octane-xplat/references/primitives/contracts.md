@@ -72,10 +72,15 @@ export function Controls() {
 - **Web `View` is not a flex container.** Native `View` is a flex column via
   Mason; the web leaf renders a plain block div, so `alignItems`/
   `justifyContent` stay inert until `display: 'flex'` is set. `Center`,
-  `HStack`, and `VStack` establish flex on every target. `LiquidGlass`
-  children use core `GridLayout`, not flex — give content a `Center` child
-  or keep glass childless beside a sized sibling (see the
-  [liquid-glass guide](../../../../../docs/app/liquid-glass.md#lay-out-centered-content)).
+  `HStack`, and `VStack` establish flex on every target. iOS `LiquidGlass`
+  and `LiquidGlassContainer` default to block and use one Mason box. Set
+  `display: 'flex'` or `display: 'grid'` on the material itself; dimensions,
+  padding, borders and child alignment use that same style/className.
+  See the [liquid-glass guide](../../../../../docs/app/liquid-glass.md#lay-out-centered-content).
+  UIKit owns the native effect and contentView; app-authored inner layout
+  wrappers or childless background siblings are unnecessary. A local checkout
+  needs Mason core with the native material-root capability; the development
+  hook is documented in [links](../../../../../links/README.md#develop-the-mobile-core-package).
 - **Removing a prop restores its default.** A prop that disappears between
   renders — or is passed `undefined`/`null` — resets to the value it holds
   when never supplied (per-key inside `style` too), on web, iOS, Android,

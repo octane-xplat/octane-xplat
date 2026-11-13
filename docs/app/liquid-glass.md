@@ -1,11 +1,8 @@
 # Add an iOS material behind controls
 
-> Put an iOS glass or blur material behind a group of controls.
+> Put native glass or blur behind controls, and lay out the controls directly inside it.
 
-Use this in an `.ios.tsrx` screen. `LiquidGlass` uses native glass on iOS 26+
-and adaptable system material blur on iOS 13–25. The blur follows the system's
-appearance; glass-only `variant`, `tint`, and effect animation settings do not
-change that fallback.
+Use `LiquidGlass` in an `.ios.tsrx` screen. UIKit renders glass on iOS 26+ and system material blur on earlier supported iOS versions. Mason measures and positions the children. The material is one layout box: ordinary `className` and `style` control its size, margins, padding, borders, positioning and child layout.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -18,11 +15,7 @@ export function GlassControls() {
 
   return (
     <LiquidGlass className="p-4 rounded-xl">
-      <Pressable
-        onPress={() => {
-          presses$.set(presses$.get() + 1)
-        }}
-      >
+      <Pressable onPress={() => presses$.set(presses$.get() + 1)}>
         <Text>Pressed {presses$.get()} times</Text>
       </Pressable>
     </LiquidGlass>
@@ -30,12 +23,68 @@ export function GlassControls() {
 }
 ```
 
-Glass touch tracking defaults to `false`. This keeps ordinary child controls
-out of the reported interactive-glass touch interception path. Explicit
-`interactive={true}` enables UIKit's glass response on iOS 26+, but touch
-delivery to child controls in that mode is not device-qualified. Prefer the
-default for toolbars with buttons until the acceptance checks below pass on
-your supported OS versions.
+## Lay out centered content
+
+The default display is block, so children flow vertically. Set `display: 'flex'` on the glass itself to center an icon. Its fixed dimensions and child alignment use the same box. An inner layout wrapper or separate glass background sibling is unnecessary.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Image } from '@octane-xplat/ui'
+import { LiquidGlass } from '@octane-xplat/ui/ios'
+
+export function GlassIcon({ icon }: { icon: string }) {
+  return (
+    <LiquidGlass
+      style={{
+        width: 72,
+        height: 48,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 12,
+      }}
+    >
+      <Image src={icon} alt="" style={{ width: 24, height: 24 }} />
+    </LiquidGlass>
+  )
+}
+```
+
+Classes can select flex or grid too. Padding and borders reduce the space available to children once. A block box fills its available width; use `width: 'max-content'` when its width should follow the content. Percentages and minimum/maximum sizes use the parent box just as they do for other Mason containers.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Text } from '@octane-xplat/ui'
+import { LiquidGlass } from '@octane-xplat/ui/ios'
+
+export function GlassLabel({ label }: { label: string }) {
+  return (
+    <LiquidGlass className="p-4 rounded-xl" style={{ width: 'max-content', maxWidth: '100%' }}>
+      <Text>{label}</Text>
+    </LiquidGlass>
+  )
+}
+```
+
+Use the glass's own `overflow` to clip its content. On iOS 26+, circular border radii shape the material; `overflow: 'hidden'` also clips children. The native content host has no second padding, border or independent layout style. Elliptical material corners and earlier-system material corner shaping remain gaps in this integration.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Image } from '@octane-xplat/ui'
+import { LiquidGlass } from '@octane-xplat/ui/ios'
+
+export function ClippedGlass({ image }: { image: string }) {
+  return (
+    <LiquidGlass style={{ width: 120, height: 80, borderRadius: 16, overflow: 'hidden' }}>
+      <Image src={image} alt="" style={{ width: 120, height: 80 }} />
+    </LiquidGlass>
+  )
+}
+```
+
+## Configure the material
+
+Glass touch tracking defaults to `false`. Keep that default for ordinary child controls. Explicit interactive glass enables UIKit's touch response on iOS 26+; child input in that mode requires OS-input qualification on your supported systems. The blur fallback follows system appearance; glass-only variant, tint and animation settings do not alter it.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -44,18 +93,14 @@ import { LiquidGlass } from '@octane-xplat/ui/ios'
 
 export function DecorativeGlass() {
   return (
-    <LiquidGlass interactive>
+    <LiquidGlass interactive variant="clear" tint="#88aaff" className="p-4 rounded-xl">
       <Text>Touch-responsive surface</Text>
     </LiquidGlass>
   )
 }
 ```
 
-Keep the effect and its ancestors fully opaque (`opacity: 1`); UIKit warns
-that lower alpha can make the material disappear. The component retains
-NativeScript's layout and child content host. The older-iOS fallback is
-installed when the native root is created and when glass props are replayed,
-so no app-side `loaded` listener or native-view mutation is needed.
+Keep the material and its ancestors at `opacity: 1`; UIKit warns that lower alpha can hide or alter effects. The older-system blur is installed at native creation and property replay, including remounts. Apps need no `loaded` listener or imperative blur setup.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -71,70 +116,38 @@ export function MaterialCard() {
 }
 ```
 
-## Lay out centered content
+## Group glass surfaces
 
-`LiquidGlass` lays its children out with the native `GridLayout`, not the
-flex layout engine that `View`, `HStack`, and `Center` use. Children land in
-a single grid cell, and flex styles such as `display: 'flex'`, `alignItems`,
-and `justifyContent` on the glass element itself do not position them. Give
-the content its own flex container inside the glass instead: a lone `Center`
-child stretches to fill the glass and centers whatever it holds on both
-axes. When the content's size changes — an icon that finishes loading, a
-label that changes length, content hidden and shown again — the inner flex
-layout re-runs inside the unchanged glass bounds, so the content stays
-centered.
+`LiquidGlassContainer` also uses one Mason box and defaults to block. Select flex or grid on the container to arrange its glass children. Its `spacing` controls the distance over which UIKit groups nearby effects; use layout `gap` to space the boxes. Before iOS 26, the container provides layout without merging the blur surfaces.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
-import { Center, Image } from '@octane-xplat/ui'
-import { LiquidGlass } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
+import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
 
-export function GlassIcon() {
+export function GroupedGlass() {
   return (
-    <LiquidGlass style={{ width: 72, height: 48, borderRadius: 12 }}>
-      <Center>
-        <Image src="~/icon.png" alt="" style={{ width: 24, height: 24 }} />
-      </Center>
-    </LiquidGlass>
+    <LiquidGlassContainer spacing={12} className="flex flex-row gap-2">
+      <LiquidGlass className="p-3 rounded-xl">
+        <Text>Back</Text>
+      </LiquidGlass>
+      <LiquidGlass className="p-3 rounded-xl">
+        <Text>Next</Text>
+      </LiquidGlass>
+    </LiquidGlassContainer>
   )
 }
 ```
 
-When the glass only backs the content rather than wrapping it — for example
-a sized icon surface — render it childless as a positioned sibling instead.
-The content then has a single layout owner and never crosses the glass
-layout boundary. The maintained [Glass demo](../../packages/demos/src/GlassDemo.ios.tsrx)
-centers a glyph both ways and resizes and re-shows it on press.
+## Use a different surface on other platforms
 
-```tsx
-/** @jsxImportSource @octane-xplat/jsx */
-import { Absolute, Center, Image } from '@octane-xplat/ui'
-import { LiquidGlass } from '@octane-xplat/ui/ios'
-
-export function GlassBackedIcon() {
-  return (
-    <Absolute style={{ width: 72, height: 48 }}>
-      <LiquidGlass style={{ width: 72, height: 48, borderRadius: 12 }} />
-      <Center style={{ width: 72, height: 48 }}>
-        <Image src="~/icon.png" alt="" style={{ width: 24, height: 24 }} />
-      </Center>
-    </Absolute>
-  )
-}
-```
-
-`@octane-xplat/ui/ios` has no web export, so apps that render a plain
-container in place of glass on web need one more detail: `View` is a flex
-column on native but a plain block element on web. Alignment styles such as
-`alignItems` and `justifyContent` stay inert on a web `View` until
-`display: 'flex'` is set — or use `Center`, which establishes flex on every
-target.
+LiquidGlass is an iOS-specific material. A web or Android platform leaf can reuse the layout choices with its own surface styling; that does not promise matching glass rendering. On web, `View` defaults to block, so select flex explicitly for the same centering behavior.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { Image, View } from '@octane-xplat/ui'
 
-export function WebGlassFallback() {
+export function WebIconSurface({ icon }: { icon: string }) {
   return (
     <View
       style={{
@@ -145,7 +158,7 @@ export function WebGlassFallback() {
         justifyContent: 'center',
       }}
     >
-      <Image src="/icon.png" alt="" style={{ width: 24, height: 24 }} />
+      <Image src={icon} alt="" style={{ width: 24, height: 24 }} />
     </View>
   )
 }
@@ -153,37 +166,11 @@ export function WebGlassFallback() {
 
 ## Acceptance on a device
 
-The maintained [Glass demo](../../packages/demos/src/GlassDemo.ios.tsrx) includes
-both default and explicitly interactive child buttons. Source and host unit
-tests do **not** establish UIKit rendering or OS touch delivery.
+The maintained [Glass demo](../../packages/demos/src/GlassDemo.ios.tsrx) centers a changing glyph directly inside the material and includes both default and explicitly interactive child buttons. Source and object tests do not establish material appearance or OS touch delivery.
 
-1. Open the Glass demo on iOS 13–25. Confirm material appears behind its content
-   without app-side blur code; reopen the screen and confirm it remains.
-2. On iOS 26+, press “Default glass child” with real OS input. The count must
-   increase once per press. Reopen the screen and repeat.
-3. Press “Interactive glass child” with real OS input. Its count must also
-   increase once per press. A failure leaves explicit interactive child support
-   unresolved; handler dispatch alone cannot pass this check.
+1. On an older supported iOS version, confirm that blur appears without app-side setup. Reopen the screen and check again.
+2. On iOS 26+, change the glyph size and hide/reveal it. It must stay centered in the same glass box.
+3. Press each child button with real OS input, reopen the screen, and repeat. Each count must increase once per press. Handler dispatch alone cannot qualify input; a failure leaves that interaction mode unresolved.
+4. Check grouped effects on the supported OS versions. Numeric geometry and a supported UIKit hierarchy do not establish the appearance of merged material.
 
-`LiquidGlassContainer` retains its layout-only fallback before iOS 26; it does
-not merge blur surfaces on those versions.
-
-```tsx
-/** @jsxImportSource @octane-xplat/jsx */
-import { Text } from '@octane-xplat/ui'
-import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
-
-export function GroupedGlass() {
-  return (
-    <LiquidGlassContainer spacing={8}>
-      <LiquidGlass>
-        <Text>One surface</Text>
-      </LiquidGlass>
-    </LiquidGlassContainer>
-  )
-}
-```
-
-API references: [UIKit visual effect content hosting](https://developer.apple.com/documentation/uikit/uivisualeffectview),
-[system material](https://developer.apple.com/documentation/uikit/uiblureffect/style/systemmaterial),
-[glass interaction](https://developer.apple.com/documentation/uikit/uiglasseffect/isinteractive).
+API references: [UIKit visual effect content hosting](https://developer.apple.com/documentation/uikit/uivisualeffectview), [system material](https://developer.apple.com/documentation/uikit/uiblureffect/style/systemmaterial), [glass interaction](https://developer.apple.com/documentation/uikit/uiglasseffect/isinteractive).

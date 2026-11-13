@@ -100,10 +100,13 @@ export function Columns() {
 For driver work and the distinction between JSX tags and imperative native
 hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
-Mason core beta.8 registers `display` and `position` as CSS properties;
-do not assume those keys must be inline-only. Class delivery still needs
-qualification in the selected host. Use explicit edge offsets; AppKit ignores
-the `inset` shorthand. Keep supported static declarations in CSS. The [workshop chrome](../../../docs/workshop-chrome.md)
+Mason core beta.10 registers `display`, position, grid track/placement, and
+overflow properties on Mason views. iOS `LiquidGlass` uses that one-box
+layout, so put ordinary static layout classes on the material itself; it
+defaults to block. See the [LiquidGlass layout guide](../../../../docs/app/liquid-glass.md).
+Class delivery for other native hosts still needs qualification in the selected
+host. Use explicit edge offsets; AppKit ignores the `inset` shorthand. Keep
+supported static declarations in CSS. The [workshop chrome](../../../docs/workshop-chrome.md)
 is a maintained example of this boundary.
 
 ```tsx

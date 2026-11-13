@@ -32,6 +32,15 @@
 		"test": {
 			"dependsOn": ["typegen", "^typegen", "^build"]
 		},
+		"test:liquid-glass:ios": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+		},
+		"test:liquid-glass": {
+			"dependsOn": ["^typegen", "^build"],
+			"outputs": []
+		},
 		"test:native": {
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"env": ["XPLAT_UI_TEST_TARGET"]
