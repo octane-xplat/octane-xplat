@@ -10,6 +10,8 @@
 		"@octane-xplat/vite-octane#typegen": { "outputs": ["dist/**"] },
 		"build:desktop-components": { "dependsOn": ["^typegen", "^build"], "cache": false, "outputs": [] },
 		"qualify:macos-components": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
+		"@xplat/platform-qualification#probe:prerender:appkit:build": { "cache": false, "passThroughEnv": ["GODDARD_*"] },
+		"@xplat/platform-qualification#probe:prerender:appkit:run": { "cache": false, "passThroughEnv": ["XPLAT_APPKIT_MEASUREMENT_BUILD", "XPLAT_APPKIT_MEASUREMENT_LIBRARY"] },
 		"@xplat/platform-qualification#probe:prerender:home:check": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_TOOLCHAIN_ROOT"] },
 		"@xplat/platform-qualification#probe:prerender:driver:check": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_DRIVER_ROOT"] },
 		"@xplat/platform-qualification#test:prerender:codec": {

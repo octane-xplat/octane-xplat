@@ -1,0 +1,38 @@
+--- a/packages/macos-appkit/native/xplatmason/XPLMason.m
++++ b/packages/macos-appkit/native/xplatmason/XPLMason.m
+@@ -32,14 +32,29 @@
+     return 0;
+   }
+   float w, h;
+-  NSSize intrinsic = view.intrinsicContentSize;
+-  if (intrinsic.width >= 0 && intrinsic.height >= 0) {
+-    w = (float)intrinsic.width;
+-    h = (float)intrinsic.height;
+-  } else {
+-    NSSize fit = view.fittingSize;
++  float width = isfinite(knownW) && knownW >= 0 ? knownW : availW;
++  if ([view isKindOfClass:NSTextField.class] && isfinite(width) && width > 0 &&
++      ((NSTextField *)view).cell.wraps && !((NSTextField *)view).cell.usesSingleLineMode) {
++    NSTextField *field = (NSTextField *)view;
++    CGFloat previousWidth = field.preferredMaxLayoutWidth;
++    if (!(isfinite(knownW) && knownW >= 0) && previousWidth > 0) {
++      width = MIN(width, previousWidth);
++    }
++    field.preferredMaxLayoutWidth = width;
++    NSSize fit = field.intrinsicContentSize;
++    field.preferredMaxLayoutWidth = previousWidth;
+     w = (float)fit.width;
+     h = (float)fit.height;
++  } else {
++    NSSize intrinsic = view.intrinsicContentSize;
++    if (intrinsic.width >= 0 && intrinsic.height >= 0) {
++      w = (float)intrinsic.width;
++      h = (float)intrinsic.height;
++    } else {
++      NSSize fit = view.fittingSize;
++      w = (float)fit.width;
++      h = (float)fit.height;
++    }
+   }
+   if (!(w >= 0)) {
+     w = 0;

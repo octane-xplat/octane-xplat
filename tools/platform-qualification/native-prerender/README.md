@@ -34,6 +34,21 @@ The initial experiment using the supplied SDK's `runScriptString` entry point cr
 
 The maintained plan is `~/dev/plans/octane-xplat/native-prerender-ir.md`; execution state is in Silo topic `native-prerender-adoption`. Follow this probe with compositor presentation evidence and real NativeScript wrapper/Octane adoption, including default/style ownership, geometry caches, lifecycle, events and cleanup. Do not replace the ordinary app bootstrap on the strength of this mechanism check alone.
 
+## AppKit native measurement boundary
+
+The separate AppKit probe loads an explicitly supplied `libxplatmason.dylib` in a native process. It checks nineteen measurement cases against AppKit's constrained intrinsic size: wrapping and resizing, line limits, single-line and empty text, a padded cell, available versus known width, an explicit preferred width, unconstrained sizing and a non-text view. It also checks that measurement preserves the field's preferred width. It creates no window or application JS runtime and captures no images. This checks native measurement, not Home IR mounting, live renderer integration or hydration.
+
+Build the checker under a native build reservation, then release that reservation before running it:
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build AppKit native measurement probe"}' -- bun turbo run probe:prerender:appkit:build --filter=@xplat/platform-qualification
+export XPLAT_APPKIT_MEASUREMENT_BUILD=/absolute/path/to/printed/build/directory
+export XPLAT_APPKIT_MEASUREMENT_LIBRARY=/absolute/path/to/libxplatmason.dylib
+bun turbo run probe:prerender:appkit:run --filter=@xplat/platform-qualification
+```
+
+Each run preserves native results and source, executable and library hashes below the build directory. Any failed assertion exits nonzero. The shipped facade's callback ignores known/available width; it is a negative control for constrained wrapping. `appkit-measurement/field-measurement.patch` retains an experimental source change for an isolated native build. It measures a wrapping field through its constrained intrinsic size and restores its preferred width; it does not modify the shipped library. Use the same pinned Mason archive/header for baseline and candidate comparisons. Live layout invalidation, reentrancy, accessibility and adoption still need separate checks before retaining that change in the AppKit package.
+
 ## Generate control metadata
 
 Before probing real NativeScript controls, generate bridge metadata from the exact UIKit, WebKit, TNSWidgets and Mason headers used by the host:
