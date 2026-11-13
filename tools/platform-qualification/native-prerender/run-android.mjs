@@ -179,6 +179,10 @@ try {
     if (receipt.status === 0) {
       events = JSON.parse(receipt.output)
       writeFileSync(join(report, 'result.json'), JSON.stringify(events, null, 2))
+      const homeFailure = events.find(
+        (event) => event.event === 'home-proof' && event.phase === 'failed',
+      )
+      check(!homeFailure, 'Home adoption failed: ' + homeFailure?.error)
       check(
         !events.some((event) => ['failed', 'native-layout-timeout'].includes(event.event)),
         'Native bootstrap failed',
@@ -253,6 +257,26 @@ try {
         success.presentationQualified === false,
       'Home native/runtime identity proof missing',
     )
+    if (build.home.adopt) {
+      const proof = events.find(
+        (event) =>
+          event.event === 'home-proof' && event.phase === 'adopted' && event.epoch === begin.epoch,
+      )
+      check(
+        proof &&
+          proof.visualOwners === 19 &&
+          proof.logicalNodesMatched === 27 &&
+          proof.hookCalls === 19 &&
+          proof.prepareAbortMutationFree &&
+          proof.identitiesRetained &&
+          proof.logicalChildOrder &&
+          proof.contextsEstablished &&
+          proof.loaded &&
+          proof.applicationHandoff === false &&
+          proof.styleParityQualified === false,
+        'Actual Home Octane wrapper adoption proof missing',
+      )
+    }
   } else {
     check(
       native &&

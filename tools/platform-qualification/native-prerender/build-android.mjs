@@ -42,6 +42,8 @@ if (
   (labelWrappers || masonParent || masonAdopt || applicationHandoff || applicationEntry)
 )
   throw new Error('Home mount control cannot combine with two-label wrapper modes')
+const homeAdopt = process.env.XPLAT_PRERENDER_ANDROID_HOME_ADOPT === '1'
+if (homeAdopt && !homeProducer) throw new Error('Home adoption requires an Android Home producer')
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
   : 'org.octanexplat.prerenderbootstrap.android'
@@ -108,7 +110,10 @@ for (const [name, destination] of [
   ['ProbeBridge.java', 'app/src/main/java/org/octanexplat/prerenderandroid/ProbeBridge.java'],
   ['AndroidManifest.xml', 'app/src/main/AndroidManifest.xml'],
   ['theme.xml', 'app/src/main/res/values/theme.xml'],
-  ['entry.js', labelWrappers ? 'raw-bridge-entry.js' : 'app/src/main/assets/app/main.js'],
+  [
+    'entry.js',
+    labelWrappers || homeAdopt ? 'raw-bridge-entry.js' : 'app/src/main/assets/app/main.js',
+  ],
   ['app.gradle', 'app/build.gradle'],
   ['settings.gradle', 'settings.gradle'],
 ]) {
@@ -126,7 +131,10 @@ for (const [name, destination] of [
         .replace('ProbeApplication.java', 'HomeApplication.java')
         .replace('ProbeBridge.java', 'HomeBridge.java')
     : destination
-  const template = homeProducer && ['AndroidManifest.xml', 'app.gradle'].includes(name)
+  const template =
+    homeProducer &&
+    (['AndroidManifest.xml', 'app.gradle'].includes(name) ||
+      (homeAdopt && name === 'settings.gradle'))
   snapshot(
     join(source, selected),
     join(work, template ? 'templates/' + name : target),
@@ -138,12 +146,20 @@ for (const [name, destination] of [
       readFileSync(join(work, 'templates/' + name), 'utf8')
         .replaceAll('ProbeApplication', 'HomeApplication')
         .replaceAll('ProbeActivity', 'HomeActivity')
-        .replaceAll('org.octanexplat.prerenderbootstrap.android', id),
+        .replaceAll('org.octanexplat.prerenderbootstrap.android', id)
+        .replaceAll(
+          'FAIL_ON_PROJECT_REPOS',
+          homeAdopt ? 'PREFER_SETTINGS' : 'FAIL_ON_PROJECT_REPOS',
+        ),
     )
 }
 if (homeProducer)
   for (const name of ['HomeArtifact.java', 'HomeScene.java'])
-    snapshot(join(source, name), join(work, 'app/src/main/java/org/octanexplat/prerenderandroid', name), sourceHashes)
+    snapshot(
+      join(source, name),
+      join(work, 'app/src/main/java/org/octanexplat/prerenderandroid', name),
+      sourceHashes,
+    )
 sourceHashes[import.meta.filename] = {
   copy: import.meta.filename,
   sha256: hash(import.meta.filename),
@@ -199,8 +215,48 @@ if (labelWrappers) {
 }
 let home = null
 if (homeProducer) {
-  for (const name of ['build.json', 'home.bin', 'resolved.json'])
+  for (const name of [
+    'build.json',
+    'home.bin',
+    'resolved.json',
+    ...(homeAdopt ? ['sheets.json'] : []),
+  ])
     snapshot(join(homeProducer, name), join(work, 'producer', name), sourceHashes)
+  if (homeAdopt) {
+    snapshot(
+      join(import.meta.dirname, '../../../packages/ui/platforms/android/include.gradle'),
+      join(work, 'inputs/ui-native.gradle'),
+      sourceHashes,
+    )
+    writeFileSync(
+      join(work, 'app/build.gradle'),
+      readFileSync(join(work, 'app/build.gradle'), 'utf8') +
+        "\napply from: '../inputs/ui-native.gradle'\n",
+    )
+    const bundler = join(import.meta.dirname, 'bundle-android-home.mjs')
+    const result = spawnSync(
+      'bun',
+      [
+        bundler,
+        core,
+        work,
+        realpathSync(required('XPLAT_PRERENDER_ANDROID_MASON_RUNTIME_ROOT')),
+        realpathSync(required('XPLAT_PRERENDER_ANDROID_HOME_DRIVER_ROOT')),
+      ],
+      {
+        encoding: 'utf8',
+        timeout: 60000,
+        maxBuffer: 8 * 1024 * 1024,
+      },
+    )
+    writeFileSync(
+      join(work, 'home-bundle.log'),
+      (result.stdout ?? '') + (result.stderr ?? '') + (result.error?.message ?? ''),
+    )
+    if (result.status !== 0)
+      throw new Error('Home bundle failed; see ' + join(work, 'home-bundle.log'))
+    Object.assign(sourceHashes, JSON.parse(readFileSync(join(work, 'home-js-inputs.json'))))
+  }
   const producer = JSON.parse(readFileSync(join(work, 'producer/build.json')))
   const artifact = readFileSync(join(work, 'producer/home.bin'))
   if (
@@ -217,6 +273,7 @@ if (homeProducer) {
     .update(
       JSON.stringify({
         producer: producer.buildHash,
+        javascript: hash(join(work, 'app/src/main/assets/app/main.js')),
         native: Object.fromEntries(
           Object.entries(sourceHashes).map(([path, value]) => [path, value.sha256]),
         ),
@@ -235,6 +292,7 @@ if (homeProducer) {
       '"; }\n',
   )
   home = {
+    adopt: homeAdopt,
     buildHash,
     producerBuildHash: producer.buildHash,
     producerArtifactHash: producer.artifactHash,
@@ -305,7 +363,9 @@ writeFileSync(
       applicationHandoff,
       applicationEntry,
       scope: home
-        ? 'Native-first actual nineteen-view Android Home XPH1 decode, selected theme lowering, available viewport layout and identity across runtime startup; no Core/Octane hydration, live CSS parity, compositor presentation or release performance qualification'
+        ? homeAdopt
+          ? 'Actual nineteen-view Android Home native-first XPH1 mount and bounded real Octane prepare/commit wrapper adoption; no Core Application/window handoff, full live style/default parity, compositor presentation or release performance qualification'
+          : 'Native-first actual nineteen-view Android Home XPH1 decode, selected theme lowering, available viewport layout and identity across runtime startup; no Core/Octane hydration, live CSS parity, compositor presentation or release performance qualification'
         : applicationHandoff
           ? 'Native-first two-label Core Application/NativeWindow handoff, targeted cold lifecycle catch-up, one window/runtime across Activity recreation, retained root attachment and ordinary wrapper mutations; no Octane/Home, full Activity callbacks, arbitrary plugins, process-death/state restoration, CSS/viewport parity, presentation, deallocation or performance qualification'
           : masonParent

@@ -33,6 +33,11 @@ public final class HomeScene {
     private final List<android.view.View> views = new ArrayList<>();
     private final List<Node> nodes = new ArrayList<>();
     private final List<Long> handles = new ArrayList<>();
+    private final List<Typeface> defaultFonts = new ArrayList<>();
+    private final List<android.content.res.ColorStateList> defaultColors = new ArrayList<>();
+    private final List<Float> defaultFontSizes = new ArrayList<>();
+    private final List<String> defaultRadii = new ArrayList<>();
+    private boolean defaultsRestored;
     private int additions, removals;
 
     private static void check(boolean value, String reason) {
@@ -101,6 +106,11 @@ public final class HomeScene {
             Style style = mason.styleForView(view);
             // The live foreign-child adapter supplies this Text default.
             if (view instanceof StyleableTextView) style.setMinSizeWidth(0, (byte) 1);
+            defaultRadii.add(style.getBorderRadius());
+            StyleableTextView label = view instanceof StyleableTextView ? (StyleableTextView) view : null;
+            defaultFonts.add(label == null ? null : label.getTypeface());
+            defaultColors.add(label == null ? null : label.getTextColors());
+            defaultFontSizes.add(label == null ? 0 : label.getTextSize());
             apply(view, style, styles.get(row.index).style);
             if (row.parent < 0) viewport.addView(view);
             else ((View) views.get(row.parent)).addView(view);
@@ -151,6 +161,25 @@ public final class HomeScene {
             // Core9.1.3 defines lineHeight as extra Android line spacing.
             text.setLineSpacing(number(values, "lineHeight", 0) * density, 1);
             text.setTextIsSelectable(false);
+        }
+    }
+    // Restore before the live wrappers capture native defaults. This bounded
+    // journal covers font/color/radius and canonical Core Label text defaults;
+    // full live style removal and geometry parity remain separate checks.
+    public void restoreDefaults() {
+        check(!defaultsRestored, "Home defaults restored twice"); defaultsRestored = true;
+        for (int index = 0; index < views.size(); index++) {
+            android.view.View view = views.get(index);
+            mason.styleForView(view).setBorderRadius(defaultRadii.get(index));
+            if (view instanceof StyleableTextView) {
+                StyleableTextView text = (StyleableTextView) view;
+                text.setTypeface(defaultFonts.get(index));
+                text.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSizes.get(index));
+                text.setTextColor(defaultColors.get(index));
+                text.setLineSpacing(0, 1);
+                text.setSingleLine(true); text.setMaxLines(1);
+                text.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            }
         }
     }
     public android.view.View getView(int index) { return views.get(index); }

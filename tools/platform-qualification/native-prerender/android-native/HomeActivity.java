@@ -15,6 +15,13 @@ public final class HomeActivity extends AppCompatActivity {
     private final Runnable runtimeStarter = this::startRuntime;
     private HomeApplication app() { return (HomeApplication) getApplication(); }
     public android.view.View getView(int index) { return scene.getView(index); }
+    public org.nativescript.mason.masonkit.View getViewport() { return scene.viewport; }
+    public String getHomeTheme() { return scene.theme; }
+    public void restoreHomeDefaults() { scene.restoreDefaults(); }
+    public void recordHomeProof(String encoded) {
+        try { app().record(new JSONObject(encoded).put("event", "home-proof").put("epoch", epoch)); }
+        catch (Exception error) { throw new RuntimeException(error); }
+    }
     public int getViewCount() { return scene.count(); }
     private void check(boolean value, String reason) { if (!value) throw new IllegalStateException(reason); }
     private void record(String name) {
@@ -64,8 +71,10 @@ public final class HomeActivity extends AppCompatActivity {
     }
     private void startRuntime() {
         if (destroyed) return;
-        record("engine-init-begin"); app().startRuntime(); record("engine-init-end");
-        app().bind(this); check(bridgeReady, "Home JS verification missing"); scene.verify(); record("passed");
+        try {
+            record("engine-init-begin"); app().startRuntime(); record("engine-init-end");
+            app().bind(this); check(bridgeReady, "Home JS verification missing"); scene.verify(); record("passed");
+        } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
     }
     public void markBridgeReady() { check(!destroyed && !bridgeReady, "Duplicate Home bind"); scene.verify(); bridgeReady = true; }
     @Override protected void onDestroy() {

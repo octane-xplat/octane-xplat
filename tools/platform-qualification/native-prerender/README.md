@@ -349,6 +349,23 @@ The Home branch requires all nineteen views to be attached and have nonzero geom
 
 This control installs only a small JS verification bridge. It does not create NativeScript wrappers, hydrate Octane, qualify live CSS/font/layout parity, prove compositor presentation or measure release startup. The two-label controls below test their own separate ownership/lifecycle boundaries; they do not fill those Home gaps.
 
+### Android actual Home Octane adoption control
+
+The optional Home adoption mode bundles the actual shared Home, Core wrappers and Octane native universal runtime. Prepare the isolated [root-factory candidate](#qualify-root-scoped-view-creation), then provide that candidate directory and a compiled Mason Core JS SDK compatible with the selected native AAR. Keep the Home producer/SDK inputs above and the two-label flags unset:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_HOME_ADOPT=1
+export XPLAT_PRERENDER_ANDROID_HOME_DRIVER_ROOT=/absolute/path/to/root-factory/candidate
+export XPLAT_PRERENDER_ANDROID_MASON_RUNTIME_ROOT=/absolute/path/to/pinned/mason/js-sdk
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build Android Home adoption control"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
+```
+
+The bundler selects Android shared leaves, retargets Octane imports to one native runtime, maps the candidate driver's older MasonKit imports to the selected Mason Core SDK, and supplies the producer's exact projection/stylesheets. Every bundled input and the output bundle are bound into the native host identity. The host also applies UI's own Android dependency declaration: even this no-icon Home imports an SVG module that evaluates native classes during startup. The generated fixture retains its settings repositories while accepting that plugin script's repository declarations. These are isolated packaging rules, not production resolver changes.
+
+Use the same device command with the printed adoption build directory. The live entry initializes Core's application context through its public custom-Application hook before shared components read the theme. It requires the selected OS theme, prepares and aborts without claiming/mutating views, then matches all27 logical nodes and19 visual records before enabling claims. Commit must consume exactly19 root-local claims. Instance attachment adapters skip native insertion only for the expected existing child and index, while running Mason's foreign-child bookkeeping; ordinary new children retain the ordinary method. Checks cover wrapper/native identity, logical parent/child order, actual Activity context, loading, native Mason/raw handles and zero native hierarchy churn.
+
+The native helper restores font, color, radius and canonical Label text defaults synchronously before commit initializes the live wrappers. This bounded journal is not full CSS/default-removal or font/layout parity qualification. The mode does not hand Home to Core Application/NativeWindow, test OS input, force Activity recreation, establish native deallocation, prove compositor presentation or measure release startup. The candidate driver and instance adapters remain private qualification seams; the production renderer, Core and Mason SDK sources are unchanged.
+
 ### Android Label wrapper ownership control
 
 Set `XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS=1` before the Android build command above to replace direct Java widget mutation with real Core9.1.3 `Label` wrappers. The build bundles actual Core globals/Label and their dependencies with Android resolution, snapshots every bundled JS input, and fingerprints the resulting APK. Bun1.4.4 is required for this optional bundle step. Use the same separate device command with its printed build directory.
