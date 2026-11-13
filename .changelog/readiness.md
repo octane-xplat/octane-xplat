@@ -11,4 +11,4 @@ export function CheckoutScreen() {
 }
 ```
 
-This replaces the dev-only readiness exports and `/dev-actions/readiness`. Use `/readiness/controller` for owned services. Snapshot pending/failure entries now contain `{ label, blocking }`; raw errors are omitted. Readiness covers registered work and does not certify native frame presentation. See [readiness](https://octane-xplat.goddardai.org/app/readiness) and [development actions](https://octane-xplat.goddardai.org/testing/development-actions).
+Use `/readiness/controller` for owned services. Snapshot pending/failure entries contain `{ label, blocking }`; raw errors are omitted. Readiness covers registered work and does not certify native frame presentation. See [readiness](https://octane-xplat.goddardai.org/app/readiness) and [development actions](https://octane-xplat.goddardai.org/testing/development-actions).
