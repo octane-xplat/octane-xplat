@@ -2124,10 +2124,9 @@
 	.vx-progressgroup-label {
 		margin-left: 8px;
 	}
-	/* xplat-web-only:start — display:flex for the div-based flex classes */
-	.vx-table,
-	.vx-table-head,
-	.vx-table-row,
+	/* xplat-web-only:start — display:flex for the div-based flex classes.
+     Web Table uses semantic table elements and keeps the browser's table
+     layout so header and body columns share one sizing algorithm. */
 	.vx-timeline,
 	.vx-timeline-item,
 	.vx-timeline-rail,
