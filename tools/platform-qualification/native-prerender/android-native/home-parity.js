@@ -7,7 +7,15 @@ import resolved from 'xplat-prerender:artifact'
 const check = (value, message) => {
   if (!value) throw new Error(message)
 }
-const settle = () => new Promise((done) => setTimeout(done, 50))
+export class HomeLeaseRetired extends Error {
+  constructor() {
+    super('Home Activity lease retired')
+  }
+}
+const settle = async (lease) => {
+  await new Promise((done) => setTimeout(done, 50))
+  if (!lease.active) throw new HomeLeaseRetired()
+}
 function layout(host, width, height) {
   host.measure(
     Utils.layout.makeMeasureSpec(width, Utils.layout.EXACTLY),
@@ -15,9 +23,15 @@ function layout(host, width, height) {
   )
   host.layout(0, 0, width, height)
 }
-function compare(activity, phase, preRuntime = false) {
+function compare(activity, phase, source = 'adopted') {
   const adopted = JSON.parse(
-    String(preRuntime ? activity.snapshotPreRuntime() : activity.snapshotHome()),
+    String(
+      source === 'cold'
+        ? activity.snapshotPreRuntime()
+        : source === 'baseline'
+          ? activity.snapshotBeforeBinding()
+          : activity.snapshotHome(),
+    ),
   )
   const ordinary = JSON.parse(String(activity.snapshotReference()))
   check(adopted.length === 19 && ordinary.length === 19, 'Home reference count differs')
@@ -54,7 +68,7 @@ function compare(activity, phase, preRuntime = false) {
 }
 
 /** Fixed-screen measured/style comparison; neither images nor presentation. */
-export async function qualifyHomeParity(activity, host, factoryCalls) {
+export async function qualifyHomeParity(activity, host, factoryCalls, lease) {
   const ordinary = new View()
   ordinary.width = '100%'
   ordinary.height = '100%'
@@ -69,26 +83,32 @@ export async function qualifyHomeParity(activity, host, factoryCalls) {
   const reference = createNativeScriptRoot(ordinary)
   const native = ordinary.nativeViewProtected
   let attached = false
-  let initialCompared, preRuntimeCompared, removedCompared, restoredCompared
+  let initialCompared, preRuntimeCompared, baselineCompared, removedCompared, restoredCompared
   try {
     const prepared = reference.prepare(Home, resolved.seed)
     check(prepared.status === 'prepared', 'Ordinary reference preparation suspended')
     prepared.commit()
     activity.attachReference(native)
     attached = true
-    await settle()
+    if (activity.requestProbeRecreation()) {
+      const deadline = Date.now() + 5000
+      while (Date.now() < deadline) await settle(lease)
+      throw new Error('Requested Activity recreation did not retire its comparison lease')
+    }
+    await settle(lease)
     const width = activity.getViewport().getWidth(),
       height = activity.getViewport().getHeight()
     check(width > 0 && height > 0, 'Home comparison viewport is empty')
     layout(host, width, height)
     layout(ordinary, width, height)
-    preRuntimeCompared = compare(activity, 'pre-runtime', true)
+    preRuntimeCompared = compare(activity, 'pre-runtime', 'cold')
+    baselineCompared = compare(activity, 'native baseline', 'baseline')
     initialCompared = compare(activity, 'initial')
     host.css = ''
     ordinary.css = ''
     host.className = ''
     ordinary.className = ''
-    await settle()
+    await settle(lease)
     layout(host, width, height)
     layout(ordinary, width, height)
     removedCompared = compare(activity, 'style removal')
@@ -96,7 +116,7 @@ export async function qualifyHomeParity(activity, host, factoryCalls) {
     ordinary.className = className
     host.css = css
     ordinary.css = css
-    await settle()
+    await settle(lease)
     layout(host, width, height)
     layout(ordinary, width, height)
     restoredCompared = compare(activity, 'style restoration')
@@ -107,12 +127,14 @@ export async function qualifyHomeParity(activity, host, factoryCalls) {
     if (attached) activity.detachReference(native)
     ordinary._tearDownUI(true)
   }
+  if (!lease.active) throw new HomeLeaseRetired()
   activity.recordHomeProof(
     JSON.stringify({
       phase: 'parity',
       referenceVisualNodes: 19,
       ordinaryObjectsDistinct: true,
       preRuntimeCompared,
+      baselineCompared,
       initialCompared,
       removedCompared,
       restoredCompared,

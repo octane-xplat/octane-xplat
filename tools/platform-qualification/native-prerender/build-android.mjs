@@ -46,6 +46,8 @@ const homeAdopt = process.env.XPLAT_PRERENDER_ANDROID_HOME_ADOPT === '1'
 if (homeAdopt && !homeProducer) throw new Error('Home adoption requires an Android Home producer')
 const homeParity = process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'
 if (homeParity && !homeAdopt) throw new Error('Home parity requires Home adoption')
+const homeRecreate = process.env.XPLAT_PRERENDER_ANDROID_HOME_RECREATE === '1'
+if (homeRecreate && !homeParity) throw new Error('Home recreation control requires Home parity')
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
   : 'org.octanexplat.prerenderbootstrap.android'
@@ -156,16 +158,18 @@ for (const [name, destination] of [
     )
 }
 if (homeProducer)
-  for (const name of ['HomeArtifact.java', 'HomeScene.java', 'HomeComparison.java'])
+  for (const name of [
+    'HomeArtifact.java',
+    'HomeScene.java',
+    'HomeComparison.java',
+    'HomeViewport.java',
+  ])
     snapshot(
       join(source, name),
       join(work, 'app/src/main/java/org/octanexplat/prerenderandroid', name),
       sourceHashes,
     )
-sourceHashes[import.meta.filename] = {
-  copy: import.meta.filename,
-  sha256: hash(import.meta.filename),
-}
+snapshot(import.meta.filename, join(work, 'sources/build-android.mjs'), sourceHashes)
 writeFileSync(
   join(work, 'build.gradle'),
   "plugins { id 'com.android.application' version '8.12.1' apply false }\n",
@@ -275,6 +279,7 @@ if (homeProducer) {
     .update(
       JSON.stringify({
         producer: producer.buildHash,
+        options: { homeAdopt, homeParity, homeRecreate },
         javascript: hash(join(work, 'app/src/main/assets/app/main.js')),
         native: Object.fromEntries(
           Object.entries(sourceHashes).map(([path, value]) => [path, value.sha256]),
@@ -291,11 +296,14 @@ if (homeProducer) {
     join(work, 'app/src/main/java/org/octanexplat/prerenderandroid/HomeBuild.java'),
     'package org.octanexplat.prerenderandroid; public final class HomeBuild { public static final String HASH = "' +
       buildHash +
-      '"; }\n',
+      '"; public static final boolean RECREATE = ' +
+      homeRecreate +
+      '; }\n',
   )
   home = {
     adopt: homeAdopt,
     parity: homeParity,
+    recreate: homeRecreate,
     buildHash,
     producerBuildHash: producer.buildHash,
     producerArtifactHash: producer.artifactHash,

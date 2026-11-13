@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.TypedValue;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.nativescript.mason.masonkit.Mason;
@@ -28,8 +27,8 @@ public final class HomeScene {
     private static final String SYSTEM_FAMILY = "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif";
     public final HomeArtifact.Artifact artifact;
     public final String theme;
-    public final View viewport;
-    public final FrameLayout windowRoot;
+    public final HomeViewport viewport;
+    public final HomeViewport windowRoot;
     private final Mason mason;
     private final float density;
     private final List<android.view.View> views = new ArrayList<>();
@@ -60,7 +59,7 @@ public final class HomeScene {
     private static Point<LengthPercentage> copyRadius(Point<LengthPercentage> point) {
         return new Point<>(LengthPercentage.from(point.getX()), LengthPercentage.from(point.getY()));
     }
-    public HomeScene(Context context, HomeArtifact.Artifact artifact, String theme) {
+    public HomeScene(android.app.Activity context, HomeArtifact.Artifact artifact, String theme) {
         this.artifact = artifact; this.theme = theme;
         density = context.getResources().getDisplayMetrics().density;
         check(android.os.Build.VERSION.SDK_INT >= 28, "Home font lowering requires Android28+");
@@ -82,21 +81,8 @@ public final class HomeScene {
         }
         mason = Mason.Companion.getShared();
         mason.setDeviceScale(density);
-        viewport = View.createFlexView(mason, context);
-        viewport.setFlexDirection(FlexDirection.Column);
-        windowRoot = new FrameLayout(context) {
-            private int measuredWidth = -1, measuredHeight = -1;
-            @Override protected void onMeasure(int widthSpec, int heightSpec) {
-                int width = android.view.View.MeasureSpec.getSize(widthSpec);
-                int height = android.view.View.MeasureSpec.getSize(heightSpec);
-                if (width != measuredWidth || height != measuredHeight) {
-                    measuredWidth = width; measuredHeight = height;
-                    viewport.getStyle().setSizePoints(width, height);
-                }
-                super.onMeasure(widthSpec, heightSpec);
-            }
-        };
-        windowRoot.addView(viewport, new FrameLayout.LayoutParams(-1, -1));
+        viewport = new HomeViewport(context, mason);
+        windowRoot = viewport;
         List<HomeArtifact.StyleRecord> styles = artifact.variants.get(theme);
         check(styles != null, "Unsupported Home theme");
         for (HomeArtifact.Node row : artifact.nodes) {
@@ -207,7 +193,7 @@ public final class HomeScene {
     public boolean laidOut() {
         for (android.view.View view : views)
             if (!view.isAttachedToWindow() || view.getWidth() <= 0 || view.getHeight() <= 0) return false;
-        return viewport.getWidth() == windowRoot.getWidth() && viewport.getHeight() == windowRoot.getHeight();
+        return viewport.getWidth() == viewport.getAvailableWidth() && viewport.getHeight() == viewport.getAvailableHeight();
     }
     public void verify() {
         check(additions == 0 && removals == 0, "Home physically reattached children");

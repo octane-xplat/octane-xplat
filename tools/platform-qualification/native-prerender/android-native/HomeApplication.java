@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 public final class HomeApplication extends com.tns.NativeScriptApplication {
     private final JSONArray events = new JSONArray();
     private HomeBridge bridge;
+    private String coldSnapshot;
+    private boolean recreationRequested;
     private int epoch, runtimeStarts;
     @Override public void onCreate() {
         if (com.tns.Runtime.isInitialized()) throw new IllegalStateException("Runtime started before Home host");
@@ -18,6 +20,16 @@ public final class HomeApplication extends com.tns.NativeScriptApplication {
         if (app.bridge != null) throw new IllegalStateException("Home bridge installed twice");
         app.bridge = value;
     }
+    void captureColdSnapshot(String value) {
+        if (coldSnapshot != null || com.tns.Runtime.isInitialized() || com.tns.Runtime.nativeLibraryLoaded)
+            throw new IllegalStateException("Cold baseline must precede the only runtime start");
+        coldSnapshot = value;
+    }
+    String coldSnapshot() {
+        if (coldSnapshot == null) throw new IllegalStateException("Cold baseline missing");
+        return coldSnapshot;
+    }
+    boolean requestRecreation() { if (recreationRequested) return false; recreationRequested = true; return true; }
     int nextEpoch() { return ++epoch; }
     void bind(HomeActivity activity) { if (bridge == null) throw new IllegalStateException("Home bridge missing"); bridge.onActivity(activity); }
     void unbind(HomeActivity activity) { bridge.onDestroy(activity); }

@@ -336,7 +336,7 @@ export XPLAT_PRERENDER_ANDROID_HOME_PRODUCER=/absolute/path/to/android/producer/
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build Android native Home mount"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
 ```
 
-The packager requires an intact Android producer manifest and binary, snapshots the readable projection, and binds the producer identity with its frozen native sources and SDK inputs. It changes only the binary header's build identity. The separate `org.octanexplat.prerenderhome.android` app decodes XPH1 before any Home allocation, lowers its selected light/dark styles into real Mason containers and Core `StyleableTextView` labels, and sizes a native viewport to the Activity's available content bounds. This fixed lowerer requires Android28+, fontScale1 and the recorded system font stack; unsupported inputs fail explicitly.
+The packager requires an intact Android producer manifest and binary, snapshots the readable projection, and binds the producer identity with its frozen native sources and SDK inputs. It changes only the binary header's build identity. The separate `org.octanexplat.prerenderhome.android` app decodes XPH1 before any Home allocation, lowers its selected light/dark styles into real Mason containers and Core `StyleableTextView` labels, and sizes a native Mason viewport directly from Android's available measure bounds. That viewport is the Activity content root, with native window-attachment counters. This fixed lowerer requires Android28+, fontScale1 and the recorded system font stack; unsupported inputs fail explicitly.
 
 Run the same device task with this build's printed directory:
 
@@ -345,7 +345,7 @@ export XPLAT_PRERENDER_ANDROID_BUILD=/absolute/path/to/printed/home/build/direct
 goddard-agent resource run --json '{"resources":{"exclusive":["android:elegant-fir-probe"],"resident_devices":1},"purpose":"Run Android native Home mount"}' -- bun turbo run probe:prerender:android --filter=@xplat/platform-qualification
 ```
 
-The Home branch requires all nineteen views to be attached and have nonzero geometry before NativeScript and its runtime library initialize. It compares native kind, parent and text records with the producer, then checks unchanged native views, Mason nodes and raw handles after ordinary runtime startup. Native hierarchy counters reject child detach/reattach during that handoff. It does not force Activity recreation in this mode. Cleanup and fingerprint guards remain the same as the bootstrap runner.
+The Home branch requires all nineteen views to be attached and have nonzero geometry before NativeScript and its runtime library initialize. It compares native kind, parent and text records with the producer, then checks unchanged native views, Mason nodes and raw handles after ordinary runtime startup. Native hierarchy counters reject child detach/reattach during that handoff. The default Home mode does not force Activity recreation; the explicit lease control below does. Cleanup and fingerprint guards remain the same as the bootstrap runner.
 
 This control installs only a small JS verification bridge. It does not create NativeScript wrappers, hydrate Octane, qualify live CSS/font/layout parity, prove compositor presentation or measure release startup. The two-label controls below test their own separate ownership/lifecycle boundaries; they do not fill those Home gaps.
 
@@ -378,6 +378,21 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"B
 The live entry creates an ordinary sibling Home without adoption factories. Its fresh native objects are attached but hidden for measurement. Native observations compare all19 records against the frozen pre-JS snapshot and the adopted tree, then compare both live trees after stylesheet/root-class removal and restoration. Initial/restored comparisons require attached, nonzero geometry and finite computed layout. Fields include native/computed boxes, supported layout and paint values, eight actual corner-radius values, and Label fonts, color, line limits, padding, spacing and overflow. The comparison reads corner values rather than the shorthand getter, which only remembers the last assigned string.
 
 Native observations also require native/Mason child order and distinct ordinary objects. The reference must unmount to an empty native/Mason root and detach before its wrapper tears down; creating it must not consume adoption claims. Raw Mason containers retain the ordinary Block default when no display is specified; resolved display:flex selects Flex. The baseline journal restores actual corner values as well as the recorded shorthand and font/text defaults. This mode checks the selected portrait/theme/fontScale1 environment and supported fields; it does not prove all CSS, resize/theme matrices, window handoff, native deallocation, pixels, compositor presentation or release performance.
+
+### Android Home Activity comparison leases
+
+The native viewport uses Core's native edge-to-edge helper before JS starts. Before drawing, it intersects the content parent's screen bounds with system-bar/cutout-safe window bounds and applies only the missing padding. A parent already inset by Android needs no extra padding. The layout gate requires a child draw traversal, window focus and three stable viewport observations; these are not compositor-presentation evidence. The fixed-environment parity check also requires the cold and accepted live viewport to have equal screen coordinates and dimensions. Mason wraps its view context, so the viewport retains the actual constructor Activity for window metrics rather than casting `getContext()`.
+
+The Home runner accepts only a complete, live latest Activity generation. A retired reference comparison cancels through an explicit lease error, cleans up its own hidden reference, and emits a cancellation receipt; other errors still fail. Warm Activities first complete native layout before JS binds. The process retains only the cold pre-runtime observation data, so a new generation can compare its own native baseline and live tree with both an ordinary Home and the original cold output. This does not preserve Octane component state across recreation: these controls create new logical owners per generation.
+
+Force retirement while the first hidden reference exists, then require cancellation and successful warm-generation parity with one runtime:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_HOME_RECREATE=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build Android Home Activity lease control"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
+```
+
+This flag requires Home parity/adoption and their SDK inputs above. Run its printed build through the same reserved device task. The driver rejects stale completion from an earlier Activity, and fingerprints its event-selection helper along with the driver. The build also snapshots its own packager source for later evidence review. Keep Core Application/main-entry owner restoration and native deallocation as separate gates.
 
 ### Android Label wrapper ownership control
 

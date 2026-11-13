@@ -3,13 +3,20 @@ import { createHash } from 'node:crypto'
 import { closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { completedHomeEpoch } from './home-events.mjs'
 
 // Own android:elegant-fir-probe + resident_devices for the entire run/cleanup.
 const work = process.env.XPLAT_PRERENDER_ANDROID_BUILD
 if (!work) throw new Error('Set XPLAT_PRERENDER_ANDROID_BUILD to the printed build directory')
 const build = JSON.parse(readFileSync(join(resolve(work), 'build.json'), 'utf8'))
 const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('hex')
-const driverHash = hash(import.meta.filename)
+const driverInputs = Object.fromEntries(
+  [import.meta.filename, join(import.meta.dirname, 'home-events.mjs')].map((path) => [
+    path,
+    hash(path),
+  ]),
+)
+const driverHash = createHash('sha256').update(JSON.stringify(driverInputs)).digest('hex')
 const check = (value, message) => {
   if (!value) throw new Error(message)
 }
@@ -191,15 +198,15 @@ try {
         (event) => event.event === 'wrapper-proof' && event.phase === 'failed',
       )
       check(!wrapperFailure, 'Wrapper control failed: ' + wrapperFailure?.error)
-      if (
-        build.home &&
-        events.some((event) => event.event === 'passed' && event.nativeHomeMountQualified) &&
-        (!build.home.parity ||
-          events.some((event) => event.event === 'home-proof' && event.phase === 'parity'))
-      )
-        break
+      if (build.home) {
+        const ready = completedHomeEpoch(events, Boolean(build.home.parity))
+        const request = events.find((event) => event.event === 'recreation-requested')
+        if (ready !== undefined && (!build.home.recreate || (request && ready > request.epoch)))
+          break
+      }
       const request = events.find((event) => event.event === 'recreation-requested')
       if (
+        !build.home &&
         request &&
         events.some(
           (event) => event.event === 'passed' && event.warmActivity && event.epoch > request.epoch,
@@ -209,6 +216,9 @@ try {
     }
     await pause(250)
   }
+  const completedEpoch = build.home
+    ? completedHomeEpoch(events, Boolean(build.home.parity))
+    : undefined
   const begin = events.find((event) => event.event === 'engine-init-begin')
   const native = events.find(
     (event) => event.event === 'native-layout-before-runtime' && event.epoch === begin?.epoch,
@@ -230,8 +240,12 @@ try {
     )
     check(
       native.homeVisualNodes === 19 &&
+        native.width === native.availableWidth &&
+        native.height === native.availableHeight &&
         native.width > 0 &&
         native.height > 0 &&
+        native.draws > 0 &&
+        native.windowFocused &&
         native.nodes?.length === 19 &&
         native.nodes.every((node) => node.attached && node.width > 0 && node.height > 0),
       'Actual Home native geometry missing',
@@ -251,6 +265,8 @@ try {
       end?.runtimeStarted === true &&
         success?.runtimeStarts === 1 &&
         events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
+        success.rootWindowAttachments === 1 &&
+        success.rootWindowDetachments === 0 &&
         success.nativeHomeMountQualified &&
         success.nativeIdentityRetained &&
         success.masonNodeIdentityRetained &&
@@ -259,36 +275,86 @@ try {
         success.presentationQualified === false,
       'Home native/runtime identity proof missing',
     )
+    const currentPass = events.find(
+      (event) => event.event === 'passed' && event.epoch === completedEpoch,
+    )
+    check(
+      currentPass &&
+        currentPass.nativeIdentityRetained &&
+        currentPass.masonNodeIdentityRetained &&
+        currentPass.rustNodeHandlesRetained &&
+        currentPass.rootWindowAttachments === 1 &&
+        currentPass.rootWindowDetachments === 0 &&
+        currentPass.width > 0 &&
+        currentPass.height > 0 &&
+        currentPass.draws > 0 &&
+        currentPass.windowFocused &&
+        currentPass.width === currentPass.availableWidth &&
+        currentPass.height === currentPass.availableHeight,
+      'Current Home native identity, viewport or window attachment differs',
+    )
     if (build.home.adopt) {
-      const proof = events.find(
-        (event) =>
-          event.event === 'home-proof' && event.phase === 'adopted' && event.epoch === begin.epoch,
-      )
+      check(completedEpoch !== undefined, 'No complete live Home Activity generation')
+      for (const epoch of new Set([begin.epoch, completedEpoch])) {
+        const proof = events.find(
+          (event) =>
+            event.event === 'home-proof' && event.phase === 'adopted' && event.epoch === epoch,
+        )
+        check(
+          proof &&
+            proof.visualOwners === 19 &&
+            proof.logicalNodesMatched === 27 &&
+            proof.hookCalls === 19 &&
+            proof.prepareAbortMutationFree &&
+            proof.identitiesRetained &&
+            proof.logicalChildOrder &&
+            proof.contextsEstablished &&
+            proof.loaded &&
+            proof.applicationHandoff === false &&
+            proof.styleParityQualified === false,
+          'Actual Home Octane wrapper adoption proof missing',
+        )
+      }
+    }
+    if (build.home.recreate) {
+      const request = events.find((event) => event.event === 'recreation-requested')
       check(
-        proof &&
-          proof.visualOwners === 19 &&
-          proof.logicalNodesMatched === 27 &&
-          proof.hookCalls === 19 &&
-          proof.prepareAbortMutationFree &&
-          proof.identitiesRetained &&
-          proof.logicalChildOrder &&
-          proof.contextsEstablished &&
-          proof.loaded &&
-          proof.applicationHandoff === false &&
-          proof.styleParityQualified === false,
-        'Actual Home Octane wrapper adoption proof missing',
+        request &&
+          completedEpoch > request.epoch &&
+          currentPass.warmActivity &&
+          currentPass.runtimeStarts === 1 &&
+          events.some(
+            (event) => event.event === 'activity-destroyed' && event.epoch === request.epoch,
+          ) &&
+          events.some(
+            (event) =>
+              event.event === 'home-proof' &&
+              event.phase === 'parity-cancelled' &&
+              event.epoch === request.epoch,
+          ),
+        'Requested recreation did not cancel the retired lease and complete a warm live generation',
       )
     }
     if (build.home.parity) {
+      check(
+        currentPass.screenLeft === native.screenLeft &&
+          currentPass.screenTop === native.screenTop &&
+          currentPass.width === native.width &&
+          currentPass.height === native.height,
+        'Fixed-environment Home viewport moved or resized between cold and current Activity',
+      )
       const proof = events.find(
         (event) =>
-          event.event === 'home-proof' && event.phase === 'parity' && event.epoch === begin.epoch,
+          event.event === 'home-proof' &&
+          event.phase === 'parity' &&
+          event.epoch === completedEpoch,
       )
       check(
         proof &&
           proof.referenceVisualNodes === 19 &&
           proof.ordinaryObjectsDistinct &&
           proof.preRuntimeCompared === 19 &&
+          proof.baselineCompared === 19 &&
           proof.initialCompared === 19 &&
           proof.removedCompared === 19 &&
           proof.restoredCompared === 19 &&
@@ -487,12 +553,13 @@ try {
     'Native/runtime event order differs',
   )
   check(
-    hash(import.meta.filename) === driverHash && hash(build.apk) === build.apkHash,
+    Object.entries(driverInputs).every(([path, digest]) => hash(path) === digest) &&
+      hash(build.apk) === build.apkHash,
     'Driver or APK changed during execution',
   )
   writeFileSync(
     join(report, 'status.json'),
-    JSON.stringify({ passed: true, driverHash, avd, api: 35, scope: build.scope }),
+    JSON.stringify({ passed: true, driverHash, driverInputs, avd, api: 35, scope: build.scope }),
   )
   console.log(JSON.stringify({ report, passed: true, scope: build.scope }, null, 2))
 } catch (error) {
@@ -500,7 +567,7 @@ try {
   failure = String(error)
   writeFileSync(
     join(report, 'status.json'),
-    JSON.stringify({ passed: false, error: String(error), driverHash }),
+    JSON.stringify({ passed: false, error: String(error), driverHash, driverInputs }),
   )
   throw error
 } finally {
@@ -555,7 +622,13 @@ try {
     writeFileSync(join(report, 'cleanup-errors.json'), JSON.stringify(errors))
     writeFileSync(
       join(report, 'status.json'),
-      JSON.stringify({ passed: false, error: failure, driverHash, cleanupErrors: errors }),
+      JSON.stringify({
+        passed: false,
+        error: failure,
+        driverHash,
+        driverInputs,
+        cleanupErrors: errors,
+      }),
     )
     if (!failed) throw new Error(errors.join('; '))
   }

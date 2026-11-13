@@ -5,7 +5,7 @@ import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import { createNativeScriptRoot, registerElement } from '@nativescript-community/octane'
 import { Home } from '../Home.tsrx'
-import { qualifyHomeParity } from './home-parity.js'
+import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
 import { matchPreparedVisualTree } from '../match-tree.mjs'
 import resolved from 'xplat-prerender:artifact'
 import sheets from 'xplat-prerender:styles'
@@ -14,12 +14,14 @@ const check = (value, message) => {
   if (!value) throw new Error(message)
 }
 registerElement('masonview', View)
-let root, host
+let root, host, lease
 org.octanexplat.prerenderandroid.HomeApplication.installBridge(
   new org.octanexplat.prerenderandroid.HomeBridge({
     onActivity(activity) {
       try {
         check(!root && activity.getViewCount() === 19, 'Unexpected Home ownership/generation')
+        const currentLease = { active: true, activity }
+        lease = currentLease
         // Public custom-Application initialization supplies Core's real app context
         // before shared render reads theme; Application/window handoff is later.
         if (!Application.android.nativeApp) Application.android.init(activity.getApplication())
@@ -153,7 +155,14 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         )
         activity.markBridgeReady()
         if (XPLAT_PRERENDER_HOME_PARITY)
-          qualifyHomeParity(activity, host, () => hookCalls).catch((error) => {
+          qualifyHomeParity(activity, host, () => hookCalls, currentLease).catch((error) => {
+            if (error instanceof HomeLeaseRetired) {
+              check(!activity.isAlive(), 'Comparison lease retired while Activity remained alive')
+              activity.recordHomeProof(
+                JSON.stringify({ phase: 'parity-cancelled', reason: 'activity-destroyed' }),
+              )
+              return
+            }
             activity.recordHomeProof(
               JSON.stringify({ phase: 'failed', error: String(error), stack: error?.stack }),
             )
@@ -165,7 +174,10 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         throw error
       }
     },
-    onDestroy() {
+    onDestroy(activity) {
+      check(lease?.activity === activity, 'Home destruction owner differs')
+      lease.active = false
+      lease = undefined
       const retiringRoot = root,
         retiringHost = host
       root = undefined
