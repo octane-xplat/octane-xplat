@@ -142,6 +142,23 @@ The reusable package’s `test:codec:native` task owns malformed-input coverage.
 
 XPI1 uses an 80-byte little-endian header and a tagged value tree. Its header count describes logical nodes, including text slots. The [owning format description](../../../packages/native-prerender/README.md#binary-and-development-json) defines the fields and limits. Optional JSON represents the same data; checksums detect corruption rather than authenticating a server response. There is no second Home-only wire format.
 
+## Stock iOS SDK startup control
+
+This separate control builds a private scratch app with the normal NativeScript CLI, Core9.1.3, ios9.1.0 and Vite8.0.20. It includes an owned UIKit entry through `ios.NativeSource`, sets `NS_SWIFTUI_BOOT = 1`, and calls the shipped `NativeScriptStart.setup()` / `boot()` helpers after native label layout and three display-link callbacks. It supplies no experimental framework or prebuilt bridge metadata. The app-owned bridging header avoids the SDK template's `TARGET_OS_WATCH` import guard; the explicit iOS27 metadata compatibility flags remain in the generated App_Resources.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build stock iOS SDK startup control"}' -- bun turbo run probe:prerender:sdk:ios:build --filter=@xplat/platform-qualification
+```
+
+The builder requires Bun1.4.4 and an installed NativeScript CLI (`/opt/homebrew/bin/ns` by default; override with `XPLAT_PRERENDER_NS_CLI`). It creates its own pinned dependency install and prints `XPLAT_PRERENDER_IOS_SDK_BUILD`. Build and device phases use separate reservations. The runner rejects changed source, executable, bundle, framework or generated metadata fingerprints and requires the normal JS entry to update the original native UILabel within the same scene/window.
+
+```sh
+export XPLAT_PRERENDER_IOS_SDK_BUILD=/absolute/path/printed/by/the/builder
+goddard-agent resource run --json '{"resources":{"exclusive":["ios:91D40099-A056-497D-A572-ADDDFD6A8F23"],"resident_devices":1},"purpose":"Run stock iOS SDK startup control"}' -- bun turbo run probe:prerender:sdk:ios --filter=@xplat/platform-qualification
+```
+
+The runner retains source, normal bundle, lockfile, Swift package resolution, metadata, logs and assertions below `~/dev/reports/octane-xplat/native-prerender-sdk-ios`, and shuts down its owned simulator. The NativeSource modulemap warning is expected: JS reaches existing UIKit objects, not custom Swift classes. This control does not mount IR, use Mason, adopt NativeScript wrappers, hand the window to Core, prove compositor presentation, exercise OS input or measure startup performance. A pass qualifies the SDK launch mechanism, not the complete Home integration.
+
 ## Retained Home runtime fixtures
 
 The real-screen experiment has separate native and JavaScript entry points:

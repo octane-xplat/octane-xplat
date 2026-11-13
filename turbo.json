@@ -291,6 +291,10 @@
 			"cache": false
 		}
 	}
+    "@xplat/platform-qualification#probe:prerender:sdk:ios": {
+      "passThroughEnv": ["GODDARD_*", "XPLAT_PRERENDER_IOS_SDK_BUILD"]
+    "@xplat/platform-qualification#probe:prerender:sdk:ios:build": {
+      "passThroughEnv": ["GODDARD_*", "XPLAT_PRERENDER_NS_CLI"]
     "@xplat/platform-qualification#probe:prerender:home:ios": {
       "dependsOn": ["^build"],
       "passThroughEnv": ["XPLAT_PRERENDER_IOS_HOME_BUILD", "GODDARD_*"]

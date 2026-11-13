@@ -60,16 +60,31 @@ the current preparation/commit API needs no pre-render fork.
 
 The `@nativescript/ios`9.1.0
 [stock launcher](https://github.com/NativeScript/ios/blob/9.1.0/project-template-ios/internal/main.m)
-guards its Objective-C main with NS_SWIFTUI_BOOT. Setting it to1 lets an app
-supply a native entry point and use Core embedding. This source seam is separate
-from normal SDK packaging and lifecycle qualification; the experimental Home
-embedding control does not establish the complete app workflow. The supporting
-prior-art research is commit 1aff21f, with the public source linked here so this
+guards its Objective-C main with NS_SWIFTUI_BOOT. Set the Xcode build setting
+to1; the platform project supplies the corresponding preprocessor definition.
+Adding only a GCC_PREPROCESSOR_DEFINITIONS entry is unsafe with CLI9.1.1's
+xcconfig property lookup and can produce a second, self-referential definition.
+The app can supply a native entry point and use the SDK's
+[NativeScriptStart helpers](https://github.com/NativeScript/ios/blob/9.1.0/project-template-ios/internal/NativeScriptStart.m)
+for delayed setup/boot. The supporting
+prior-art research is commit 879ce4c, with the public source linked here so this
 guidance remains usable without that private repository.
 
 ```xcconfig
-GCC_PREPROCESSOR_DEFINITIONS = $(inherited) NS_SWIFTUI_BOOT=1
+NS_SWIFTUI_BOOT = 1
+SWIFT_OBJC_BRIDGING_HEADER = /absolute/path/to/owned/StartupBridge.h
 ```
+
+The ios9.1.0 template's
+[Swift bridging header](https://github.com/NativeScript/ios/blob/9.1.0/project-template-ios/internal/Swift-ObjC-Bridging-Header.h)
+uses `#ifndef TARGET_OS_WATCH`. Apple's iOS headers define that macro to zero,
+so those imports are excluded. The SDK qualification fixture uses an app-owned
+header with explicit Foundation, NativeScript and NativeScriptStart imports;
+it does not edit the installed SDK. NativeSource compiles the owned Swift entry
+through the normal CLI. The separate
+[stock SDK control](../../tools/platform-qualification/native-prerender/README.md#stock-ios-sdk-startup-control)
+owns its build/run assertions. It checks UIKit startup only, separately from
+the Home IR, wrapper adoption, Core window handoff and production integration.
 
 ## Separate native layout, frame submission and presentation
 
