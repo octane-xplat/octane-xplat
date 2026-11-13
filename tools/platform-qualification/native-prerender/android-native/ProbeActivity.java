@@ -27,6 +27,7 @@ public final class ProbeActivity extends AppCompatActivity {
     private boolean bridgeReady, destroyed, warm;
     private boolean started, postResumed;
     private Bundle launchState;
+    private Bundle savingState;
     private android.view.ViewParent installedParent;
     private final Runnable bridgeBinder = this::bindBridge;
     private final Choreographer.FrameCallback frameCallback = this::beforeRuntimeFrame;
@@ -43,6 +44,7 @@ public final class ProbeActivity extends AppCompatActivity {
     public StyleableTextView getSecondLabel() { return second; }
     public View getMasonHost() { return host; }
     public Bundle getLaunchState() { return launchState; }
+    public Bundle getSavingState() { return savingState; }
     public boolean isWarmActivity() { return warm; }
     public boolean hasStarted() { return started; }
     public boolean hasPostResumed() { return postResumed; }
@@ -227,6 +229,13 @@ public final class ProbeActivity extends AppCompatActivity {
         started = false;
         postResumed = false;
         if (bridgeReady) app().lifecycle(this, "stop");
+    }
+    @Override protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        savingState = state;
+        try {
+            if (bridgeReady) app().lifecycle(this, "saveInstanceState");
+        } finally { savingState = null; }
     }
 
     @Override protected void onDestroy() {

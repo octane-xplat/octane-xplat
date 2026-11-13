@@ -352,3 +352,18 @@ Do not substitute generic `NativeWindow.setContent` in this pinned Core9.1.3 con
 The checker requires one ready event, one registered/primary window session, the same root through Application/NativeWindow/wrapper lookup, exact lifecycle delivery across recreation, and the same window ID after saved-state reattachment. Each Activity’s native root must have one initial window attachment and zero detachments at its passing receipt. The parent/label identity, text remeasurement, ordinary child mutations and teardown checks still run.
 
 This is an explicit-content handoff, with no main entry or legacy launch-event producer. It does not qualify an app’s normal create/launch flow, arbitrary plugin initialization, all Activity callbacks, same-Activity background/foreground restoration, renderer/component state across recreation, process death, Octane/Home IR, general style/default parity, viewport sizing, OS input, compositor presentation, native deallocation or release performance. The callback catch-up and native setter rule remain experimental host integration. No Core or runtime SDK source is modified.
+
+
+### Android normal app entry and saved JS owner restoration
+
+Add the normal-entry flag to the Application control to run actual `Application.run({ create })` and Core’s Activity `onCreate` content pipeline instead of explicit reset content:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_APPLICATION_ENTRY=1
+```
+
+The app’s create factory returns the already-prepared wrapper root. Core resolves its ordinary main entry and legacy launch event, records the root in its own activity-root map, and receives actual Activity saved state. The native host forwards `onSaveInstanceState` to Core after native super has executed once. After recreation, Core must restore the same saved JS root: the main factory and launch event must each remain at one call, and root/Label owner IDs and updated text must survive. Native objects and Activity contexts belong to their respective generations.
+
+The probe retains these JS wrappers across destruction while retiring that Activity’s native lease. It restores each Label’s original native factory, clears the Mason root’s cached native/style helpers, and restores its ordinary attachment method. Before the next binding it checks that those old native caches have not returned. It then binds the retained wrappers to the replacement fixture’s native objects and runs the same setup, identity, mutation, text, window and attachment checks. This tests a fixed two-label native topology; it does not prove ordinary native allocation for arbitrary restored trees.
+
+This mode covers live Core wrapper owners and their authored text across one saved-state Activity recreation. It does not qualify Octane component/hook state, route or topology changes, process-death restoration, arbitrary plugin startup, complete Activity callbacks, native object deallocation, broad style/default removal, full Home IR, viewport/pixel presentation or performance. No Core/runtime SDK source changes are needed for this bounded path; private lifecycle catch-up remains version-pinned.

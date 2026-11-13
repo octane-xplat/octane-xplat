@@ -27,10 +27,13 @@ const labelWrappers = process.env.XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS === '1'
 const masonParent = process.env.XPLAT_PRERENDER_ANDROID_MASON_PARENT === '1'
 const masonAdopt = process.env.XPLAT_PRERENDER_ANDROID_MASON_ADOPT === '1'
 const applicationHandoff = process.env.XPLAT_PRERENDER_ANDROID_APPLICATION === '1'
+const applicationEntry = process.env.XPLAT_PRERENDER_ANDROID_APPLICATION_ENTRY === '1'
 if (masonParent && !labelWrappers) throw new Error('Mason parent control requires Label wrappers')
 if (masonAdopt && !masonParent) throw new Error('Mason adoption requires parent control')
 if (applicationHandoff && !masonAdopt)
   throw new Error('Application handoff requires Mason adoption')
+if (applicationEntry && !applicationHandoff)
+  throw new Error('Application entry requires application handoff')
 const framework = join(runtime, 'framework')
 if (
   JSON.parse(readFileSync(join(runtime, 'package.json'))).version !== '9.1.1' ||
@@ -140,6 +143,7 @@ if (labelWrappers) {
       realpathSync(required('XPLAT_PRERENDER_ANDROID_MASON_RUNTIME_ROOT')),
       masonAdopt ? 'adopt' : 'ordinary',
       applicationHandoff ? 'application' : 'wrappers',
+      applicationEntry ? 'entry' : 'explicit',
     )
   const bundled = spawnSync('bun', bundleArgs, {
     encoding: 'utf8',
@@ -212,6 +216,7 @@ writeFileSync(
       masonParent,
       masonAdopt,
       applicationHandoff,
+      applicationEntry,
       scope: applicationHandoff
         ? 'Native-first two-label Core Application/NativeWindow handoff, targeted cold lifecycle catch-up, one window/runtime across Activity recreation, retained root attachment and ordinary wrapper mutations; no Octane/Home, full Activity callbacks, arbitrary plugins, process-death/state restoration, CSS/viewport parity, presentation, deallocation or performance qualification'
         : masonParent

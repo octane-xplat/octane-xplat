@@ -3,10 +3,15 @@ import { Label } from '@nativescript/core/ui/label'
 import { Application } from '@nativescript/core/application'
 import { setActivityCallbacks } from '@nativescript/core/ui/frame'
 import { View } from 'xplat-prerender:mason/view'
-import { native_ } from 'xplat-prerender:mason/symbols'
+import { native_, style_ } from 'xplat-prerender:mason/symbols'
 
 let root
 let labels = []
+let originalAttach
+let ownerIds
+let claimsRetired = false
+const labelFactories = new WeakMap()
+const entryCounts = { factories: 0, launches: 0 }
 const check = (value, message) => {
   if (!value) throw new Error(message)
 }
@@ -37,7 +42,16 @@ if (XPLAT_PRERENDER_APPLICATION) {
     ])
       window.on(event, () => lifecycle[key]++)
   })
-  Application.run()
+  if (XPLAT_PRERENDER_APPLICATION_ENTRY) {
+    Application.on(Application.launchEvent, () => entryCounts.launches++)
+    Application.run({
+      create() {
+        check(root && labels.length === 2, 'Main entry requested before adopted owner preparation')
+        entryCounts.factories++
+        return root
+      },
+    })
+  } else Application.run()
 }
 // Native super methods have already executed in this split native/JS host.
 const nativeSuperCompleted = () => {}
@@ -66,9 +80,18 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
   new org.octanexplat.prerenderandroid.ProbeBridge({
     onActivity(activity) {
       try {
-        check(!root && labels.length === 0, 'Old logical root retained')
+        const reusingOwners = XPLAT_PRERENDER_APPLICATION_ENTRY && Boolean(root)
+        check(
+          reusingOwners ? claimsRetired && labels.length === 2 : !root && labels.length === 0,
+          'Old root/native claim lifecycle differs',
+        )
+        if (reusingOwners)
+          check(
+            !root.nativeViewProtected && !root._context && !root[native_] && !root[style_],
+            'Retired root retained or recreated old native state',
+          )
         const window = XPLAT_PRERENDER_APPLICATION ? prepareApplication(activity) : undefined
-        root = new View()
+        if (!reusingOwners) root = new View()
         root[native_] = activity.getMasonHost()
         const originalViews = [activity.getFirstLabel(), activity.getSecondLabel()]
         check(
@@ -78,6 +101,7 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
         )
         if (XPLAT_PRERENDER_ADOPT_PARENT) {
           const attach = root._addViewToNativeVisualTree
+          originalAttach = attach
           root._addViewToNativeVisualTree = function (child, atIndex = -1) {
             const native = child.nativeViewProtected
             if (native && native.getParent() === this._view) {
@@ -94,14 +118,23 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
             return attach.call(this, child, atIndex)
           }
         }
-        labels = originalViews.map((native) => {
-          const wrapper = new Label()
+        labels = originalViews.map((native, index) => {
+          const wrapper = reusingOwners ? labels[index] : new Label()
+          if (!labelFactories.has(wrapper)) labelFactories.set(wrapper, wrapper.createNativeView)
           wrapper.createNativeView = () => native
-          wrapper.text = String(native.getText())
+          if (!reusingOwners) wrapper.text = String(native.getText())
           wrapper.fontSize = 18
-          root.addChild(wrapper)
+          if (!reusingOwners) root.addChild(wrapper)
           return wrapper
         })
+        const ids = [root._domId, ...labels.map((label) => label._domId)]
+        if (reusingOwners)
+          check(
+            ids.every((id, index) => id === ownerIds[index]),
+            'Live JS owners replaced',
+          )
+        else ownerIds = ids
+        claimsRetired = false
         root._setupAsRootView(activity)
         root.callLoaded()
         check(root.nativeViewProtected === activity.getMasonHost(), 'Mason root replaced')
@@ -131,13 +164,25 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
           'Ordinary new child did not detach',
         )
         activity.verifyOriginalTree(false, 3, 3)
+        if (reusingOwners)
+          check(
+            String(originalViews[0].getText()) === 'Updated through NativeScript bridge',
+            'Live Label text state did not survive owner restoration',
+          )
         labels[0].text = 'Updated through NativeScript bridge'
         if (window) {
           // Use Android's real platform content pipeline. Generic setContent
           // first sets the root up with {}, which tears down this Android
           // context. This pipeline sets up with the Activity and adopts the
           // root into NativeWindow itself. The native host keeps its view.
-          activity._callbacks.resetActivityContent(activity, root)
+          if (XPLAT_PRERENDER_APPLICATION_ENTRY)
+            activity._callbacks.onCreate(
+              activity,
+              activity.getLaunchState(),
+              activity.getIntent(),
+              nativeSuperCompleted,
+            )
+          else activity._callbacks.resetActivityContent(activity, root)
           if (activity.hasStarted()) activity._callbacks.onStart(activity, nativeSuperCompleted)
           if (activity.hasPostResumed())
             activity._callbacks.onPostResume(activity, nativeSuperCompleted)
@@ -165,6 +210,10 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
               registrySize: Application.android._getWindows().length,
               lifecycle: { ...lifecycle },
               catchUp: !activity.isWarmActivity(),
+              normalEntry: XPLAT_PRERENDER_APPLICATION_ENTRY,
+              entryCounts: { ...entryCounts },
+              ownerIds: [...ownerIds],
+              reusingOwners,
             }),
           )
         }
@@ -207,18 +256,33 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
           !label.nativeViewProtected && !label._context && !label.isLoaded,
           'Old Label not disposed',
         )
-        label.createNativeView = () => {
-          throw new Error('Retired native claim')
-        }
+        label.createNativeView = XPLAT_PRERENDER_APPLICATION_ENTRY
+          ? labelFactories.get(label)
+          : () => {
+              throw new Error('Retired native claim')
+            }
       }
-      labels = []
-      root = undefined
+      if (XPLAT_PRERENDER_APPLICATION_ENTRY) {
+        // A native claim belongs to one Activity lifetime. Core may restore
+        // these JS owners, so drop the native/style caches and attachment
+        // closure before binding another Activity's native objects.
+        root[native_] = undefined
+        root[style_] = undefined
+        root._addViewToNativeVisualTree = originalAttach
+        originalAttach = undefined
+        claimsRetired = true
+      } else {
+        labels = []
+        root = undefined
+      }
       activity.recordWrapperProof(
         JSON.stringify({
           phase: 'disposed',
           releasedWrappers: 2,
           nativeChildren: 0,
           masonChildren: 0,
+          ownersRetained: XPLAT_PRERENDER_APPLICATION_ENTRY,
+          claimsRetired,
         }),
       )
       activity.markBridgeDetached()
@@ -229,7 +293,10 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
       if (event === 'start') callbacks.onStart(activity, nativeSuperCompleted)
       else if (event === 'stop') callbacks.onStop(activity, nativeSuperCompleted)
       else if (event === 'postResume') callbacks.onPostResume(activity, nativeSuperCompleted)
-      else throw new Error('Unexpected native lifecycle event: ' + event)
+      else if (event === 'saveInstanceState') {
+        if (XPLAT_PRERENDER_APPLICATION_ENTRY)
+          callbacks.onSaveInstanceState(activity, activity.getSavingState(), nativeSuperCompleted)
+      } else throw new Error('Unexpected native lifecycle event: ' + event)
     },
   }),
 )

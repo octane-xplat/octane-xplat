@@ -331,6 +331,31 @@ try {
       cold.catchUp && !warm.catchUp && cold.windowId === warm.windowId,
       'Cold catch-up or recreated window session identity differs',
     )
+    if (build.applicationEntry) {
+      check(
+        cold.normalEntry &&
+          warm.normalEntry &&
+          cold.entryCounts.factories === 1 &&
+          warm.entryCounts.factories === 1 &&
+          cold.entryCounts.launches === 1 &&
+          warm.entryCounts.launches === 1 &&
+          !cold.reusingOwners &&
+          warm.reusingOwners &&
+          JSON.stringify(cold.ownerIds) === JSON.stringify(warm.ownerIds),
+        'Normal main entry/launch or saved live owner restoration differs',
+      )
+      check(
+        events.some(
+          (event) =>
+            event.event === 'wrapper-proof' &&
+            event.phase === 'disposed' &&
+            event.epoch === request.epoch &&
+            event.ownersRetained &&
+            event.claimsRetired,
+        ),
+        'Activity-scoped native claims were not retired before owner restoration',
+      )
+    }
     check(
       cold.lifecycle.created === 1 &&
         cold.lifecycle.attached === 1 &&

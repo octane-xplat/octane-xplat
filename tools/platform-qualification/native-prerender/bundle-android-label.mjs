@@ -3,7 +3,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 
-const [core, work, entry, masonRuntime, attachmentMode, handoffMode] = process.argv.slice(2)
+const [core, work, entry, masonRuntime, attachmentMode, handoffMode, entryMode] =
+  process.argv.slice(2)
 if (!core || !work || !entry) throw new Error('Expected Core root, work directory and label entry')
 const require = createRequire(join(core, 'package.json'))
 const inputs = {}
@@ -17,6 +18,7 @@ const result = await Bun.build({
   define: {
     XPLAT_PRERENDER_ADOPT_PARENT: String(attachmentMode === 'adopt'),
     XPLAT_PRERENDER_APPLICATION: String(handoffMode === 'application'),
+    XPLAT_PRERENDER_APPLICATION_ENTRY: String(entryMode === 'entry'),
     __ANDROID__: 'true',
     __IOS__: 'false',
     __APPLE__: 'false',
