@@ -27,6 +27,16 @@ platform example. Platform divergence belongs at file boundaries.
 - Octane is not React. Read [Octane semantics](references/octane.md) before
   relying on React habits for hooks, state, context, refs, error boundaries, or
   `children`; native targets accept only a subset of `octane` runtime imports.
+- Use TSRX `@if` blocks (and `@else` when needed) for conditional rendering in
+  components. Avoid JSX ternaries such as `{condition ? <div /> : null}`.
+  Keep a single-element branch on three lines: the `@if` opener, JSX, and closing brace.
+
+  ```tsrx
+  @if (condition) {
+    <div />
+  }
+  ```
+
 - Keep one intrinsic vocabulary per file, with no DOM globals in shared/native
   implementations. Import unsuffixed module names with explicit `.tsrx` extensions for TSRX; the build selects the leaf.
   The unsuffixed file is the native default; `.web`, `.mobile`, and OS suffixes

@@ -193,6 +193,16 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
 - Hook-calling code belongs in `.tsx`/`.tsrx` inside the renderer include glob.
   Keep one copy of `octane` per app. Native app bundlers must retarget source
   imports of `octane` to the universal/native runtime.
+- Use TSRX `@if` blocks (and `@else` when needed) for conditional rendering in
+  components. Avoid JSX ternaries such as `{condition ? <div /> : null}`.
+  Keep a single-element branch on three lines: the `@if` opener, JSX, and closing brace.
+
+  ```tsrx
+  @if (condition) {
+    <div />
+  }
+  ```
+
 - Use CSS/`className` for static styles and style objects for dynamic styles.
   Follow the shared UI normalization contract; platform-authentic widgets use
   matching platform subpaths. Read the implementation reference before UI work.
