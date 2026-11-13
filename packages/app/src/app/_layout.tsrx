@@ -76,7 +76,13 @@ export function RootLayout(props: { children?: any }) @{
   }
 
   <Screen
-    className={['vx-app', 'vx-app-flush', 'flex-1', scheme === 'dark' ? 'dark ns-dark' : '']}
+    className={[
+      'vx-app',
+      'sink-shell',
+      'vx-app-flush',
+      'flex-1',
+      scheme === 'dark' ? 'dark ns-dark' : '',
+    ]}
   >
     <RouteOutlet>
       <Tabs

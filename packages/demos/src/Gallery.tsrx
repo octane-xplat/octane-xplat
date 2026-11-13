@@ -134,6 +134,30 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
   { id: 'effects', title: 'Shader effects', kind: 'proof' },
 ]
 
+// Short descriptions make the launcher useful before opening a demo.
+const APP_SUMMARIES: Record<string, string> = {
+  'goal-counter': 'Set a target and track your progress.',
+  'packing-list': 'Get ready for the next trip.',
+  counter: 'Start small. Make a number move.',
+  watch: 'A clock with a different face.',
+  stopwatch: 'Start, stop, and capture a lap.',
+  todo: 'A short list. A little less to do.',
+  ttt: 'Three in a row. Two players.',
+  dialer: 'A familiar keypad, built from primitives.',
+  vlist: 'Scroll through 500 recycled rows.',
+  'vlist-perf': 'Put 5,000 rows through their paces.',
+  weather: 'A compact forecast for the day ahead.',
+  'list-demo': 'Browse a feed of upcoming events.',
+  'motion-patterns': 'Explore transitions and gestures.',
+  'fancy-components': 'Try more expressive UI patterns.',
+  chat: 'Messages, reactions, and conversation.',
+  'native-picker': 'Choose from platform picker controls.',
+  'native-date-picker': 'Pick a day with the platform calendar.',
+  'file-input': 'Choose files and inspect the selection.',
+  'native-context-menu': 'Explore platform contextual actions.',
+  'native-sheet': 'Open a platform sheet presentation.',
+}
+
 // Render fns are standalone arrows (same contract as TabSpec.render /
 // List.renderItem) — JSX inside a module-level object literal can't get
 // universal lowering. Dispatch is {RENDER[demo]()} in children position,
@@ -280,20 +304,37 @@ export function Gallery(props: {
     }
   }
 
-  <Screen className="vx-app flex-1 gap-6">
-    <HStack className="justify-between items-baseline">
-      <Text className="text-2xl font-semibold">{props.title ?? 'Demos'}</Text>
-      <Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
-    </HStack>
+  <Screen className="vx-app sink-gallery flex-1 gap-6">
+    <View className="gallery-heading">
+      <Text className="gallery-eyebrow">EXPLORE / {shown.length + ' DEMOS'}</Text>
+      <HStack className="gallery-title-row justify-between items-baseline flex-wrap">
+        <Text className="gallery-title">{props.title ?? 'Demos'}</Text>
+        <Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
+      </HStack>
+      <Text className="gallery-intro">
+        Pick something to play with. Every demo is a working screen.
+      </Text>
+    </View>
     <ScrollableArea className="flex-1">
-      <HStack className="demo-menu" style={{ minHeight: 1200 }}>
+      <HStack className={['demo-menu', props.onOpen ? 'demo-menu--launcher' : '']}>
         @for (const d of shown; key d.id) {
           <Pressable
             id={'menu-' + d.id}
             onPress={() => open(d.id)}
-            className={['chip', props.onOpen || demo === d.id ? '' : 'chip-off']}
+            className={[
+              props.onOpen ? 'demo-tile' : 'chip',
+              props.onOpen || demo === d.id ? '' : 'chip-off',
+            ]}
           >
-            <Text>{d.title}</Text>
+            <Text className={props.onOpen ? 'demo-tile-title' : ''}>{d.title}</Text>
+            @if (props.onOpen) {
+              <>
+                <Text className="demo-tile-description">
+                  {APP_SUMMARIES[d.id] ?? 'Explore this component in a working screen.'}
+                </Text>
+                <Text className="demo-tile-action">Open demo →</Text>
+              </>
+            }
           </Pressable>
         }
       </HStack>

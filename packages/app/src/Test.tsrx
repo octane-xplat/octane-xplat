@@ -19,7 +19,7 @@ export function Test() @{
   const [analytics, setAnalytics] = useState(false)
   const proofs = DEMOS.filter((d) => d.kind === 'proof')
 
-  <Screen className="vx-app flex-1 gap-6">
+  <Screen className="vx-app sink-test flex-1 gap-6">
     <ScrollableArea id="test-scroll" className="flex-1">
       <Text className="text-2xl font-semibold">Test</Text>
 

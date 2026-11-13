@@ -143,16 +143,10 @@ body {
    keeps intrinsic children at natural height, and a .flex-1 member (the
    Home list) stays shrinkable via the shorthand's own shrink:1. */
 .sink-section {
+	display: flex;
+	flex-direction: column;
 	gap: 8px;
 	min-height: 0;
-}
-
-.home-actions {
-	margin-top: 36px;
-}
-
-.home-actions .gap-3 {
-	gap: 15px;
 }
 
 .home-actions .btn {
@@ -209,6 +203,8 @@ body {
 
 /* Probe surfaces — a boundary is earned where interaction happens. */
 .panbox {
+	display: flex;
+	flex-direction: column;
 	min-height: 96px;
 	padding: 16px;
 	gap: 12px;
@@ -355,3 +351,298 @@ body {
 .xplat-layer-unlayered {
 	background-color: #22c55e;
 }
+
+/* Home is a playground, with bounded surfaces for each interaction. Keep
+   native's two scrolling regions; the browser uses one responsive canvas. */
+.sink-home {
+  gap: 28px;
+}
+
+.home-header {
+  gap: 16px;
+}
+
+.home-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.vx-app .home-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--color-text-secondary);
+}
+
+.home-title {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+}
+
+.vx-app .home-intro,
+.vx-app .home-card-description {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-text-secondary);
+}
+
+.home-workspace,
+.home-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.home-workspace {
+  min-width: 0;
+}
+
+.home-actions {
+  margin-top: 0;
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  color: var(--color-text);
+  padding: 20px;
+  gap: 12px;
+  border-width: 1px;
+  border-color: var(--color-border);
+  border-radius: 16px;
+  background-color: var(--color-surface);
+}
+
+.home-card-title {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.home-count {
+  font-size: 32px;
+  line-height: 42px;
+  font-weight: 600;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.home-actions .gap-3 {
+  gap: 8px;
+}
+
+.home-actions .gap-4 {
+  gap: 16px;
+}
+
+.home-card .panbox {
+  min-height: 108px;
+  align-items: flex-start;
+}
+
+.home-card .btn {
+  min-height: 40px;
+}
+
+.home-items .list {
+  margin-top: 4px;
+}
+
+.vx-app .home-item-count {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--color-text-secondary);
+}
+
+/* xplat-web-only:start — browser canvas and pointer states. */
+.sink-shell {
+  background-color: var(--color-surface);
+  overflow: hidden;
+}
+
+#app-tabs > .vx-tabpane {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+#app-tabs > .vx-tabbar {
+  padding: 12px 32px 0;
+  background-color: var(--color-surface);
+}
+
+#app-tabs > .vx-tabbar .vx-tabstrip {
+  gap: 20px;
+}
+
+#app-tabs > .vx-tabbar .vx-tab {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 80px;
+  padding: 0 8px 12px;
+  min-height: 44px;
+}
+
+#app-tabs > .vx-tabbar .vx-tab-labelwrap {
+  padding-bottom: 0;
+}
+
+#app-tabs > .vx-tabbar .vx-tab-icon {
+  margin-right: 0;
+}
+
+.sink-test {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 36px 32px;
+}
+
+.sink-test #test-scroll > .vx-scrollable-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sink-home {
+  flex: none;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 36px 32px;
+  background-color: transparent;
+  overflow: visible;
+}
+
+.home-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 264px;
+  align-items: start;
+  flex: none;
+}
+
+.home-actions {
+  overflow: visible;
+}
+
+.home-actions .vx-scrollable-content {
+  overflow: visible;
+}
+
+.home-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.home-card {
+  min-width: 0;
+}
+
+.home-counter {
+  background-color: var(--color-surface);
+}
+
+.home-inputs {
+  grid-column: 1 / -1;
+}
+
+.home-items {
+  position: sticky;
+  top: 24px;
+}
+
+.home-items .list {
+  flex: none;
+  max-height: 360px;
+}
+
+.home-items .cell {
+  display: block;
+  padding: 14px 12px;
+  font-size: 14px;
+}
+
+.home-items .cell:last-child {
+  border-bottom-width: 0;
+}
+
+.home-card .btn,
+#scheme-toggle {
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.home-card .btn-secondary:hover,
+#scheme-toggle:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface-secondary);
+}
+
+.sink-shell .vx-pressable:focus-visible,
+.sink-shell a:focus-visible,
+#app-tabs > .vx-tabbar .vx-tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+  .home-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-items {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .sink-test {
+    padding: 24px 16px;
+  }
+
+  .sink-home {
+    padding: 24px 16px;
+    gap: 24px;
+  }
+
+  .home-title {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .home-header {
+    align-items: flex-start;
+  }
+
+  .home-intro {
+    max-width: 230px;
+  }
+
+  .home-controls {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .home-card {
+    padding: 18px;
+  }
+
+  #app-tabs > .vx-tabbar {
+    padding: 12px 16px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-card .btn,
+  #scheme-toggle {
+    transition: none;
+  }
+}
+/* xplat-web-only:end */
