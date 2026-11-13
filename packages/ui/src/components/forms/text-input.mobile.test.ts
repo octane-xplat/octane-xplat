@@ -1,4 +1,5 @@
 import { createNativeGestureContainer as createObjectContainer } from '../../../tests/native-gesture-object-driver'
+
 // Action/layout fixture only: no native input is delivered by the object driver.
 vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
 vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))

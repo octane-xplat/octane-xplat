@@ -499,6 +499,7 @@ declare module 'gi://Gdk?version=4.0' {
     class Device {
       get_source(): number
     }
+
     class Event {
       get_surface(): object | null
       get_device(): Device | null
@@ -508,6 +509,7 @@ declare module 'gi://Gdk?version=4.0' {
       get_pointer_emulated(): boolean
       get_position(): [boolean, number, number]
     }
+
     const EventType: {
       KEY_PRESS: number
       KEY_RELEASE: number

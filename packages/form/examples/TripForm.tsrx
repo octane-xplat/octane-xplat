@@ -82,10 +82,7 @@ export function TripForm(props: {
         <TripNote form={form} />
       }
     </FormLayout>
-    <Button
-      label={showNote ? 'Hide note' : 'Add note'}
-      onPress={() => setShowNote(!showNote)}
-    />
+    <Button label={showNote ? 'Hide note' : 'Add note'} onPress={() => setShowNote(!showNote)} />
     <Button label="Save trip" isLoading={submitting} isDisabled={submitting} onPress={submit} />
     <Button
       label="Reset"

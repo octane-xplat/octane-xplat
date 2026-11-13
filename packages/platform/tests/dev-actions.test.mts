@@ -1640,6 +1640,7 @@ test('the reserved xplat-actions channel dispatches invokes and returns outcomes
     result: { fields: { pong: { type: 'boolean' } } },
     run: async () => ({ pong: true }),
   })
+
   const slow = api.registerDevAction({
     id: 'fixture.slow',
     title: 'Slow',
@@ -1649,6 +1650,7 @@ test('the reserved xplat-actions channel dispatches invokes and returns outcomes
     execution: { cancellable: true },
     run: () => new Promise((resolve) => (releaseSlow = resolve)),
   })
+
   const bridge = api.startDevActionBridge()
 
   t.after(() => {
@@ -1658,6 +1660,7 @@ test('the reserved xplat-actions channel dispatches invokes and returns outcomes
   })
 
   const socket = sockets[0]
+
   socket.open()
   socket.receive({
     type: 'registered',
@@ -1677,6 +1680,7 @@ test('the reserved xplat-actions channel dispatches invokes and returns outcomes
     panel: 'panel_1',
     data: { type: 'invoke', requestId: 'req-missing', actionId: 'fixture.absent' },
   })
+
   socket.receive({
     type: 'channel',
     channel: 'xplat-actions',
@@ -1684,6 +1688,7 @@ test('the reserved xplat-actions channel dispatches invokes and returns outcomes
     panel: 'panel_1',
     data: { type: 'invoke', requestId: 'req-ping', actionId: 'fixture.ping', input: {} },
   })
+
   socket.receive({
     type: 'channel',
     channel: 'xplat-actions',
@@ -1691,6 +1696,7 @@ test('the reserved xplat-actions channel dispatches invokes and returns outcomes
     panel: 'panel_1',
     data: { type: 'invoke', requestId: 'req-slow', actionId: 'fixture.slow', input: {} },
   })
+
   // Malformed payloads must not throw or degrade the socket.
   socket.receive({
     type: 'channel',
@@ -1699,6 +1705,7 @@ test('the reserved xplat-actions channel dispatches invokes and returns outcomes
     panel: 'panel_1',
     data: { type: 'invoke' },
   })
+
   socket.receive({ type: 'channel', channel: 'xplat-actions', from: 'panel', data: 'junk' })
   socket.receive({
     type: 'channel',
@@ -1718,6 +1725,7 @@ test('the reserved xplat-actions channel dispatches invokes and returns outcomes
   )
 
   const outcomes = {}
+
   for (const frame of socket.frames) {
     if (frame.type === 'channel' && frame.channel === 'xplat-actions') {
       outcomes[frame.data.outcome.requestId] = frame.data.outcome

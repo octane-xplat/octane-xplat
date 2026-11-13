@@ -528,16 +528,26 @@ function initializeRuntime() {
     if (!(view instanceof NSView)) {
       throw new Error('AppKit activation requires an NSView')
     }
+
     const primary = actionStore.observeActivation(view, notify)
     const secondary = observeSecondaryActivation(view, (kind) => notify('pointer', kind))
     const keys = subscriptions.observeViewKeys(view, {
       onKeyDown(event) {
         const node = registry.cssNodesByView.get(view)
-        if (event.target === view && !event.defaultPrevented && !event.isComposing &&
-          !event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey &&
+
+        if (
+          event.target === view &&
+          !event.defaultPrevented &&
+          !event.isComposing &&
+          !event.repeat &&
+          !event.altKey &&
+          !event.ctrlKey &&
+          !event.metaKey &&
           (event.key === 'Enter' || event.key === ' ') &&
-          actionStore.hasHandler(view) && !node?.props.accessibilityState?.disabled &&
-          !node?.props.accessibilityState?.readonly) {
+          actionStore.hasHandler(view) &&
+          !node?.props.accessibilityState?.disabled &&
+          !node?.props.accessibilityState?.readonly
+        ) {
           event.preventDefault()
           notify('keyboard')
         }
@@ -546,7 +556,11 @@ function initializeRuntime() {
 
     return () => {
       try {
-        try { keys() } finally { secondary() }
+        try {
+          keys()
+        } finally {
+          secondary()
+        }
       } finally {
         primary()
       }

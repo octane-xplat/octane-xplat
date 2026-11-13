@@ -1,10 +1,4 @@
-export function recorderArguments({
-  device,
-  bundle,
-  output,
-  recordingOptions,
-  diagnosticCosts,
-}) {
+export function recorderArguments({ device, bundle, output, recordingOptions, diagnosticCosts }) {
   return [
     'xctrace',
     'record',

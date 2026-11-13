@@ -434,9 +434,7 @@ export function TableFilterTemplate() @{
             />
             <Button
               label={`Delete ${saved.name}`}
-              onPress={() =>
-                setSavedViews((previous) => previous.filter((_, i) => i !== index))
-              }
+              onPress={() => setSavedViews((previous) => previous.filter((_, i) => i !== index))}
             />
           </HStack>
         ))}

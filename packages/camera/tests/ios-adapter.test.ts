@@ -881,23 +881,33 @@ describe('iOS focus and zoom control', () => {
       'exposurePointOfInterest',
       'exposureMode',
     ]
+
     const original = Object.getOwnPropertyDescriptors(device)
-    const lock = vi.spyOn(device, 'lockForConfiguration').mockReturnValue(scenario !== 'lock-refused')
+    const lock = vi
+      .spyOn(device, 'lockForConfiguration')
+      .mockReturnValue(scenario !== 'lock-refused')
+
     const unlock = vi.spyOn(device, 'unlockForConfiguration')
     const write = vi.fn()
+
     for (const key of keys) {
-      Object.defineProperty(device, key, key.endsWith('Supported')
-        ? { configurable: true, value: true }
-        : {
-            configurable: true,
-            set() {
-              write(key)
-              if (key === scenario) {
-                throw new Error('metering refused')
-              }
+      Object.defineProperty(
+        device,
+        key,
+        key.endsWith('Supported')
+          ? { configurable: true, value: true }
+          : {
+              configurable: true,
+              set() {
+                write(key)
+                if (key === scenario) {
+                  throw new Error('metering refused')
+                }
+              },
             },
-          })
+      )
     }
+
     model.layers.at(-1)!.captureDevicePointOfInterestForPoint = () => ({ x: 0.5, y: 0.5 })
     try {
       expect(() => session.focusAtPoint({ x: 0.5, y: 0.5 })).not.toThrow()
@@ -918,6 +928,7 @@ describe('iOS focus and zoom control', () => {
           Reflect.deleteProperty(device, key)
         }
       }
+
       lock.mockRestore()
       unlock.mockRestore()
       session.dispose()

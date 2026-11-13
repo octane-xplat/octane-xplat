@@ -29,9 +29,7 @@ export default function ImageFitProbe() {
       <Button
         id="position-toggle"
         label="Toggle corner"
-        onPress={() =>
-          setCorner((value) => (value === 'top left' ? 'bottom right' : 'top left'))
-        }
+        onPress={() => setCorner((value) => (value === 'top left' ? 'bottom right' : 'top left'))}
       />
       <Text id="fit-state">{fit + ' · ' + corner}</Text>
     </VStack>

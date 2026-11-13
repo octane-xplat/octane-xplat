@@ -452,6 +452,7 @@ export function bindPublicInstance(
       focusSignals = [
         focus.connect('notify::is-focus', () => {
           const next = focus?.is_focus() ?? false
+
           if (next !== ownsFocus) {
             ownsFocus = next
             emit(next ? 'focus' : 'blur')

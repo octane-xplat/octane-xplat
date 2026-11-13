@@ -144,10 +144,7 @@ export default function TableScrollProbe() @{
       <Button label="Toggle viewport width" onPress={() => setWide(!wide)} />
       <Button label="Toggle empty data" onPress={() => setEmpty(!empty)} />
       <Button label="Toggle bounded height" onPress={() => setBounded(!bounded)} />
-      <Button
-        label="Toggle default body wrap/truncate"
-        onPress={() => setTruncate(!truncate)}
-      />
+      <Button label="Toggle default body wrap/truncate" onPress={() => setTruncate(!truncate)} />
       <Button label="Toggle long body text" onPress={() => setLongText(!longText)} />
       <Text>{`Default text ${truncate ? 'truncate' : 'wrap'}; long content ${longText}. Custom buttons and fields keep their own text behavior. Native truncation, row measurement, resize and VoiceOver remain unqualified; mounting is not a pass.`}</Text>
       <Button
@@ -155,10 +152,7 @@ export default function TableScrollProbe() @{
         onPress={() => setWidths(widths.name === 320 ? {} : { name: 320, team: 420 })}
       />
       <Button label="Toggle accepting resize commits" onPress={() => setAccept(!accept)} />
-      <Button
-        label="Toggle uncontrolled resize"
-        onPress={() => setUncontrolled(!uncontrolled)}
-      />
+      <Button label="Toggle uncontrolled resize" onPress={() => setUncontrolled(!uncontrolled)} />
       <Button label="Toggle name-column resize lock" onPress={() => setLocked(!locked)} />
       <Text>
         Resize commits: {commits}; mode: {uncontrolled ? 'uncontrolled' : 'controlled'}; accepting:{' '}

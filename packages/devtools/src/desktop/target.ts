@@ -4,9 +4,11 @@ import type { ListedDevtoolsServer } from '../record.ts'
 
 function normalizeRoot(path: string): string {
   let end = path.length
+
   while (end > 1 && path[end - 1] === '/') {
     end--
   }
+
   return path.slice(0, end)
 }
 
@@ -22,9 +24,11 @@ export function autoTarget(
   if (preferredRoot) {
     const root = normalizeRoot(preferredRoot)
     const match = records.find((record) => normalizeRoot(record.appRoot) === root)
+
     if (match) {
       return match
     }
   }
+
   return records.length === 1 ? records[0] : null
 }

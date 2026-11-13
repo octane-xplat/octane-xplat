@@ -46,10 +46,7 @@ export default function PopoverProbe() {
           </VStack>
         </Popover>
         <Button label="Change placement" onPress={() => setAbove((value) => !value)} />
-        <Button
-          label="Toggle outside dismissal"
-          onPress={() => setOutside((value) => !value)}
-        />
+        <Button label="Toggle outside dismissal" onPress={() => setOutside((value) => !value)} />
         <Text>
           Manually open details, edit its draft and change the provider. Move/resize/scroll the
           anchor, test Escape and outside dismissal, then close/remount. This fixture does not

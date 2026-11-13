@@ -17,7 +17,11 @@ import {
 import { Pager as NSPager } from '@nativescript-community/ui-pager'
 import { GridLayout } from '@nativescript/core'
 import type { PagerProps } from './props'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './native/escape-props'
+import {
+  applyEscapeProps,
+  nativeAccessibilityRole,
+  nativeAccessibilityState,
+} from './native/escape-props'
 
 import { layoutChildProps } from './layout-child'
 

@@ -65,18 +65,12 @@ export default function ButtonActionsProbe() {
       ) : (
         <label text="Save button removed" />
       )}
-      <Button
-        label="Complete oldest action"
-        onPress={() => pending.current.shift()?.resolve()}
-      />
+      <Button label="Complete oldest action" onPress={() => pending.current.shift()?.resolve()} />
       <Button
         label="Fail oldest action"
         onPress={() => pending.current.shift()?.reject(new Error('Fixture save failed'))}
       />
-      <Button
-        label="Change callback revision"
-        onPress={() => setRevision((value) => value + 1)}
-      />
+      <Button label="Change callback revision" onPress={() => setRevision((value) => value + 1)} />
       <Button label="Toggle disablement" onPress={() => setDisabled((value) => !value)} />
       <Button label="Toggle external loading" onPress={() => setLoading((value) => !value)} />
       <Button

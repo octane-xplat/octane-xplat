@@ -94,9 +94,14 @@ export function connectDevtools(
   const stateListeners = new Set<(state: 'connecting' | 'live' | 'closed') => void>()
 
   const setState = (next: 'connecting' | 'live' | 'closed') => {
-    if (state === next) return
+    if (state === next) {
+      return
+    }
+
     state = next
-    for (const listener of stateListeners) listener(next)
+    for (const listener of stateListeners) {
+      listener(next)
+    }
   }
 
   const ws = `ws://${endpoint[1]}/devtools`

@@ -21,6 +21,7 @@ const exports: Partial<typeof import('../../../packages/demos/src/auth-guide/ses
 vm.runInNewContext(output, { exports, require: () => ({ createStore }) })
 
 assert.ok(exports.createAccountSession)
+
 const { createAccountSession } = exports
 const response = (status: number, body: unknown = undefined): HostedAuthResponse => ({
   status,
@@ -29,6 +30,7 @@ const response = (status: number, body: unknown = undefined): HostedAuthResponse
   json: async () => body,
   text: async () => JSON.stringify(body),
 })
+
 const fake = (overrides: Partial<HostedAuth> = {}): HostedAuth => ({
   supported: true,
   restore: async () => 'authenticated',

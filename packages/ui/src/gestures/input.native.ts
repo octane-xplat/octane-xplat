@@ -119,6 +119,7 @@ function retain(surface: NativeGestureSurface) {
         return current ? (current.surface.scheduler.claim?.(host) ?? true) : false
       },
     })
+
     const presses = new Set<PressRegistration>()
 
     root = {

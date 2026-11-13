@@ -407,6 +407,7 @@ type Lane = {
   skipLibCheck: boolean
   domOnly?: boolean
 }
+
 const lanes: Record<string, Lane> = {
   default: { customConditions: [], nsCore: false, skipLibCheck: false },
   native: { customConditions: ['native'], nsCore: true, skipLibCheck: true },

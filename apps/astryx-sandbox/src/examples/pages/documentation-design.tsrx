@@ -236,12 +236,7 @@ export function DocumentationDesignTemplate() @{
                           icon={<Icon name="sandbox-arrow-top-right-on-square" size={16} />}
                           onPress={() => {}}
                         />
-                        <Button
-                          label="Send to CLI"
-                          variant="ghost"
-                          size="sm"
-                          onPress={() => {}}
-                        />
+                        <Button label="Send to CLI" variant="ghost" size="sm" onPress={() => {}} />
                         <Button
                           label="Fullscreen"
                           variant="ghost"

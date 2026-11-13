@@ -12,9 +12,11 @@ const { registerNsModuleServerRoute } = await import(new URL('./hmr/server/webso
 const { createSharedTransformRequestRunner } = await import(
   new URL('./hmr/server/shared-transform-request.js', ns)
 )
+
 const { extractBootCrawlUrls, runBootGraphCrawl } = await import(
   new URL('./hmr/server/boot-graph-crawl.js', ns)
 )
+
 const { setProjectFlavor } = await import(new URL('./helpers/flavor.js', ns))
 
 setProjectFlavor('javascript')
@@ -30,6 +32,7 @@ it('transform queue runs higher priority work first', async () => {
       if (url === 'blocker') {
         await gate.promise
       }
+
       order.push(url)
       return { code: `export const v = 1` }
     },
@@ -40,6 +43,7 @@ it('transform queue runs higher priority work first', async () => {
   const blocker = runner('blocker')
   const warm = runner('warm', 120000, { priority: -10 })
   const device = runner('device')
+
   gate.resolve()
   await Promise.all([blocker, warm, device])
   assert.deepEqual(order, ['blocker', 'device', 'warm'])
@@ -57,6 +61,7 @@ it('extracts device-fetchable URLs from served code', () => {
      const d = "/__ns_dev__/session";
      const e = "wss://host/ns-hmr";`,
   )
+
   assert.ok(urls.has('/ns/m/src/a.ts'))
   assert.ok(urls.has('/ns/m/packages/ui/src/b.tsrx?import'))
   assert.ok(urls.has('/ns/core/ui/image'))
@@ -65,6 +70,7 @@ it('extracts device-fetchable URLs from served code', () => {
     !urls.has('/__ns_dev__/session'),
     'session descriptor is a boot signal, not warm-up traffic',
   )
+
   assert.ok(![...urls].some((u) => u.includes('ns-hmr')))
 })
 
@@ -73,6 +79,7 @@ it('extracts device-fetchable URLs from served code', () => {
 // the real /ns/m pipeline.
 it('crawl walks and pre-warms the served module closure', async (t) => {
   const root = mkdtempSync(join(tmpdir(), 'xplat-boot-crawl-'))
+
   mkdirSync(join(root, 'src'))
   writeFileSync(join(root, 'package.json'), '{"type":"module"}')
 
@@ -103,11 +110,14 @@ it('crawl walks and pre-warms the served module closure', async (t) => {
       },
     ],
   })
+
   t.after(async () => {
     await server.close()
     rmSync(root, { recursive: true, force: true })
   })
+
   await server.listen()
+
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`
 
   writeFileSync(join(root, 'src', 'entry.mjs'), `export { mid } from './mid.mjs'`)
@@ -119,6 +129,7 @@ it('crawl walks and pre-warms the served module closure', async (t) => {
     seeds: ['/ns/m/src/entry.mjs'],
     concurrency: 2,
   })
+
   assert.ok(visited.has('/ns/m/src/entry.mjs'))
   assert.ok(visited.has('/ns/m/src/mid'), 'crawl must follow served import specifiers')
   assert.ok(visited.has('/ns/m/src/leaf'), 'crawl must reach the graph tail')
@@ -126,6 +137,7 @@ it('crawl walks and pre-warms the served module closure', async (t) => {
   // A crawled module's response is now memoized: a second fetch returns the
   // same bytes immediately instead of re-running the pipeline.
   const first = await fetch(`${origin}/ns/m/src/leaf.mjs`)
+
   assert.equal(first.status, 200)
 })
 
@@ -145,6 +157,7 @@ it('crawl workers resume after device traffic goes quiet', async () => {
     inflight -= 1
     return { status: 200, text: async () => '' }
   }
+
   const crawl = runBootGraphCrawl({
     origin: 'http://fixture.invalid',
     seeds: paths,
@@ -154,14 +167,18 @@ it('crawl workers resume after device traffic goes quiet', async () => {
     isDeviceActive: () => deviceActive,
     fetchImpl,
   })
+
   await new Promise((resolve) => setTimeout(resolve, 60))
   assert.ok(maxInflight <= 1, 'excess workers must yield while device traffic is live')
   deviceActive = false
+
   const { visited } = await crawl
+
   assert.equal(
     visited.size,
     paths.length,
     'paused workers must finish the queue after traffic quiets',
   )
+
   assert.ok(maxInflight > 1, 'resumed workers must fetch in parallel again')
 })

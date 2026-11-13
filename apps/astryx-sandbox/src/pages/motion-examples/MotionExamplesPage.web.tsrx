@@ -85,11 +85,7 @@ function NavigationOverlaysCard() {
           footer={
             <LayoutFooter hasDivider padding={4}>
               <HStack gap={2}>
-                <Button
-                  label="Cancel"
-                  variant="secondary"
-                  onPress={() => setModalOpen(false)}
-                />
+                <Button label="Cancel" variant="secondary" onPress={() => setModalOpen(false)} />
                 <Button label="Confirm" variant="primary" onPress={() => setModalOpen(false)} />
               </HStack>
             </LayoutFooter>

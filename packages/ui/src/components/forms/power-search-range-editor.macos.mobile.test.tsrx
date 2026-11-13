@@ -24,7 +24,11 @@ vi.mock('./text-controls.macos.tsrx', () => ({
 
 vi.mock('../actions/controls.macos.tsrx', () => ({
   Button: (props: any) => (
-    <button text={props.label} onTap={props.onPress ?? props.pressAction} isEnabled={!props.isDisabled} />
+    <button
+      text={props.label}
+      onTap={props.onPress ?? props.pressAction}
+      isEnabled={!props.isDisabled}
+    />
   ),
 }))
 

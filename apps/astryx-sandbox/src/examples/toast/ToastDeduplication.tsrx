@@ -33,12 +33,7 @@ export function ToastDeduplication() @{
       />
       <HStack gap={3}>
         <Button label="Offline (ignore)" variant="secondary" size="sm" onPress={showOffline} />
-        <Button
-          label="Progress (overwrite)"
-          variant="secondary"
-          size="sm"
-          onPress={showProgress}
-        />
+        <Button label="Progress (overwrite)" variant="secondary" size="sm" onPress={showProgress} />
       </HStack>
     </VStack>
   )

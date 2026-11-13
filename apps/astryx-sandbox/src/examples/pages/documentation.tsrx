@@ -210,12 +210,7 @@ export function DocumentationTemplate() @{
                     products.
                   </Text>
                   <HStack>
-                    <Button
-                      label="Get started"
-                      variant="primary"
-                      size="lg"
-                      onPress={() => {}}
-                    />
+                    <Button label="Get started" variant="primary" size="lg" onPress={() => {}} />
                   </HStack>
                 </VStack>
               </StackItem>

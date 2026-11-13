@@ -675,9 +675,7 @@ function BillingPanel(props: { settings: SettingsState; update: UpdateSetting })
         title="Growth plan"
         description="8 seats · $24 per seat, billed monthly."
         icon="sandbox-credit-card"
-        control={
-          <Button label="Change plan" variant="secondary" size="sm" onPress={() => {}} />
-        }
+        control={<Button label="Change plan" variant="secondary" size="sm" onPress={() => {}} />}
       />
       <SettingsRow
         title="Seat usage"
@@ -965,9 +963,7 @@ function PrivacyPanel(props: { settings: SettingsState; update: UpdateSetting })
         title="Export your data"
         description="A download of everything we hold about you."
         icon="sandbox-arrow-down-tray"
-        control={
-          <Button label="Request export" variant="secondary" size="sm" onPress={() => {}} />
-        }
+        control={<Button label="Request export" variant="secondary" size="sm" onPress={() => {}} />}
       />
       <SettingsRow
         title="Delete your data"

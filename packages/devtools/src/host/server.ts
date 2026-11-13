@@ -36,7 +36,11 @@ export async function serveDevtools({ port = 0 }: { port?: number } = {}): Promi
   const panel = join(root, 'dist', 'panel')
 
   const server: Server = createServer((req, res) => {
-    const send = (status: number, body: string | Buffer, type = 'application/json; charset=utf-8') => {
+    const send = (
+      status: number,
+      body: string | Buffer,
+      type = 'application/json; charset=utf-8',
+    ) => {
       res.writeHead(status, { 'content-type': type, 'cache-control': 'no-store' })
       res.end(body)
     }

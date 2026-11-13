@@ -236,10 +236,7 @@ export function VideoExample() {
         style={{ width: 320, height: 180 }}
         onPlayingChange={setPlaying}
       />
-      <Button
-        label={playing ? 'Pause' : 'Play local clip'}
-        onPress={() => setPlaying(!playing)}
-      />
+      <Button label={playing ? 'Pause' : 'Play local clip'} onPress={() => setPlaying(!playing)} />
     </>
   )
 }

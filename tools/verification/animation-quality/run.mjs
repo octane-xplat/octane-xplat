@@ -249,6 +249,7 @@ for (const test of selected ? [selected] : tests) {
           bundle,
         ]),
       )
+
       pid = launched.result.process.processIdentifier
     }
 

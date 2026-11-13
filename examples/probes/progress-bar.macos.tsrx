@@ -33,10 +33,7 @@ export default function ProgressBarProbe() {
         label="Advance known progress"
         onPress={() => setValue((current) => (current + 25) % 125)}
       />
-      <Button
-        label="Toggle inactive state"
-        onPress={() => setDisabled((current) => !current)}
-      />
+      <Button label="Toggle inactive state" onPress={() => setDisabled((current) => !current)} />
       <Button label="Toggle style form" onPress={() => setCSS((current) => !current)} />
       <Text>
         Change the app theme and inspect known/unknown mode, style width and accessibility

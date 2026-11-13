@@ -34,18 +34,13 @@ export default function ToolbarProbe() {
             {shown ? <Button label="Share" onPress={() => setResult('share')} /> : null}
             <Toolbar
               label="Nested actions"
-              startContent={
-                <Button label="Nested action" onPress={() => setResult('nested')} />
-              }
+              startContent={<Button label="Nested action" onPress={() => setResult('nested')} />}
             />
           </VStack>
         }
       />
       <Button label="Change toolbar label" onPress={() => setNamed((value) => !value)} />
-      <Button
-        label="Change toolbar orientation"
-        onPress={() => setVertical((value) => !value)}
-      />
+      <Button label="Change toolbar orientation" onPress={() => setVertical((value) => !value)} />
       <Button label="Toggle Save disablement" onPress={() => setDisabled((value) => !value)} />
       <Button label="Remove or restore Share" onPress={() => setShown((value) => !value)} />
       <Text>{result}</Text>

@@ -14,10 +14,7 @@ export default {
     get SPMPackages() {
       const path = execFileSync(
         node.execPath,
-        [
-          resolve(__dirname, 'scripts/prepare-ios.mjs'),
-          resolve(__dirname, '.xplat/pulsar-ios'),
-        ],
+        [resolve(__dirname, 'scripts/prepare-ios.mjs'), resolve(__dirname, '.xplat/pulsar-ios')],
         { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] },
       ).trim()
 

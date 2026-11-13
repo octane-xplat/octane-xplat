@@ -17,6 +17,7 @@ export async function verifyNativeConfig(pluginRoot, { offline = false } = {}) {
     isRelativePath: (path) => !isAbsolute(path),
     readText: (path) => readFileSync(path, 'utf8'),
   }
+
   const configService = new ProjectConfigService(fs, { trace() {} }, {}, {})
   const config = configService.readConfig(pluginRoot)
   const cache = join(pluginRoot, '.xplat/pulsar-ios')
@@ -29,6 +30,7 @@ export async function verifyNativeConfig(pluginRoot, { offline = false } = {}) {
       new URL('./fixtures/AudioSimulator-1.4.0.swift', import.meta.url),
       'utf8',
     )
+
     const patched = silenceAudioSimulator(upstream)
 
     mkdirSync(join(cache, 'Sources/Pulsar/Audio'), { recursive: true })
@@ -44,7 +46,11 @@ export async function verifyNativeConfig(pluginRoot, { offline = false } = {}) {
   }
 
   let packages
-  const platformData = { platformNameLowerCase: 'ios', projectRoot: join(pluginRoot, 'unused-project') }
+  const platformData = {
+    platformNameLowerCase: 'ios',
+    projectRoot: join(pluginRoot, 'unused-project'),
+  }
+
   const projectData = { projectDir: join(pluginRoot, 'unused-app') }
   const plugin = { name: '@octane-xplat/haptics', fullPath: pluginRoot }
 

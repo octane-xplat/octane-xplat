@@ -286,14 +286,8 @@ function GeometryReader() {
       <Button label="Toggle short/long content" onPress={() => setTall(!tall)} />
       <Button label="Toggle reserved header" onPress={() => setReserved(!reserved)} />
       <Button label="Toggle local top inset trial" onPress={() => controls.current?.inset()} />
-      <Button
-        label="Toggle allowed elasticity"
-        onPress={() => controls.current?.elasticity()}
-      />
-      <Button
-        label="Clear trace (maximum 256 rows)"
-        onPress={() => controls.current?.clear()}
-      />
+      <Button label="Toggle allowed elasticity" onPress={() => controls.current?.elasticity()} />
+      <Button label="Clear trace (maximum 256 rows)" onPress={() => controls.current?.clear()} />
     </VStack>
   )
 }

@@ -89,10 +89,7 @@ export default function MenuKeyboardProbe() {
         label="Toggle controlled menu visibility"
         onPress={() => setOpen((value) => !value)}
       />
-      <Button
-        label="Toggle dropdown disablement"
-        onPress={() => setDisabled((value) => !value)}
-      />
+      <Button label="Toggle dropdown disablement" onPress={() => setDisabled((value) => !value)} />
       <Button
         label="Toggle dropdown trigger loading"
         onPress={() => setLoading((value) => !value)}

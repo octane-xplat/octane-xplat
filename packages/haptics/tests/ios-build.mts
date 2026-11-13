@@ -36,6 +36,7 @@ if (!process.argv.includes('--reserved')) {
   mkdirSync(scratch, { recursive: true })
 
   const work = mkdtempSync(join(scratch, 'build-'))
+
   try {
     const packageRoot = fileURLToPath(new URL('..', import.meta.url))
     const pack = join(work, 'pack')
@@ -47,9 +48,11 @@ if (!process.argv.includes('--reserved')) {
       cwd: packageRoot,
       stdio: 'inherit',
     })
+
     const archive = readdirSync(pack).find((name) => name.endsWith('.tgz'))
 
     execFileSync('tar', ['-xzf', join(pack, archive), '-C', extracted])
+
     const installed = join(extracted, 'package')
     const pulsar = await verifyNativeConfig(installed)
     const swiftFiles = (directory) =>

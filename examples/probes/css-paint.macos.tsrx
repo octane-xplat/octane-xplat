@@ -57,10 +57,7 @@ export default function CssPaintProbe() {
         <label text="paint sample" />
       </masonview>
       <Button label="Next background" onPress={() => setBg((bg + 1) % backgrounds.length)} />
-      <Button
-        label="Next outline"
-        onPress={() => setOutline((outline + 1) % outlines.length)}
-      />
+      <Button label="Next outline" onPress={() => setOutline((outline + 1) % outlines.length)} />
       <Button label="Next shadow" onPress={() => setShadow((shadow + 1) % shadows.length)} />
       <Text>{`bg ${backgrounds[bg]} | outline ${outlines[outline]} | shadow ${shadows[shadow]}`}</Text>
     </VStack>

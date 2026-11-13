@@ -53,14 +53,8 @@ export default function NumberInputProbe() {
       <Button label="Enable field" onPress={() => setBlocked('enabled')} />
       <Button label="Disable field" onPress={() => setBlocked('disabled')} />
       <Button label="Make field read-only" onPress={() => setBlocked('readonly')} />
-      <Button
-        label="Toggle numeric bounds and step"
-        onPress={() => setTight((next) => !next)}
-      />
-      <Button
-        label="Remove or remount numeric field"
-        onPress={() => setShown((next) => !next)}
-      />
+      <Button label="Toggle numeric bounds and step" onPress={() => setTight((next) => !next)} />
+      <Button label="Remove or remount numeric field" onPress={() => setShown((next) => !next)} />
       <Button
         id="toggle-steppers"
         label="Toggle number steppers"

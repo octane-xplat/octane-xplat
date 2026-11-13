@@ -77,10 +77,7 @@ export default function OutlineSnapshotProbe() {
         onPress={() => setControlled((value) => !value)}
       />
       <Button label="Toggle click scrolling" onPress={() => setSeek((value) => !value)} />
-      <Button
-        label="Toggle header offset"
-        onPress={() => setOffset((value) => (value ? 0 : 24))}
-      />
+      <Button label="Toggle header offset" onPress={() => setOffset((value) => (value ? 0 : 24))} />
       <Text>{events.join('; ') || 'No navigation requested'}</Text>
       <Text>
         Manual native qualification only. Verify discovery, seek/header offset, user scroll spy,

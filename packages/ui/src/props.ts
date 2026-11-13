@@ -3226,7 +3226,6 @@ export interface DrawerProps {
   web?: Record<string, unknown>
 }
 
-
 /** Low-level layer — a dimmed, dismissible surface over the screen (`open`/`defaultOpen`/`onDismiss`, `shadeCover` for the tap-to-dismiss shade). `Dialog` is the complete modal path; use `Overlay` when building a custom modal surface.
  *
  * @example

@@ -11,6 +11,7 @@ async function fetchServers(): Promise<ListedDevtoolsServer[]> {
     const body = (await (await fetch('/devtools/servers')).json()) as {
       servers?: ListedDevtoolsServer[]
     }
+
     return Array.isArray(body.servers) ? body.servers : []
   } catch {
     return []
@@ -23,9 +24,13 @@ function Picker() {
 
   const refresh = async () => {
     const next = await fetchServers()
+
     setServers(next)
     setRecord((current) => {
-      if (current && next.some((server) => server.key === current.key)) return current
+      if (current && next.some((server) => server.key === current.key)) {
+        return current
+      }
+
       return next[0] ?? null
     })
   }
@@ -44,6 +49,7 @@ function Picker() {
           value={record?.key ?? ''}
           onChange={(event) => {
             const key = (event.target as HTMLSelectElement).value
+
             setRecord(servers.find((server) => server.key === key) ?? null)
           }}
         >
@@ -57,7 +63,11 @@ function Picker() {
             <option value="">No xplat dev servers found</option>
           )}
         </select>
-        <button className="dt-refresh" title="Rescan dev server records" onClick={() => void refresh()}>
+        <button
+          className="dt-refresh"
+          title="Rescan dev server records"
+          onClick={() => void refresh()}
+        >
           Refresh
         </button>
       </header>

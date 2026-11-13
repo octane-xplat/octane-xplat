@@ -1125,11 +1125,7 @@ function devActionsChannelRuntime(entry: ChannelEntry, state: RegistryState): Br
   }
 }
 
-function dispatchDevActionsChannel(
-  entry: ChannelEntry,
-  state: RegistryState,
-  data: unknown,
-) {
+function dispatchDevActionsChannel(entry: ChannelEntry, state: RegistryState, data: unknown) {
   if (typeof data !== 'object' || data === null) {
     return
   }
@@ -1142,6 +1138,7 @@ function dispatchDevActionsChannel(
         requestCancel(requestId)
       }
     }
+
     return
   }
 

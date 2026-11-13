@@ -1,4 +1,5 @@
 import '../assets.d.ts'
+
 /**
  * `@octane-xplat/jsx/dom` — the DOM JSX type surface.
  *

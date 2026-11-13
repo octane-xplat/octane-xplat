@@ -53,11 +53,7 @@ export function BottomSheetSwitcherReviewFlow() @{
               </Text>
             </VStack>
             <HStack gap={2} justify="end">
-              <Button
-                label="Back"
-                variant="secondary"
-                onPress={() => setActiveSheet('review')}
-              />
+              <Button label="Back" variant="secondary" onPress={() => setActiveSheet('review')} />
               <Button label="Save" onPress={() => setActiveSheet(null)} />
             </HStack>
           </VStack>

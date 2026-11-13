@@ -238,12 +238,7 @@ export function ContactFormTemplate() @{
 
           {/* Submit */}
           <VStack gap={3}>
-            <Button
-              label="Submit"
-              variant="primary"
-              size="lg"
-              onPress={() => setSubmitted(true)}
-            />
+            <Button label="Submit" variant="primary" size="lg" onPress={() => setSubmitted(true)} />
             <HStack gap={1} hAlign="center">
               <Text type="supporting" color="secondary">
                 By submitting you agree to our <Link href="#">Privacy Policy</Link>.

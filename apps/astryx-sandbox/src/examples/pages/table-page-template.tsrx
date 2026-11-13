@@ -556,11 +556,7 @@ export function TablePageTemplate() @{
                     <Text weight="semibold">Filtered view — these totals are partial</Text>
                     <Text color="secondary">{`Showing ${visible.length} of ${ROWS.length} lines. The subtotal, tax, and total due above cover only the lines currently visible.`}</Text>
                   </VStack>
-                  <Button
-                    label="Clear all filters"
-                    variant="secondary"
-                    onPress={clearEverything}
-                  />
+                  <Button label="Clear all filters" variant="secondary" onPress={clearEverything} />
                 </HStack>
               </Banner>
             )}

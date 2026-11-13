@@ -42,12 +42,7 @@ export function parseDevtoolsServerRecord(
     return null
   }
 
-  const {
-    appRoot,
-    endpoint,
-    instanceId,
-    devtoolsToken,
-  } = record as {
+  const { appRoot, endpoint, instanceId, devtoolsToken } = record as {
     appRoot?: unknown
     endpoint?: unknown
     instanceId?: unknown

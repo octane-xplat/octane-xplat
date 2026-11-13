@@ -25,7 +25,10 @@ function OverflowFixture(props: { className: string; childId: string; hostId: st
       corners={{ radius: 24, curve: 'squircle', smoothing: 0.6 }}
       style={{ width: 120, height: 120 }}
     >
-      <masonview id={props.childId} style={{ width: 200, height: 200, backgroundColor: '#334155' }} />
+      <masonview
+        id={props.childId}
+        style={{ width: 200, height: 200, backgroundColor: '#334155' }}
+      />
     </SmoothCorners>
   </rootlayout>
 }
@@ -40,6 +43,7 @@ async function mountCase(className: string, tag: string) {
   await waitUntil(() => (host?.getActualSize().width ?? 0) > 0, {
     message: 'SmoothCorners host was not laid out',
   })
+
   await nextRenderPass()
 
   return { host: host!, child: child! }
@@ -136,14 +140,20 @@ it('records how an unlayered visible rule contests the same authored classes (be
     ['plain', 'sc-204-plain'],
   ] as const) {
     const id = 'sc-204-conflict-' + tag
-    const { view } = await mountXplat(ConflictFixture, { className: 'fw-204-visible ' + className, id })
+    const { view } = await mountXplat(ConflictFixture, {
+      className: 'fw-204-visible ' + className,
+      id,
+    })
+
     const host = view.getViewById<NativeView>(id)!
 
     await waitUntil(() => host.isLoaded, { message: 'conflict host was not loaded' })
 
     const style = host.style as ClipStyle
 
-    console.log(`[probe204-conflict] fw-visible + ${tag} hidden → overflow=${style?.overflowX}/${style?.overflowY}`)
+    console.log(
+      `[probe204-conflict] fw-visible + ${tag} hidden → overflow=${style?.overflowX}/${style?.overflowY}`,
+    )
   }
 
   // Presence check only — the ordering itself is reported above.
@@ -165,7 +175,10 @@ it('an authored visible class leaves content unclipped', async () => {
   if (isIOS) {
     const layer = (host as any).ios?.layer
 
-    console.log(`[probe204] visible ios mask=${layer?.mask ? layer.mask.constructor?.name : 'none'}`)
+    console.log(
+      `[probe204] visible ios mask=${layer?.mask ? layer.mask.constructor?.name : 'none'}`,
+    )
+
     expect(layer?.mask, 'visible native layer.mask').toBeFalsy()
   }
 

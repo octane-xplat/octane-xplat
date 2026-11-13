@@ -59,10 +59,7 @@ export default function TextStylesProbe() {
       />
       <Button label="Toggle text size" onPress={() => setLarge((current) => !current)} />
       <Button label="Toggle declaration string" onPress={() => setCSS((current) => !current)} />
-      <Button
-        label="Remove or restore style"
-        onPress={() => setStyled((current) => !current)}
-      />
+      <Button label="Remove or restore style" onPress={() => setStyled((current) => !current)} />
       <Text>
         Manual style/composition/removal fixture. Inline press handlers are not wired on AppKit.
         Mounting does not qualify native glyphs, layout, heading levels or VoiceOver.

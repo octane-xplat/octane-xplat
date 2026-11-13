@@ -13,7 +13,11 @@ vi.mock('./layer-dismissal.tsrx', async (original) => ({
   useLayerDismissal: () => ({ depth: 0, shouldClose: () => true }),
 }))
 
-vi.mock('../actions/controls.macos.tsrx', () => import('../../../tests/lightbox-button-mock.macos.tsrx'))
+vi.mock(
+  '../actions/controls.macos.tsrx',
+  () => import('../../../tests/lightbox-button-mock.macos.tsrx'),
+)
+
 vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
 
 import { dispatchTestPan, dispatchTestDoublePress } from '../../../tests/interaction-host-mock.tsrx'

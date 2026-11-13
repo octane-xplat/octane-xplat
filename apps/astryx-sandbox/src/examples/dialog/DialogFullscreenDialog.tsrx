@@ -48,11 +48,7 @@ export function DialogFullscreenDialog() @{
             5 articles · Last updated Apr 2026
           </Text>
         </VStack>
-        <Button
-          label="Open documentation"
-          variant="secondary"
-          onPress={() => setIsOpen(true)}
-        />
+        <Button label="Open documentation" variant="secondary" onPress={() => setIsOpen(true)} />
       </VStack>
       <Dialog isOpen={isOpen} onOpenChange={setIsOpen} variant="fullscreen">
         <VStack>

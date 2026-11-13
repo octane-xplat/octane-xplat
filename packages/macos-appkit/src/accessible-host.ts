@@ -35,25 +35,29 @@ export function createAccessibleHost(deps: Dependencies) {
   // NativeClass bases are built lazily, and allocating a Mason subclass does
   // not install its base's action methods. Register these native entry points
   // eagerly, keeping semantic property getters on the existing push path.
-  const NativeActionHost: typeof NSView = NSView.extend({
-    accessibilityPerformPress(this: NSView) {
-      return AccessibleHostView.prototype.accessibilityPerformPress.call(this)
+  const NativeActionHost: typeof NSView = NSView.extend(
+    {
+      accessibilityPerformPress(this: NSView) {
+        return AccessibleHostView.prototype.accessibilityPerformPress.call(this)
+      },
+      accessibilityPerformIncrement(this: NSView) {
+        return AccessibleHostView.prototype.accessibilityPerformIncrement.call(this)
+      },
+      accessibilityPerformDecrement(this: NSView) {
+        return AccessibleHostView.prototype.accessibilityPerformDecrement.call(this)
+      },
     },
-    accessibilityPerformIncrement(this: NSView) {
-      return AccessibleHostView.prototype.accessibilityPerformIncrement.call(this)
+    {
+      exposedMethods: {
+        accessibilityPerformPress: { params: [], returns: interop.types.bool },
+        accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
+        accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
+      },
+      protocols: ['NSAccessibilityButton', 'NSAccessibilitySlider', 'NSAccessibilityStepper']
+        .map((name) => NSProtocolFromString(name))
+        .filter(Boolean),
     },
-    accessibilityPerformDecrement(this: NSView) {
-      return AccessibleHostView.prototype.accessibilityPerformDecrement.call(this)
-    },
-  }, {
-    exposedMethods: {
-      accessibilityPerformPress: { params: [], returns: interop.types.bool },
-      accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
-      accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
-    },
-    protocols: ['NSAccessibilityButton', 'NSAccessibilitySlider', 'NSAccessibilityStepper']
-      .map((name) => NSProtocolFromString(name)).filter(Boolean),
-  })
+  )
 
   /** Plain NSView host for interactive containers — tap/keyboard/AX actions
    *  dispatch through the shared actionId registry. Mason-backed containers

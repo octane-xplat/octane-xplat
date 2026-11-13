@@ -3,6 +3,7 @@ import {
   observeWindowsActionControl,
   windowsActivationSource,
 } from '../../gestures/input.windows'
+
 import type { ActivationEvent } from '../../gestures/types'
 import { Property, TextBase, View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
@@ -61,6 +62,7 @@ class WindowsActionControl extends View {
         }
       },
     )
+
     this.syncAccessibility()
   }
 
@@ -116,7 +118,9 @@ class WindowsActionControl extends View {
 
   disposeNativeView(): void {
     this.eventNative = undefined
+
     const dispose = this.disposeEvents
+
     this.disposeEvents = undefined
     try {
       dispose?.()

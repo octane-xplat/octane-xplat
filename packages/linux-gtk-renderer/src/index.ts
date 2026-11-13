@@ -5130,6 +5130,7 @@ export function createGtkContainer(
       const node = [...liveGtkContainers]
         .flatMap((root) => [...root.nodes.values()])
         .find((candidate) => candidate.view === view && !candidate.destroyed)
+
       return gtkGestureSurface(
         view,
         node ? () => hostViewOf(node.container, node.parent) : undefined,
@@ -5141,6 +5142,7 @@ export function createGtkContainer(
         callback()
         return false
       })
+
       return () => {
         if (source) {
           GLib.source_remove(source)
@@ -5155,14 +5157,17 @@ export function createGtkContainer(
       const node = [...liveGtkContainers]
         .flatMap((root) => [...root.nodes.values()])
         .find((candidate) => candidate.view === view && !candidate.destroyed)
+
       if (!node) {
         throw new Error('GTK semantic activation requires a live renderer host')
       }
+
       const wired = [
         connectEvent(node.container, node, view, 'tap', (event: { activationSource?: string }) =>
           notify(event.activationSource ?? gtkActivationSource(view)),
         ),
       ]
+
       try {
         wired.push(
           connectEvent(node.container, node, view, 'doubletaprelease', () => {
@@ -5174,22 +5179,27 @@ export function createGtkContainer(
           for (const connection of binding.connections) {
             connection.emitter.disconnect(connection.signalId)
           }
+
           for (const controller of binding.controllers) {
             view.remove_controller(controller)
           }
         }
+
         node.pressKeys?.set('tap', null)
         throw error
       }
+
       return () => {
         for (const binding of wired) {
           for (const connection of binding.connections) {
             connection.emitter.disconnect(connection.signalId)
           }
+
           for (const controller of binding.controllers) {
             view.remove_controller(controller)
           }
         }
+
         node.pressKeys?.set('tap', null)
       }
     },
@@ -5391,6 +5401,7 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
       Promise.resolve().then(callback)
     }
   }
+
   const container = createGtkContainer(host, { service: options.service === true })
   const root = createUniversalRoot(container, gtkDriver, {
     // GJS has no queueMicrotask — the universal runtime requires a

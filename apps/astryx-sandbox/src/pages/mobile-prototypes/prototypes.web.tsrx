@@ -2393,12 +2393,7 @@ function TooltipDemo() {
           <b>tap-to-toggle</b> so the hint stays reachable.
         </Note>
         <span ref={ref as any} style={{ alignSelf: 'flex-start', display: 'inline-flex' }}>
-          <IconButton
-            label="Sync now"
-            variant="secondary"
-            icon={<PlusIcon />}
-            onPress={toggle}
-          />
+          <IconButton label="Sync now" variant="secondary" icon={<PlusIcon />} onPress={toggle} />
         </span>
       </AppScreen>
       <AnchoredPopover open={open} onClose={() => setOpen(false)} anchorRect={rect} width={160}>

@@ -55,9 +55,7 @@ export default function PowerSearchScalarsProbe() {
     <VStack id="power-search-scalar-controls" gap={2}>
       <Button
         label="Edit title"
-        onPress={() =>
-          setFilter({ field: 'title', value: { type: 'string', value: 'Earthsea' } })
-        }
+        onPress={() => setFilter({ field: 'title', value: { type: 'string', value: 'Earthsea' } })}
       />
       <Button label="Edit year" onPress={() => setFilter({ field: 'year' })} />
       <Button label="Edit price" onPress={() => setFilter({ field: 'price' })} />

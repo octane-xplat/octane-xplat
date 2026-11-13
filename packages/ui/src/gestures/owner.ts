@@ -834,10 +834,13 @@ export function createGestureOwner(scheduler: GestureScheduler) {
               transaction(callback)
             }
           }
+
           if (scheduler.delay) {
             return scheduler.delay(fire, delay)
           }
+
           const id = setTimeout(fire, delay)
+
           return () => clearTimeout(id)
         },
         claim() {

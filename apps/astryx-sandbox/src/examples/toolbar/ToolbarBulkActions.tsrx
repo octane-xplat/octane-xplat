@@ -48,11 +48,7 @@ export function ToolbarBulkActions() @{
           </>
         }
         endContent={
-          <Button
-            label="Deselect all"
-            variant="ghost"
-            onPress={() => setSelectedKeys(new Set())}
-          />
+          <Button label="Deselect all" variant="ghost" onPress={() => setSelectedKeys(new Set())} />
         }
       />
     )}

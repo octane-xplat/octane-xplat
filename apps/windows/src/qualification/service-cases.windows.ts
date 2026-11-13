@@ -349,11 +349,13 @@ async function coreFsSyncSpec(): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = {}
   const describe = (error: unknown): string => {
     const e = error as Record<string, unknown> | null | undefined
-    const parts = [e?.name, e?.message, e?.hresult, e?.code, String(error)]
-      .filter((p) => p !== undefined && p !== null && p !== '' && p !== '[object Object]')
+    const parts = [e?.name, e?.message, e?.hresult, e?.code, String(error)].filter(
+      (p) => p !== undefined && p !== null && p !== '' && p !== '[object Object]',
+    )
 
     return parts.map(String).join(' | ') || String(error)
   }
+
   const attempt = async <T>(name: string, fn: () => T | Promise<T>): Promise<T | undefined> => {
     try {
       return await fn()
@@ -1728,6 +1730,7 @@ async function helloToPromiseSpec(record: Emit): Promise<Record<string, unknown>
   }
 
   step('check-availability')
+
   const availability = await NSWinRT.toPromise(verifier.CheckAvailabilityAsync())
 
   out.availability = availability

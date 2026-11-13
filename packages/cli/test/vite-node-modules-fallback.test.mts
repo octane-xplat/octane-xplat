@@ -387,14 +387,11 @@ describe('patched NativeScript Vite node_modules fallback', () => {
       workspaceRoot,
       'node_modules/.bun/@fixture+pkg@1.0.0/node_modules/@fixture/pkg/lib/index.mjs',
     )
+
     const hoistDir = join(workspaceRoot, 'node_modules/.bun/node_modules/@fixture')
 
     mkdirSync(hoistDir, { recursive: true })
-    symlinkSync(
-      '../../@fixture+pkg@1.0.0/node_modules/@fixture/pkg',
-      join(hoistDir, 'pkg'),
-      'dir',
-    )
+    symlinkSync('../../@fixture+pkg@1.0.0/node_modules/@fixture/pkg', join(hoistDir, 'pkg'), 'dir')
 
     const hoistFile = join(hoistDir, 'pkg/lib/index.mjs')
 

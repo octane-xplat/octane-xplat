@@ -70,6 +70,7 @@ function mountListenerHost(size: () => { width: number; height: number }) {
       callbacks.add(callback)
       listeners.set(event, callbacks)
     }
+
     instance.off = (event: string, callback: () => void) => listeners.get(event)?.delete(callback)
     return instance
   })
@@ -98,6 +99,7 @@ it('stays null while a bound host has not laid out, then publishes a real zero s
     size = { width: 140, height: 44 }
     emit('layoutChanged')
   })
+
   expect(values.at(-1)).toEqual({ x: 0, y: 0, width: 140, height: 44 })
   root.unmount()
 })

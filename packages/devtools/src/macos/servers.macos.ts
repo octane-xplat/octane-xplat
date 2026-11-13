@@ -10,10 +10,8 @@ import {
   NSHomeDirectory,
   NSString,
 } from '@octane-xplat/platform/macos'
-import {
-  parseDevtoolsServerRecord,
-  type ListedDevtoolsServer,
-} from '../record.ts'
+
+import { parseDevtoolsServerRecord, type ListedDevtoolsServer } from '../record.ts'
 
 export type { ListedDevtoolsServer } from '../record.ts'
 
@@ -27,36 +25,55 @@ function readEntries(): ListedDevtoolsServer[] {
   const dir = recordsDir()
   const manager = NSFileManager.defaultManager
   let names: { count: number; objectAtIndex(index: number): unknown } | undefined
+
   try {
     names = manager.contentsOfDirectoryAtPathError(dir, null)
   } catch {
     return []
   }
-  if (!names) return []
+
+  if (!names) {
+    return []
+  }
+
   const found: { server: ListedDevtoolsServer; written: number }[] = []
+
   for (let i = 0; i < names.count; i++) {
     const name = String(names.objectAtIndex(i))
     const file = `${dir}/${name}/server.json`
+
     try {
       const attrs = manager.attributesOfItemAtPathError(file, null)
-      if (!attrs) continue
+
+      if (!attrs) {
+        continue
+      }
+
       const text = NSString.stringWithContentsOfFileEncodingError(
         file,
         4, // NSUTF8StringEncoding
         null,
       )
+
       const server = parseDevtoolsServerRecord(name, String(text), (path) => path.startsWith('/'))
-      if (!server) continue
+
+      if (!server) {
+        continue
+      }
+
       const modified = attrs.objectForKey(NSFileModificationDate)
       const written =
-        modified && typeof (modified as { timeIntervalSince1970?: unknown }).timeIntervalSince1970 === 'number'
+        modified &&
+        typeof (modified as { timeIntervalSince1970?: unknown }).timeIntervalSince1970 === 'number'
           ? (modified as { timeIntervalSince1970: number }).timeIntervalSince1970
           : 0
+
       found.push({ server, written })
     } catch {
       continue
     }
   }
+
   return found.sort((a, b) => b.written - a.written).map(({ server }) => server)
 }
 
