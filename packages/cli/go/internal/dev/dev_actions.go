@@ -30,6 +30,8 @@ type devActionOutcome struct {
 	Result         json.RawMessage `json:"result,omitempty"`
 	Error          json.RawMessage `json:"error,omitempty"`
 	PartialEffects []string        `json:"partialEffects,omitempty"`
+	Handlers       json.RawMessage `json:"handlers,omitempty"`
+	Readiness      json.RawMessage `json:"readiness,omitempty"`
 	CompletedAt    string          `json:"completedAt"`
 }
 type devActionValidation func(context.Context, string, json.RawMessage, json.RawMessage, string) (json.RawMessage, devActionPolicy, *cli.Error)
@@ -372,7 +374,7 @@ func (service *devActions) run(parent context.Context, entry *devActionEntry, re
 		_ = json.Unmarshal(outcome.Error, &appError)
 		failures, truncated, total := boundedActionFailures(appError.Failures)
 		failures, stackResolution := service.resolveFailureStacks(parent, entry.peer, failures)
-		return nil, &operationOutcomeFailure{&cli.Error{Code: "execution_failure", Message: appError.Message, Context: map[string]any{"appCode": appError.Code, "failures": failures, "failuresTruncated": truncated, "failureCount": total, "partialEffects": outcome.PartialEffects, "requestId": entry.requestID, "stackResolution": stackResolution}}}
+		return nil, &operationOutcomeFailure{&cli.Error{Code: "execution_failure", Message: appError.Message, Context: map[string]any{"appCode": appError.Code, "handlers": outcome.Handlers, "readiness": outcome.Readiness, "failures": failures, "failuresTruncated": truncated, "failureCount": total, "partialEffects": outcome.PartialEffects, "requestId": entry.requestID, "stackResolution": stackResolution}}}
 	}
 	if outcome.Status == "succeeded" {
 		checked, _, failure := service.validate(parent, "output", entry.action, outcome.Result, entry.platform)

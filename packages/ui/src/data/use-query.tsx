@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'octane'
+import { useReadinessSource } from '@octane-xplat/platform/use-readiness-source.tsrx'
 import {
   canonicalQueryKey,
   type QueryClient,
   type QueryDefinition,
   type QueryKeyPart,
   type QueryReader,
+  type QueryState,
 } from './query-cache'
+
+const queryReadiness = (state: QueryState) => ({
+  pending: state.fetchStatus !== 'idle' || state.status === 'pending',
+  blocking: !state.hasData,
+  error: state.status === 'error' ? true : undefined,
+})
 
 /**
  * Observe shared data for this component's committed selection. Returns undefined
@@ -41,9 +49,14 @@ export function useQuery$<A extends QueryKeyPart, T>(
     return () => reader.dispose()
   }, [client, definition, identity])
 
-  return observation?.client === client &&
+  const reader =
+    observation?.client === client &&
     observation.definition === definition &&
     observation.identity === identity
-    ? observation.reader
-    : undefined
+      ? observation.reader
+      : undefined
+
+  useReadinessSource(reader?.state$, queryReadiness, 'Shared query')
+
+  return reader
 }

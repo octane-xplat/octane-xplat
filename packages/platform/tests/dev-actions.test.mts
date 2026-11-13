@@ -33,6 +33,7 @@ async function loadDevActions(globals = {}) {
 
   const modules = {
     './dev-actions-schema': await compile('dev-actions-schema'),
+    './readiness-state': await compile('readiness-state'),
     './dev-bridge': devBridgeSource,
   }
 
@@ -63,16 +64,28 @@ async function loadDevActions(globals = {}) {
   }
 
   sandbox.globalThis = sandbox
+
+  const loaded = new Map()
+
   sandbox.require = (spec) => {
+    if (loaded.has(spec)) {
+      return loaded.get(spec)
+    }
+
     if (spec === '@nativescript/core' && globals.os) {
       return { Device: { os: globals.os } }
     }
 
-    if (spec === './dev-actions-schema' || spec === './dev-bridge') {
-      const inner = { exports: {}, require: sandbox.require, console }
+    if (
+      spec === './dev-actions-schema' ||
+      spec === './dev-bridge' ||
+      spec === './readiness-state'
+    ) {
+      const inner = { ...sandbox, exports: {}, require: sandbox.require, console }
 
       inner.globalThis = sandbox
       vm.runInNewContext(modules[spec], inner)
+      loaded.set(spec, inner.exports)
       return inner.exports
     }
 
@@ -84,7 +97,7 @@ async function loadDevActions(globals = {}) {
     require: sandbox.require,
   })
 
-  return { exports: sandbox.exports, sandbox }
+  return { exports: sandbox.exports, sandbox, readiness: sandbox.require('./readiness-state') }
 }
 
 async function makeBridge(t) {
@@ -176,6 +189,22 @@ test('no endpoint means the bridge stays inert instead of pretending a channel',
 
   assert.equal(bridge.state, 'unavailable')
   assert.match(bridge.lastError, /no dev-bridge endpoint/i)
+})
+
+test('stopping a bridge safely drains a queued handler announcement', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+  const action = api.defineDevAction(declaration({ id: 'cleanup.queued' }))
+  const handle = api.startDevActionBridge()
+  const detach = api.attachDevActionHandler(action, () => ({}))
+
+  // Attachment queued an announcement; stop and dispose in the same turn.
+  handle.stop()
+  detach()
+  action.dispose()
+  await new Promise((resolve) => setImmediate(resolve))
+  assert.equal(handle.state, 'stopped')
+  assert.equal(api.listDevActions().length, 0)
 })
 
 test('the app announces its registry; mutations re-announce a new revision', async (t) => {
@@ -1756,4 +1785,212 @@ test('dev channels report unavailable on the HTTP polling fallback bridge', asyn
   t.after(() => channel.dispose())
   assert.deepEqual(states, ['unavailable'])
   assert.equal(channel.send('panels', {}), false)
+})
+
+test('scoped actions await work registered by the handler and report timeout blockers', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api, readiness } = await loadDevActions({
+    origin: bridge.origin,
+    token: bridge.token,
+  })
+
+  const scope = readiness.createReadinessScope('Checkout')
+  const action = api.defineDevAction(
+    declaration({ id: 'checkout.prepare', execution: { timeoutMs: 150 } }),
+  )
+
+  let release
+  const detach = api.attachDevActionHandler(
+    action,
+    () => {
+      release = scope.register({ label: 'Image decode', pending: true }).dispose
+      return {}
+    },
+    { label: 'Checkout', readiness: scope },
+  )
+
+  t.after(() => {
+    detach()
+    action.dispose()
+    scope.dispose()
+    api.startDevActionBridge().stop()
+  })
+
+  const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+  const outcome = await invokeRouteAction(bridge, instance, 'req_pending', action.id)
+
+  assert.equal(outcome.status, 'failed')
+  assert.equal(outcome.error.code, 'readiness_timeout')
+  assert.deepEqual(outcome.readiness[0].pending, [{ label: 'Image decode', blocking: true }])
+  assert.deepEqual(outcome.handlers, [{ handler: 0, label: 'Checkout', status: 'succeeded' }])
+  release()
+})
+
+test('scoped effects await released work and keep named participant failures', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api, readiness } = await loadDevActions({
+    origin: bridge.origin,
+    token: bridge.token,
+  })
+
+  const scope = readiness.createReadinessScope('Screen')
+  const effect = api.defineDevEffect(declaration({ id: 'screen.reset' }))
+  const detach = api.attachDevEffectHandler(
+    effect,
+    () => {
+      const release = scope.register({ label: 'Loading fixture', pending: true }).dispose
+
+      setTimeout(release, 60)
+      return {}
+    },
+    { label: 'Screen', readiness: scope },
+  )
+
+  t.after(() => {
+    detach()
+    effect.dispose()
+    scope.dispose()
+    api.startDevActionBridge().stop()
+  })
+
+  let instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+  const outcome = await invokeRouteAction(bridge, instance, 'req_settle', effect.id)
+
+  assert.equal(outcome.status, 'succeeded')
+  assert.deepEqual(outcome.readiness[0].pending, [])
+  assert.equal(outcome.handlers[0].label, 'Screen')
+
+  const stop = api.attachDevEffectHandler(
+    effect,
+    () => {
+      throw Error('fixture failure')
+    },
+    { label: 'FailedPanel' },
+  )
+
+  t.after(stop)
+  instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+
+  const failure = await invokeRouteAction(bridge, instance, 'req_scoped_failure', effect.id)
+
+  assert.equal(failure.status, 'failed')
+  assert.deepEqual(
+    failure.handlers.map((h) => [h.label, h.status]),
+    [
+      ['Screen', 'succeeded'],
+      ['FailedPanel', 'failed'],
+    ],
+  )
+})
+
+test('detaching a completed handler cancels its outstanding scoped readiness wait', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api, readiness } = await loadDevActions({
+    origin: bridge.origin,
+    token: bridge.token,
+  })
+
+  const scope = readiness.createReadinessScope('Owner')
+  const action = api.defineDevAction(
+    declaration({ id: 'owner.prepare', execution: { timeoutMs: 2000, cancellable: true } }),
+  )
+
+  const detach = api.attachDevActionHandler(
+    action,
+    () => {
+      scope.register({ label: 'Pending owner work', pending: true })
+      return {}
+    },
+    { label: 'Owner', readiness: scope },
+  )
+
+  t.after(() => {
+    detach()
+    action.dispose()
+    scope.dispose()
+    api.startDevActionBridge().stop()
+  })
+
+  const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+  const pending = invokeRouteAction(bridge, instance, 'req_detach_wait', action.id)
+
+  await until(() => scope.snapshot().pending.length)
+  detach()
+  assert.equal((await pending).status, 'cancelled')
+})
+
+test('a completed long handler retains a readiness budget from its remaining execution time', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api, readiness } = await loadDevActions({
+    origin: bridge.origin,
+    token: bridge.token,
+  })
+
+  const scope = readiness.createReadinessScope('Slow handler')
+  const action = api.defineDevAction(
+    declaration({ id: 'slow.prepare', execution: { timeoutMs: 400 } }),
+  )
+
+  const detach = api.attachDevActionHandler(
+    action,
+    async () => {
+      await sleep(230)
+      return {}
+    },
+    { readiness: scope },
+  )
+
+  t.after(() => {
+    detach()
+    action.dispose()
+    scope.dispose()
+    api.startDevActionBridge().stop()
+  })
+
+  const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+  const outcome = await invokeRouteAction(bridge, instance, 'req_slow_ready', action.id)
+
+  assert.equal(outcome.status, 'succeeded', JSON.stringify(outcome))
+})
+
+test('dev actions reject background failures promptly with safe diagnostics', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api, readiness } = await loadDevActions({
+    origin: bridge.origin,
+    token: bridge.token,
+  })
+
+  const scope = readiness.createReadinessScope('Feed')
+  const action = api.defineDevAction(declaration({ id: 'feed.assert' }))
+  const task = scope.register({
+    label: 'Background refresh',
+    pending: false,
+    error: Error('private'),
+    blocking: false,
+  })
+
+  const detach = api.attachDevActionHandler(action, () => ({}), { label: 'Feed', readiness: scope })
+
+  t.after(() => {
+    detach()
+    task.dispose()
+    action.dispose()
+    scope.dispose()
+    api.startDevActionBridge().stop()
+  })
+
+  assert.equal(scope.snapshot().status, 'ready')
+
+  const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+  const outcome = await invokeRouteAction(bridge, instance, 'req_background_failure', action.id)
+
+  assert.equal(outcome.status, 'failed')
+  assert.equal(outcome.error.code, 'readiness_failed')
+  assert.deepEqual(outcome.readiness[0].pending, [])
+  assert.deepEqual(outcome.readiness[0].failures, [
+    { label: 'Background refresh', blocking: false },
+  ])
+
+  assert.equal(outcome.handlers[0].status, 'succeeded')
+  assert.equal(JSON.stringify(outcome).includes('private'), false)
 })

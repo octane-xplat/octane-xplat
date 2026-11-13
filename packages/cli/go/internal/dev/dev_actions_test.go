@@ -120,12 +120,12 @@ func TestDevAppActionAdmissionDedupeAndConfirmedResult(t *testing.T) {
 	if invocation["requestId"] != accepted["requestId"] {
 		t.Fatal("wrong delivery identity")
 	}
-	outcome := devActionOutcome{RequestID: invocation["requestId"].(string), Status: "succeeded", Result: json.RawMessage(`{"value":7}`), CompletedAt: cli.IsoNow()}
+	outcome := devActionOutcome{RequestID: invocation["requestId"].(string), Status: "succeeded", Result: json.RawMessage(`{"value":7}`), Handlers: json.RawMessage(`[{"handler":0,"label":"Screen","status":"succeeded"}]`), Readiness: json.RawMessage(`[{"scope":"Screen","revision":2,"status":"ready","pending":[],"failures":[]}]`), CompletedAt: cli.IsoNow()}
 	if err := conn.Write(context.Background(), websocket.MessageText, mustJSON(map[string]any{"type": "outcome", "outcome": outcome})); err != nil {
 		t.Fatal(err)
 	}
 	terminal := actionTerminal(t, client, jobID)
-	if terminal.State != "succeeded" || !strings.Contains(string(terminal.Result), `"value":7`) {
+	if terminal.State != "succeeded" || !strings.Contains(string(terminal.Result), `"value":7`) || !strings.Contains(string(terminal.Result), `"label":"Screen"`) || !strings.Contains(string(terminal.Result), `"pending":[]`) {
 		t.Fatal("confirmed result lost", terminal.State)
 	}
 	duplicate, failure = callAction(t, client, instance, "once")
@@ -236,12 +236,12 @@ func TestDevAppActionLargeStacksKeepPartialEffectFacts(t *testing.T) {
 	for n := 0; n < 20; n++ {
 		failures = append(failures, map[string]any{"handler": n, "message": "fixture failure", "stack": strings.Repeat("s", 4096)})
 	}
-	outcome := devActionOutcome{RequestID: accepted["requestId"].(string), Status: "failed", Error: mustJSON(map[string]any{"code": "execution_failure", "message": "many handlers failed", "failures": failures}), PartialEffects: []string{"local effect already completed"}, CompletedAt: cli.IsoNow()}
+	outcome := devActionOutcome{RequestID: accepted["requestId"].(string), Status: "failed", Error: mustJSON(map[string]any{"code": "execution_failure", "message": "many handlers failed", "failures": failures}), PartialEffects: []string{"local effect already completed"}, Handlers: json.RawMessage(`[{"handler":0,"label":"Screen","status":"succeeded"}]`), Readiness: json.RawMessage(`[{"scope":"Screen","revision":2,"status":"pending","pending":[{"label":"Image","blocking":true}],"failures":[]}]`), CompletedAt: cli.IsoNow()}
 	if err := conn.Write(context.Background(), websocket.MessageText, mustJSON(map[string]any{"type": "outcome", "outcome": outcome})); err != nil {
 		t.Fatal(err)
 	}
 	job := actionTerminal(t, client, accepted["job"].(map[string]any)["jobId"].(string))
-	if job.State != "failed" || !strings.Contains(string(job.Error), "local effect already completed") || !strings.Contains(string(job.Error), `"failuresTruncated":true`) || len(job.Error) > 64<<10 {
+	if job.State != "failed" || !strings.Contains(string(job.Error), `"label":"Screen"`) || !strings.Contains(string(job.Error), `"pending":[{"label":"Image","blocking":true}]`) || !strings.Contains(string(job.Error), "local effect already completed") || !strings.Contains(string(job.Error), `"failuresTruncated":true`) || len(job.Error) > 64<<10 {
 		t.Fatal("large stacks erased partial-effect evidence", job.State, len(job.Error))
 	}
 }

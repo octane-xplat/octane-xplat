@@ -386,6 +386,7 @@ test(
     for (const name of [
       'dev-actions-registry.ts',
       'dev-actions-schema.ts',
+      'readiness-state.ts',
       'dev-bridge-socket.ts',
     ]) {
       put(f.app, name, readFileSync(join(root, 'packages/platform/src', name), 'utf8'))

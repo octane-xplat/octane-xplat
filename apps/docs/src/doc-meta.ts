@@ -34,6 +34,7 @@ export const GROUPS = [
       'command-palette',
       'power-search',
       'data',
+      'readiness',
       'styling',
       'liquid-glass',
       'localization',

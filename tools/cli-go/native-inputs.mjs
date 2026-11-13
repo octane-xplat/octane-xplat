@@ -40,6 +40,7 @@ export function nativeInputs(root) {
     'packages/cli/src/macos/vite.ts',
     'packages/cli/src/mcp/dev-bridge.ts',
     'packages/platform/src/dev-actions-registry.ts',
+    'packages/platform/src/readiness-state.ts',
     'packages/platform/src/dev-bridge-socket.ts',
     'packages/platform/src/dev-actions-schema.ts',
     ...['web', 'macos', 'linux'].map(

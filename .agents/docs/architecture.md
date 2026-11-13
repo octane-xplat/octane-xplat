@@ -70,3 +70,9 @@ carried on the package (#62).
    pass-through behavior, follow the criteria in `docs/start/architecture.md`.
 
 Drawer belongs to UI (#157): its mobile presentation uses UI’s common input owner and scalar animation, with no separate plugin or runtime dependency. Keep platform leaves inside UI; do not recreate a drawer package solely for platform-specific presentation.
+
+## Readiness observer ownership
+
+`ReadinessScope` and `useReadinessTask` report ordinary screen work in every build mode; the controller is renderer-free. Query adapters report `hasData` refreshes as nonblocking, terminal errors as failures, and paused requests as pending. Dev actions apply `includeBackground:true` after handlers; ordinary UI observes status without blocking rendering. See [readiness](../../docs/app/readiness.md).
+
+`useReadiness$` subscribes in a layout effect and unsubscribes on cleanup or when a notification encounters a retired signal reader. In Octane 0.16.3's compiled universal runtime, auto-owned `useSignal$` cells can retire before an ancestor's layout cleanup disposes its readiness owner and notifies listeners. The observer catches only `ScopeDisposedError` and unsubscribes that retired reader; other errors propagate. Explicit writable signal construction during render is rejected by the same runtime, so do not replace the owned signal hook with a render-time `createScope().signal$()` allocation. Preserve the compiled update, conditional-hook reentry and parent/child unmount regression; a web-only pass does not prove this cleanup order. This is an observed ownership constraint, not a native OS or frame qualification.

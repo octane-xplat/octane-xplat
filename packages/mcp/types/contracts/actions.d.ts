@@ -193,6 +193,20 @@ export interface DevActionOutcome {
   error?: { code: string; message: string; failures?: DevActionFailure[] }
   /** What the app knows changed before a failure/cancellation; absent = unknown. */
   partialEffects?: string[]
+  /** Dispatch-start handler outcomes, independent of scoped readiness. */
+  handlers?: {
+    handler: number
+    label?: string
+    status: 'not-run' | 'succeeded' | 'failed' | 'cancelled'
+  }[]
+  /** Registered work only; not a frame presentation receipt. */
+  readiness?: {
+    scope: string
+    revision: number
+    status: 'ready' | 'pending' | 'blocked'
+    pending: { label: string; blocking: boolean }[]
+    failures: { label: string; blocking: boolean }[]
+  }[]
   completedAt: string
 }
 

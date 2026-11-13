@@ -2,7 +2,7 @@
 
 ID: fetch-remote-data
 Targets: web, ios, android
-Related APIs: query$, signal$, derived$, skip, octane/signals, octane/signals/client, @try, @pending, @catch, useStore, refetch, retry, reset, snapshot, latest, optimistic$, action$, defineQuery, useQuery$, createQueryClient, QueryClient, invalidateQueries, evictQueries, dispose, platformQueryStorage, QueryStorageAdapter
+Related APIs: query$, signal$, derived$, skip, octane/signals, octane/signals/client, @try, @pending, @catch, useStore, refetch, retry, reset, snapshot, latest, optimistic$, action$, defineQuery, useQuery$, createQueryClient, QueryClient, invalidateQueries, evictQueries, dispose, platformQueryStorage, QueryStorageAdapter, ReadinessScope, useReadinessTask, useReadiness$
 
 ## Starting point
 
@@ -39,6 +39,8 @@ Rouzer route tree are outside this recipe's scope.
 - AC16: Shared cursor feeds deduplicate page requests, retain earlier rows on page failure, serialize refresh with page loading, bound retained pages, and restore coherent page parameters without replacing independent local collection stores.
 - AC17: Development inspection reports live state and bounded metadata events without query keys, selections, data, account scopes or error messages. CLI invocation binds the exact app instance and unsupported transports are explicit.
 
+- AC18: Shared query readers automatically report readiness inside an opted-in scope in production and development. Initial loads block, terminal failures stop counting as pending, and background refreshes with usable data keep ordinary UI ready. The reader can observe status and register custom work without controlling rendering or passing lifecycle handles through components.
+
 ## Documentation
 
 - AC1: [The shape](../../../docs/app/data.md#the-shape).
@@ -66,3 +68,5 @@ Rouzer route tree are outside this recipe's scope.
 - AC16: [Shared cursor feeds](../../../docs/app/data.md#shared-cursor-feeds), [pagination regressions](../../../packages/ui/src/data/query-cache.test.ts), [native reader fixture](../../../packages/ui/tests/query-cache.fixture.mobile.tsrx), and [maintained feed/detail workflow](../../../docs/app/data.md#try-the-shared-workflow).
 
 - AC17: [Inspecting a development cache](../../../docs/app/data.md#inspecting-a-development-cache) and [inspection regressions](../../../packages/ui/src/data/query-inspection.test.ts).
+
+- AC18: [Screen readiness](../../../docs/app/readiness.md), [query integration](../../../docs/app/data.md#observe-a-screens-readiness), [loading example](../../../examples/readiness/loading.tsrx), [recovery example](../../../examples/readiness/recovery.tsrx).

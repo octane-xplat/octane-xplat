@@ -159,7 +159,101 @@ if (import.meta.env.DEV) {
 }
 ```
 
+## Wait for a screen's registered work
+
+Use the framework's [readiness scope](../app/readiness.md) around a screen. It works in production too; keep only action declarations behind the development gate. Descendant action/effect hooks automatically bind their nearest scope. The [maintained example](../../examples/dev-actions/readiness.tsrx) combines ordinary loading UI with a preparation action.
+
+```tsx
+import { ReadinessScope } from '@octane-xplat/platform/readiness'
+import { Checkout } from './Checkout'
+
+export function CheckoutScreen() {
+  return <ReadinessScope label="Checkout"><Checkout /></ReadinessScope>
+}
+```
+
+Shared queries register automatically, and custom work uses `useReadinessTask`. A query refresh with existing data keeps ordinary UI ready. Dev actions apply the stricter `includeBackground: true` wait: all registered work must succeed, including background refreshes. Failed work rejects promptly with `readiness_failed`; it does not stay pending until timeout. Labels are static, and snapshots omit query keys, input values and raw errors.
+
+```tsx
+import { useReadinessTask } from '@octane-xplat/platform/readiness'
+import { useDevAction } from '@octane-xplat/platform/dev-actions'
+
+export function Preview(props: { loading: boolean; error?: unknown }) {
+  useReadinessTask({ label: 'Preparing preview', pending: props.loading, error: props.error })
+  if (import.meta.env.DEV) {
+    useDevAction({
+      id: 'preview.inspect', title: 'Inspect preview',
+      description: 'Confirm registered preview work succeeded.',
+      effects: { summary: 'Reads local preview state' },
+      execution: { timeoutMs: 5000, cancellable: true },
+      run() { return {} },
+    }, { label: 'Preview' })
+  }
+  return null
+}
+```
+
+Availability admits an invocation; readiness waits after its handler. The wait uses at most half the action's remaining declared time, capped at ten seconds, leaving time to report a confirmed outcome. Cancellation or owner disposal prevents success. Successful registered-work readiness does not certify foreground visibility, native frame presentation or unregistered work. A handler can succeed while the later readiness wait fails; inspect diagnostics before retrying.
+
+```json
+{
+  "status": "failed",
+  "handlers": [{ "handler": 0, "label": "Preview", "status": "succeeded" }],
+  "readiness": [{ "scope": "Preview", "revision": 3, "status": "blocked", "pending": [], "failures": [{ "label": "Preparing preview", "blocking": true }] }],
+  "error": { "code": "readiness_failed", "message": "readiness_failed: Preview" }
+}
+```
+
+Diagnostics and escape actions can set `waitForReadiness: false` to return while work remains pending or failed. Keep scopes close to each screen so unrelated retained screens do not block sibling actions.
+
+```tsx
+if (import.meta.env.DEV) {
+  useDevAction({
+    id: 'preview.diagnostics', title: 'Inspect preview state',
+    description: 'Read local state while preparation is pending or failed.',
+    effects: { summary: 'Reads local state' },
+    run() { return {} },
+  }, { label: 'Preview diagnostics', waitForReadiness: false })
+}
+```
+
+Module-owned handlers can attach a controller explicitly. The service owns its registration and disposes it and the handler when finished. Components get this binding through context automatically.
+
+```ts
+import { createReadinessScope } from '@octane-xplat/platform/readiness/controller'
+import { attachDevActionHandler, defineDevAction } from '@octane-xplat/platform/dev-actions'
+
+const scope = createReadinessScope('Fixture service')
+const task = scope.register({ label: 'Fixture setup', pending: true })
+const prepare = defineDevAction({
+  id: 'fixture.prepare', title: 'Prepare fixture',
+  description: 'Prepare local fixture state.',
+  effects: { summary: 'Updates fixture state', testData: true },
+})
+const detach = attachDevActionHandler(prepare, () => {
+  task.update({ label: 'Fixture setup', pending: false })
+  return {}
+}, { label: 'Fixture service', readiness: scope })
+// When the service ends:
+detach()
+task.dispose()
+prepare.dispose()
+scope.dispose()
+```
+
 ### When a handler fails
+
+Outcomes include `handlers`, the dispatch-start participants with owner labels and `succeeded`, `failed`, `cancelled`, or `not-run` status. Handler success describes its returned work; scoped readiness can still fail afterwards. Effect results remain `{ handlerCount }`. Handlers attached later do not join the in-flight broadcast; one failing handler fails the job while remaining handlers still run unless cancellation intervenes.
+
+```json
+{
+  "handlers": [
+    { "handler": 0, "label": "FilterPanel", "status": "succeeded" },
+    { "handler": 1, "label": "DraftPanel", "status": "failed" }
+  ],
+  "partialEffects": ["1 of 2 handlers completed"]
+}
+```
 
 A thrown handler fails the invocation, and the outcome carries one structured
 record per failed handler — its position in attach order, name, message, and
@@ -244,7 +338,15 @@ agent can invoke the action while it is unavailable; the dispatch still fails
 deadline — so a wrong route fails honestly instead of hanging. When
 `execution.timeoutMs` is set, route-declared actions spend at most half of it
 navigating and waiting for the handler, leaving the rest for the run itself.
-Automatic navigation does not navigate back afterwards.
+Automatic navigation does not navigate back afterwards. An already attached handler runs without navigation, including one on a retained offscreen screen. To require a foreground route, invoke `xplat.navigate` explicitly first, rediscover the registry revision, then invoke the target action. Scoped readiness does not change this navigation contract.
+
+```sh
+xplat actions invoke --action xplat.navigate --instance INSTANCE_ID --revision REVISION --input '{"url":"/checkout"}' --request-key checkout-route --json
+xplat actions list --json
+# Use the newly listed revision for the next invocation.
+xplat actions invoke --action form.save-draft --instance INSTANCE_ID --revision NEW_REVISION --input '{}' --request-key checkout-draft --json
+```
+
 
 The built-in `xplat.navigate` action covers the other direction — an agent
 navigating explicitly before calling an action that has no route. Generated
@@ -277,10 +379,7 @@ Actions that need navigation should be declared at module scope with
 
 ## Connect the running app
 
-Web is the qualified action transport, and Android was verified on one physical
-device through `xplat dev` — the dev server is reached via adb reverse. iOS and
-Windows dev servers share the bridge machinery but are not yet runtime-qualified;
-macOS AppKit and Linux need their own adapters and report unavailable.
+Web is a qualified action transport. The Go CLI's NativeScript project-Vite relay has registration and read-only invocation evidence on an API 35 ARM64 Android emulator and an iOS 27 arm64 simulator. Fixture mutation/readback, scoped registered-work waits and timeouts, owner-detach cancellation, unknown disconnect outcomes, and foreground cleanup are qualified on both designated native targets. AppKit has separate action-transport evidence; Windows and Linux app runtimes remain unqualified. None of these checks establishes native UI inspection, OS input, frame presentation, or screenshots.
 
 The web starter already includes `devBridge()` in its Vite plugins, and the
 `native` preset includes it for NativeScript. For an existing web config,
