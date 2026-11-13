@@ -11,6 +11,8 @@ import org.json.JSONObject;
 import org.nativescript.mason.masonkit.Mason;
 import org.nativescript.mason.masonkit.Node;
 import org.nativescript.mason.masonkit.Style;
+import org.nativescript.mason.masonkit.Point;
+import org.nativescript.mason.masonkit.LengthPercentage;
 import org.nativescript.mason.masonkit.View;
 import org.nativescript.mason.masonkit.enums.AlignItems;
 import org.nativescript.mason.masonkit.enums.Display;
@@ -37,6 +39,7 @@ public final class HomeScene {
     private final List<android.content.res.ColorStateList> defaultColors = new ArrayList<>();
     private final List<Float> defaultFontSizes = new ArrayList<>();
     private final List<String> defaultRadii = new ArrayList<>();
+    private final List<List<Point<LengthPercentage>>> defaultCorners = new ArrayList<>();
     private boolean defaultsRestored;
     private int additions, removals;
 
@@ -53,6 +56,9 @@ public final class HomeScene {
         return Color.argb(Math.round(Float.parseFloat(parts[3].trim()) * 255),
             Math.round(Float.parseFloat(parts[0].trim())), Math.round(Float.parseFloat(parts[1].trim())),
             Math.round(Float.parseFloat(parts[2].trim())));
+    }
+    private static Point<LengthPercentage> copyRadius(Point<LengthPercentage> point) {
+        return new Point<>(LengthPercentage.from(point.getX()), LengthPercentage.from(point.getY()));
     }
     public HomeScene(Context context, HomeArtifact.Artifact artifact, String theme) {
         this.artifact = artifact; this.theme = theme;
@@ -106,7 +112,13 @@ public final class HomeScene {
             Style style = mason.styleForView(view);
             // The live foreign-child adapter supplies this Text default.
             if (view instanceof StyleableTextView) style.setMinSizeWidth(0, (byte) 1);
+            // Ordinary raw Mason views start as Block; only authored/resolved
+            // display:flex selects Flex. The viewport is explicitly Flex.
+            if (view instanceof View) style.setDisplay(Display.Block);
             defaultRadii.add(style.getBorderRadius());
+            defaultCorners.add(java.util.Arrays.asList(copyRadius(style.getBorderTopLeftRadius()),
+                copyRadius(style.getBorderTopRightRadius()), copyRadius(style.getBorderBottomRightRadius()),
+                copyRadius(style.getBorderBottomLeftRadius())));
             StyleableTextView label = view instanceof StyleableTextView ? (StyleableTextView) view : null;
             defaultFonts.add(label == null ? null : label.getTypeface());
             defaultColors.add(label == null ? null : label.getTextColors());
@@ -170,7 +182,15 @@ public final class HomeScene {
         check(!defaultsRestored, "Home defaults restored twice"); defaultsRestored = true;
         for (int index = 0; index < views.size(); index++) {
             android.view.View view = views.get(index);
-            mason.styleForView(view).setBorderRadius(defaultRadii.get(index));
+            Style style = mason.styleForView(view);
+            style.setInBatch(true);
+            style.setBorderRadius(defaultRadii.get(index));
+            List<Point<LengthPercentage>> corners = defaultCorners.get(index);
+            style.setBorderTopLeftRadius(copyRadius(corners.get(0)));
+            style.setBorderTopRightRadius(copyRadius(corners.get(1)));
+            style.setBorderBottomRightRadius(copyRadius(corners.get(2)));
+            style.setBorderBottomLeftRadius(copyRadius(corners.get(3)));
+            style.setInBatch(false);
             if (view instanceof StyleableTextView) {
                 StyleableTextView text = (StyleableTextView) view;
                 text.setTypeface(defaultFonts.get(index));
@@ -198,20 +218,11 @@ public final class HomeScene {
             if (view instanceof StyleableTextView) check(((StyleableTextView) view).getText().toString().equals(row.text), "Home text changed");
         }
     }
-    public JSONArray snapshot() throws Exception {
-        JSONArray result = new JSONArray();
-        for (HomeArtifact.Node row : artifact.nodes) {
-            android.view.View view = views.get(row.index);
-            JSONObject item = new JSONObject().put("index", row.index).put("kind", row.kind)
-                .put("left", view.getLeft()).put("top", view.getTop()).put("width", view.getWidth()).put("height", view.getHeight())
-                .put("parent", row.parent).put("attached", view.isAttachedToWindow());
-            if (view instanceof StyleableTextView) {
-                StyleableTextView text = (StyleableTextView) view;
-                item.put("text", text.getText().toString()).put("fontPixels", text.getTextSize())
-                    .put("fontWeight", text.getTypeface().getWeight()).put("color", text.getCurrentTextColor());
-            }
-            result.put(item);
-        }
-        return result;
+    public JSONArray snapshot() throws Exception { return HomeComparison.snapshot(artifact, views); }
+    public JSONArray snapshotReference(View reference) throws Exception {
+        List<android.view.View> others = HomeComparison.collect(artifact, reference);
+        for (android.view.View other : others) for (android.view.View original : views)
+            check(other != original, "Ordinary reference reused an adopted native object");
+        return HomeComparison.snapshot(artifact, others);
     }
 }

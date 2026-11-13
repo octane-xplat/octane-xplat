@@ -5,6 +5,7 @@ import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import { createNativeScriptRoot, registerElement } from '@nativescript-community/octane'
 import { Home } from '../Home.tsrx'
+import { qualifyHomeParity } from './home-parity.js'
 import { matchPreparedVisualTree } from '../match-tree.mjs'
 import resolved from 'xplat-prerender:artifact'
 import sheets from 'xplat-prerender:styles'
@@ -12,7 +13,7 @@ import sheets from 'xplat-prerender:styles'
 const check = (value, message) => {
   if (!value) throw new Error(message)
 }
-registerElement('masonview', () => View)
+registerElement('masonview', View)
 let root, host
 org.octanexplat.prerenderandroid.HomeApplication.installBridge(
   new org.octanexplat.prerenderandroid.HomeBridge({
@@ -151,6 +152,12 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           }),
         )
         activity.markBridgeReady()
+        if (XPLAT_PRERENDER_HOME_PARITY)
+          qualifyHomeParity(activity, host, () => hookCalls).catch((error) => {
+            activity.recordHomeProof(
+              JSON.stringify({ phase: 'failed', error: String(error), stack: error?.stack }),
+            )
+          })
       } catch (error) {
         activity.recordHomeProof(
           JSON.stringify({ phase: 'failed', error: String(error), stack: error?.stack }),

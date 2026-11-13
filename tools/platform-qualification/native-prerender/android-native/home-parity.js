@@ -1,0 +1,124 @@
+import { Utils } from '@nativescript/core'
+import { View } from '@octane-xplat/nativescript-mason-core/view'
+import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { Home } from '../Home.tsrx'
+import resolved from 'xplat-prerender:artifact'
+
+const check = (value, message) => {
+  if (!value) throw new Error(message)
+}
+const settle = () => new Promise((done) => setTimeout(done, 50))
+function layout(host, width, height) {
+  host.measure(
+    Utils.layout.makeMeasureSpec(width, Utils.layout.EXACTLY),
+    Utils.layout.makeMeasureSpec(height, Utils.layout.EXACTLY),
+  )
+  host.layout(0, 0, width, height)
+}
+function compare(activity, phase, preRuntime = false) {
+  const adopted = JSON.parse(
+    String(preRuntime ? activity.snapshotPreRuntime() : activity.snapshotHome()),
+  )
+  const ordinary = JSON.parse(String(activity.snapshotReference()))
+  check(adopted.length === 19 && ordinary.length === 19, 'Home reference count differs')
+  const differences = []
+  adopted.forEach((row, index) => {
+    const reference = ordinary[index]
+    if (phase !== 'style removal')
+      check(
+        [row, reference].every(
+          (item) =>
+            item.attached &&
+            item.width > 0 &&
+            item.height > 0 &&
+            Number.isFinite(item.computedWidth) &&
+            Number.isFinite(item.computedHeight),
+        ),
+        'Home comparison lacks attached nonzero computed geometry at ' + index,
+      )
+    for (const key of new Set([...Object.keys(row), ...Object.keys(reference)])) {
+      const left = row[key],
+        right = reference[key]
+      const equal =
+        typeof left === 'number' && typeof right === 'number'
+          ? Number.isFinite(left) && Number.isFinite(right) && Math.abs(left - right) <= 0.0001
+          : left === right
+      if (!equal) differences.push({ index, key, adopted: left, ordinary: right })
+    }
+  })
+  check(
+    differences.length === 0,
+    'Home ' + phase + ' differs from ordinary reference: ' + JSON.stringify(differences),
+  )
+  return adopted.length
+}
+
+/** Fixed-screen measured/style comparison; neither images nor presentation. */
+export async function qualifyHomeParity(activity, host, factoryCalls) {
+  const ordinary = new View()
+  ordinary.width = '100%'
+  ordinary.height = '100%'
+  ordinary.style.display = 'flex'
+  ordinary.style.flexDirection = 'column'
+  const css = host.css,
+    className = host.className
+  ordinary.className = className
+  ordinary.css = css
+  ordinary._setupAsRootView(activity)
+  ordinary.callLoaded()
+  const reference = createNativeScriptRoot(ordinary)
+  const native = ordinary.nativeViewProtected
+  let attached = false
+  let initialCompared, preRuntimeCompared, removedCompared, restoredCompared
+  try {
+    const prepared = reference.prepare(Home, resolved.seed)
+    check(prepared.status === 'prepared', 'Ordinary reference preparation suspended')
+    prepared.commit()
+    activity.attachReference(native)
+    attached = true
+    await settle()
+    const width = activity.getViewport().getWidth(),
+      height = activity.getViewport().getHeight()
+    check(width > 0 && height > 0, 'Home comparison viewport is empty')
+    layout(host, width, height)
+    layout(ordinary, width, height)
+    preRuntimeCompared = compare(activity, 'pre-runtime', true)
+    initialCompared = compare(activity, 'initial')
+    host.css = ''
+    ordinary.css = ''
+    host.className = ''
+    ordinary.className = ''
+    await settle()
+    layout(host, width, height)
+    layout(ordinary, width, height)
+    removedCompared = compare(activity, 'style removal')
+    host.className = className
+    ordinary.className = className
+    host.css = css
+    ordinary.css = css
+    await settle()
+    layout(host, width, height)
+    layout(ordinary, width, height)
+    restoredCompared = compare(activity, 'style restoration')
+    check(factoryCalls() === 19, 'Ordinary reference consumed adoption factories')
+  } finally {
+    await reference.unmount()
+    ordinary.callUnloaded()
+    if (attached) activity.detachReference(native)
+    ordinary._tearDownUI(true)
+  }
+  activity.recordHomeProof(
+    JSON.stringify({
+      phase: 'parity',
+      referenceVisualNodes: 19,
+      ordinaryObjectsDistinct: true,
+      preRuntimeCompared,
+      initialCompared,
+      removedCompared,
+      restoredCompared,
+      referenceDisposed: true,
+      hookCalls: factoryCalls(),
+      presentationQualified: false,
+    }),
+  )
+}

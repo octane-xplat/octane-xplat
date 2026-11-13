@@ -44,6 +44,8 @@ if (
   throw new Error('Home mount control cannot combine with two-label wrapper modes')
 const homeAdopt = process.env.XPLAT_PRERENDER_ANDROID_HOME_ADOPT === '1'
 if (homeAdopt && !homeProducer) throw new Error('Home adoption requires an Android Home producer')
+const homeParity = process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'
+if (homeParity && !homeAdopt) throw new Error('Home parity requires Home adoption')
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
   : 'org.octanexplat.prerenderbootstrap.android'
@@ -154,7 +156,7 @@ for (const [name, destination] of [
     )
 }
 if (homeProducer)
-  for (const name of ['HomeArtifact.java', 'HomeScene.java'])
+  for (const name of ['HomeArtifact.java', 'HomeScene.java', 'HomeComparison.java'])
     snapshot(
       join(source, name),
       join(work, 'app/src/main/java/org/octanexplat/prerenderandroid', name),
@@ -293,6 +295,7 @@ if (homeProducer) {
   )
   home = {
     adopt: homeAdopt,
+    parity: homeParity,
     buildHash,
     producerBuildHash: producer.buildHash,
     producerArtifactHash: producer.artifactHash,

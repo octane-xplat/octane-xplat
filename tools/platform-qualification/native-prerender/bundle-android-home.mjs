@@ -34,6 +34,7 @@ const result = await Bun.build({
   target: 'browser',
   format: 'cjs',
   define: {
+    XPLAT_PRERENDER_HOME_PARITY: String(process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'),
     __ANDROID__: 'true',
     __IOS__: 'false',
     __APPLE__: 'false',

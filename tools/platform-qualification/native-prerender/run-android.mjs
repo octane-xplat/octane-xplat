@@ -193,7 +193,9 @@ try {
       check(!wrapperFailure, 'Wrapper control failed: ' + wrapperFailure?.error)
       if (
         build.home &&
-        events.some((event) => event.event === 'passed' && event.nativeHomeMountQualified)
+        events.some((event) => event.event === 'passed' && event.nativeHomeMountQualified) &&
+        (!build.home.parity ||
+          events.some((event) => event.event === 'home-proof' && event.phase === 'parity'))
       )
         break
       const request = events.find((event) => event.event === 'recreation-requested')
@@ -275,6 +277,24 @@ try {
           proof.applicationHandoff === false &&
           proof.styleParityQualified === false,
         'Actual Home Octane wrapper adoption proof missing',
+      )
+    }
+    if (build.home.parity) {
+      const proof = events.find(
+        (event) =>
+          event.event === 'home-proof' && event.phase === 'parity' && event.epoch === begin.epoch,
+      )
+      check(
+        proof &&
+          proof.referenceVisualNodes === 19 &&
+          proof.ordinaryObjectsDistinct &&
+          proof.preRuntimeCompared === 19 &&
+          proof.initialCompared === 19 &&
+          proof.removedCompared === 19 &&
+          proof.restoredCompared === 19 &&
+          proof.referenceDisposed &&
+          proof.hookCalls === 19,
+        'Independent Home reference/style-removal proof missing',
       )
     }
   } else {

@@ -9,6 +9,8 @@ import java.io.InputStream;
 
 public final class HomeActivity extends AppCompatActivity {
     private HomeScene scene;
+    private String nativeSnapshot;
+    private org.nativescript.mason.masonkit.View reference;
     private int epoch, frames, attempts;
     private boolean destroyed, warm, bridgeReady;
     private final Choreographer.FrameCallback gate = this::frame;
@@ -21,6 +23,25 @@ public final class HomeActivity extends AppCompatActivity {
     public void recordHomeProof(String encoded) {
         try { app().record(new JSONObject(encoded).put("event", "home-proof").put("epoch", epoch)); }
         catch (Exception error) { throw new RuntimeException(error); }
+    }
+    public void attachReference(org.nativescript.mason.masonkit.View value) {
+        check(reference == null && value != scene.viewport && value.getParent() == null, "Unexpected reference attachment");
+        reference = value; value.setVisibility(android.view.View.INVISIBLE);
+        scene.windowRoot.addView(value, new android.widget.FrameLayout.LayoutParams(-1, -1));
+    }
+    public String snapshotPreRuntime() { check(nativeSnapshot != null, "Pre-runtime snapshot missing"); return nativeSnapshot; }
+    public String snapshotHome() {
+        try { scene.verify(); return scene.snapshot().toString(); }
+        catch (Exception error) { throw new RuntimeException(error); }
+    }
+    public String snapshotReference() {
+        try { check(reference != null, "Reference missing"); return scene.snapshotReference(reference).toString(); }
+        catch (Exception error) { throw new RuntimeException(error); }
+    }
+    public void detachReference(org.nativescript.mason.masonkit.View value) {
+        check(reference == value && value.getParent() == scene.windowRoot, "Reference owner differs");
+        check(value.getChildCount() == 0 && value.getNode().getChildCount() == 0, "Reference unmount retains children");
+        scene.windowRoot.removeView(value); reference = null;
     }
     public int getViewCount() { return scene.count(); }
     private void check(boolean value, String reason) { if (!value) throw new IllegalStateException(reason); }
@@ -72,6 +93,7 @@ public final class HomeActivity extends AppCompatActivity {
     private void startRuntime() {
         if (destroyed) return;
         try {
+            nativeSnapshot = scene.snapshot().toString();
             record("engine-init-begin"); app().startRuntime(); record("engine-init-end");
             app().bind(this); check(bridgeReady, "Home JS verification missing"); scene.verify(); record("passed");
         } catch (Exception error) { record("failed"); throw new RuntimeException(error); }

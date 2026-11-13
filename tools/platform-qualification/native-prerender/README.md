@@ -366,6 +366,19 @@ Use the same device command with the printed adoption build directory. The live 
 
 The native helper restores font, color, radius and canonical Label text defaults synchronously before commit initializes the live wrappers. This bounded journal is not full CSS/default-removal or font/layout parity qualification. The mode does not hand Home to Core Application/NativeWindow, test OS input, force Activity recreation, establish native deallocation, prove compositor presentation or measure release startup. The candidate driver and instance adapters remain private qualification seams; the production renderer, Core and Mason SDK sources are unchanged.
 
+### Android independent Home style and layout comparison
+
+Add the parity flag to the Home adoption inputs, rebuild, then run the printed build with the same reserved device command:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_HOME_PARITY=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build Android Home reference comparison"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
+```
+
+The live entry creates an ordinary sibling Home without adoption factories. Its fresh native objects are attached but hidden for measurement. Native observations compare all19 records against the frozen pre-JS snapshot and the adopted tree, then compare both live trees after stylesheet/root-class removal and restoration. Initial/restored comparisons require attached, nonzero geometry and finite computed layout. Fields include native/computed boxes, supported layout and paint values, eight actual corner-radius values, and Label fonts, color, line limits, padding, spacing and overflow. The comparison reads corner values rather than the shorthand getter, which only remembers the last assigned string.
+
+Native observations also require native/Mason child order and distinct ordinary objects. The reference must unmount to an empty native/Mason root and detach before its wrapper tears down; creating it must not consume adoption claims. Raw Mason containers retain the ordinary Block default when no display is specified; resolved display:flex selects Flex. The baseline journal restores actual corner values as well as the recorded shorthand and font/text defaults. This mode checks the selected portrait/theme/fontScale1 environment and supported fields; it does not prove all CSS, resize/theme matrices, window handoff, native deallocation, pixels, compositor presentation or release performance.
+
 ### Android Label wrapper ownership control
 
 Set `XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS=1` before the Android build command above to replace direct Java widget mutation with real Core9.1.3 `Label` wrappers. The build bundles actual Core globals/Label and their dependencies with Android resolution, snapshots every bundled JS input, and fingerprints the resulting APK. Bun1.4.4 is required for this optional bundle step. Use the same separate device command with its printed build directory.
