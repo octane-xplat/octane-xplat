@@ -75,7 +75,10 @@ try {
       throw new Error('Probe port already has an adb reverse mapping')
     }
   } else if (!physical) {
-    const jobs = await sim(['spawn', device, 'launchctl', 'list'])
+    // A freshly booted simulator can emit its job table before launchctl
+    // exits. Allow its startup work to settle instead of killing the command
+    // at the ordinary 30-second helper timeout and losing the probe run.
+    const jobs = await sim(['spawn', device, 'launchctl', 'list'], { timeout: 120000 })
 
     if (jobs.stdout.split('\n').some((line) => line.includes(appId) && /^\d+\s/.test(line))) {
       throw new Error('Probe app is already running; refusing to replace another session')
@@ -215,6 +218,7 @@ try {
   } else {
     const installed = await sim(['get_app_container', device, appId, 'data'], {
       allowFailure: true,
+      timeout: 120000,
     })
 
     if (installed.code) {
