@@ -406,9 +406,28 @@ The live entry creates an ordinary sibling Home without adoption factories. Its 
 
 Native observations also require native/Mason child order and distinct ordinary objects. The reference must unmount to an empty native/Mason root and detach before its wrapper tears down; creating it must not consume adoption claims. Raw Mason containers retain the ordinary Block default when no display is specified; resolved display:flex selects Flex. The baseline journal restores actual corner values as well as the recorded shorthand and font/text defaults. This mode checks the selected portrait/theme/fontScale1 environment and supported fields; it does not prove all CSS, resize/theme matrices, window handoff, native deallocation, pixels, compositor presentation or release performance.
 
+### Android stale root-inset control
+
+Build Home parity with the explicit stale-root-input flag to reproduce attachment-time view insets that omit the camera cutout. Before runtime initialization the controlled root input reports a24dp status bar and no cutout; real window metrics remain unchanged. The input returns to normal when the runtime starts. The runner additionally requires the fault to have been exercised and the cold geometry to use the complete window-metrics safe area. Existing cold/live/reference, style and input criteria remain unchanged.
+
+```sh
+export XPLAT_PRERENDER_ANDROID_STALE_ROOT_INSETS=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build stale root-inset control"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
+```
+
+This flag requires Home parity and cannot be used in the matched startup timing mode. Qualification receipts retain root/platform/window-metrics insets, configuration and parent geometry; the timing mode omits that additional collection. A controlled failure is separate from reproducing an intermittent OS delivery sequence. Reports/Silo retain the actual target and verification state.
+
+The runner accepts an explicit ARM64 Android35+ phone for Home parity as well as the matched startup control. Reserve that physical device, provide its serial, and use the printed build directory. It never shuts down the phone and resets only the disposable fixture app.
+
+```sh
+export XPLAT_PRERENDER_ANDROID_BUILD=/absolute/path/printed/by/the/build
+export XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL=YOUR_DEVICE_SERIAL
+goddard-agent resource run --json '{"resources":{"exclusive":["device:YOUR_DEVICE_SERIAL"]},"purpose":"Run Android Home parity on phone"}' -- bun turbo run probe:prerender:android --filter=@xplat/platform-qualification
+```
+
 ### Android Home Activity comparison leases
 
-The native viewport uses Core's native edge-to-edge helper before JS starts. Before drawing, it intersects the content parent's screen bounds with system-bar/cutout-safe window bounds and applies only the missing padding. A parent already inset by Android needs no extra padding. The layout gate requires a child draw traversal, window focus and three stable viewport observations; these are not compositor-presentation evidence. The fixed-environment parity check also requires the cold and accepted live viewport to have equal screen coordinates and dimensions. Manual JS probe layout preserves each native root's current left/top; forcing its origin to zero would discard padding on a full-window parent even while child-local parity passed. Mason wraps its view context, so the viewport retains the actual constructor Activity for window metrics rather than casting `getContext()`.
+The native viewport uses Core's native edge-to-edge helper before JS starts. Before drawing, it intersects the content parent's screen bounds with system-bar/cutout-safe window bounds and applies only the missing padding. On API30+, bounds and insets come from the same `WindowMetrics` snapshot; readiness also checks that current metrics still agree with applied padding. A view-level root-inset snapshot can lag behind attachment and omit a cutout already present in window metrics. A parent already inset by Android needs no extra padding. The layout gate requires a child draw traversal, window focus and three stable viewport observations; these are not compositor-presentation evidence. The fixed-environment parity check also requires the cold and accepted live viewport to have equal screen coordinates and dimensions. Manual JS probe layout preserves each native root's current left/top; forcing its origin to zero would discard padding on a full-window parent even while child-local parity passed. Mason wraps its view context, so the viewport retains the actual constructor Activity for window metrics rather than casting `getContext()`.
 
 The Home runner accepts only a complete, live latest Activity generation. A retired reference comparison cancels through an explicit lease error, cleans up its own hidden reference, and emits a cancellation receipt; other errors still fail. Warm Activities first complete native layout before JS binds. The process retains only the cold pre-runtime observation data, so a new generation can compare its own native baseline and live tree with both an ordinary Home and the original cold output. This does not preserve Octane component state across recreation: these controls create new logical owners per generation.
 

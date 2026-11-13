@@ -73,8 +73,10 @@ const physicalSerial = process.env.XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL
 const physical = physicalSerial !== undefined
 check(
   !physical ||
-    (physicalSerial.length > 0 && !physicalSerial.startsWith('emulator-') && build.home?.startup),
-  'An explicit physical serial requires the matched Home startup fixture',
+    (physicalSerial.length > 0 &&
+      !physicalSerial.startsWith('emulator-') &&
+      (build.home?.startup || build.home?.parity)),
+  'An explicit physical serial requires a Home startup or parity fixture',
 )
 const serial = physical ? physicalSerial : 'emulator-5566'
 const avd = 'elegant-fir-probe'
@@ -800,6 +802,24 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
       }
     }
     if (build.home.parity) {
+      if (build.home.staleRootInsets) {
+        const input = native.viewportInputs
+        check(
+          input?.staleRootInsetsInjected === true &&
+            input.rootInsets.available === true &&
+            input.rootInsets.hasCutout === false &&
+            input.metricsInsets.cutoutTop > input.rootInsets.barsTop,
+          'Stale root-inset control did not exercise a missing cutout',
+        )
+        const bars = input.metricsInsets
+        const top = Math.max(bars.barsTop, bars.cutoutTop)
+        const bottom = Math.max(bars.barsBottom, bars.cutoutBottom)
+        check(
+          native.height === input.windowHeight - top - bottom &&
+            input.parentPaddingTop === Math.max(0, input.windowTop + top - input.parentScreenTop),
+          'Native startup did not use the complete window-metrics safe area',
+        )
+      }
       check(
         currentPass.screenLeft === native.screenLeft &&
           currentPass.screenTop === native.screenTop &&
@@ -1395,7 +1415,7 @@ try {
     )
     check(
       Number.isInteger(api) && api >= 35,
-      'Physical startup qualification requires Android35 or newer',
+      'Physical Home qualification requires Android35 or newer',
     )
   } else {
     const identity = (await device(['emu', 'avd', 'name'])).output

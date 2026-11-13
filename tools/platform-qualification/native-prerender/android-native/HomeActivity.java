@@ -169,6 +169,7 @@ public class HomeActivity extends AppCompatActivity {
     }
     public boolean isAlive() { return !destroyed; }
     public String snapshotPreRuntime() { return app().coldSnapshot(); }
+    public String snapshotViewport() { return scene.viewport.snapshotViewport(); }
     public String snapshotBeforeBinding() { check(nativeSnapshot != null, "Native baseline missing"); return nativeSnapshot; }
     private void freezeNativeSnapshot() {
         try { nativeSnapshot = scene.snapshot().toString(); }
@@ -262,6 +263,7 @@ public class HomeActivity extends AppCompatActivity {
                 .put("draws", scene.viewport.getDraws()).put("windowFocused", scene.viewport.hasWindowFocus());
                 row.put("firstCommittedFrameNanos", scene.viewport.getFirstCommittedFrameNanos());
                 row.put("drawnSafeBounds", scene.viewport.hasDrawnSafeBounds());
+                if (!HomeBuild.STARTUP) row.put("viewportInputs", new JSONObject(scene.viewport.snapshotViewport()));
                 if (scene.viewport.getParent() instanceof android.view.View) {
                     android.view.View parent = (android.view.View) scene.viewport.getParent();
                     int[] location = new int[2]; scene.viewport.getLocationOnScreen(location);

@@ -17,6 +17,7 @@ public final class HomeViewport extends View {
     private android.view.ViewTreeObserver observedTree;
     private final android.view.ViewTreeObserver.OnPreDrawListener safeArea = this::fitSafeArea;
     private final android.graphics.Rect safe = new android.graphics.Rect();
+    private final android.graphics.Rect safePadding = new android.graphics.Rect();
     private final int[] parentLocation = new int[2];
     private final Activity activity;
     public HomeViewport(Activity activity, Mason mason) {
@@ -54,22 +55,13 @@ public final class HomeViewport extends View {
         if (!(getParent() instanceof android.view.ViewGroup)) return true;
         android.view.ViewGroup parent = (android.view.ViewGroup) getParent();
         if (parent.getId() != android.R.id.content || parent.getWidth() <= 0 || parent.getHeight() <= 0) return true;
-        if (android.os.Build.VERSION.SDK_INT >= 30) {
-            android.view.WindowInsets insets = getRootWindowInsets();
-            if (insets == null) { requestApplyInsets(); return false; }
-            android.graphics.Insets bars = insets.getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout());
-            safe.set(activity.getWindowManager().getCurrentWindowMetrics().getBounds());
-            safe.inset(bars.left, bars.top, bars.right, bars.bottom);
-        } else getWindowVisibleDisplayFrame(safe);
-        parent.getLocationOnScreen(parentLocation);
-        int left = Math.max(0, safe.left - parentLocation[0]);
-        int top = Math.max(0, safe.top - parentLocation[1]);
-        int right = Math.max(0, parentLocation[0] + parent.getWidth() - safe.right);
-        int bottom = Math.max(0, parentLocation[1] + parent.getHeight() - safe.bottom);
-        if (parent.getPaddingLeft() != left || parent.getPaddingTop() != top || parent.getPaddingRight() != right || parent.getPaddingBottom() != bottom) {
-            parent.setPadding(left, top, right, bottom); return false;
+        readSafePadding(parent);
+        if (!hasCurrentPadding(parent)) {
+            parent.setPadding(safePadding.left, safePadding.top, safePadding.right, safePadding.bottom); return false;
         }
-        if (getLeft() != left || getTop() != top || getWidth() != parent.getWidth() - left - right || getHeight() != parent.getHeight() - top - bottom) {
+        if (getLeft() != safePadding.left || getTop() != safePadding.top ||
+            getWidth() != parent.getWidth() - safePadding.left - safePadding.right ||
+            getHeight() != parent.getHeight() - safePadding.top - safePadding.bottom) {
             parent.requestLayout(); return false;
         }
         if (!commitRequested && android.os.Build.VERSION.SDK_INT >= 29 && isHardwareAccelerated()) {
@@ -77,6 +69,25 @@ public final class HomeViewport extends View {
             getViewTreeObserver().registerFrameCommitCallback(frameCommitted); commitRequested = true;
         }
         return true;
+    }
+    private void readSafePadding(android.view.ViewGroup parent) {
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            // Bounds and insets must come from the same window-metrics snapshot.
+            // View-level root insets can still omit a cutout during attachment.
+            android.view.WindowMetrics metrics = activity.getWindowManager().getCurrentWindowMetrics();
+            android.graphics.Insets bars = metrics.getWindowInsets().getInsets(
+                android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout());
+            safe.set(metrics.getBounds()); safe.inset(bars.left, bars.top, bars.right, bars.bottom);
+        } else getWindowVisibleDisplayFrame(safe);
+        parent.getLocationOnScreen(parentLocation);
+        safePadding.set(Math.max(0, safe.left - parentLocation[0]),
+            Math.max(0, safe.top - parentLocation[1]),
+            Math.max(0, parentLocation[0] + parent.getWidth() - safe.right),
+            Math.max(0, parentLocation[1] + parent.getHeight() - safe.bottom));
+    }
+    private boolean hasCurrentPadding(android.view.ViewGroup parent) {
+        return parent.getPaddingLeft() == safePadding.left && parent.getPaddingTop() == safePadding.top &&
+            parent.getPaddingRight() == safePadding.right && parent.getPaddingBottom() == safePadding.bottom;
     }
     @Override protected void dispatchDraw(android.graphics.Canvas canvas) {
         android.os.Trace.beginSection("XplatHomeDraw");
@@ -90,13 +101,69 @@ public final class HomeViewport extends View {
     public boolean hasDrawnSafeBounds() {
         if (!(getParent() instanceof android.view.ViewGroup)) return false;
         android.view.ViewGroup parent = (android.view.ViewGroup) getParent();
-        return !isLayoutRequested() && !parent.isLayoutRequested() &&
+        if (parent.getId() != android.R.id.content || parent.getWidth() <= 0 || parent.getHeight() <= 0) return false;
+        readSafePadding(parent);
+        return hasCurrentPadding(parent) && !isLayoutRequested() && !parent.isLayoutRequested() &&
             getLeft() == parent.getPaddingLeft() && getTop() == parent.getPaddingTop() &&
             getWidth() == parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight() &&
             getHeight() == parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom() &&
             drawnLeft == getLeft() && drawnTop == getTop() && drawnWidth == getWidth() && drawnHeight == getHeight();
     }
     public long getFirstCommittedFrameNanos() { return firstCommittedFrameNanos; }
+    private android.view.WindowInsets safeAreaRootInsets() {
+        android.view.WindowInsets value = getRootWindowInsets();
+        if (!HomeBuild.STALE_ROOT_INSETS || com.tns.Runtime.isInitialized() || value == null || android.os.Build.VERSION.SDK_INT < 30) return value;
+        // Controlled reproduction of the observed 24dp bar before cutout data
+        // arrives. The platform metrics and physical window remain unchanged.
+        android.graphics.Insets bars = value.getInsets(android.view.WindowInsets.Type.statusBars());
+        int top = Math.min(bars.top, Math.round(24 * activity.getResources().getDisplayMetrics().density));
+        return new android.view.WindowInsets.Builder(value)
+            .setInsets(android.view.WindowInsets.Type.statusBars(), android.graphics.Insets.of(bars.left, top, bars.right, bars.bottom))
+            .setDisplayCutout(null).setInsets(android.view.WindowInsets.Type.displayCutout(), android.graphics.Insets.NONE).build();
+    }
+    // Qualification only: preserve the inputs behind a cold/live size change.
+    // A frozen cold snapshot cannot explain whether system insets changed later.
+    public String snapshotViewport() {
+        try {
+            android.content.res.Configuration config = activity.getResources().getConfiguration();
+            org.json.JSONObject value = new org.json.JSONObject()
+                .put("left", getLeft()).put("top", getTop()).put("width", getWidth()).put("height", getHeight())
+                .put("availableWidth", availableWidth).put("availableHeight", availableHeight)
+                .put("drawnLeft", drawnLeft).put("drawnTop", drawnTop)
+                .put("drawnWidth", drawnWidth).put("drawnHeight", drawnHeight)
+                .put("draws", draws).put("safeBoundsDrawn", hasDrawnSafeBounds())
+                .put("screenWidthDp", config.screenWidthDp).put("screenHeightDp", config.screenHeightDp)
+                .put("orientation", config.orientation).put("densityDpi", config.densityDpi);
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                android.view.WindowMetrics metrics = activity.getWindowManager().getCurrentWindowMetrics();
+                android.graphics.Rect bounds = metrics.getBounds();
+                value.put("windowLeft", bounds.left).put("windowTop", bounds.top)
+                    .put("windowWidth", bounds.width()).put("windowHeight", bounds.height())
+                    .put("staleRootInsetsInjected", HomeBuild.STALE_ROOT_INSETS && !com.tns.Runtime.isInitialized())
+                    .put("rootInsets", snapshotInsets(safeAreaRootInsets()))
+                    .put("platformRootInsets", snapshotInsets(getRootWindowInsets()))
+                    .put("metricsInsets", snapshotInsets(metrics.getWindowInsets()));
+            }
+            if (getParent() instanceof android.view.View) {
+                android.view.View parent = (android.view.View) getParent();
+                int[] location = new int[2]; parent.getLocationOnScreen(location);
+                value.put("parentScreenLeft", location[0]).put("parentScreenTop", location[1])
+                    .put("parentWidth", parent.getWidth()).put("parentHeight", parent.getHeight())
+                    .put("parentPaddingLeft", parent.getPaddingLeft()).put("parentPaddingTop", parent.getPaddingTop())
+                    .put("parentPaddingRight", parent.getPaddingRight()).put("parentPaddingBottom", parent.getPaddingBottom());
+            }
+            return value.toString();
+        } catch (org.json.JSONException error) { throw new RuntimeException(error); }
+    }
+    private static org.json.JSONObject snapshotInsets(android.view.WindowInsets value) throws org.json.JSONException {
+        org.json.JSONObject result = new org.json.JSONObject().put("available", value != null);
+        if (value == null || android.os.Build.VERSION.SDK_INT < 30) return result;
+        android.graphics.Insets bars = value.getInsets(android.view.WindowInsets.Type.systemBars());
+        android.graphics.Insets cutout = value.getInsets(android.view.WindowInsets.Type.displayCutout());
+        return result.put("barsLeft", bars.left).put("barsTop", bars.top).put("barsRight", bars.right).put("barsBottom", bars.bottom)
+            .put("cutoutLeft", cutout.left).put("cutoutTop", cutout.top).put("cutoutRight", cutout.right).put("cutoutBottom", cutout.bottom)
+            .put("hasCutout", value.getDisplayCutout() != null);
+    }
     public int getAvailableWidth() { return availableWidth; }
     public int getAvailableHeight() { return availableHeight; }
     public int getWindowAttachments() { return windowAttachments; }

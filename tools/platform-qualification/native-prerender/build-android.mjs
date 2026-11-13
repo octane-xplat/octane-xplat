@@ -53,6 +53,8 @@ if (variant === 'release' && !homeProducer)
 if (homeAdopt && !homeProducer) throw new Error('Home adoption requires an Android Home producer')
 const homeParity = process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'
 if (homeParity && !homeAdopt) throw new Error('Home parity requires Home adoption')
+const staleRootInsets = process.env.XPLAT_PRERENDER_ANDROID_STALE_ROOT_INSETS === '1'
+if (staleRootInsets && !homeParity) throw new Error('Stale root-inset control requires Home parity')
 const homeRecreate = process.env.XPLAT_PRERENDER_ANDROID_HOME_RECREATE === '1'
 if (homeRecreate && !homeParity) throw new Error('Home recreation control requires Home parity')
 const homeRecreateCount = Number(process.env.XPLAT_PRERENDER_ANDROID_HOME_RECREATE_COUNT ?? 1)
@@ -386,6 +388,7 @@ if (homeProducer) {
           homeApplication,
           homeEntry,
           homeRestore,
+          staleRootInsets,
           homeStartup,
           homeFallback,
           homeLifetime,
@@ -413,6 +416,8 @@ if (homeProducer) {
       (homeFallback === 'theme') +
       '; public static final boolean RESTORE = ' +
       homeRestore +
+      '; public static final boolean STALE_ROOT_INSETS = ' +
+      staleRootInsets +
       '; public static final boolean STARTUP = ' +
       homeStartup +
       '; public static final boolean UNSUPPORTED_FONT_SCALE = ' +
@@ -430,6 +435,7 @@ if (homeProducer) {
     application: homeApplication,
     entry: homeEntry,
     restore: homeRestore,
+    staleRootInsets,
     startup: homeStartup,
     fallback: homeFallback,
     lifetime: homeLifetime,

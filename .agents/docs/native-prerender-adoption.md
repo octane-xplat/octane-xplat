@@ -98,7 +98,13 @@ the Home IR, wrapper adoption, Core window handoff and production integration.
 Android's hardware `registerFrameCommitCallback` establishes swap-chain
 submission, not display presentation. The Home gate waits for that callback
 on supported hardware paths. Its safe-area readiness also requires the last
-drawn bounds to match current parent padding with no pending layout. Include
+drawn bounds to match current parent padding and current safe-area metrics
+with no pending layout. On API30+, use bounds and insets from one
+[WindowMetrics](https://developer.android.com/reference/android/view/WindowMetrics#getWindowInsets())
+snapshot. View-level root insets can lag during attachment; mixing those with
+window bounds can under-pad a cutout. The qualification-only
+[stale root-inset control](../../tools/platform-qualification/native-prerender/README.md#android-stale-root-inset-control)
+keeps that input transition explicit rather than relaxing cold/live parity. Include
 position as well as size in stability checks and revalidate after any deferred
 startup turn before freezing the final native baseline. Three stable size
 observations alone can accept a pending parent inset adjustment; tracing

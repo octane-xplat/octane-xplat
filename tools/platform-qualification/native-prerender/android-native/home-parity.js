@@ -108,6 +108,7 @@ export async function qualifyHomeParity(activity, host, factoryCalls, lease) {
     activity.recordHomeProof(
       JSON.stringify({
         phase: 'parity-viewport',
+        viewportInputs: JSON.parse(String(activity.snapshotViewport())),
         width,
         height,
         referenceWidth: native.getWidth(),
