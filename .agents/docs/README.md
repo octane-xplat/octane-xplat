@@ -20,6 +20,7 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Packed Android starter tests](android-starter-tests.md) — isolated consumer qualification.
 - [AppKit renderer internals](appkit-renderer.md) — subsystem ownership, initialization and tests.
 - [AppKit verification](appkit-verification.md) — geometry, overlays, and packed consumers.
+- [SmoothCorners verification](smooth-corners-verification.md) — geometry, clipping, packed consumers, and native qualification.
 - [Documentation guidance](documentation.md) — audience and coverage rules.
 - [Documentation quality system](documentation-quality.md) — review docs and
   package READMEs, run checks, and prevent recurring gaps.

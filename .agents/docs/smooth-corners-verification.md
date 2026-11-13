@@ -2,7 +2,7 @@
 
 > Check smooth-corner geometry, clipping, layout, packing, and native behavior before widening platform support.
 
-Run these checks before widening SmoothCorners support or changing its geometry, clipping, layout, or resource ownership. Use the [package guide](../packages/package-smooth-corners.md) for app code and supported inputs.
+Run these checks before widening SmoothCorners support or changing its geometry, clipping, layout, or resource ownership. Use the [package guide](../../docs/packages/package-smooth-corners.md) for app code and supported inputs.
 
 ## Check geometry, types, and packing
 

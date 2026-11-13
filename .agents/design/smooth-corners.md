@@ -171,7 +171,7 @@ the separate Tier 1 option described above.
 
 ## Qualification boundaries
 
-Run the maintained [qualification commands](../../docs/testing/smooth-corners.md). The package owns uncached device/browser tasks; pass existing device IDs and reserve host resources.
+Run the maintained [qualification commands](../docs/smooth-corners-verification.md). The package owns uncached device/browser tasks; pass existing device IDs and reserve host resources.
 
 `packages/smooth-corners/tests/clipping.ios.tsrx` exercises the actual iOS
 component: default visible content, a Mason-owned decorative clip, background

@@ -66,7 +66,7 @@ The package shares curve generation, but native clipping and shadows have
 different limits. Android elevation cannot express custom shadow direction or
 spread; request it through `android.elevation`, separately from `shadow`.
 Use an inner shared layout component when arranging children across targets.
-Source implementations do not establish pixel parity or device input behavior. Maintainers can run the [qualification checks](../testing/smooth-corners.md) separately. Native Windows and GTK are explicitly unsupported.
+Source implementations do not establish pixel parity or device input behavior. Native Windows and GTK are explicitly unsupported.
 
 See the [public prop declarations](https://github.com/octane-xplat/octane-xplat/blob/main/packages/smooth-corners/src/props.ts)
 for curve and per-corner options, and [styling screens](https://octane-xplat.goddardai.org/styling)
