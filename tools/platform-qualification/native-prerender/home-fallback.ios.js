@@ -27,9 +27,19 @@ const snapshot = JSON.parse(
 const scene = UIApplication.sharedApplication.connectedScenes.allObjects.objectAtIndex(0)
 const window = scene.windows.objectAtIndex(0)
 const nativeHost = window.rootViewController.view.subviews.objectAtIndex(0)
-const staleHome = nativeHost.subviews.objectAtIndex(0)
+const artifactRejected = snapshot.artifactRejected === true
+const staleHome = artifactRejected ? null : nativeHost.subviews.objectAtIndex(0)
+function nativeTreeUnchanged() {
+  return staleHome
+    ? nativeHost.subviews.count === 1 && nativeHost.subviews.objectAtIndex(0) === staleHome
+    : nativeHost.subviews.count === 0
+}
 const scheme = Application.systemAppearance?.() === 'dark' ? 'dark' : 'light'
-check(snapshot.theme !== scheme, 'Expected stale native launch theme')
+check(
+  artifactRejected || snapshot.theme !== scheme,
+  'Expected rejected artifact or stale native launch theme',
+)
+check(nativeTreeUnchanged(), 'Rejected artifact unexpectedly created native Home views')
 const host = new View()
 host[native_] = nativeHost
 host.setNativeView(nativeHost)
@@ -43,7 +53,7 @@ let claimCalls = 0
 const candidate = createNativeScriptRoot(host, {
   createView() {
     claimCalls++
-    throw new Error('Stale environment must not claim a view')
+    throw new Error('Rejected pre-render must not claim a view')
   },
 })
 const prepared = candidate.prepare(Home, resolved.seed)
@@ -52,9 +62,7 @@ matchPreparedVisualTree(prepared.batch.commands, resolved.nodes, 27)
 prepared.abort()
 candidate.unmount()
 check(
-  claimCalls === 0 &&
-    host.getChildrenCount() === 0 &&
-    nativeHost.subviews.objectAtIndex(0) === staleHome,
+  claimCalls === 0 && host.getChildrenCount() === 0 && nativeTreeUnchanged(),
   'Rejected preparation mutated native tree',
 )
 const root = createNativeScriptRoot(host)
@@ -90,11 +98,8 @@ async function run() {
     check(Date.now() < deadline, 'Fallback Page failed to load')
     await delay()
   }
-  check(
-    claimCalls === 0 && nativeHost.subviews.objectAtIndex(0) === staleHome,
-    'Rejected candidate consumed native claims',
-  )
-  nativeHost.removeView(staleHome)
+  check(claimCalls === 0 && nativeTreeUnchanged(), 'Rejected candidate consumed native claims')
+  if (staleHome) nativeHost.removeView(staleHome)
   live.commit()
   await delay()
   check(
@@ -114,7 +119,7 @@ async function run() {
   check(
     wrappers.length === 19 &&
       wrappers[0].nativeViewProtected !== staleHome &&
-      staleHome.superview == null,
+      (!staleHome || staleHome.superview == null),
     'Fallback retained stale Home',
   )
   const find = (id) => wrappers.find((view) => view.id === id)
@@ -147,7 +152,10 @@ async function run() {
     'entry-details.json',
     JSON.stringify({
       passed: true,
-      kind: 'stale-theme-ordinary-fallback',
+      kind: artifactRejected
+        ? 'rejected-artifact-ordinary-fallback'
+        : 'stale-theme-ordinary-fallback',
+      artifactRejectedBeforeRuntime: artifactRejected,
       visualNodes: 19,
       logicalNodes: 27,
       nativeTheme: snapshot.theme,

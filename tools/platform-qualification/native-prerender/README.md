@@ -111,12 +111,21 @@ The real-screen experiment has separate native and JavaScript entry points:
 | --- | --- |
 | [HomeBootstrap.swift](home-native/HomeBootstrap.swift) | Binary decode, native Home mount, explicit engine gate and identity assertions |
 | [home-adoption.ios.js](home-adoption.ios.js) | Prepared-tree matching, root-scoped claims, Page handoff, resize/restore parity, Button updates, sibling isolation and compared style removal |
-| [home-fallback.ios.js](home-fallback.ios.js) | Stale-theme rejection before claims, ordinary Home mount and current-theme/Button checks |
+| [home-fallback.ios.js](home-fallback.ios.js) | Artifact/decode or stale-theme rejection before claims, ordinary Home mount and current-theme/Button checks |
 | [home-primitives.ts](home-primitives.ts) | Four actual shared primitive exports, avoiding unrelated public-barrel imports |
 
 These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with `HomeArtifact.swift`, and links the three native helper objects plus the runtime/Core embedding helpers. It packages `home.bin` and resolves the JavaScript virtual modules `xplat-prerender:artifact` and `xplat-prerender:styles` to the matching debug projection and normalized stylesheets. Retarget Octane imports to the native universal runtime and apply the isolated driver factory patch. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
 
-The positive fixture reads binary before engine initialization, then checks the same nineteen native objects through live adoption. The failure fixture requires compiling Swift with `-D XPLAT_PRERENDER_STALE_THEME` and selecting `home-fallback.ios.js`: it changes the owning window theme before JS starts. JavaScript rejects the stale preparation without consuming claims, detaches the old native root through Mason and mounts a fresh Home. These cases must use distinct input-bound build identities. A launcher must check the app identifier, binary decode event, nineteen visual nodes and the matching final result kind; accepting any generic `passed` event can run the wrong fixture.
+The positive fixture reads binary before engine initialization, then checks the same nineteen native objects through live adoption. For a stale-theme failure, compile Swift with `-D XPLAT_PRERENDER_STALE_THEME` and select `home-fallback.ios.js`: it changes the owning window theme before JS starts. JavaScript rejects the stale preparation without consuming claims, detaches the old native root through Mason and mounts a fresh Home.
+
+The same fallback entry handles native read/decode rejection. The Swift host catches a missing, incompatible or invalid artifact, records a rejected-artifact receipt with zero artifact views, and starts JS with an empty viewport. The normal compiled Home uses its bundled initial data rather than attempting to use rejected artifact data. These qualification cases need no stale-theme compile flag:
+
+```js
+const artifactRejected = snapshot.artifactRejected === true
+const staleHome = artifactRejected ? null : nativeHost.subviews.objectAtIndex(0)
+```
+
+Each case must use a distinct input-bound build identity. A launcher must check the app identifier and matching final result kind. Positive cases require the binary decode event and nineteen adopted views; read/decode failures instead require rejection before engine initialization, zero artifact views and nineteen ordinarily created views. Accepting any generic `passed` event can run the wrong fixture.
 
 The host waits on display-link progress and checks window attachment; compositor presentation remains unqualified. The fixtures intentionally retain diagnostic handles and cover a fixed tree. They do not establish leak freedom, arbitrary environment changes, rollback after partial native application, OS touch or startup performance. The complete host build/producer pipeline still requires an experimental adapter; the maintained compile-only and codec commands above do not build this app.
 

@@ -56,18 +56,40 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         outer.layoutIfNeeded()
         let content = outer.safeAreaLayoutGuide.layoutFrame
         precondition(content.width == window.bounds.width && content.height > 500, "Expected full Page-compatible content viewport")
-        let artifact = try! HomeArtifact.decode(Data(contentsOf: Bundle.main.url(forResource: "home", withExtension: "bin")!), expectedBuildHash: homeBuildHash)
-        record("native-binary-decoded", ["nodes": (artifact["nodes"] as! [Any]).count, "buildHash": homeBuildHash, "beforeEngineInit": true])
-        let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
-        home = PrerenderHomeMount.mount(artifact, theme: theme, scale: window.screen.scale)
         root = NSCMason.shared.createView()
         // The host owns the viewport; Home's flex growth uses its vertical axis.
         root.style.display = .Flex
         root.style.flexDirection = .Column
-        root.addView(home)
         outer.addSubview(root)
         let width = Float(content.width * window.screen.scale), height = Float(content.height * window.screen.scale)
         root.style.setSizePoints(width, height)
+        root.frame = content
+        let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
+        let artifact: [String: Any]
+        do {
+            guard let url = Bundle.main.url(forResource: "home", withExtension: "bin") else {
+                throw HomeArtifact.Invalid(reason: "missing artifact")
+            }
+            artifact = try HomeArtifact.decode(Data(contentsOf: url), expectedBuildHash: homeBuildHash)
+            guard let nodes = artifact["nodes"] as? [[String: Any]], nodes.count == 19,
+                  nodes.first?["kind"] as? String == "masonview" else {
+                throw HomeArtifact.Invalid(reason: "unsupported Home topology")
+            }
+        } catch {
+            let reason = (error as? HomeArtifact.Invalid)?.reason ?? "artifact read failed"
+            root.computeWithSize(width, height)
+            root.markRootComputeApplied(width, height)
+            root.layoutIfNeeded()
+            precondition(root.subviews.isEmpty, "Rejected artifact created Home views")
+            try! JSONSerialization.data(withJSONObject: ["artifactRejected": true, "reason": reason, "theme": theme, "scale": window.screen.scale, "rows": []]).write(to: documents("native-home.json"), options: .atomic)
+            record("native-artifact-rejected", ["reason": reason, "beforeEngineInit": true, "artifactViews": 0])
+            // A rejected optimization must leave the ordinary renderer usable.
+            DispatchQueue.main.async { self.boot() }
+            return
+        }
+        record("native-binary-decoded", ["nodes": (artifact["nodes"] as! [Any]).count, "buildHash": homeBuildHash, "beforeEngineInit": true])
+        home = PrerenderHomeMount.mount(artifact, theme: theme, scale: window.screen.scale)
+        root.addView(home)
         root.computeWithSize(width, height)
         root.markRootComputeApplied(width, height)
         root.frame = content
@@ -94,7 +116,7 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { self.boot() }
     }
     func boot() {
-        let oldViews = views(home)
+        let oldViews = home == nil ? [] : views(home)
         let oldNodes = oldViews.map { NSCMason.shared.nodeForView($0) }
         let oldParents = oldViews.map { $0.superview }
         record("engine-init-begin")
@@ -109,6 +131,14 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
             let completed = (try? JSONSerialization.jsonObject(with: Data(contentsOf: documents("entry-details.json")))) as? [String: Any]
             guard completed?["passed"] as? Bool == true else { precondition(attempts < 300, "Shared Home adoption assertions did not complete"); return }
             timer.invalidate(); completionTimer = nil
+            if home == nil {
+                precondition(oldViews.isEmpty && root.subviews.count == 1, "Artifact fallback root mismatch")
+                let current = views(root.subviews[0])
+                precondition(current.count == 19 && current.allSatisfy { $0.window === window }, "Artifact fallback did not attach Home")
+                precondition(completed?["artifactRejectedBeforeRuntime"] as? Bool == true && completed?["normalRenderFallback"] as? Bool == true && completed?["claimsBeforeReject"] as? Int == 0)
+                record("passed", ["homeVisualNodes": current.count, "ordinaryFallbackQualified": true, "artifactRejectedBeforeRuntime": true, "presentationQualified": false, "adoptionQualified": false])
+                return
+            }
             #if XPLAT_PRERENDER_STALE_THEME
             precondition(home.superview == nil, "Stale Home stayed attached")
             precondition(root.subviews.count == 1, "Fallback did not mount one Home")
