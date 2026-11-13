@@ -66,7 +66,7 @@ For a standalone CommonJS bundle of core, define `__COMMONJS__` as `true` and se
 
 ## First real screen
 
-`Home.tsrx` and `home.css` define the selected purpose-built milestone with real shared `VStack`, `HStack`, `Text` and `Button` components. Initial data is explicit (`name` and `initialCompleted`); actions increment or reset progress without changing the host topology. The CSS includes light/dark colors. This screen is the next producer/adoption target, separate from the disposable two-label XPR0 mechanism fixture. The maintained commands below check compilation only; native loading and adoption of this screen remain separate experimental work.
+`Home.tsrx` and `home.css` define the selected purpose-built milestone with real shared `VStack`, `HStack`, `Text` and `Button` components. Initial data is explicit (`name` and `initialCompleted`); actions increment or reset progress without changing the host topology. The CSS includes light/dark colors. This screen is the next producer/adoption target, separate from the disposable two-label XPR0 mechanism fixture. The compilation command below checks authored JSX only; the producer section executes the shared dependency closure separately. Native loading and adoption remain separate qualification steps.
 
 Check compilation with an installed Octane toolchain:
 
