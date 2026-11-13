@@ -51,6 +51,7 @@ const result = await Bun.build({
     ),
     XPLAT_PRERENDER_HOME_ENTRY: String(process.env.XPLAT_PRERENDER_ANDROID_HOME_ENTRY === '1'),
     XPLAT_PRERENDER_HOME_RESTORE: String(process.env.XPLAT_PRERENDER_ANDROID_HOME_RESTORE === '1'),
+    XPLAT_PRERENDER_HOME_STARTUP: String(process.env.XPLAT_PRERENDER_ANDROID_HOME_STARTUP === '1'),
     XPLAT_PRERENDER_HOME_PARITY: String(process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'),
     __ANDROID__: 'true',
     __IOS__: 'false',

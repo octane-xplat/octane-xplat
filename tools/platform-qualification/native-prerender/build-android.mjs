@@ -67,9 +67,24 @@ if (homeInput && !homeParity) throw new Error('Home OS input control requires Ho
 const homeApplication = process.env.XPLAT_PRERENDER_ANDROID_HOME_APPLICATION === '1'
 const homeEntry = process.env.XPLAT_PRERENDER_ANDROID_HOME_ENTRY === '1'
 const homeRestore = process.env.XPLAT_PRERENDER_ANDROID_HOME_RESTORE === '1'
+const homeStartup = process.env.XPLAT_PRERENDER_ANDROID_HOME_STARTUP === '1'
+if (
+  homeStartup &&
+  (variant !== 'release' ||
+    !homeEntry ||
+    !homeApplication ||
+    homeParity ||
+    homeRecreate ||
+    homeInput ||
+    homeRestore)
+)
+  throw new Error(
+    'Startup comparison requires release Home adoption/Application/main entry without qualification-only parity/recreation/input/restore controls',
+  )
 if (homeApplication && !homeAdopt)
   throw new Error('Home Application handoff requires Home adoption')
 const homeFallback = process.env.XPLAT_PRERENDER_ANDROID_HOME_FALLBACK ?? ''
+if (homeStartup && homeFallback) throw new Error('Startup comparison cannot inject fallback faults')
 if (homeEntry && (!homeApplication || homeRecreate || homeFallback))
   throw new Error(
     'Cold Home entry requires Home Application/adoption without recreation or fault injection',
@@ -200,11 +215,23 @@ for (const [name, destination] of [
           homeAdopt ? 'PREFER_SETTINGS' : 'FAIL_ON_PROJECT_REPOS',
         )
         .replace(
+          'android:exported="true">',
+          homeStartup
+            ? 'android:configChanges="keyboardHidden|orientation|screenSize" android:exported="true">'
+            : 'android:exported="true">',
+        )
+        .replace(
           '</application>',
           homeProducer
             ? '<provider android:name="org.octanexplat.prerenderandroid.HomeReceiptProvider" android:authorities="' +
                 id +
-                '.receipts" android:exported="true" android:enabled="${receiptProviderEnabled}" />\n    </application>'
+                '.receipts" android:exported="true" android:enabled="${receiptProviderEnabled}" />\n' +
+                (homeStartup
+                  ? '<profileable android:shell="true" />\n<activity android:name="org.octanexplat.prerenderandroid.HomeOrdinaryActivity" android:process=":ordinary" android:configChanges="keyboardHidden|orientation|screenSize" android:exported="true" />\n<provider android:name="org.octanexplat.prerenderandroid.HomeOrdinaryReceiptProvider" android:authorities="' +
+                    id +
+                    '.receipts.ordinary" android:process=":ordinary" android:exported="true" />\n'
+                  : '') +
+                '    </application>'
             : '</application>',
         ),
     )
@@ -216,6 +243,7 @@ if (homeProducer)
     'HomeComparison.java',
     'HomeViewport.java',
     'HomeReceiptProvider.java',
+    ...(homeStartup ? ['HomeOrdinaryActivity.java', 'HomeOrdinaryReceiptProvider.java'] : []),
   ])
     snapshot(
       join(source, name),
@@ -237,7 +265,7 @@ writeFileSync(join(work, 'local.properties'), 'sdk.dir=' + sdk.replaceAll('\\', 
 mkdirSync(join(work, 'app/src/main/assets/app'), { recursive: true })
 writeFileSync(
   join(work, 'app/src/main/assets/app/package.json'),
-  JSON.stringify({ main: 'main.js', profiling: 'timeline' }),
+  JSON.stringify({ main: 'main.js', ...(homeStartup ? {} : { profiling: 'timeline' }) }),
 )
 const labels = ['Native home screen', 'JavaScript starts later']
 writeFileSync(
@@ -344,6 +372,7 @@ if (homeProducer) {
           homeApplication,
           homeEntry,
           homeRestore,
+          homeStartup,
           homeFallback,
           homeLifetime,
         },
@@ -370,6 +399,8 @@ if (homeProducer) {
       (homeFallback === 'theme') +
       '; public static final boolean RESTORE = ' +
       homeRestore +
+      '; public static final boolean STARTUP = ' +
+      homeStartup +
       '; public static final boolean UNSUPPORTED_FONT_SCALE = ' +
       (homeFallback === 'font-scale') +
       '; public static final int RECREATIONS = ' +
@@ -385,6 +416,7 @@ if (homeProducer) {
     application: homeApplication,
     entry: homeEntry,
     restore: homeRestore,
+    startup: homeStartup,
     fallback: homeFallback,
     lifetime: homeLifetime,
     buildHash,

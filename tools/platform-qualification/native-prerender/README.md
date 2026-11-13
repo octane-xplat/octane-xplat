@@ -404,7 +404,7 @@ Home builds default to `XPLAT_PRERENDER_ANDROID_VARIANT=debug`. Set it to `relea
 
 The Home native gate waits for a hardware frame-commit callback on API29+, focused/attached content and three stable observations of drawn safe-area bounds. It rechecks the bounds after its deliberate250ms delay before recording the final native baseline and starting the engine. A pending parent inset/layout request invalidates readiness. [Frame commit](https://developer.android.com/reference/android/view/ViewTreeObserver#registerFrameCommitCallback(java.lang.Runnable)) establishes swap-chain submission, not visible presentation; older/software paths do not receive that qualification.
 
-Set `XPLAT_PRERENDER_ANDROID_TRACE=1` on the reserved Home device command to collect a bounded, nonvisual Perfetto trace. The runner feeds configuration over stdin, holds its foreground ADB capture open until completion, requires nonempty output and removes its owned device file. This avoids the tested background-client path producing an empty trace on the selected emulator. It captures no pixels. Inspect presentation separately with an explicitly supplied Trace Processor binary (qualified with Perfetto59.1):
+Set `XPLAT_PRERENDER_ANDROID_TRACE=1` and `XPLAT_PRERENDER_TRACE_PROCESSOR` (an explicit binary path) on the reserved Home device command to collect a bounded, nonvisual Perfetto trace. Before launching the process, the runner parses a streaming prefix and waits for Perfetto’s all-data-sources-started acknowledgement; nonempty bytes alone do not establish tracing readiness. The runner feeds configuration over stdin, holds its foreground ADB capture open until completion, requires nonempty output and removes its owned device file. This avoids the tested background-client path producing an empty trace on the selected emulator. It captures no pixels. Inspect presentation separately with an explicitly supplied Trace Processor binary (qualified with Perfetto59.1):
 
 ```sh
 XPLAT_PRERENDER_ANDROID_REPORT="$REPORT_DIRECTORY" \
@@ -413,6 +413,35 @@ bun turbo run probe:prerender:android:presentation --filter=@xplat/platform-qual
 ```
 
 The checker requires a passing Home adoption run, final pre-VM safe bounds, unique mount/layout/engine markers from one process and no trace error/data-loss counters. It joins `XplatHomeDraw` to its enclosing Choreographer token, that application's actual buffer frame and the corresponding SurfaceFlinger display frame. Both frames must have a known non-dropped presentation result, and the display frame must end before engine initialization. It retains SQL, trace/tool/verifier/APK hashes and the selected frame chain in `presentation.json`. [FrameTimeline](https://perfetto.dev/docs/data-sources/frametimeline) distinguishes application rendering from display composition. This establishes platform-reported emulator presentation; pixels, physical-display behavior and matched release startup performance remain separate qualifications. The artificial gate and diagnostic overhead must not be reported as a startup speedup.
+
+### Matched Android release startup controls
+
+Build with the Home adoption SDK/producer/root-factory inputs, `XPLAT_PRERENDER_ANDROID_VARIANT=release`, and `XPLAT_PRERENDER_ANDROID_HOME_STARTUP=1`. Enable Home Application/main entry as well. Leave qualification-only parity, recreation, input, restoration, lifetime and fault flags unset. This produces one profileable, non-debuggable APK containing both launch paths. The default process creates native Home before JS; the `:ordinary` process starts JS in Application.onCreate before creating its Activity and renders ordinary Home with no adoption factory. Both use HomeViewport, the same Home/CSS/seed/assets, and the SDK template's keyboard/orientation/screen-size configuration handling.
+
+Startup mode removes the artificial250ms delay, the extra prepare/abort control, timeline profiling and routine early receipt serialization/disk logging. Tree snapshots/receipt writes are deferred after submitted safe bounds, and the observer waits before polling. Trace analysis rejects receipt reads/writes before first Home presentation; failures still flush immediately and fail qualification. Routine Activity destruction events stay buffered until the next completion receipt. These observer delays do not delay the engine or live commit. It keeps required safe-area/submission validation and real adoption. Configuration replacements retain the logical root/state through Core's saved-root pipeline and create fresh ordinary native objects; they do not replay cold IR. Each path must reach a drawn nineteen-node Home and respond to a real OS tap3→4 without replacing its current native objects. These checks do not turn a commit timestamp into a first-possible-input measurement.
+
+For a single control, set `XPLAT_PRERENDER_ANDROID_STARTUP_PATH=native` or `ordinary` on the existing reserved device command. For an alternating pilot, keep the printed startup build directory and reserve the same existing AVD once:
+
+```sh
+XPLAT_PRERENDER_ANDROID_BUILD="$STARTUP_BUILD_DIRECTORY" \
+XPLAT_PRERENDER_ANDROID_TRACE=1 \
+XPLAT_PRERENDER_TRACE_PROCESSOR="$TRACE_PROCESSOR_BINARY" \
+XPLAT_PRERENDER_ANDROID_STARTUP_PAIRS=8 \
+goddard-agent resource run --json '{"resources":{"exclusive":["android:elegant-fir-probe"],"resident_devices":1},"purpose":"Matched Home startup pilot"}' -- \
+bun turbo run probe:prerender:android --filter=@xplat/platform-qualification
+```
+
+The collector installs once and resets only its disposable fixture data before four predeclared warmups (native, ordinary, ordinary, native). Measured pairs alternate their order. It force-stops between launches, retains app data/cache for subsequent trials, and binds receipts to unique launch tokens. Counts1..12 are accepted; every trial must pass, and failed collections remain failed. `trials.json` identifies warmups and measured reports; `trials-progress.json` preserves completed attempts if collection is interrupted. The owned emulator shuts down before analysis.
+
+Analyze the parent collection directory with an explicit Trace Processor binary:
+
+```sh
+XPLAT_PRERENDER_ANDROID_REPORT="$COLLECTION_REPORT_DIRECTORY" \
+XPLAT_PRERENDER_TRACE_PROCESSOR="$TRACE_PROCESSOR_BINARY" \
+bun turbo run probe:prerender:android:startup:compare --filter=@xplat/platform-qualification
+```
+
+The analyzer rechecks every trace, including warmups. It requires known non-dropped application/display frame chains, exact APK/launch-token/driver identities, process-cold ordering and zero trace error/data-loss counters. Full sorting handles late-arriving trace packets without dropping the health requirement. Native-first's first Home presentation must precede engine initialization; ordinary presentation follows eager engine startup. `startup-comparison.json` retains all samples, pair order, medians/ranges and paired differences; its Markdown companion separates first Home presentation from live-tree acceptance. These are descriptive emulator observations. They do not establish physical-device performance, first possible input latency, pixel parity or installed-size overhead. A single reset-data control is not a distribution or warm-cache comparison.
 
 ### Android Home Core Application handoff
 

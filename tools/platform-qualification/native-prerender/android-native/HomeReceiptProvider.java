@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 /** Read-only shell telemetry for the non-debuggable, disposable Home fixture. */
-public final class HomeReceiptProvider extends ContentProvider {
+public class HomeReceiptProvider extends ContentProvider {
     @Override public boolean onCreate() { return true; }
     @Override public String getType(Uri uri) { return "application/json"; }
     @Override public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
@@ -21,7 +21,9 @@ public final class HomeReceiptProvider extends ContentProvider {
         if (!"r".equals(mode) || uri.getPathSegments().size() != 1 ||
             !("probe-result.json".equals(name) || "lifecycle-result.json".equals(name)))
             throw new FileNotFoundException("Unknown read-only fixture receipt");
-        return ParcelFileDescriptor.open(new File(getContext().getFilesDir(), name), ParcelFileDescriptor.MODE_READ_ONLY);
+        if (HomeBuild.STARTUP) android.os.Trace.beginSection("XplatHomeReceiptRead");
+        try { return ParcelFileDescriptor.open(new File(getContext().getFilesDir(), name), ParcelFileDescriptor.MODE_READ_ONLY); }
+        finally { if (HomeBuild.STARTUP) android.os.Trace.endSection(); }
     }
     @Override public Cursor query(Uri uri, String[] projection, String selection, String[] args, String order) { throw new UnsupportedOperationException(); }
     @Override public Uri insert(Uri uri, ContentValues values) { throw new UnsupportedOperationException(); }

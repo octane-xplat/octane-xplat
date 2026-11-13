@@ -8,6 +8,7 @@ const check = (value, reason) => {
 const nativeSuperCompleted = () => {}
 let session
 let entryHost
+const caughtUp = new WeakMap()
 const entryCounts = { factories: 0, launches: 0 }
 const lifecycle = { ready: 0, opened: 0, attached: 0, detached: 0, created: 0, destroyed: 0 }
 if (XPLAT_PRERENDER_HOME_APPLICATION) {
@@ -42,6 +43,7 @@ if (XPLAT_PRERENDER_HOME_APPLICATION) {
 export function prepareHomeApplication(activity) {
   activity.enableApplicationHandoff()
   let window = Application.android._getWindowForActivity(activity)
+  caughtUp.set(activity, !window)
   if (!window) {
     check(!activity.isWarmActivity(), 'Warm Home missed Core lifecycle registration')
     // Version-pinned seam: catch up only Core's own observer for the cold host.
@@ -65,7 +67,10 @@ export function acceptHomeApplication(activity, host, window) {
   // Android's actual content pipeline, as qualified by the two-label control.
   if (XPLAT_PRERENDER_HOME_ENTRY) {
     check(
-      !entryHost && (!activity.isWarmActivity() || XPLAT_PRERENDER_HOME_RESTORE),
+      !entryHost &&
+        (!activity.isWarmActivity() ||
+          XPLAT_PRERENDER_HOME_RESTORE ||
+          XPLAT_PRERENDER_HOME_STARTUP),
       'Home entry cannot restore owners in this mode',
     )
     entryHost = host
@@ -107,8 +112,9 @@ export function acceptHomeApplication(activity, host, window) {
       active: Application.activeWindow === window,
       foregroundActivity: Application.android.foregroundActivity === activity,
       lifecycle: { ...lifecycle },
-      catchUp: !activity.isWarmActivity(),
-      componentStatePreserved: XPLAT_PRERENDER_HOME_RESTORE && activity.isWarmActivity(),
+      catchUp: caughtUp.get(activity),
+      componentStatePreserved:
+        (XPLAT_PRERENDER_HOME_RESTORE || XPLAT_PRERENDER_HOME_STARTUP) && activity.isWarmActivity(),
       normalEntry: XPLAT_PRERENDER_HOME_ENTRY,
       entryCounts: { ...entryCounts },
       entryBeforeCommit: XPLAT_PRERENDER_HOME_ENTRY && host.getChildrenCount() === 0,

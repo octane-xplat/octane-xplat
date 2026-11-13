@@ -31,6 +31,26 @@ It does not establish pixel parity, a physical display or release startup
 performance. Keep its artificial engine gate and diagnostic costs separate
 from production timing; do not infer a speedup from the observed lead time.
 
+Use the separate matched startup control for timing. It uses one profileable
+release APK with default native-first and eager-JS `:ordinary` processes,
+the same Home/viewport/SDK inputs, and no artificial250ms delay, extra abort
+probe or pre-frame receipt serialization. Startup can reach configuration
+replacement earlier than a delayed control; retain logical owners and restore
+their native objects rather than replaying cold IR. A passing delayed cold
+entry alone does not qualify that ordering.
+
+For paired trials, retain app data after predeclared warmups, force-stop each
+process, alternate order and reject stale receipts using launch tokens.
+Nonempty trace bytes do not establish capture readiness: wait for the actual
+all-data-sources-started event before launching, then match that acknowledgement
+against the completed trace. Trace receipt reads/writes and reject any before
+the first presentation, including Activity destruction diagnostics. Keep first
+presented Home, live-tree acceptance and actual OS-input confirmation distinct.
+A commit/restore timestamp is not
+first possible input latency. The fixture's
+[startup protocol](../../tools/platform-qualification/native-prerender/README.md#matched-android-release-startup-controls)
+owns executable assertions; reports/Silo own measurements and current verdicts.
+
 ## Keep cold adoption separate from warm owner restoration
 
 The Android Home control can use Core9.1.3's normal

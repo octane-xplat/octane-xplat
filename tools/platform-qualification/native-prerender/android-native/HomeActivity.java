@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-public final class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity {
     @Override protected void attachBaseContext(android.content.Context base) {
         if (HomeBuild.UNSUPPORTED_FONT_SCALE) {
             android.content.res.Configuration config = new android.content.res.Configuration(base.getResources().getConfiguration());
@@ -30,6 +30,43 @@ public final class HomeActivity extends AppCompatActivity {
     private org.nativescript.mason.masonkit.View fallbackRoot;
     private final Runnable fallbackStarter = this::startFallback;
     private int touchDowns, touchUps;
+    private HomeViewport startupRoot;
+    private org.json.JSONArray startupBaseline;
+    public boolean isOrdinaryStartup() { return HomeApplication.isOrdinaryStartup(); }
+    public void acceptStartupRoot(org.nativescript.mason.masonkit.View value, int claims) {
+        check(HomeBuild.STARTUP && startupRoot == null && value instanceof HomeViewport &&
+            claims == (isOrdinaryStartup() ? 0 : 19), "Unexpected startup root or claims");
+        startupRoot = (HomeViewport) value;
+        if (scene == null) { fallbackRoot = value; bridgeReady = true; }
+        try { app().record(new JSONObject().put("event", "startup-tree-mounted").put("epoch", epoch).put("claims", claims)); }
+        catch (org.json.JSONException error) { throw new RuntimeException(error); }
+        startupRoot.postOnAnimation(new Runnable() {
+            private int attempts;
+            private boolean collectionDeferred;
+            @Override public void run() {
+                if (destroyed) return;
+                try {
+                    if (!startupRoot.hasDrawnSafeBounds() || !startupRoot.hasWindowFocus() || startupRoot.getFirstCommittedFrameNanos() <= 0) {
+                        check(++attempts < 300, "Startup readiness timeout"); value.postOnAnimation(this); return;
+                    }
+                    // Observer delay only: rendering, engine startup and live
+                    // commit continue. Keep receipt work off the initial frame.
+                    if (!collectionDeferred) { collectionDeferred = true; value.postDelayed(this, 1000); return; }
+                    org.json.JSONArray nodes = new org.json.JSONArray();
+                    for (int index = 0; index < value.getChildCount(); index++) observeFallback(value.getChildAt(index), -1, nodes);
+                    boolean ready = nodes.length() == 19;
+                    for (int index = 0; index < nodes.length(); index++) ready &= nodes.getJSONObject(index).getBoolean("attached") &&
+                        nodes.getJSONObject(index).getInt("width") > 0 && nodes.getJSONObject(index).getInt("height") > 0;
+                    if (!ready) { check(++attempts < 300, "Startup readiness timeout"); value.postOnAnimation(this); return; }
+                    startupBaseline = nodes;
+                    check(nodes.getJSONObject(9).getString("text").equals("3"), "Startup count differs");
+                    app().record(new JSONObject().put("event", "startup-complete").put("epoch", epoch)
+                        .put("nodes", nodes).put("claims", claims).put("drawnSafeBounds", true)
+                        .put("firstCommittedFrameNanos", startupRoot.getFirstCommittedFrameNanos()));
+                } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
+            }
+        });
+    }
     private final Choreographer.FrameCallback gate = this::frame;
     private final Runnable runtimeStarter = this::startRuntime;
     private HomeApplication app() { return (HomeApplication) getApplication(); }
@@ -90,6 +127,7 @@ public final class HomeActivity extends AppCompatActivity {
             .put("attached", view.isAttachedToWindow()).put("width", view.getWidth()).put("height", view.getHeight());
         int[] location = new int[2]; view.getLocationOnScreen(location);
         node.put("screenLeft", location[0]).put("screenTop", location[1]);
+        node.put("nativeIdentity", System.identityHashCode(view));
         if (view instanceof org.nativescript.widgets.StyleableTextView)
             node.put("text", ((org.nativescript.widgets.StyleableTextView) view).getText().toString());
         nodes.put(node);
@@ -156,7 +194,24 @@ public final class HomeActivity extends AppCompatActivity {
         if (event.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) touchDowns++;
         if (event.getActionMasked() == android.view.MotionEvent.ACTION_UP) {
             touchUps++;
-            if (bridgeReady && scene != null) {
+            if (HomeBuild.STARTUP && bridgeReady && startupRoot != null && startupBaseline != null) {
+                final int sequence = touchUps;
+                final float x = event.getRawX(), y = event.getRawY();
+                final long deliveredNanos = android.os.SystemClock.elapsedRealtimeNanos();
+                startupRoot.postDelayed(() -> {
+                    if (destroyed) return;
+                    try {
+                        org.json.JSONArray nodes = new org.json.JSONArray();
+                        for (int index = 0; index < startupRoot.getChildCount(); index++) observeFallback(startupRoot.getChildAt(index), -1, nodes);
+                        check(nodes.length() == startupBaseline.length(), "Startup input topology differs");
+                        for (int index = 0; index < nodes.length(); index++) check(nodes.getJSONObject(index).getInt("nativeIdentity") ==
+                            startupBaseline.getJSONObject(index).getInt("nativeIdentity"), "Startup input replaced a native view");
+                        app().record(new JSONObject().put("event", "startup-input").put("epoch", epoch)
+                            .put("touchDowns", touchDowns).put("touchUps", sequence).put("handled", handled)
+                            .put("x", x).put("y", y).put("deliveredNanos", deliveredNanos).put("nodes", nodes));
+                    } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
+                }, 250);
+            } else if (bridgeReady && scene != null) {
                 final int sequence = touchUps;
                 final float x = event.getRawX(), y = event.getRawY();
                 scene.viewport.postDelayed(() -> {
@@ -198,6 +253,7 @@ public final class HomeActivity extends AppCompatActivity {
                 .put("windowFlags", getWindow().getAttributes().flags).put("systemUiVisibility", getWindow().getDecorView().getSystemUiVisibility())
                 .put("cutoutMode", getWindow().getAttributes().layoutInDisplayCutoutMode)
                 .put("targetSdk", getApplicationInfo().targetSdkVersion).put("deviceSdk", android.os.Build.VERSION.SDK_INT);
+            if (HomeBuild.STARTUP) row.put("changingConfigurations", getChangingConfigurations());
             if (scene != null) {
                 row.put("homeVisualNodes", scene.count()).put("theme", scene.theme)
                 .put("width", scene.viewport.getWidth()).put("height", scene.viewport.getHeight())
@@ -212,7 +268,7 @@ public final class HomeActivity extends AppCompatActivity {
                     row.put("contentHeight", parent.getHeight()).put("contentPaddingTop", parent.getPaddingTop())
                         .put("contentPaddingBottom", parent.getPaddingBottom()).put("screenLeft", location[0]).put("screenTop", location[1]);
                 }
-                if (!destroyed && !name.equals("failed")) row.put("nodes", scene.snapshot());
+                if (!HomeBuild.STARTUP && !destroyed && !name.equals("failed")) row.put("nodes", scene.snapshot());
             }
             if (name.equals("passed")) row.put("nativeHomeMountQualified", true).put("nativeIdentityRetained", true)
                 .put("masonNodeIdentityRetained", true).put("rustNodeHandlesRetained", true)
@@ -221,10 +277,12 @@ public final class HomeActivity extends AppCompatActivity {
         } catch (Exception error) { throw new RuntimeException(error); }
     }
     @Override public void onCreate(Bundle state) {
-        super.onCreate(state); launchState = state; epoch = app().nextEpoch(); warm = com.tns.Runtime.isInitialized();
+        super.onCreate(state); launchState = state; epoch = app().nextEpoch(); warm = com.tns.Runtime.isInitialized() && (!isOrdinaryStartup() || state != null);
+        if (HomeBuild.STARTUP) app().setRunToken(getIntent().getStringExtra("xplat-startup-run"));
         try {
             record(warm ? "warm-home-created" : "native-launch");
-            if (HomeBuild.RESTORE && warm) {
+            if (isOrdinaryStartup()) { deferFallback("ordinary-startup", "Normal eager Application engine start"); return; }
+            if ((HomeBuild.RESTORE || HomeBuild.STARTUP) && warm) {
                 check(state != null, "Warm Home restoration requires saved Activity state");
                 deferFallback("warm-owner-restoration", "Restore live owners without replaying cold IR"); return;
             }
@@ -289,7 +347,7 @@ public final class HomeActivity extends AppCompatActivity {
         if (frames < 3) { Choreographer.getInstance().postFrameCallback(gate); return; }
         scene.verify();
         if (warm) { freezeNativeSnapshot(); record("warm-native-layout"); app().bind(this); check(bridgeReady, "Warm Home bridge missing"); if (scene != null) { scene.verify(); record("passed"); } }
-        else scene.windowRoot.postDelayed(runtimeStarter, 250);
+        else scene.windowRoot.postDelayed(runtimeStarter, HomeBuild.STARTUP ? 0 : 250);
     }
     private void startRuntime() {
         if (destroyed) return;
@@ -299,7 +357,8 @@ public final class HomeActivity extends AppCompatActivity {
             frames = 0; Choreographer.getInstance().postFrameCallback(gate); return;
         }
         try {
-            scene.verify(); freezeNativeSnapshot(); app().captureColdSnapshot(nativeSnapshot);
+            scene.verify();
+            if (!HomeBuild.STARTUP) { freezeNativeSnapshot(); app().captureColdSnapshot(nativeSnapshot); }
             record("native-layout-before-runtime");
             record("engine-init-begin"); app().startRuntime(); record("engine-init-end");
             app().bind(this); check(bridgeReady, "Home JS verification missing"); if (scene != null) { scene.verify(); record("passed"); }
@@ -308,7 +367,7 @@ public final class HomeActivity extends AppCompatActivity {
     private void startFallback() {
         if (destroyed) return;
         try {
-            if (!warm) { record("engine-init-begin"); app().startRuntime(); record("engine-init-end"); }
+            if (!com.tns.Runtime.isInitialized()) { record("engine-init-begin"); app().startRuntime(); record("engine-init-end"); }
             app().bind(this); check(bridgeReady && fallbackRoot != null, "Ordinary fallback bridge missing");
         } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
     }

@@ -12,6 +12,11 @@ public final class HomeApplication extends com.tns.NativeScriptApplication {
     private String coldSnapshot;
     private int recreationRequests;
     private int epoch, runtimeStarts;
+    private String runToken;
+    void setRunToken(String value) { runToken = value; }
+    public static boolean isOrdinaryStartup() {
+        return HomeBuild.STARTUP && android.app.Application.getProcessName().endsWith(":ordinary");
+    }
     private final java.util.List<java.lang.ref.WeakReference<android.view.View>> retiredViews = new java.util.ArrayList<>();
     private final java.util.List<java.lang.ref.WeakReference<org.nativescript.mason.masonkit.Node>> retiredNodes = new java.util.ArrayList<>();
     private int retiredGenerations;
@@ -44,6 +49,14 @@ public final class HomeApplication extends com.tns.NativeScriptApplication {
             .put("context", "application").put("runtimeStarted", com.tns.Runtime.isInitialized())
             .put("runtimeLibraryLoaded", com.tns.Runtime.nativeLibraryLoaded)); }
         catch (org.json.JSONException error) { throw new RuntimeException(error); }
+        if (isOrdinaryStartup()) {
+            recordEngine("engine-init-begin"); startRuntime(); recordEngine("engine-init-end");
+        }
+    }
+    private void recordEngine(String event) {
+        try { record(new JSONObject().put("event", event).put("epoch", 0)
+            .put("runtimeStarted", com.tns.Runtime.isInitialized()).put("runtimeLibraryLoaded", com.tns.Runtime.nativeLibraryLoaded)); }
+        catch (org.json.JSONException error) { throw new RuntimeException(error); }
     }
     public static void installBridge(HomeBridge value) {
         HomeApplication app = (HomeApplication) getInstance();
@@ -72,13 +85,21 @@ public final class HomeApplication extends com.tns.NativeScriptApplication {
         try {
             event.put("elapsedRealtimeNanos", android.os.SystemClock.elapsedRealtimeNanos());
             event.put("debuggable", (getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+            if (HomeBuild.STARTUP) event.put("processName", android.app.Application.getProcessName())
+                .put("processStartNanos", android.os.Process.getStartElapsedRealtime() * 1000000L).put("pid", android.os.Process.myPid()).put("runToken", runToken);
             android.os.Trace.beginSection("XplatHome:" + event.optString("event") + ":" + event.optInt("epoch"));
             android.os.Trace.endSection();
             event.put("runtimeStarts", runtimeStarts); events.put(event);
-            File pending = new File(getFilesDir(), "probe-result.json.tmp");
-            try (FileOutputStream out = new FileOutputStream(pending)) { out.write(events.toString(2).getBytes(StandardCharsets.UTF_8)); }
-            android.system.Os.rename(pending.getAbsolutePath(), new File(getFilesDir(), "probe-result.json").getAbsolutePath());
-            android.util.Log.i("XplatPrerender", event.toString());
+            if (HomeBuild.STARTUP && !(event.optString("event").equals("startup-complete") ||
+                event.optString("event").equals("startup-input") ||
+                event.optString("event").equals("failed") || event.optString("phase").equals("failed"))) return;
+            if (HomeBuild.STARTUP) android.os.Trace.beginSection("XplatHomeReceiptWrite");
+            try {
+                File pending = new File(getFilesDir(), "probe-result.json.tmp");
+                try (FileOutputStream out = new FileOutputStream(pending)) { out.write((HomeBuild.STARTUP ? events.toString() : events.toString(2)).getBytes(StandardCharsets.UTF_8)); }
+                android.system.Os.rename(pending.getAbsolutePath(), new File(getFilesDir(), "probe-result.json").getAbsolutePath());
+            } finally { if (HomeBuild.STARTUP) android.os.Trace.endSection(); }
+            if (!HomeBuild.STARTUP) android.util.Log.i("XplatPrerender", event.toString());
         } catch (Exception error) { throw new RuntimeException(error); }
     }
 }

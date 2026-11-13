@@ -1,4 +1,4 @@
-import { execFile, spawn } from 'node:child_process'
+import { execFile, spawn, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
   closeSync,
@@ -12,20 +12,39 @@ import {
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { completedHomeEpoch } from './home-events.mjs'
+import { qualifyAndroidStartup } from './qualify-android-startup.mjs'
 
 // Own android:elegant-fir-probe + resident_devices for the entire run/cleanup.
 const work = process.env.XPLAT_PRERENDER_ANDROID_BUILD
 if (!work) throw new Error('Set XPLAT_PRERENDER_ANDROID_BUILD to the printed build directory')
 const build = JSON.parse(readFileSync(join(resolve(work), 'build.json'), 'utf8'))
+let startupPath = process.env.XPLAT_PRERENDER_ANDROID_STARTUP_PATH ?? 'native'
+if (
+  !['native', 'ordinary'].includes(startupPath) ||
+  (startupPath === 'ordinary' && !build.home?.startup)
+)
+  throw new Error('Ordinary startup path requires the matched release startup fixture')
+let scope = build.home?.startup
+  ? 'Matched release Home startup control (' +
+    startupPath +
+    '); no artificial250ms delay or extra abort/parity probe; no repeated-distribution, pixel or physical-performance qualification'
+  : build.scope
+let receiptAuthority = build.id + '.receipts' + (startupPath === 'ordinary' ? '.ordinary' : '')
 const traceEnabled = process.env.XPLAT_PRERENDER_ANDROID_TRACE === '1'
+const traceProcessor = process.env.XPLAT_PRERENDER_TRACE_PROCESSOR
+if (traceEnabled && !traceProcessor)
+  throw new Error(
+    'Traced runs require XPLAT_PRERENDER_TRACE_PROCESSOR for the data-source readiness gate',
+  )
 if (traceEnabled && (!build.home || build.home.fallback))
   throw new Error('FrameTimeline capture requires the native Home mount path')
 const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('hex')
 const driverInputs = Object.fromEntries(
-  [import.meta.filename, join(import.meta.dirname, 'home-events.mjs')].map((path) => [
-    path,
-    hash(path),
-  ]),
+  [
+    import.meta.filename,
+    join(import.meta.dirname, 'home-events.mjs'),
+    join(import.meta.dirname, 'qualify-android-startup.mjs'),
+  ].map((path) => [path, hash(path)]),
 )
 const driverHash = createHash('sha256').update(JSON.stringify(driverInputs)).digest('hex')
 const check = (value, message) => {
@@ -91,7 +110,7 @@ const device = (args, timeout = 30000, required = true, input) =>
 async function readReceipt(name, timeout = 5000, required = false) {
   const args =
     build.variant === 'release'
-      ? ['shell', 'content', 'read', '--uri', 'content://' + build.id + '.receipts/' + name]
+      ? ['shell', 'content', 'read', '--uri', 'content://' + receiptAuthority + '/' + name]
       : ['shell', 'run-as', build.id, 'cat', 'files/' + name]
   const result = await device(args, timeout, false)
   // Android's content CLI can print a provider error while returning exit0.
@@ -124,7 +143,8 @@ check(
 )
 const reports = join(homedir(), 'dev/reports/octane-xplat/native-prerender-android-bootstrap')
 mkdirSync(reports, { recursive: true })
-const report = mkdtempSync(join(reports, 'run-'))
+const sessionReport = mkdtempSync(join(reports, 'run-'))
+let report = sessionReport
 writeFileSync(join(report, 'build.json'), JSON.stringify(build, null, 2))
 writeFileSync(join(report, 'status.json'), JSON.stringify({ passed: false, state: 'running' }))
 let child,
@@ -155,65 +175,11 @@ async function finishTrace() {
     await device(['shell', 'rm', '-f', traceRemote], 5000, false)
   }
 }
-try {
-  const descriptor = openSync(join(report, 'emulator.log'), 'w')
-  child = spawn(
-    emulator,
-    [
-      '-avd',
-      avd,
-      '-port',
-      '5566',
-      '-no-window',
-      '-no-audio',
-      '-no-snapshot-load',
-      '-no-snapshot-save',
-      '-no-boot-anim',
-      '-gpu',
-      'swiftshader_indirect',
-    ],
-    { stdio: ['ignore', descriptor, descriptor] },
-  )
-  closeSync(descriptor)
-  child.on('error', (error) => {
-    childError = error
-  })
-  const alive = () => {
-    if (childError) throw childError
-    check(child.exitCode === null && child.signalCode === null, 'Owned emulator exited')
-    if (interruption) throw interruption
-  }
-  const bootDeadline = Date.now() + 180000
-  while (true) {
-    alive()
-    const boot = await device(['shell', 'getprop', 'sys.boot_completed'], 5000, false)
-    alive()
-    if (boot.output === '1') break
-    check(Date.now() < bootDeadline, 'Owned emulator boot timed out')
-    await pause(1000)
-  }
-  const identity = (await device(['emu', 'avd', 'name'])).output
-  writeFileSync(
-    join(report, 'device-identity.json'),
-    JSON.stringify({ serial, avd, consoleReply: identity }),
-  )
-  check(identity.split(/\r?\n/)[0].trim() === avd, 'Wrong booted AVD: ' + JSON.stringify(identity))
-  identityConfirmed = true
-  check(
-    (await device(['shell', 'getprop', 'ro.build.version.sdk'])).output === '35',
-    'Unexpected Android API',
-  )
-  await device(['install', '-r', build.apk], 120000)
-  installed = true
-  uid = Number(
-    (await device(['shell', 'pm', 'list', 'packages', '-U', build.id])).output.match(
-      /uid:(\d+)/,
-    )?.[1],
-  )
-  check(Number.isSafeInteger(uid) && uid >= 10000, 'Missing app UID')
+async function runAttempt(trial, runToken, alive) {
   await device(['shell', 'am', 'force-stop', build.id])
-  if (build.variant === 'release') await device(['shell', 'pm', 'clear', build.id])
-  else
+  if (build.variant === 'release' && trial.index === 0)
+    await device(['shell', 'pm', 'clear', build.id])
+  else if (build.variant !== 'release')
     await device([
       'shell',
       'run-as',
@@ -224,16 +190,19 @@ try {
       'files/lifecycle-result.json',
     ])
   if (traceEnabled) {
+    traceResult = undefined
+    traceFailure = undefined
     const config = `buffers { size_kb: 32768 fill_policy: RING_BUFFER }
 duration_ms: 10000
 write_into_file: true
 file_write_period_ms: 250
 flush_period_ms: 500
 data_sources { config { name: "linux.ftrace" ftrace_config {
-  atrace_categories: "gfx"
-  atrace_categories: "view"
-  atrace_categories: "wm"
-  atrace_apps: "${build.id}"
+atrace_categories: "gfx"
+atrace_categories: "view"
+atrace_categories: "wm"
+atrace_apps: "${build.id}"
+atrace_apps: "${build.id}:ordinary"
 } } }
 data_sources { config { name: "linux.process_stats" process_stats_config { scan_all_processes_on_start: true } } }
 data_sources { config { name: "android.surfaceflinger.frametimeline" } }
@@ -261,13 +230,36 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
       check(!traceResult, 'Perfetto exited before Home launch')
       const size = await device(['shell', 'stat', '-c', '%s', traceRemote], 5000, false)
       if (Number(size.output) > 0) {
-        writeFileSync(
-          join(report, 'trace-start.json'),
-          JSON.stringify({ streamingBytes: Number(size.output) }),
+        const prefix = join(report, 'trace-start-prefix.pftrace')
+        await device(['pull', traceRemote, prefix])
+        const sql =
+          "SELECT coalesce(max(int_value),0) AS started_ns FROM metadata WHERE name='all_data_source_started_ns'"
+        const readiness = spawnSync(
+          traceProcessor,
+          ['query', '--full-sort', '--quiet', '--format', 'csv', prefix, sql],
+          { encoding: 'utf8', timeout: 5000, maxBuffer: 1024 * 1024 },
         )
-        break
+        writeFileSync(
+          join(report, 'trace-readiness.log'),
+          (readiness.stdout ?? '') + (readiness.stderr ?? '') + String(readiness.error ?? ''),
+        )
+        const started = Number(readiness.stdout?.trim().split(/\r?\n/).at(-1))
+        if (readiness.status === 0 && Number.isSafeInteger(started) && started > 0) {
+          writeFileSync(
+            join(report, 'trace-start.json'),
+            JSON.stringify({
+              streamingBytes: Number(size.output),
+              allDataSourcesStartedNanos: started,
+              processorHash: hash(traceProcessor),
+            }),
+          )
+          break
+        }
       }
-      check(Date.now() < deadline, 'Perfetto did not begin streaming before Home launch')
+      check(
+        Date.now() < deadline,
+        'Perfetto did not acknowledge all data sources before Home launch',
+      )
       await pause(100)
     }
   }
@@ -279,12 +271,22 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
     '-n',
     build.id +
       '/org.octanexplat.prerenderandroid.' +
-      (build.home ? 'HomeActivity' : 'ProbeActivity'),
+      (build.home
+        ? startupPath === 'ordinary'
+          ? 'HomeOrdinaryActivity'
+          : 'HomeActivity'
+        : 'ProbeActivity'),
+    '--es',
+    'xplat-startup-run',
+    runToken,
     '--ez',
     'xplat-recreate',
     'true',
   ])
   writeFileSync(join(report, 'launch.txt'), launch.output)
+  // Delay only the observer, never the application or engine. Analysis checks
+  // that receipt I/O follows the first Home presentation on both paths.
+  if (build.home?.startup) await pause(1500)
   const deadline = Date.now() + 45000 + Math.max(0, (build.home?.recreateCount ?? 1) - 1) * 5000
   let events = []
   while (Date.now() < deadline) {
@@ -292,6 +294,10 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
     const receipt = await readReceipt('probe-result.json')
     if (receipt.status === 0) {
       events = JSON.parse(receipt.output)
+      if (build.home?.startup && !events.some((event) => event.runToken === runToken)) {
+        await pause(100)
+        continue
+      }
       writeFileSync(join(report, 'result.json'), JSON.stringify(events, null, 2))
       const homeFailure = events.find(
         (event) => event.event === 'home-proof' && event.phase === 'failed',
@@ -318,6 +324,15 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
       check(!wrapperFailure, 'Wrapper control failed: ' + wrapperFailure?.error)
       if (build.home) {
         if (
+          build.home.startup &&
+          events.some(
+            (event) =>
+              event.event === 'startup-complete' &&
+              event.epoch === Math.max(...events.map((event) => event.epoch)),
+          )
+        )
+          break
+        if (
           build.home.fallback &&
           events.some(
             (event) =>
@@ -333,7 +348,9 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
           )
         )
           break
-        const ready = completedHomeEpoch(events, Boolean(build.home.parity))
+        const ready = build.home.startup
+          ? undefined
+          : completedHomeEpoch(events, Boolean(build.home.parity))
         const request = events.find((event) => event.event === 'recreation-requested')
         if (
           ready !== undefined &&
@@ -364,7 +381,18 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
   )
   const end = events.find((event) => event.event === 'engine-init-end')
   const success = events.find((event) => event.event === 'passed' && event.epoch === begin?.epoch)
-  if (build.home?.fallback) {
+  if (build.home?.startup) {
+    events = await qualifyAndroidStartup({
+      build,
+      path: startupPath,
+      events,
+      readReceipt,
+      device,
+      alive,
+      pause,
+      report,
+    })
+  } else if (build.home?.fallback) {
     const rejected = events.find(
       (event) =>
         event.event ===
@@ -1165,30 +1193,32 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
     }
   }
   const phases = (
-    build.home?.fallback === 'build'
-      ? ['ir-rejected', 'engine-init-begin', 'engine-init-end']
-      : build.home?.fallback === 'font-scale'
-        ? [
-            'native-home-decoded',
-            'environment-rejected-native',
-            'engine-init-begin',
-            'engine-init-end',
-          ]
-        : build.home?.fallback
+    build.home?.startup
+      ? []
+      : build.home?.fallback === 'build'
+        ? ['ir-rejected', 'engine-init-begin', 'engine-init-end']
+        : build.home?.fallback === 'font-scale'
           ? [
               'native-home-decoded',
-              'native-home-mounted',
-              'native-layout-before-runtime',
+              'environment-rejected-native',
               'engine-init-begin',
               'engine-init-end',
             ]
-          : [
-              ...(build.home ? ['native-home-decoded', 'native-home-mounted'] : []),
-              'native-layout-before-runtime',
-              'engine-init-begin',
-              'engine-init-end',
-              'passed',
-            ]
+          : build.home?.fallback
+            ? [
+                'native-home-decoded',
+                'native-home-mounted',
+                'native-layout-before-runtime',
+                'engine-init-begin',
+                'engine-init-end',
+              ]
+            : [
+                ...(build.home ? ['native-home-decoded', 'native-home-mounted'] : []),
+                'native-layout-before-runtime',
+                'engine-init-begin',
+                'engine-init-end',
+                'passed',
+              ]
   ).map((name) => events.findIndex((event) => event.event === name && event.epoch === begin?.epoch))
   check(
     phases.every(
@@ -1208,7 +1238,7 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
         'content',
         'read',
         '--uri',
-        'content://' + build.id + '.receipts/not-a-receipt.json',
+        'content://' + receiptAuthority + '/not-a-receipt.json',
       ],
       5000,
       false,
@@ -1219,7 +1249,7 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
         'content',
         'write',
         '--uri',
-        'content://' + build.id + '.receipts/probe-result.json',
+        'content://' + receiptAuthority + '/probe-result.json',
       ],
       5000,
       false,
@@ -1239,12 +1269,159 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
   await finishTrace()
   writeFileSync(
     join(report, 'status.json'),
-    JSON.stringify({ passed: true, driverHash, driverInputs, avd, api: 35, scope: build.scope }),
+    JSON.stringify({ passed: true, driverHash, driverInputs, avd, api: 35, scope }),
   )
-  console.log(JSON.stringify({ report, passed: true, scope: build.scope }, null, 2))
+  console.log(JSON.stringify({ report, passed: true, scope }, null, 2))
+}
+
+try {
+  const descriptor = openSync(join(report, 'emulator.log'), 'w')
+  child = spawn(
+    emulator,
+    [
+      '-avd',
+      avd,
+      '-port',
+      '5566',
+      '-no-window',
+      '-no-audio',
+      '-no-snapshot-load',
+      '-no-snapshot-save',
+      '-no-boot-anim',
+      '-gpu',
+      'swiftshader_indirect',
+    ],
+    { stdio: ['ignore', descriptor, descriptor] },
+  )
+  closeSync(descriptor)
+  child.on('error', (error) => {
+    childError = error
+  })
+  const alive = () => {
+    if (childError) throw childError
+    check(child.exitCode === null && child.signalCode === null, 'Owned emulator exited')
+    if (interruption) throw interruption
+  }
+  const bootDeadline = Date.now() + 180000
+  while (true) {
+    alive()
+    const boot = await device(['shell', 'getprop', 'sys.boot_completed'], 5000, false)
+    alive()
+    if (boot.output === '1') break
+    check(Date.now() < bootDeadline, 'Owned emulator boot timed out')
+    await pause(1000)
+  }
+  const identity = (await device(['emu', 'avd', 'name'])).output
+  writeFileSync(
+    join(report, 'device-identity.json'),
+    JSON.stringify({ serial, avd, consoleReply: identity }),
+  )
+  check(identity.split(/\r?\n/)[0].trim() === avd, 'Wrong booted AVD: ' + JSON.stringify(identity))
+  identityConfirmed = true
+  check(
+    (await device(['shell', 'getprop', 'ro.build.version.sdk'])).output === '35',
+    'Unexpected Android API',
+  )
+  await device(['install', '-r', build.apk], 120000)
+  installed = true
+  uid = Number(
+    (await device(['shell', 'pm', 'list', 'packages', '-U', build.id])).output.match(
+      /uid:(\d+)/,
+    )?.[1],
+  )
+  check(Number.isSafeInteger(uid) && uid >= 10000, 'Missing app UID')
+  const pairs = Number(process.env.XPLAT_PRERENDER_ANDROID_STARTUP_PAIRS ?? 0)
+  check(
+    Number.isInteger(pairs) &&
+      pairs >= 0 &&
+      pairs <= 12 &&
+      (!pairs || (build.home?.startup && traceEnabled)),
+    'Startup pairs must be0..12 and require the traced startup fixture',
+  )
+  const sequence = pairs
+    ? [
+        ...['native', 'ordinary', 'ordinary', 'native'].map((path) => ({ path, warmup: true })),
+        ...Array.from({ length: pairs }, (_, index) =>
+          (index % 2 ? ['ordinary', 'native'] : ['native', 'ordinary']).map((path) => ({
+            path,
+            warmup: false,
+          })),
+        ).flat(),
+      ].map((trial, index) => ({ ...trial, index }))
+    : [{ path: startupPath, warmup: false, index: 0 }]
+  const trialReports = []
+  for (const trial of sequence) {
+    if (pairs) {
+      report = join(
+        sessionReport,
+        'trial-' + String(trial.index).padStart(2, '0') + '-' + trial.path,
+      )
+      mkdirSync(report)
+      writeFileSync(join(report, 'build.json'), JSON.stringify(build, null, 2))
+      writeFileSync(
+        join(report, 'device-identity.json'),
+        readFileSync(join(sessionReport, 'device-identity.json')),
+      )
+      writeFileSync(
+        join(report, 'status.json'),
+        JSON.stringify({ passed: false, state: 'running' }),
+      )
+    }
+    startupPath = trial.path
+    receiptAuthority = build.id + '.receipts' + (startupPath === 'ordinary' ? '.ordinary' : '')
+    if (build.home?.startup)
+      scope =
+        'Matched release Home startup control (' +
+        startupPath +
+        '); no artificial250ms delay or extra abort/parity probe; emulator only'
+    const runToken = driverHash.slice(0, 12) + '-' + process.pid + '-' + trial.index
+    await runAttempt(trial, runToken, alive)
+    trialReports.push({ ...trial, report, runToken })
+    if (pairs)
+      writeFileSync(
+        join(sessionReport, 'trials-progress.json'),
+        JSON.stringify({ pairs, completed: trialReports }, null, 2),
+      )
+  }
+  if (pairs) {
+    report = sessionReport
+    writeFileSync(
+      join(report, 'trials.json'),
+      JSON.stringify(
+        {
+          apkHash: build.apkHash,
+          warmups: 4,
+          pairs,
+          appDataReset: 'before-warmups-only',
+          apkInstalledOnce: true,
+          trials: trialReports,
+          protocol:
+            'One installed APK/one emulator boot; app data reset only before warmups, force-stop between launches, alternating measured pairs, run tokens reject stale receipts; emulator pilot, not physical performance',
+        },
+        null,
+        2,
+      ),
+    )
+    writeFileSync(
+      join(report, 'status.json'),
+      JSON.stringify({
+        passed: true,
+        driverHash,
+        driverInputs,
+        scope:
+          'Matched release emulator startup trial collection; analyze each trace before comparison',
+      }),
+    )
+    console.log(JSON.stringify({ report, pairs, passed: true }))
+  }
 } catch (error) {
   failed = true
   failure = String(error)
+  if (report !== sessionReport)
+    writeFileSync(
+      join(sessionReport, 'status.json'),
+      JSON.stringify({ passed: false, error: failure, failedTrial: report }),
+    )
   writeFileSync(
     join(report, 'status.json'),
     JSON.stringify({ passed: false, error: String(error), driverHash, driverInputs }),
