@@ -14,7 +14,10 @@ const check = (value, message) => {
   if (!value) throw new Error(message)
 }
 check(
-  build.id === 'org.octanexplat.prerenderbootstrap.android',
+  build.id ===
+    (build.home
+      ? 'org.octanexplat.prerenderhome.android'
+      : 'org.octanexplat.prerenderbootstrap.android'),
   'Unexpected bootstrap app identity',
 )
 check(hash(build.apk) === build.apkHash, 'APK changed since build')
@@ -82,7 +85,8 @@ let child,
   installed = false,
   uid,
   identityConfirmed = false,
-  failed = false
+  failed = false,
+  failure
 try {
   const descriptor = openSync(join(report, 'emulator.log'), 'w')
   child = spawn(
@@ -155,7 +159,9 @@ try {
     'start',
     '-W',
     '-n',
-    build.id + '/org.octanexplat.prerenderandroid.ProbeActivity',
+    build.id +
+      '/org.octanexplat.prerenderandroid.' +
+      (build.home ? 'HomeActivity' : 'ProbeActivity'),
     '--ez',
     'xplat-recreate',
     'true',
@@ -181,6 +187,11 @@ try {
         (event) => event.event === 'wrapper-proof' && event.phase === 'failed',
       )
       check(!wrapperFailure, 'Wrapper control failed: ' + wrapperFailure?.error)
+      if (
+        build.home &&
+        events.some((event) => event.event === 'passed' && event.nativeHomeMountQualified)
+      )
+        break
       const request = events.find((event) => event.event === 'recreation-requested')
       if (
         request &&
@@ -198,179 +209,228 @@ try {
   )
   const end = events.find((event) => event.event === 'engine-init-end')
   const success = events.find((event) => event.event === 'passed' && event.epoch === begin?.epoch)
-  check(
-    native &&
-      native.runtimeStarted === false &&
-      native.runtimeLibraryLoaded === false &&
-      native.firstWidth > 0 &&
-      native.firstHeight > 0 &&
-      native.children === 2 &&
-      native.firstText === 'Native home screen',
-    'Native pre-runtime layout not established',
-  )
-  check(end?.runtimeStarted === true, 'Deferred runtime initialization not established')
-  const request = events.find((event) => event.event === 'recreation-requested')
-  const rebound = events.find(
-    (event) => event.event === 'passed' && event.warmActivity && event.epoch > request?.epoch,
-  )
-  check(
-    request &&
-      rebound &&
-      rebound.activeBridgeEpoch === rebound.epoch &&
-      rebound.firstWidth > 0 &&
-      events.some(
-        (event) =>
-          event.event === 'bridge-detached' &&
-          event.epoch === request.epoch &&
-          event.activeBridgeEpoch === 0,
-      ) &&
-      events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
-      rebound.runtimeStarts === 1,
-    'Activity recreation did not release/rebind the controller with one runtime',
-  )
-  check(
-    events
-      .filter((event) => event.event === 'passed')
-      .every(
-        (event) =>
-          event.nativeIdentityRetained &&
-          event.masonNodeIdentityRetained &&
-          event.rustNodeHandlesRetained &&
-          event.activeBridgeEpoch === event.epoch,
+  if (build.home) {
+    const decoded = events.find(
+      (event) => event.event === 'native-home-decoded' && event.epoch === begin?.epoch,
+    )
+    const mounted = events.find(
+      (event) => event.event === 'native-home-mounted' && event.epoch === begin?.epoch,
+    )
+    check(
+      [decoded, mounted, native].every(
+        (event) => event && event.runtimeStarted === false && event.runtimeLibraryLoaded === false,
       ),
-    'Per-activity native identity or controller ownership differs',
-  )
-  check(
-    success?.nativeIdentityRetained &&
-      success.masonNodeIdentityRetained &&
-      success.rustNodeHandlesRetained &&
-      success.bridgeUpdateQualified &&
-      success.firstText === 'Updated through NativeScript bridge',
-    'Post-boot native identity/update proof missing',
-  )
-  if (build.labelWrappers) {
-    for (const epoch of [begin.epoch, rebound.epoch])
-      check(
+      'Actual Home was not decoded/mounted/laid out before the runtime/library',
+    )
+    check(
+      native.homeVisualNodes === 19 &&
+        native.width > 0 &&
+        native.height > 0 &&
+        native.nodes?.length === 19 &&
+        native.nodes.every((node) => node.attached && node.width > 0 && node.height > 0),
+      'Actual Home native geometry missing',
+    )
+    const expected = JSON.parse(readFileSync(join(resolve(work), 'producer/resolved.json')))
+    check(
+      native.nodes.every(
+        (node, index) =>
+          node.index === index &&
+          node.kind === expected.nodes[index].kind &&
+          node.parent === (expected.nodes[index].parent ?? -1) &&
+          (node.kind !== 'label' || node.text === expected.nodes[index].text),
+      ),
+      'Decoded Home native projection differs from producer',
+    )
+    check(
+      end?.runtimeStarted === true &&
+        success?.runtimeStarts === 1 &&
+        events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
+        success.nativeHomeMountQualified &&
+        success.nativeIdentityRetained &&
+        success.masonNodeIdentityRetained &&
+        success.rustNodeHandlesRetained &&
+        success.homeHydrationQualified === false &&
+        success.presentationQualified === false,
+      'Home native/runtime identity proof missing',
+    )
+  } else {
+    check(
+      native &&
+        native.runtimeStarted === false &&
+        native.runtimeLibraryLoaded === false &&
+        native.firstWidth > 0 &&
+        native.firstHeight > 0 &&
+        native.children === 2 &&
+        native.firstText === 'Native home screen',
+      'Native pre-runtime layout not established',
+    )
+    check(end?.runtimeStarted === true, 'Deferred runtime initialization not established')
+    const request = events.find((event) => event.event === 'recreation-requested')
+    const rebound = events.find(
+      (event) => event.event === 'passed' && event.warmActivity && event.epoch > request?.epoch,
+    )
+    check(
+      request &&
+        rebound &&
+        rebound.activeBridgeEpoch === rebound.epoch &&
+        rebound.firstWidth > 0 &&
         events.some(
           (event) =>
-            event.event === 'wrapper-proof' &&
-            event.epoch === epoch &&
-            event.phase === 'adopted' &&
-            event.realLabelWrappers === 2 &&
-            event.identitiesRetained &&
-            event.contextsEstablished &&
-            event.loaded &&
-            (!build.masonParent ||
-              (event.logicalMasonParent &&
-                event.matchedAttachmentOnly === Boolean(build.masonAdopt) &&
-                event.mutationsVerified &&
-                event.adoptionPhysicalAttachments === 0)),
-        ),
-        'Real Label wrapper adoption missing',
-      )
-    check(
-      events.some(
-        (event) =>
-          event.event === 'wrapper-proof' &&
-          event.epoch === request.epoch &&
-          event.phase === 'disposed' &&
-          event.releasedWrappers === 2,
-      ),
-      'Old Activity Label wrappers not disposed',
-    )
-    check(
-      native.firstHeight === rebound.firstHeight,
-      'Fixed-font single-line height changed during wrapper setup',
-    )
-    check(
-      events.some(
-        (event) =>
-          event.epoch === begin.epoch &&
-          event.firstText === 'Updated through NativeScript bridge' &&
-          event.firstWidth > native.firstWidth &&
-          event.firstWidth === rebound.firstWidth &&
-          event.firstHeight === native.firstHeight,
-      ),
-      'Wrapper text update did not remeasure the cold native tree like the fresh tree',
-    )
-  }
-  if (build.applicationHandoff) {
-    check(
-      [success, rebound].every(
-        (event) => event.rootWindowAttachments === 1 && event.rootWindowDetachments === 0,
-      ),
-      'Core handoff detached/re-attached the original native window root',
-    )
-    const applicationProofs = [begin.epoch, rebound.epoch].map((epoch) =>
-      events.find(
-        (event) =>
-          event.event === 'wrapper-proof' && event.phase === 'application' && event.epoch === epoch,
-      ),
-    )
-    for (const proof of applicationProofs) {
-      check(
-        proof &&
-          proof.state === 'attached' &&
-          proof.active &&
-          proof.foregroundActivity &&
-          proof.sameRoot &&
-          proof.registrySize === 1 &&
-          proof.lifecycle.ready === 1 &&
-          proof.lifecycle.opened === 1,
-        'Core Application/window root handoff missing',
-      )
-      check(
-        events.some(
-          (event) => event.event === 'native-content-adopted' && event.epoch === proof.epoch,
-        ),
-        'Core content pipeline did not adopt the installed native root',
-      )
-    }
-    const [cold, warm] = applicationProofs
-    check(
-      cold.catchUp && !warm.catchUp && cold.windowId === warm.windowId,
-      'Cold catch-up or recreated window session identity differs',
-    )
-    if (build.applicationEntry) {
-      check(
-        cold.normalEntry &&
-          warm.normalEntry &&
-          cold.entryCounts.factories === 1 &&
-          warm.entryCounts.factories === 1 &&
-          cold.entryCounts.launches === 1 &&
-          warm.entryCounts.launches === 1 &&
-          !cold.reusingOwners &&
-          warm.reusingOwners &&
-          JSON.stringify(cold.ownerIds) === JSON.stringify(warm.ownerIds),
-        'Normal main entry/launch or saved live owner restoration differs',
-      )
-      check(
-        events.some(
-          (event) =>
-            event.event === 'wrapper-proof' &&
-            event.phase === 'disposed' &&
+            event.event === 'bridge-detached' &&
             event.epoch === request.epoch &&
-            event.ownersRetained &&
-            event.claimsRetired,
+            event.activeBridgeEpoch === 0,
+        ) &&
+        events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
+        rebound.runtimeStarts === 1,
+      'Activity recreation did not release/rebind the controller with one runtime',
+    )
+    check(
+      events
+        .filter((event) => event.event === 'passed')
+        .every(
+          (event) =>
+            event.nativeIdentityRetained &&
+            event.masonNodeIdentityRetained &&
+            event.rustNodeHandlesRetained &&
+            event.activeBridgeEpoch === event.epoch,
         ),
-        'Activity-scoped native claims were not retired before owner restoration',
+      'Per-activity native identity or controller ownership differs',
+    )
+    check(
+      success?.nativeIdentityRetained &&
+        success.masonNodeIdentityRetained &&
+        success.rustNodeHandlesRetained &&
+        success.bridgeUpdateQualified &&
+        success.firstText === 'Updated through NativeScript bridge',
+      'Post-boot native identity/update proof missing',
+    )
+    if (build.labelWrappers) {
+      for (const epoch of [begin.epoch, rebound.epoch])
+        check(
+          events.some(
+            (event) =>
+              event.event === 'wrapper-proof' &&
+              event.epoch === epoch &&
+              event.phase === 'adopted' &&
+              event.realLabelWrappers === 2 &&
+              event.identitiesRetained &&
+              event.contextsEstablished &&
+              event.loaded &&
+              (!build.masonParent ||
+                (event.logicalMasonParent &&
+                  event.matchedAttachmentOnly === Boolean(build.masonAdopt) &&
+                  event.mutationsVerified &&
+                  event.adoptionPhysicalAttachments === 0)),
+          ),
+          'Real Label wrapper adoption missing',
+        )
+      check(
+        events.some(
+          (event) =>
+            event.event === 'wrapper-proof' &&
+            event.epoch === request.epoch &&
+            event.phase === 'disposed' &&
+            event.releasedWrappers === 2,
+        ),
+        'Old Activity Label wrappers not disposed',
+      )
+      check(
+        native.firstHeight === rebound.firstHeight,
+        'Fixed-font single-line height changed during wrapper setup',
+      )
+      check(
+        events.some(
+          (event) =>
+            event.epoch === begin.epoch &&
+            event.firstText === 'Updated through NativeScript bridge' &&
+            event.firstWidth > native.firstWidth &&
+            event.firstWidth === rebound.firstWidth &&
+            event.firstHeight === native.firstHeight,
+        ),
+        'Wrapper text update did not remeasure the cold native tree like the fresh tree',
       )
     }
-    check(
-      cold.lifecycle.created === 1 &&
-        cold.lifecycle.attached === 1 &&
-        cold.lifecycle.started === 1 &&
-        cold.lifecycle.resumed === 1 &&
-        warm.lifecycle.created >= 2 &&
-        warm.lifecycle.attached === warm.lifecycle.created &&
-        warm.lifecycle.started === warm.lifecycle.created &&
-        warm.lifecycle.resumed === warm.lifecycle.created &&
-        warm.lifecycle.detached === warm.lifecycle.created - 1 &&
-        warm.lifecycle.destroyed === warm.lifecycle.created - 1,
-      'Core Activity lifecycle delivery duplicated or missed events',
-    )
+    if (build.applicationHandoff) {
+      check(
+        [success, rebound].every(
+          (event) => event.rootWindowAttachments === 1 && event.rootWindowDetachments === 0,
+        ),
+        'Core handoff detached/re-attached the original native window root',
+      )
+      const applicationProofs = [begin.epoch, rebound.epoch].map((epoch) =>
+        events.find(
+          (event) =>
+            event.event === 'wrapper-proof' &&
+            event.phase === 'application' &&
+            event.epoch === epoch,
+        ),
+      )
+      for (const proof of applicationProofs) {
+        check(
+          proof &&
+            proof.state === 'attached' &&
+            proof.active &&
+            proof.foregroundActivity &&
+            proof.sameRoot &&
+            proof.registrySize === 1 &&
+            proof.lifecycle.ready === 1 &&
+            proof.lifecycle.opened === 1,
+          'Core Application/window root handoff missing',
+        )
+        check(
+          events.some(
+            (event) => event.event === 'native-content-adopted' && event.epoch === proof.epoch,
+          ),
+          'Core content pipeline did not adopt the installed native root',
+        )
+      }
+      const [cold, warm] = applicationProofs
+      check(
+        cold.catchUp && !warm.catchUp && cold.windowId === warm.windowId,
+        'Cold catch-up or recreated window session identity differs',
+      )
+      if (build.applicationEntry) {
+        check(
+          cold.normalEntry &&
+            warm.normalEntry &&
+            cold.entryCounts.factories === 1 &&
+            warm.entryCounts.factories === 1 &&
+            cold.entryCounts.launches === 1 &&
+            warm.entryCounts.launches === 1 &&
+            !cold.reusingOwners &&
+            warm.reusingOwners &&
+            JSON.stringify(cold.ownerIds) === JSON.stringify(warm.ownerIds),
+          'Normal main entry/launch or saved live owner restoration differs',
+        )
+        check(
+          events.some(
+            (event) =>
+              event.event === 'wrapper-proof' &&
+              event.phase === 'disposed' &&
+              event.epoch === request.epoch &&
+              event.ownersRetained &&
+              event.claimsRetired,
+          ),
+          'Activity-scoped native claims were not retired before owner restoration',
+        )
+      }
+      check(
+        cold.lifecycle.created === 1 &&
+          cold.lifecycle.attached === 1 &&
+          cold.lifecycle.started === 1 &&
+          cold.lifecycle.resumed === 1 &&
+          warm.lifecycle.created >= 2 &&
+          warm.lifecycle.attached === warm.lifecycle.created &&
+          warm.lifecycle.started === warm.lifecycle.created &&
+          warm.lifecycle.resumed === warm.lifecycle.created &&
+          warm.lifecycle.detached === warm.lifecycle.created - 1 &&
+          warm.lifecycle.destroyed === warm.lifecycle.created - 1,
+        'Core Activity lifecycle delivery duplicated or missed events',
+      )
+    }
   }
   const phases = [
+    ...(build.home ? ['native-home-decoded', 'native-home-mounted'] : []),
     'native-layout-before-runtime',
     'engine-init-begin',
     'engine-init-end',
@@ -390,9 +450,10 @@ try {
     join(report, 'status.json'),
     JSON.stringify({ passed: true, driverHash, avd, api: 35, scope: build.scope }),
   )
-  console.log(JSON.stringify({ report, events }, null, 2))
+  console.log(JSON.stringify({ report, passed: true, scope: build.scope }, null, 2))
 } catch (error) {
   failed = true
+  failure = String(error)
   writeFileSync(
     join(report, 'status.json'),
     JSON.stringify({ passed: false, error: String(error), driverHash }),
@@ -450,7 +511,7 @@ try {
     writeFileSync(join(report, 'cleanup-errors.json'), JSON.stringify(errors))
     writeFileSync(
       join(report, 'status.json'),
-      JSON.stringify({ passed: false, cleanupErrors: errors }),
+      JSON.stringify({ passed: false, error: failure, driverHash, cleanupErrors: errors }),
     )
     if (!failed) throw new Error(errors.join('; '))
   }

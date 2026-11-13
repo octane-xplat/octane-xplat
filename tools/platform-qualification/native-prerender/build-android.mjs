@@ -34,6 +34,17 @@ if (applicationHandoff && !masonAdopt)
   throw new Error('Application handoff requires Mason adoption')
 if (applicationEntry && !applicationHandoff)
   throw new Error('Application entry requires application handoff')
+const homeProducer = process.env.XPLAT_PRERENDER_ANDROID_HOME_PRODUCER
+  ? required('XPLAT_PRERENDER_ANDROID_HOME_PRODUCER')
+  : null
+if (
+  homeProducer &&
+  (labelWrappers || masonParent || masonAdopt || applicationHandoff || applicationEntry)
+)
+  throw new Error('Home mount control cannot combine with two-label wrapper modes')
+const id = homeProducer
+  ? 'org.octanexplat.prerenderhome.android'
+  : 'org.octanexplat.prerenderbootstrap.android'
 const framework = join(runtime, 'framework')
 if (
   JSON.parse(readFileSync(join(runtime, 'package.json'))).version !== '9.1.1' ||
@@ -100,8 +111,39 @@ for (const [name, destination] of [
   ['entry.js', labelWrappers ? 'raw-bridge-entry.js' : 'app/src/main/assets/app/main.js'],
   ['app.gradle', 'app/build.gradle'],
   ['settings.gradle', 'settings.gradle'],
-])
-  snapshot(join(source, name), join(work, destination), sourceHashes)
+]) {
+  const selected = homeProducer
+    ? ({
+        'ProbeActivity.java': 'HomeActivity.java',
+        'ProbeApplication.java': 'HomeApplication.java',
+        'ProbeBridge.java': 'HomeBridge.java',
+        'entry.js': 'home-entry.js',
+      }[name] ?? name)
+    : name
+  const target = homeProducer
+    ? destination
+        .replace('ProbeActivity.java', 'HomeActivity.java')
+        .replace('ProbeApplication.java', 'HomeApplication.java')
+        .replace('ProbeBridge.java', 'HomeBridge.java')
+    : destination
+  const template = homeProducer && ['AndroidManifest.xml', 'app.gradle'].includes(name)
+  snapshot(
+    join(source, selected),
+    join(work, template ? 'templates/' + name : target),
+    sourceHashes,
+  )
+  if (template)
+    writeFileSync(
+      join(work, target),
+      readFileSync(join(work, 'templates/' + name), 'utf8')
+        .replaceAll('ProbeApplication', 'HomeApplication')
+        .replaceAll('ProbeActivity', 'HomeActivity')
+        .replaceAll('org.octanexplat.prerenderbootstrap.android', id),
+    )
+}
+if (homeProducer)
+  for (const name of ['HomeArtifact.java', 'HomeScene.java'])
+    snapshot(join(source, name), join(work, 'app/src/main/java/org/octanexplat/prerenderandroid', name), sourceHashes)
 sourceHashes[import.meta.filename] = {
   copy: import.meta.filename,
   sha256: hash(import.meta.filename),
@@ -155,6 +197,50 @@ if (labelWrappers) {
     throw new Error('Label bundle failed; see ' + join(work, 'label-bundle.log'))
   Object.assign(sourceHashes, JSON.parse(readFileSync(join(work, 'label-js-inputs.json'))))
 }
+let home = null
+if (homeProducer) {
+  for (const name of ['build.json', 'home.bin', 'resolved.json'])
+    snapshot(join(homeProducer, name), join(work, 'producer', name), sourceHashes)
+  const producer = JSON.parse(readFileSync(join(work, 'producer/build.json')))
+  const artifact = readFileSync(join(work, 'producer/home.bin'))
+  if (
+    producer.platform !== 'android' ||
+    !/^[a-f0-9]{64}$/.test(producer.buildHash) ||
+    hash(join(work, 'producer/home.bin')) !== producer.artifactHash ||
+    artifact.length < 80 ||
+    artifact.subarray(16, 48).toString('hex') !== producer.buildHash
+  )
+    throw new Error('Expected intact Android Home producer output')
+  // Bind producer identity and the frozen native host inputs. Rebinding only
+  // the header preserves the payload/checksum and its decoded semantics.
+  const buildHash = createHash('sha256')
+    .update(
+      JSON.stringify({
+        producer: producer.buildHash,
+        native: Object.fromEntries(
+          Object.entries(sourceHashes).map(([path, value]) => [path, value.sha256]),
+        ),
+        sdk: Object.fromEntries(
+          Object.entries(inputs).map(([path, value]) => [path, value.sha256]),
+        ),
+      }),
+    )
+    .digest('hex')
+  Buffer.from(buildHash, 'hex').copy(artifact, 16)
+  writeFileSync(join(work, 'app/src/main/assets/home.bin'), artifact)
+  writeFileSync(
+    join(work, 'app/src/main/java/org/octanexplat/prerenderandroid/HomeBuild.java'),
+    'package org.octanexplat.prerenderandroid; public final class HomeBuild { public static final String HASH = "' +
+      buildHash +
+      '"; }\n',
+  )
+  home = {
+    buildHash,
+    producerBuildHash: producer.buildHash,
+    producerArtifactHash: producer.artifactHash,
+    artifactHash: hash(join(work, 'app/src/main/assets/home.bin')),
+  }
+}
 const java = join(javaHome, 'bin/java')
 // Freeze the external SDK snapshot before compilation. Later SDK rebuilds by
 // another task do not affect the inputs used by this isolated project.
@@ -197,7 +283,7 @@ const generatedHashes = Object.fromEntries(
 const apk = join(work, 'app/build/outputs/apk/debug/app-debug.apk')
 if (
   JSON.parse(readFileSync(join(work, 'app/build/outputs/apk/debug/output-metadata.json')))
-    .applicationId !== 'org.octanexplat.prerenderbootstrap.android'
+    .applicationId !== id
 )
   throw new Error('Compiled Android application ID differs from this fixture')
 writeFileSync(
@@ -211,19 +297,22 @@ writeFileSync(
       generatedHashes,
       inputs,
       commands,
-      id: 'org.octanexplat.prerenderbootstrap.android',
+      id,
+      home,
       labelWrappers,
       masonParent,
       masonAdopt,
       applicationHandoff,
       applicationEntry,
-      scope: applicationHandoff
-        ? 'Native-first two-label Core Application/NativeWindow handoff, targeted cold lifecycle catch-up, one window/runtime across Activity recreation, retained root attachment and ordinary wrapper mutations; no Octane/Home, full Activity callbacks, arbitrary plugins, process-death/state restoration, CSS/viewport parity, presentation, deallocation or performance qualification'
-        : masonParent
-          ? 'Real Mason/Label wrapper parent adoption control, child identity/order, normal reorder/insert/remove and Activity rebinding; no Octane, Home IR, Core Application handoff, general CSS parity, viewport, presentation, deallocation or performance qualification'
-          : labelWrappers
-            ? 'Native bootstrap with two real Core Label wrappers, per-Activity release/rebind and text remeasurement; no logical Mason parent, Octane hydration, Core Application handoff, Home IR, viewport/CSS parity, presentation or performance qualification'
-            : 'Native Application/Activity bootstrap mechanism and binary two-label fixture; no Octane/wrapper hydration, Home IR, full viewport, CSS parity, compositor presentation or release performance qualification',
+      scope: home
+        ? 'Native-first actual nineteen-view Android Home XPH1 decode, selected theme lowering, available viewport layout and identity across runtime startup; no Core/Octane hydration, live CSS parity, compositor presentation or release performance qualification'
+        : applicationHandoff
+          ? 'Native-first two-label Core Application/NativeWindow handoff, targeted cold lifecycle catch-up, one window/runtime across Activity recreation, retained root attachment and ordinary wrapper mutations; no Octane/Home, full Activity callbacks, arbitrary plugins, process-death/state restoration, CSS/viewport parity, presentation, deallocation or performance qualification'
+          : masonParent
+            ? 'Real Mason/Label wrapper parent adoption control, child identity/order, normal reorder/insert/remove and Activity rebinding; no Octane, Home IR, Core Application handoff, general CSS parity, viewport, presentation, deallocation or performance qualification'
+            : labelWrappers
+              ? 'Native bootstrap with two real Core Label wrappers, per-Activity release/rebind and text remeasurement; no logical Mason parent, Octane hydration, Core Application handoff, Home IR, viewport/CSS parity, presentation or performance qualification'
+              : 'Native Application/Activity bootstrap mechanism and binary two-label fixture; no Octane/wrapper hydration, Home IR, full viewport, CSS parity, compositor presentation or release performance qualification',
     },
     null,
     2,

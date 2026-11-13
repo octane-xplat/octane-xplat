@@ -141,7 +141,7 @@ export XPLAT_HOME_CODEC_INPUT="$XPLAT_HOME_CODEC_PRODUCER/resolved.json"
 bun turbo run test:prerender:codec:android --filter=@xplat/platform-qualification
 ```
 
-The Java checker compiles with `--release 8`, checks the shared malformed-input/value suite, and prints a UTF-8 JSON debug projection. The optional producer check requires an Android manifest and compares the original `home.bin` against its complete `resolved.json` projection. Source, class and artifact fingerprints plus command logs go below `~/agent-scratch/octane-xplat/native-prerender-android-codec`. Neither this JDK-host check nor the Swift host check proves execution on Android ART, native setter safety, UI mounting, font/layout parity, hydration or startup speed. The Java reader is not yet part of the Android APK builder.
+The Java checker compiles with `--release 8`, checks the shared malformed-input/value suite, and prints a UTF-8 JSON debug projection. The optional producer check requires an Android manifest and compares the original `home.bin` against its complete `resolved.json` projection. Source, class and artifact fingerprints plus command logs go below `~/agent-scratch/octane-xplat/native-prerender-android-codec`. Neither this JDK-host check nor the Swift host check proves execution on Android ART, native setter safety, UI mounting, font/layout parity, hydration or startup speed. The separate Android Home mount mode below includes this reader in its APK; the host codec check alone remains insufficient.
 
 Both readers preflight the complete artifact, including the unused theme. They reject unsupported style values, malformed UTF-8, duplicate keys/provenance, non-finite numbers, excessive literal nesting/collections, invalid tree links, incompatible headers/builds/checksums and trailing data. RGBA numeric tokens use decimal syntax consistently; Java numeric suffixes and hexadecimal floating literals are rejected. This remains a packaged fixed-screen contract, not a complete untrusted SSR input boundary or platform style lowerer.
 
@@ -326,6 +326,28 @@ The run also requests one Activity recreation after startup. It requires the old
 
 A pass establishes this two-label mechanism only. The container currently wraps its content; full viewport sizing remains a separate check. NativeScript wrapper/Octane hydration, Android Home IR, full NativeScript Core Activity lifecycle handoff, CSS parity, compositor presentation, release performance, process-death restoration and renderer state across configuration changes remain unqualified. The artificial runtime delay and debug APK are unsuitable for startup-performance comparisons.
 
+
+### Android actual Home native mount control
+
+After producing the Android Home, select its output for a separate native mount APK. Use the Android SDK inputs and build reservation above; keep the two-label wrapper/Application flags unset:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_HOME_PRODUCER=/absolute/path/to/android/producer/output
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build Android native Home mount"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
+```
+
+The packager requires an intact Android producer manifest and binary, snapshots the readable projection, and binds the producer identity with its frozen native sources and SDK inputs. It changes only the binary header's build identity. The separate `org.octanexplat.prerenderhome.android` app decodes XPH1 before any Home allocation, lowers its selected light/dark styles into real Mason containers and Core `StyleableTextView` labels, and sizes a native viewport to the Activity's available content bounds. This fixed lowerer requires Android28+, fontScale1 and the recorded system font stack; unsupported inputs fail explicitly.
+
+Run the same device task with this build's printed directory:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_BUILD=/absolute/path/to/printed/home/build/directory
+goddard-agent resource run --json '{"resources":{"exclusive":["android:elegant-fir-probe"],"resident_devices":1},"purpose":"Run Android native Home mount"}' -- bun turbo run probe:prerender:android --filter=@xplat/platform-qualification
+```
+
+The Home branch requires all nineteen views to be attached and have nonzero geometry before NativeScript and its runtime library initialize. It compares native kind, parent and text records with the producer, then checks unchanged native views, Mason nodes and raw handles after ordinary runtime startup. Native hierarchy counters reject child detach/reattach during that handoff. It does not force Activity recreation in this mode. Cleanup and fingerprint guards remain the same as the bootstrap runner.
+
+This control installs only a small JS verification bridge. It does not create NativeScript wrappers, hydrate Octane, qualify live CSS/font/layout parity, prove compositor presentation or measure release startup. The two-label controls below test their own separate ownership/lifecycle boundaries; they do not fill those Home gaps.
 
 ### Android Label wrapper ownership control
 
