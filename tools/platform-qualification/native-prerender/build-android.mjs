@@ -49,6 +49,14 @@ const homeParity = process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'
 if (homeParity && !homeAdopt) throw new Error('Home parity requires Home adoption')
 const homeRecreate = process.env.XPLAT_PRERENDER_ANDROID_HOME_RECREATE === '1'
 if (homeRecreate && !homeParity) throw new Error('Home recreation control requires Home parity')
+const homeRecreateCount = Number(process.env.XPLAT_PRERENDER_ANDROID_HOME_RECREATE_COUNT ?? 1)
+if (
+  !Number.isInteger(homeRecreateCount) ||
+  homeRecreateCount < 1 ||
+  homeRecreateCount > 8 ||
+  (process.env.XPLAT_PRERENDER_ANDROID_HOME_RECREATE_COUNT && !homeRecreate)
+)
+  throw new Error('Home recreation count must be1..8 and requires forced recreation')
 const homeInput = process.env.XPLAT_PRERENDER_ANDROID_HOME_INPUT === '1'
 if (homeInput && !homeParity) throw new Error('Home OS input control requires Home parity')
 const homeApplication = process.env.XPLAT_PRERENDER_ANDROID_HOME_APPLICATION === '1'
@@ -306,6 +314,7 @@ if (homeProducer) {
           homeAdopt,
           homeParity,
           homeRecreate,
+          homeRecreateCount,
           homeInput,
           homeApplication,
           homeFallback,
@@ -330,12 +339,15 @@ if (homeProducer) {
       buildHash +
       '"; public static final boolean RECREATE = ' +
       homeRecreate +
+      '; public static final int RECREATIONS = ' +
+      homeRecreateCount +
       '; }\n',
   )
   home = {
     adopt: homeAdopt,
     parity: homeParity,
     recreate: homeRecreate,
+    recreateCount: homeRecreateCount,
     input: homeInput,
     application: homeApplication,
     fallback: homeFallback,

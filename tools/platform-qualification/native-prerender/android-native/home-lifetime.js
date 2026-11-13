@@ -3,6 +3,7 @@ import { HomeLeaseRetired } from './home-parity.js'
 
 /** Observe Java objects only; this does not count Rust/native allocations. */
 export async function qualifyRetiredHome(activity, lease) {
+  const expected = XPLAT_PRERENDER_HOME_RECREATE_COUNT
   const samples = []
   for (let attempt = 1; attempt <= 8; attempt++) {
     if (!lease.active) throw new HomeLeaseRetired()
@@ -13,9 +14,9 @@ export async function qualifyRetiredHome(activity, lease) {
     const sample = JSON.parse(String(activity.snapshotRetiredHome()))
     samples.push(sample)
     if (
-      sample.retiredGenerations !== 1 ||
-      sample.observedViews !== 19 ||
-      sample.observedNodes !== 19
+      sample.retiredGenerations !== expected ||
+      sample.observedViews !== 19 * expected ||
+      sample.observedNodes !== 19 * expected
     )
       throw new Error('Retired Home lifetime baseline differs: ' + JSON.stringify(sample))
     if (sample.aliveViews.length === 0 && sample.aliveNodes.length === 0) {

@@ -185,7 +185,7 @@ try {
     'true',
   ])
   writeFileSync(join(report, 'launch.txt'), launch.output)
-  const deadline = Date.now() + 45000
+  const deadline = Date.now() + 45000 + Math.max(0, (build.home?.recreateCount ?? 1) - 1) * 5000
   let events = []
   while (Date.now() < deadline) {
     alive()
@@ -488,23 +488,37 @@ try {
       }
     }
     if (build.home.recreate) {
-      const request = events.find((event) => event.event === 'recreation-requested')
-      check(
-        request &&
-          completedEpoch > request.epoch &&
-          currentPass.warmActivity &&
-          currentPass.runtimeStarts === 1 &&
-          events.some(
-            (event) => event.event === 'activity-destroyed' && event.epoch === request.epoch,
-          ) &&
+      const requests = events.filter((event) => event.event === 'recreation-requested')
+      check(requests.length === build.home.recreateCount, 'Requested Home recreation count differs')
+      for (const request of requests) {
+        check(
+          request &&
+            completedEpoch > request.epoch &&
+            currentPass.warmActivity &&
+            currentPass.runtimeStarts === 1 &&
+            events.some(
+              (event) => event.event === 'activity-destroyed' && event.epoch === request.epoch,
+            ) &&
+            events.some(
+              (event) =>
+                event.event === 'home-proof' &&
+                event.phase === 'parity-cancelled' &&
+                event.epoch === request.epoch,
+            ),
+          'Requested recreation did not cancel the retired lease and complete a warm live generation',
+        )
+        check(
           events.some(
             (event) =>
-              event.event === 'home-proof' &&
-              event.phase === 'parity-cancelled' &&
-              event.epoch === request.epoch,
+              event.phase === 'claims-retired' &&
+              event.epoch === request.epoch &&
+              event.releasedWrappers === 19 &&
+              event.nativeArraysCleared &&
+              event.wrapperHandlesCleared,
           ),
-        'Requested recreation did not cancel the retired lease and complete a warm live generation',
-      )
+          'Requested Home generation did not retire its own nineteen claim owners',
+        )
+      }
     }
     if (build.home.application) {
       const initial = events.find(
@@ -589,9 +603,9 @@ try {
           retired.nativeArraysCleared &&
           retired.wrapperHandlesCleared &&
           events.indexOf(retired) < events.indexOf(proof) &&
-          proof?.retiredGenerations === 1 &&
-          proof.observedViews === 19 &&
-          proof.observedNodes === 19 &&
+          proof?.retiredGenerations === build.home.recreateCount &&
+          proof.observedViews === 19 * build.home.recreateCount &&
+          proof.observedNodes === 19 * build.home.recreateCount &&
           proof.aliveViews.length === 0 &&
           proof.aliveNodes.length === 0 &&
           proof.javaObjectsCollected &&
