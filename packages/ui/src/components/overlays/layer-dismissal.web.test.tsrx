@@ -11,6 +11,7 @@ import { DropdownMenu } from './DropdownMenu.web.tsrx'
 import { Popover } from './Popover.web.tsrx'
 import { useLayer } from './use-layer.web.tsrx'
 import { useHoverCard } from './use-hover-card.web.tsrx'
+import { HoverCard } from './HoverCard.web.tsrx'
 
 const roots: ReturnType<typeof createRoot>[] = []
 
@@ -136,6 +137,29 @@ afterEach(() => {
 })
 
 describe('shared nested dismissal', () => {
+  it('opens an initially controlled hover card after its element trigger binds', () => {
+    const close = vi.fn()
+    const root = mount(HoverCard, {
+      isOpen: true,
+      onOpenChange: close,
+      children: <button>Late-bound trigger</button>,
+      content: <div id="initial-hover-body">Details</div>,
+    })
+
+    expect(document.getElementById('initial-hover-body')).not.toBeNull()
+    escape()
+    expect(close).toHaveBeenCalledWith(false)
+    act(() =>
+      root.render(HoverCard, {
+        isOpen: false,
+        children: <button>Late-bound trigger</button>,
+        content: <div id="initial-hover-body">Details</div>,
+      }),
+    )
+
+    expect(document.getElementById('initial-hover-body')).toBeNull()
+  })
+
   it('keeps a controlled menu as owner until its parent accepts, with live callbacks', () => {
     const closeDialog = vi.fn(),
       closeMenu = vi.fn(),

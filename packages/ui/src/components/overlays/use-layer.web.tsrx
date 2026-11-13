@@ -4,7 +4,7 @@ import { modalPortalOwner } from './modal-focus.web'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { SizeProvider } from '../layout/size-context'
-import { useCallback, useEffect, useId, useRef, useState } from 'octane'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type {
   ContextLayerReturn,
   ContextRenderProps,
@@ -138,7 +138,10 @@ export function useLayer<O extends LayerOptions>(
   const isOpen = options.isOpen ?? uncontrolled
   const controlled = options.isOpen !== undefined
   const openRef = useRef(false)
-  const anchor = useRef<{ current: any }>({ current: null })
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null)
+  // Component wrappers can bind their trigger in an effect, after Popover's
+  // first effect. Publish the anchor change so an already-open layer retries.
+  const anchor = useMemo(() => ({ current: anchorElement }), [anchorElement])
 
   openRef.current = isOpen
 
@@ -180,7 +183,7 @@ export function useLayer<O extends LayerOptions>(
   const ref = useCallback(
     (el: any) => {
       releaseAnchor.current?.()
-      anchor.current.current = el
+      setAnchorElement(el)
       releaseAnchor.current = el?.style ? ownAnchorName(el, anchorId) : null
     },
     [anchorId],
@@ -226,7 +229,7 @@ export function useLayer<O extends LayerOptions>(
       if (p.positioning === 'custom') {
         return (
           <FloatingLayer
-            anchor={anchor.current}
+            anchor={anchor}
             finalFocusRef={p.finalFocusRef}
             open={isOpen}
             lightDismiss={options.lightDismiss}
@@ -245,7 +248,7 @@ export function useLayer<O extends LayerOptions>(
         <PopoverWithLayerPosition
           open={isOpen}
           layerPosition={p}
-          anchor={anchor.current}
+          anchor={anchor}
           offset={p.offset ?? 0}
           dismissOnOutsideTap={options.lightDismiss === true}
           dismissOnEscape={options.dismissOnEscape ?? options.lightDismiss === true}
@@ -259,7 +262,7 @@ export function useLayer<O extends LayerOptions>(
         </PopoverWithLayerPosition>
       )
     },
-    [fixed, isOpen, options.lightDismiss, options.dismissOnEscape, id, hide],
+    [fixed, isOpen, options.lightDismiss, options.dismissOnEscape, id, hide, anchor],
   )
 
   return (
