@@ -132,10 +132,11 @@ live OS preference delivery or device energy use.
 
 Mason layout projection uses the public `ViewBase.createPaintPresentation()`
 lease. Mason owns native paint access and restoration; Motion corrects the
-returned base snapshot. Consumers must dispose the handle. The canonical beta.8
-patch provides this JS/declaration API until a Mason release includes it; it does
-not require new native binaries. The patch also repairs fresh public Style
-radius readback after fast numeric writes. Do not reintroduce `_styleHelper` access in the
+returned base snapshot. Consumers must dispose the handle. Mason core
+`1.0.0-beta.9` publishes this JS/declaration API and repairs fresh public Style
+radius readback after fast numeric writes, using the existing native binaries.
+The remaining framework Mason patch only addresses foreign-root measurement.
+Do not reintroduce `_styleHelper` access in the
 Motion adapter or replace clip/layout/background ownership. See
 [the Motion contract](../../../packages/motion/UPSTREAM.md#layout-projection).
 

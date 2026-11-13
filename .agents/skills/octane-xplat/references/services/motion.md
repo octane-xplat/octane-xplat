@@ -103,7 +103,7 @@ parent's end corner; `false` disables relative attachment.
 </motion.View>
 ```
 
-Numeric corner radii and shadows receive scale correction on projected hosts. Framework adapters use Mason’s public `createPaintPresentation()` lease; never reach into `_styleHelper`. Keep the canonical beta.8 patch installed until Mason publishes the API.
+Numeric corner radii and shadows receive scale correction on projected hosts. Framework adapters use Mason’s public `createPaintPresentation()` lease; never reach into `_styleHelper`. Use Mason core `1.0.0-beta.9` or later, which publishes the API and numeric-radius readback fix.
 Prefer uniform resizing when native corner/blur accuracy matters; nonuniform
 native correction is approximate. Multiple web or Mason core shadows are not corrected.
 When diagnosing AppKit shadows, inspect active outset sibling layers and their

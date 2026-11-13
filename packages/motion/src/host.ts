@@ -98,7 +98,7 @@ export function attachHost(node: any): HostAdapter {
       (typeof native.getStyle === 'function' || typeof native.style?.clipPath === 'string')
     ) {
       throw new Error(
-        'motion: Mason layout projection requires createPaintPresentation; update Mason core and framework patches',
+        'motion: Mason layout projection requires createPaintPresentation; update Mason core to 1.0.0-beta.9 or later',
       )
     }
 

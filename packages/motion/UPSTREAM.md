@@ -496,12 +496,11 @@ longhands can read zero despite an authored radius, and `boxShadow` is a string.
 For Mason views the adapter acquires `ViewBase.createPaintPresentation()` and
 reads base radius/shadow strings through its handle. Mason owns temporary writes,
 restoration and single-owner enforcement; Motion owns the correction math.
-The adapter no longer accesses `_styleHelper`. The original beta.8 tarball
-lacks this API: the canonical Mason core patch supplies the JS/declaration
-addition and numeric-radius readback fix from Mason source commit
-`b0a3b4dbcc5c60169165301a733e2dba60f68229`
-(local, pending publication) until a Mason release includes it. No Swift/Kotlin
-ABI change is required.
+The adapter no longer accesses `_styleHelper`.
+[Mason core `1.0.0-beta.9`](https://github.com/octane-xplat/nativescript-mason/releases/tag/core-v1.0.0-beta.9)
+publishes this API and the numeric-radius readback fix. The framework pins that
+release; its remaining Mason patch only handles the independent iOS foreign-root
+measurement limitation. No Swift/Kotlin ABI change is required.
 The handle is cleared before measurement/style writes and disposed on host
 cleanup; intervening authored `view.style` writes are preserved. Direct native
 writes or independently created Style writers must not race this handle.
