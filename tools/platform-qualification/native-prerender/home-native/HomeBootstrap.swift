@@ -15,6 +15,10 @@ final class HomeDelegate: UIResponder, UIApplicationDelegate {
         return config
     }
 }
+final class HomeWeakObject {
+    weak var object: AnyObject?
+    init(_ object: AnyObject?) { self.object = object }
+}
 final class HomeScene: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     var root: MasonUIView!
@@ -115,10 +119,25 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         #endif
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { self.boot() }
     }
+    func observeLifetime(_ views: [HomeWeakObject], _ nodes: [HomeWeakObject]) {
+        var attempts = 0
+        completionTimer = Timer.scheduledTimer(withTimeInterval: 0.025, repeats: true) { [self] timer in
+            attempts += 1
+            let completed = (try? JSONSerialization.jsonObject(with: Data(contentsOf: documents("lifetime-js.json")))) as? [String: Any]
+            let liveViews = views.indices.filter { views[$0].object != nil }
+            let liveNodes = nodes.indices.filter { nodes[$0].object != nil }
+            let passed = completed?["passed"] as? Bool == true && liveViews.isEmpty && liveNodes.isEmpty
+            if !passed && attempts < 400 { return }
+            timer.invalidate(); completionTimer = nil
+            let result: [String: Any] = ["passed": passed, "liveViewIndices": liveViews, "liveNodeIndices": liveNodes, "attempts": attempts, "js": completed ?? [:]]
+            try! JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys]).write(to: documents("lifetime-result.json"), options: .atomic)
+            record(passed ? "passed" : "lifetime-failed", ["homeVisualNodes": 19, "homeAdoptionQualified": true, "homeLifetimeQualified": passed, "liveViews": liveViews.count, "liveNodes": liveNodes.count, "presentationQualified": false])
+        }
+    }
     func boot() {
-        let oldViews = home == nil ? [] : views(home)
-        let oldNodes = oldViews.map { NSCMason.shared.nodeForView($0) }
-        let oldParents = oldViews.map { $0.superview }
+        var oldViews = home == nil ? [] : views(home)
+        var oldNodes = oldViews.map { NSCMason.shared.nodeForView($0) }
+        var oldParents = oldViews.map { $0.superview }
         record("engine-init-begin")
         precondition(StartProbeRuntime())
         runtimeStarted = true
@@ -153,6 +172,17 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
             precondition(current.count == oldViews.count && zip(current, oldViews).allSatisfy { $0 === $1 }, "Home native view identity/order changed")
             precondition(zip(current, oldNodes).allSatisfy { NSCMason.shared.nodeForView($0) === $1 }, "Home Mason Node identity changed")
             precondition(zip(current, oldParents).allSatisfy { $0.superview === $1 }, "Home native parent changed")
+            if FileManager.default.fileExists(atPath: documents("home-lifetime").path) {
+                let weakViews = oldViews.map { HomeWeakObject($0) }
+                let weakNodes = oldNodes.map { HomeWeakObject($0) }
+                precondition(weakViews.count == 19 && weakNodes.count == 19 && weakViews.allSatisfy { $0.object != nil } && weakNodes.allSatisfy { $0.object != nil }, "Lifetime baseline was not live")
+                home = nil
+                oldViews.removeAll(); oldNodes.removeAll(); oldParents.removeAll()
+                try! JSONSerialization.data(withJSONObject: ["bootstrapReferencesReleased": true]).write(to: documents("native-handover.json"), options: .atomic)
+                record("bootstrap-references-released", ["views": weakViews.count, "nodes": weakNodes.count])
+                DispatchQueue.main.async { [self] in observeLifetime(weakViews, weakNodes) }
+                return
+            }
             record("passed", ["homeVisualNodes": current.count, "homeAdoptionQualified": true, "presentationQualified": false, "adoptionQualified": false])
             #endif
         }

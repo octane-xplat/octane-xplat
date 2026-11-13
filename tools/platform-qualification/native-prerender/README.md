@@ -258,3 +258,18 @@ bun turbo run test:prerender:adoption --filter=@xplat/platform-qualification
 ```
 
 These cases reject changed props/inline styles, text, kinds and addresses, duplicate or unreachable nodes, invalid insertion order/anchors, unknown initial mutations and nonportable property values. They do not establish native rendering or make this fixed-subset matcher an untrusted production IR validator.
+
+
+## Optional native lifetime qualification
+
+The adoption fixture can retire its comparison references and unmount Home after the usual identity, geometry, style and button checks. Native Swift keeps weak observations of the original nineteen views and Mason nodes; the JS phase clears consumed claim/diagnostic handles, checks unloaded lifecycle and detached Button observers, then runs eight explicit garbage collections. Success requires all nineteen original views and all nineteen original nodes to be gone. The owning Page and viewport remain. This is one fixed-screen cleanup check, not a proof of bounded memory over repeated cycles or every control family.
+
+For this mode, the owning Home launcher must perform these steps:
+
+1. Install the matching Home app. Clear old `native-handover.json`, `lifetime-js.json`, `lifetime-result.json` and ordinary completion/error receipts. Write `Documents/home-lifetime` before launching.
+2. Wait for the native final event with `homeLifetimeQualified:true`, then require `lifetime-result.json` to report `passed:true` with empty live-view and live-node index arrays. Retain that result and `lifetime-js.json` with the ordinary adoption evidence. An ordinary `entry-details.json` pass does not establish lifetime success.
+3. Clear the marker, terminate the fixture and shut down the owned simulator before reservation release. For normal adoption, ensure the lifetime marker is absent.
+
+Keep the guarded Home launcher under a distinct filename or generate it after the native build. The experimental build generator writes `run.mjs`; that baseline launcher can run the older two-label probe. A Home launcher must verify the app identifier, binary build identity and nineteen-node native decode before accepting its result.
+
+The forced collection and bootstrap-release handshake are test mechanisms. Production ownership transfer must retire startup references when the live tree accepts ownership; it must not depend on forced GC or diagnostic files.

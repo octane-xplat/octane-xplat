@@ -1,5 +1,6 @@
 // Fixed Home qualification fixture; the host build supplies the two virtual data modules.
 import { writeProbeDiagnostic } from './write-native-diagnostic.ios.js'
+import { qualifyHomeLifetime } from './home-lifetime.ios.js'
 import { matchPreparedVisualTree } from './match-tree.mjs'
 import '@nativescript/core/globals'
 import { Application, Page, Utils } from '@nativescript/core'
@@ -857,6 +858,16 @@ function accept() {
                                       presentationQualified: false,
                                     }),
                                   )
+                                  qualifyHomeLifetime({
+                                    root,
+                                    host,
+                                    nativeHost,
+                                    wrappers,
+                                    nativeViews,
+                                    oldNodes,
+                                    oldParents,
+                                    pendingClaims,
+                                  })
                                 }),
                               0,
                             )
