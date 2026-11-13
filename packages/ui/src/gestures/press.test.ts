@@ -95,6 +95,40 @@ it('rejects a moving 80-unit release but accepts the next independent pointer an
   f.press.dispose()
 })
 
+it('resolves host movement allowance at attachment and commit and snapshots it per contact', () => {
+  let reads = 0
+  const resolveSlop = () => {
+    reads++
+    return reads === 1 ? 4 : 12
+  }
+  const options = { slop: 8, resolveSlop, onPress: () => {} }
+
+  expect(reads).toBe(0)
+  const f = fixture(options)
+
+  expect(reads).toBe(1)
+  f.down()
+  f.press.commit(options)
+  expect(reads).toBe(2)
+  f.up(26)
+  expect(f.press.activate('pointer')).toBe(false)
+  f.down()
+  f.up(26)
+  expect(f.press.activate('pointer')).toBe(true)
+  expect(reads).toBe(2)
+})
+
+it('rejects invalid deferred allowance without changing the last committed press options', () => {
+  const f = fixture({ slop: 4 })
+
+  expect(() => f.press.commit({ slop: 8, resolveSlop: () => Number.NaN })).toThrow(
+    'Press slop must be finite and nonnegative',
+  )
+  f.down()
+  f.up(26)
+  expect(f.press.activate('pointer')).toBe(false)
+})
+
 it('balances press-out exactly once through multi-touch, cancellation, repeated cleanup and pending activation', () => {
   const f = fixture()
 

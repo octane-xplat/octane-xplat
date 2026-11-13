@@ -12,6 +12,8 @@ export interface PressOptions {
   readonly observeOnly?: boolean
   readonly enabled?: boolean
   readonly slop: number | null
+  /** Resolve host-dependent movement allowance when input attaches or commits, never during render. */
+  readonly resolveSlop?: () => number | null
   /** Null uses the host's semantic long-press event; web supplies its hold interval. */
   readonly longPressDelay?: number | null
   onPress?(event: ActivationEvent): void
@@ -47,7 +49,7 @@ interface PressRun {
 let nextController = 0
 
 /** A semantic participant of the root owner, not an independent input recognizer. */
-export function createPressController(options: PressOptions, context: PressContext) {
+export function createPressController(initial: PressOptions, context: PressContext) {
   const id = ++nextController
   let sequence = 0,
     disposed = false
@@ -67,7 +69,14 @@ export function createPressController(options: PressOptions, context: PressConte
     }
   }
 
-  validate(options)
+  function resolve(next: PressOptions): PressOptions {
+    const resolved = next.resolveSlop ? { ...next, slop: next.resolveSlop() } : next
+
+    validate(resolved)
+    return resolved
+  }
+
+  let options = resolve(initial)
 
   const enabled = () => !disposed && options.enabled !== false
 
@@ -154,8 +163,7 @@ export function createPressController(options: PressOptions, context: PressConte
       return Boolean(run?.entered)
     },
     commit(next: PressOptions) {
-      validate(next)
-      options = next
+      options = resolve(next)
       if (options.enabled === false) {
         cancel()
       }

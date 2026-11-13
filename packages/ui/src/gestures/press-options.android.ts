@@ -3,10 +3,12 @@ import { pressOptions as mouseOptions, type SemanticPressProps } from './semanti
 import type { PressOptions } from './press'
 
 export function pressOptions(props: SemanticPressProps): PressOptions {
-  const configuration = android.view.ViewConfiguration.get(Utils.ad.getApplicationContext())
-
   return {
     ...mouseOptions(props),
-    slop: configuration.getScaledTouchSlop() / Utils.layout.getDisplayDensity(),
+    resolveSlop() {
+      const configuration = android.view.ViewConfiguration.get(Utils.ad.getApplicationContext())
+
+      return configuration.getScaledTouchSlop() / Utils.layout.getDisplayDensity()
+    },
   }
 }
