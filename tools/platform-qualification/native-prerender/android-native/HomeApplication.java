@@ -33,6 +33,7 @@ public final class HomeApplication extends com.tns.NativeScriptApplication {
     int nextEpoch() { return ++epoch; }
     void bind(HomeActivity activity) { if (bridge == null) throw new IllegalStateException("Home bridge missing"); bridge.onActivity(activity); }
     void unbind(HomeActivity activity) { bridge.onDestroy(activity); }
+    void lifecycle(HomeActivity activity, String event) { bridge.onHostLifecycle(activity, event); }
     void startRuntime() {
         if (++runtimeStarts != 1) throw new IllegalStateException("Repeated runtime initialization");
         super.onCreate();

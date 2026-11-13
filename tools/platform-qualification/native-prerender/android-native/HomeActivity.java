@@ -14,11 +14,29 @@ public final class HomeActivity extends AppCompatActivity {
     private android.view.ViewGroup referenceParent;
     private int epoch, frames, attempts, stableWidth = -1, stableHeight = -1;
     private boolean destroyed, warm, bridgeReady;
+    private boolean applicationHandoff, started, postResumed;
+    private Bundle launchState;
+    private android.view.ViewParent installedParent;
     private int touchDowns, touchUps;
     private final Choreographer.FrameCallback gate = this::frame;
     private final Runnable runtimeStarter = this::startRuntime;
     private HomeApplication app() { return (HomeApplication) getApplication(); }
     public android.view.View getView(int index) { return scene.getView(index); }
+    public Bundle getLaunchState() { return launchState; }
+    public boolean isWarmActivity() { return warm; }
+    public boolean hasStarted() { return started; }
+    public boolean hasPostResumed() { return postResumed; }
+    public void enableApplicationHandoff() {
+        check(!applicationHandoff && scene.viewport.getParent() == findViewById(android.R.id.content), "Home handoff outside installed content");
+        applicationHandoff = true; installedParent = scene.viewport.getParent();
+    }
+    @Override public void setContentView(android.view.View view, android.view.ViewGroup.LayoutParams params) {
+        if (applicationHandoff && scene != null && view == scene.viewport && view.getParent() != null) {
+            check(view.getParent() == installedParent && findViewById(android.R.id.content) == installedParent, "Home window root parent changed");
+            record("native-content-adopted"); return;
+        }
+        super.setContentView(view, params);
+    }
     public org.nativescript.mason.masonkit.View getViewport() { return scene.viewport; }
     public String getHomeTheme() { return scene.theme; }
     public void restoreHomeDefaults() { scene.restoreDefaults(); }
@@ -112,7 +130,7 @@ public final class HomeActivity extends AppCompatActivity {
         } catch (Exception error) { throw new RuntimeException(error); }
     }
     @Override public void onCreate(Bundle state) {
-        super.onCreate(state); epoch = app().nextEpoch(); warm = com.tns.Runtime.isInitialized();
+        super.onCreate(state); launchState = state; epoch = app().nextEpoch(); warm = com.tns.Runtime.isInitialized();
         try {
             record(warm ? "warm-home-created" : "native-launch");
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -164,6 +182,18 @@ public final class HomeActivity extends AppCompatActivity {
         } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
     }
     public void markBridgeReady() { check(!destroyed && !bridgeReady, "Duplicate Home bind"); scene.verify(); bridgeReady = true; }
+    @Override protected void onStart() {
+        super.onStart(); started = true;
+        if (bridgeReady && applicationHandoff) app().lifecycle(this, "start");
+    }
+    @Override protected void onPostResume() {
+        super.onPostResume(); postResumed = true;
+        if (bridgeReady && applicationHandoff) app().lifecycle(this, "postResume");
+    }
+    @Override protected void onStop() {
+        super.onStop(); started = false; postResumed = false;
+        if (bridgeReady && applicationHandoff) app().lifecycle(this, "stop");
+    }
     @Override protected void onDestroy() {
         destroyed = true; Choreographer.getInstance().removeFrameCallback(gate);
         if (scene != null) scene.windowRoot.removeCallbacks(runtimeStarter);

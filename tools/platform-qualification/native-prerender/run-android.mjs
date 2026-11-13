@@ -310,7 +310,7 @@ try {
             proof.logicalChildOrder &&
             proof.contextsEstablished &&
             proof.loaded &&
-            proof.applicationHandoff === false &&
+            proof.applicationHandoff === Boolean(build.home.application) &&
             proof.styleParityQualified === false,
           'Actual Home Octane wrapper adoption proof missing',
         )
@@ -334,6 +334,41 @@ try {
           ),
         'Requested recreation did not cancel the retired lease and complete a warm live generation',
       )
+    }
+    if (build.home.application) {
+      const initial = events.find(
+        (event) =>
+          event.event === 'home-proof' &&
+          event.phase === 'application' &&
+          event.epoch === begin.epoch,
+      )
+      for (const epoch of new Set([begin.epoch, completedEpoch])) {
+        const proof = events.find(
+          (event) =>
+            event.event === 'home-proof' && event.phase === 'application' && event.epoch === epoch,
+        )
+        check(
+          proof &&
+            initial &&
+            proof.windowId === initial.windowId &&
+            proof.sameRoot &&
+            proof.registrySize === 1 &&
+            proof.active &&
+            proof.foregroundActivity &&
+            proof.lifecycle.ready === 1 &&
+            proof.lifecycle.opened === 1 &&
+            proof.lifecycle.created === proof.lifecycle.destroyed + 1 &&
+            proof.lifecycle.attached === proof.lifecycle.created &&
+            proof.lifecycle.detached === proof.lifecycle.destroyed &&
+            proof.catchUp === (epoch === begin.epoch) &&
+            proof.componentStatePreserved === false &&
+            proof.normalEntry === false &&
+            events.some(
+              (event) => event.event === 'native-content-adopted' && event.epoch === epoch,
+            ),
+          'Home Core Application/window handoff proof missing',
+        )
+      }
     }
     if (build.home.parity) {
       check(

@@ -7,6 +7,12 @@ import { createNativeScriptRoot, registerElement } from '@nativescript-community
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
 import { matchPreparedVisualTree } from '../match-tree.mjs'
+import {
+  prepareHomeApplication,
+  acceptHomeApplication,
+  destroyHomeApplication,
+  forwardHomeLifecycle,
+} from './home-application.js'
 import resolved from 'xplat-prerender:artifact'
 import sheets from 'xplat-prerender:styles'
 
@@ -25,6 +31,9 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         // Public custom-Application initialization supplies Core's real app context
         // before shared render reads theme; Application/window handoff is later.
         if (!Application.android.nativeApp) Application.android.init(activity.getApplication())
+        const window = XPLAT_PRERENDER_HOME_APPLICATION
+          ? prepareHomeApplication(activity)
+          : undefined
         const scheme = Application.systemAppearance() === 'dark' ? 'dark' : 'light'
         check(scheme === activity.getHomeTheme(), 'Native/live Home theme differs')
         const natives = resolved.nodes.map((_, index) => activity.getView(index))
@@ -140,6 +149,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
               'Home logical child order differs',
             )
         })
+        if (window) acceptHomeApplication(activity, host, window)
         activity.recordHomeProof(
           JSON.stringify({
             phase: 'adopted',
@@ -151,7 +161,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             logicalChildOrder: true,
             contextsEstablished: true,
             loaded: true,
-            applicationHandoff: false,
+            applicationHandoff: Boolean(window),
             styleParityQualified: false,
           }),
         )
@@ -184,10 +194,15 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         retiringHost = host
       root = undefined
       host = undefined
+      if (XPLAT_PRERENDER_HOME_APPLICATION) destroyHomeApplication(activity, retiringHost)
       Promise.resolve(retiringRoot?.unmount()).then(() => {
         if (retiringHost?.isLoaded) retiringHost.callUnloaded()
         if (retiringHost?._context) retiringHost._tearDownUI(true)
       })
+    },
+    onHostLifecycle(activity, event) {
+      check(XPLAT_PRERENDER_HOME_APPLICATION, 'Unexpected Home lifecycle bridge')
+      forwardHomeLifecycle(activity, event)
     },
   }),
 )

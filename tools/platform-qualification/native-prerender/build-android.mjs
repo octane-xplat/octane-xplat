@@ -50,6 +50,9 @@ const homeRecreate = process.env.XPLAT_PRERENDER_ANDROID_HOME_RECREATE === '1'
 if (homeRecreate && !homeParity) throw new Error('Home recreation control requires Home parity')
 const homeInput = process.env.XPLAT_PRERENDER_ANDROID_HOME_INPUT === '1'
 if (homeInput && !homeParity) throw new Error('Home OS input control requires Home parity')
+const homeApplication = process.env.XPLAT_PRERENDER_ANDROID_HOME_APPLICATION === '1'
+if (homeApplication && !homeAdopt)
+  throw new Error('Home Application handoff requires Home adoption')
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
   : 'org.octanexplat.prerenderbootstrap.android'
@@ -281,7 +284,7 @@ if (homeProducer) {
     .update(
       JSON.stringify({
         producer: producer.buildHash,
-        options: { homeAdopt, homeParity, homeRecreate, homeInput },
+        options: { homeAdopt, homeParity, homeRecreate, homeInput, homeApplication },
         javascript: hash(join(work, 'app/src/main/assets/app/main.js')),
         native: Object.fromEntries(
           Object.entries(sourceHashes).map(([path, value]) => [path, value.sha256]),
@@ -307,6 +310,7 @@ if (homeProducer) {
     parity: homeParity,
     recreate: homeRecreate,
     input: homeInput,
+    application: homeApplication,
     buildHash,
     producerBuildHash: producer.buildHash,
     producerArtifactHash: producer.artifactHash,
@@ -377,9 +381,12 @@ writeFileSync(
       applicationHandoff,
       applicationEntry,
       scope: home
-        ? homeAdopt
-          ? 'Actual nineteen-view Android Home native-first XPH1 mount and bounded real Octane prepare/commit wrapper adoption; no Core Application/window handoff, full live style/default parity, compositor presentation or release performance qualification'
-          : 'Native-first actual nineteen-view Android Home XPH1 decode, selected theme lowering, available viewport layout and identity across runtime startup; no Core/Octane hydration, live CSS parity, compositor presentation or release performance qualification'
+        ? 'Actual nineteen-view Android Home native-first XPH1 mount' +
+          (homeAdopt ? '; real Octane prepare/commit wrapper adoption' : '') +
+          (homeApplication ? '; Core Application/window explicit-content control' : '') +
+          (homeParity ? '; fixed-environment independent style/layout parity control' : '') +
+          (homeInput ? '; Android OS tap control' : '') +
+          '; no main-entry/component-state restoration, full environment/CSS coverage, compositor/pixel presentation, deallocation or performance qualification'
         : applicationHandoff
           ? 'Native-first two-label Core Application/NativeWindow handoff, targeted cold lifecycle catch-up, one window/runtime across Activity recreation, retained root attachment and ordinary wrapper mutations; no Octane/Home, full Activity callbacks, arbitrary plugins, process-death/state restoration, CSS/viewport parity, presentation, deallocation or performance qualification'
           : masonParent
