@@ -17,11 +17,15 @@ const settle = async (lease) => {
   if (!lease.active) throw new HomeLeaseRetired()
 }
 function layout(host, width, height) {
+  // Parent padding may place the root below system bars even when its content
+  // frame fills the window. Manual probe layout must retain that native origin.
+  const left = host.nativeViewProtected.getLeft(),
+    top = host.nativeViewProtected.getTop()
   host.measure(
     Utils.layout.makeMeasureSpec(width, Utils.layout.EXACTLY),
     Utils.layout.makeMeasureSpec(height, Utils.layout.EXACTLY),
   )
-  host.layout(0, 0, width, height)
+  host.layout(left, top, left + width, top + height)
 }
 function compare(activity, phase, source = 'adopted') {
   const adopted = JSON.parse(

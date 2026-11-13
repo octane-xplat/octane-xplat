@@ -14,6 +14,7 @@ public final class HomeActivity extends AppCompatActivity {
     private android.view.ViewGroup referenceParent;
     private int epoch, frames, attempts, stableWidth = -1, stableHeight = -1;
     private boolean destroyed, warm, bridgeReady;
+    private int touchDowns, touchUps;
     private final Choreographer.FrameCallback gate = this::frame;
     private final Runnable runtimeStarter = this::startRuntime;
     private HomeApplication app() { return (HomeApplication) getApplication(); }
@@ -60,6 +61,28 @@ public final class HomeActivity extends AppCompatActivity {
         reference = null; referenceParent = null;
     }
     public int getViewCount() { return scene.count(); }
+    @Override public boolean dispatchTouchEvent(android.view.MotionEvent event) {
+        boolean handled = super.dispatchTouchEvent(event);
+        if (event.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) touchDowns++;
+        if (event.getActionMasked() == android.view.MotionEvent.ACTION_UP) {
+            touchUps++;
+            if (bridgeReady) {
+                final int sequence = touchUps;
+                final float x = event.getRawX(), y = event.getRawY();
+                scene.viewport.postDelayed(() -> {
+                    if (destroyed) return;
+                    try {
+                        scene.verifyStructure();
+                        app().record(new JSONObject().put("event", "home-input").put("epoch", epoch)
+                            .put("touchDowns", touchDowns).put("touchUps", sequence).put("handled", handled)
+                            .put("x", x).put("y", y).put("nodes", scene.snapshot())
+                            .put("identitiesRetained", true));
+                    } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
+                }, 250);
+            }
+        }
+        return handled;
+    }
     private void check(boolean value, String reason) { if (!value) throw new IllegalStateException(reason); }
     private void record(String name) {
         try {

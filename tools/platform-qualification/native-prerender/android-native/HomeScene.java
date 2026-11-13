@@ -196,12 +196,18 @@ public final class HomeScene {
         return viewport.getWidth() == viewport.getAvailableWidth() && viewport.getHeight() == viewport.getAvailableHeight();
     }
     public void verify() {
+        verifyStructure();
+        for (HomeArtifact.Node row : artifact.nodes) {
+            android.view.View view = views.get(row.index);
+            if (view instanceof StyleableTextView) check(((StyleableTextView) view).getText().toString().equals(row.text), "Home text changed");
+        }
+    }
+    public void verifyStructure() {
         check(additions == 0 && removals == 0, "Home physically reattached children");
         for (HomeArtifact.Node row : artifact.nodes) {
             android.view.View view = views.get(row.index);
             check(view.getParent() == (row.parent < 0 ? viewport : views.get(row.parent)), "Home native parent changed");
             check(mason.nodeForView(view) == nodes.get(row.index) && nodes.get(row.index).getNativePtr() == handles.get(row.index), "Home Mason identity changed");
-            if (view instanceof StyleableTextView) check(((StyleableTextView) view).getText().toString().equals(row.text), "Home text changed");
         }
     }
     public JSONArray snapshot() throws Exception { return HomeComparison.snapshot(artifact, views); }

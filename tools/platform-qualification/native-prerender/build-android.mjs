@@ -48,6 +48,8 @@ const homeParity = process.env.XPLAT_PRERENDER_ANDROID_HOME_PARITY === '1'
 if (homeParity && !homeAdopt) throw new Error('Home parity requires Home adoption')
 const homeRecreate = process.env.XPLAT_PRERENDER_ANDROID_HOME_RECREATE === '1'
 if (homeRecreate && !homeParity) throw new Error('Home recreation control requires Home parity')
+const homeInput = process.env.XPLAT_PRERENDER_ANDROID_HOME_INPUT === '1'
+if (homeInput && !homeParity) throw new Error('Home OS input control requires Home parity')
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
   : 'org.octanexplat.prerenderbootstrap.android'
@@ -279,7 +281,7 @@ if (homeProducer) {
     .update(
       JSON.stringify({
         producer: producer.buildHash,
-        options: { homeAdopt, homeParity, homeRecreate },
+        options: { homeAdopt, homeParity, homeRecreate, homeInput },
         javascript: hash(join(work, 'app/src/main/assets/app/main.js')),
         native: Object.fromEntries(
           Object.entries(sourceHashes).map(([path, value]) => [path, value.sha256]),
@@ -304,6 +306,7 @@ if (homeProducer) {
     adopt: homeAdopt,
     parity: homeParity,
     recreate: homeRecreate,
+    input: homeInput,
     buildHash,
     producerBuildHash: producer.buildHash,
     producerArtifactHash: producer.artifactHash,

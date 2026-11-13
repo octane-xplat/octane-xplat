@@ -108,11 +108,13 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         check(claims.size === 0 && hookCalls === 19, 'Home claims not consumed exactly once')
         const width = activity.getViewport().getWidth(),
           height = activity.getViewport().getHeight()
+        const left = activity.getViewport().getLeft(),
+          top = activity.getViewport().getTop()
         host.measure(
           Utils.layout.makeMeasureSpec(width, Utils.layout.EXACTLY),
           Utils.layout.makeMeasureSpec(height, Utils.layout.EXACTLY),
         )
-        host.layout(0, 0, width, height)
+        host.layout(left, top, left + width, top + height)
         check(
           host.getChildrenCount() === 1 && host.getChildAt(0) === wrappers[0],
           'Home logical root differs',

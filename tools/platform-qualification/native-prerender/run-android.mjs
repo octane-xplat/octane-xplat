@@ -363,6 +363,84 @@ try {
         'Independent Home reference/style-removal proof missing',
       )
     }
+    if (build.home.input) {
+      const inputProofs = []
+      for (const [index, count, status] of [
+        [12, '4', 'One more step completed.'],
+        [15, '3', 'Ready when you are.'],
+      ]) {
+        const target = currentPass.nodes[index]
+        let x = currentPass.screenLeft + target.width / 2,
+          y = currentPass.screenTop + target.height / 2
+        for (let node = target; node; node = currentPass.nodes[node.parent]) {
+          x += node.left
+          y += node.top
+        }
+        check(Number.isFinite(x) && Number.isFinite(y), 'Home tap coordinates missing')
+        await device(['shell', 'input', 'tap', String(Math.round(x)), String(Math.round(y))])
+        let observed
+        const inputDeadline = Date.now() + 5000
+        while (Date.now() < inputDeadline) {
+          alive()
+          const receipt = await device([
+            'shell',
+            'run-as',
+            build.id,
+            'cat',
+            'files/probe-result.json',
+          ])
+          events = JSON.parse(receipt.output)
+          writeFileSync(join(report, 'result.json'), JSON.stringify(events, null, 2))
+          check(
+            completedHomeEpoch(events, true) === completedEpoch &&
+              !events.some((event) => event.event === 'failed'),
+            'Home input lost its accepted Activity or failed native identity checks',
+          )
+          observed = events.find(
+            (event) =>
+              event.event === 'home-input' &&
+              event.epoch === completedEpoch &&
+              event.touchUps === inputProofs.length + 1,
+          )
+          if (observed) break
+          await pause(100)
+        }
+        check(
+          observed?.handled &&
+            observed.identitiesRetained &&
+            observed.touchDowns === inputProofs.length + 1 &&
+            Math.abs(observed.x - x) <= 1 &&
+            Math.abs(observed.y - y) <= 1 &&
+            observed.nodes?.length === 19 &&
+            observed.nodes[9].text === count &&
+            observed.nodes[18].text === status &&
+            observed.nodes.every(
+              (node, position) =>
+                node.attached &&
+                node.width > 0 &&
+                node.height > 0 &&
+                (![9, 18].includes(position)
+                  ? node.text === currentPass.nodes[position].text
+                  : true),
+            ),
+          'Android OS tap did not update retained Home count/status: ' + JSON.stringify(observed),
+        )
+        inputProofs.push({ target: index, x, y, count, status, observation: observed })
+      }
+      writeFileSync(
+        join(report, 'home-input.json'),
+        JSON.stringify(
+          {
+            epoch: completedEpoch,
+            source: 'adb shell input tap',
+            inputProofs,
+            presentationQualified: false,
+          },
+          null,
+          2,
+        ),
+      )
+    }
   } else {
     check(
       native &&

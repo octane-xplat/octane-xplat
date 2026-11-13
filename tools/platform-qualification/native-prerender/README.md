@@ -381,7 +381,7 @@ Native observations also require native/Mason child order and distinct ordinary 
 
 ### Android Home Activity comparison leases
 
-The native viewport uses Core's native edge-to-edge helper before JS starts. Before drawing, it intersects the content parent's screen bounds with system-bar/cutout-safe window bounds and applies only the missing padding. A parent already inset by Android needs no extra padding. The layout gate requires a child draw traversal, window focus and three stable viewport observations; these are not compositor-presentation evidence. The fixed-environment parity check also requires the cold and accepted live viewport to have equal screen coordinates and dimensions. Mason wraps its view context, so the viewport retains the actual constructor Activity for window metrics rather than casting `getContext()`.
+The native viewport uses Core's native edge-to-edge helper before JS starts. Before drawing, it intersects the content parent's screen bounds with system-bar/cutout-safe window bounds and applies only the missing padding. A parent already inset by Android needs no extra padding. The layout gate requires a child draw traversal, window focus and three stable viewport observations; these are not compositor-presentation evidence. The fixed-environment parity check also requires the cold and accepted live viewport to have equal screen coordinates and dimensions. Manual JS probe layout preserves each native root's current left/top; forcing its origin to zero would discard padding on a full-window parent even while child-local parity passed. Mason wraps its view context, so the viewport retains the actual constructor Activity for window metrics rather than casting `getContext()`.
 
 The Home runner accepts only a complete, live latest Activity generation. A retired reference comparison cancels through an explicit lease error, cleans up its own hidden reference, and emits a cancellation receipt; other errors still fail. Warm Activities first complete native layout before JS binds. The process retains only the cold pre-runtime observation data, so a new generation can compare its own native baseline and live tree with both an ordinary Home and the original cold output. This does not preserve Octane component state across recreation: these controls create new logical owners per generation.
 
@@ -393,6 +393,10 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"B
 ```
 
 This flag requires Home parity/adoption and their SDK inputs above. Run its printed build through the same reserved device task. The driver rejects stale completion from an earlier Activity, and fingerprints its event-selection helper along with the driver. The build also snapshots its own packager source for later evidence review. Keep Core Application/main-entry owner restoration and native deallocation as separate gates.
+
+### Android Home OS input
+
+Set `XPLAT_PRERENDER_ANDROID_HOME_INPUT=1` with the Home parity/adoption inputs when building, then run the printed APK through the reserved device task. This can also run with the forced-recreation control. After the latest live Activity completes parity and disposes its hidden reference, the driver uses `adb shell input tap` at each original Button's native screen-space center. It requires actual Activity down/up dispatch, count/status changes3→4→3, attached nonzero native geometry, retained original native/Mason/raw-node identities and zero physical child churn. It never invokes a JS press handler directly. Native observations and coordinates are retained in `home-input.json`; this does not establish pixels, compositor presentation, broader gesture behavior or Core Application/window handoff.
 
 ### Android Label wrapper ownership control
 
