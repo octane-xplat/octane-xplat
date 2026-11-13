@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   writeFileSync,
 } from 'node:fs'
 import { homedir } from 'node:os'
@@ -18,10 +19,11 @@ const required = (name) => {
   return resolve(process.env[name])
 }
 const runtime = required('XPLAT_PRERENDER_ANDROID_RUNTIME_ROOT')
-const core = required('XPLAT_PRERENDER_CORE_ROOT')
+const core = realpathSync(required('XPLAT_PRERENDER_CORE_ROOT'))
 const mason = required('XPLAT_PRERENDER_ANDROID_MASON_SDK')
 const sdk = required('XPLAT_PRERENDER_ANDROID_SDK')
 const javaHome = required('XPLAT_PRERENDER_JAVA_HOME')
+const labelWrappers = process.env.XPLAT_PRERENDER_ANDROID_LABEL_WRAPPERS === '1'
 const framework = join(runtime, 'framework')
 if (
   JSON.parse(readFileSync(join(runtime, 'package.json'))).version !== '9.1.1' ||
@@ -84,7 +86,7 @@ for (const [name, destination] of [
   ],
   ['ProbeBridge.java', 'app/src/main/java/org/octanexplat/prerenderandroid/ProbeBridge.java'],
   ['AndroidManifest.xml', 'app/src/main/AndroidManifest.xml'],
-  ['entry.js', 'app/src/main/assets/app/main.js'],
+  ['entry.js', labelWrappers ? 'raw-bridge-entry.js' : 'app/src/main/assets/app/main.js'],
   ['app.gradle', 'app/build.gradle'],
   ['settings.gradle', 'settings.gradle'],
 ])
@@ -102,6 +104,7 @@ writeFileSync(
   'android.useAndroidX=true\nandroid.builder.sdkDownload=false\norg.gradle.jvmargs=-Xmx3g\norg.gradle.workers.max=2\n',
 )
 writeFileSync(join(work, 'local.properties'), 'sdk.dir=' + sdk.replaceAll('\\', '\\\\') + '\n')
+mkdirSync(join(work, 'app/src/main/assets/app'), { recursive: true })
 writeFileSync(
   join(work, 'app/src/main/assets/app/package.json'),
   JSON.stringify({ main: 'main.js', profiling: 'timeline' }),
@@ -115,6 +118,19 @@ writeFileSync(
     ...labels.flatMap((value) => [Buffer.from([Buffer.byteLength(value)]), Buffer.from(value)]),
   ]),
 )
+if (labelWrappers) {
+  const bundler = join(import.meta.dirname, 'bundle-android-label.mjs')
+  sourceHashes[bundler] = { copy: bundler, sha256: hash(bundler) }
+  const bundled = spawnSync('bun', [bundler, core, work, join(source, 'label-entry.js')], {
+    encoding: 'utf8',
+    timeout: 60000,
+    maxBuffer: 8 * 1024 * 1024,
+  })
+  writeFileSync(join(work, 'label-bundle.log'), (bundled.stdout ?? '') + (bundled.stderr ?? ''))
+  if (bundled.status !== 0)
+    throw new Error('Label bundle failed; see ' + join(work, 'label-bundle.log'))
+  Object.assign(sourceHashes, JSON.parse(readFileSync(join(work, 'label-js-inputs.json'))))
+}
 const java = join(javaHome, 'bin/java')
 // Freeze the external SDK snapshot before compilation. Later SDK rebuilds by
 // another task do not affect the inputs used by this isolated project.
@@ -172,8 +188,10 @@ writeFileSync(
       inputs,
       commands,
       id: 'org.octanexplat.prerenderbootstrap.android',
-      scope:
-        'Native Application/Activity bootstrap mechanism and binary two-label fixture; no Octane/wrapper hydration, Home IR, full viewport, CSS parity, compositor presentation or release performance qualification',
+      labelWrappers,
+      scope: labelWrappers
+        ? 'Native bootstrap with two real Core Label wrappers, per-Activity release/rebind and text remeasurement; no logical Mason parent, Octane hydration, Core Application handoff, Home IR, viewport/CSS parity, presentation or performance qualification'
+        : 'Native Application/Activity bootstrap mechanism and binary two-label fixture; no Octane/wrapper hydration, Home IR, full viewport, CSS parity, compositor presentation or release performance qualification',
     },
     null,
     2,

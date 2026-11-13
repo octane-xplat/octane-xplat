@@ -244,6 +244,47 @@ try {
       success.firstText === 'Updated through NativeScript bridge',
     'Post-boot native identity/update proof missing',
   )
+  if (build.labelWrappers) {
+    for (const epoch of [begin.epoch, rebound.epoch])
+      check(
+        events.some(
+          (event) =>
+            event.event === 'wrapper-proof' &&
+            event.epoch === epoch &&
+            event.phase === 'adopted' &&
+            event.realLabelWrappers === 2 &&
+            event.identitiesRetained &&
+            event.contextsEstablished &&
+            event.loaded,
+        ),
+        'Real Label wrapper adoption missing',
+      )
+    check(
+      events.some(
+        (event) =>
+          event.event === 'wrapper-proof' &&
+          event.epoch === request.epoch &&
+          event.phase === 'disposed' &&
+          event.releasedWrappers === 2,
+      ),
+      'Old Activity Label wrappers not disposed',
+    )
+    check(
+      native.firstHeight === rebound.firstHeight,
+      'Fixed-font single-line height changed during wrapper setup',
+    )
+    check(
+      events.some(
+        (event) =>
+          event.epoch === begin.epoch &&
+          event.firstText === 'Updated through NativeScript bridge' &&
+          event.firstWidth > native.firstWidth &&
+          event.firstWidth === rebound.firstWidth &&
+          event.firstHeight === native.firstHeight,
+      ),
+      'Wrapper text update did not remeasure the cold native tree like the fresh tree',
+    )
+  }
   const phases = [
     'native-layout-before-runtime',
     'engine-init-begin',

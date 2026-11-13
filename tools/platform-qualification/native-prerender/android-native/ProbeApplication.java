@@ -56,9 +56,13 @@ public final class ProbeApplication extends com.tns.NativeScriptApplication {
             event.put("activeBridgeEpoch", activeBridgeEpoch);
             event.put("runtimeStarts", runtimeStarts);
             events.put(event);
-            try (FileOutputStream out = new FileOutputStream(new File(getFilesDir(), "probe-result.json"))) {
+            // adb may read while a new event is published. Close a same-directory
+            // temporary file, then atomically replace the complete receipt.
+            File pending = new File(getFilesDir(), "probe-result.json.tmp");
+            try (FileOutputStream out = new FileOutputStream(pending)) {
                 out.write(events.toString(2).getBytes(StandardCharsets.UTF_8));
             }
+            android.system.Os.rename(pending.getAbsolutePath(), new File(getFilesDir(), "probe-result.json").getAbsolutePath());
             android.util.Log.i("XplatPrerender", event.toString());
         } catch (Exception error) { throw new RuntimeException(error); }
     }

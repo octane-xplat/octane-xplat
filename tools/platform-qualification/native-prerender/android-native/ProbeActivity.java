@@ -33,6 +33,13 @@ public final class ProbeActivity extends Activity {
 
     public static ProbeActivity getCurrent() { return current; }
     public StyleableTextView getFirstLabel() { return first; }
+    public StyleableTextView getSecondLabel() { return second; }
+    public void recordWrapperProof(String value) {
+        try {
+            JSONObject row = new JSONObject(value).put("event", "wrapper-proof").put("epoch", epoch);
+            app().record(row);
+        } catch (Exception error) { throw new RuntimeException(error); }
+    }
     private ProbeApplication app() { return (ProbeApplication) getApplication(); }
     private void check(boolean value, String message) {
         if (!value) throw new IllegalStateException(message);
@@ -93,6 +100,8 @@ public final class ProbeActivity extends Activity {
         StyleableTextView label = new StyleableTextView(this);
         label.setText(new String(data, StandardCharsets.UTF_8));
         label.setTextSize(18);
+        // Match Core9.1.3 TextBase.initNativeView before the JS handoff.
+        label.setIncludeFontPadding(false);
         label.setSingleLine(true);
         label.setEllipsize(android.text.TextUtils.TruncateAt.END);
         label.setGravity(android.view.Gravity.CENTER_VERTICAL);
