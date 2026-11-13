@@ -193,10 +193,7 @@ export function validateNodes(input: unknown): LogicalNode[] {
     const props = copyProps(node.props)
     if (kind === '#text') {
       requireArtifact(Object.keys(props).join(',') === 'value', 'text props')
-      requireArtifact(
-        props.value === null || ['string', 'number', 'boolean'].includes(typeof props.value),
-        'text value',
-      )
+      string(props.value, 'canonical text value')
     } else {
       for (const key of Object.keys(props)) {
         if (

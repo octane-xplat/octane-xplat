@@ -10,10 +10,14 @@ are experimental host integration, not a public hydration API.
 The reusable candidate logical contract now belongs to the private
 [`native-prerender` workspace](../../packages/native-prerender/README.md).
 It retains logical text slots, derives visual records and keeps command IDs
-only in ephemeral matching maps. XPI1/JSON use the same host-side validation;
-the qualification producer also retains its XPH1 output until native readers
-are migrated. Do not infer native XPI1 or normal-app integration from producer
-success. Keep backend value/font checks before native allocation and preserve
+only in ephemeral matching maps. Text slots carry exact JavaScript display
+strings; the seed retains its original value types. XPI1/JSON use the same
+host-side validation. Independent Swift/Java readers share a maintained
+interoperability corpus, including the real JSX producer output. Swift keeps
+arbitrary seed dictionaries in NSDictionary to preserve distinct UTF-16 keys.
+The qualification hosts still consume XPH1 until their integration is migrated;
+host-native decoder checks do not establish mobile rendering or normal-app
+integration. Keep backend value/font checks before native allocation and preserve
 explicit environment constraints until responsive AOT behavior is qualified.
 
 ## Separate native layout, frame submission and presentation

@@ -66,7 +66,16 @@ export function projectPreparedTree(input: unknown): PreparedProjection {
         'unsupported host kind',
       )
       const props = commandProps(command.props)
-      if (kind === '#text' && props.value === undefined) props.value = null
+      if (kind === '#text') {
+        const value = props.value
+        requireArtifact(
+          value == null || ['string', 'number', 'boolean'].includes(typeof value),
+          'nonportable text value',
+        )
+        // Resolve ECMAScript number/boolean formatting once; native consumers
+        // must not reproduce String(number) or lose logical text-slot boundaries.
+        props.value = value == null ? '' : String(value)
+      }
       created.set(id, { id, kind, props, children: [] })
     } else if (command.op === 'insert') {
       const node = created.get(id)

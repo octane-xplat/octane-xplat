@@ -1,6 +1,6 @@
 # Native pre-render implementation
 
-This private workspace owns the reusable startup artifact contract. Normal apps do not yet install or use it. The native readers, startup hosts and build preset must be connected and qualified before making it public.
+This private workspace owns the reusable startup artifact contract and independent Swift/Java readers. Normal apps do not yet install or use it. The startup hosts and build preset must be connected and qualified before making it public.
 
 Prepare supported Octane commands into a logical tree, including each text slot. Derive the native visual tree separately; native Labels flatten text while Octane retains its logical ownership. Command IDs exist only in the returned maps and never enter artifact nodes.
 
@@ -34,6 +34,18 @@ const claims = matchPreparedTree(commands, artifactNodes)
 ## Candidate artifact contract
 
 The owning declarations are [schema.ts](src/schema.ts). The candidate `mason-label-v1` contract supports Mason containers, Labels and their logical text children, one deterministic seed object, light/dark AOT styles and bounded launch constraints. Numeric style lengths use the native host's logical points/DIPs; style keys retain their property-specific units. Final native value/asset/font applicability must be checked by the owning backend before allocation. Structural validation alone does not qualify a native setter or CSS parity.
+
+Each logical text slot stores the exact display string produced by JavaScript during preparation. Numbers, booleans and empty values are normalized there; native readers never reproduce JavaScript number formatting. The initial seed retains its original types, and matching still checks each text slot separately.
+
+```ts
+const text = projectPreparedTree([
+  { op: 'create', id: 1, type: 'label', props: {} },
+  { op: 'create', id: 2, type: '#text', props: { value: 1e21 } },
+  { op: 'insert', id: 2, parent: 1, before: null },
+  { op: 'insert', id: 1, parent: null, before: null },
+])
+// text.nodes[1].props.value === '1e+21'
+```
 
 ```ts
 import { validateArtifact } from '@octane-xplat/native-prerender'
@@ -88,11 +100,28 @@ Binary input is limited to 1MiB, 1024 logical nodes, 64 tree levels, 100000 bina
 
 The old XPH1 readers and physical-device fixture remain under [platform qualification](../../tools/platform-qualification/native-prerender/README.md). Its producer emits `startup.bin`/`startup.json` alongside its existing fixture output during the native-reader migration. XPI1 is not yet accepted by those native consumers.
 
+## Native readers
+
+[Swift](platforms/ios/StartupArtifact.swift) and [Java](platforms/android/java/org/octanexplat/prerender/StartupArtifact.java) independently decode XPI1 without a JS runtime or UI engine. Each returns the complete logical snapshot, derives visual records and evaluates the launch constraints. Backend applicability checks remain separate and must finish before allocating native views. Swift uses `NSDictionary` for arbitrary seed objects so composed and decomposed Unicode keys retain their distinct JavaScript meanings.
+
+```java
+StartupArtifact.Snapshot snapshot = StartupArtifact.decode(bytes, installedBuild, "android");
+if (snapshot.supports(fontScale, width, height, reducedMotion)) {
+    List<Map<String, Object>> visual = snapshot.visualNodes();
+    // Preflight backend values/fonts before mounting these records.
+}
+```
+
 ## Verification
 
 ```sh
 bun turbo run typecheck test --filter=...@octane-xplat/native-prerender
 bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualification
+
+# Host-native parser checks, under the native build reservation:
+XPLAT_PRERENDER_JAVA_HOME=/path/to/jdk17 \
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native startup codec checks"}' -- \
+bun turbo run test:codec:native --filter=@octane-xplat/native-prerender
 ```
 
-These checks establish host-side structural/encoding behavior. Native decoding, rendering, hydration, ownership, first display and first working input require their separate platform qualifications.
+The native task compiles both readers and runs the same interoperability/corruption corpus. Set `XPLAT_HOME_CODEC_PRODUCER` to a current Home producer output directory to include its actual JSX artifact. These are host-native decoding checks; mobile rendering, hydration, ownership, first display and first working input require their separate platform qualifications.
