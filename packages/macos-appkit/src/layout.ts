@@ -273,6 +273,19 @@ export function createLayout(deps: Dependencies) {
   ) {
     x = stickyPlacements.position(child, { parent: parentView, x, y: top, width, height })
 
+    // NSTextField's unconstrained intrinsic height is one line. Once Mason
+    // assigns a width, feed that budget back through AppKit's text measure
+    // so the next pass accounts for wrapping instead of clipping paragraphs.
+    const textView = child.view
+    if (
+      child.type === 'label' && width > 0 && textView &&
+      'preferredMaxLayoutWidth' in textView && textView.preferredMaxLayoutWidth !== width
+    ) {
+      textView.preferredMaxLayoutWidth = width
+      textView.invalidateIntrinsicContentSize()
+      queueLayoutReconcile(child.container, child.parent)
+    }
+
     const pins = (child.placementPins ??= {})
 
     if (!pins.leading) {

@@ -37,3 +37,13 @@ both slices described above. The script produces a universal dylib with a
 macOS 13.5 deployment target. Keep the archive pin, generated header and engine
 revision aligned; ordinary app builds consume the shipped engine without
 rebuilding it.
+
+## Text measurement
+
+Mason's native leaf callback reads AppKit intrinsic size. An unconstrained
+NSTextField can report a single-line height even after receiving a narrower
+allocation. `layout.ts::pinLayoutChild` publishes a changed allocation through
+`preferredMaxLayoutWidth`, invalidates intrinsic size, and queues another
+layout pass. The same width does not schedule another invalidation. Keep this
+feedback when changing layout ownership; the maintained page-layout fixture
+checks that long paragraphs grow vertically inside bounded content.

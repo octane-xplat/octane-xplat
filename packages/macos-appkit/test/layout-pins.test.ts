@@ -28,9 +28,11 @@ const stickyPlacements = createStickyPlacements<any>({
   invalidate() {},
 })
 
+const textReconciles: unknown[][] = []
+
 const { pinLayoutChild, releasePlacementPins } = runSlice(
   layout + '\n({ pinLayoutChild, releasePlacementPins })',
-  { queueMicrotask: undefined, stickyPlacements },
+  { queueMicrotask: undefined, stickyPlacements, queueLayoutReconcile: (...args: unknown[]) => textReconciles.push(args) },
 )
 
 function anchor() {
@@ -207,4 +209,24 @@ test('sticky native sibling ordering puts shifted start/end cells above ordinary
   priorities.clear()
   orderStickySiblings(start)
   assert.deepEqual(calls, [start.view, middle.view, end.view])
+})
+
+
+test('label width changes remeasure wrapped text without repeating settled invalidations', () => {
+  let invalidations = 0
+  const item = {
+    ...child('paragraph'), type: 'label', container: {}, parent: {},
+    view: { ...view(), preferredMaxLayoutWidth: 0, invalidateIntrinsicContentSize() { invalidations++ } },
+  }
+  const host = view()
+  textReconciles.length = 0
+  pinLayoutChild(item, host, 0, 0, 240, 20)
+  assert.equal(item.view.preferredMaxLayoutWidth, 240)
+  assert.equal(invalidations, 1)
+  assert.deepEqual(textReconciles, [[item.container, item.parent]])
+  pinLayoutChild(item, host, 0, 0, 240, 80)
+  assert.equal(invalidations, 1)
+  pinLayoutChild(item, host, 0, 0, 180, 80)
+  assert.equal(item.view.preferredMaxLayoutWidth, 180)
+  assert.equal(invalidations, 2)
 })
