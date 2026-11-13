@@ -10,6 +10,9 @@ import { encodeHome } from './home-codec.mjs'
 
 if (typeof Bun === 'undefined') throw new Error('Home producer requires Bun 1.4.4')
 const source = import.meta.dirname
+const platform = process.env.XPLAT_PRERENDER_HOME_PLATFORM ?? 'ios'
+if (!['ios', 'android'].includes(platform))
+  throw new Error('Home producer platform must be ios or android')
 const repo = resolve(source, '../../..')
 const toolchain = createRequire(
   process.env.XPLAT_PRERENDER_TOOLCHAIN_ROOT
@@ -59,9 +62,10 @@ async function bundle(entry, name) {
     target: 'node',
     format: 'esm',
     define: {
-      __IOS__: 'true',
-      __APPLE__: 'true',
-      __ANDROID__: 'false',
+      XPLAT_HOME_PLATFORM: JSON.stringify(platform),
+      __IOS__: String(platform === 'ios'),
+      __APPLE__: String(platform === 'ios'),
+      __ANDROID__: String(platform === 'android'),
       __WINDOWS__: 'false',
       __VISIONOS__: 'false',
       __DEV__: 'false',
@@ -134,17 +138,17 @@ async function bundle(entry, name) {
             if (/\.(?:ts|tsx|tsrx)$/.test(path)) {
               const stem = path.replace(/\.(?:ts|tsx|tsrx)$/, '')
               const ext = path.slice(stem.length)
-              for (const candidate of [stem + '.ios' + ext, stem + '.mobile' + ext, path])
+              for (const candidate of [stem + '.' + platform + ext, stem + '.mobile' + ext, path])
                 if (existsSync(candidate)) return { path: candidate }
             }
             for (const ext of [
-              '.ios.tsrx',
+              '.' + platform + '.tsrx',
               '.mobile.tsrx',
               '.tsrx',
-              '.ios.ts',
+              '.' + platform + '.ts',
               '.mobile.ts',
               '.ts',
-              '.ios.js',
+              '.' + platform + '.js',
               '.js',
             ])
               for (const candidate of [path + ext, join(path, 'index' + ext)])
@@ -171,6 +175,7 @@ for (const theme of ['light', 'dark']) {
   json(input, { theme, seed, output })
   run(homeBundle, input)
   trees[theme] = JSON.parse(readFileSync(output, 'utf8'))
+  assert.equal(trees[theme].platform, platform, 'Build host platform differs from selected leaves')
 }
 assert.deepEqual(
   trees.light.nodes,
@@ -202,7 +207,13 @@ const bundleHashes = Object.fromEntries(
     createHash('sha256').update(readFileSync(path)).digest('hex'),
   ]),
 )
-const binding = { inputs: Object.fromEntries([...inputs].sort()), bundleHashes, seed, environment }
+const binding = {
+  inputs: Object.fromEntries([...inputs].sort()),
+  bundleHashes,
+  seed,
+  environment,
+  platform,
+}
 const buildHash = createHash('sha256').update(JSON.stringify(binding)).digest('hex')
 writeFileSync(join(work, 'home.bin'), encodeHome(artifact, buildHash))
 for (const [path, digest] of inputs) {
@@ -222,7 +233,9 @@ json(join(work, 'build.json'), {
     .update(readFileSync(join(work, 'home.bin')))
     .digest('hex'),
   scope:
-    'Fixed Home iOS render-only producer, explicit environment, AOT theme variants and XPH1 encoding; not general eligibility, SSR or native runtime qualification',
+    'Fixed Home ' +
+    platform +
+    ' render-only producer, explicit environment, AOT theme variants and XPH1 encoding; not general eligibility, SSR or native runtime qualification',
 })
 console.log('Home producer output: ' + work)
 console.log(

@@ -1,4 +1,4 @@
-// Build-host capabilities for the fixed iOS Home, not a NativeScript substitute.
+// Build-host capabilities for the fixed mobile Home, not a NativeScript substitute.
 // Unavailable services and constructors fail if render or module setup uses them.
 let theme
 const reads = []
@@ -23,7 +23,9 @@ function unavailable(name) {
     },
   })
 }
-const iosPresence = unavailable('Application.ios')
+const platform = typeof XPLAT_HOME_PLATFORM === 'undefined' ? 'ios' : XPLAT_HOME_PLATFORM
+if (!['ios', 'android'].includes(platform)) throw new Error('Home producer: unsupported platform')
+const platformPresence = unavailable('Application.' + platform)
 export const Application = new Proxy(Object.create(null), {
   set: rejectWrite,
   defineProperty: rejectWrite,
@@ -34,9 +36,9 @@ export const Application = new Proxy(Object.create(null), {
     reads.push('Application.' + String(key))
     switch (key) {
       case 'ios':
-        return iosPresence
+        return platform === 'ios' ? platformPresence : undefined
       case 'android':
-        return undefined
+        return platform === 'android' ? platformPresence : undefined
       case 'primaryWindow':
         return undefined
       case 'systemAppearance':
@@ -46,8 +48,8 @@ export const Application = new Proxy(Object.create(null), {
     }
   },
 })
-export const isIOS = true
-export const isAndroid = false
+export const isIOS = platform === 'ios'
+export const isAndroid = platform === 'android'
 export const Utils = unavailable('Utils')
 export const ScrollView = unavailable('ScrollView')
 export const Color = unavailable('Color')
@@ -69,5 +71,5 @@ export function configureNativeBuildHost(value) {
   theme = value
 }
 export function nativeBuildHostEvidence() {
-  return { reads: [...reads], registrations: [...registrations] }
+  return { platform, reads: [...reads], registrations: [...registrations] }
 }

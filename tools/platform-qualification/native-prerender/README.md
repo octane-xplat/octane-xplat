@@ -79,7 +79,7 @@ This check compiles the authored component. It does not execute the real shared-
 
 ## Produce Home without a device runtime
 
-The bounded producer evaluates the actual shared Home with Octane's native universal compiler and render-only preparation. Its build host supplies explicit iOS/theme inputs and rejects native service reads, calls, allocations and writes. It records the unused SVG factory registration without calling that factory; SVG hosts remain unsupported. It prepares light and dark mode in separate processes, rejects changes to initial host props or topology, then uses the portable CSS engine to resolve both variants. It creates no native views and does not start NativeScript.
+The bounded producer evaluates the actual shared Home with Octane's native universal compiler and render-only preparation. Its build host supplies explicit mobile-platform/theme inputs and rejects native service reads, calls, allocations and writes. It records the unused SVG factory registration without calling that factory; SVG hosts remain unsupported. It prepares light and dark mode in separate processes, rejects changes to initial host props or topology, then uses the portable CSS engine to resolve both variants. It creates no native views and does not start NativeScript.
 
 Run the producer with the workspace dependencies installed, or select an installed toolchain for the compiler/native CSS normalizer and a CSS-engine package for its parser dependencies:
 
@@ -88,6 +88,14 @@ export XPLAT_PRERENDER_TOOLCHAIN_ROOT=/absolute/path/to/installed/app
 export XPLAT_PRERENDER_CSS_TOOLCHAIN_ROOT=/absolute/path/to/installed/css-engine
 bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualification
 ```
+
+The default target is iOS. Select Android explicitly to compile its platform leaves and build-host presence facts:
+
+```sh
+XPLAT_PRERENDER_HOME_PLATFORM=android bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualification
+```
+
+The manifest records the selected platform and binds it into the producer identity. Native packagers must require the matching target as well as binding their own host/runtime inputs. Android input slop is resolved when the live press owner attaches or commits; render-only preparation does not query ViewConfiguration or substitute another Pressable. Unsupported native render reads still fail.
 
 The command prints a new output directory below `~/agent-scratch/octane-xplat/native-prerender-home-producer`. It contains `resolved.json`, `sheets.json`, `home.bin`, separate prepared trees and a source/bundle fingerprint manifest. `resolved.json` is the readable semantic projection encoded in `home.bin`. The binary's build identity binds producer inputs; a native app packager must also bind its host/runtime inputs and encode the combined identity expected by its native loader. The existing Home native qualification host does that separately.
 

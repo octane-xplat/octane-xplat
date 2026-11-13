@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { spawnSync } from 'node:child_process'
 
 test('fixed Home build host rejects native capabilities and captures deferred registration', async () => {
   const api = await import('./producer/native-api.mjs')
@@ -18,6 +19,8 @@ test('fixed Home build host rejects native capabilities and captures deferred re
   assert.throws(() => api.registerElement('unknown', () => api.View), /unsupported/)
   assert.throws(() => api.configureNativeBuildHost('system'), /invalid/)
   api.configureNativeBuildHost('dark')
+  assert.equal(api.isIOS, true)
+  assert.equal(api.isAndroid, false)
   assert.equal(api.Application.systemAppearance(), 'dark')
   assert.equal(Boolean(api.Application.ios), true)
   assert.equal(api.Application.android, undefined)
@@ -36,4 +39,30 @@ test('fixed Home build host rejects native capabilities and captures deferred re
   )
   assert.throws(() => api.configureNativeBuildHost('light'), /repeated/)
   assert.deepEqual(api.nativeBuildHostEvidence().registrations, ['svgview'])
+})
+
+test('Android build facts select Android without exposing native service objects', () => {
+  const module = new URL('./producer/native-api.mjs', import.meta.url).href
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '--eval',
+      `
+    import assert from 'node:assert/strict';
+    globalThis.XPLAT_HOME_PLATFORM = 'android';
+    const api = await import(${JSON.stringify(module)});
+    assert.equal(api.isIOS, false);
+    assert.equal(api.isAndroid, true);
+    api.configureNativeBuildHost('light');
+    assert.equal(api.Application.ios, undefined);
+    assert.equal(Boolean(api.Application.android), true);
+    assert.throws(() => api.Application.android.foregroundActivity, /unsupported native read/);
+    assert.equal(api.nativeBuildHostEvidence().platform, 'android');
+  `,
+    ],
+    { encoding: 'utf8' },
+  )
+
+  assert.equal(result.status, 0, result.stderr)
 })

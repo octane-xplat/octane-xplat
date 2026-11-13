@@ -13,7 +13,7 @@
 		"@xplat/platform-qualification#probe:prerender:android:build": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_*", "GODDARD_*"] },
 		"@xplat/platform-qualification#probe:prerender:android": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_ANDROID_BUILD", "GODDARD_*"] },
 		"@xplat/platform-qualification#test:prerender:producer": {},
-		"@xplat/platform-qualification#probe:prerender:home:produce": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_TOOLCHAIN_ROOT", "XPLAT_PRERENDER_CSS_TOOLCHAIN_ROOT"] },
+		"@xplat/platform-qualification#probe:prerender:home:produce": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_TOOLCHAIN_ROOT", "XPLAT_PRERENDER_CSS_TOOLCHAIN_ROOT", "XPLAT_PRERENDER_HOME_PLATFORM"] },
 		"@xplat/platform-qualification#probe:prerender:appkit:build": { "cache": false, "passThroughEnv": ["GODDARD_*"] },
 		"@xplat/platform-qualification#probe:prerender:appkit:run": { "cache": false, "passThroughEnv": ["XPLAT_APPKIT_MEASUREMENT_BUILD", "XPLAT_APPKIT_MEASUREMENT_LIBRARY"] },
 		"@xplat/platform-qualification#probe:prerender:home:check": { "cache": false, "passThroughEnv": ["XPLAT_PRERENDER_TOOLCHAIN_ROOT"] },
