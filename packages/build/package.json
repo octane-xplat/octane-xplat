@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/build",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Project-installed Vite presets and build plugins for Octane Xplat",
 	"license": "MIT",
 	"repository": {

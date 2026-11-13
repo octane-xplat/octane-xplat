@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/shaders",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Thin adapter that runs the published `shaders` WebGPU library on Octane xplat Canvas surfaces \u2014 web (implemented) and NativeScript iOS/Android (experimental, device verification pending)",
 	"keywords": [
 		"canvas",

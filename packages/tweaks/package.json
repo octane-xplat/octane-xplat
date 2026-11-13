@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/tweaks",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Live-tweakable values for Octane Xplat apps — edited from a dev panel, written back to source on Save",
 	"keywords": [
 		"devtools",

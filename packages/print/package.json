@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/print",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Expo-shaped HTML printing and PDF files for Octane Xplat",
 	"keywords": [
 		"cross-platform",
