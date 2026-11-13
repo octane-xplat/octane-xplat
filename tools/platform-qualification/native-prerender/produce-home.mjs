@@ -6,7 +6,6 @@ import { createRequire } from 'node:module'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { encodeHome } from './home-codec.mjs'
 import { validateArtifact } from '@octane-xplat/native-prerender'
 import { encodeStartupArtifact, writeStartupJson } from '@octane-xplat/native-prerender/codec'
 
@@ -166,7 +165,6 @@ async function bundle(entry, name) {
 read(compilerPath)
 read(normalizerPath)
 read(import.meta.filename)
-read(join(source, 'home-codec.mjs'))
 read(createRequire(import.meta.url).resolve('@octane-xplat/native-prerender/codec'))
 const seed = { name: 'Alex', initialCompleted: 3 }
 const environment = { width: 402, height: 874, reducedMotion: false }
@@ -224,7 +222,6 @@ const binding = {
   platform,
 }
 const buildHash = createHash('sha256').update(JSON.stringify(binding)).digest('hex')
-writeFileSync(join(work, 'home.bin'), encodeHome(artifact, buildHash))
 const logicalNodes = trees.light.logicalNodes
 const visualNodes = logicalNodes.filter((node) => node.kind !== '#text')
 const startup = validateArtifact({
@@ -263,9 +260,6 @@ json(join(work, 'build.json'), {
     Object.entries(trees).map(([theme, tree]) => [theme, tree.reads]),
   ),
   registrations: trees.light.registrations,
-  artifactHash: createHash('sha256')
-    .update(readFileSync(join(work, 'home.bin')))
-    .digest('hex'),
   startupFormat: 'XPI1',
   dimensionQueries: launch.dimensionQueries,
   startupArtifactHash: createHash('sha256')
@@ -275,7 +269,7 @@ json(join(work, 'build.json'), {
   scope:
     'Fixed Home ' +
     platform +
-    ' render-only producer, explicit environment, AOT theme variants and XPH1 encoding; not general eligibility, SSR or native runtime qualification',
+    ' render-only producer, explicit environment, AOT theme variants and XPI1 encoding; not general eligibility, SSR or native runtime qualification',
 })
 console.log('Home producer output: ' + work)
 console.log(
@@ -283,7 +277,7 @@ console.log(
     visualNodes: artifact.nodes.length,
     logicalNodes: logicalNodes.length,
     themes: Object.keys(artifact.variants),
-    bytes: readFileSync(join(work, 'home.bin')).length,
+    bytes: readFileSync(join(work, 'startup.bin')).length,
     buildHash,
   }),
 )

@@ -7,7 +7,7 @@ struct HomeArtifactCheck {
             guard CommandLine.arguments.count == 3 else { throw HomeArtifact.Invalid(reason: "expected artifact path and build hash") }
             let data = try Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1]))
             let artifact = try HomeArtifact.decode(data, expectedBuildHash: CommandLine.arguments[2])
-            let json = try JSONSerialization.data(withJSONObject: artifact, options: [.sortedKeys])
+            let json = try JSONSerialization.data(withJSONObject: artifact.value, options: [.sortedKeys])
             FileHandle.standardOutput.write(json)
         } catch {
             FileHandle.standardError.write(Data("Home IR rejected: \(error)\n".utf8))

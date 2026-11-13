@@ -8,15 +8,17 @@ import { encodeStartupArtifact } from '@octane-xplat/native-prerender/codec'
 
 const binary = process.env.XPLAT_HOME_CODEC_NATIVE
 const work = process.env.XPLAT_HOME_CODEC_WORK
-assert.ok(binary && work, 'Use test:prerender:codec:android under a native build reservation')
+assert.ok(binary && work, 'Run the platform backend Turbo task under a native build reservation')
 const build = 'ab'.repeat(32)
+const platform = process.env.XPLAT_HOME_CODEC_PLATFORM
+assert.ok(['ios', 'android'].includes(platform), 'Expected an explicit backend platform')
 function fixture() {
   return {
     version: 1,
-    platform: 'android',
+    platform,
     hostContract: 'mason-label-v1',
     build,
-    seed: { title: 'Hello, 世界', count: 3 },
+    seed: { title: 'Hello, 世界', count: 3, '\u00e9': 'composed', 'e\u0301': 'decomposed' },
     constraints: [{ input: 'fontScale', equals: 1 }],
     nodes: [
       { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
@@ -46,7 +48,7 @@ function native(artifact) {
   writeFileSync(path, encodeStartupArtifact(artifact))
   return spawnSync(binary, [path, build], { encoding: 'utf8', timeout: 15000 })
 }
-test('Android backend lowers the complete logical artifact to its expected visual records', () => {
+test(`${platform} backend lowers the complete logical artifact to its expected visual records`, () => {
   const artifact = fixture(),
     result = native(artifact)
   assert.equal(result.status, 0, result.stderr)
@@ -64,7 +66,7 @@ test('Android backend lowers the complete logical artifact to its expected visua
       artifact.variants[theme].map(({ node, ...record }, index) => ({ index, ...record })),
     )
 })
-test('Android backend rejects structurally valid unsupported native setter values in either theme', () => {
+test(`${platform} backend rejects structurally valid unsupported native setter values in either theme`, () => {
   for (const theme of ['light', 'dark'])
     for (const [key, value] of [
       ['display', 'block'],
@@ -93,6 +95,10 @@ test('Android backend rejects structurally valid unsupported native setter value
       ['color', 'rgba(-1, 2, 3, 1)'],
       ['color', 'rgba(1, 2, 300, 1)'],
       ['color', 'rgba(1, 2, nan, 1)'],
+      ['color', 'rgba(1, 2, 3, 1)trailing'],
+      ['color', 'rgba(1d, 2, 3, 1)'],
+      ['color', 'rgba(0x1p0, 2, 3, 1)'],
+      ['backgroundColor', 123],
     ]) {
       const artifact = fixture()
       artifact.variants[theme][1].style[key] = value

@@ -291,6 +291,9 @@
 			"cache": false
 		}
 	}
+    "@xplat/platform-qualification#probe:prerender:home:ios": {
+      "dependsOn": ["^build"],
+      "passThroughEnv": ["XPLAT_PRERENDER_IOS_HOME_BUILD", "GODDARD_*"]
     "@octane-xplat/native-prerender#test:codec:native": {
       "passThroughEnv": ["XPLAT_PRERENDER_JAVA_HOME", "XPLAT_HOME_CODEC_PRODUCER", "GODDARD_*"]
     "@xplat/platform-qualification#probe:prerender:startup:check": {
@@ -305,6 +308,8 @@
         "XPLAT_PRERENDER_JAVA_HOME",
         "XPLAT_HOME_CODEC_INPUT",
         "XPLAT_HOME_CODEC_PRODUCER"
+      "passThroughEnv": ["XPLAT_PRERENDER_JAVA_HOME", "XPLAT_HOME_CODEC_PRODUCER"]
+    },
     "@xplat/platform-qualification#probe:prerender:android:build": {
       "dependsOn": ["^build"],
       "cache": false,
@@ -337,6 +342,13 @@
       "passThroughEnv": ["XPLAT_PRERENDER_TOOLCHAIN_ROOT"]
     "@xplat/platform-qualification#probe:prerender:driver:check": {
       "passThroughEnv": ["XPLAT_PRERENDER_DRIVER_ROOT"]
+    },
+    "@xplat/platform-qualification#test:prerender:codec": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "passThroughEnv": ["GODDARD_*", "XPLAT_HOME_CODEC_PRODUCER"]
+    },
+    "@xplat/platform-qualification#test:prerender:adoption": {},
     "@xplat/platform-qualification#probe:prerender:build": {
       "passThroughEnv": ["XPLAT_PRERENDER_*", "GODDARD_*"]
     "@xplat/platform-qualification#probe:prerender:home:helpers": {

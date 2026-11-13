@@ -1,7 +1,7 @@
-// Fixed Home qualification fixture; the host build supplies the two virtual data modules.
+// Fixed Home qualification fixture; the host build supplies three virtual data modules.
 import { writeProbeDiagnostic } from './write-native-diagnostic.ios.js'
 import { qualifyHomeLifetime } from './home-lifetime.ios.js'
-import { matchPreparedVisualTree } from './match-tree.mjs'
+import { matchPreparedTree } from '@octane-xplat/native-prerender'
 import '@nativescript/core/globals'
 import { Application, Page, Utils } from '@nativescript/core'
 import { Label } from '@nativescript/core/ui/label'
@@ -13,6 +13,7 @@ import { createNativeScriptRoot } from '@nativescript-community/octane'
 import { Home } from './Home.tsrx'
 import sheets from 'xplat-prerender:styles'
 import resolved from 'xplat-prerender:artifact'
+import startup from 'xplat-prerender:startup'
 const check = (value, message) => {
   if (!value) throw new Error(message)
 }
@@ -105,7 +106,7 @@ check(
 check(wrappers.every((view) => !view.parent) && hookCalls === 0, 'Aborted prepare claimed wrappers')
 const prepared = root.prepare(Home, resolved.seed)
 check(prepared.status === 'prepared', 'Actual Home prepare suspended')
-const addresses = matchPreparedVisualTree(prepared.batch.commands, resolved.nodes, 27)
+const addresses = matchPreparedTree(prepared.batch.commands, startup.nodes).visualByCommandId
 check(addresses.size === 19, 'Not all visual nodes validated')
 for (const [id, index] of addresses) pendingClaims.set(id, index)
 const page = new Page()

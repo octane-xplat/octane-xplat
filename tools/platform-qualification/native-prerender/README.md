@@ -97,11 +97,11 @@ XPLAT_PRERENDER_HOME_PLATFORM=android bun turbo run probe:prerender:home:produce
 
 The manifest records the selected platform and binds it into the producer identity. Native packagers must require the matching target as well as binding their own host/runtime inputs. Android input slop is resolved when the live press owner attaches or commits; render-only preparation does not query ViewConfiguration or substitute another Pressable. Unsupported native render reads still fail.
 
-The command prints a new output directory below `~/agent-scratch/octane-xplat/native-prerender-home-producer`. It contains `resolved.json`, `sheets.json`, `home.bin`, separate prepared trees and a source/bundle fingerprint manifest. `resolved.json` is the readable semantic projection encoded in `home.bin`. The binary's build identity binds producer inputs; a native app packager must also bind its host/runtime inputs and encode the combined identity expected by its native loader. The existing Home native qualification host does that separately.
+The command prints a new output directory below `~/agent-scratch/octane-xplat/native-prerender-home-producer`. It contains XPI1 `startup.bin`, matching `startup.json`, `resolved.json`, `sheets.json`, separate prepared trees and a source/bundle fingerprint manifest. `resolved.json` is the derived visual/style projection; `startup.json` preserves complete logical ownership. The binary's build identity binds producer inputs; a native app packager must also bind its host/runtime inputs and encode the combined identity expected by its native loader. The existing Home native qualification host does that separately.
 
 This producer deliberately supports the selected nineteen-view Home, its explicit seed and a402×874 logical-point CSS environment with light/dark variants. It does not infer arbitrary component eligibility, evaluate client refs/effects, support structural theme changes or establish request-isolated SSR. The mobile live resolver remains the CSS parity reference. New environment dependencies, host kinds and native API use require explicit qualification; successful host generation alone does not establish native mounting, hydration or startup speed.
 
-The producer uses the reusable [native-prerender contract](../../../packages/native-prerender/README.md) for logical ownership and visual projection. It writes XPI1 `startup.bin` and matching `startup.json`, retaining all logical text slots and explicit launch constraints. Android consumes that format; the iOS host still uses the old XPH1 `home.bin` during migration. The new projection has no Home node-count constants, while this fixture continues to select the same Home source and seed. This remains separate from normal-app build integration.
+The producer uses the reusable [native-prerender contract](../../../packages/native-prerender/README.md) for logical ownership and visual projection. It writes XPI1 `startup.bin` and matching `startup.json`, retaining all logical text slots and explicit launch constraints. Both native hosts consume that format and use the package’s complete logical matcher before claims. The new projection has no Home node-count constants, while this fixture continues to select the same Home source and seed. This remains separate from normal-app build integration.
 
 Exercise the rejecting build-host boundary separately:
 
@@ -123,45 +123,24 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"C
 
 Each invocation writes three object files, compiler arguments and an input/output hash manifest below `~/agent-scratch/octane-xplat/native-prerender-home-helpers`. Link all three, including the Swift `HomeStyleSnapshot` extension, with the host, Mason, TNSWidgets, CoreText and core’s native text helpers. The command creates no app and runs no device; its output explicitly records `linked:false` and `runtimeQualified:false`. Follow the plan’s separate native geometry, style ownership and hydration gates.
 
-## Experimental Home binary codec
+## Shared binary reader and native backend checks
 
-`home-codec.mjs` writes `XPH1`; `home-native/HomeArtifact.swift` reads it using Foundation and CryptoKit before any view creation. Both produce the same semantic object as the resolved JSON projection. Check the writer and native reader together, optionally supplying an actual AOT Home projection:
-
-```sh
-export XPLAT_HOME_CODEC_INPUT=/absolute/path/to/resolved.json
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Check Home binary codec"}' -- bun turbo run test:prerender:codec --filter=@xplat/platform-qualification
-```
-
-The command compiles a host-native Swift checker, exercises valid and malformed inputs, and retains evidence under `~/agent-scratch/octane-xplat/native-prerender-home-codec`. It starts no simulator and does not establish iOS mounting or hydration. Without the optional input, the actual-Home case is explicitly skipped; synthetic codec cases still run.
-
-`android-native/HomeArtifact.java` consumes the reusable Java XPI1 reader and preflights the fixed native backend's supported style values in both themes. The reusable package owns structural/corruption conformance; this check owns backend value eligibility and visual projection. Run it on an existing JDK; optionally require direct decoding of the Android producer’s original binary/build identity as well:
+The reusable [native-prerender contract](../../../packages/native-prerender/README.md) owns XPI1 encoding, bounds, structural preflight and Swift/Java corruption conformance. Both hosts consume its complete logical snapshot and derive native visual records. `home-native/HomeArtifact.swift` and `android-native/HomeArtifact.java` separately check the fixed backend’s style values in both themes before mounting. Neither backend reimplements the binary parser.
 
 ```sh
+export XPLAT_HOME_CODEC_PRODUCER=/absolute/path/to/ios/producer/output
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Check Swift Home backend"}' -- bun turbo run test:prerender:codec --filter=@xplat/platform-qualification
+
 export XPLAT_PRERENDER_JAVA_HOME=/absolute/path/to/existing/jdk17/Contents/Home
 export XPLAT_HOME_CODEC_PRODUCER=/absolute/path/to/android/producer/output
-export XPLAT_HOME_CODEC_INPUT="$XPLAT_HOME_CODEC_PRODUCER/resolved.json"
-bun turbo run test:prerender:codec:android --filter=@xplat/platform-qualification
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Check Java Home backend"}' -- bun turbo run test:prerender:codec:android --filter=@xplat/platform-qualification
 ```
 
-The Java checker compiles with `--release 8` and prints a UTF-8 JSON debug projection. The optional producer check requires an Android manifest and compares `startup.bin` against its complete `resolved.json` visual/style projection, with canonical provenance ordering. Source, class and artifact fingerprints plus command logs go below `~/agent-scratch/octane-xplat/native-prerender-android-codec`. Neither this JDK-host check nor the Swift host check proves execution on a mobile device, UI mounting, font/layout parity, hydration or startup speed. The separate Android Home mount mode below includes the shared reader in its APK; the host codec check alone remains insufficient.
+Both backend tasks run the same logical projection and unsupported-value cases. Supplying the optional platform-specific producer directory additionally requires its original `startup.bin` to match the complete `resolved.json` projection, with canonical provenance ordering. Swift evidence goes below `~/agent-scratch/octane-xplat/native-prerender-home-codec`; Java evidence goes below `~/agent-scratch/octane-xplat/native-prerender-android-codec`. These compile/run on host toolchains, without a simulator, mobile mounting or JS runtime.
 
-Both readers preflight the complete artifact, including the unused theme. They reject unsupported style values, malformed UTF-8, duplicate keys/provenance, non-finite numbers, excessive literal nesting/collections, invalid tree links, incompatible headers/builds/checksums and trailing data. RGBA numeric tokens use decimal syntax consistently; Java numeric suffixes and hexadecimal floating literals are rejected. This remains a packaged fixed-screen contract, not a complete untrusted SSR input boundary or platform style lowerer.
+The reusable package’s `test:codec:native` task owns malformed-input coverage. The backend checks own setter eligibility: supported enum strings, scalar types/ranges, zero-only borders, supported font weights and resolved colors. Both themes must pass even when one is unused. Structural validity alone does not establish native font applicability, geometry, hydration, presentation or speed. These fixed-screen backends are not general CSS lowerers.
 
-The fixed 80-byte header uses little-endian integers:
-
-| Offset | Field |
-| --- | --- |
-| 0 | Four-byte magic `XPH1` |
-| 4 | Version `u16=1`, reserved flags `u16=0` |
-| 8 | Total bytes `u32`, visual node count `u32` |
-| 16 | Expected build identity, 32 bytes |
-| 48 | Payload SHA-256, 32 bytes |
-
-The payload contains a scope string, initial-data object, ordered node records, then light and dark style records. Each node stores a one-byte container/Label kind, a `u32` parent index (`0xffffffff` for the root), text and portable props. Paths and child lists are derived from parent order. Each theme has one style/provenance record per node. Literal tags represent null, booleans, finite little-endian float64 numbers, UTF-8 strings, arrays and objects; strings and collections have `u32` lengths. No JSON text, native pointers, transient renderer IDs, Mason buffer offsets or native struct layouts are embedded.
-
-Bounds are 1 MiB total, 1,024 nodes, 65,536 bytes per string, literal depth below 16, 1,024 array entries, 256 object entries and 100,000 literal values. The reader rejects unknown versions/flags/tags, bad references, duplicate keys, unsupported style names, invalid UTF-8, non-finite numbers, trailing bytes and mismatched checksums/build identities. The host must supply the expected build digest from its producer/runtime/CSS/initial-data inputs; a checksum provides corruption detection, not authenticity. The native reader also preflights both themes against the fixed Home setter subset before returning an artifact: supported enum strings, numeric types/ranges, zero-only borders, supported font weights, and fully parsed resolved colors. The mounting helper checks scaled length range before native view allocation. This remains the experimental Home contract, not general CSS support.
-
-This is a compatibility experiment, not the frozen production IR. It retains resolved style names and provenance for inspectability; it makes no size or speed claim. Compiler-stable logical identities, environment invalidation, a complete control/property ABI and failure fallback remain separate contracts. JSON is the optional debug projection of the same data, rather than a separate rendering path.
+XPI1 uses an 80-byte little-endian header and a tagged value tree. Its header count describes logical nodes, including text slots. The [owning format description](../../../packages/native-prerender/README.md#binary-and-development-json) defines the fields and limits. Optional JSON represents the same data; checksums detect corruption rather than authenticating a server response. There is no second Home-only wire format.
 
 ## Retained Home runtime fixtures
 
@@ -169,16 +148,26 @@ The real-screen experiment has separate native and JavaScript entry points:
 
 | Source | Role |
 | --- | --- |
-| [HomeBootstrap.swift](home-native/HomeBootstrap.swift) | Binary decode, native Home mount, explicit engine gate and identity assertions |
+| [HomeBootstrap.swift](home-native/HomeBootstrap.swift) | Shared XPI1 decode/environment preflight, native Home mount, engine gate and identity assertions |
 | [home-adoption.ios.js](home-adoption.ios.js) | Prepared-tree matching, root-scoped claims, Page handoff, resize/restore parity, Button updates, sibling isolation and compared style removal |
 | [home-fallback.ios.js](home-fallback.ios.js) | Artifact/decode or stale-theme rejection before claims, ordinary Home mount and current-theme/Button checks |
 | [home-primitives.ts](home-primitives.ts) | Four actual shared primitive exports, avoiding unrelated public-barrel imports |
 
-These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with `HomeArtifact.swift`, and links the three native helper objects plus the runtime/Core embedding helpers. It packages `home.bin` and resolves the JavaScript virtual modules `xplat-prerender:artifact` and `xplat-prerender:styles` to the matching debug projection and normalized stylesheets. Retarget Octane imports to the native universal runtime and apply the isolated driver factory patch. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
+These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with the shared `StartupArtifact.swift` and backend `HomeArtifact.swift`, and links the three native helper objects plus the runtime/Core embedding helpers. It packages the XPI1 packet as `home.bin` and resolves `xplat-prerender:artifact`, `xplat-prerender:startup` and `xplat-prerender:styles` to the matching visual projection, complete logical artifact and normalized stylesheets. Retarget Octane imports to the native universal runtime and use the canonical managed driver patch. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
 
-The positive fixture reads binary before engine initialization, then checks the same nineteen native objects through live adoption. For a stale-theme failure, compile Swift with `-D XPLAT_PRERENDER_STALE_THEME` and select `home-fallback.ios.js`: it changes the owning window theme before JS starts. JavaScript rejects the stale preparation without consuming claims, detaches the old native root through Mason and mounts a fresh Home.
+The maintained iOS runner accepts an explicitly prebuilt XPI1 Home fixture with the recorded build manifest and the isolated `controls-shared-home-xpi` app identity. The experimental host build adapter remains separate from normal NativeScript SDK integration.
 
-The same fallback entry handles native read/decode rejection. The Swift host catches a missing, incompatible or invalid artifact, records a rejected-artifact receipt with zero artifact views, and starts JS with an empty viewport. The normal compiled Home uses its bundled initial data rather than attempting to use rejected artifact data. These qualification cases need no stale-theme compile flag:
+```sh
+export XPLAT_PRERENDER_IOS_HOME_BUILD=/absolute/path/to/home/host/build
+goddard-agent resource run --json '{"resources":{"exclusive":["ios:91D40099-A056-497D-A572-ADDDFD6A8F23"],"resident_devices":1},"purpose":"Qualify iOS XPI1 Home"}' -- bun turbo run probe:prerender:home:ios --filter=@xplat/platform-qualification
+```
+
+The runner checks artifact/build/source fingerprints, normal JS completion, 19 native views and 27 logical nodes, retains a fresh report below `~/dev/reports/octane-xplat/native-prerender-ios-home`, and shuts down the owned simulator. Its default mode exercises handler delivery; OS HID input, compositor presentation, performance and leak qualification remain separate controls. A build manifest may select the explicit `build` fault control: it requires a mismatched binary header, native rejection before Home allocation, zero claims and ordinary-render recovery through the same JS entry. Unknown fault modes fail. Bridge metadata must include Core’s helpers and WebKit protocols; a successful native decode cannot establish that the later JS import graph has all required metadata.
+
+
+The positive fixture reads binary before engine initialization, then checks the same nineteen native objects through live adoption. The shared `home-entry.ios.js` selects adoption or ordinary fallback after reading the native receipt. For a stale-theme failure, compile Swift with `-D XPLAT_PRERENDER_STALE_THEME`: the host changes the owning window theme before JS starts. JavaScript rejects the stale preparation without consuming claims, detaches the old native root through Mason and mounts a fresh Home.
+
+The same JS entry handles native read/decode rejection by loading the ordinary fallback path. The Swift host catches a missing, incompatible or invalid artifact, records a rejected-artifact receipt with zero artifact views, and starts JS with an empty viewport. The normal compiled Home uses its bundled initial data rather than attempting to use rejected artifact data. These qualification cases need no stale-theme compile flag:
 
 ```js
 const artifactRejected = snapshot.artifactRejected === true
@@ -267,7 +256,7 @@ The lookup alone is not hydration. The host must first match the complete prepar
 
 ## Match before claiming
 
-Android uses `matchPreparedTree` from the reusable artifact package to compare every logical node, prop and text slot before any claim. It returns separate maps for logical and visual identities in this prepared batch. The iOS fixture still uses its older `match-tree.mjs` visual matcher during migration; flattened text and a node count do not establish complete text-slot ownership. Both paths require separate native-class, environment/build and wrapper-ownership checks.
+Both hosts use `matchPreparedTree` from the reusable artifact package to compare every logical node, prop and text slot before any claim. It returns separate logical and visual maps for the current prepared batch. Folded text and a node count cannot establish complete text-slot ownership. Native-class, environment/build and wrapper-ownership checks remain separate.
 
 ```js
 import { matchPreparedTree } from '@octane-xplat/native-prerender'

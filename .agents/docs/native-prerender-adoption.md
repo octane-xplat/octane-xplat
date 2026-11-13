@@ -15,8 +15,9 @@ strings; the seed retains its original value types. XPI1/JSON use the same
 host-side validation. Independent Swift/Java readers share a maintained
 interoperability corpus, including the real JSX producer output. Swift keeps
 arbitrary seed dictionaries in NSDictionary to preserve distinct UTF-16 keys.
-The Android qualification host consumes XPI1 and matches complete logical slots
-before claims; the iOS host still uses XPH1 during migration. Host-native decoder
+Both mobile qualification hosts consume XPI1 and match complete logical slots
+before claims. The fixed Swift/Java backends use the shared readers and retain
+separate native setter/font eligibility checks. Host-native decoder
 checks do not establish mobile rendering or normal-app integration. Keep backend
 value/font checks before native allocation. The current cascade reads viewport
 dimensions only through media queries: retain exact dimension guards if any

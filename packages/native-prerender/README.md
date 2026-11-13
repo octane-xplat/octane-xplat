@@ -98,7 +98,7 @@ XPI1 has an 80-byte little-endian header: four magic bytes, a 16-bit version, 16
 
 Binary input is limited to 1MiB, 1024 logical nodes, 64 tree levels, 100000 binary values and 65536 UTF-8 bytes per string. Literal data has additional collection/depth bounds. Pretty JSON has a separate 8MiB byte limit to accommodate indentation and must still fit the binary limits. Unknown fields, flags, host kinds, properties, broken references, nonportable values and malformed bytes fail before mounting. `./codec` is for build/inspection hosts and must not be imported into the native app runtime.
 
-The [platform qualification fixture](../../tools/platform-qualification/native-prerender/README.md) consumes XPI1 on Android and uses full logical matching before claims. Its producer also retains the old XPH1 output for the iOS host during migration. These experimental hosts are separate from normal app startup wiring.
+The [platform qualification fixture](../../tools/platform-qualification/native-prerender/README.md) consumes XPI1 on iOS/Android and uses full logical matching before claims. The producer writes one wire format and its matching development JSON. These experimental hosts are separate from normal app startup wiring.
 
 ## Native readers
 

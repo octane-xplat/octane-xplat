@@ -16,12 +16,11 @@ const inputs = [
   join(source, 'android-native/HomeArtifact.java'),
   join(source, 'android-codec/HomeArtifactCheck.java'),
   import.meta.filename,
-  join(source, 'android-codec/home-backend.test.mjs'),
+  join(source, 'home-backend.test.mjs'),
   resolve(
     source,
     '../../../packages/native-prerender/platforms/android/java/org/octanexplat/prerender/StartupArtifact.java',
   ),
-  ...(process.env.XPLAT_HOME_CODEC_INPUT ? [process.env.XPLAT_HOME_CODEC_INPUT] : []),
   ...(producer
     ? ['resolved.json', 'startup.bin', 'build.json'].map((name) => join(producer, name))
     : []),
@@ -69,9 +68,10 @@ writeFileSync(
     ' org.octanexplat.prerenderandroid.HomeArtifactCheck "$@"\n',
   { mode: 0o755 },
 )
-run(process.execPath, ['--test', join(source, 'android-codec/home-backend.test.mjs')], {
+run(process.execPath, ['--test', join(source, 'home-backend.test.mjs')], {
   ...process.env,
   XPLAT_HOME_CODEC_NATIVE: launcher,
+  XPLAT_HOME_CODEC_PLATFORM: 'android',
   XPLAT_HOME_CODEC_WORK: work,
 })
 if (producer) {
