@@ -34,6 +34,14 @@ public final class HomeActivity extends AppCompatActivity {
         applicationHandoff = true; installedParent = findViewById(android.R.id.content);
     }
     public boolean isFallback() { return fallbackReason != null; }
+    public void abandonUnclaimedHome(String reason) {
+        check(scene != null && !bridgeReady && !isFallback(), "Unexpected native Home discard");
+        int count = scene.count();
+        scene.discard(); scene = null; fallbackReason = reason;
+        try { app().record(new JSONObject().put("event", "native-home-discarded").put("epoch", epoch)
+            .put("visualNodes", count).put("nativeChildren", 0).put("masonChildren", 0)); }
+        catch (Exception error) { throw new RuntimeException(error); }
+    }
     public void acceptFallbackRoot(org.nativescript.mason.masonkit.View value) {
         check(isFallback() && scene == null && fallbackRoot == null && !bridgeReady, "Unexpected fallback root");
         fallbackRoot = value; bridgeReady = true;
@@ -220,7 +228,7 @@ public final class HomeActivity extends AppCompatActivity {
         } else frames = 0;
         if (frames < 3) { Choreographer.getInstance().postFrameCallback(gate); return; }
         scene.verify(); freezeNativeSnapshot();
-        if (warm) { record("warm-native-layout"); app().bind(this); check(bridgeReady, "Warm Home bridge missing"); scene.verify(); record("passed"); }
+        if (warm) { record("warm-native-layout"); app().bind(this); check(bridgeReady, "Warm Home bridge missing"); if (scene != null) { scene.verify(); record("passed"); } }
         else { record("native-layout-before-runtime"); scene.windowRoot.postDelayed(runtimeStarter, 250); }
     }
     private void startRuntime() {
@@ -228,7 +236,7 @@ public final class HomeActivity extends AppCompatActivity {
         try {
             nativeSnapshot = scene.snapshot().toString(); app().captureColdSnapshot(nativeSnapshot);
             record("engine-init-begin"); app().startRuntime(); record("engine-init-end");
-            app().bind(this); check(bridgeReady, "Home JS verification missing"); scene.verify(); record("passed");
+            app().bind(this); check(bridgeReady, "Home JS verification missing"); if (scene != null) { scene.verify(); record("passed"); }
         } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
     }
     private void startFallback() {

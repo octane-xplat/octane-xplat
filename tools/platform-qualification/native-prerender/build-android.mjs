@@ -57,10 +57,14 @@ if (homeApplication && !homeAdopt)
 const homeFallback = process.env.XPLAT_PRERENDER_ANDROID_HOME_FALLBACK ?? ''
 if (
   homeFallback &&
-  (homeFallback !== 'build' || !homeApplication || homeParity || homeRecreate || homeInput)
+  (!['build', 'seed'].includes(homeFallback) ||
+    !homeApplication ||
+    homeParity ||
+    homeRecreate ||
+    homeInput)
 )
   throw new Error(
-    'Home fallback control requires build mode and Home Application/adoption, without parity/recreation/input',
+    'Home fallback control requires build/seed mode and Home Application/adoption, without parity/recreation/input',
   )
 const id = homeProducer
   ? 'org.octanexplat.prerenderhome.android'
@@ -393,9 +397,11 @@ writeFileSync(
       applicationEntry,
       scope: home
         ? (homeFallback
-            ? 'Stale Android Home IR preflight rejection and ordinary nineteen-view Core/Octane fallback control'
+            ? 'Android Home IR rejection and ordinary nineteen-view Core/Octane fallback control (' +
+              homeFallback +
+              ')'
             : 'Actual nineteen-view Android Home native-first XPH1 mount') +
-          (homeAdopt ? '; real Octane prepare/commit wrapper adoption' : '') +
+          (homeAdopt && !homeFallback ? '; real Octane prepare/commit wrapper adoption' : '') +
           (homeApplication ? '; Core Application/window explicit-content control' : '') +
           (homeParity ? '; fixed-environment independent style/layout parity control' : '') +
           (homeInput ? '; Android OS tap control' : '') +

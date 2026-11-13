@@ -6,7 +6,7 @@ import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import { createNativeScriptRoot, registerElement } from '@nativescript-community/octane'
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
-import { matchPreparedVisualTree } from '../match-tree.mjs'
+import { AdoptionMismatch, matchPreparedVisualTree } from '../match-tree.mjs'
 import { renderFallbackHome } from './home-fallback.js'
 import {
   prepareHomeApplication,
@@ -29,9 +29,12 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         check(!root, 'Unexpected Home ownership/generation')
         const currentLease = { active: true, activity }
         lease = currentLease
+        const liveSeed = XPLAT_PRERENDER_HOME_SEED_MISMATCH
+          ? { ...resolved.seed, initialCompleted: resolved.seed.initialCompleted + 1 }
+          : resolved.seed
         if (activity.isFallback()) {
           check(XPLAT_PRERENDER_HOME_APPLICATION, 'Home fallback requires Application integration')
-          const ordinary = renderFallbackHome(activity)
+          const ordinary = renderFallbackHome(activity, liveSeed)
           root = ordinary.root
           host = ordinary.host
           return
@@ -108,14 +111,54 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           natives.every((native, index) => native.getParent() === parents[index]),
           'Prepare/abort changed native Home',
         )
-        const prepared = root.prepare(Home, resolved.seed)
+        const prepared = root.prepare(Home, liveSeed)
         check(prepared.status === 'prepared', 'Home prepare suspended')
-        for (const [id, index] of matchPreparedVisualTree(
-          prepared.batch.commands,
-          resolved.nodes,
-          27,
-        ))
-          claims.set(id, index)
+        let matched
+        try {
+          matched = matchPreparedVisualTree(prepared.batch.commands, resolved.nodes, 27)
+        } catch (error) {
+          if (!(error instanceof AdoptionMismatch) || !window) throw error
+          prepared.abort()
+          check(
+            hookCalls === 0 &&
+              claims.size === 0 &&
+              !host._context &&
+              wrappers.every((view) => !view.parent && !view._context),
+            'Unmatched Home already consumed native claims',
+          )
+          activity.recordHomeProof(
+            JSON.stringify({
+              phase: 'plan-rejected',
+              reason: String(error),
+              hookCalls,
+              preparedAborted: true,
+              wrappersUnattached: true,
+            }),
+          )
+          host[native_] = undefined
+          for (const wrapper of wrappers) {
+            if (wrapper instanceof View) wrapper[native_] = undefined
+            else
+              wrapper.createNativeView = () => {
+                throw new Error('Retired unmatched native claim')
+              }
+          }
+          const discarded = root
+          activity.abandonUnclaimedHome(String(error))
+          const ordinary = renderFallbackHome(activity, liveSeed, window)
+          root = ordinary.root
+          host = ordinary.host
+          Promise.resolve(discarded.unmount())
+            .then(() => {
+              check(hookCalls === 0, 'Unmatched plan consumed late native claims')
+              activity.recordHomeProof(JSON.stringify({ phase: 'unmatched-disposed', hookCalls }))
+            })
+            .catch((error) =>
+              activity.recordHomeProof(JSON.stringify({ phase: 'failed', error: String(error) })),
+            )
+          return
+        }
+        for (const [id, index] of matched) claims.set(id, index)
         check(claims.size === 19, 'Home plan did not match all native records')
         host._setupAsRootView(activity)
         host.callLoaded()

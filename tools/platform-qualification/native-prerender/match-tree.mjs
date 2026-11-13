@@ -1,5 +1,11 @@
+export class AdoptionMismatch extends Error {
+  constructor(message) {
+    super('Pre-render adoption: ' + message)
+  }
+}
+
 function requireCondition(value, message) {
-  if (!value) throw new Error('Pre-render adoption: ' + message)
+  if (!value) throw new AdoptionMismatch(message)
 }
 
 function canonical(value, path, depth = 0) {
@@ -81,7 +87,7 @@ export function matchPreparedVisualTree(commands, expectedNodes, logicalNodeCoun
       const node = created.get(command.id)
       requireCondition(node && node.type !== '#text', 'unknown event host')
     } else {
-      throw new Error('Pre-render adoption: unsupported initial command')
+      throw new AdoptionMismatch('unsupported initial command')
     }
   }
   requireCondition(

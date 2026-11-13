@@ -7,9 +7,9 @@ import resolved from 'xplat-prerender:artifact'
 import sheets from 'xplat-prerender:styles'
 
 /** Ordinary renderer path: no native claim factories or adopted view handles. */
-export function renderFallbackHome(activity) {
+export function renderFallbackHome(activity, seed = resolved.seed, existingWindow) {
   if (!Application.android.nativeApp) Application.android.init(activity.getApplication())
-  const window = prepareHomeApplication(activity)
+  const window = existingWindow ?? prepareHomeApplication(activity)
   const host = new View()
   host.width = '100%'
   host.height = '100%'
@@ -21,7 +21,7 @@ export function renderFallbackHome(activity) {
   host._setupAsRootView(activity)
   host.callLoaded()
   const root = createNativeScriptRoot(host)
-  const prepared = root.prepare(Home, resolved.seed)
+  const prepared = root.prepare(Home, seed)
   if (prepared.status !== 'prepared') throw new Error('Ordinary fallback Home suspended')
   prepared.commit()
   acceptHomeApplication(activity, host, window)

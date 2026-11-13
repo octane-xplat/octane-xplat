@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { matchPreparedVisualTree } from './match-tree.mjs'
+import { AdoptionMismatch, matchPreparedVisualTree } from './match-tree.mjs'
 
 function fixture() {
   const commands = [
@@ -189,7 +189,10 @@ for (const [name, change, reason] of [
   test('rejects ' + name + ' before returning claims', () => {
     const input = fixture()
     change(input)
-    assert.throws(() => matchPreparedVisualTree(input.commands, input.nodes, 4), reason)
+    assert.throws(
+      () => matchPreparedVisualTree(input.commands, input.nodes, 4),
+      (error) => error instanceof AdoptionMismatch && reason.test(error.message),
+    )
   })
 }
 

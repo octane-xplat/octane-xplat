@@ -410,6 +410,8 @@ Build with `XPLAT_PRERENDER_ANDROID_HOME_FALLBACK=build`, Home adoption/Applicat
 
 The checker requires rejection before the only VM start, no decoded/adopted native Home receipt, no installed adoption factory, and all19 ordinary native records with the producer's kind/text/parent order and attached nonzero geometry. This first control covers stale-build preflight rejection and ordinary recovery only; post-claim failure rollback, missing assets, unsupported device inputs, fallback OS input, state restoration and deallocation remain separate gates.
 
+Use `XPLAT_PRERENDER_ANDROID_HOME_FALLBACK=seed` with the same inputs to retain valid native IR at count3 and prepare live Home at count4. Matching throws a typed `AdoptionMismatch` before host setup or claims. That prepared plan aborts; its unused root unmounts with zero factory calls, and the native tree detaches and empties its native/Mason children. Ordinary recovery uses the live seed and existing Core window. The checker requires the pre-JS count3, rejection/abort with zero claims and unattached wrappers, discarded empty native/Mason children, unused-root disposal, then an ordinary attached19-view Home at count4. Other exceptions remain failures. This covers pre-claim mismatch recovery, not rollback after claims or native-object deallocation.
+
 After a successful build writes its APK and input manifest, the packager removes that fresh run's reproducible compiler intermediates. It retains the APK, frozen source/SDK inputs, generated app sources and logs for verification. Repeated builds should not retain hundreds of megabytes of compiler output per run.
 
 ### Android Label wrapper ownership control
