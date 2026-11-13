@@ -163,7 +163,7 @@ reports when the lazy conversion bridge settles.
 />
 ```
 
-The Lexical family pins to `0.53.0` and `@octanejs/lexical` to `0.2.12`
+The Lexical family pins to `0.53.0` and `@octanejs/lexical` to `0.2.13`
 (peers `octane ^0.16.0`). Keep the framework's managed overrides so the adapter
 and your app share one engine. Starters include them; existing apps receive
 them through the upgrade command:

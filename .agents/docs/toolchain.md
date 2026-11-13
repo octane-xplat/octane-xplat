@@ -185,21 +185,36 @@ workspace tsconfigs keep `@tsrx/content-mapper` (the root declares it).
 Apps must not be told to install `@tsrx/content-mapper` themselves.
 
 
-The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and
-`@octanejs/vite-plugin` 0.5.0. The parser pin is explicit at the root so a
+The workspace uses Octane 0.17.0 with `@tsrx/oxc` 0.23.0 and
+`@octanejs/vite-plugin` 0.6.0. The parser pin is explicit at the root so a
 hoisted installation cannot select the older optional peer from another
 Octane context. These compiler dependencies must move together. Octane now
 requires Node 22.22.2 or newer; starters and doctor share that minimum in
 `packages/create/compatibility.json`.
 
-The Octane 0.16.3 patch preserves upstream universal `Children`,
-`descriptorChildren`, compiler allowlist entries, and compiler-owned binding
-bags. It retains the local signal ownership, imperative-ref, event-error,
-descriptor-reader, and transparent keyed-root fixes described in the patch
-manifest. Patch applicability and host tests do not establish device behavior.
+The Octane 0.17.0 patch preserves upstream universal `Children`,
+`descriptorChildren`, compiler-owned binding bags, and absent/replaced
+imperative refs with callback cleanup and indexed dependency handling. It
+retains local universal signal ownership and local hooks, nested imperative-ref
+arrays and partial-attachment cleanup, event-error forwarding, descriptor
+owner fallback, transparent keyed-root identity, ref-attach normalization,
+`__methodDep` compiler admission, and HMR slot/wrapper fixes. The universal
+native-read allowance preserves upstream's `OCTANE_NATIVE_READ_TARGET` code.
+See the patch manifest for removal criteria. Patch applicability and host tests
+do not establish device behavior.
 
-`@octanejs/tiptap` 0.0.62 peers Tiptap `^3.28.0` and
-`@octanejs/lexical` 0.2.12 still pins Lexical 0.51.0. Overrides align their
+Octane 0.17.0's bundled Volar parser leaves its type-only export context
+active after `export type { ... }` and `export type *`. A following lexical
+binding is then recorded as an import, producing false duplicate declarations
+across separate functions and blocks. The Octane patch resets that context
+after named and star exports; it preserves real same-scope duplicate errors.
+`packages/ui/src/internal/rendering/octane-type-view.mobile.test.ts` covers
+both export forms and the genuine-error case. Remove this hunk when upstream's
+bundled parser clears the context. This is declaration/compiler evidence;
+it does not establish renderer behavior.
+
+`@octanejs/tiptap` 0.0.63 peers Tiptap `^3.28.0` and
+`@octanejs/lexical` 0.2.13 still pins Lexical 0.51.0. Overrides align their
 complete engine families with our direct imports at 3.32.2 and 0.53.0,
 respectively — including the tiptap adapter's optional bubble/floating-menu
 extensions so a floating `^3.28.0` range cannot pull a newer minor than the

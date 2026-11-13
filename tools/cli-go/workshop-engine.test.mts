@@ -83,7 +83,7 @@ test('packed engine exports load from an actual installed project without the CL
       '@octane-xplat/macos-build': 'file:' + archive.replaceAll('\\', '/'),
       ...(process.platform === 'darwin'
         ? {
-            octane: '0.16.3',
+            octane: '0.17.0',
             '@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
             vite: '8.3.0',
           }

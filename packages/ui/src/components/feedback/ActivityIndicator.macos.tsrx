@@ -55,8 +55,6 @@ export function ActivityIndicator(props: ActivityIndicatorProps): unknown @{
       {text !== undefined ? <label className="vx-spinner-label" text={text} /> : props.label}
     </masonview>
   } @else {
-    {
-      ring
-    }
+    <>{ring}</>
   }
 }

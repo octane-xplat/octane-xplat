@@ -69,7 +69,7 @@
 		"@octane-xplat/icons": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
-		"@tsrx/oxc": "0.20.0",
+		"@tsrx/oxc": "catalog:",
 		"magic-string": "1.4.5"
 	},
 	"peerDependencies": {

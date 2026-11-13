@@ -303,9 +303,9 @@ test('pnpm projects without the patches config dependency keep local patch files
     { packageManager: `pnpm@${compatibility.tools.pnpm}` },
     {
       'pnpm-workspace.yaml':
-        'packages:\n  - apps/*\npatchedDependencies:\n  octane@0.16.3: patches/octane@0.16.3.patch\n',
-      'patches/octane@0.16.3.patch': readFileSync(
-        join(root, 'packages/cli/patches/octane@0.16.3.patch'),
+        'packages:\n  - apps/*\npatchedDependencies:\n  octane@0.17.0: patches/octane@0.17.0.patch\n',
+      'patches/octane@0.17.0.patch': readFileSync(
+        join(root, 'packages/cli/patches/octane@0.17.0.patch'),
         'utf8',
       ),
       'apps/mobile/package.json': {

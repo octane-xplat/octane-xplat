@@ -135,7 +135,7 @@ try {
           '@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
           '@octane-xplat/cli': tarballs['@octane-xplat/cli'],
           '@octanejs/vite-plugin': compatibility.packages['@octanejs/vite-plugin'].version,
-          '@tsrx/oxc': '0.20.0',
+          '@tsrx/oxc': '0.23.0',
           '@tsrx/core': '0.2.4',
           typescript: '5.9.3',
           vite: compatibility.packages.vite.version,

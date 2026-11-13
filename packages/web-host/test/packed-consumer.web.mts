@@ -163,7 +163,7 @@ try {
   assert.ok(tarballs['@octane-xplat/web-host'], 'closure must contain web-host')
 
   cpSync(
-    join(repo, 'packages/create/template/patches/octane@0.16.3.patch'),
+    join(repo, 'packages/create/template/patches/octane@0.17.0.patch'),
     join(work, 'octane.patch'),
   )
 
@@ -177,13 +177,13 @@ try {
         packageManager: 'bun@1.4.4',
         dependencies: {
           '@octane-xplat/web-host': tarballs['@octane-xplat/web-host'],
-          '@tsrx/oxc': '0.20.0',
-          octane: '0.16.3',
+          '@tsrx/oxc': '0.23.0',
+          octane: '0.17.0',
           srvx: '1.0.6',
           vite: '8.3.6',
         },
         overrides: tarballs,
-        patchedDependencies: { 'octane@0.16.3': '../octane.patch' },
+        patchedDependencies: { 'octane@0.17.0': '../octane.patch' },
       },
       null,
       2,

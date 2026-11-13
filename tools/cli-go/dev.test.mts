@@ -339,7 +339,7 @@ test(
           tools.packages.packages.find((item) => item.name === '@octane-xplat/cli').file,
         ),
       vite: tools.packages.vite,
-      octane: '0.16.3',
+      octane: '0.17.0',
       '@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
     }
 

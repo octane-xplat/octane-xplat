@@ -44,8 +44,8 @@
 		"@octane-xplat/fmt": "0.3.0",
 		"@octane-xplat/lint": "workspace:*",
 		"@octane-xplat/tweaks": "workspace:*",
-		"@octanejs/vite-plugin": "0.5.0",
-		"@tsrx/oxc": "0.20.0",
+		"@octanejs/vite-plugin": "0.6.0",
+		"@tsrx/oxc": "0.23.0",
 		"typescript": "7.1.0-beta",
 		"vite": "8.3.6"
 	},

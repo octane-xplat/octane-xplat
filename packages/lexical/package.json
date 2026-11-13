@@ -59,7 +59,7 @@
 		"@lexical/utils": "0.53.0",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/richtext": "workspace:*",
-		"@octanejs/lexical": "0.2.12",
+		"@octanejs/lexical": "0.2.13",
 		"lexical": "0.53.0",
 		"zeed-dom": "0.18.0"
 	},

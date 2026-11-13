@@ -107,7 +107,7 @@ try {
     type: 'module',
     packageManager: 'bun@1.4.4',
     dependencies: {
-      octane: '0.16.3',
+      octane: '0.17.0',
       '@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
       'xplat-native-c-fixture': `file:${cPack}`,
     },

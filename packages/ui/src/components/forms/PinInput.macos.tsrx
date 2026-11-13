@@ -151,9 +151,7 @@ export function PinInput(inputProps: PinInputProps): unknown @{
   )
 
   @if (inField) {
-    {
-      group
-    }
+    <>{group}</>
   } @else {
     <FormField
       inputID={controlID}

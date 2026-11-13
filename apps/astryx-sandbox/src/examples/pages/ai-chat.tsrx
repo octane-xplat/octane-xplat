@@ -154,7 +154,7 @@ function ArtifactBody() @{
     <Text type="supporting" color="secondary">
       {ARTIFACT_SUBTITLE}
     </Text>
-    <Markdown>{ARTIFACT_CONTENT}</Markdown>
+    <Markdown children={ARTIFACT_CONTENT} />
   </VStack>
 }
 

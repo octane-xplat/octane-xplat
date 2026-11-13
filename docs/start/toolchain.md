@@ -240,7 +240,7 @@ Keep those files and the scaffold's `patches/` directory in Git.
   "dependencies": { "octane": "catalog:xplat" },
   "workspaces": {
     "packages": [],
-    "catalogs": { "xplat": { "octane": "0.16.3" } }
+    "catalogs": { "xplat": { "octane": "0.17.0" } }
   }
 }
 ```

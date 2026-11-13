@@ -34,7 +34,7 @@ function run(command, args, cwd = consumer) {
 const write = (file, body) => writeFileSync(join(consumer, file), body)
 const tarballs = {}
 
-for (const dir of ['cli', 'docs-search', 'lib', 'ui', 'workshop']) {
+for (const dir of ['cli', 'docs-search', 'lib', 'nativescript-octane', 'ui', 'workshop']) {
   const root = join(repo, 'packages', dir)
   const p = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 
@@ -53,14 +53,14 @@ write(
     dependencies: {
       '@octane-xplat/ui': tarballs['@octane-xplat/ui'],
       '@nativescript/core': '9.1.3',
-      '@octane-xplat/nativescript-octane': '0.2.4',
-      octane: '0.14.0',
+      '@octane-xplat/nativescript-octane': tarballs['@octane-xplat/nativescript-octane'],
+      octane: '0.17.0',
     },
     devDependencies: {
       '@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
       '@octane-xplat/cli': tarballs['@octane-xplat/cli'],
-      '@octanejs/vite-plugin': '0.1.61',
-      '@tsrx/oxc': '0.20.0',
+      '@octanejs/vite-plugin': '0.6.0',
+      '@tsrx/oxc': '0.23.0',
       '@tsrx/core': '0.2.4',
       '@nativescript/types': '9.1.4',
       typescript: '5.9.3',
@@ -75,6 +75,8 @@ manifest.overrides = tarballs
 manifest.packageManager = 'bun@1.4.4'
 write('package.json', JSON.stringify(manifest))
 
+run('bun', ['install', '--ignore-scripts'])
+run('bun', ['run', 'xplat', 'patches', 'apply'])
 run('bun', ['install', '--ignore-scripts'])
 
 const req = createRequire(join(consumer, 'package.json'))

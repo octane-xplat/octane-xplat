@@ -110,7 +110,7 @@
 	],
 	"packages": {
 		"octane": {
-			"version": "0.16.3",
+			"version": "0.17.0",
 			"group": "runtime",
 			"singleton": true
 		},
@@ -124,7 +124,7 @@
 			"group": "compiler"
 		},
 		"@tsrx/oxc": {
-			"version": "0.20.0",
+			"version": "0.23.0",
 			"group": "compiler"
 		},
 		"tsrx-typegen": {
@@ -136,7 +136,7 @@
 			"group": "bundler"
 		},
 		"@octanejs/vite-plugin": {
-			"version": "0.5.0",
+			"version": "0.6.0",
 			"group": "bundler"
 		},
 		"@nativescript/vite": {

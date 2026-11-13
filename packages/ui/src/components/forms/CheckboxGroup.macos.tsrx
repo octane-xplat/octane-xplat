@@ -87,9 +87,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): unknown @{
   )
 
   @if (inField) {
-    {
-      group
-    }
+    <>{group}</>
   } @else {
     <FormField
       inputID={controlID}

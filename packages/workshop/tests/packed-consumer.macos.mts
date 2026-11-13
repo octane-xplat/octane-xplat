@@ -99,10 +99,10 @@ try {
         devDependencies: {
           '@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
           '@octane-xplat/cli': tarballs['@octane-xplat/cli'],
-          '@octanejs/vite-plugin': '0.1.61',
+          '@octanejs/vite-plugin': '0.6.0',
           '@octane-xplat/macos-appkit': tarballs['@octane-xplat/macos-appkit'],
           '@nativescript/macos-node-api': '0.5.0-beta.0',
-          '@tsrx/oxc': '0.20.0',
+          '@tsrx/oxc': '0.23.0',
           '@tsrx/core': '0.2.4',
           typescript: '5.9.3',
           vite: '8.3.0',

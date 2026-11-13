@@ -38,9 +38,7 @@ export function Select(inputProps: SelectProps): unknown @{
   )
 
   @if (inField) {
-    {
-      view
-    }
+    <>{view}</>
   } @else {
     <FormField
       inputID={controlID}

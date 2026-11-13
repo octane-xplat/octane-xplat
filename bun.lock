@@ -9,7 +9,7 @@
         "@octane-xplat/fmt": "0.3.0",
         "@tsrx/content-mapper": "catalog:",
         "@tsrx/core": "0.2.4",
-        "@tsrx/oxc": "0.20.0",
+        "@tsrx/oxc": "catalog:",
         "@types/node": "26.6.6",
         "oxfmt": "0.76.0",
         "oxlint": "1.91.0",
@@ -283,7 +283,7 @@
         "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/macos-build": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
-        "@tsrx/oxc": "0.20.0",
+        "@tsrx/oxc": "catalog:",
         "jsdom": "catalog:",
         "playwright": "1.63.0",
         "typescript": "catalog:",
@@ -1687,7 +1687,7 @@
         "@lexical/utils": "0.53.0",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/richtext": "workspace:*",
-        "@octanejs/lexical": "0.2.12",
+        "@octanejs/lexical": "0.2.13",
         "lexical": "0.53.0",
         "zeed-dom": "0.18.0",
       },
@@ -2930,7 +2930,7 @@
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/richtext": "workspace:*",
-        "@octanejs/tiptap": "0.0.62",
+        "@octanejs/tiptap": "0.0.63",
         "@tiptap/core": "3.32.2",
         "@tiptap/pm": "3.32.2",
         "@tiptap/starter-kit": "3.32.2",
@@ -2971,8 +2971,8 @@
         "@octane-xplat/fmt": "0.3.0",
         "@octane-xplat/lint": "workspace:*",
         "@octane-xplat/tweaks": "workspace:*",
-        "@octanejs/vite-plugin": "0.5.0",
-        "@tsrx/oxc": "0.20.0",
+        "@octanejs/vite-plugin": "0.6.0",
+        "@tsrx/oxc": "0.23.0",
         "typescript": "7.1.0-beta",
         "vite": "8.3.6",
       },
@@ -3043,7 +3043,7 @@
         "@octane-xplat/icons": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
-        "@tsrx/oxc": "0.20.0",
+        "@tsrx/oxc": "catalog:",
         "magic-string": "1.4.5",
       },
       "devDependencies": {
@@ -3482,16 +3482,16 @@
   ],
   "patchedDependencies": {
     "css@3.0.0": "packages/cli/patches/css@3.0.0.patch",
-    "octane@0.16.3": "packages/cli/patches/octane@0.16.3.patch",
-    "@octanejs/tiptap@0.0.62": "packages/cli/patches/@octanejs__tiptap@0.0.62.patch",
     "@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch",
     "@nativescript-community/sqlite-bridge@4.1.1": "packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch",
     "@octane-xplat/nativescript-mason-core@1.0.0-beta.8": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.8.patch",
     "@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
     "@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
+    "octane@0.17.0": "packages/cli/patches/octane@0.17.0.patch",
     "@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
     "@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21-pkgprnew.patch",
     "@nstudio/nativescript-exoplayer@6.2.0": "packages/cli/patches/@nstudio__nativescript-exoplayer@6.2.0.patch",
+    "@octanejs/tiptap@0.0.63": "packages/cli/patches/@octanejs__tiptap@0.0.63.patch",
     "@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
     "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
   },
@@ -3564,10 +3564,11 @@
     "@nativescript/types-android": "9.1.1",
     "@nativescript/types-ios": "9.1.3",
     "@nativescript/unit-test-runner": "5.0.0",
-    "@octanejs/vite-plugin": "0.5.0",
+    "@octanejs/vite-plugin": "0.6.0",
     "@tsrx/content-mapper": "0.1.2",
+    "@tsrx/oxc": "0.23.0",
     "jsdom": "30.1.1",
-    "octane": "0.16.3",
+    "octane": "0.17.0",
     "typescript": "7.1.0-beta",
     "typescript-classic": "npm:typescript@5.9.3",
     "vite": "8.3.6",
@@ -4630,15 +4631,15 @@
 
     "@octane-xplat/workshop": ["@octane-xplat/workshop@workspace:packages/workshop"],
 
-    "@octanejs/app-core": ["@octanejs/app-core@0.2.0", "", { "dependencies": { "@ripple-ts/adapter": "0.4.6", "esbuild": "0.27.7" }, "peerDependencies": { "octane": "^0.16.0" } }, "sha512-Vr6UB4cHsItpRaT9pz8nksacqK3f0/eUzoceyTRI/LAJP2qEcVpjiqa6PiqOPGDUYhfH9n+bHvZbVHO3xcxSMw=="],
+    "@octanejs/app-core": ["@octanejs/app-core@0.3.0", "", { "dependencies": { "@ripple-ts/adapter": "^0.4.0", "esbuild": "^0.28.1" }, "peerDependencies": { "octane": "^0.17.0" } }, "sha512-RD36orb4vXW3ye3OdkBXquFYmFD9B3DZ5BocZCxZNPkUdjPXc5CzPLvdYHzDLEd9+uTP+XW9hAwQy3Qjtj6MXQ=="],
 
-    "@octanejs/floating-ui": ["@octanejs/floating-ui@0.1.69", "", { "dependencies": { "@floating-ui/dom": "1.8.0", "@floating-ui/utils": "0.2.12", "tabbable": "6.5.0" }, "peerDependencies": { "octane": "^0.16.0" } }, "sha512-eq9IuFWIm9YBvZN70DtJ0CiNSQF6DYeDbi9A0Kk8zwL7UMwK3m6PeeWWbIX+6kcK2EnLI6ZYbta7TP3Vt+/cCA=="],
+    "@octanejs/floating-ui": ["@octanejs/floating-ui@0.1.70", "", { "dependencies": { "@floating-ui/dom": "^1.8.0", "@floating-ui/utils": "^0.2.12", "tabbable": "^6.5.0" }, "peerDependencies": { "octane": "^0.17.0" } }, "sha512-eBi9EjLQcZlEoSKgQpc+n8qnvOUMF2MkkRkDQamhEqOp22huEt2iHgxYN+W+wrK+/KwdKdjIZPKQD49t0eyEuQ=="],
 
-    "@octanejs/lexical": ["@octanejs/lexical@0.2.12", "", { "dependencies": { "@lexical/a11y": "0.52.0", "@lexical/devtools-core": "0.52.0", "@lexical/dragon": "0.52.0", "@lexical/extension": "0.52.0", "@lexical/hashtag": "0.52.0", "@lexical/history": "0.52.0", "@lexical/internal": "0.52.0", "@lexical/link": "0.52.0", "@lexical/list": "0.52.0", "@lexical/mark": "0.52.0", "@lexical/markdown": "0.52.0", "@lexical/overflow": "0.52.0", "@lexical/plain-text": "0.52.0", "@lexical/rich-text": "0.52.0", "@lexical/table": "0.52.0", "@lexical/text": "0.52.0", "@lexical/utils": "0.52.0", "@lexical/yjs": "0.52.0", "@octanejs/floating-ui": "0.1.69", "lexical": "0.52.0", "yjs": "13.6.33" }, "peerDependencies": { "octane": "^0.16.0" } }, "sha512-8LOV4bvpLQKdROpy2iKCs+i+gTokU990J3czj0n/vZ44a6X35uEo79sRSC6GhJJJiUtFRtGeZ+G0mbzcqg1q4Q=="],
+    "@octanejs/lexical": ["@octanejs/lexical@0.2.13", "", { "dependencies": { "@lexical/a11y": "0.51.0", "@lexical/devtools-core": "0.51.0", "@lexical/dragon": "0.51.0", "@lexical/extension": "0.51.0", "@lexical/hashtag": "0.51.0", "@lexical/history": "0.51.0", "@lexical/internal": "0.51.0", "@lexical/link": "0.51.0", "@lexical/list": "0.51.0", "@lexical/mark": "0.51.0", "@lexical/markdown": "0.51.0", "@lexical/overflow": "0.51.0", "@lexical/plain-text": "0.51.0", "@lexical/rich-text": "0.51.0", "@lexical/table": "0.51.0", "@lexical/text": "0.51.0", "@lexical/utils": "0.51.0", "@lexical/yjs": "0.51.0", "@octanejs/floating-ui": "0.1.70", "lexical": "0.51.0", "yjs": "^13.6.31" }, "peerDependencies": { "octane": "^0.17.0" } }, "sha512-/6IAf4cm1ZKkHwYb88k9thJohvjo3IC/sDoU/WwfriKjHr7rE9+hzyI3ONXZFrsw+p74+MRZXID/aLj8xSncWw=="],
 
-    "@octanejs/tiptap": ["@octanejs/tiptap@0.0.62", "", { "dependencies": { "fast-equals": "^5.4.1" }, "optionalDependencies": { "@tiptap/extension-bubble-menu": "^3.28.0", "@tiptap/extension-floating-menu": "^3.28.0" }, "peerDependencies": { "@tiptap/core": "^3.28.0", "@tiptap/pm": "^3.28.0", "octane": "^0.16.0" } }, "sha512-myD2EKGTuQq5PJlvnfrUmw2hyDyWwkmSwYPIeUr6GsMnESmmHIbQ1gHW1+kVBcvAH5UvqaQnYD5iJ50ZmxQtGg=="],
+    "@octanejs/tiptap": ["@octanejs/tiptap@0.0.63", "", { "dependencies": { "fast-equals": "^5.4.1" }, "optionalDependencies": { "@tiptap/extension-bubble-menu": "^3.28.0", "@tiptap/extension-floating-menu": "^3.28.0" }, "peerDependencies": { "@tiptap/core": "^3.28.0", "@tiptap/pm": "^3.28.0", "octane": "^0.17.0" } }, "sha512-KCA3yOFru5VTe0COCtUTTEeO1HUIthee57FfPOikCLVXns67vguVBkm6xNwbK6TxKkkgoHcxynvr3WppIM7iow=="],
 
-    "@octanejs/vite-plugin": ["@octanejs/vite-plugin@0.5.0", "", { "dependencies": { "@octanejs/app-core": "0.2.0", "@ripple-ts/adapter": "0.4.6" }, "peerDependencies": { "octane": "^0.16.0", "vite": "^8.0.16" }, "bin": { "octane-preview": "src/bin/preview.js" } }, "sha512-QURhtxdvtno2gm6Lmgl47Jl2UBMy2oqRWFNR1CiknRasD+skggQmI1NFVg3XlKMCvmdMxoHCfw/6y52WUlBefQ=="],
+    "@octanejs/vite-plugin": ["@octanejs/vite-plugin@0.6.0", "", { "dependencies": { "@octanejs/app-core": "0.3.0", "@ripple-ts/adapter": "^0.4.0" }, "peerDependencies": { "octane": "^0.17.0", "vite": "^8.0.16" }, "bin": { "octane-preview": "src/bin/preview.js" } }, "sha512-V/aVnq2Lg+PJMEmGOYOzQ1S8XQxEXNGzrWAfotlumfKbeSIonUqyOkNjBttA8HrcABx+2kbydPtYA7+r3wKApA=="],
 
     "@opentelemetry/api": ["@opentelemetry/api@1.9.1", "", {}, "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="],
 
@@ -5172,23 +5173,23 @@
 
     "@tsrx/core": ["@tsrx/core@0.2.4", "", { "dependencies": { "@jridgewell/sourcemap-codec": "1.6.0", "@noble/hashes": "2.4.0", "@sveltejs/acorn-typescript": "1.0.13", "@tsrx/runtime": "0.2.2", "@types/estree": "1.0.9", "@types/estree-jsx": "1.0.5", "acorn": "8.19.0", "esrap": "2.3.7", "get-tsconfig": "5.0.0-beta.6", "magic-string": "0.30.21", "zimmerframe": "1.1.5" } }, "sha512-o07NiDB2yFeN2natoViMwwb9h0o3UDzYqGUJ7qe4w6r5Oc0WLoWFfrpRDUtWBpR+JL4Loc3lRxFdOD+Wz+0VlQ=="],
 
-    "@tsrx/oxc": ["@tsrx/oxc@0.20.0", "", { "dependencies": { "@oxc-project/types": "0.150.0", "oxfmt-current": "npm:oxfmt@0.68.0", "oxlint-current": "npm:oxlint@1.83.0", "oxlint-tsgolint": "7.0.2005", "pathe": "2.0.3", "tinyglobby": "0.2.17" }, "optionalDependencies": { "@tsrx/oxc-darwin-arm64": "0.20.0", "@tsrx/oxc-darwin-x64": "0.20.0", "@tsrx/oxc-linux-arm64-gnu": "0.20.0", "@tsrx/oxc-linux-arm64-musl": "0.20.0", "@tsrx/oxc-linux-x64-gnu": "0.20.0", "@tsrx/oxc-linux-x64-musl": "0.20.0", "@tsrx/oxc-win32-arm64-msvc": "0.20.0", "@tsrx/oxc-win32-x64-msvc": "0.20.0" }, "bin": { "oxfmt": "bin/oxfmt", "oxlint": "bin/oxlint", "oxc-tsrx": "bin/oxc-tsrx", "oxc-tsrx-fmt": "bin/oxc-tsrx-fmt", "oxc-tsrx-lsp": "bin/oxc-tsrx-lsp", "oxc-tsrx-lint": "bin/oxc-tsrx-lint" } }, "sha512-Rk6uw//7E6f64dGyVHNujwP0q+inTRSGtNqiEPk63B47XYmEzH/UIhrMSGUcgJ7cE3ta3N0xObWEGImvhTfAmQ=="],
+    "@tsrx/oxc": ["@tsrx/oxc@0.23.0", "", { "dependencies": { "@oxc-project/types": "0.150.0", "oxfmt-current": "npm:oxfmt@0.68.0", "oxlint-current": "npm:oxlint@1.83.0", "oxlint-tsgolint": "7.0.2002", "pathe": "2.0.3", "tinyglobby": "0.2.17" }, "optionalDependencies": { "@tsrx/oxc-darwin-arm64": "0.23.0", "@tsrx/oxc-darwin-x64": "0.23.0", "@tsrx/oxc-linux-arm64-gnu": "0.23.0", "@tsrx/oxc-linux-arm64-musl": "0.23.0", "@tsrx/oxc-linux-x64-gnu": "0.23.0", "@tsrx/oxc-linux-x64-musl": "0.23.0", "@tsrx/oxc-win32-arm64-msvc": "0.23.0", "@tsrx/oxc-win32-x64-msvc": "0.23.0" }, "bin": { "oxfmt": "bin/oxfmt", "oxlint": "bin/oxlint", "oxc-tsrx": "bin/oxc-tsrx", "oxc-tsrx-fmt": "bin/oxc-tsrx-fmt", "oxc-tsrx-lsp": "bin/oxc-tsrx-lsp", "oxc-tsrx-lint": "bin/oxc-tsrx-lint" } }, "sha512-2J1IGGvyx5H11wIE24hPH3NkdveDaNvVIcOJVrVkX/FCUKrn8Dj7FKw/qEPSOH8vX4a3tiTCxcvaIQdoggqcyA=="],
 
-    "@tsrx/oxc-darwin-arm64": ["@tsrx/oxc-darwin-arm64@0.20.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-YpjpggD3earJQFJ8bUNfTqEiqIETDt+vtaVkdFftucaMZzzmBh1wU6QF50utl7fbSQejNedZhoDmPouEMA7huA=="],
+    "@tsrx/oxc-darwin-arm64": ["@tsrx/oxc-darwin-arm64@0.23.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-4boisFxGlNesqjh30ZWUzZflzlW0453qrgnLjHyWSOPpVT3zUAEo/9GfnkXWw0gtCsHedcunqjtlb2LIYwsyEw=="],
 
-    "@tsrx/oxc-darwin-x64": ["@tsrx/oxc-darwin-x64@0.20.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-dlyBvObV8rYg0dtNt0ifrOyJDEnxyJBCeBFRYurFjzwpccL4GbiiMuhGRdRlDoY46JrFoLIb/LvzNK9ji8dAoA=="],
+    "@tsrx/oxc-darwin-x64": ["@tsrx/oxc-darwin-x64@0.23.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-9PC/WAOz4z2QAx6ktUI6UI5PFHtHAxIaoGLgxErbZHg+h0TaY4TO1KvvzT+QrZyxKIFxdCyppIXTsf4xeTVIAw=="],
 
-    "@tsrx/oxc-linux-arm64-gnu": ["@tsrx/oxc-linux-arm64-gnu@0.20.0", "", { "os": "linux", "cpu": "arm64", "libc": "glibc" }, "sha512-jOR+EGWUksTvL0GL2TeS5nMylZlFb+5PG6VG3ZHlsoBxwRwIyC+wz7v/YAonHOF94IBPvK7HCjPt19D+PlT+PA=="],
+    "@tsrx/oxc-linux-arm64-gnu": ["@tsrx/oxc-linux-arm64-gnu@0.23.0", "", { "os": "linux", "cpu": "arm64", "libc": "glibc" }, "sha512-4HoNRvdsSqS6AUCKs0GNqLagBKcXeZhc88tGp56O7K3LY1qkJveG3lMGT6AU5BJmicOyyUqvSorja2f9L64OXg=="],
 
-    "@tsrx/oxc-linux-arm64-musl": ["@tsrx/oxc-linux-arm64-musl@0.20.0", "", { "os": "linux", "cpu": "arm64", "libc": "musl" }, "sha512-YDC2qF0wfmP8WVDLNysLbkFV9NGnYcJ/YkGaxJ46jSZWMM5qP9Xycytyo9RNtaXCvQPFZ1VupB8HDpDTn41TXA=="],
+    "@tsrx/oxc-linux-arm64-musl": ["@tsrx/oxc-linux-arm64-musl@0.23.0", "", { "os": "linux", "cpu": "arm64", "libc": "musl" }, "sha512-h2O17Zrke1vht7PXxqyc5QQyRpA0Ve/sfyl+epCUpPGFK8JbPIffBAh3StqgWLOGr9MDYRqDr045+L2aFxMtnA=="],
 
-    "@tsrx/oxc-linux-x64-gnu": ["@tsrx/oxc-linux-x64-gnu@0.20.0", "", { "os": "linux", "cpu": "x64", "libc": "glibc" }, "sha512-UAWmYd00/xPMOwgH6aK+z44vTOq8AokOzUdqveMXV/XKqf+D9YmSrqAHj6PASEmcSIMqc2/WtbMMRN+hS8licg=="],
+    "@tsrx/oxc-linux-x64-gnu": ["@tsrx/oxc-linux-x64-gnu@0.23.0", "", { "os": "linux", "cpu": "x64", "libc": "glibc" }, "sha512-3G6tl6R/AlStmZbf6CIc92Oku2unOtCw4YcfGC94ilQKtHlKi80q48qhznOPxlDnoOI9EH73Yj0qdEefWiYh1w=="],
 
-    "@tsrx/oxc-linux-x64-musl": ["@tsrx/oxc-linux-x64-musl@0.20.0", "", { "os": "linux", "cpu": "x64", "libc": "musl" }, "sha512-LZn1ioOsIHgsKdeLQ1HvJFNx+v2UnQwIiSmdLfDAAu7X+lye2AVmhEkT8BNrrJMJU/ZKmbbrzG7+RC40PwU2tg=="],
+    "@tsrx/oxc-linux-x64-musl": ["@tsrx/oxc-linux-x64-musl@0.23.0", "", { "os": "linux", "cpu": "x64", "libc": "musl" }, "sha512-v/o3v4jyE88sjotElHKdVOtspK6pMLbhu0PlgYfmbllT+ecSOKXb6L1CLK7vFARwn0gVl8uxPZ5GabTueBNrsA=="],
 
-    "@tsrx/oxc-win32-arm64-msvc": ["@tsrx/oxc-win32-arm64-msvc@0.20.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-MdcSkq6pGoUtytKcO9NxsNR4Deb/twIQbB715dI4UcOMCTos1uwrDv+6g1k9lAl0+XZMhvQ9xNmTkV40j1m+8g=="],
+    "@tsrx/oxc-win32-arm64-msvc": ["@tsrx/oxc-win32-arm64-msvc@0.23.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-jt6ylBQaGVA9B9YiMGvdq0/JtEzgPDysUQx0i+Jt94DZBnjJU2AzErBlkmqc3EsmgCLnsPMoX1SRs20Za9Pqpw=="],
 
-    "@tsrx/oxc-win32-x64-msvc": ["@tsrx/oxc-win32-x64-msvc@0.20.0", "", { "os": "win32", "cpu": "x64" }, "sha512-Ry1bqRByeYuldljxpSxqEH6wE1G1deEBRb/ekLuFusEvL8yk8hYGQpzbsVDGmISMTIVDa9t9v4L1mPGAdgSKjw=="],
+    "@tsrx/oxc-win32-x64-msvc": ["@tsrx/oxc-win32-x64-msvc@0.23.0", "", { "os": "win32", "cpu": "x64" }, "sha512-PzTKUfbuOWcshVMtyLaIFZQD/8z/aSInYU7z+KCApbi/4yJEQJex3G0i9SyNBMT7a0DBtwvJNwDT9Vewuu5MTw=="],
 
     "@tsrx/runtime": ["@tsrx/runtime@0.2.2", "", {}, "sha512-EsqZjTKWd/qrwEEk7AtaKrmTvPZWRz+H06rJjgNAb1Om0RC45xX2hZjDlv/tE20o4gcOgSCfc/AzKTq6qXlp1A=="],
 
@@ -6326,7 +6327,7 @@
 
     "obug": ["obug@2.2.1", "", {}, "sha512-XrsrhT5sybtKI6wakr2SPOlGZWWYbUXZ7a0jT8/QOeAPau+1X/bSegNe5YR75oJmEZQbKningirmGOEJCIk61Q=="],
 
-    "octane": ["octane@0.16.3", "", { "dependencies": { "@tsrx/core": "0.5.5", "@types/react": "19.3.0", "@volar/language-core": "2.4.28", "@volar/typescript": "2.4.28", "csstype": "3.2.3", "devalue": "6.0.3", "es-module-lexer": "1.7.0", "esrap": "2.3.7" }, "peerDependencies": { "@tsrx/oxc": "0.20.0", "react": "^19.0.0", "react-dom": "^19.0.0", "typescript": "^5.9.3 || ^6.0.0 || >=7.1.0-0", "vite": "^8.0.16" }, "optionalPeers": ["@tsrx/oxc", "react", "react-dom", "typescript", "vite"] }, "sha512-Oow4JxIOOqKmNW8MtDDC2YyOyPE56r7nB6C8AuegJMskKH50s/EiphUktOxM53TRXGclV3pKDN9pSD88pRwauA=="],
+    "octane": ["octane@0.17.0", "", { "dependencies": { "@tsrx/core": "^0.5.5", "@types/react": "^19.2.17", "@volar/language-core": "2.4.28", "@volar/typescript": "2.4.28", "csstype": "3.2.3", "devalue": "^6.0.3", "es-module-lexer": "^1.7.0", "esrap": "^2.3.2" }, "peerDependencies": { "@tsrx/oxc": "0.23.0", "react": "^19.0.0", "react-dom": "^19.0.0", "typescript": "^5.9.3 || ^6.0.0 || >=7.1.0-0", "vite": "^8.0.16" }, "optionalPeers": ["@tsrx/oxc", "react", "react-dom", "typescript", "vite"] }, "sha512-2yIWzhnD1yxjZ4NyKb0m0QszpbKYxmGB2bsNvqaDJxZhFZURwtUrDmCwdZtFyB71+vnlWmeTKTQOEwhreRiVHg=="],
 
     "octane-xplat": ["octane-xplat@workspace:packages/toolchain"],
 

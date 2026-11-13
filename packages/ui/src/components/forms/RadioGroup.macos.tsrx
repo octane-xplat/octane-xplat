@@ -186,9 +186,7 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
   )
 
   @if (inField) {
-    {
-      group
-    }
+    <>{group}</>
   } @else {
     <FormField
       inputID={controlID}

@@ -75,13 +75,13 @@ try {
         name: 'workshop-packed-linux-acceptance',
         private: true,
         type: 'module',
-        dependencies: { '@octane-xplat/ui': tarballs['@octane-xplat/ui'], octane: '0.14.0' },
+        dependencies: { '@octane-xplat/ui': tarballs['@octane-xplat/ui'], octane: '0.17.0' },
         devDependencies: {
           '@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
           '@octane-xplat/cli': tarballs['@octane-xplat/cli'],
           '@octane-xplat/linux-gtk': tarballs['@octane-xplat/linux-gtk'],
-          '@octanejs/vite-plugin': '0.1.61',
-          '@tsrx/oxc': '0.20.0',
+          '@octanejs/vite-plugin': '0.6.0',
+          '@tsrx/oxc': '0.23.0',
           '@tsrx/core': '0.2.4',
           typescript: '5.9.3',
           vite: '8.3.0',
@@ -98,6 +98,8 @@ try {
   manifest.packageManager = 'bun@1.4.4'
   write('package.json', JSON.stringify(manifest))
 
+  run('bun', ['install', '--ignore-scripts'])
+  run('bun', ['run', 'xplat', 'patches', 'apply'])
   run('bun', ['install', '--ignore-scripts'])
   for (const name of ['ui', 'workshop', 'cli', 'linux-gtk']) {
     assert.ok(

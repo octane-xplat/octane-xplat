@@ -111,7 +111,7 @@ export function DocumentCopy() {
 }
 ```
 
-The Tiptap family pins to `3.32.2` with `@octanejs/tiptap@0.0.62`. Keep the
+The Tiptap family pins to `3.32.2` with `@octanejs/tiptap@0.0.63`. Keep the
 framework's managed overrides so the adapter, extensions, and your app share
 one engine. Starters include them; existing apps receive them through the
 upgrade command:

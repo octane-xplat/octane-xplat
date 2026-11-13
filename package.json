@@ -44,7 +44,7 @@
 		"@octane-xplat/cli": "workspace:*",
 		"@tsrx/content-mapper": "catalog:",
 		"@tsrx/core": "0.2.4",
-		"@tsrx/oxc": "0.20.0",
+		"@tsrx/oxc": "catalog:",
 		"@types/node": "26.6.6",
 		"oxfmt": "0.76.0",
 		"oxlint": "1.91.0",
@@ -64,7 +64,7 @@
 			"packages/*"
 		],
 		"catalog": {
-			"octane": "0.16.3",
+			"octane": "0.17.0",
 			"@nativescript/core": "9.1.3",
 			"@nativescript/types": "9.1.4",
 			"@nativescript/types-android": "9.1.1",
@@ -73,11 +73,12 @@
 			"@nativescript/unit-test-runner": "5.0.0",
 			"typescript": "7.1.0-beta",
 			"vite": "8.3.6",
-			"@octanejs/vite-plugin": "0.5.0",
+			"@octanejs/vite-plugin": "0.6.0",
 			"vitest": "4.1.11",
 			"jsdom": "30.1.1",
 			"@tsrx/content-mapper": "0.1.2",
-			"typescript-classic": "npm:typescript@5.9.3"
+			"typescript-classic": "npm:typescript@5.9.3",
+			"@tsrx/oxc": "0.23.0"
 		}
 	},
 	"overrides": {
@@ -152,14 +153,14 @@
 		}
 	},
 	"patchedDependencies": {
-		"octane@0.16.3": "packages/cli/patches/octane@0.16.3.patch",
+		"octane@0.17.0": "packages/cli/patches/octane@0.17.0.patch",
 		"@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
 		"@octane-xplat/nativescript-mason-core@1.0.0-beta.8": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.8.patch",
 		"css@3.0.0": "packages/cli/patches/css@3.0.0.patch",
 		"@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
 		"@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
 		"@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
-		"@octanejs/tiptap@0.0.62": "packages/cli/patches/@octanejs__tiptap@0.0.62.patch",
+		"@octanejs/tiptap@0.0.63": "packages/cli/patches/@octanejs__tiptap@0.0.63.patch",
 		"@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
 		"@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch",
 		"@nativescript-community/sqlite-bridge@4.1.1": "packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch",

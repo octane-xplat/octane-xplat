@@ -46,6 +46,16 @@ const summary = <div>@{
 
 Final JSX-producing forms: JSX element, JSX fragment, `@if`, `@for`, `@switch`, `@try`. Wrap final text or expression values in a fragment: `<>{label}</>`.
 
+Bare `{value}` in a template body or directive arm is a JavaScript block, not a rendered expression; Octane 0.17 rejects it. Use a fragment to render a value. Wrap sibling output, such as a group heading and its item loop, in one fragment too.
+
+```tsrx
+function Notice(props: { visible: boolean; text: string }) @{
+  @if (props.visible) {
+    <>{props.text}</>
+  }
+}
+```
+
 ```tsrx
 const label = 'Packed'
 const status = @{ <>{label}</> }

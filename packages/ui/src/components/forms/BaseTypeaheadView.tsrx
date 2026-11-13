@@ -96,39 +96,47 @@ export function BaseTypeaheadView<T extends SearchableItem>(
             </masonview>
           ) : null}
           @for (const group of groups; key group.heading ?? 'ungrouped') {
-            {
-              group.heading != null ? (
+            <>
+              {group.heading != null ? (
                 <label className="vx-typeahead-group" text={group.heading} />
-              ) : null
-            }
+              ) : null}
 
-            @for (const item of group.items; index gi; key item.id + '-' + gi) {
-              const index = props.results.indexOf(item)
-              const isSelected = item.id === selectedId && selectedId != null
+              @for (const item of group.items; index gi; key item.id + '-' + gi) {
+                const index = props.results.indexOf(item)
+                const isSelected = item.id === selectedId && selectedId != null
 
-              <masonview
-                className={cx(
-                  'vx-typeahead-option',
-                  `vx-typeahead-option--size-${props.size}`,
-                  index === activeIndex && 'vx-typeahead-option--highlighted',
-                  isSelected && 'vx-typeahead-option--selected',
-                )}
-                onTap={() => props.onSelect(item)}
-                accessibilityState={nativeAccessibilityState({ selected: isSelected })}
-                style={mergeStyle(
-                  { flexDirection: 'row', alignItems: 'center' },
-                  { display: 'flex' },
-                )}
-              >
                 <masonview
-                  className="vx-typeahead-option-content"
-                  style={mergeStyle({ flexGrow: 1 }, { display: 'flex' })}
+                  className={cx(
+                    'vx-typeahead-option',
+                    `vx-typeahead-option--size-${props.size}`,
+                    index === activeIndex && 'vx-typeahead-option--highlighted',
+                    isSelected && 'vx-typeahead-option--selected',
+                  )}
+                  onTap={() => props.onSelect(item)}
+                  accessibilityState={nativeAccessibilityState({
+                    selected: isSelected,
+                  })}
+                  style={mergeStyle(
+                    { flexDirection: 'row', alignItems: 'center' },
+                    { display: 'flex' },
+                  )}
                 >
-                  {props.renderItem ? props.renderItem(item) : <TypeaheadItem item={item} />}
+                  <masonview
+                    className="vx-typeahead-option-content"
+                    style={mergeStyle({ flexGrow: 1 }, { display: 'flex' })}
+                  >
+                    {props.renderItem ? (
+                      props.renderItem(item)
+                    ) : (
+                      <TypeaheadItem item={item} />
+                    )}
+                  </masonview>
+                  {isSelected ? (
+                    <label className="vx-typeahead-option-check" text="✓" />
+                  ) : null}
                 </masonview>
-                {isSelected ? <label className="vx-typeahead-option-check" text="✓" /> : null}
-              </masonview>
-            }
+              }
+            </>
           }
         </masonview>
       </scrollview>
