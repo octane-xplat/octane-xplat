@@ -7,6 +7,33 @@ owns the executable controls and their limits; Silo's
 `native-prerender-adoption` topic owns current exploration state. These controls
 are experimental host integration, not a public hydration API.
 
+## Keep cold adoption separate from warm owner restoration
+
+The Android Home control can use Core9.1.3's normal
+`Application.run({ create })` entry after matching its prepared tree and before
+committing claims. Core's actual `ActivityCallbacks.onCreate` installs the same
+native viewport; the fixture forwards the already-completed native super only
+once. The initial entry returns a prepared host with no logical children, then
+Octane commit claims the existing native objects. This still uses the targeted
+cold lifecycle-observer catch-up, not a general late-bootstrap API.
+
+Once JS owns a live screen, a configuration recreation must not replay its
+cold snapshot. The bounded Home restoration control keeps its Octane root,
+hook state and logical wrapper parents through Core's saved-root-ID pipeline.
+Before accepting a new Activity, it restores original Label native factories
+and attachment methods, clears adopted Mason native/style caches and native
+arrays, and requires cleared old Activity contexts/handles. It skips warm IR
+decoding/allocation and lets Core create ordinary native objects from the
+retained owners. It does not prepare or commit another Octane tree.
+
+The maintained control checks the same twenty wrapper IDs, entry/launch counts
+of one, unchanged nineteen claim calls, state4 on the first observed warm
+layout, and real OS input4→5→3 afterward. It qualifies this fixed Home's live
+state across one Activity replacement. It does not establish first-frame
+presentation, warm style/geometry parity, arbitrary topology/navigation/plugin
+restoration or process-death persistence. Requalify Core save/root restoration,
+Mason native-cache teardown and event reattachment when upgrading those inputs.
+
 ## Failed native insertion can escape ordinary tree cleanup
 
 Verified with NativeScript Core9.1.3 and the qualification snapshot of

@@ -24,6 +24,7 @@ public final class HomeActivity extends AppCompatActivity {
     private boolean destroyed, warm, bridgeReady;
     private boolean applicationHandoff, started, postResumed;
     private Bundle launchState;
+    private Bundle savingState;
     private android.view.ViewParent installedParent;
     private String fallbackReason;
     private org.nativescript.mason.masonkit.View fallbackRoot;
@@ -34,6 +35,7 @@ public final class HomeActivity extends AppCompatActivity {
     private HomeApplication app() { return (HomeApplication) getApplication(); }
     public android.view.View getView(int index) { return scene.getView(index); }
     public Bundle getLaunchState() { return launchState; }
+    public Bundle getSavingState() { return savingState; }
     public boolean isWarmActivity() { return warm; }
     public boolean hasStarted() { return started; }
     public boolean hasPostResumed() { return postResumed; }
@@ -74,7 +76,7 @@ public final class HomeActivity extends AppCompatActivity {
                     if (!laidOut) {
                         check(++attempts < 300, "Ordinary fallback layout timeout"); value.postOnAnimation(this); return;
                     }
-                    app().record(new JSONObject().put("event", "fallback-layout").put("epoch", epoch)
+                    app().record(new JSONObject().put("event", HomeBuild.RESTORE && warm ? "restored-layout" : "fallback-layout").put("epoch", epoch)
                         .put("nodes", nodes).put("ordinaryRender", true).put("adoptionClaims", 0));
                 } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
             }
@@ -86,6 +88,8 @@ public final class HomeActivity extends AppCompatActivity {
         JSONObject node = new JSONObject().put("index", index).put("parent", parent)
             .put("kind", view instanceof org.nativescript.widgets.StyleableTextView ? "label" : "masonview")
             .put("attached", view.isAttachedToWindow()).put("width", view.getWidth()).put("height", view.getHeight());
+        int[] location = new int[2]; view.getLocationOnScreen(location);
+        node.put("screenLeft", location[0]).put("screenTop", location[1]);
         if (view instanceof org.nativescript.widgets.StyleableTextView)
             node.put("text", ((org.nativescript.widgets.StyleableTextView) view).getText().toString());
         nodes.put(node);
@@ -163,6 +167,23 @@ public final class HomeActivity extends AppCompatActivity {
                             .put("touchDowns", touchDowns).put("touchUps", sequence).put("handled", handled)
                             .put("x", x).put("y", y).put("nodes", scene.snapshot())
                             .put("identitiesRetained", true));
+                        if (HomeBuild.RESTORE && !warm && sequence == 3) {
+                            record("state-recreation-requested");
+                            scene.viewport.postDelayed(() -> { if (!destroyed) recreate(); }, 500);
+                        }
+                    } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
+                }, 250);
+            } else if (bridgeReady && fallbackRoot != null && HomeBuild.RESTORE && warm) {
+                final int sequence = touchUps;
+                final float x = event.getRawX(), y = event.getRawY();
+                fallbackRoot.postDelayed(() -> {
+                    if (destroyed) return;
+                    try {
+                        org.json.JSONArray nodes = new org.json.JSONArray();
+                        for (int index = 0; index < fallbackRoot.getChildCount(); index++) observeFallback(fallbackRoot.getChildAt(index), -1, nodes);
+                        app().record(new JSONObject().put("event", "restored-input").put("epoch", epoch)
+                            .put("touchDowns", touchDowns).put("touchUps", sequence).put("handled", handled)
+                            .put("x", x).put("y", y).put("nodes", nodes));
                     } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
                 }, 250);
             }
@@ -201,6 +222,10 @@ public final class HomeActivity extends AppCompatActivity {
         super.onCreate(state); launchState = state; epoch = app().nextEpoch(); warm = com.tns.Runtime.isInitialized();
         try {
             record(warm ? "warm-home-created" : "native-launch");
+            if (HomeBuild.RESTORE && warm) {
+                check(state != null, "Warm Home restoration requires saved Activity state");
+                deferFallback("warm-owner-restoration", "Restore live owners without replaying cold IR"); return;
+            }
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             try (InputStream input = getAssets().open("home.bin")) {
                 byte[] buffer = new byte[8192]; int count;
@@ -288,6 +313,11 @@ public final class HomeActivity extends AppCompatActivity {
     @Override protected void onStop() {
         super.onStop(); started = false; postResumed = false;
         if (bridgeReady && applicationHandoff) app().lifecycle(this, "stop");
+    }
+    @Override protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state); savingState = state;
+        try { if (bridgeReady && applicationHandoff) app().lifecycle(this, "saveInstanceState"); }
+        finally { savingState = null; }
     }
     @Override protected void onDestroy() {
         destroyed = true; Choreographer.getInstance().removeFrameCallback(gate);

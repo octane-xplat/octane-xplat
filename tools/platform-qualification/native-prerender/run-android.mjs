@@ -749,6 +749,148 @@ try {
           2,
         ),
       )
+      if (build.home.restore) {
+        const readEvents = async () => {
+          alive()
+          const receipt = await device([
+            'shell',
+            'run-as',
+            build.id,
+            'cat',
+            'files/probe-result.json',
+          ])
+          events = JSON.parse(receipt.output)
+          writeFileSync(join(report, 'result.json'), JSON.stringify(events, null, 2))
+          check(
+            !events.some((event) => event.event === 'failed' || event.phase === 'failed'),
+            'Retained Home restoration failed',
+          )
+        }
+        const waitFor = async (predicate) => {
+          const deadline = Date.now() + 15000
+          while (Date.now() < deadline) {
+            await readEvents()
+            const observed = events.find(predicate)
+            if (observed) return observed
+            await pause(100)
+          }
+          throw new Error('Retained Home restoration receipt timed out')
+        }
+        const increment = inputProofs[0]
+        await device([
+          'shell',
+          'input',
+          'tap',
+          String(Math.round(increment.x)),
+          String(Math.round(increment.y)),
+        ])
+        const changed = await waitFor(
+          (event) =>
+            event.event === 'home-input' && event.epoch === completedEpoch && event.touchUps === 3,
+        )
+        check(
+          changed.handled && changed.nodes[9].text === '4',
+          'Home state did not change before recreation',
+        )
+        const layout = await waitFor(
+          (event) => event.event === 'restored-layout' && event.epoch > completedEpoch,
+        )
+        const retained = events.find(
+          (event) => event.phase === 'owners-retained' && event.epoch === completedEpoch,
+        )
+        const restored = events.find(
+          (event) => event.phase === 'owners-restored' && event.epoch === layout.epoch,
+        )
+        const application = events.find(
+          (event) => event.phase === 'application' && event.epoch === layout.epoch,
+        )
+        const skipped = events.find(
+          (event) => event.event === 'warm-owner-restoration' && event.epoch === layout.epoch,
+        )
+        check(
+          retained?.ownerIds.length === 20 &&
+            new Set(retained.ownerIds).size === 20 &&
+            JSON.stringify(retained.ownerIds) === JSON.stringify(restored?.ownerIds) &&
+            retained.count === '4' &&
+            retained.nativeHandlesCleared &&
+            retained.rootUnmounted === false &&
+            restored.count === '4' &&
+            restored.hookCalls === 19 &&
+            restored.logicalRootRetained &&
+            restored.nativeFactoriesRestored &&
+            application?.normalEntry &&
+            application.componentStatePreserved &&
+            application.entryCounts.factories === 1 &&
+            application.entryCounts.launches === 1 &&
+            application.lifecycle.created === 2 &&
+            application.lifecycle.destroyed === 1 &&
+            application.registrySize === 1 &&
+            skipped?.homeAllocationStarted === false &&
+            skipped.runtimeStarted &&
+            skipped.runtimeStarts === 1 &&
+            !events.some(
+              (event) => event.event === 'native-home-decoded' && event.epoch === layout.epoch,
+            ) &&
+            events.filter((event) => event.event === 'engine-init-begin').length === 1 &&
+            layout.nodes.length === 19 &&
+            layout.nodes[9].text === '4' &&
+            layout.nodes[18].text === 'One more step completed.' &&
+            layout.nodes.every((node) => node.attached && node.width > 0 && node.height > 0),
+          'Home retained owner/state restoration proof missing',
+        )
+        const warmInputs = []
+        for (const [index, count, status] of [
+          [12, '5', 'One more step completed.'],
+          [15, '3', 'Ready when you are.'],
+        ]) {
+          const target = layout.nodes[index]
+          const x = target.screenLeft + target.width / 2,
+            y = target.screenTop + target.height / 2
+          check(Number.isFinite(x) && Number.isFinite(y), 'Restored Home input coordinates missing')
+          await device(['shell', 'input', 'tap', String(Math.round(x)), String(Math.round(y))])
+          const observed = await waitFor(
+            (event) =>
+              event.event === 'restored-input' &&
+              event.epoch === layout.epoch &&
+              event.touchUps === warmInputs.length + 1,
+          )
+          check(
+            observed.handled &&
+              observed.touchDowns === warmInputs.length + 1 &&
+              Math.abs(observed.x - x) <= 1 &&
+              Math.abs(observed.y - y) <= 1 &&
+              observed.nodes.length === 19 &&
+              observed.nodes[9].text === count &&
+              observed.nodes[18].text === status &&
+              observed.nodes.every(
+                (node, position) =>
+                  node.attached &&
+                  node.width > 0 &&
+                  node.height > 0 &&
+                  ([9, 18].includes(position) || node.text === layout.nodes[position].text),
+              ),
+            'Restored Home OS input did not use retained hook state',
+          )
+          warmInputs.push({ index, x, y, count, status, observation: observed })
+        }
+        writeFileSync(
+          join(report, 'home-restoration.json'),
+          JSON.stringify(
+            {
+              retained,
+              restored,
+              application,
+              skipped,
+              layout,
+              warmInputs,
+              source: 'adb shell input tap',
+              presentationQualified: false,
+            },
+            null,
+            2,
+          ),
+        )
+      }
     }
   } else {
     check(

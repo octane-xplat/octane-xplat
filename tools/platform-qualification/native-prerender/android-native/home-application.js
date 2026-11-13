@@ -64,7 +64,10 @@ export function acceptHomeApplication(activity, host, window) {
   // Generic NativeWindow.setContent uses a non-Activity context first. Use
   // Android's actual content pipeline, as qualified by the two-label control.
   if (XPLAT_PRERENDER_HOME_ENTRY) {
-    check(!entryHost && !activity.isWarmActivity(), 'Cold Home entry cannot restore owners')
+    check(
+      !entryHost && (!activity.isWarmActivity() || XPLAT_PRERENDER_HOME_RESTORE),
+      'Home entry cannot restore owners in this mode',
+    )
     entryHost = host
     try {
       activity._callbacks.onCreate(
@@ -105,7 +108,7 @@ export function acceptHomeApplication(activity, host, window) {
       foregroundActivity: Application.android.foregroundActivity === activity,
       lifecycle: { ...lifecycle },
       catchUp: !activity.isWarmActivity(),
-      componentStatePreserved: false,
+      componentStatePreserved: XPLAT_PRERENDER_HOME_RESTORE && activity.isWarmActivity(),
       normalEntry: XPLAT_PRERENDER_HOME_ENTRY,
       entryCounts: { ...entryCounts },
       entryBeforeCommit: XPLAT_PRERENDER_HOME_ENTRY && host.getChildrenCount() === 0,
@@ -124,5 +127,8 @@ export function forwardHomeLifecycle(activity, event) {
   if (event === 'start') callbacks.onStart(activity, nativeSuperCompleted)
   else if (event === 'stop') callbacks.onStop(activity, nativeSuperCompleted)
   else if (event === 'postResume') callbacks.onPostResume(activity, nativeSuperCompleted)
-  else throw new Error('Unexpected Home lifecycle event: ' + event)
+  else if (event === 'saveInstanceState') {
+    if (XPLAT_PRERENDER_HOME_ENTRY)
+      callbacks.onSaveInstanceState(activity, activity.getSavingState(), nativeSuperCompleted)
+  } else throw new Error('Unexpected Home lifecycle event: ' + event)
 }

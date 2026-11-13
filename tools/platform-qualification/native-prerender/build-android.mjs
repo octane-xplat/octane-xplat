@@ -61,6 +61,7 @@ const homeInput = process.env.XPLAT_PRERENDER_ANDROID_HOME_INPUT === '1'
 if (homeInput && !homeParity) throw new Error('Home OS input control requires Home parity')
 const homeApplication = process.env.XPLAT_PRERENDER_ANDROID_HOME_APPLICATION === '1'
 const homeEntry = process.env.XPLAT_PRERENDER_ANDROID_HOME_ENTRY === '1'
+const homeRestore = process.env.XPLAT_PRERENDER_ANDROID_HOME_RESTORE === '1'
 if (homeApplication && !homeAdopt)
   throw new Error('Home Application handoff requires Home adoption')
 const homeFallback = process.env.XPLAT_PRERENDER_ANDROID_HOME_FALLBACK ?? ''
@@ -68,6 +69,8 @@ if (homeEntry && (!homeApplication || homeRecreate || homeFallback))
   throw new Error(
     'Cold Home entry requires Home Application/adoption without recreation or fault injection',
   )
+if (homeRestore && (!homeEntry || !homeInput || !homeParity))
+  throw new Error('Home retained-state restoration requires cold entry, parity and OS input')
 const homeLifetime = process.env.XPLAT_PRERENDER_ANDROID_HOME_LIFETIME === '1'
 if (homeLifetime && (!homeApplication || !homeRecreate || !homeParity))
   throw new Error(
@@ -323,6 +326,7 @@ if (homeProducer) {
           homeInput,
           homeApplication,
           homeEntry,
+          homeRestore,
           homeFallback,
           homeLifetime,
         },
@@ -347,6 +351,8 @@ if (homeProducer) {
       homeRecreate +
       '; public static final boolean STALE_THEME = ' +
       (homeFallback === 'theme') +
+      '; public static final boolean RESTORE = ' +
+      homeRestore +
       '; public static final boolean UNSUPPORTED_FONT_SCALE = ' +
       (homeFallback === 'font-scale') +
       '; public static final int RECREATIONS = ' +
@@ -361,6 +367,7 @@ if (homeProducer) {
     input: homeInput,
     application: homeApplication,
     entry: homeEntry,
+    restore: homeRestore,
     fallback: homeFallback,
     lifetime: homeLifetime,
     buildHash,
@@ -447,7 +454,8 @@ writeFileSync(
           (homeParity ? '; fixed-environment independent style/layout parity control' : '') +
           (homeInput ? '; Android OS tap control' : '') +
           (homeLifetime ? '; retired Java object weak-reference control' : '') +
-          '; no retained component-state restoration, full environment/CSS coverage, compositor/pixel presentation, deallocation or performance qualification'
+          (homeRestore ? '; retained Home owner/state Activity restoration control' : '') +
+          '; no process-death restoration, full environment/CSS coverage, compositor/pixel presentation, deallocation or performance qualification'
         : applicationHandoff
           ? 'Native-first two-label Core Application/NativeWindow handoff, targeted cold lifecycle catch-up, one window/runtime across Activity recreation, retained root attachment and ordinary wrapper mutations; no Octane/Home, full Activity callbacks, arbitrary plugins, process-death/state restoration, CSS/viewport parity, presentation, deallocation or performance qualification'
           : masonParent
