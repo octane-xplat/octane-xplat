@@ -101,6 +101,8 @@ The command prints a new output directory below `~/agent-scratch/octane-xplat/na
 
 This producer deliberately supports the selected nineteen-view Home, its explicit seed and a402×874 logical-point CSS environment with light/dark variants. It does not infer arbitrary component eligibility, evaluate client refs/effects, support structural theme changes or establish request-isolated SSR. The mobile live resolver remains the CSS parity reference. New environment dependencies, host kinds and native API use require explicit qualification; successful host generation alone does not establish native mounting, hydration or startup speed.
 
+The producer now uses the reusable [native-prerender contract](../../../packages/native-prerender/README.md) for logical ownership and visual projection. It also writes candidate XPI1 `startup.bin` and matching `startup.json`, retaining all logical text slots and explicit launch constraints. The existing native fixture still consumes `home.bin` in XPH1 format during migration; XPI1 generation is not native-reader or normal-build qualification. The new projection has no Home node-count constants, while this fixture continues to select the same Home source and seed.
+
 Exercise the rejecting build-host boundary separately:
 
 ```sh

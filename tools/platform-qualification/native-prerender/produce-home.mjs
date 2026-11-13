@@ -7,6 +7,8 @@ import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { encodeHome } from './home-codec.mjs'
+import { validateArtifact } from '@octane-xplat/native-prerender'
+import { encodeStartupArtifact, writeStartupJson } from '@octane-xplat/native-prerender/codec'
 
 if (typeof Bun === 'undefined') throw new Error('Home producer requires Bun 1.4.4')
 const source = import.meta.dirname
@@ -165,6 +167,7 @@ read(compilerPath)
 read(normalizerPath)
 read(import.meta.filename)
 read(join(source, 'home-codec.mjs'))
+read(createRequire(import.meta.url).resolve('@octane-xplat/native-prerender/codec'))
 const seed = { name: 'Alex', initialCompleted: 3 }
 const environment = { width: 402, height: 874, reducedMotion: false }
 const homeBundle = await bundle(join(source, 'producer/prepare-home.mjs'), 'home-bundle')
@@ -181,6 +184,11 @@ assert.deepEqual(
   trees.light.nodes,
   trees.dark.nodes,
   'Theme-dependent initial host props/topology unsupported',
+)
+assert.deepEqual(
+  trees.light.logicalNodes,
+  trees.dark.logicalNodes,
+  'Theme-dependent logical ownership unsupported',
 )
 const warnings = []
 const sheets = [
@@ -216,6 +224,35 @@ const binding = {
 }
 const buildHash = createHash('sha256').update(JSON.stringify(binding)).digest('hex')
 writeFileSync(join(work, 'home.bin'), encodeHome(artifact, buildHash))
+const logicalNodes = trees.light.logicalNodes
+const visualNodes = logicalNodes.filter((node) => node.kind !== '#text')
+const startup = validateArtifact({
+  version: 1,
+  platform,
+  hostContract: 'mason-label-v1',
+  build: buildHash,
+  seed,
+  // Conservatively bind the AOT evaluation inputs until dependency-sensitive
+  // CSS compilation can emit wider valid intervals. No environment guesswork.
+  constraints: [
+    { input: 'fontScale', equals: 1 },
+    { input: 'reducedMotion', equals: environment.reducedMotion },
+    { input: 'width', min: environment.width, max: environment.width },
+    { input: 'height', min: environment.height, max: environment.height },
+  ],
+  nodes: logicalNodes,
+  variants: Object.fromEntries(
+    ['light', 'dark'].map((theme) => [
+      theme,
+      artifact.variants[theme].map(({ index, ...record }) => ({
+        node: visualNodes[index].index,
+        ...record,
+      })),
+    ]),
+  ),
+})
+writeFileSync(join(work, 'startup.bin'), encodeStartupArtifact(startup))
+writeFileSync(join(work, 'startup.json'), writeStartupJson(startup))
 for (const [path, digest] of inputs) {
   if (createHash('sha256').update(readFileSync(path)).digest('hex') !== digest)
     throw new Error('Producer input changed during generation: ' + path)
@@ -232,6 +269,11 @@ json(join(work, 'build.json'), {
   artifactHash: createHash('sha256')
     .update(readFileSync(join(work, 'home.bin')))
     .digest('hex'),
+  startupFormat: 'XPI1',
+  startupArtifactHash: createHash('sha256')
+    .update(readFileSync(join(work, 'startup.bin')))
+    .digest('hex'),
+  logicalNodeCount: logicalNodes.length,
   scope:
     'Fixed Home ' +
     platform +
@@ -241,7 +283,7 @@ console.log('Home producer output: ' + work)
 console.log(
   JSON.stringify({
     visualNodes: artifact.nodes.length,
-    logicalNodes: 27,
+    logicalNodes: logicalNodes.length,
     themes: Object.keys(artifact.variants),
     bytes: readFileSync(join(work, 'home.bin')).length,
     buildHash,
