@@ -89,11 +89,10 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             'Retained Home state reset before restoration',
           )
           const window = prepareHomeApplication(activity)
-          if (XPLAT_PRERENDER_HOME_STARTUP)
-            host[native_] = new org.octanexplat.prerenderandroid.HomeViewport(
-              activity,
-              org.nativescript.mason.masonkit.Mason.Companion.getShared(),
-            )
+          host[native_] = new org.octanexplat.prerenderandroid.HomeViewport(
+            activity,
+            org.nativescript.mason.masonkit.Mason.Companion.getShared(),
+          )
           acceptHomeApplication(activity, host, window)
           check(
             wrappers.every(

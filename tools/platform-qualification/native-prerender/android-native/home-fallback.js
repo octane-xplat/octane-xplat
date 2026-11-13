@@ -12,11 +12,10 @@ export function renderFallbackHome(activity, seed = resolved.seed, existingWindo
   if (!Application.android.nativeApp) Application.android.init(activity.getApplication())
   const window = existingWindow ?? prepareHomeApplication(activity)
   const host = new View()
-  if (XPLAT_PRERENDER_HOME_STARTUP)
-    host[native_] = new org.octanexplat.prerenderandroid.HomeViewport(
-      activity,
-      org.nativescript.mason.masonkit.Mason.Companion.getShared(),
-    )
+  host[native_] = new org.octanexplat.prerenderandroid.HomeViewport(
+    activity,
+    org.nativescript.mason.masonkit.Mason.Companion.getShared(),
+  )
   host.width = '100%'
   host.height = '100%'
   host.style.display = 'flex'

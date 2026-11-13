@@ -170,6 +170,13 @@ arrays, and requires cleared old Activity contexts/handles. It skips warm IR
 decoding/allocation and lets Core create ordinary native objects from the
 retained owners. It does not prepare or commit another Octane tree.
 
+Use the same safe-area native viewport for cold, ordinary fallback and restored
+roots. Replacing it with a plain Mason View can preserve owners and working
+input while expanding the screen beneath system bars or a cutout. Ordinary
+readiness must also require a draw at current safe bounds. Keep viewport/input
+receipts and compare the observed root against the current window safe area;
+positive child sizes and focus do not prove that geometry.
+
 Retirement must work before any probe interaction as well as after a user state
 change. Android can replace an Activity while the initial comparison is still
 running. Keep the control's expected counter value in the runner's requested
@@ -180,9 +187,9 @@ an explicit parity failure rather than being hidden by a tolerance.
 
 The maintained control checks the same twenty wrapper IDs, entry/launch counts
 of one, unchanged nineteen claim calls, state4 on the first observed warm
-layout, and real OS input4→5→3 afterward. It qualifies this fixed Home's live
+layout, current window-safe root bounds, and real OS input4→5→3 afterward. It qualifies this fixed Home's live
 state across one Activity replacement. It does not establish first-frame
-presentation, warm style/geometry parity, arbitrary topology/navigation/plugin
+presentation, complete warm child style/geometry parity, arbitrary topology/navigation/plugin
 restoration or process-death persistence. Requalify Core save/root restoration,
 Mason native-cache teardown and event reattachment when upgrading those inputs.
 

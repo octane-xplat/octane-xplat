@@ -95,7 +95,7 @@ public class HomeActivity extends AppCompatActivity {
             .put("visualNodes", count).put("nativeChildren", 0).put("masonChildren", 0)); }
         catch (Exception error) { throw new RuntimeException(error); }
     }
-    public void acceptFallbackRoot(org.nativescript.mason.masonkit.View value) {
+    public void acceptFallbackRoot(HomeViewport value) {
         check(isFallback() && scene == null && fallbackRoot == null && !bridgeReady, "Unexpected fallback root");
         fallbackRoot = value; bridgeReady = true;
         fallbackRoot.postOnAnimation(new Runnable() {
@@ -105,7 +105,7 @@ public class HomeActivity extends AppCompatActivity {
                 try {
                     org.json.JSONArray nodes = new org.json.JSONArray();
                     for (int index = 0; index < value.getChildCount(); index++) observeFallback(value.getChildAt(index), -1, nodes);
-                    boolean laidOut = nodes.length() == 19 && value.hasWindowFocus();
+                    boolean laidOut = nodes.length() == 19 && value.hasWindowFocus() && value.hasDrawnSafeBounds();
                     for (int index = 0; index < nodes.length(); index++) {
                         JSONObject node = nodes.getJSONObject(index);
                         laidOut &= node.getBoolean("attached") && node.getInt("width") > 0 && node.getInt("height") > 0;
@@ -114,7 +114,8 @@ public class HomeActivity extends AppCompatActivity {
                         check(++attempts < 300, "Ordinary fallback layout timeout"); value.postOnAnimation(this); return;
                     }
                     app().record(new JSONObject().put("event", HomeBuild.RESTORE && warm ? "restored-layout" : "fallback-layout").put("epoch", epoch)
-                        .put("nodes", nodes).put("ordinaryRender", true).put("adoptionClaims", 0));
+                        .put("nodes", nodes).put("ordinaryRender", true).put("adoptionClaims", 0)
+                        .put("viewportInputs", new JSONObject(value.snapshotViewport())));
                 } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
             }
         });

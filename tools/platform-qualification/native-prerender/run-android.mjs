@@ -50,6 +50,40 @@ const driverHash = createHash('sha256').update(JSON.stringify(driverInputs)).dig
 const check = (value, message) => {
   if (!value) throw new Error(message)
 }
+function checkOrdinarySafeArea(observation) {
+  const input = observation?.viewportInputs
+  const root = observation?.nodes?.[0]
+  check(
+    input?.safeBoundsDrawn === true && input.metricsInsets?.available && root,
+    'Ordinary Home safe-area draw receipt missing',
+  )
+  const bars = input.metricsInsets
+  const left = Math.max(
+    input.windowLeft + Math.max(bars.barsLeft, bars.cutoutLeft),
+    input.parentScreenLeft,
+  )
+  const top = Math.max(
+    input.windowTop + Math.max(bars.barsTop, bars.cutoutTop),
+    input.parentScreenTop,
+  )
+  const right = Math.min(
+    input.windowLeft + input.windowWidth - Math.max(bars.barsRight, bars.cutoutRight),
+    input.parentScreenLeft + input.parentWidth,
+  )
+  const bottom = Math.min(
+    input.windowTop + input.windowHeight - Math.max(bars.barsBottom, bars.cutoutBottom),
+    input.parentScreenTop + input.parentHeight,
+  )
+  check(
+    root.screenLeft === left &&
+      root.screenTop === top &&
+      root.width === right - left &&
+      root.height === bottom - top &&
+      root.width === input.drawnWidth &&
+      root.height === input.drawnHeight,
+    'Ordinary Home root differs from the current window safe area',
+  )
+}
 check(
   build.id ===
     (build.home
@@ -622,6 +656,7 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
         application.lifecycle.opened === 1,
       'Ordinary fallback Home native tree or Core window proof missing',
     )
+    checkOrdinarySafeArea(fallback)
   } else if (build.home) {
     const decoded = events.find(
       (event) => event.event === 'native-home-decoded' && event.epoch === begin?.epoch,
@@ -1038,6 +1073,7 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
             layout.nodes.every((node) => node.attached && node.width > 0 && node.height > 0),
           'Home retained owner/state restoration proof missing',
         )
+        checkOrdinarySafeArea(layout)
         const warmInputs = []
         for (const [index, count, status] of [
           [12, '5', 'One more step completed.'],
