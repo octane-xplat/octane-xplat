@@ -7,7 +7,7 @@ import { createNativeScriptRoot, registerElement } from '@nativescript-community
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
 import { captureMasonBaseline, qualifyRetiredHome } from './home-lifetime.js'
-import { AdoptionMismatch, matchPreparedVisualTree } from '../match-tree.mjs'
+import { ArtifactError, matchPreparedTree } from '@octane-xplat/native-prerender'
 import { renderFallbackHome } from './home-fallback.js'
 import {
   prepareHomeApplication,
@@ -16,6 +16,7 @@ import {
   forwardHomeLifecycle,
 } from './home-application.js'
 import resolved from 'xplat-prerender:artifact'
+import startup from 'xplat-prerender:startup'
 import sheets from 'xplat-prerender:styles'
 
 const check = (value, message) => {
@@ -247,9 +248,9 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         check(prepared.status === 'prepared', 'Home prepare suspended')
         let matched
         try {
-          matched = matchPreparedVisualTree(prepared.batch.commands, resolved.nodes, 27)
+          matched = matchPreparedTree(prepared.batch.commands, startup.nodes).visualByCommandId
         } catch (error) {
-          if (!(error instanceof AdoptionMismatch) || !window) throw error
+          if (!(error instanceof ArtifactError) || !window) throw error
           prepared.abort()
           check(
             claimState.hookCalls === 0 &&

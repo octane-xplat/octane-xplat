@@ -299,10 +299,15 @@
     "@octane-xplat/native-prerender#build": {
       "outputs": ["dist/**/*.js"]
     "@xplat/platform-qualification#test:prerender:codec:android": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "passThroughEnv": [
         "XPLAT_PRERENDER_JAVA_HOME",
         "XPLAT_HOME_CODEC_INPUT",
         "XPLAT_HOME_CODEC_PRODUCER"
     "@xplat/platform-qualification#probe:prerender:android:build": {
+      "dependsOn": ["^build"],
+      "cache": false,
       "passThroughEnv": ["XPLAT_PRERENDER_*", "GODDARD_*"]
     "@xplat/platform-qualification#probe:prerender:android": {
         "XPLAT_PRERENDER_ANDROID_BUILD",

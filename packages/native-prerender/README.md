@@ -67,7 +67,7 @@ const artifact = validateArtifact({
 })
 ```
 
-Launch constraints are data evaluated by the native host before mounting: font scale1, reduced-motion equality and inclusive width/height intervals. Unsupported inputs select ordinary rendering. The current qualification producer conservatively binds its exact CSS evaluation dimensions and motion setting; this does not yet generalize responsive CSS into wider intervals or a native expression program.
+Launch constraints are data evaluated by the native host before mounting: font scale1, reduced-motion equality and inclusive width/height intervals. Unsupported inputs select ordinary rendering. The qualification producer uses exact width/height guards when any registered media query depends on dimensions or orientation; otherwise the current cascade engine never reads those dimensions, and Mason uses the actual native viewport. Unsupported computed style values still fail backend preflight. This does not yet generalize responsive CSS into wider intervals or a native expression program.
 
 ```ts
 import { checkLaunchEnvironment } from '@octane-xplat/native-prerender'
@@ -98,7 +98,7 @@ XPI1 has an 80-byte little-endian header: four magic bytes, a 16-bit version, 16
 
 Binary input is limited to 1MiB, 1024 logical nodes, 64 tree levels, 100000 binary values and 65536 UTF-8 bytes per string. Literal data has additional collection/depth bounds. Pretty JSON has a separate 8MiB byte limit to accommodate indentation and must still fit the binary limits. Unknown fields, flags, host kinds, properties, broken references, nonportable values and malformed bytes fail before mounting. `./codec` is for build/inspection hosts and must not be imported into the native app runtime.
 
-The old XPH1 readers and physical-device fixture remain under [platform qualification](../../tools/platform-qualification/native-prerender/README.md). Its producer emits `startup.bin`/`startup.json` alongside its existing fixture output during the native-reader migration. XPI1 is not yet accepted by those native consumers.
+The [platform qualification fixture](../../tools/platform-qualification/native-prerender/README.md) consumes XPI1 on Android and uses full logical matching before claims. Its producer also retains the old XPH1 output for the iOS host during migration. These experimental hosts are separate from normal app startup wiring.
 
 ## Native readers
 

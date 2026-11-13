@@ -1,6 +1,30 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { spawnSync } from 'node:child_process'
+import { compileLaunchConstraints } from './producer/launch-constraints.mjs'
+
+test('AOT launch guards retain every dimension-sensitive query and omit unread viewport inputs', () => {
+  const environment = { width: 402, height: 874, reducedMotion: false }
+  const plain = compileLaunchConstraints(['(prefers-color-scheme: dark)'], environment)
+  assert.deepEqual(
+    plain.constraints.map((row) => row.input),
+    ['fontScale', 'reducedMotion'],
+  )
+  for (const query of [
+    '(min-width: 800px)',
+    '(height >= 500px)',
+    '(orientation: landscape)',
+    'not (max-device-width: 600px)',
+    '(WIDTH: 402px)',
+  ]) {
+    const compiled = compileLaunchConstraints([query], environment)
+    assert.deepEqual(compiled.dimensionQueries, [query])
+    assert.deepEqual(compiled.constraints.slice(2), [
+      { input: 'width', min: 402, max: 402 },
+      { input: 'height', min: 874, max: 874 },
+    ])
+  }
+})
 
 test('fixed Home build host rejects native capabilities and captures deferred registration', async () => {
   const api = await import('./producer/native-api.mjs')

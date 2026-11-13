@@ -1,9 +1,11 @@
 import { readFileSync, writeFileSync } from 'node:fs'
+import { compileLaunchConstraints } from './launch-constraints.mjs'
 import {
   computeCascade,
   registerStylesheet,
   setStyleEnvironment,
   refreshMediaQueries,
+  stylesheetMediaQueries,
 } from '@octane-xplat/css-engine'
 
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'))
@@ -30,6 +32,7 @@ function cssNode(kind, props) {
   }
 }
 const variants = {}
+const launch = compileLaunchConstraints(stylesheetMediaQueries(), input.environment)
 for (const colorScheme of ['light', 'dark']) {
   setStyleEnvironment(() => ({ ...input.environment, colorScheme }))
   refreshMediaQueries()
@@ -66,6 +69,7 @@ writeFileSync(
       seed: input.seed,
       nodes,
       variants,
+      launch,
     },
     null,
     2,

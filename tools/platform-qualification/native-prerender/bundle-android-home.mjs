@@ -69,6 +69,8 @@ const result = await Bun.build({
         build.onResolve({ filter: /.*/ }, (args) => {
           if (args.path === 'xplat-prerender:artifact')
             return { path: join(work, 'producer/resolved.json') }
+          if (args.path === 'xplat-prerender:startup')
+            return { path: join(work, 'producer/startup.json') }
           if (args.path === 'xplat-prerender:styles')
             return { path: join(work, 'producer/sheets.json') }
           if (args.path === '~/package.json')

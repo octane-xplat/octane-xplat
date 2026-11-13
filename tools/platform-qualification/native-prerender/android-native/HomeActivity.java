@@ -305,6 +305,12 @@ public class HomeActivity extends AppCompatActivity {
             if (HomeBuild.STALE_THEME) theme = theme.equals("dark") ? "light" : "dark";
             try {
                 HomeScene.validateEnvironment(this);
+                android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+                if (!artifact.snapshot.supports(getResources().getConfiguration().fontScale,
+                        metrics.widthPixels / (double) metrics.density,
+                        metrics.heightPixels / (double) metrics.density,
+                        !android.animation.ValueAnimator.areAnimatorsEnabled()))
+                    throw new HomeScene.UnsupportedEnvironment("Startup artifact launch constraints differ");
                 scene = new HomeScene(this, artifact, theme);
             } catch (HomeScene.UnsupportedEnvironment rejected) {
                 deferFallback("environment-rejected-native", rejected.getMessage()); return;

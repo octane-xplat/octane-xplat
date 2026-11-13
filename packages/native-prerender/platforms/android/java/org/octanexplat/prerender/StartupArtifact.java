@@ -275,7 +275,8 @@ public final class StartupArtifact {
         byte[] data = Arrays.copyOf(input, input.length); Reader reader = new Reader(data);
         require(Arrays.equals(reader.take(4), new byte[]{'X', 'P', 'I', '1'}), "binary magic");
         reader.need(4); require(reader.bytes.getShort() == 1 && reader.bytes.getShort() == 0 && reader.uint() == data.length, "binary version, flags or length");
-        int count = reader.count(1024); require(count > 0 && hex(reader.take(32)).equals(expectedBuild), "build or node count");
+        int count = reader.count(1024); require(count > 0, "node count");
+        require(hex(reader.take(32)).equals(expectedBuild), "binary build identity");
         byte[] checksum = reader.take(32);
         try {
             MessageDigest sha = MessageDigest.getInstance("SHA-256"); sha.update(data, 80, data.length - 80);

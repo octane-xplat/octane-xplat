@@ -475,7 +475,7 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
       check(
         rejected &&
           (build.home.fallback === 'build'
-            ? rejected.reason.includes('build mismatch')
+            ? rejected.reason === 'Native startup IR: binary build identity'
             : rejected.reason.includes('fontScale1') &&
               Math.abs(rejected.fontScale - 1.3) < 0.0001 &&
               Number.isFinite(rejected.density) &&

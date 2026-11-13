@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, readdirSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 
@@ -16,11 +16,14 @@ const inputs = [
   join(source, 'android-native/HomeArtifact.java'),
   join(source, 'android-codec/HomeArtifactCheck.java'),
   import.meta.filename,
-  join(source, 'home-codec.mjs'),
-  join(source, 'home-codec.test.mjs'),
+  join(source, 'android-codec/home-backend.test.mjs'),
+  resolve(
+    source,
+    '../../../packages/native-prerender/platforms/android/java/org/octanexplat/prerender/StartupArtifact.java',
+  ),
   ...(process.env.XPLAT_HOME_CODEC_INPUT ? [process.env.XPLAT_HOME_CODEC_INPUT] : []),
   ...(producer
-    ? ['resolved.json', 'home.bin', 'build.json'].map((name) => join(producer, name))
+    ? ['resolved.json', 'startup.bin', 'build.json'].map((name) => join(producer, name))
     : []),
 ]
 const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('hex')
@@ -46,7 +49,15 @@ function run(command, args, env = process.env, echo = true) {
   return result.stdout
 }
 run(join(resolve(javaHome), 'bin/java'), ['-version'])
-run(join(resolve(javaHome), 'bin/javac'), ['--release', '8', '-d', classes, inputs[0], inputs[1]])
+run(join(resolve(javaHome), 'bin/javac'), [
+  '--release',
+  '8',
+  '-d',
+  classes,
+  inputs[0],
+  inputs[1],
+  inputs[4],
+])
 const quote = (value) => "'" + value.replaceAll("'", "'\\''") + "'"
 const launcher = join(work, 'check-reader')
 writeFileSync(
@@ -58,7 +69,7 @@ writeFileSync(
     ' org.octanexplat.prerenderandroid.HomeArtifactCheck "$@"\n',
   { mode: 0o755 },
 )
-run(process.execPath, ['--test', join(source, 'home-codec.test.mjs')], {
+run(process.execPath, ['--test', join(source, 'android-codec/home-backend.test.mjs')], {
   ...process.env,
   XPLAT_HOME_CODEC_NATIVE: launcher,
   XPLAT_HOME_CODEC_WORK: work,
@@ -73,13 +84,19 @@ if (producer) {
       '-cp',
       classes,
       'org.octanexplat.prerenderandroid.HomeArtifactCheck',
-      join(producer, 'home.bin'),
+      join(producer, 'startup.bin'),
       build.buildHash,
     ],
     process.env,
     false,
   )
-  assert.deepEqual(JSON.parse(decoded), expected)
+  const { scope, ...projection } = expected
+  for (const rows of Object.values(projection.variants))
+    for (const row of rows) {
+      row.cssKeys.sort()
+      row.inheritedKeys.sort()
+    }
+  assert.deepEqual(JSON.parse(decoded), projection)
   console.log('Actual Android producer binary matches its complete semantic projection')
 }
 for (const [path, digest] of Object.entries(inputHashes))
@@ -91,18 +108,9 @@ writeFileSync(
       inputHashes,
       commands,
       classHashes: Object.fromEntries(
-        [
-          'HomeArtifact',
-          'HomeArtifact$Reader',
-          'HomeArtifact$Node',
-          'HomeArtifact$StyleRecord',
-          'HomeArtifact$Artifact',
-          'HomeArtifact$Invalid',
-          'HomeArtifactCheck',
-        ].map((name) => {
-          const path = join(classes, 'org/octanexplat/prerenderandroid', name + '.class')
-          return [path, hash(path)]
-        }),
+        readdirSync(classes, { recursive: true })
+          .filter((file) => file.endsWith('.class'))
+          .map((file) => [file, hash(join(classes, file))]),
       ),
       scope:
         'JDK-host Android Java reader checks only; no Android device, UI or hydration qualification',

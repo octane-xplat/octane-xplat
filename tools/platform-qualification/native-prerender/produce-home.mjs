@@ -208,7 +208,8 @@ const output = join(work, 'resolved.json')
 const cascadeInput = join(work, 'cascade-input.json')
 json(cascadeInput, { tree: join(work, 'light-tree.json'), seed, sheets, environment, output })
 run(cascadeBundle, cascadeInput)
-const artifact = JSON.parse(readFileSync(output, 'utf8'))
+const { launch, ...artifact } = JSON.parse(readFileSync(output, 'utf8'))
+json(output, artifact)
 const bundleHashes = Object.fromEntries(
   [homeBundle, cascadeBundle].map((path) => [
     path.slice(work.length + 1),
@@ -232,14 +233,10 @@ const startup = validateArtifact({
   hostContract: 'mason-label-v1',
   build: buildHash,
   seed,
-  // Conservatively bind the AOT evaluation inputs until dependency-sensitive
-  // CSS compilation can emit wider valid intervals. No environment guesswork.
-  constraints: [
-    { input: 'fontScale', equals: 1 },
-    { input: 'reducedMotion', equals: environment.reducedMotion },
-    { input: 'width', min: environment.width, max: environment.width },
-    { input: 'height', min: environment.height, max: environment.height },
-  ],
+  // Exact viewport guards remain for any dimension-sensitive media query.
+  // With no such queries this CSS engine never reads width/height; Mason still
+  // lays out flow and supported percentages against the actual native viewport.
+  constraints: launch.constraints,
   nodes: logicalNodes,
   variants: Object.fromEntries(
     ['light', 'dark'].map((theme) => [
@@ -270,6 +267,7 @@ json(join(work, 'build.json'), {
     .update(readFileSync(join(work, 'home.bin')))
     .digest('hex'),
   startupFormat: 'XPI1',
+  dimensionQueries: launch.dimensionQueries,
   startupArtifactHash: createHash('sha256')
     .update(readFileSync(join(work, 'startup.bin')))
     .digest('hex'),

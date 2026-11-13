@@ -15,10 +15,14 @@ strings; the seed retains its original value types. XPI1/JSON use the same
 host-side validation. Independent Swift/Java readers share a maintained
 interoperability corpus, including the real JSX producer output. Swift keeps
 arbitrary seed dictionaries in NSDictionary to preserve distinct UTF-16 keys.
-The qualification hosts still consume XPH1 until their integration is migrated;
-host-native decoder checks do not establish mobile rendering or normal-app
-integration. Keep backend value/font checks before native allocation and preserve
-explicit environment constraints until responsive AOT behavior is qualified.
+The Android qualification host consumes XPI1 and matches complete logical slots
+before claims; the iOS host still uses XPH1 during migration. Host-native decoder
+checks do not establish mobile rendering or normal-app integration. Keep backend
+value/font checks before native allocation. The current cascade reads viewport
+dimensions only through media queries: retain exact dimension guards if any
+registered query depends on width, height or orientation, including currently
+unmatched rules. With no such query, Mason uses the actual viewport. This is
+conservative dependency handling, not a general responsive expression program.
 
 ## Separate native layout, frame submission and presentation
 

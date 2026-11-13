@@ -298,7 +298,7 @@ enum XplatStartupArtifact {
         try check(reader.uint(2) == 1 && reader.uint(2) == 0 && reader.uint() == UInt64(data.count), "binary version, flags or length")
         let count = try reader.count(1024); try check(count > 0, "node count")
         let actual = try reader.take(32).map { String(format: "%02x", $0) }.joined()
-        try check(actual == build, "build identity")
+        try check(actual == build, "binary build identity")
         let checksum = try reader.take(32)
         try check(Array(SHA256.hash(data: data.subdata(in: 80 ..< data.count))) == Array(checksum), "payload checksum")
         let value = try reader.literal(0); try check(reader.offset == reader.bytes.count, "trailing bytes")
