@@ -294,6 +294,57 @@ try {
       'Wrapper text update did not remeasure the cold native tree like the fresh tree',
     )
   }
+  if (build.applicationHandoff) {
+    check(
+      [success, rebound].every(
+        (event) => event.rootWindowAttachments === 1 && event.rootWindowDetachments === 0,
+      ),
+      'Core handoff detached/re-attached the original native window root',
+    )
+    const applicationProofs = [begin.epoch, rebound.epoch].map((epoch) =>
+      events.find(
+        (event) =>
+          event.event === 'wrapper-proof' && event.phase === 'application' && event.epoch === epoch,
+      ),
+    )
+    for (const proof of applicationProofs) {
+      check(
+        proof &&
+          proof.state === 'attached' &&
+          proof.active &&
+          proof.foregroundActivity &&
+          proof.sameRoot &&
+          proof.registrySize === 1 &&
+          proof.lifecycle.ready === 1 &&
+          proof.lifecycle.opened === 1,
+        'Core Application/window root handoff missing',
+      )
+      check(
+        events.some(
+          (event) => event.event === 'native-content-adopted' && event.epoch === proof.epoch,
+        ),
+        'Core content pipeline did not adopt the installed native root',
+      )
+    }
+    const [cold, warm] = applicationProofs
+    check(
+      cold.catchUp && !warm.catchUp && cold.windowId === warm.windowId,
+      'Cold catch-up or recreated window session identity differs',
+    )
+    check(
+      cold.lifecycle.created === 1 &&
+        cold.lifecycle.attached === 1 &&
+        cold.lifecycle.started === 1 &&
+        cold.lifecycle.resumed === 1 &&
+        warm.lifecycle.created >= 2 &&
+        warm.lifecycle.attached === warm.lifecycle.created &&
+        warm.lifecycle.started === warm.lifecycle.created &&
+        warm.lifecycle.resumed === warm.lifecycle.created &&
+        warm.lifecycle.detached === warm.lifecycle.created - 1 &&
+        warm.lifecycle.destroyed === warm.lifecycle.created - 1,
+      'Core Activity lifecycle delivery duplicated or missed events',
+    )
+  }
   const phases = [
     'native-layout-before-runtime',
     'engine-init-begin',

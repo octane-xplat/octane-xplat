@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:name="org.octanexplat.prerenderandroid.ProbeApplication"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:theme="@style/ProbeTheme"
         android:label="Native prerender probe"
         android:allowBackup="false"
         tools:replace="android:allowBackup">

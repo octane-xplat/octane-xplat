@@ -1,6 +1,6 @@
 package org.octanexplat.prerenderandroid;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Choreographer;
 import android.view.ViewGroup;
@@ -13,7 +13,8 @@ import org.nativescript.widgets.StyleableTextView;
 import java.io.DataInputStream;
 import java.nio.charset.StandardCharsets;
 
-public final class ProbeActivity extends Activity {
+public final class ProbeActivity extends AppCompatActivity {
+    public final boolean isNativeScriptActivity = true;
     private static ProbeActivity current;
     private Mason mason;
     private View host;
@@ -22,7 +23,12 @@ public final class ProbeActivity extends Activity {
     private long firstPtr, secondPtr, rootPtr;
     private int epoch, frames, frameAttempts;
     private int hierarchyAdds, hierarchyRemoves;
+    private int rootWindowAttachments, rootWindowDetachments;
     private boolean bridgeReady, destroyed, warm;
+    private boolean started, postResumed;
+    private Bundle launchState;
+    private android.view.ViewParent installedParent;
+    private final Runnable bridgeBinder = this::bindBridge;
     private final Choreographer.FrameCallback frameCallback = this::beforeRuntimeFrame;
     private final Runnable runtimeStarter = this::startRuntime;
     private final Runnable recreateRequest = () -> {
@@ -36,6 +42,20 @@ public final class ProbeActivity extends Activity {
     public StyleableTextView getFirstLabel() { return first; }
     public StyleableTextView getSecondLabel() { return second; }
     public View getMasonHost() { return host; }
+    public Bundle getLaunchState() { return launchState; }
+    public boolean isWarmActivity() { return warm; }
+    public boolean hasStarted() { return started; }
+    public boolean hasPostResumed() { return postResumed; }
+    public void enableApplicationHandoff() { app().applicationHandoff = true; }
+    @Override public void setContentView(android.view.View view, ViewGroup.LayoutParams params) {
+        if (host != null && view == host && host.getParent() != null && app().applicationHandoff) {
+            check(host.getParent() == installedParent, "Adopted window root parent changed");
+            check(findViewById(android.R.id.content) == installedParent, "Root is outside Activity content");
+            record("native-content-adopted");
+            return;
+        }
+        super.setContentView(view, params);
+    }
     public void verifyOriginalTree(boolean reversed, int adds, int removes) {
         check(host.getChildCount() == 2 && rootNode.getChildCount() == 2, "Tree cardinality changed");
         check(host.getChildAt(0) == (reversed ? second : first) && host.getChildAt(1) == (reversed ? first : second), "Native child order differs");
@@ -63,7 +83,8 @@ public final class ProbeActivity extends Activity {
             JSONObject row = new JSONObject().put("event", event).put("epoch", epoch)
                 .put("runtimeStarted", com.tns.Runtime.isInitialized())
                 .put("runtimeLibraryLoaded", com.tns.Runtime.nativeLibraryLoaded);
-            if (host != null) row.put("width", host.getWidth()).put("height", host.getHeight()).put("children", host.getChildCount());
+            if (host != null) row.put("width", host.getWidth()).put("height", host.getHeight()).put("children", host.getChildCount())
+                .put("rootWindowAttachments", rootWindowAttachments).put("rootWindowDetachments", rootWindowDetachments);
             if (first != null) row.put("firstText", first.getText().toString()).put("firstWidth", first.getWidth()).put("firstHeight", first.getHeight());
             if (event.equals("passed")) row.put("nativeIdentityRetained", true).put("masonNodeIdentityRetained", true)
                 .put("rustNodeHandlesRetained", true).put("bridgeUpdateQualified", true)
@@ -75,6 +96,7 @@ public final class ProbeActivity extends Activity {
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        launchState = state;
         current = this;
         epoch = app().nextEpoch();
         warm = com.tns.Runtime.isInitialized();
@@ -103,9 +125,17 @@ public final class ProbeActivity extends Activity {
                 @Override public void onChildViewAdded(android.view.View parent, android.view.View child) { hierarchyAdds++; }
                 @Override public void onChildViewRemoved(android.view.View parent, android.view.View child) { hierarchyRemoves++; }
             });
+            host.addOnAttachStateChangeListener(new android.view.View.OnAttachStateChangeListener() {
+                @Override public void onViewAttachedToWindow(android.view.View view) { rootWindowAttachments++; }
+                @Override public void onViewDetachedFromWindow(android.view.View view) { rootWindowDetachments++; }
+            });
             setContentView(host, new ViewGroup.LayoutParams(-1, -1));
+            installedParent = host.getParent();
             record("native-mounted");
-            if (warm) bindBridge();
+            if (warm) {
+                if (app().applicationHandoff) host.post(bridgeBinder);
+                else bindBridge();
+            }
             Choreographer.getInstance().postFrameCallback(frameCallback);
         } catch (Exception error) { record("failed"); throw new RuntimeException(error); }
     }
@@ -131,7 +161,7 @@ public final class ProbeActivity extends Activity {
         if (destroyed) return;
         if (!warm) check(!com.tns.Runtime.isInitialized(), "Runtime started during native gate");
         if (++frameAttempts > 300) { record("native-layout-timeout"); throw new IllegalStateException("Native layout did not become measurable"); }
-        if (host.getWidth() > 0 && first.getWidth() > 0 && first.getHeight() > 0) frames++;
+        if (host.getWidth() > 0 && first.getWidth() > 0 && first.getHeight() > 0 && (!warm || bridgeReady)) frames++;
         if (frames < 3) { Choreographer.getInstance().postFrameCallback(frameCallback); return; }
         check(host.isAttachedToWindow() && host.getChildCount() == 2, "Native tree not attached");
         if (warm) {
@@ -182,6 +212,22 @@ public final class ProbeActivity extends Activity {
         bridgeReady = false;
         record("bridge-detached");
     }
+    @Override protected void onStart() {
+        super.onStart();
+        started = true;
+        if (bridgeReady) app().lifecycle(this, "start");
+    }
+    @Override protected void onPostResume() {
+        super.onPostResume();
+        postResumed = true;
+        if (bridgeReady) app().lifecycle(this, "postResume");
+    }
+    @Override protected void onStop() {
+        super.onStop();
+        started = false;
+        postResumed = false;
+        if (bridgeReady) app().lifecycle(this, "stop");
+    }
 
     @Override protected void onDestroy() {
         destroyed = true;
@@ -189,6 +235,7 @@ public final class ProbeActivity extends Activity {
         if (host != null) {
             host.removeCallbacks(runtimeStarter);
             host.removeCallbacks(recreateRequest);
+            host.removeCallbacks(bridgeBinder);
         }
         if (bridgeReady) app().unbind(this);
         record("activity-destroyed");

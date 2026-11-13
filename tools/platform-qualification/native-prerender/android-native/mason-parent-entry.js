@@ -1,5 +1,7 @@
 import '@nativescript/core/globals'
 import { Label } from '@nativescript/core/ui/label'
+import { Application } from '@nativescript/core/application'
+import { setActivityCallbacks } from '@nativescript/core/ui/frame'
 import { View } from 'xplat-prerender:mason/view'
 import { native_ } from 'xplat-prerender:mason/symbols'
 
@@ -8,11 +10,64 @@ let labels = []
 const check = (value, message) => {
   if (!value) throw new Error(message)
 }
+let windowSession
+const lifecycle = {
+  ready: 0,
+  opened: 0,
+  attached: 0,
+  detached: 0,
+  created: 0,
+  destroyed: 0,
+  started: 0,
+  resumed: 0,
+}
+if (XPLAT_PRERENDER_APPLICATION) {
+  Application.on(Application.readyEvent, () => lifecycle.ready++)
+  Application.on(Application.windowOpenEvent, ({ window }) => {
+    lifecycle.opened++
+    check(!windowSession, 'Unexpected second window session')
+    windowSession = window
+    for (const [event, key] of [
+      ['attached', 'attached'],
+      ['detached', 'detached'],
+      ['activityCreated', 'created'],
+      ['activityDestroyed', 'destroyed'],
+      ['activityStarted', 'started'],
+      ['activityResumed', 'resumed'],
+    ])
+      window.on(event, () => lifecycle[key]++)
+  })
+  Application.run()
+}
+// Native super methods have already executed in this split native/JS host.
+const nativeSuperCompleted = () => {}
+function prepareApplication(activity) {
+  activity.enableApplicationHandoff()
+  let window = Application.android._getWindowForActivity(activity)
+  if (!window) {
+    check(!activity.isWarmActivity(), 'Warm Activity missed ordinary Core lifecycle registration')
+    const callbacks = Application.android.lifecycleCallbacks
+    check(callbacks, 'Core application lifecycle callbacks unavailable')
+    // Catch up only Core's own observer for the existing cold Activity. Never
+    // broadcast old events to arbitrary plugin/application callbacks.
+    callbacks.onActivityCreated(activity, activity.getLaunchState())
+    if (activity.hasStarted()) callbacks.onActivityStarted(activity)
+    if (activity.hasPostResumed()) callbacks.onActivityResumed(activity)
+    window = Application.android._getWindowForActivity(activity)
+  }
+  check(
+    window && window === windowSession && window === Application.primaryWindow,
+    'Primary window session differs',
+  )
+  setActivityCallbacks(activity)
+  return window
+}
 org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
   new org.octanexplat.prerenderandroid.ProbeBridge({
     onActivity(activity) {
       try {
         check(!root && labels.length === 0, 'Old logical root retained')
+        const window = XPLAT_PRERENDER_APPLICATION ? prepareApplication(activity) : undefined
         root = new View()
         root[native_] = activity.getMasonHost()
         const originalViews = [activity.getFirstLabel(), activity.getSecondLabel()]
@@ -77,6 +132,42 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
         )
         activity.verifyOriginalTree(false, 3, 3)
         labels[0].text = 'Updated through NativeScript bridge'
+        if (window) {
+          // Use Android's real platform content pipeline. Generic setContent
+          // first sets the root up with {}, which tears down this Android
+          // context. This pipeline sets up with the Activity and adopts the
+          // root into NativeWindow itself. The native host keeps its view.
+          activity._callbacks.resetActivityContent(activity, root)
+          if (activity.hasStarted()) activity._callbacks.onStart(activity, nativeSuperCompleted)
+          if (activity.hasPostResumed())
+            activity._callbacks.onPostResume(activity, nativeSuperCompleted)
+          check(
+            Application.getRootView() === root &&
+              window.rootView === root &&
+              root.getNativeWindow() === window,
+            'Application/window/root ownership differs',
+          )
+          check(
+            Application.android._getWindows().length === 1 &&
+              lifecycle.ready === 1 &&
+              lifecycle.opened === 1,
+            'Application/window initialized more than once',
+          )
+          activity.verifyOriginalTree(false, 3, 3)
+          activity.recordWrapperProof(
+            JSON.stringify({
+              phase: 'application',
+              windowId: window.id,
+              state: window.state,
+              active: Application.activeWindow === window,
+              foregroundActivity: Application.android.foregroundActivity === activity,
+              sameRoot: true,
+              registrySize: Application.android._getWindows().length,
+              lifecycle: { ...lifecycle },
+              catchUp: !activity.isWarmActivity(),
+            }),
+          )
+        }
         activity.recordWrapperProof(
           JSON.stringify({
             phase: 'adopted',
@@ -103,8 +194,13 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
       }
     },
     onDestroy(activity) {
-      root.callUnloaded()
-      root._tearDownUI(true)
+      if (XPLAT_PRERENDER_APPLICATION) {
+        check(!root.isLoaded, 'Core stop did not unload the root')
+        activity._callbacks.onDestroy(activity, nativeSuperCompleted)
+      } else {
+        root.callUnloaded()
+        root._tearDownUI(true)
+      }
       activity.verifyEmptyTree()
       for (const label of labels) {
         check(
@@ -126,6 +222,14 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
         }),
       )
       activity.markBridgeDetached()
+    },
+    onHostLifecycle(activity, event) {
+      const callbacks = activity._callbacks
+      check(callbacks, 'Activity callback owner missing')
+      if (event === 'start') callbacks.onStart(activity, nativeSuperCompleted)
+      else if (event === 'stop') callbacks.onStop(activity, nativeSuperCompleted)
+      else if (event === 'postResume') callbacks.onPostResume(activity, nativeSuperCompleted)
+      else throw new Error('Unexpected native lifecycle event: ' + event)
     },
   }),
 )

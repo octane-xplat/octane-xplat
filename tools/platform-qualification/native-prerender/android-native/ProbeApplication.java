@@ -11,6 +11,7 @@ public final class ProbeApplication extends com.tns.NativeScriptApplication {
     private ProbeBridge bridge;
     private int epoch, activeBridgeEpoch, runtimeStarts;
     boolean forcedRecreation;
+    boolean applicationHandoff;
 
     @Override public void onCreate() {
         // The stock constructor/attachBaseContext establish the native app.
@@ -44,6 +45,9 @@ public final class ProbeApplication extends com.tns.NativeScriptApplication {
     void released(int value) {
         if (activeBridgeEpoch != value) throw new IllegalStateException("Wrong bridge owner released");
         activeBridgeEpoch = 0;
+    }
+    void lifecycle(ProbeActivity activity, String event) {
+        if (applicationHandoff) bridge.onHostLifecycle(activity, event);
     }
 
     public void startRuntime() {

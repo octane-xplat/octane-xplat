@@ -333,3 +333,22 @@ The control checks zero physical additions/removals during initial adoption, the
 Omit `XPLAT_PRERENDER_ANDROID_MASON_ADOPT` to exercise the ordinary attachment path as a negative control. With the pinned SDK, initial child setup throws Android’s specified-child-already-has-a-parent exception. Preserve the failed run and its exact native log; a timeout or unrelated import failure is not that negative control. The runner reports wrapper failures immediately from the native receipt.
 
 This control still does not hydrate Octane, validate a prepared Home IR transaction, hand off Core Application/NativeWindow ownership or prove general CSS/default removal, viewport sizing, compositor presentation, process-death restoration or startup performance. Reorder/insert/remove here are synchronous wrapper operations, not OS input or a renderer reconciliation qualification.
+
+
+### Android Core Application and window handoff control
+
+The host uses a native AppCompatActivity and matching AppCompat theme so Core’s actual Activity callbacks can run after native startup. Add this flag to the matched Mason-parent build above:
+
+```sh
+export XPLAT_PRERENDER_ANDROID_APPLICATION=1
+```
+
+This mode runs actual `Application.run()` before binding the first tree. Core registers its lifecycle observer at that point, after the cold Activity has already launched. The probe invokes only that Core observer’s missed creation/start/resume callbacks using native Activity phase facts. It never broadcasts historical events to other observers. Later Activities bind from a posted callback, after Core’s ordinary observer has created or reattached their window. Access to Core’s private `lifecycleCallbacks` field is an explicit version-pinned probe seam; it is not a supported late-bootstrap API.
+
+The probe installs the real Core ActivityCallbacksImplementation with `setActivityCallbacks`, then uses its Android `resetActivityContent` pipeline to initialize root settings, assign Application root ownership and adopt the root into NativeWindow. The native host skips `setContentView` only when the requested view is its exact already-installed root under the expected Activity content parent. Other content uses the ordinary native setter. Start/stop/post-resume/destruction call the corresponding real Core handlers after native super methods have executed once. The no-op super callbacks represent that completed native phase.
+
+Do not substitute generic `NativeWindow.setContent` in this pinned Core9.1.3 control. Its common root-settings path first calls `_setupAsRootView({})`, then the Android path switches back to the Activity. The resulting context changes tear down and reattach children, even when the native root setter is skipped. The existing Android content pipeline avoids that temporary context and performs NativeWindow adoption itself. Retain attachment counters when investigating an alternative pipeline.
+
+The checker requires one ready event, one registered/primary window session, the same root through Application/NativeWindow/wrapper lookup, exact lifecycle delivery across recreation, and the same window ID after saved-state reattachment. Each Activity’s native root must have one initial window attachment and zero detachments at its passing receipt. The parent/label identity, text remeasurement, ordinary child mutations and teardown checks still run.
+
+This is an explicit-content handoff, with no main entry or legacy launch-event producer. It does not qualify an app’s normal create/launch flow, arbitrary plugin initialization, all Activity callbacks, same-Activity background/foreground restoration, renderer/component state across recreation, process death, Octane/Home IR, general style/default parity, viewport sizing, OS input, compositor presentation, native deallocation or release performance. The callback catch-up and native setter rule remain experimental host integration. No Core or runtime SDK source is modified.
