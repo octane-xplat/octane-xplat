@@ -22,35 +22,10 @@ const registry = JSON.parse(
   readFileSync(new URL('./ns-css-registry.json', import.meta.url), 'utf8'),
 )
 
-// Mason Core registers these layout declarations on Style in addition to
-// NativeScript Core's registry (nativescript-mason-core 1.0.0-beta.10,
-// properties.ts). Registration permits Mason views to consume them; it does
-// not establish clipping parity on devices.
-const MASON_SUPPORTED = [
-  'display',
-  'grid-area',
-  'grid-auto-columns',
-  'grid-auto-flow',
-  'grid-auto-rows',
-  'grid-column',
-  'grid-column-end',
-  'grid-column-start',
-  'grid-column-gap',
-  'grid-gap',
-  'grid-row',
-  'grid-row-end',
-  'grid-row-gap',
-  'grid-row-start',
-  'grid-template-areas',
-  'grid-template-columns',
-  'grid-template-rows',
-  'justify-self',
-  'overflow',
-  'overflow-x',
-  'overflow-y',
-  'place-items',
-]
-const SUPPORTED = new Set([...registry.properties, ...MASON_SUPPORTED])
+// Registration permits declarations here; it does not establish property/value
+// support on every host or device. The generator includes the pinned Mason
+// engine rather than treating its registered layout properties as dropped.
+const SUPPORTED = new Set(registry.properties)
 
 // Props NS drops that we still write for web — each entry must carry the
 // reason it's intentional, matching a shared-css idiom in tokens.css.

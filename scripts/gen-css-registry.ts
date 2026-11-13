@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Regenerates scripts/ns-css-registry.json from the installed
-// @nativescript/core — the list of css properties NS actually applies.
+// @nativescript/core plus the selected Mason engine's CSS registrations.
 // Anything in a shared stylesheet outside this list is silently dropped
 // on native. Re-run after upgrading @nativescript/core.
 
@@ -12,6 +12,9 @@ const req = createRequire(join(process.cwd(), 'apps/mobile/package.json'))
 const corePkg = req.resolve('@nativescript/core/package.json')
 const coreDir = dirname(corePkg)
 const version = JSON.parse(readFileSync(corePkg, 'utf8')).version
+const masonPkg = req.resolve('@octane-xplat/nativescript-mason-core/package.json')
+const masonDir = dirname(masonPkg)
+const masonVersion = JSON.parse(readFileSync(masonPkg, 'utf8')).version
 
 // Walk ui/**/*.js for `cssName: 'prop'` registrations — CssProperty and
 // CssAnimationProperty both carry it.
@@ -34,6 +37,17 @@ function scan(dir) {
 
 scan(join(coreDir, 'ui'))
 
+// Mason's properties module registers display/position, grid placement and
+// sizing alongside Core. Scan the shipped registration module without loading
+// its platform globals. Presence here proves registration, not value parity.
+for (const match of readFileSync(join(masonDir, 'properties.js'), 'utf8').matchAll(CSSNAME)) {
+  names.add(match[1])
+}
+// Mason registers the border-side shorthands from its SIDES loop.
+for (const side of ['top', 'right', 'bottom', 'left']) {
+  names.add(`border-${side}`)
+}
+
 // Parsed by CssAnimationParser (css-animation-parser.js), not registered
 // as cssNames — the `animation` shorthand + its longhands.
 for (const a of [
@@ -50,7 +64,7 @@ for (const a of [
 }
 
 const registry = {
-  generatedFrom: `@nativescript/core@${version}`,
+  generatedFrom: `@nativescript/core@${version} + @octane-xplat/nativescript-mason-core@${masonVersion}`,
   properties: [...names].sort(),
 }
 

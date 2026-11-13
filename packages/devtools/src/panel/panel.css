@@ -123,7 +123,6 @@ body {
 	color: #444444;
 	margin: 2px 0 0;
 	white-space: pre-wrap;
-	word-break: break-all;
 }
 .dt-toolbar { align-items: center; gap: 8px; margin-bottom: 6px; }
 .dt-log-line {
@@ -149,7 +148,10 @@ body {
 	font-family: ui-monospace, "SF Mono", Menlo, monospace;
 	font-size: 11.5px;
 	white-space: pre-wrap;
-	word-break: break-all;
+}
+/* AppKit labels keep their native wrapping; word-break is a browser rule. */
+@platform web {
+	.dt-pre, .dt-text { word-break: break-all; }
 }
 .dt-at {
 	color: #bbbbbb;

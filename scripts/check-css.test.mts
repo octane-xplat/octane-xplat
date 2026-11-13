@@ -55,3 +55,15 @@ test('CSS audit accepts Mason layout registrations while rejecting unknown prope
   assert.equal(rejected.status, 1, rejected.stdout + rejected.stderr)
   assert.match(rejected.stdout, /overflow-typo/)
 })
+
+test('CSS audit accepts registered Mason layout declarations without calling them dropped', () => {
+  const result = audit({
+    'layout.css': '.layout { display: block; position: relative; grid-template-columns: 1fr 1fr; grid-template-rows: auto; grid-row: 1; justify-self: start; flex-basis: auto }',
+  })
+
+  assert.equal(result.status, 0, result.stdout + result.stderr)
+  assert.doesNotMatch(result.stdout, /dropped on native|not in NS/)
+  const rejected = audit({ 'layout.css': '.layout { grid-template-colums: 1fr }' })
+
+  assert.equal(rejected.status, 1, rejected.stdout + rejected.stderr)
+})
