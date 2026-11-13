@@ -20,7 +20,7 @@ public final class HomeActivity extends AppCompatActivity {
     private String nativeSnapshot;
     private org.nativescript.mason.masonkit.View reference;
     private android.view.ViewGroup referenceParent;
-    private int epoch, frames, attempts, stableWidth = -1, stableHeight = -1;
+    private int epoch, frames, attempts, stableWidth = -1, stableHeight = -1, stableLeft = -1, stableTop = -1;
     private boolean destroyed, warm, bridgeReady;
     private boolean applicationHandoff, started, postResumed;
     private Bundle launchState;
@@ -204,6 +204,8 @@ public final class HomeActivity extends AppCompatActivity {
                 .put("availableWidth", scene.viewport.getAvailableWidth()).put("availableHeight", scene.viewport.getAvailableHeight())
                 .put("rootWindowAttachments", scene.viewport.getWindowAttachments()).put("rootWindowDetachments", scene.viewport.getWindowDetachments())
                 .put("draws", scene.viewport.getDraws()).put("windowFocused", scene.viewport.hasWindowFocus());
+                row.put("firstCommittedFrameNanos", scene.viewport.getFirstCommittedFrameNanos());
+                row.put("drawnSafeBounds", scene.viewport.hasDrawnSafeBounds());
                 if (scene.viewport.getParent() instanceof android.view.View) {
                     android.view.View parent = (android.view.View) scene.viewport.getParent();
                     int[] location = new int[2]; scene.viewport.getLocationOnScreen(location);
@@ -277,19 +279,28 @@ public final class HomeActivity extends AppCompatActivity {
         if (!warm) check(!com.tns.Runtime.isInitialized(), "Runtime began before Home native layout");
         if (++attempts > 300) { record("native-layout-timeout"); throw new IllegalStateException("Home layout timeout"); }
         int width = scene.viewport.getWidth(), height = scene.viewport.getHeight();
-        if (scene.laidOut() && scene.viewport.getDraws() > 0 && scene.viewport.hasWindowFocus()) {
-            if (width == stableWidth && height == stableHeight) frames++;
-            else { stableWidth = width; stableHeight = height; frames = 1; }
+        boolean needsCommit = android.os.Build.VERSION.SDK_INT >= 29 && scene.viewport.isHardwareAccelerated();
+        int left = scene.viewport.getLeft(), top = scene.viewport.getTop();
+        if (scene.laidOut() && scene.viewport.hasDrawnSafeBounds() && scene.viewport.hasWindowFocus() &&
+            (!needsCommit || scene.viewport.getFirstCommittedFrameNanos() > 0)) {
+            if (width == stableWidth && height == stableHeight && left == stableLeft && top == stableTop) frames++;
+            else { stableWidth = width; stableHeight = height; stableLeft = left; stableTop = top; frames = 1; }
         } else frames = 0;
         if (frames < 3) { Choreographer.getInstance().postFrameCallback(gate); return; }
-        scene.verify(); freezeNativeSnapshot();
-        if (warm) { record("warm-native-layout"); app().bind(this); check(bridgeReady, "Warm Home bridge missing"); if (scene != null) { scene.verify(); record("passed"); } }
-        else { record("native-layout-before-runtime"); scene.windowRoot.postDelayed(runtimeStarter, 250); }
+        scene.verify();
+        if (warm) { freezeNativeSnapshot(); record("warm-native-layout"); app().bind(this); check(bridgeReady, "Warm Home bridge missing"); if (scene != null) { scene.verify(); record("passed"); } }
+        else scene.windowRoot.postDelayed(runtimeStarter, 250);
     }
     private void startRuntime() {
         if (destroyed) return;
+        if (!scene.viewport.hasDrawnSafeBounds() || !scene.viewport.hasWindowFocus() ||
+            scene.viewport.getWidth() != stableWidth || scene.viewport.getHeight() != stableHeight ||
+            scene.viewport.getLeft() != stableLeft || scene.viewport.getTop() != stableTop) {
+            frames = 0; Choreographer.getInstance().postFrameCallback(gate); return;
+        }
         try {
-            nativeSnapshot = scene.snapshot().toString(); app().captureColdSnapshot(nativeSnapshot);
+            scene.verify(); freezeNativeSnapshot(); app().captureColdSnapshot(nativeSnapshot);
+            record("native-layout-before-runtime");
             record("engine-init-begin"); app().startRuntime(); record("engine-init-end");
             app().bind(this); check(bridgeReady, "Home JS verification missing"); if (scene != null) { scene.verify(); record("passed"); }
         } catch (Exception error) { record("failed"); throw new RuntimeException(error); }

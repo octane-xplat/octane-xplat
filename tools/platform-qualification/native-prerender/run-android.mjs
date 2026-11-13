@@ -1,6 +1,14 @@
 import { execFile, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs'
+import {
+  closeSync,
+  mkdirSync,
+  mkdtempSync,
+  openSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { completedHomeEpoch } from './home-events.mjs'
@@ -9,6 +17,9 @@ import { completedHomeEpoch } from './home-events.mjs'
 const work = process.env.XPLAT_PRERENDER_ANDROID_BUILD
 if (!work) throw new Error('Set XPLAT_PRERENDER_ANDROID_BUILD to the printed build directory')
 const build = JSON.parse(readFileSync(join(resolve(work), 'build.json'), 'utf8'))
+const traceEnabled = process.env.XPLAT_PRERENDER_ANDROID_TRACE === '1'
+if (traceEnabled && (!build.home || build.home.fallback))
+  throw new Error('FrameTimeline capture requires the native Home mount path')
 const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('hex')
 const driverInputs = Object.fromEntries(
   [import.meta.filename, join(import.meta.dirname, 'home-events.mjs')].map((path) => [
@@ -51,7 +62,7 @@ const onSignal = (signal) => {
 process.on('SIGINT', onSignal)
 process.on('SIGTERM', onSignal)
 const pause = (ms) => new Promise((done) => setTimeout(done, ms))
-function call(program, args, timeout = 30000, required = true) {
+function call(program, args, timeout = 30000, required = true, input) {
   if (interruption && !cleaning) return Promise.reject(interruption)
   return new Promise((done, reject) => {
     const child = execFile(
@@ -69,10 +80,14 @@ function call(program, args, timeout = 30000, required = true) {
       },
     )
     commands.add(child)
+    if (input !== undefined) {
+      child.stdin.on('error', reject)
+      child.stdin.end(input)
+    }
   })
 }
-const device = (args, timeout = 30000, required = true) =>
-  call(adb, ['-s', serial, ...args], timeout, required)
+const device = (args, timeout = 30000, required = true, input) =>
+  call(adb, ['-s', serial, ...args], timeout, required, input)
 async function captureHeap() {
   // am opens its output as shell before handing the descriptor to the app.
   const file =
@@ -105,6 +120,27 @@ let child,
   identityConfirmed = false,
   failed = false,
   failure
+const traceName = 'xplat-home-' + driverHash.slice(0, 12) + '-' + process.pid
+const traceRemote = '/data/misc/perfetto-traces/' + traceName + '.pftrace'
+let traceTask, traceResult, traceFailure
+async function finishTrace() {
+  if (!traceTask) return
+  const pending = traceTask
+  traceTask = undefined
+  try {
+    // Keep the adb foreground process alive until its bounded capture drains.
+    await pending
+    writeFileSync(
+      join(report, 'trace-command.json'),
+      JSON.stringify({ result: traceResult, error: String(traceFailure ?? '') }),
+    )
+    if (traceFailure) throw traceFailure
+    await device(['pull', traceRemote, join(report, 'home.pftrace')])
+    check(statSync(join(report, 'home.pftrace')).size > 0, 'Perfetto capture is empty')
+  } finally {
+    await device(['shell', 'rm', '-f', traceRemote], 5000, false)
+  }
+}
 try {
   const descriptor = openSync(join(report, 'emulator.log'), 'w')
   child = spawn(
@@ -171,6 +207,54 @@ try {
     'files/probe-result.json',
     'files/lifecycle-result.json',
   ])
+  if (traceEnabled) {
+    const config = `buffers { size_kb: 32768 fill_policy: RING_BUFFER }
+duration_ms: 10000
+write_into_file: true
+file_write_period_ms: 250
+flush_period_ms: 500
+data_sources { config { name: "linux.ftrace" ftrace_config {
+  atrace_categories: "gfx"
+  atrace_categories: "view"
+  atrace_categories: "wm"
+  atrace_apps: "${build.id}"
+} } }
+data_sources { config { name: "linux.process_stats" process_stats_config { scan_all_processes_on_start: true } } }
+data_sources { config { name: "android.surfaceflinger.frametimeline" } }
+`
+    const local = join(report, 'trace-config.pbtxt')
+    writeFileSync(local, config)
+    // Perfetto's SELinux domain cannot read shell-owned /data/local/tmp files.
+    // Pass the owned config over stdin instead of changing device permissions.
+    traceTask = device(
+      ['shell', 'perfetto', '--txt', '-c', '-', '-o', traceRemote],
+      20000,
+      true,
+      config,
+    ).then(
+      (result) => {
+        traceResult = result
+      },
+      (error) => {
+        traceFailure = error
+      },
+    )
+    const deadline = Date.now() + 5000
+    while (true) {
+      if (traceFailure) throw traceFailure
+      check(!traceResult, 'Perfetto exited before Home launch')
+      const size = await device(['shell', 'stat', '-c', '%s', traceRemote], 5000, false)
+      if (Number(size.output) > 0) {
+        writeFileSync(
+          join(report, 'trace-start.json'),
+          JSON.stringify({ streamingBytes: Number(size.output) }),
+        )
+        break
+      }
+      check(Date.now() < deadline, 'Perfetto did not begin streaming before Home launch')
+      await pause(100)
+    }
+  }
   const launch = await device([
     'shell',
     'am',
@@ -460,10 +544,18 @@ try {
         native.width > 0 &&
         native.height > 0 &&
         native.draws > 0 &&
+        native.drawnSafeBounds &&
         native.windowFocused &&
         native.nodes?.length === 19 &&
         native.nodes.every((node) => node.attached && node.width > 0 && node.height > 0),
       'Actual Home native geometry missing',
+    )
+    check(
+      Number.isSafeInteger(native.firstCommittedFrameNanos) &&
+        native.firstCommittedFrameNanos > mounted.elapsedRealtimeNanos &&
+        native.firstCommittedFrameNanos <= native.elapsedRealtimeNanos &&
+        native.elapsedRealtimeNanos < begin.elapsedRealtimeNanos,
+      'Home hardware frame submission was not observed before engine initialization',
     )
     const expected = JSON.parse(readFileSync(join(resolve(work), 'producer/resolved.json')))
     check(
@@ -1105,6 +1197,7 @@ try {
       hash(build.apk) === build.apkHash,
     'Driver or APK changed during execution',
   )
+  await finishTrace()
   writeFileSync(
     join(report, 'status.json'),
     JSON.stringify({ passed: true, driverHash, driverInputs, avd, api: 35, scope: build.scope }),
@@ -1121,6 +1214,11 @@ try {
 } finally {
   cleaning = true
   const errors = []
+  try {
+    await finishTrace()
+  } catch (error) {
+    errors.push('Owned Perfetto cleanup: ' + String(error))
+  }
   try {
     if (installed && identityConfirmed) {
       if (uid) {

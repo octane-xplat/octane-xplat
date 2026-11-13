@@ -7,6 +7,30 @@ owns the executable controls and their limits; Silo's
 `native-prerender-adoption` topic owns current exploration state. These controls
 are experimental host integration, not a public hydration API.
 
+## Separate native layout, frame submission and presentation
+
+Android's hardware `registerFrameCommitCallback` establishes swap-chain
+submission, not display presentation. The Home gate waits for that callback
+on supported hardware paths. Its safe-area readiness also requires the last
+drawn bounds to match current parent padding with no pending layout. Include
+position as well as size in stability checks and revalidate after any deferred
+startup turn before freezing the final native baseline. Three stable size
+observations alone can accept a pending parent inset adjustment; tracing
+exposed that race even when independent style comparisons still passed.
+
+The nonvisual presentation control separately correlates the Home draw's
+enclosing Choreographer token with its application buffer frame and the
+corresponding SurfaceFlinger display frame. It requires known non-dropped
+presentation results, display completion before engine initialization, and no
+trace errors/data loss. A passing device run and a nonempty trace are
+prerequisites, not substitutes for that frame chain. See the fixture's
+[capture and analysis commands](../../tools/platform-qualification/native-prerender/README.md#android-home-frame-submission-and-presentation).
+
+This is platform-reported presentation on the qualified Android emulator.
+It does not establish pixel parity, a physical display or release startup
+performance. Keep its artificial engine gate and diagnostic costs separate
+from production timing; do not infer a speedup from the observed lead time.
+
 ## Keep cold adoption separate from warm owner restoration
 
 The Android Home control can use Core9.1.3's normal

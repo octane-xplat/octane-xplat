@@ -70,6 +70,9 @@ public final class HomeApplication extends com.tns.NativeScriptApplication {
     }
     void record(JSONObject event) {
         try {
+            event.put("elapsedRealtimeNanos", android.os.SystemClock.elapsedRealtimeNanos());
+            android.os.Trace.beginSection("XplatHome:" + event.optString("event") + ":" + event.optInt("epoch"));
+            android.os.Trace.endSection();
             event.put("runtimeStarts", runtimeStarts); events.put(event);
             File pending = new File(getFilesDir(), "probe-result.json.tmp");
             try (FileOutputStream out = new FileOutputStream(pending)) { out.write(events.toString(2).getBytes(StandardCharsets.UTF_8)); }

@@ -10,6 +10,10 @@ import org.nativescript.mason.masonkit.enums.FlexDirection;
 public final class HomeViewport extends View {
     private int availableWidth = -1, availableHeight = -1;
     private int windowAttachments, windowDetachments, draws;
+    private int drawnLeft = -1, drawnTop = -1, drawnWidth = -1, drawnHeight = -1;
+    private volatile long firstCommittedFrameNanos;
+    private boolean commitRequested;
+    private final Runnable frameCommitted = () -> firstCommittedFrameNanos = android.os.SystemClock.elapsedRealtimeNanos();
     private android.view.ViewTreeObserver observedTree;
     private final android.view.ViewTreeObserver.OnPreDrawListener safeArea = this::fitSafeArea;
     private final android.graphics.Rect safe = new android.graphics.Rect();
@@ -36,7 +40,11 @@ public final class HomeViewport extends View {
         observedTree = getViewTreeObserver(); observedTree.addOnPreDrawListener(safeArea);
     }
     @Override protected void onDetachedFromWindow() {
-        if (observedTree != null && observedTree.isAlive()) observedTree.removeOnPreDrawListener(safeArea);
+        if (observedTree != null && observedTree.isAlive()) {
+            observedTree.removeOnPreDrawListener(safeArea);
+            if (android.os.Build.VERSION.SDK_INT >= 29 && commitRequested)
+                observedTree.unregisterFrameCommitCallback(frameCommitted);
+        }
         observedTree = null; windowDetachments++; super.onDetachedFromWindow();
     }
     // Match the system-bar-safe content area, whether the framework has already
@@ -64,10 +72,31 @@ public final class HomeViewport extends View {
         if (getLeft() != left || getTop() != top || getWidth() != parent.getWidth() - left - right || getHeight() != parent.getHeight() - top - bottom) {
             parent.requestLayout(); return false;
         }
+        if (!commitRequested && android.os.Build.VERSION.SDK_INT >= 29 && isHardwareAccelerated()) {
+            // Submission to the swap chain, not evidence of display presentation.
+            getViewTreeObserver().registerFrameCommitCallback(frameCommitted); commitRequested = true;
+        }
         return true;
     }
-    @Override protected void dispatchDraw(android.graphics.Canvas canvas) { super.dispatchDraw(canvas); draws++; }
+    @Override protected void dispatchDraw(android.graphics.Canvas canvas) {
+        android.os.Trace.beginSection("XplatHomeDraw");
+        try {
+            super.dispatchDraw(canvas); draws++;
+            drawnLeft = getLeft(); drawnTop = getTop(); drawnWidth = getWidth(); drawnHeight = getHeight();
+        }
+        finally { android.os.Trace.endSection(); }
+    }
     public int getDraws() { return draws; }
+    public boolean hasDrawnSafeBounds() {
+        if (!(getParent() instanceof android.view.ViewGroup)) return false;
+        android.view.ViewGroup parent = (android.view.ViewGroup) getParent();
+        return !isLayoutRequested() && !parent.isLayoutRequested() &&
+            getLeft() == parent.getPaddingLeft() && getTop() == parent.getPaddingTop() &&
+            getWidth() == parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight() &&
+            getHeight() == parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom() &&
+            drawnLeft == getLeft() && drawnTop == getTop() && drawnWidth == getWidth() && drawnHeight == getHeight();
+    }
+    public long getFirstCommittedFrameNanos() { return firstCommittedFrameNanos; }
     public int getAvailableWidth() { return availableWidth; }
     public int getAvailableHeight() { return availableHeight; }
     public int getWindowAttachments() { return windowAttachments; }

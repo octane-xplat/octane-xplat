@@ -398,6 +398,20 @@ This flag requires Home parity/adoption and their SDK inputs above. Run its prin
 
 Set `XPLAT_PRERENDER_ANDROID_HOME_INPUT=1` with the Home parity/adoption inputs when building, then run the printed APK through the reserved device task. This can also run with the forced-recreation control. After the latest live Activity completes parity and disposes its hidden reference, the driver uses `adb shell input tap` at each original Button's native screen-space center. It requires actual Activity down/up dispatch, count/status changes3→4→3, attached nonzero native geometry, retained original native/Mason/raw-node identities and zero physical child churn. It never invokes a JS press handler directly. Native observations and coordinates are retained in `home-input.json`; this does not establish pixels, compositor presentation, broader gesture behavior or Core Application/window handoff.
 
+### Android Home frame submission and presentation
+
+The Home native gate waits for a hardware frame-commit callback on API29+, focused/attached content and three stable observations of drawn safe-area bounds. It rechecks the bounds after its deliberate250ms delay before recording the final native baseline and starting the engine. A pending parent inset/layout request invalidates readiness. [Frame commit](https://developer.android.com/reference/android/view/ViewTreeObserver#registerFrameCommitCallback(java.lang.Runnable)) establishes swap-chain submission, not visible presentation; older/software paths do not receive that qualification.
+
+Set `XPLAT_PRERENDER_ANDROID_TRACE=1` on the reserved Home device command to collect a bounded, nonvisual Perfetto trace. The runner feeds configuration over stdin, holds its foreground ADB capture open until completion, requires nonempty output and removes its owned device file. This avoids the tested background-client path producing an empty trace on the selected emulator. It captures no pixels. Inspect presentation separately with an explicitly supplied Trace Processor binary (qualified with Perfetto59.1):
+
+```sh
+XPLAT_PRERENDER_ANDROID_REPORT="$REPORT_DIRECTORY" \
+XPLAT_PRERENDER_TRACE_PROCESSOR="$TRACE_PROCESSOR_BINARY" \
+bun turbo run probe:prerender:android:presentation --filter=@xplat/platform-qualification
+```
+
+The checker requires a passing Home adoption run, final pre-VM safe bounds, unique mount/layout/engine markers from one process and no trace error/data-loss counters. It joins `XplatHomeDraw` to its enclosing Choreographer token, that application's actual buffer frame and the corresponding SurfaceFlinger display frame. Both frames must have a known non-dropped presentation result, and the display frame must end before engine initialization. It retains SQL, trace/tool/verifier/APK hashes and the selected frame chain in `presentation.json`. [FrameTimeline](https://perfetto.dev/docs/data-sources/frametimeline) distinguishes application rendering from display composition. This establishes platform-reported emulator presentation; pixels, physical-display behavior and matched release startup performance remain separate qualifications. The artificial gate and diagnostic overhead must not be reported as a startup speedup.
+
 ### Android Home Core Application handoff
 
 `XPLAT_PRERENDER_ANDROID_HOME_APPLICATION=1` enables an experimental explicit-content handoff with the Home adoption inputs. It can combine with parity, forced retirement and OS input. The JS entry calls actual `Application.run()` and catches up only Core's own lifecycle observer for the already-running cold Activity. Warm Activities use ordinary observer delivery. The version-pinned observer seam is not a supported late-bootstrap API.
