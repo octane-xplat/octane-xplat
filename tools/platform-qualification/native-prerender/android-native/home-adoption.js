@@ -451,11 +451,10 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         activity.isChangingConfigurations()
       ) {
         retainedCount = String(retiringClaims.wrappers[9].text)
-        check(
-          retiringClaims === retainedClaims &&
-            (!XPLAT_PRERENDER_HOME_RESTORE || retainedCount === '4'),
-          'Retained Home state missing at destruction',
-        )
+        // Android may replace the Activity before the input probe reaches 4.
+        // The runner checks that value for its requested recreation; teardown
+        // must release native state for every configuration change.
+        check(retiringClaims === retainedClaims, 'Retained Home state missing at destruction')
         destroyHomeApplication(activity, host)
         retireClaims(host, retiringClaims.wrappers, true)
         check(

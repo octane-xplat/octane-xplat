@@ -105,6 +105,19 @@ export async function qualifyHomeParity(activity, host, factoryCalls, lease) {
     check(width > 0 && height > 0, 'Home comparison viewport is empty')
     layout(host, width, height)
     layout(ordinary, width, height)
+    activity.recordHomeProof(
+      JSON.stringify({
+        phase: 'parity-viewport',
+        width,
+        height,
+        referenceWidth: native.getWidth(),
+        referenceHeight: native.getHeight(),
+        referenceMeasuredHeight: native.getMeasuredHeight(),
+        cold: JSON.parse(String(activity.snapshotPreRuntime()))[0],
+        adopted: JSON.parse(String(activity.snapshotHome()))[0],
+        reference: JSON.parse(String(activity.snapshotReference()))[0],
+      }),
+    )
     preRuntimeCompared = compare(activity, 'pre-runtime', 'cold')
     baselineCompared = compare(activity, 'native baseline', 'baseline')
     initialCompared = compare(activity, 'initial')

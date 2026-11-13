@@ -141,6 +141,14 @@ arrays, and requires cleared old Activity contexts/handles. It skips warm IR
 decoding/allocation and lets Core create ordinary native objects from the
 retained owners. It does not prepare or commit another Octane tree.
 
+Retirement must work before any probe interaction as well as after a user state
+change. Android can replace an Activity while the initial comparison is still
+running. Keep the control's expected counter value in the runner's requested
+recreation checks; asserting it before teardown can leave old native parents
+attached when an earlier configuration change occurs. The comparison records
+both native and ordinary viewport bounds so a launch-time inset change remains
+an explicit parity failure rather than being hidden by a tolerance.
+
 The maintained control checks the same twenty wrapper IDs, entry/launch counts
 of one, unchanged nineteen claim calls, state4 on the first observed warm
 layout, and real OS input4→5→3 afterward. It qualifies this fixed Home's live
