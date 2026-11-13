@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/macos-build",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Project-installed macOS packaging worker for the Octane Xplat CLI",
 	"license": "MIT",
 	"repository": {

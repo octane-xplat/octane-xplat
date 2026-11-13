@@ -427,7 +427,7 @@
     },
     "packages/ads": {
       "name": "@octane-xplat/ads",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/google-mobile-ads": "5.0.4",
         "@octane-xplat/jsx": "workspace:*",
@@ -491,7 +491,7 @@
     },
     "packages/app-menu": {
       "name": "@octane-xplat/app-menu",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -513,7 +513,7 @@
     },
     "packages/audio": {
       "name": "@octane-xplat/audio",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -542,7 +542,7 @@
     },
     "packages/auth": {
       "name": "@octane-xplat/auth",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/apple-sign-in": "2.0.0",
         "@nativescript/google-signin": "2.1.1",
@@ -575,7 +575,7 @@
     },
     "packages/background-tasks": {
       "name": "@octane-xplat/background-tasks",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -601,7 +601,7 @@
     },
     "packages/bamboo": {
       "name": "@octane-xplat/bamboo",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@ampproject/remapping": "2.3.0",
         "@bamboocss/preset-base": "1.60.1",
@@ -621,7 +621,7 @@
     },
     "packages/barcode-scanner": {
       "name": "@octane-xplat/barcode-scanner",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/mlkit-barcode-scanning": "3.0.4",
         "@nativescript/mlkit-core": "3.0.4",
@@ -649,7 +649,7 @@
     },
     "packages/billing": {
       "name": "@octane-xplat/billing",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/payments": "4.0.1",
       },
@@ -675,7 +675,7 @@
     },
     "packages/biometrics": {
       "name": "@octane-xplat/biometrics",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/biometrics": "1.3.1",
         "@octane-xplat/lib": "workspace:*",
@@ -703,7 +703,7 @@
     },
     "packages/build": {
       "name": "@octane-xplat/build",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@babel/core": "8.0.9",
         "@babel/plugin-transform-unicode-property-regex": "8.0.1",
@@ -737,7 +737,7 @@
     },
     "packages/calendar": {
       "name": "@octane-xplat/calendar",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -762,7 +762,7 @@
     },
     "packages/camera": {
       "name": "@octane-xplat/camera",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -797,7 +797,7 @@
     },
     "packages/canvas": {
       "name": "@octane-xplat/canvas",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/canvas": "3.0.1",
         "@octane-xplat/jsx": "workspace:*",
@@ -828,7 +828,7 @@
     },
     "packages/charts": {
       "name": "@octane-xplat/charts",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "d3-array": "3.2.5",
@@ -868,7 +868,7 @@
     },
     "packages/cli": {
       "name": "@octane-xplat/cli",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat": "./bin/xplat.exe",
       },
@@ -906,7 +906,7 @@
     },
     "packages/contacts": {
       "name": "@octane-xplat/contacts",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/contacts": "3.0.0",
         "@octane-xplat/platform": "workspace:*",
@@ -932,7 +932,7 @@
     },
     "packages/context-menu": {
       "name": "@octane-xplat/context-menu",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/jetpack-compose": "1.0.0-beta.0",
         "@nativescript/swift-ui": "4.0.2",
@@ -963,7 +963,7 @@
     },
     "packages/create": {
       "name": "create-octane-xplat",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "create-octane-xplat": "./dist/index.js",
       },
@@ -980,7 +980,7 @@
     },
     "packages/crypto": {
       "name": "@octane-xplat/crypto",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -1004,7 +1004,7 @@
     },
     "packages/css-engine": {
       "name": "@octane-xplat/css-engine",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@csstools/css-calc": "3.4.3",
         "css-tree": "3.2.1",
@@ -1017,7 +1017,7 @@
     },
     "packages/date-picker": {
       "name": "@octane-xplat/date-picker",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/jetpack-compose": "1.0.0-beta.0",
         "@nativescript/swift-ui": "4.0.2",
@@ -1099,7 +1099,7 @@
     },
     "packages/desktop-webview": {
       "name": "@octane-xplat/desktop-webview",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/macos-node-api": "catalog:",
         "@octane-xplat/platform": "workspace:*",
@@ -1107,7 +1107,7 @@
     },
     "packages/devtools": {
       "name": "@octane-xplat/devtools",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
@@ -1130,7 +1130,7 @@
     },
     "packages/dnd-kit": {
       "name": "@octane-xplat/dnd-kit",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@dnd-kit/abstract": "0.5.3",
         "@dnd-kit/collision": "0.5.3",
@@ -1165,7 +1165,7 @@
     },
     "packages/docs-search": {
       "name": "@octane-xplat/docs-search",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@huggingface/tokenizers": "0.2.0",
         "onnxruntime-web": "1.31.1",
@@ -1178,7 +1178,7 @@
     },
     "packages/effects": {
       "name": "@octane-xplat/effects",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/swift-ui": "4.0.2",
         "@octane-xplat/jsx": "workspace:*",
@@ -1206,7 +1206,7 @@
     },
     "packages/files": {
       "name": "@octane-xplat/files",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/ui-document-picker": "1.1.29",
         "@octane-xplat/jsx": "workspace:*",
@@ -1243,7 +1243,7 @@
     },
     "packages/fingerprint": {
       "name": "@octane-xplat/fingerprint",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat-fingerprint": "./dist/cli.js",
       },
@@ -1261,7 +1261,7 @@
     },
     "packages/firebase-analytics": {
       "name": "@octane-xplat/firebase-analytics",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/firebase-analytics": "5.0.2",
         "@nativescript/firebase-core": "5.0.2",
@@ -1291,7 +1291,7 @@
     },
     "packages/firebase-crashlytics": {
       "name": "@octane-xplat/firebase-crashlytics",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/firebase-core": "5.0.2",
         "@nativescript/firebase-crashlytics": "5.0.2",
@@ -1318,7 +1318,7 @@
     },
     "packages/form": {
       "name": "@octane-xplat/form",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@tanstack/form-core": "1.33.5",
@@ -1343,7 +1343,7 @@
     },
     "packages/geofencing": {
       "name": "@octane-xplat/geofencing",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -1368,7 +1368,7 @@
     },
     "packages/geolocation": {
       "name": "@octane-xplat/geolocation",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/geolocation": "9.0.0",
         "@octane-xplat/lib": "workspace:*",
@@ -1395,7 +1395,7 @@
     },
     "packages/gif": {
       "name": "@octane-xplat/gif",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/ui-image": "5.0.18",
         "@octane-xplat/jsx": "workspace:*",
@@ -1424,7 +1424,7 @@
     },
     "packages/global-shortcuts": {
       "name": "@octane-xplat/global-shortcuts",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -1446,7 +1446,7 @@
     },
     "packages/haptics": {
       "name": "@octane-xplat/haptics",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -1475,7 +1475,7 @@
     },
     "packages/icons": {
       "name": "@octane-xplat/icons",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@iconify/types": "2.0.0",
         "@iconify/utils": "3.1.7",
@@ -1508,7 +1508,7 @@
     },
     "packages/image": {
       "name": "@octane-xplat/image",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/ui-image": "5.0.18",
         "@octane-xplat/jsx": "workspace:*",
@@ -1538,7 +1538,7 @@
     },
     "packages/image-crop": {
       "name": "@octane-xplat/image-crop",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
@@ -1570,7 +1570,7 @@
     },
     "packages/image-manipulator": {
       "name": "@octane-xplat/image-manipulator",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@jsquash/webp": "1.5.0",
         "@octane-xplat/lib": "workspace:*",
@@ -1600,7 +1600,7 @@
     },
     "packages/intersection-observer": {
       "name": "@octane-xplat/intersection-observer",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
       },
@@ -1628,7 +1628,7 @@
     },
     "packages/jsx": {
       "name": "@octane-xplat/jsx",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
@@ -1646,7 +1646,7 @@
     },
     "packages/keyboard": {
       "name": "@octane-xplat/keyboard",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -1675,7 +1675,7 @@
     },
     "packages/lexical": {
       "name": "@octane-xplat/lexical",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@lexical/code": "0.53.0",
         "@lexical/extension": "0.53.0",
@@ -1716,7 +1716,7 @@
     },
     "packages/lib": {
       "name": "@octane-xplat/lib",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@tsrx/content-mapper": "catalog:",
         "typescript": "catalog:",
@@ -1763,7 +1763,7 @@
     },
     "packages/lingui": {
       "name": "@octane-xplat/lingui",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@formatjs/intl-collator": "0.3.0",
         "@formatjs/intl-datetimeformat": "7.9.0",
@@ -1803,7 +1803,7 @@
     },
     "packages/lint": {
       "name": "@octane-xplat/lint",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat-lint": "./bin/lint.mjs",
       },
@@ -1822,7 +1822,7 @@
     },
     "packages/linux-gtk-renderer": {
       "name": "@octane-xplat/linux-gtk",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
@@ -1843,7 +1843,7 @@
     },
     "packages/lottie": {
       "name": "@octane-xplat/lottie",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "lottie-web": "5.13.0",
@@ -1872,7 +1872,7 @@
     },
     "packages/macos-appkit": {
       "name": "@octane-xplat/macos-appkit",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/macos-node-api": "catalog:",
         "@nativescript/objc-node-api": "1.0.0-alpha.7",
@@ -1895,7 +1895,7 @@
     },
     "packages/macos-build": {
       "name": "@octane-xplat/macos-build",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
         "@types/node": "24.10.1",
@@ -1908,7 +1908,7 @@
     },
     "packages/maps": {
       "name": "@octane-xplat/maps",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@googlemaps/js-api-loader": "2.1.3",
         "@nativescript/google-maps": "1.8.0",
@@ -1936,7 +1936,7 @@
     },
     "packages/mcp": {
       "name": "@octane-xplat/mcp",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat-mcp": "./dist/xplat-mcp.js",
       },
@@ -1955,7 +1955,7 @@
     },
     "packages/media": {
       "name": "@octane-xplat/media",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/camera": "7.0.0",
         "@nativescript/imagepicker": "5.0.0",
@@ -1986,7 +1986,7 @@
     },
     "packages/media-converter": {
       "name": "@octane-xplat/media-converter",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "gifuct-js": "2.1.2",
@@ -2011,7 +2011,7 @@
     },
     "packages/media-library": {
       "name": "@octane-xplat/media-library",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -2057,7 +2057,7 @@
     },
     "packages/motion": {
       "name": "@octane-xplat/motion",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@formatjs/intl-getcanonicallocales": "3.3.0",
         "@formatjs/intl-locale": "5.4.1",
@@ -2095,7 +2095,7 @@
     },
     "packages/nano-icons": {
       "name": "@octane-xplat/nano-icons",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "nano-icons": "./bin/nano-icons.mjs",
       },
@@ -2137,7 +2137,7 @@
     },
     "packages/network": {
       "name": "@octane-xplat/network",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@kayahr/text-encoding": "2.2.0",
         "@octane-xplat/platform": "workspace:*",
@@ -2170,7 +2170,7 @@
     },
     "packages/notifications": {
       "name": "@octane-xplat/notifications",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/local-notifications": "7.0.0",
         "@octane-xplat/lib": "workspace:*",
@@ -2196,7 +2196,7 @@
     },
     "packages/pager": {
       "name": "@octane-xplat/pager",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/ui-pager": "14.1.42",
         "@octane-xplat/jsx": "workspace:*",
@@ -2228,11 +2228,11 @@
     },
     "packages/patches": {
       "name": "@octane-xplat/patches",
-      "version": "0.20.0",
+      "version": "0.21.0",
     },
     "packages/picker": {
       "name": "@octane-xplat/picker",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/jetpack-compose": "1.0.0-beta.0",
         "@nativescript/swift-ui": "4.0.2",
@@ -2264,7 +2264,7 @@
     },
     "packages/platform": {
       "name": "@octane-xplat/platform",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/lib": "workspace:*",
@@ -2308,7 +2308,7 @@
     },
     "packages/posthog": {
       "name": "@octane-xplat/posthog",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
         "posthog-js": "1.441.2",
@@ -2335,7 +2335,7 @@
     },
     "packages/print": {
       "name": "@octane-xplat/print",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2357,7 +2357,7 @@
     },
     "packages/push": {
       "name": "@octane-xplat/push",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/firebase-core": "5.0.2",
         "@nativescript/firebase-messaging": "5.0.2",
@@ -2385,7 +2385,7 @@
     },
     "packages/recorder": {
       "name": "@octane-xplat/recorder",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -2414,7 +2414,7 @@
     },
     "packages/richtext": {
       "name": "@octane-xplat/richtext",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -2446,7 +2446,7 @@
     },
     "packages/rolling-text": {
       "name": "@octane-xplat/rolling-text",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@formatjs/intl-getcanonicallocales": "3.3.0",
         "@formatjs/intl-locale": "5.4.1",
@@ -2483,7 +2483,7 @@
     },
     "packages/screen-orientation": {
       "name": "@octane-xplat/screen-orientation",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2506,7 +2506,7 @@
     },
     "packages/secure-storage": {
       "name": "@octane-xplat/secure-storage",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/secure-storage": "4.0.2",
         "@octane-xplat/lib": "workspace:*",
@@ -2534,7 +2534,7 @@
     },
     "packages/sentry": {
       "name": "@octane-xplat/sentry",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/sentry": "4.6.49",
         "@octane-xplat/lib": "workspace:*",
@@ -2570,7 +2570,7 @@
     },
     "packages/shaders": {
       "name": "@octane-xplat/shaders",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/canvas": "workspace:*",
         "shaders": "4.0.6",
@@ -2594,7 +2594,7 @@
     },
     "packages/share": {
       "name": "@octane-xplat/share",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/social-share": "2.3.0",
         "@octane-xplat/platform": "workspace:*",
@@ -2623,7 +2623,7 @@
     },
     "packages/sheet": {
       "name": "@octane-xplat/sheet",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/jetpack-compose": "1.0.0-beta.0",
         "@nativescript/swift-ui": "4.0.2",
@@ -2654,7 +2654,7 @@
     },
     "packages/shortcuts": {
       "name": "@octane-xplat/shortcuts",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@casbin/expression-eval": "5.3.0",
       },
@@ -2678,7 +2678,7 @@
     },
     "packages/smooth-corners": {
       "name": "@octane-xplat/smooth-corners",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@lisse/core": "0.7.3",
         "@octane-xplat/jsx": "workspace:*",
@@ -2708,7 +2708,7 @@
     },
     "packages/sounds": {
       "name": "@octane-xplat/sounds",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript/audio-context": "1.3.3",
       },
@@ -2736,7 +2736,7 @@
     },
     "packages/speech-recognition": {
       "name": "@octane-xplat/speech-recognition",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2752,7 +2752,7 @@
     },
     "packages/splash-screen": {
       "name": "@octane-xplat/splash-screen",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2773,7 +2773,7 @@
     },
     "packages/sqlite": {
       "name": "@octane-xplat/sqlite",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nativescript-community/sqlite": "4.1.1",
         "@octane-xplat/lib": "workspace:*",
@@ -2795,7 +2795,7 @@
     },
     "packages/store-review": {
       "name": "@octane-xplat/store-review",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
@@ -2817,7 +2817,7 @@
     },
     "packages/stripe": {
       "name": "@octane-xplat/stripe",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@stripe/stripe-js": "10.2.1",
@@ -2847,7 +2847,7 @@
     },
     "packages/table": {
       "name": "@octane-xplat/table",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -2904,7 +2904,7 @@
     },
     "packages/tiptap": {
       "name": "@octane-xplat/tiptap",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/richtext": "workspace:*",
@@ -2939,7 +2939,7 @@
     },
     "packages/toolchain": {
       "name": "octane-xplat",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "bin": {
         "xplat": "./bin/xplat.exe",
       },
@@ -2957,7 +2957,7 @@
     },
     "packages/tracking-transparency": {
       "name": "@octane-xplat/tracking-transparency",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
       },
@@ -2984,7 +2984,7 @@
     },
     "packages/tray": {
       "name": "@octane-xplat/tray",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -3015,7 +3015,7 @@
     },
     "packages/tweaks": {
       "name": "@octane-xplat/tweaks",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/devtools": "workspace:*",
         "@octane-xplat/icons": "workspace:*",
@@ -3057,7 +3057,7 @@
     },
     "packages/ui": {
       "name": "@octane-xplat/ui",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/camera": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
@@ -3091,7 +3091,7 @@
     },
     "packages/updates": {
       "name": "@octane-xplat/updates",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@noble/hashes": "2.4.0",
         "@octane-xplat/platform": "workspace:*",
@@ -3116,7 +3116,7 @@
     },
     "packages/video": {
       "name": "@octane-xplat/video",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@nstudio/nativescript-exoplayer": "6.2.0",
         "@octane-xplat/jsx": "workspace:*",
@@ -3147,7 +3147,7 @@
     },
     "packages/view-shot": {
       "name": "@octane-xplat/view-shot",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
@@ -3176,7 +3176,7 @@
     },
     "packages/web-browser": {
       "name": "@octane-xplat/web-browser",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/platform": "workspace:*",
       },
@@ -3202,7 +3202,7 @@
     },
     "packages/web-host": {
       "name": "@octane-xplat/web-host",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/build": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
@@ -3229,7 +3229,7 @@
     },
     "packages/workshop": {
       "name": "@octane-xplat/workshop",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "dependencies": {
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",

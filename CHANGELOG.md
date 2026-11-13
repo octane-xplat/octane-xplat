@@ -12,6 +12,253 @@ in the [fixlog](FIXLOG.md).
 Earlier releases retain their original combined notes; older independent
 releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [Octane Xplat 0.21.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.21.0) - 2026-11-13
+
+### Edit running-app values and styles from devtools
+
+Mark a literal editable with `useTweak` from `octane-xplat/tweaks`, run the app under `xplat dev`, and change it live from the new native devtools window. On macOS, `xplat devtools` finds running dev servers and opens your app automatically. Separate Tweaks and Styles tabs edit values and style objects; each saves and reverts only its own changes, including edits to components no longer on screen. Styles includes element picking and property filtering. Production bundles keep only the source literal.
+
+```tsx
+import { View } from '@octane-xplat/ui'
+import { useTweak } from 'octane-xplat/tweaks'
+
+export function Card() {
+  const radius = useTweak(8, { input: { type: 'number', min: 0, max: 40 } })
+
+  return <View style={{ borderRadius: radius }} />
+}
+```
+
+Packages can add their own devtools tabs with the new panel plugin API: define a panel with `defineDevtoolsPanel` and point `octaneXplat.devtoolsPanel` at its exported module, or list several modules to add several tabs:
+
+```json
+{
+  "octaneXplat": {
+    "devtoolsPanel": ["./devtools", "./devtools/styles"]
+  }
+}
+```
+
+See [tweaks](https://octane-xplat.goddardai.org/package-tweaks) and [devtools](https://octane-xplat.goddardai.org/package-devtools).
+
+### Run a macOS app with `runMacOSApp`
+
+`@octane-xplat/macos-appkit/host` ships the AppKit application host as a public API: `runMacOSApp` creates the main window, mounts your universal root, presents it, and runs the event loop — no harness code to copy into your app.
+
+```ts
+import { runMacOSApp } from '@octane-xplat/macos-appkit/host'
+
+runMacOSApp({ title: 'Notes' }, ({ root, window }) => {
+  root.render(App, { parentWindow: window })
+  return () => console.log('app is closing')
+})
+```
+
+Importing `host` also installs the platform services `@octane-xplat/platform` reads on macOS (clipboard, storage, `openUrl`, app state, window size, `announce`, deep links) and the window service behind `openWindow` from `@octane-xplat/ui`; `setWindowContentResolver` maps each window request to the component to mount. `createAppKitWindow` and `createHostedWindow` cover hosts that manage their own lifecycle or mount non-Octane native views. See [Render Octane components in AppKit](https://octane-xplat.goddardai.org/package-macos-appkit#start-an-app).
+
+### Follow the display refresh rate in native macOS animations
+
+Native macOS Motion, imperative UI animations and CSS keyframes now share display-synchronized scheduling instead of 16 ms timers. The scheduler stops when idle and uses monotonic time so system clock changes do not affect animation progress. macOS 13.5 remains supported. Rebuild the native host after upgrading; see [animation guidance](https://octane-xplat.goddardai.org/app/animation-gestures).
+
+### Set up iOS haptics automatically
+
+Installing `@octane-xplat/haptics` now lets NativeScript prepare its patched Swift dependency and include its native bridge automatically. The first iOS preparation still needs Git and network access; later preparations reuse validated source.
+
+```sh
+bun add @octane-xplat/haptics
+bun run xplat build --targets ios
+```
+
+The `xplat-prepare-haptics-ios` command has been removed. Existing apps must remove their manual `Pulsar` entry from `ios.SPMPackages` and `XplatPulsarBridge` entry from `ios.NativeSource` before rebuilding.
+
+See [iOS haptics setup](https://octane-xplat.goddardai.org/package-haptics#set-up-ios).
+
+### Button effects and asynchronous press actions
+
+Use `onPress` for immediate changes such as opening a panel or updating local state. Use the renamed `pressAction` for Promise-returning work; Button manages its loading state and reports failures through `onActionError`. `IconButton` follows the same contract. `clickAction` is removed without an alias.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function EditorActions(props: { close(): void; save(): Promise<void> }) {
+  return <>
+    <Button label="Close" onPress={props.close} />
+    <Button label="Save" pressAction={props.save} />
+  </>
+}
+```
+
+When both callbacks are supplied, `onPress` runs first. Its event's `preventDefault()` skips navigation and the asynchronous action. Disabled or blocked buttons run neither callback. Toggle buttons keep `onPressedChange` for immediate changes and require a Promise from `pressedChangeAction` for managed saves. See [button effects and actions](https://octane-xplat.goddardai.org/interactive-actions#button-states-and-actions).
+
+### Import curated utility classes explicitly
+
+Curated helper classes now live in their own optional stylesheet. Apps using classes such as `gap-4`, `text-sm`, `bg-primary`, or `rounded-lg` must add the utility import. The required component structure and optional default decoration remain separate, and components work without the curated helpers.
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css' // Optional default decoration.
+import '@octane-xplat/ui/theme/utilities.css' // Curated helper classes.
+import './app.css'
+```
+
+Curated helpers keep their existing text sizes and squircle corners. Their `utilities` layer follows component structure and decoration; unlayered app CSS takes priority on the web. See [Styling screens](https://octane-xplat.goddardai.org/app/styling).
+
+### Share mouse drags with native desktop buttons
+
+Experimental GTK and Windows mouse adapters now feed the same gesture owner as AppKit and mobile. Use the existing pan hooks and composition for desktop surfaces; managed sliders and resize handles use the same ownership rules. The initial desktop subset supports one mouse contact. Touch, pen, trackpad magnification, and full input/scroll suspension remain unavailable. Windows requires the pinned beta.24 runtime and a native rebuild after upgrading UI.
+
+```tsx
+import { Button, View, usePanGesture$ } from '@octane-xplat/ui'
+
+export function Panel() {
+  const drag = usePanGesture$({ axis: 'x', onEnd: (sample) => console.log(sample.translation.x) })
+  return (
+    <View gestures={drag}>
+      <Button onPress={() => console.log('Open')}>Open</Button>
+    </View>
+  )
+}
+```
+
+See the [gesture guide](https://octane-xplat.goddardai.org/gestures) for coordinate and cancellation contracts. Native desktop qualification remains bounded to the tested runtime and scenario; a transport test does not establish packed app, Motion, Mason or screen-reader coverage.
+
+### Drag mobile drawers without activating nested buttons
+
+Mobile Drawer now uses the shared gesture owner for edge opening and drag dismissal. A claimed drag cancels its nested button press, extra fingers cancel the drag until all contacts lift, and new commands or drags can interrupt settling at the current position. Web and desktop keep their explicit controls.
+
+**Breaking change:** the native host is now composed from framework views. Remove ui-drawer-specific settings from `ios` and `android`, such as `gestureHandlerOptions`, `shouldPan`, `translationFunction` and `animationFunction`. Import Drawer and DrawerProps from `@octane-xplat/ui` and remove `@octane-xplat/drawer` from dependencies. Keep the same content and state callbacks. Drawer no longer installs ui-drawer or gesturehandler; other features may still need their own dependencies.
+
+```tsx
+import { Drawer } from '@octane-xplat/ui'
+
+<Drawer open={open} onOpenChange={setOpen} width={280}
+  main={mainContent} drawer={navigationContent} />
+```
+
+Keep visible open/close buttons for people who do not drag. See the [Drawer guide](https://octane-xplat.goddardai.org/drawer) for setup and native qualification limits.
+
+### Shared gesture ownership, pinch, and input suspension
+
+Draggable surfaces and nested buttons now share one input owner. Add a stable gesture handle to a View; ordinary callback updates keep the active contact. Gesture hooks expose read-only state signals, explicit positions, translation, nullable velocity, and separate successful release and cancellation.
+
+```tsx
+import { Button, View, usePanGesture$ } from '@octane-xplat/ui'
+
+export function Panel() {
+  const drag = usePanGesture$({ axis: 'x', onEnd: (sample) => console.log(sample.translation) })
+  return (
+    <View gestures={drag}>
+      <Button onPress={() => {}}>Open</Button>
+    </View>
+  )
+}
+```
+
+Compose pan and pinch with `compete`, `simultaneous`, or `prioritize`. Use `useInteractionScope$` for capability-gated, reference-counted suspension without changing overflow. Web, iOS, and Android have shared gesture adapters; experimental macOS, native GTK, and pinned Windows hosts provide a one-mouse-contact subset. Desktop pinch and magnification remain unavailable. Full scroll/input suspension currently supports bounded UIKit/Mason subtrees on iOS; web supports input-only inert subtrees. Other suspension requests return a failure result.
+
+This breaks the previous event contract: `onPan`/`onPinch` now send `start`/`update` samples and `finish` terminal outcomes. Remove `state`, `dx/dy`, `vx/vy`, translation `x/y` aliases, and `onSwipe`; derive swipe actions from successful pans. `onPress` now includes activation source and an optional pointer sample. Motion uses the shared owner and no longer requires its gesturehandler peer or installation step. See [gestures and migration](https://octane-xplat.goddardai.org/gestures) and [Motion](https://octane-xplat.goddardai.org/animation-gestures).
+
+### Pause iOS scroll input during ancestor drags
+
+Pause iOS user scrolling while an ancestor drag owns the content. `suspendScrollInput` stops scrolling in the mounted Mason subtree, preserves its current position, and restores prior input flags after every lock owner releases. It requires `@octane-xplat/nativescript-mason-core` 1.0.0-beta.8 or later, which publishes the required native setter.
+
+```ts
+import { suspendScrollInput } from '@octane-xplat/ui/ios'
+
+export function beginContentDrag(loadedContentHost: object) {
+  return suspendScrollInput(loadedContentHost)
+}
+```
+
+See [iOS scroll input suspension](https://octane-xplat.goddardai.org/app/primitives#pause-ios-user-scrolling-during-an-ancestor-drag) for native prerequisites and cleanup.
+
+### Run the installed CLI directly
+
+The `xplat` command supplied by `octane-xplat` now starts the native Go executable directly, without a Node launcher. Allow install scripts for both `octane-xplat` and `@octane-xplat/cli`; new starters and framework upgrades include these permissions.
+
+```json
+{ "trustedDependencies": ["octane-xplat", "@octane-xplat/cli"] }
+```
+
+[CLI installation and repair](https://octane-xplat.goddardai.org/packages/cli#native-executable)
+
+### Compose measurements and responsive layout with signals
+
+**Breaking change:** `useMeasure`, `useMediaQuery`, and `useWindowSize` become `useMeasure$`, `useMediaQuery$`, and `useWindowSize$`. Measurement results expose `bounds$` instead of `bounds`; window size, media queries, and `useBreakpoints$` return read-only signal handles. Read `.get()` for the current value or keep the handle for a derived calculation. The hook's component owns its subscriptions and releases them on unmount.
+
+```tsx
+import { derived$ } from 'octane/signals'
+import { Text, View, useMeasure$, useMediaQuery$ } from '@octane-xplat/ui'
+
+export function Card() {
+  const { ref, bounds$ } = useMeasure$()
+  const wide$ = useMediaQuery$('(min-width: 800px)')
+  const width$ = derived$(() => bounds$.get()?.width ?? 0)
+
+  return <View ref={ref}><Text>{`${width$.get()}: ${wide$.get() ? 'Wide' : 'Compact'}`}</Text></View>
+}
+```
+
+Breakpoints now use the same dimensions as `useWindowSize$`, including native host resize events inside desktop webviews. Mobile dimensions remain main-screen measurements, rather than app-window measurements. See [measuring elements](https://octane-xplat.goddardai.org/primitives) and [platform services](https://octane-xplat.goddardai.org/platform-services).
+
+### Observe screen readiness in every build
+
+Use `ReadinessScope`, `useReadinessTask` and `useReadiness$` to share screen-owned loading and failure state through context. Shared queries register automatically in production and development. Refreshes with usable data keep ordinary UI ready; dev actions wait for background work too and reject failures promptly.
+
+```tsx
+import { ReadinessScope } from '@octane-xplat/platform/readiness'
+import { Checkout } from './Checkout'
+
+export function CheckoutScreen() {
+  return <ReadinessScope label="Checkout"><Checkout /></ReadinessScope>
+}
+```
+
+Use `/readiness/controller` for owned services. Snapshot pending/failure entries contain `{ label, blocking }`; raw errors are omitted. Readiness covers registered work and does not certify native frame presentation. See [readiness](https://octane-xplat.goddardai.org/app/readiness) and [development actions](https://octane-xplat.goddardai.org/testing/development-actions).
+
+### Keep shared pages within their available space
+
+**Breaking change:** `SafeArea` now uses block layout on every platform, matching its original web behavior. Children are no longer implicitly flex items. `SafeArea` and `ScrollableArea` can shrink inside a bounded flex parent, and scroll viewports default to a maximum height of 100% of their containing block, so ordinary vertical pages wrap paragraphs and control rows within their available width and keep tall content scrollable.
+
+Explicit content widths and inline/both-axis scrolling remain available. Layouts that relied on native SafeArea's implicit row should use an `HStack` for that row. Use an explicit `display: flex` class or style when SafeArea's children need flex alignment or remaining-height distribution; authored `display`, `flexShrink`, and `maxHeight` styles can override the defaults.
+
+```tsx
+import { SafeArea, ScrollableArea, VStack, Text } from '@octane-xplat/ui'
+
+export function Notes() {
+  return <VStack height={480}><SafeArea><ScrollableArea>
+    <VStack padding={6}><Text>Long notes wrap within this page.</Text></VStack>
+  </ScrollableArea></SafeArea></VStack>
+}
+```
+
+See [shared page layout](https://octane-xplat.goddardai.org/primitives#safe-area-edges).
+
+### Shorter names for Vite plugins
+
+Vite plugins and platform presets now have shorter exports: `bamboo()`, `icons()`, `workshop()`, `css()`, `boundary()`, `tsrx()`, `devBridge()`, `native()`, `macos()` and `linuxGtk()`. Existing `xplat`-prefixed exports remain available as compatibility aliases. Package import paths and plugin behavior are unchanged.
+
+For example, web configurations can use these factories alongside their existing renderer plugins:
+
+```ts
+import { css, boundary } from '@octane-xplat/build/vite'
+
+const platformPlugins = [css('web'), boundary('web')]
+```
+
+See [build plugin setup](https://octane-xplat.goddardai.org/package-build) for configuration examples.
+
+### Installable GTK apps and persistent settings on Linux
+
+The GTK runtime now packages a real per-user install: `xplat build --targets linux` emits a `.desktop` entry, `install.sh`, and `uninstall.sh` alongside the `gjs -m` bundle — the same install surface the WebKitGTK runtime already had. `install.sh` copies the app into `~/.local/share/<applicationId>` (replacing a previous install cleanly) and registers the desktop entry; `uninstall.sh` removes only the install and entry, leaving `~/.config/<applicationId>` user settings untouched.
+
+```sh
+./my-app/install.sh     # per-user install + desktop entry
+./my-app/uninstall.sh   # removes the install; keeps ~/.config/<applicationId>
+```
+
+`@octane-xplat/platform` `storage` and the UI query-storage seam now persist across launches on GTK: `ApplicationSettings` writes through a `GLib.KeyFile` at `~/.config/<applicationId>/settings.ini` instead of losing state on exit. `@octane-xplat/linux-gtk/host` exports `setWindowContentResolver` for `openWindow` content, and `runGtkApp`'s `mount` may return a cleanup the host runs once on application shutdown.
+
 ## [tsrx-typegen 0.6.1](https://github.com/octane-xplat/octane-xplat/releases/tag/tsrx-typegen-v0.6.1) - 2026-11-07
 
 ### `tsrx-typegen` emits with native TypeScript 7.1

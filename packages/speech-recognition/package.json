@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/speech-recognition",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Speech-to-text dictation sessions for Octane xplat",
 	"keywords": [
 		"android",

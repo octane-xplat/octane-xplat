@@ -6,6 +6,262 @@ in the [changelog](CHANGELOG.md).
 Earlier fixes remain in the original [combined changelog](CHANGELOG.md) and
 [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [Octane Xplat 0.21.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.21.0) - 2026-11-13
+
+### Restore authored overflow control on SmoothCorners
+
+`overflow: hidden` applied to `SmoothCorners` through a Bamboo-generated or
+otherwise layered class now clips children to the curve as documented. A
+framework stylesheet declared `overflow: visible` without a cascade layer, so
+it outranked every layered authored rule on web and macOS and won by
+stylesheet registration order on iOS and Android. The default now relies on
+each platform's initial visible overflow, so authored classes — layered or
+plain — always decide the clip. No app change is needed; remove any
+specificity or `!important` workaround added for this issue.
+
+See [clip an image or other content](https://octane-xplat.goddardai.org/package-smooth-corners#clip-an-image-or-other-content).
+
+### Keep Android motion in the right place
+
+Android Motion tweens now travel the requested distance on high-density screens and keep their current position when stopped or replaced. Translation samples and velocities use logical DIPs, including when a tween hands off to a spring. Pass the same values on every screen density:
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View animate={{ x: 100 }} transition={{ duration: 0.3 }} />
+```
+
+See [animation and gestures](https://octane-xplat.goddardai.org/app/animation-gestures).
+
+### Keep Android drags from firing a Pressable release
+
+Keep Android drags from also activating a moving Pressable on release. A sheet can now follow a finger and return after a small drag without firing its header's press action. Ordinary taps and tiny finger movements still work. See the [gesture guide](https://octane-xplat.goddardai.org/app/animation-gestures).
+
+### Release the camera after refused focus updates
+
+On iOS, a refused focus or exposure update now releases the camera configuration lock. Tap-to-focus failures remain nonfatal and no longer leave an acquired lock held.
+
+[Tap-to-focus](https://octane-xplat.goddardai.org/package-camera#tap-to-focus)
+
+### Keep combined scales steady when interrupted
+
+Stopping or replacing a Motion tween that combines uniform and per-axis scale now keeps its current size. These tweens use JavaScript updates on web and native so their separate factors remain available; ordinary eligible tweens still use the platform animator.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View animate={{ scale: 2, scaleX: 2 }} transition={{ duration: 1 }} />
+```
+
+See [animation and gestures](https://octane-xplat.goddardai.org/app/animation-gestures).
+
+### Calculated desktop styles reach the renderer
+
+AppKit and GTK now use resolved `calc()` values from stylesheet rules, including CSS variables and padding shorthands. Previously, the cascade could keep the original expression after evaluating it, so calculated dimensions did not reach the renderer as resolved values.
+
+```css
+.summary {
+  --unit: 4px;
+  width: calc(var(--unit) * 8);
+  padding: calc(var(--unit) * 2);
+}
+```
+
+See [Styling screens](https://octane-xplat.goddardai.org/app/styling).
+
+### Preserve CSS variable fallbacks on desktop
+
+Desktop styles now keep complete color and calculation fallbacks. A CSS variable set to `initial` uses its fallback, and a missing variable no longer turns a calculation into an unintended zero size.
+
+```css
+.trip-card {
+  --inset: initial;
+  padding: var(--inset, 8px);
+  color: var(--ink, rgb(17, 34, 51));
+}
+```
+
+See the [desktop CSS engine guide](https://octane-xplat.goddardai.org/package-css-engine).
+
+### Stop development actions without a late announcement error
+
+Stopping a development-action bridge immediately after changing a handler no longer causes a queued registry announcement to fail during cleanup. Queued announcements also stay bound to their original bridge, so they cannot use a replacement connection. Late HTTP responses leave a stopped bridge stopped and do not deliver more work.
+
+See [development actions](https://octane-xplat.goddardai.org/testing/development-actions).
+
+### Use the keyboard and the app menu in Linux GTK apps
+
+On the GTK runtime, pressing Tab skipped buttons and other interactive views, so a form could not be submitted from the keyboard. Tab now stops on them in document order, and Space or Return activates the focused one. The menu installed with `appMenu` now appears in the window's menubar; before, only its keyboard shortcuts worked. `useFocusWithin` no longer crashes with a stack overflow on GTK.
+
+```tsx
+<Button clickAction={save}>Save</Button> // reachable with Tab, activated with Space or Return
+```
+
+### Keep hidden Text hidden after iOS layout
+
+On iOS, `Text` with `visibility: 'hidden'` now keeps its layout space and its native drawing state suppressed after layout and text updates.
+
+```tsx
+<Text style={{ visibility: showFeedback ? 'visible' : 'hidden' }}>+10s</Text>
+```
+
+See [styling](https://octane-xplat.goddardai.org/app/styling).
+
+### Start large iOS apps with live updates on a cold dev server
+
+On a fresh dev server, large iOS apps could stall at startup while the server prepared big dependency files, and the app gave up after repeated request timeouts. The managed `@nativescript/vite` patch now reads imports with Vite's faster parser, so the first launch finishes. Some requests can still be retried while the server warms up.
+
+```sh
+bun run xplat dev ios
+```
+
+[CLI guide](https://octane-xplat.goddardai.org/package-cli)
+
+### Keep iOS sheet content when reopening
+
+Closing and reopening the same `SwiftUIBottomSheet` now keeps its content visible and interactive. The sheet also releases its cached native content when its owner is removed. See [iOS sheets](https://octane-xplat.goddardai.org/package-sheet).
+
+### Share native runtime registries when linking a framework checkout
+
+Native builds now resolve Octane and its NativeScript renderer from the app installation. On-device tests also share the app's test-host registry, so linked `mountXplat` helpers can find the host without an extra dedupe setting. See [on-device testing](https://octane-xplat.goddardai.org/testing/testing).
+
+### Report element bounds only after a usable layout
+
+`useMeasure$` now keeps `bounds$` at `null` until the attached host completes its first layout, instead of publishing a pre-layout `0×0` — `null` is the "not laid out yet" readiness signal. An element that genuinely measures to zero still reports `0×0` once laid out, so work that needs room should check `bounds.width > 0 && bounds.height > 0`, not just non-null. With `observe: false`, the hook keeps listening until the first usable read lands, then releases its listeners.
+
+```tsx
+import 'octane/signals'
+import { useEffect } from 'octane'
+import { View, useMeasure$ } from '@octane-xplat/ui'
+
+export function AnimatedSurface() {
+  const { ref, bounds$ } = useMeasure$()
+
+  useEffect(() => {
+    const bounds = bounds$.get()
+    if (bounds && bounds.width > 0 && bounds.height > 0) {
+      console.log('Ready at', bounds.width, 'x', bounds.height)
+    }
+  })
+
+  return <View ref={ref} />
+}
+```
+
+See [measuring elements](https://octane-xplat.goddardai.org/primitives).
+
+### Show mobile video posters with hidden controls
+
+On iOS and Android, `Video` now shows its poster when controls are hidden and restores it when switching clips, until playback starts.
+
+```tsx
+<Video src={clip.uri} poster={clip.thumbnail} controls={false} autoPlay />
+```
+
+See [video playback](https://octane-xplat.goddardai.org/package-video).
+
+### Drag without opening nested actions
+
+Web Motion drags now block the pointer click generated on release after crossing the drag threshold. Ordinary taps, nested buttons, keyboard activation, and the next interaction remain available.
+
+See [dragging a component](https://octane-xplat.goddardai.org/app/animation-gestures#drag-a-component).
+
+### Return overlapping gestures to the current base
+
+Motion press and focus feedback now compose per property. Press takes priority on shared properties; releasing either gesture keeps the other active. Releasing both returns to the latest base target, and changing one gesture no longer stops unrelated properties. Gesture-enabled hosts use per-frame JavaScript playback on web and native.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.Pressable animate={{ scale: 1 }} whileFocus={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} />
+```
+
+See [animation and gestures](https://octane-xplat.goddardai.org/app/animation-gestures#combine-press-and-focus-feedback).
+
+### Cancel pending layout animation work during a frame
+
+Motion now honors cancellation of a queued layout animation callback when an earlier callback cancels it during the same frame. Cancelled work no longer runs from a copied delivery batch. Animation timing and public APIs are unchanged.
+
+### Stop animation playback from lifecycle callbacks
+
+Motion values now honor stop, destruction and replacement from animation listeners. Cancelled runs release scheduled frames, including infinite repeats, and cannot complete or overwrite a replacement. See [value lifecycle](https://octane-xplat.goddardai.org/app/animation-gestures#bind-values-and-gestures).
+
+```tsx
+const unsubscribe = x.on('animationStart', () => x.stop())
+const job = x.animate(80, { duration: 0.2 })
+void job.finished.then((result) => console.log(result)) // cancelled
+unsubscribe()
+```
+
+### Honor spring duration and bounce
+
+Motion springs now honor duration and bounce when no physical spring inputs are set. Duration means full completion time in seconds. Any explicit stiffness, damping, or mass takes precedence; use those inputs when a gesture release should preserve velocity. See [animation and gestures](https://octane-xplat.goddardai.org/app/animation-gestures).
+
+```tsx
+<motion.View animate={{ x: 100 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.3 }} />
+```
+
+### Native CSS keeps class names and quoted text intact
+
+Native builds now convert pixel lengths only in declaration values. Class names, quoted text, URLs, and directive arguments keep their original spelling, including class names such as `w-[12px]`.
+
+See [Styling screens](https://octane-xplat.goddardai.org/app/styling).
+
+### Keep native pan callbacks stable during state updates
+
+Native `onPan` now keeps the same callback bridge when an inline handler or local state changes. It reads the latest committed callback, and removing the handler still removes its listener.
+
+```tsx
+import { useState } from 'octane'
+import { View } from '@octane-xplat/ui'
+
+export function DragSurface() {
+  const [dragging, setDragging] = useState(false)
+  return <View onPan={event => setDragging(event.state === 'moved')}>
+    {dragging ? 'Dragging' : 'Ready'}
+  </View>
+}
+```
+
+See [gestures](https://octane-xplat.goddardai.org/app/animation-gestures) for pan events and their lifecycle.
+
+### Preserve CSS variable fallbacks on native hosts
+
+Native styles now keep complete color and calculation fallbacks. Missing variables reset the affected style instead of leaving an old value or turning a calculation into zero. Variables can refer to another variable declared later in the same rule.
+
+```css
+.trip-card {
+  --inset: var(--card-space);
+  --card-space: 8px;
+  padding: var(--inset, 12px);
+  color: var(--ink, rgb(17, 34, 51));
+}
+```
+
+See the [styling guide](https://octane-xplat.goddardai.org/styling).
+
+### Recover web pans when pointer capture changes
+
+Web pan gestures now keep the first primary contact instead of restarting when another finger touches the view. Capture loss and teardown cancel the gesture once, so interrupted interactions can recover.
+
+```tsx
+import { View } from '@octane-xplat/ui'
+
+export function DragArea() {
+  return <View onPan={(event) => {
+    if (event.state === 'cancelled') console.log('Return to the resting position')
+  }} />
+}
+```
+
+[Animation and gestures](https://octane-xplat.goddardai.org/app/animation-gestures)
+
+### Handle Windows shortcut startup failures cleanly
+
+Windows global shortcut registration now reports setup failure before starting a worker when Windows returns an invalid pipe handle. The fallback worker-file path also rejects invalid handles before attempting a write.
+
+See [global shortcuts](https://octane-xplat.goddardai.org/packages/package-global-shortcuts).
+
 ## [Octane Xplat 0.20.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.20.0) - 2026-11-07
 
 ### Lay out native fields as one unit
