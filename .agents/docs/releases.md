@@ -75,18 +75,18 @@ The Updates consumer check validates its bootstrap payload and six target
 conditions. Its Node hook is outside the generic checker's paired
 runtime/declaration contract, so fast CI keeps this test explicit.
 
-The patches package has a dedicated `pack:check` in the normal packed-artifact
-gate. It packs without lifecycle hooks, compares every file with the CLI's
-canonical manifest, and checks both starter configurations and generated default
-native references. Release jobs repeat it after aligning versions, before tagging
-or publishing. Its `test:packed` also compares starter-local patch files with the
-tarball and installs the starter's
+The creator has a dedicated `pack:check` in the normal packed-artifact
+gate. It packs `create-octane-xplat`, compares every starter patch file with
+the CLI's canonical manifest, and checks both starter configurations and
+generated default native references. Release jobs repeat it after aligning
+versions, before tagging or publishing. Its `test:packed` also installs the
+starter's
 upstream dependencies plus optional patched packages with scripts disabled. It
 checks locked patch registrations and repeats a frozen install; it does not qualify devices
 or the framework runtime tarballs covered by the full consumer gate.
 
 ```sh
-bun run turbo run pack:check test:packed --filter=@octane-xplat/patches
+bun run turbo run pack:check test:packed --filter=create-octane-xplat
 ```
 
 Checkout manifests retain the previous release number until the release PR

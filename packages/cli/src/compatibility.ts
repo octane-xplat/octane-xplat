@@ -9,7 +9,7 @@ import {
 } from 'node:fs'
 
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { parseDocument } from 'yaml'
+import { isMap, parseDocument } from 'yaml'
 import { packageManagerFor, packageManagerRoot, readProjectWorkspace } from './package-manager.ts'
 import {
   compatibility,
@@ -350,33 +350,22 @@ export function planUpgrade(dir: string): UpgradePlan {
     }
   }
 
-  const wantedSpecs = new Set(wanted.map((patch) => patch.specifier))
-
   for (const [specifier, path] of Object.entries(oldPatches)) {
-    // Only remove entries supplied by the framework config package. Local
-    // user-owned patch files and mappings survive, including obsolete versions.
-    if (String(path).startsWith(patchPrefix) && !wantedSpecs.has(specifier)) {
+    // Entries supplied by the retired @octane-xplat/patches config dependency
+    // are stale framework paths; wanted entries re-register as local files
+    // below. Local user-owned patch files and mappings survive untouched.
+    if (String(path).startsWith(patchPrefix)) {
       delete oldPatches[specifier]
     }
   }
 
-  // pnpm keeps local patch files unless the workspace already opted into the
-  // @octane-xplat/patches config dependency — new entries match Bun's local
-  // mode so upgrades never split a project across both patch modes.
-  const configMode =
-    manager === 'pnpm' && config.configDependencies?.['@octane-xplat/patches'] !== undefined
-
   for (const patch of wanted) {
-    oldPatches[patch.specifier] ??= configMode
-      ? `${patchPrefix}${patch.file}`
-      : `patches/${patch.file}`
+    oldPatches[patch.specifier] ??= `patches/${patch.file}`
 
-    if (!configMode) {
-      change(
-        join(root, oldPatches[patch.specifier]),
-        readFileSync(join(canonicalPatchesDir, patch.file), 'utf8'),
-      )
-    }
+    change(
+      join(root, oldPatches[patch.specifier]),
+      readFileSync(join(canonicalPatchesDir, patch.file), 'utf8'),
+    )
   }
 
   if (Object.keys(oldPatches).length) {
@@ -384,8 +373,21 @@ export function planUpgrade(dir: string): UpgradePlan {
     ws.set('allowUnusedPatches', true)
   }
 
-  if (wanted.some((patch) => oldPatches[patch.specifier].startsWith(patchPrefix))) {
-    ws.setIn(['configDependencies', '@octane-xplat/patches'], compatibility.frameworkVersion)
+  // The config dependency is retired — no published version exists for the
+  // upgraded framework.
+  if (
+    manager === 'pnpm' &&
+    ws.getIn(['configDependencies', '@octane-xplat/patches']) !== undefined
+  ) {
+    ws.deleteIn(['configDependencies', '@octane-xplat/patches'])
+
+    const remaining = ws.get('configDependencies')
+
+    if (isMap(remaining) && remaining.items.length === 0) {
+      ws.delete('configDependencies')
+    }
+
+    plan.updates.push('.: retire the @octane-xplat/patches config dependency')
   }
 
   if (rootPackage?.pkg.pnpm?.patchedDependencies) {

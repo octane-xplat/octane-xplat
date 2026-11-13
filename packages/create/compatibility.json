@@ -69,7 +69,6 @@
 		"@octane-xplat/network",
 		"@octane-xplat/notifications",
 		"@octane-xplat/pager",
-		"@octane-xplat/patches",
 		"@octane-xplat/picker",
 		"@octane-xplat/platform",
 		"@octane-xplat/posthog",

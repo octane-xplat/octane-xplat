@@ -75,7 +75,7 @@ run('node', [
 // ---- package closure: app deps + what they install --------------------------
 const appManifestPath = join(appDir, 'package.json')
 const manifest = readJson(appManifestPath)
-const SEED_EXTRAS = ['@octane-xplat/mcp', '@octane-xplat/patches']
+const SEED_EXTRAS = ['@octane-xplat/mcp']
 const needed = new Set()
 const queue = []
 

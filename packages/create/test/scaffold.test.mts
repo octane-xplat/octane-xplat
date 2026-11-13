@@ -275,7 +275,7 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
   assert.match(yaml, /@nativescript\/core@9\.1\.3/)
   assert.ok(
     yaml.includes(
-      `@octane-xplat/nativescript-octane@${managedSpecifier('@octane-xplat/nativescript-octane')}`,
+      `@nativescript/vite@${managedSpecifier('@nativescript/vite')}`,
     ),
   )
 

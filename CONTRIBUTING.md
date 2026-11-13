@@ -29,7 +29,7 @@ Bun tarballs with npm trusted publishing and provenance; npm is only needed by
 the release job. pnpm is optional, for a manual patch-compatibility check:
 
 ```sh
-bun run turbo run test:patches-pnpm --filter=@octane-xplat/cli
+bun run turbo run test:patches-install --filter=@octane-xplat/cli
 ```
 
 Run these from the repository root after `bun install --frozen-lockfile`:

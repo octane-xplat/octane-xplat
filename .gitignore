@@ -57,6 +57,10 @@ packages/*/platforms/android/*.aar
 # Generated from public declarations by @xplat/docs#api.
 /docs/api/
 
+# Starter patch copies generated from packages/cli/patches by sync-patches.ts.
+/packages/create/template/patches/
+/packages/create/library-template/patches/
+
 # Local native command entries; prepack replaces them with script-free placeholders.
 /packages/cli/bin/xplat.exe
 /packages/toolchain/bin/xplat.exe

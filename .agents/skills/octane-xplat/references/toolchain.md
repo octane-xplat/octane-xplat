@@ -131,7 +131,7 @@ after local dependency upgrades, registry consumers need the next published
 lockstep set rather than that checkout's unchanged version number.
 
 ```sh
-bun run turbo run pack:check test:packed --filter=@octane-xplat/patches
+bun run turbo run pack:check test:packed --filter=create-octane-xplat
 ```
 
 `--no-build` skips package builds and packing lifecycle hooks; prepare and

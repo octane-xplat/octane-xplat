@@ -1,16 +1,26 @@
-// Verify packed patch bytes and starter-local registrations before prepack can repair them.
+// Verify the packed create-octane-xplat starter patch bytes and registrations.
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { compatibility } from '../packages/create/compatibility.ts'
+import { compatibility, managedPackage } from '../packages/create/compatibility.ts'
 import { composeManifest, composeTargets, defaultTargets } from '../packages/create/scaffold.ts'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const canonical = join(repo, 'packages/cli/patches')
 const manifest = JSON.parse(readFileSync(join(canonical, 'manifest.json'), 'utf8')).patches
+
+// The starter patch set — the same filter sync-patches.ts applies.
+const templatePatches = manifest.filter((patch) => {
+  const at = patch.specifier.indexOf('@', 1)
+  const pin = managedPackage(patch.specifier.slice(0, at))
+
+  return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
+})
+const wanted = templatePatches.map((patch) => patch.file).sort()
+
 const work = mkdtempSync(join(tmpdir(), 'xplat-packed-patches-'))
 function run(command, args, cwd = work) {
   const result = spawnSync(command, args, {
@@ -26,7 +36,7 @@ function run(command, args, cwd = work) {
   assert.equal(result.status, 0, `${command} ${args.join(' ')} failed`)
 }
 
-function checkConfig(label, pkg, base, packed) {
+function checkConfig(label, pkg, base) {
   assert.equal(pkg.packageManager, `bun@${compatibility.tools.bun}`, `${label}: manager`)
   for (const [specifier, path] of Object.entries(pkg.patchedDependencies)) {
     const patch = manifest.find((entry) => entry.specifier === specifier)
@@ -35,18 +45,14 @@ function checkConfig(label, pkg, base, packed) {
     assert.equal(path, `patches/${patch.file}`)
     assert.deepEqual(
       readFileSync(join(base, path)),
-      readFileSync(join(packed, path)),
+      readFileSync(join(canonical, patch.file)),
       `${label}: ${specifier} bytes`,
     )
   }
 }
 
 try {
-  run(
-    'bun',
-    ['pm', 'pack', '--ignore-scripts', '--destination', work],
-    join(repo, 'packages/patches'),
-  )
+  run('bun', ['pm', 'pack', '--destination', work], join(repo, 'packages/create'))
 
   const tarball = readdirSync(work).find((name) => name.endsWith('.tgz'))
 
@@ -56,24 +62,21 @@ try {
   const packed = join(work, 'package')
   const pkg = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
 
-  assert.equal(pkg.name, '@octane-xplat/patches')
+  assert.equal(pkg.name, 'create-octane-xplat')
   assert.equal(pkg.version, compatibility.frameworkVersion)
-  assert.deepEqual(readdirSync(join(packed, 'patches')).sort(), manifest.map((p) => p.file).sort())
-  for (const patch of manifest) {
-    assert.deepEqual(
-      readFileSync(join(packed, 'patches', patch.file)),
-      readFileSync(join(canonical, patch.file)),
-    )
-  }
 
   for (const template of ['template', 'library-template']) {
-    const base = join(repo, 'packages/create', template)
+    const base = join(packed, template)
 
+    assert.deepEqual(
+      readdirSync(join(base, 'patches')).sort(),
+      wanted,
+      `${template}: packed patch set`,
+    )
     checkConfig(
       template,
       JSON.parse(readFileSync(join(base, 'package.json'), 'utf8')),
       base,
-      packed,
     )
   }
 
@@ -83,9 +86,9 @@ try {
 
   const app = composeManifest(defaultTargets)
 
-  checkConfig('generated default native config', app, consumer, packed)
+  checkConfig('generated default native config', app, consumer)
   console.log(
-    `Packed ${pkg.name}: ${manifest.length} canonical patches; starter-local bytes and registrations verified.`,
+    `Packed ${pkg.name}: ${wanted.length} starter patches; bytes and registrations verified.`,
   )
 
   if (process.argv.includes('--install')) {

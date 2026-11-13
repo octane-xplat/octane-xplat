@@ -535,9 +535,9 @@ bun run xplat doctor
 ```
 
 In a pnpm project, `pnpm dlx @octane-xplat/cli@latest upgrade` behaves the same
-way and installs with pnpm. Upgrades write local `patches/` files like Bun,
-unless the workspace already declares `@octane-xplat/patches` in
-`configDependencies` — that existing opt-in keeps the config-package mode.
+way and installs with pnpm. Upgrades always write local `patches/` files like
+Bun; a workspace that still declares the retired `@octane-xplat/patches`
+`configDependencies` entry is migrated to local patch files.
 
 ```sh
 pnpm dlx @octane-xplat/cli@latest upgrade --no-install
@@ -588,11 +588,13 @@ are preserved.
 }
 ```
 
-Matching patches come from the same release's `@octane-xplat/patches` config
-package. Custom patches and conflicting overrides must be reconciled before
-the plan writes any files. Old user-owned patch mappings remain intact; old
-framework config-package mappings are replaced. A failed install leaves the
-updated files available for review. Fix its error and repeat the install:
+Matching patches ship inside the executing `@octane-xplat/cli` release and are
+written to the project as local `patches/` files. Custom patches and
+conflicting overrides must be reconciled before the plan writes any files. Old
+user-owned patch mappings remain intact; mappings left over from the retired
+`@octane-xplat/patches` config dependency are replaced with local files. A
+failed install leaves the updated files available for review. Fix its error
+and repeat the install:
 
 ```sh
 bun install --no-frozen-lockfile
@@ -814,8 +816,8 @@ Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolcha
 
 The creator generates apps and libraries with local patch files for both
 package managers. `xplat upgrade` aligns their catalogs and patches before
-installing — for pnpm it writes the same local files unless the project already
-declares `@octane-xplat/patches` in `configDependencies`.
+installing — for pnpm it writes the same local files and migrates any leftover
+`@octane-xplat/patches` `configDependencies` registration.
 
 The same canonical patch files work with **Bun 1.4.4 or later** and **pnpm**.
 Run from your app directory. The CLI selects the workspace root and uses its
@@ -838,8 +840,7 @@ pnpm run xplat patches check
 ```
 
 pnpm 11 ignores `package.json.pnpm.patchedDependencies`; rerun `apply` to move
-framework registration into the YAML configuration. Existing pnpm projects can still
-use the `@octane-xplat/patches` config dependency. If the package manager is not
+framework registration into the YAML configuration. If the package manager is not
 yet declared, or both lockfiles remain during migration, select it explicitly:
 
 ```sh

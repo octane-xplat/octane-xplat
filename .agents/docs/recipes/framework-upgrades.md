@@ -2,7 +2,7 @@
 
 ID: framework-upgrades
 Targets: web, ios, android, macos, linux
-Related APIs: xplat upgrade, xplat upgrade --check, xplat upgrade --no-install, xplat doctor, xplat patches, catalog:xplat, catalog:xplat-windows, @octane-xplat/patches
+Related APIs: xplat upgrade, xplat upgrade --check, xplat upgrade --no-install, xplat doctor, xplat patches, catalog:xplat, catalog:xplat-windows
 
 ## Starting point
 

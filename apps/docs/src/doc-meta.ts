@@ -164,7 +164,6 @@ export const GROUPS = [
       'package-network',
       'package-notifications',
       'package-pager',
-      'package-patches',
       'package-picker',
       'package-platform',
       'package-posthog',

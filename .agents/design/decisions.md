@@ -142,6 +142,15 @@
 
 ## Reversals
 
+- **2026-11-12 — patch distribution (#63):** retire the `@octane-xplat/patches`
+  config package; patch files are local in every consumer. New scaffolds were
+  already local for both managers, so the published package only served pnpm
+  `configDependencies` opt-ins. `xplat upgrade` migrates those projects:
+  `.pnpm-config` `patchedDependencies` paths rewrite to `patches/` files and
+  the `configDependencies` entry is removed. The generated starter `patches/`
+  copies are untracked — create's build and the scaffold regenerate them from
+  `packages/cli/patches/` — removing the synced duplicates #63 traded for the
+  published package.
 - **2026-10-08 — iOS editor backing surface (#101, superseded by #104):**
   #101 provisionally picked Lexical iOS behind a Swift/ObjC adapter for both iOS
   editor facades. Reality diverged on both axes: the shipped iOS ordinary

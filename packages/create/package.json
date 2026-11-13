@@ -51,9 +51,11 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build",
+		"build": "node ../../scripts/sync-patches.ts --templates && vite build",
 		"prepack": "bun run build",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
+		"pack:check": "node ../../scripts/check-packed-patches.mts",
+		"test:packed": "node ../../scripts/check-packed-patches.mts --install",
 		"test:library": "node test/library-guide.mts",
 		"test": "node --test test/*.test.mts",
 		"test:scaffold": "node --test test/scaffold.test.mts"

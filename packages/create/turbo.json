@@ -4,6 +4,25 @@
 		"//"
 	],
 	"tasks": {
+		"build": {
+			"outputs": ["dist/**", "template/patches/**", "library-template/patches/**"]
+		},
+		"pack:check": {
+			"dependsOn": [],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../../scripts/check-packed-patches.mts",
+				"../cli/patches/**",
+				"compatibility.*",
+				"scaffold.ts",
+				"template/**",
+				"library-template/**"
+			]
+		},
+		"test:packed": {
+			"dependsOn": ["pack:check"],
+			"cache": false
+		},
 		"test:library": {
 			"dependsOn": [
 				"build",

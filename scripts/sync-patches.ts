@@ -5,15 +5,14 @@
 //   1. root package.json             patchedDependencies points at
 //                                      packages/cli/patches/ directly — no
 //                                      second copy lives at the repo root.
-//   2. packages/patches/               generated package files, consumed by
-//                                      optional manual compatibility checks.
-//   3. creator templates               local patch files + Bun registrations,
+//   2. creator templates               local patch files + Bun registrations,
 //                                      available before the first install.
 //
 // `bun run sync:patches` rewrites these outputs. `bun run check:patches` diffs and
 // exits 1 on drift.
-// --package-only prepares packages/patches without editing workspace YAML
-// or starter files; the patch package's prepack hook uses this scope.
+// --templates regenerates only the starter patch files — those copies are
+// generated, not tracked; create's build/prepack and in-repo scaffolds run this
+// scope before the files can be read.
 //
 // Maintainer flow: `bun patch <pkg@version>` → edit → `bun patch --commit`.
 // Retain the canonical path in packages/cli/patches/ and the manifest, then
@@ -35,13 +34,11 @@ import { managedPackage } from '../packages/create/compatibility.ts'
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_PATCHES = join(repo, 'packages/cli/patches')
-const PATCH_PACKAGE = join(repo, 'packages/patches')
-const PATCH_PACKAGE_FILES = join(PATCH_PACKAGE, 'patches')
 const CHECK = process.argv.includes('--check')
-const PACKAGE_ONLY = process.argv.includes('--package-only')
+const TEMPLATES = process.argv.includes('--templates')
 
 for (const arg of process.argv.slice(2)) {
-  if (arg !== '--check' && arg !== '--package-only') {
+  if (arg !== '--check' && arg !== '--templates') {
     throw new Error(`sync-patches: unknown option ${arg}`)
   }
 }
@@ -50,35 +47,42 @@ const manifest = JSON.parse(readFileSync(join(CLI_PATCHES, 'manifest.json'), 'ut
 
 const relative = (f) => f.slice(repo.length + 1)
 
-const syncPatchPackageFiles = (failures) => {
-  if (!CHECK) {
-    mkdirSync(PATCH_PACKAGE_FILES, { recursive: true })
-  }
+const templates = ['template', 'library-template']
+const templatePatches = manifest.filter((patch) => {
+  const at = patch.specifier.indexOf('@', 1)
+  const pin = managedPackage(patch.specifier.slice(0, at))
 
-  const wanted = new Set(manifest.map((p) => p.file))
+  return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
+})
 
-  for (const patch of manifest) {
-    const src = join(CLI_PATCHES, patch.file)
-    const dst = join(PATCH_PACKAGE_FILES, patch.file)
+const syncTemplateFiles = (failures) => {
+  const wanted = new Set(templatePatches.map((patch) => patch.file))
 
-    if (existsSync(dst) && readFileSync(src).equals(readFileSync(dst))) {
-      continue
-    }
-
-    failures.push(
-      existsSync(dst) ? `${relative(dst)} — differs from canonical` : `${relative(dst)} — missing`,
-    )
+  for (const template of templates) {
+    const destination = join(repo, 'packages/create', template, 'patches')
 
     if (!CHECK) {
-      copyFileSync(src, dst)
+      mkdirSync(destination, { recursive: true })
     }
-  }
 
-  for (const f of existsSync(PATCH_PACKAGE_FILES) ? readdirSync(PATCH_PACKAGE_FILES) : []) {
-    if (f.endsWith('.patch') && !wanted.has(f)) {
-      failures.push(`${relative(join(PATCH_PACKAGE_FILES, f))} — not in manifest`)
-      if (!CHECK) {
-        rmSync(join(PATCH_PACKAGE_FILES, f))
+    for (const name of existsSync(destination) ? readdirSync(destination) : []) {
+      if (!wanted.has(name)) {
+        failures.push(`${relative(destination)}/${name} — obsolete starter patch`)
+        if (!CHECK) {
+          rmSync(join(destination, name))
+        }
+      }
+    }
+
+    for (const patch of templatePatches) {
+      const src = join(CLI_PATCHES, patch.file)
+      const dst = join(destination, patch.file)
+
+      if (!existsSync(dst) || !readFileSync(src).equals(readFileSync(dst))) {
+        failures.push(`${relative(dst)} — starter patch is stale`)
+        if (!CHECK) {
+          copyFileSync(src, dst)
+        }
       }
     }
   }
@@ -86,7 +90,7 @@ const syncPatchPackageFiles = (failures) => {
 
 const failures = []
 
-if (!PACKAGE_ONLY) {
+if (!TEMPLATES) {
   const file = join(repo, 'package.json')
   const before = readFileSync(file, 'utf8')
   const pkg = JSON.parse(before)
@@ -111,19 +115,12 @@ if (!PACKAGE_ONLY) {
     }
   }
 
-  for (const template of ['template', 'library-template']) {
-    const base = join(repo, 'packages/create', template)
-    const file = join(base, 'package.json')
+  for (const template of templates) {
+    const file = join(repo, 'packages/create', template, 'package.json')
     const pkg = JSON.parse(readFileSync(file, 'utf8'))
-    const patches = manifest.filter((patch) => {
-      const at = patch.specifier.indexOf('@', 1)
-      const pin = managedPackage(patch.specifier.slice(0, at))
-
-      return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
-    })
 
     pkg.patchedDependencies = Object.fromEntries(
-      patches.map((patch) => [patch.specifier, `patches/${patch.file}`]),
+      templatePatches.map((patch) => [patch.specifier, `patches/${patch.file}`]),
     )
 
     const after = JSON.stringify(pkg, null, '\t') + '\n'
@@ -134,39 +131,10 @@ if (!PACKAGE_ONLY) {
         writeFileSync(file, after)
       }
     }
-
-    const destination = join(base, 'patches')
-
-    if (!CHECK) {
-      mkdirSync(destination, { recursive: true })
-    }
-
-    const wanted = new Set(patches.map((patch) => patch.file))
-
-    for (const name of existsSync(destination) ? readdirSync(destination) : []) {
-      if (!wanted.has(name)) {
-        failures.push(`${relative(destination)}/${name} — obsolete starter patch`)
-        if (!CHECK) {
-          rmSync(join(destination, name))
-        }
-      }
-    }
-
-    for (const patch of patches) {
-      const src = join(CLI_PATCHES, patch.file)
-      const dst = join(destination, patch.file)
-
-      if (!existsSync(dst) || !readFileSync(src).equals(readFileSync(dst))) {
-        failures.push(`${relative(dst)} — starter patch is stale`)
-        if (!CHECK) {
-          copyFileSync(src, dst)
-        }
-      }
-    }
   }
 }
 
-syncPatchPackageFiles(failures)
+syncTemplateFiles(failures)
 
 if (failures.length) {
   console.error(`${CHECK ? 'patch drift' : 'synced'} — ${failures.length} file(s):`)

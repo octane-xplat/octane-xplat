@@ -31,21 +31,26 @@ function fixture(t) {
   }
 
   put('scripts/sync-patches.ts', readFileSync(join(repo, 'scripts/sync-patches.ts')))
-  put('packages/patches/package.json', '{"version":"0.0.0"}')
+  put('package.json', '{}\n')
+  put('packages/create/template/package.json', '{}\n')
+  put('packages/create/library-template/package.json', '{}\n')
   put(
     'packages/cli/patches/manifest.json',
-    JSON.stringify({ patches: [{ file: 'current.patch' }] }),
+    JSON.stringify({ patches: [{ specifier: 'pkg@1.0.0', file: 'current.patch' }] }),
   )
 
   put('packages/cli/patches/current.patch', 'canonical patch\n')
-  put('packages/patches/patches/current.patch', 'stale patch\n')
-  put('packages/patches/patches/obsolete.patch', 'obsolete generated patch\n')
+  put('packages/create/template/patches/current.patch', 'stale patch\n')
+  put('packages/create/template/patches/obsolete.patch', 'obsolete starter patch\n')
+  put('packages/create/library-template/patches/current.patch', 'stale patch\n')
 
   const untouched = [
     put('pnpm-workspace.yaml', 'root workspace sentinel\n'),
     put('packages/create/template/pnpm-workspace.yaml', 'app workspace sentinel\n'),
     put('packages/create/library-template/pnpm-workspace.yaml', 'library workspace sentinel\n'),
-    put('packages/create/template/patches/old.patch', 'starter patch sentinel\n'),
+    put('packages/create/template/package.json', '{}\n'),
+    put('packages/create/library-template/package.json', '{}\n'),
+    put('package.json', '{}\n'),
   ]
 
   symlinkSync(join(repo, 'node_modules'), join(root, 'node_modules'), 'dir')
@@ -64,32 +69,58 @@ function fixture(t) {
   }
 }
 
-test('package-only preparation refreshes package files without touching workspace or starter files', (t) => {
+test('template preparation refreshes starter patch files without touching manifests or workspace files', (t) => {
   const { root, untouched, run } = fixture(t)
-  const result = run('--package-only')
+  const result = run('--templates')
 
   assert.equal(result.status, 0, result.stderr)
-  assert.equal(
-    readFileSync(join(root, 'packages/patches/patches/current.patch'), 'utf8'),
-    'canonical patch\n',
-  )
 
-  assert.equal(existsSync(join(root, 'packages/patches/patches/obsolete.patch')), false)
+  for (const template of ['template', 'library-template']) {
+    assert.equal(
+      readFileSync(join(root, `packages/create/${template}/patches/current.patch`), 'utf8'),
+      'canonical patch\n',
+    )
+  }
+
+  assert.equal(existsSync(join(root, 'packages/create/template/patches/obsolete.patch')), false)
+
   for (const [file, original] of untouched) {
     assert.equal(readFileSync(file, 'utf8'), original)
   }
 })
 
-test('package-only check rejects drift without changing generated files', (t) => {
+test('template check rejects drift without changing generated files', (t) => {
   const { root, run } = fixture(t)
-  const result = run('--package-only', '--check')
+  const result = run('--templates', '--check')
 
   assert.equal(result.status, 1, result.stderr)
-  assert.match(result.stderr, /differs from canonical/)
+  assert.match(result.stderr, /starter patch is stale/)
   assert.equal(
-    readFileSync(join(root, 'packages/patches/patches/current.patch'), 'utf8'),
+    readFileSync(join(root, 'packages/create/template/patches/current.patch'), 'utf8'),
     'stale patch\n',
   )
 
-  assert.equal(existsSync(join(root, 'packages/patches/patches/obsolete.patch')), true)
+  assert.equal(existsSync(join(root, 'packages/create/template/patches/obsolete.patch')), true)
+})
+
+test('full sync registers canonical patches and refreshes starter files', (t) => {
+  const { root, run } = fixture(t)
+  const result = run()
+
+  assert.equal(result.status, 0, result.stderr)
+
+  assert.deepEqual(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')), {
+    patchedDependencies: { 'pkg@1.0.0': 'packages/cli/patches/current.patch' },
+  })
+
+  for (const template of ['template', 'library-template']) {
+    assert.deepEqual(
+      JSON.parse(readFileSync(join(root, `packages/create/${template}/package.json`), 'utf8')),
+      { patchedDependencies: { 'pkg@1.0.0': 'patches/current.patch' } },
+    )
+    assert.equal(
+      readFileSync(join(root, `packages/create/${template}/patches/current.patch`), 'utf8'),
+      'canonical patch\n',
+    )
+  }
 })

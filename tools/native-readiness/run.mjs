@@ -101,7 +101,6 @@ for (const name of [
   '@octane-xplat/ui',
   '@octane-xplat/cli',
   '@octane-xplat/bamboo',
-  '@octane-xplat/patches',
 ]) {
   include(name)
 }

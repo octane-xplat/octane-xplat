@@ -201,9 +201,9 @@ Expect churn: octane is beta, the NS port is days old. Pin exact versions, bump
 deliberately. The escape hatch is pnpm `patchedDependencies` — the canonical
 set lives in `packages/cli/patches/` (manifest.json + `.patch` files), the
 workspace yaml references it directly, and `pnpm sync:patches` /
-`pnpm check:patches` keep the published `@octane-xplat/patches` config package
-and create template yaml in sync. Fresh scaffolds fetch that package through
-`configDependencies`; existing apps materialize patches with
+`pnpm check:patches` keep the generated starter patch copies and create
+template yaml in sync. Scaffolds materialize patches from files shipped in the
+creator; existing apps materialize patches with
 `xplat patches apply` and verify with `xplat patches check` / `xplat doctor`.
 
 ```sh
@@ -791,7 +791,7 @@ focused CLI/Bamboo installs succeeded. Native device smoke and dependent
 package checks remain unqualified until that baseline install issue is resolved.
 
 Distribution follows the existing patch manifest: copies ship in
-`@octane-xplat/cli` and `@octane-xplat/patches`; starter yaml and the root lockfile
+`@octane-xplat/cli`; starter yaml and the root lockfile
 are synchronized. Existing apps adopt a future framework release's canonical
 patch through the normal upgrade/patch workflow. No app-specific plugin or
 Opals edit is required. No release was published for this change.

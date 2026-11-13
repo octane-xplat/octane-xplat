@@ -13,6 +13,7 @@ import {
 } from 'node:fs'
 
 import { basename, dirname, join, resolve, relative, isAbsolute, sep } from 'node:path'
+import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { isMap, parseDocument, stringify } from 'yaml'
@@ -33,6 +34,29 @@ const pkgRoot = basename(moduleDir) === 'dist' ? join(moduleDir, '..') : moduleD
 
 export const TEMPLATE_DIR = join(pkgRoot, 'template')
 export const LIBRARY_TEMPLATE_DIR = join(pkgRoot, 'library-template')
+
+const CANONICAL_PATCHES = join(pkgRoot, '../cli/patches')
+const SYNC_PATCHES = join(pkgRoot, '../../scripts/sync-patches.ts')
+
+// template*/patches copies are generated (gitignored) from the canonical set
+// in packages/cli/patches. Packed tarballs ship them; in-repo consumers on a
+// fresh checkout materialize them here before the template tree is read.
+function ensureTemplatePatches() {
+  if (
+    (existsSync(join(TEMPLATE_DIR, 'patches')) &&
+      existsSync(join(LIBRARY_TEMPLATE_DIR, 'patches'))) ||
+    !existsSync(CANONICAL_PATCHES) ||
+    !existsSync(SYNC_PATCHES)
+  ) {
+    return
+  }
+
+  const result = spawnSync(process.execPath, [SYNC_PATCHES, '--templates'], { stdio: 'inherit' })
+
+  if (result.status !== 0) {
+    throw new Error('sync-patches --templates failed — run `bun run sync:patches`')
+  }
+}
 
 /** Scaffoldable targets. `files` entries are template-relative paths —
  *  directories copy recursively. `deps`/`devDeps`/`scripts` name keys whose
@@ -84,8 +108,6 @@ export const targets: Record<string, any> = {
       '@nativescript/types',
       'css',
       '@nativescript/vite',
-      '@octane-xplat/nativescript-octane',
-      '@octane-xplat/vite-octane',
     ],
     files: [
       'nativescript.config.ts',
@@ -430,6 +452,8 @@ function neededPatchEntries(enabledIds, present: Set<string>): [string, string][
 
 /** Copy a canonical patch into the root patches/ dir unless it already matches. */
 function stagePatchFile(root, path, read, write) {
+  ensureTemplatePatches()
+
   const source = join(TEMPLATE_DIR, path)
   const destination = join(root, path)
   const before = read(destination)
@@ -583,6 +607,7 @@ export function composeTargets(ids, dir, options?: { packageManager?: PackageMan
   const packageManager = options?.packageManager ?? 'bun'
   const resolved = new Set(resolveTargets(ids))
 
+  ensureTemplatePatches()
   mkdirSync(dir, { recursive: true })
 
   for (const rel of walk(TEMPLATE_DIR)) {
@@ -641,6 +666,7 @@ export function composeLibrary(
 
   const packageManager = options?.packageManager ?? 'bun'
 
+  ensureTemplatePatches()
   mkdirSync(dir, { recursive: true })
   for (const rel of walk(LIBRARY_TEMPLATE_DIR)) {
     if (rel === 'package.json' || (packageManager === 'pnpm' && rel === 'bunfig')) {

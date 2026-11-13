@@ -12,7 +12,6 @@ import {
   existsSync,
   statSync,
   chmodSync,
-  cpSync,
 } from 'node:fs'
 
 import { join, resolve, dirname, relative, basename } from 'node:path'
@@ -403,75 +402,23 @@ test('pinned pnpm installs through a real command shim and passes post-install v
     "import{writeFileSync}from'node:fs';writeFileSync('pnpm-hook-ran','yes');console.log('pnpm hook stdout')",
   )
 
-  const patchPackage = join(scratch, 'patch config package')
-
-  put(patchPackage, 'package.json', {
-    name: '@octane-xplat/patches',
-    version: compatibility.frameworkVersion,
-    private: true,
-    files: ['patches'],
-  })
-
-  cpSync(join(dirname(tools.worker), '../patches'), join(patchPackage, 'patches'), {
-    recursive: true,
-  })
-
-  const packed = spawnSync(
-    'bun',
-    ['pm', 'pack', '--ignore-scripts', '--destination', patchPackage],
-    { cwd: patchPackage, env, encoding: 'utf8', timeout: 30000 },
-  )
-
-  success(packed)
-
-  const archive = join(patchPackage, `octane-xplat-patches-${compatibility.frameworkVersion}.tgz`)
-  const ready = join(patchPackage, 'ready.json'),
-    requests = join(patchPackage, 'requests.json')
-
-  const input = put(patchPackage, 'registry.json', {
-    archive,
-    version: compatibility.frameworkVersion,
-    ready,
-    requests,
-  })
-
-  const registry = spawn(
-    process.execPath,
-    [join(root, 'tools/cli-go/upgrade-registry-fixture.mjs'), input],
-    { env, stdio: 'ignore' },
-  )
-
-  const closed = once(registry, 'close')
-
-  t.after(async () => {
-    if (registry.exitCode === null && registry.signalCode === null) {
-      registry.kill('SIGKILL')
-    }
-
-    await closed
-  })
-
-  await waitFor(ready)
   for (const name of Object.keys(env)) {
     if (['npm_config_registry', 'pnpm_config_registry'].includes(name.toLowerCase())) {
       overlay[name] = undefined
     }
   }
 
-  // Route only the source-owned config package; ordinary dependencies retain
-  // their registry and existing lockfile identities.
-  put(
-    dir,
-    '.npmrc',
-    `@octane-xplat:registry=http://127.0.0.1:${JSON.parse(readFileSync(ready)).port}/\n`,
-  )
-
-  // The project already opted into the patches config dependency — declared
-  // now that the private registry can resolve it.
+  // The project still uses the retired patches config dependency — upgrade
+  // migrates it to local patch files, keeping wanted entries and dropping
+  // stale ones. The ordinary install already resolved every dependency.
   put(
     dir,
     'pnpm-workspace.yaml',
-    `packages: []\nconfigDependencies:\n  '@octane-xplat/patches': ${compatibility.frameworkVersion}\n`,
+    'packages: []\n' +
+      `configDependencies:\n  '@octane-xplat/patches': ${compatibility.frameworkVersion}\n` +
+      'patchedDependencies:\n' +
+      '  css@3.0.0: node_modules/.pnpm-config/@octane-xplat/patches/patches/css@3.0.0.patch\n' +
+      '  octane@0.16.3: node_modules/.pnpm-config/@octane-xplat/patches/patches/octane@0.16.3.patch\n',
   )
 
   const result = run(dir, [], overlay)
@@ -481,7 +428,20 @@ test('pinned pnpm installs through a real command shim and passes post-install v
   assert.ok(existsSync(join(dir, 'pnpm-lock.yaml')))
   assert.equal(readFileSync(join(dir, 'pnpm-hook-ran'), 'utf8'), 'yes')
   assert.match(result.stdout, /pnpm hook stdout/)
-  assert.ok(JSON.parse(readFileSync(requests)).includes('/patches.tgz'))
+
+  const yaml = parseYaml(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'))
+
+  assert.equal(yaml.configDependencies?.['@octane-xplat/patches'], undefined)
+  assert.equal(
+    yaml.patchedDependencies?.['css@3.0.0'],
+    'patches/css@3.0.0.patch',
+  )
+  assert.equal(yaml.patchedDependencies?.['octane@0.16.3'], undefined)
+  assert.ok(
+    readFileSync(join(dir, 'patches/css@3.0.0.patch')).equals(
+      readFileSync(join(dirname(tools.worker), '../patches/css@3.0.0.patch')),
+    ),
+  )
 
   const directVersion = spawnSync('pnpm', ['--version'], {
     cwd: dir,
@@ -502,8 +462,6 @@ test('pinned pnpm installs through a real command shim and passes post-install v
           stdout: directVersion.stdout,
         },
         entrySha256: sha(readFileSync(entry)),
-        configPackageSha256: sha(readFileSync(archive)),
-        registryRequests: JSON.parse(readFileSync(requests)),
         shim: process.platform === 'win32' ? '.cmd' : 'POSIX shell',
         exitCode: result.status,
         stdout: result.stdout,

@@ -2248,10 +2248,6 @@
         "@octane-xplat/nativescript-octane",
       ],
     },
-    "packages/patches": {
-      "name": "@octane-xplat/patches",
-      "version": "0.20.0",
-    },
     "packages/picker": {
       "name": "@octane-xplat/picker",
       "version": "0.20.0",
@@ -4556,8 +4552,6 @@
     "@octane-xplat/notifications": ["@octane-xplat/notifications@workspace:packages/notifications"],
 
     "@octane-xplat/pager": ["@octane-xplat/pager@workspace:packages/pager"],
-
-    "@octane-xplat/patches": ["@octane-xplat/patches@workspace:packages/patches"],
 
     "@octane-xplat/picker": ["@octane-xplat/picker@workspace:packages/picker"],
 

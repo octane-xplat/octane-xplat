@@ -139,7 +139,6 @@ try {
     'create-octane-xplat',
     '@octane-xplat/workshop',
     'tsrx-typegen',
-    '@octane-xplat/patches',
     'octane-xplat',
   ]) {
     include(name)
