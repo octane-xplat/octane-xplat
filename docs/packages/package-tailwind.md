@@ -82,6 +82,41 @@ have different text sizes and corner treatments; they are a separate workflow.
 See [required structure and optional chrome](../app/styling.md#required-structure-and-optional-chrome).
 The compiler reports a conflicting curated import, including separate CSS modules.
 
+## Use app themes
+
+The UI entry keeps color and radius values in the app's theme. Define light and
+dark color values as a pair, then select the mode on the owning `Theme`.
+An explicitly light nested theme keeps its own palette when the outer mode
+changes. This composition is qualified in the browser candidate; native root
+and modal boundaries remain separate release gates.
+
+```tsx
+// src/ThemedPackingCard.tsx
+import { defineTheme, Theme, View, Text } from '@octane-xplat/ui'
+
+const packing = defineTheme({
+  name: 'packing',
+  tokens: { '--color-primary': ['#123456', '#654321'], '--radius-lg': '12px' },
+})
+const note = defineTheme({
+  name: 'packing-note',
+  tokens: { '--color-primary': ['#abcdef', '#fedcba'] },
+})
+
+export function ThemedPackingCard(props: { mode: 'light' | 'dark' }) {
+  return (
+    <Theme theme={packing} mode={props.mode}>
+      <View className="bg-primary rounded-lg p-4">
+        <Text>Packing list</Text>
+        <Theme theme={note} mode="light">
+          <View className="bg-primary p-2"><Text>Keep this note light</Text></View>
+        </Theme>
+      </View>
+    </Theme>
+  )
+}
+```
+
 ## Native generated CSS boundary
 
 Native adaptation is a release candidate, not a promise that every Tailwind

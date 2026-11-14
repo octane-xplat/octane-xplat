@@ -31,7 +31,7 @@ links to candidate coverage do not establish a passing host qualification.
 ## Documentation
 
 - AC1: [Configure the compiler](../../../docs/packages/package-tailwind.md#configure-the-compiler), [installed consumer](../../../tools/tailwind-qualification/fixtures/packed-consumer.mts) and [configuration regressions](../../../packages/tailwind/test/compiler.test.ts).
-- AC2: [Candidate setup](../../../docs/packages/package-tailwind.md#configure-the-compiler), [UI theme tests](../../../packages/tailwind/test/theme.test.ts), [maintained UI app](../../../tools/tailwind-qualification/fixtures/app/App.web.tsrx). Gap: native UI Theme/modal/root lifecycle qualification.
+- AC2: [App themes](../../../docs/packages/package-tailwind.md#use-app-themes), [UI theme tests](../../../packages/tailwind/test/theme.test.ts), [maintained UI app](../../../tools/tailwind-qualification/fixtures/app/App.web.tsrx). Gap: native UI Theme/modal/root lifecycle qualification.
 - AC3: [Native boundary](../../../docs/packages/package-tailwind.md#native-generated-css-boundary) and [watch/source regressions](../../../packages/tailwind/test/compiler.test.ts).
 - AC4: [Qualification boundaries](../../../tools/tailwind-qualification/README.md). Gap: maintained installed native UI host qualification covering the complete criterion; browser and earlier raw-host experiments have narrower scopes.
 - AC5: [Native boundary](../../../docs/packages/package-tailwind.md#native-generated-css-boundary) and [value/cascade regressions](../../../packages/tailwind/test/native.test.ts). Gap: normal authored importance and native cascade-layer importance support remains owned by issue #202; generated importance is rejected.
