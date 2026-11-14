@@ -185,7 +185,10 @@ try {
         ...dependency.dependencies,
         ...dependency.peerDependencies,
       })) {
-        if (range.startsWith('workspace:')) {
+        if (
+          range.startsWith('workspace:') &&
+          (dependency.dependencies?.[child] || !dependency.peerDependenciesMeta?.[child]?.optional)
+        ) {
           queue.push(child)
         }
       }
@@ -328,7 +331,7 @@ void plugin
     cpSync(join(import.meta.dirname, 'fixtures/app'), join(consumer, 'app'), { recursive: true })
     copyFileSync(
       join(import.meta.dirname, 'fixtures/verify-app.web.mts'),
-      join(consumer, 'verify-app.web.ts'),
+      join(consumer, 'verify-app.web.mts'),
     )
 
     const output = resolve(values.output)
@@ -409,7 +412,7 @@ void plugin
     const output = resolve(values.output)
 
     mkdirSync(output, { recursive: true })
-    for (const target of ['web', 'ios', 'linux']) {
+    for (const target of ['web', 'ios', 'android', 'macos', 'gtk', 'linux']) {
       const file = `compiled-${target}.css`
 
       copyFileSync(join(consumer, file), join(output, file), constants.COPYFILE_EXCL)

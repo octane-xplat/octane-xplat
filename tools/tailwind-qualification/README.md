@@ -17,7 +17,7 @@ The Xplat integration has a separate packed-consumer check, implemented here
 and owned by the leaf package's task. It packs Tailwind, build tooling and the
 shared build library, then installs those tarballs with isolated dependencies
 outside the repository. It checks exported files, JavaScript execution,
-NodeNext/Bundler declarations, web/iOS/Linux-webview CSS compilation in development
+NodeNext/Bundler declarations, web/iOS/Android/AppKit/GTK/Linux-webview CSS compilation in development
 and production, development maps, platform-file selection, and browser SSR inline CSS:
 
 ```sh
@@ -72,7 +72,8 @@ bun run turbo run prepare:browser --filter=@xplat/tailwind-qualification
 bun run turbo run qualify:xplat --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-browser/my-run"
 ```
 
-This writes `compiled-web.css`, `compiled-ios.css`, `compiled-linux.css`,
+This writes `compiled-web.css`, `compiled-ios.css`, `compiled-android.css`,
+`compiled-macos.css`, `compiled-gtk.css`, `compiled-linux.css`,
 `consumer.json` and `browser.json`. The browser uses the web and Linux-webview
 CSS; the iOS file remains compilation evidence. The command fails on a missing
 browser, invalid fixture, failed package check or computed-style/layout mismatch.
@@ -81,7 +82,9 @@ NativeScript/Mason runtime, OS input or painting parity. Keep this opt-in task
 outside PR checks alongside the upstream comparison command.
 
 The app gate adds packed UI and its workspace dependency closure, the patched
-Octane runtime, and the Octane compiler to a fresh installation. It checks one
+Octane runtime, and the Octane compiler to a fresh installation. Optional native workspace peers
+are omitted from that browser closure; packing an override is not evidence that
+an optional peer was installed. It checks one
 physical Octane runtime before mounting actual UI components. Run it separately
 with Chromium already installed and a new output directory:
 

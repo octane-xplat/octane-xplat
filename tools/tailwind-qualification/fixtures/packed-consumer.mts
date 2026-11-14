@@ -1,6 +1,6 @@
 // Copied into the fresh consumer. Every package import resolves there.
 import assert from 'node:assert/strict'
-import { mkdir, realpath, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { join, relative } from 'node:path'
 import { build, createServer } from 'vite'
@@ -38,11 +38,26 @@ await writeFile(
   'export const classes = "flex flex-row grid grid-cols-[40px_60px] grid-rows-[20px] gap-2 relative absolute left-3 top-4 w-[200px] h-[80px] w-6 w-8 h-5 shrink-0 text-sm text-base rounded-lg opacity-50 opacity-75 sm:opacity-75 dark:bg-primary hover:opacity-55 leading-6 font-bold border translate-x-4 translate-y-2 scale-50"',
 )
 
+// The native corpus is independent of browser-only candidates. These files
+// are emitted CSS inputs for the real-host gate, not a native runtime verdict.
+await writeFile(
+  join(root, 'src/Native.mobile.tsrx'),
+  'export const classes = "flex flex-col flex-row grid grid-cols-[40px_60px] grid-rows-[20px] gap-2 relative absolute left-3 top-4 w-[240px] h-[240px] w-[200px] h-[80px] h-[40px] w-6 w-8 w-12 h-5 shrink-0 p-2 px-2 text-sm rounded-lg bg-primary opacity-50 opacity-75"',
+)
+await writeFile(
+  join(root, 'src/Native.macos.tsrx'),
+  await readFile(join(root, 'src/Native.mobile.tsrx'), 'utf8'),
+)
+await writeFile(
+  join(root, 'src/Native.gtk.tsrx'),
+  await readFile(join(root, 'src/Native.mobile.tsrx'), 'utf8'),
+)
+
 function plugins(target) {
   return [
     platformCss(target === 'linux' ? 'web' : target),
     tailwind(),
-    ...(target === 'ios' ? [pxToDip()] : []),
+    ...(!['web', 'linux'].includes(target) ? [pxToDip()] : []),
   ]
 }
 
@@ -72,7 +87,7 @@ function verifyCss(css, target) {
 
 const results = []
 
-for (const target of ['web', 'ios', 'linux']) {
+for (const target of ['web', 'ios', 'android', 'macos', 'gtk', 'linux']) {
   const built = await build({
     configFile: false,
     root,
@@ -82,7 +97,7 @@ for (const target of ['web', 'ios', 'linux']) {
     build: {
       write: false,
       sourcemap: true,
-      cssMinify: target !== 'ios',
+      cssMinify: ['web', 'linux'].includes(target),
       rollupOptions: { input: join(root, 'main.js') },
     },
   })
@@ -119,7 +134,7 @@ for (const target of ['web', 'ios', 'linux']) {
     assert.ok(dev)
     assert.ok(dev.map?.mappings, 'Development CSS must retain its map')
     verifyCss(dev.code, target)
-    if (target !== 'ios') {
+    if (['web', 'linux'].includes(target)) {
       const ssr = await server.ssrLoadModule('/app.css?inline')
 
       assert.equal(typeof ssr.default, 'string')
@@ -135,7 +150,7 @@ for (const target of ['web', 'ios', 'linux']) {
     developmentCss: true,
     developmentMap: true,
     productionMap: assets.some((file) => file.fileName.endsWith('.css.map')),
-    ssrInlineCss: target === 'ios' ? 'not-run' : 'passed',
+    ssrInlineCss: ['web', 'linux'].includes(target) ? 'passed' : 'not-run',
   })
 }
 
