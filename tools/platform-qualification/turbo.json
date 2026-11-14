@@ -22,6 +22,11 @@
       ],
       "passThroughEnv": [
         "GODDARD_*",
+        "IDB_COMPANION",
+        "IDB_COMPANION_TLS",
+        "AI_AGENT",
+        "AGENT",
+        "CODING_AGENT_METADATA",
         "ANDROID_HOME",
         "ANDROID_SDK_ROOT",
         "JAVA_HOME",
@@ -37,6 +42,11 @@
       ],
       "passThroughEnv": [
         "GODDARD_*",
+        "IDB_COMPANION",
+        "IDB_COMPANION_TLS",
+        "AI_AGENT",
+        "AGENT",
+        "CODING_AGENT_METADATA",
         "ANDROID_HOME",
         "ANDROID_SDK_ROOT",
         "JAVA_HOME",

@@ -379,13 +379,27 @@ HID, then asserts that Button, Pressable and ClickableCard each activate once.
 It uses numeric hit frames and creates no images. The platform-content fixture
 measures effect, context-menu trigger and sheet callback content, and checks
 sheet presentation changes and ref cleanup. Both need the same existing-device
-reservation as the geometry suite:
+reservation as the geometry suite.
+
+iOS HID checks also need an IDB companion serving the selected simulator. Start
+an owned companion inside the reservation and wait for its readiness message.
+Use an unused port; this example uses 10882:
+
+```sh
+idb_companion --udid DEVICE_UDID --grpc-port 10882 --terminate-offline true
+```
+
+Keep that process running while the test process selects it with
+`IDB_COMPANION`. Stop your companion before ending the reservation. A cached
+connection record without its companion socket cannot deliver HID input.
+The iOS input and preview runners use the selected simulator. Run the checks
+inside the same reservation:
 
 ```sh
 bun run turbo run test:layout-input --filter=@xplat/platform-qualification -- android --device DEVICE_SERIAL
-bun run turbo run test:layout-input --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
+IDB_COMPANION=127.0.0.1:10882 bun run turbo run test:layout-input --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
 bun run turbo run test:layout-native --filter=@xplat/platform-qualification -- android --device DEVICE_SERIAL
-bun run turbo run test:layout-native --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
+IDB_COMPANION=127.0.0.1:10882 bun run turbo run test:layout-native --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
 ```
 
 The iOS content runner opens and dismisses the context menu through simulator
