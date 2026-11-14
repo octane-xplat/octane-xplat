@@ -153,6 +153,45 @@ describe('nativeScriptDriver', () => {
     expect(label.text).toBe('')
   })
 
+  it('requests new text measurement for changed child text and direct text props', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(create(1, 'label'), create(2, '#text', { value: 'Short' }), insert(1), insert(2, 1))
+    const label = view<MockTextBase>(1)
+    const request = vi.spyOn(label, 'requestLayout')
+
+    apply(update(2, { value: 'Longer text that must wrap in its existing host' }))
+    expect(request).toHaveBeenCalledTimes(1)
+    request.mockClear()
+    apply(update(2, { value: 'Longer text that must wrap in its existing host' }))
+    expect(request).not.toHaveBeenCalled()
+    apply(update(2, { value: 'Short' }))
+    expect(request).toHaveBeenCalledTimes(1)
+    expect(view(1)).toBe(label)
+
+    apply(create(3, 'label', { text: 'Short' }), insert(3))
+    const direct = view<MockTextBase>(3)
+    const directRequest = vi.spyOn(direct, 'requestLayout')
+    apply(update(3, { text: 'A longer direct text prop' }))
+    expect(directRequest).toHaveBeenCalledTimes(1)
+    expect(direct.text).toBe('A longer direct text prop')
+  })
+
+  it('invalidates the owning label when a nested span text value changes', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'label'), create(2, 'formattedstring'), create(3, 'span'),
+      create(4, '#text', { value: 'Short' }), insert(1), insert(2, 1), insert(3, 2), insert(4, 3),
+    )
+    const label = view<MockTextBase>(1)
+    const request = vi.spyOn(label, 'requestLayout')
+    apply(update(4, { value: 'A longer nested text value' }))
+    expect(request).toHaveBeenCalledTimes(1)
+    request.mockClear()
+    apply(update(3, { text: 'A direct span value' }))
+    expect(request).toHaveBeenCalledTimes(1)
+    expect(view(1)).toBe(label)
+  })
+
   it('resets props omitted from the complete update snapshot', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(create(1, 'label', { row: 2, text: 'a' }), insert(1))

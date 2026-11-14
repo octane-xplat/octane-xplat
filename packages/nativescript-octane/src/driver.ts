@@ -318,11 +318,16 @@ function setProp(node: HostNode, view: ViewBase, name: string, value: unknown): 
   // edit; a controlled input must not see its own value come back as one.
   const echo = `${name}Change`
   const listening = node.listeners.has(echo)
+  const textValue = name === 'text' || name === 'formattedText'
+  const previousText = textValue ? Reflect.get(target, name) : undefined
   if (listening) {
     node.muted.add(echo)
   }
   try {
     Reflect.set(target, name, value)
+    if (textValue && !Object.is(previousText, Reflect.get(target, name))) {
+      requestTextLayout(node)
+    }
     if (value === unsetValue && _getStyleProperties().some((p) => p.name === name)) {
       refreshCss(view)
     }
@@ -800,6 +805,23 @@ function replaceSpans(fs: FormattedString, runs: Span[]) {
   }
 }
 
+/** Core's iOS label can skip invalidation after Mason's exact placement
+ *  measure. Request it explicitly so Mason also drops the foreign leaf cache.
+ *  Rich runs invalidate their nearest owning text view, not the logical span. */
+function requestTextLayout(parent: NativeScriptParent): void {
+  while (parent !== null && !isPortalTarget(parent)) {
+    const view = parent.view
+    if (view instanceof TextBase) {
+      view.requestLayout()
+      return
+    }
+    if (!(view instanceof Span) && !(view instanceof FormattedString)) {
+      return
+    }
+    parent = parent.parent
+  }
+}
+
 /** Recompute a text host's `text` from its `#text` children. */
 function syncText(parent: NativeScriptParent): void {
   if (parent === null || isPortalTarget(parent)) {
@@ -814,7 +836,10 @@ function syncText(parent: NativeScriptParent): void {
         text += child.text
       }
     }
-    view.text = text
+    if (view.text !== text) {
+      view.text = text
+      requestTextLayout(parent)
+    }
     return
   }
   if (view instanceof FormattedString) {
@@ -832,6 +857,7 @@ function syncText(parent: NativeScriptParent): void {
       }
     }
     replaceSpans(view, runs)
+    requestTextLayout(parent)
     return
   }
   if (!(view instanceof TextBase)) {
@@ -855,6 +881,7 @@ function syncText(parent: NativeScriptParent): void {
       parent.textApplied = false
       view.text = ''
     }
+    requestTextLayout(parent)
     return
   }
   if (parent.foldedText != null) {
@@ -876,7 +903,10 @@ function syncText(parent: NativeScriptParent): void {
     return
   }
   parent.textApplied = found
-  view.text = text
+  if (view.text !== text) {
+    view.text = text
+    requestTextLayout(parent)
+  }
 }
 
 function addViewChild(parentView: ViewBase, view: ViewBase, index: number): void {

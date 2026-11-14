@@ -44,6 +44,8 @@ export class MockViewBase {
 
 export class MockView extends MockViewBase {
   visibility = 'visible'
+
+  requestLayout(): void {}
 }
 
 export class MockLayoutBase extends MockView {

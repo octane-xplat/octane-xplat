@@ -313,3 +313,19 @@ width repairs in callers. The generic Mason scroll-root available-size input
 alone can leave an auto-sized block document at its intrinsic width.
 
 For AppKit text wrapping, see [the Mason measurement contract](macos-mason-engine.md#text-measurement).
+
+### iOS text changes after Mason placement
+
+NativeScript Core 9.1.3's `Label._requestLayoutOnTextChanged` can skip layout
+when its last measurement fixed both axes. Mason's foreign-view placement can
+produce that measurement even when the caller's height is auto. The native
+string changes while the cached leaf and containing block keep their old size.
+This is a Core/Mason interop boundary, not a reason to pin text heights in apps.
+
+The NativeScript driver explicitly requests layout after changed text writes,
+including the owning text view for logical rich runs. Mason Core beta.8's
+foreign-layout hook then invalidates the leaf's cached measurement. Keep this
+request after the value write and avoid it for unchanged plain text. Do not
+replace the host or weaken the block-flow text growth/shrink regression.
+See [Core's iOS Label](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/ui/label/index.ios.ts)
+and [issue #273](https://github.com/octane-xplat/octane-xplat/issues/273).
