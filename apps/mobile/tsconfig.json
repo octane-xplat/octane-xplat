@@ -35,7 +35,11 @@
 			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
 		}
 	},
-	"include": ["src/**/*", "../../packages/**/*"],
+	"include": [
+		"src/**/*",
+		"../../packages/*/src/**/*.d.ts",
+		"../../packages/ui/type-support/**/*.d.ts"
+	],
 	"files": [
 		"../../packages/macos-appkit/src/host-globals.d.ts",
 		"../../packages/linux-gtk-renderer/src/gi.d.ts",
