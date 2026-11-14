@@ -99,16 +99,10 @@ const firstMount = async () => {
   check('probe-widgets-present', layout && counterNode?.view && entry && textview, {
     ids: [...mounted.container.nodes.values()].map((n) => n.props?.id),
   })
-  // XplatMason available ⇒ the masonview must be engine-managed, not the
-  // renderer's Gtk.Box fallback; absent ⇒ the fallback is required.
+  // Mason is required on every platform (octane-xplat#281): the renderer's
+  // Gtk.Box fallback is not a supported layout path, so it fails here.
   const layoutType = typeNameOf(layout)
-  check(
-    'mason-mode',
-    imports.gi.XplatMason
-      ? layoutType === 'XplatMasonView'
-      : layoutType === 'XplatMasonFallbackView',
-    layoutType,
-  )
+  check('mason-mode', layoutType === 'XplatMasonView', layoutType)
   const frames = [
     { id: 'layout', ...frame(layout, win) },
     { id: 'increment', ...frame(widgetOf(nodeById(mounted.container, 'increment')), layout) },

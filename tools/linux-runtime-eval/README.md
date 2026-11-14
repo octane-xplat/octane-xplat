@@ -78,7 +78,7 @@ LINUX_RUNTIME_EVAL_EXECUTABLE=/path/to/task-scratch/prepared/ns-linux \
   bun run turbo run test:port --filter=@xplat/linux-runtime-eval
 ```
 
-To exercise real Mason (`imports.gi.XplatMason` instead of the renderer's `Gtk.Box` fallback), build the facade for Linux ARM64 — `packages/linux-gtk-renderer/native/xplatmason/xplatmason.c` + `xplatmason.h` compiled `-shared -fPIC` against `libmason_c.so` (soname `libxplatmason-gtk.so`, `$ORIGIN` rpath), plus `XplatMason-1.0.gir`/`.typelib` from `g-ir-scanner`/`g-ir-compiler` as `native/xplatmason/build.sh` does. The facade needs a `libjson-glib-1.0.so.0` beside it when the host lacks one. Then prepare a second metadata module alongside Mason:
+The port requires Mason, because Mason is required on every platform ([#281](https://github.com/octane-xplat/octane-xplat/issues/281)). Its `mason-mode` check fails if the renderer falls back to `Gtk.Box`. Build the facade for the target architecture — `packages/linux-gtk-renderer/native/xplatmason/xplatmason.c` + `xplatmason.h` compiled `-shared -fPIC` against `libmason_c.so` (soname `libxplatmason-gtk.so`, `$ORIGIN` rpath), plus `XplatMason-1.0.gir`/`.typelib` from `g-ir-scanner`/`g-ir-compiler` as `native/xplatmason/build.sh` does. The facade needs a `libjson-glib-1.0.so.0` beside it when the host lacks one. Then prepare a second metadata module alongside Mason:
 
 ```sh
 python3 tools/linux-runtime-eval/prepare-metadata.py \
@@ -92,7 +92,7 @@ python3 tools/linux-runtime-eval/prepare-metadata.py \
 
 `--facade-header`/`--facade-library` is a repeatable pair; the helper strips system includes and declares ABI-equivalent types, so no GTK dev headers are needed on the prepare host. Regenerate `gi.json` with the facade on the typelib path so its functions are projected; run `test:port` with the new `ns-linux`.
 
-The same task runs the GJS control: `LINUX_RUNTIME_EVAL_ENGINE=gjs LINUX_RUNTIME_EVAL_SLICE=port` runs `dist/port-gjs/app.js` under `gjs -m` through the same input driver. Set `LINUX_RUNTIME_EVAL_MASON_DIR` to a directory containing the facade typelib and its libraries to make both engines use real Mason — it becomes `XPLAT_MASON_TYPELIB` + `LD_LIBRARY_PATH` inside the guest:
+The same task runs the GJS control: `LINUX_RUNTIME_EVAL_ENGINE=gjs LINUX_RUNTIME_EVAL_SLICE=port` runs `dist/port-gjs/app.js` under `gjs -m` through the same input driver. GJS needs `LINUX_RUNTIME_EVAL_MASON_DIR` set to a directory containing the facade typelib and its libraries, which becomes `XPLAT_MASON_TYPELIB` + `LD_LIBRARY_PATH` inside the guest. `ns-linux` finds Mason through the bundle's prepared metadata even without it:
 
 ```sh
 LINUX_RUNTIME_EVAL_VM=gtk-smoke LINUX_RUNTIME_EVAL_ENGINE=gjs \
