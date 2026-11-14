@@ -62,6 +62,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Understand the owned NativeScript renderer | [NativeScript renderer](packages/package-nativescript-octane.md) |
 | Configure the native compiler and hot updates | [NativeScript Octane build integration](packages/package-vite-octane.md) |
 | Save settings and packing records | [Local storage](app/local-storage.md) |
+| Evaluate the unreleased Tailwind integration | [Tailwind release candidate](packages/package-tailwind.md) |
 | Change colors, spacing, and fonts               | [Styling screens](app/styling.md)                      |
 | Make a screen work with assistive technology    | [Accessible screens](app/accessibility.md)             |
 | Validate and save form values | [Forms with validation](packages/package-form.md) |

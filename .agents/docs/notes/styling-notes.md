@@ -135,7 +135,14 @@ source-removal behavior beside build/watch timings: removing required layout
 rules is not an optimization. Package bytes describe the installed dependency
 closure; shared peers, download compression and disk deduplication are separate
 costs. The [qualification workflow](../../../tools/tailwind-qualification/README.md)
-documents the measurement boundaries. Runtime support remains a separate gate.
+documents the measurement boundaries. Runtime support remains a separate gate. Generated values also pass a
+conservative per-property boundary: intrinsic widths, contextual colors,
+unsupported alignment modes and unitless/percentage line heights fail before
+native setters. Keep absolute line heights; native numeric values denote
+lengths rather than browser font-size multipliers. This is not a complete CSS
+grammar validator, and runtime variable contents remain app-owned. The
+[candidate guide](../../../docs/packages/package-tailwind.md) carries the app
+setup and explicit release limits.
 
 Qualify generated CSS in both a plain CSS consumer and an installed UI app.
 The opt-in `qualify:app` task packs UI's workspace closure and checks that the

@@ -88,8 +88,11 @@ parity fixes merged, but the released NativeScript adapter strips Xplat layout
 utilities and loses some CSS semantics. Do not install it as a shortcut around
 our curated classes or Bamboo. See the
 [current constraints](../../../docs/notes/styling-notes.md#original-shared-pipeline)
-before investigating a first-party integration. A successful compiler build is
-not evidence of native layout or cascade parity.
+before changing the first-party candidate. Its [setup and value boundary](../../../../docs/packages/package-tailwind.md)
+requires explicit lengths for native line heights and rejects intrinsic sizing
+and contextual colors. Runtime variable values must satisfy the same native
+contract. Keep optional native peers out of the packed browser consumer. A
+successful compiler build is not evidence of native layout or cascade parity.
 
 ## Native layout styles
 

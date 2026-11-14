@@ -41,8 +41,11 @@ container units such as `cqw`. These candidates pass the unit boundary:
 @source inline("grid grid-cols-[1fr_2fr] w-[50%]");
 ```
 
-This unit check does not validate every property's value grammar or values hidden
-behind runtime variables. Those contracts still require separate qualification.
+The adapter also checks generated property values. Intrinsic widths,
+contextual colors, unsupported alignment keywords and unitless/percentage line
+heights fail explicitly. This is a conservative value contract, not a full CSS
+validator. Runtime `var()` contents remain the app's responsibility: keep their
+values within the native contract. Neither check establishes host rendering.
 
 Generated `calc()` expressions containing both percentage and pixel/DIP literals
 fail explicitly. Core's width converter cannot consume the unresolved contextual
@@ -108,3 +111,8 @@ bun run turbo run test:packed --filter=@octane-xplat/tailwind
 For Chromium computed-style and layout checks using that installed CSS, follow
 the separate [browser qualification workflow](../../tools/tailwind-qualification/README.md).
 It remains opt-in and establishes no native runtime or painting behavior.
+
+The [candidate setup guide](../../docs/packages/package-tailwind.md) owns app-facing
+setup and the explicit support boundary. Keep this workspace private until the
+remaining real-host and release gates are complete. Public npm publication also
+requires the stub/trusted-publisher bootstrap in the [release guide](../../.agents/docs/releases.md).

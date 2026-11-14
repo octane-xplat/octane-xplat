@@ -149,6 +149,161 @@ function fail(root: Root, node: Node, target: NativeTarget, detail: string): nev
   })
 }
 
+// A property allowlist alone admits valid browser values that native setters
+// cannot consume (intrinsic sizes, unitless line heights, or contextual colors).
+// Runtime var() values remain the app's responsibility, as with authored CSS.
+const keywords = new Map<string, readonly string[]>([
+  ['display', ['flex', 'grid', 'none']],
+  ['position', ['relative', 'absolute']],
+  ['flex-direction', ['row', 'row-reverse', 'column', 'column-reverse']],
+  ['flex-wrap', ['nowrap', 'wrap', 'wrap-reverse']],
+  [
+    'align-items',
+    ['normal', 'stretch', 'start', 'end', 'center', 'flex-start', 'flex-end', 'baseline'],
+  ],
+  [
+    'align-self',
+    ['auto', 'normal', 'stretch', 'start', 'end', 'center', 'flex-start', 'flex-end', 'baseline'],
+  ],
+  [
+    'align-content',
+    [
+      'normal',
+      'stretch',
+      'start',
+      'end',
+      'center',
+      'flex-start',
+      'flex-end',
+      'space-between',
+      'space-around',
+      'space-evenly',
+    ],
+  ],
+  [
+    'justify-content',
+    [
+      'normal',
+      'start',
+      'end',
+      'center',
+      'flex-start',
+      'flex-end',
+      'space-between',
+      'space-around',
+      'space-evenly',
+    ],
+  ],
+  ['justify-items', ['normal', 'stretch', 'start', 'end', 'center']],
+  ['justify-self', ['auto', 'normal', 'stretch', 'start', 'end', 'center']],
+  ['visibility', ['visible', 'hidden']],
+  ['font-style', ['normal', 'italic']],
+  ['text-align', ['left', 'right', 'center', 'justify']],
+  ['border-style', ['solid']],
+])
+
+function checkPropertyValue(root: Root, declaration: Declaration, target: NativeTarget) {
+  const { prop, value } = declaration
+
+  if (prop.startsWith('--')) {
+    return
+  }
+
+  const parts = valueParser(value).nodes.filter(
+    (node) => node.type !== 'space' && node.type !== 'comment',
+  )
+  const variable = (node: valueParser.Node) => node.type === 'function' && node.value === 'var'
+  const enumeration = keywords.get(prop)
+  let valid: boolean
+
+  if (enumeration) {
+    valid =
+      parts.length === 1 &&
+      parts.every((node) => variable(node) || enumeration.includes(node.value))
+  } else if (prop === 'grid-auto-flow') {
+    valid = /^(row|column)( dense)?$|^dense$/.test(value)
+  } else if (prop === 'font-weight') {
+    valid = /^(normal|bold|[1-9]00)$/.test(value) || (parts.length === 1 && parts.every(variable))
+  } else if (prop.endsWith('color') || prop === 'color') {
+    valid =
+      parts.length === 1 &&
+      parts.every(
+        (node) =>
+          variable(node) ||
+          (node.type === 'function' && ['rgb', 'rgba', 'hsl', 'hsla'].includes(node.value)) ||
+          /^(?:#[\da-f]{3}|#[\da-f]{4}|#[\da-f]{6}|#[\da-f]{8}|transparent|black|white|red|green|blue|yellow|gray|grey|silver|maroon|purple|fuchsia|lime|olive|navy|teal|aqua)$/i.test(
+            node.value,
+          ),
+      )
+  } else if (gridTracks.has(prop)) {
+    valid =
+      parts.length > 0 &&
+      parts.every(
+        (node) =>
+          variable(node) ||
+          (node.type === 'function' && ['repeat', 'minmax'].includes(node.value)) ||
+          (node.type === 'word' && /^(?:auto|(?:\d*\.)?\d+(?:px|dip|%|fr)|0)$/.test(node.value)),
+      )
+  } else if (/^grid-(column|row)(-start|-end)?$/.test(prop)) {
+    valid =
+      /^(auto|-?\d+|span \d+)( \/ (auto|-?\d+|span \d+))?$/.test(value) ||
+      (parts.length === 1 && parts.every(variable))
+  } else {
+    const scalar = ['opacity', 'flex-grow', 'flex-shrink', 'order'].includes(prop)
+    const count =
+      prop === 'flex'
+        ? 3
+        : /^(padding|margin|border-width|border-color|border-radius)$/.test(prop)
+          ? 4
+          : /^(gap|padding-inline|padding-block|margin-inline|margin-block)$/.test(prop)
+            ? 2
+            : 1
+    valid =
+      parts.length > 0 &&
+      parts.length <= count &&
+      parts.every((node) => {
+        if (variable(node)) {
+          return true
+        }
+        if (node.type === 'function') {
+          return node.value === 'calc' && (prop !== 'line-height' || /(?:px|dip)\b/.test(value))
+        }
+        if (node.type !== 'word') {
+          return false
+        }
+        if (node.value === 'auto') {
+          return /^(width|height|flex|flex-basis|margin(?:-.*)?|top|right|bottom|left)$/.test(prop)
+        }
+        const dimension = valueParser.unit(node.value)
+        if (!dimension || !Number.isFinite(Number(dimension.number))) {
+          return false
+        }
+        if (scalar || prop === 'flex') {
+          return (
+            dimension.unit === '' ||
+            (prop === 'flex' && ['px', 'dip', '%'].includes(dimension.unit)) ||
+            (prop === 'opacity' && dimension.unit === '%')
+          )
+        }
+        // Native line-height is an absolute length; CSS unitless values multiply
+        // the font size. Do not turn leading-[1.5] into a 1.5-DIP line.
+        if (prop === 'line-height') {
+          return ['px', 'dip'].includes(dimension.unit)
+        }
+        return ['px', 'dip', '%'].includes(dimension.unit) || Number(dimension.number) === 0
+      })
+  }
+
+  if (!valid) {
+    fail(
+      root,
+      declaration,
+      target,
+      `${prop}: ${value} is outside the native value contract; use explicit supported values or a platform stylesheet`,
+    )
+  }
+}
+
 function checkValue(root: Root, declaration: Declaration, target: NativeTarget) {
   const parsed = valueParser(declaration.value)
 
@@ -359,30 +514,10 @@ export async function adaptNativeStylesheet(root: Root, target: NativeTarget): P
       }
 
       checkValue(root, declaration, target)
+      checkPropertyValue(root, declaration, target)
       if (declaration.prop === 'opacity' && /^-?(?:\d*\.)?\d+%$/.test(declaration.value)) {
         declaration.value = String(
           Math.max(0, Math.min(1, Number.parseFloat(declaration.value) / 100)),
-        )
-      }
-
-      if (declaration.prop === 'display' && !['flex', 'grid', 'none'].includes(declaration.value)) {
-        fail(
-          root,
-          declaration,
-          target,
-          `display: ${declaration.value} is not a supported Mason layout mode`,
-        )
-      }
-
-      if (
-        declaration.prop === 'position' &&
-        !['relative', 'absolute'].includes(declaration.value)
-      ) {
-        fail(
-          root,
-          declaration,
-          target,
-          `position: ${declaration.value} is not supported by this host`,
         )
       }
 

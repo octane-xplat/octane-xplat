@@ -15,6 +15,8 @@ Pure refactors ordinarily need no recipe change.
 
 Workflows:
 
+- [Compile Tailwind utilities through Xplat](tailwind-css.md)
+
 - [Lint and format app source](source-quality.md)
 - [Keep framework dependencies compatible](framework-upgrades.md)
 

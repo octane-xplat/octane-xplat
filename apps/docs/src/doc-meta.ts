@@ -103,6 +103,7 @@ export const GROUPS = [
       'package-auth',
       'package-background-tasks',
       'package-bamboo',
+      'package-tailwind',
       'package-barcode-scanner',
       'package-billing',
       'package-biometrics',

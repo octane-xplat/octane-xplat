@@ -12,14 +12,15 @@ import {
 } from '@octane-xplat/css-engine'
 
 import { tailwindCompiler } from '../src/compiler.ts'
+import type { TailwindTarget } from '../src/target.ts'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const entry = (await readFile(`${root}/src/index.css`, 'utf8'))
   .replace('./theme.css', './src/theme.css')
   .replace('layer(utilities);', 'layer(utilities) source(none);')
 
-async function compile(classes: string, extra = '') {
-  const result = await postcss([tailwindCompiler({ root, target: 'ios' })]).process(
+async function compile(classes: string, extra = '', target: TailwindTarget = 'ios') {
+  const result = await postcss([tailwindCompiler({ root, target })]).process(
     `${entry}
 @source inline(${JSON.stringify(classes)}); ${extra}`,
     { from: `${root}/native-case.css` },
@@ -145,4 +146,47 @@ test('native contextual math fails instead of reaching a rejecting length conver
   assert.equal(computed(css, ['w-[calc(25%*2)]']).width, '50%')
   assert.equal(computed(css, ['h-[calc(4px*2)]']).height, 8)
   assert.match(css, /width: calc\(100% - 8dip\)/)
+})
+
+test('native generated values reject browser-only grammars without filtering app CSS', async () => {
+  for (const classes of [
+    'w-min',
+    'w-max',
+    'w-fit',
+    'text-start',
+    'bg-current',
+    '[opacity:12px]',
+    '[width:banana]',
+    '[align-items:banana]',
+    '[line-height:1.5]',
+    '[line-height:150%]',
+    '[line-height:calc(1.5)]',
+  ]) {
+    await assert.rejects(compile(classes), /native value contract/, classes)
+  }
+
+  const css = await compile(
+    'w-auto w-[50%] text-sm bg-[#123456] [line-height:24px]',
+    '.authored { width: min-content; line-height: 1.5; color: currentColor }',
+  )
+  assert.match(css, /width: min-content/)
+  assert.match(css, /line-height: 1.5/)
+  assert.match(css, /color: currentColor/)
+  assert.equal(computed(css, ['[line-height:24px]']).lineHeight, 24)
+})
+
+test('generated value boundaries also apply to @apply and every native CSS target', async () => {
+  for (const target of ['ios', 'android', 'macos', 'gtk', 'visionos'] as const) {
+    await assert.rejects(compile('w-min', '', target), /native value contract/)
+    await assert.rejects(
+      compile('', '.authored { @apply [line-height:1.5]; }', target),
+      /native value contract/,
+    )
+    const css = await compile('flex w-8', '.authored { width: min-content }', target)
+    assert.equal(computed(css, ['flex', 'w-8']).width, 32)
+    assert.match(css, /width: min-content/)
+  }
+  for (const target of ['windows', 'native'] as const) {
+    await assert.rejects(compile('flex', '', target), /host adapter is not ready/)
+  }
 })

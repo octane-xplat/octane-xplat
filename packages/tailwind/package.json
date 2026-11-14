@@ -3,6 +3,14 @@
   "version": "0.20.0",
   "private": true,
   "description": "Optional Tailwind compiler integration for Octane Xplat",
+  "keywords": [
+    "css",
+    "nativescript",
+    "octane",
+    "tailwindcss",
+    "vite"
+  ],
+  "homepage": "https://octane-xplat.goddardai.org/package-tailwind",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -25,6 +33,9 @@
       "types": "./types/generated/vite.d.ts",
       "default": "./dist/vite.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "sync:ui-theme": "node scripts/sync-ui-theme.ts",
@@ -52,5 +63,8 @@
   },
   "peerDependencies": {
     "vite": "^8.3.0"
+  },
+  "engines": {
+    "node": ">=22.22.2"
   }
 }

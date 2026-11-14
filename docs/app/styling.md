@@ -827,6 +827,10 @@ wrapping, but does not preserve repeated spaces and newlines like web
 
 ## Tailwind and native
 
+The [first-party release candidate](../packages/package-tailwind.md) documents
+setup, generated-output diagnostics and remaining qualification limits. It
+remains private; do not substitute the npm bootstrap placeholder for a release.
+
 Tailwind is not yet a supported shared styling workflow. NativeScript's earlier
 adapter fixes [have merged](https://github.com/NativeScript/tailwind/pull/227),
 but its current output still needs Xplat-specific layout and CSS behavior
