@@ -12,7 +12,7 @@ let nextWriter = 0
 
 /** Handler/adapter dispatch only. Real input uses the maintained gesture OS
  * fixtures; these samples never pretend to be UITouch or MotionEvent objects. */
-export function createGestureDispatch() {
+export function createGestureDispatch(axis: 'x' | 'y' = 'x') {
   const writer = ++nextWriter
   let time = 0,
     serial = 0,
@@ -31,7 +31,7 @@ export function createGestureDispatch() {
 
   return {
     restore() {},
-    send(host: object, phase: 'start' | 'move' | 'end' | 'cancel', x: number, velocity = 0) {
+    send(host: object, phase: 'start' | 'move' | 'end' | 'cancel', distance: number, velocity = 0) {
       if (phase === 'start') {
         // Probe refs come from the NativeScript renderer. Validate the minimal
         // observable boundary before binding that erased host to its named type.
@@ -67,7 +67,7 @@ export function createGestureDispatch() {
           cohort: `fixture:${writer}:${++sequence}`,
         })
 
-        last = x
+        last = distance
       }
 
       const run = active.get(host)
@@ -76,13 +76,16 @@ export function createGestureDispatch() {
         throw new Error('Gesture dispatch must begin with start')
       }
 
-      time += velocity ? Math.max(1, Math.abs(((x - last) * 1000) / velocity)) : 20
-      last = x
+      time += velocity ? Math.max(1, Math.abs(((distance - last) * 1000) / velocity)) : 20
+      last = distance
 
       const contact: InputContact = {
         id: 'fixture:1',
         kind: 'touch',
-        window: { x: run.start.x + x, y: run.start.y },
+        window: {
+          x: run.start.x + (axis === 'x' ? distance : 0),
+          y: run.start.y + (axis === 'y' ? distance : 0),
+        },
         screen: null,
       }
 

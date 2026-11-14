@@ -689,3 +689,10 @@ Maintained codec, string-value, expanded-target, compiled binding and
 video-geometry tests cover syntax, compatibility, interruption, resize promises,
 read-only mappings and cleanup. They establish policy and geometry contracts;
 object-driver tests do not establish OS input, pixel output or frame pacing.
+
+The maintained `tests/video-transition.ios.tsrx` fixture uses the Video leaf's
+actual AVPlayer host to check playback readiness/progress, image and mask
+geometry through reversal, drag cancellation, resize/redraw and unmount. Player
+stop and Motion clip release are separate cleanup assertions. Supply the bundled
+video asset as described in the fixture header. Native geometry and shared
+gesture dispatch do not establish visible video clipping, OS input or pacing.
