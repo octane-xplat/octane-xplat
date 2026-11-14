@@ -1,6 +1,4 @@
 import { compile } from 'octane/compiler'
-// octane ships no typings for this subpath.
-// @ts-expect-error
 import { resolveRendererForFile } from 'octane/compiler/renderers'
 import { describe, expect, it } from 'vitest'
 import {
