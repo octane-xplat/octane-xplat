@@ -141,7 +141,8 @@ xcconfig property lookup and can produce a second, self-referential definition.
 The app can supply a native entry point and use the SDK's
 [NativeScriptStart helpers](https://github.com/NativeScript/ios/blob/9.1.0/project-template-ios/internal/NativeScriptStart.m)
 for delayed setup/boot. The supporting
-prior-art research is commit 879ce4c, with the public source linked here so this
+prior-art source research is commit 879ce4c (bounded UIKit SDK runtime
+clarification: 7e417d4), with the public source linked here so this
 guidance remains usable without that private repository.
 
 ```xcconfig
@@ -159,6 +160,25 @@ through the normal CLI. The separate
 [stock SDK control](../../tools/platform-qualification/native-prerender/README.md#stock-ios-sdk-startup-control)
 owns its build/run assertions. It checks UIKit startup only, separately from
 the Home IR, wrapper adoption, Core window handoff and production integration.
+
+The separate stock SDK Home control compiles the shared Home bootstrap through
+NativeSource with `XPLAT_PRERENDER_STOCK_SDK`, emits XPI1 into the normal Vite
+app bundle, and calls the same SDK helpers. Its producer resolves from the
+isolated app's installed package tree; the live bundle uses the installed
+native preset and the existing four-primitive qualification facade. It reuses
+the Home identity, Core Page/window and style/layout assertions. This remains
+a fixed-screen control, not normal app opt-in installation or arbitrary
+component eligibility.
+
+The arm64 Mason archive requires excluding x86_64 from this simulator build.
+Swift also needs the SDK's generated static-library include directory to import
+FontManager through MasonCore's textual interface. Use the SDK-provided module;
+do not duplicate the native FontManager implementation or edit the SDK cache.
+
+```xcconfig
+EXCLUDED_ARCHS[sdk=iphonesimulator*] = x86_64
+SWIFT_INCLUDE_PATHS = $(inherited) "$(BUILT_PRODUCTS_DIR)/include"
+```
 
 ## Separate native layout, frame submission and presentation
 

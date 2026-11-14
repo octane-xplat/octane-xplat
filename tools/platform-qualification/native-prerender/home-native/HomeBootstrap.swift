@@ -3,8 +3,8 @@ import TNSWidgets
 import MasonCore
 import os.signpost
 
-// Experimental fixed Home host. Build tooling substitutes the exact artifact
-// identity and compiles this entry point as main.swift. Not app startup wiring.
+// Fixed Home control. The SDK variant uses NativeSource and the stock launcher;
+// the independent experimental host still compiles this file as main.swift.
 private let homeBuildHash = "__XPLAT_PRERENDER_BUILD_HASH__"
 
 final class HomeDelegate: UIResponder, UIApplicationDelegate {
@@ -71,7 +71,12 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
         let artifact: [String: Any]
         do {
-            guard let url = Bundle.main.url(forResource: "home", withExtension: "bin") else {
+            #if XPLAT_PRERENDER_STOCK_SDK
+            let resource = Bundle.main.url(forResource: "home", withExtension: "bin", subdirectory: "app")
+            #else
+            let resource = Bundle.main.url(forResource: "home", withExtension: "bin")
+            #endif
+            guard let url = resource else {
                 throw XplatMasonArtifact.Invalid(reason: "missing artifact")
             }
             let decoded = try XplatMasonArtifact.decode(Data(contentsOf: url), expectedBuildHash: homeBuildHash)
@@ -148,10 +153,18 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         var oldNodes = oldViews.map { NSCMason.shared.nodeForView($0) }
         var oldParents = oldViews.map { $0.superview }
         record("engine-init-begin")
+        #if XPLAT_PRERENDER_STOCK_SDK
+        NativeScriptStart.setup()
+        #else
         precondition(StartProbeRuntime())
+        #endif
         runtimeStarted = true
         record("engine-init-end")
+        #if XPLAT_PRERENDER_STOCK_SDK
+        NativeScriptStart.boot()
+        #else
         RunProbeApplication()
+        #endif
         record("js-entry-end")
         var attempts = 0
         // The optional HID fixture waits for an external input driver.
@@ -192,6 +205,9 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
                 DispatchQueue.main.async { [self] in observeLifetime(weakViews, weakNodes) }
                 return
             }
+            #if XPLAT_PRERENDER_STOCK_SDK
+            precondition(UIApplication.shared.connectedScenes.count == 1 && window?.windowScene?.windows.count == 1, "SDK Home created another scene/window")
+            #endif
             record("passed", ["homeVisualNodes": current.count, "homeAdoptionQualified": true, "presentationQualified": false, "adoptionQualified": false])
             #endif
         }
