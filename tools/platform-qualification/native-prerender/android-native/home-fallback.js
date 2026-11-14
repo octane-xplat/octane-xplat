@@ -1,7 +1,7 @@
 import { Application } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { Home } from '../Home.tsrx'
 import { prepareHomeApplication, acceptHomeApplication } from './home-application.js'
 import resolved from 'xplat-prerender:artifact'

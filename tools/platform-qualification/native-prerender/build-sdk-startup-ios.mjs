@@ -32,6 +32,11 @@ const mason = realpathSync(masonInput)
 const masonManifest = JSON.parse(readFileSync(join(mason, 'package.json')))
 
 assert.equal(masonManifest.name, '@octane-xplat/nativescript-mason-core')
+assert.equal(
+  masonManifest.version,
+  '1.0.0-beta.10',
+  'XPLAT_PRERENDER_IOS_MASON_PACKAGE must be the 1.0.0-beta.10 core package',
+)
 
 const fixture = process.env.XPLAT_PRERENDER_IOS_STARTUP_FIXTURE ?? 'home'
 const mode = process.env.XPLAT_PRERENDER_IOS_STARTUP_MODE ?? 'adopt'
@@ -132,6 +137,9 @@ for (const name of [
   'ui',
   'lib',
   'icons',
+  'jsx',
+  'nativescript-octane',
+  'vite-octane',
   'build',
   'mason-core',
 ]) {
@@ -148,9 +156,12 @@ for (const name of [
 const patchedDependencies = {}
 
 for (const [name, patch] of [
-  ['octane@0.16.3', 'octane@0.16.3.patch'],
+  ['octane@0.17.0', 'octane@0.17.0.patch'],
   ['@nativescript/core@9.1.3', '@nativescript__core@9.1.3.patch'],
-  ['@nativescript-community/octane@0.2.5', '@nativescript-community__octane@0.2.5.patch'],
+  [
+    '@octane-xplat/nativescript-mason-core@1.0.0-beta.10',
+    '@octane-xplat__nativescript-mason-core@1.0.0-beta.10.patch',
+  ],
 ]) {
   copy(join(repo, 'packages/cli/patches', patch), join(app, 'patches', patch))
   patchedDependencies[name] = 'patches/' + patch
@@ -165,13 +176,11 @@ json(join(app, 'package.json'), {
   dependencies: {
     ...overrides,
     '@nativescript/core': '9.1.3',
-    '@nativescript-community/octane': '0.2.5',
-    octane: '0.16.3',
+    octane: '0.17.0',
   },
   devDependencies: {
     '@nativescript/ios': '9.1.0',
     '@nativescript/vite': '8.0.20',
-    '@nativescript-community/vite-octane': '0.2.1',
     vite: '8.3.6',
     typescript: '5.9.3',
     '@tsrx/oxc': '0.20.0',

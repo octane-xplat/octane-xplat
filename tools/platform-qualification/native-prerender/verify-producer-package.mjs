@@ -77,7 +77,7 @@ for (const name of packages) {
 
 mkdirSync(join(consumer, 'patches'))
 
-const patch = join(repo, 'packages/cli/patches/octane@0.16.3.patch')
+const patch = join(repo, 'packages/cli/patches/octane@0.17.0.patch')
 
 cpSync(patch, join(consumer, 'patches/octane.patch'))
 json(join(consumer, 'package.json'), {
@@ -88,7 +88,7 @@ json(join(consumer, 'package.json'), {
     ...Object.fromEntries(
       Object.entries(packed).map(([name, value]) => [name, 'file:' + value.path]),
     ),
-    octane: '0.16.3',
+    octane: '0.17.0',
     vite: '8.3.6',
     '@tsrx/oxc': '0.20.0',
   },
@@ -98,7 +98,7 @@ json(join(consumer, 'package.json'), {
     ),
     regenerate: '1.5.0',
   },
-  patchedDependencies: { 'octane@0.16.3': 'patches/octane.patch' },
+  patchedDependencies: { 'octane@0.17.0': 'patches/octane.patch' },
 })
 
 writeFileSync(join(consumer, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')

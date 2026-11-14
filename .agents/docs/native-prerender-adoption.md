@@ -99,11 +99,11 @@ The mount default journal lives on the `XplatMasonMount` instance (`views`,
 baseline cannot leak into unrelated native views. The adapter is
 version-sensitive: keep exact Core9.1.3 and Mason beta.10 evidence.
 
-Octane0.16.3's direct transaction marks host acceptance before apply and
+Octane0.17.0's direct transaction marks host acceptance before apply and
 continues logical/lifecycle/layout publication after an apply error, preserving
 the first thrown value. A failed commit can therefore have published refs and
 callbacks; it cannot be handled as an aborted preparation. See the
-[pinned upstream transaction source](https://github.com/octanejs/octane/blob/octane%400.16.3/packages/octane/src/universal-core.ts)
+[pinned upstream transaction source](https://github.com/octanejs/octane/blob/octane%400.17.0/packages/octane/src/universal-core.ts)
 and foundation research commit `f774f79` in the private prior-art repository.
 
 ```ts
@@ -130,8 +130,8 @@ the current preparation/commit API needs no pre-render fork.
 
 ## Keyed logical identity does not guarantee native move identity
 
-The pinned0.2.5 [driver insert path](https://github.com/nativescript-community/octane/blob/e8d9fd7b11b6d2cbce6f6621126ccda22541bef6/packages/octane/src/driver.ts#L491-L507)
-detaches an existing view before attaching it at the new position. With the
+The owned driver's insert path (`packages/nativescript-octane/src/driver.ts`,
+detach-before-attach on insert) detaches an existing view before attaching it at the new position. With the
 qualified Android Core/Mason adapter, that retains the keyed logical wrapper
 but recreates the moved Label and its Mason native node. The configured keyed
 control compares these lifetime transitions against an ordinary-rendered root;
@@ -313,7 +313,7 @@ Mason native-cache teardown and event reattachment when upgrading those inputs.
 ## Failed native insertion can escape ordinary tree cleanup
 
 Verified with NativeScript Core9.1.3 and the qualification snapshot of
-`@octane-xplat/nativescript-mason-core`1.0.0-beta.8 on Android: Mason's
+`@octane-xplat/nativescript-mason-core` on Android: Mason's
 `common.js` `insertChild` adds the child to its collection before calling Core's
 `_addView`. If native attachment throws, its catch removes the collection entry
 without clearing Core's parent/context state. Core establishes that state

@@ -94,7 +94,7 @@ const result = await Bun.build({
           let base
           if (args.path.startsWith('@nativescript/core'))
             base = core + args.path.slice('@nativescript/core'.length)
-          else if (args.path === '@nativescript-community/octane')
+          else if (args.path === '@octane-xplat/nativescript-octane')
             base = join(driver, 'dist/index.js')
           else if (
             [

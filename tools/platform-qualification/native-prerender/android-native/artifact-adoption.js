@@ -1,7 +1,7 @@
 import '@nativescript/core/globals'
 import { Application, Utils } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
-import { createNativeScriptRoot, registerElement } from '@nativescript-community/octane'
+import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
 import {
   bindAndroidMasonTree,
   releaseAndroidMasonOwners,

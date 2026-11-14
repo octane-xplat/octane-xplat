@@ -225,7 +225,7 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
             }
 
             if (
-              request === '@nativescript-community/octane' ||
+              request === '@octane-xplat/nativescript-octane' ||
               request === '../../vendor/ui-svg/src'
             ) {
               if (importer !== join(uiRoot, 'src/components/media/svg.mobile.ts')) {

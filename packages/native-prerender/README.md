@@ -35,7 +35,7 @@ const claims = matchPreparedTree(commands, artifactNodes)
 
 ```ts
 import { createNativeClaims } from '@octane-xplat/native-prerender'
-import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 
 const claims = createNativeClaims(artifact.nodes, wrappers)
 const root = createNativeScriptRoot(host, { createView: claims.createView })
@@ -83,7 +83,7 @@ Each existing child's first physical attachment establishes Core/Mason bookkeepi
 binding.retire()
 ```
 
-The adapter uses version-sensitive Core/Mason internals. The maintained Android controls supply exact Core9.1.3 and repaired Mason beta.8 snapshots; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, default journals and failure recovery remain with the host. The configured keyed-list control and Home control exercise the same binding through different native trees.
+The adapter uses version-sensitive Core/Mason internals. The maintained Android controls supply exact Core9.1.3 snapshots and were last qualified on repaired Mason beta.8; they need requalification on beta.10; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, default journals and failure recovery remain with the host. The configured keyed-list control and Home control exercise the same binding through different native trees.
 
 ## iOS wrapper binding
 

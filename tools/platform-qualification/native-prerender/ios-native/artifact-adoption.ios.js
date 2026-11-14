@@ -3,7 +3,7 @@ import { Application, Utils } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
-import { createNativeScriptRoot, registerElement } from '@nativescript-community/octane'
+import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
 import { ArtifactError } from '@octane-xplat/native-prerender'
 import {
   bindIOSMasonTree,
