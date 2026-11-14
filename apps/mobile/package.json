@@ -25,7 +25,7 @@
 		"@nativescript-community/observable": "2.0.11",
 		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript-community/perms": "3.0.12",
-		"@nativescript/canvas": "3.0.1",
+		"@nativescript/canvas": "3.0.9",
 		"@nativescript/core": "catalog:",
 		"@nativescript/font-manager": "1.0.20",
 		"@octane-xplat/auth": "workspace:*",

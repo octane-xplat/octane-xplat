@@ -845,7 +845,6 @@ transforms share that runner (deduped, still checked) and each target's
 default-export verdict is cached by served code. The runtime's budget,
 request/retry and graph deadlines remain upstream's to reconcile.
 
-HEAD
 ## Android 35 RuntimeShader missing-uniform error can abort
 
 On the existing Android 35 ARM64 emulator, NativeScript Android runtime 9.1.1
@@ -865,32 +864,27 @@ fixture declares and uses both automatic uniforms to avoid depending on that
 error path while measuring content layout. This is a fixture constraint, not
 a runtime fix or a claim that missing uniforms are safely supported. Recheck
 the missing-uniform case when upgrading Android or the NativeScript runtime.
-## @nativescript/canvas 3.0.1: WebGL2 program queries return null
 
-`@octane-xplat/canvas` pins `@nativescript/canvas` 3.0.1. Its native
-`getProgramParameter` returns `null` for `ACTIVE_UNIFORM_BLOCKS` and the
-transform-feedback pnames (source: `crates/canvas-webgl/src/webgl.rs` at tag
-`3.0.1` matches only the WebGL1 pnames). Engines that discover uniform blocks
-through that query, such as PixiJS 8, then bind no uniform buffers. Upstream
-reports values reading as zero on Android. On the iOS 27 simulator's software
-renderer, the first draw using a program with a `std140` block segfaults in
-`glDrawElements`. That includes a constant-colour fragment shader that still
-declares the block. Runtime evidence, 2026-11-13: PixiJS 8.23.0 plus
-`@pixi/3d` 0.1.0 crashed on every unshimmed iOS simulator run and passed all
-12 probe assertions after a JS shim answered the query from the shader source
-and `getUniformBlockIndex`; the centre pixel matched Chromium exactly.
+## @nativescript/canvas: CURRENT_PROGRAM readback is not queryable
 
-The same release has related WebGL2 gaps that upstream fixed in
+Through `@nativescript/canvas` 3.0.1, `getProgramParameter` returned `null`
+for `ACTIVE_UNIFORM_BLOCKS`, so PixiJS bound no uniform buffers and the iOS
+simulator segfaulted on the first mesh draw. Upstream fixed that and related
+WebGL2 query, name-buffer and offset gaps in
 [NativeScript/canvas#209](https://github.com/NativeScript/canvas/pull/209)
-(released in 3.0.7): `getActiveUniformBlockName`/`getActiveAttrib`/
-`getActiveUniform` can read past an empty name buffer, `(srcData, srcOffset)`
-overloads drop offsets, `texSubImage2D`/`readPixels` size offset views by
-their buffer, and WebGL2 `getParameter` pnames can read `null`. Separately
-observed on 3.0.1 (not checked against 3.0.7): `getParameter(CURRENT_PROGRAM)`
-returns a wrapper that native program queries reject, and `getAttachedShaders`
-plus `getShaderSource` on it return nothing; track programs at the call site
-instead of reading them back.
+(3.0.7); Xplat pins 3.0.9. Runtime evidence, 2026-11-14: PixiJS 8.23.0 plus
+`@pixi/3d` 0.1.0 and PlayCanvas 2.24.1 passed their probes unshimmed on the
+iOS simulator and the Android emulator, with `ACTIVE_UNIFORM_BLOCKS` reading
+`1` natively.
 
-Status: unworked-around in Xplat. Upgrading the pin to 3.0.7 or later is
-expected to remove the limitation; requalify with a Pixi 3D native probe after
-upgrading.
+Still open on 3.0.9 (iOS and Android): `getParameter(CURRENT_PROGRAM)` returns
+a `WebGLProgram` wrapper for which `getProgramParameter(program, LINK_STATUS)`
+returns `null`. On 3.0.1, `getAttachedShaders` and `getShaderSource` on that
+wrapper also returned nothing (not rechecked on 3.0.9). Track programs at the
+call site instead of reading them back. Status: unworked-around in Xplat.
+
+Since 3.0.6 the iOS `CanvasNative.xcframework` is not in the npm package: the
+plugin's `nativescript.config.ts` adds local SwiftPM packages under
+`node_modules/@nativescript/canvas/platforms/ios/`, whose binary target
+downloads the GitHub release zip at build time. iOS builds therefore need
+network access to GitHub on a cold SwiftPM cache.
