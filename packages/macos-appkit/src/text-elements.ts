@@ -644,6 +644,7 @@ export function createTextElements(deps: Dependencies) {
     }
 
     parent.view!.invalidateIntrinsicContentSize()
+    deps.layout.queueLayoutReconcile(parent.container, parent.parent, 'subtree')
   }
 
   function makeLabel(): NSTextField {

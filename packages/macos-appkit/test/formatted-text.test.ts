@@ -296,6 +296,45 @@ test('native attributed runs carry spacing and omit it for zero/normal resets', 
   )
 })
 
+test('plain text changes invalidate intrinsic size before reconciling auto-sized ancestors', () => {
+  const events: string[] = []
+  const container = {}
+  const ancestor = { type: 'masonview' }
+  const parent = {
+    type: 'label',
+    children: [],
+    props: { text: 'Short' },
+    view: {
+      stringValue: '',
+      invalidateIntrinsicContentSize() {
+        events.push('invalidate')
+      },
+    },
+    container,
+    parent: ancestor,
+  }
+  const sync = runSlice(fn('syncText') + '\nsyncText', {
+    syncTextLinks() {},
+    setLabelText(owner, value) {
+      owner.view.stringValue = value
+    },
+    queueLayoutReconcile(root, owner, scope) {
+      assert.equal(root, container)
+      assert.equal(owner, ancestor)
+      assert.equal(scope, 'subtree')
+      events.push('layout')
+    },
+  })
+
+  for (const text of ['Short', 'A longer paragraph that needs several lines.', 'Short']) {
+    parent.props.text = text
+    events.length = 0
+    sync(parent)
+    assert.equal(parent.view.stringValue, text)
+    assert.deepEqual(events, ['invalidate', 'layout'])
+  }
+})
+
 test('rich parent spacing follows computed style then inline fallback and resets', () => {
   let defaults: any
   const sync = runSlice(fn('syncText') + '\nsyncText', {

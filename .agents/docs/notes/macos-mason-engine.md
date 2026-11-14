@@ -61,3 +61,11 @@ layout work. Coalesce repeated parents, then reconcile ancestors before local
 parents so the new allocations precede document extent updates. The maintained
 block-flow fixture inserts, reorders and removes keyed children and checks both
 the resulting auto height and retained child identity.
+
+Text updates need the same containing-tree reconciliation after invalidating
+the native label's intrinsic size. Both plain and formatted text paths must
+request it; intrinsic invalidation alone does not resize a Mason parent. Keep
+the block-flow check that replaces short text with a wrapping paragraph and
+then restores the short value without replacing the text host. For AppKit
+text width assertions, compare the allocated alignment rect; NSTextField's
+optical frame extends beyond it.

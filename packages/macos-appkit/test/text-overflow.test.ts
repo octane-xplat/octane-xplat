@@ -36,6 +36,7 @@ function fixture() {
         node[name] = value
       },
       applyStyle() {},
+      queueLayoutReconcile() {},
       NSMutableParagraphStyle: { alloc: () => ({ init: () => ({}) }) },
       NSAttributedString: {
         alloc: () => ({ initWithStringAttributes: (text, attributes) => ({ text, attributes }) }),
