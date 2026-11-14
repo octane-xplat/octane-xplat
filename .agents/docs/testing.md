@@ -427,3 +427,14 @@ The shader runner needs no IDB companion because it does not open a preview.
 Use the [package verification index](package-verification.md) for focused package
 checks and retained probes. Consumer docs describe app-owned checks; framework
 runner commands and resource prerequisites stay in this internal index.
+
+## Experimental desktop layout qualification
+
+Native GTK and Windows use the shared layout assertions through the private
+[desktop layout harness](../../tools/platform-qualification/layout-defaults/README.md).
+Build the target bundle through its owning Turbo task, then run it on the
+reserved existing host. The Linux probe target uses WebKitGTK and cannot
+substitute for GJS/native GTK evidence. Four independent fixture results
+preserve failures while allowing later layout groups to run. Keep native
+artifacts and source identity explicit; source-checkout checks with reused
+native SDKs do not establish a fresh installed consumer or painted-pixel parity.

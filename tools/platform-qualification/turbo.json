@@ -73,6 +73,13 @@
         "ADB_SERVER_SOCKET",
         "ANDROID_ADB_SERVER_PORT"
       ]
+    },
+    "build:layout-desktop": {
+      "dependsOn": [
+        "^typegen",
+        "^build"
+      ],
+      "cache": false
     }
   }
 }
