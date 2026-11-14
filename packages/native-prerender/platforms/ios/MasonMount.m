@@ -1,18 +1,10 @@
 #import "MasonMount.h"
-#import <objc/runtime.h>
 #import <float.h>
 #import "FontLowering.h"
 #import "UIView+NativeScript.h"
 #import <TNSWidgets/TNSWidgets.h>
 
-static char PrerenderDefaultsKey;
-@interface UIView (PrerenderDefaults)
-- (NSDictionary *)prerenderDefaults;
-@end
-@implementation UIView (PrerenderDefaults)
-- (NSDictionary *)prerenderDefaults { return objc_getAssociatedObject(self, &PrerenderDefaultsKey); }
-@end
-static void CaptureDefaults(UIView *view) {
+static NSDictionary *CaptureDefaults(UIView *view) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
     NSMutableDictionary *defaults = [@{@"borderRadius":style.borderRadius.length ? style.borderRadius : @"0"} mutableCopy];
     if ([view isKindOfClass:UILabel.class]) {
@@ -20,7 +12,7 @@ static void CaptureDefaults(UIView *view) {
         defaults[@"font"] = label.font;
         defaults[@"textColor"] = label.textColor;
     }
-    objc_setAssociatedObject(view, &PrerenderDefaultsKey, defaults, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    return defaults;
 }
 static void Require(BOOL condition, NSString *message) {
     if (!condition) [NSException raise:NSInvalidArgumentException format:@"%@", message];
@@ -94,8 +86,11 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     // userSelect is not a native Style paint property in the live reference.
     [style updateNativeStyle];
 }
-@implementation XplatMasonMount
-+ (UIView *)mount:(NSDictionary *)artifact theme:(NSString *)theme scale:(CGFloat)scale {
+@implementation XplatMasonMount {
+    NSMutableArray<NSDictionary *> *_journals;
+    BOOL _restored;
+}
++ (instancetype)mount:(NSDictionary *)artifact theme:(NSString *)theme scale:(CGFloat)scale {
     NSArray *records = artifact[@"nodes"];
     NSArray *styles = artifact[@"variants"][theme];
     Require(records.count > 0 && styles.count == records.count, @"Invalid Mason/Label topology");
@@ -123,6 +118,8 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
         }
     }
     [NSCMason.shared setDeviceScale:scale];
+    XplatMasonMount *mount = [XplatMasonMount new];
+    mount->_journals = [NSMutableArray new];
     for (NSUInteger index=0; index<records.count; index++) {
         NSDictionary *record = records[index];
         UIView *view;
@@ -133,9 +130,27 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
         if (index > 0) { UIView *parent=views[[record[@"parent"] unsignedIntegerValue]]; Require([parent isKindOfClass:MasonUIView.class], @"Label cannot contain visual children"); [(MasonUIView *)parent addView:view]; }
         // Match Core Label creation and the driver foreign-leaf minimum, before authored styles.
         if ([view isKindOfClass:UILabel.class]) [[NSCMason.shared styleForView:view] setMinSizeWidth:0 :MasonDimensionCompatTypePoints];
-        CaptureDefaults(view);
+        [mount->_journals addObject:@{@"view":view, @"defaults":CaptureDefaults(view)}];
         Apply(view, styles[index][@"style"], scale);
     }
-    return views[0];
+    mount->_root = views[0];
+    mount->_views = [views copy];
+    return mount;
+}
+// The journal holds this mount's captured defaults; it is not a property of
+// the shared native views.
+- (void)restoreDefaults {
+    Require(!_restored, @"restoreDefaults already invoked");
+    _restored = YES;
+    for (NSDictionary *journal in _journals) {
+        UIView *view = journal[@"view"];
+        NSDictionary *defaults = journal[@"defaults"];
+        [NSCMason.shared styleForView:view].borderRadius = defaults[@"borderRadius"];
+        if ([view isKindOfClass:UILabel.class]) {
+            UILabel *label = (UILabel *)view;
+            label.font = defaults[@"font"];
+            label.textColor = defaults[@"textColor"];
+        }
+    }
 }
 @end

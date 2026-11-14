@@ -1,14 +1,12 @@
 // Fixed Home qualification fixture; the host build supplies three virtual data modules.
 import { writeProbeDiagnostic } from './write-native-diagnostic.ios.js'
 import { qualifyHomeLifetime } from './home-lifetime.ios.js'
-import { matchPreparedTree } from '@octane-xplat/native-prerender'
+import { bindIOSMasonTree } from '@octane-xplat/native-prerender/ios/mason-binding'
 import '@nativescript/core/globals'
 import { Application, Page, Utils } from '@nativescript/core'
-import { Label } from '@nativescript/core/ui/label'
 import { GestureTypes } from '@nativescript/core/ui/gestures'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
-import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import { Home } from './Home.tsrx'
 import sheets from 'xplat-prerender:styles'
@@ -44,9 +42,19 @@ function collect(native, path) {
     for (let index = 0; index < native.subviews.count; index++)
       collect(native.subviews.objectAtIndex(index), path + '/' + index)
 }
-check(nativeHost.subviews.count === 1, 'Expected one native Home root')
+// Released after default restoration so the optional lifetime control can
+// observe native deallocation.
+let mount = PrerenderMountHost.mount
+check(
+  nativeHost.subviews.count === 1 && nativeHost.subviews.objectAtIndex(0) === mount.root,
+  'Expected one native Home root',
+)
 collect(nativeHost.subviews.objectAtIndex(0), '0')
-check(nativeViews.length === 19, 'Native Home record count differs')
+check(
+  nativeViews.length === 19 &&
+    nativeViews.every((view, index) => view === mount.views.objectAtIndex(index)),
+  'Native mount view order differs',
+)
 const oldNodes = nativeViews.map((view) =>
   NSCMason.shared.nodeForView(view, view instanceof TNSLabel),
 )
@@ -60,41 +68,15 @@ const oldFrames = nativeViews.map((view) => ({
   width: view.frame.size.width,
   height: view.frame.size.height,
 }))
-const host = new View()
-host[native_] = nativeHost
-host.setNativeView(nativeHost)
+const binding = bindIOSMasonTree(startup.nodes, nativeHost, nativeViews)
+const { host, wrappers, claims } = binding
 host.width = '100%'
 host.height = '100%'
 host.style.display = 'flex'
 host.style.flexDirection = 'column'
 host.className = 'ns-root ' + (scheme === 'dark' ? 'ns-dark' : 'xds-light')
 host.css = sheets.map((sheet) => sheet.css).join('\n')
-const wrappers = nativeViews.map((native, index) => {
-  const view = resolved.nodes[index].kind === 'label' ? new Label() : new View()
-  if (view instanceof View) view[native_] = native
-  view.setNativeView(native)
-  return view
-})
-let claiming = false,
-  hookCalls = 0
-const pendingClaims = new Map()
-const root = createNativeScriptRoot(host, {
-  createView(id, type, props) {
-    hookCalls++
-    if (!claiming) return undefined
-    const index = pendingClaims.get(id)
-    check(
-      index !== undefined && resolved.nodes[index].kind === type,
-      'Unexpected root-scoped native claim',
-    )
-    check(
-      (props.id ?? null) === (resolved.nodes[index].props.id ?? null),
-      'Root-scoped claim address changed',
-    )
-    pendingClaims.delete(id)
-    return wrappers[index]
-  },
-})
+const root = createNativeScriptRoot(host, { createView: claims.createView })
 const aborted = root.prepare(Home, resolved.seed)
 check(aborted.status === 'prepared', 'Aborted Home prepare suspended')
 aborted.abort()
@@ -103,12 +85,14 @@ check(
     nativeViews.every((view, index) => view.superview === oldParents[index]),
   'Aborted prepare mutated native/logical tree',
 )
-check(wrappers.every((view) => !view.parent) && hookCalls === 0, 'Aborted prepare claimed wrappers')
+check(
+  wrappers.every((view) => !view.parent) && claims.factoryCalls === 0,
+  'Aborted prepare claimed wrappers',
+)
 const prepared = root.prepare(Home, resolved.seed)
 check(prepared.status === 'prepared', 'Actual Home prepare suspended')
-const addresses = matchPreparedTree(prepared.batch.commands, startup.nodes).visualByCommandId
-check(addresses.size === 19, 'Not all visual nodes validated')
-for (const [id, index] of addresses) pendingClaims.set(id, index)
+claims.match(prepared.batch.commands)
+check(claims.phase === 'ready' && claims.pendingCount === 19, 'Not all visual nodes validated')
 const page = new Page()
 page.actionBarHidden = true
 page.content = host
@@ -151,20 +135,13 @@ function accept() {
     check(host.nativeViewProtected === nativeHost, 'Page replaced native viewport')
     // Restore canonical native baselines synchronously before live property
     // initialization captures defaults. Initial live CSS is committed before yielding.
-    nativeViews.forEach((native, index) => {
-      const journal = native.valueForKey('prerenderDefaults')
-      check(journal, 'Missing native default journal')
-      NSCMason.shared.styleForView(native).borderRadius = journal.objectForKey('borderRadius')
-      if (resolved.nodes[index].kind === 'label') {
-        native.font = journal.objectForKey('font')
-        native.textColor = journal.objectForKey('textColor')
-      }
+    mount.restoreDefaults()
+    mount = null
+    binding.commit(() => {
+      prepared.commit()
     })
-    claiming = true
-    prepared.commit()
-    claiming = false
     check(
-      pendingClaims.size === 0 && hookCalls === 19,
+      claims.phase === 'live' && claims.factoryCalls === 19 && claims.claimedCount === 19,
       'Root-scoped native claims did not match the validated plan',
     )
 
@@ -376,7 +353,7 @@ function accept() {
     }
     collectSibling(siblingHost.getChildAt(0))
     check(
-      siblingViews.length === 19 && hookCalls === 19,
+      siblingViews.length === 19 && claims.factoryCalls === 19,
       'Unrelated root used the first-screen factory',
     )
     check(
@@ -557,7 +534,7 @@ function accept() {
         layoutViews.every((view) => !view.isLoaded),
       'Layout reference did not dispose',
     )
-    check(hookCalls === 19, 'Layout reference consumed adoption claims')
+    check(claims.factoryCalls === 19, 'Layout reference consumed adoption claims')
     let fallbackCalls = 0
     const fallbackHost = new View()
     fallbackHost._setupAsRootView({})
@@ -576,7 +553,7 @@ function accept() {
     check(fallbackPrepared.status === 'prepared', 'Fallback render suspended')
     fallbackPrepared.commit()
     check(
-      fallbackCalls === 19 && hookCalls === 19,
+      fallbackCalls === 19 && claims.factoryCalls === 19,
       'Per-root undefined fallback changed another root factory',
     )
     function rejectedFactory(factory, message) {
@@ -686,7 +663,7 @@ function accept() {
                 )
                 identities()
                 check(
-                  siblingCompleted.text === '7' && hookCalls === 19,
+                  siblingCompleted.text === '7' && claims.factoryCalls === 19,
                   'First-screen update affected the sibling root',
                 )
                 await activate(find('home-reset'), '3')
@@ -820,7 +797,7 @@ function accept() {
                                   )
                                   identities()
                                   check(
-                                    hookCalls === 19 && fallbackCalls === 19,
+                                    claims.factoryCalls === 19 && fallbackCalls === 19,
                                     'Sibling disposal invoked another root factory',
                                   )
                                   writeProbeDiagnostic(
@@ -867,7 +844,7 @@ function accept() {
                                     nativeViews,
                                     oldNodes,
                                     oldParents,
-                                    pendingClaims,
+                                    claims,
                                   })
                                 }),
                               0,

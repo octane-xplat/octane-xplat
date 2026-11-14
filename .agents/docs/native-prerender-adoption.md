@@ -46,8 +46,8 @@ command only selects inputs and scratch placement. It keeps a dedicated
 build-host plugin and four shared primitive exports from the installed UI source layout; it does not load the
 app's Vite configuration or establish full UI-barrel eligibility. Generic
 logical projection, backend preflight and native mounting belong to the reusable
-package; the Android wrapper binding now also belongs to that package. The fixed
-Home host, observations and adoption controls remain in qualification tooling. Native mounts must not contain seed, node-count or
+package; the Android and iOS wrapper bindings now also belong to that package. The fixed
+Home host, generic mount host, observations and adoption controls remain in qualification tooling. Native mounts must not contain seed, node-count or
 element-index assumptions from a screen fixture. The current IR still requires
 one logical root, which may be a container or Label. See the fixture's
 [producer contract](../../tools/platform-qualification/native-prerender/README.md#produce-home-without-a-device-runtime).
@@ -81,6 +81,23 @@ release startup closures. Clear adopted Mason native/style caches only after
 Core contexts, native handles and loading have been released. The adapter is
 version-sensitive: keep the exact repaired Mason snapshot and Core9.1.3 evidence,
 not just an npm version claim. It does not own window/lifecycle handoff or defaults.
+
+The exported iOS `platforms/ios/mason-binding.ios.js`
+(`@octane-xplat/native-prerender/ios/mason-binding`) owns the same contract for
+a backend-validated `MasonUIView`/`TNSLabel` tree. iOS Mason beta.10 defers each
+native insert until the child loads and queues it in `_masonPendingAdds`; the
+binding intercepts `_masonInsertNative` so a pending wrapper's first insert
+reuses its already-attached native object — skipping `addViewAt` but still
+running `_masonAdoptForeign` and `_masonMeasureForeign` — and delegates later
+inserts to ordinary Mason. Commit therefore requires the host to be set up and
+loaded first; a deferred insert left unconsumed fails loudly. A failed
+insertion can leave `_masonPendingAdds` queued alongside a dangling Core parent
+link; `releaseIOSMasonTree` clears both before teardown, and
+`releaseIOSMasonOwners` keeps the same teardown-before-cache-clear boundary.
+The mount default journal lives on the `XplatMasonMount` instance (`views`,
+`root`, single-use `restoreDefaults`), not on associated objects, so a mount's
+baseline cannot leak into unrelated native views. The adapter is
+version-sensitive: keep exact Core9.1.3 and Mason beta.10 evidence.
 
 Octane0.16.3's direct transaction marks host acceptance before apply and
 continues logical/lifecycle/layout publication after an apply error, preserving
@@ -126,8 +143,14 @@ Keep this cost visible rather than calling every keyed move identity-preserving.
 Preserving native objects during moves needs a separate driver/Mason move seam
 and lifecycle qualification; startup adoption does not supply it. Do not retain
 startup factory overrides to simulate preservation: Core can later restore the
-same logical owner under a different Activity. The current control checks one
-bounded Android list and does not establish arbitrary reparenting or every
+same logical owner under a different Activity. iOS Mason beta.10 also defers
+non-forced `_tearDownUI` during keyed moves, so do not infer its retention from
+Android's code path. In the qualified iOS list, a child moved earlier among its
+siblings still recreates its native Label/Mason node while others retain
+theirs, matching Android's observed reorder. The iOS keyed control pins its own
+observed retention per update and checks adopted/ordinary parity at every step.
+The current controls check bounded lists
+on each platform and do not establish arbitrary reparenting or every
 container/platform's lifetime semantics.
 
 ## Native-owned iOS entry
@@ -157,17 +180,24 @@ so those imports are excluded. The SDK qualification fixture uses an app-owned
 header with explicit Foundation, NativeScript and NativeScriptStart imports;
 it does not edit the installed SDK. NativeSource compiles the owned Swift entry
 through the normal CLI. The separate
-[stock SDK control](../../tools/platform-qualification/native-prerender/README.md#stock-ios-sdk-startup-control)
-owns its build/run assertions. It checks UIKit startup only, separately from
-the Home IR, wrapper adoption, Core window handoff and production integration.
+[stock SDK gate](../../tools/platform-qualification/native-prerender/README.md#stock-ios-sdk-startup-control)
+and
+[startup mount control](../../tools/platform-qualification/native-prerender/README.md#stock-ios-sdk-startup-mount-control)
+own their build/run assertions. The gate checks UIKit startup only, separately
+from the Home IR, wrapper adoption, Core window handoff and production
+integration.
 
-The separate stock SDK Home control compiles the shared Home bootstrap through
-NativeSource with `XPLAT_PRERENDER_STOCK_SDK`, emits XPI1 into the normal Vite
-app bundle, and calls the same SDK helpers. Its producer resolves from the
-isolated app's installed package tree; the live bundle uses the installed
-native preset and the existing four-primitive qualification facade. It reuses
-the Home identity, Core Page/window and style/layout assertions. This remains
-a fixed-screen control, not normal app opt-in installation or arbitrary
+The separate stock SDK startup mount control compiles a fixture bootstrap
+through NativeSource with `XPLAT_PRERENDER_STOCK_SDK`, emits XPI1 as
+`startup.bin` into the normal Vite app bundle, and calls the same SDK helpers.
+Its producer resolves from the isolated app's installed package tree; the live
+bundle uses the installed native preset and the existing four-primitive
+qualification facade. The `home` fixture reuses the Home identity, Core
+Page/window and style/layout assertions. The `keyed` fixture mounts a
+variable-topology KeyedStartup inside a bounded 320x640-point viewport — a test
+canvas without `Application.run` or a Page — and exercises the exported iOS
+wrapper binding through adopt, seed-mismatch and attach-failure modes. These
+remain bounded controls, not normal app opt-in installation or arbitrary
 component eligibility.
 
 The arm64 Mason archive requires excluding x86_64 from this simulator build.

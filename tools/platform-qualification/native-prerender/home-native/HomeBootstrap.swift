@@ -72,7 +72,7 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         let artifact: [String: Any]
         do {
             #if XPLAT_PRERENDER_STOCK_SDK
-            let resource = Bundle.main.url(forResource: "home", withExtension: "bin", subdirectory: "app")
+            let resource = Bundle.main.url(forResource: "startup", withExtension: "bin", subdirectory: "app")
             #else
             let resource = Bundle.main.url(forResource: "home", withExtension: "bin")
             #endif
@@ -103,10 +103,13 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
             return
         }
         record("native-binary-decoded", ["nodes": (artifact["nodes"] as! [Any]).count, "buildHash": homeBuildHash, "beforeEngineInit": true])
-        guard let mounted = XplatMasonMount.mount(artifact, theme: theme, scale: window.screen.scale) as? MasonUIView else {
+        let mount = XplatMasonMount(artifact, theme: theme, scale: window.screen.scale)
+        guard let mounted = mount.root as? MasonUIView else {
             preconditionFailure("Home fixture requires a Mason container root")
         }
         home = mounted
+        PrerenderMountHost.mount = mount
+        PrerenderMountHost.viewport = root
         root.addView(home)
         root.computeWithSize(width, height)
         root.markRootComputeApplied(width, height)
@@ -199,6 +202,8 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
                 let weakNodes = oldNodes.map { HomeWeakObject($0) }
                 precondition(weakViews.count == 19 && weakNodes.count == 19 && weakViews.allSatisfy { $0.object != nil } && weakNodes.allSatisfy { $0.object != nil }, "Lifetime baseline was not live")
                 home = nil
+                PrerenderMountHost.mount = nil
+                PrerenderMountHost.viewport = nil
                 oldViews.removeAll(); oldNodes.removeAll(); oldParents.removeAll()
                 try! JSONSerialization.data(withJSONObject: ["bootstrapReferencesReleased": true]).write(to: documents("native-handover.json"), options: .atomic)
                 record("bootstrap-references-released", ["views": weakViews.count, "nodes": weakNodes.count])

@@ -85,6 +85,28 @@ binding.retire()
 
 The adapter uses version-sensitive Core/Mason internals. The maintained Android controls supply exact Core9.1.3 and repaired Mason beta.8 snapshots; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, default journals and failure recovery remain with the host. The configured keyed-list control and Home control exercise the same binding through different native trees.
 
+## iOS wrapper binding
+
+The iOS platform asset `platforms/ios/mason-binding.ios.js`, exported as `@octane-xplat/native-prerender/ios/mason-binding`, mirrors the Android contract for an already-mounted, backend-validated Mason/Label tree. It checks the `MasonUIView`/`TNSLabel` classes, distinct objects, `superview` parents and `subviews` order before allocating wrappers, then returns the host, visual wrappers and the same portable claim registry.
+
+```js
+import { bindIOSMasonTree } from '@octane-xplat/native-prerender/ios/mason-binding'
+
+// mount.views is an NSArray; the binding takes a JavaScript array.
+const views = Array.from({ length: mount.views.count }, (_, index) => mount.views.objectAtIndex(index))
+const binding = bindIOSMasonTree(artifact.nodes, viewport, views)
+const root = createNativeScriptRoot(binding.host, { createView: binding.claims.createView })
+const prepared = root.prepare(StartupComponent, artifact.seed)
+if (prepared.status !== 'prepared') throw new Error('Startup suspended')
+binding.claims.match(prepared.batch.commands)
+// The owning host establishes Core/window/loading state and restores native defaults.
+binding.commit(() => { prepared.commit() })
+```
+
+iOS Mason defers each native insert until the child loads, so the binding intercepts `_masonInsertNative`: the first insert of each pending wrapper reuses its pre-attached native object instead of `addViewAt`, while still running `_masonAdoptForeign` and `_masonMeasureForeign`. Commit requires the host to be set up and loaded first, otherwise inserts stay queued and commit fails loudly. `releaseIOSMasonOwners` and `releaseIOSMasonTree` own the same teardown boundary as Android; the tree release also clears `_masonPendingAdds` queues left by a failed insertion. Hook restoration, failure handling and retire semantics match the Android contract.
+
+The adapter uses version-sensitive Core/Mason internals. The maintained iOS controls supply Core9.1.3 and Mason beta.10; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, the mount default journal and failure recovery remain with the host.
+
 ## Candidate artifact contract
 
 The owning declarations are [schema.ts](src/schema.ts). The candidate `mason-label-v1` contract supports Mason containers, Labels and their logical text children, one deterministic seed object, light/dark AOT styles and bounded launch constraints. Numeric style lengths use the native host's logical points/DIPs; style keys retain their property-specific units. Final native value/asset/font applicability must be checked by the owning backend before allocation. Structural validation alone does not qualify a native setter or CSS parity.
@@ -186,12 +208,14 @@ MasonMount tree = prepared.mount(viewport);
 tree.restoreDefaults();
 ```
 
-The iOS mount consumes the projection from `XplatMasonArtifact.decode`, checks scaled lengths in both themes before allocation, and returns a native container or Label root. The host attaches that root to its own viewport. The Home observation helpers are separate qualification code.
+The iOS mount consumes the projection from `XplatMasonArtifact.decode`, checks scaled lengths in both themes before allocation, and returns an `XplatMasonMount` instance. Its `views` array exposes every native view in visual-index order with `root` at index zero, and `restoreDefaults` replays the captured border-radius/font/text-color journal once. The host attaches `root` to its own viewport. The Home observation helpers are separate qualification code.
 
 ```swift
 let decoded = try XplatMasonArtifact.decode(data, expectedBuildHash: installedBuild)
-let root = XplatMasonMount.mount(decoded.value, theme: theme, scale: window.screen.scale)
-viewport.addView(root)
+let mount = XplatMasonMount(decoded.value, theme: theme, scale: window.screen.scale)
+viewport.addView(mount.root)
+// Before attaching live NativeScript wrappers:
+mount.restoreDefaults()
 ```
 
 ## Verification

@@ -296,6 +296,10 @@
     "@xplat/platform-qualification#probe:prerender:sdk:home:ios:build": {
       "dependsOn": ["^build", "@octane-xplat/ui#typegen", "@octane-xplat/lib#typegen", "@octane-xplat/icons#typegen"],
       "passThroughEnv": ["GODDARD_*", "XPLAT_PRERENDER_NS_CLI", "XPLAT_PRERENDER_IOS_MASON_PACKAGE"]
+    "@xplat/platform-qualification#probe:prerender:sdk:startup:ios": {
+      "passThroughEnv": ["GODDARD_*", "XPLAT_PRERENDER_IOS_SDK_STARTUP_BUILD"]
+    "@xplat/platform-qualification#probe:prerender:sdk:startup:ios:build": {
+      "passThroughEnv": ["GODDARD_*", "XPLAT_PRERENDER_NS_CLI", "XPLAT_PRERENDER_IOS_MASON_PACKAGE", "XPLAT_PRERENDER_IOS_STARTUP_FIXTURE", "XPLAT_PRERENDER_IOS_STARTUP_MODE"]
     "@xplat/platform-qualification#probe:prerender:sdk:ios": {
       "passThroughEnv": ["GODDARD_*", "XPLAT_PRERENDER_IOS_SDK_BUILD"]
     "@xplat/platform-qualification#probe:prerender:sdk:ios:build": {

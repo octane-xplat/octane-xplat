@@ -33,15 +33,31 @@ const masonManifest = JSON.parse(readFileSync(join(mason, 'package.json')))
 
 assert.equal(masonManifest.name, '@octane-xplat/nativescript-mason-core')
 
+const fixture = process.env.XPLAT_PRERENDER_IOS_STARTUP_FIXTURE ?? 'home'
+const mode = process.env.XPLAT_PRERENDER_IOS_STARTUP_MODE ?? 'adopt'
+
+assert.ok(
+  fixture === 'home' || fixture === 'keyed',
+  'XPLAT_PRERENDER_IOS_STARTUP_FIXTURE must be home or keyed',
+)
+assert.ok(
+  mode === 'adopt' || mode === 'seed-mismatch' || mode === 'attach-failure',
+  'XPLAT_PRERENDER_IOS_STARTUP_MODE must be adopt, seed-mismatch or attach-failure',
+)
+assert.ok(
+  mode === 'adopt' || fixture === 'keyed',
+  'Recovery modes require the keyed fixture',
+)
+
 const source = import.meta.dirname
 const repo = resolve(source, '../../..')
-const parent = join(homedir(), 'agent-scratch/octane-xplat/native-prerender-sdk-home-ios')
+const parent = join(homedir(), 'agent-scratch/octane-xplat/native-prerender-sdk-startup-ios')
 
 mkdirSync(parent, { recursive: true })
 
 const work = mkdtempSync(join(parent, 'run-'))
-const app = join(work, 'SDKHomeStartupGate')
-const id = 'org.octanexplat.prerender.sdkhomeios'
+const app = join(work, 'SDKStartupGate')
+const id = 'org.octanexplat.prerender.sdkstartupios'
 
 for (const directory of ['src', 'native', 'patches', 'App_Resources/iOS']) {
   mkdirSync(join(app, directory), { recursive: true })
@@ -49,12 +65,12 @@ for (const directory of ['src', 'native', 'patches', 'App_Resources/iOS']) {
 
 writeFileSync(
   join(work, 'README.md'),
-  'Everything in this folder is disposable.\nStock SDK Home IR/adoption control.\nSource: ' +
+  'Everything in this folder is disposable.\nStock SDK startup IR/adoption control.\nSource: ' +
     repo +
     '\nRetain evidence in ~/dev/reports/octane-xplat before cleanup.\n',
 )
 
-console.log('SDK Home build: ' + work)
+console.log('SDK startup build: ' + work)
 
 const hash = (file) => createHash('sha256').update(readFileSync(file)).digest('hex')
 const sourceHashes = {}
@@ -62,7 +78,7 @@ function input(file) {
   const digest = hash(file)
 
   if (sourceHashes[file] && sourceHashes[file] !== digest) {
-    throw new Error('SDK Home input changed: ' + file)
+    throw new Error('SDK startup input changed: ' + file)
   }
 
   sourceHashes[file] = digest
@@ -141,7 +157,7 @@ for (const [name, patch] of [
 }
 
 json(join(app, 'package.json'), {
-  name: 'native-sdk-home-startup-gate',
+  name: 'native-sdk-startup-gate',
   private: true,
   version: '1.0.0',
   type: 'module',
@@ -165,21 +181,49 @@ json(join(app, 'package.json'), {
 })
 
 writeFileSync(join(app, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
-for (const name of [
-  'Home.tsrx',
-  'home.css',
-  'home-entry.ios.js',
-  'home-adoption.ios.js',
-  'home-fallback.ios.js',
-  'home-lifetime.ios.js',
-  'write-native-diagnostic.ios.js',
-]) {
+for (const name of ['write-native-diagnostic.ios.js']) {
   copy(join(source, name), join(app, 'src', name))
 }
 
-writeFileSync(join(app, 'src/main.js'), "import './home-entry.ios.js'\n")
-copy(join(source, 'sdk-home-ios/vite.config.mts'), join(app, 'vite.config.mts'))
-copy(join(source, 'sdk-home-ios/StartupBridge.h'), join(app, 'native/StartupBridge.h'))
+if (fixture === 'home') {
+  for (const name of [
+    'Home.tsrx',
+    'home.css',
+    'home-entry.ios.js',
+    'home-adoption.ios.js',
+    'home-fallback.ios.js',
+    'home-lifetime.ios.js',
+  ]) {
+    copy(join(source, name), join(app, 'src', name))
+  }
+  writeFileSync(join(app, 'src/main.js'), "import './home-entry.ios.js'\n")
+  writeFileSync(
+    join(app, 'src/component.js'),
+    "export { Home as StartupComponent } from './Home.tsrx'\n",
+  )
+} else {
+  for (const name of [
+    'KeyedStartup.tsrx',
+    'KeyedStartup.ios.tsrx',
+    'ConfiguredStartup.shared.tsrx',
+    'keyed-startup.css',
+  ]) {
+    copy(join(source, 'producer/fixtures', name), join(app, 'src', name))
+  }
+  copy(
+    join(source, 'ios-native/artifact-adoption.ios.js'),
+    join(app, 'src/artifact-adoption.ios.js'),
+  )
+  writeFileSync(join(app, 'src/main.js'), "import './artifact-adoption.ios.js'\n")
+  writeFileSync(
+    join(app, 'src/component.js'),
+    "export { KeyedStartup as StartupComponent } from './KeyedStartup.tsrx'\n",
+  )
+}
+json(join(app, 'src/mode.json'), mode)
+
+copy(join(source, 'sdk-startup-ios/vite.config.mts'), join(app, 'vite.config.mts'))
+copy(join(source, 'sdk-startup-ios/StartupBridge.h'), join(app, 'native/StartupBridge.h'))
 
 const backend = join(repo, 'packages/native-prerender/platforms/ios')
 
@@ -197,6 +241,20 @@ for (const name of [
 for (const name of ['HomeMount.h', 'HomeMount.m', 'HomeStyleSnapshot.swift']) {
   copy(join(source, 'home-native', name), join(app, 'native', name))
 }
+
+for (const name of ['MountHost.h', 'MountHost.m']) {
+  copy(join(source, 'ios-native', name), join(app, 'native', name))
+}
+
+// The metadata generator only scans header search paths that carry a Clang
+// module map. Without this the control's ObjC helpers stay invisible to JS.
+writeFileSync(
+  join(app, 'native/module.modulemap'),
+  `module XplatMasonMount { header "MasonMount.h" export * }
+module PrerenderMountHost { header "MountHost.h" export * }
+module PrerenderHomeMount { header "HomeMount.h" export * }
+`,
+)
 
 writeFileSync(
   join(app, 'nativescript.config.ts'),
@@ -228,7 +286,7 @@ writeFileSync(
   `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>CFBundleDisplayName</key><string>SDK Home Gate</string>
+<key>CFBundleDisplayName</key><string>SDK Startup Gate</string>
 <key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 <key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
 <key>CFBundleName</key><string>$(PRODUCT_NAME)</string>
@@ -249,13 +307,24 @@ const { produceNativeStartup } = await import(
   pathToFileURL(require.resolve('@octane-xplat/native-prerender-build')).href
 )
 
-json(join(app, 'startup.config.json'), {
-  version: 1,
-  entry: './src/Home.tsrx',
-  exportName: 'Home',
-  seed: { name: 'Alex', initialCompleted: 3 },
-  environment: { width: 402, height: 874, reducedMotion: false },
-})
+if (fixture === 'home') {
+  json(join(app, 'startup.config.json'), {
+    version: 1,
+    entry: './src/Home.tsrx',
+    exportName: 'Home',
+    seed: { name: 'Alex', initialCompleted: 3 },
+    environment: { width: 402, height: 874, reducedMotion: false },
+  })
+} else {
+  const keyed = JSON.parse(
+    readFileSync(join(source, 'producer/fixtures/keyed-startup.json')),
+  )
+  copy(join(source, 'producer/fixtures/keyed-startup.json'), join(work, 'keyed-startup.json'))
+  json(join(app, 'startup.config.json'), {
+    ...keyed,
+    entry: './src/KeyedStartup.tsrx',
+  })
+}
 
 const producer = await produceNativeStartup({
   projectDir: app,
@@ -273,9 +342,12 @@ for (const name of ['startup.json', 'resolved.json', 'sheets.json']) {
   cpSync(join(producer.directory, name), join(app, 'src', name))
 }
 
-cpSync(join(producer.directory, 'startup.bin'), join(app, 'src/home.bin'))
+cpSync(join(producer.directory, 'startup.bin'), join(app, 'src/startup.bin'))
 
-const bootstrap = join(source, 'home-native/HomeBootstrap.swift')
+const bootstrap =
+  fixture === 'home'
+    ? join(source, 'home-native/HomeBootstrap.swift')
+    : join(source, 'ios-native/MountBootstrap.swift')
 
 input(bootstrap)
 writeFileSync(
@@ -319,9 +391,11 @@ const inventory = (directory) =>
       .map((name) => [name, hash(join(directory, name))]),
   )
 
-assert.equal(hash(join(built, 'app/home.bin')), producer.manifest.startupArtifactHash)
+assert.equal(hash(join(built, 'app/startup.bin')), producer.manifest.startupArtifactHash)
 json(join(work, 'build.json'), {
-  fixture: 'stock-sdk-home',
+  fixture: 'stock-sdk-startup',
+  startupFixture: fixture,
+  startupMode: mode,
   id,
   app: built,
   executable,
@@ -337,7 +411,11 @@ json(join(work, 'build.json'), {
   metadataHash: hash(join(products, 'metadata-arm64.bin')),
   metadataDiagnosticsHash: hash(join(products, 'metadata-generation-stderr-arm64.txt')),
   scope:
-    'Normal SDK Home IR/adoption control with installed package sources and normal native Vite preset; four primitive exports; not app opt-in installation, OS input, presentation or performance qualification',
+    fixture === 'home'
+      ? 'Normal SDK Home IR/adoption control with installed package sources and normal native Vite preset; four primitive exports; not app opt-in installation, OS input, presentation or performance qualification'
+      : 'Variable-topology iOS XPI1 native mount, configured JSX wrapper adoption and keyed client updates (' +
+        mode +
+        '); bounded 320x640 canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification',
 })
 
-console.log('SDK Home build complete: ' + work)
+console.log('SDK startup build complete: ' + work)

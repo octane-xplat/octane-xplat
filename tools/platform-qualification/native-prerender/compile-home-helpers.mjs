@@ -11,6 +11,7 @@ function required(name) {
 const mason = required('XPLAT_PRERENDER_MASON_SDK')
 const core = required('XPLAT_PRERENDER_CORE_ROOT')
 const source = join(import.meta.dirname, 'home-native')
+const iosNative = join(import.meta.dirname, 'ios-native')
 const backend = resolve(import.meta.dirname, '../../../packages/native-prerender/platforms/ios')
 const root = resolve(homedir(), 'agent-scratch/octane-xplat/native-prerender-home-helpers')
 mkdirSync(root, { recursive: true })
@@ -28,6 +29,7 @@ const inputs = [
   import.meta.filename,
   ...['FontLowering.h', 'FontLowering.m', 'MasonMount.h', 'MasonMount.m'].map((name) => join(backend, name)),
   ...['HomeMount.h', 'HomeMount.m', 'HomeStyleSnapshot.swift'].map((name) => join(source, name)),
+  ...['MountHost.h', 'MountHost.m'].map((name) => join(iosNative, name)),
   ...['StartupArtifact.swift', 'MasonArtifact.swift'].map((name) => join(backend, name)),
   join(source, 'HomeBootstrap.swift'),
   join(import.meta.dirname, 'Runtime.h'),
@@ -53,7 +55,7 @@ const inputs = [
 ]
 const inputHashes = Object.fromEntries(inputs.map((file) => [file, hash(file)]))
 const objects = []
-for (const [name, directory] of [['FontLowering', backend], ['MasonMount', backend], ['HomeMount', source]]) {
+for (const [name, directory] of [['FontLowering', backend], ['MasonMount', backend], ['HomeMount', source], ['MountHost', iosNative]]) {
   const object = join(work, name + '.o')
   const args = [
     'clang',
@@ -73,6 +75,8 @@ for (const [name, directory] of [['FontLowering', backend], ['MasonMount', backe
     backend,
     '-I',
     source,
+    '-I',
+    iosNative,
     '-c',
     join(directory, name + '.m'),
     '-o',
@@ -113,13 +117,13 @@ objects.push({ path: snapshotObject, sha256: hash(snapshotObject) })
 // Compile the actual host/adapter interface too. Object compilation alone
 // cannot catch a missing Swift import after moving an Objective-C helper.
 const header = join(work, 'HomeBridge.h')
-writeFileSync(header, ['Runtime.h', 'MasonMount.h', 'HomeMount.h'].map((name) => '#import "' + name + '"').join('\n') + '\n')
+writeFileSync(header, ['Runtime.h', 'MasonMount.h', 'MountHost.h', 'HomeMount.h'].map((name) => '#import "' + name + '"').join('\n') + '\n')
 const main = join(work, 'main.swift')
 writeFileSync(main, readFileSync(join(source, 'HomeBootstrap.swift'), 'utf8').replace('__XPLAT_PRERENDER_BUILD_HASH__', 'ab'.repeat(32)))
 const typecheckArgs = [
   'swiftc', '-typecheck', '-sdk', sdk, '-target', 'arm64-apple-ios15.6-simulator',
   '-F', mason, '-F', widgets, '-I', join(mason, 'include'),
-  '-I', backend, '-I', source, '-I', import.meta.dirname,
+  '-I', backend, '-I', source, '-I', iosNative, '-I', import.meta.dirname,
   '-import-objc-header', header,
   join(backend, 'StartupArtifact.swift'), join(backend, 'MasonArtifact.swift'), main,
 ]

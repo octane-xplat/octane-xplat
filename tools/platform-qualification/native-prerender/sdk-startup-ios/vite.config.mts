@@ -18,6 +18,8 @@ const data: Record<string, string> = {
   'xplat-prerender:styles': 'sheets.json',
   'xplat-prerender:artifact': 'resolved.json',
   'xplat-prerender:startup': 'startup.json',
+  'xplat-prerender:component': 'component.js',
+  'xplat-prerender:mode': 'mode.json',
 }
 
 // Only qualification data and the existing four-primitive eligibility boundary
@@ -29,7 +31,7 @@ export default defineConfig(async ({ mode }) =>
       extra: {
         plugins: [
           {
-            name: 'home-sdk-qualification-inputs',
+            name: 'startup-sdk-qualification-inputs',
             enforce: 'pre',
             resolveId(id) {
               if (id === '@octane-xplat/ui') {
@@ -53,8 +55,8 @@ export default defineConfig(async ({ mode }) =>
             generateBundle() {
               this.emitFile({
                 type: 'asset',
-                fileName: 'home.bin',
-                source: readFileSync(join(source, 'home.bin')),
+                fileName: 'startup.bin',
+                source: readFileSync(join(source, 'startup.bin')),
               })
             },
           },

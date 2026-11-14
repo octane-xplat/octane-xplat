@@ -217,23 +217,27 @@ goddard-agent resource run --json '{"resources":{"exclusive":["ios:91D40099-A056
 
 The runner retains source, normal bundle, lockfile, Swift package resolution, metadata, logs and assertions below `~/dev/reports/octane-xplat/native-prerender-sdk-ios`, and shuts down its owned simulator. The NativeSource modulemap warning is expected: JS reaches existing UIKit objects, not custom Swift classes. This control does not mount IR, use Mason, adopt NativeScript wrappers, hand the window to Core, prove compositor presentation, exercise OS input or measure startup performance. A pass qualifies the SDK launch mechanism, not the complete Home integration.
 
-## Stock iOS SDK Home control
+## Stock iOS SDK startup mount control
 
-After the UIKit-only gate, this control connects the existing Home IR and adoption assertions to the shipped SDK. It packs the current private producer/runtime and UI/build dependencies, installs them in an isolated scratch app, and generates Home through that app's installed producer. The live bundle compiles through its installed native Vite preset. Supply a prepared Mason core package directory containing its iOS archive; the build records its version and bytes. Build and device reservations remain separate.
+After the UIKit-only gate, this control connects the startup IR and adoption assertions to the shipped SDK. It packs the current private producer/runtime and UI/build dependencies, installs them in an isolated scratch app, and generates the fixture through that app's installed producer. The live bundle compiles through its installed native Vite preset. Supply a prepared Mason core package directory containing its iOS archive; the build records its version and bytes. Build and device reservations remain separate.
+
+`XPLAT_PRERENDER_IOS_STARTUP_FIXTURE` selects `home` (default; fixed 19-view Home plus its Page/window checks) or `keyed` (variable-topology KeyedStartup inside a bounded 320x640-point Mason viewport — a test canvas, not a claim about the device's window). `XPLAT_PRERENDER_IOS_STARTUP_MODE` selects `adopt` (default), `seed-mismatch` or `attach-failure`; the recovery modes require the keyed fixture. The keyed control exercises the exported `@octane-xplat/native-prerender/ios/mason-binding` binding with keyed updates, owner/move parity against an ordinary reference root, and full disposal; it does not hand the window to `Application.run` or a Page.
 
 ```sh
 export XPLAT_PRERENDER_IOS_MASON_PACKAGE=/absolute/path/to/prepared/core-package
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build stock SDK Home control"}' -- bun turbo run probe:prerender:sdk:home:ios:build --filter=@xplat/platform-qualification
+export XPLAT_PRERENDER_IOS_STARTUP_FIXTURE=keyed            # optional; defaults to home
+export XPLAT_PRERENDER_IOS_STARTUP_MODE=attach-failure      # optional; defaults to adopt
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build stock SDK startup control"}' -- bun turbo run probe:prerender:sdk:startup:ios:build --filter=@xplat/platform-qualification
 ```
 
-The builder prints its directory. NativeSource compiles the shared Home entry as `main.swift` with the SDK adapter enabled. Vite emits `home.bin` inside the app bundle. The generated app selects arm64, excludes x86_64 for this archive, and adds the SDK's static-library include directory to Swift's search path for FontManager. The runner rejects changed source, package, binary, native source, bundle or producer inputs, then verifies native mount before SDK setup, in-place adoption and the existing Core Page/window/style/layout/component checks.
+The builder prints its directory. NativeSource compiles the fixture entry as `main.swift` with the SDK adapter enabled. Vite emits `startup.bin` inside the app bundle. The generated app selects arm64, excludes x86_64 for this archive, and adds the SDK's static-library include directory to Swift's search path for FontManager. The runner rejects changed source, package, binary, native source, bundle or producer inputs, then verifies native mount before SDK setup, in-place adoption and the fixture's checks.
 
 ```sh
-export XPLAT_PRERENDER_IOS_SDK_HOME_BUILD=/absolute/path/printed/by/the/builder
-goddard-agent resource run --json '{"resources":{"exclusive":["ios:91D40099-A056-497D-A572-ADDDFD6A8F23"],"resident_devices":1},"purpose":"Run stock SDK Home control"}' -- bun turbo run probe:prerender:sdk:home:ios --filter=@xplat/platform-qualification
+export XPLAT_PRERENDER_IOS_SDK_STARTUP_BUILD=/absolute/path/printed/by/the/builder
+goddard-agent resource run --json '{"resources":{"exclusive":["ios:91D40099-A056-497D-A572-ADDDFD6A8F23"],"resident_devices":1},"purpose":"Run stock SDK startup control"}' -- bun turbo run probe:prerender:sdk:startup:ios --filter=@xplat/platform-qualification
 ```
 
-Results are retained below `~/dev/reports/octane-xplat/native-prerender-sdk-home-ios`; the runner terminates its fixture and shuts down its owned simulator. The four-primitive facade and fixed Home host remain qualification boundaries. This does not provide app opt-in installation, generic iOS wrapper binding, OS input, visual/pixel presentation, complete CSS coverage, repeated-cycle memory stability or performance qualification. Handler-driven Button updates are separate from OS taps.
+Results are retained below `~/dev/reports/octane-xplat/native-prerender-sdk-startup-ios`; the runner terminates its fixture and shuts down its owned simulator. The four-primitive facade and fixed Home host remain qualification boundaries. This does not provide app opt-in installation, OS input, visual/pixel presentation, complete CSS coverage, repeated-cycle memory stability or performance qualification. Handler-driven Button updates are separate from OS taps.
 
 ## Retained Home runtime fixtures
 
@@ -313,11 +317,11 @@ For iOS fonts, use the pinned NativeScript behavior as the reference. `NativeScr
 
 A snapshot’s applied values are not the control’s native defaults. Preserve the original native defaults separately before startup styling, then establish live property ownership at adoption. A stock property reset, native-baseline restoration and setter replay can avoid direct per-property cache manipulation, but each required native property family must be verified against ordinary creation and later removal. A font-only comparison does not establish general style ownership.
 
-For the fixed Home experiment, the native helper retains font, text color and radius defaults on each view. Restore those baselines after validating the whole prepared tree and immediately before live commit, without yielding between restoration and live setter application. That lets live property initialization capture canonical defaults. The radius baseline uses explicit zero: an empty native radius string does not clear existing corners. The pre-style journal is available through native KVC for this experiment:
+The `XplatMasonMount` instance retains font, text color and radius defaults for each view it created. Restore those baselines after validating the whole prepared tree and immediately before live commit, without yielding between restoration and live setter application. That lets live property initialization capture canonical defaults. The radius baseline uses explicit zero: an empty native radius string does not clear existing corners.
 
 ```ts
-const defaults = nativeView.valueForKey('prerenderDefaults')
-const radius = defaults.objectForKey('borderRadius')
+const mount = PrerenderMountHost.mount
+mount.restoreDefaults() // once, immediately before binding.commit
 ```
 
 This journal remains native runtime state, never serialized pointers or fonts in the artifact. The iOS Home comparison covers initial font/color/effective-corner preservation and removal against ordinary Home. It does not establish complete style ownership, Label initialization parity, leak freedom, or a production adoption API.

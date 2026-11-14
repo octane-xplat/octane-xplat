@@ -12,7 +12,7 @@ export function qualifyHomeLifetime({
   nativeViews,
   oldNodes,
   oldParents,
-  pendingClaims,
+  claims,
 }) {
   const file = (name) => NSHomeDirectory() + '/Documents/' + name
   if (!NSFileManager.defaultManager.fileExistsAtPath(file('home-lifetime'))) return
@@ -34,7 +34,7 @@ export function qualifyHomeLifetime({
             host.getChildrenCount() === 0 && nativeHost.subviews.count === 0,
             'root still mounted',
           )
-          check(pendingClaims.size === 0, 'claims remain')
+          check(claims.pendingCount === 0, 'claims remain')
           check(
             wrappers.every((view) => !view.isLoaded),
             'wrappers still loaded',
@@ -62,7 +62,7 @@ export function qualifyHomeLifetime({
                   gcPasses,
                   hostChildren: host.getChildrenCount(),
                   nativeChildren: nativeHost.subviews.count,
-                  pendingClaims: pendingClaims.size,
+                  pendingClaims: claims.pendingCount,
                   buttonObserversDetached: true,
                 }),
               )
