@@ -182,7 +182,7 @@ const config = {
 ```
 
 Windows and an unspecified `native` CSS target fail explicitly. visionOS,
-GTK, Linux webview sessions, native UI Theme/modal/media lifecycles, and
+full GTK and Linux webview apps, native UI Theme/modal/media lifecycles, and
 SSR/hydration of actual UI components still require separate qualification.
 Keep these limits when evaluating the candidate; installed CSS compilation,
 browser layout and native object/style measurements establish different things.
