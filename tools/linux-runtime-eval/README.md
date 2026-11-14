@@ -113,7 +113,21 @@ dbus-run-session -- xvfb-run -a env XPLAT_MASON_TYPELIB=/path/to/facade-dir LD_L
 dbus-run-session -- xvfb-run -a python3 tools/linux-runtime-eval/port/cdp-check.py /path/to/prepared/ns-linux tools/linux-runtime-eval/dist/bench-native/app.js
 ```
 
-With `0.1.0-alpha.2`, native C frames in the CPU profile can carry the wrong symbol name, so attribute only JavaScript frames. Upstream fixed this after alpha.2 ([triniwiz/linux-runtime#12](https://github.com/triniwiz/linux-runtime/issues/12)); this probe has not been rerun on a newer release.
+With `0.1.0-alpha.2`, native C frames in the CPU profile can carry the wrong symbol name, so attribute only JavaScript frames. `0.1.0-alpha.3` and later builds name native frames correctly ([triniwiz/linux-runtime#12](https://github.com/triniwiz/linux-runtime/issues/12)).
+
+## Runtime versions
+
+The projection in `port/bindings.mjs` counts GObject references itself. That matches runtimes that return GObjects as bare pointers: `0.1.0-alpha.2`, `0.1.0-alpha.3` and main up to `0b2fe09a0`.
+
+Since [triniwiz/linux-runtime#25](https://github.com/triniwiz/linux-runtime/pull/25), first tested at main `be71019d8`, the runtime wraps every GObject it returns. The wrapper holds its own reference and sinks a floating one. Two consequences break this tool:
+- **The projection over-releases.** It still treats a floating `g_object_new` result as a reference it owns, then drops the wrapper's reference. A later garbage collection fails in `g_object_remove_toggle_ref` and crashes.
+- **Finalization checks wait for GC.** An object now finalizes only after V8 collects its wrapper. The port and slice checks expect prompt finalization, so they fail on these builds.
+
+Treat port and slice failures on these builds as a projection/runtime mismatch, not a renderer regression. Supporting these builds means two changes:
+- the projection lets the runtime's wrappers own references;
+- the checks drop their own references to unmounted widgets, then force a collection before counting finalizations.
+
+The pass criteria themselves stay the same.
 
 One local workaround hides a known gap; keep it in mind when reading results:
 
