@@ -16,7 +16,7 @@ host-side validation. Independent Swift/Java readers share a maintained
 interoperability corpus, including the real JSX producer output. Swift keeps
 arbitrary seed dictionaries in NSDictionary to preserve distinct UTF-16 keys.
 Both mobile qualification hosts consume XPI1 and match complete logical slots
-before claims. The fixed Swift/Java backends use the shared readers and retain
+before claims. The Swift/Java Mason backend adapters use the shared readers and retain
 separate native setter/font eligibility checks. Host-native decoder
 checks do not establish mobile rendering or normal-app integration. Keep backend
 value/font checks before native allocation. The current cascade reads viewport
@@ -28,8 +28,11 @@ The private render-only producer uses Node and the selected project-installed
 Vite, with a JSON-selected entry/export/seed/environment. It keeps a dedicated
 build-host plugin and the four shared primitive facade; it does not load the
 app's Vite configuration or establish full UI-barrel eligibility. Generic
-logical projection and native decoding remain separate from the fixed Home
-native lowerers/adoption controls. See the fixture's
+logical projection, backend preflight and native mounting belong to the reusable
+package; the fixed Home host, observations and adoption controls remain in
+qualification tooling. Native mounts must not contain seed, node-count or
+element-index assumptions from a screen fixture. The current IR still requires
+one logical root, which may be a container or Label. See the fixture's
 [producer contract](../../tools/platform-qualification/native-prerender/README.md#produce-home-without-a-device-runtime).
 
 ## Root-scoped creation is a maintained driver seam

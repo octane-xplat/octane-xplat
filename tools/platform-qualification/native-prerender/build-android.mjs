@@ -229,6 +229,7 @@ for (const [name, destination] of [
             ? '<provider android:name="org.octanexplat.prerenderandroid.HomeReceiptProvider" android:authorities="' +
                 id +
                 '.receipts" android:exported="true" android:enabled="${receiptProviderEnabled}" />\n' +
+                '<activity android:name="org.octanexplat.prerenderandroid.MasonMountActivity" android:exported="true" />\n' +
                 (homeStartup
                   ? '<profileable android:shell="true" />\n<activity android:name="org.octanexplat.prerenderandroid.HomeOrdinaryActivity" android:process=":ordinary" android:configChanges="keyboardHidden|orientation|screenSize" android:exported="true" />\n<provider android:name="org.octanexplat.prerenderandroid.HomeOrdinaryReceiptProvider" android:authorities="' +
                     id +
@@ -243,6 +244,7 @@ if (homeProducer)
   for (const name of [
     'HomeScene.java',
     'HomeComparison.java',
+    'MasonMountActivity.java',
     'HomeViewport.java',
     'HomeReceiptProvider.java',
     ...(homeStartup ? ['HomeOrdinaryActivity.java', 'HomeOrdinaryReceiptProvider.java'] : []),
@@ -253,7 +255,7 @@ if (homeProducer)
       sourceHashes,
     )
 if (homeProducer)
-  for (const name of ['StartupArtifact.java', 'MasonArtifact.java'])
+  for (const name of ['StartupArtifact.java', 'MasonArtifact.java', 'MasonMount.java'])
     snapshot(
       resolve(import.meta.dirname, '../../../packages/native-prerender/platforms/android/java/org/octanexplat/prerender', name),
       join(work, 'app/src/main/java/org/octanexplat/prerender', name),

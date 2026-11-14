@@ -98,7 +98,10 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
             return
         }
         record("native-binary-decoded", ["nodes": (artifact["nodes"] as! [Any]).count, "buildHash": homeBuildHash, "beforeEngineInit": true])
-        home = PrerenderHomeMount.mount(artifact, theme: theme, scale: window.screen.scale)
+        guard let mounted = XplatMasonMount.mount(artifact, theme: theme, scale: window.screen.scale) as? MasonUIView else {
+            preconditionFailure("Home fixture requires a Mason container root")
+        }
+        home = mounted
         root.addView(home)
         root.computeWithSize(width, height)
         root.markRootComputeApplied(width, height)

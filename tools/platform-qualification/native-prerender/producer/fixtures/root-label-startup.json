@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "entry": "./RootLabelStartup.tsrx",
+  "exportName": "RootLabelStartup",
+  "seed": { "title": "One native root label" },
+  "environment": { "width": 320, "height": 640, "reducedMotion": false }
+}

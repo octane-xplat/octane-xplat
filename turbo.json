@@ -329,6 +329,11 @@
         "GODDARD_*"
     "@xplat/platform-qualification#probe:prerender:android:presentation": {
       "passThroughEnv": ["XPLAT_PRERENDER_ANDROID_REPORT", "XPLAT_PRERENDER_TRACE_PROCESSOR"]
+    },
+    "@xplat/platform-qualification#probe:prerender:mount:android": {
+      "cache": false,
+      "passThroughEnv": ["XPLAT_PRERENDER_ANDROID_BUILD", "XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL", "GODDARD_*"]
+    },
     "@xplat/platform-qualification#probe:prerender:android:startup:check": {
       "passThroughEnv": ["XPLAT_PRERENDER_ANDROID_REPORT", "XPLAT_PRERENDER_TRACE_PROCESSOR"]
     "@xplat/platform-qualification#probe:prerender:android:startup:compare": {

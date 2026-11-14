@@ -119,6 +119,27 @@ MasonArtifact.Artifact artifact = MasonArtifact.decode(bytes, installedBuild);
 // Native mount preflight must still check the owning device's density/fonts.
 ```
 
+## Native Mason mounting
+
+The platform `MasonMount` sources create the supported container/Label tree without a JS runtime. They contain no Home seed, node count or element-index policy. Hosts own the viewport, check launch constraints against its actual logical dimensions, and retain responsibility for window attachment, adoption and disposal. The current CSS/font subset remains deliberately bounded.
+
+On Android, prepare checks both themes, supported system font stacks and density conversion before allocating artifact views. Mount synchronously into an empty caller-owned Mason viewport on the UI thread. The result exposes native views in visual-index order and the default-value journal needed before live wrappers capture native defaults.
+
+```java
+MasonMount.Prepared prepared = MasonMount.prepare(activity, artifact, theme);
+MasonMount tree = prepared.mount(viewport);
+// Before attaching live NativeScript wrappers:
+tree.restoreDefaults();
+```
+
+The iOS mount consumes the projection from `XplatMasonArtifact.decode`, checks scaled lengths in both themes before allocation, and returns a native container or Label root. The host attaches that root to its own viewport. The Home observation helpers are separate qualification code.
+
+```swift
+let decoded = try XplatMasonArtifact.decode(data, expectedBuildHash: installedBuild)
+let root = XplatMasonMount.mount(decoded.value, theme: theme, scale: window.screen.scale)
+viewport.addView(root)
+```
+
 ## Verification
 
 ```sh

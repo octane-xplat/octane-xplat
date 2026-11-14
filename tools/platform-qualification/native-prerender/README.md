@@ -128,7 +128,7 @@ bun turbo run test:prerender:producer --filter=@xplat/platform-qualification
 
 ## Compile native Home helpers
 
-`home-native/` retains the fixed-screen mounting and font-conversion helpers. They consume the experimental producer’s trusted JSON visual projection: nineteen containers/Labels with resolved light/dark styles. They are fixtures, not the production IR decoder, a complete font implementation, or an app startup integration. Unsupported properties and font weights fail explicitly.
+`packages/native-prerender/platforms/ios` owns Mason/Label mounting and font conversion. `home-native/` retains the fixed-screen host and observation helpers. The mount consumes the backend-validated visual projection with resolved light/dark styles; Home assertions remain in the fixture. This is not a complete font implementation or normal app startup integration. Unsupported properties and font weights fail explicitly.
 
 Compile the Objective-C helpers against the exact native SDK inputs:
 
@@ -138,7 +138,7 @@ export XPLAT_PRERENDER_CORE_ROOT=/absolute/path/to/node_modules/@nativescript/co
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Compile native Home helpers"}' -- bun turbo run probe:prerender:home:helpers --filter=@xplat/platform-qualification
 ```
 
-Each invocation writes three object files, compiler arguments and an input/output hash manifest below `~/agent-scratch/octane-xplat/native-prerender-home-helpers`. Link all three, including the Swift `HomeStyleSnapshot` extension, with the host, Mason, TNSWidgets, CoreText and core’s native text helpers. The command creates no app and runs no device; its output explicitly records `linked:false` and `runtimeQualified:false`. Follow the plan’s separate native geometry, style ownership and hydration gates.
+Each invocation writes four object files, compiler arguments and an input/output hash manifest below `~/agent-scratch/octane-xplat/native-prerender-home-helpers`. It also typechecks the actual Home Swift entry against the backend adapters and generated `HomeBridge.h`, with both normal and stale-theme branches. Link `FontLowering`, `MasonMount`, the fixture's `HomeMount` observer and the Swift `HomeStyleSnapshot` extension with the host, Mason, TNSWidgets, CoreText and core’s native text helpers. The command creates no app and runs no device; its output explicitly records `linked:false` and `runtimeQualified:false`. Follow the plan’s separate native geometry, style ownership and hydration gates.
 
 ## Shared binary reader and native backend checks
 
@@ -154,6 +154,28 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"C
 ```
 
 Both backend tasks run the same logical projection and unsupported-value cases. Supplying the optional platform-specific producer directory additionally requires its original `startup.bin` to match the complete `resolved.json` projection, with canonical provenance ordering. Swift evidence goes below `~/agent-scratch/octane-xplat/native-prerender-home-codec`; Java evidence goes below `~/agent-scratch/octane-xplat/native-prerender-android-codec`. These compile/run on host toolchains, without a simulator, mobile mounting or JS runtime.
+
+### Android variable-topology mount control
+
+The native mount control consumes the configured artifact without Home seed or cardinality assumptions. Use the Android SDK/Core/Mason inputs from the bootstrap setup, a debug build, and leave Home adoption/Application/entry/parity/input/restoration/startup/fault flags unset. Select the four-view `producer/fixtures/configured-startup.json` or Label-root `producer/fixtures/root-label-startup.json` configuration, produce Android IR, then build with the printed producer directory.
+
+```sh
+export XPLAT_PRERENDER_HOME_PLATFORM=android
+export XPLAT_PRERENDER_PRODUCER_CONFIG="$PWD/tools/platform-qualification/native-prerender/producer/fixtures/root-label-startup.json"
+bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualification
+export XPLAT_PRERENDER_ANDROID_HOME_PRODUCER=/absolute/path/printed/by/the/producer
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build variable native mount control"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
+```
+
+Run the resulting APK on an explicitly reserved ARM64 Android35+ phone. The control uses a bounded320×640 logical-point canvas and checks that it satisfies the artifact's launch constraints. It requires the complete native tree, parent/child order, positive measured geometry, a draw traversal and empty native/Mason child lists after disposal, with the JS runtime and library still uninitialized. It never shuts down the phone or changes its power/display settings; it stops only the disposable fixture app.
+
+```sh
+export XPLAT_PRERENDER_ANDROID_BUILD=/absolute/path/printed/by/the/build
+export XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL=YOUR_DEVICE_SERIAL
+goddard-agent resource run --json '{"resources":{"exclusive":["device:YOUR_DEVICE_SERIAL"]},"purpose":"Verify variable native mount"}' -- bun turbo run probe:prerender:mount:android --filter=@xplat/platform-qualification
+```
+
+This is native mount/draw/structural-disposal evidence, separate from variable-screen hydration, ordinary-reference style parity, native deallocation, compositor presentation and startup performance. The existing Home parity/restoration control exercises the same package-owned Android mount through live wrappers.
 
 The reusable package’s `test:codec:native` task owns malformed-input coverage. The backend checks own setter eligibility: supported enum strings, scalar types/ranges, zero-only borders, supported font weights and resolved colors. Both themes must pass even when one is unused. Structural validity alone does not establish native font applicability, geometry, hydration, presentation or speed. These fixed-screen backends are not general CSS lowerers.
 
@@ -187,7 +209,7 @@ The real-screen experiment has separate native and JavaScript entry points:
 | [home-fallback.ios.js](home-fallback.ios.js) | Artifact/decode or stale-theme rejection before claims, ordinary Home mount and current-theme/Button checks |
 | [home-primitives.ts](home-primitives.ts) | Four actual shared primitive exports, avoiding unrelated public-barrel imports |
 
-These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with the shared `StartupArtifact.swift` and backend `MasonArtifact.swift` from `packages/native-prerender/platforms/ios`, and links the three native helper objects plus the runtime/Core embedding helpers. It packages the XPI1 packet as `home.bin` and resolves `xplat-prerender:artifact`, `xplat-prerender:startup` and `xplat-prerender:styles` to the matching visual projection, complete logical artifact and normalized stylesheets. Retarget Octane imports to the native universal runtime and use the canonical managed driver patch. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
+These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with the shared `StartupArtifact.swift` and backend `MasonArtifact.swift` from `packages/native-prerender/platforms/ios`, and links the four native helper objects plus the runtime/Core embedding helpers. It packages the XPI1 packet as `home.bin` and resolves `xplat-prerender:artifact`, `xplat-prerender:startup` and `xplat-prerender:styles` to the matching visual projection, complete logical artifact and normalized stylesheets. Retarget Octane imports to the native universal runtime and use the canonical managed driver patch. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
 
 The maintained iOS runner accepts an explicitly prebuilt XPI1 Home fixture with the recorded build manifest and the isolated `controls-shared-home-xpi` app identity. The experimental host build adapter remains separate from normal NativeScript SDK integration.
 

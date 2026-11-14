@@ -12,12 +12,12 @@ import {
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { completedHomeEpoch } from './home-events.mjs'
+import { readAndroidBuild } from './read-android-build.mjs'
 import { qualifyAndroidStartup } from './qualify-android-startup.mjs'
 
 // Own android:elegant-fir-probe + resident_devices, or device:<explicit serial>.
 const work = process.env.XPLAT_PRERENDER_ANDROID_BUILD
-if (!work) throw new Error('Set XPLAT_PRERENDER_ANDROID_BUILD to the printed build directory')
-const build = JSON.parse(readFileSync(join(resolve(work), 'build.json'), 'utf8'))
+const build = readAndroidBuild(work)
 let startupPath = process.env.XPLAT_PRERENDER_ANDROID_STARTUP_PATH ?? 'native'
 if (
   !['native', 'ordinary'].includes(startupPath) ||
@@ -43,6 +43,7 @@ const driverInputs = Object.fromEntries(
   [
     import.meta.filename,
     join(import.meta.dirname, 'home-events.mjs'),
+    join(import.meta.dirname, 'read-android-build.mjs'),
     join(import.meta.dirname, 'qualify-android-startup.mjs'),
   ].map((path) => [path, hash(path)]),
 )
@@ -84,23 +85,6 @@ function checkOrdinarySafeArea(observation) {
     'Ordinary Home root differs from the current window safe area',
   )
 }
-check(
-  build.id ===
-    (build.home
-      ? 'org.octanexplat.prerenderhome.android'
-      : 'org.octanexplat.prerenderbootstrap.android'),
-  'Unexpected bootstrap app identity',
-)
-check(hash(build.apk) === build.apkHash, 'APK changed since build')
-for (const [path, input] of Object.entries(build.sourceHashes))
-  check(
-    hash(path) === input.sha256 && hash(input.copy) === input.sha256,
-    'Build source changed: ' + path,
-  )
-for (const input of Object.values(build.inputs))
-  check(hash(input.copy) === input.sha256, 'Pinned SDK input changed: ' + input.copy)
-for (const [path, digest] of Object.entries(build.generatedHashes))
-  check(hash(path) === digest, 'Generated input changed: ' + path)
 const adb = join(build.sdk, 'platform-tools/adb')
 const emulator = join(build.sdk, 'emulator/emulator')
 const physicalSerial = process.env.XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL

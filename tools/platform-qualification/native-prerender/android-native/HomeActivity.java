@@ -1,6 +1,7 @@
 package org.octanexplat.prerenderandroid;
 
 import org.octanexplat.prerender.MasonArtifact;
+import org.octanexplat.prerender.MasonMount;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -309,15 +310,15 @@ public class HomeActivity extends AppCompatActivity {
                 android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
             if (HomeBuild.STALE_THEME) theme = theme.equals("dark") ? "light" : "dark";
             try {
-                HomeScene.validateEnvironment(this);
+                MasonMount.validateEnvironment(this);
                 android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
                 if (!artifact.snapshot.supports(getResources().getConfiguration().fontScale,
                         metrics.widthPixels / (double) metrics.density,
                         metrics.heightPixels / (double) metrics.density,
                         !android.animation.ValueAnimator.areAnimatorsEnabled()))
-                    throw new HomeScene.UnsupportedEnvironment("Startup artifact launch constraints differ");
+                    throw new MasonMount.UnsupportedEnvironment("Startup artifact launch constraints differ");
                 scene = new HomeScene(this, artifact, theme);
-            } catch (HomeScene.UnsupportedEnvironment rejected) {
+            } catch (MasonMount.UnsupportedEnvironment rejected) {
                 deferFallback("environment-rejected-native", rejected.getMessage()); return;
             }
             setContentView(scene.windowRoot);
