@@ -4,15 +4,16 @@
     "test:runtime": {
       "dependsOn": ["build"],
       "cache": false,
-      "passThroughEnv": ["LINUX_RUNTIME_EVAL_VM", "LINUX_RUNTIME_EVAL_ENGINE", "LINUX_RUNTIME_EVAL_EXECUTABLE", "LINUX_RUNTIME_EVAL_SLICE", "LINUX_RUNTIME_EVAL_MASON_DIR"]
+      "passThroughEnv": ["LINUX_RUNTIME_EVAL_VM", "LINUX_RUNTIME_EVAL_ENGINE", "LINUX_RUNTIME_EVAL_EXECUTABLE", "LINUX_RUNTIME_EVAL_SLICE", "LINUX_RUNTIME_EVAL_MASON_DIR", "LINUX_RUNTIME_EVAL_HOST"]
     },
     "test:port": {
       "dependsOn": ["build:port"],
       "cache": false,
-      "passThroughEnv": ["LINUX_RUNTIME_EVAL_VM", "LINUX_RUNTIME_EVAL_ENGINE", "LINUX_RUNTIME_EVAL_EXECUTABLE", "LINUX_RUNTIME_EVAL_SLICE", "LINUX_RUNTIME_EVAL_MASON_DIR"]
+      "passThroughEnv": ["LINUX_RUNTIME_EVAL_VM", "LINUX_RUNTIME_EVAL_ENGINE", "LINUX_RUNTIME_EVAL_EXECUTABLE", "LINUX_RUNTIME_EVAL_SLICE", "LINUX_RUNTIME_EVAL_MASON_DIR", "LINUX_RUNTIME_EVAL_HOST"]
     },
     "build:port": {
       "dependsOn": ["^typegen"],
+      "passThroughEnv": ["LINUX_RUNTIME_EVAL_GI_SCHEMA"],
       "outputs": ["dist/port-native/**", "dist/port-gjs/**", "dist/bench-native/**", "dist/bench-gjs/**"],
       "cache": false
     },

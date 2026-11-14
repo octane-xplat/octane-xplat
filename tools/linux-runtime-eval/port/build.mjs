@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { linuxGtk } from '../../../packages/cli/src/linux-gtk/vite.ts'
 const root=resolve(import.meta.dirname,'..')
-const schemaPath=resolve(root,'../../research/linux-runtime-port/gi.json')
+const schemaPath=process.env.LINUX_RUNTIME_EVAL_GI_SCHEMA??resolve(root,'../../research/linux-runtime-port/gi.json')
 const watch=process.argv.includes('--watch')?{}:undefined
 // Typelibs absent on the probe VM — leaf-only imports the parity screen never
 // reaches (webview/networking). Stubbed to a tolerant proxy for the GJS build.

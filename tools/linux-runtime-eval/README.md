@@ -47,9 +47,20 @@ LINUX_RUNTIME_EVAL_VM=gtk-smoke LINUX_RUNTIME_EVAL_ENGINE=gjs \
 
 Omit `LINUX_RUNTIME_EVAL_VM` when running directly on Linux. The runner creates an isolated Xvfb display and session bus, waits for widget geometry, then sends an XTest click and the keys `abc`. It requires successful assertions, a completion record, a zero process exit, and no GTK/GJS critical diagnostics. A timeout or missing completion fails the run. Its processes and display stop at the end.
 
+The native engine always receives `NS_V8_FLAGS=--expose-gc`: runtime wrappers hold the only GObject reference, so the drain checks must be able to force V8 collections rather than just waiting.
+
+To run on a remote Linux host (for example `andromeda.local`'s OrbStack VM `octane-linux`), set `LINUX_RUNTIME_EVAL_HOST` to the ssh host; `LINUX_RUNTIME_EVAL_VM` then names the OrbStack VM on that host instead of a local one. `LINUX_RUNTIME_EVAL_EXECUTABLE` and `LINUX_RUNTIME_EVAL_MASON_DIR` are paths on the remote Linux side. The runner stages `input.py` and the entry's dist directory into a VM-local `/tmp/xplat-lre-*` directory and removes it afterwards:
+
+```sh
+LINUX_RUNTIME_EVAL_HOST=andromeda.local \
+LINUX_RUNTIME_EVAL_VM=octane-linux \
+LINUX_RUNTIME_EVAL_EXECUTABLE=/Users/alec/agent-scratch/.../ns-linux \
+  bun run turbo run test:runtime --filter=@xplat/linux-runtime-eval
+```
+
 ## Real renderer port
 
-`port/` runs the shipping renderer (`createGtkRoot` from `@octane-xplat/linux-gtk`) and shared `@octane-xplat/ui` components unchanged on the NativeScript runtime. `port/bindings.mjs` projects a GObject-style API (constructors, methods, properties, signals, `GObject.registerClass`, GLib sources, explicit `beginScope`/`releaseScope` ownership) onto the runtime's generated C symbols, driven by a GI description exported from the target host: `research/linux-runtime-port/gi.json`, produced on a Linux host by `port/export-gi.js` under GJS:
+`port/` runs the shipping renderer (`createGtkRoot` from `@octane-xplat/linux-gtk`) and shared `@octane-xplat/ui` components unchanged on the NativeScript runtime. `port/bindings.mjs` projects a GObject-style API (constructors, methods, properties, signals, `GObject.registerClass`, GLib sources) onto the runtime's generated C symbols — `beginScope`/`releaseScope` group created objects for teardown checks and own only timers and call-scoped callbacks — driven by a GI description exported from the target host: `research/linux-runtime-port/gi.json` by default — override with `LINUX_RUNTIME_EVAL_GI_SCHEMA` when testing a schema from another host (for example an x86_64 GTK 4.14 export) — produced on a Linux host by `port/export-gi.js` under GJS:
 
 ```sh
 gjs tools/linux-runtime-eval/port/export-gi.js research/linux-runtime-port/gi.json
@@ -117,17 +128,15 @@ With `0.1.0-alpha.2`, native C frames in the CPU profile can carry the wrong sym
 
 ## Runtime versions
 
-The projection in `port/bindings.mjs` counts GObject references itself. That matches runtimes that return GObjects as bare pointers: `0.1.0-alpha.2`, `0.1.0-alpha.3` and main up to `0b2fe09a0`.
+The v2 projection in `port/bindings.mjs` targets runtimes at or after main `be71019d8` ([triniwiz/linux-runtime#25](https://github.com/triniwiz/linux-runtime/pull/25)): the runtime wraps every GObject it returns and the wrapper holds its own reference, so the projection owns no GObject references at all. It observes liveness through weak refs, delegates signal connect/disconnect to the wrapper's own methods, and drops only the caller-side reference of transfer-full returns for owned (non-floating) types.
 
-Since [triniwiz/linux-runtime#25](https://github.com/triniwiz/linux-runtime/pull/25), first tested at main `be71019d8`, the runtime wraps every GObject it returns. The wrapper holds its own reference and sinks a floating one. Two consequences break this tool:
-- **The projection over-releases.** It still treats a floating `g_object_new` result as a reference it owns, then drops the wrapper's reference. A later garbage collection fails in `g_object_remove_toggle_ref` and crashes.
-- **Finalization checks wait for GC.** An object now finalizes only after V8 collects its wrapper. The port and slice checks expect prompt finalization, so they fail on these builds.
+It does not support `0.1.0-alpha.x` or main up to `0b2fe09a0`, where C-returned GObjects were bare pointers and the projection counted references itself. It throws at load time on those builds because `__nsGObject.object` is missing.
 
-Treat port and slice failures on these builds as a projection/runtime mismatch, not a renderer regression. Supporting these builds means two changes:
-- the projection lets the runtime's wrappers own references;
-- the checks drop their own references to unmounted widgets, then force a collection before counting finalizations.
+Because liveness follows V8 collection of the wrapper, the drain checks need `NS_V8_FLAGS=--expose-gc` (injected by `run.mjs`) and the probes drop their own handles to dead trees before counting finalizations. The pass criteria themselves stay the same.
 
-The pass criteria themselves stay the same.
+On `be71019d8` the port's `cycle-pending-drained` and the slice's `native-widget-finalization` still fail. Functional checks pass. The cause is a runtime gap, not a renderer regression: the runtime keeps a signal handler's closure alive until disconnect or finalize. A handler that reaches its own object, like the renderer's `GtkTextView` `map`/`unmap` handlers, therefore keeps that object alive forever. GJS traces handler closures from the object's wrapper and collects such cycles.
+
+Observe finalization with `g_object_weak_ref` (native) or a `GBinding`'s source (GJS). Don't use `GOBJECT_DEBUG=instance-count`: on the Debian 13 VM, `g_type_get_instance_count` returns 0 for every type, even live ones.
 
 One local workaround hides a known gap; keep it in mind when reading results:
 

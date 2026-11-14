@@ -1,13 +1,28 @@
 // Experimental GTK object projection over NativeScript's generated C API.
 // It intentionally fails on unsupported calls; it is not a general GJS replacement.
+// v2 targets runtimes >= be71019d8: C-returned GObjects arrive as runtime-owned
+// class objects that hold their own reference — the runtime owns GObject
+// lifetimes; this layer only projects and observes.
 import schema from 'virtual:gtk-schema'
 const data = schema.namespaces
 const t = interop.types
 const C = globalThis
+// `GObject *` as an interop type: callbacks/reads produce the runtime wrapper.
+// v2 hard-requires runtimes >= be71019d8, which expose this type.
+const OBJ = globalThis.__nsGObject?.object
+if(!OBJ)throw Error('bindings v2 requires __nsGObject.object (runtime >= be71019d8)')
 const pointer = value => value?.__native ?? value
-const key = value => pointer(value)?.toString()
-const constructors = new Map(), byTypeName = new Map(), byGType = new Map(), wrappers = new Map()
-const scopes = new Set(), permanent = new Set()
+const key = value => { const p = pointer(value); return p?.toBigInt ? p.toBigInt().toString() : p?.toString() }
+const constructors = new Map(), byTypeName = new Map(), byGType = new Map()
+const proxies = new WeakMap()
+// ptrKey -> GType name: every GObject proxy we create, until its weak notify.
+export const pendingFinalizers = new Map()
+const liveSignals = new Set()
+const registry = new FinalizationRegistry((entry) => {
+  if (entry === 'proxy') { bridgeStats.objects--; return }
+  if (entry.live) { entry.live = false; bridgeStats.signals--; liveSignals.delete(entry) }
+})
+const scopes = new Set(), permanent = { callbacks: new Set(), timers: new Set() }
 let activeScope = null
 export const bridgeStats = { objects: 0, finalized: 0, signals: 0, callbacks: 0, sources: 0 }
 const fatal = error => { console.error('GTK_BINDING_ERROR', error.stack ?? String(error)); throw error }
@@ -28,65 +43,82 @@ const scalar = type => {
 }
 const typeForRef = type => type.pointer||type.tag===16||type.tag===15?t.pointer:scalar(type)
 const isObject = ref => ref && [7,8].includes(ref.kind)
+const ptrSlot = interop.alloc(8)
+// Bare pointer or runtime wrapper -> the runtime's JSObject wrapper. The
+// wrapper cache makes this an identity: one GObject, one JS object.
+const toWrapper = (p) => {
+  if(!p)return null
+  new interop.Reference(t.pointer, ptrSlot).value = p.__native ?? p
+  return new interop.Reference(OBJ, ptrSlot).value
+}
 function fromNative(value,type,transfer=0){
   if(value==null)return value
   if(type.tag===1)return !!value
-  if(type.tag===13||type.tag===14){const str=decode(value);if(transfer===2)g_free(value);return str}
+  if(type.tag===13||type.tag===14){if(typeof value==='string')return value;const str=decode(value);if(transfer===2)g_free(value);return str}
   if(type.tag===15&&type.zero){const result=[];for(let i=0;;i++){const p=new interop.Reference(t.pointer,value.add(i*8)).value;if(!p)break;result.push(fromNative(p,type.element))}return result}
   if(type.tag===16){const ref=type.interface;if([5,6].includes(ref.kind))return Number(value);if(ref.ns==='GObject'&&ref.name.startsWith('ParamSpec'))return value;if(isObject(ref))return wrapObject(value,ref,transfer);if([3,4].includes(ref.kind))return wrapStruct(value,ref)}
   return value
 }
-// Objects released by a scope whose last native ref is not ours — they
-// finalize whenever GTK drops the rest. Keyed by pointer for diagnostics.
-export const pendingFinalizers = new Map()
-const weakFinalized = (data, _dead) => { pendingFinalizers.delete(key(data)); bridgeStats.finalized++ }
-function ownObject(wrapper,transfer=0){
-  const p=wrapper.__native
-  const gobject=!!g_type_is_a(nativeType(p),g_object_get_type())
-  wrapper.__gobject=gobject
-  if(!gobject){
-    if(!g_type_is_a(nativeType(p),gdk_event_get_type()))throw Error(`Unsupported fundamental ${wrapper.__ref.ns}.${wrapper.__ref.name}`)
-    if(transfer!==2)gdk_event_ref(p)
-    ;(activeScope??permanent).add(wrapper);bridgeStats.objects++;return
-  }
-  if(g_object_is_floating(p))g_object_ref_sink(p)
-  else if(transfer!==2)g_object_ref(p)
-  const name=wrapper.__ref.ns+'.'+wrapper.__ref.name
-  const scope=['Gtk.Settings','Gdk.Display','Gdk.X11Display'].includes(name)?permanent:(activeScope??permanent)
-  scope.add(wrapper);wrapper.__scope=scope;bridgeStats.objects++
-  g_object_weak_ref(p,weakFinalized,p)
+const weakFinalized = (data, _dead) => {
+  pendingFinalizers.delete(key(data))
+  bridgeStats.finalized++
+}
+// The runtime wrapper always holds its own reference (#25), so for a
+// transfer-full GObject return/out the caller's ref must be dropped after
+// wrapping — except initially-unowned types, where the wrapper merely sank
+// the floating ref and there is no extra ref to release.
+const dropTransfer = (w, type) => {
+  if(!g_type_is_a(type,g_initially_unowned_get_type()))g_object_unref(w)
 }
 function wrapObject(p,ref,transfer=0,prototype){
   if(!p)return null
-  const old=wrappers.get(key(p))
-  if(old&&!old.__disposed){if(transfer===2)(old.__gobject?g_object_unref:gdk_event_unref)(p);return old}
-  const type=nativeType(p),name=decode(g_type_name(type))
+  p = p.__native ?? p
+  const type=nativeType(p)
+  if(!g_type_is_a(type,g_object_get_type())){
+    // Non-GObject fundamentals (GdkEvent): adopt native ownership of the ref.
+    if(!g_type_is_a(type,gdk_event_get_type()))throw Error(`Unsupported fundamental ${ref.ns}.${ref.name}`)
+    const owned=transfer===2?p:gdk_event_ref(p)
+    const target=Object.create(getClass(ref.ns,ref.name).prototype)
+    Object.assign(target,{__native:interop.adopt(owned,gdk_event_unref),__ref:ref,__gobject:false})
+    bridgeStats.objects++;registry.register(target,'proxy',target);return target
+  }
+  const w=toWrapper(p)
+  // Transfer-full returns/outs reach us at caller-ref + wrapper-ref (#25);
+  // drop the caller's ref once regardless of whether the proxy is fresh.
+  if(transfer===2)dropTransfer(w,type)
+  const old=proxies.get(w)
+  if(old)return old
+  const name=decode(g_type_name(type))
   let selected=byGType.get(Number(type))??byTypeName.get(name)??getClass(ref.ns,ref.name)
   if(selected.__lazy)selected=getClass(...selected.__lazy)
   const resolvedRef=selected.__ref??ref
   const target=Object.create(prototype??selected.prototype)
-  Object.assign(target,{__native:p,__ref:resolvedRef,__disposed:false,__signals:new Map()})
+  Object.assign(target,{__native:w,__ref:resolvedRef,__gobject:true,__conn:new Map()})
   const proxy=new Proxy(target,{
     get(obj,property,receiver){
       if(Reflect.has(obj,property))return Reflect.get(obj,property,receiver)
       if(typeof property!=='string')return undefined
-      if(!obj.__gobject)return undefined
       const propertyName=property.replaceAll('_','-')
-      const klass=new interop.Reference(t.pointer,p).value
+      const klass=new interop.Reference(t.pointer,w).value
       const spec=g_object_class_find_property(klass,propertyName)
       if(spec)return propertyGet(proxy,propertyName,spec)
       return undefined
     },
     set(obj,property,value,receiver){
-      if(obj.__gobject&&typeof property==='string'&&!property.startsWith('__')&&!Reflect.has(obj,property)){
-        const klass=new interop.Reference(t.pointer,p).value
+      if(typeof property==='string'&&!property.startsWith('__')&&!Reflect.has(obj,property)){
+        const klass=new interop.Reference(t.pointer,w).value
         const spec=g_object_class_find_property(klass,property.replaceAll('_','-'))
         if(spec){propertySet(proxy,property.replaceAll('_','-'),value,spec);return true}
       }
       return Reflect.set(obj,property,value,receiver)
     }
   })
-  wrappers.set(key(p),proxy);ownObject(proxy,transfer);return proxy
+  proxies.set(w,proxy)
+  // We own no reference; a weak ref just lets teardown name whatever survives.
+  pendingFinalizers.set(key(w),name)
+  g_object_weak_ref(w,weakFinalized,w)
+  activeScope?.pending.set(key(w),name)
+  bridgeStats.objects++;registry.register(proxy,'proxy',proxy);return proxy
 }
 function wrapStruct(native,ref){
   if(native?.__native)return native
@@ -147,6 +179,8 @@ function makeObject(klass,props={}){
     const names=new BigUint64Array(strings.map(p=>p.toBigInt()))
     const p=g_object_new_with_properties(type,propertyNames.length,names,values)
     g_type_class_unref(nativeClass)
+    // GtkWindow is initially-unowned and presented windows are GTK-held;
+    // transfer=0 asks wrapObject to leave the wrapper's sunk ref alone.
     return wrapObject(p,klass.__ref,g_type_is_a(type,gtk_window_get_type())?0:2,klass.prototype)
   }finally{for(let i=0;i<strings.length;i++)g_value_unset(values.add(i*24));interop.free(values)}
 }
@@ -173,13 +207,16 @@ function getClass(ns,name){
   if(record.parent)Object.setPrototypeOf(klass.prototype,getClass(record.parent.ns,record.parent.name).prototype)
   for(const [methodName,method]of allMethods(ns,name)){
     if(typeof C[method.symbol]!=='function')continue
-    if(method.flags&1)Object.defineProperty(klass.prototype,methodName,{value:function(...args){if(this.__disposed)throw Error(`Disposed ${id}.${methodName}`);return invoke(method,args,this)},writable:true})
+    if(method.flags&1)Object.defineProperty(klass.prototype,methodName,{value:function(...args){return invoke(method,args,this)},writable:true})
     else Object.defineProperty(klass,methodName,{value:(...args)=>invoke(method,args),configurable:true})
   }
-  // Bind connection ownership explicitly rather than inheriting C varargs helpers.
+  // Signal/property sugar on top of the runtime's own wrapper methods; the
+  // runtime owns the closure — it is freed on disconnect or instance finalize.
   if([7,8].includes(record.kind)){
     Object.assign(klass.prototype,{
-      connect(signal,fn){return connect(this,signal,fn)},connect_after(signal,fn){return connect(this,signal,fn,true)},disconnect(id){const owned=this.__signals.get(id);if(owned){g_signal_handler_disconnect(this.__native,id);interop.release(owned);this.__signals.delete(id);bridgeStats.signals--;bridgeStats.callbacks--}},
+      connect(signal,fn){return connect(this,signal,fn)},connect_after(signal,fn){return connect(this,signal,fn,true)},
+      disconnect(id){const tok=this.__conn.get(id);this.__native.disconnect(id);if(tok?.live){tok.live=false;bridgeStats.signals--;liveSignals.delete(tok);this.__conn.delete(id)}},
+      emit(signal,...args){return this.__native.emit(signal,...args.map(pointer))},
       get_property(name){const spec=g_object_class_find_property(new interop.Reference(t.pointer,this.__native).value,name);return propertyGet(this,name,spec)},
       set_property(name,value){const spec=g_object_class_find_property(new interop.Reference(t.pointer,this.__native).value,name);propertySet(this,name,value,spec)},
     })
@@ -234,6 +271,9 @@ function callbackNative(fn,info,owner){
   const wrapped=(...args)=>{
     try{return pointer(fn(...info.args.map((arg,i)=>fromNative(args[i],arg.type))))}catch(e){fatal(e)}
   }
+  // Keep args as raw pointers: object-typed callback args are marshalled
+  // inside the trampoline; see triniwiz/linux-runtime#29. wrapObject upgrades
+  // them in JS.
   const raw=interop.callback(wrapped,{returns:scalar(info.returns),args:info.args.map(a=>scalar(a.type))})
   owner.push(wrapped);bridgeStats.callbacks++
   return raw
@@ -269,8 +309,8 @@ function invoke(info,values,self){
       value=prepareArray(value,type,cleanup,hints)}
     else if(type.tag===16&&type.interface.kind===2&&typeof value==='function')value=callbackNative(value,data[type.interface.ns][type.interface.name],callbacks)
     else {
-      // A transfer-full parameter consumes a native reference. Retain the
-      // wrapper's separate reference so scope teardown remains valid.
+      // A transfer-full parameter consumes a native reference; add one for the
+      // callee's consumption — the wrapper's own ref stays ours to release.
       if(arg.transfer===2&&value?.__ref&&isObject(value.__ref))g_object_ref(pointer(value))
       value=pointer(value)
     }
@@ -301,12 +341,23 @@ function signalInfo(ref,name){
 }
 function connect(object,signal,handler,after=false){
   const info=signalInfo(object.__ref,signal.split('::')[0])
-  const callback=(self,...args)=>{
-    try{return pointer(handler(object,...(info?info.args.map((a,i)=>fromNative(args[i],a.type)):args.slice(0,-1))))}catch(e){fatal(e)}
+  const ref=object.__ref
+  const converted=(self,...args)=>{
+    try{
+      // Runtime signal marshalling already converts scalars and wraps GObjects;
+      // fromNative turns those into our proxies and passes the rest through.
+      // Unknown signals keep the v1 shape: drop the trailing data pointer.
+      const mapped=info?info.args.map((a,i)=>fromNative(args[i],a.type)):args.slice(0,-1)
+      // The C closure keeps `converted` alive for as long as the connection
+      // exists — capturing `object` here would pin the widget's own wrapper
+      // and leak it. Recover the proxy from `self` instead.
+      return pointer(handler(proxies.get(self)??wrapObject(self,ref),...mapped))
+    }catch(e){fatal(e)}
   }
-  const id=(after?g_signal_connect_after:g_signal_connect)(object.__native,signal,callback)
-  callback.__signalName=signal
-  object.__signals.set(id,callback);bridgeStats.signals++;bridgeStats.callbacks++;return id
+  const id=object.__native.connect(signal,converted,after)
+  const token={live:true,type:typeNameOf(object),signal}
+  object.__conn.set(id,token);liveSignals.add(token);registry.register(converted,token,converted)
+  bridgeStats.signals++;return id
 }
 function registerClass(options,klass){
   if(typeof options==='function'){klass=options;options={}}
@@ -342,7 +393,6 @@ function registerClass(options,klass){
   }
   return klass
 }
-permanent.callbacks=new Set()
 for(const [ns,records]of Object.entries(data))for(const [name,record]of Object.entries(records))if(record.typeName)byTypeName.set(record.typeName,{__lazy:[ns,name]})
 // Resolve lazy constructor lookup before instance projection.
 for(const [name,value]of byTypeName)if(value.__lazy)Object.defineProperty(value,'prototype',{get(){return getClass(...value.__lazy).prototype}})
@@ -386,24 +436,22 @@ C.imports={gi:new Proxy({versions:{}},{get(target,p){
   if(p==='XplatMason'&&data.XplatMason)return typeof C.xplat_mason_engine_new==='function'?namespaces.XplatMason:null
   return namespaces[p]??null
 }}),system:{gc:()=>C.gc?.()}}
-export function beginScope(){const scope=new Set();scope.callbacks=new Set();scope.timers=new Set();scopes.add(scope);activeScope=scope;return scope}
+export function beginScope(){const scope=new Set();scope.pending=new Map();scope.callbacks=new Set();scope.timers=new Set();scopes.add(scope);activeScope=scope;return scope}
 // Report what survives full teardown so probes can tell process-global
 // anchors (Gtk.Settings watches, registered class init) from real leaks.
 export function describeResidual(){
-  const objects=[],signals=[]
-  for(const w of permanent){
-    if(!w.__native||w.__disposed)continue
-    const typeName=decode(g_type_name(nativeType(w.__native)))
-    objects.push(typeName)
-    for(const cb of w.__signals?.values()??[])signals.push({type:typeName,signal:cb.__signalName})
-  }
-  return {objects,signals,permanentCallbacks:permanent.callbacks?.size??0,timers:[...timers.keys()]}
+  const signals=[...liveSignals].filter(t=>t.live).map(t=>({type:t.type,signal:t.signal}))
+  return {objects:[...pendingFinalizers.values()],signals,permanentCallbacks:permanent.callbacks.size,timers:[...timers.keys()]}
 }
 export function releaseScope(scope){
   activeScope=null
   for(const id of scope.timers)glibExtras.source_remove(id)
-  for(const object of scope)for(const id of object.__signals.keys())object.disconnect(id)
-  for(const object of [...scope].reverse()){if(!object.__disposed){object.__disposed=true;wrappers.delete(key(object));const name=decode(g_type_name(nativeType(object.__native)));if(object.__gobject)pendingFinalizers.set(key(object),name);(object.__gobject?g_object_unref:gdk_event_unref)(object.__native);bridgeStats.objects--}}
   for(const fn of scope.callbacks){interop.release(fn);bridgeStats.callbacks--}
   scopes.delete(scope);scope.clear()
+}
+// GType names of objects created under `scope` that have not finalized yet —
+// scope.pending is a creation-time snapshot, liveness lives in
+// pendingFinalizers.
+export function pendingInScope(scope){
+  return [...scope.pending.entries()].filter(([k])=>pendingFinalizers.has(k)).map(([,n])=>n)
 }

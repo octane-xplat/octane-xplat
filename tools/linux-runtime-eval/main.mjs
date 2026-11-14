@@ -144,13 +144,13 @@ function mount() {
 }
 async function run() {
   api.init()
-  const initial = api.now(),
-    first = mount()
+  const initial = api.now()
+  let first = mount()
   await api.pause(150)
-  const entry = first.find('entry'),
+  let entry = first.find('entry'),
     counter = first.find('counter')
   check('compiled-octane-mounted', api.text(counter.type, counter.view) === 'Count: 0')
-  const before = counter.view
+  let before = counter.view
   const frames = [...first.nodes.values()].map((n) => ({ id: n.props.id, ...api.bounds(n.view) }))
   console.log(JSON.stringify({ ready: true, frames, mountMs: api.now() - initial, stats }))
   api.focus(entry.view)
@@ -193,7 +193,7 @@ async function run() {
     instance.dispose()
     check('cycle-baseline', stats.nodes === 0 && stats.callbacks === 0, { cycle: i, ...stats })
   }
-  const cancelled = mount()
+  let cancelled = mount()
   await api.pause(30)
   const prior = state.count
   api.emitClick(cancelled.find('increment').view)
@@ -212,7 +212,20 @@ async function run() {
     stats.nodes === 0 && stats.callbacks === 0 && JSON.stringify(saved) === JSON.stringify(state),
     { stats, snapshot },
   )
+  // Drop every handle to dead trees, then collect so the check measures
+  // retention rather than GC deferral (native engine: wrapper refs keep
+  // natives alive until the JS wrapper is unreachable).
+  first = null
+  entry = null
+  counter = null
+  before = null
+  cancelled = null
+  actions.setCount = null // module-level action closure pins the last render's tree
   if (api.nativeRecords) {
+    for (let i = 0; i < 3; i++) {
+      globalThis.gc?.()
+      await api.pause(50)
+    }
     check('native-widget-finalization', stats.finalized === stats.created, stats)
   }
   check('native-measure-callback', !api.nativeRecords || stats.leafMeasures > 0, stats)
