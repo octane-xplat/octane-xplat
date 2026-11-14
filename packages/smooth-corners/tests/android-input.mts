@@ -119,7 +119,8 @@ try {
         }
 
         // Never send shared-device input while another app owns focus.
-        const windows = adb(['shell', 'dumpsys', 'window', 'windows']).stdout
+        // The windows-only dump omits mCurrentFocus on current Android releases.
+        const windows = adb(['shell', 'dumpsys', 'window']).stdout
 
         if (
           !windows.split('\n').some((line) => line.includes('mCurrentFocus=') && line.includes(app))
