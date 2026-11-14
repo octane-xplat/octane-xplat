@@ -13,6 +13,7 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Temporary host files](host-artifacts.md) — disposable task folders and retained-work boundaries.
 - [Probes and tests](testing.md) — investigation and maintained coverage.
 - [Single-case probing](probing.md) — repository-local runner and platform prerequisites.
+- [Experimental Node builtins](node-builtins.md) — private module package, loading and host qualification.
 - [Release navigation checks](navigation-checks.md) — isolated router verification.
 - [Maestro smoke runner](maestro.md) — maintained mobile journey and qualification status.
 - [Argent checks](argent.md) — stable-ID regressions and target evidence.

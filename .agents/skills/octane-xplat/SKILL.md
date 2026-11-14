@@ -123,6 +123,7 @@ limitations. Do not load the entire reference tree by default.
 | Edit running-app values/styles live | [Tweaks](../../../docs/packages/package-tweaks.md); `useTweak` from `octane-xplat/tweaks` under `xplat dev`, edit values in Tweaks and style objects in Styles in `xplat devtools` (macOS host; needs the project's macOS host packages). Save/Revert affect only the selected editor, including unmounted edits. Panel plugins: [devtools](../../../docs/packages/package-devtools.md#add-a-panel-plugin). |
 | App tests or framework probes                      | [Testing](references/testing.md)                                                                                                                 |
 | Package validation or framework publishing         | [Toolchain](references/toolchain.md)                                                                                                             |
+| Investigate Node-style modules across app hosts    | [Experimental Node builtins](../../docs/node-builtins.md); the package is private and opt-in. Do not assume native hosts have Node or a universal require hook. |
 | Promise support or assess a workaround             | [Limits and evidence](references/known-limits.md) before making the claim                                                                        |
 
 ## Canonical documentation and scope

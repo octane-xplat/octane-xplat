@@ -1,0 +1,10 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"typecheck": { "dependsOn": ["typegen"] },
+		"test": { "dependsOn": ["build", "typegen"] },
+		"test:web": { "dependsOn": ["build"], "cache": false },
+		"test:macos": { "dependsOn": ["build"], "cache": false },
+		"test:ios": { "dependsOn": ["build", "@octane-xplat/cli#build"], "cache": false, "passThroughEnv": ["GODDARD_*", "DEVELOPER_DIR"] }
+	}
+}

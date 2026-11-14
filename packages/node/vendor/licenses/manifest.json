@@ -1,0 +1,11 @@
+{
+	"abort-controller": { "version": "3.0.0", "license": "MIT", "file": "abort-controller.LICENSE" },
+	"base64-js": { "version": "1.5.1", "license": "MIT", "file": "base64-js.LICENSE" },
+	"buffer": { "version": "6.0.3", "license": "MIT", "file": "buffer.LICENSE" },
+	"event-target-shim": { "version": "5.0.1", "license": "MIT", "file": "event-target-shim.LICENSE" },
+	"ieee754": { "version": "1.2.1", "license": "BSD-3-Clause", "file": "ieee754.LICENSE" },
+	"process": { "version": "0.11.10", "license": "MIT", "file": "process.LICENSE" },
+	"readable-stream": { "version": "4.8.0", "license": "MIT", "file": "readable-stream.LICENSE" },
+	"safe-buffer": { "version": "5.2.1", "license": "MIT", "file": "safe-buffer.LICENSE" },
+	"string_decoder": { "version": "1.3.0", "license": "MIT", "file": "string_decoder.LICENSE" }
+}

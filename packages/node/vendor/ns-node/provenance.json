@@ -1,0 +1,18 @@
+{
+  "source": "ns-node/experiments/node-js",
+  "commit": "b81d4b8afe3d84e09bc710214a3a3a1607f936ad",
+  "files": {
+    "src/events.ts": "920989a98ab5dcda05f1639cfea912927e9fda1c2dc4e862eef33844cab9d63f",
+    "tests/NodeEvents.js": "4a1ff07dc7fe18261b080777651ba0b69a55f0a08b94537c8c59609d223fb850",
+    "src/util.ts": "332008e1e8bb5e4080c01a3805f60573b1d1b11e20bb836d4ec200b4112a138b",
+    "tests/NodeUtil.js": "7c2527cfd3799e7c3e0938e5bb27f3df00d80197dc1323fcc15e78a9c4f91868",
+    "src/assert.ts": "fd94a61b0f18f83bcc97514d7d9719bac8fe563607cc6c86333e9eb835c8f2c3",
+    "tests/NodeAssert.js": "81e0d9c094cae6ce37f7d4d58b38679d19fdcf113cd0b9af90ae16c7562f486e",
+    "src/buffer.ts": "87116f72540ebd00ffcfaa4f8a66f43da3c20d34c5daef5069a7a74b92bd0194",
+    "tests/NodeBuffer.js": "74258a57178d937c4c014b946fc9b39ee24218c644e8e790076555ddb515c9b6",
+    "src/querystring.ts": "dba9912d53b4f38fc61d7119b4b85f87d36236105f1d606461cbc16e337b568e",
+    "tests/NodeQuerystring.js": "9f44c2a835da6409ebced7184e27be36af8a39a313bcbefd26b6c0fad364e237",
+    "src/stream.ts": "2227e0c9af1db22ec901a7d244f2b0b81e4442523564cbb0040bf8affa265cb4",
+    "tests/NodeStream.js": "b52c6acc25769159341bf33e1b331885f09dfd03c8638d3463b373663cd90a80"
+  }
+}
