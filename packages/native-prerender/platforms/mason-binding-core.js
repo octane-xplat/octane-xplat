@@ -111,13 +111,25 @@ export function releaseMasonOwners(host, wrappers) {
   const owners = [host, ...wrappers]
 
   requireBinding(
-    owners.every((view) => !view._context && !view.nativeViewProtected && !view.isLoaded),
+    owners.every(
+      (view) => !view._context && !view.isLoaded && (view instanceof View || !view.nativeViewProtected),
+    ),
     'native owners must be torn down before cache retirement',
   )
 
   for (const wrapper of owners) {
     if (wrapper instanceof View) {
-      releaseNativeView(wrapper)
+      // A bound-but-never-attached view pairs nativeViewProtected with the
+      // adopted object; releaseNativeView clears that pairing and throws only
+      // when live Core state remains.
+      try {
+        releaseNativeView(wrapper)
+      } catch (error) {
+        const detail = error instanceof Error ? `: ${error.message}` : ''
+        throw new ArtifactError(
+          `native owners must be torn down before cache retirement (owner ${owners.indexOf(wrapper)}${detail})`,
+        )
+      }
     }
   }
 }
