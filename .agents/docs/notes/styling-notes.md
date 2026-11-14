@@ -138,8 +138,14 @@ costs. The [qualification workflow](../../../tools/tailwind-qualification/README
 documents the measurement boundaries. Runtime support remains a separate gate. Generated values also pass a
 conservative per-property boundary: intrinsic widths, contextual colors,
 unsupported alignment modes and unitless/percentage line heights fail before
-native setters. Keep absolute line heights; native numeric values denote
-lengths rather than browser font-size multipliers. This is not a complete CSS
+native setters. Mobile generated line heights fail even for absolute lengths:
+NativeScript's iOS paragraph bridge assigns `lineSpacing`, and Android calls
+`setLineSpacing(extra, 1)`. Both add spacing instead of setting a CSS line box.
+See [iOS Core 9.1.3](https://github.com/NativeScript/NativeScript/blob/9.1.3-core/packages/core/platforms/ios/src/UIView%2BNativeScript.m)
+and [Android Core 9.1.3](https://github.com/NativeScript/NativeScript/blob/9.1.3-core/packages/core/ui/text-base/index.android.ts).
+Use font-size-only utilities such as `text-[14px]` in shared candidates;
+`text-sm` also emits a line height and is rejected on mobile. AppKit/GTK retain
+absolute lengths, with rendering qualification separate. This is not a complete CSS
 grammar validator, and runtime variable contents remain app-owned. The
 [candidate guide](../../../docs/packages/package-tailwind.md) carries the app
 setup and explicit release limits.
@@ -248,11 +254,13 @@ and squircle radius treatment. Moving those definitions out of structure and
 chrome removes competing definitions from a Tailwind app. Do not import both
 utility sheets or add compatibility aliases between them.
 
-Generated utilities follow the official compiler with the shared pixel theme:
+Browser generated utilities follow the official compiler with the shared pixel theme:
 `text-sm` is 14px/20px, `text-2xl` is 24px/32px, and radius classes do not add
 squircle treatment. The `ui.css` entry binds color/radius variables to UI's
 runtime values. Component-specific `vx-*`, `btn`, `chip`, and `input` rules
 remain owned by structure/chrome, independent of the utility workflow.
+Mobile generated font-size/line-height combinations are rejected rather than
+reusing those browser line boxes; use font-size-only classes in shared sources.
 
 A `--color-<key>` token and generated class segment share the same name:
 `text-onprimary` reads `--color-onprimary`; `bg-danger` reads `--color-danger`.

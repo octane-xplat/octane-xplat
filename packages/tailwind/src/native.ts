@@ -209,6 +209,20 @@ function checkPropertyValue(root: Root, declaration: Declaration, target: Native
     return
   }
 
+  // NativeScript's mobile lineHeight sets extra inter-line spacing, even
+  // when CSS supplies an absolute length. It cannot carry a CSS line box.
+  if (
+    prop === 'line-height' &&
+    (target === 'ios' || target === 'android' || target === 'visionos')
+  ) {
+    fail(
+      root,
+      declaration,
+      target,
+      'line-height is outside the native value contract: NativeScript uses additional line spacing, not CSS line-box height; use a font-size-only utility such as text-[14px]',
+    )
+  }
+
   const parts = valueParser(value).nodes.filter(
     (node) => node.type !== 'space' && node.type !== 'comment',
   )
@@ -285,7 +299,7 @@ function checkPropertyValue(root: Root, declaration: Declaration, target: Native
             (prop === 'opacity' && dimension.unit === '%')
           )
         }
-        // Native line-height is an absolute length; CSS unitless values multiply
+        // Desktop line-height is an absolute length; CSS unitless values multiply
         // the font size. Do not turn leading-[1.5] into a 1.5-DIP line.
         if (prop === 'line-height') {
           return ['px', 'dip'].includes(dimension.unit)

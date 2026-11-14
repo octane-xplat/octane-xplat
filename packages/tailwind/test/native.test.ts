@@ -50,14 +50,14 @@ function computed(css: string, classes: string[]) {
 }
 
 test('native layout utilities reach the existing cascade with logical padding and shared units', async () => {
-  const css = await compile('flex absolute w-8 gap-4 px-2 text-sm rounded-lg bg-black')
+  const css = await compile('flex absolute w-8 gap-4 px-2 text-[14px] rounded-lg bg-black')
   const style = computed(css, [
     'flex',
     'absolute',
     'w-8',
     'gap-4',
     'px-2',
-    'text-sm',
+    'text-[14px]',
     'rounded-lg',
     'bg-black',
   ])
@@ -71,7 +71,7 @@ test('native layout utilities reach the existing cascade with logical padding an
   assert.equal(style.paddingLeft, 8)
   assert.equal(style.paddingRight, 8)
   assert.equal(style.fontSize, 14)
-  assert.equal(style.lineHeight, 20)
+  assert.equal(style.lineHeight, undefined)
   assert.equal(style.borderRadius, 12)
   assert.equal(style.backgroundColor, '#000')
 })
@@ -166,13 +166,33 @@ test('native generated values reject browser-only grammars without filtering app
   }
 
   const css = await compile(
-    'w-auto w-[50%] text-sm bg-[#123456] [line-height:24px]',
+    'w-auto w-[50%] text-[14px] bg-[#123456]',
     '.authored { width: min-content; line-height: 1.5; color: currentColor }',
   )
   assert.match(css, /width: min-content/)
   assert.match(css, /line-height: 1.5/)
   assert.match(css, /color: currentColor/)
-  assert.equal(computed(css, ['[line-height:24px]']).lineHeight, 24)
+  assert.equal(computed(css, ['text-[14px]']).fontSize, 14)
+})
+
+test('mobile generated line heights reject additive native spacing without stripping app CSS', async () => {
+  for (const target of ['ios', 'android', 'visionos'] as const) {
+    for (const classes of ['text-sm', '[line-height:24px]', '[line-height:var(--app-leading)]']) {
+      await assert.rejects(compile(classes, '', target), /additional line spacing/, classes)
+    }
+    await assert.rejects(
+      compile('', '.applied { @apply text-sm; }', target),
+      /additional line spacing/,
+    )
+    const css = await compile('text-[14px]', '.authored { line-height: 24px }', target)
+    assert.equal(computed(css, ['text-[14px]']).fontSize, 14)
+    assert.match(css, /\.authored\s*\{\s*line-height: 24dip/)
+  }
+  for (const target of ['macos', 'gtk'] as const) {
+    const css = await compile('text-sm [line-height:24px]', '', target)
+    assert.equal(computed(css, ['text-sm']).lineHeight, 20)
+    assert.equal(computed(css, ['[line-height:24px]']).lineHeight, 24)
+  }
 })
 
 test('generated value boundaries also apply to @apply and every native CSS target', async () => {

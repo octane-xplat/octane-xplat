@@ -55,6 +55,15 @@ result. These resolvable calculations remain accepted:
 @source inline("w-[calc(25%*2)] h-[calc(4px*2)]");
 ```
 
+Mobile targets reject generated `line-height`, including the line height in
+`text-sm`: NativeScript treats it as extra line spacing instead of a CSS line
+box. Use a font-size-only class for shared text. AppKit/GTK retain absolute
+line-height lengths; compile success does not qualify their rendering.
+
+```css
+@source inline("text-[14px]");
+```
+
 Compilation is configured during Vite's `config` hook after platform CSS setup.
 Changing PostCSS in `configResolved` misses the per-environment configuration.
 The compiler preserves its AST for source maps and leaves minification to Vite;

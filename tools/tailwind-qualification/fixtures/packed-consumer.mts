@@ -42,7 +42,7 @@ await writeFile(
 // are emitted CSS inputs for the real-host gate, not a native runtime verdict.
 await writeFile(
   join(root, 'src/Native.mobile.tsrx'),
-  'export const classes = "flex flex-col flex-row grid grid-cols-[40px_60px] grid-rows-[20px] gap-2 relative absolute left-3 top-4 w-[240px] h-[240px] w-[200px] h-[80px] h-[40px] w-6 w-8 w-12 h-5 shrink-0 p-2 px-2 text-sm rounded-lg bg-primary opacity-50 opacity-75"',
+  'export const classes = "flex flex-col flex-row grid grid-cols-[40px_60px] grid-rows-[20px] gap-2 relative absolute left-3 top-4 w-[240px] h-[240px] w-[200px] h-[80px] h-[40px] w-6 w-8 w-12 h-5 shrink-0 p-2 px-2 text-[14px] rounded-lg bg-primary opacity-50 opacity-75"',
 )
 await writeFile(
   join(root, 'src/Native.macos.tsrx'),

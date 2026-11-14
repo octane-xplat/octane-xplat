@@ -57,7 +57,10 @@ import './app.css'
 /* src/app.css */
 @import '@octane-xplat/tailwind/ui.css';
 
-.packing-card { border-width: 1px; border-color: #64748b; }
+.packing-card {
+  border-width: 1px;
+  border-color: #64748b;
+}
 ```
 
 Classes are discovered in source files, including TSRX. Put complete class
@@ -71,7 +74,7 @@ import { View, Text } from '@octane-xplat/ui'
 export function PackingCard() {
   return (
     <View className="packing-card flex flex-col gap-2 p-4 bg-primary rounded-lg">
-      <Text className="text-sm">Ready to pack</Text>
+      <Text className="text-[14px]">Ready to pack</Text>
     </View>
   )
 }
@@ -109,7 +112,9 @@ export function ThemedPackingCard(props: { mode: 'light' | 'dark' }) {
       <View className="bg-primary rounded-lg p-4">
         <Text>Packing list</Text>
         <Theme theme={note} mode="light">
-          <View className="bg-primary p-2"><Text>Keep this note light</Text></View>
+          <View className="bg-primary p-2">
+            <Text>Keep this note light</Text>
+          </View>
         </Theme>
       </View>
     </Theme>
@@ -124,13 +129,13 @@ class works on every renderer. The build checks generated declarations and
 fails on unsupported output instead of dropping rules. Ordinary app CSS keeps
 its declarations and ordering; the platform's existing limits still apply.
 
-| Candidate output | Boundary |
-| --- | --- |
-| Flex/grid, explicit absolute edges, spacing and dimensions | Explicit px/DIP lengths, percentages and supported grid tracks; no intrinsic `min-content`, `max-content` or `fit-content` sizes. |
-| Text size and line height | Shared text tokens use absolute lengths. Unitless or percentage line heights fail rather than becoming native lengths. |
-| Colors and radii | UI references stay live. Use supported native colors and lengths in runtime variables; a build cannot inspect values supplied later. |
-| Layers | Preserved across generated CSS and other app/framework sheets. Native importance and reversed important-layer priority remain unqualified. |
-| Variants | Only the adapter's accepted simple selectors and media syntax. A successful build does not qualify resize, appearance or state-event delivery. |
+| Candidate output                                           | Boundary                                                                                                                                                                                                                                                                                                                              |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Flex/grid, explicit absolute edges, spacing and dimensions | Explicit px/DIP lengths, percentages and supported grid tracks; no intrinsic `min-content`, `max-content` or `fit-content` sizes.                                                                                                                                                                                                     |
+| Text size and line height                                  | Use font-size-only classes such as `text-[14px]` for shared text. iOS/Android/visionOS reject generated line heights, including those bundled with `text-sm`; NativeScript adds inter-line spacing instead of setting a CSS line box. AppKit/GTK accept only absolute line-height lengths; their rendering still needs qualification. |
+| Colors and radii                                           | UI references stay live. Use supported native colors and lengths in runtime variables; a build cannot inspect values supplied later.                                                                                                                                                                                                  |
+| Layers                                                     | Preserved across generated CSS and other app/framework sheets. Native importance and reversed important-layer priority remain unqualified.                                                                                                                                                                                            |
+| Variants                                                   | Only the adapter's accepted simple selectors and media syntax. A successful build does not qualify resize, appearance or state-event delivery.                                                                                                                                                                                        |
 
 Generated `!important`, property registrations, unsupported at-rules/selectors,
 modern colors such as `oklch()`, relative/container units, mixed percentage/length

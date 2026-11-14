@@ -89,8 +89,11 @@ utilities and loses some CSS semantics. Do not install it as a shortcut around
 our curated classes or Bamboo. See the
 [current constraints](../../../docs/notes/styling-notes.md#original-shared-pipeline)
 before changing the first-party candidate. Its [setup and value boundary](../../../../docs/packages/package-tailwind.md)
-requires explicit lengths for native line heights and rejects intrinsic sizing
-and contextual colors. Runtime variable values must satisfy the same native
+rejects generated mobile line heights, including those bundled with `text-sm`,
+because NativeScript adds inter-line spacing instead of setting CSS line-box
+height. Use font-size-only classes such as `text-[14px]` for shared text;
+AppKit/GTK retain absolute line-height lengths with separate rendering checks.
+The candidate also rejects intrinsic sizing and contextual colors. Runtime variable values must satisfy the same native
 contract. Keep optional native peers out of the packed browser consumer. A
 successful compiler build is not evidence of native layout or cascade parity.
 
