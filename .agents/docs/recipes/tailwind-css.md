@@ -7,9 +7,10 @@ Related APIs: @octane-xplat/tailwind, tailwind, className, @source, ui.css
 ## Starting point
 
 An existing Xplat app evaluates the unreleased Tailwind candidate from an
-installed tarball. The compiler is private until native qualification and
-publication setup are complete. The recipe specifies the release gate;
-links to candidate coverage do not establish a passing host qualification.
+installed tarball. The compiler is enabled for the public lockstep release;
+first publication and full native qualification remain pending. The recipe
+specifies the complete workflow criteria; links to candidate coverage do not
+establish a passing host qualification.
 
 ## Requirements
 

@@ -119,13 +119,13 @@ outside UI and the CLI runtime.
 
 Compiler integration belongs in Vite's `config` hook after platform CSS setup,
 not in `configResolved`: resolved environments already carry their own CSS
-configuration. The private integration uses the public Tailwind node compiler
+configuration. The first-party integration uses the public Tailwind node compiler
 and oxide scanner with fresh state for each source snapshot: the PostCSS
 wrapper retains removed utilities in its cache, so native validation errors
 otherwise survive removing the rejected class. Preserve the compiler AST and
 original sources instead of serializing/reparsing CSS; let the owning build
 pipeline perform final minification. See the
-[private integration boundary](../../../packages/tailwind/README.md).
+[integration boundary](../../../packages/tailwind/README.md).
 
 Evaluate integration cost with isolated installed packages, not generated CSS
 byte counts. The qualification tool's `measure:cost` task compares the official

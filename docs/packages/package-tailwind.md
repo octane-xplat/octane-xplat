@@ -2,9 +2,9 @@
 
 > Compile Tailwind classes with the Octane Xplat stylesheet pipeline.
 
-The first public release is still pending. The package remains private while
-native host qualification is completed. The instructions below describe the
-release candidate, which can be installed from a maintainer-provided tarball.
+The first public release is still pending. The package is enabled for the public
+lockstep release, with the native qualification limits described below. Until
+that release is available, install a maintainer-provided tarball.
 The npm bootstrap placeholder has no supported API.
 
 ## Configure the compiler

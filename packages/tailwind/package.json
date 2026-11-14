@@ -1,7 +1,6 @@
 {
   "name": "@octane-xplat/tailwind",
   "version": "0.20.0",
-  "private": true,
   "description": "Optional Tailwind compiler integration for Octane Xplat",
   "keywords": [
     "css",

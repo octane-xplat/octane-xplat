@@ -1,12 +1,11 @@
-# Xplat Tailwind integration development
+# Xplat Tailwind integration
 
-This private workspace is the implementation of the Xplat-owned integration.
+This package implements the Xplat-owned Tailwind integration.
 It uses the official Tailwind v4 compiler and reads the renderer target from
-Xplat's platform CSS preset. It is not ready to publish: native adaptation,
-consumer qualification and release setup remain
-required by the [styling constraints](../../.agents/docs/notes/styling-notes.md#original-shared-pipeline).
+Xplat's platform CSS preset. Native rendering and consumer qualification remain
+bounded by the [styling constraints](../../.agents/docs/notes/styling-notes.md#original-shared-pipeline).
 
-The private `ui.css` entry registers UI's color and radius token names with the
+The `ui.css` entry registers UI's color and radius token names with the
 compiler. Values remain in UI's runtime styles, so generated utilities follow
 theme scopes and mode changes. The app must supply those values through UI
 chrome, a `Theme`, or its own CSS. This entry replaces the plain Tailwind import:
@@ -122,6 +121,7 @@ the separate [browser qualification workflow](../../tools/tailwind-qualification
 It remains opt-in and establishes no native runtime or painting behavior.
 
 The [candidate setup guide](../../docs/packages/package-tailwind.md) owns app-facing
-setup and the explicit support boundary. Keep this workspace private until the
-remaining real-host and release gates are complete. Public npm publication also
-requires the stub/trusted-publisher bootstrap in the [release guide](../../.agents/docs/releases.md).
+setup and the explicit support boundary. The package participates in the public
+lockstep release; this does not complete the remaining real-host qualification.
+The first npm publication requires the stub/trusted-publisher bootstrap in the
+[release guide](../../.agents/docs/releases.md).

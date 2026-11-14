@@ -203,7 +203,7 @@ import '@octane-xplat/ui/theme/tokens.css'
   when an app uses `gap-4`, `text-sm`, `rounded-lg` and the other curated
   classes. Component-owned styles do not depend on that sheet. Curated helpers
   retain their existing Xplat sizing and squircle treatment; do not assume
-  they have stock Tailwind semantics. The private Tailwind integration rejects
+  they have stock Tailwind semantics. The first-party Tailwind integration rejects
   loading the curated sheet alongside generated utilities.
 - **Prefer JS stylesheet imports.** Platform CSS selection and build-time
   conditions belong to the configured preset. See
