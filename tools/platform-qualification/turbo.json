@@ -53,6 +53,26 @@
         "ADB_SERVER_SOCKET",
         "ANDROID_ADB_SERVER_PORT"
       ]
+    },
+    "test:shader-content": {
+      "cache": false,
+      "dependsOn": [
+        "^typegen",
+        "^build"
+      ],
+      "passThroughEnv": [
+        "GODDARD_*",
+        "IDB_COMPANION",
+        "IDB_COMPANION_TLS",
+        "AI_AGENT",
+        "AGENT",
+        "CODING_AGENT_METADATA",
+        "ANDROID_HOME",
+        "ANDROID_SDK_ROOT",
+        "JAVA_HOME",
+        "ADB_SERVER_SOCKET",
+        "ANDROID_ADB_SERVER_PORT"
+      ]
     }
   }
 }

@@ -377,7 +377,7 @@ against an older host cannot qualify a renderer correction.
 The separate native input check sends coordinate taps through adb or simulator
 HID, then asserts that Button, Pressable and ClickableCard each activate once.
 It uses numeric hit frames and creates no images. The platform-content fixture
-measures effect, context-menu trigger and sheet callback content, and checks
+measures context-menu trigger and sheet callback content, and checks
 sheet presentation changes and ref cleanup. Both need the same existing-device
 reservation as the geometry suite.
 
@@ -406,6 +406,21 @@ The iOS content runner opens and dismisses the context menu through simulator
 HID, then measures sheet content. It waits for the preview to attach to a native
 window; a detached portal is not preview-layout evidence. These checks do not
 establish painted pixel parity.
+
+Registered shader content has its own fixture and command. It is independent
+of the native layout/presentation gate; the iOS shader regression remains
+tracked in [issue #274](https://github.com/octane-xplat/octane-xplat/issues/274).
+The command uses a registered effect and fails if its content cannot attach.
+Do not replace it with an unregistered effect's unmodified-content fallback.
+
+```sh
+bun run turbo run test:shader-content --filter=@xplat/platform-qualification -- android --device DEVICE_SERIAL
+bun run turbo run test:shader-content --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
+```
+
+This check requires the same existing-device/build reservation and creates no
+images. It measures shader child layout and cleanup, not shader output fidelity.
+The shader runner needs no IDB companion because it does not open a preview.
 
 ## Package-specific runners
 

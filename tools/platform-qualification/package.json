@@ -9,7 +9,8 @@
     "build:windows-gestures": "node desktop-gestures/build-windows.mjs",
     "verify:windows-gestures": "node desktop-gestures/verify-windows.mts",
     "test:layout-input": "node layout-defaults/mobile-input.mjs",
-    "test:layout-native": "node layout-defaults/native-content.mjs"
+    "test:layout-native": "node layout-defaults/native-content.mjs",
+    "test:shader-content": "node layout-defaults/native-content.mjs --shader"
   },
   "devDependencies": {
     "@octane-xplat/nativescript-octane": "workspace:*",

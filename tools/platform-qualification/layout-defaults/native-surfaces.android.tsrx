@@ -16,17 +16,23 @@ export function retainSheetAttachment(): () => boolean {
   return () => native?.isAttachedToWindow?.() === true
 }
 
+export function ShaderSurface() {
+  return (
+    // Declare the injected uniforms: the Android 35 missing-uniform JNI error can abort before JS can catch it.
+    <ShaderEffect
+      id="native-effect-host"
+      className="native-slot-frame"
+      source="uniform shader content; uniform float time; uniform float2 size; half4 main(float2 p) { return content.eval(p + float2(sin(time), sin(size.x + size.y)) * 0.00001); }"
+      animate={false}
+    >
+      <Slot name="effect" />
+    </ShaderEffect>
+  )
+}
+
 export function NativeSurfaces(props: NativeSurfacesProps) {
   return (
-    <VStack>
-      {/* Declare the injected uniforms: the Android 35 missing-uniform JNI error can abort before JS can catch it. */}
-      <ShaderEffect
-        className="native-slot-frame"
-        source="uniform shader content; uniform float time; uniform float2 size; half4 main(float2 p) { return content.eval(p + float2(sin(time), sin(size.x + size.y)) * 0.00001); }"
-        animate={false}
-      >
-        <Slot name="effect" />
-      </ShaderEffect>
+    <VStack id="native-surfaces-root">
       <MaterialContextMenu
         className="native-slot-frame"
         items={[{ id: 'one', title: 'One' }]}

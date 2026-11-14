@@ -100,7 +100,8 @@ pixels. With `@nativescript/swift-ui` 4.0.2 and Core 9.1.3, the iOS
 `layerEffect` to a UIKit-backed `NativeScriptView`. Apple documents that
 [UIKit-backed views may become placeholders under these filters](https://developer.apple.com/documentation/swiftui/view/coloreffect(_:isenabled:)).
 
-The maintained native-content fixture reproduces detached, zero-sized children
+The maintained `shader-content.mobile.tsrx` fixture under
+`tools/platform-qualification/layout-defaults/` reproduces detached, zero-sized children
 under the registered `sheen` filter despite an attached 240×120 outer host.
 Changing only the effect name to the existing unmodified fallback passes child
 geometry, real context-menu preview presentation and sheet lifecycle. This is
@@ -109,6 +110,11 @@ An empty-ID guard and a stable factory key did not repair this case; no such
 workaround is retained. The current implementation remains unsupported for
 registered filters on NativeScript child content; see
 [issue #274](https://github.com/octane-xplat/octane-xplat/issues/274).
+
+Run it through the owning `test:shader-content` Turbo task. Keep this known
+effect-engine failure separate from `test:layout-native`, which qualifies
+context-menu preview and sheet callback layout/presentation. The layout
+cutover does not repair or qualify registered iOS shaders.
 
 A replacement needs a supported rendering path that preserves live child
 layout, input and lifecycle. Do not silently disable the filter, select the

@@ -5,11 +5,13 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { prepare } from '../../probe/project.ts'
 
-const [target, flag, device] = process.argv.slice(2)
+const shaderOnly = process.argv[2] === '--shader'
+const [target, flag, device] = process.argv.slice(shaderOnly ? 3 : 2)
 assert.ok(['ios', 'android'].includes(target) && flag === '--device' && device,
-  'Pass ios|android --device <owned booted device ID>')
+  'Pass [--shader] ios|android --device <owned booted device ID>')
 const root = fileURLToPath(new URL('../../../', import.meta.url))
-const fixture = join(root, 'tools/platform-qualification/layout-defaults/native-slots.mobile.tsrx')
+const fixture = join(root, 'tools/platform-qualification/layout-defaults',
+  shaderOnly ? 'shader-content.mobile.tsrx' : 'native-slots.mobile.tsrx')
 const dependencies = ['@octane-xplat/effects', '@octane-xplat/context-menu', '@octane-xplat/sheet']
 const project = await prepare(target, fixture, dependencies)
 const started = Date.now()
@@ -46,7 +48,7 @@ async function waitStage(stage) {
   throw new Error(`No fresh ${stage} phase from owned probe app\n${stderr}${stdout}`)
 }
 try {
-  if (target === 'ios') {
+  if (target === 'ios' && !shaderOnly) {
     const { point } = await waitStage('open-preview')
     assert.ok(Number.isFinite(point?.x) && Number.isFinite(point?.y) && point.x > 0 && point.y > 0)
     run('idb', ['ui', 'tap', String(point.x), String(point.y), '--duration', '1',
@@ -58,7 +60,9 @@ try {
   const code = await completion
   process.stdout.write(stdout)
   process.stderr.write(stderr)
-  assert.equal(code, 0, 'Native callback-content probe failed')
+  assert.equal(code, 0, shaderOnly
+    ? 'Registered shader content probe failed (iOS limitation: #274)'
+    : 'Native callback-content probe failed')
 } finally {
   if (!ended) { child.kill('SIGINT'); await completion }
 }

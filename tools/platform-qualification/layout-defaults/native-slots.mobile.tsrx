@@ -2,10 +2,11 @@
 import '@octane-xplat/ui/theme/tokens.css'
 import './native-slots.css'
 import { useState } from 'octane'
-import { File, knownFolders, path } from '@nativescript/core'
+import { File, knownFolders, path, View as NativeView } from '@nativescript/core'
 import { View } from '@octane-xplat/ui'
 import { NativeSurfaces, previewAttached, retainSheetAttachment } from './native-surfaces.tsrx'
-import { slots, type SlotName } from './native-slot-content.mobile.tsrx'
+import { slots } from './native-slot-content.mobile.tsrx'
+import { checkNativeSlot } from './native-slot-check.mobile'
 import type { ProbeContext } from '../../probe/context'
 
 let present: ((open: boolean) => void) | undefined
@@ -17,57 +18,8 @@ export default function Example() {
   return <NativeSurfaces open={open} />
 }
 
-async function check(ctx: ProbeContext, name: SlotName) {
-  await ctx.waitFor(
-    () => {
-      const entry = slots.get(name)
-
-      ctx.record(`${name} pending`, {
-        first: entry?.first?.getActualSize(),
-        second: entry?.second?.getActualSize(),
-        location: entry?.first?.getLocationOnScreen(),
-        parent: entry?.first?.parent?.typeName,
-        root: ctx.find('native-surfaces-root') ? ctx.inspect('native-surfaces-root') : null,
-        host: ctx.find('native-effect-host') ? ctx.inspect('native-effect-host') : null,
-      })
-
-      return entry?.first && entry.second && entry.first.getActualSize().width > 0
-    },
-    { timeout: 10000 },
-  )
-
-  const { first, second } = slots.get(name)!
-  const a = first!.getActualSize(),
-    b = second!.getActualSize()
-
-  const origin = first!.getLocationOnScreen(),
-    next = second!.getLocationOnScreen()
-
-  ctx.record(name, { first: a, second: b, origin, next })
-  ctx.assert(`${name} content fills its host`, Math.abs(a.width - 240) <= 1)
-  ctx.assert(
-    `${name} ignores child flex growth`,
-    Math.abs(a.height - 20) <= 1 && Math.abs(b.height - 20) <= 1,
-  )
-
-  ctx.assert(
-    `${name} children flow vertically`,
-    !!origin && !!next && Math.abs(next.y - origin.y - 20) <= 1,
-  )
-}
-
 export async function run(ctx: ProbeContext) {
-  // Retain an effect failure while qualifying the independent native surfaces.
-  // Rethrow after teardown so the overall result still fails.
-  const failures: unknown[] = []
-
-  try {
-    await check(ctx, 'effect')
-  } catch (error) {
-    failures.push(error)
-  }
-
-  await check(ctx, 'trigger')
+  await checkNativeSlot(ctx, 'trigger')
   if (ctx.target === 'ios') {
     const file = File.fromPath(
       path.join(knownFolders.documents().path, 'layout-preview-targets.json'),
@@ -75,14 +27,16 @@ export async function run(ctx: ProbeContext) {
 
     ctx.onCleanup(() => file.removeSync())
 
-    const trigger = slots.get('trigger')!.first!
+    const child = slots.get('trigger')!.first!
+    const trigger = child.parent instanceof NativeView ? child.parent : child
     const origin = trigger.getLocationOnScreen()!
     const size = trigger.getActualSize()
     const point = { x: origin.x + size.width / 2, y: origin.y + size.height / 2 }
 
+    ctx.record('preview input target', { origin, size, point })
     file.writeTextSync(JSON.stringify({ createdAt: Date.now(), stage: 'open-preview', point }))
     await ctx.waitFor(previewAttached, { timeout: 10000 })
-    await check(ctx, 'preview')
+    await checkNativeSlot(ctx, 'preview')
     file.writeTextSync(JSON.stringify({ createdAt: Date.now(), stage: 'dismiss-preview' }))
     await ctx.waitFor(() => !previewAttached(), { timeout: 10000 })
     ctx.assert('OS context menu preview detaches after dismissal', !previewAttached())
@@ -90,7 +44,7 @@ export async function run(ctx: ProbeContext) {
 
   present!(true)
   await ctx.waitFor(() => retainSheetAttachment()(), { timeout: 10000 })
-  await check(ctx, 'sheet')
+  await checkNativeSlot(ctx, 'sheet')
 
   const original = slots.get('sheet')!.first
   const sheetAttached = retainSheetAttachment()
@@ -100,7 +54,7 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('sheet native content detaches when closed', !sheetAttached())
   present!(true)
   await ctx.waitFor(() => retainSheetAttachment()(), { timeout: 10000 })
-  await check(ctx, 'sheet')
+  await checkNativeSlot(ctx, 'sheet')
   ctx.assert('sheet content survives presentation changes', slots.get('sheet')!.first === original)
 
   const reopenedSheetAttached = retainSheetAttachment()
@@ -117,8 +71,4 @@ export async function run(ctx: ProbeContext) {
 
   await ctx.waitFor(() => !reopenedSheetAttached(), { timeout: 10000 })
   ctx.assert('sheet native content detaches on unmount', !reopenedSheetAttached())
-
-  if (failures.length) {
-    throw failures[0]
-  }
 }
