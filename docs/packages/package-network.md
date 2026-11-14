@@ -79,7 +79,6 @@ controller.abort()
 try { await pending } catch (error) { console.log('Request cancelled or failed') }
 ```
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-network).
 
 ## Native setup and evidence
@@ -94,18 +93,3 @@ The [readiness record](https://github.com/octane-xplat/octane-xplat/blob/main/.a
 separates source, unit, packaged, and runtime evidence. Physical background
 execution is not implied by an open network stream. Windows and native Linux
 are unqualified; those native entries reject explicitly. A missing mobile/AppKit bridge asks for a rebuild.
-
-## Run the maintained checks
-
-From the framework root, run the package checks through Turbo. The native/AppKit runtime fixture starts a synthetic server on port 19687 and
-uses the repository probe runner. Keep that port free. The web target runs a
-headless Chromium fixture on an ephemeral local port; it checks expected HTTP
-error bodies without treating them as page-load failures. Neither fixture
-calls a private backend or captures images. Device runs
-need an owned, booted device and the normal broker reservation. Turbo forwards
-the native SDK variables for this task.
-
-```sh
-bun run turbo run test typecheck --filter=@octane-xplat/network
-bun run turbo run test:runtime --filter=@octane-xplat/network -- --target web
-```

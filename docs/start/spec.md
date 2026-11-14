@@ -48,19 +48,10 @@ Xplat is at version `0.x`, so names and options can change between releases.
 [Known limits](../testing/known-limits.md) records feature differences and which ones
 have been checked in running apps.
 
-Web CI typechecks and tests the DOM renderer, builds the production bundle,
-and verifies a packed starter's checks. Browser coverage runs locally instead:
-`bun run turbo run test:e2e --filter=@xplat/verification` installs
-Playwright-managed Chromium, Firefox, and WebKit,
-then smoke-tests the built bundle and a packed starter in all three engines.
-This does not set a minimum browser-version
-floor or qualify iOS Safari and screen readers; apps must define those targets
-for their own releases. Browser APIs and device services remain feature-specific
-boundaries in [known limits](../testing/known-limits.md) and
-[optional-service qualification](../../.agents/docs/notes/optional-service-qualification.md).
-The same local run executes the keyboard/focus fixture in Chromium, Firefox,
-and WebKit; Chromium also inspects the accessibility tree through CDP. A
-separate `@octane-xplat/sheet/web` runtime check runs in all three engines.
+Browser checks cover Chromium, Firefox and WebKit, but do not define a minimum
+browser-version floor or qualify iOS Safari and screen readers. Choose and test
+the browsers and devices your app supports. Device services have their own
+[feature-specific limits](../testing/known-limits.md).
 
 ## Get a result, then improve it
 
@@ -125,5 +116,4 @@ TypeScript is the language you or your agent writes the app in.
 Xplat supplies the shared components, device services, and project setup.
 
 Read [how an app fits together](architecture.md) when you want to understand
-where the pieces live. The [framework notes](../../.agents/docs/notes/framework-notes.md) explain
-the compiler and other internals for framework contributors.
+where the pieces live.

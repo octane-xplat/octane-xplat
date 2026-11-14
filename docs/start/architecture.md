@@ -222,5 +222,4 @@ export function Count() {
 
 For server data, use a query and show loading and error content while it
 runs. [Fetching data](../app/data.md) covers queries, sharing, cancellation, and
-retry. The [architecture notes](../../.agents/design/architecture-notes.md) cover compiler and
-renderer details for framework contributors.
+retry.

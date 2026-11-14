@@ -101,7 +101,9 @@ platform host or a new browser escape hatch.
 
 ## Package documentation
 
-Package guides live in `docs/packages/`; package READMEs link to those pages.
+Published-package guides live in `docs/packages/`; their package READMEs link to
+those pages. Private harness and fixture READMEs stay beside their workspaces and
+are excluded from the public reading order.
 The `api` Turbo task runs package declaration generation and tooling builds,
 then uses `exports-md` to produce one page per public package in `docs/api/`.
 The reference covers package roots and explicitly named subpaths; wildcard

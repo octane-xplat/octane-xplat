@@ -241,3 +241,31 @@ MasonKit (core ships no Windows artifacts); `native` derives the engine
 from platform alone — there is no installed-capability probe. Mobile builds
 keep the headless-qualification `env()` warning; Windows keeps the
 unresolved-value warning.
+
+## Desktop renderer style normalization
+
+`@octane-xplat/css-engine` is framework-internal; renderer adapters normalize an
+inline declaration string before passing it to their host. Do not recommend its
+unstable exports to app authors.
+
+```ts
+import { normalizeInlineStyle } from '@octane-xplat/css-engine'
+
+const style = normalizeInlineStyle('opacity: 0.5')
+console.log(style?.opacity)
+```
+
+CSS variable fallbacks preserve function arguments. A variable set to `initial`
+uses the consuming declaration's fallback; a missing variable without a fallback
+invalidates that value. Registered `@property` defaults need separate host support.
+
+```css
+.trip-card {
+  --inset: initial;
+  padding: var(--inset, 8px);
+  color: var(--ink, rgb(17, 34, 51));
+}
+```
+
+Vendored selector-engine provenance stays beside
+[the engine source](../../../packages/css-engine/src/vendor/README.md).

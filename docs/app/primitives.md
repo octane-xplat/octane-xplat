@@ -288,8 +288,8 @@ and `UISwitch` on iOS, or `RecyclerView` and `MaterialSwitch` on Android.
 Keep those imports in matching `.ios` or `.android` files; importing them into
 a shared screen will fail the other platform's build.
 [Platform files](../platform/module-resolution.md) explains the naming rules.
-The [implementation map](#implementation-map) lists more controls and their
-underlying views for readers who need that detail.
+The [component index](components.md) lists the shared controls; use platform
+imports when the system control matters more than matching visuals.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -528,8 +528,6 @@ export function Name() {
   return <TextInput label="Name" value={value} onChange={setValue} />
 }
 ```
-
-
 
 `TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.
 On iOS, Android and experimental AppKit, submission is enabled only with
@@ -892,30 +890,6 @@ export function SavedTabs() {
 }
 ```
 
-### Implementation map
-
-| Component                   | Web element                  | iOS NativeScript view                         | Android NativeScript view              | Normalization class   |
-| --------------------------- | ---------------------------- | --------------------------------------------- | -------------------------------------- | --------------------- |
-| `Item`                      | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable`        | `FlexboxLayout` via shared `Pressable` | `self-drawn`          |
-| `SafeArea`                  | `div`                        | `FlexboxLayout`                               | `FlexboxLayout`                        | shared layout wrapper |
-| `WebView`                   | sandboxed `iframe`           | `webview` → WKWebView                         | `webview` → android.webkit.WebView     | `hosted`              |
-| `UITableView`               | unavailable                  | `listview` → UITableView                      | unavailable                            | `platform-authentic`  |
-| `RecyclerView`              | unavailable                  | unavailable                                   | `listview` → RecyclerView              | `platform-authentic`  |
-| `UITabBar`                  | unavailable                  | `TabView` / UITabBarController                | unavailable                            | `platform-authentic`  |
-| `BottomNavigationView`      | unavailable                  | unavailable                                   | `TabView`                              | `platform-authentic`  |
-| `UISwitch`                  | unavailable                  | `switch` → UISwitch                           | unavailable                            | `platform-authentic`  |
-| `MaterialSwitch`            | unavailable                  | unavailable                                   | `switch` → SwitchMaterial              | `platform-authentic`  |
-| `UISlider`                  | unavailable                  | `slider` → UISlider                           | unavailable                            | `platform-authentic`  |
-| `SeekBar`                   | unavailable                  | unavailable                                   | `slider` → SeekBar                     | `platform-authentic`  |
-| `UIActivityIndicatorView`   | unavailable                  | `activityindicator` → UIActivityIndicatorView | unavailable                            | `platform-authentic`  |
-| `CircularProgressIndicator` | unavailable                  | unavailable                                   | `activityindicator` → ProgressBar      | `platform-authentic`  |
-| `LiquidGlass`               | unavailable                  | NativeScript glass effect view                | unavailable                            | `platform-authentic`  |
-| `LiquidGlassContainer`      | unavailable                  | NativeScript glass effect view                | unavailable                            | `platform-authentic`  |
-
-The platform-authentic rows intentionally have no web counterpart. Their
-native modifiers and glyph names stay behind platform subpaths; they do not
-change the shared components' parity class.
-
 `Pressable`, `Text`, and the containers (`View`/`HStack`/`Stack`/`Absolute`/
 `Grid`/`ScrollableArea`) share the accessibility props in the
 platform map, including `accessible`, label, hint, value, role, state, and
@@ -1137,7 +1111,6 @@ export function Filters() {
   </>
 }
 ```
-
 
 Use `Dialog` for modal content, `AlertDialog` when the user must choose an
 action, `BottomSheet` for bottom-anchored content, `Overlay` for floating
@@ -2661,7 +2634,6 @@ export function ShortNote() {
 }
 ```
 
-
 Set `autoGrow` on `TextArea` to fit content as the user types or clears text.
 Omit `value` to let the field own its text; use `value` and `onChange` together
 when the app owns it. Both modes resize on input, and controlled value updates
@@ -2698,10 +2670,9 @@ uncontrolled composers.
 
 An experimental AppKit TextArea keeps resize callbacks with its current editor.
 Removing the field retires the observer; a callback or sizing pass that loses its
-editor stops before later frame writes. Keep the draft in parent state when
-hiding or remounting a field, as in the controlled example above. Eleven new
-source cases remain unrun; actual native resizing, scrolling, IME, focus and
-accessibility are unqualified.
+editor stops before later frame writes. Keep the draft in parent state when hiding
+or remounting a field, as in the controlled example above. Actual native resizing,
+scrolling, IME, focus and accessibility are unqualified.
 
 ```tsx
 import { TextArea } from '@octane-xplat/ui'
@@ -2772,7 +2743,6 @@ unverified. An unsupported decoder produces an empty image. See the
 For a side drawer with mobile edge gestures, use the optional
 [Drawer package](drawer.md).
 
-
 ### Clear and continue typing on AppKit
 
 AppKit TextInput and SearchInput now request focus on their retained input after
@@ -2790,7 +2760,6 @@ export function Search() {
   return <SearchInput label="Find records" defaultValue="recent" hasClear />
 }
 ```
-
 
 ### PIN fields on AppKit
 

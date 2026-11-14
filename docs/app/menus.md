@@ -11,7 +11,7 @@ persistent icon beside the system clock, use [`@octane-xplat/tray`](../packages/
 
 ## Start with actions
 
-Windows has an [experimental flat-action candidate](../platform/windows-setup.md#action-menu-candidate).
+Windows has an [experimental flat-action candidate](../platform/windows-setup.md#action-menu).
 Its other menu configurations retain the shared view and its input limits.
 
 A menu item calls `onSelect` when chosen and closes the menu. Data-driven rows
@@ -171,7 +171,6 @@ The maintained [component demo](../../packages/demos/src/ComponentsDemo.tsrx)
 shows legacy rows, checkbox/radio choices, submenus, a visible context trigger,
 and breadcrumb overflow together.
 
-
 ## AppKit menu host state
 
 On experimental AppKit, disabled action, checkbox, radio and submenu rows now
@@ -229,13 +228,13 @@ export function LocalActions({ saving }: { saving: boolean }) {
 }
 ```
 
-Authored AppKit object-driver cases remain unrun and replace popovers with
-inline content. Subsequent surface/trigger keyboard source paths are described below; reliable
-owned-dropdown Tab return intent is described below; real popup/ref/focus timing, physical keys, mouse hit testing,
-VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu also has the Shift+F10 source path described below; secondary-click source ownership is described below.
-Basic native menu roles and state queries now have the source path described below;
-menu checkmark attributes and full assistive announcements remain incomplete.
-
+Subsequent surface/trigger keyboard source paths are described below; reliable
+owned-dropdown Tab return intent is described below; real popup/ref/focus timing,
+physical keys, mouse hit testing, VoiceOver and packaging remain unqualified.
+Shared AppKit ContextMenu also has the Shift+F10 source path described below;
+secondary-click source ownership is described below. Basic native menu roles and
+state queries now have the source path described below; menu checkmark attributes
+and full assistive announcements remain incomplete.
 
 ## Navigate AppKit menu surfaces
 
@@ -265,13 +264,11 @@ row labels. Escape stays with the existing layer dismissal owner. Unowned surfac
 Dropdown/submenu return refs follow accepted closure; owned Tab return and
 closed-trigger arrow intent are described below.
 
-Seven new authored policy/inline-popup cases and the maintained AppKit menu
-fixture remain unrun. Fake windows prove no physical keys or popup behavior.
-Actual initial/return focus, native Tab traversal, separate-root lifetime, RTL
-provider delivery, scrolling/reveal, mouse hit testing, VoiceOver and packaging
-remain unqualified. Secondary-click opening and full native menu AX roles/checked
-announcements remain implementation gaps.
-
+Fake windows prove no physical keys or popup behavior. Actual initial/return
+focus, native Tab traversal, separate-root lifetime, RTL provider delivery,
+scrolling/reveal, mouse hit testing, VoiceOver and packaging remain unqualified.
+Secondary-click opening and full native menu AX roles/checked announcements remain
+implementation gaps.
 
 ### Open an AppKit dropdown with arrows
 
@@ -293,12 +290,11 @@ export function Actions() {
 ```
 
 The matching AppKit renderer is required for the private view-key subscription;
-older bridges retain the existing Button activation path. Nine new dispatcher/
-bridge/fake-window cases remain unrun. Native monitor order, actual ref delivery,
-physical arrows, popup first/last focus, IME, actual Tab return, VoiceOver and
-packaging remain unqualified. Owned Tab return intent is described below;
-secondary-click source ownership is described below; full menu accessibility remains a gap; basic roles/state queries are described below.
-
+older bridges retain the existing Button activation path. Native monitor order,
+actual ref delivery, physical arrows, popup first/last focus, IME, actual Tab
+return, VoiceOver and packaging remain unqualified. Owned Tab return intent is
+described below; secondary-click source ownership is described below; full menu
+accessibility remains a gap; basic roles/state queries are described below.
 
 ### Leave an owned AppKit dropdown with Tab
 
@@ -327,11 +323,10 @@ owning controls, and rejects detached/hidden targets or moved fallback controls.
 ContextMenu now supplies return intent when it has a valid invoker, as described
 below; originless and unowned surfaces retain native Tab fallback.
 
-Ten new focus/return-policy/fake-window cases remain unrun. Native cleanup order,
-actual key-view traversal and focus restoration, window activation timing,
-FocusScope/modal integration, IME, VoiceOver and packaging remain unqualified.
-The implementation records return intent; it is not proof of a native Tab result.
-
+Native cleanup order, actual key-view traversal and focus restoration, window
+activation timing, FocusScope/modal integration, IME, VoiceOver and packaging
+remain unqualified. The implementation records return intent; it is not proof of a
+native Tab result.
 
 ### Open AppKit context actions from the keyboard
 
@@ -359,11 +354,10 @@ window. An unavailable keyboard origin falls back to the visible trigger. Withou
 a valid invoker, long-press-only menus retain native Tab fallback. Controlled
 owners still accept closure before layer restoration runs.
 
-Six new origin-policy/inline-popup cases remain unrun. Physical Shift+F10 delivery,
-actual invoker/popup/Tab focus, native metadata/gesture arbitration, IME, VoiceOver
-and packaging remain unqualified. Context Menu key normalization now has the
-source path described below; actual hardware delivery remains unqualified.
-
+Physical Shift+F10 delivery, actual invoker/popup/Tab focus, native
+metadata/gesture arbitration, IME, VoiceOver and packaging remain unqualified.
+Context Menu key normalization now has the source path described below; actual
+hardware delivery remains unqualified.
 
 ### Open AppKit context actions with the pointer
 
@@ -389,11 +383,10 @@ fallback remains. Controlled owners still accept open/close requests. The render
 observes pointer modality before consuming an owned intent; disabled, released,
 foreign and detached scopes cannot open through a cached callback.
 
-Twelve authored dispatcher/bridge/origin/modality/menu cases remain unrun. Native
-mouse-down/up delivery, primary-action suppression, hit-testing, monitor ordering,
-popup/focus/ref timing, embedded engines, IME, VoiceOver and packaging remain
-unqualified. This is source implementation, not evidence of native operation.
-
+Native mouse-down/up delivery, primary-action suppression, hit-testing, monitor
+ordering, popup/focus/ref timing, embedded engines, IME, VoiceOver and packaging
+remain unqualified. This is source implementation, not evidence of native
+operation.
 
 ### Use a dedicated Context Menu key on AppKit
 
@@ -413,12 +406,10 @@ export function Document() {
 }
 ```
 
-Two renderer cases and two additional parameterized menu cases remain unrun.
 SDK constants establish the source mapping; they do not prove delivery from any
-physical keyboard. Actual native key/modifier/IME delivery, popup/focus/Tab return,
-VoiceOver and packaging remain unqualified. The visible trigger stays useful on
-keyboards without this key.
-
+physical keyboard. Actual native key/modifier/IME delivery, popup/focus/Tab
+return, VoiceOver and packaging remain unqualified. The visible trigger stays
+useful on keyboards without this key.
 
 ### AppKit menu accessibility metadata
 
@@ -442,10 +433,9 @@ export function Actions() {
 This supplies query metadata. It does not implement menu checkmark attributes,
 expanded-state announcements or complete menu accessibility relationships. Checked
 state is separate from selected state; mapping a checkbox/radio row to AXMenuItem
-does not establish a native checked announcement. Two renderer cases and one
-link-label case remain unrun. ObjC selector registration, actual AX tree/queries,
-VoiceOver, popup/ref/focus timing and packaging remain unqualified.
-
+does not establish a native checked announcement. ObjC selector registration,
+actual AX tree/queries, VoiceOver, popup/ref/focus timing and packaging remain
+unqualified.
 
 ### Keep focus owned when AppKit menu rows change
 
@@ -483,9 +473,6 @@ this owner:
   onSelect={exportDocument} />
 ```
 
-Five policy, three object-driver surface cases and one appended TabMenu case are
-authored and unrun. The maintained menu-keyboard fixture adds self-removing and
-self-disabling actions; its runner still dispatches only the trigger and does
-not synthesize OS keys/focus. Source/syntax review does not qualify native
-responder/ref/notification order, actual fallback identity, focus refusal/IME,
-nested layers, scroll reveal, VoiceOver or packaging.
+Source/syntax review does not qualify native responder/ref/notification order,
+actual fallback identity, focus refusal/IME, nested layers, scroll reveal,
+VoiceOver or packaging.

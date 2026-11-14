@@ -218,10 +218,11 @@ export function Images(props: { value: FileInputFile[]; change(value: FileInputF
 }
 ```
 
-Unknown metadata stays absent and can fail MIME validation. Controller/metadata
-cases remain unrun; native type discovery, panel/ref/focus and packaged behavior
-remain unqualified. AppKit's local file-URL drop source is described below;
-actual OS drag delivery remains unqualified. See [AppKit attachment lifetime](../packages/package-files.md#appkit-attachment-picker-lifetime).
+Unknown metadata stays absent and can fail MIME validation. Native type discovery,
+panel/ref/focus and packaged behavior remain unqualified. AppKit's local file-URL
+drop source is described below; actual OS drag delivery remains unqualified. See
+[AppKit attachment
+lifetime](../packages/package-files.md#appkit-attachment-picker-lifetime).
 
 `@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the
 field presentation. Install both packages when using `FileInput`.
@@ -563,38 +564,13 @@ when removed. These messages do not expose native exception details.
   onSelectionChange={setSelection} disabled accessibilityLabel="Departure time" />
 ```
 
-Seven owner-model and six new renderer-branch cases are authored, all unrun.
-The maintained macOS native-date demo offers controlled/uncontrolled, bounds,
-mode/style, disabled, invalid-date, callback replacement and remount controls.
-Its probe only mounts the demo. Source/fake dispatch does not qualify actual
-text/calendar/clock input, IME, Tab/VoiceOver, focus, layout, date/calendar settings
-or a clean installed consumer. Repository maintainers can open this fixture for
-later target qualification:
-
-```sh
-bun run probe run examples/probes/native-date-picker.macos.tsrx --target macos --watch
-```
+Actual AppKit text/calendar/clock input, IME, Tab/VoiceOver, focus, layout,
+calendar settings and installed-consumer behavior remain unqualified. Test the
+mode, bounds and locale your app uses on its target system.
 
 The web entry was removed because its browser-specific `DateInput` value and
 props conflicted with the portable shared `DateInput`. Use
 `@octane-xplat/ui` for shared date entry instead.
-
-## Port notes — what carried over
-
-- iOS: the range-branching `DatePicker` construction, selection echo
-  suppression, `labelsHidden` when untitled, the `.graphical` style's 320pt
-  min-width workaround for the UICalendarView shrink bug
-  ([expo#47062](https://github.com/expo/expo/issues/47062)), and the
-  `displayedComponents` → `DatePicker.Components` mapping. Not ported:
-  children-as-label (the picker takes a `title` string), tvOS guards.
-- Android: `SelectableDates` range derivation, the `yearRange` fix for
-  bounded calendars ([expo#47206](https://github.com/expo/expo/issues/47206)),
-  the `LocalContentColor` binding so the year-selector chevron honors
-  `navigationContentColor`, and both element-color tables (as hex strings —
-  the bridge does not carry `ColorValue` ints). Not ported: the
-  `DatePickerDialog`/`TimePickerDialog` wrappers and their keyboard
-  soft-input handling; `dateAndTime` combined input.
-
 
 ### Drop local files on AppKit
 
@@ -617,9 +593,8 @@ export function Attachments() {
 Directories, symlinks, uninspectable files and promised/non-file payloads are
 excluded. Accepting a drop does not prove validation or saving succeeded, and no
 persistent sandbox grant is promised. Native registration, OS hit routing/drag,
-metadata/grants, focus/VoiceOver and packaging remain unqualified. Nine authored
-cases are unrun. See [file-drop scope and limitations](../packages/package-files.md#appkit-local-file-drops).
-
+metadata/grants, focus/VoiceOver and packaging remain unqualified. See [file-drop
+scope and limitations](../packages/package-files.md#appkit-local-file-drops).
 
 ### Navigate AppKit calendar days with keys
 
@@ -652,13 +627,11 @@ and window changes or teardown invalidate pending intent and release claims.
 Prevented/composing/Alt events and modified shortcuts stay outside day navigation,
 except the explicit Command/Control Home/End grid commands.
 
-Six adapter and two object-driver wiring cases remain unrun; their native objects
-are simulated. The maintained calendar-keys fixture synthesizes no OS input.
-Physical keys/Tab, native ref/window/notification order, focus/reveal, popup and
-modal integration, geometry, RTL delivery, AX/VoiceOver and packaging remain
-unqualified. AppKit preset-time source ownership is described below; NativeScript
-time-list keys and AppKit live announcements remain gaps. AppKit time stepping is described below.
-
+The maintained calendar-keys fixture synthesizes no OS input. Physical keys/Tab,
+native ref/window/notification order, focus/reveal, popup and modal integration,
+geometry, RTL delivery, AX/VoiceOver and packaging remain unqualified. AppKit
+preset-time source ownership is described below; NativeScript time-list keys and
+AppKit live announcements remain gaps. AppKit time stepping is described below.
 
 ### Commit typed AppKit date and time drafts with Return
 
@@ -684,12 +657,10 @@ export function Appointment() {
 }
 ```
 
-This is handler wiring, not a native Return result. The maintained date-submit
-fixture synthesizes no input and remains unrun. Actual target/action delivery,
-Return-versus-blur ordering, IME confirmation, draft/caret/focus/validation behavior,
-AX and packaging remain unqualified. AppKit time stepping is described below;
-DateTimeInput preset-list key source ownership is described below.
-
+This is handler wiring, not a native Return result. Actual target/action delivery,
+Return-versus-blur ordering, IME confirmation, draft/caret/focus/validation
+behavior, AX and packaging remain unqualified. AppKit time stepping is described
+below; DateTimeInput preset-list key source ownership is described below.
 
 ### Choose AppKit preset times with keys
 
@@ -717,13 +688,12 @@ busy, empty or detached controls cannot accept stale options. Moving between
 options is separate from the parent-owned value; choosing without a date keeps
 the existing time draft. Edit text in the time field after leaving the popup.
 
-One renderer, four focus-policy and five object-driver cases remain unrun. The maintained
-preset-times fixture synthesizes no OS input. Native key/ref/window/observer
-ordering, field-editor/IME behavior, focus/Tab/return (including busy saves), scroll
-reveal, popup/modal integration, geometry, AX and packaging remain unqualified.
-Text/typeahead relay from focused rows and full listbox/option AX relationships
-are not implemented by this adapter. Standalone TimeInput stepping is described below.
-
+The maintained preset-times fixture synthesizes no OS input. Native
+key/ref/window/observer ordering, field-editor/IME behavior, focus/Tab/return
+(including busy saves), scroll reveal, popup/modal integration, geometry, AX and
+packaging remain unqualified. Text/typeahead relay from focused rows and full
+listbox/option AX relationships are not implemented by this adapter. Standalone
+TimeInput stepping is described below.
 
 ### Step AppKit time values with arrow keys
 
@@ -756,12 +726,10 @@ Use status for app-owned error feedback:
   changeAction={saveTime} status={saveError ? { type: 'error', message: saveError } : undefined} />
 ```
 
-Five object-driver cases and the maintained time-step fixture remain unrun.
 Source/syntax review does not qualify physical keys/repeat, native field-editor
 routing, IME, caret/draft updates, asynchronous focus behavior, accessibility or
-packaging. DateTimeInput stepping is described below; live announcements remain
-a separate gap.
-
+packaging. DateTimeInput stepping is described below; live announcements remain a
+separate gap.
 
 ### Step the AppKit date-time field without opening presets
 
@@ -793,14 +761,11 @@ outside stepping. Pending changeAction work guards both stepping and popup entry
   timeIncrement={5} changeAction={saveAppointment} />
 ```
 
-Four additional object-driver cases are authored and unrun; the existing nine
-preset policy/wiring cases and renderer prerequisite case remain unrun too. The
-maintained preset-times fixture includes closed-field stepping and synthesizes
+The maintained preset-times fixture includes closed-field stepping and synthesizes
 no OS input. Physical keys/repeat, field-editor/IME/draft/caret, bounds/save/focus
 ordering, native popup/AX/VoiceOver and packaging remain unqualified. Preset
 row-to-editor text relay, full listbox relationships and live announcements remain
 gaps.
-
 
 ### Focus an AppKit date field from a form action
 
@@ -847,12 +812,12 @@ export function EditAppointment(props: { value: string | null; change(value: str
 ```
 
 The native getter reads the current host, including null after teardown. Normal
-ref replacement/unmount ownership uses Octane's imperative-ref lifecycle. Three
-policy and six object-driver cases plus a maintained fixture are authored and
-unrun. Source/syntax review does not prove native ref timing, responder/editor
-identity, blur/submit/IME/caret ordering, popup/modal integration or accessibility.
-DateInput/TimeInput autofocus now has [separate source wiring](#request-initial-appkit-date-or-time-focus); native attachment and focus ordering remain unqualified.
-
+ref replacement/unmount ownership uses Octane's imperative-ref lifecycle.
+Source/syntax review does not prove native ref timing, responder/editor identity,
+blur/submit/IME/caret ordering, popup/modal integration or accessibility.
+DateInput/TimeInput autofocus now has [separate source
+wiring](#request-initial-appkit-date-or-time-focus); native attachment and focus
+ordering remain unqualified.
 
 ### Keep AppKit date saves owned by one edit
 
@@ -893,11 +858,9 @@ ranges, since rendering can evaluate them too:
   maxRangeSpan={14} presets={[{ label: 'Short stay', getRange: () => ({ start: '2026-03-06', end: '2026-03-08' }) }]} />
 ```
 
-Seven object-driver cases and the maintained date-save fixture are authored and
-unrun. Source/syntax review does not prove native callback, save/blur/focus/IME,
+Source/syntax review does not prove native callback, save/blur/focus/IME,
 popup/modal, accessibility or package behavior. These guards do not add save
 cancellation, automatic parent rollback or native error announcements.
-
 
 ### Request initial AppKit date or time focus
 
@@ -932,12 +895,10 @@ export function BookingTime() {
 ```
 
 Without native input/window observation, only an immediate attached post-commit
-attempt is allowed. Nine policy and six object-driver cases plus the
-[manual fixture](../../examples/probes/date-autofocus.macos.tsrx) are authored,
-all unrun. Mock timing does not prove OS caret/IME, native notifications, modal
-focus containment, hit testing, accessibility or packaged behavior. DateTimeInput
-and DateRangeInput do not expose this flag; their existing focus refs remain.
-
+attempt is allowed. Mock timing does not prove OS caret/IME, native notifications,
+modal focus containment, hit testing, accessibility or packaged behavior.
+DateTimeInput and DateRangeInput do not expose this flag; their existing focus
+refs remain.
 
 ### Keep AppKit time drafts owned by the current edit
 
@@ -959,11 +920,9 @@ export function StartTime() {
 The existing AppKit composition helper already reads native field-editor marked
 text. Drafts stay pending during composition; completed submit/blur can request a
 commit. This is source wiring, not proof of native IME, Return/blur or caret
-ordering. Six object-driver cases and the
-[manual fixture](../../examples/probes/time-draft.macos.tsrx) are authored, all
-unrun. Save/ref/blocked callback ordering, input/focus/accessibility and packaging
-remain unqualified. DateTimeInput has [its own current draft ownership source](#keep-both-appkit-date-time-drafts-current), also unqualified.
-
+ordering. Save/ref/blocked callback ordering, input/focus/accessibility and
+packaging remain unqualified. DateTimeInput has [its own current draft ownership
+source](#keep-both-appkit-date-time-drafts-current), also unqualified.
 
 ### Keep both AppKit date-time drafts current
 
@@ -984,11 +943,9 @@ export function Appointment() {
 ```
 
 Pending-text cleanup checks the same draft and attached host after callbacks, so
-parent correction and teardown retain authority. An unchanged committed value
-does not run another change/save callback. Completed invalid drafts retain the
-existing submit/blur behavior of reverting to the parent value. The existing AppKit marked-editor
-helper continues to defer composing text. Eight object-driver cases and the
-[manual fixture](../../examples/probes/datetime-draft.macos.tsrx) are authored, all
-unrun. The cases mock away Popover; actual native editor/IME/Return/blur/save,
-calendar/preset/keyboard interactions, focus/accessibility and packaging remain
-unqualified.
+parent correction and teardown retain authority. An unchanged committed value does
+not run another change/save callback. Completed invalid drafts retain the existing
+submit/blur behavior of reverting to the parent value. The existing AppKit
+marked-editor helper continues to defer composing text. Actual native
+editor/IME/Return/blur/save, calendar/preset/keyboard interactions,
+focus/accessibility and packaging remain unqualified.

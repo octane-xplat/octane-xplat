@@ -29,3 +29,11 @@ together. That slice is revision-pinned but not archive-hash-verified —
 recorded as `source.engine.slices.x86_64` in the prebuilt manifest. When
 upstream adds an `x86_64-apple-darwin` desktop target, extend the pin file
 with its archive hash and link it the same way as arm64.
+
+## Rebuild the packaged engine
+
+From `packages/macos-appkit`, run `native/xplatmason/build.sh` after preparing
+both slices described above. The script produces a universal dylib with a
+macOS 13.5 deployment target. Keep the archive pin, generated header and engine
+revision aligned; ordinary app builds consume the shipped engine without
+rebuilding it.

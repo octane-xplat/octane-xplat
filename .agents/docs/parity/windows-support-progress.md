@@ -215,7 +215,6 @@ Harness/scenario qualification does not advance component or issue-wide gates.
 Use the [shared-host artifact convention](../host-artifacts.md) and reuse the
 host's persistent source checkout while keeping per-run artifacts disposable.
 
-
 ## Native action contracts
 
 Use the [Windows action guide](../../../docs/platform/windows-setup.md#buttons-and-links)
@@ -238,7 +237,7 @@ packaged path that has not been run.
 
 ## Native panel-tab contracts
 
-Use the [Windows panel-tab example](../../../docs/platform/windows-setup.md#panel-tabs-candidate)
+Use the [Windows panel-tab example](../../../docs/platform/windows-setup.md#panel-tabs)
 for controlled local panels and the maintained
 [tab action mode](../../../tools/windows-qualification/README.md#run-panel-tab-checks)
 for native selection, OS input and lifecycle checks. Keep the
@@ -260,7 +259,7 @@ relations and the full fresh-main run remain separate qualification work.
 
 ## Native single-selection contracts
 
-Use the [Windows Selector example](../../../docs/platform/windows-setup.md#single-selection-candidate)
+Use the [Windows Selector example](../../../docs/platform/windows-setup.md#single-selection)
 and [Selector input mode](../../../tools/windows-qualification/README.md#run-selector-input-checks)
 for the finite single-choice path. Keep framework option content in the packaged
 checks: a plain-string ComboBox can expose valid popup bounds while a custom

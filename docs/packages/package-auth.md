@@ -34,7 +34,6 @@ and exposes `configure`, `signIn`, and provider extras
 distinguishes `success` / `cancelled` / `error`; a dismissed sheet is
 `cancelled`, not a throw.
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-auth).
 
 ## Sign-in buttons
@@ -110,15 +109,10 @@ current mounted owner, without exposing exception text. Consumer `onPress` error
 propagate and release the action claim; consumer `onResult` errors are not
 reclassified as provider failures. There is no automatic busy indicator; repeated
 activation is suppressed while the provider promise is pending. Other button
-instances and imperative calls remain subject to each provider's active-flow guard.
-Six action-model and three native-renderer branch cases plus a manual lifecycle
-fixture are authored, all unrun. Actual hook/effect timing, target/action/NSButton
-Tab/keyboard/VoiceOver, Apple attachment replacement, native layout/disabled state,
-controller/browser lifetime and clean consumers remain unqualified.
-
-```sh
-bun run probe run examples/probes/auth-buttons.macos.tsrx --target macos --watch
-```
+instances and imperative calls remain subject to each provider's active-flow
+guard. Actual hook/effect timing, target/action/NSButton Tab/keyboard/VoiceOver,
+Apple attachment replacement, native layout/disabled state, controller/browser
+lifetime and clean consumers remain unqualified.
 
 ## macOS provider setup
 
@@ -171,18 +165,13 @@ if (result.status === 'success') {
 }
 ```
 
-Eleven Apple model cases (eight new) and a manual official-button fixture are
-authored, unrun. Native method registration/wrapper identity, UI/callbacks/thread/
-window/termination/HMR lifetime, real credential-state/nonce behavior, entitlement/
-provisioning/signing, VoiceOver and installed consumers remain unqualified.
-Source follows the installed SDK and Apple's
-[authorization controller](https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller)
-and [cancel contract](https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller/cancel()).
-No sign-in occurs when the fixture mounts:
-
-```sh
-bun run probe run examples/probes/apple-auth.macos.tsrx --target macos --watch
-```
+Native method registration/wrapper identity, UI/callbacks/thread/
+window/termination/HMR lifetime, real credential-state/nonce behavior,
+entitlement/ provisioning/signing, VoiceOver and installed consumers remain
+unqualified. Source follows the installed SDK and Apple's [authorization
+controller](https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller)
+and [cancel
+contract](https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller/cancel()).
 
 For a complete configured path, follow [Add sign-in and maintain a session](https://octane-xplat.goddardai.org/authentication), including the maintained Auth0 adapter and verified API example.
 

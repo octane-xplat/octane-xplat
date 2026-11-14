@@ -299,39 +299,3 @@ build outputs while preserving authored `platforms/macos/` files. A corrupt
 cache diagnostic identifies a specific generated directory; remove that
 directory and rebuild. No-native-leaf apps continue using shipped metadata and
 need no native compilation toolchain.
-
-## Evidence and maintainer tooling
-
-The maintained language fixtures live in
-`packages/cli/test/fixtures/macos-native-leaves`; the independent app fixture is
-`packages/cli/test/fixtures/macos-native-app`. From this repository:
-
-```sh
-node --test packages/cli/test/macos-native.test.mts
-node packages/cli/test/verify-macos-native.mts
-node packages/cli/test/verify-macos-native-consumer.mjs
-```
-
-These exercise source selection, input validation, all four languages in the
-real host, transitive C/ObjC linkage, metadata SDK/sqlite compatibility, cache
-reuse/invalidation, concurrent publication, public-header rejection, packed
-package consumption, dev restarts/failure recovery, and a relocated ad-hoc
-signed app. The consumer fixture packs the CLI and leaves, then installs them;
-it needs registry access for ordinary JS dependencies when they are not cached.
-Developer ID/notarization are external credential-dependent checks; the local
-fixture does not claim notarization evidence.
-
-Framework maintainers regenerate the shipped tool with:
-
-```sh
-bash packages/cli/src/macos/jsc-host/build-generator.sh --install
-```
-
-This maintenance command needs Git, CMake, Xcode, and Command Line Tools. It
-builds the pinned runtime revision plus committed patches, installs the binary
-and license, and refreshes its checksum. The generator appends leaf imports to
-the existing SDK umbrella (including sqlite3/dlfcn) and strictly validates
-leaf public headers separately. The broad SDK sweep retains upstream behavior
-for unrelated SDK-private header diagnostics; it is not a syntax validation
-pass over every Apple framework. App builds do not modify shipped host,
-framework, or metadata artifacts.

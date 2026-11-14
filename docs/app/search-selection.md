@@ -152,7 +152,7 @@ the surface. Printable keys match options or start a searchable query.
 Ctrl/Cmd+A toggles filtered select-all when enabled. IME composition is ignored.
 The search clear button has its own keyboard stop. The shared native view exposes
 tap, search, clear, and bulk actions without hardware-keyboard navigation. The
-[experimental Windows single-selection candidate](../platform/windows-setup.md#single-selection-candidate)
+[experimental Windows single-selection candidate](../platform/windows-setup.md#single-selection)
 uses a separate native ComboBox path for ungrouped, nonsearchable single choices
 without a clear control; its packaged input qualification remains separate.
 `maxMenuHeight` bounds the scrolling list (default 280).
@@ -476,7 +476,6 @@ and [the parity fixtures](../../packages/ui/src/components/forms/Typeahead.parit
 
 [Try the packing list demo](../demos/packing-list.md) with bundled local content.
 
-
 ## AppKit finite-option selection
 
 Selector's multiple mode and the MultiSelector preset now reach the AppKit
@@ -511,12 +510,10 @@ export function Region() {
 }
 ```
 
-These changes have authored, unrun object-driver cases. The popup is replaced
-with an inline test surface in those cases, so they do not prove NSPopover
-ownership or input. A subsequent keyboard/focus source path is described below. Alternate presentations and live-region announcements remain open; ghost chrome
-is forwarded in source but native painting remains unqualified;
-actual popup focus/input, native layout/VoiceOver and packaging remain unqualified.
-
+A subsequent keyboard/focus source path is described below. Alternate
+presentations and live-region announcements remain open; ghost chrome is forwarded
+in source but native painting remains unqualified; actual popup focus/input,
+native layout/VoiceOver and packaging remain unqualified.
 
 ## Use Selector keys on AppKit
 
@@ -562,12 +559,8 @@ key view to that owner, following AppKit's
 This requires the matching keyboard bridge. A host reporting no key dispatch
 keeps ordinary option Tab stops instead of suppressing unreachable choices.
 
-The new policy, focus-helper and inline-popup wiring cases remain unrun.
 They do not prove real NSPopover focus/return timing, physical keys, IME, modal
-FocusScope interactions, scrolling, VoiceOver or packaged operation. The
-[maintained AppKit keyboard fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/select-keyboard.macos.tsrx)
-is also unrun; its script only opens the trigger directly.
-
+FocusScope interactions, scrolling, VoiceOver or packaged operation.
 
 ## AppKit Selector field metadata
 
@@ -599,7 +592,6 @@ export function ToolbarRegion() {
 }
 ```
 
-
 ## Remove selected values on AppKit
 
 Use `triggerDisplay="badges"` with MultiSelector to show each selected value as a
@@ -616,12 +608,10 @@ export function Channels() {
 }
 ```
 
-Authored object-driver cases remain unrun. Native badge wrapping, Tab/AX focus,
-VoiceOver and physical remove-click isolation from the trigger remain unqualified;
-the matching renderer primary-click gate is required. Direct handler dispatch
-cannot prove OS hit testing. Alternate picker presentations and live announcements
-remain separate gaps.
-
+Native badge wrapping, Tab/AX focus, VoiceOver and physical remove-click isolation
+from the trigger remain unqualified; the matching renderer primary-click gate is
+required. Direct handler dispatch cannot prove OS hit testing. Alternate picker
+presentations and live announcements remain separate gaps.
 
 ## Bootstrap AppKit typeahead results on focus
 
@@ -664,14 +654,12 @@ export function SearchAction() {
 }
 ```
 
-Fourteen object-driver cases and a [manual fixture](../../examples/probes/typeahead-focus.macos.tsrx)
-are authored, all unrun. Source/fake dispatch does not qualify actual field-editor
-focus/blur, IME, click ordering, layout, keyboard option navigation,
-listbox accessibility or packaged imports. Keyboard selection/consumer keydown
-now have a separate source path below. Native role/link wiring also follows
-below; result announcements and full AX qualification remain open. The
-AppKit typeahead result host remains separate from the general native Popover.
-
+Source/fake dispatch does not qualify actual field-editor focus/blur, IME, click
+ordering, layout, keyboard option navigation, listbox accessibility or packaged
+imports. Keyboard selection/consumer keydown now have a separate source path
+below. Native role/link wiring also follows below; result announcements and full
+AX qualification remain open. The AppKit typeahead result host remains separate
+from the general native Popover.
 
 ## Choose AppKit typeahead results with keys
 
@@ -714,14 +702,11 @@ export function CustomNavigation() {
 }
 ```
 
-Seven policy and five object-driver cases plus the
-[manual key fixture](../../examples/probes/typeahead-keys.macos.tsrx) are authored,
-all unrun. These establish source intent only. Real field-editor/IME/repeat,
-modifier delivery, Tab/layer ordering, native highlight reveal and packaging
-remain unqualified. Floating results have the source host below; the native role/link subset
-follows below, while full accessibility and announcements remain unqualified.
-Tokenizer's separate AppKit Backspace wiring
-is described below.
+These establish source intent only. Real field-editor/IME/repeat, modifier
+delivery, Tab/layer ordering, native highlight reveal and packaging remain
+unqualified. Floating results have the source host below; the native role/link
+subset follows below, while full accessibility and announcements remain
+unqualified. Tokenizer's separate AppKit Backspace wiring is described below.
 
 ## Remove AppKit tokens with empty-input Backspace
 
@@ -742,12 +727,10 @@ export function PeopleTags() {
 }
 ```
 
-Seven [object-driver cases](../../packages/ui/src/components/forms/tokenizer-keys.macos.mobile.test.tsrx)
-and a [manual fixture](../../examples/probes/tokenizer-keys.macos.tsrx) are authored,
-all unrun. Native Backspace/repeat/IME, field-editor ownership, embedded-content
-blur timing, popup focus, accessibility and packaging remain unqualified.
-The separate overflow source path below replaces legacy measurements; native
-truncation remains unqualified.
+Native Backspace/repeat/IME, field-editor ownership, embedded-content blur timing,
+popup focus, accessibility and packaging remain unqualified. The separate overflow
+source path below replaces legacy measurements; native truncation remains
+unqualified.
 
 ## Collapse AppKit token rows with native geometry
 
@@ -769,17 +752,14 @@ export function CompactPeople() {
 }
 ```
 
-Eight [geometry cases](../../packages/ui/src/components/forms/tokenizer-overflow.macos.test.ts),
-five [object-driver cases](../../packages/ui/src/components/forms/tokenizer-overflow.macos.mobile.test.tsrx)
-and a [manual fixture](../../examples/probes/tokenizer-overflow.macos.tsrx) are authored,
-all unrun. Missing native geometry preserves the last count. Counter removal
-waits for updated native layout before counting again. These source changes
-require the AppKit renderer's new overflow clipping path; native drawing,
-resizing, text sizing, focus/IME, hit-testing, accessibility and packaging remain
-unqualified. Tokenizer's outer `unfocusedLayer` editor now uses the
-[source-owned Popover](#anchor-appkit-custom-popovers). Its BaseTypeahead
-suggestion list uses the separate result host below; neither path has native
-floating-layer qualification.
+Missing native geometry preserves the last count. Counter removal waits for
+updated native layout before counting again. These source changes require the
+AppKit renderer's new overflow clipping path; native drawing, resizing, text
+sizing, focus/IME, hit-testing, accessibility and packaging remain unqualified.
+Tokenizer's outer `unfocusedLayer` editor now uses the [source-owned
+Popover](#anchor-appkit-custom-popovers). Its BaseTypeahead suggestion list uses
+the separate result host below; neither path has native floating-layer
+qualification.
 
 ## Expose AppKit suggestion roles and relationships
 
@@ -801,18 +781,14 @@ export function AccessiblePeopleSearch() {
 }
 ```
 
-Four renderer cases, ten [relationship cases](../../packages/ui/src/components/forms/typeahead-accessibility.macos.test.ts),
-five [view cases](../../packages/ui/src/components/forms/typeahead-accessibility.macos.mobile.test.tsrx)
-and a [manual fixture](../../examples/probes/typeahead-accessibility.macos.tsrx)
-are authored, all unrun. The input/list must share a native window.
-Previous native links and selection metadata are restored on close, blocking,
-replacement or teardown. Selected-children notifications are requested when the
-highlighted native row changes; this does not establish spoken announcements.
-Native AX hierarchy, VoiceOver navigation/announcements, editor focus/IME,
-notification ordering and packaging still need qualification. Floating-result
-hosting has the separate source implementation below. Broader Selector/preset
-accessibility support is not established here.
-
+The input/list must share a native window. Previous native links and selection
+metadata are restored on close, blocking, replacement or teardown.
+Selected-children notifications are requested when the highlighted native row
+changes; this does not establish spoken announcements. Native AX hierarchy,
+VoiceOver navigation/announcements, editor focus/IME, notification ordering and
+packaging still need qualification. Floating-result hosting has the separate
+source implementation below. Broader Selector/preset accessibility support is not
+established here.
 
 ## Float AppKit search suggestions
 
@@ -859,16 +835,12 @@ export function TeamSearch() {
 }
 ```
 
-Sixteen [controller/focus cases](../../packages/ui/src/components/forms/typeahead-layer.macos.test.ts),
-four [source-portal cases](../../packages/ui/src/components/forms/typeahead-results.macos.mobile.test.tsrx),
-three [readiness cases](../../packages/ui/src/components/forms/typeahead-result-ready.macos.mobile.test.tsrx)
-and the [manual fixture](../../examples/probes/typeahead-results.macos.tsrx) are
-authored, all unrun. Existing state/key cases use an explicit test host.
 Actual portal/context/ref/commit ordering, native sizing/clipping/scrolling/RTL,
 editor/IME/focus/blur/click ordering, layer dismissal, VoiceOver and packaging
 remain unqualified. The general native Popover and Tokenizer's outer
-`unfocusedLayer` editor now use the [source-owned Popover](#anchor-appkit-custom-popovers).
-The useLayer/hover paths retain their separate standalone-root contract.
+`unfocusedLayer` editor now use the [source-owned
+Popover](#anchor-appkit-custom-popovers). The useLayer/hover paths retain their
+separate standalone-root contract.
 
 ## Anchor AppKit custom popovers
 
@@ -913,12 +885,10 @@ cancelled by its native owner.
 </Popover>
 ```
 
-This requires the renderer's source-outlet/staged `showLayer` contract. There
-is no inline or standalone-root fallback, OS popover arrow or OS popover
-animation. `useLayer`/HoverCard and direct tooltip hosts retain their separate
-contracts. Focus trapping and automatic text-field focus are not added here;
-`finalFocusRef` retains the existing explicit native return path. Eight owner
-cases, three source-portal cases and the [manual fixture](../../examples/probes/popover.macos.tsrx)
-are authored, all unrun. Native provider/ref/commit timing, geometry, nested
-blur/dismissal, OS input/IME/Tab/focus, VoiceOver, cleanup and installed consumers
-remain unqualified.
+This requires the renderer's source-outlet/staged `showLayer` contract. There is
+no inline or standalone-root fallback, OS popover arrow or OS popover animation.
+`useLayer`/HoverCard and direct tooltip hosts retain their separate contracts.
+Focus trapping and automatic text-field focus are not added here; `finalFocusRef`
+retains the existing explicit native return path. Native provider/ref/commit
+timing, geometry, nested blur/dismissal, OS input/IME/Tab/focus, VoiceOver,
+cleanup and installed consumers remain unqualified.

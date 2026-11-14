@@ -129,7 +129,6 @@ For optional AI-agent browser/device control through MCP, use
 and the [qualified local Argent recipe](argent.md). Stable IDs improve
 reliable targeting; spoken accessibility semantics still belong to users.
 
-
 ## AppKit source implementation
 
 AppKit Pressable, Button, Selector, TextInput, TextArea and SearchInput now
@@ -149,13 +148,12 @@ export function SaveDraft({ save }: { save(): void }) {
 }
 ```
 
-This is source implementation with authored, unrun renderer/object-driver cases.
-It does not establish selector discovery/replay, native bridge behavior or
-VoiceOver on macOS. Other AppKit composites need their own forwarding review;
-this change does not qualify the whole host table for desktop use. Pressable
-also forwards `accessible`, but use that prop only when deliberately choosing
-whether an interaction appears as an accessibility element. It is not an
-identifier or a substitute for a spoken label.
+This source mapping does not establish selector discovery/replay, native bridge behavior or
+VoiceOver on macOS. Other AppKit composites need their own forwarding review; this
+change does not qualify the whole host table for desktop use. Pressable also
+forwards `accessible`, but use that prop only when deliberately choosing whether
+an interaction appears as an accessibility element. It is not an identifier or a
+substitute for a spoken label.
 
 ```tsx
 import { Pressable, Text } from '@octane-xplat/ui'

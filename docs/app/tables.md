@@ -131,7 +131,6 @@ export function PinnedPeople() {
 }
 ```
 
-
 ## Wide data tables on AppKit
 
 AppKit data tables now have an experimental horizontal NSScrollView source
@@ -155,17 +154,12 @@ export function People() {
 ```
 
 AppKit honors scroll-wrapper plugin styles/classes, before/after content and
-native NSScrollView refs. Table's public ref binds to its inner table view;
-Table style remains on that content. DOM handlers/attributes are not supplied by the viewport. Sticky positioning
-uses the separate AppKit hook source path below. The manual fixture can read
-native metrics after a human action; it has not run. Auto/bounded height,
-header/body sizing, native wheel/trackpad/RTL, nested scrolling, plugin ref
-lifetimes, accessibility and clean packaged consumers remain unqualified.
-
-```sh
-bun run probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
-```
-
+native NSScrollView refs. Table's public ref binds to its inner table view; Table
+style remains on that content. DOM handlers/attributes are not supplied by the
+viewport. Sticky positioning uses the separate AppKit hook described below.
+Auto/bounded height, header/body sizing, native wheel/trackpad/RTL, nested
+scrolling, plugin ref lifetimes, accessibility and clean packaged consumers remain
+unqualified.
 
 Controlled column widths on AppKit now update the column plan before header,
 body and minimum scroll width are calculated. Removing an override restores
@@ -184,7 +178,6 @@ export function WideName() {
     plugins={{ columnResize }} />
 }
 ```
-
 
 ## Choose body text wrapping on AppKit
 
@@ -255,17 +248,10 @@ document resize and window updates synchronize placements without a JS frame
 loop. Disabling/removing the hook, hiding/detaching cells or replacing the
 viewport releases owned placement and restores layout/order.
 
-```sh
-bun run probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
-```
-
-Three simulated native-pin/order cases, six geometry/observer cases and two compiler
-cases are authored but unrun. Actual Auto Layout timing, RTL/native leading
-anchors, sibling ordering, button hit-testing, text editing/IME, focus/Tab,
-background compositing, scrolling performance, VoiceOver and packaged consumers
-remain unqualified. The fixture includes pinned buttons and text fields for
-those checks; mounting or simulated callbacks cannot prove them.
-
+Actual Auto Layout timing, RTL/native leading anchors, sibling ordering, button
+hit-testing, text editing/IME, focus/Tab, background compositing, scrolling
+performance, VoiceOver and packaged consumers remain unqualified. Test pinned
+buttons and editable cells with real input in your app.
 
 ## Resize columns on AppKit
 
@@ -306,13 +292,11 @@ export function useLocalWidths() {
 ```
 
 Bounds default to a minimum of 50 points and no maximum. Invalid/nonfinite
-minimums use the default; finite limits are normalized to nonnegative minimum
-and maximum at least minimum. Programmatic widths may lie outside gesture
-limits. Six interaction-state cases, one simulated splitter case and two new
-handle compiler cases are authored but unrun. Native drag delivery/cancellation,
-keyboard focus/Tab, VoiceOver, sorting versus handle hit-testing, sticky-column
-composition, repeated layout, teardown and packaged consumers remain unqualified.
-
+minimums use the default; finite limits are normalized to nonnegative minimum and
+maximum at least minimum. Programmatic widths may lie outside gesture limits.
+Native drag delivery/cancellation, keyboard focus/Tab, VoiceOver, sorting versus
+handle hit-testing, sticky-column composition, repeated layout, teardown and
+packaged consumers remain unqualified.
 
 ```tsx
 import { useTableColumnResize } from '@octane-xplat/ui'

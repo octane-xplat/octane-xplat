@@ -54,7 +54,6 @@ if (file) {
 }
 ```
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-files).
 
 ## Binary reads, writes, and export
@@ -188,9 +187,9 @@ export function Attachments({ save }: { save(value: FileInputFile | FileInputFil
 
 Cancellation retains selection and existing validation messages. Results and
 errors after detachment are ignored; a custom picker promise is not cancelled.
-This is per-control ownership, not a global panel broker. The seven authored
-controller cases remain unrun and do not prove native refs, panel interaction,
-focus, sandbox access, VoiceOver or packaged behavior. AppKit dropzone file-URL
+This is per-control ownership, not a global panel broker. Native refs, panel
+interaction, focus, sandbox access, VoiceOver and packaged behavior remain
+unqualified. AppKit dropzone file-URL
 ownership is described below; native drag delivery remains unqualified.
 
 ### AppKit file metadata
@@ -215,12 +214,11 @@ export function Images(props: { value: FileInputFile[]; change(value: FileInputF
 Filename MIME hints do not inspect bytes. Unknown metadata or failed discovery
 leaves fields absent; a missing MIME hint can fail a MIME accept rule. Size is a
 snapshot: missing sizes skip maxSize, and later reads still need their own
-`readBytes` maxBytes limit. Foundation attributes use
-[FileManager attributes](https://developer.apple.com/documentation/foundation/filemanager/attributesofitem(atpath:));
-any metadata security-scope claim is released. Nine authored metadata/controller
-cases remain unrun. Real native type discovery, Foundation values, sandbox grants
-and packaged picker validation remain unqualified.
-
+`readBytes` maxBytes limit. Foundation attributes use [FileManager
+attributes](https://developer.apple.com/documentation/foundation/filemanager/attributesofitem(atpath:));
+any metadata security-scope claim is released. Real native type discovery,
+Foundation values, sandbox grants and packaged picker validation remain
+unqualified.
 
 ### AppKit local file drops
 
@@ -251,13 +249,12 @@ or saving succeeded. Save errors keep the parent-owned selection. Busy, blocked,
 or detached controls cannot accept through a cached callback. Inspection
 security scopes are released; persistent sandbox grants are not provided.
 
-Four registry, one bridge, two inspection and two controller cases remain unrun.
-The [maintained fixture](../../examples/probes/fileinput-drop.macos.tsrx) mounts the
-controls but synthesizes no OS drag. Native registration/ABI, destination hit
-routing, cursor/hover presentation, drag delivery, sandbox/grants, actual validation
-and save behavior, focus/VoiceOver and packaging remain unqualified. File promises,
-custom drag hover feedback and autoscroll remain outside this source path. Older
-renderer bridges retain picker entry.
+The [maintained fixture](../../examples/probes/fileinput-drop.macos.tsrx) mounts
+the controls but synthesizes no OS drag. Native registration/ABI, destination hit
+routing, cursor/hover presentation, drag delivery, sandbox/grants, actual
+validation and save behavior, focus/VoiceOver and packaging remain unqualified.
+File promises, custom drag hover feedback and autoscroll remain outside this
+source path. Older renderer bridges retain picker entry.
 
 ## Experimental native Windows file I/O
 

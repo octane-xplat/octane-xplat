@@ -29,7 +29,6 @@ of scope. On iOS the leaf posts an untriggered request to
 UNUserNotificationCenter directly, because the plugin only offers a fixed
 ~2s scheduled trigger; delivery now matches the immediate macOS/web path.
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-notifications).
 
 ## Platform support
@@ -51,8 +50,6 @@ metadata; without the identity or the metadata, the leaf reports
 Guide: [Send a local notification](https://octane-xplat.goddardai.org/local-notifications);
 [Using device features](https://octane-xplat.goddardai.org/platform-services);
 per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
-
-
 
 ## AppKit permission reads
 
@@ -76,6 +73,5 @@ Explicit requests read back the OS authorization state. A request error alone
 does not establish denial. This change applies to native AppKit; the hosted
 webview backend still has its separate ensure-only bridge.
 
-Eight JS contract cases and native intercepted-center/metadata callback checks
-are authored but unrun for this change. Compilation, actual bridge callbacks,
-OS prompts, relaunch/revocation, delivery and signing remain unqualified.
+Compilation, actual bridge callbacks, OS prompts, relaunch/revocation, delivery
+and signing remain unqualified.

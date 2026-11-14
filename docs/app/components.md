@@ -453,9 +453,8 @@ export function CurrentPlan({ locked }: { locked: boolean }) {
 }
 ```
 
-Eight [ownership cases](../../packages/ui/src/components/forms/radio-ownership.macos.mobile.test.tsrx)
-are authored, all unrun. Fake row/responder dispatch does not prove native
-pointer, keyboard, focus, accessibility or packaging behavior.
+Fake row/responder dispatch does not prove native pointer, keyboard, focus,
+accessibility or packaging behavior.
 
 Standalone RadioListItem remains presentational. For ordinary form groups,
 arrows and Home/End now move focus and request selection; horizontal arrows
@@ -534,12 +533,12 @@ export function IncludeArchived() {
 ```
 
 AppKit checkbox actions read current inherited disabled/read-only state and
-callbacks. Uncontrolled requests advance from the latest local choice even
-before a render; mixed requests true first. Reentrant calls during onChange and
-held handlers after detachment are ignored. A throwing callback propagates and
-releases ownership; it does not undo the local choice. Controlled parents retain
-authority, including when they reject a request. The six new source cases remain
-unrun; actual native event/ref timing and input are unqualified.
+callbacks. Uncontrolled requests advance from the latest local choice even before
+a render; mixed requests true first. Reentrant calls during onChange and held
+handlers after detachment are ignored. A throwing callback propagates and releases
+ownership; it does not undo the local choice. Controlled parents retain authority,
+including when they reject a request. Actual native event/ref timing and input are
+unqualified.
 
 ```tsx
 import { useState } from 'octane'
@@ -562,8 +561,7 @@ reentrant callbacks cannot start duplicate saves. Cached handlers read current
 blocking props/callbacks. An event's save still runs after onChange detaches the
 control, while pending/rollback updates do not touch detached UI. A throwing
 forward callback releases ownership and propagates; rollback callback faults are
-logged and release busy state. Native activation and presentation remain
-unqualified; four additional regression cases are authored and unrun.
+logged and release busy state.
 
 ```tsx
 import { Switch } from '@octane-xplat/ui'
@@ -576,10 +574,10 @@ export function Notifications({ save }: { save(enabled: boolean): Promise<void> 
 
 Without a save action, rapid AppKit switch requests still alternate from the
 latest local choice before the screen updates. Save failure restores that choice
-before the rollback callback. A throwing forward callback retains the local
-choice it already applied. Controlled requests continue from the parent's value;
-changing defaultValue later does not replace the initial local seed. Five new
-source cases remain unrun; native event/ref timing is still unqualified.
+before the rollback callback. A throwing forward callback retains the local choice
+it already applied. Controlled requests continue from the parent's value; changing
+defaultValue later does not replace the initial local seed. Native event/ref
+timing is still unqualified.
 
 ```tsx
 import { Switch } from '@octane-xplat/ui'
@@ -1001,7 +999,7 @@ Keyboard event delivery, Tab order, scroll geometry, VoiceOver, panel
 relationships and layout remain unqualified. TabMenu overflow ownership is
 described below. Missing keyboard/suppression
 bridges retain the corresponding native fallback; do not infer tested keyboard
-support from source presence. See the [native fixture](https://github.com/octane-xplat/octane-xplat/blob/feat/appkit-native-support/examples/probes/tab-list.macos.tsrx).
+support from source presence.
 
 ```tsx
 import { TabList, Tab } from '@octane-xplat/ui'
@@ -1043,7 +1041,6 @@ export function Example() {
   )
 }
 ```
-
 
 ### Overflow tabs on AppKit
 
@@ -1087,11 +1084,12 @@ trigger and close an open popup. Older bridges retain pointer selection:
 </TabList>
 ```
 
-The original six object-driver cases and maintained tab-menu fixture remain
-unrun; focused-row repair has additional unrun cases below. This source path requires matching keyboard/focus bridges; it does not
-qualify physical keys, native refs/window/focus/Tab/return, scroll reveal,
-popup/modal integration, menu radio mark announcements or packaging. Focused-row
-repair source ownership is described in the [dynamic menu guide](menus.md#keep-focus-owned-when-appkit-menu-rows-change); native delivery remains unqualified.
+This source path requires matching keyboard/focus bridges; it does not qualify
+physical keys, native refs/window/focus/Tab/return, scroll reveal, popup/modal
+integration, menu radio mark announcements or packaging. Focused-row repair source
+ownership is described in the [dynamic menu
+guide](menus.md#keep-focus-owned-when-appkit-menu-rows-change); native delivery
+remains unqualified.
 
 ## Data display
 
@@ -1309,9 +1307,7 @@ real Tab/arrows, keyboard activation, editing/IME, native BOOL state, nested
 ownership, focus/scroll timing, RTL presentation, layout, VoiceOver, cleanup and
 installed consumers remain unqualified. The selector-based `useGridList` hook
 still reports false; this API discovers marked cells rather than arbitrary CSS
-selectors. The [manual probe](../../examples/probes/grid-cell-focus.macos.tsrx)
-includes disabled/hidden/removed cells, current callbacks, programmatic focus,
-nested grids and an editing child; its runner only records mounting and is unrun.
+selectors.
 
 ### Image loading on AppKit
 
@@ -1407,7 +1403,7 @@ export function Photo({ src }: { src: string }) {
 ## Chat
 
 The Chat family provides a docked composer and composable message rows. Start
-with [`ChatLayout`](../../.agents/docs/recipes/chat-conversation.md) for a complete conversation
+with `ChatLayout` and the [conversation layout guide](software-keyboard.md#keep-a-conversation-steady)
 or combine `ChatMessageList`, `ChatMessage`, and `ChatMessageBubble` inside an
 existing scroll surface.
 
@@ -1618,12 +1614,10 @@ teardown:
 }} />
 ```
 
-Five geometry-policy, three object-driver and one motion-getter cases plus a
-maintained fixture are authored and unrun. Source/syntax review does not qualify
-native intrinsic sizing, RTL geometry/initial alignment, scroll/animation/input,
-button overlay hit testing/keyboard activation, resize behavior, accessibility
-or packaging. AppKit snap source ownership is described below; hasEdgeFade remains unsupported.
-
+Source/syntax review does not qualify native intrinsic sizing, RTL
+geometry/initial alignment, scroll/animation/input, button overlay hit
+testing/keyboard activation, resize behavior, accessibility or packaging. AppKit
+snap source ownership is described below; hasEdgeFade remains unsupported.
 
 ### Snap AppKit carousel slides after user scrolling
 
@@ -1655,14 +1649,11 @@ alignment rather than resetting the user's position:
 <Button label="Last preview" onPress={() => carousel.current?.scrollTo(2)} />
 ```
 
-Six intent-policy, two geometry and two wiring cases are authored and unrun;
-the earlier nine Carousel cases remain unrun too. The maintained fixture now
-includes a snap toggle and still synthesizes no native scroll/input. This host
-path requires the three AppKit live-scroll notifications; missing registration
-leaves basic navigation available without a snap guarantee. Native notification/
-momentum timing, wheel/trackpad/scroller/keyboard delivery, RTL/layout, animation,
-focus/AX and packaging remain unqualified. Edge fades remain a source gap.
-
+This host path requires the three AppKit live-scroll notifications; missing
+registration leaves basic navigation available without a snap guarantee. Native
+notification/ momentum timing, wheel/trackpad/scroller/keyboard delivery,
+RTL/layout, animation, focus/AX and packaging remain unqualified. Edge fades
+remain a source gap.
 
 ## Leaf packages
 
@@ -1687,7 +1678,6 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 See [search, select, and token entry](search-selection.md) for `SearchSource`, `Typeahead`, `Tokenizer`, `Token`, and `ComplexSelector` workflows and platform limits.
 
 Shared menu parts and their state/keyboard contracts are explained in [Add actions and choices to a menu](menus.md).
-
 
 ## Media contrast and row actions
 
@@ -1740,7 +1730,6 @@ export function FileActions() {
 [Use or migrate Drawer](drawer.md) for mobile edge gestures and the shared
 web/desktop panel API.
 
-
 ### AppKit button actions and links
 
 AppKit buttons keep their content mounted beneath the busy indicator. Normal
@@ -1791,11 +1780,9 @@ export function CurrentSave({ disabled, save, report }: {
 }
 ```
 
-These are source implementations with authored, unrun object-driver cases.
 Native click/keyboard delivery, OS URL opening, busy sizing/appearance and
 VoiceOver remain unqualified. Button tooltip now has the native pointer-hint
 source path described below; focus-triggered tooltip presentation remains a gap.
-
 
 Button `tooltip` now assigns AppKit's native `NSView.toolTip` on the same host,
 updates with props and clears when omitted or on teardown. It stays assigned
@@ -1813,7 +1800,6 @@ export function SaveHint() {
 }
 ```
 
-
 AppKit IconButton shares the Button implementation, including group disablement,
 metadata, URL dispatch and busy/action ownership. Its required label remains the
 accessible name while the icon stays mounted under the busy overlay. Native
@@ -1826,7 +1812,6 @@ export function Share({ share }: { share(): Promise<void> }) {
   return <IconButton label="Share document" icon="share" pressAction={share} testID="document.share" />
 }
 ```
-
 
 ### Save a toggle-button action on AppKit
 
@@ -1865,9 +1850,8 @@ export function ViewMode({ value, onChange }: { value: string | null; onChange(v
 }
 ```
 
-AppKit exposes a pressed button through its checked-control accessibility role
-and numeric off/on value. Actual VoiceOver, physical key/click delivery, busy
-geometry and packaging remain unqualified. Native toolbar/group roving keys,
-reserved semibold label width and focus-triggered tooltip presentation remain separate gaps.
-The maintained [AppKit toggle fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/toggle-button.macos.tsrx)
-is authored but unrun; its scripted path dispatches actions directly.
+AppKit exposes a pressed button through its checked-control accessibility role and
+numeric off/on value. Actual VoiceOver, physical key/click delivery, busy geometry
+and packaging remain unqualified. Native toolbar/group roving keys, reserved
+semibold label width and focus-triggered tooltip presentation remain separate
+gaps.

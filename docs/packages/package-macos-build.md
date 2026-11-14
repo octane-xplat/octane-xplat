@@ -117,21 +117,8 @@ migration. Inspect the reported coverage with the same command:
 xplat diagnostics --session SESSION_ID --json
 ```
 
-## Contributor boundary
-
-The package compiles the existing TypeScript macOS packager and native-leaf
-compiler without calling the old CLI. The worker resolves tools from the selected
-project, uses a versioned JSON request/result and sends diagnostics separately.
-Nim owns permissions, jobs/sessions, deadlines, process groups, staging and publication.
-The package has no CLI runtime dependency; its CLI workspace dependency is used
-only to build the shared source and host assets.
-
 The worker subpath is an internal CLI/toolchain protocol. Application code should
-not import it. Maintainers qualify the actual packed package through Turbo:
-
-```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-dev test:nim-macos-publication --filter=@octane-xplat/cli
-```
+not import it. Use the CLI commands above or the development-engine API below.
 
 ## Call the development engine from Node
 

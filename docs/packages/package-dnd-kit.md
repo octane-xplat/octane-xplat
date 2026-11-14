@@ -11,7 +11,6 @@ Xplat primitives. It does not load `@dnd-kit/dom` on native or use a
 collection widget's reorder mechanism. This is an Xplat facade, not a
 drop-in replacement for the upstream hook signatures.
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-dnd-kit).
 
 ## Install and reorder
@@ -329,20 +328,6 @@ and no virtualized offscreen target discovery — only mounted, measurable
 targets participate. Use a separate DndContext in each
 native renderer root (pages and sheets do not share context).
 
-Package checks: `bun run turbo run typecheck --filter=@octane-xplat/dnd-kit`, `test`,
-`build`, and `pack:check`. Core tests use native-shaped geometry and the real
-abstract core — they do not establish OS input delivery or hit-testing. The web
-regression runs with `bun run turbo run test --filter=@xplat/web` (pointer events through
-bound Views, drop and cancellation). The AppKit regression runs with
-`bun run probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos`
-(action dispatch, layer feedback, layout, auto-scroll, cleanup). `bun run probe
-doctor` reports available runtime targets. Do not infer Android runtime support
-from a native library build.
-
-Verified so far: web/native/macOS source typechecks and library builds, ten
-core/geometry tests, packed consumers in Bundler/NodeNext, Chromium
-pointer-event and iOS pan-observer dispatch probes (reorder and cancellation),
-and AppKit/JavaScriptCore pan-handler dispatch including NSScrollView
-auto-scroll and cancellation cleanup. These establish renderer runtime
-behavior, not OS gesture delivery, hit-testing, or scroll gesture arbitration.
-Android runtime and macOS WebView drag behavior were not run.
+Android runtime drag and macOS WebView drag remain unqualified. Native handler
+dispatch does not establish OS gesture delivery, hit-testing or arbitration with
+scroll gestures. Verify those interactions on every target your app ships.

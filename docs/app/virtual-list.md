@@ -34,8 +34,9 @@ array and a container with a limited height.
 ```
 
 For the OS's own scrolling lists, see `UITableView` and `RecyclerView` in
-[platform controls](primitives.md#implementation-map). Those use a different
-implementation that recycles native cells.
+[platform
+controls](../../.agents/docs/notes/primitive-notes.md#native-control-implementation-map).
+Those use a different implementation that recycles native cells.
 
 ## Keep identity and state stable
 
@@ -277,95 +278,19 @@ A queued correction adds the height change to the live scroll offset, preserving
 movement since measurement. Pending measurements and timers are cancelled when
 the list is disposed. This scheduling does not change row state ownership.
 
-## Measured support boundary
+## Performance and platform limits
 
-The fresh web checks used headless Chromium, 5,000 simple rows of
-`32 + (index % 5) * 8` pixels, and synthetic wheel input for three minutes.
-They establish a bounded mount window and sampled geometry for that fixture.
-The separate 500-row contract gate checks prepend, remeasurement, keyed state,
-deep offsets, emptying, and route disposal. A separate programmed trace met
-the 250 ms readiness gate for only 2/5 deep pixel seeks despite complete sampled
-coverage. Twenty disposal/reopen cycles returned to the same DOM/listener counts;
-late collected heap samples ranged 8.52–8.54 MB. These are test workloads, not a
-maximum supported row count or a device-independent throughput promise.
+Measure scrolling with the row content, device, and data size your app will ship.
+Windowed rendering bounds mounted rows; it does not guarantee a frame rate,
+maximum row count, or a fixed time to reach a distant item. Variable-height rows
+and native momentum scrolling need particular care. Browser geometry checks do
+not establish native frame pacing, direct touch input, or accessibility.
 
-Use the [list evidence guide](../../.agents/docs/notes/primitive-notes.md#virtuallist-evidence-boundaries)
-to distinguish window coverage, seek readiness, frame pacing, and memory evidence.
-Historical Android scheduling and cell-pool comparisons are retrieved through
-its Silo artifact lookup. Check current target evidence before choosing this list
-for a performance-sensitive feed or chat; historical profiles do not qualify a
-new workload or native variable-height momentum.
+Application-level loading and bottom-pinned chat need their own policies. There
+is no shared viewability callback, load threshold, sticky-row/grid/masonry layout,
+or built-in bottom-pinned chat policy. Use the scroll methods shown above for
+explicit navigation. Test prepend behavior, changing heights, empty data, and
+returning to the screen with your actual content.
 
-There is no shared viewability callback, load threshold, sticky-row/grid/masonry
-layout, or bottom-pinned chat policy; `VirtualListHandle` exposes the imperative
-scroll surface (`scrollToOffset`, `scrollToIndex`, `scrollToItem`). Application-level
-loading and chat anchoring need explicit designs; the prepend contract does not
-establish those workflows. Actual native frame pacing and direct finger/physical
-trackpad input remain separate verification requirements. JavaScript polling
-intervals are not frame-rate measurements.
-
-Linux WebKitGTK batches ResizeObserver measurements into the next animation
-frame before updating the row window. This avoids changing observed layout
-inside resize delivery. The Linux harness checks mounted-row bounds, emptying,
-and unhandled resize errors with `bun run --filter @xplat/linux smoke` on a Linux
-host with GTK/WebKit and Xvfb. This smoke does not establish Linux anchor
-accuracy, frame pacing, or the full benchmark contract below.
-
-### Bounded measurement and reorder regression checks
-
-The maintained `packages/ui/tests/virtual-list.*.tsrx` cases check settled host
-sizes and row positions without images. NativeScript measurements wait for valid
-layout and listen to its exact `layoutChanged` event. Measured row heights update
-positioned cells even when the same rows stay visible. AppKit keeps retained
-keyed views in native stack order when items are sorted or reordered.
-
-Run a case with `bun run probe run packages/ui/tests/virtual-list.web.tsrx --target web`.
-For iOS, use `virtual-list.mobile.tsrx`, `--target ios`, and `--device` with a
-booted simulator ID. For AppKit, use `virtual-list.macos.tsrx --target macos`.
-The current focused checks cover Chromium, iOS, and AppKit; they do not establish
-Android geometry, OS input, or frame pacing. Browser resize errors remain test
-failures.
-
-## Run the nonvisual gates
-
-From the repo root, install with `bun install --frozen-lockfile`, then:
-
-1. Build the harness: `bun run turbo run build --filter=@xplat/web`.
-2. From `apps/web`, run `node scripts/bench-virtual-list-contract.ts`.
-   It fails on anchor drift greater than 2 pixels, lost keyed state, unbounded
-   mounts, or failed empty/disposal checks.
-3. From `apps/web`, run `XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts variable`.
-   The JSON separates sampled row geometry, rAF callback intervals, live-list
-   collected heap, and collected heap after route disposal. rAF alone does not
-   prove compositor presentation timing.
-4. From `apps/mobile`, run
-   `XPLAT_VLIST_DEVICE=<simulator-UDID> XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts ios variable`,
-   or replace `ios` with `android` and supply an ADB serial. Android requires
-   Temurin JDK 21 on `JAVA_HOME`. Use `fixed48` as a measurement control and
-   `demo500` for the actual List ×500 demo, including its slots and row state.
-   The swipe sequence moves forward through four viewports, then revisits rows.
-
-Native runners require Python 3 and take an exclusive advisory lock at
-`/tmp/octane-xplat-ios.lock` or `/tmp/octane-xplat-android.lock` for build and
-use. Other native sessions must use the same lock convention; an advisory lock
-cannot protect against a nonparticipating session. The runner fails if busy.
-It uses `org.nativescript.xplat.vlistbench` (override with
-`XPLAT_VLIST_APP_ID`) to avoid replacing the normal harness app. iOS builds,
-installs, and launches with `simctl`; it never reboots an already booted simulator.
-Native input is synthetic `idb`/`adb` swipes, explicitly labeled in results.
-Android records layout/measure, draw, and total frame-work durations through
-`Window.OnFrameMetricsAvailableListener`, plus PSS categories and the final bounded
-`gfxinfo framestats` buffer. Window metrics measure frame work, not presentation;
-JavaScript sampling intervals remain a separate responsiveness measure.
-Header/footer and separator boxes count toward coverage, without increasing
-mounted row counts. Reports separate logical row mount/unmount counts from
-physical outer-host additions/removals; pooling preserves only those outer hosts.
-Large reports use numbered log records to avoid Android
-console truncation.
-
-For repeatable Android comparisons, set `XPLAT_VLIST_FRESH_INSTALL=1`. This removes
-only the selected benchmark app, including its data, before installing under the
-target lock. NativeScript otherwise retains extracted bundle files during an
-in-place reinstall, which can run stale code. Use this option only for a disposable
-benchmark app. Native memory collection does not force GC: growth is a signal to
-investigate, not proof of a leak. No runner captures images.
+Linux WebKitGTK batches row measurements into the next animation frame to avoid
+resize-delivery errors. Linux anchor accuracy and frame pacing remain unqualified.

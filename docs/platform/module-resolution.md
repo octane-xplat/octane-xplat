@@ -331,9 +331,8 @@ iOS/Android/visionOS, so `.mobile` leaves resolve under the build-time check
 too.
 
 In a scaffolded app, run `bun run typecheck` for its combined program.
-Framework contributors use `bun run turbo run typecheck --filter=@xplat/web`, `bun run turbo run typecheck --filter=@xplat/mobile`, and
-`bun run turbo run typecheck --filter=@xplat/macos` in this repository. The mobile config covers both iOS
-and Android.
+Check each target you ship; a browser typecheck does not validate native-only
+imports or platform globals.
 
 For the resolver implementation and the historical experiments that led to
 it, see the [module-resolution notes](../../.agents/docs/notes/module-resolution-notes.md).

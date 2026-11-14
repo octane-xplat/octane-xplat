@@ -59,7 +59,7 @@ The reader knows the platform-services pattern and per-target leaf resolution.
 - AC2: [Authoring](../../../docs/app/localization.md#authoring-messages) — the
   core-macros-only contract.
 - AC3: [Setup](../../../docs/app/localization.md#setup) — the extractor wiring and
-  scripts; [status](../../../docs/app/localization.md#verification-status) for the
+  scripts; [status](../../../docs/app/localization.md#native-runtime-limits) for the
   remaining native-bundle check. The [packed extraction check](../../../packages/lingui/tests/packed-consumer.mts) verifies the installed Node extractor and authored message origins.
 - AC4: [Rendering and switching](../../../docs/app/localization.md#rendering-localized-text)
   and [persistence](../../../docs/app/localization.md#switching-and-persisting).

@@ -51,7 +51,6 @@ export function PageIndicator({ titles, page }: { titles: readonly string[]; pag
 }
 ```
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-pager).
 
 ## Platform support
@@ -83,10 +82,9 @@ export function TravelPages() {
 }
 ```
 
-The macOS export avoids loading the mobile pager plugin. This is source
-evidence; the package still declares its existing mobile dependency. Source
-cases and the [manual AppKit fixture](../../examples/probes/pager.macos.tsrx)
-have been authored but have not run. No desktop parity gate is closed.
+The macOS export avoids loading the mobile pager plugin. This is source evidence;
+the package still declares its existing mobile dependency. No desktop parity gate
+is closed.
 
 Per-target limits are recorded in
 [known limits](https://octane-xplat.goddardai.org/known-limits). Exercised by

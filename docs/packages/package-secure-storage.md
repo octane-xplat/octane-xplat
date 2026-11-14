@@ -42,7 +42,6 @@ For non-secret preferences, use `storage` from
 Guide: [Using device features](https://octane-xplat.goddardai.org/platform-services);
 per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-secure-storage).
 
 ## macOS AppKit
@@ -107,24 +106,9 @@ export async function forgetSession(): Promise<boolean> {
 }
 ```
 
-Repository verification commands below exercise different boundaries. The adapter
-suite models bridge failures; the packed suite checks package types. The runtime
-fixture compiles an isolated native host, creates random in-memory payloads,
-prints status markers and removes its items. It is intended to check persistence
-across launches and bundle identity isolation, plus a Vite public-import build.
-It does not test UI input or locked-Keychain/signing policies.
-
-```sh
-bun run turbo run test:macos --filter=@octane-xplat/secure-storage
-bun run turbo run test:packed --filter=@octane-xplat/secure-storage
-bun run turbo run test:macos-runtime --filter=@octane-xplat/secure-storage
-```
-
-The six newly authored bridge cases (nine total) remain UNRUN for the current
-AppKit task. Only source/syntax checks ran; native class/method/dictionary/BOOL
-bridging, Keychain access, host replacement, signing/sandbox and installed
+Native Keychain access, host replacement, signing/sandbox policy and installed
 consumers remain unqualified. A JavaScript exception guard cannot contain a
-native process abort; the CLI's leaf-loading prerequisite still applies.
+native process abort; the CLI's native-leaf prerequisite still applies.
 
 ## Experimental native Windows
 
@@ -166,8 +150,3 @@ Unicode/control-character strings, namespace separation and confirmed removal
 of test entries. The probe supplied a task namespace in place of package
 identity. Real packaged identity, persistence across launches, account roaming,
 access-policy failures and production app integration remain unqualified.
-The focused mocked contracts run through Turbo without building the app:
-
-```sh
-bun run turbo run test:windows --filter=@octane-xplat/secure-storage
-```

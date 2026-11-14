@@ -77,14 +77,13 @@ export function Help() {
 ## Experimental AppKit renderer
 
 macOS support is experimental. Shared dialogs, alert dialogs, bottom sheets,
-lightboxes, and toast stacks have dedicated presentation and cleanup, but OS
-input delivery and VoiceOver behavior remain unverified. Lightbox image
-magnification/double-click and pointer/recognized-swipe navigation now have
-source implementations; actual native gesture delivery, hit testing and cleanup
-remain unqualified. Lightbox retains the renderer's AVPlayerView path; actual video playback remains unqualified.
-See [shared presentations](../app/primitives.md#macos-shared-presentations)
-for app guidance and the [AppKit verification record](../../.agents/docs/appkit-verification.md)
-for contributor checks and evidence boundaries.
+lightboxes, and toast stacks have dedicated presentation and cleanup, but OS input
+delivery and VoiceOver behavior remain unverified. Lightbox image
+magnification/double-click and pointer/recognized-swipe navigation now have source
+implementations; actual native gesture delivery, hit testing and cleanup remain
+unqualified. Lightbox retains the renderer's AVPlayerView path; actual video
+playback remains unqualified. See [shared
+presentations](../app/primitives.md#macos-shared-presentations) for app guidance.
 
 AppKit image loading now shares cancellable requests, bounds decoded images by
 recent use, rejects HTTP error payloads, and queues remote processing/delivery
@@ -150,7 +149,7 @@ on the AppKit host for the color controls.
 It has no recycling pool, feed/chat callbacks, indexed scroll handle, sticky
 rows, grid, or masonry. Native variable-height momentum, long-session memory,
 and display frame pacing remain Q30 gates; historical evidence is not a fresh
-runtime pass. See the [measured support boundary](../app/virtual-list.md#measured-support-boundary)
+runtime pass. See the [measured support boundary](../app/virtual-list.md#performance-and-platform-limits)
 and [list evidence boundaries](../../.agents/docs/notes/primitive-notes.md#virtuallist-evidence-boundaries).
 
 ```tsx
@@ -313,7 +312,6 @@ macOS AppKit secure storage uses Keychain through the
 Availability does not guarantee access to a locked or policy-restricted Keychain;
 reads can reject and writes/removal can return `false`.
 
-
 ## Platform services
 
 AppKit `openSettings` now resolves and launches System Settings through
@@ -321,8 +319,6 @@ NSWorkspace when the native methods are available. It does not select an
 app-specific permission page. A launch request can fail and does not prove
 presentation, activation or a permission change. Native runtime and packaged/
 sandbox checks remain pending; see [opening settings](../platform/platform-services.md#open-settings).
-
-
 
 AppKit `systemBars.setStatusBarStyle` and `setColor` now share an importable
 unsupported leaf across root/direct paths. They warn and return void without
@@ -412,7 +408,6 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `render` values in identity-stable module-level tab arrays; these compiled and
   ran in the maintained iOS/Android and AppKit fixtures. Recheck this compiler
   restriction when upgrading Octane.
-
 
 - **`Grid` `gap` was removed** — use child margins. The leaves keep a
   one-time console warning as a migration hint for one release. — 0.5.0.
@@ -592,7 +587,7 @@ lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
   targets. Overflow regions opt in with `flex-1`/`shrink` +
   `min-h-0`/`min-w-0`; `ellipsize`/`numberOfLines` text re-enables shrink
   itself. iOS row-axis shrink re-measures the child but keeps natural
-  frame width. — post-0.5.0, verified ios-sim 2026-09-26.
+  frame width..
 
 ## Motion leaf
 
@@ -605,9 +600,7 @@ labels resolve locally; child timing applies to animate runs. Layout animation
 is supported on web, iOS, Android, and the experimental macOS host — a `layout` host animates whenever its
 measured box changes after any commit, including keyed reorders of unchanged
 children; nested `layout` children keep their size inside a scaling parent.
-Verified 2026-10-27 by the maintained probe
-`examples/probes/motion-layout.mobile.tsrx` (iOS 27.0 simulator, Android 15 emulator;
-probe-driven geometry evidence, not visual capture or OS input).
+Geometry checks do not establish visual appearance or physical OS input.
 `layoutId`/`LayoutGroup` shared handoffs and retained crossfades are supported.
 `layoutScroll`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
 CSS/SVG properties are excluded. Border-radius and

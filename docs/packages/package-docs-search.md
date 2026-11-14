@@ -48,13 +48,4 @@ xplat docs search "RouteOutlet" --mode exact --json
 xplat docs index --json
 ```
 
-Maintainers run deterministic tests without downloading models. The separate
-model smoke task downloads the real model and measures two-version retrieval;
-it stays outside the PR gate.
-
-```sh
-bun run turbo run test --filter=@octane-xplat/docs-search
-bun run turbo run test:model --filter=@octane-xplat/docs-search
-```
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-docs-search).

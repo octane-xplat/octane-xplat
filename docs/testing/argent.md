@@ -106,6 +106,3 @@ Chromium. Android has source mapping coverage only; it has no runtime pass
 in this qualification. Physical devices, desktop renderers, IME composition,
 arbitrary alphabetic typing, navigation, permissions, and visual parity remain
 unverified. MCP editor adapters are not qualified by CLI results.
-
-Framework contributors can reproduce the
-[maintained checks and target evidence](../../.agents/docs/argent.md).

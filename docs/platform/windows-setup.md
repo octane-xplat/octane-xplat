@@ -7,13 +7,6 @@ framework repository's private `apps/windows` harness; it depends on workspace
 packages and preview NativeScript versions. It is a framework development
 workflow, not a downstream app setup guide.
 
-The harness keeps its patched Core layout module and app-local x64 Widgets
-binaries together. Its build rejects a stale installed Core module before
-bundling. After pulling framework changes, refresh dependencies from the
-project's frozen lockfile; do not copy an older native pair over the selected
-repair. Framework contributors can inspect the
-[layout repair and verification limits](../../.agents/docs/windows-layout-repair.md).
-
 `create-octane-xplat` does not currently offer Windows as a selectable target.
 The CLI can detect a manually configured NativeScript Windows app, but that
 alone does not establish a supported downstream setup. You do not need to clone
@@ -21,13 +14,10 @@ the Octane Xplat monorepo just because the framework's own test-harness steps
 use it; a supported downstream Windows workflow is not documented yet.
 
 For current app target availability and limits, see
-[Choose your targets](../start/spec.md#choose-your-targets). Framework
-contributors can use the
-[internal Windows test-host runbook](../../.agents/docs/windows-test-host.md).
-
-For current repository implementation candidates and deferred Windows checks,
-see the [Windows progress note](../../.agents/docs/parity/windows-support-progress.md).
-These candidates do not change the experimental support boundary.
+[Choose your targets](../start/spec.md#choose-your-targets). The examples below
+show the experimental Windows API surface. They do not supply a downstream
+Windows app setup. Narrator, visual parity, ARM64 runtime behavior and the full
+component-prop matrix remain unqualified.
 
 ## Text wrapping
 
@@ -100,10 +90,9 @@ and Pressable. Link has no public disabled prop; its injected navigation
 callback passed keyboard, mouse and Invoke checks. External URL launching,
 Narrator, visual review, touch/pen, other architectures and the full props
 matrix remain unqualified beyond the core-20 gate; downstream setup remains
-open. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.196, fresh frozen install at literal `main` commit `2a5f1219e`, sha 42ae47f264d99c83b1c5376381323e562a0a91bffea7f69c8f751406a17d44fe): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize. See the
-[action evidence and limits](../../.agents/docs/parity/windows-support-progress.md#native-action-contracts).
+open.
 
-## Card padding candidate
+## Card padding
 
 `Card` and `ClickableCard` use padding steps of 4 DIP on Windows. Header, body
 and footer slots accept plain text, numbers or supplied components:
@@ -123,9 +112,9 @@ export function Summary() {
 
 Packaged x64 checks cover slot order, padding updates, wrapping, remounting
 and the clickable control shape. Keyboard/mouse/Invoke activation, the full
-props matrix, Narrator and visual review remain unqualified. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.196, fresh frozen install at literal `main` commit `2a5f1219e`, sha 42ae47f264d99c83b1c5376381323e562a0a91bffea7f69c8f751406a17d44fe): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize.
+props matrix, Narrator and visual review remain unqualified.
 
-## Avatars and raster images candidate
+## Avatars and raster images
 
 Use `Avatar.name` for initials when no image is supplied. A base64 data URI
 loads through the Windows async image loader; `Image.alt` supplies the image's
@@ -149,9 +138,9 @@ export function People() {
 Bounded packaged x64 checks cover bitmap decoding, image and initials names,
 finite bounds, updates, remounting and resizing. Explicit synchronous
 decoding, placeholders, fallback after a failed load, SVG accessibility,
-Narrator and visual review remain unqualified. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.196, fresh frozen install at literal `main` commit `2a5f1219e`, sha 42ae47f264d99c83b1c5376381323e562a0a91bffea7f69c8f751406a17d44fe): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize.
+Narrator and visual review remain unqualified.
 
-## Badge text candidate
+## Badge text
 
 Windows `Badge` keeps text and numbers in native text controls, including the
 number zero. Supplied components keep their own content:
@@ -166,9 +155,9 @@ export function PendingCount() {
 
 Compiled component checks cover content updates and mixed children. Packaged
 x64 checks expose string and zero counts through UI Automation across updates,
-remounting and resizing. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.196, fresh frozen install at literal `main` commit `2a5f1219e`, sha 42ae47f264d99c83b1c5376381323e562a0a91bffea7f69c8f751406a17d44fe): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize.
+remounting and resizing.
 
-## Banner candidate
+## Banner
 
 Use `Banner` for a titled notice with supporting text, a trailing action and
 optional dismissal. Its body starts behind a Details button; set
@@ -194,9 +183,9 @@ export function SavedNotice() {
 The Windows leaf uses the native action controls for dismissal and Details.
 Compiled component tests cover content updates, composed slots, details and
 dismissal lifecycle. Packaged Banner input, geometry, screen-reader and visual
-are satisfied on the core-20 gate. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.196, fresh frozen install at literal `main` commit `2a5f1219e`, sha 42ae47f264d99c83b1c5376381323e562a0a91bffea7f69c8f751406a17d44fe): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize.
+are satisfied on the core-20 gate.
 
-## Media-query candidate
+## Media-query
 
 The repository has an experimental Windows `useMediaQuery$` leaf for DIP
 window dimensions, orientation, pointer/hover capabilities and reduced motion.
@@ -236,7 +225,7 @@ size. Hook rendering, actual geometry/resize, OS input and accessibility remain
 unqualified. See the
 [Windows evidence record](../../.agents/docs/parity/windows-support-progress.md).
 
-## Controlled-input candidate
+## Controlled-input
 
 Windows controlled inputs have a selection-preserving write helper. When a
 changed value is written to a TextBox, it attempts to restore the previous caret
@@ -259,7 +248,7 @@ readonly/disabled rejection, multiline Enter and consumed raw Return. IME,
 editable secure fields, remount and multiple-window behavior remain unqualified.
 Raw native key events do not supply the portable hardware-key contract.
 
-## Panel tabs candidate
+## Panel tabs
 
 Use `role="tablist"` for tabs that switch content within the current page.
 The experimental Windows adapter keeps the shared header content and exposes
@@ -453,7 +442,7 @@ read-only sliders even though changes are rejected. Complete Field/prop
 coverage, Narrator and visual parity, hardware touch/pen, other Windows
 versions/architectures and downstream consumers remain unqualified.
 
-## Floating-layer candidate
+## Floating-layer
 
 Windows `useLayer` selects the NativeScript popup implementation. Put its trigger
 inside a `Screen`, which supplies the overlay host. Anchored layers use the
@@ -482,7 +471,7 @@ context updates, dismissal and focus still need native app checks. Initial
 focus, Tab containment and Escape/IME behavior remain unqualified. This does not
 qualify every menu or tooltip that uses layers.
 
-## Modal candidate
+## Modal
 
 Put a Windows `Dialog` inside a `Screen`, which supplies its overlay host.
 An explicit `finalFocusRef` identifies the control that should regain focus
@@ -515,7 +504,7 @@ parity remain unqualified. This evidence does not qualify `useLayer`, every
 menu, or the portable keyboard API. Track the remaining gates in
 [Windows #61](https://github.com/octane-xplat/octane-xplat/issues/61).
 
-## Custom scroll viewport candidate
+## Custom scroll viewport
 
 For a custom Windows native viewport, spread both `useScrollableArea` getters.
 The viewport props observe scrolling and lifecycle changes; the content props
@@ -613,10 +602,10 @@ changes, and disabled segments reject input. Long labels can be wider than a
 fill segment, and how they overflow is not yet checked. Narrator, visual parity, other
 Windows versions/architectures and downstream consumers also remain unqualified.
 
-## Single selection candidate
+## Single selection
 
 A single-choice Selector can keep its selected value in application state.
-The Windows candidate uses a native ComboBox for input while retaining the
+The Windows uses a native ComboBox for input while retaining the
 framework's trigger and option content. Press F4 or click to open it, use arrow
 keys to preview enabled options, press Enter to commit, and Escape to cancel.
 Put this component in your screen:
@@ -632,15 +621,15 @@ export function Choice() {
 }
 ```
 
-This candidate is experimental. Search, multiple selection, clear controls,
+This is experimental. Search, multiple selection, clear controls,
 empty lists and groups still use the shared native view and retain its input
 limits. The bounded native input checks do not establish the full props matrix,
 long-list scrolling, Narrator, visual parity or the final fresh-install
 core-component qualification.
 
-## Action menu candidate
+## Action menu
 
-For a small menu of commands, use flat action rows. The Windows candidate keeps
+For a small menu of commands, use flat action rows. The Windows keeps
 the shared Button and row content, with native menu-item input and automation:
 
 ```tsx
@@ -655,7 +644,7 @@ export function Actions() {
 }
 ```
 
-This candidate still needs its packaged public-component input checks. The
+This still needs its packaged public-component input checks. The
 private native-engine checks do not qualify the public component. Links,
 sections, choices, submenus, compound content, keep-open rows, sheet/adaptive
 presentation and custom surface styling, width, alignment or non-bottom

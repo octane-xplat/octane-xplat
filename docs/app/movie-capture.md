@@ -451,74 +451,20 @@ if (outcome.kind === 'clip') {
 }
 ```
 
-## Qualification and remaining gaps
+## Platform limits
 
-The maintained [Android conformance case](../../packages/camera/tests/movie-capture.android.tsrx)
-exercises real CameraX finalization, source inactivity, denied and enabled audio,
-non-overwrite destinations, lifecycle notification dispatch, disposal, and
-reopening after process restart in an Android API 35 emulator. The
-[browser conformance runner](../../packages/camera/tests/browser-conformance.web.mts)
-exercises real Chromium MediaRecorder, media parsing, IndexedDB, and reopening
-after reload. The browser's persistent-storage grant and hidden-page state are
-injected test seams. They do not prove browser persistence approval or OS page
-suspension. The
-[WebKitGTK conformance runner](../../packages/camera/tests/webkitgtk-conformance.linux.mts)
-requires Linux, GJS, and WebKitGTK 6.0. It runs the real packaged GJS/WebKitGTK host under Xvfb with WebKit's mock capture
-devices: real permission flow, shared-stream preview, MP4 finalization,
-app-private file commit, hidden-page interruption, preview detach,
-destinationFileUrl, disposal, and reopening after reload and process restart.
-Mock devices prove the media path end-to-end but not physical camera input;
-the hidden-page state and media policy are injected test seams that do not
-prove OS suspension or the interactive prompt. Deterministic adapter tests cover
-delayed storage, failure cleanup, early and repeated Stop, track loss, denied
-audio, and oversized timers.
+Test recording and reopening a movie on a physical device with the camera and
+microphone your app will use. Emulator and mock-camera checks do not establish
+physical input, phone rotation, OS suspension, disk exhaustion, front-camera
+mirroring, or playback by an OS player after restart.
 
-```sh
-bun run turbo run test --filter=@octane-xplat/camera
-node packages/camera/tests/browser-conformance.web.mts
-bun run probe run packages/camera/tests/movie-capture.android.tsrx \
-  --target android --device DEVICE_ID --deps @octane-xplat/camera --timeout 130000
-bun run probe run packages/camera/tests/movie-capture.macos.tsrx \
-  --target macos --deps @octane-xplat/camera --timeout 120000
-bun run turbo run test:camera-webview --filter=@xplat/macos
-```
+Chromium checks cover WebM VP8/Opus; MP4-only browser hosts need their own codec,
+permission and persistence checks. Linux WebKitGTK MP4 recording has mock-device
+evidence; physical camera/audio hardware, interactive permission prompts and
+window occlusion remain unqualified. Native AppKit and WKWebView capture on a
+camera-equipped Mac remain unverified.
 
-The Android case needs camera permission granted to its isolated test app and
-microphone permission initially left denied. After the audio-refusal assertion,
-its `CAMERA_PROBE_ALLOW_MIC` log identifies when to grant microphone access for
-the audio-track check. The [macOS conformance case](../../packages/camera/tests/movie-capture.macos.tsrx)
-runs inside a signed probe bundle carrying camera and microphone usage
-descriptions: on a camera-equipped Mac it exercises the full
-recording assertions, and on a camera-less host it verifies real system
-permission status, capability honesty, preview failure, and recording-admission
-rejection. The [WKWebView camera proof](../../apps/macos/scripts/camera-webview-proof.ts)
-verifies the host camera service end to end: system media permission status,
-app-private movie storage reserve/commit/reopen/delete, private-root
-containment, and the session backend switching to host storage — all inside a
-bundled `xplat` WKWebView. Runtime evidence does not establish physical
-phone rotation, actual OS backgrounding, disk exhaustion, front-camera visual
-mirroring, or playback by an OS player after restart. Those remain acceptance
-gaps. MP4-only browser hosts need their own codec and permission qualification; Chromium evidence here
-covers WebM VP8/Opus. Linux evidence covers WebKitGTK 2.52.6 on Ubuntu 24.04 with
-MP4 recording and mock capture devices; physical camera/audio hardware, the
-interactive GTK prompt, and real window occlusion remain unqualified on this
-host. **The development host used for the current macOS
-evidence has no camera hardware** — real AppKit capture, interruption
-settlement, and WKWebView `MediaRecorder` capture remain unverified until run
-on a camera-equipped Mac.
-
-Windows delivers preview and recording through the WinUI 3 `MediaCapture` +
-`CaptureElement` projection in the NativeScript host — permission status and
-requests through `AppCapability`/`DeviceAccessInformation`, device selection
-through `DeviceInformation` (including external webcams by id), app-private
-MP4 output in `ApplicationData.LocalFolder`, native finalization through
-`StopRecordAsync`, and clip metadata verified from the finalized file's video
-properties and audio tracks. Because no Windows host was available during this
-delivery, the projection details — event subscription, async marshaling, and
-the recording pipeline itself — are source-verified only. A Windows machine
-with a camera still needs to qualify real preview, recording, permission
-prompts, contention, restart reopening, and suspension behavior. The
-WebView2 experiment in `apps/windows/webview-host` is not a configured camera
-presentation; its media permissions and persistence would need separate
-qualification if it ever becomes one. The final platform matrix
-remains a separate unfinished milestone.
+Windows preview and MP4 recording have source implementations only. Real preview,
+permission prompts, recording, device contention, reopening after restart and
+suspension still need Windows hardware verification. Do not treat the presence
+of a platform entry as a runtime support guarantee.

@@ -234,47 +234,6 @@ export function NestedActions() {
 }
 ```
 
-Eight owner-model and seven actual renderer-branch cases are authored, all unrun.
-The maintained demo adds late children, a native text field, nested menus, item/
-scope/callback changes, invalid/empty data and remount controls. For tracking-time
-checks, choose its delayed record change and open the menu before the timer fires;
-host timer progress during native tracking is also unqualified. Its probe only
-mounts that demo. Source/fake dispatch does not qualify native menu selection,
-responder propagation, tracking/cancellation, focus, VoiceOver, lifecycle timing
-or clean installed consumers.
-
-```sh
-bun run probe run examples/probes/native-context-menu.macos.tsrx --target macos --watch
-```
-
-## Port notes — what carried over
-
-The remaining sections are implementation notes for contributors. Native
-code is adapted from `@expo/ui` sdk-57 (`ios/ContextMenu/ContextMenu.swift`
-and `android/.../ui/menu/DropdownMenu*.kt`), under the MIT license.
-Attribution headers are retained in the source files.
-
-- iOS: the trigger/preview branch (`ContextMenuWithPreview` vs the plain
-  long-press variant) maps directly; children slot views became the
-  registered-view trigger + preview hosts.
-- Android: `DropdownMenu` + `DropdownMenuItem` structure, `enabled`
-  handling, and the `activationMethod` prop. Not ported: `ModifierRegistry`
-  modifier lists (our bridge carries serialized item data instead of
-  composed views), element-colors records, and the `expanded` JS-controlled
-  prop — our `expanded` is controlled from the trigger's gesture instead.
-
-## Bridge notes — what this leaf proved
-
-- A detached `createNativeScriptRoot(host)` subtree can live inside a
-  Compose `AndroidView` once the host's native view exists (`_setupAsRootView`
-  needs a real `android.content.Context` — the plugin's `{}` shortcut does
-  not marshal on Android) and its id is registered before the provider
-  composes the host (`triggerId` is gated on post-registration state).
-- The same subtree can live inside SwiftUI through
-  `NativeScriptViewFactory.getViewById` — the plugin's own
-  `NativeScriptView`/`NativeScriptViewRepresentable` is module-internal, so
-  the leaf re-declares a `UIViewRepresentable` with the same lookup.
-- Compose gesture detectors can't see activation inside an embedded
-  `AndroidView` subtree; the NS `longPress`/`tap` gestures on the trigger
-  host are the reliable activation path, with `expanded` controlled through
-  `updateData`.
+Native menu selection, responder propagation, tracking/cancellation, focus,
+VoiceOver and lifecycle timing remain unqualified on AppKit. Test changes to the
+menu and removal of its owner while the menu is open in your installed app.

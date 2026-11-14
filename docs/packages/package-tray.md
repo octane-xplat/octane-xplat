@@ -225,44 +225,10 @@ what it needs from you.
 | Windows (pinned NativeScript WinUI host) | `Shell_NotifyIconW` on a message-only window owned by a dedicated worker thread; `TrackPopupMenu` for the context menu. | Requires the packaged Windows runtime's `NSWinRT.win32` projection and pointer interop — hosts without it report `unsupported-runtime`. File icons must be `.ico`/`.cur`/`.ani`; named icons map to stock `LoadIconW` ids. `&` in labels marks menu mnemonics. Tooltip text is the notification-area balloon text. |
 | Web, iOS, Android | None. | `available: false` with `unsupported-platform`; `createTray` rejects. |
 
-## What has been tested
+## Interaction limits
 
-Verified on this release:
-
-- **macOS:** a real packaged `.app` created, updated, and removed a
-  `NSStatusItem`, with the item's presence cross-checked out of process.
-  The JavaScriptCore host suite additionally covers menu dispatch,
-  activation, template icons, and residency.
-- **Linux:** a live D-Bus session bus with the StatusNotifier watcher
-  running in a separate process verified registration, `GetAll`
-  properties, the dbusmenu layout with every row kind, `Event` dispatch,
-  PNG pixmap delivery, automatic re-registration on watcher restart, and
-  `Gio.Application.hold` residency.
-- **Windows:** the packaged host fixture verified the real
-  notification-area rectangle via `Shell_NotifyIconGetRect`, activation
-  through the real callback message, `TrackPopupMenu` selection on the
-  initial and updated menus, update, and destroy. Pointer input was
-  injected synthetically; physical mouse clicks and real user interaction
-  remain unqualified.
-- A packed-consumer test verifies the published package installs and all
-  export conditions resolve.
-
-Run the maintained runtime drivers against real hosts:
-
-```sh
-# Windows: signed-in host with the pinned NativeScript runtime built.
-TRAY_WINDOWS_HOST=windy \
-TRAY_WINDOWS_RUNTIME='C:\path\to\windows\bin' \
-bun run turbo run test:windows-runtime --filter=@octane-xplat/tray
-
-# Linux: a VM reachable over SSH with gjs, dbus-run-session, and xvfb.
-TRAY_GTK_HOST=gtk-smoke@orb TRAY_GTK_DIRECT=1 \
-bun run turbo run test:gtk-runtime --filter=@octane-xplat/tray
-
-# macOS: packaged fixture app.
-bun run turbo run test:macos-packaged --filter=@octane-xplat/tray
-```
-
-Unit tests cover menu normalization, validation, unsupported-host
-reporting, and the Windows leaf's behavior when the Win32 projection is
-absent.
+Runtime checks cover status-item creation and cleanup on macOS, StatusNotifier
+registration and menu events on Linux, and notification-area icons and menu
+selection on Windows. Windows pointer checks use synthetic input; physical
+mouse clicks and real user interaction remain unqualified. Check the actual
+shell, watcher, icon format and interaction your app will use.

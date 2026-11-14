@@ -5,7 +5,6 @@
 Render bundled Iconify icons on web, iOS, Android, and experimental AppKit macOS. Apps choose their sets;
 this package ships no icon data, default collection, or Iconify API client.
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-icons).
 
 ## Install
@@ -270,20 +269,3 @@ Iconify JSON does not grant a common license across sets. Heroicons is MIT.
 Check each set's `info.json`, license files, and upstream license, and retain
 required attribution/notices when bundling or pruning its data. Apps own that
 license handling; this leaf distributes no set data.
-
-## Verification and example
-
-The maintained [icon probe](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/icons.tsrx) exercises multiple
-sets, sizing, aliases, missing names, and mounted registration/prop updates:
-
-```sh
-bun run probe doctor
-bun run probe run examples/probes/icons.macos.tsrx --target macos --deps @octane-xplat/icons
-bun run probe run examples/probes/icons.tsrx --target web --deps @octane-xplat/icons
-bun run probe run examples/probes/icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/icons
-```
-
-For package checks, run `bun run turbo run typegen --filter=@octane-xplat/icons`, `typecheck`,
-`test`, and `pack:check`. Runtime evidence is recorded separately from builds;
-the probe proves host/source updates, not pixel parity or OS accessibility
-traversal. Run it on each target you ship.

@@ -36,7 +36,6 @@ if (result === 'copied') {
 }
 ```
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-share).
 
 ## Sharing a file
@@ -92,8 +91,6 @@ per-target availability: [platform notes](https://github.com/octane-xplat/octane
 Exercised by the harness `Services` screen
 ([`packages/app/src/Services.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/Services.tsrx)).
 
-
-
 ## Native AppKit sharing
 
 Keep this leaf in runtime dependencies and rebuild the native host after updating.
@@ -135,16 +132,10 @@ pending until its presenter closes or the app terminates. The separate hosted
 webview host still reports shared on picker launch; this native leaf change does
 not qualify or replace that backend.
 
-Eight facade cases, an intercepted-picker fixture, metadata/no-presenter callback
-checks and macOS Bundler/NodeNext packed-consumer lanes are authored but unrun.
-No OS picker, recipient, file transfer, cancellation, thread/marshalling,
-keyboard/VoiceOver, signing or installed-consumer behavior is qualified by source.
-Semantics follow the installed AppKit SDK and Apple's
-[service selection](https://developer.apple.com/documentation/appkit/nssharingservicepickerdelegate/sharingservicepicker(_:didchoose:))
-and [sharing service](https://developer.apple.com/documentation/appkit/nssharingservice)
-contracts. The native Services screen exercises explicit text/link actions;
-the idle maintained fixture separates file preparation from its share action:
-
-```sh
-bun run probe run examples/probes/share.macos.tsrx --target macos --watch
-```
+The AppKit share picker, recipient selection, file transfer, cancellation,
+thread/marshalling behavior, keyboard/VoiceOver and signing remain unqualified.
+Semantics follow the installed AppKit SDK and Apple's [service
+selection](https://developer.apple.com/documentation/appkit/nssharingservicepickerdelegate/sharingservicepicker(_:didchoose:))
+and [sharing
+service](https://developer.apple.com/documentation/appkit/nssharingservice)
+contracts. Test the complete share flow in your installed app.

@@ -245,42 +245,11 @@ Submenus cannot be disabled on any host — GMenu has no concept for it.
 Checkbox state is controlled everywhere: the native check mark changes only
 through `update`.
 
-## What has been tested
+## Input limits
 
-Verified on this release:
-
-- **macOS (AppKit host):** install and bar replacement, automatic
-  application-menu layout with inserted `applicationItems`, nested submenus,
-  disabled items, controlled checkboxes, role selectors over the real
-  responder chain (Copy reached the pasteboard), accelerators delivered by
-  posted key events including a nested-submenu item, deferred updates made
-  inside a callback, whole-tree replacement, stale retired items inert,
-  dispose restoring the previous menu bar, and single-owner rejection.
-- **Linux (GTK4/GJS host):** install, GMenu structure and mnemonic escaping,
-  real key input driving action, checkbox, disabled, and nested-submenu
-  accelerators, `selectAll` reaching the focused entry's own action,
-  whole-tree update retiring every prior action and accelerator, stale key
-  input inert, and dispose restoring the prior menubar. Opening the menubar
-  with F10 or a pointer is not yet proven on the headless qualification rig,
-  though the installed model verifies structurally.
-- **Windows (WinUI host):** the maintained packed-package fixture exercises
-  pointer activation, root shortcuts while flyouts are closed, nested shortcuts,
-  disabled actions, controlled checkbox updates, shortcut replacement and
-  disposal on Windy. UI Automation confirmed the updated label and checkbox
-  state. Keyboard input used injected right-Control chords and left-Control+Alt;
-  physical keyboards and other layouts remain unqualified. Alt/F10 menu-bar
-  navigation is not implemented.
-
-Run the Windows fixture on a signed-in Windows test host with the pinned
-NativeScript runtime already built. It registers a temporary app, drives native
-input and checks UI Automation text and enabled state, then removes its app.
-
-```sh
-APP_MENU_WINDOWS_HOST=windy \
-APP_MENU_WINDOWS_RUNTIME='C:\path\to\windows\bin' \
-bun run turbo run test:windows-runtime --filter=@octane-xplat/app-menu
-```
-
-Unit tests cover tree validation, separator collapse, the accelerator
-grammar and duplicate detection, dispatch generation gating, and all three host
-adapters' construction and teardown.
+macOS responder-chain roles and accelerators have runtime evidence. Physical
+keyboard layouts and VoiceOver still need app-specific verification. GTK
+accelerators have runtime evidence, but opening the menubar with F10 or a pointer
+remains unqualified. Windows keyboard input has injected-event evidence;
+physical keyboards and other layouts remain unqualified. Alt/F10 menu-bar
+navigation is not implemented on Windows.

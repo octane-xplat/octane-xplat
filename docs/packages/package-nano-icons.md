@@ -15,7 +15,6 @@ shape set — the font wins on repeated-instance cost and multicolor layering. F
 arbitrary SVG fidelity (gradients, filters, `<defs>` paint servers) keep using
 [`@octane-xplat/icons`](https://github.com/octane-xplat/octane-xplat/tree/main/packages/icons).
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-nano-icons).
 
 ## Quick start
@@ -200,29 +199,6 @@ import {
 The `./build` subpath is Node-only and kept out of runtime bundles; the platform entries
 contain no Node code. `NanoIcon`'s props contract is unchanged on the shared surface; the
 platform bags (`ios`, `android`, `macos`, `web`) still reach the underlying host view.
-
-## Verification
-
-Package checks:
-
-```sh
-bun run turbo run build --filter=@octane-xplat/nano-icons
-bun run turbo run typecheck --filter=@octane-xplat/nano-icons
-bun run turbo run test --filter=@octane-xplat/nano-icons
-bun run turbo run pack:check --filter=@octane-xplat/nano-icons
-```
-
-Maintained probes (nonvisual: font registration, layer structure, sizing, tint):
-
-```sh
-bun run probe doctor
-bun run probe run examples/probes/nano-icons.tsrx --target web --deps @octane-xplat/nano-icons
-bun run probe run examples/probes/nano-icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/nano-icons
-bun run probe run examples/probes/nano-icons.macos.tsrx --target macos --deps @octane-xplat/nano-icons
-```
-
-Host/source assertions are not pixel parity or OS accessibility traversal evidence — run
-the probe on every target you ship.
 
 ## Licenses and upstream credit
 

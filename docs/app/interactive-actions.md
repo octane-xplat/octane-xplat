@@ -225,8 +225,8 @@ export function ProjectHelp() {
 ```
 
 AppKit has no native browser target/modifier-click behavior. Nested interactive
-children have authored host-preservation cases, but OS gesture arbitration and
-hit-testing remain unqualified. AppKit SelectableCard now has an opt-in focus claim while disabled. It keeps
+children preserve their hosts; OS gesture arbitration and hit-testing remain
+unqualified. AppKit SelectableCard now has an opt-in focus claim while disabled. It keeps
 its disabled accessibility state and has no activation handler; the native
 FocusScope owner respects its explicit focus eligibility. This requires the
 matching renderer bridge. These source changes do not qualify real Tab order,

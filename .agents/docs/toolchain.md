@@ -184,7 +184,6 @@ project depends on directly: `@octane-xplat/cli` depends on
 workspace tsconfigs keep `@tsrx/content-mapper` (the root declares it).
 Apps must not be told to install `@tsrx/content-mapper` themselves.
 
-
 The workspace uses Octane 0.17.0 with `@tsrx/oxc` 0.23.0 and
 `@octanejs/vite-plugin` 0.6.0. The parser pin is explicit at the root so a
 hoisted installation cannot select the older optional peer from another
@@ -1125,3 +1124,35 @@ and keeps shared `css()` calls in a `.ts` module that TSRX components can import
 No dependency patch was added. Recheck raw template extraction when upgrading
 Bamboo before adding `.tsrx` to this scan. Retained reproduction, versions and
 logs: `~/dev/reports/octane-xplat/package-readme-api-audit-20261031.md`.
+
+## macOS native-leaf verification and metadata generator
+
+The maintained language fixtures live in
+`packages/cli/test/fixtures/macos-native-leaves`; the independent app fixture is
+`packages/cli/test/fixtures/macos-native-app`. From this repository:
+
+```sh
+bun run turbo run test:macos-packaging --filter=@octane-xplat/cli
+```
+
+This task checks configuration, source selection, input validation and development
+bundle behavior. It does not run a real host or establish native linking,
+signing, installed-consumer behavior, or notarization. The separate
+`packages/cli/test/verify-macos-native.mts` runner owns native-leaf integration;
+review its current inputs and resource requirements before using it. Developer
+ID/notarization remain external credential-dependent checks.
+
+Framework maintainers regenerate the shipped tool with:
+
+```sh
+bash packages/cli/src/macos/jsc-host/build-generator.sh --install
+```
+
+This maintenance command needs Git, CMake, Xcode, and Command Line Tools. It
+builds the pinned runtime revision plus committed patches, installs the binary
+and license, and refreshes its checksum. The generator appends leaf imports to
+the existing SDK umbrella (including sqlite3/dlfcn) and strictly validates
+leaf public headers separately. The broad SDK sweep retains upstream behavior
+for unrelated SDK-private header diagnostics; it is not a syntax validation
+pass over every Apple framework. App builds do not modify shipped host,
+framework, or metadata artifacts.

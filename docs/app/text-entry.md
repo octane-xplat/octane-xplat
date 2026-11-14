@@ -352,39 +352,12 @@ export function Example() {
 }
 ```
 
-## Verification boundaries
+## Platform limits
 
-The maintained [Chromium fixture](../../apps/web/test/input-readiness.web.tsrx)
-and [runner](../../apps/web/scripts/input-readiness.ts) exercise real browser
-keyboard typing, selection replacement, controlled callback counts, modal
-focus, accessibility-tree exclusion, and exiting Presence input/reversal.
-Framework contributors can run it from the Octane Xplat repository root
-with dependencies and the Playwright Chromium browser installed:
-
-```sh
-bun run turbo run input:readiness --filter=@xplat/web
-```
-
-This is a repository harness check, not a command included in a created app.
-It uses an OS-assigned port and captures no images.
-
-Native object-driver tests cover controlled echoes, blur handles, disabled
-state mappings, and keyboard-inset units. They do not exercise the OS IME,
-touch hit-testing, VoiceOver, or TalkBack. Check those on a simulator/device
-with the target lock held, without resetting another session. Current
-runtime evidence and exact remaining cases belong in
-[input readiness notes](../../.agents/docs/notes/input-readiness-notes.md).
-
-The maintained [GTK text-entry fixture](../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
-and [runner](../../packages/linux-gtk-renderer/test/ui-text-entry.test.mts)
-exercise Gtk.Entry with actual X11 typing, controlled rejection/acceptance and
-selection/cursor checks. The [multiline renderer fixture](../../packages/linux-gtk-renderer/test/ui-text-view.test.mts)
-checks a low-level textview with actual X11 selection replacement, Return and
-Tab. The [direct-source sizing fixture](../../packages/linux-gtk-renderer/test/ui-text-area.test.mts)
-checks row allocation, growth caps, CSS font updates and actual X11 internal
-keyboard/wheel scrolling. Public TextArea,
-IME composition, OSK/overlay avoidance,
-assistive-technology clients and visual parity remain unqualified.
+Check editing, focus restoration, and software-keyboard behavior on each target
+you ship. Browser typing checks do not establish native IME composition, touch
+hit-testing, VoiceOver, or TalkBack. GTK multiline editing, software-keyboard
+avoidance, and assistive-technology behavior remain only partially qualified.
 
 ## Read software keyboard space
 
@@ -511,13 +484,11 @@ export function ClearAndMove() {
 }
 ```
 
-Ten [object-driver cases](../../packages/ui/src/components/forms/text-entry-ownership.macos.mobile.test.tsrx)
-and a [manual fixture](../../examples/probes/text-entry-ownership.macos.tsrx) are
-authored, all unrun. These source guards do not prove actual native editing,
-IME, caret/selection, Return/clear hit-testing, focus/notification ordering,
-accessibility or packaged behavior. Existing `isLoading` behavior remains busy
-announcement without disabling editing. TextInput/TextArea have no public
-`hasAutoFocus` prop; this change adds none.
+These source guards do not prove actual native editing, IME, caret/selection,
+Return/clear hit-testing, focus/notification ordering, accessibility or packaged
+behavior. Existing `isLoading` behavior remains busy announcement without
+disabling editing. TextInput/TextArea have no public `hasAutoFocus` prop; this
+change adds none.
 
 ## Keep pending AppKit values with their field
 
@@ -542,8 +513,7 @@ notification to retry. They use fixed diagnostics without including the native
 error payload or entered text. Immediate native read/setter failures still
 propagate to the caller. This shared path covers TextInput, TextArea and
 SearchInput; real IME candidate timing, caret/selection, window moves, undo/redo,
-VoiceOver and installed apps remain unqualified. Fourteen writer/adapter source
-cases and the extended manual fixture are authored but unrun.
+VoiceOver and installed apps remain unqualified.
 
 ```tsx
 import { useState } from 'octane'

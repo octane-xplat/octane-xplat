@@ -217,12 +217,10 @@ export function InitialSearch() {
 ```
 
 AppKit uses its native input handle directly; TextInput and TextArea have no
-public `hasAutoFocus` prop. Five [object-driver cases](../../packages/ui/src/components/forms/power-search-focus.macos.mobile.test.tsrx)
-and a [manual fixture](../../examples/probes/power-search-focus.macos.tsrx) are
-authored, all unrun. Source/fake dispatch does not prove actual AppKit attachment,
-focus/notification ordering, caret/IME, modal containment, accessibility or
-packaging. Existing inline popover and editor limitations above still apply.
-
+public `hasAutoFocus` prop. Source/fake dispatch does not prove actual AppKit
+attachment, focus/notification ordering, caret/IME, modal containment,
+accessibility or packaging. Existing inline popover and editor limitations above
+still apply.
 
 ## Edit native AppKit date ranges
 
@@ -290,15 +288,10 @@ The form displays UTC regardless of `timezoneID`; use a custom editor for
 zone-specific display or expression-string `relativeDatePresets`. Interval presets
 are supported. Existing absolute precision and expanded years are preserved on
 unchanged saves; typed replacements accept four-digit-year dates/date-times.
-Web/mobile date-range built-ins, complete native entity/nested/custom parity, localization,
-and complete cross-target parity remain open. Seven value-model and three editor
-compiler cases with mock child controls plus an idle manual fixture are authored,
-all unrun. No actual native control, popover sizing, keyboard, IME, VoiceOver,
-clock/calendar semantics or clean installed-consumer behavior is qualified.
-
-```sh
-bun run probe run examples/probes/power-search-range.macos.tsrx --target macos --watch
-```
+Web/mobile date-range built-ins, complete native entity/nested/custom parity,
+localization, and complete cross-target parity remain open. No actual native
+control, popover sizing, keyboard, IME, VoiceOver, clock/calendar semantics or
+clean installed-consumer behavior is qualified.
 
 ## Edit native AppKit entity filters
 
@@ -374,14 +367,9 @@ read-only state or unmount abort it and discard late results, including results
 from sources that ignore cancellation. Each lookup receives a fresh request
 signal. Pasted input must be added or cleared before Apply, and marked text in
 that field blocks submission. A source exception shows a generic retry message.
-These paths have seven model and five mocked-control editor cases plus a manual
-fixture, all unrun. Native Tokenizer/paste/keyboard/IME/focus/VoiceOver, popover
-layout, host cancellation timing and installed consumers remain unqualified.
-Web/mobile entity built-ins and complete nested/custom parity remain open.
-
-```sh
-bun run probe run examples/probes/power-search-entities.macos.tsrx --target macos --watch
-```
+Native Tokenizer/paste/keyboard/IME/focus/VoiceOver, popover layout, host
+cancellation timing and installed consumers remain unqualified. Web/mobile entity
+built-ins and complete nested/custom parity remain open.
 
 ## Validate native AppKit numeric filters
 
@@ -447,15 +435,8 @@ coverage or custom editors.
   onSave={() => {}} onCancel={() => setEditing(false)} />
 ```
 
-Five numeric model and five mocked-control scalar cases plus a manual fixture are
-authored, all unrun. Source/syntax review does not prove actual text/keyboard/IME,
-focus, VoiceOver, popover layout or installed-consumer behavior. The fixture also
-lets a maintainer replace text/number filters and try missing keys; run it only
-when native verification is authorized.
-
-```sh
-bun run probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
-```
+Source/syntax review does not prove actual text/keyboard/IME, focus, VoiceOver,
+popover layout or installed-consumer behavior.
 
 ## Edit native AppKit absolute dates
 
@@ -510,12 +491,6 @@ const timestamp: FilterValueDateAbsolute = { type: 'date_absolute', unixSeconds:
 The existing scalar read-only, replacement, composition, Cancel and submit guards
 apply here too. The form labels UTC explicitly; `timezoneID` does not change its
 display or parsing. Use a custom editor for zone-specific display, a calendar
-picker or broader date-language parsing. Six date-model cases and two additional
-mocked-control scalar cases are authored, all unrun. Actual native text/IME/focus/
-VoiceOver, calendar interpretation in an installed app and consumer behavior
-remain unqualified. The scalar fixture now offers timestamp and date-only buttons;
-its automated entry only mounts controls.
-
-```sh
-bun run probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
-```
+picker or broader date-language parsing. Actual native text/IME/focus/ VoiceOver,
+calendar interpretation in an installed app and consumer behavior remain
+unqualified.

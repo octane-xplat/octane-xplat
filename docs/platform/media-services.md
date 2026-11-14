@@ -272,10 +272,8 @@ transport commands. It reports background playback, system controls, and
 interruption handling as available on native. Android playback and the Media3
 session were exercised on the Xplat emulator; notification/headset controls,
 background continuation, interruption recovery, and physical audio output
-still need device verification. Fresh iOS preparation on 2026-09-30 installed
-`QBImagePickerController` once and resolved Swift packages; the historical
-duplicate-pod failure is superseded at the preparation stage. Complete native
-build and runtime qualification remain separate checks.
+still need device verification. Complete iOS background-playback and interruption behavior still needs native
+build and runtime verification.
 The Web Media Session API can expose browser system controls when present, but
 the package does not claim background playback parity.
 

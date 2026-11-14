@@ -6,7 +6,6 @@
 It uses Octane Xplat primitives and shared geometry. It returns selection
 coordinates; it does not produce a cropped image file or open a modal.
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-image-crop).
 
 ## Install and use
@@ -120,23 +119,3 @@ export function saveSelection(
   return exportCrop(sourceUri, natural)
 }
 ```
-
-From the monorepo root:
-
-```sh
-bun run turbo run test --filter=@octane-xplat/image-crop
-bun run turbo run typecheck --filter=@octane-xplat/image-crop
-bun run turbo run typegen --filter=@octane-xplat/image-crop
-bun run probe doctor
-bun run probe run packages/image-crop/examples/selection.tsrx --target web --deps @octane-xplat/image-crop
-bun run probe run packages/image-crop/tests/selection.macos.tsrx --target macos --deps @octane-xplat/image-crop
-```
-
-The mounted probe checks handles and records geometry. It does not establish
-OS touch hit-testing or visual pixel parity. Geometry tests cover conversion,
-letterboxing, movement, aspect resizing, and constraints.
-
-The maintained AppKit integration test checks all eight resize handles, interior
-movement, aspect and min/max bounds, cancellation, disabled callbacks, source
-scaling, input-transparent guides, and window resizing. It uses renderer pan
-dispatch and AppKit hit-testing; OS mouse input remains separately unverified.

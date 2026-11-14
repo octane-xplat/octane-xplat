@@ -361,24 +361,13 @@ Installing Intl does not repair NativeScript's separate no-op
 `String.prototype.normalize`; Lingui filtering still cannot promise
 canonical-equivalence matching there.
 
-## Verification status
+## Native runtime limits
 
-Desk- and harness-verified: macro expansion inside `.tsrx` through the
-configured Babel include, `.tsrx` extraction via `tsrxExtractor` (message lands
-in the catalog with its `.tsrx` origin), the store/activation/persist logic in
-unit tests, and both `dist` lanes (web keeps `navigator`, native keeps
-`Device.language` and rewrites `octane` to `octane/universal/native`).
-
-Not yet device-verified: `import.meta.glob` catalog loading inside a real
-native bundle (the pattern matches the ui route tables' glob use, so it is
-expected to work) and `Device.language` on physical iOS/Android.
-
-Built-in `Intl.PluralRules` is unavailable on the NS runtimes: checked on device
-2026-10-21, the NativeScript iOS and Android runtimes embed V8 built without
-ICU and `Intl` is undefined there (`@nativescript/ios` 9.1.0 simulator,
-`@nativescript/android` 9.1.1 device). The leaf-owned initialization above
-passed combined formatting and segmentation checks on Chromium, an iOS
-simulator, and macOS on 2026-10-28. Android polyfill execution remains unverified.
+NativeScript's iOS and Android V8 runtimes do not provide built-in `Intl` support.
+Keep the leaf-owned initialization shown above. Formatting and segmentation have
+runtime evidence on Chromium, an iOS simulator and macOS; Android polyfill
+execution remains unverified. Native catalog loading and language detection on
+physical iOS/Android devices still need verification.
 
 ## Change UI strings in one part of a screen
 

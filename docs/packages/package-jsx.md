@@ -16,7 +16,6 @@ as a development dependency alongside the app's existing Octane dependency:
 bun add -D @octane-xplat/jsx
 ```
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-jsx).
 
 ## Select a JSX source
@@ -69,9 +68,8 @@ stays a required peer.
 
 The AppKit label also declares accessibilityHeadingLevel for its native heading
 metadata. Use 1–6 with accessibilityRole="heading"; application screens should
-prefer ui's Heading level prop. This addition applies only under macos
-conditions. Packed positive/range assertions are authored but unrun, and types
-do not prove native heading behavior.
+prefer ui's Heading level prop. This addition applies only under macos conditions. Type declarations do not
+establish native heading behavior.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */

@@ -227,13 +227,11 @@ export function Example() {
 ```
 
 AppKit editors, sliders, nested toolbars and other composite controls keep their
-own keys and natural Tab stops. A toolbar containing these controls can have
-more than one Tab stop; complete mixed-control roving and stock native-control
-Tab suppression remain gaps. The action focus path requires the keyboard,
-Tab-suppression and window-observation bridges. Physical arrows/Tab, native
-focus, layout, VoiceOver and installed behavior remain unqualified. The
-[manual AppKit fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/toolbar.macos.tsrx)
-is authored but unrun.
+own keys and natural Tab stops. A toolbar containing these controls can have more
+than one Tab stop; complete mixed-control roving and stock native-control Tab
+suppression remain gaps. The action focus path requires the keyboard,
+Tab-suppression and window-observation bridges. Physical arrows/Tab, native focus,
+layout, VoiceOver and installed behavior remain unqualified.
 
 `OverflowList` accepts one child per item. It measures available space and
 keeps the fitting items visible; provide `overflowRenderer` to render the
@@ -438,12 +436,7 @@ export function DetailsDialog() {
 
 Ctrl/Option/Command-modified F6 and composing text stay outside this routing;
 focused key handlers can prevent it. AppKit hosts without the key dispatcher,
-monitor or programmatic focus-target bridge keep role/label forwarding only.
-The local monitor and focus claims retire when their regions unmount. This does
-not establish native landmark subroles, VoiceOver announcements or system
-function-key delivery. Six model cases, one containment-query case and two
-compiler cases plus a manual fixture are authored but unrun.
-
-```sh
-bun run probe run examples/probes/landmark.macos.tsrx --target macos --watch
-```
+monitor or programmatic focus-target bridge keep role/label forwarding only. The
+local monitor and focus claims retire when their regions unmount. This does not
+establish native landmark subroles, VoiceOver announcements or system function-key
+delivery.

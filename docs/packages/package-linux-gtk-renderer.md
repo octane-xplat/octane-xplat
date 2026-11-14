@@ -27,7 +27,6 @@ import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
 export default async (env: { mode: string }) => linuxGtk(env)
 ```
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-linux-gtk-renderer).
 
 ## Types for native imports
@@ -546,13 +545,6 @@ which wires the Octane compiler's `gtk` renderer, `gi://` externals, the
 `.gtk` extension chain, and the `octane` → `octane/universal/native` retarget.
 The output is one ESM file run with `gjs -m`.
 
-For a focused maintained runtime fixture, pass its file through Turbo so
-dependency builds and declaration generation still run first:
-
-```sh
-xvfb-run -a pnpm exec turbo run test:runtime --filter=@octane-xplat/linux-gtk -- test/ui-icon.test.mts
-```
-
 ## Portal targets
 
 Universal portals retain their original context and state while rendering into
@@ -688,14 +680,10 @@ export function PointerAction(props: { disabled: boolean; save: () => void }) {
 }
 ```
 
-Maintainer qualification now includes the [field-chrome runtime fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx).
-The fixture also checks editor retention while labels or validation messages change.
-TextInput and Field are available from the curated root. The current
-[field and selection guide](https://octane-xplat.goddardai.org/linux-gtk#single-choice-fields)
-also covers FormLayout, InputGroup, FieldGroup, CheckboxInput, Switch, RadioList,
-RadioListItem, NumberInput, CheckboxList, CheckboxListItem and the SegmentedControl family; maintained fixtures qualify named behavior rather than the
-complete assistive-client or visual contract.
-
+Use the [field and selection guide](https://octane-xplat.goddardai.org/linux-gtk#single-choice-fields)
+for the shared controls supported by the GTK renderer. Editor retention while
+labels or validation messages change does not establish the complete
+assistive-client or visual contract.
 
 GTK field labels now resolve their associated control by its logical id and
 request focus. A testID automation name does not replace the control id.
@@ -708,7 +696,6 @@ export function AccountField() {
   return <TextInput id="account" testID="account-editor" label="Account" />
 }
 ```
-
 
 Multiline text and placeholder hints support textAlign. Use a numeric or pixel
 lineHeight for a fixed logical-pixel row spacing; TextArea row fitting also

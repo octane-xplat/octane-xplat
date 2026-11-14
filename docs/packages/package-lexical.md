@@ -142,13 +142,10 @@ a best-effort conversion through the fixed built-in node set; it is not a live
 Lexical editor state that supports commands or plugins. There is no live
 `LexicalEditor` on Android: no `dispatchCommand`, no node transforms;
 `native` returns the `AztecText` and the headless editor used for
-conversions is an internal detail. The 2026-10-06
-[Aztec nested-tree run](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/parity/nested-tree-editor.md)
-preserved nested wrappers, attributes, and child order through synthetic text
-edits and save/reopen, but flattened paragraphs and accumulated `<br>` elements
-on reopen. That run exercised the shared Aztec HTML leaf, not Lexical's JSON
-conversion or structural commands. See the
-[per-row capability record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/editor-capabilities.md).
+conversions is an internal detail. Aztec can preserve nested wrappers, attributes and child order, but paragraph
+flattening and added `<br>` elements on reopening remain limitations. This does
+not qualify Lexical JSON conversion or structural commands. Keep HTML as the
+canonical native document and test repeated save/reopen with your content.
 
 Focus callbacks report focus entering or leaving the editable surface.
 `onJSONReady(true)` fires once the web editor handle exists, so `getJSON()` is

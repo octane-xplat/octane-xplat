@@ -128,8 +128,11 @@ limitations. Do not load the entire reference tree by default.
 
 ## Canonical documentation and scope
 
-Package READMEs link to the website. Package setup and usage live in
-`docs/packages/`; the site generates API reference from public TSDoc with
+Published-package READMEs link to the website. App-facing package setup and usage
+live in `docs/packages/`; private harnesses and fixtures document their repository
+role beside their workspace. Framework runners and maintenance instructions live
+in internal guidance, while public guides retain actionable platform limits.
+The site generates API reference from public TSDoc with
 `exports-md`. Read declarations for the installed version when versions differ.
 
 For app work, start with [public guides](../../../docs/README.md), declarations

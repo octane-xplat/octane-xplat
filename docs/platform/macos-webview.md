@@ -225,18 +225,6 @@ missing directories, and outside paths fail `destinationUnavailable`.
 
 ## Verify the boundary
 
-The [macOS WKWebView proof](../../apps/macos/webview-proof/ProofScreen.web.ts)
-runs in a real WKWebView. It verifies capability discovery for all 24 framework
-methods and four proof-owned methods, and directly invokes the framework calls
-that can run without user interaction: bootstrap state, clipboard, app state,
-window size, file reads, secure storage, host storage, appearance, app-defined
-calls/events, deep links, and a secondary webview window's close event. Run it
-with `bun run --filter @xplat/macos webview:proof`; the verifier reports
-`[webview-proof] verified 28 typed host methods`. The
-[camera webview proof](../../apps/macos/webview-camera-proof/main.web.ts)
-verifies the `camera` service end to end inside a signed bundle — permission
-status and request, app-private movie storage round-trip, private-root
-containment, and the session backend's host-storage switch. Run it with
-`bun run turbo run test:camera-webview --filter=@xplat/macos`. The full shared frontend used
-by the configured macOS renderer starts from
-[`apps/web/src/main.tsrx`](../../apps/web/src/main.tsrx).
+Test permission prompts, camera/microphone hardware, persistence and secondary
+windows in your signed app. Programmatic host-method checks do not establish
+physical input, real camera capture or every platform service.

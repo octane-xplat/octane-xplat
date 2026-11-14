@@ -32,4 +32,4 @@ non-drag controls, and keep state ownership and platform verification explicit.
 - AC3: [Selection scope](../../../docs/packages/package-table.md#enable-interaction-controls), [example](../../../packages/table/examples/interactive.tsrx).
 - AC4: [Column settings](../../../docs/packages/package-table.md#enable-interaction-controls), [example](../../../packages/table/examples/interactive.tsrx).
 - AC5: [Width and gesture contract](../../../docs/packages/package-table.md#enable-interaction-controls), [example probe](../../../packages/table/examples/interactive.tsrx), [isolated geometry probe](../../../packages/table/examples/geometry.tsrx).
-- AC6: [Controlled state](../../../docs/packages/package-table.md#controlled-state), [verification and limits](../../../docs/packages/package-table.md#verification-and-remaining-parity-gaps).
+- AC6: [Controlled state](../../../docs/packages/package-table.md#controlled-state), [verification and limits](../../../docs/packages/package-table.md#platform-limits).

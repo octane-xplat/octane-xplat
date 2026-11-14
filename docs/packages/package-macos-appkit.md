@@ -23,7 +23,6 @@ checks on Apple Silicon macOS. Physical input, VoiceOver, visual parity and
 whole-process leak freedom require separate qualification; the full application
 harness is not qualified by this consumer.
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-macos-appkit).
 
 ## Configure an app
@@ -270,9 +269,7 @@ export function AccountPage() {
 ```
 
 The label renders `Account: Avery` inside the `rootlayout` and reads the same
-provider value as its declaring tree. Run the maintained portal fixture with
-`bun run turbo run test:portals --filter=@octane-xplat/macos-appkit` to check context,
-provider updates, and native child cleanup.
+provider value as its declaring tree.
 
 Use [the packaging guide](../start/toolchain.md#experimental-appkit-target)
 for `xplat.targets.macos` metadata, signing, and CLI commands. The
@@ -436,16 +433,6 @@ and `xplat build` load it through the native bootstrap — no build step or
 environment variable is required — and `xplat build` copies it into
 `Contents/Frameworks` and signs it with the app.
 
-Maintainers rebuild the engine with `native/xplatmason/build.sh`. The script
-consumes the pinned mason-c desktop archive and generated `mason_native.h`
-(`dist/native/mason-core/desktop/aarch64-apple-darwin/`, produced by
-`nx run nativescript-mason-core:build.native.desktop` in the pinned
-nativescript-mason checkout) for the arm64 slice, verifies the archive bytes
-against `native/xplatmason/mason-core.pin.json`, and combines it with an
-x86_64 slice built from the same pinned revision into a universal dylib with
-a macOS 13.5 deployment target. Upstream ships no x86_64-apple-darwin desktop
-archive yet — see `.agents/docs/notes/macos-mason-engine.md`.
-
 ## Development bundles
 
 Call `macos(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`
@@ -489,28 +476,7 @@ config.build = {
 export default config
 ```
 
-## Verify the package
-
-From this repository:
-
-```sh
-bun run turbo run test --filter=@octane-xplat/macos-appkit
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit packed verification"}' -- bun run turbo run test:packed --filter=@octane-xplat/macos-appkit
-```
-
-The packed check uses the renderer and CLI tarballs in a temporary app outside
-the checkout. It checks declarations and production compilation on every
-host; on Apple Silicon macOS it also packages and launches the app and verifies
-retained-root HMR. Programmatic action dispatch establishes handler behavior,
-not OS input or hit-testing.
-
 ## Press and swipe callbacks
 
 See [macOS gesture callbacks](../../packages/ui/changes/macos-gestures.md) for shared
 Pressable and View examples, swipe directions, and verification limits.
-The maintained nonvisual fixture checks Objective-C gesture target dispatch;
-physical OS input remains a separate manual check.
-
-```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- bun run turbo run test:gestures --filter=@octane-xplat/macos-appkit
-```

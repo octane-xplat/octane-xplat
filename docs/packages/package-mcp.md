@@ -12,8 +12,7 @@ Published as a normal lockstep package on npm. The qualified surface today is
 the Chromium consumer lane (status/docs/code/build/launch/inspection/
 interaction/development actions); native-platform inspection and input
 adapters report honest `unavailable` results until they are qualified — see
-[Remaining acceptance](#remaining-acceptance).
-
+[Platform support](#platform-support).
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-mcp).
 
@@ -41,15 +40,6 @@ A one-off run without a devDependency also works:
 
 ```sh
 bunx @octane-xplat/mcp --workspace /path/to/app-workspace
-```
-
-For development inside this repository — `start` runs the TypeScript source
-directly (Node ≥22.18 strips types); `test` and `prepack` run `vite build` so
-the checked and packed surface is the emitted `dist/`:
-
-```sh
-bun run --filter @octane-xplat/mcp start -- --workspace <path>
-bun run turbo run test --filter=@octane-xplat/mcp
 ```
 
 Transport is stdio; stdout is protocol-clean (diagnostics go to stderr).
@@ -297,49 +287,7 @@ of arbitrary application data.
 { "name": "xplat_screenshot", "arguments": { "sessionId": "SESSION_FROM_ATTACH" } }
 ```
 
-## Run the consumer acceptance lane
-
-Use a fresh directory outside your existing app. These commands scaffold the
-normal web starter and add one app-owned development action. The in-repo lane
-links framework packages to this checkout; other dependencies
-install normally. The runner checks docs and current code, build/readiness,
-the counter's `0 → 1` transition, action discovery/invocation, screenshot
-denial, logs, and owned browser/server/profile cleanup. It also checks that
-the fixture declaration and handler are absent from production artifacts.
-
-```sh
-node packages/mcp/tests/prepare-consumer.mts /tmp/new-xplat-mcp-app
-bun run --cwd /tmp/new-xplat-mcp-app install
-node packages/mcp/tests/consumer-workflow.mts /tmp/new-xplat-mcp-app
-```
-
-The default run supplies browser-event evidence. On macOS, reserve the full
-resource set and add `--os-input` for a headed Chromium OS keyboard journey.
-Only the owned browser receives the events; the helper attempts to restore the
-previously active application and reports when restoration is unconfirmed.
-The runner captures no images.
-
-```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"MCP consumer OS keyboard acceptance"}' -- node packages/mcp/tests/consumer-workflow.mts /tmp/new-xplat-mcp-app --os-input
-```
-
-The packed-artifact lane qualifies the same checks against release-evidence
-packaging: `prepare-packed-consumer.ts` packs the needed packages, scaffolds
-through the packed `create-octane-xplat` bin, installs `file:` tarballs (no
-registry/latest resolution for framework packages), and tags the framework
-HEAD as `v<installed version>` in a local bare release fixture. The runner
-spawns the consumer's own installed `xplat-mcp` bin over stdin/stdout and
-redirects the canonical release-repo URL to the fixture through a per-process
-`url.insteadOf` (never user git config). Snapshot cache and evidence roots are
-isolated under the work dir. OS keyboard input additionally requires an
-unlocked console — the window server refuses activation while the screen is
-locked, and the run reports that block honestly.
-
-```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"packed MCP stdio consumer acceptance"}' -- bash -c '
-  node packages/mcp/tests/prepare-packed-consumer.mts /tmp/xplat-packed-mcp &&
-  node packages/mcp/tests/packed-stdio-consumer.mts /tmp/xplat-packed-mcp'
-```
+## Declare an app action
 
 For an existing consumer, declare actions behind the development build gate.
 Registration automatically starts the bridge when the dev-server endpoint is
@@ -360,13 +308,12 @@ if (import.meta.env.DEV) {
 }
 ```
 
-## Remaining acceptance
+## Platform support
 
-The Chromium lane is an incremental milestone. All six platforms remain
-required by the original plan. Native inspection/input adapters, attached
-Chromium inspection, approved screenshot qualification, and the complete
-platform-by-capability acceptance matrix remain unfinished. Runtime adapters
-and honest unavailable responses do not establish native behavior.
+Inspection and interaction support currently covers owned Chromium documents.
+Native host adapters, inspection of attached Chromium sessions, and screenshot
+capture remain unavailable or unqualified. Check the capability matrix before
+requesting an operation.
 
 | Target          | Inspection/input qualification boundary                                        |
 | --------------- | ------------------------------------------------------------------------------ |

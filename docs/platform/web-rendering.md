@@ -348,17 +348,9 @@ const response = () => ({ headers: { 'Cache-Control': 'public, max-age=60' } })
 ```
 
 Baked route data alone does not produce HTML files; use the prerendering workflow
-below for that. These checks qualify buffered rendering, hydration in a DOM
-harness, local HTTP through srvx, and real-browser checks in Chromium, Firefox
-and WebKit — all exercised by `test:packed` against the packed example. There is
-no streaming, no Vite dev-server SSR (development uses client rendering), and no
-hosting-provider adapters:
-
-```sh
-bun run turbo run test typecheck --filter=@octane-xplat/web-host
-XPLAT_WEB_BROWSERS=chromium,firefox,webkit \
-  bun run turbo run test:packed --filter=@octane-xplat/web-host
-```
+below for that. This host supports buffered rendering, hydration and local HTTP. Streaming,
+Vite dev-server SSR and hosting-provider adapters are not supported; development
+uses client rendering.
 
 ## Show a not-found page
 

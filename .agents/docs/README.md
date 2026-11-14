@@ -79,3 +79,8 @@ in Silo/local storage. Plans are maintained outside `.agents/`.
 
 - [Native Pressable contacts](native-pressable.md) — Android moving-host tap arbitration and upstream recognizer boundary.
 - [Gesture ownership core](gesture-ownership.md) — internal coordinator, signal retirement boundary, and qualification entry points.
+
+- [Hosted native UI bridges](native-ui-bridges.md) — context-menu and sheet porting constraints.
+- [MCP consumer verification](mcp-verification.md) — source and packed consumer acceptance runners.
+
+- [Package verification runners](package-verification.md) — focused framework test and probe commands.

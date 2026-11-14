@@ -28,8 +28,10 @@ agent to code without making either path mandatory.
 
 Use a friendly, direct voice and concrete actions. Preserve technical names and
 support limits; approachable does not mean imprecise. Treat mistakes and recovery
-as normal. Keep advanced internals and labeled historical design notes outside
-the beginner path.
+as normal. Keep framework internals, contributor procedures, test-runner instructions, and
+qualification records outside `docs/`. Public guides retain concrete support
+limits and app-owned verification steps; internal notes own how the framework
+establishes those limits.
 
 ## Progressive disclosure
 
@@ -94,8 +96,12 @@ Keep contributor skill-maintenance policy here rather than in consumer guidance.
 
 ## Package documentation
 
-Keep package READMEs to a title and docs-site links. Put their authored guidance
-in `docs/packages/package-<directory>.md`, with relative links to other guides.
+Keep published-package READMEs to a title and docs-site links. Put their app-facing
+guidance in `docs/packages/package-<directory>.md`, with relative links to other
+guides. Private harnesses and fixtures document their repository role in their
+own README; do not create public package pages for them. A published internal
+package may keep a short public purpose/support boundary and API link, while
+contributor usage and maintenance belong in internal guidance.
 The site generates `docs/api/api-<directory>.md` for every public package using
 `exports-md` after declaration generation and tooling builds. Do not edit or
 commit generated API Markdown; improve TSDoc beside the exported declaration.

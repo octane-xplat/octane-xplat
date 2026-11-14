@@ -15,7 +15,7 @@ belongs on the page. It need not become visible metadata.
 
 | Document         | Owns                                                                                                                                       | Route elsewhere                                                              |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
-| Package README   | Package title and links to its docs-site guide and generated API reference | All setup, usage, limits, and API documentation |
+| Published package README | Package title and links to its docs-site guide and generated API reference | All setup, usage, limits, and API documentation |
 | Task guide       | Prerequisites through a useful result, explanation, expected outcome, likely recovery, cleanup                                             | Unrelated advanced workflows and exhaustive signatures                       |
 | Concept guide    | A mental model and the decisions it changes, with a concrete example                                                                       | Step-by-step setup already owned by a task guide                             |
 | Reference        | Exact answers inside a declared boundary, grouped for lookup                                                                               | Repeated tutorials and unqualified support promises                          |
@@ -55,7 +55,9 @@ Apply the [writing and example contracts](documentation.md) during review.
 For package guides, connect explanation, installation (or why it is inappropriate),
 a first use in a named file/handler, expected result, and the next guide.
 Keep package READMEs as links; do not duplicate this documentation there. Private
-fixtures explain their repository role instead of inventing consumer setup.
+fixtures explain their repository role in their own README, outside `docs/`.
+Published internal-package pages explain their boundary and route app authors to
+the supported public workflow; contributor tutorials belong in internal notes.
 Name credentials/assets and valid placeholders before examples. Review lifecycle,
 cancellation, denial, failure, and disposal where encountered; invented setup and
 empty error handlers do not close gaps.

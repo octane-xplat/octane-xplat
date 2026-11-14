@@ -28,10 +28,10 @@ space through form and overlay lifecycles.
 ## Documentation
 
 - AC1: [Control a field](../../../docs/app/text-entry.md#control-a-field) and [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately).
-- AC2: [Sizing a multiline field](../../../docs/app/text-entry.md#size-a-multiline-field), [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
+- AC2: [Sizing a multiline field](../../../docs/app/text-entry.md#size-a-multiline-field), [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#platform-limits).
 - AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md).
 - AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), [focused-input scrolling](../../../docs/app/software-keyboard.md#keep-the-editing-field-visible), [sticky composers](../../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard), the maintained [form example](../../../packages/keyboard/examples/KeyboardFormDemo.tsrx), and the maintained [motion example](../../../packages/keyboard/examples/KeyboardMotionDemo.tsrx).
-- AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
+- AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#platform-limits).
 - AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [keyboard-space example](../../../packages/ui/examples/KeyboardSpaceDemo.tsrx), [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mts), the [compiled cross-root hook test](../../../packages/ui/src/internal/keyboard/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mts).
 - AC6: [Building screens: grouped fields](../../../docs/app/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 - AC8: [Component input contracts](../../../docs/app/components.md#inputs), [UI API migrations](../../../docs/app/ui-api-migrations.md#empty-values-and-time-domains), and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
@@ -52,14 +52,12 @@ clearance, and shared-sheet editing/focus return. See [qualification and command
 This narrow journey does not establish the composition, controlled middle-edit,
 physical-keyboard, or accessibility criteria above.
 
-
 AppKit source follow-up: the shared TextArea leaf now forwards `onSubmit` for
 `done`/`send`, suppresses blocked edit/submit callbacks, and the native multiline
 delegate leaves marked-text confirmation to AppKit. [Component regressions](../../../packages/ui/src/components/forms/text-controls.macos.mobile.test.tsrx)
 and [delegate regressions](../../../packages/macos-appkit/test/text-controls.test.ts)
 provide source coverage only. Real keyboard, composition and full AC2 qualification
 remain open; source dispatch is not evidence of physical input.
-
 
 AppKit AC3 documentation now covers standalone TextInput/TextArea/SearchInput
 field chrome and reuse of an enclosing Field; see [text and keyboard actions](../../../docs/app/primitives.md#text-and-keyboard-actions)
@@ -69,7 +67,6 @@ are source/documentation claims only; actual layout, label interaction, keyboard
 activation and VoiceOver require separate target qualification. Other native-control families and
 SearchInput icon semantics are not qualified by these text-control repairs.
 
-
 AppKit text-icon follow-up: TextInput.startIcon supports glyph names/rendered
 nodes, and SearchInput supplies its default/custom icon or omits it for false.
 TextInput forwards placeholderTextColor; SearchInput preserves omitted/empty
@@ -78,7 +75,6 @@ regression source; native icon pixels/spacing/accessibility are unqualified.
 The controls leaf explicitly pins its pan import to AppKit for source/test
 resolution; the AppKit bundler already prefers the macOS suffix. TextArea maxLength remains a source gap, separate
 from these search/entry prerequisites.
-
 
 ## AppKit controlled composition follow-up
 
@@ -108,7 +104,6 @@ keyboard/IME, selection, undo, native timing or packaged checks ran. AC1/AC2
 runtime qualification remains open even though this manual procedure is now
 covered in documentation.
 
-
 ## AppKit numeric fields
 
 AC8's [AppKit guide](../../../docs/app/components.md#number-fields-on-appkit)
@@ -129,7 +124,6 @@ XPLAT_UI_TEST_TARGET=macos bun run turbo run test:native --filter=@octane-xplat/
 No test/probe has run in this slice. Actual formatted/partial/locale edits, IME,
 layout, pointer/keyboard, focus, VoiceOver and packaged behavior remain open.
 The formatter is display-only and does not introduce a locale-aware parser.
-
 
 AppKit AC3 placeholder follow-up: TextArea now merges placeholderTextColor under
 authored object/array/CSS-string styles; removing it releases that default while

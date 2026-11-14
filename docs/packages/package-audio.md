@@ -87,36 +87,10 @@ availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob
 the harness `MediaServices` screen
 ([`packages/app/src/MediaServices.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/MediaServices.tsrx)).
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-audio).
 
-## Foreground verification
+## Playback limits
 
-The maintained silent-WAV fixture measures observable player state against
-fixed budgets. Run it on an owned build host and iOS simulator (or Android
-emulator with `--target android`). Its local HTTP addresses target virtual
-devices; physical media acceptance needs a reachable server and a separate run:
-
-```sh
-bun run turbo run test:browser --filter=@octane-xplat/audio -- --foreground-budgets
-bun run turbo run test:runtime --filter=@octane-xplat/audio -- --foreground-budgets --target ios --device OWNED_UDID
-bun run turbo run test:macos-budgets --filter=@octane-xplat/audio
-```
-
-| Measurement | Fixture ceiling |
-| --- | --- |
-| First observed progress after loading | 10 seconds |
-| Preserving queue update | 250 milliseconds |
-| Position lost during that update | 0.15 seconds |
-| Observable seek position | 1.5 seconds |
-| Estimated extra boundary delay | 1.5 seconds |
-| Appended waiting queue resumes | 2 seconds |
-| Sampled AppKit host peak RSS | 384 MiB |
-
-These are initial fixture ceilings, not application performance guarantees.
-Boundary timing comes from media positions and polling; it does not measure
-an audible gap. RSS samples cover the owned AppKit process, excluding GPU and
-other processes. Startup, leaks, durable progress, background execution and
-physical output need separate acceptance. The
-[packed listening/settings check](https://github.com/octane-xplat/octane-xplat/blob/main/tools/native-readiness/README.md)
-exercises these services together in an external mobile consumer.
+Check startup, seeking, queue transitions, background behavior and audible output
+on your shipping devices. Synthetic player-state measurements do not guarantee
+audible gapless playback, memory use or physical output.

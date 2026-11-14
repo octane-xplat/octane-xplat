@@ -115,13 +115,6 @@ Notification Center delivery still require a packaged app in an interactive
 macOS session. Build success and intercepted handler dispatch are separate
 from that evidence.
 
-
-The new prompt-free read cases, intercepted-center assertions and native-to-JS
-status callback check are authored but unrun. The AppKit Services screen and
-manual fixture provide separate read, request and send controls; mounting the
-fixture performs none of those actions. Run it only during authorized native
-qualification:
-
-```sh
-bun run probe run examples/probes/notification-permissions.macos.tsrx --target macos --watch
-```
+Actual bridge callbacks, OS prompts, relaunch/revocation, notification delivery
+and signing remain unqualified on AppKit. Check read, request and send behavior
+separately in your installed app.

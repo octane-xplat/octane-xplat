@@ -62,12 +62,9 @@ export function Notes() {
 | macOS AppKit | Bundled Tiptap editor in WKWebView                                                   | Ignored by the AppKit host          | Unsupported through this facade                                                |
 
 On Android, keep HTML as the facade's canonical interchange. Tiptap JSON is a
-best-effort conversion over Aztec HTML, not a live ProseMirror document. The
-2026-10-06 [Aztec nested-tree run](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/parity/nested-tree-editor.md)
-preserved nested wrappers, attributes, and child order through synthetic text
-edits and save/reopen. It also flattened paragraphs and accumulated `<br>`
-elements on reopen; it did not qualify Tiptap JSON, OS input, or structural
-tree commands. See the [per-row capability record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/editor-capabilities.md).
+best-effort conversion over Aztec HTML, not a live ProseMirror document. Aztec can preserve nested HTML wrappers, but paragraph flattening and added
+`<br>` elements on reopening remain limitations. This does not establish Tiptap
+JSON or command semantics; test round-trips using the documents your app stores.
 
 `value`/`onChange` exchange document HTML; `editable` controls whether the
 user can edit. `getJSON`/`setJSON` exchange

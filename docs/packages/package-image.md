@@ -110,7 +110,6 @@ Android caveat: the plugin's probe can't see Glide's active resources, so a
 bitmap still on screen may report `'none'` — treat `'none'` as "not provably
 cached", not "absent".
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-image).
 
 ## AppKit subset
@@ -187,14 +186,14 @@ export function UncachedPhoto({ src }: { src: string }) {
 ```
 
 Configuration fields still lack AppKit implementations and now throw explicitly.
-Decode-transform queries report none. Display headers still throw before loading. With matching UI/renderer support,
-cachePolicy="none" now bypasses framework decoded-memory and owned disk caches.
-Decode bounds, failureImage, progressive loading and transitions remain unimplemented. The public macOS declaration also now binds its PrefetchOptions
-parameter type. Byte-cache, adapter, remote-view, CoreImage and native-policy source cases
-plus updated placeholder coverage and the [AppKit fixture](../../examples/probes/cached-image.macos.tsrx)
-are authored, all unrun. Native disk/network/threading, decode/memory lifetime,
-responsiveness and packaging remain unqualified. Fit/position retain the core
-logical-point path; see [AppKit image loading](../app/components.md#image-loading-on-appkit).
+Decode-transform queries report none. Display headers still throw before loading.
+With matching UI/renderer support, cachePolicy="none" now bypasses framework
+decoded-memory and owned disk caches. Decode bounds, failureImage, progressive
+loading and transitions remain unimplemented. The public macOS declaration also
+now binds its PrefetchOptions parameter type. Native disk/network/threading,
+decode/memory lifetime, responsiveness and packaging remain unqualified.
+Fit/position retain the core logical-point path; see [AppKit image
+loading](../app/components.md#image-loading-on-appkit).
 
 AppKit `onLoad` and `onError` require matching UI and renderer support; older
 packages fail before loading. Notifications are queued after assignment and use
@@ -212,14 +211,13 @@ export function Preview({ src }: { src: string }) {
 }
 ```
 
-Load dimensions are the largest positive reported native representation in
-pixels, or 0×0 when unavailable, never logical points. The origin is memory,
-disk, network or local at request completion, not a live cache-presence query.
-Success means image assignment completed, not that native pixels were drawn.
-Errors use a generic Error without the source URI or native NSError details;
-consumer callback exceptions are logged separately. Adding a callback after
-completion does not replay it. Fifteen added source cases are authored but
-unrun; native event timing, metadata and rendering remain unqualified.
+Load dimensions are the largest positive reported native representation in pixels,
+or 0×0 when unavailable, never logical points. The origin is memory, disk, network
+or local at request completion, not a live cache-presence query. Success means
+image assignment completed, not that native pixels were drawn. Errors use a
+generic Error without the source URI or native NSError details; consumer callback
+exceptions are logged separately. Adding a callback after completion does not
+replay it. Native event timing, metadata and rendering remain unqualified.
 
 ```ts
 import type { ImageLoadEvent } from '@octane-xplat/image'

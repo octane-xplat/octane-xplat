@@ -217,29 +217,8 @@ The harness [UI sweep](../../apps/linux/host/harness-selftest.web.js) shows this
 contract; a missing script or incomplete result fails the run.
 Set `XPLAT_LOG_CONSOLE=1` to include frontend console messages during normal runs.
 
-For automated verification in a headless Linux environment, install `xvfb`,
-`dbus-x11`, `gnome-keyring`, and `notification-daemon`, then start the test with
-Xvfb and a private D-Bus session. The [consumer verifier](../../packages/cli/test/verify-linux-consumer.mts)
-starts those services and verifies the extracted archive, per-user installer,
-real Octane mount, persistent secrets across app restarts, isolation between
-app IDs, and second-instance link delivery. From the repository root:
-
-```sh
-mkdir -p /tmp/xplat-linux-packs
-bun run --cwd packages/cli pack --pack-destination /tmp/xplat-linux-packs
-bun run --cwd packages/platform pack --pack-destination /tmp/xplat-linux-packs
-node packages/cli/test/verify-linux-consumer.mts \
-  /tmp/xplat-linux-packs/octane-xplat-cli-0.7.3.tgz \
-  /tmp/xplat-linux-packs/octane-xplat-platform-0.7.3.tgz
-```
-
-Use the actual tarball versions printed by `bun pm pack` if they differ.
-The verifier runs on Linux and leaves its app and runtime evidence in the
-printed temporary directory. It keeps WebKit's sandbox enabled. It creates its own temporary keyring; it
-does not read or change your desktop keyring.
-
-Ubuntu 24.04 x86-64 under OrbStack on an Intel Mac is the current VM proving
-ground. Headless checks verify host behavior and services, not visual parity,
-physical input, file-chooser interaction, or every Linux desktop environment.
-The Linux target remains experimental; there is no AppImage, Debian/RPM package,
-sandboxed installer, or bundled system-runtime distribution yet.
+The Linux target remains experimental. Test installation, incoming links,
+permissions and storage on the Linux distributions you support. Headless host
+checks do not establish physical input, file-chooser interaction, screen-reader
+behavior or visual parity. There is no AppImage, Debian/RPM package, sandboxed
+installer or bundled system-runtime distribution yet.

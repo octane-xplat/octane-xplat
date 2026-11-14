@@ -30,7 +30,6 @@ bun run xplat add web
 bun run workshop
 ```
 
-
 Inside an existing Octane Xplat app, install the development tooling. Keep the
 app's existing matching Octane/compiler versions; the app template already
 provides Octane's compiler peers, including `@tsrx/oxc`.
@@ -226,7 +225,6 @@ valid stage value. **Reset** creates a fresh complete generation.
 | Reset | Restore defaults | Dispose and create a fresh generation |
 | Save a valid source edit | Restore defaults | Mount a fresh revision; retain shell settings |
 | Save a bad source edit | Retain the last good values | Mark the last good stage stale until correction |
-
 
 To reuse the controls from `Basic`, declare them in the same file and set its
 `controls` property to this value:
@@ -433,26 +431,6 @@ does not exclude a story explicitly imported by production code.
 ```sh
 bun run build
 ```
-
-For repository maintainers, the packed regression compiles source in an external consumer,
-runs the same browser acceptance catalog, measures warm HMR, and checks a normal
-production bundle for story/fixture/workshop markers. Generate dependency declarations first.
-
-```sh
-bun run turbo run typegen --filter=@octane-xplat/lib
-bun run turbo run typegen --filter=@octane-xplat/ui
-bun run turbo run typegen --filter=@octane-xplat/workshop
-bun run turbo run test --filter=@octane-xplat/workshop
-bun run turbo run test:packed --filter=@octane-xplat/workshop
-bun run turbo run test:packed:linux --filter=@octane-xplat/workshop
-```
-
-The packed checks compile the published source with the consumer's toolchain.
-They use headless Chromium and capture no images.
-The Linux packed check verifies packed export resolution, catalog
-applicability (including the `.stories.linux.*` diagnostic lane) and
-production-build exclusion statically — the GJS window, GTK input/focus and
-reload remain actual-host gates that no static check substitutes for.
 
 ## Platform support and evidence
 

@@ -83,11 +83,6 @@ export function LayoutCard({ expanded }: { expanded: boolean }) {
 For movement between components and crossfading content, follow the
 [shared-element guide](https://octane-xplat.goddardai.org/animation-gestures#move-an-element-between-components).
 
-Generate declarations with `bun run turbo run typegen --filter=@octane-xplat/motion`;
-run DOM/engine and universal lifecycle tests with
-`bun run turbo run test test:native --filter=@octane-xplat/motion`.
-Native compilation and object-driver tests are not physical-device evidence.
-
 macOS has [package-boundary acceptance and focused native-channel checks](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/UPSTREAM.md#macos-package-boundary),
 plus layout and shared-handoff geometry checks in `test:macos-runtime`.
 Its source and published imports are checked separately from real AppKit runtime

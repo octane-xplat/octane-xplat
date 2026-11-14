@@ -119,8 +119,7 @@ appId: ${APP_ID}
 
 Xplat's maintained Maestro flow has no recorded Android or iOS runtime pass
 yet. Verify your own journey on each target before relying on it. Maestro
-also does not replace VoiceOver/TalkBack testing. Framework contributors can
-use the [smoke runner and qualification record](../../.agents/docs/maestro.md).
+also does not replace VoiceOver/TalkBack testing.
 
 ## Ask an agent to maintain a journey
 
@@ -133,7 +132,3 @@ iOS simulator. Use unique visible text, wait for results, and report the
 selected device, build, commands, and assertions. If a target cannot run,
 say why and leave its runtime status unverified.
 ```
-
-Framework contributors should follow the
-[internal testing guidance](../../.agents/docs/testing.md#mobile-end-to-end-tests-with-maestro)
-for device ownership and resource reservations.

@@ -235,14 +235,10 @@ target; it does not qualify each contract row.
 
 On iOS and Android, custom Tiptap extensions, ProseMirror node views, Lexical nodes,
 Lexical plugins, transforms, and browser views do not run. The facades do not
-create live ProseMirror or Lexical editor instances there. A 2026-10-06 internal runtime investigation preserved the three-level
-HTML hierarchy and attributes through synthetic edits and save/reopen, and a
-follow-up run exercised the leaf's `split`/`join`/`indent`/`outdent` commands:
-they perform real structural edits on Aztec's own block model (nested lists
-demote, items split and merge) but cannot reshape `toggle-item` divs, which
-Aztec treats as opaque hidden-block markup. It also flattened paragraphs —
-top-level `<p>` included — and accumulated `<br>` elements on reopen; it did
-not test OS input. This is not full Foxtrot-document support.
+create live ProseMirror or Lexical editor instances there. Aztec preserves nested HTML wrappers but flattens paragraphs and can accumulate
+`<br>` elements when a document is reopened. Its structural commands cannot
+reshape opaque custom markup such as `toggle-item` containers. Do not assume
+arbitrary nested documents will round-trip without changes.
 
 ```tsx
 import { LexicalEditor } from '@octane-xplat/lexical'
@@ -254,40 +250,16 @@ export function AndroidNotes() {
 declare function saveHtml(html: string): void
 ```
 
-## Baseline verification status
+## Native editing limits
 
-| Baseline row                     | Android Aztec runtime                                                                                  | Native object-driver fake host                              |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| Fresh mount with initial content | Passed on NativeScript `AztecText`                                                                     | JSON seed and readiness ordering pass                       |
-| User edits                       | Passed: ADB keyboard text reached Aztec and emitted `onChange`                                         | Callback path simulated by the fake host; no keyboard input |
-| Controlled replacement           | Passed; triggered with probe handler dispatch                                                          | Later JSON replacement and duplicate suppression pass       |
-| Read-only                        | Passed native checks: key listener is null and focus is disabled; OS typing suppression was not tested | Not covered                                                 |
-| Focus and blur                   | Focus and `onFocus` passed during ADB keyboard input; blur did not complete before probe timeout       | Not covered                                                 |
-| Selection                        | Passed during ADB keyboard input                                                                       | Not covered                                                 |
-| Undo                             | Passed; Aztec undo removed the keyboard insertion                                                      | Fake command is a no-op; not covered                        |
-| Save and reopen                  | Not run; the probe timed out during blur before snapshot/remount                                       | Not covered                                                 |
-| Events                           | `onReady`, `onChange`, `onFocus`, and `onSelectionChange` passed; `onBlur` was not observed            | Fake `onChange` to `onJSONChange` conversion passes         |
-| Disposal                         | Not run; the probe timed out before unmount                                                            | Late bridge completion after unmount is ignored             |
+Android ordinary text entry and keyboard undo have bounded runtime evidence.
+Blur, saving and reopening, disposal, IME, paste and selection-restoring history
+remain unverified. Controlled replacement checks do not establish OS hit-testing.
 
-The table below records the earlier ordinary-edit probe and fake-host rows;
-it does not include the separate nested-tree run linked above. The fake-host
-rows come from the Tiptap and Lexical native object-driver tests;
-they do not mount Aztec. Android was probed on 2026-10-05 using the API 35
-Google APIs arm64 AVD `octane-prime-larkspur` (`emulator-5556`). The successful
-assertion segment used the real NativeScript host and `AztecText`; keyboard
-input came from `adb shell input tap` and `adb shell input text`. Controlled
-replacement used probe handler dispatch, which does not establish OS
-hit-testing. The overall probe ended with a timeout while waiting for blur, so
-save/reopen and disposal remain unverified. A later fresh-cache run again
-passed mount, readiness, controlled replacement, and read-only checks, then
-timed out before keyboard text reached Aztec; it adds no user-edit evidence.
-
-The iOS leaf now mounts AztecEditor-iOS through its Swift facade. Its earlier
-14-assertion simulator probe covers leaf mount, readiness, HTML, focus, blur,
-and unsupported-format queries. It does not establish keyboard input, IME,
-paste, selection-restoring history, or accessibility. Native builds and
-object-driver suites remain separate evidence; see the
-[iOS capability declarations](../../.agents/docs/notes/editor-capabilities.md#ios).
+The iOS editor has mount, readiness, HTML and focus/blur evidence. Keyboard input,
+IME, paste, selection-restoring history and accessibility remain unqualified.
+These limits apply to both facades that share the native editing leaf; web
+Tiptap or Lexical extensions do not become native plugins.
 
 ## Web engine extensions
 
@@ -399,19 +371,7 @@ Engine-specific limits:
   handlers; the fixed facade does not add dedicated checklist or horizontal
   rule plugins. These commands are not claimed as supported on AppKit.
 
-To run the maintained checks from this repository, build the three packages
-with `bun run --filter @octane-xplat/richtext --filter @octane-xplat/tiptap
---filter @octane-xplat/lexical build`, then run
-`bun run turbo run test:macos --filter=@octane-xplat/richtext` and
-`bun run turbo run test:packed --filter=@octane-xplat/richtext`. These checks require an
-Apple Silicon Mac with Xcode’s command-line tools.
-
-The maintained [isolated WebKit fixture](../../packages/richtext/test/verify-wk.mts)
-and [packed AppKit consumer](../../packages/richtext/test/packed-consumer.mts) check
-local engine loading, HTML/JSON interchange, refs, controlled updates, and
-teardown without screenshots. Command dispatch is separate from real OS
-keyboard input, selection, and hit-testing; those interactions remain
-unverified.
+Actual AppKit keyboard input, selection and hit-testing remain unverified.
 
 ## JSON interchange on native
 

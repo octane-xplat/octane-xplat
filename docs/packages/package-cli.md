@@ -100,7 +100,6 @@ Linux packaging and its required manifest settings are documented in
 [Package a Linux app](https://octane-xplat.goddardai.org/linux-package). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-cli).
 
 ## Single-file executable
@@ -123,21 +122,6 @@ chmod +x ./xplat-darwin-arm64
 ```sh
 XPLAT_CLI_CACHE=./.xplat-cli-cache ./xplat-darwin-arm64 catalog --json
 ```
-
-Repository contributors can build and check an executable for the current
-host. Go 1.27.3 must be available; the build uses `GOTOOLCHAIN=local` and
-keeps artifacts in the ignored `research/go-cli/` directory. These commands
-build `research/go-cli/xplat-go-<platform>-<arch>-cli` (`-cli.exe` on
-Windows) and run the native contract check:
-
-```sh
-bun run turbo run build:go --filter=@octane-xplat/cli
-bun run turbo run test:go-cli --filter=@octane-xplat/cli
-```
-
-Build on each destination OS and architecture so the binary matches that
-host. The CLI executables workflow does this for macOS and Linux arm64/x64
-and Windows x64.
 
 ## Native executable
 
@@ -193,17 +177,10 @@ xplat --version
 
 Keep optional dependencies enabled: they contain the platform executable. On a
 host outside the five platforms above, installation warns and succeeds so the
-JavaScript exports remain usable, but the native command cannot run. Contributors
-can prepare both local command entries with the host Go build:
-
-```sh
-turbo run build:go --filter=@octane-xplat/cli
-bun run xplat catalog --json
-```
-
-Keep the project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/cli` package installed;
-the native executable does not include those tools. A web build returns a job
-that you can inspect and cancel:
+JavaScript exports remain usable, but the native command cannot run. Keep the
+project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/cli` package
+installed; the native executable does not include those tools. A web build returns
+a job that you can inspect and cancel:
 
 ```sh
 xplat runtime build --platform web --json

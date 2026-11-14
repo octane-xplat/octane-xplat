@@ -187,18 +187,8 @@ check exact identity; downloaded JavaScript cannot change the baked value.
 Before moving an update to the stable channel, validate on your own release
 binary: stage it, fully close and reopen, confirm the new version, then repeat
 with a test update that fails before confirmation. Reopen again and check that
-the previous version returns. The maintained release test exercises that
-sequence with a local fixture server; it does not qualify a hosted deployment.
-
-```sh
-# From the framework repository, choose your own test device IDs:
-node scripts/with-target-lock.ts ios -- \
-  bun run turbo run test:native-lifecycle --filter=@octane-xplat/updates -- \
-  --target ios --device SIMULATOR_UDID
-node scripts/with-target-lock.ts android -- \
-  bun run turbo run test:native-lifecycle --filter=@octane-xplat/updates -- \
-  --target android --device EMULATOR_SERIAL
-```
+the previous version returns. Run this check against your hosted deployment
+and the signed binary your users will install.
 
 ## Recover a release
 

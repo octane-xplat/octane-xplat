@@ -76,7 +76,6 @@ const table = createTable({
 console.log(table.getRowModel().rows.length)
 ```
 
-
 [Generated API reference](https://octane-xplat.goddardai.org/api-table).
 
 ## Enable interaction controls
@@ -397,35 +396,10 @@ export function ServerPage({
 - `Table` in `@octane-xplat/ui` stays the bounded, unvirtualized
   presentational tier — DataGrid is the data-grid tier above it.
 
-## Verification and remaining parity gaps
+## Platform limits
 
-Run `bun run turbo run typecheck --filter=@octane-xplat/table`, `test`, `test:native`, `build`, and
-`test:packed`. The source typecheck covers web and the iOS native resolution lane;
-the native build uses the same shared controls for iOS/Android. Run the fixture:
-
-```sh
-bun run probe run packages/table/examples/interactive.tsrx --target web --deps @octane-xplat/table
-bun run probe run packages/table/examples/interactive.tsrx --target ios --device YOUR_BOOTED_SIMULATOR_UDID --deps @octane-xplat/table
-bun run probe run packages/table/examples/geometry.tsrx --target macos --deps @octane-xplat/table
-```
-
-The geometry fixture isolates bounded row sorting and column resize/reorder from
-filter/pager input. Its AppKit run measures native frames and retained row order.
-The iOS and Android selection fixtures currently hit an unrelated Unicode
-property-regex parse failure before assertions; the direct VirtualList iOS geometry case passes. The full
-AppKit fixture has an unresolved filter-input timeout.
-
-Use a real booted simulator ID from `bun run probe doctor`. Results are handler
-or pointer dispatch, not proof of OS input, hit-testing, or screen-reader
-navigation. See the [audit implementation record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/parity/astryx-parity-table.md#implementation-follow-through)
-for the actual targets/results and known probe blockers.
-
-Still deferred: grouped section headers/detail/tree controls, frozen-column
-layout, PowerSearch operator/date/multi-select filter UI, richer multi-sort UX,
-column virtualization, cell editing, and OS screen-reader/input verification.
-The maintained [selection fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/table/examples/selection.tsrx) checks the real
-VirtualList, caller state, eligible page scope, mixed controls, and a windowed
-row ordinal. Chromium and AppKit pass its handler-dispatch and host-property
-checks; iOS/Android object-driver checks cover shared controls but are not
-on-device accessibility evidence. These limits do not remove the
-underlying headless features.
+Grouped section headers, detail/tree controls, frozen-column layout, advanced
+filter editors, column virtualization and cell editing remain deferred. Native
+selection, filter input, screen-reader navigation and OS input are not fully
+qualified. Try the sorting, resizing and selection your app needs on each target;
+a source build or geometry check alone does not establish those interactions.

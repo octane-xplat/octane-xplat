@@ -290,7 +290,6 @@ const root = createUniversalRoot(container, createNativeGestureDriver(container)
 // Mock only the native-surface module, then mount the actual shared components.
 ```
 
-
 The shared gesture system has three focused checks. Run the state-machine
 and web-adapter unit cases, the native bridge and compiled hook/object-driver
 cases, and browser input separately from device qualification:
@@ -353,3 +352,9 @@ Native runs require the host resource reservation and an authorized existing
 device. The probe host supplies a LAN coordinator for physical iOS and isolates
 its app identity from consumer apps. These checks establish geometry and
 programmatic scroll behavior, not OS hit-testing or painted pixel parity.
+
+## Package-specific runners
+
+Use the [package verification index](package-verification.md) for focused package
+checks and retained probes. Consumer docs describe app-owned checks; framework
+runner commands and resource prerequisites stay in this internal index.

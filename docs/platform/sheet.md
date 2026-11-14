@@ -374,47 +374,7 @@ leaving text responders first opportunity to consume their key binding. Actual
 Escape delivery, IME, Tab order, native close controls, nested sheets, queued
 cancellation, fit/layout, focus restoration, VoiceOver and memory behavior still
 need AppKit qualification. There are no detents or drag handles in this API.
-The [maintained demo](../../packages/demos/src/NativeSheetDemo.macos.tsrx) includes
-text entry, provider changes, nested/queued requests, callback/scope changes and
-an explicit delayed owner removal. Its idle probe has not run.
-
-
-## Port notes — what carried over
-
-These sections are implementation notes for contributors. Native code is
-adapted from `@expo/ui` sdk-57 (`ios/BottomSheetView.swift` and
-`android/.../ui/ModalBottomSheetView.kt`), under the MIT license.
-Attribution headers are retained in the source files.
-
-- iOS: `isPresented` + `onIsPresentedChange`/`onDismiss` event pair, the
-`fitToContents` PreferenceKey size-reader and `.presentationDetents`
-branching, the anchor-attached `.sheet`. Slot children became the
-`content` render fn; `detents`/`customHeight`/`customFraction` map the
-modifier registry's `presentationDetents` params directly.
-- Android: `ModalBottomSheet` + `rememberModalBottomSheetState(
-skipPartiallyExpanded)`, `properties.shouldDismissOnBackPress`,
-container/content/scrim colors, `ForwardKeyEventsToActivity`. Not
-ported: imperative `hide`/`expand`/`partialExpand` handles (controlled
-`open` covers the demo's needs — escalate if a real app needs them),
-the `dragHandle` slot view, modifier lists, `initialFullyExpanded`,
-`sheetGesturesEnabled`/`shouldDismissOnClickOutside` (unavailable on
-the resolved material3).
-
-## Bridge notes — what this leaf proved
-
-- A hosted subtree survives a window boundary: the same
-registry + `AndroidView` pattern that embeds a trigger inside a
-ComposeView also embeds sheet content inside the `ModalBottomSheet`'s
-separate dialog window, and its `onPress` handlers still reach JS.
-- `ns build`'s `buildMetadata` gradle task can stay `UP-TO-DATE` and
-ship stale `com.` package metadata for a newly added plugin — the JS
-bridge then fails with `Cannot read properties of undefined (reading
-'<ClassName>')` even though the classes are in the dex. Rerun
-`./gradlew app:buildMetadata --rerun-tasks` (in `platforms/android`) or
-clean to force regeneration.
-- The `XplatViewRegistry` pattern is now written twice — context-menu and
-sheet keep leaf-local copies; that duplication is a data point for the
-shared-bridge decision rather than a reason to import across leaves.
+Test nested sheets, text entry and owner removal explicitly in your app.
 
 ## Focus qualification
 

@@ -341,10 +341,11 @@ export function EditorScreen() {
 }
 ```
 
-The [manual AppKit readers](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/platform-state.macos.tsrx)
-compare root and subpath values and allow readers to unmount/remount. Authored
-source and packed-consumer cases remain unrun; actual native resize/activity,
-Octane effects, focus/IME, memory and installed-app behavior remain unqualified.
+The [manual AppKit
+readers](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/platform-state.macos.tsrx)
+compare root and subpath values and allow readers to unmount/remount. Actual
+native resize/activity, Octane effects, focus/IME, memory and installed-app
+behavior remain unqualified.
 
 ## Handle incoming AppKit links
 
@@ -489,10 +490,9 @@ preferences (`storage`) are not a fallback for secrets. Plain browsers report
 unsupported; keep the session in memory or require sign-in again.
 
 For macOS setup, packaged bundle identity and the separate development namespace,
-follow the [native prerequisites](macos-native.md#prepare-the-app) and
-[AppKit secure-storage contract](../packages/package-secure-storage.md#macos-appkit).
-The new bridge cases remain unrun; real Keychain, signing/sandbox and installed-app
-qualification are still pending. Availability checks do not establish those results.
+follow the [native prerequisites](macos-native.md#prepare-the-app) and [AppKit
+secure-storage contract](../packages/package-secure-storage.md#macos-appkit).
+Availability checks do not establish those results.
 
 Experimental native Windows has a package-scoped Credential Locker leaf.
 Unpackaged hosts report unsupported; Windows/account policy can roam saved
@@ -1185,16 +1185,14 @@ const pending = authSession.open('https://example.com/authorize', options)
 const result = await pending
 ```
 
-The source uses Apple's [presentation-context contract](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/presentationcontextprovider)
-and [cancellation API](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/cancel()).
-Eleven model cases and an idle cancellation fixture are authored, unrun. Actual
-browser/consent presentation, native callbacks, main-thread execution, window
-lifetime, credential security, VoiceOver and packaged hosts remain unqualified.
-The fixture uses example.com and cannot prove a real sign-in or token exchange:
-
-```sh
-bun run probe run examples/probes/auth-session.macos.tsrx --target macos --watch
-```
+The source uses Apple's [presentation-context
+contract](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/presentationcontextprovider)
+and [cancellation
+API](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/cancel()).
+Actual browser/consent presentation, native callbacks, main-thread execution,
+window lifetime, credential security, VoiceOver and packaged hosts remain
+unqualified. Verify a real sign-in and token exchange with your configured
+provider.
 
 ### Register and check a hosted callback
 

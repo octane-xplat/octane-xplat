@@ -233,15 +233,14 @@ export function RecordBag({ recordID }: { recordID: string }) {
 }
 ```
 
-The native implementation cancels its owned menu tracking before replacing
-choices or removing the control. Actual pointer/keyboard selection, menu-loop
-timers, Tab/focus behavior, disabled-option rendering, label announcements,
-VoiceOver, layout, teardown and installed consumers remain unqualified. Source
-and model cases do not prove those behaviors. The
-[maintained demo](../../packages/demos/src/NativePickerDemo.macos.tsrx) includes
-controlled rejection, asynchronous/empty choices, duplicate labels, invalid
-IDs, in-place renaming, current callbacks, record replacement and remounting.
-Its idle probe and consumer/type tests are authored but unrun.
+The native implementation cancels its owned menu tracking before replacing choices
+or removing the control. Actual pointer/keyboard selection, menu-loop timers,
+Tab/focus behavior, disabled-option rendering, label announcements, VoiceOver,
+layout, teardown and installed consumers remain unqualified. Source and model
+cases do not prove those behaviors. The [maintained
+demo](../../packages/demos/src/NativePickerDemo.macos.tsrx) includes controlled
+rejection, asynchronous/empty choices, duplicate labels, invalid IDs, in-place
+renaming, current callbacks, record replacement and remounting.
 
 ## Why a leaf package
 

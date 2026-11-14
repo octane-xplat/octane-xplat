@@ -144,7 +144,7 @@ arrows/mouse selection, disabled behavior, updates, controlled rejection and
 remount on 1.0.0.196 (139 assertions); source and mock results alone still do
 not establish OS behavior beyond the bounded gate.
 Keep rich-slot geometry, structural updates, overflow and native panel
-relations separate. See the [public boundary](../../../../../docs/platform/windows-setup.md#panel-tabs-candidate)
+relations separate. See the [public boundary](../../../../../docs/platform/windows-setup.md#panel-tabs)
 and [construction constraints](../../../../docs/windows-ui.md#native-tab-semantics).
 
 ## Experimental Windows Switch
