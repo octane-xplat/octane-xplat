@@ -250,7 +250,7 @@ The real-screen experiment has separate native and JavaScript entry points:
 | [home-fallback.ios.js](home-fallback.ios.js) | Artifact/decode or stale-theme rejection before claims, ordinary Home mount and current-theme/Button checks |
 | [home-primitives.ts](home-primitives.ts) | Four actual shared primitive exports, avoiding unrelated public-barrel imports |
 
-These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with the shared `StartupArtifact.swift` and backend `MasonArtifact.swift` from `packages/native-prerender/platforms/ios`, and links the four native helper objects plus the runtime/Core embedding helpers. It packages the XPI1 packet as `home.bin` and resolves `xplat-prerender:artifact`, `xplat-prerender:startup` and `xplat-prerender:styles` to the matching visual projection, complete logical artifact and normalized stylesheets. Retarget Octane imports to the native universal runtime and use the canonical managed driver patch. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
+These are private qualification fixtures, not app bootstrap APIs. The host build substitutes `__XPLAT_PRERENDER_BUILD_HASH__` exactly once in the Swift source, compiles it as the application entry point with the shared `StartupArtifact.swift` and backend `MasonArtifact.swift` from `packages/native-prerender/platforms/ios`, and links the four native helper objects plus the runtime/Core embedding helpers. It packages the XPI1 packet as `home.bin` and resolves `xplat-prerender:artifact`, `xplat-prerender:startup` and `xplat-prerender:styles` to the matching visual projection, complete logical artifact and normalized stylesheets. Retarget Octane imports to the native universal runtime and use the owned NativeScript driver. Record those inputs with the host build; the baseline two-label launcher is not a Home launcher.
 
 The maintained iOS runner accepts an explicitly prebuilt XPI1 Home fixture with the recorded build manifest and the isolated `controls-shared-home-xpi` app identity. The experimental host build adapter remains separate from normal NativeScript SDK integration.
 
@@ -330,14 +330,9 @@ Use NativeScript’s supported embedding delegate when handing an existing windo
 
 ## Qualify root-scoped view creation
 
-The owned `@octane-xplat/nativescript-octane` driver now owns the root-scoped view factory. `check-driver.mjs` copies an explicitly selected installed driver and executes it against a small host boundary; it neither overlays another patch nor changes that installation. Native startup/adoption remains experimental even though the driver hook is maintained centrally.
+The owned `@octane-xplat/nativescript-octane` driver owns the root-scoped view factory. Its behavior is covered by `packages/nativescript-octane/src/driver.spec.ts` (`bun turbo run test --filter=@octane-xplat/nativescript-octane`). Native startup/adoption remains experimental even though the driver hook is maintained in owned source.
 
-```sh
-export XPLAT_PRERENDER_DRIVER_ROOT=/absolute/path/to/node_modules/@nativescript-community/octane
-bun turbo run probe:prerender:driver:check --filter=@xplat/platform-qualification
-```
-
-The check covers aborted batches, text folding, ordinary creation, undefined fallback, same-root and cross-root ownership rejection, rejection of manually parented wrappers, reuse after disposal, Mason defaults, and cleanup after a later creation fails. Its result includes source/patch hashes and `nativeQualified:false`. This is a driver command test, not an Octane reconciliation or native lifecycle test. The separate native Home experiment exercises actual compiled shared components, Page integration, state updates, native identities and independent sibling disposal.
+The suite covers aborted batches, text folding, ordinary creation, undefined fallback, live-owner rejection, rejection of manually parented wrappers, reuse after disposal, Mason defaults, and cleanup after a later creation fails. These are driver command tests, not an Octane reconciliation or native lifecycle test. The separate native Home experiment exercises actual compiled shared components, Page integration, state updates, native identities and independent sibling disposal.
 
 The factory receives transient Octane command IDs, host tags and initial props. Returning `undefined` selects normal registered creation. A returned object must be a NativeScript `ViewBase` without a live driver owner or existing logical parent. The factory does not run during preparation/abort, for logical text nodes, or for element-registry hot replacement. It does run for command-driven recreation. For example, after validating the complete prepared tree, an adoption host can supply a root-local lookup:
 
