@@ -132,7 +132,7 @@ for (const reader of readers) {
   )
   const producer = process.env.XPLAT_HOME_CODEC_PRODUCER
   if (producer)
-    test(
+    {test(
       reader.name + ': actual shared JSX producer decodes with its exact native projection',
       () => {
         const artifact = JSON.parse(readFileSync(join(producer, 'startup.json'), 'utf8'))
@@ -145,5 +145,5 @@ for (const reader of readers) {
         assert.equal(visual.status, 0, visual.stderr)
         assert.deepEqual(JSON.parse(visual.stdout), plain(projectVisualTree(artifact.nodes)))
       },
-    )
+    )}
 }

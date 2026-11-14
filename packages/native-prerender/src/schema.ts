@@ -71,7 +71,7 @@ export class ArtifactError extends Error {
   }
 }
 export function requireArtifact(value: unknown, message: string): asserts value {
-  if (!value) throw new ArtifactError(message)
+  if (!value) {throw new ArtifactError(message)}
 }
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return (
@@ -117,8 +117,8 @@ export function copyLiteral(value: unknown): Literal {
   let remaining = ARTIFACT_LIMITS.values
   function visit(value: unknown, depth: number): Literal {
     requireArtifact(--remaining >= 0 && depth < 24, 'literal complexity limit')
-    if (value === null || typeof value === 'boolean') return value
-    if (typeof value === 'string') return string(value, 'literal')
+    if (value === null || typeof value === 'boolean') {return value}
+    if (typeof value === 'string') {return string(value, 'literal')}
     if (typeof value === 'number') {
       requireArtifact(Number.isFinite(value), 'non-finite literal')
       return value === 0 ? 0 : value
@@ -178,7 +178,7 @@ export function validateNodes(input: unknown): LogicalNode[] {
     )
     let parent: number | null = null
     if (index === 0)
-      requireArtifact(node.parent === null && kind !== '#text', 'root kind or parent')
+      {requireArtifact(node.parent === null && kind !== '#text', 'root kind or parent')}
     else {
       parent = integer(node.parent, 0, index - 1, 'node parent')
       const owner = nodes[parent]
@@ -208,17 +208,17 @@ export function validateNodes(input: unknown): LogicalNode[] {
             'accessibilityHint',
           ].includes(key)
         )
-          string(props[key], 'host prop ' + key)
+          {string(props[key], 'host prop ' + key)}
         else if (['accessible', 'isEnabled'].includes(key))
-          requireArtifact(typeof props[key] === 'boolean', 'boolean host prop')
-        else if (key === 'maxLines') integer(props[key], 0, 1000000, key)
-        else if (key === 'style') validateStyle(props[key])
-        else throw new ArtifactError('unsupported host prop ' + key)
+          {requireArtifact(typeof props[key] === 'boolean', 'boolean host prop')}
+        else if (key === 'maxLines') {integer(props[key], 0, 1000000, key)}
+        else if (key === 'style') {validateStyle(props[key])}
+        else {throw new ArtifactError('unsupported host prop ' + key)}
       }
       requireArtifact(kind === 'label' || props.text === undefined, 'container text prop')
     }
     nodes.push({ index, path, parent, kind, props })
-    if (parent !== null) children[parent].push(index)
+    if (parent !== null) {children[parent].push(index)}
   }
   let next = 0
   function visit(index: number) {
@@ -228,7 +228,7 @@ export function validateNodes(input: unknown): LogicalNode[] {
       node.kind !== 'label' || !children[index].length || node.props.text === undefined,
       'ambiguous label content',
     )
-    for (const child of children[index]) visit(child)
+    for (const child of children[index]) {visit(child)}
   }
   visit(0)
   requireArtifact(next === nodes.length, 'unreachable node')
@@ -240,7 +240,7 @@ function validateStyle(value: unknown): Record<string, string | number> {
   for (const key of Object.keys(input).sort()) {
     const value = input[key]
     requireArtifact(STYLE_KEYS.includes(key), 'unsupported style ' + key)
-    if (typeof value === 'string') style[key] = string(value, 'style value')
+    if (typeof value === 'string') {style[key] = string(value, 'style value')}
     else {
       requireArtifact(typeof value === 'number' && Number.isFinite(value), 'style value')
       style[key] = value === 0 ? 0 : value

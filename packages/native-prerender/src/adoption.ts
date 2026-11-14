@@ -51,7 +51,7 @@ export function createNativeClaims<View extends object>(input: unknown, views: r
     },
     createView(id, kind) {
       factoryCalls++
-      if (phase === 'live' || phase === 'retired') return undefined
+      if (phase === 'live' || phase === 'retired') {return undefined}
       requireArtifact(phase === 'applying', 'native claims requested outside commit')
       const index = pending.get(id)
       if (index === undefined) {

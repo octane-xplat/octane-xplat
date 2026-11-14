@@ -42,7 +42,7 @@ function run(program, args, env = process.env) {
     (result.stdout ?? '') + (result.stderr ?? ''),
   )
   assert.equal(result.status, 0, String(result.error ?? result.stderr) + (result.stdout ?? ''))
-  if (result.stdout) process.stdout.write(result.stdout)
+  if (result.stdout) {process.stdout.write(result.stdout)}
 }
 run(join(javaHome, 'bin/javac'), ['--release', '8', '-d', classes, sources[0], sources[1]])
 const swift = join(work, 'startup-artifact-swift')
@@ -67,7 +67,7 @@ run(process.execPath, ['--test', join(owner, 'tests/native/interop.test.mjs')], 
   XPLAT_PRERENDER_NATIVE_WORK: work,
 })
 for (const [path, digest] of Object.entries(inputs))
-  assert.equal(hash(path), digest, 'Native codec input changed: ' + path)
+  {assert.equal(hash(path), digest, 'Native codec input changed: ' + path)}
 writeFileSync(
   join(work, 'result.json'),
   JSON.stringify(

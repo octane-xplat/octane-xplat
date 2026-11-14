@@ -32,7 +32,7 @@ function commandProps(input: unknown): LiteralObject {
     const portable: LiteralObject = Object.create(null)
     for (const key of Object.keys(props).sort()) {
       const value = props[key]
-      if (value === undefined) continue
+      if (value === undefined) {continue}
       portable[key] =
         value !== null && typeof value === 'object' && !Array.isArray(value)
           ? object(value, depth + 1)
@@ -156,7 +156,7 @@ export function projectVisualTree(input: unknown): VisualNode[] {
       text,
     })
     indices.set(node.index, index)
-    if (parent !== null) visual[parent].children.push(index)
+    if (parent !== null) {visual[parent].children.push(index)}
   }
   return visual
 }
@@ -173,7 +173,7 @@ export function matchPreparedTree(commands: unknown, expected: unknown): Prepare
   const visualByCommandId = new Map<number, number>()
   for (const [id, logical] of projected.logicalByCommandId) {
     const index = visual.get(logical)
-    if (index !== undefined) visualByCommandId.set(id, index)
+    if (index !== undefined) {visualByCommandId.set(id, index)}
   }
   return { logicalByCommandId: projected.logicalByCommandId, visualByCommandId }
 }

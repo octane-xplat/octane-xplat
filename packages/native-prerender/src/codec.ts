@@ -33,9 +33,9 @@ export function encodeStartupArtifact(input: unknown): Uint8Array {
   }
   function literal(value: unknown, depth: number) {
     requireArtifact(++values <= ARTIFACT_LIMITS.values && depth < 32, 'binary literal complexity')
-    if (value === null) return byte(0)
-    if (value === false) return byte(1)
-    if (value === true) return byte(2)
+    if (value === null) {return byte(0)}
+    if (value === false) {return byte(1)}
+    if (value === true) {return byte(2)}
     if (typeof value === 'number') {
       requireArtifact(Number.isFinite(value), 'non-finite number')
       byte(3)
@@ -50,7 +50,7 @@ export function encodeStartupArtifact(input: unknown): Uint8Array {
     if (Array.isArray(value)) {
       byte(5)
       u32(value.length)
-      for (const item of value) literal(item, depth + 1)
+      for (const item of value) {literal(item, depth + 1)}
       return
     }
     const object = record(value, 'binary literal')
@@ -124,14 +124,14 @@ export function decodeStartupArtifact(
   function literal(depth: number): Literal {
     requireArtifact(++values <= ARTIFACT_LIMITS.values && depth < 32, 'binary literal complexity')
     const tag = take(1)[0]
-    if (tag === 0) return null
-    if (tag === 1 || tag === 2) return tag === 2
+    if (tag === 0) {return null}
+    if (tag === 1 || tag === 2) {return tag === 2}
     if (tag === 3) {
       const value = take(8).readDoubleLE(0)
       requireArtifact(Number.isFinite(value), 'non-finite binary value')
       return value === 0 ? 0 : value
     }
-    if (tag === 4) return text()
+    if (tag === 4) {return text()}
     requireArtifact(tag === 5 || tag === 6, 'unknown binary value tag')
     const count = integer(
       u32(),
@@ -139,7 +139,7 @@ export function decodeStartupArtifact(
       tag === 5 ? ARTIFACT_LIMITS.nodes : 256,
       'binary collection size',
     )
-    if (tag === 5) return Array.from({ length: count }, () => literal(depth + 1))
+    if (tag === 5) {return Array.from({ length: count }, () => literal(depth + 1))}
     const result: LiteralObject = Object.create(null)
     let previous: string | undefined
     for (let index = 0; index < count; index++) {

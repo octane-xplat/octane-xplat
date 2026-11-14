@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { build, expected, commands, fixture, resign } from './fixture.mjs'
+import { expected, commands, fixture, resign } from './fixture.mjs'
 import {
   validateArtifact,
   projectPreparedTree,
@@ -92,7 +92,7 @@ test('rejects unsupported hosts, unresolved ownership, cycles and initial mutati
       { op: 'insert', id: 0, parent: 0, before: null },
     ],
   ]
-  for (const value of cases) assert.throws(() => projectPreparedTree(value))
+  for (const value of cases) {assert.throws(() => projectPreparedTree(value))}
 })
 
 test('validates tree order, labels, host props and style ownership', () => {
@@ -189,7 +189,7 @@ test('hidden accessors and symbol/array properties are rejected without evaluati
 test('pretty JSON has its own bounded overhead and can round-trip a compact binary tree', () => {
   const value = fixture()
   let nested = Array.from({ length: 1024 }, () => Array(32).fill(false))
-  for (let i = 0; i < 17; i++) nested = { next: nested }
+  for (let i = 0; i < 17; i++) {nested = { next: nested }}
   value.seed.large = nested
   const binary = encodeStartupArtifact(value)
   const json = writeStartupJson(value)
@@ -208,10 +208,10 @@ test('bounded native launch checks accept interval edges and reject unsupported 
     ['fontScale', 1.3],
     ['platform', 'ios'],
   ])
-    assert.deepEqual(checkLaunchEnvironment(artifact, { ...env, [key]: value }), {
+    {assert.deepEqual(checkLaunchEnvironment(artifact, { ...env, [key]: value }), {
       supported: false,
       input: key,
-    })
+    })}
   assert.throws(
     () => checkLaunchEnvironment(artifact, { ...env, width: NaN }),
     /environment|dimension/,
@@ -224,7 +224,7 @@ test('bounded native launch checks accept interval edges and reject unsupported 
 test('rejects truncation, corruption, unknown features, trailing bytes and mismatched apps', () => {
   const encoded = Buffer.from(encodeStartupArtifact(fixture()))
   for (const length of [0, 1, 79, 80, encoded.length - 1])
-    assert.throws(() => decodeStartupArtifact(encoded.subarray(0, length), expected))
+    {assert.throws(() => decodeStartupArtifact(encoded.subarray(0, length), expected))}
   for (const offset of [0, 4, 6, 8, 12, 16, 48, encoded.length - 1]) {
     const bad = Buffer.from(encoded)
     bad[offset] ^= 1
