@@ -75,7 +75,7 @@ export function List(props: ListProps): unknown @{
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
       @if (props.header != null) {
-        <masonview className="vx-list-header" style={{ display: 'flex' }}>
+        <masonview className="vx-list-header">
           {props.header}
         </masonview>
       }
@@ -88,9 +88,7 @@ export function List(props: ListProps): unknown @{
           style={mergeStyle({ flexDirection: 'row', alignItems: 'stretch' }, { display: 'flex' })}
         >
           {markerFor(index)}
-          <masonview
-            style={mergeStyle({ flexGrow: 1 }, mergeStyle({ display: 'flex' }, { minWidth: 0 }))}
-          >
+          <masonview className="vx-list-content" style={{ flexGrow: 1, minWidth: 0 }}>
             {child}
           </masonview>
         </masonview>

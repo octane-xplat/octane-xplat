@@ -1,0 +1,4 @@
+.layout-wrapper { width: 240px; height: 120px; }
+.layout-wrapper-child { height: 20px; }
+.layout-wrapper-flex { display: flex; flex-direction: row; }
+.layout-wrapper-grid { display: grid; grid-template-columns: 1fr 1fr; }

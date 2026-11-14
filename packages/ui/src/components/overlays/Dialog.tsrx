@@ -43,7 +43,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
       accessible={true}
       accessibilityLabel={props.accessibilityLabel}
       accessibilityRole={purpose === 'required' ? 'alert' : undefined}
-      style={mergeStyle({ display: 'flex' }, [
+      style={mergeStyle({}, [
         {
           padding,
           width: typeof props.width === 'number' ? props.width : isFullscreen ? '100%' : undefined,
@@ -88,15 +88,13 @@ function DialogInline(props: DialogProps) @{
   const padding = spacingStep(props.padding ?? 5) ?? 20
 
   <masonview
+    id={props.id}
     className={cx('vx-dialog', 'vx-dialog--inline', props.className)}
-    style={mergeStyle(
-      { display: 'flex' },
-      {
-        padding,
-        width: typeof props.width === 'number' ? props.width : undefined,
-        ...styleRecord(props.style),
-      },
-    )}
+    style={{
+      padding,
+      width: typeof props.width === 'number' ? props.width : undefined,
+      ...styleRecord(props.style),
+    }}
     accessibilityLabel={props.accessibilityLabel}
   >
     <DialogProvider value={{ titleId, isModal: false, requestClose: props.onOpenChange }}>
@@ -150,7 +148,7 @@ export function Dialog(props: DialogProps): unknown @{
   useEffect(() => {
     const cur = shown.current
 
-    if (!open) {
+    if (!open || props.isInline) {
       cur?.lifetime.close()
       return
     }
@@ -204,6 +202,8 @@ export function Dialog(props: DialogProps): unknown @{
     })
   }, [
     open,
+    props.isInline,
+    portalHost,
     props.children,
     props.className,
     props.style,
@@ -218,23 +218,29 @@ export function Dialog(props: DialogProps): unknown @{
   // Zero-size sentinel — the dialog resolves its owning RootLayout from
   // the declaring component's ancestry.
 
-  <>
-    <masonview
-      ref={(v: any) => {
-        sentinel.current = v
-      }}
-      style={mergeStyle(
-        { flexDirection: 'column' },
-        mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
-      )}
-    />
-    {open && portalHost
-      ? createPortal(
-          <DialogPanel {...props} onOpenChange={requestChange} layerDepth={dismissal.depth} />,
-          portalHost,
-        )
-      : null}
-  </>
+  @if (props.isInline) {
+    @if (open) {
+      <DialogInline {...props} onOpenChange={requestChange} />
+    }
+  } @else {
+    <>
+      <masonview
+        ref={(v: any) => {
+          sentinel.current = v
+        }}
+        style={mergeStyle(
+          { flexDirection: 'column' },
+          mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+        )}
+      />
+      {open && portalHost
+        ? createPortal(
+            <DialogPanel {...props} onOpenChange={requestChange} layerDepth={dismissal.depth} />,
+            portalHost,
+          )
+        : null}
+    </>
+  }
 }
 
 /** Dialog title row (Astryx `DialogHeader`), native leaf. */

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import './Pager.css'
 import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useRef } from 'octane'
 import type { PagerProps } from './props'

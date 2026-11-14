@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './Pager.css'
 import { memo, useCallback, useEffect, useRef, useState } from 'octane'
 import {
   pickAccessibilityProps,
@@ -218,9 +219,7 @@ function PagerInner(props: PagerProps) @{
     />
     {portalCells.map((cell) =>
       createPortal(
-        <masonview style={{ display: 'grid' }}>
-          {cell.renderItem?.(cell.item, cell.index)}
-        </masonview>,
+        <masonview className="vx-pager-page">{cell.renderItem?.(cell.item, cell.index)}</masonview>,
         cell.host,
       ),
     )}

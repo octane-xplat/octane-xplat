@@ -90,10 +90,7 @@ export function ListItem(props: ListItemProps): unknown @{
           <TextSlot>{props.startContent}</TextSlot>
         </masonview>
       }
-      <masonview
-        className="vx-listitem-body"
-        style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 }}
-      >
+      <masonview className="vx-listitem-body">
         <TextSlot className="vx-listitem-label">{props.label}</TextSlot>
         @if (props.description != null) {
           <TextSlot className="vx-listitem-desc">{props.description}</TextSlot>

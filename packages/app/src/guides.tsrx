@@ -62,7 +62,7 @@ export function GuideIndex() @{
     <Text className="text-sm text-muted">
       {'Registered from a ' + GUIDES.length + '-record data array.'}
     </Text>
-    <View className="gap-2">
+    <View className="flex flex-col gap-2">
       @for (const doc of GUIDES; key doc.slug) {
         <NavLink to="/guides/:slug" params={{ slug: doc.slug }} className="chip">
           <Text>{doc.title} →</Text>

@@ -18,7 +18,7 @@ const LAYOUTS = [
 export function SegmentedDemo() @{
   const [range, setRange] = useState('week')
 
-  <View className="pager-demo gap-4">
+  <View className="flex flex-col pager-demo gap-4">
     <Heading>Segmented control</Heading>
     <SegmentedControl
       options={RANGES}

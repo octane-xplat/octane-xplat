@@ -23,7 +23,7 @@ export function ControlsDemo() @{
   const [value, setValue] = useState(42)
   const [busy, setBusy] = useState(true)
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading level={2}>Controls</Heading>
     <View className="controls-section">
       <Text className="font-bold">Slider: {value}</Text>

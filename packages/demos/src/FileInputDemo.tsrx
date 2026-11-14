@@ -7,7 +7,7 @@ import { HStack, Text, View } from '@octane-xplat/ui'
 export function FileInputDemo() @{
   const [value, setValue] = useState<FileInputFile[] | null>([])
 
-  <View className="gap-4 p-4">
+  <View className="flex flex-col gap-4 p-4">
     <Text className="text-lg font-semibold">File entry</Text>
     <FileInput
       label="Attachments"

@@ -77,7 +77,7 @@ export function Divergence() @{
 		    fixed avatar + grow body with intrinsic-height content. */}
     <View className="sink-section">
       <Text className="section-label">row collapse</Text>
-      <View id="dv-collapse" className="gap-4">
+      <View id="dv-collapse" className="flex flex-col gap-4">
         <HStack id="dv-collapse-row" className="items-start shrink-0">
           <View id="dv-coll-avatar" className="dv-avatar" style={{ width: 46, height: 46 }} />
           <View id="dv-coll-body" className="grow min-w-0" style={{ width: 0, marginLeft: 12 }}>

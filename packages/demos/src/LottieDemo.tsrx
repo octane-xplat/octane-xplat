@@ -17,7 +17,7 @@ export function LottieDemo() @{
   const [status, setStatus] = useState('idle')
   const handle = useRef<LottieHandle | null>(null)
 
-  <View className="lottie-demo gap-4">
+  <View className="flex flex-col lottie-demo gap-4">
     <Heading level={2}>Lottie</Heading>
     <Lottie
       className="lottie-demo-anim"

@@ -1,0 +1,5 @@
+.neutral-host, .neutral-card { width: 240px; height: 120px; }
+.neutral-card > .vx-card-body { height: 120px; }
+.neutral-child { height: 20px; }
+.neutral-flex-class { display: flex; flex-direction: row; }
+.neutral-grid-class { display: grid; grid-template-columns: 1fr 1fr; }

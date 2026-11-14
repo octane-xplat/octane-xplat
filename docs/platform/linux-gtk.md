@@ -239,7 +239,7 @@ export function DirectionExample() {
   const [rtl, setRtl] = useState(false)
   return (
     <View style={{ direction: rtl ? 'rtl' : undefined }}>
-      <View style={{ flexDirection: 'row', gap: 8 }}>
+      <View className="flex flex-row" style={{ gap: 8 }}>
         <Text>First</Text>
         <Text>Second</Text>
       </View>

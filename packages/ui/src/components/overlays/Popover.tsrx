@@ -166,7 +166,7 @@ function PopoverLayer(
       className={cx('vx-popover', props.className)}
       onLoaded={update}
       onLayoutChanged={update}
-      style={mergeStyle({ display: 'grid' }, [
+      style={mergeStyle({}, [
         props.style,
         { position: 'absolute', left: position?.left ?? 0, top: position?.top ?? 0 },
       ])}

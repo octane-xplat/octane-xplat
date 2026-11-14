@@ -55,7 +55,7 @@ export function Weather() @{
     {days === null ? (
       <Text className="cell">{'Loading…'}</Text>
     ) : (
-      <View className="gap-2">
+      <View className="flex flex-col gap-2">
         @for (const d of days; key d.id) {
           <HStack className="wx-card gap-4 items-center">
             <Text className="wx-icon">{d.icon}</Text>

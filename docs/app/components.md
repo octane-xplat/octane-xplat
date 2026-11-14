@@ -29,7 +29,7 @@ For changed selection, date, number, timestamp, and duration props, see the
 [UI API migration guide](ui-api-migrations.md).
 `KeyboardAvoiding` is available from every root entry. It adjusts around the
 software keyboard on iOS and Android; web, Linux, macOS, and Windows keep a
-neutral column wrapper.
+neutral block wrapper.
 
 ```tsx
 import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
@@ -122,7 +122,7 @@ export function Example() {
 | `VisuallyHidden`   | Keeps content available to assistive technology                                            | `as` (web tag)                                                            |
 | `Spacer`           | Flexible gap filler                                                                        |                                                                           |
 | `SafeArea`         | Insets-aware container                                                                     | `edges`                                                                   |
-| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere | `enabled`, `keyboardVerticalOffset`                                       |
+| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral block wrapper elsewhere | `enabled`, `keyboardVerticalOffset`                                       |
 
 `Stack`, `Center`, `Section`, and `FormLayout` gap and padding props use
 spacing steps: each step is 4 dips (CSS pixels on web). Numeric sizes are dips

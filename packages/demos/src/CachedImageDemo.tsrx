@@ -17,7 +17,7 @@ export function CachedImageDemo() @{
   const [status, setStatus] = useState('waiting for first load…')
   const [cached, setCached] = useState('')
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading level={2}>Cached image</Heading>
     <Text>
       Remote images load through ui-image (Glide/SDWebImage) on native — a sized LRU + bitmap pool

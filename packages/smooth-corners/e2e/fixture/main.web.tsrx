@@ -9,6 +9,7 @@ function App() @{
   const [layeredClip, setLayeredClip] = useState(false)
   const [wide, setWide] = useState(false)
   const [clicks, setClicks] = useState(0)
+  const [layout, setLayout] = useState<'block' | 'flex' | 'grid'>('block')
 
   return (
     <div>
@@ -45,6 +46,24 @@ function App() @{
         style={{ transform: 'scale(1.2)', opacity: 0.5 }}
       />
       <output id="clicks">{clicks}</output>
+      <button id="layout-block" onClick={() => setLayout('block')}>
+        Block
+      </button>
+      <button id="layout-flex" onClick={() => setLayout('flex')}>
+        Flex
+      </button>
+      <button id="layout-grid" onClick={() => setLayout('grid')}>
+        Grid
+      </button>
+      <SmoothCorners
+        id="layout-panel"
+        corners={{ radius: 12 }}
+        className={['layout-panel', layout !== 'block' && `layout-${layout}`]}
+        gap={8}
+      >
+        <div id="layout-first" className="layout-child" />
+        <div id="layout-second" className="layout-child" />
+      </SmoothCorners>
       <SmoothCorners
         id="panel"
         className={['panel', classClip && 'clip-children', layeredClip && 'clip-layered']}

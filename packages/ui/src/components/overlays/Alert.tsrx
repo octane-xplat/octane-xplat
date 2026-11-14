@@ -18,7 +18,7 @@ export function Alert(props: AlertProps): unknown @{
     @if (props.icon) {
       <Icon name={props.icon} className="vx-alert-icon" />
     }
-    <masonview className="vx-alert-body" style={{ display: 'flex' }}>
+    <masonview className="vx-alert-body">
       @if (props.title != null) {
         <label className="vx-alert-title" text={props.title} />
       }

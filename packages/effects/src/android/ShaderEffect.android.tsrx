@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import '../ShaderEffect.css'
 import { useEffect, useRef } from 'octane'
 
 export interface ShaderEffectProps {
@@ -141,8 +142,8 @@ export function ShaderEffect(props: ShaderEffectProps) @{
 
   <masonview
     id={props.id}
-    className={props.className}
-    style={{ display: 'grid', ...props.style }}
+    className={['vx-shader-effect', props.className]}
+    style={props.style}
     ref={ref}
   >
     {props.children}

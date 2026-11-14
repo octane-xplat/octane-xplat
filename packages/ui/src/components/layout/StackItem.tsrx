@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import { useInteractionHost } from '../../gestures/host.tsrx'
@@ -50,7 +50,7 @@ export function StackItem(props: StackItemProps): unknown @{
       accessibilityState={nativeAccessibilityState(props.accessibilityState)}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
-      <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
+      <masonview className="vx-stackitem-content">
         <InteractionScopeProvider scope={props.interactionScope}>
           {props.children}
         </InteractionScopeProvider>
@@ -61,7 +61,7 @@ export function StackItem(props: StackItemProps): unknown @{
       id={props.id}
       ref={forwardedRef}
       className={cx('vx-stackitem', props.className)}
-      style={mergeStyle({ display: 'flex' }, { ...itemStyle, ...styleRecord(props.style) })}
+      style={{ ...itemStyle, ...styleRecord(props.style) }}
       accessible={props.accessible}
       accessibilityLabel={props.accessibilityLabel}
       accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}

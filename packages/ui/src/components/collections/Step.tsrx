@@ -64,9 +64,7 @@ export function Step(props: StepProps): unknown @{
         <label className="vx-step-description" text={props.description} />
       ) : null}
       {props.children != null ? (
-        <masonview className="vx-step-content" style={{ display: 'flex' }}>
-          {props.children}
-        </masonview>
+        <masonview className="vx-step-content">{props.children}</masonview>
       ) : null}
     </masonview>
   </masonview>

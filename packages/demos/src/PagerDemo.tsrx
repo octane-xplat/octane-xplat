@@ -38,7 +38,7 @@ const renderPage = (page: (typeof PAGES)[number]) => @{
 export function PagerDemo() @{
   const [page, setPage] = useState(0)
 
-  <View className="pager-demo gap-4">
+  <View className="flex flex-col pager-demo gap-4">
     <Heading level={2}>Pager</Heading>
     <Pager
       className="pager-demo-pager"

@@ -59,18 +59,22 @@ export function CaptureCard() {
 }
 ```
 
-The wrapper owns a real layout container: a `div` on web and a `masonview` on
-native hosts. Give it a visible, nonzero layout. Wait for images, custom fonts
+The wrapper owns a block-flow layout container: a `div` on web and a `masonview` on
+native hosts. Use a child `HStack` or `VStack` when the content needs an arranged
+layout. Give the capture frame a visible, nonzero layout. Wait for images, custom fonts
 and asynchronous children yourself; mounting does not mean those assets have
 finished loading.
 
 ```tsx
-import { Text } from '@octane-xplat/ui'
+import { Text, VStack } from '@octane-xplat/ui'
 import ViewShot from '@octane-xplat/view-shot'
 
 export function SizedCard() {
   return <ViewShot style={{ width: 320, height: 180 }}>
-    <Text>Ready to capture</Text>
+    <VStack gap={2}>
+      <Text>Trip to the coast</Text>
+      <Text>Ready to capture</Text>
+    </VStack>
   </ViewShot>
 }
 ```

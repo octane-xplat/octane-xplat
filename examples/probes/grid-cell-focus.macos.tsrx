@@ -22,7 +22,7 @@ export default function GridCellFocusProbe() @{
 
   const inner = useGridFocus<NSView>({ rows: 1, columns: 2 })
 
-  <View className="gap-3">
+  <View className="flex flex-col gap-3">
     <Text>
       Native grid-cell focus: source implementation, OS qualification pending. Use Tab, arrows and
       Home/End. Cell activation stays on Enter/Space or click; nested fields keep editing keys. This

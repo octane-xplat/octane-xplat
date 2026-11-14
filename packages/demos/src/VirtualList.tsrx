@@ -41,7 +41,7 @@ function VirtualListRow(props: { item: Row_ }) @{
 
   <Pressable
     id={'row-' + props.item.id}
-    className="px-3"
+    className="flex flex-col px-3"
     style={{ height: props.item.height, justifyContent: 'center' }}
     onPress={() => setPressCount((count) => count + 1)}
   >

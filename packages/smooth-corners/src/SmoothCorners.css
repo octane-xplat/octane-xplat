@@ -1,0 +1,7 @@
+@layer theme, xplat-structure, xplat-chrome, utilities;
+
+@layer xplat-structure {
+  /* The frame owns the surface/shadow layers; caller content owns its flow. */
+  .vx-smooth-corners-frame { display: grid; overflow: visible; }
+  .vx-smooth-corners { display: block; position: relative; }
+}

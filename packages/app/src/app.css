@@ -83,6 +83,8 @@ body {
    targets (the `* {flex-shrink:0}` default already guards against the
    native no-floor compression). */
 .parity-stage {
+	display: flex;
+	flex-direction: column;
 	gap: 12px;
 }
 
@@ -93,6 +95,8 @@ body {
    box both start flex-start; --fill restores the app-default stretch. */
 .parity-cell,
 .parity-box {
+	display: flex;
+	flex-direction: column;
 	align-items: flex-start;
 }
 
@@ -184,6 +188,8 @@ body {
 /* Human QA checklist (/qa) — one card per check; the verdict tints the
    card border so review state is scannable mid-sweep. */
 .qa-check {
+	display: flex;
+	flex-direction: column;
 	gap: 6px;
 	padding: 12px;
 	border-width: 1px;
@@ -261,6 +267,8 @@ body {
 /* Sheet / overlay / modal content — separate roots on native (.vx-app is
    not an ancestor), so each carries its own surface and text colors. */
 .sheet-panel {
+	display: flex;
+	flex-direction: column;
 	padding: 24px;
 	gap: 12px;
 	border-top-left-radius: var(--radius-xl);
@@ -280,6 +288,8 @@ body {
 }
 
 .overlay-panel {
+	display: flex;
+	flex-direction: column;
 	padding: 24px;
 	margin: 40px;
 	gap: 12px;
@@ -301,6 +311,8 @@ body {
 }
 
 .modal-panel {
+	display: flex;
+	flex-direction: column;
 	gap: 12px;
 }
 

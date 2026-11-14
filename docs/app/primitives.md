@@ -52,6 +52,74 @@ components from `@octane-xplat/ui`. The supported web, iOS, and Android
 implementations aim for consistent appearance and actions;
 [experimental desktop targets](../start/spec.md#choose-your-targets) have narrower coverage.
 
+## Predictable container defaults
+
+`View` groups content using block flow: ordinary block children follow one
+another vertically, and their height comes from their content. `Pressable`
+adds interaction to the same neutral layout. Choosing either wrapper does not
+make its children flex or grid items. Use a stack when you want alignment,
+wrapping, gaps, or remaining-space distribution.
+
+```tsx
+import { Pressable, Text, VStack } from '@octane-xplat/ui'
+
+export function AccountChoice() {
+  return (
+    <Pressable accessibilityRole="button" onPress={() => {}}>
+      <VStack gap={2}>
+        <Text>Personal account</Text>
+        <Text>Keep your own saved items.</Text>
+      </VStack>
+    </Pressable>
+  )
+}
+```
+
+Card and alert/banner body content, focus wrappers, safe-area wrappers, and scroll content follow
+the same rule. A scroll viewport still controls scrolling and available space;
+put an explicit layout inside it to arrange its children. Named layouts and
+structured controls retain their own arrangement, and inline content such as
+badges and icons retains its documented sizing. Drawer main/panel hosts keep
+the bounded viewport required by nested screens; choose an explicit child layout
+inside them. Empty-state components keep their centered arrangement.
+
+```tsx
+import { Card, HStack, ScrollableArea, Text, VStack } from '@octane-xplat/ui'
+
+export function SavedItems() {
+  return (
+    <ScrollableArea height={240}>
+      <VStack gap={3}>
+        <Card>
+          <HStack gap={2}>
+            <Text>Carry-on</Text>
+            <Text>Ready</Text>
+          </HStack>
+        </Card>
+      </VStack>
+    </ScrollableArea>
+  )
+}
+```
+
+For an existing screen that relied on an implicit flex column, choose `VStack`
+or give the intended container an explicit flex class. Alignment and spacing
+props alone do not change a neutral container's layout mode. Removing an
+explicit class or style returns it to block flow.
+
+```tsx
+import { Text, View } from '@octane-xplat/ui'
+import './choices.css'
+
+export function Choices() {
+  return <View className="choices"><Text>Personal</Text><Text>Team</Text></View>
+}
+```
+
+```css
+.choices { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+```
+
 ## A practical example
 
 For a small experiment in the starter, replace `src/App.tsrx` with this
@@ -728,7 +796,9 @@ export function NestedDetails() {
 compact navigation lists. Use `startContent`, `label`, `description`, and
 `endContent` for the common shape, or compose `StartContent`, `Content`,
 `Description`, and `EndContent` slots for richer content. These content roles
-match `ListItem`. `Item` works by itself or inside `FieldGroup`; the row owns
+match `ListItem`. The main content uses block flow, so its children follow one
+another without growing to fill the row's height. Put an explicit stack in
+`Item.Content` for alignment or gaps. `Item` works by itself or inside `FieldGroup`; the row owns
 its layout and press behavior, while
 `FieldGroup` remains the field container. See the maintained
 [ListDemo](../../packages/demos/src/ListDemo.tsrx) for both forms. Press a row

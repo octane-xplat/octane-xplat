@@ -38,6 +38,19 @@ component layer; design tokens are CSS custom properties.
    `.ns-dark`, `.ns-light`, `.ns-landscape`, `.ns-modal` on native ≈
    `:root`/`.dark` on web.
 
+General containers use block flow. A direction, gap or alignment prop does not
+select flex/grid. Prefer `HStack`/`VStack` for arranged content, or explicitly
+select display with a class; the optional utilities include `block`, `flex`,
+`grid`, `flex-row` and `flex-col`. See [container defaults](../../../../docs/app/primitives.md#predictable-container-defaults).
+
+```tsx
+import { Pressable, Text, VStack } from '@octane-xplat/ui'
+
+<Pressable onPress={() => {}}>
+  <VStack gap={2}><Text>Account</Text><Text>Open settings</Text></VStack>
+</Pressable>
+```
+
 When maintaining AppKit leaves, preserve the public style value before the host
 boundary. The renderer now normalizes declaration strings and ordered arrays
 before validation and mutation using the existing CSS-tree parser. This closes

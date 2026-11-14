@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './components.css'
 import {
   usePanGesture$,
   View,
@@ -40,7 +41,7 @@ export function Components(props: {
 
   return (
     <MotionConfig reducedMotion="never">
-      <View style={{ width: 480, height: 540, flexDirection: 'column' }}>
+      <View className="desktop-gesture-column" style={{ width: 480, height: 540 }}>
         <View
           ref={bindParent}
           style={{
@@ -87,7 +88,7 @@ export function Components(props: {
             height={260}
             label="Draft history"
           >
-            <View style={{ width: 360, height: 800, flexDirection: 'column' }}>
+            <View className="desktop-gesture-column" style={{ width: 360, height: 800 }}>
               <TextInput
                 ref={bindField}
                 label="Draft title"

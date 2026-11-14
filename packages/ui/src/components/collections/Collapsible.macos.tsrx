@@ -47,7 +47,7 @@ export function Collapsible(props: CollapsibleProps): unknown @{
       )}
     </Pressable>
     @if (open) {
-      <masonview className="vx-collapsible-content" style={{ display: 'flex' }}>
+      <masonview className="vx-collapsible-content">
         {props.children}
       </masonview>
     }

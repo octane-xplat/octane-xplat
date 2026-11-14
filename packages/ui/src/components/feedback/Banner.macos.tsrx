@@ -19,7 +19,7 @@ export function Banner(props: BannerProps): unknown @{
         className="vx-banner-icon"
       />
     }
-    <masonview className="vx-banner-body" style={{ display: 'flex' }}>
+    <masonview className="vx-banner-body">
       {props.children}
     </masonview>
     @if (props.onDismiss) {

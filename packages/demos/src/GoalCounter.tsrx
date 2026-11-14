@@ -6,7 +6,7 @@ import { View, Text, Pressable } from '@octane-xplat/ui'
 export function GoalCounter() @{
   const [count, setCount] = useState(0)
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Text className="text-xl font-semibold">Take five small steps</Text>
     <Text accessibilityLiveRegion="polite">{`${count} of 5 steps completed${count === 5 ? ' — goal reached!' : ''}`}</Text>
     <Pressable

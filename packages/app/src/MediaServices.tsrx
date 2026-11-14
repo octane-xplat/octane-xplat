@@ -57,7 +57,7 @@ export function MediaServices() @{
 
   const caps = player.capabilities()
 
-  <View className="sink-section gap-2">
+  <View className="flex flex-col sink-section gap-2">
     <Text className="section-label">Optional media services</Text>
     <HStack className="gap-2">
       <Pressable id="media-haptic-preset" onPress={() => haptics.play('success')} className="chip">
@@ -143,7 +143,7 @@ export function MediaServices() @{
         <Text>Seek 10s</Text>
       </Pressable>
     </HStack>
-    <View className="gap-2">
+    <View className="flex flex-col gap-2">
       <Pressable
         id="media-player-rate"
         className="chip"

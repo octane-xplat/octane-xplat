@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './SheetContent.css'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@nativescript/swift-ui'
@@ -56,7 +57,7 @@ function registerHost(id: string, host: GridLayout): void {
 }
 
 function ContentRoot(props: { render: () => any }) @{
-  <>{props.render()}</>
+  <masonview className="xplat-native-sheet-content">{props.render()}</masonview>
 }
 
 let seq = 0

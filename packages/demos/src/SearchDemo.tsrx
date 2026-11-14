@@ -6,7 +6,7 @@ export function SearchDemo() @{
   const [query, setQuery] = useState('sunsets')
   const [submitted, setSubmitted] = useState('')
 
-  <View className="pager-demo gap-4">
+  <View className="flex flex-col pager-demo gap-4">
     <Heading>Search input</Heading>
     <SearchInput
       label="Search photos"

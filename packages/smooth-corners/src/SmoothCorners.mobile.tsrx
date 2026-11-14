@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './SmoothCorners.css'
 import { validateSurfaceProps } from './validation.ts'
 import { useCallback, useEffect, useRef } from 'octane'
 import { isIOS } from '@nativescript/core'
@@ -115,7 +116,7 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
   return (
     <masonview
       ref={bindOuter.current}
-      className={props.className}
+      className={['vx-smooth-corners-frame', props.className]}
       style={{
         display: 'grid',
         ...contentPaintReset,
@@ -129,7 +130,6 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
         id={props.id}
         className={['vx-smooth-corners', props.className]}
         style={{
-          display: 'grid',
           ...paintedStyle(props.style),
           ...contentPaintReset,
           ...contentLayout,

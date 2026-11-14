@@ -160,12 +160,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
       orientation="vertical"
       {...a11y(props)}
     >
-      <masonview
-        style={mergeStyle(
-          { flexDirection: 'column' },
-          mergeStyle({ display: 'flex' }, contentPadding(props)),
-        )}
-      >
+      <masonview className="vx-scrollable-content" style={contentPadding(props)}>
         {props.children}
       </masonview>
     </scrollview>
@@ -240,22 +235,12 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
         }}
         orientation="horizontal"
       >
-        <masonview
-          style={mergeStyle(
-            { flexDirection: 'row' },
-            mergeStyle({ display: 'flex' }, contentPadding(props)),
-          )}
-        >
+        <masonview className="vx-scrollable-content" style={contentPadding(props)}>
           {props.children}
         </masonview>
       </scrollview>
     ) : (
-      <masonview
-        style={mergeStyle(
-          { flexDirection: horizontal ? 'row' : 'column' },
-          mergeStyle({ display: 'flex' }, contentPadding(props)),
-        )}
-      >
+      <masonview className="vx-scrollable-content" style={contentPadding(props)}>
         {props.children}
       </masonview>
     )}

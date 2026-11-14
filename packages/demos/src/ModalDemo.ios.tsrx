@@ -102,7 +102,7 @@ export function ModalDemo() @{
       presentation={presentation}
       onClose={() => setDeclarativeOpen(false)}
     >
-      <View className="demo-modal-card gap-4">
+      <View className="flex flex-col demo-modal-card gap-4">
         <Text className="font-bold">Declarative children</Text>
         <Text>Presentation: {presentation}</Text>
         <Pressable onPress={() => setDeclarativeOpen(false)} className="btn bg-primary">
@@ -116,7 +116,7 @@ export function ModalDemo() @{
       snapPoints={[0.25, 0.5, 0.9]}
       onOpenChange={(o) => setDetentOpen(o)}
     >
-      <View className="demo-modal-card gap-4">
+      <View className="flex flex-col demo-modal-card gap-4">
         <Text className="font-bold">Detent sheet</Text>
         <Text className="text-sm text-muted">
           Snaps at 25%, 50%, 90% of the viewport height. Drag the grabber or tap the shade to

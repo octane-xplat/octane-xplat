@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useRef, useState } from 'octane'
 import type { HoverCardOptions, HoverCardReturn } from '../../props'
 import { useLayer } from './use-layer.tsrx'
@@ -121,11 +120,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
   const renderHoverCard = useCallback(
     (children: any, props?: Record<string, any>) => {
       return layer.render(
-        <masonview
-          className="vx-hovercard-content"
-          accessibilityLabel={options.label}
-          style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-        >
+        <masonview className="vx-hovercard-content" accessibilityLabel={options.label}>
           {children}
         </masonview>,
         {

@@ -42,6 +42,7 @@ export function Banner(props: BannerProps): JSX.Element | null @{
     id={props.id}
     className={[
       'vx-banner',
+      'vx-banner--web',
       `vx-banner--${status}`,
       props.variant === 'floating' && 'vx-banner--floating',
       props.container === 'section' && 'vx-banner--section',

@@ -38,6 +38,21 @@ For the OS's own scrolling lists, see `UITableView` and `RecyclerView` in
 controls](../../.agents/docs/notes/primitive-notes.md#native-control-implementation-map).
 Those use a different implementation that recycles native cells.
 
+Each item, header, footer, empty-state and separator content box uses block
+flow. Return a child layout when a row needs spacing or alignment; the list
+continues to own row measurement and scrolling.
+
+```tsx
+import { Text, VirtualList, VStack } from '@octane-xplat/ui'
+
+export function PackingRows() {
+  return <VirtualList className="item-viewport" items={[{ id: 'coat', title: 'Coat' }]}
+    renderItem={(item) => <VStack gap={1}>
+      <Text>{item.title}</Text><Text>Keep in your day bag</Text>
+    </VStack>} />
+}
+```
+
 ## Keep identity and state stable
 
 ```tsx

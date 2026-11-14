@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { SectionProps } from '../../props'
@@ -37,20 +37,17 @@ export function Section(props: SectionProps): unknown @{
       dividers.has('end') && 'vx-section--divider-end',
       props.className,
     )}
-    style={mergeStyle(
-      { display: 'flex', flexDirection: 'column' },
-      {
-        paddingLeft: spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? padding,
-        paddingRight: spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? padding,
-        paddingTop: spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding,
-        paddingBottom: spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding,
-        ...(props.width != null ? { width: props.width } : {}),
-        ...(props.height != null ? { height: props.height } : {}),
-        ...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
-        ...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-        ...styleRecord(props.style),
-      },
-    )}
+    style={{
+      paddingLeft: spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? padding,
+      paddingRight: spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? padding,
+      paddingTop: spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding,
+      paddingBottom: spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding,
+      ...(props.width != null ? { width: props.width } : {}),
+      ...(props.height != null ? { height: props.height } : {}),
+      ...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
+      ...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
+      ...styleRecord(props.style),
+    }}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={props.accessibilityRole}
     accessibilityHint={props.accessibilityHint}

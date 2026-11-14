@@ -74,7 +74,7 @@ export function Stopwatch() @{
         <Text>Reset</Text>
       </Pressable>
     </HStack>
-    <View className="gap-2">
+    <View className="flex flex-col gap-2">
       @for (const lap of laps; index i; key lap.id) {
         <Text className="chip">{'Lap ' + (laps.length - i) + ' — ' + fmt(lap.ms)}</Text>
       }

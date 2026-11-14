@@ -1,55 +1,28 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { TextSlot } from '../forms/text-slot.tsrx'
 import type { BlockquoteProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps } from '../overlays/escape-props'
 
-/** macOS AppKit leaf — same structure as the shared native leaf; the AppKit
- *  host has no CSS layer for the blockquote rule, so the inline-start bar
- *  comes from the background strip view next to the content column. */
+/** AppKit quotation; shared CSS owns the optional border and text decoration.
+ *  String children render through a label so bare text works; component
+ *  children are placed as-is. `cite` renders as a smaller attribution line. */
 export function Blockquote(props: BlockquoteProps): unknown @{
   <masonview
+    ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
     className={cx('vx-blockquote', props.className)}
-    style={mergeStyle(
-      { flexDirection: 'row' },
-      mergeStyle(
-        { display: 'flex' },
-        { flexDirection: 'row', gap: 12, ...styleRecord(props.style) },
-      ),
-    )}
+    style={props.style}
   >
-    <masonview
-      style={mergeStyle(
-        { display: 'flex' },
-        {
-          width: 2,
-          backgroundColor: styleRecord(props.style)?.borderLeftColor ?? '#3f3f46',
-          alignSelf: 'stretch',
-        },
-      )}
-    />
-    <masonview
-      style={mergeStyle(
-        { flexDirection: 'column' },
-        mergeStyle({ display: 'flex' }, { flexGrow: 1 }),
-      )}
-    >
-      {typeof props.children === 'string' || typeof props.children === 'number' ? (
-        <label className="vx-blockquote-text vx-ink-muted" whiteSpace="normal">
-          {props.children}
+    <TextSlot className="vx-blockquote-text">{props.children}</TextSlot>
+    {props.cite != null && props.cite !== false ? (
+      typeof props.cite === 'string' || typeof props.cite === 'number' ? (
+        <label className="vx-blockquote-cite" whiteSpace="normal">
+          {props.cite}
         </label>
       ) : (
-        props.children
-      )}
-      {props.cite != null && props.cite !== false ? (
-        typeof props.cite === 'string' || typeof props.cite === 'number' ? (
-          <label className="vx-blockquote-cite vx-type-small vx-ink-muted" whiteSpace="normal">
-            {props.cite}
-          </label>
-        ) : (
-          props.cite
-        )
-      ) : null}
-    </masonview>
+        props.cite
+      )
+    ) : null}
   </masonview>
 }

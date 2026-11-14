@@ -62,7 +62,9 @@ function sheetHeightDips(height: BottomSheetProps['height'], vh: number): number
 function BottomSheetBody(props: { children?: any; layerDepth: number }) @{
   <>
     <LayerDepthProvider value={props.layerDepth}>
-      <SizeProvider value={null}>{props.children}</SizeProvider>
+      <SizeProvider value={null}>
+        <SheetContent>{props.children}</SheetContent>
+      </SizeProvider>
     </LayerDepthProvider>
   </>
 }

@@ -3,7 +3,6 @@ import { useRef } from 'octane'
 import type { PressableProps } from '../src/props'
 import { refList } from '../src/internal/accessibility/ref-list'
 import { layoutChildProps } from '../src/components/layout/layout-child'
-import { mergeStyle } from '../src/internal/layout/style-merge'
 import { virtualActivation } from '../src/gestures/virtual-activation'
 
 // Action/layout fixture: callbacks do not qualify AppKit input delivery.
@@ -12,10 +11,7 @@ export function Pressable(props: PressableProps): unknown @{
 
   <masonview
     {...props}
-    {...layoutChildProps(
-      props,
-      mergeStyle({ display: 'flex', flexDirection: 'column' }, props.style),
-    )}
+    {...layoutChildProps(props, props.style)}
     accessibilityState={{
       ...props.accessibilityState,
       disabled: props.disabled || props.accessibilityState?.disabled,

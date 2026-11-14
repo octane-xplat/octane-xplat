@@ -7,7 +7,9 @@
     "build:desktop-components": "node desktop-gestures/build-components.mjs",
     "qualify:macos-components": "node desktop-gestures/macos-host.mts",
     "build:windows-gestures": "node desktop-gestures/build-windows.mjs",
-    "verify:windows-gestures": "node desktop-gestures/verify-windows.mts"
+    "verify:windows-gestures": "node desktop-gestures/verify-windows.mts",
+    "test:layout-input": "node layout-defaults/mobile-input.mjs",
+    "test:layout-native": "node layout-defaults/native-content.mjs"
   },
   "devDependencies": {
     "@octane-xplat/nativescript-octane": "workspace:*",
@@ -17,12 +19,17 @@
     "@octane-xplat/linux-gtk": "workspace:*",
     "@octane-xplat/macos-appkit": "workspace:*",
     "@octane-xplat/motion": "workspace:*",
+    "@octane-xplat/smooth-corners": "workspace:*",
+    "@octane-xplat/view-shot": "workspace:*",
     "@octane-xplat/platform": "workspace:*",
     "@octane-xplat/ui": "workspace:*",
     "@tsrx/content-mapper": "catalog:",
     "@types/node": "26.6.6",
     "octane": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "@octane-xplat/context-menu": "workspace:*",
+    "@octane-xplat/effects": "workspace:*",
+    "@octane-xplat/sheet": "workspace:*"
   }
 }

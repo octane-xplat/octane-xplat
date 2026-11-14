@@ -24,7 +24,7 @@ export function NativeDatePickerDemo() @{
     toLocalDate(new Date(Date.now() + 86400000)),
   )
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading>Date input</Heading>
     <Text>Poll closes</Text>
     <DateInput

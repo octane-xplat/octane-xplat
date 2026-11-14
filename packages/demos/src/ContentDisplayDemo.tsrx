@@ -25,7 +25,7 @@ const ARTICLE = `# Release notes\n\n## Highlights\n\n## Fixes`
 export function ContentDisplayDemo() @{
   const outline = useOutlineFromMarkdown(ARTICLE)
 
-  <View className="content-display-demo gap-4">
+  <View className="content-display-demo flex flex-col gap-4">
     <Heading level={2}>Content display</Heading>
     <Blockquote cite="Octane release notes">
       A shared component tree for readable product content.

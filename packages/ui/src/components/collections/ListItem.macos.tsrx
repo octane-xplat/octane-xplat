@@ -97,13 +97,7 @@ export function ListItem(props: ListItemProps): unknown @{
         {props.startContent}
       </masonview>
     ) : null}
-    <masonview
-      className="vx-listitem-body"
-      style={mergeStyle(
-        { flexDirection: 'column', flexGrow: 1 },
-        mergeStyle({ display: 'flex' }, { minWidth: 0 }),
-      )}
-    >
+    <masonview className="vx-listitem-body">
       {labelNode}
       {descriptionNode}
       {props.children}

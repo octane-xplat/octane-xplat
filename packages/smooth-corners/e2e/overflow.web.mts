@@ -48,6 +48,24 @@ try {
     document.querySelector('#panel [aria-hidden] div')?.style.clipPath.startsWith('path('),
   )
 
+  const layoutHost = await page.locator('#layout-panel').elementHandle()
+  const layoutFrames = () => page.evaluate(() => {
+    const first = document.getElementById('layout-first').getBoundingClientRect()
+    const second = document.getElementById('layout-second').getBoundingClientRect()
+    return { width: first.width, height: first.height, dx: second.x - first.x, dy: second.y - first.y }
+  })
+  for (const mode of ['block', 'flex', 'block', 'grid', 'block']) {
+    await page.locator(`#layout-${mode}`).click()
+    await page.waitForFunction((mode) =>
+      getComputedStyle(document.getElementById('layout-panel')).display === mode, mode)
+    const frames = await layoutFrames()
+    assert.equal(frames.height, 20)
+    assert.equal(frames.width, mode === 'block' ? 240 : 116)
+    assert.equal(frames.dx, mode === 'block' ? 0 : 124)
+    assert.equal(frames.dy, mode === 'block' ? 20 : 0)
+    assert.equal(await layoutHost.evaluate(node => node === document.getElementById('layout-panel')), true)
+  }
+
   const read = () =>
     page.evaluate(() => {
       const panel = document.getElementById('panel')

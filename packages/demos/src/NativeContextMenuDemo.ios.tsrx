@@ -15,7 +15,7 @@ const ITEMS = [
 export function NativeContextMenuDemo() @{
   const [last, setLast] = useState('none')
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading>SwiftUI context menu</Heading>
     <Text>Long-press the card below</Text>
     <SwiftUIContextMenu

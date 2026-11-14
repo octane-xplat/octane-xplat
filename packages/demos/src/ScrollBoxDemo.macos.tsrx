@@ -35,7 +35,7 @@ export function ScrollBoxDemo() @{
     </Pressable>
     <Text accessibilityLabel={status}>{status}</Text>
     <ScrollableArea id="scrollbox-demo" label="Rows" className="flex-1">
-      <View className="gap-2">
+      <View className="flex flex-col gap-2">
         {rows.map((row) => (
           <Text key={row} className="cell">
             {row}

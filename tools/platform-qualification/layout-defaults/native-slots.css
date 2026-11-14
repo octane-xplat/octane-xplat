@@ -1,0 +1,5 @@
+.native-slot-frame,
+.vx-shader-content,
+.xplat-context-menu-content,
+.xplat-native-sheet-content { width: 240px; height: 120px; }
+.native-slot-child { height: 20px; flex-grow: 1; }

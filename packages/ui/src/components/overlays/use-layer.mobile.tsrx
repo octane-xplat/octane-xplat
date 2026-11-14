@@ -71,10 +71,11 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
       ref={panelRef}
       accessibilityLabel={props.accessibilityLabel}
       className={cx('vx-popover', props.className)}
-      style={mergeStyle({ display: 'grid' }, [
-        props.style,
-        { position: 'absolute', left: props.x ?? 0, top: props.y ?? 0 },
-      ])}
+      style={mergeStyle(props.style, {
+        position: 'absolute',
+        left: props.x ?? 0,
+        top: props.y ?? 0,
+      })}
     >
       <LayerDepthProvider value={props.layerDepth ?? 0}>
         <SizeProvider value={null}>{props.children}</SizeProvider>

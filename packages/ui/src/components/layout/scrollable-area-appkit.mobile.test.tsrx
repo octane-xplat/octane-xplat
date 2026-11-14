@@ -89,7 +89,7 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 
     try {
       expect(object.current.native).toBe(fx.host)
-      expect(fx.host.props.className).toBe('viewport active')
+      expect(fx.host.props.className).toBe('vx-scrollable viewport active')
       expect(fx.host.props.orientation).toBe('vertical')
       fx.render({ ref: callback, axis: 'inline' })
       expect(object.current).toBeNull()
@@ -292,7 +292,7 @@ it('converts AppKit physical/logical inline coordinates with clamped RTL inversi
 it('reads RTL start/end edges and updates direction without a scroll event', () => {
   function Localized(props: any) {
     return (
-      <InternationalizationProvider dir={props.dir}>
+      <InternationalizationProvider locale="en-US" dir={props.dir}>
         <Headless axis="both" />
       </InternationalizationProvider>
     )
@@ -325,7 +325,7 @@ it('keeps a stable logical handle across direction changes and mirrors inline pa
 
   function Localized(props: any) {
     return (
-      <InternationalizationProvider dir={props.dir}>
+      <InternationalizationProvider locale="en-US" dir={props.dir}>
         <ScrollableArea ref={handle} axis="both" paddingInlineStart={2} paddingInlineEnd={6} />
       </InternationalizationProvider>
     )

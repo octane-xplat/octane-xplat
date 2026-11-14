@@ -1,0 +1,5 @@
+@layer theme, xplat-structure, xplat-chrome, utilities;
+@layer xplat-structure {
+  /* The pager arranges pages; each page preserves ordinary caller content flow. */
+  .vx-pager-page { display: block; }
+}

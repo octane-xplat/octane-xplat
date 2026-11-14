@@ -32,7 +32,7 @@ function LayerPanel(props: {
 }) @{
   <masonview
     className={cx('vx-popover', props.className)}
-    style={mergeStyle({ display: 'flex' }, props.style)}
+    style={props.style}
     accessibilityLabel={props.label}
   >
     <LayerDepthProvider value={props.layerDepth ?? 0}>{props.body}</LayerDepthProvider>

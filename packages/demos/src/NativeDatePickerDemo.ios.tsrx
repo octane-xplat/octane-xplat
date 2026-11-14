@@ -13,7 +13,7 @@ const MINIMUM = new Date()
 export function NativeDatePickerDemo() @{
   const [selection, setSelection] = useState(INITIAL)
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading>SwiftUI date picker</Heading>
     <Text>Poll closes</Text>
     <SwiftUIDatePicker

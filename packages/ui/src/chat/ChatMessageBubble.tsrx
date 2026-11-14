@@ -44,10 +44,10 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps): unknown @{
         props.group && `vx-chatbubble--${props.group}-${isUser ? 'user' : 'assistant'}`,
         props.className,
       )}
-      style={mergeStyle(
-        { display: 'flex' },
-        { ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) },
-      )}
+      style={{
+        ...(props.width != null ? { width: props.width } : {}),
+        ...styleRecord(props.style),
+      }}
     >
       {props.children}
     </masonview>

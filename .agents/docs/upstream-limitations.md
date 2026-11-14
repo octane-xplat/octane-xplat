@@ -844,3 +844,23 @@ transform runner's priority lanes; the dev link-check's nested target
 transforms share that runner (deduped, still checked) and each target's
 default-export verdict is cached by served code. The runtime's budget,
 request/retry and graph deadlines remain upstream's to reconcile.
+
+## Android 35 RuntimeShader missing-uniform error can abort
+
+On the existing Android 35 ARM64 emulator, NativeScript Android runtime 9.1.1
+(V8 14.9.207.39), setting an absent AGSL uniform terminated the app with SIGABRT.
+The native log reports invalid Modified UTF-8 while constructing an
+`unable to find uniform named` exception in
+`android.graphics.RuntimeShader.nativeUpdateUniforms`. The JS try/catch in
+`packages/effects/src/android/ShaderEffect.android.tsrx` cannot intercept this
+native abort. The underlying Android/bridge diagnostic corruption is not yet
+isolated; other Android versions and physical devices remain unverified.
+
+The wrapper attempts `time` and `size` in its first `apply(0)`, including when
+`animate={false}`. A content-pass-through shader without those uniforms
+reproduced the crash. Track the fix in [issue #263](https://github.com/octane-xplat/octane-xplat/issues/263).
+The maintained `tools/platform-qualification/layout-defaults/native-surfaces.android.tsrx`
+fixture declares and uses both automatic uniforms to avoid depending on that
+error path while measuring content layout. This is a fixture constraint, not
+a runtime fix or a claim that missing uniforms are safely supported. Recheck
+the missing-uniform case when upgrading Android or the NativeScript runtime.

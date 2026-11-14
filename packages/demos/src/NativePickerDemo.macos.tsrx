@@ -57,7 +57,7 @@ export function NativePickerDemo() @{
 
   if (duplicateID) options = [...options, { id: 'carry', title: 'Duplicate ID' }]
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading>AppKit pop-up picker</Heading>
     @if (mounted) {
       <AppKitPicker

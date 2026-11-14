@@ -15,7 +15,7 @@ export function NativePickerDemo() @{
   const [selection, setSelection] = useState('1440')
   const selected = POLL_LENGTHS.find((option) => option.id === selection)
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading>SwiftUI picker</Heading>
     <Text>Poll length</Text>
     <SwiftUIPicker

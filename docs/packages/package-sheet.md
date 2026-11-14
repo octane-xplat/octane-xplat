@@ -55,6 +55,21 @@ On iOS the registered content view resolves through
 from its declaring tree, preserving providers. See the controlled AppKit example
 below.
 
+Sheet content uses block flow. Choose a child layout when the content needs
+spacing, alignment or a row; the sheet still owns its presentation and sizing.
+
+```tsx
+import { Text, VStack } from '@octane-xplat/ui'
+
+export function TripDetails() {
+  return <VStack gap={3}>
+    <Text>Trip to the coast</Text>
+    <Text>Two bags packed</Text>
+  </VStack>
+}
+// Pass content={() => <TripDetails />} to the platform sheet.
+```
+
 Web apps must also import the sheet stylesheet from their app entry:
 
 ```ts

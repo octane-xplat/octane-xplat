@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane'
-import { Text, View, Pressable, type PanNotification } from '@octane-xplat/ui'
+import { Text, VStack, Pressable, type PanNotification } from '@octane-xplat/ui'
 import { motion, MotionConfig, useMotionValue, useTransform, useReducedMotion } from '../src/index'
 
 /** Mount in a screen to exercise destination changes and pan-to-spring settling. */
@@ -36,7 +36,7 @@ export function MotionDemo() @{
   }
 
   <MotionConfig reducedMotion="user">
-    <View gap={16}>
+    <VStack gap={4}>
       <Pressable onPress={() => setExpanded(!expanded)}>
         <Text>Toggle motion</Text>
       </Pressable>
@@ -57,6 +57,6 @@ export function MotionDemo() @{
       <motion.Row onPan={pan} style={{ x, scale }}>
         <Text>Drag, then release</Text>
       </motion.Row>
-    </View>
+    </VStack>
   </MotionConfig>
 }

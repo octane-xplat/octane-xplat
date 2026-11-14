@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
 import { useLayer } from './use-layer.tsrx'
 import { useCallback, useEffect, useRef, useState } from 'octane'
@@ -16,11 +15,7 @@ function HoverCardPanel(props: { body: any; enter: () => void; exit: () => void 
     [props.enter, props.exit],
   )
 
-  <masonview
-    ref={view}
-    className="vx-hovercard-content"
-    style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-  >
+  <masonview ref={view} className="vx-hovercard-content">
     {props.body}
   </masonview>
 }

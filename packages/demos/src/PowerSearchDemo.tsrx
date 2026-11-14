@@ -17,7 +17,7 @@ export function PowerSearchDemo() @{
   const [filters, setFilters] = useState<any[]>([])
   const visible = applyFilters(filters, books)
 
-  <View className="power-search-demo gap-4">
+  <View className="flex flex-col power-search-demo gap-4">
     <Heading level={2}>Structured search</Heading>
     <PowerSearch
       config={config}
@@ -25,7 +25,7 @@ export function PowerSearchDemo() @{
       onChange={(next) => setFilters([...next])}
       resultCount={visible.length}
     />
-    <View className="gap-2">
+    <View className="flex flex-col gap-2">
       @for (const book of visible; key book.title) {
         <Text>
           {book.title} ({book.year})

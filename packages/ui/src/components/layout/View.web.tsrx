@@ -8,7 +8,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from './layout-child.web'
 import type { JSX } from 'octane/jsx-runtime'
 
-/** Neutral flex-column container with shared gesture ownership and optional input scope. */
+/** Neutral block container with shared gesture ownership and optional input scope. */
 export function View(props: ViewProps): JSX.Element @{
   const bindInput = useInteractionHost(props)
 

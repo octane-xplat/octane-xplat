@@ -1,0 +1,21 @@
+.content-flow-host, .content-flow-card { width: 240px; height: 120px; }
+.content-flow-card > .vx-card-header,
+.content-flow-card > .vx-card-body,
+.content-flow-card > .vx-card-footer { height: 80px; }
+.content-flow-child { height: 20px; }
+.content-flow-trigger { height: 10px; }
+
+.content-flow-notice { padding: 0; }
+.content-flow-notice .vx-alert-body,
+.content-flow-notice .vx-banner-body { margin-left: 0; }
+
+.content-flow-row { padding: 0; }
+.content-flow-row .vx-item-content,
+.content-flow-row .vx-listitem-body { height: 120px; }
+.content-flow-metadata .vx-metadatalist-value { height: 80px; margin: 0; }
+.content-flow-hovercard .vx-hovercard-content { height: 100px; }
+.content-flow-carousel .vx-carousel-slide { width: 240px; height: 120px; }
+.content-flow-step .vx-step-body { width: 240px; }
+.content-flow-step .vx-step-content { height: 100px; }
+.content-flow-toast .vx-toast-body,
+.content-flow-toast .vx-toast-content { height: 120px; }

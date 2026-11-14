@@ -16,6 +16,19 @@ that renders a control, then import `SwiftUIContextMenu` from
 `@octane-xplat/context-menu/web`, or `AppKitContextMenu` from
 `@octane-xplat/context-menu/macos` in the matching platform-suffixed file.
 
+Native trigger and preview content uses block flow. Choose a child layout
+when a trigger needs a row or spacing. The web trigger has an inline frame;
+its content keeps ordinary browser flow.
+
+```tsx
+import { HStack, Text } from '@octane-xplat/ui'
+
+export function TripTrigger() {
+  return <HStack gap={2}><Text>Trip</Text><Text>Actions</Text></HStack>
+}
+// Pass trigger={() => <TripTrigger />} to the platform context menu.
+```
+
 Install in your existing app with Bun. The macOS entry requires a
 [native AppKit app](https://octane-xplat.goddardai.org/macos-native); the renderer supplies
 its native menu attachment.
@@ -128,13 +141,13 @@ export function Actions() {
 - Web: right-click (`longPress`) or click (`singlePress`) opens the menu at
   the pointer.
 - macOS: right-click — the NSMenu is the view's `menu`, so AppKit owns
-  activation and disabled-item dimming; the trigger renders inline.
+  activation and disabled-item dimming; the trigger renders in place.
 
 On native macOS, item IDs must be unique strings and titles must be strings.
 Changing menu content or its record `id` retires the old session; callback-only
 renders preserve it and use the current handler. Empty items remove this
 wrapper's menu. Invalid data or a missing native attachment shows a generic
-unavailable message while the trigger remains inline. Native child editing menus
+unavailable message while the trigger remains in place. Native child editing menus
 and nested wrappers keep their own menu slots. See the
 [native macOS lifecycle and remaining limits](../platform/context-menu.md#native-macos-menus).
 

@@ -339,6 +339,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       viewportWidthRef.current = size.width
       rebuildLayout(entriesRef.current, size.width)
       restoreAnchor(anchor)
+      // Publish width even when the visible row range is unchanged.
+      setWindowVersion((version) => version + 1)
     }
 
     refreshWindow()
@@ -543,24 +545,21 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     onScroll={appKitScroll<AppKitScrollEvent>(onScroll)}
     onLayoutChanged={appKitLayout<AppKitLayoutEvent>(() => onScrollViewLayout())}
   >
-    <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
+    <masonview
+      className="vx-virtual-list-content"
+      style={{ width: viewportWidthRef.current || undefined }}
+    >
       @if (props.renderHeader) {
         <masonview
           className="vx-virtual-list-header"
           onLayoutChanged={appKitLayout<AppKitLayoutEvent>(onHeaderLayout)}
-          style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
         >
           {props.renderHeader()}
         </masonview>
       }
       @if (entries.length === 0) {
         @if (props.renderEmpty) {
-          <masonview
-            className="vx-virtual-list-empty"
-            style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-          >
-            {props.renderEmpty()}
-          </masonview>
+          <masonview className="vx-virtual-list-empty">{props.renderEmpty()}</masonview>
         }
       } @else {
         <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
@@ -579,10 +578,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
               )}
               style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
             >
-              {props.renderItem(entry.item, entry.index)}
-              {hasSeparator && entry.index < entries.length - 1
-                ? props.renderSeparator?.()
-                : null}
+              <masonview className="vx-virtual-list-item">
+                {props.renderItem(entry.item, entry.index)}
+              </masonview>
+              {hasSeparator && entry.index < entries.length - 1 ? (
+                <masonview className="vx-virtual-list-separator">
+                  {props.renderSeparator?.()}
+                </masonview>
+              ) : null}
             </masonview>
           }
           <masonview
@@ -592,12 +595,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
         </masonview>
       }
       @if (props.renderFooter) {
-        <masonview
-          className="vx-virtual-list-footer"
-          style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-        >
-          {props.renderFooter()}
-        </masonview>
+        <masonview className="vx-virtual-list-footer">{props.renderFooter()}</masonview>
       }
     </masonview>
   </scrollview>

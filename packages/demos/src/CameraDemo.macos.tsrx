@@ -56,7 +56,7 @@ export function CameraDemo() @{
     void take?.stop()
   }
 
-  <View className="camera-demo gap-4">
+  <View className="flex flex-col camera-demo gap-4">
     <Heading level={2}>Camera</Heading>
     <CameraView
       className="camera-demo-preview"

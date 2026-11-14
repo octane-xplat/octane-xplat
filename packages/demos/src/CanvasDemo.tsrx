@@ -12,7 +12,7 @@ import { draw } from './canvas-wgsl'
 export function CanvasDemo() @{
   const [status, setStatus] = useState('mounting…')
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading level={2}>Canvas / WebGPU</Heading>
     <Text>
       The same WGSL fragment shader renders on every target — browser WebGPU on web, wgpu over

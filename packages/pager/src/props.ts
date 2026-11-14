@@ -23,10 +23,8 @@ export interface LayoutChildProps {
   order?: number
 }
 
-/** Flex-container props shared by View/Row/Pressable — RN vocabulary, applied
- *  to the host flexboxlayout natively and the element's style on web.
- *  `gap` is a dip number (px on web); NS supports it on FlexboxLayout only
- *  (GridLayout has no gap). */
+/** Flex-container props use RN vocabulary and require an explicitly selected
+ *  flex/grid context. Gap is a dip number (px on web). */
 export interface FlexContainerProps {
   justifyContent?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
   alignItems?: 'start' | 'center' | 'end' | 'stretch' | 'baseline'
@@ -92,7 +90,8 @@ export interface PagerProps extends LayoutChildProps, AccessibilityProps {
    *  callers keep their own item type through `renderItem`. */
   items: any[]
   /** Cell renderer — receives the item and its page index; returns any
-   *  renderable. */
+   *  renderable. Each page's caller content uses block flow; return a Stack
+   *  for an arranged page layout. */
   renderItem: (item: any, index: number) => unknown
   /** Rendered when `items` is empty. */
   renderEmpty?: () => unknown

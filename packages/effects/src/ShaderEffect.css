@@ -1,0 +1,5 @@
+@layer theme, xplat-structure, xplat-chrome, utilities;
+
+@layer xplat-structure {
+  .vx-shader-effect, .vx-shader-content { display: block; }
+}

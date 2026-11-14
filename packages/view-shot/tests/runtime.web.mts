@@ -62,6 +62,23 @@ try {
   })
 
   await page.waitForFunction(() => typeof fixture.ref.current?.capture === 'function')
+  await page.evaluate(() => fixture.renderLayout('block'))
+  const layoutHost = await page.locator('#layout-card').elementHandle()
+  for (const mode of ['block', 'flex', 'block', 'grid', 'block', 'style', 'block']) {
+    await page.evaluate(mode => fixture.renderLayout(mode), mode)
+    const geometry = await page.evaluate(() => {
+      const a = document.getElementById('layout-first').getBoundingClientRect()
+      const b = document.getElementById('layout-second').getBoundingClientRect()
+      return { width: a.width, height: a.height, dx: b.x - a.x, dy: b.y - a.y }
+    })
+    assert.deepEqual(geometry, mode === 'block'
+      ? { width: 240, height: 20, dx: 0, dy: 20 }
+      : { width: 120, height: 20, dx: 120, dy: 0 })
+    assert.equal(await layoutHost.evaluate(node => node === document.getElementById('layout-card')), true)
+  }
+  assert.equal(await page.evaluate(() => fixture.trace.captured.length), 0)
+  await page.evaluate(() => fixture.render({}))
+  await page.waitForFunction(() => typeof fixture.ref.current?.capture === 'function')
   assert.equal(await page.evaluate(() => fixture.host.textContent), 'Trip card')
   assert.equal(await page.evaluate(() => fixture.trace.captured.length), 0)
   assert.equal(await page.evaluate(() => fixture.ref.current.capture()), 'owned:fixture-1')

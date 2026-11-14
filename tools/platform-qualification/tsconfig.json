@@ -1,17 +1,27 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ESNext"],
-    "types": ["node"],
+    "lib": [
+      "ESNext"
+    ],
+    "types": [
+      "node"
+    ],
     "jsx": "react-jsx",
     "jsxImportSource": "@octane-xplat/jsx",
-    "customConditions": ["native"]
+    "customConditions": [
+      "native"
+    ]
   },
-  "files": ["../../packages/linux-gtk-renderer/src/gi.d.ts"],
+  "files": [
+    "../../packages/linux-gtk-renderer/src/gi.d.ts"
+  ],
   "include": [
     "desktop-gestures/components.tsrx",
     "desktop-gestures/components.gtk.ts",
     "desktop-gestures/components.macos.ts",
-    "desktop-gestures/components.windows.ts"
+    "desktop-gestures/components.windows.ts",
+    "layout-defaults/*.tsrx",
+    "../../packages/ui/tests/fixtures/page-layout/suite.tsrx"
   ]
 }

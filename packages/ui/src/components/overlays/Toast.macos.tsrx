@@ -105,10 +105,7 @@ export function Toast(props: ToastProps): unknown @{
     {props.renderContent ? (
       props.renderContent(content)
     ) : (
-      <masonview
-        className="vx-toast-content"
-        style={mergeStyle({ flexDirection: 'column', flexGrow: 1 }, { display: 'flex' })}
-      >
+      <masonview className="vx-toast-content">
         {typeof props.body === 'string' ? (
           <label whiteSpace="normal">{props.body}</label>
         ) : (

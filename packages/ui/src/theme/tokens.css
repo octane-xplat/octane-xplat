@@ -2,6 +2,52 @@
 @layer theme, xplat-structure, xplat-chrome, utilities;
 
 @layer xplat-structure {
+	/* Neutral content hosts preserve normal flow. Layout components and
+	   structured controls declare their own arrangement independently. */
+	.vx-view,
+	.vx-pressable,
+	.vx-card,
+	.vx-blockquote,
+	.vx-alert-body,
+	.vx-banner-body,
+	.vx-banner-content,
+	.vx-card-header,
+	.vx-card-body,
+	.vx-card-footer,
+	.vx-collapsible-content,
+	.vx-focus-scope,
+	.vx-contextmenu,
+	.vx-hovercard-trigger,
+	.vx-hovercard-content,
+	.vx-sheet-content,
+	.vx-stackitem,
+	.vx-stackitem-content,
+	.vx-keyboard-avoiding-content,
+	.vx-section,
+	.vx-section-inner,
+	.vx-list-header,
+	.vx-list-content,
+	.vx-listitem-body,
+	.vx-item-content,
+	.vx-metadatalist-value,
+	.vx-step-content,
+	.vx-carousel-slide,
+	.vx-toast-body,
+	.vx-toast-content,
+	.vx-virtual-list-header,
+	.vx-virtual-list-footer,
+	.vx-virtual-list-empty,
+	.vx-virtual-list-item,
+	.vx-virtual-list-separator {
+		display: block;
+	}
+
+	/* Application roots explicitly arrange their screen regions. */
+	.vx-app {
+		display: flex;
+		flex-direction: column;
+	}
+
 	/* xplat-web-only:start — DOM normalization. NativeScript is the reference
    box model: dip sizes are outer boxes, and a border paints from
    width+color alone. The DOM's UA stylesheet diverges on both counts, so
@@ -13,7 +59,7 @@
      DOM's initial border-width is `medium`, so style alone would draw
      phantom ~3px edges wherever a rule sets only one side's width.
    - <img> is a leaf, not inline text (no baseline descender gap).
-   - .vx-app columns are flex like their native screen containers. */
+   */
 	*,
 	*::before,
 	*::after {
@@ -29,10 +75,6 @@
    NativeScript rule where width + color are sufficient. */
 	* {
 		border-style: solid;
-	}
-	.vx-app {
-		display: flex;
-		flex-direction: column;
 	}
 	/* Native has no scroll chaining — a ScrollView just bounces inside
    itself because the parent is never a scroller. contain is the DOM
@@ -73,9 +115,9 @@
 		min-width: 0;
 		min-height: 0;
 	}
-	/* flex-basis has no NS registry entry — NS flex items size from
-	   grow/shrink + content. Mason honors flexBasis, so keep the explicit
-	   zero basis on web and macOS only. */
+	/* Preserve Screen's qualified parent sizing. Mobile first-mount bounds
+	   also depend on the foreign RootLayout; changing its basis is separate
+	   from the caller-content layout contract. */
 	@platform web, macos {
 		.vx-screen-shell {
 			flex-basis: 0px;
@@ -91,7 +133,6 @@
 	}
 
 	@platform web, macos {
-		.vx-view,
 		.vx-drawer--appkit {
 			grid-template-rows: 1fr;
 			grid-template-columns: 1fr;
@@ -105,9 +146,6 @@
 		display: flex;
 	}
 
-	.vx-view {
-		flex-direction: column;
-	}
 
 	/* Safe-area values are zero when the viewport has no display cutout. */
 	.vx-safe-area {
@@ -129,8 +167,7 @@
 	}
 
 	.vx-keyboard-avoiding {
-		display: flex;
-		flex-direction: column;
+		display: block;
 	}
 	/* Self-drawn drawer — shared geometry. Native grid children overlay the
    cell (panel pins left via horizontalAlignment in the leaf); DOM
@@ -168,8 +205,27 @@
 		flex-direction: row;
 	}
 
+	.vx-video-center,
+	.vx-video-barwrap {
+		display: flex;
+		flex-direction: column;
+	}
+	.vx-sidenav-item-main,
+	.vx-sidenav-collapsebtn {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-resize-handle {
+		display: flex;
+	}
+
 	.vx-stack {
 		display: flex;
+	}
+	.vx-virtual-list-content {
+		display: flex;
+		flex-direction: column;
 	}
 
 	.vx-grid,
@@ -388,10 +444,36 @@
 	}
 
 	.vx-pressable {
-		display: flex;
-		flex-direction: column;
 		border-width: 0;
 		user-select: none;
+	}
+
+	/* These controls own their arrangement; they do not inherit it from
+	   the neutral interaction host. */
+	.vx-item,
+	.vx-carousel-btn,
+	.vx-lightbox-nav,
+	.vx-lightbox-close,
+	.vx-tab-content,
+	.vx-gridlist-row,
+	.vx-md-heading-links,
+	.vx-table-status,
+	.vx-menu-item,
+	.vx-menu-list,
+	.vx-navmenu-item,
+	.vx-navmenu-strip-item,
+	.vx-inputnumber-step,
+	.vx-input-clear,
+	.vx-search-clear,
+	.vx-select-trigger,
+	.vx-select-all,
+	.vx-tab,
+	.vx-topnav-item,
+	.vx-topnavmenu-item,
+	.vx-topnavmegamenu-item,
+	.vx-mobilenav-toggle,
+	.vx-datetimeinput-segment {
+		display: flex;
 	}
 
 	/* web press feedback */
@@ -614,6 +696,8 @@
 	}
 
 	.vx-video-centerbtn {
+		display: flex;
+		flex-direction: column;
 		width: 56px;
 		height: 56px;
 		align-items: center;
@@ -1011,8 +1095,7 @@
 	.vx-pager-page {
 		flex: 0 0 100%;
 		min-width: 0;
-		display: flex;
-		flex-direction: column;
+		display: block;
 		scroll-snap-align: start;
 	}
 	/* xplat-web-only:end */
@@ -1036,12 +1119,13 @@
 	}
 	/* xplat-web-only:end */
 
-	/* Button — row-direction pressable (vx-pressable already supplies display
-   and press feedback). Geometry follows Astryx's element scale: 28/32/36px
+	/* Button owns its row layout; Pressable supplies interaction only.
+	   Geometry follows Astryx's element scale: 28/32/36px
    heights, 8px block / 12px inline padding, 8px gap, --radius-md corners.
    nowrap + min-width:0/max-width:100% let a crowded row shrink the button
    instead of overflowing; the label truncates with an ellipsis. */
 	.vx-button {
+		display: flex;
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
@@ -1076,7 +1160,7 @@
 	   overlay, preserving the button's width and accessible name on every
 	   platform. Web: an absolutely positioned overlay + display:contents.
 	   Native: the leaf switches the button to display:grid while busy so
-	   content and spinner share cell 1,1 (Mason has no CSS positioning), and
+	   content and spinner share cell 1,1, and
 	   opacity — not colour — suppresses the hidden content's paint. */
 	.vx-button-content {
 		flex-direction: row;
@@ -1162,7 +1246,6 @@
 
 	/* Collapsible/Accordion — column stacks. */
 	.vx-collapsible,
-	.vx-collapsible-content,
 	.vx-accordion,
 	.vx-accordion-item {
 		flex-direction: column;
@@ -1343,7 +1426,6 @@
 	}
 	/* xplat-web-only:start — display:flex for the div-based flex classes */
 	.vx-collapsible,
-	.vx-collapsible-content,
 	.vx-accordion,
 	.vx-accordion-item,
 	.vx-checkbox-row,
@@ -1353,7 +1435,6 @@
 	.vx-radio,
 	.vx-menu-list,
 	.vx-menu-item,
-	.vx-contextmenu,
 	.vx-avatar,
 	.vx-avatar-group,
 	.vx-avatar-group-item {
@@ -1413,8 +1494,30 @@
 		align-items: center;
 	}
 	.vx-item-content {
-		flex-direction: column;
 		flex-grow: 1;
+	}
+	.vx-listitem {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-listitem-start,
+	.vx-listitem-end {
+		display: flex;
+		flex-shrink: 0;
+	}
+	.vx-listitem-body {
+		flex-grow: 1;
+		flex-shrink: 1;
+		min-width: 0;
+	}
+	.vx-toast-body,
+	.vx-toast-content {
+		flex-grow: 1;
+	}
+	.vx-step-body {
+		display: flex;
+		flex-direction: column;
 	}
 
 	/* InputNumber — steppers flanking a centered field. */
@@ -1513,7 +1616,6 @@
 	.vx-fieldgroup,
 	.vx-item,
 	.vx-item-leading,
-	.vx-item-content,
 	.vx-item-trailing,
 	.vx-inputnumber,
 	.vx-inputnumber-step,
@@ -1686,6 +1788,7 @@
 		flex-grow: 1;
 	}
 	.vx-fileinput-trigger {
+		display: flex;
 		flex-direction: row;
 		align-items: center;
 	}
@@ -2046,7 +2149,6 @@
 		padding: 10px 12px;
 	}
 	.vx-alert-body {
-		flex-direction: column;
 		flex: 1;
 		margin-left: 8px;
 	}
@@ -2057,15 +2159,12 @@
    border-inside-padding model: total inset (border + padding) equals the
    padding token. */
 	.vx-card {
-		flex-direction: column;
 		padding: calc(var(--astryx-card-padding, var(--spacing-4, 16px)) - 1px);
-	}
-	.vx-card-body {
-		flex-direction: column;
 	}
 
 	/* Chip — pressable pill with selected + remove states. */
 	.vx-chip {
+		display: flex;
 		flex-direction: row;
 		align-items: center;
 		padding: 3px 10px;
@@ -2092,6 +2191,17 @@
 		margin-top: 2px;
 	}
 
+	/* xplat-web-only:start */
+	/* The web banner has a separate header and body, unlike the native row. */
+	.vx-banner--web {
+		display: block;
+	}
+	.vx-banner-header {
+		display: flex;
+		align-items: flex-start;
+	}
+	/* xplat-web-only:end */
+
 	/* Banner — notice strip. */
 	.vx-banner {
 		flex-direction: row;
@@ -2099,7 +2209,6 @@
 		padding: 8px 12px;
 	}
 	.vx-banner-body {
-		flex-direction: column;
 		flex: 1;
 		margin-left: 8px;
 	}
@@ -2139,11 +2248,6 @@
 	.vx-tree-node,
 	.vx-tree-row,
 	.vx-alert,
-	.vx-alert-body,
-	.vx-card,
-	.vx-card-body,
-	.vx-banner,
-	.vx-banner-body,
 	.vx-user,
 	.vx-user-body,
 	.vx-progressgroup,
@@ -2166,6 +2270,7 @@
 
 
 	.btn {
+		display: flex;
 		padding-top: 10px;
 		padding-right: 16px;
 		padding-bottom: 10px;
@@ -2265,6 +2370,10 @@
 		padding-right: 12px;
 		padding-bottom: 5px;
 		padding-left: 12px;
+	}
+
+	.vx-pressable.chip {
+		display: flex;
 	}
 
 	/* Selected chip — the one filled element in a group of bordered peers. */
@@ -2389,6 +2498,7 @@
 		max-width: 100%;
 	}
 	.vx-chatbubble {
+		display: block;
 		max-width: 100%;
 	}
 	.vx-chatmeta,
@@ -2491,8 +2601,7 @@
    the top layer (margin:auto centers it), fullscreen drops the radius and
    fills the viewport. */
 	.vx-dialog {
-		display: flex;
-		flex-direction: column;
+		display: block;
 	}
 
 	/* xplat-web-only:start — the layer is the fixed portal wrapper; the
@@ -2572,11 +2681,6 @@
 		text-underline-offset: 3px;
 	}
 	/* xplat-web-only:end */
-
-	.vx-hovercard-content {
-		display: flex;
-		flex-direction: column;
-	}
 
 	/* ---------- toast stack ---------- */
 
@@ -2736,11 +2840,12 @@
 		max-height: 100%;
 	}
 
+	.vx-scrollable-content {
+		display: block;
+	}
 	/* xplat-web-only:start — the content box carries padding; overflow +
    overscroll/keyboard semantics are set inline by useScrollableArea. */
 	.vx-scrollable-content {
-		display: flex;
-		flex-direction: column;
 		min-height: 100%;
 		min-width: 100%;
 	}
@@ -2866,9 +2971,6 @@
 	   the skin. Web-only rules sit inside xplat-web-only blocks; the rest must
 	   stay in the NS-safe vocabulary. ---- */
 
-	.vx-blockquote {
-		flex-direction: column;
-	}
 
 	.vx-statusdot {
 		width: 8px;
@@ -4942,10 +5044,7 @@
 		flex-direction: row;
 	}
 	.vx-popover {
-		flex-direction: column;
-	}
-	.vx-chatbubble {
-		flex-direction: column;
+		display: block;
 	}
 	/* Web renders these roots as block, list-item or inline boxes, where
 	   these flex values are inert; native roots are flex containers. */
@@ -5123,7 +5222,12 @@
 .vx-datagrid-settings {
 	padding: 8px;
 }
+.vx-datagrid {
+	display: flex;
+	flex-direction: column;
+}
 .vx-datagrid-selection {
+	display: flex;
 	width: 44px;
 	flex-grow: 0;
 	flex-shrink: 0;
@@ -5131,6 +5235,7 @@
 	justify-content: center;
 }
 .vx-datagrid-row-action {
+	display: flex;
 	flex-direction: row;
 	flex-grow: 1;
 }

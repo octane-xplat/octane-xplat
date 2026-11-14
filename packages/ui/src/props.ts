@@ -175,10 +175,9 @@ export interface PlatformIconChoice {
   android: string
 }
 
-/** Flex-container props shared by View/Row/Pressable — RN vocabulary, applied
- *  to the host masonview natively and the element's style on web.
- *  `gap` is a dip number (px on web); NS supports it on FlexboxLayout only
- *  (GridLayout has no gap). */
+/** Layout-context props shared by View/Row/Pressable. Explicitly choose
+ *  flex/grid before using them on a neutral container; these props do not
+ *  select display. Gap is a dip number (px on web). */
 export interface FlexContainerProps {
   /** Main-axis distribution for the container's children. */
   justifyContent?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
@@ -696,13 +695,13 @@ export interface AccessibilityProps {
   accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 }
 
-/** Neutral host container — a `div` on web, a NativeScript view on iOS/Android, an AppKit view on macOS. Carries the shared layout-child, flex, accessibility, and test-id props; parent layouts consume the placement metadata (`row`/`col`, `dock`, `left`/`top`, `flexGrow`). The escape bags `ios`/`android`/`web` apply after shared props.
+/** Neutral block-flow host container — a `div` on web, a NativeScript view on iOS/Android, an AppKit view on macOS. Children are not flex/grid items by default. Choose a named layout or an explicit display class/style before using flex-container props. Carries the shared layout-child, flex, accessibility, and test-id props; parent layouts consume the placement metadata (`row`/`col`, `dock`, `left`/`top`, `flexGrow`). The escape bags `ios`/`android`/`web` apply after shared props.
  *
  * @example
  * ```tsx
  * import { View } from '@octane-xplat/ui'
  *
- * <View style={{ borderRadius: 8 }} gap={8}>
+ * <View style={{ borderRadius: 8 }}>
  * 	{children}
  * </View>
  * ```
@@ -910,7 +909,7 @@ export interface RichTextSpanProps {
   web?: PlatformProps
 }
 
-/** Portable interaction primitive — a host view that reports `onPress` (tap/click/Enter), `onLongPress` (~500ms hold), `onDoublePress`, press lifecycle (`onPressIn`/`onPressOut`), and owned gestures (`gestures`, `onPan`, `onPinch`). `disabled` suppresses activation; `hitSlop` expands the tappable area in dips. Prefer `Button` for labeled actions — Pressable is the unstyled base.
+/** Portable interaction primitive — a host view that reports `onPress` (tap/click/Enter), `onLongPress` (~500ms hold), `onDoublePress`, press lifecycle (`onPressIn`/`onPressOut`), and owned gestures (`gestures`, `onPan`, `onPinch`). `disabled` suppresses activation; `hitSlop` expands the tappable area in dips. Prefer `Button` for labeled actions — Pressable is the unstyled block-flow base. Alignment/spacing props do not select flex layout; use an explicit layout class or a child Stack.
  *
  * @example
  * ```tsx
@@ -2098,7 +2097,9 @@ export interface ScrollableAreaHandle {
  *  The viewport can shrink inside a bounded flex parent (min-width and
  *  min-height default to zero), and max-height defaults to 100% of its containing
  *  block when that height is definite. Its content retains its scrollable extent.
- *  An unbounded parent still permits content-sized height.
+ *  An unbounded parent still permits content-sized height. Caller children use
+ *  block flow on every axis; axis selects scrolling, not a row/column layout.
+ *  className/style address the viewport. Put a Stack inside for arranged content.
  *
  * @example
  * ```tsx
@@ -2208,6 +2209,8 @@ export interface VirtualListHandle {
 /** Shared virtualized vertical list. Item keys must be unique and stable
  *  across inserts and reorders. Rows outside the rendered window unmount;
  *  keep durable row state keyed by item identity outside the row component.
+ *  Item, header, footer, empty and separator renderers use block-flow content
+ *  boxes; return a child Stack when a slot needs an arranged layout.
  *
  * @example
  * ```tsx
@@ -2603,14 +2606,14 @@ export interface SafeAreaProps {
 }
 
 /** Keyboard-avoidance wrapper (shared root API, decisions #46/#69): a
- *  scrollable column that keeps its contents above the software keyboard.
+ *  scrollable block-flow container that keeps its contents above the software keyboard.
  *  Mobile hosts pad only their remaining bottom overlap. Android also leases
  *  `adjustResize` for the owning Activity window while mounted; a resized
  *  host needs no duplicate keyboard padding. Safe-area space and avoidance
  *  already supplied by ancestors in the same window are consumed once.
  *  Floating/narrow keyboards do not produce full-width bottom padding.
  *  Targets without a software keyboard (web, macOS)
- *  keep the neutral column wrapper and accept `enabled`/
+ *  keep the neutral block wrapper and accept `enabled`/
  *  `keyboardVerticalOffset` as inert props.
  *
  * @example
@@ -3467,7 +3470,7 @@ export interface ContextLayerReturn extends LayerReturnBase {
   /** Positioning token identifying the anchor (web: the `anchor-name` CSS
    *  value applied by `ref`; kept for upstream parity elsewhere). */
   anchorId: string
-  /** Render layer content into the anchored surface. */
+  /** Render block-flow content into the anchored surface; positioning belongs to the layer. */
   render: (children: Renderable, props?: ContextRenderProps) => Renderable
 }
 
@@ -3475,7 +3478,7 @@ export interface ContextLayerReturn extends LayerReturnBase {
 export interface FixedLayerReturn extends LayerReturnBase {
   /** No anchor binding in fixed mode. */
   ref: undefined
-  /** Render layer content at fixed coordinates. */
+  /** Render block-flow content at fixed coordinates; positioning belongs to the layer. */
   render: (children: Renderable, props: FixedRenderProps) => Renderable
 }
 
@@ -3660,7 +3663,7 @@ export interface HoverCardProps {
   id?: string
   /** Trigger content. */
   children?: Renderable
-  /** Card body shown while open. Required for the card to appear. */
+  /** Card body shown while open, using block flow. Required for the card to appear. */
   content?: Renderable
   /** Side of the trigger the card opens on. 'above'/'below' map to
    *  top/bottom; 'start'/'end' are logical and mirror under RTL on web.
@@ -4015,7 +4018,7 @@ export interface ToastProps {
   /** Severity driving toast icon and color.
    *  @default 'info' */
   type?: ToastType
-  /** Toast content. */
+  /** Toast content, using block flow inside the notification's body region. */
   body?: Renderable
   /** Trailing content (actions, close affordance). */
   endContent?: Renderable
@@ -4595,7 +4598,7 @@ export interface CarouselProps extends AccessibilityProps {
   /** Accessible name for the region (web `aria-label` on
    *  `aria-roledescription="carousel"`; native `accessibilityLabel`). */
   label?: string
-  /** Content rendered inside the element. */
+  /** Slide content. Each slide uses block flow; the track owns horizontal placement. */
   children?: Renderable
   /** Space between slides, spacing steps (1 step = 4px/dip). @default 2 */
   gap?: number
@@ -9061,7 +9064,7 @@ export interface ItemComponent {
   (props: ItemProps): unknown
   /** Slot component for the leading region. */
   StartContent: (props: ItemSlotProps) => unknown
-  /** Slot component for the main region. */
+  /** Main content region. Block flow by default; the outer Item remains a row. */
   Content: (props: ItemSlotProps) => unknown
   /** Slot component for the secondary text region. */
   Description: (props: ItemSlotProps) => unknown
@@ -10341,7 +10344,7 @@ export interface StepProps {
   isDisabled?: boolean
   /** Content at the step row's trailing edge. */
   endContent?: Renderable
-  /** Content rendered inside the element. */
+  /** Extra content below the heading, using block flow inside the step's content region. */
   children?: Renderable
   /** Platform-specific properties are applied after shared props. */
   ios?: PlatformProps
@@ -10903,7 +10906,7 @@ export interface TreeProps<T extends TreeListNode = TreeListNode> {
   web?: PlatformProps
 }
 
-/** Alert — status callout. `tone` maps to a class modifier; error tone
+/** Alert — status callout with block-flow body content. `tone` maps to a class modifier; error tone
  *  gets role=alert on web, others role=status.
  *
  * @example
@@ -10937,11 +10940,13 @@ export interface AlertProps {
   web?: PlatformProps
 }
 
-/** Card — container with optional header/footer slots, padding scale, and
+/** Card — block-flow container with optional header/footer slots, padding scale, and
  *  background variants. `variant` names map to `vx-card--{name}` class hooks:
  *  'default' (bordered), 'muted', 'transparent', and the tint set
  *  (blue/cyan/gray/green/orange/pink/purple/red/teal/yellow) ship in
  *  chrome.css; custom variant names still produce a class an app can skin.
+ *  Header, body and footer content each use block flow. className/style target
+ *  the outer frame; use a child Stack to arrange content within a slot.
  *
  * @example
  * ```tsx
@@ -11105,7 +11110,8 @@ export interface EmptyProps {
 /** Banner status tones (Astryx `status`). */
 export type BannerStatus = 'info' | 'success' | 'warning' | 'error'
 
-/** Props for the Banner component. */
+/** Props for the Banner component. Caller body content uses block flow; the
+ * notice header and dismiss affordance keep their component-owned layout. */
 export interface BannerProps {
   /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
   className?: ClassValue
@@ -11326,7 +11332,8 @@ export type ChatMessageBubbleVariant = 'filled' | 'ghost'
 
 /** Styled content container — the chat bubble. Reads sender/density from the
  *  enclosing ChatMessage. `group` tightens sender-side corners for
- *  consecutive bubbles; `width` replaces the default max-width cap. */
+ *  consecutive bubbles; `width` replaces the default max-width cap. Caller
+ *  content uses block flow; sender alignment belongs to ChatMessage. */
 export interface ChatMessageBubbleProps {
   /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
   className?: ClassValue
@@ -15280,7 +15287,8 @@ export type TextColor = 'primary' | 'secondary' | 'disabled' | 'placeholder' | '
 /** Font weight axis — the `--font-weight-*` token suffix. */
 export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
 
-/** Blockquote — styled quotation with optional `cite` attribution.
+/** Blockquote — block-flow quotation with optional `cite` attribution.
+ * Caller content keeps normal flow; attribution follows the quotation.
  *
  * @example
  * ```tsx
@@ -15869,7 +15877,8 @@ export interface MetadataListProps {
   web?: PlatformProps
 }
 
-/** One label/value row inside a `MetadataList`.
+/** One label/value row inside a `MetadataList`. Rich value children use block
+ *  flow; the parent list owns label/value tracks and item orientation.
  *
  * @see MetadataListProps — render inside it.
  */
@@ -16288,7 +16297,7 @@ export type SectionVariant = 'section' | 'transparent' | 'muted'
  */
 export type SectionDividerSide = 'top' | 'bottom' | 'start' | 'end'
 
-/** `Section` — a banded container: `variant` picks the background ('section' default, 'transparent', 'muted'), `padding` is spacing steps (default 4 = 16px), `dividers` paint hairlines on the given edges.
+/** `Section` — a banded block-flow container: `variant` picks the background ('section' default, 'transparent', 'muted'), `padding` is spacing steps (default 4 = 16px), `dividers` paint hairlines on the given edges. className/style address the outer section; use a child Stack to arrange its padded content.
  *
  * @example
  * ```tsx
@@ -16622,6 +16631,7 @@ export interface FocusScopeCapabilities {
  *  nested scopes. AppKit uses native descendant traversal, per-window nested
  *  ownership and first-responder restoration when its bridge is available.
  *  The default mobile leaf renders a plain container with inert flags.
+ *  The wrapper uses block flow on every target; focus behavior does not select layout.
  *  `getFocusScopeCapabilities()` reports available behavior, not OS-input proof.
  *
  * @example
@@ -16901,6 +16911,8 @@ export interface ListProps extends AccessibilityProps {
  *  `delegateRef` points at a nested control that owns keyboard access and
  *  the action — the row forwards surface presses to it and adds no second
  *  stop (upstream `interactiveRef`).
+ *  Label, description and extra children use block flow inside the body;
+ *  the outer row retains its marker and accessory arrangement.
  *
  * @see ListProps — render inside it.
  */

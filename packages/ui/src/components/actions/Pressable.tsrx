@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
@@ -17,7 +17,7 @@ import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 
 /** masonview, not contentview — ContentView is single-child: the driver
  *  assigns each child to `.content`, so every sibling but the last was
- *  silently dropped. Column flex matches View's shape (and the web div);
+ *  silently dropped. Block flow preserves View's neutral content layout;
  *  tap/longPress are gesture events, they attach to any view. */
 export function Pressable(props: PressableProps): unknown @{
   const bindInput = useInteractionHost({
@@ -46,16 +46,10 @@ export function Pressable(props: PressableProps): unknown @{
     ref={forwardedRef}
     id={props.id}
     testID={props.testID ?? ''}
-    {...layoutChildProps(
-      props,
-      mergeStyle(
-        { display: 'flex' },
-        {
-          ...styleRecord(props.style),
-          ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}),
-        },
-      ),
-    )}
+    {...layoutChildProps(props, {
+      ...styleRecord(props.style),
+      ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}),
+    })}
     className={cx('vx-pressable', props.className)}
     isEnabled={!props.disabled}
     accessible={props.accessible ?? Boolean(props.onPress)}

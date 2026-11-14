@@ -25,7 +25,7 @@ function summarize(result: SignInResult | null): string {
 export function AuthDemo() @{
   const [result, setResult] = useState<SignInResult | null>(null)
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading level={2}>Provider sign-in</Heading>
     <Text>
       Native SDKs on iOS/Android (Apple needs the signin entitlement, Google a configured client

@@ -8,7 +8,7 @@ import { cx } from '@octane-xplat/lib'
 
 const host = (): any => (globalThis as any).__xplatAppKit ?? {}
 
-/** macOS context menu — the trigger renders inline as this element's
+/** macOS context menu — the trigger renders in place as this element's
  *  children and a real NSMenu is attached to the backing NSView's `menu`,
  *  so AppKit drives right-click activation and disabled items. Items are
  *  serialized data; selection reports through `onItemSelected`. */

@@ -20,7 +20,7 @@ export function PackingList() @{
   const toggle = (id: string) =>
     setPacked(packed.includes(id) ? packed.filter((value) => value !== id) : [...packed, id])
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Text className="text-xl font-semibold">Pack for a day outside</Text>
     <SearchInput
       testID="packing-search"

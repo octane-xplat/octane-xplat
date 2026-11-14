@@ -2,7 +2,6 @@
 import type { NSView } from '@octane-xplat/platform/macos'
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from '../../props'
 import type { NavigationMenuImplementation } from '../navigation/nav-link'
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { MenuData } from './MenuParts.macos.tsrx'
 import { MenuSurface } from './MenuSurface.macos.tsrx'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
@@ -205,7 +204,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
     id={props.id}
     disabled={props.isDisabled}
     className={cx('vx-contextmenu', props.className)}
-    style={mergeStyle({ display: 'flex' }, props.style)}
+    style={props.style}
     onKeyDown={keyDown}
     onLongPress={props.isDisabled ? undefined : () => openPointer()}
     accessibilityRole="group"

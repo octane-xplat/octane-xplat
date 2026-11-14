@@ -1,5 +1,5 @@
 import { useState } from 'octane'
-import { View, Text, Pressable } from '@octane-xplat/ui'
+import { VStack, Text, Pressable } from '@octane-xplat/ui'
 import { motion, Presence, MotionConfig } from '../src/index'
 
 function CounterCard() @{
@@ -22,13 +22,13 @@ export function PresenceDemo() @{
   const [present, setPresent] = useState(true)
 
   <MotionConfig reducedMotion="user">
-    <View gap={12}>
+    <VStack gap={3}>
       <Pressable onPress={() => setPresent(!present)}>
         <Text>Toggle card</Text>
       </Pressable>
       <Presence present={present}>
         <CounterCard />
       </Presence>
-    </View>
+    </VStack>
   </MotionConfig>
 }

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './Pager.css'
 import { useRef } from 'octane'
 import type { PagerProps } from './props'
 import { layoutChildProps } from './layout-child'
@@ -20,7 +21,9 @@ export function Pager(props: PagerProps): unknown @{
     >
       <masonview style={{ display: 'flex', flexDirection: 'row' }}>
         {props.items.length
-          ? props.items.map((item: any, index: number) => props.renderItem(item, index))
+          ? props.items.map((item: any, index: number) => (
+              <masonview className="vx-pager-page">{props.renderItem(item, index)}</masonview>
+            ))
           : props.renderEmpty?.()}
       </masonview>
     </scrollview>

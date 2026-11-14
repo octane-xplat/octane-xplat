@@ -8,7 +8,7 @@ import type { AppKitContextMenuItem } from '@octane-xplat/context-menu/macos'
 function DynamicMenuDetails() @{
   const [expanded, setExpanded] = useState(false)
 
-  <View className="gap-2">
+  <View className="flex flex-col gap-2">
     <Button label="Add/remove trigger child" onPress={() => setExpanded(!expanded)} />
     @if (expanded) {
       <Text id="native-context-menu-late-child">
@@ -60,7 +60,7 @@ export function NativeContextMenuDemo() @{
         ? [...actions].reverse()
         : actions
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading>AppKit context menu</Heading>
     <Button
       label="Change record scope"
@@ -96,7 +96,7 @@ export function NativeContextMenuDemo() @{
           setCount((n) => n + 1)
         }}
         trigger={() => (
-          <View className="native-context-menu-card gap-2">
+          <View className="flex flex-col native-context-menu-card gap-2">
             <Text>{`Right-click ${record} for actions`}</Text>
             <DynamicMenuDetails />
             <TextInput label="Editable trigger child" value={text} onChange={setText} />

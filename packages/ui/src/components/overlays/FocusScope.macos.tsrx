@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
+import { cx } from '@octane-xplat/lib'
 import { useEffect, useMemo, useRef } from 'octane'
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from '../../props'
 import { applyEscapeProps } from './escape-props'
@@ -65,8 +65,8 @@ export function FocusScope(props: FocusScopeProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={props.className}
-    style={mergeStyle({ display: 'flex' }, props.style)}
+    className={cx('vx-focus-scope', props.className)}
+    style={props.style}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={props.accessibilityRole}

@@ -8,7 +8,7 @@ export function NativeSheetDemo() @{
   const [open, setOpen] = useState(false)
   const trigger = useRef<HTMLElement | null>(null)
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading>Web bottom sheet</Heading>
     <Pressable
       id="native-sheet-open"
@@ -26,7 +26,7 @@ export function NativeSheetDemo() @{
       open={open}
       onDismissed={() => setOpen(false)}
       content={() => (
-        <View className="gap-3 p-5">
+        <View className="flex flex-col gap-3 p-5">
           <Heading>More</Heading>
           <Pressable className="overlay-demo-card" onPress={() => setOpen(false)}>
             <Text>Close from inside</Text>

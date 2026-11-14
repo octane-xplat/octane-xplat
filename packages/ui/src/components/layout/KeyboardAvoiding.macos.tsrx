@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { KeyboardAvoidingProps } from '../../props'
@@ -12,7 +11,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
     id={props.id}
     ref={forwardedRef}
     className={cx('vx-keyboard-avoiding', props.className)}
-    style={mergeStyle({ display: 'flex', flexDirection: 'column' }, props.style)}
+    style={props.style}
   >
     {props.children}
   </masonview>

@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { NSView } from '@octane-xplat/platform/macos'
-import './SelectableCard.macos.css'
 import type { SelectableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useLayoutEffect, useRef } from 'octane'
@@ -58,7 +57,6 @@ export function SelectableCard(props: SelectableCardProps): unknown @{
     className={cx(
       'vx-pressable',
       'vx-card',
-      'vx-selectable-card--appkit',
       'vx-selectable-card',
       `vx-card--${props.variant ?? 'default'}`,
       props.elevation && `vx-card--elev-${props.elevation}`,
@@ -68,7 +66,10 @@ export function SelectableCard(props: SelectableCardProps): unknown @{
     )}
     style={{
       ...styleRecord(props.style),
-      padding: (props.padding ?? 4) * 4,
+      paddingTop: (props.padding ?? 4) * 4,
+      paddingRight: (props.padding ?? 4) * 4,
+      paddingBottom: (props.padding ?? 4) * 4,
+      paddingLeft: (props.padding ?? 4) * 4,
       width: props.width,
       height: props.height,
       maxWidth: props.maxWidth,

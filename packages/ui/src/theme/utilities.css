@@ -3,6 +3,13 @@
 Legacy text sizing and squircle radii are retained for this separate workflow. */
 @layer theme, xplat-structure, xplat-chrome, utilities;
 @layer utilities {
+	/* Display is explicit; direction helpers alone do not choose layout. */
+	.block { display: block; }
+	.flex { display: flex; }
+	.grid { display: grid; }
+	.flex-row { flex-direction: row; }
+	.flex-col { flex-direction: column; }
+
 	.flex-1 {
 		flex: 1 1 0%;
 	}

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './Pager.css'
 import './Pager.macos.css'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { ScrollableArea, useDirection, type ScrollableAreaHandle } from '@octane-xplat/ui'

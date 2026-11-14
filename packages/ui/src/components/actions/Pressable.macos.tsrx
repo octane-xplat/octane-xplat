@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import type { PressableProps } from '../../props'
 import { useInteractionHost } from '../../gestures/host.macos.tsrx'
 import { pressOptions } from '../../gestures/semantic-press'
@@ -21,10 +20,7 @@ export function Pressable(props: PressableProps): unknown @{
 
   <masonview
     ref={refList(bindInput, props.ref)}
-    {...layoutChildProps(
-      props,
-      mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style)),
-    )}
+    {...layoutChildProps(props, props.style)}
     id={props.id}
     testID={props.testID}
     accessible={props.accessible}

@@ -9,7 +9,7 @@ export function NativeSheetDemo() @{
   const [open, setOpen] = useState(false)
   const editing = useRef<TextInputHandle | null>(null)
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading>SwiftUI bottom sheet</Heading>
     <TextInput ref={editing} placeholder="Draft outside the sheet" />
     <Pressable id="native-sheet-open" className="overlay-demo-card" onPress={() => setOpen(true)}>
@@ -26,7 +26,7 @@ export function NativeSheetDemo() @{
       detents={['medium', 'large']}
       showDragIndicator={true}
       content={() => (
-        <View className="gap-3 p-5">
+        <View className="flex flex-col gap-3 p-5">
           <Heading>More</Heading>
           <TextInput placeholder="Message in the sheet" />
           <Pressable className="overlay-demo-card" onPress={() => setOpen(false)}>

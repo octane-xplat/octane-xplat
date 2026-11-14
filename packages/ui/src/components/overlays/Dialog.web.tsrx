@@ -235,7 +235,9 @@ export function Dialog(props: DialogProps): JSX.Element | null @{
   }
 
   @if (props.isInline) {
-    <DialogInline {...props} onOpenChange={requestChange} />
+    @if (open) {
+      <DialogInline {...props} onOpenChange={requestChange} />
+    }
   } @else {
     @if (open) {
       <>{createPortal(<DialogModal {...props} onOpenChange={requestChange} />, document.body)}</>

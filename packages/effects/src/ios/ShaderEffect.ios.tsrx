@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import '../ShaderEffect.css'
 import { GridLayout } from '@nativescript/core'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import { getSwiftUIHostLifecycle, registerSwiftUIHost } from '@octane-xplat/lib'
@@ -157,6 +158,9 @@ export function ShaderEffect(props: ShaderEffectProps) @{
       }}
       onSwiftUIEvent={(event: any) => props.onEvent?.(event.data)}
     />
-    {createPortal(props.children, hostRef.current)}
+    {createPortal(
+      <masonview className="vx-shader-content">{props.children}</masonview>,
+      hostRef.current,
+    )}
   </>
 }

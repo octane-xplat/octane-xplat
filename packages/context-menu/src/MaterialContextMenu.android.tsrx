@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './ContextMenu.css'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import {
@@ -43,7 +44,7 @@ registerJetpackCompose(
 let seq = 0
 
 function TriggerRoot(props: { render: () => any }) @{
-  <>{props.render()}</>
+  <masonview className="xplat-context-menu-content">{props.render()}</masonview>
 }
 
 function createPortal(children: unknown, target: unknown) {

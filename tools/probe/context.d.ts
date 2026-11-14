@@ -12,6 +12,9 @@ export interface ProbeContext {
   inspect(id: string): {
     text: string
     value: string
+    rootFrame?: { x: number; y: number; width: number; height: number }
+    /** AppKit's layout allocation, excluding a control's optical frame insets. */
+    alignmentRect?: { x: number; y: number; width: number; height: number } | null
     frame: { x: number; y: number; width: number; height: number } | null
   }
   assert(name: string, actual: unknown, expected?: unknown): void

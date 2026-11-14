@@ -108,7 +108,8 @@ export interface SmoothAndroidConfig {
 }
 
 /** Props for the SmoothCorners element — a container with non-circular
- *  corner curves. Invalid numeric/color inputs throw before native drawing.
+ *  corner curves. Caller content defaults to block flow; select flex/grid with className/style.
+ * Invalid numeric/color inputs throw before native drawing.
  * @example
  * ```tsx
  * import { SmoothCorners } from '@octane-xplat/smooth-corners'

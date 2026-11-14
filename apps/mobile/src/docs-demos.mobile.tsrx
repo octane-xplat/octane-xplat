@@ -15,7 +15,7 @@ function DocsDemos() @{
 
   <Screen className="vx-app flex-1">
     <ScrollableArea className="flex-1">
-      <View className="gap-4 p-4">
+      <View className="flex flex-col gap-4 p-4">
         <Pressable className="btn btn-secondary" onPress={() => setDemo('')}>
           <Text>Back to demos</Text>
         </Pressable>
@@ -26,7 +26,7 @@ function DocsDemos() @{
           <PackingList />
         }
         @if (demo === '') {
-          <View className="gap-4">
+          <View className="flex flex-col gap-4">
             <Text className="text-xl font-semibold">Docs demos · native runtime</Text>
             <Pressable className="btn bg-primary" onPress={() => setDemo('goal')}>
               <Text className="text-onprimary">Goal counter</Text>

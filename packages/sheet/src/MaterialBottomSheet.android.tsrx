@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './SheetContent.css'
 import { bindNativeHostAttachment } from './native-host-lifecycle.android'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
@@ -42,7 +43,7 @@ registerJetpackCompose(
 let seq = 0
 
 function ContentRoot(props: { render: () => any }) @{
-  <>{props.render()}</>
+  <masonview className="xplat-native-sheet-content">{props.render()}</masonview>
 }
 
 function createPortal(children: unknown, target: unknown) {

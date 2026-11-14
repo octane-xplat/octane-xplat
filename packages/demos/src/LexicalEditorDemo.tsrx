@@ -62,7 +62,7 @@ export function LexicalEditorDemo() @{
     }
   }
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading level={2}>Lexical facade</Heading>
     <Text className="text-sm text-muted">
       @octanejs/lexical on web/AppKit · Aztec + lexical doc model on iOS/Android

@@ -65,8 +65,17 @@ Add `overflow: hidden` to the panel’s class when its children should stay insi
 The package shares curve generation, but native clipping and shadows have
 different limits. Android elevation cannot express custom shadow direction or
 spread; request it through `android.elevation`, separately from `shadow`.
-Use an inner shared layout component when arranging children across targets.
+Content uses block flow by default. Select flex/grid through className/style or use an inner shared layout component to arrange children.
 Source implementations do not establish pixel parity or device input behavior. Native Windows and GTK are explicitly unsupported.
+
+```tsx
+import { SmoothCorners } from '@octane-xplat/smooth-corners'
+import { HStack, Text } from '@octane-xplat/ui'
+
+export function StatusPanel() {
+  return <SmoothCorners corners={16}><HStack gap={2}><Text>Bag</Text><Text>Ready</Text></HStack></SmoothCorners>
+}
+```
 
 See the [public prop declarations](https://github.com/octane-xplat/octane-xplat/blob/main/packages/smooth-corners/src/props.ts)
 for curve and per-corner options, and [styling screens](https://octane-xplat.goddardai.org/styling)

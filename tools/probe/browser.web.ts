@@ -14,8 +14,9 @@ export function browserAdapter(target: 'web' | 'linux') {
   window.addEventListener('error', onError)
   window.addEventListener('unhandledrejection', onRejection)
 
-  const find = (id: string) =>
-    [...host.querySelectorAll<HTMLElement>('[id]')].find((node) => node.id === id) ?? null
+  // Each browser probe owns an isolated document. Overlay portals may live
+  // beside #root, so queries must include them as well as the main tree.
+  const find = (id: string) => document.getElementById(id)
 
   const required = (id: string) => {
     const node = find(id)

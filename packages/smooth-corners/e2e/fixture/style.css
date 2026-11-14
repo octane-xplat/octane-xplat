@@ -1,6 +1,10 @@
 body {
   margin: 40px;
 }
+.layout-panel { width: 240px; height: 120px; }
+.layout-child { height: 20px; flex-grow: 1; }
+.layout-flex { display: flex; flex-direction: row; }
+.layout-grid { display: grid; grid-template-columns: 1fr 1fr; }
 .panel {
   width: 200px;
   height: 120px;

@@ -240,7 +240,6 @@ export function Carousel(props: CarouselProps): unknown @{
               props.variant === 'proportional' && 'vx-carousel-slide--prop',
             )}
             accessibilityLabel={`Slide ${i + 1} of ${count}`}
-            style={{ display: 'flex' }}
           >
             {child}
           </masonview>

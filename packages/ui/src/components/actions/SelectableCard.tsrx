@@ -23,7 +23,10 @@ export function SelectableCard(props: SelectableCardProps): unknown @{
     )}
     style={{
       ...styleRecord(props.style),
-      padding: (props.padding ?? 4) * 4,
+      paddingTop: (props.padding ?? 4) * 4,
+      paddingRight: (props.padding ?? 4) * 4,
+      paddingBottom: (props.padding ?? 4) * 4,
+      paddingLeft: (props.padding ?? 4) * 4,
       width: props.width,
       height: props.height,
       maxWidth: props.maxWidth,

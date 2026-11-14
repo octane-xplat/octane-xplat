@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import { useInteractionHost } from '../../gestures/host.tsrx'
@@ -13,7 +12,7 @@ import {
 
 import { layoutChildProps } from './layout-child'
 
-/** Neutral flex-column container with shared gesture ownership and optional input scope. */
+/** Neutral block container with shared gesture ownership and optional input scope. */
 export function View(props: ViewProps): unknown @{
   const bindInput = useInteractionHost(props)
   const forwardedRef = useMemo(
@@ -33,7 +32,7 @@ export function View(props: ViewProps): unknown @{
   <masonview
     id={props.id}
     testID={props.testID ?? ''}
-    {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
+    {...layoutChildProps(props, props.style)}
     ref={forwardedRef}
     className={['vx-view', props.className]}
     accessible={props.accessible}

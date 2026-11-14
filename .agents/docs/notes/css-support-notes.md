@@ -4,7 +4,41 @@
 > ❌ native-missing (use a primitive/facade instead) · ? unverified (lab).
 > Sources: ns-css-* skills + driver source; verify per row during prototype.
 
-## Layout
+## Authored layout uses Mason
+
+Shared native components use Mason; its registered CSS properties include
+`display`, flex/grid tracks and gaps, `flex-basis`, `position` and overflow.
+Registration proves that a declaration is delivered, not that every value has
+browser-equivalent geometry. Neutral wrappers select block flow through their
+structural classes. Use named layouts or explicitly select flex/grid for
+arranged children; see [layout defaults](../architecture.md#layout-defaults).
+
+```css
+.actions { display: flex; flex-direction: row; gap: 8px; }
+```
+
+Card padding props use explicit edge values on native leaves. With pinned
+NativeScript core 9.1.3 and Mason Core 1.0.0-beta.8, an inline `padding: 0`
+shorthand can leave class-derived 15-point edges active: the iOS neutral-card
+fixture measured 210-point children inside a 240-point card. Forwarding the
+four explicit zero edges restores the 240-point content width. The Windows
+card leaf already uses this delivery pattern. This is a scoped component
+workaround, not a claim that every shorthand/reset combination is qualified.
+The maintained [content fixture](../../../packages/ui/tests/fixtures/page-layout/neutral-containers.tsrx)
+protects the observable sizing; do not change its expectation to preserve an inset.
+
+```ts
+const padding = {
+  paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0,
+}
+```
+
+## Legacy core layout observations
+
+The table below records earlier measurements of NativeScript's imperative
+FlexboxLayout/GridLayout hosts. It does not describe authored Mason layout;
+do not use its missing-property rows to reject Mason CSS or add new legacy JSX.
+
 
 | Property                                | NS                     | Web                          | Notes                                                                                                                                                                                                                                                                                                                                                              |
 | --------------------------------------- | ---------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -122,16 +156,16 @@ import '@octane-xplat/ui/theme/tokens.css'
 import './app.css'
 ```
 
-## Author-time audit (`pnpm check:css`)
+## Author-time audit (`bun run check:css`)
 
-`scripts/check-css.ts` runs as part of `pnpm lint`: it parses every shared
+`scripts/check-css.ts` runs as part of the repository CSS checks: it parses every shared
 stylesheet (`packages/*/src/**/*.css`, `packages/create/template/src`) and
 errors on any declaration whose property isn't in
 `scripts/ns-css-registry.json` — the `cssName` list extracted from the
-installed `@nativescript/core` (`node scripts/gen-css-registry.ts` to refresh on core
-upgrades), plus the `overflow`, `overflow-x`, and `overflow-y` registrations in
-Mason Core 1.0.0-beta.8's `properties.ts`. These registrations establish declaration
-support, not device clipping parity. Dropped-but-intentional props (`display`, `grid-area`,
+installed `@nativescript/core` and pinned Mason Core registrations
+(`bun scripts/gen-css-registry.ts` to refresh after either dependency changes).
+These registrations establish declaration support, not device geometry or
+clipping parity. Dropped-but-intentional props (`grid-area`,
 `border-style`, `user-select`, `-webkit-*`) live in the script's
 `DROPPED_INTENTIONAL` map with a reason each; `xplat-web-only` blocks are
 stripped before auditing since they never reach native.
@@ -147,7 +181,7 @@ _semantics_ (`transform` percents parse as dips, stretch clobbering width) —
 that's what the measured parity lane is for.
 
 ```css
-/* Prefer a layout primitive over unsupported position CSS. */
+/* Keep static styles in a class; use named layouts for arrangement. */
 .notice {
   padding: 16px;
   color: #222;
@@ -269,3 +303,13 @@ invalidates that value. Registered `@property` defaults need separate host suppo
 
 Vendored selector-engine provenance stays beside
 [the engine source](../../../packages/css-engine/src/vendor/README.md).
+
+### AppKit content measurement
+
+Block content in an AppKit scroll document needs the viewport's measured
+cross-axis width. `ScrollableArea.macos` and `VirtualList.macos` publish that
+budget on their content hosts and update it on layout, rather than requiring
+width repairs in callers. The generic Mason scroll-root available-size input
+alone can leave an auto-sized block document at its intrinsic width.
+
+For AppKit text wrapping, see [the Mason measurement contract](macos-mason-engine.md#text-measurement).

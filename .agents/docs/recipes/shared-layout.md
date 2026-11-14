@@ -30,6 +30,8 @@ the behavior differences between DOM and NativeScript.
 
 - AC8: SafeArea defaults to block flow and permits class/style flex overrides. Ordinary SafeArea → ScrollableArea → vertical page/card compositions fit their available width without per-container width fixes. Paragraphs and wrapping control rows fit narrow hosts; bounded viewports retain usable vertical scrolling, including refreshable regions. Intentional wide content remains scrollable with inline/both axes.
 
+- AC9: General-purpose View/Pressable, card content, focus wrappers, StackItem content and padded sections use neutral block flow. Parent placement remains independent of child layout; alignment/spacing props do not choose display. Explicit flex/grid class/style overrides work, and removing them restores block flow without remounting. Named layouts and derived controls establish their own arrangement.
+
 ## Documentation
 
 - AC1: [Flow layout](../../../docs/app/primitives.md#the-components-you-reach-for-first) and maintained [LayoutDemo](../../../packages/demos/src/LayoutDemo.tsrx).
@@ -44,3 +46,5 @@ the behavior differences between DOM and NativeScript.
 - AC7: [Safe-area edges and the native Page host](../../../docs/app/primitives.md#safe-area-edges), [Page measurement tests](../../../packages/ui/src/components/layout/full-screen-page.mobile.test.ts), and [native first-mount fixture](../../../examples/probes/screen-safe-area.ios.tsrx).
 
 - AC8: [Page defaults](../../../docs/app/primitives.md#safe-area-edges), [agent layout guidance](../../skills/octane-xplat/references/primitives/layout.md#vertical-page-sizing), and [shared geometry and scrolling regression](../../../packages/ui/tests/fixtures/page-layout/page.tsrx).
+
+- AC9: [Container defaults](../../../docs/app/primitives.md#predictable-container-defaults), [block sizing prerequisite](../../../packages/ui/tests/fixtures/page-layout/block-flow.tsrx), and [neutral defaults and live override regression](../../../packages/ui/tests/fixtures/page-layout/neutral-containers.tsrx).

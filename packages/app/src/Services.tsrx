@@ -61,7 +61,7 @@ export function Services() @{
     )
   }
 
-  <View className="gap-6">
+  <View className="flex flex-col gap-6">
     {/* Read-only state — live values, no actions. */}
     <View className="sink-section">
       <Text className="section-label">Device and environment</Text>

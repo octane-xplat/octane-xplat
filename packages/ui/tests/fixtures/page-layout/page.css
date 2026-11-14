@@ -2,3 +2,6 @@
 .page-card { padding: 16px; gap: 12px; }
 
 .page-safe-flex { display: flex; flex-direction: row; }
+
+/* Fix control widths so wrapping does not depend on platform font metrics. */
+.page-control { min-width: 140px; }

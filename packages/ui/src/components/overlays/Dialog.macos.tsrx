@@ -21,13 +21,7 @@ function DialogPanel(props: DialogProps & { dark?: boolean; layerDepth: number }
           props.dark && 'ns-dark',
           props.className,
         )}
-        style={mergeStyle(
-          { flexDirection: 'column' },
-          mergeStyle(
-            { display: 'flex' },
-            { padding: (props.padding ?? 5) * 4, ...styleRecord(props.style) },
-          ),
-        )}
+        style={{ padding: (props.padding ?? 5) * 4, ...styleRecord(props.style) }}
       >
         {props.children}
       </masonview>

@@ -405,7 +405,7 @@ function DashboardPanel(props: {
   reduced: boolean
   replayId: number
 }) @{
-  <View className="gap-3">
+  <View className="flex flex-col gap-3">
     <Text className="text-sm text-muted">{RANGE_TITLE[props.range]}</Text>
     <AnimatedTotal id="mp-total" value={props.total} reduced={props.reduced} />
     <ActivityItems
@@ -474,7 +474,7 @@ function FocusPanels() @{
         selected={range}
         reduced={preview.reduced}
         renderPanel={(r) => (
-          <View className="gap-2">
+          <View className="flex flex-col gap-2">
             <Text className="text-lg font-semibold">{RANGE_TITLE[r]}</Text>
             <ActivityItems
               idPrefix="fp-panels"
@@ -612,8 +612,8 @@ export function MotionPatterns() @{
   <MotionConfig reducedMotion={preview.preview ? 'always' : 'user'}>
     <Screen className="vx-app flex-1 gap-6">
       <ScrollableArea className="flex-1">
-        <View className="mp-showcase gap-6">
-          <View className="gap-3">
+        <View className="flex flex-col mp-showcase gap-6">
+          <View className="flex flex-col gap-3">
             <HStack className="items-baseline gap-3 flex-wrap">
               <Heading level={1}>Activity overview</Heading>
               <RotatingCopy idPrefix="mp" phrases={PHRASES} reduced={preview.reduced} />
@@ -630,7 +630,7 @@ export function MotionPatterns() @{
             onChange={preview.setPreview}
           />
 
-          <View className="mp-card gap-4">
+          <View className="flex flex-col mp-card gap-4">
             <SegmentedControl
               id="mp-range"
               options={RANGES}

@@ -57,6 +57,19 @@ These checks do not launch a browser or establish layout and OS input behavior.
 bun run turbo run test --filter=@octane-xplat/ui
 ```
 
+The UI layout suite measures real geometry for neutral wrappers, arbitrary
+content slots, live display overrides and narrow scrolling pages. It captures
+no images. Native commands need the selected existing device booted and the
+applicable Goddard device/build reservation; the runner never creates devices.
+Pass an adb serial for Android, rather than an AVD name.
+
+```sh
+bun run turbo run test:layout:web --filter=@octane-xplat/ui
+bun run turbo run test:layout:macos --filter=@octane-xplat/ui
+bun run turbo run test:layout:ios --filter=@octane-xplat/ui -- --device 91D40099-A056-497D-A572-ADDDFD6A8F23
+bun run turbo run test:layout:android --filter=@octane-xplat/ui -- --device emulator-5556
+```
+
 Fast CI runs web builds, typechecks, unit tests, package integrity checks, and
 one packed web consumer smoke without launching desktop browsers. Stable CI
 adds the exhaustive non-browser packed consumers and full app/library starter
@@ -336,14 +349,17 @@ regressions through their owning Turbo task rather than a second wrapper.
 
 ## Shared page geometry
 
-UI owns a nonvisual regression using the same theme imports and fixture CSS on
+UI owns a nonvisual suite using one app identity and the same theme imports and fixture CSS on
 Chromium and native hosts. It checks SafeArea block flow and class/style flex
 overrides, measures narrow page/card/text/control bounds,
 scrolls the real viewport through its portable handle, and preserves intentional
-wide content with inline/both-axis scrolling. It runs outside the PR gate:
+wide content with inline/both-axis scrolling. Content slots also check inline
+dialog close/reopen and list resizing without replacing child hosts. Standalone
+fixtures remain available for diagnosis. It runs outside the PR gate:
 
 ```sh
 bun run turbo run test:layout:web --filter=@octane-xplat/ui
+bun run turbo run test:layout:macos --filter=@octane-xplat/ui
 bun run turbo run test:layout:ios --filter=@octane-xplat/ui -- --device DEVICE_UDID
 bun run turbo run test:layout:android --filter=@octane-xplat/ui -- --device DEVICE_SERIAL
 ```
@@ -352,6 +368,25 @@ Native runs require the host resource reservation and an authorized existing
 device. The probe host supplies a LAN coordinator for physical iOS and isolates
 its app identity from consumer apps. These checks establish geometry and
 programmatic scroll behavior, not OS hit-testing or painted pixel parity.
+
+The separate native input check sends coordinate taps through adb or simulator
+HID, then asserts that Button, Pressable and ClickableCard each activate once.
+It uses numeric hit frames and creates no images. The platform-content fixture
+measures effect, context-menu trigger and sheet callback content, and checks
+sheet presentation changes and ref cleanup. Both need the same existing-device
+reservation as the geometry suite:
+
+```sh
+bun run turbo run test:layout-input --filter=@xplat/platform-qualification -- android --device DEVICE_SERIAL
+bun run turbo run test:layout-input --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
+bun run turbo run test:layout-native --filter=@xplat/platform-qualification -- android --device DEVICE_SERIAL
+bun run turbo run test:layout-native --filter=@xplat/platform-qualification -- ios --device DEVICE_UDID
+```
+
+The iOS content runner opens and dismisses the context menu through simulator
+HID, then measures sheet content. It waits for the preview to attach to a native
+window; a detached portal is not preview-layout evidence. These checks do not
+establish painted pixel parity.
 
 ## Package-specific runners
 

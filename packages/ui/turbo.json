@@ -5,7 +5,7 @@
 		"test:layout:web": {
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+			"passThroughEnv": ["GODDARD_*"]
 		},
 		"test:layout:ios": {
 			"dependsOn": ["typegen", "^typegen", "^build"],
@@ -15,7 +15,12 @@
 		"test:layout:android": {
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+			"passThroughEnv": ["GODDARD_*", "ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "ADB_SERVER_SOCKET", "ANDROID_ADB_SERVER_PORT"]
+		},
+		"test:layout:macos": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*"]
 		},
 		"test:windows": {
 			"dependsOn": ["typegen", "^typegen", "^build"],

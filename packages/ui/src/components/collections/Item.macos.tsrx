@@ -12,12 +12,7 @@ function StartContent(props: ItemSlotProps) @{
 }
 
 function Content(props: ItemSlotProps) @{
-  <masonview
-    className={cx('vx-item-content', props.className)}
-    style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-  >
-    {props.children}
-  </masonview>
+  <masonview className={cx('vx-item-content', props.className)}>{props.children}</masonview>
 }
 
 function Description(props: ItemSlotProps) @{

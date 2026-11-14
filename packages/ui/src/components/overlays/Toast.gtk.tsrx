@@ -108,10 +108,7 @@ export function Toast(props: ToastProps): unknown @{
       })
     ) : (
       <>
-        <masonview
-          className="vx-toast-body"
-          style={mergeStyle({ flexDirection: 'column', flexGrow: 1 }, { display: 'flex' })}
-        >
+        <masonview className="vx-toast-body">
           {typeof props.body === 'string' ? <Text>{props.body}</Text> : props.body}
         </masonview>
         {props.endContent != null && (

@@ -665,8 +665,8 @@ function FancyCard(props: {
   when: string
   children?: any
 }) @{
-  <View className="fc-card gap-4">
-    <View className="gap-2">
+  <View className="flex flex-col fc-card gap-4">
+    <View className="flex flex-col gap-2">
       <Text className="text-lg font-semibold">{props.title + ' · ' + props.recipe}</Text>
       <Text className="text-sm text-muted">{props.when}</Text>
     </View>
@@ -708,8 +708,8 @@ export function FancyComponents() @{
   <MotionConfig reducedMotion={preview.preview ? 'always' : 'user'}>
     <Screen className="vx-app flex-1 gap-6">
       <ScrollableArea className="flex-1">
-        <View className="gap-6">
-          <View className="gap-3">
+        <View className="flex flex-col gap-6">
+          <View className="flex flex-col gap-3">
             <Heading level={1}>Fancy components</Heading>
             <Text className="text-sm text-muted">
               {

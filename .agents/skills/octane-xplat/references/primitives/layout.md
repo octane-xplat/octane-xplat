@@ -159,7 +159,14 @@ export function DragSurface() {
 
 ## Vertical page sizing
 
-`SafeArea` uses block layout, not an implicit flex column. It and `ScrollableArea`
+General containers (`View`, bare `Pressable`, card content, focus wrappers,
+`StackItem` content, alert/banner bodies, and padded sections) use block flow. Choose named layouts
+or an explicit display class/style for arrangement; alignment/spacing props do
+not change the mode. Keep parent placement on the outer box and caller content
+in its documented slot. Internal media/effect grids are not a caller layout API.
+See [container defaults](../../../../../docs/app/primitives.md#predictable-container-defaults).
+
+`SafeArea` uses block layout. It and `ScrollableArea`
 allow shrinking inside a bounded flex host; scroll viewports also default to
 max-height:100% of a definite containing block. Content retains its scroll extent.
 Choose an explicit display:flex class/style or a `VStack` for flex alignment and

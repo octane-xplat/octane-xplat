@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { useInteractionHost } from '../../gestures/host.macos.tsrx'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { ViewProps } from '../../props'
@@ -13,20 +12,8 @@ export function View(props: ViewProps): unknown @{
   <masonview
     id={props.id}
     ref={refList(bindInput, props.ref)}
-    {...layoutChildProps(
-      props,
-      mergeStyle(
-        {
-          flexDirection: 'column',
-          alignItems: props.alignItems,
-          justifyContent: props.justifyContent,
-          flexWrap: props.flexWrap,
-          gap: props.gap,
-        },
-        mergeStyle({ display: 'flex' }, props.style),
-      ),
-    )}
-    className={cx(props.className)}
+    {...layoutChildProps(props, props.style)}
+    className={cx('vx-view', props.className)}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={props.accessibilityRole}

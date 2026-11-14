@@ -20,7 +20,7 @@ export function ActionControlsDemo() @{
   const [selected, setSelected] = useState(false)
   const [message, setMessage] = useState('Choose an action')
 
-  <View className="action-controls-demo gap-4">
+  <View className="flex flex-col action-controls-demo gap-4">
     <Heading level={2}>Action controls</Heading>
     <ButtonGroup label="Document actions" size="sm">
       <Button label="Save" variant="primary" size="lg" onPress={() => setMessage('Saved')} />

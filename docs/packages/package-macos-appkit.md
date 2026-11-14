@@ -286,7 +286,7 @@ the previous image until its replacement is ready.
 For centered contain-fit, pass `style={{ objectFit: 'contain' }}` to `Image`.
 This scales smaller images up while preserving their aspect ratio.
 
-`style={{ pointerEvents: 'none' }}` makes `Image` and `View` (the flexbox host)
+`style={{ pointerEvents: 'none' }}` makes `Image` and `View` (the neutral container host)
 pass hit-testing through to siblings below them. Use it for decorative crop
 source/guide layers; keep gesture controls interactive. The AppKit crop test
 checks those native hit-test boundaries separately from pan handler dispatch.
@@ -414,7 +414,7 @@ This row places two labels 12 points apart and centers them vertically:
 /** @jsxImportSource @octane-xplat/jsx */
 export function Row() {
   return (
-    <masonview style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+    <masonview style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center' }}>
       <label text="Name" />
       <label text="Value" />
     </masonview>

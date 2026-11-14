@@ -62,6 +62,8 @@ function adapter() {
 
       const view = required(id)
       const frame = view.frame
+      const inRoot = view.convertRectToView(view.bounds, appKit.contentView)
+      const rootHeight = Number(appKit.contentView.bounds.size.height)
       const alignment = view.alignmentRectForFrame?.(frame)
 
       return {
@@ -75,6 +77,16 @@ function adapter() {
               height: Number(frame.size.height),
             }
           : null,
+        // Keep frame in the native parent's coordinates for existing cases;
+        // rootFrame is top-left based so page/scroll bounds are comparable.
+        rootFrame: {
+          x: Number(inRoot.origin.x),
+          y: appKit.contentView.flipped
+            ? Number(inRoot.origin.y)
+            : rootHeight - Number(inRoot.origin.y) - Number(inRoot.size.height),
+          width: Number(inRoot.size.width),
+          height: Number(inRoot.size.height),
+        },
         alignmentRect: alignment
           ? {
               x: Number(alignment.origin.x),

@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { PopoverProps } from '../../props'
@@ -19,10 +18,7 @@ function PopoverPortal(props: {
   return createPortal(
     <masonview
       className={cx('vx-popover', props.dark && 'ns-dark', props.panel.className)}
-      style={mergeStyle(
-        { flexDirection: 'column' },
-        mergeStyle({ display: 'flex' }, props.panel.style),
-      )}
+      style={props.panel.style}
     >
       <LayerDepthProvider value={props.depth}>{props.panel.children}</LayerDepthProvider>
     </masonview>,

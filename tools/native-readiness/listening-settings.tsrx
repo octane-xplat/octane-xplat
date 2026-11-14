@@ -46,7 +46,7 @@ function ListeningSettings(props: {
     }
   }
 
-  <View className="p-4 gap-2">
+  <View className="flex flex-col p-4 gap-2">
     <Text>Listening and settings fixture</Text>
     <Pressable id="listening.play" onPress={() => props.player.play()}>
       <Text>Play</Text>

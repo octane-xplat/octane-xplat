@@ -11,7 +11,7 @@ export function CameraDemo() @{
   const [active, setActive] = useState(true)
   const [status, setStatus] = useState('starting…')
 
-  <View className="camera-demo gap-4">
+  <View className="flex flex-col camera-demo gap-4">
     <Heading level={2}>Camera</Heading>
     <CameraView
       className="camera-demo-preview"

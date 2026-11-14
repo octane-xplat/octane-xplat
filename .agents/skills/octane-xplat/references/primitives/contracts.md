@@ -69,10 +69,14 @@ export function Controls() {
 
 ## Contracts that differ from DOM/React habits
 
-- **Web `View` is not a flex container.** Native `View` is a flex column via
-  Mason; the web leaf renders a plain block div, so `alignItems`/
-  `justifyContent` stay inert until `display: 'flex'` is set. `Center`,
-  `HStack`, and `VStack` establish flex on every target. iOS `LiquidGlass`
+- **Neutral containers use block flow.** `View`, bare `Pressable`, card
+  content, quotations, item bodies, metadata values, hover-card bodies,
+  focus/safe-area wrappers and scroll content do not implicitly make
+  children flex/grid items. Use `HStack`/`VStack`, or explicitly select display
+  through a class/style before applying alignment/spacing props. Removing an
+  override restores block flow. Layer render helpers follow the same content
+  rule; positioning and backdrops remain infrastructure. Derived controls own their internal layout;
+  `Center`, `HStack`, and `VStack` establish flex explicitly. `LiquidGlass`
   and `LiquidGlassContainer` default to block and use one Mason box. Set
   `display: 'flex'` or `display: 'grid'` on the material itself; dimensions,
   padding, borders and child alignment use that same style/className.

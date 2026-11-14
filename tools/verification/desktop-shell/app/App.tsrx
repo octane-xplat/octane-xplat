@@ -3,7 +3,7 @@ import { useStore } from '@octane-xplat/ui/data'
 import { Button } from '@octane-xplat/ui'
 import { Text } from '@octane-xplat/ui'
 import { TextInput } from '@octane-xplat/ui'
-import { View } from '@octane-xplat/ui'
+import { VStack } from '@octane-xplat/ui'
 import { name$, statusText, submitName, menuCount$, lastError$, statusSuffix$ } from './journey'
 
 export default function App() {
@@ -13,7 +13,7 @@ export default function App() {
   const suffix = useStore(statusSuffix$)
 
   return (
-    <View style={{ padding: 16, gap: 8 }}>
+    <VStack padding={4} gap={2}>
       <TextInput
         testID="journey-name"
         placeholder="Type a name"
@@ -27,6 +27,6 @@ export default function App() {
       <Text testID="journey-status">{statusText() + suffix}</Text>
       <Text testID="journey-count">Count: {count}</Text>
       <Text testID="journey-error">{lastError}</Text>
-    </View>
+    </VStack>
   )
 }

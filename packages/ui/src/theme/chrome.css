@@ -3174,7 +3174,6 @@
 .vx-select-badges { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .vx-select-badge { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px; border-width: 1px; border-color: var(--color-border, #ddd); border-style: solid; border-radius: 4px; font-size: 0.8125em; }
 .vx-select-badge-x { border-width: 0; background: none; cursor: pointer; padding: 0 2px; }
-.vx-step-body { display: flex; flex-direction: column; }
 .vx-step-heading { display: inline-flex; align-items: baseline; gap: 6px; }
 .vx-step-optional { font-size: 0.75em; color: var(--color-text-secondary, #666); }
 .vx-step-description { font-size: 0.8125em; color: var(--color-text-secondary, #666); }
@@ -3604,13 +3603,6 @@
 .vx-listitem-end {
 	display: flex;
 	flex-shrink: 0;
-}
-.vx-listitem-body {
-	display: flex;
-	flex-direction: column;
-	flex-grow: 1;
-	flex-shrink: 1;
-	min-width: 0;
 }
 .vx-listmarker {
 	align-self: baseline;

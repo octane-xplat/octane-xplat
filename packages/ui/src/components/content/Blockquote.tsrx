@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { TextSlot } from '../forms/text-slot.tsrx'
 import type { BlockquoteProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
@@ -13,7 +12,7 @@ export function Blockquote(props: BlockquoteProps): unknown @{
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
     className={cx('vx-blockquote', props.className)}
-    style={mergeStyle({ display: 'flex' }, props.style)}
+    style={props.style}
   >
     <TextSlot className="vx-blockquote-text">{props.children}</TextSlot>
     {props.cite != null && props.cite !== false ? (

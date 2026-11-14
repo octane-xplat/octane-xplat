@@ -8,9 +8,10 @@ Needed when a leaf misbehaves, not for normal component use.
 ```tsrx
 /** @jsxImportSource @octane-xplat/jsx */
 import type { ViewProps } from '@octane-xplat/ui'
+import { cx } from '@octane-xplat/lib'
 
 export function Leaf(props: ViewProps) @{
-  <masonview id={props.id} style={{ display: 'flex', flexDirection: 'column' }}>{props.children}</masonview>
+  <masonview id={props.id} className={cx('vx-view', props.className)} style={props.style}>{props.children}</masonview>
 }
 ```
 
@@ -51,7 +52,7 @@ import { cx } from '@octane-xplat/lib'
 import type { ViewProps } from '@octane-xplat/ui'
 
 export function ClassifiedLeaf(props: ViewProps) @{
-  <masonview className={cx('vx-view', props.className)} style={{ display: 'flex', flexDirection: 'column' }}>{props.children}</masonview>
+  <masonview className={cx('vx-view', props.className)} style={props.style}>{props.children}</masonview>
 }
 ```
 

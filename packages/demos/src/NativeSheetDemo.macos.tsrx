@@ -28,7 +28,7 @@ function NestedSheet() @{
         setDismissals((n) => n + 1)
       }}
       content={() => (
-        <View className="gap-3">
+        <View className="flex flex-col gap-3">
           <Heading>Nested confirmation</Heading>
           <RecordLabel />
           <Button label="Close nested sheet" onPress={() => setOpen(false)} />
@@ -73,7 +73,7 @@ export function NativeSheetDemo() @{
     }, 1500)
   }
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading>AppKit window sheet</Heading>
     <Button
       label="Open sheet"
@@ -108,7 +108,7 @@ export function NativeSheetDemo() @{
             setLastCallback(alternate ? 'B' : 'A')
           }}
           content={() => (
-            <View className="gap-3">
+            <View className="flex flex-col gap-3">
               <Heading>Edit record</Heading>
               <RecordLabel />
               <TextInput label="Record name" value={name} onChange={setName} />
@@ -138,7 +138,7 @@ export function NativeSheetDemo() @{
         className="gap-3 p-4"
         onDismissed={() => setQueued(false)}
         content={() => (
-          <View className="gap-3">
+          <View className="flex flex-col gap-3">
             <Heading>Queued sheet</Heading>
             <RecordLabel />
             <Button label="Close queued sheet" onPress={() => setQueued(false)} />

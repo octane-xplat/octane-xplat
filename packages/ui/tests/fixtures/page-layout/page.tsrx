@@ -1,10 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 // The same theme and application stylesheet are loaded on every target.
 import '@octane-xplat/ui/theme/tokens.css'
-import '@octane-xplat/ui/theme/chrome.css'
 import '@octane-xplat/ui/theme/utilities.css'
 import './page.css'
-import { SafeArea, ScrollableArea, VStack, HStack, Text, Button } from '@octane-xplat/ui'
+import { SafeArea, ScrollableArea, VStack, HStack, Text, Button, View } from '@octane-xplat/ui'
 import type { ScrollableAreaHandle, ScrollAxis } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../../tools/probe/context'
 
@@ -13,111 +12,129 @@ const capture = (handle: ScrollableAreaHandle | null) => {
   scroll = handle
 }
 
+// The outer View fills the probe root; the inner stage supplies a definite budget.
 const paragraph =
   'Ordinary shared page content should wrap inside the available screen width without custom width declarations on every card and paragraph.'
 
 export default function Page(props: { width?: number; refreshable?: boolean }) {
   return (
-    <VStack id="host" width={props.width ?? 375} height={600}>
-      <SafeArea id="page">
-        <ScrollableArea
-          id="scroll"
-          ref={capture}
-          refreshing={props.refreshable ? false : undefined}
-        >
-          <VStack id="content" className="page-content">
-            {[0, 1, 2, 3, 4, 5].map((i) => (
-              <VStack key={i} id={`card-${i}`} className="page-card">
-                <Text id={`text-${i}`}>{paragraph}</Text>
-                <HStack id={`controls-${i}`} wrap="wrap" gap={2}>
-                  <Button id={`first-${i}`} onPress={() => {}}>
-                    First control
-                  </Button>
-                  <Button id={`second-${i}`} onPress={() => {}}>
-                    Second control
-                  </Button>
-                  <Button id={`third-${i}`} onPress={() => {}}>
-                    Third control
-                  </Button>
-                </HStack>
-              </VStack>
-            ))}
-          </VStack>
-        </ScrollableArea>
-      </SafeArea>
-    </VStack>
+    <View>
+      <VStack id="host" width={props.width ?? 375} height={600}>
+        <SafeArea id="page">
+          <ScrollableArea
+            id="scroll"
+            ref={capture}
+            refreshing={props.refreshable ? false : undefined}
+          >
+            <VStack id="content" className="page-content">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <VStack key={i} id={`card-${i}`} className="page-card">
+                  <Text id={`text-${i}`}>{paragraph}</Text>
+                  <HStack id={`controls-${i}`} wrap="wrap" gap={2}>
+                    <Button className="page-control" id={`first-${i}`} onPress={() => {}}>
+                      First control
+                    </Button>
+                    <Button className="page-control" id={`second-${i}`} onPress={() => {}}>
+                      Second control
+                    </Button>
+                    <Button className="page-control" id={`third-${i}`} onPress={() => {}}>
+                      Third control
+                    </Button>
+                  </HStack>
+                </VStack>
+              ))}
+            </VStack>
+          </ScrollableArea>
+        </SafeArea>
+      </VStack>
+    </View>
   )
 }
 
 function Intrinsic(props: { axis: ScrollAxis }) {
   return (
-    <VStack id="host" width={320} height={240}>
-      <SafeArea id="page">
-        <ScrollableArea id="scroll" ref={capture} axis={props.axis} height={180}>
-          <VStack id="wide" width={640} height={480}>
-            <Text>Intentionally wider content</Text>
-          </VStack>
-        </ScrollableArea>
-      </SafeArea>
-    </VStack>
+    <View>
+      <VStack id="host" width={320} height={240}>
+        <SafeArea id="page">
+          <ScrollableArea id="scroll" ref={capture} axis={props.axis} height={180}>
+            <VStack id="wide" width={640} height={480}>
+              <Text>Intentionally wider content</Text>
+            </VStack>
+          </ScrollableArea>
+        </SafeArea>
+      </VStack>
+    </View>
   )
 }
 
 function NaturalWidth() {
   return (
-    <VStack id="host" width={320} height={240}>
-      <SafeArea>
-        <ScrollableArea id="scroll" ref={capture} axis="inline" height={120}>
-          <HStack>
-            <VStack id="natural-first" width={260}>
-              <Text>First panel</Text>
-            </VStack>
-            <VStack width={260}>
-              <Text>Second panel</Text>
-            </VStack>
-            <VStack id="natural-last" width={260}>
-              <Text>Third panel</Text>
-            </VStack>
-          </HStack>
-        </ScrollableArea>
-      </SafeArea>
-    </VStack>
+    <View>
+      <VStack id="host" width={320} height={240}>
+        <SafeArea>
+          <ScrollableArea id="scroll" ref={capture} axis="inline" height={120}>
+            <HStack>
+              <VStack id="natural-first" width={260}>
+                <Text>First panel</Text>
+              </VStack>
+              <VStack width={260}>
+                <Text>Second panel</Text>
+              </VStack>
+              <VStack id="natural-last" width={260}>
+                <Text>Third panel</Text>
+              </VStack>
+            </HStack>
+          </ScrollableArea>
+        </SafeArea>
+      </VStack>
+    </View>
   )
 }
 
 function ShortPage() {
   return (
-    <VStack id="host" width={320} height={600}>
-      <SafeArea id="page">
-        <ScrollableArea id="scroll">
-          <Text id="short">Short notes</Text>
-        </ScrollableArea>
-      </SafeArea>
-    </VStack>
+    <View>
+      <VStack id="host" width={320} height={600}>
+        <SafeArea id="page">
+          <ScrollableArea id="scroll">
+            <Text id="short">Short notes</Text>
+          </ScrollableArea>
+        </SafeArea>
+      </VStack>
+    </View>
   )
 }
 
-function SafeAreaMode(props: { mode: 'block' | 'class' | 'style' }) {
+function SafeAreaMode(props: { mode: 'block' | 'class' | 'utility' | 'style' }) {
   return (
-    <VStack width={320} height={240}>
-      <SafeArea
-        edges={[]}
-        className={props.mode === 'class' ? 'page-safe-flex' : undefined}
-        style={props.mode === 'style' ? { display: 'flex', flexDirection: 'row' } : undefined}
-      >
-        <VStack id="mode-first" width={120} height={40}>
-          <Text>First</Text>
-        </VStack>
-        <VStack id="mode-second" width={120} height={40}>
-          <Text>Second</Text>
-        </VStack>
-      </SafeArea>
-    </VStack>
+    <View>
+      <VStack width={320} height={240}>
+        <SafeArea
+          edges={[]}
+          className={
+            props.mode === 'class'
+              ? 'page-safe-flex'
+              : props.mode === 'utility'
+                ? 'flex flex-row'
+                : undefined
+          }
+          style={props.mode === 'style' ? { display: 'flex', flexDirection: 'row' } : undefined}
+        >
+          <VStack id="mode-first" width={120} height={40}>
+            <Text>First</Text>
+          </VStack>
+          <VStack id="mode-second" width={120} height={40}>
+            <Text>Second</Text>
+          </VStack>
+        </SafeArea>
+      </VStack>
+    </View>
   )
 }
 
 function frame(ctx: ProbeContext, id: string) {
-  const box = ctx.inspect(id).frame
+  const inspection = ctx.inspect(id)
+  const box = inspection.rootFrame ?? inspection.frame
 
   if (!box) {
     throw new Error(`No layout for ${id}`)
@@ -128,7 +145,22 @@ function frame(ctx: ProbeContext, id: string) {
 
 async function checkPage(ctx: ProbeContext, width: number, refreshable: boolean) {
   await ctx.mount(Page, { width, refreshable })
-  await ctx.waitFor(() => (ctx.inspect('text-0').frame?.height ?? 0) > 0)
+  await ctx.waitFor(
+    () => {
+      if (!ctx.find('text-0')) {
+        return false
+      }
+
+      const host = frame(ctx, 'host')
+      const text = frame(ctx, 'text-0')
+
+      ctx.record(`waiting page ${width} refresh=${refreshable}`, { host, text })
+      return (
+        Math.abs(host.width - width) <= 1 && Math.abs(host.height - 600) <= 1 && text.height > 40
+      )
+    },
+    { timeout: 8000 },
+  )
 
   const host = frame(ctx, 'host')
   const ids = [
@@ -177,7 +209,21 @@ async function checkPage(ctx: ProbeContext, width: number, refreshable: boolean)
   const before = frame(ctx, 'card-0').y
 
   scroll!.scrollToOffset({ block: 80 })
-  await ctx.waitFor(() => frame(ctx, 'card-0').y < before - 20)
+  await ctx.waitFor(
+    () => {
+      const after = frame(ctx, 'card-0').y
+
+      ctx.record(`pending scroll ${width} refresh=${refreshable}`, {
+        before,
+        after,
+        viewport: ctx.inspect('scroll'),
+      })
+
+      return after < before - 20
+    },
+    { timeout: 5000 },
+  )
+
   ctx.record(`scroll ${width} refresh=${refreshable}`, {
     before,
     after: frame(ctx, 'card-0').y,
@@ -185,14 +231,16 @@ async function checkPage(ctx: ProbeContext, width: number, refreshable: boolean)
   })
 
   scroll!.scrollToOffset({ block: 0 })
-  await ctx.waitFor(() => Math.abs(frame(ctx, 'card-0').y - before) <= 1)
+  await ctx.waitFor(() => Math.abs(frame(ctx, 'card-0').y - before) <= 1, { timeout: 5000 })
   return viewport
 }
 
 export async function run(ctx: ProbeContext) {
-  for (const mode of ['block', 'class', 'style'] as const) {
+  for (const mode of ['block', 'class', 'utility', 'style'] as const) {
     await ctx.mount(SafeAreaMode, { mode })
-    await ctx.waitFor(() => (ctx.inspect('mode-second').frame?.height ?? 0) > 0)
+    await ctx.waitFor(
+      () => ctx.find('mode-second') && (ctx.inspect('mode-second').frame?.height ?? 0) > 0,
+    )
 
     const first = frame(ctx, 'mode-first')
     const second = frame(ctx, 'mode-second')
@@ -234,9 +282,36 @@ export async function run(ctx: ProbeContext) {
     const before = frame(ctx, 'wide')
 
     scroll!.scrollToOffset({ inline: 80, ...(axis === 'both' ? { block: 80 } : {}) })
-    await ctx.waitFor(() => frame(ctx, 'wide').x < before.x - 20)
+    await ctx.waitFor(
+      () => {
+        const after = frame(ctx, 'wide')
+
+        ctx.record(`${axis} pending inline scroll`, {
+          before,
+          after,
+          viewport: ctx.inspect('scroll'),
+        })
+
+        return after.x < before.x - 20
+      },
+      { timeout: 5000 },
+    )
+
     if (axis === 'both') {
-      await ctx.waitFor(() => frame(ctx, 'wide').y < before.y - 20)
+      await ctx.waitFor(
+        () => {
+          const after = frame(ctx, 'wide')
+
+          ctx.record('both pending block scroll', {
+            before,
+            after,
+            viewport: ctx.inspect('scroll'),
+          })
+
+          return after.y < before.y - 20
+        },
+        { timeout: 5000 },
+      )
     }
 
     ctx.record(`${axis} scrolled`, {

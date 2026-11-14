@@ -1,0 +1,5 @@
+@layer theme, xplat-structure, xplat-chrome, utilities;
+
+@layer xplat-structure {
+  .xplat-native-sheet-content { display: block; }
+}

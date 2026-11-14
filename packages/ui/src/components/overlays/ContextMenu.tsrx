@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from '../../props'
 import type { NavigationMenuImplementation } from '../navigation/nav-link'
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { MenuData } from './MenuParts.tsrx'
 import { MenuSurface } from './MenuSurface.tsrx'
 import { useRef, useState } from 'octane'
@@ -49,7 +48,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
     }}
     id={props.id}
     className={cx('vx-contextmenu', props.className)}
-    style={mergeStyle({ display: 'flex' }, props.style)}
+    style={props.style}
     onLongPress={props.isDisabled ? undefined : () => setOpen(true)}
   >
     {props.children}

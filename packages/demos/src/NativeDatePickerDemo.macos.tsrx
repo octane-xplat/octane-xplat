@@ -25,7 +25,7 @@ export function NativeDatePickerDemo() @{
   const [events, setEvents] = useState(0),
     [callback, setCallback] = useState('none')
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading>AppKit date picker</Heading>
     <SegmentedControl
       value={mode}

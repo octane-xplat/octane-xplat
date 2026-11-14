@@ -56,7 +56,7 @@ carried on the package (#62).
    mode prop. There is no shared `List`, `Modal`, `openModal`,
    `PlatformBadge`, or `glass` prop. `KeyboardAvoiding` is part of the shared
    root API: iOS/Android adjust for the software keyboard, while other targets
-   retain a neutral column wrapper.
+   retain a neutral block wrapper.
    (decisions #44–46, #50)
 9. A platform-suffixed file is an implementation redirect for the same
    module. The default and `.web`, `.mobile`, `.ios`, `.android`, `.macos`,
@@ -70,6 +70,35 @@ carried on the package (#62).
    pass-through behavior, follow the criteria in `docs/start/architecture.md`.
 
 Drawer belongs to UI (#157): its mobile presentation uses UI’s common input owner and scalar animation, with no separate plugin or runtime dependency. Keep platform leaves inside UI; do not recreate a drawer package solely for platform-specific presentation.
+
+## Layout defaults
+
+General-purpose containers use block flow (#159), including `View`, bare
+`Pressable`, card content, focus wrappers, safe-area wrappers, scroll content,
+list-renderer slots, alert/banner bodies, context-menu triggers, chat bubbles, sheet bodies,
+and decorative/effect content hosts. Pager owns horizontal paging while each
+page preserves block flow. Keep the public frame, caller-content host,
+and internal chrome distinct. A surface may need an internal grid for painting
+without making caller children grid items. Parent-placement metadata must still
+address the frame.
+
+Named layouts (`Stack`, `Row`, `Grid`, `Center`, ratio/form/page layouts),
+intentional inline content, structured controls, and host infrastructure retain
+their documented arrangements. Derived controls must establish their own layout;
+they cannot depend on `View` or `Pressable` introducing flex. Context/provider
+components that render no box stay transparent. Drawer main/panel hosts retain
+the bounded viewport layout needed by nested screens; use an explicit child
+layout within those hosts. Empty-state chrome retains its centered column.
+
+Use structural CSS for static defaults so caller classes can override them.
+Removing a class/style override must restore the component default, including
+after native host replacement. Layout-context props do not choose display:
+spacing/alignment props alone do not turn a neutral container into flex/grid.
+Preserve purposeful screen/viewport/media sizing and the existing shared box
+normalization; do not normalize every intrinsic with a universal display rule.
+See the [public layout contract](../../docs/app/primitives.md#predictable-container-defaults)
+for app composition. Geometry, cascade reset, and OS-input qualification remain
+separate evidence requirements.
 
 ## Readiness observer ownership
 

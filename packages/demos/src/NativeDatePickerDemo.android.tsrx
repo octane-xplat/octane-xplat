@@ -13,7 +13,7 @@ const MINIMUM = new Date()
 export function NativeDatePickerDemo() @{
   const [selected, setSelected] = useState<Date | null>(null)
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading>Material date picker</Heading>
     <Text>Poll closes</Text>
     <MaterialDatePicker

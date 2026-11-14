@@ -44,7 +44,7 @@ export default function KeepAwakeProbe() @{
     }
   }
 
-  <View className="gap-3">
+  <View className="flex flex-col gap-3">
     <Text>
       Start either reading screen to request display-sleep prevention. Release both to resume
       ordinary sleep policy. This is not a system-sleep or lock override; no request starts on

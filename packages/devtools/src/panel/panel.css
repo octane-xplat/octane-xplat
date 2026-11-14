@@ -56,6 +56,8 @@ body {
 }
 .dt-tabs { flex: 1; align-items: center; gap: 2px; }
 .dt-tab {
+	display: flex;
+	flex-direction: column;
 	height: 30px;
 	padding: 0 12px;
 	justify-content: center;

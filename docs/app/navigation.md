@@ -2333,7 +2333,7 @@ type WorkspaceNavigation = ReturnType<typeof createPaneNavigation>
 function Toolbar(props: { navigation: WorkspaceNavigation['navigation']; topic: string }) {
   const navigation = useRouter(props.navigation)
 
-  return <View className="flex-row gap-2">
+  return <View className="flex flex-row gap-2">
     <Button label="Open help" onPress={() => {
       void navigation.push({ to: '/help/:topic', params: { topic: props.topic } })
     }} />
@@ -2344,7 +2344,7 @@ function Toolbar(props: { navigation: WorkspaceNavigation['navigation']; topic: 
 export function PaneWorkspace(props: { workspace: WorkspaceNavigation }) {
   const { host, navigation } = props.workspace
 
-  return <View className="flex-1">
+  return <View className="flex flex-col flex-1">
     <RouterProvider router={navigation} stack="library">
       <Toolbar navigation={navigation} topic="library" />
     </RouterProvider>

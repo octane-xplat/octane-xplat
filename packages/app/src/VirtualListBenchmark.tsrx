@@ -19,7 +19,7 @@ const renderItem = (item: VirtualListBenchItem) => <BenchmarkRow item={item} />
 function BenchmarkRow(props: { item: VirtualListBenchItem }) @{
   <View
     id={'vlist-bench-row-' + props.item.index}
-    className="px-3"
+    className="flex flex-col px-3"
     style={{ height: props.item.height, flexShrink: 0, justifyContent: 'center' }}
   >
     <Text className="text-sm">{'Row ' + props.item.index}</Text>
@@ -84,7 +84,7 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
       .finally(() => setInputRunning(false))
   }
 
-  <View className="flex-1 min-h-0 gap-2">
+  <View className="flex flex-col flex-1 min-h-0 gap-2">
     <Pressable
       id="vlist-bench-height-mode"
       onPress={() => setFixedMode(!fixedMode)}

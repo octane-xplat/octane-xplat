@@ -15,7 +15,7 @@ export function NativePickerDemo() @{
   const [value, setValue] = useState('1440')
   const selected = POLL_LENGTHS.find((option) => option.value === value)
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading>Web select</Heading>
     <Text>Poll length</Text>
     <Select

@@ -187,7 +187,7 @@ export function StackItem(props: StackItemProps): unknown @{
       accessibilityState={props.accessibilityState}
       accessibilityLiveRegion={props.accessibilityLiveRegion}
     >
-      <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
+      <masonview className="vx-stackitem-content">
         <InteractionScopeProvider scope={props.interactionScope}>
           {props.children}
         </InteractionScopeProvider>
@@ -198,7 +198,7 @@ export function StackItem(props: StackItemProps): unknown @{
       id={props.id}
       ref={forwardedRef}
       className={cx('vx-stackitem', props.className)}
-      style={mergeStyle({ display: 'flex' }, { ...itemStyle, ...styleRecord(props.style) })}
+      style={{ ...itemStyle, ...styleRecord(props.style) }}
       accessible={props.accessible}
       accessibilityLabel={props.accessibilityLabel}
       accessibilityRole={props.accessibilityRole}

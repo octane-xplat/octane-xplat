@@ -74,7 +74,7 @@ export function Banner(props: BannerProps): unknown @{
           <>{icon}</>
         }
       }
-      <masonview className="vx-banner-body vx-banner-body-windows" style={{ display: 'flex' }}>
+      <masonview className="vx-banner-body vx-banner-body-windows">
         @if (props.title != null) {
           <TextSlot className="vx-banner-title">{props.title}</TextSlot>
         }
@@ -90,7 +90,7 @@ export function Banner(props: BannerProps): unknown @{
           accessibilityLabel="Details"
           defaultOpen={defaultOpen}
         >
-          <masonview className="vx-banner-content" style={{ display: 'flex' }}>
+          <masonview className="vx-banner-content">
             <TextSlot>{props.children}</TextSlot>
           </masonview>
         </Collapsible>
@@ -108,7 +108,7 @@ export function Banner(props: BannerProps): unknown @{
       }
     </masonview>
     @if (hasBody && !collapsible) {
-      <masonview className="vx-banner-content" style={{ display: 'flex' }}>
+      <masonview className="vx-banner-content">
         <TextSlot>{props.children}</TextSlot>
       </masonview>
     }

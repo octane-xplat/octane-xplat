@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useRef } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
@@ -41,16 +41,10 @@ export function Pressable(props: PressableProps): unknown @{
     ref={forwardedRef}
     id={props.id}
     testID={props.testID ?? ''}
-    {...layoutChildProps(
-      props,
-      mergeStyle(
-        { display: 'flex' },
-        {
-          ...styleRecord(props.style),
-          ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}),
-        },
-      ),
-    )}
+    {...layoutChildProps(props, {
+      ...styleRecord(props.style),
+      ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}),
+    })}
     className={cx('vx-pressable', props.className)}
     isEnabled={!props.disabled}
     accessible={props.accessible ?? Boolean(props.onPress)}

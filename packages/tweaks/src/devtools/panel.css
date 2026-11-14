@@ -89,7 +89,7 @@
 .panel-action { flex-shrink: 0; }
 .panel-action--icon,
 .panel-action-slot { width: 24px; height: 24px; flex-shrink: 0; }
-.panel-button { min-height: 24px; padding: 4px 6px; border-radius: 6px; background-color: transparent; justify-content: center; }
+.panel-button { display: flex; flex-direction: column; min-height: 24px; padding: 4px 6px; border-radius: 6px; background-color: transparent; justify-content: center; }
 .panel-action--icon .panel-button { width: 24px; height: 24px; padding: 0; align-items: center; }
 .panel-button-content { justify-content: center; }
 .panel-button-label { font-size: 12px; line-height: 16px; }

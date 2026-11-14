@@ -4,6 +4,8 @@ import { css } from './styled-system/css'
 // extractor — so static styles live here and the .tsrx screen imports them.
 export default {
   card: css({
+    display: 'flex',
+    flexDirection: 'column',
     padding: '6',
     borderWidth: '1',
     borderColor: 'primary',
@@ -16,5 +18,5 @@ export default {
     backgroundColor: 'primary',
     color: 'onprimary',
   }),
-  screen: css({ padding: '8', gap: '6' }),
+  screen: css({ display: 'flex', flexDirection: 'column', padding: '8', gap: '6' }),
 }

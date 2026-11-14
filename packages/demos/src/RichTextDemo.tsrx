@@ -7,7 +7,7 @@ import { Heading, RichText, RichTextSpan, Text, View } from '@octane-xplat/ui'
 export function RichTextDemo() @{
   const [lastRun, setLastRun] = useState('Nothing tapped yet')
 
-  <View className="rich-text-demo gap-4">
+  <View className="flex flex-col rich-text-demo gap-4">
     <Heading level={2}>Rich text</Heading>
     <Text>Styled and tappable inline runs share one component tree.</Text>
     <RichText id="rich-text-sample" className="rich-text-sample">

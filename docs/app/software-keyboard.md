@@ -259,15 +259,15 @@ receives no second keyboard displacement.
 
 ```tsx
 import { KeyboardStickyView } from '@octane-xplat/keyboard'
-import { Field, TextInput, View } from '@octane-xplat/ui'
+import { Field, TextInput, View, VStack } from '@octane-xplat/ui'
 
 export function Composer() {
-  return <View flexGrow={1}>
+  return <VStack flexGrow={1}>
     <View flexGrow={1} />
     <KeyboardStickyView openOffset={8} closedOffset={0}>
       <Field label="Message"><TextInput placeholder="Write a message" /></Field>
     </KeyboardStickyView>
-  </View>
+  </VStack>
 }
 ```
 

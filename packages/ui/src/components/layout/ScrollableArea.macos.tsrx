@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { NSScrollView } from '@octane-xplat/platform/macos'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useImperativeHandle, useMemo, useRef } from 'octane'
+import { useCallback, useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from '../../props'
 import { layoutChildProps } from './layout-child'
 import { spacingStep } from './spacing'
@@ -45,7 +45,7 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
   liveDirection.current = direction
 
   const rtl = direction === 'rtl'
-  const horizontal = props.axis === 'inline'
+  const [contentWidth, setContentWidth] = useState<number | undefined>(undefined)
   const padding = spacingStep(props.padding)
 
   const viewport = useRef<NSScrollView | null>(null)
@@ -53,7 +53,15 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
 
   useImperativeHandle(props.ref, () => handle, [props.ref])
 
-  const viewportProps = area.getViewportProps({ ref: viewport })
+  const measureViewport = useCallback(() => {
+    const width = Number(viewport.current?.contentView?.bounds?.size?.width ?? 0)
+
+    if (width > 0) {
+      setContentWidth(width)
+    }
+  }, [])
+
+  const viewportProps = area.getViewportProps({ ref: viewport, onLayoutChanged: measureViewport })
   const contentProps = area.getContentProps()
 
   <scrollview
@@ -84,32 +92,26 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
     <masonview
       ref={contentProps.ref}
       onLayoutChanged={contentProps.onLayoutChanged}
-      className={contentProps.className}
-      style={mergeStyle(
-        { flexDirection: horizontal ? 'row' : 'column' },
-        mergeStyle(
-          { display: 'flex' },
-          {
-            paddingTop:
-              spacingStep(props.paddingBlockStart) ??
-              spacingStep(props.paddingBlock) ??
-              padding ??
-              0,
-            paddingBottom:
-              spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
-            paddingLeft:
-              spacingStep(rtl ? props.paddingInlineEnd : props.paddingInlineStart) ??
-              spacingStep(props.paddingInline) ??
-              padding ??
-              0,
-            paddingRight:
-              spacingStep(rtl ? props.paddingInlineStart : props.paddingInlineEnd) ??
-              spacingStep(props.paddingInline) ??
-              padding ??
-              0,
-          },
-        ),
-      )}
+      className={cx('vx-scrollable-content', contentProps.className)}
+      style={{
+        // AppKit's auto-sized document root can shrink-wrap block children.
+        // The viewport owns the cross-axis budget; callers need no width repair.
+        width: props.axis !== 'inline' && props.axis !== 'both' ? contentWidth : undefined,
+        paddingTop:
+          spacingStep(props.paddingBlockStart) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
+        paddingBottom:
+          spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
+        paddingLeft:
+          spacingStep(rtl ? props.paddingInlineEnd : props.paddingInlineStart) ??
+          spacingStep(props.paddingInline) ??
+          padding ??
+          0,
+        paddingRight:
+          spacingStep(rtl ? props.paddingInlineStart : props.paddingInlineEnd) ??
+          spacingStep(props.paddingInline) ??
+          padding ??
+          0,
+      }}
     >
       {props.children}
     </masonview>

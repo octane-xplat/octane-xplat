@@ -60,7 +60,7 @@ export function TiptapEditorDemo() @{
     }
   }
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading level={2}>Tiptap facade</Heading>
     <Text className="text-sm text-muted">
       @octanejs/tiptap on web/AppKit · Aztec + tiptap doc model on iOS/Android

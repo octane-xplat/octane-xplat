@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import type { HoverCardProps } from '../../props'
 import { useHoverCard } from './use-hover-card.mobile.tsrx'
 import { cx } from '@octane-xplat/lib'
@@ -26,7 +25,7 @@ export function HoverCard(props: HoverCardProps): unknown @{
       id={props.id}
       ref={card.ref}
       className={cx('vx-hovercard-trigger', props.className)}
-      style={mergeStyle({ display: 'flex' }, props.style)}
+      style={props.style}
       ios={props.ios}
       android={props.android}
     >

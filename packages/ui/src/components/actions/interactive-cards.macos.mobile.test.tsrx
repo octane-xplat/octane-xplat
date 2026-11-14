@@ -11,15 +11,19 @@ import { openUrl } from '@octane-xplat/platform'
 import { ClickableCard } from './ClickableCard.macos.tsrx'
 import { SelectableCard } from './SelectableCard.macos.tsrx'
 import { Button } from './Button.macos.tsrx'
+import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
 
-vi.mock('@octane-xplat/platform', async (original) => ({
-  ...(await original<typeof import('@octane-xplat/platform')>()),
-  openUrl: vi.fn(),
-}))
+vi.mock('@octane-xplat/platform', () => ({ openUrl: vi.fn() }))
+vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
 
 function mount(component: any, props: any) {
   const container = createObjectContainer('nativescript')
-  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const driver = createObjectDriver('nativescript')
+
+  // Semantic action and layout fixture; no OS input is delivered here.
+  driver.events = { classify: () => null }
+
+  const root = createUniversalRoot(container, driver)
   const render = (next: any) => {
     root.render(component, next)
     flushUniversalSync(() => {})
@@ -32,7 +36,13 @@ function mount(component: any, props: any) {
   }
 
   render(props)
-  return { root, render, all, host: () => all().find((node) => node.props?.id === 'card') }
+  return {
+    root,
+    container,
+    render,
+    all,
+    host: () => all().find((node) => node.props?.id === 'card'),
+  }
 }
 
 it('clickable cards open sanitized href before callbacks, expose link role and block disabled activation', () => {
@@ -61,11 +71,11 @@ it('clickable cards open sanitized href before callbacks, expose link role and b
 
     expect(host.props.accessibilityRole).toBe('link')
     expect(host.props.accessibilityLabel).toBe('Open project')
-    host.props.onTap()
+    dispatchTestInput(env.container, host, 'tap', {})
     expect(order).toEqual(['https://example.com/project', 'press'])
     env.render({ id: 'card', label: 'Open project', href: 'javascript:bad', onPress: press })
     expect(env.host()).toBe(host)
-    host.props.onTap()
+    dispatchTestInput(env.container, host, 'tap', {})
     expect(order).toEqual(['https://example.com/project', 'press', 'press'])
     env.render({
       id: 'card',
@@ -109,7 +119,14 @@ it('card primitive text and supplied nested controls keep native hosts and prese
 
     expect(String(host.props.className)).toContain('vx-card--outlined')
     expect(String(host.props.className)).toContain('vx-card--elev-med')
-    expect(host.props.style).toMatchObject({ padding: 12, width: 280 })
+    expect(host.props.style).toMatchObject({
+      paddingTop: 12,
+      paddingRight: 12,
+      paddingBottom: 12,
+      paddingLeft: 12,
+      width: 280,
+    })
+
     expect(env.all().some((node) => node.type === 'label')).toBe(true)
     expect(env.all().some((node) => node.props?.id === 'nested-action')).toBe(true)
   } finally {

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { SectionProps } from '../../props'
@@ -46,20 +46,17 @@ export function Section(props: SectionProps): unknown @{
       dividers.has('end') && 'vx-section--divider-end',
       props.className,
     )}
-    style={mergeStyle(
-      { display: 'flex', flexDirection: 'column' },
-      {
-        paddingLeft: pInlineStart,
-        paddingRight: pInlineEnd,
-        paddingTop: pBlockStart,
-        paddingBottom: pBlockEnd,
-        ...(props.width != null ? { width: props.width } : {}),
-        ...(props.height != null ? { height: props.height } : {}),
-        ...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
-        ...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-        ...styleRecord(props.style),
-      },
-    )}
+    style={{
+      paddingLeft: pInlineStart,
+      paddingRight: pInlineEnd,
+      paddingTop: pBlockStart,
+      paddingBottom: pBlockEnd,
+      ...(props.width != null ? { width: props.width } : {}),
+      ...(props.height != null ? { height: props.height } : {}),
+      ...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
+      ...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
+      ...styleRecord(props.style),
+    }}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}

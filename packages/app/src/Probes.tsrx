@@ -36,7 +36,7 @@ export function Probes() @{
   const measuredBounds = bounds.bounds$.get()
   const state = useRouterState()
 
-  <View className="gap-6">
+  <View className="flex flex-col gap-6">
     <View className="sink-section">
       <Text className="section-label">Multi-child host</Text>
       {/* Multi-child Pressable regression — the old contentview host

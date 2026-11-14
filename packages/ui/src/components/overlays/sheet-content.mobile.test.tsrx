@@ -39,18 +39,20 @@ it('separates panel editing state while retaining the surrounding presentation',
   const container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
 
+  const content = () => container.children[0].children[0]
+
   try {
     root.render(Host, { id: 'first' })
     flushUniversalSync(() => {})
-    await vi.waitFor(() => expect(container.children[0].props.text).toBe('first:0'))
+    await vi.waitFor(() => expect(content().props.text).toBe('first:0'))
     flushUniversalSync(() => edit(7))
-    expect(container.children[0].props.text).toBe('first:7')
+    expect(content().props.text).toBe('first:7')
 
     const original = container.children[0]
 
     root.render(Host, { id: 'second' })
     flushUniversalSync(() => {})
-    await vi.waitFor(() => expect(container.children[0].props.text).toBe('second:0'))
+    await vi.waitFor(() => expect(content().props.text).toBe('second:0'))
     await vi.waitFor(() => expect(retired).toBe(1))
     expect(container.children[0]).not.toBe(original)
   } finally {

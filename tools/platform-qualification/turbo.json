@@ -13,6 +13,36 @@
     },
     "verify:windows-gestures": {
       "cache": false
+    },
+    "test:layout-input": {
+      "cache": false,
+      "dependsOn": [
+        "^typegen",
+        "^build"
+      ],
+      "passThroughEnv": [
+        "GODDARD_*",
+        "ANDROID_HOME",
+        "ANDROID_SDK_ROOT",
+        "JAVA_HOME",
+        "ADB_SERVER_SOCKET",
+        "ANDROID_ADB_SERVER_PORT"
+      ]
+    },
+    "test:layout-native": {
+      "cache": false,
+      "dependsOn": [
+        "^typegen",
+        "^build"
+      ],
+      "passThroughEnv": [
+        "GODDARD_*",
+        "ANDROID_HOME",
+        "ANDROID_SDK_ROOT",
+        "JAVA_HOME",
+        "ADB_SERVER_SOCKET",
+        "ANDROID_ADB_SERVER_PORT"
+      ]
     }
   }
 }

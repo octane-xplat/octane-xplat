@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import './SmoothCorners.css'
 import { validateSurfaceProps } from './validation.ts'
 import type { JSX } from 'octane/jsx-runtime'
 import { useId, useLayoutEffect, useRef, useState } from 'octane'
@@ -75,7 +76,7 @@ export function SmoothCorners(props: SmoothCornersProps): JSX.Element @{
 
   return (
     <div
-      className={props.className}
+      className={['vx-smooth-corners-frame', props.className]}
       style={{
         display: 'grid',
         position: 'relative',

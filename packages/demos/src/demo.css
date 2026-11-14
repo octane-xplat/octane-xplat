@@ -9,6 +9,8 @@
 }
 
 .overlay-demo-card {
+	display: flex;
+	flex-direction: column;
 	padding: 20px;
 	border-radius: 12px;
 	corner-shape: squircle;
@@ -90,12 +92,15 @@
 }
 
 .ttt-grid {
+	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 	width: 264px;
 }
 
 .ttt-cell {
+	display: flex;
+	flex-direction: column;
 	width: 88px;
 	height: 88px;
 	border-width: 1px;
@@ -115,6 +120,7 @@
 }
 
 .dialer-grid {
+	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: center;
@@ -123,6 +129,8 @@
 }
 
 .dialer-key {
+	display: flex;
+	flex-direction: column;
 	width: 72px;
 	height: 72px;
 	border-radius: 36px;
@@ -194,6 +202,8 @@
 }
 
 .device-safe-sample {
+	display: flex;
+	flex-direction: column;
 	flex-grow: 1;
 	justify-content: space-between;
 }
@@ -248,6 +258,8 @@
 }
 
 .layout-cell {
+	display: flex;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	background-color: var(--color-surface);
@@ -288,6 +300,8 @@
 
 .layout-stack-back,
 .layout-stack-front {
+	display: flex;
+	flex-direction: column;
 	width: 164px;
 	height: 64px;
 	align-items: center;
@@ -297,6 +311,8 @@
 }
 
 .layout-stack-back {
+	display: flex;
+	flex-direction: column;
 	background-color: var(--color-border-strong);
 }
 
@@ -395,6 +411,8 @@
 }
 
 .controls-section {
+	display: flex;
+	flex-direction: column;
 	gap: 8px;
 	padding: 12px;
 	border-width: 1px;
@@ -410,6 +428,8 @@
 }
 
 .heading-samples {
+	display: flex;
+	flex-direction: column;
 	gap: 4px;
 }
 
@@ -503,6 +523,8 @@
 }
 
 .pager-page {
+	display: flex;
+	flex-direction: column;
 	flex-grow: 1;
 	border-radius: 12px;
 	corner-shape: squircle;
@@ -588,10 +610,14 @@
 }
 
 .mp-activity-list {
+	display: flex;
+	flex-direction: column;
 	gap: 8px;
 }
 
 .mp-activity-item {
+	display: flex;
+	flex-direction: column;
 	padding-top: 10px;
 	padding-right: 12px;
 	padding-bottom: 10px;
@@ -607,6 +633,8 @@
 /* The total occupies its own block with a fixed minimum width, so digit-width
    changes never push sibling controls around. */
 .mp-total-block {
+	display: flex;
+	flex-direction: column;
 	align-items: flex-start;
 }
 
@@ -628,10 +656,13 @@
 }
 
 .mp-index {
+	display: flex;
+	flex-direction: column;
 	gap: 4px;
 }
 
 .mp-index-row {
+	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
@@ -650,6 +681,8 @@
 }
 
 .mp-focus {
+	display: flex;
+	flex-direction: column;
 	gap: 12px;
 	padding: 16px;
 	border-radius: 12px;
@@ -687,6 +720,7 @@
 }
 
 .fc-marquee-segment {
+	display: flex;
 	flex-direction: row;
 	align-items: center;
 	padding-top: 10px;
@@ -728,6 +762,8 @@
 }
 
 .fc-ticker-block {
+	display: flex;
+	flex-direction: column;
 	align-items: flex-start;
 }
 
@@ -764,6 +800,8 @@
 
 .fc-orbit-wrap,
 .fc-drag-wrap {
+	display: flex;
+	flex-direction: column;
 	align-items: center;
 }
 
@@ -774,6 +812,8 @@
 }
 
 .fc-orbit-item {
+	display: flex;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 }
@@ -787,6 +827,8 @@
 }
 
 .fc-drag-item {
+	display: flex;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 }

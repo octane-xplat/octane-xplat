@@ -48,7 +48,7 @@ export function PushDemo() @{
     }
   }
 
-  <View className="gap-4">
+  <View className="flex flex-col gap-4">
     <Heading level={2}>Push notifications</Heading>
     <Text>
       FCM via @nativescript/firebase-messaging on iOS/Android, the Firebase JS SDK + shipped service
@@ -86,7 +86,7 @@ export function PushDemo() @{
         <Text>Get token</Text>
       </Pressable>
     </HStack>
-    <View className="gap-2">
+    <View className="flex flex-col gap-2">
       @for (const line of log; key line) {
         <Text id="push-log-line" className="text-sm text-muted">
           {line}

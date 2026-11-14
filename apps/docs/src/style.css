@@ -386,6 +386,7 @@ body {
 }
 
 .mode-toggle {
+	display: flex;
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
@@ -723,6 +724,7 @@ body {
 }
 
 .icon-btn {
+	display: flex;
 	width: 44px;
 	height: 44px;
 	align-items: center;
@@ -1064,6 +1066,7 @@ body {
 }
 
 .doc-next {
+	display: flex;
 	align-self: flex-end;
 	flex-direction: row;
 	align-items: center;

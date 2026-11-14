@@ -101,7 +101,7 @@ utilities such as Bamboo's.
 ```tsx
 import { Text, View } from '@octane-xplat/ui'
 
-const summary = <View className="gap-4"><Text className="text-sm">Packed and ready</Text></View>
+const summary = <View className="flex flex-col gap-4"><Text className="text-sm">Packed and ready</Text></View>
 ```
 
 Import `@octane-xplat/ui/theme/tokens.css` in every web and native app. It
@@ -766,8 +766,9 @@ packaged app; the harness embeds its font bytes and license in the host bundle.
 
 ## Check layouts at different sizes
 
-Flex layouts are the safest common starting point. Prefer `HStack`, `View`, and
-spacing classes over target-specific positioning. Check a screen at a narrow
+Neutral containers use [block flow](primitives.md#predictable-container-defaults).
+Choose `HStack` or `VStack` when you need flex arrangement, and put spacing
+classes on a container that explicitly selects flex or grid. Check a screen at a narrow
 browser width and on a native device before adding a platform split.
 
 ```tsx

@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from '../../props'
@@ -56,8 +55,8 @@ export function FocusScope(props: FocusScopeProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx(props.className)}
-    style={mergeStyle({ display: 'flex' }, props.style)}
+    className={cx('vx-focus-scope', props.className)}
+    style={props.style}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
+import { styleRecord } from '../../internal/layout/style-merge'
 import type { CardProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
@@ -15,27 +15,31 @@ export function Card(props: CardProps): unknown @{
       props.elevation && `vx-card--elev-${props.elevation}`,
       props.className,
     )}
-    style={mergeStyle(
-      { display: 'flex' },
-      {
-        ...styleRecord(props.style),
-        padding: props.padding == null ? undefined : props.padding * 4,
-        width: props.width,
-        height: props.height,
-        maxWidth: props.maxWidth,
-      },
-    )}
+    style={{
+      ...styleRecord(props.style),
+      ...(props.padding == null
+        ? {}
+        : {
+            paddingTop: props.padding * 4,
+            paddingRight: props.padding * 4,
+            paddingBottom: props.padding * 4,
+            paddingLeft: props.padding * 4,
+          }),
+      width: props.width,
+      height: props.height,
+      maxWidth: props.maxWidth,
+    }}
   >
     @if (props.header != null) {
-      <masonview className="vx-card-header" style={{ display: 'flex' }}>
+      <masonview className="vx-card-header">
         {props.header}
       </masonview>
     }
-    <masonview className="vx-card-body" style={{ display: 'flex' }}>
+    <masonview className="vx-card-body">
       {props.children}
     </masonview>
     @if (props.footer != null) {
-      <masonview className="vx-card-footer" style={{ display: 'flex' }}>
+      <masonview className="vx-card-footer">
         {props.footer}
       </masonview>
     }

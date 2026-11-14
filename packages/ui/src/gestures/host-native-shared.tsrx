@@ -14,6 +14,11 @@ import { useInteractionMembership } from './context.tsrx'
 import { createInteractionHostRef, type InteractionHostRef } from './host-ref'
 import type { InteractionHostOptions } from './host-options'
 
+// NativeScript and the desktop hosts provide these frame callbacks. Keep
+// their native contract local; GTK typechecking does not load DOM globals.
+declare function requestAnimationFrame(callback: (time: number) => void): number
+declare function cancelAnimationFrame(handle: number): void
+
 export type { InteractionHostOptions } from './host-options'
 
 export function useNativeInteractionHost(

@@ -91,7 +91,7 @@ you can skip them when using the component:
 - Android resolves it through the leaf's `XplatViewRegistry` (a JS-callable
   Kotlin registry) and embeds it via `AndroidView` inside the compose
   anchor.
-- macOS renders the trigger inline — the NSMenu attaches directly to the
+- macOS renders the trigger in place — the NSMenu attaches directly to the
   backing `NSView`'s `menu` property, so no detached root is needed.
 
 ```tsx
@@ -172,7 +172,7 @@ export function Actions() {
 
 In a [native AppKit app](macos-native.md), save this as `NoteActions.macos.tsx`
 and render it in a screen. Right-click the text and choose Rename to display the
-selected action. The experimental macOS source renders the trigger inline and
+selected action. The experimental macOS source renders the trigger in place and
 uses the renderer's native menu attachment; no separate app bridge is needed.
 Actual pointer/keyboard/VoiceOver behavior remains pending qualification.
 

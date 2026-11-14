@@ -33,6 +33,21 @@ each page is a full-host-size cell. `onPageChange` fires on settled user
 swipes; programmatic `page` writes don't echo back. `renderEmpty` covers the
 empty list.
 
+The pager arranges full-size pages horizontally. Content inside each page uses
+block flow; return a named layout to give that content spacing or alignment.
+
+```tsx
+import { Pager } from '@octane-xplat/pager'
+import { Text, VStack } from '@octane-xplat/ui'
+
+export function TripPages() {
+  return <Pager style={{ width: 320, height: 200 }} items={['Pack', 'Travel']}
+    renderItem={(title) => <VStack gap={2}>
+      <Text>{title}</Text><Text>Your next step</Text>
+    </VStack>} />
+}
+```
+
 There is no built-in page indicator. Compose one from `HStack` + `Text`
 driven by the `page` state:
 

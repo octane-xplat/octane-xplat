@@ -33,7 +33,7 @@ export function PullRefreshDemo() @{
       refreshing={refreshing}
       onRefresh={refresh}
     >
-      <View className="gap-2">{ITEMS.map(renderRow)}</View>
+      <View className="flex flex-col gap-2">{ITEMS.map(renderRow)}</View>
     </ScrollableArea>
   </View>
 }

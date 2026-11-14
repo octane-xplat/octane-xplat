@@ -1,5 +1,5 @@
 import { useState } from 'octane'
-import { HStack, Pressable, Text, View } from '@octane-xplat/ui'
+import { HStack, Pressable, Text, VStack } from '@octane-xplat/ui'
 import { RollingText } from '../src/index'
 
 /** Smallest useful harness: a counter whose label rolls per grapheme. */
@@ -7,7 +7,7 @@ export function RollingTextDemo() {
   const [count, setCount] = useState(9)
 
   return (
-    <View style={{ padding: 16, gap: 8 }}>
+    <VStack padding={4} gap={2}>
       <HStack gap={2}>
         <Pressable onPress={() => setCount((c: number) => Math.max(0, c - 1))}>
           <Text>−1</Text>
@@ -26,6 +26,6 @@ export function RollingTextDemo() {
         reducedMotion="user"
         accessibilityLabel={`${count} seconds`}
       />
-    </View>
+    </VStack>
   )
 }

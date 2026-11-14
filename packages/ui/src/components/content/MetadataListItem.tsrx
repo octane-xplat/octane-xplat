@@ -17,7 +17,7 @@ function childContent(children: any, className: string, style?: any) @{
   }
 
   return (
-    <masonview className={className} style={mergeStyle({ display: 'flex' }, style)}>
+    <masonview className={className} style={style}>
       {children}
     </masonview>
   )

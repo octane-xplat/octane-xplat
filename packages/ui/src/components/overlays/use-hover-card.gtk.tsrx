@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import Gtk from 'gi://Gtk?version=4.0'
-import { mergeStyle } from '../../internal/layout/style-merge'
 import { useLayer } from './use-layer.tsrx'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { HoverCardOptions, HoverCardReturn } from '../../props'
@@ -42,11 +41,7 @@ function HoverCardPanel(props: { body: any; enter: () => void; exit: () => void 
 
   useEffect(() => () => detach.current?.(), [])
 
-  <masonview
-    ref={bind}
-    className="vx-hovercard-content"
-    style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-  >
+  <masonview ref={bind} className="vx-hovercard-content">
     {props.body}
   </masonview>
 }

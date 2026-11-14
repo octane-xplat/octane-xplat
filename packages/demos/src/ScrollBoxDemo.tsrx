@@ -16,7 +16,7 @@ const renderRow = (item: Row_) => <Text className="cell">{item.label}</Text>
 export function ScrollBoxDemo() @{
   <View className="vx-app flex-1 gap-4">
     <ScrollableArea id="scrollbox-demo" className="flex-1">
-      <View className="gap-2">{ITEMS.map(renderRow)}</View>
+      <View className="flex flex-col gap-2">{ITEMS.map(renderRow)}</View>
     </ScrollableArea>
   </View>
 }

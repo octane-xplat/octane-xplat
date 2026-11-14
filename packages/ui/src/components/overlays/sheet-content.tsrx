@@ -1,10 +1,10 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import type { Renderable } from '../../props'
-import type { JSX } from 'octane/jsx-runtime'
 
-/** A keyed identity boundary for one panel's editing state; adds no host view. */
+/** A keyed identity boundary with neutral flow for one panel's editing state. */
 export function SheetContent(props: {
   key?: string | null
   children?: Renderable
-}): JSX.Element @{
-  <>{props.children}</>
+}): unknown @{
+  <masonview className="vx-sheet-content">{props.children}</masonview>
 }

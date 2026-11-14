@@ -1,4 +1,5 @@
 import './intl-shim'
+import './motion-shared.css'
 import { useState } from 'octane'
 import { View } from '@octane-xplat/ui'
 import { motion, LayoutGroup, Presence, MotionConfig } from '@octane-xplat/motion'
@@ -18,7 +19,7 @@ export default function SharedLayoutProbe() @{
   <MotionConfig reducedMotion={reduced ? 'always' : 'never'}>
     <View style={{ padding: 20 }}>
       <LayoutGroup id="handoff">
-        <View style={{ flexDirection: 'row', height: 150 }}>
+        <View className="motion-probe-row" style={{ height: 150 }}>
           <View style={{ width: 140, height: 150 }}>
             <Presence present={!next}>
               <motion.View
@@ -48,7 +49,7 @@ export default function SharedLayoutProbe() @{
         </View>
       </LayoutGroup>
       <LayoutGroup id="underline">
-        <View style={{ flexDirection: 'row', height: 20 }}>
+        <View className="motion-probe-row" style={{ height: 20 }}>
           <View style={{ width: 140 }}>
             @if (!next) {
               <motion.View

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './ContextMenu.css'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@nativescript/swift-ui'
@@ -65,7 +66,7 @@ function registerHosts(
 }
 
 function TriggerRoot(props: { render: () => any }) @{
-  <>{props.render()}</>
+  <masonview className="xplat-context-menu-content">{props.render()}</masonview>
 }
 
 let seq = 0

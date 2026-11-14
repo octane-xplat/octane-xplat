@@ -158,7 +158,7 @@ export function ComponentsDemo() @{
     },
   ]
 
-  <View className="controls-demo gap-4">
+  <View className="flex flex-col controls-demo gap-4">
     <Heading level={2}>Components</Heading>
 
     <View className="controls-section">

@@ -153,7 +153,7 @@ export function Services() @{
     }
   }
 
-  <View className="gap-6">
+  <View className="flex flex-col gap-6">
     <StorageControls />
     <View className="sink-section">
       <Text className="section-label">AppKit environment</Text>

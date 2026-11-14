@@ -31,7 +31,7 @@ function Readers() @{
 
   useBackHandler(() => false)
 
-  <View className="gap-3">
+  <View className="flex flex-col gap-3">
     <Text>{`Root ${root.width}×${root.height} ${root.orientation}; purpose ${purpose.width}×${purpose.height} ${purpose.orientation}; same snapshot ${root === purpose}`}</Text>
     <Text>{`Activity root ${state}, purpose ${purposeState}; wide root ${matches.wide}, purpose ${purposeMatches.wide}`}</Text>
     <Text>{`Insets root ${JSON.stringify(insets)}, purpose ${JSON.stringify(purposeInsets)}`}</Text>
@@ -42,7 +42,7 @@ function Readers() @{
 export default function PlatformStateProbe() @{
   const [mounted, setMounted] = useState(true)
 
-  <View className="gap-3">
+  <View className="flex flex-col gap-3">
     <Text>
       AppKit primary-window hooks: manually resize and activate/deactivate after native verification
       is authorized. Root and purpose values should agree. No automatic window or input actions run.

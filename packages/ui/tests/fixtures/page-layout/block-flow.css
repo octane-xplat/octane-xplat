@@ -1,0 +1,7 @@
+.block-flow-host { width: 240px; height: 120px; }
+.block-flow-child { height: 20px; }
+.block-flow-auto { width: 240px; }
+.block-flow-margin-child { height: 20px; margin-left: 10px; margin-right: 10px; }
+.block-flow-percentage { width: 50%; height: 25%; }
+.block-flow-indefinite-percentage { width: 50%; height: 50%; }
+.block-flow-text-parent { width: 180px; }
