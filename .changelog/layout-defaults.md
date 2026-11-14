@@ -20,3 +20,5 @@ export function AccountChoice() {
 ```
 
 See [container defaults](https://octane-xplat.goddardai.org/primitives#predictable-container-defaults) and [styling screens](https://octane-xplat.goddardai.org/styling).
+
+The existing iOS shader filter cannot currently display NativeScript child content; block-flow normalization does not repair that limitation. Use ordinary content in the iOS leaf until [issue #274](https://github.com/octane-xplat/octane-xplat/issues/274) is resolved; see [shader platform limits](https://octane-xplat.goddardai.org/package-effects).

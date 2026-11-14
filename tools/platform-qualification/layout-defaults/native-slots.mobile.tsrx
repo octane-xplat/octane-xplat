@@ -22,6 +22,15 @@ async function check(ctx: ProbeContext, name: SlotName) {
     () => {
       const entry = slots.get(name)
 
+      ctx.record(`${name} pending`, {
+        first: entry?.first?.getActualSize(),
+        second: entry?.second?.getActualSize(),
+        location: entry?.first?.getLocationOnScreen(),
+        parent: entry?.first?.parent?.typeName,
+        root: ctx.find('native-surfaces-root') ? ctx.inspect('native-surfaces-root') : null,
+        host: ctx.find('native-effect-host') ? ctx.inspect('native-effect-host') : null,
+      })
+
       return entry?.first && entry.second && entry.first.getActualSize().width > 0
     },
     { timeout: 10000 },
@@ -48,7 +57,16 @@ async function check(ctx: ProbeContext, name: SlotName) {
 }
 
 export async function run(ctx: ProbeContext) {
-  await check(ctx, 'effect')
+  // Retain an effect failure while qualifying the independent native surfaces.
+  // Rethrow after teardown so the overall result still fails.
+  const failures: unknown[] = []
+
+  try {
+    await check(ctx, 'effect')
+  } catch (error) {
+    failures.push(error)
+  }
+
   await check(ctx, 'trigger')
   if (ctx.target === 'ios') {
     const file = File.fromPath(
@@ -99,4 +117,8 @@ export async function run(ctx: ProbeContext) {
 
   await ctx.waitFor(() => !reopenedSheetAttached(), { timeout: 10000 })
   ctx.assert('sheet native content detaches on unmount', !reopenedSheetAttached())
+
+  if (failures.length) {
+    throw failures[0]
+  }
 }

@@ -16,6 +16,7 @@ Choose the page for the current task; load other pages only when their constrain
 | Authentication and browser presenters | [Read for this task](services/authentication.md) |
 | Notifications, clipboard, and sharing | [Read for this task](services/notifications-sharing.md) |
 | Imperative animation and gestures | [Read for this task](services/motion.md) |
+| Shader effects | [Effects guide](../../../../docs/packages/package-effects.md); use the Android entry. Registered iOS SwiftUI filters currently detach NativeScript children (#274); an unfiltered portal pass does not qualify shaders. |
 | Localization and Intl ownership | [Read for this task](services/localization.md) |
 | Randomness and tracking consent | [Read for this task](services/privacy.md) |
 | Choose optional capabilities | [Read for this task](services/capabilities.md) |

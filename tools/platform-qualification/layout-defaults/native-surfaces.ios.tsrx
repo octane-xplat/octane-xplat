@@ -18,8 +18,13 @@ export function retainSheetAttachment(): () => boolean {
 
 export function NativeSurfaces(props: NativeSurfacesProps) {
   return (
-    <VStack>
-      <ShaderEffect className="native-slot-frame" effect="sheen" animate={false}>
+    <VStack id="native-surfaces-root">
+      <ShaderEffect
+        id="native-effect-host"
+        className="native-slot-frame"
+        effect="sheen"
+        animate={false}
+      >
         <Slot name="effect" />
       </ShaderEffect>
       <SwiftUIContextMenu

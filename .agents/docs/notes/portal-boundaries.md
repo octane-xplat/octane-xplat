@@ -92,6 +92,30 @@ The maintained reproduction is
 see [issue #233](https://github.com/octane-xplat/octane-xplat/issues/233).
 This establishes interactive reopening, not visual parity or hitch performance.
 
+## iOS SwiftUI shader filters and UIKit content
+
+Do not treat a working SwiftUI portal as proof that SwiftUI can filter its
+pixels. With `@nativescript/swift-ui` 4.0.2 and Core 9.1.3, the iOS
+`ShaderEffect` provider applies `colorEffect`, `distortionEffect` or
+`layerEffect` to a UIKit-backed `NativeScriptView`. Apple documents that
+[UIKit-backed views may become placeholders under these filters](https://developer.apple.com/documentation/swiftui/view/coloreffect(_:isenabled:)).
+
+The maintained native-content fixture reproduces detached, zero-sized children
+under the registered `sheen` filter despite an attached 240×120 outer host.
+Changing only the effect name to the existing unmodified fallback passes child
+geometry, real context-menu preview presentation and sheet lifecycle. This is
+runtime isolation of the filtering boundary, not shader or pixel qualification.
+An empty-ID guard and a stable factory key did not repair this case; no such
+workaround is retained. The current implementation remains unsupported for
+registered filters on NativeScript child content; see
+[issue #274](https://github.com/octane-xplat/octane-xplat/issues/274).
+
+A replacement needs a supported rendering path that preserves live child
+layout, input and lifecycle. Do not silently disable the filter, select the
+unregistered fallback for qualification, or infer support from the outer frame.
+Recheck the UIKit filtering boundary and actual child attachment when upgrading
+the adapter or adopting a replacement engine.
+
 ## Routes and backstack lifetime
 
 A native route request snapshots its owner before guards/loaders. A disposed
