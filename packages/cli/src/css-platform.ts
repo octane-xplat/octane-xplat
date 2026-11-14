@@ -203,6 +203,9 @@ export function css(platform: CssPlatform = 'web'): Plugin {
       platform,
       // Optional compilers enable this for hosts using the patched cascade.
       preserveLayers: false,
+      // Render-only consumers reuse the same selection and invalidation inputs.
+      select,
+      inputs: () => [...candidates],
       defer: (id: string) => deferred.add(id),
       filter: (css: string, from?: string) => filterPlatformCss(css, platform, from),
       hasPlatformConditions,

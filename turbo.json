@@ -338,6 +338,11 @@
       "passThroughEnv": ["XPLAT_PRERENDER_ANDROID_REPORT", "XPLAT_PRERENDER_TRACE_PROCESSOR"]
     "@xplat/platform-qualification#probe:prerender:android:startup:compare": {
       "passThroughEnv": ["XPLAT_PRERENDER_ANDROID_REPORT", "XPLAT_PRERENDER_TRACE_PROCESSOR"]
+    },
+    "@xplat/platform-qualification#test:prerender:packed": {
+      "dependsOn": ["^build", "@octane-xplat/ui#typegen", "@octane-xplat/lib#typegen", "@octane-xplat/icons#typegen"],
+      "cache": false
+    },
     "@xplat/platform-qualification#probe:prerender:home:produce": {
       "dependsOn": ["^build"],
         "XPLAT_PRERENDER_TOOLCHAIN_ROOT",

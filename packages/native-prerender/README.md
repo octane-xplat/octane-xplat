@@ -1,6 +1,6 @@
 # Native pre-render implementation
 
-This private workspace owns the reusable startup artifact contract and independent Swift/Java readers. Normal apps do not yet install or use it. The startup hosts and build preset must be connected and qualified before making it public.
+This private workspace owns the reusable startup artifact contract, independent Swift/Java readers and native binding. The Node/Vite compiler belongs to the separate private [build worker](../native-prerender-build/README.md), keeping compiler dependencies out of this runtime package. Normal apps do not yet install or use it. The startup hosts and build preset must be connected and qualified before making it public.
 
 Prepare supported Octane commands into a logical tree, including each text slot. Derive the native visual tree separately; native Labels flatten text while Octane retains its logical ownership. Command IDs exist only in the returned maps and never enter artifact nodes.
 

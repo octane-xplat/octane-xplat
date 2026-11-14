@@ -10,7 +10,11 @@ import {
 
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 const nodes = JSON.parse(readFileSync(input.tree, 'utf8')).nodes
-for (const sheet of input.sheets) registerStylesheet(sheet.id, sheet.css)
+
+for (const sheet of input.sheets) {
+  registerStylesheet(sheet.id, sheet.css)
+}
+
 function cssNode(kind, props) {
   return {
     cssType: kind,
@@ -31,27 +35,39 @@ function cssNode(kind, props) {
     },
   }
 }
+
 const variants = {}
 const launch = compileLaunchConstraints(stylesheetMediaQueries(), input.environment)
+
 for (const colorScheme of ['light', 'dark']) {
   setStyleEnvironment(() => ({ ...input.environment, colorScheme }))
   refreshMediaQueries()
+
   const host = cssNode('masonview', {
     className: 'ns-root ' + (colorScheme === 'dark' ? 'ns-dark' : 'xds-light'),
   })
+
   const hostCascade = computeCascade(host)
+
   host.computedStyle = hostCascade.style
   host.computedCustomProps = hostCascade.customProps
+
   const cssNodes = nodes.map((node) => cssNode(node.kind, node.props))
+
   nodes.forEach((node, index) => {
     cssNodes[index].parent = node.parent === null ? host : cssNodes[node.parent]
     cssNodes[index].parent.children.push(cssNodes[index])
   })
+
   variants[colorScheme] = cssNodes.map((node, index) => {
     const result = computeCascade(node)
+
     node.computedStyle = result.style
     node.computedCustomProps = result.customProps
-    if (result.animations.length) throw new Error('Home producer: initial animations unsupported')
+    if (result.animations.length) {
+      throw new Error('Native startup producer: initial animations unsupported')
+    }
+
     return {
       index,
       style: result.style,
@@ -60,6 +76,7 @@ for (const colorScheme of ['light', 'dark']) {
     }
   })
 }
+
 writeFileSync(
   input.output,
   JSON.stringify(

@@ -79,13 +79,12 @@ This check compiles the authored component. It does not execute the real shared-
 
 ## Produce Home without a device runtime
 
-The bounded producer runs under Node and bundles with the selected toolchain's Vite. It evaluates a configured component with Octane's native universal compiler and render-only preparation; the default configuration selects the actual shared Home. Its build host supplies explicit mobile-platform/theme inputs and rejects native service reads, calls, allocations and writes. It records the unused SVG factory registration without calling that factory; SVG hosts remain unsupported. It prepares light and dark mode in separate processes, rejects changes to initial host props or topology, then uses the portable CSS engine to resolve both variants. It creates no native views and does not start NativeScript.
+The qualification command calls the private [native-prerender build worker](../../../packages/native-prerender-build/README.md). The worker runs under Node and bundles with the selected project's Vite. The default project is this qualification workspace; an explicit toolchain root must supply its own UI/lib/icons, Octane/Vite and native preset dependencies. The worker's CSS engine is its packaged dependency. It evaluates a configured component with Octane's native universal compiler and render-only preparation; the default configuration selects the actual shared Home. Its build host supplies explicit mobile-platform/theme inputs and rejects native service reads, calls, allocations and writes. It records the unused SVG factory registration without calling that factory; SVG hosts remain unsupported. It prepares light and dark mode in separate processes, rejects changes to initial host props or topology, then uses the portable CSS engine to resolve both variants. It creates no native views and does not start NativeScript.
 
 Run the producer with the workspace dependencies installed, or select an installed toolchain for the compiler/native CSS normalizer and a CSS-engine package for its parser dependencies:
 
 ```sh
 export XPLAT_PRERENDER_TOOLCHAIN_ROOT=/absolute/path/to/installed/app
-export XPLAT_PRERENDER_CSS_TOOLCHAIN_ROOT=/absolute/path/to/installed/css-engine
 bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualification
 ```
 
@@ -109,21 +108,22 @@ bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualificatio
 ```json
 {
   "version": 1,
-  "entry": "./ConfiguredStartup.tsrx",
-  "exportName": "ConfiguredStartup",
+  "entry": "./KeyedStartup.tsrx",
+  "exportName": "KeyedStartup",
   "seed": { "title": "Configured initial screen", "labels": ["One", "Two"] },
   "environment": { "width": 320, "height": 640, "reducedMotion": false }
 }
 ```
 
-The dedicated Vite plugin keeps one native Octane runtime, selects mobile leaves and collects imported CSS. It uses the existing four-export Button/HStack/Text/VStack facade; it does not load an app's Vite configuration, expose the full UI barrel or infer arbitrary component eligibility. The current IR setter subset still applies: for example, authored `width` is rejected. The smaller keyed configuration uses no dimension-sensitive media queries. The original `producer/fixtures/configured-startup.json` deliberately retains its900px query as an ineligible input: Core9.1.3 reads physical Screen pixels while AOT receives logical viewport dimensions. The producer rejects media inputs beyond positive screen/all and light/dark color scheme, with exact `(hover: hover)` fixed to false to match Core, including inactive dimensional rules; exact logical launch guards cannot prove live CSS equivalence. It does not evaluate client refs/effects, support structural theme changes or establish request-isolated SSR. The mobile live resolver remains the CSS parity reference. New environment dependencies, host kinds and native API use require explicit qualification; successful host generation alone does not establish native mounting, hydration or startup speed.
+The dedicated Vite plugin keeps one native Octane runtime, selects mobile leaves and collects imported CSS. It constructs the four-export Button/HStack/Text/VStack facade from the selected project's installed UI sources; it does not load an app's Vite configuration, expose the full UI barrel or infer arbitrary component eligibility. The current IR setter subset still applies: for example, authored `width` is rejected. The smaller keyed configuration uses no dimension-sensitive media queries. The original `producer/fixtures/configured-startup.json` deliberately retains its900px query as an ineligible input: Core9.1.3 reads physical Screen pixels while AOT receives logical viewport dimensions. The producer rejects media inputs beyond positive screen/all and light/dark color scheme, with exact `(hover: hover)` fixed to false to match Core, including inactive dimensional rules; exact logical launch guards cannot prove live CSS equivalence. It does not evaluate client refs/effects, support structural theme changes or establish request-isolated SSR. The mobile live resolver remains the CSS parity reference. New environment dependencies, host kinds and native API use require explicit qualification; successful host generation alone does not establish native mounting, hydration or startup speed.
 
 The producer uses the reusable [native-prerender contract](../../../packages/native-prerender/README.md) for logical ownership and visual projection. It writes XPI1 `startup.bin` and matching `startup.json`, retaining all logical text slots and explicit launch constraints. Both native hosts consume that format and use the package’s complete logical matcher before claims. The new projection has no Home node-count constants, while the native Home mounting/adoption fixtures still require their selected Home source, seed and topology. A configurable producer does not make those native lowerers generic. This remains separate from normal-app build integration.
 
-Exercise the rejecting build-host boundary separately:
+Exercise the rejecting build-host boundary and the packed compiler outside checkout ancestry separately:
 
 ```sh
-bun turbo run test:prerender:producer --filter=@xplat/platform-qualification
+bun turbo run test --filter=@octane-xplat/native-prerender-build
+bun turbo run test:prerender:packed --filter=@xplat/platform-qualification
 ```
 
 ## Compile native Home helpers

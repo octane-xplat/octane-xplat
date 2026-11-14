@@ -1,13 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { spawnSync } from 'node:child_process'
-import { parseProducerConfig } from './producer/config.mjs'
-import {
-  checkIfMediaQueryMatches,
-  setCssMediaQueryEvaluator,
-} from './producer/mobile-media-query.mjs'
+import { parseProducerConfig } from '../src/config.mjs'
+import { checkIfMediaQueryMatches, setCssMediaQueryEvaluator } from '../src/mobile-media-query.mjs'
 
-import { compileLaunchConstraints } from './producer/launch-constraints.mjs'
+import { compileLaunchConstraints } from '../src/launch-constraints.mjs'
 
 test('mobile AOT rejects media inputs that differ from the live NativeScript resolver', () => {
   const environment = { width: 402, height: 874, reducedMotion: false }
@@ -57,7 +54,7 @@ test('mobile selector evaluation does not inherit AppKit hover support', () => {
 })
 
 test('fixed Home build host rejects native capabilities and captures deferred registration', async () => {
-  const api = await import('./producer/native-api.mjs')
+  const api = await import('../src/native-api.mjs')
 
   assert.throws(() => api.Application.ios, /environment read during module setup/)
   assert.throws(() => new api.View(), /unsupported native allocation/)
@@ -103,7 +100,7 @@ test('fixed Home build host rejects native capabilities and captures deferred re
 })
 
 test('Android build facts select Android without exposing native service objects', () => {
-  const module = new URL('./producer/native-api.mjs', import.meta.url).href
+  const module = new URL('../src/native-api.mjs', import.meta.url).href
   const result = spawnSync(
     process.execPath,
     [

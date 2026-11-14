@@ -1,3 +1,4 @@
+import { assertProducerInputs } from './check-producer-inputs.mjs'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
@@ -266,6 +267,7 @@ if (homeProducer)
       sourceHashes,
     )
 snapshot(import.meta.filename, join(work, 'sources/build-android.mjs'), sourceHashes)
+snapshot(join(import.meta.dirname, 'check-producer-inputs.mjs'), join(work, 'sources/check-producer-inputs.mjs'), sourceHashes)
 writeFileSync(
   join(work, 'build.gradle'),
   "plugins { id 'com.android.application' version '8.12.1' apply false }\n",
@@ -318,6 +320,7 @@ if (labelWrappers) {
   Object.assign(sourceHashes, JSON.parse(readFileSync(join(work, 'label-js-inputs.json'))))
 }
 let home = null
+let producerInputs
 if (homeProducer) {
   for (const name of [
     'build.json',
@@ -363,11 +366,9 @@ if (homeProducer) {
     Object.assign(sourceHashes, JSON.parse(readFileSync(join(work, 'home-js-inputs.json'))))
   }
   const producer = JSON.parse(readFileSync(join(work, 'producer/build.json')))
-  if (!producer.inputs || Array.isArray(producer.inputs) || !Object.keys(producer.inputs).length)
-    throw new Error('Producer source identity is missing; regenerate the artifact')
+  assertProducerInputs(producer)
+  producerInputs = producer
   for (const [path, digest] of Object.entries(producer.inputs)) {
-    if (typeof digest !== 'string' || !/^[a-f0-9]{64}$/.test(digest))
-      throw new Error('Invalid producer source identity: ' + path)
     const bundled = sourceHashes[path]?.sha256
     snapshot(path, join(work, 'producer-inputs', digest), sourceHashes)
     if (sourceHashes[path].sha256 !== digest || (bundled && bundled !== digest))
@@ -508,6 +509,7 @@ for (const [path, input] of Object.entries({ ...inputs, ...sourceHashes }))
     (Object.hasOwn(sourceHashes, path) && hash(path) !== input.sha256)
   )
     throw new Error('Android build input changed during compilation: ' + path)
+if (producerInputs) assertProducerInputs(producerInputs)
 const generatedHashes = Object.fromEntries(
   files(join(work, 'app/src')).map((path) => [path, hash(path)]),
 )

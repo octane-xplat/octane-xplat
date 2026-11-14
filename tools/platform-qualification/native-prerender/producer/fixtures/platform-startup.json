@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "entry": "./PlatformStartup.tsrx",
+  "exportName": "PlatformStartup",
+  "seed": { "title": "Platform CSS" },
+  "environment": { "width": 320, "height": 640, "reducedMotion": false }
+}

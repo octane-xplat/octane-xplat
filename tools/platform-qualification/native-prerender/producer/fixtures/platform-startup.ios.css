@@ -1,0 +1,15 @@
+@platform mobile {
+  .platform-copy {
+    font-size: 20px;
+  }
+}
+@platform ios {
+  .platform-copy {
+    color: #2468ac;
+  }
+}
+@platform android {
+  .platform-copy {
+    color: #deadbe;
+  }
+}

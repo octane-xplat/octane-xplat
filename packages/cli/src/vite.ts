@@ -240,7 +240,7 @@ export function processNativeCss(
 
   // Convert declaration dimensions only. Selectors (including arbitrary
   // utility names), directive arguments, quoted content and URLs retain text.
-  // Media preludes keep CSS px; native query evaluation uses logical lengths.
+  // Media preludes retain their authored units for the native query evaluator.
   const stylesheet = postcss.parse(code, { from: id })
 
   stylesheet.walkDecls((declaration) => {

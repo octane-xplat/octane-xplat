@@ -38,5 +38,10 @@
     "@octane-xplat/nativescript-mason-core": {
       "optional": true
     }
-  }
+  },
+  "files": [
+    "dist",
+    "platforms",
+    "README.md"
+  ]
 }

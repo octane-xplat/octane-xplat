@@ -31,9 +31,19 @@ The IR retains explicit dimension predicates for host-authored launch limits;
 that schema capability does not qualify responsive CSS. Keep the failing
 configured-width fixture alongside the keyed fixture without dimensional queries. Do not change
 global Core media semantics or relax parity tolerances as a local workaround.
-The private render-only producer uses Node and the selected project-installed
-Vite, with a JSON-selected entry/export/seed/environment. It keeps a dedicated
-build-host plugin and the four shared primitive facade; it does not load the
+The private [build worker](../../packages/native-prerender-build/README.md) owns
+render-only production using Node and the selected project-installed Vite,
+Octane, UI/lib/icons and native CSS preset. Its own dependencies supply the
+portable IR and CSS engine. It accepts a JSON-selected entry/export/seed/environment
+and a new/empty output destination, reserving the destination before asynchronous
+work. Normalized stylesheet bytes also enter the identity. Styles reuse the
+selected native preset's CSS sibling selection and `@platform` filtering;
+CSS `@import`, package CSS imports and query imports fail explicitly. Existing source bytes and
+absent resolution candidates are both inputs: a newly created platform sibling
+invalidates an old artifact even when its previous sources remain unchanged.
+Native packaging verifies both sets before copying and after compilation. The qualification
+command only selects inputs and scratch placement. It keeps a dedicated
+build-host plugin and four shared primitive exports from the installed UI source layout; it does not load the
 app's Vite configuration or establish full UI-barrel eligibility. Generic
 logical projection, backend preflight and native mounting belong to the reusable
 package; the Android wrapper binding now also belongs to that package. The fixed
