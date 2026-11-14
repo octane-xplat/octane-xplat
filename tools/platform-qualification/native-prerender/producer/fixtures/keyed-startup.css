@@ -1,0 +1,17 @@
+.configured-startup {
+  flex: 1;
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+.configured-copy {
+  color: #123456;
+  font-size: 20px;
+}
+
+/* Core9.1.3 has no hover media input. AOT must not inherit AppKit hover. */
+@media (hover: hover) {
+  .configured-startup {
+    padding: 48px;
+  }
+}

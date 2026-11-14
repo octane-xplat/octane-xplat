@@ -7,6 +7,12 @@ import { pathToFileURL } from 'node:url'
 const [core, work, mason, driver] = process.argv.slice(2)
 if (!core || !work || !mason || !driver)
   throw new Error('Expected Core, work, Mason and candidate driver roots')
+const artifactAdopt = process.env.XPLAT_PRERENDER_ANDROID_ARTIFACT_ADOPT === '1'
+const configuration = artifactAdopt
+  ? JSON.parse(readFileSync(join(work, 'producer/build.json'))).configuration
+  : undefined
+if (artifactAdopt && (!configuration || !/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(configuration.exportName)))
+  throw new Error('Variable adoption requires a configured producer entry/export')
 const source = import.meta.dirname
 const repo = resolve(source, '../../..')
 const toolchain = createRequire(import.meta.url)
@@ -29,7 +35,7 @@ function read(path) {
 read(import.meta.filename)
 read(compiler)
 const result = await Bun.build({
-  entrypoints: [join(source, 'android-native/home-adoption.js')],
+  entrypoints: [join(source, artifactAdopt ? 'android-native/artifact-adoption.js' : 'android-native/home-adoption.js')],
   outdir: join(work, 'home-bundle'),
   target: 'browser',
   format: 'cjs',
@@ -67,6 +73,8 @@ const result = await Bun.build({
       name: 'actual-android-home',
       setup(build) {
         build.onResolve({ filter: /.*/ }, (args) => {
+          if (args.path === 'xplat-prerender:component')
+            return { path: 'configured-component', namespace: 'startup-component' }
           if (args.path === 'xplat-prerender:artifact')
             return { path: join(work, 'producer/resolved.json') }
           if (args.path === 'xplat-prerender:startup')
@@ -105,6 +113,7 @@ const result = await Bun.build({
             base = join(repo, 'packages/icons/src/index.ts')
           else if (args.path === '@octane-xplat/css-engine')
             base = join(repo, 'packages/css-engine/src/index.ts')
+          else if (args.path.startsWith('/')) base = args.path
           else if (args.path.startsWith('.')) base = resolve(dirname(args.importer), args.path)
           else return
           if (base.endsWith('.css')) return { path: base, namespace: 'home-css' }
@@ -128,6 +137,10 @@ const result = await Bun.build({
               if (existsSync(candidate)) return { path: candidate }
           if (existsSync(base) && /\.(?:m?js|json|ts|tsx|tsrx)$/.test(base)) return { path: base }
         })
+        build.onLoad({ filter: /.*/, namespace: 'startup-component' }, () => ({
+          contents: `export { ${configuration.exportName} as StartupComponent } from ${JSON.stringify(configuration.entry)}`,
+          loader: 'js',
+        }))
         build.onLoad({ filter: /.*/, namespace: 'home-css' }, ({ path }) => {
           read(path)
           return { contents: 'export {}', loader: 'js' }
@@ -136,7 +149,7 @@ const result = await Bun.build({
           const contents = read(path)
           if (
             /\.(?:ts|tsx|tsrx)$/.test(path) &&
-            (path.startsWith(join(repo, 'packages/ui/')) || path.endsWith('Home.tsrx'))
+            (path.startsWith(join(repo, 'packages/ui/')) || path.endsWith('.tsrx'))
           ) {
             const result = compile(contents, path, {
               renderer: {

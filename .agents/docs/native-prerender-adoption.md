@@ -19,18 +19,25 @@ Both mobile qualification hosts consume XPI1 and match complete logical slots
 before claims. The Swift/Java Mason backend adapters use the shared readers and retain
 separate native setter/font eligibility checks. Host-native decoder
 checks do not establish mobile rendering or normal-app integration. Keep backend
-value/font checks before native allocation. The current cascade reads viewport
-dimensions only through media queries: retain exact dimension guards if any
-registered query depends on width, height or orientation, including currently
-unmatched rules. With no such query, Mason uses the actual viewport. This is
-conservative dependency handling, not a general responsive expression program.
+value/font checks before native allocation. Core9.1.3's
+[media evaluator](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/media-query-list/index.ts#L29-L49)
+passes physical Screen pixels for width/height and device-width/height and omits
+reduced motion. The portable cascade receives logical viewport dimensions.
+Foundation research commit `fb08527` records these pinned inputs.
+The mobile producer therefore accepts positive screen/all and light/dark
+color-scheme queries plus exact `(hover: hover)` fixed to false, matching Core; it rejects other media inputs, including currently
+unmatched rules. Exact logical launch guards do not establish equivalence.
+The IR retains explicit dimension predicates for host-authored launch limits;
+that schema capability does not qualify responsive CSS. Keep the failing
+configured-width fixture alongside the keyed fixture without dimensional queries. Do not change
+global Core media semantics or relax parity tolerances as a local workaround.
 The private render-only producer uses Node and the selected project-installed
 Vite, with a JSON-selected entry/export/seed/environment. It keeps a dedicated
 build-host plugin and the four shared primitive facade; it does not load the
 app's Vite configuration or establish full UI-barrel eligibility. Generic
 logical projection, backend preflight and native mounting belong to the reusable
-package; the fixed Home host, observations and adoption controls remain in
-qualification tooling. Native mounts must not contain seed, node-count or
+package; the Android wrapper binding now also belongs to that package. The fixed
+Home host, observations and adoption controls remain in qualification tooling. Native mounts must not contain seed, node-count or
 element-index assumptions from a screen fixture. The current IR still requires
 one logical root, which may be a container or Label. See the fixture's
 [producer contract](../../tools/platform-qualification/native-prerender/README.md#produce-home-without-a-device-runtime).
@@ -46,10 +53,24 @@ must be ViewBase instances without a live driver owner or logical parent.
 
 The private startup package's `createNativeClaims` owns the initial command-ID
 map and one-time consumption state. Keep native binding and lifecycle outside
-that portable guard. It distinguishes preflight rejection from a failed
+that portable guard. Native adapters must import it and `ArtifactError` through
+the same package entry as callers; mixing `src` with `dist` creates different
+error constructors and can break rejection recovery. It distinguishes preflight rejection from a failed
 accepted commit; after initial claims are consumed, new client work uses
 ordinary constructors. Retire its maps and references alongside the native
 lease, including when Core retains the logical wrappers for restoration.
+
+The private Android `platforms/android/mason-binding.android.js` owns wrapper association
+for the backend-validated Mason/Label tree. It checks native classes, distinct
+objects and topology before creating wrappers. An initial existing-child attach
+updates Core/Mason bookkeeping without reinsertion; each child can take that
+path only once. Subsequent moves use ordinary Mason behavior, including moves
+from callbacks before the initial commit returns. Restore attachment methods
+and Label factories in commit's finally path so success and accepted failure
+release startup closures. Clear adopted Mason native/style caches only after
+Core contexts, native handles and loading have been released. The adapter is
+version-sensitive: keep the exact repaired Mason snapshot and Core9.1.3 evidence,
+not just an npm version claim. It does not own window/lifecycle handoff or defaults.
 
 Octane0.16.3's direct transaction marks host acceptance before apply and
 continues logical/lifecycle/layout publication after an apply error, preserving
@@ -79,6 +100,25 @@ and element-registry hot replacement do not call it. The seam is covered by the
 owned driver's unit suite (`packages/nativescript-octane/src/driver.spec.ts`).
 Keep this small driver extension separate from Octane's universal renderer;
 the current preparation/commit API needs no pre-render fork.
+
+## Keyed logical identity does not guarantee native move identity
+
+The pinned0.2.5 [driver insert path](https://github.com/nativescript-community/octane/blob/e8d9fd7b11b6d2cbce6f6621126ccda22541bef6/packages/octane/src/driver.ts#L491-L507)
+detaches an existing view before attaching it at the new position. With the
+qualified Android Core/Mason adapter, that retains the keyed logical wrapper
+but recreates the moved Label and its Mason native node. The configured keyed
+control compares these lifetime transitions against an ordinary-rendered root;
+initial adoption must preserve every native object, while later updates must
+follow ordinary host behavior. A removed key must create an ordinary new
+wrapper/native object when it returns, never replay its startup factory.
+
+Keep this cost visible rather than calling every keyed move identity-preserving.
+Preserving native objects during moves needs a separate driver/Mason move seam
+and lifecycle qualification; startup adoption does not supply it. Do not retain
+startup factory overrides to simulate preservation: Core can later restore the
+same logical owner under a different Activity. The current control checks one
+bounded Android list and does not establish arbitrary reparenting or every
+container/platform's lifetime semantics.
 
 ## Native-owned iOS entry
 

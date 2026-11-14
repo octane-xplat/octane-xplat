@@ -163,6 +163,8 @@ async function bundle(entry, name) {
             return cssToolchain.resolve(request)
           if ((!request.startsWith('.') && !isAbsolute(request)) || !importer) return
           const path = isAbsolute(request) ? request : resolve(dirname(importer), request)
+          if (path === join(repo, 'packages/css-engine/src/vendor/media-query.ts'))
+            return join(source, 'producer/mobile-media-query.mjs')
           if (path.endsWith('.css')) return cssPrefix + Buffer.from(path).toString('base64url')
           if (/\.(?:ts|tsx|tsrx)$/.test(path)) {
             const stem = path.replace(/\.(?:ts|tsx|tsrx)$/, '')
@@ -259,9 +261,8 @@ const startup = validateArtifact({
   hostContract: 'mason-label-v1',
   build: buildHash,
   seed,
-  // Exact viewport guards remain for any dimension-sensitive media query.
-  // With no such queries this CSS engine never reads width/height; Mason still
-  // lays out flow and supported percentages against the actual native viewport.
+  // Unsupported mobile media inputs were rejected during cascade preparation.
+  // Mason lays out flow and supported percentages in the actual native viewport.
   constraints: launch.constraints,
   nodes: logicalNodes,
   variants: Object.fromEntries(

@@ -2,43 +2,76 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { spawnSync } from 'node:child_process'
 import { parseProducerConfig } from './producer/config.mjs'
+import {
+  checkIfMediaQueryMatches,
+  setCssMediaQueryEvaluator,
+} from './producer/mobile-media-query.mjs'
+
 import { compileLaunchConstraints } from './producer/launch-constraints.mjs'
 
-test('AOT launch guards retain every dimension-sensitive query and omit unread viewport inputs', () => {
+test('mobile AOT rejects media inputs that differ from the live NativeScript resolver', () => {
   const environment = { width: 402, height: 874, reducedMotion: false }
-  const plain = compileLaunchConstraints(['(prefers-color-scheme: dark)'], environment)
+  const plain = compileLaunchConstraints(
+    ['(prefers-color-scheme: dark)', 'screen and (prefers-color-scheme: light)'],
+    environment,
+  )
+
   assert.deepEqual(
     plain.constraints.map((row) => row.input),
     ['fontScale', 'reducedMotion'],
   )
+
   for (const query of [
     '(min-width: 800px)',
     '(height >= 500px)',
     '(orientation: landscape)',
     'not (max-device-width: 600px)',
     '(WIDTH: 402px)',
+    '(prefers-reduced-motion: reduce)',
+    '(min-resolution: 2dppx)',
+    '(unknown-feature: yes)',
   ]) {
-    const compiled = compileLaunchConstraints([query], environment)
-    assert.deepEqual(compiled.dimensionQueries, [query])
-    assert.deepEqual(compiled.constraints.slice(2), [
-      { input: 'width', min: 402, max: 402 },
-      { input: 'height', min: 874, max: 874 },
-    ])
+    assert.throws(() => compileLaunchConstraints([query], environment), /not aligned with live CSS/)
   }
+})
+
+test('mobile selector evaluation does not inherit AppKit hover support', () => {
+  setCssMediaQueryEvaluator(() => true)
+  assert.equal(checkIfMediaQueryMatches('(hover: hover)'), false)
+  assert.equal(checkIfMediaQueryMatches('(prefers-color-scheme: dark)'), true)
+  assert.doesNotThrow(() => compileLaunchConstraints(['(hover: hover)'], { reducedMotion: false }))
+  assert.throws(
+    () => compileLaunchConstraints(['not (prefers-color-scheme: dark)'], { reducedMotion: false }),
+    /not aligned/,
+  )
+
+  assert.throws(
+    () =>
+      compileLaunchConstraints(['(hover: hover), (prefers-color-scheme: dark)'], {
+        reducedMotion: false,
+      }),
+    /not aligned/,
+  )
+
+  setCssMediaQueryEvaluator(undefined)
 })
 
 test('fixed Home build host rejects native capabilities and captures deferred registration', async () => {
   const api = await import('./producer/native-api.mjs')
+
   assert.throws(() => api.Application.ios, /environment read during module setup/)
   assert.throws(() => new api.View(), /unsupported native allocation/)
   assert.throws(() => new api.SVGView(), /unsupported native allocation/)
   assert.throws(() => api.Utils.openUrl, /unsupported native read/)
   assert.throws(() => api.Color(), /unsupported native call/)
+
   let factoryCalled = false
+
   api.registerElement('svgview', () => {
     factoryCalled = true
     return api.SVGView
   })
+
   assert.equal(factoryCalled, false)
   assert.throws(() => api.registerElement('svgview', () => api.SVGView), /duplicate registration/)
   assert.throws(() => api.registerElement('unknown', () => api.View), /unsupported/)
@@ -55,13 +88,16 @@ test('fixed Home build host rejects native capabilities and captures deferred re
   assert.throws(() => {
     api.Application.primaryWindow = {}
   }, /native state writes/)
+
   assert.throws(() => {
     api.Utils.openUrl = () => {}
   }, /native state writes/)
+
   assert.throws(
     () => Object.defineProperty(api.View, 'native', { value: true }),
     /native state writes/,
   )
+
   assert.throws(() => api.configureNativeBuildHost('light'), /repeated/)
   assert.deepEqual(api.nativeBuildHostEvidence().registrations, ['svgview'])
 })
@@ -100,7 +136,9 @@ test('producer configuration resolves its entry and retains explicit seed and la
     seed: { title: 'Launch', count: 0 },
     environment: { width: 320, height: 640, reducedMotion: true },
   }
+
   const config = parseProducerConfig(JSON.stringify(value), '/app/startup.json')
+
   assert.equal(config.entry, '/app/screen.tsrx')
   assert.deepEqual(config.seed, value.seed)
   assert.deepEqual(config.environment, value.environment)
@@ -114,7 +152,9 @@ test('producer configuration resolves its entry and retains explicit seed and la
     { ...value, seed: [] },
     { ...value, environment: { ...value.environment, width: 0 } },
     { ...value, environment: { ...value.environment, reducedMotion: 'false' } },
-  ])
+  ]) {
     assert.throws(() => parseProducerConfig(JSON.stringify(replacement), '/app/startup.json'))
+  }
+
   assert.throws(() => parseProducerConfig(' '.repeat(1024 * 1024 + 1), '/app/startup.json'), /1MiB/)
 })

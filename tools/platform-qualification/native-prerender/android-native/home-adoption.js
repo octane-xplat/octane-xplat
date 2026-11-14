@@ -1,13 +1,17 @@
 import '@nativescript/core/globals'
 import { Application, Utils } from '@nativescript/core'
-import { Label } from '@nativescript/core/ui/label'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
-import { native_, style_ } from '@octane-xplat/nativescript-mason-core/symbols'
+import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import { createNativeScriptRoot, registerElement } from '@nativescript-community/octane'
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
 import { captureMasonBaseline, qualifyRetiredHome } from './home-lifetime.js'
-import { ArtifactError, createNativeClaims } from '@octane-xplat/native-prerender'
+import { ArtifactError } from '@octane-xplat/native-prerender'
+import {
+  bindAndroidMasonTree,
+  releaseAndroidMasonOwners,
+  releaseAndroidMasonTree,
+} from '../../../../packages/native-prerender/platforms/android/mason-binding.android.js'
 import { renderFallbackHome } from './home-fallback.js'
 import {
   prepareHomeApplication,
@@ -23,36 +27,6 @@ const check = (value, message) => {
   if (!value) throw new Error(message)
 }
 registerElement('masonview', View)
-const originalAttaches = new WeakMap()
-const originalLabelFactories = new WeakMap()
-function releaseClaimTree(host, wrappers) {
-  const owned = new Set([host, ...wrappers])
-  for (const view of wrappers.slice().reverse()) {
-    const parent = view.parent
-    if (parent) {
-      check(owned.has(parent) && parent instanceof View, 'Failed claim escaped its owner scope')
-      if (parent.getChildIndex(view) >= 0) parent.removeChild(view)
-      else parent._removeView(view)
-    }
-    if (view.isLoaded) view.callUnloaded()
-    if (view._context) view._tearDownUI(true)
-  }
-}
-function retireClaims(host, wrappers, retainOwners = false) {
-  for (const wrapper of [host, ...wrappers]) {
-    const attach = originalAttaches.get(wrapper)
-    if (attach) wrapper._addViewToNativeVisualTree = attach
-    originalAttaches.delete(wrapper)
-    if (wrapper instanceof View) {
-      wrapper[native_] = undefined
-      wrapper[style_] = undefined
-    } else if (retainOwners) wrapper.createNativeView = originalLabelFactories.get(wrapper)
-    else
-      wrapper.createNativeView = () => {
-        throw new Error('Retired failed native claim')
-      }
-  }
-}
 let root, host, lease
 let retainedClaims, retainedOwnerIds, retainedCount
 org.octanexplat.prerenderandroid.HomeApplication.installBridge(
@@ -126,7 +100,6 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
               if (view instanceof View)
                 for (let index = 0; index < view.getChildrenCount(); index++)
                   visit(view.getChildAt(index))
-              else originalLabelFactories.set(view, view.createNativeView)
             }
             for (let index = 0; index < host.getChildrenCount(); index++)
               visit(host.getChildAt(index))
@@ -166,49 +139,24 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         }
         const natives = resolved.nodes.map((_, index) => activity.getView(index))
         const parents = natives.map((native) => native.getParent())
-        host = new View()
-        host[native_] = activity.getViewport()
+        let attachmentCalls = 0
+        const injectedAttachmentFailure = new Error('Injected Android Home attachment failure')
+        const binding = bindAndroidMasonTree(startup.nodes, activity.getViewport(), natives, {
+          beforeAttach(count) {
+            attachmentCalls = count
+            if (XPLAT_PRERENDER_HOME_ATTACH_FAILURE && count === 17)
+              throw injectedAttachmentFailure
+          },
+        })
+        const { wrappers, claims: claimState } = binding
+        host = binding.host
         host.width = '100%'
         host.height = '100%'
         host.style.display = 'flex'
         host.style.flexDirection = 'column'
         host.className = 'ns-root ' + (scheme === 'dark' ? 'ns-dark' : 'xds-light')
         host.css = sheets.map((sheet) => sheet.css).join('\n')
-        const wrappers = resolved.nodes.map((node, index) => {
-          const wrapper = node.kind === 'label' ? new Label() : new View()
-          if (wrapper instanceof View) wrapper[native_] = natives[index]
-          else {
-            originalLabelFactories.set(wrapper, wrapper.createNativeView)
-            wrapper.createNativeView = () => natives[index]
-          }
-          return wrapper
-        })
-        currentLease.claims = { wrappers, natives, parents }
-        let attachmentCalls = 0
-        const injectedAttachmentFailure = new Error('Injected Android Home attachment failure')
-        for (const wrapper of [host, ...wrappers.filter((view) => view instanceof View)]) {
-          const attach = wrapper._addViewToNativeVisualTree
-          originalAttaches.set(wrapper, attach)
-          wrapper._addViewToNativeVisualTree = function (child, atIndex = -1) {
-            if (XPLAT_PRERENDER_HOME_ATTACH_FAILURE && ++attachmentCalls === 17)
-              throw injectedAttachmentFailure
-            const native = child.nativeViewProtected
-            if (native && native.getParent() === this._view) {
-              const { nativeIndex } = this._nativeAttachIndex(child, atIndex)
-              check(
-                this._view.getChildAt(nativeIndex) === native,
-                'Existing Home native child order differs',
-              )
-              child._hasNativeView = true
-              child._isMasonChild = true
-              this._masonAdoptForeign(child)
-              return true
-            }
-            return attach.call(this, child, atIndex)
-          }
-        }
-        const claimState = createNativeClaims(startup.nodes, wrappers)
-        currentLease.claims.state = claimState
+        currentLease.claims = { wrappers, natives, parents, state: claimState, binding }
         if (XPLAT_PRERENDER_HOME_RESTORE || XPLAT_PRERENDER_HOME_STARTUP) {
           retainedClaims = currentLease.claims
           retainedOwnerIds = [host, ...wrappers].map((view) => view._domId)
@@ -254,7 +202,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
               wrappersUnattached: true,
             }),
           )
-          retireClaims(host, wrappers)
+          binding.retire()
           const discarded = root
           activity.abandonUnclaimedHome(String(error))
           const ordinary = renderFallbackHome(activity, liveSeed, window)
@@ -263,7 +211,6 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           Promise.resolve(discarded.unmount())
             .then(() => {
               check(claimState.factoryCalls === 0, 'Unmatched plan consumed late native claims')
-              claimState.retire()
               activity.recordHomeProof(
                 JSON.stringify({ phase: 'unmatched-disposed', hookCalls: claimState.factoryCalls }),
               )
@@ -282,7 +229,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         host.callLoaded()
         activity.restoreHomeDefaults()
         try {
-          claimState.commit(() => { prepared.commit() })
+          binding.commit(() => { prepared.commit() })
         } catch (error) {
           if (error !== injectedAttachmentFailure || !window) throw error
           const setupWrappers = wrappers.filter((view) => view._context === activity).length
@@ -313,9 +260,8 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           // Mason can remove a failed insertion from its child list while Core
           // still retains parent/context. Only this failed scope owns these
           // wrappers; use Core's removal seam for an unlisted child.
-          releaseClaimTree(host, wrappers)
-          retireClaims(host, wrappers)
-          claimState.retire()
+          releaseAndroidMasonTree(host, wrappers)
+          binding.retire()
           check(
             host.getChildrenCount() === 0 &&
               !host._context &&
@@ -440,7 +386,8 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         // must release native state for every configuration change.
         check(retiringClaims === retainedClaims, 'Retained Home state missing at destruction')
         destroyHomeApplication(activity, host)
-        retireClaims(host, retiringClaims.wrappers, true)
+        if (retiringClaims.ordinary) releaseAndroidMasonOwners(host, retiringClaims.wrappers)
+        else retiringClaims.binding.retire()
         check(
           [host, ...retiringClaims.wrappers].every(
             (view) => !view._context && !view.nativeViewProtected && !view.isLoaded,
@@ -453,7 +400,6 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         )
         retiringClaims.natives.length = 0
         retiringClaims.parents.length = 0
-        if (!retiringClaims.ordinary) retiringClaims.state.retire()
         activity.recordHomeProof(
           JSON.stringify({
             phase: 'owners-retained',
@@ -477,8 +423,9 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           if (retiringHost?._context) retiringHost._tearDownUI(true)
           if (retiringClaims) {
             const released = retiringClaims.wrappers.length
-            releaseClaimTree(retiringHost, retiringClaims.wrappers)
-            retireClaims(retiringHost, retiringClaims.wrappers)
+            releaseAndroidMasonTree(retiringHost, retiringClaims.wrappers)
+            if (retiringClaims.ordinary) releaseAndroidMasonOwners(retiringHost, retiringClaims.wrappers)
+            else retiringClaims.binding.retire()
             check(
               retiringClaims.wrappers.every(
                 (view) =>
@@ -491,7 +438,6 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             retiringClaims.natives.length = 0
             retiringClaims.parents.length = 0
             retiringClaims.wrappers.length = 0
-            if (!retiringClaims.ordinary) retiringClaims.state.retire()
             activity.recordHomeProof(
               JSON.stringify({
                 phase: 'claims-retired',

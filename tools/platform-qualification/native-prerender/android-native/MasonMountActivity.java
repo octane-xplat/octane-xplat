@@ -13,23 +13,64 @@ import org.octanexplat.prerender.MasonMount;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-/** Variable-topology mount control. Never starts NativeScript's JS runtime. */
+/** Variable-topology native mount, with an optional separate wrapper-adoption control. */
 public final class MasonMountActivity extends androidx.appcompat.app.AppCompatActivity {
+    public interface Bridge { void onActivity(MasonMountActivity activity); }
+    private static Bridge bridge;
+    public static void installBridge(Bridge value) {
+        check(HomeBuild.ARTIFACT_ADOPT && bridge == null && value != null, "Unexpected artifact bridge installation");
+        bridge = value;
+    }
     private MasonArtifact.Artifact artifact;
     private MasonMount mount;
     private View viewport;
-    private int draws, attempts;
-    private boolean destroyed;
+    private int draws, attempts, epoch;
+    private final java.util.List<org.nativescript.mason.masonkit.Node> originalNodes = new java.util.ArrayList<>();
+    private final java.util.List<Long> originalHandles = new java.util.ArrayList<>();
+    private boolean destroyed, adoptionComplete;
+    private String theme, coldSnapshot;
     private HomeApplication app() { return (HomeApplication) getApplication(); }
     private static void check(boolean value, String reason) {
         if (!value) throw new IllegalStateException(reason);
     }
     private void record(String event, JSONObject fields) throws Exception {
-        check(!com.tns.Runtime.isInitialized() && !com.tns.Runtime.nativeLibraryLoaded, "Mount control started JS");
-        app().record(fields.put("event", event).put("runtimeStarted", false).put("runtimeLibraryLoaded", false));
+        if (!HomeBuild.ARTIFACT_ADOPT || event.equals("mount-preflight") || event.equals("mount-passed"))
+            check(!com.tns.Runtime.isInitialized() && !com.tns.Runtime.nativeLibraryLoaded, "Native mount started JS");
+        app().record(fields.put("event", event).put("epoch", epoch).put("runtimeStarted", com.tns.Runtime.isInitialized())
+            .put("runtimeLibraryLoaded", com.tns.Runtime.nativeLibraryLoaded));
+    }
+    public View getViewport() { return viewport; }
+    public android.view.View getView(int index) { return mount.views().get(index); }
+    public int getViewCount() { return mount.views().size(); }
+    public String getMountTheme() { return theme; }
+    public String snapshotCold() { return coldSnapshot; }
+    public String snapshotMounted() {
+        try { return HomeComparison.snapshot(artifact, mount.views()).toString(); }
+        catch (Exception error) { throw new RuntimeException(error); }
+    }
+    public String snapshotReference(View reference) {
+        try { return HomeComparison.snapshot(artifact, HomeComparison.collect(artifact, reference)).toString(); }
+        catch (Exception error) { throw new RuntimeException(error); }
+    }
+    public void restoreDefaults() { mount.restoreDefaults(); }
+    public void checkInitialIdentities() {
+        Mason mason = Mason.Companion.getShared();
+        for (int index = 0; index < mount.views().size(); index++)
+            check(mason.nodeForView(mount.views().get(index)) == originalNodes.get(index) &&
+                originalNodes.get(index).getNativePtr() == originalHandles.get(index), "Initial Mason identity changed");
+    }
+    public void recordProof(String fields) {
+        try { record("artifact-proof", new JSONObject(fields)); }
+        catch (Exception error) { throw new RuntimeException(error); }
+    }
+    public void completeAdoption() {
+        check(HomeBuild.ARTIFACT_ADOPT && !adoptionComplete && com.tns.Runtime.isInitialized(), "Unexpected artifact completion");
+        adoptionComplete = true;
+        finish();
     }
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        epoch = app().nextEpoch();
         try {
             ByteArrayOutputStream data = new ByteArrayOutputStream();
             try (InputStream input = getAssets().open("home.bin")) {
@@ -40,7 +81,7 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
             // A bounded test canvas, not a claim about the device's full window.
             check(artifact.snapshot.supports(getResources().getConfiguration().fontScale, 320, 640,
                 !android.animation.ValueAnimator.areAnimatorsEnabled()), "Test canvas does not satisfy launch constraints");
-            String theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
             MasonMount.Prepared prepared = MasonMount.prepare(this, artifact, theme);
             record("mount-preflight", new JSONObject().put("visualNodes", artifact.nodes.size())
@@ -56,6 +97,10 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
             canvas.addView(viewport, new FrameLayout.LayoutParams(width, height));
             setContentView(canvas);
             mount = prepared.mount(viewport);
+            for (android.view.View view : mount.views()) {
+                org.nativescript.mason.masonkit.Node node = mason.nodeForView(view);
+                originalNodes.add(node); originalHandles.add(node.getNativePtr());
+            }
             viewport.getViewTreeObserver().addOnDrawListener(() -> draws++);
             viewport.postOnAnimation(new Runnable() {
                 @Override public void run() {
@@ -78,10 +123,15 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
                                     check(parent.getChildAt(index) == mount.views().get(row.children.get(index)), "Mount child order differs");
                             }
                         }
+                        coldSnapshot = snapshotMounted();
                         record("mount-passed", new JSONObject().put("draws", draws).put("canvasWidth", 320).put("canvasHeight", 640)
                             .put("visualNodes", artifact.nodes.size()).put("logicalNodes", artifact.snapshot.nodes.size())
-                            .put("nodes", HomeComparison.snapshot(artifact, mount.views())));
-                        finish();
+                            .put("nodes", new org.json.JSONArray(coldSnapshot)));
+                        if (HomeBuild.ARTIFACT_ADOPT) {
+                            app().startRuntime();
+                            check(bridge != null, "Artifact JS bridge missing");
+                            bridge.onActivity(MasonMountActivity.this);
+                        } else finish();
                     } catch (Exception error) { fail(error); }
                 }
             });
@@ -95,6 +145,9 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
     @Override public void onDestroy() {
         destroyed = true;
         try {
+            check(!HomeBuild.ARTIFACT_ADOPT || !com.tns.Runtime.isInitialized() || adoptionComplete,
+                "Artifact Activity destroyed before JS cleanup");
+            bridge = null;
             if (mount != null) {
                 if (viewport.getParent() instanceof ViewGroup) ((ViewGroup) viewport.getParent()).removeView(viewport);
                 for (int index = mount.views().size() - 1; index >= 0; index--) {
@@ -104,7 +157,8 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
                 }
                 viewport.removeAllViews();
                 check(viewport.getNode().getChildCount() == 0, "Mount disposal retained viewport children");
-                record("mount-disposed", new JSONObject().put("nativeChildren", viewport.getChildCount()).put("masonChildren", 0));
+                record("mount-disposed", new JSONObject().put("nativeChildren", viewport.getChildCount()).put("masonChildren", 0)
+                    .put("changingConfigurations", isChangingConfigurations()));
             }
         } catch (Exception error) { fail(error); }
         finally { super.onDestroy(); }

@@ -1,21 +1,36 @@
-// Conservative for the current cascade engine: viewport dimensions are read
-// only by media queries. Native backend preflight rejects unsupported computed
-// values (including unresolved viewport/safe-area expressions) before mounting.
+import { isUnsupportedNativeHover } from './mobile-media-query.mjs'
+
+// Core9.1.3 supplies physical Screen pixels to media queries, whereas the AOT
+// engine receives logical viewport dimensions. It also omits reduced motion.
+// Exact logical launch guards cannot establish equivalent live CSS behavior.
 export function compileLaunchConstraints(queries, environment) {
-  const dimensionQueries = queries.filter((query) =>
-    /\b(?:width|height|orientation)\b/i.test(query),
+  const supportedPart =
+    /^\s*(?:(?:only\s+)?(?:screen|all)\s+and\s+)?\(\s*prefers-color-scheme\s*:\s*(?:light|dark)\s*\)\s*$/i
+
+  const unsupported = queries.filter(
+    (query) =>
+      !query
+        .split(',')
+        .every(
+          (part) =>
+            supportedPart.test(part) ||
+            /^\s*(?:screen|all)\s*$/i.test(part) ||
+            (query.indexOf(',') < 0 && isUnsupportedNativeHover(part)),
+        ),
   )
+
+  if (unsupported.length) {
+    throw new Error(
+      'NativeScript AOT media-query inputs are not aligned with live CSS: ' +
+        unsupported.join('; '),
+    )
+  }
+
   return {
-    dimensionQueries,
+    dimensionQueries: [],
     constraints: [
       { input: 'fontScale', equals: 1 },
       { input: 'reducedMotion', equals: environment.reducedMotion },
-      ...(dimensionQueries.length
-        ? [
-            { input: 'width', min: environment.width, max: environment.width },
-            { input: 'height', min: environment.height, max: environment.height },
-          ]
-        : []),
     ],
   }
 }

@@ -102,7 +102,7 @@ The command prints a new output directory below `~/agent-scratch/octane-xplat/na
 The private JSON configuration selects a source entry, component export, literal seed and launch environment. Paths resolve relative to that configuration file. The default is [home.config.json](producer/home.config.json), with the nineteen-view Home and402×874 environment. Use the maintained smaller screen to exercise another topology and seed:
 
 ```sh
-export XPLAT_PRERENDER_PRODUCER_CONFIG="$PWD/tools/platform-qualification/native-prerender/producer/fixtures/configured-startup.json"
+export XPLAT_PRERENDER_PRODUCER_CONFIG="$PWD/tools/platform-qualification/native-prerender/producer/fixtures/keyed-startup.json"
 bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualification
 ```
 
@@ -116,7 +116,7 @@ bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualificatio
 }
 ```
 
-The dedicated Vite plugin keeps one native Octane runtime, selects mobile leaves and collects imported CSS. It uses the existing four-export Button/HStack/Text/VStack facade; it does not load an app's Vite configuration, expose the full UI barrel or infer arbitrary component eligibility. The current IR setter subset still applies: for example, authored `width` is rejected. The smaller configuration exercises an inactive width media query; its packet must retain exact width/height launch guards. It does not evaluate client refs/effects, support structural theme changes or establish request-isolated SSR. The mobile live resolver remains the CSS parity reference. New environment dependencies, host kinds and native API use require explicit qualification; successful host generation alone does not establish native mounting, hydration or startup speed.
+The dedicated Vite plugin keeps one native Octane runtime, selects mobile leaves and collects imported CSS. It uses the existing four-export Button/HStack/Text/VStack facade; it does not load an app's Vite configuration, expose the full UI barrel or infer arbitrary component eligibility. The current IR setter subset still applies: for example, authored `width` is rejected. The smaller keyed configuration uses no dimension-sensitive media queries. The original `producer/fixtures/configured-startup.json` deliberately retains its900px query as an ineligible input: Core9.1.3 reads physical Screen pixels while AOT receives logical viewport dimensions. The producer rejects media inputs beyond positive screen/all and light/dark color scheme, with exact `(hover: hover)` fixed to false to match Core, including inactive dimensional rules; exact logical launch guards cannot prove live CSS equivalence. It does not evaluate client refs/effects, support structural theme changes or establish request-isolated SSR. The mobile live resolver remains the CSS parity reference. New environment dependencies, host kinds and native API use require explicit qualification; successful host generation alone does not establish native mounting, hydration or startup speed.
 
 The producer uses the reusable [native-prerender contract](../../../packages/native-prerender/README.md) for logical ownership and visual projection. It writes XPI1 `startup.bin` and matching `startup.json`, retaining all logical text slots and explicit launch constraints. Both native hosts consume that format and use the package’s complete logical matcher before claims. The new projection has no Home node-count constants, while the native Home mounting/adoption fixtures still require their selected Home source, seed and topology. A configurable producer does not make those native lowerers generic. This remains separate from normal-app build integration.
 
@@ -157,7 +157,7 @@ Both backend tasks run the same logical projection and unsupported-value cases. 
 
 ### Android variable-topology mount control
 
-The native mount control consumes the configured artifact without Home seed or cardinality assumptions. Use the Android SDK/Core/Mason inputs from the bootstrap setup, a debug build, and leave Home adoption/Application/entry/parity/input/restoration/startup/fault flags unset. Select the four-view `producer/fixtures/configured-startup.json` or Label-root `producer/fixtures/root-label-startup.json` configuration, produce Android IR, then build with the printed producer directory.
+The native mount control consumes the configured artifact without Home seed or cardinality assumptions. Use the Android SDK/Core/Mason inputs from the bootstrap setup, a debug build, and leave Home adoption/Application/entry/parity/input/restoration/startup/fault flags unset. Select the four-view `producer/fixtures/keyed-startup.json` or Label-root `producer/fixtures/root-label-startup.json` configuration, produce Android IR, then build with the printed producer directory.
 
 ```sh
 export XPLAT_PRERENDER_HOME_PLATFORM=android
@@ -176,6 +176,25 @@ goddard-agent resource run --json '{"resources":{"exclusive":["device:YOUR_DEVIC
 ```
 
 This is native mount/draw/structural-disposal evidence, separate from variable-screen hydration, ordinary-reference style parity, native deallocation, compositor presentation and startup performance. The existing Home parity/restoration control exercises the same package-owned Android mount through live wrappers.
+
+### Android configured JSX hydration and keyed updates
+
+The separate adoption control uses the maintained `keyed-startup.json` entry, its platform leaf, shared `VStack`/`Text` components, CSS and seven logical records/four native views. The Android builder requires every producer input to match its recorded hash, preserves those source bytes, and rejects changes even when initial logical matching would succeed. Regenerate IR after source or toolchain changes. Set `XPLAT_PRERENDER_ANDROID_ARTIFACT_ADOPT=1` when building that producer output; keep fixed Home adoption/Application/entry/parity/input/restoration/startup/fault flags unset. Supply the same pinned native runtime, Core, repaired Mason wrapper and managed Octane driver paths as the Home adoption setup.
+
+```sh
+export XPLAT_PRERENDER_HOME_PLATFORM=android
+export XPLAT_PRERENDER_PRODUCER_CONFIG="$PWD/tools/platform-qualification/native-prerender/producer/fixtures/keyed-startup.json"
+bun turbo run probe:prerender:home:produce --filter=@xplat/platform-qualification
+export XPLAT_PRERENDER_ANDROID_HOME_PRODUCER=/absolute/path/printed/by/the/producer
+export XPLAT_PRERENDER_ANDROID_ARTIFACT_ADOPT=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build configured JSX hydration"}' -- bun turbo run probe:prerender:android:build --filter=@xplat/platform-qualification
+```
+
+Use the same `probe:prerender:mount:android` run command above. It also accepts the already-booted, exclusively reserved `elegant-fir-probe` AVD: pass its exact emulator serial, reserve `android:elegant-fir-probe` and `resident_devices:1`, and shut down that owned emulator before ending the reservation. The driver validates the AVD name and that only one emulator is running; it never boots or stops a device itself.
+
+The Activity mounts and draws the same bounded320×640 native canvas before starting JS. The package-owned binding matches the actual component's complete logical preparation, adopts its existing objects and compares cold/live native styles and geometry with an independently ordinary-rendered reference. Client updates reorder `One,Two` to `Two,One,Three`, remove `One`, then create that key again. The receipts check initial native identity, keyed wrapper identity, native/Mason child order, ordinary constructor calls and complete owner teardown. Moved Labels retain logical wrappers but recreate native objects; each transition must match the ordinary reference. The binding releases its startup factories after initial commit. A pre-JS Activity replacement disposes its native tree; generation-specific receipts prevent that disposal from being mistaken for the hydrated generation's completion.
+
+This control establishes that scenario's adoption and keyed mutations. It uses explicit Core root setup rather than normal app/window entry, and does not qualify arbitrary configured components, OS input, Activity replacement after JS starts, compositor presentation, deallocation or performance. The Home control separately owns normal entry, input, failure recovery and retained-owner restoration.
 
 The reusable package’s `test:codec:native` task owns malformed-input coverage. The backend checks own setter eligibility: supported enum strings, scalar types/ranges, zero-only borders, supported font weights and resolved colors. Both themes must pass even when one is unused. Structural validity alone does not establish native font applicability, geometry, hydration, presentation or speed. These fixed-screen backends are not general CSS lowerers.
 

@@ -48,6 +48,10 @@ if (
 )
   throw new Error('Home mount control cannot combine with two-label wrapper modes')
 const homeAdopt = process.env.XPLAT_PRERENDER_ANDROID_HOME_ADOPT === '1'
+const artifactAdopt = process.env.XPLAT_PRERENDER_ANDROID_ARTIFACT_ADOPT === '1'
+if (artifactAdopt && (!homeProducer || homeAdopt || variant !== 'debug'))
+  throw new Error('Variable artifact adoption requires a debug producer build without fixed Home adoption')
+const javascriptAdopt = homeAdopt || artifactAdopt
 if (variant === 'release' && !homeProducer)
   throw new Error('Release qualification requires Home inputs')
 if (homeAdopt && !homeProducer) throw new Error('Home adoption requires an Android Home producer')
@@ -178,7 +182,7 @@ for (const [name, destination] of [
   ['theme.xml', 'app/src/main/res/values/theme.xml'],
   [
     'entry.js',
-    labelWrappers || homeAdopt ? 'raw-bridge-entry.js' : 'app/src/main/assets/app/main.js',
+    labelWrappers || javascriptAdopt ? 'raw-bridge-entry.js' : 'app/src/main/assets/app/main.js',
   ],
   ['app.gradle', 'app/build.gradle'],
   ['settings.gradle', 'settings.gradle'],
@@ -200,7 +204,7 @@ for (const [name, destination] of [
   const template =
     homeProducer &&
     (['AndroidManifest.xml', 'app.gradle'].includes(name) ||
-      (homeAdopt && name === 'settings.gradle'))
+      (javascriptAdopt && name === 'settings.gradle'))
   snapshot(
     join(source, selected),
     join(work, template ? 'templates/' + name : target),
@@ -215,7 +219,7 @@ for (const [name, destination] of [
         .replaceAll('org.octanexplat.prerenderbootstrap.android', id)
         .replaceAll(
           'FAIL_ON_PROJECT_REPOS',
-          homeAdopt ? 'PREFER_SETTINGS' : 'FAIL_ON_PROJECT_REPOS',
+          javascriptAdopt ? 'PREFER_SETTINGS' : 'FAIL_ON_PROJECT_REPOS',
         )
         .replace(
           'android:exported="true">',
@@ -320,10 +324,10 @@ if (homeProducer) {
     'startup.bin',
     'startup.json',
     'resolved.json',
-    ...(homeAdopt ? ['sheets.json'] : []),
+    ...(javascriptAdopt ? ['sheets.json'] : []),
   ])
     snapshot(join(homeProducer, name), join(work, 'producer', name), sourceHashes)
-  if (homeAdopt) {
+  if (javascriptAdopt) {
     snapshot(
       join(import.meta.dirname, '../../../packages/ui/platforms/android/include.gradle'),
       join(work, 'inputs/ui-native.gradle'),
@@ -359,6 +363,16 @@ if (homeProducer) {
     Object.assign(sourceHashes, JSON.parse(readFileSync(join(work, 'home-js-inputs.json'))))
   }
   const producer = JSON.parse(readFileSync(join(work, 'producer/build.json')))
+  if (!producer.inputs || Array.isArray(producer.inputs) || !Object.keys(producer.inputs).length)
+    throw new Error('Producer source identity is missing; regenerate the artifact')
+  for (const [path, digest] of Object.entries(producer.inputs)) {
+    if (typeof digest !== 'string' || !/^[a-f0-9]{64}$/.test(digest))
+      throw new Error('Invalid producer source identity: ' + path)
+    const bundled = sourceHashes[path]?.sha256
+    snapshot(path, join(work, 'producer-inputs', digest), sourceHashes)
+    if (sourceHashes[path].sha256 !== digest || (bundled && bundled !== digest))
+      throw new Error('Producer input changed; regenerate the artifact: ' + path)
+  }
   const inputArtifact = readFileSync(join(work, 'producer/startup.bin'))
   if (
     producer.platform !== 'android' ||
@@ -379,6 +393,7 @@ if (homeProducer) {
         producer: producer.buildHash,
         options: {
           homeAdopt,
+          artifactAdopt,
           variant,
           homeParity,
           homeRecreate,
@@ -417,6 +432,8 @@ if (homeProducer) {
       homeRestore +
       '; public static final boolean STALE_ROOT_INSETS = ' +
       staleRootInsets +
+      '; public static final boolean ARTIFACT_ADOPT = ' +
+      artifactAdopt +
       '; public static final boolean STARTUP = ' +
       homeStartup +
       '; public static final boolean UNSUPPORTED_FONT_SCALE = ' +
@@ -427,6 +444,7 @@ if (homeProducer) {
   )
   home = {
     adopt: homeAdopt,
+    artifactAdopt,
     parity: homeParity,
     recreate: homeRecreate,
     recreateCount: homeRecreateCount,
@@ -518,7 +536,9 @@ writeFileSync(
       masonAdopt,
       applicationHandoff,
       applicationEntry,
-      scope: home
+      scope: artifactAdopt
+        ? 'Variable-topology Android XPI1 native mount, configured JSX wrapper adoption and keyed client updates; bounded320x640 canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification'
+        : home
         ? (homeFallback
             ? 'Android Home IR rejection and ordinary nineteen-view Core/Octane fallback control (' +
               homeFallback +

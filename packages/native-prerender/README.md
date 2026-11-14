@@ -60,6 +60,31 @@ A mismatch leaves the registry `rejected`; abort the prepared attempt and take o
 claims.retire()
 ```
 
+## Android wrapper binding
+
+The private Android platform asset `platforms/android/mason-binding.android.js` binds an already-mounted, backend-validated Mason/Label tree. It checks native classes, distinct objects, parents and child order before allocating wrappers, then returns the host, visual wrappers and portable claim registry. This is an internal host integration source, not a package export or a normal-app hydration API. Its optional native peers do not enter the portable root or Node codec.
+
+```js
+import { bindAndroidMasonTree } from './platforms/android/mason-binding.android.js'
+
+const binding = bindAndroidMasonTree(artifact.nodes, viewport, nativeViews)
+const root = createNativeScriptRoot(binding.host, { createView: binding.claims.createView })
+const prepared = root.prepare(StartupComponent, artifact.seed)
+if (prepared.status !== 'prepared') throw new Error('Startup suspended')
+binding.claims.match(prepared.batch.commands)
+// The owning host establishes Core/window/loading state and restores native defaults.
+binding.commit(() => { prepared.commit() })
+```
+
+Each existing child's first physical attachment establishes Core/Mason bookkeeping without reinserting its native object. Later attachments use ordinary Mason behavior, even if a callback moves a child before the initial commit returns. The binding restores attachment methods and Label factories after commit succeeds or throws. Failed accepted scopes still require disposal; restoring hooks does not undo their mutations. After Core teardown, retirement clears adopted Mason native/style caches and the claim registry. The owner may retain logical wrappers for ordinary warm restoration.
+
+```js
+// Only after the host has released Core contexts, native handles and loaded state:
+binding.retire()
+```
+
+The adapter uses version-sensitive Core/Mason internals. The maintained Android controls supply exact Core9.1.3 and repaired Mason beta.8 snapshots; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, default journals and failure recovery remain with the host. The configured keyed-list control and Home control exercise the same binding through different native trees.
+
 ## Candidate artifact contract
 
 The owning declarations are [schema.ts](src/schema.ts). The candidate `mason-label-v1` contract supports Mason containers, Labels and their logical text children, one deterministic seed object, light/dark AOT styles and bounded launch constraints. Numeric style lengths use the native host's logical points/DIPs; style keys retain their property-specific units. Final native value/asset/font applicability must be checked by the owning backend before allocation. Structural validation alone does not qualify a native setter or CSS parity.
@@ -96,7 +121,7 @@ const artifact = validateArtifact({
 })
 ```
 
-Launch constraints are data evaluated by the native host before mounting: font scale1, reduced-motion equality and inclusive width/height intervals. Unsupported inputs select ordinary rendering. The qualification producer uses exact width/height guards when any registered media query depends on dimensions or orientation; otherwise the current cascade engine never reads those dimensions, and Mason uses the actual native viewport. Unsupported computed style values still fail backend preflight. This does not yet generalize responsive CSS into wider intervals or a native expression program.
+Launch constraints are data evaluated by the native host before mounting: font scale1, reduced-motion equality and inclusive width/height intervals. Unsupported inputs select ordinary rendering. The mobile producer currently accepts only positive screen/all and light/dark color-scheme media queries, plus the exact positive `(hover: hover)` query fixed to false to match Core. It rejects dimension, orientation, reduced-motion and other media inputs: Core9.1.3 evaluates screen dimensions in physical pixels and omits reduced motion, while the portable resolver receives logical viewport dimensions. Exact logical guards alone cannot establish live CSS parity. Mason uses the actual native viewport for eligible artifacts. Unsupported computed style values still fail backend preflight. This does not yet generalize responsive CSS into wider intervals or a native expression program.
 
 ```ts
 import { checkLaunchEnvironment } from '@octane-xplat/native-prerender'
