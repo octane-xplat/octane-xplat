@@ -15,7 +15,7 @@
 		"smoke:routing-pane-packed": "node scripts/routing-pane-packed.mts",
 		"smoke:lexical-editor": "node scripts/lexical-editor-smoke.ts",
 		"bench:vlist": "vite build && node scripts/bench-virtual-list.ts",
-		"smoke": "vite build && node scripts/smoke.ts",
+		"smoke": "node scripts/smoke.ts",
 		"sqlite:readiness": "node scripts/sqlite-readiness.ts",
 		"input:readiness": "node scripts/input-readiness.ts",
 		"parity": "vite build && node scripts/parity.ts",
@@ -23,7 +23,9 @@
 		"test:platform-css": "node scripts/platform-css.mts",
 		"test:id": "node scripts/test-id.ts",
 		"sheet:readiness": "node scripts/sheet-readiness.ts",
-		"smoke:showcase": "node scripts/showcase.mts"
+		"smoke:showcase": "node scripts/showcase.mts",
+		"smoke:harness": "node scripts/harness.mts",
+		"smoke:navigation": "node scripts/navigation.ts"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

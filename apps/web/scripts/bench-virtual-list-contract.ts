@@ -35,7 +35,7 @@ try {
   const errors = []
 
   page.on('pageerror', (error) => errors.push(error.message))
-  await page.goto('http://localhost:5218/?harness', { waitUntil: 'networkidle' })
+  await page.goto('http://localhost:5218/?baseline', { waitUntil: 'networkidle' })
   await page.getByRole('tab', { name: 'Apps', exact: true }).click()
   await page.locator('#menu-vlist').click()
 

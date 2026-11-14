@@ -40,6 +40,6 @@ export function DemoDetail(props: RouteProps<'/demo/:id'>) @{
         <Text>In sheet</Text>
       </Pressable>
     </HStack>
-    <View className="flex-1 min-h-0">{renderDemo()}</View>
+    <View className="demo-content flex-1 min-h-0">{renderDemo()}</View>
   </Screen>
 }

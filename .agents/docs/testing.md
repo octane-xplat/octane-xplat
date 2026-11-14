@@ -235,6 +235,8 @@ Revisit if upstream ships device-side source maps or a stable line mapping.
 
 ## Focused verification references
 
+- [Sanity console](sanity-harness.md) — case definitions, isolated execution, evidence methods, retained baseline, and browser checks.
+
 - [Release navigation](navigation-checks.md) — isolated web and native release checks.
 - [Maestro smoke runner](maestro.md) — fixture, artifacts, and qualification limits.
 - [Argent checks](argent.md) — stable-ID lifecycle regressions and dated target evidence.

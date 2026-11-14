@@ -139,25 +139,25 @@ export function Home() @{
     <View className="home-workspace flex-1 min-h-0">
       <ScrollableArea className="home-actions flex-1 min-h-0">
         <View className="home-controls">
-          <View
-            id="bamboo-card"
-            className={['sink-section', 'home-card', 'home-counter', bambooCardClass]}
-          >
-            <Text className="home-card-title">Reactivity</Text>
-            <Text className="home-card-description">A little state, updated instantly.</Text>
-            <Text className="home-count">{'Count: ' + count}</Text>
-            <HStack className="gap-3 flex-wrap items-center">
-              <Pressable
-                id="a11y-btn"
-                accessible={true}
-                accessibilityLabel="Increment counter"
-                accessibilityRole="button"
-                onPress={() => setCount(count + 1)}
-                className="btn bg-primary"
-              >
-                <Text className="text-onprimary">Increment</Text>
-              </Pressable>
-            </HStack>
+          <View className="sink-section home-card home-counter">
+            {/* Keep diagnostic utilities separate from decorative card styles. */}
+            <View id="bamboo-card" className={['vx-row', bambooCardClass]}>
+              <Text className="home-card-title">Reactivity</Text>
+              <Text className="home-card-description">A little state, updated instantly.</Text>
+              <Text className="home-count">{'Count: ' + count}</Text>
+              <HStack className="gap-3 flex-wrap items-center">
+                <Pressable
+                  id="a11y-btn"
+                  accessible={true}
+                  accessibilityLabel="Increment counter"
+                  accessibilityRole="button"
+                  onPress={() => setCount(count + 1)}
+                  className="btn bg-primary"
+                >
+                  <Text className="text-onprimary">Increment</Text>
+                </Pressable>
+              </HStack>
+            </View>
           </View>
 
           {/* Navigation + overlay seams (Exp 9): platform modules resolve the

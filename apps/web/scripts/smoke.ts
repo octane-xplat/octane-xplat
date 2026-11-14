@@ -94,7 +94,7 @@ try {
   page.on('pageerror', (e) => errors.push(`pageerror @${page.url()}: ${e.stack ?? e.message}`))
   page.on('console', (m) => m.type() === 'error' && errors.push('console.error: ' + m.text()))
 
-  await page.goto(BASE + '/?harness', { waitUntil: 'networkidle' })
+  await page.goto(BASE + '/?baseline', { waitUntil: 'networkidle' })
 
   // Mount: Home tab content exists.
   await page.waitForSelector('text=Count: 0', { timeout: 10000 })
@@ -387,7 +387,7 @@ try {
   ok('Presence removes the host exactly once after exit', true)
 
   // Tab switch: web Tabs leaf renders a button row.
-  await page.goto(BASE + '/?harness', { waitUntil: 'networkidle' })
+  await page.goto(BASE + '/?baseline', { waitUntil: 'networkidle' })
   await page.getByRole('tab', { name: 'Apps' }).click()
   await page.waitForSelector('text=Last opened:', { timeout: 3000 })
   ok('tab switch → demos catalog mounts', true)
@@ -446,7 +446,7 @@ try {
   )
 
   ok('Lottie Web playback reaches the completion event', true)
-  await page.goto(BASE + '/?harness', { waitUntil: 'networkidle' })
+  await page.goto(BASE + '/?baseline', { waitUntil: 'networkidle' })
   await page.getByRole('tab', { name: 'Apps' }).click()
 
   // VirtualList: a 500-row data set must keep a bounded DOM window, preserve
@@ -661,7 +661,7 @@ try {
   ok('deep link → correct tab + pushed screen', true)
   // Tab clicks are UI selection, not browser navigation. Start the next
   // journey at the shell so Back returns here rather than to the deep link.
-  await page.goto(BASE + '/?harness', { waitUntil: 'networkidle' })
+  await page.goto(BASE + '/?baseline', { waitUntil: 'networkidle' })
 
   // Settings tab: sheet seam mounts a real portal layer; backdrop dismisses.
   const logs = []
@@ -785,7 +785,7 @@ try {
     })
   })
 
-  await hiddenPage.goto(BASE, { waitUntil: 'networkidle' })
+  await hiddenPage.goto(BASE + '/?baseline', { waitUntil: 'networkidle' })
   await hiddenPage.getByRole('tab', { name: 'Test' }).click()
   await hiddenPage.waitForFunction(
     () => document.body.innerText.includes('· app background'),

@@ -332,6 +332,8 @@ try {
   await page.locator('.sc-root.dark').waitFor()
   await capture('workspace-dark')
   await page.getByRole('link', { name: 'Sanity harness', exact: false }).click()
+  await page.locator('#harness-console').waitFor()
+  await page.getByRole('link', { name: 'Open existing integrated baseline', exact: false }).click()
   await page.locator('#app-tabs').waitFor()
   await page.getByRole('tab', { name: 'Apps', exact: true }).click()
   assert.equal(await page.locator('.demo-tile').count(), 20)
@@ -340,7 +342,7 @@ try {
   await page.locator('.home-count').filter({ hasText: 'Count: 1' }).waitFor()
   await capture('sanity-harness')
   await page.goto(new URL('/?harness', base).href, { waitUntil: 'domcontentloaded' })
-  await page.locator('#app-tabs').waitFor()
+  await page.locator('#harness-console').waitFor()
   await page.getByRole('link', { name: 'Back to showcase', exact: false }).click()
   await page.locator('#showcase-tabs').waitFor()
   check(

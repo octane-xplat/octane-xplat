@@ -53,7 +53,7 @@ const page = await browser.newPage()
 
 try {
   page.on('pageerror', (error) => errors.push(error.stack ?? error.message))
-  await page.goto(base + '/?harness')
+  await page.goto(base + '/?baseline')
   await page.getByRole('tab', { name: 'Apps', exact: true }).click()
   await page.getByRole('button', { name: 'Counter', exact: true }).click()
   await page.getByText('Demo count: 0', { exact: true }).waitFor()
@@ -120,7 +120,7 @@ try {
   await page.goto(base + '/notes')
   await page.getByText('Release Notes', { exact: true }).waitFor()
   check('cold markdown baked route renders', true)
-  await page.goto(base + '/demo/%E0%A4%A')
+  await page.goto(base + '/demo/%E0%A4%A?baseline')
   await page.locator('#app-tabs').waitFor()
   check(
     'malformed cold link falls back to shell',

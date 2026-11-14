@@ -22,11 +22,11 @@ Do not feature unfinished experiences or silently substitute a basic screen for 
 
 ## Separate proving entry
 
-`packages/app/src/Harness.tsrx` preserves the original Home / Apps / Test shell and the complete `packages/demos/src/Gallery.tsrx` registry. Its entry is `/harness`; browser automation can launch `/?harness`. The harness links back to `/showcase`, which also works after an explicit harness-mode launch. Browser `?selfdrive` / `?selfdrive-os` and direct named `@test` / `@demos` URLs also select this shell. The visitor shell never schedules harness self-drive effects; the harness imports its sweep only after mounting.
+`/harness` is the contract-driven sanity console. `packages/app/src/harness/core-cases.ts` owns executable case definitions; `catalog.ts` classifies retained fixtures and qualification workflows. The console provides Overview, Cases and Results, stable case links, fresh fixture ownership, truthful evidence labels and session JSON export. See [sanity console ownership and verification](../docs/sanity-harness.md).
 
-Keep stable probe IDs and the harness's route stacks. Basic controls, simple mini-apps, platform pickers, import probes, developer diagnostics, and performance qualification remain available there. The [component workshop](../../docs/testing/component-workshop.md) owns systematic component variants. Use [isolated probes](../docs/testing.md) for an individual investigation rather than continually adding controls to the visitor app.
+`/harness-baseline` preserves the original Home / Apps / Test integration fixture and complete demo registry while focused contracts migrate. Browser `?selfdrive` / `?selfdrive-os` and direct named `@test` / `@demos` URLs select this baseline; `/?harness` selects the console. Preserve existing assertions until replacement cases cover their behavior. Neither the visitor shell nor the console schedules baseline self-drive effects.
 
-The old `Gallery` is intentionally retained as a harness launcher, not the curated showcase. No basic demo needs deletion merely to remove it from the visitor experience. Introductory documentation can continue using simple, bounded examples.
+The [component workshop](../../docs/testing/component-workshop.md) owns systematic component variants. Use [isolated probes](../docs/testing.md) for an individual investigation. Introductory documentation can continue using simple, bounded examples.
 
 ## Implementation constraints
 
@@ -49,4 +49,4 @@ bun run turbo run smoke:showcase --filter=@xplat/web
 
 `XPLAT_WEB_BROWSER` chooses the installed Chromium, Firefox, or WebKit engine. The runner starts its own preview unless `XPLAT_SHOWCASE_URL` identifies an owned running server. Captures are opt-in through `XPLAT_SHOWCASE_EVIDENCE`; do not enable or inspect images without the task's visual authorization. Keep browser tasks outside the lightweight PR gate.
 
-The original web smoke and navigation checks explicitly launch the sanity harness. Query ownership/rollback tests live with the workspace model. Build/typecheck evidence and actual browser/device behavior remain separate; handler dispatch does not prove OS input or hit-testing.
+The original web smoke and navigation checks explicitly launch the retained baseline fixture. Query ownership/rollback tests live with the workspace model. Build/typecheck evidence and actual browser/device behavior remain separate; handler dispatch does not prove OS input or hit-testing.

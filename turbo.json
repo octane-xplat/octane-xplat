@@ -6,7 +6,6 @@
 		"packages/linux-gtk-renderer/src/gi.d.ts"
 	],
 	"tasks": {
-		"smoke:showcase": { "dependsOn": ["build"], "cache": false, "env": ["XPLAT_WEB_BROWSER", "XPLAT_SHOWCASE_EVIDENCE", "XPLAT_SHOWCASE_URL"] },
 		"@octane-xplat/nativescript-octane#typegen": { "outputs": ["dist/**"] },
 		"@octane-xplat/vite-octane#typegen": { "outputs": ["dist/**"] },
 		"build:desktop-components": { "dependsOn": ["^typegen", "^build"], "cache": false, "outputs": [] },

@@ -320,6 +320,7 @@ export function Gallery(props: {
         @for (const d of shown; key d.id) {
           <Pressable
             id={'menu-' + d.id}
+            accessibilityLabel={d.title}
             onPress={() => open(d.id)}
             className={[
               props.onOpen ? 'demo-tile' : 'chip',

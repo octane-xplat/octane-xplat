@@ -69,6 +69,8 @@ in an isolated browser mount; see the [scoped evidence and workaround](../../../
 
 ## Framework investigations
 
+Repository contributors use the [sanity console](../../../docs/sanity-harness.md) for stable contract cases, fresh fixtures, scoped evidence and session results. The retained integrated baseline has its own root launch. Browser DOM-dispatch results, browser-input qualification and manual native observations are separate evidence; do not promote one into another.
+
 Use an isolated probe for a single case. Research probes are temporary;
 promote behavior that must remain correct into maintained tests. The runner
 supports web, iOS, Android, macOS, and Linux, not Windows. Read

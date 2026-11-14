@@ -7,6 +7,7 @@
  * this file is screen dressing: sections, probe surfaces, and panel chrome. */
 
 @import './showcase.css';
+@import './harness.css';
 
 :root {
 	/* Geist is bundled for web, NativeScript, and the AppKit host so the
@@ -310,6 +311,13 @@ body {
 
 .modal-panel .text-onprimary {
 	color: var(--color-onprimary);
+}
+
+/* Route wrappers must pass the bounded pane height to scrollable demos. */
+.demo-layout,
+.demo-content {
+  display: flex;
+  flex-direction: column;
 }
 
 /* Route-layout banner — marks the demo/* directory wrap (descendant +

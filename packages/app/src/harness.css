@@ -1,0 +1,63 @@
+/* Internal test-console layout; fixture controls retain the public theme. */
+.hc-root { flex: 1; min-height: 0; padding: 0; background-color: var(--color-surface); color: var(--color-text); }
+.hc-scroll { flex: 1; min-height: 0; }
+.hc-column { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.hc-console { padding: 24px; }
+.hc-toolbar { justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.hc-brand { gap: 4px; }
+.hc-title { font-size: 28px; font-weight: 600; line-height: 36px; }
+.hc-heading { font-size: 20px; font-weight: 600; line-height: 28px; }
+.hc-root .hc-meta { font-size: 12px; color: var(--color-text-secondary); line-height: 20px; }
+.hc-code { font-family: monospace; font-size: 12px; line-height: 20px; }
+.hc-label { font-size: 13px; font-weight: 600; line-height: 20px; }
+.hc-eyebrow { font-size: 11px; color: var(--color-primary); letter-spacing: 1px; }
+.hc-actions, .hc-tabs { gap: 8px; align-items: center; flex-wrap: wrap; }
+.hc-tabs { padding-bottom: 16px; border-bottom-width: 1px; border-bottom-color: var(--color-border); }
+.hc-notice { padding: 12px 16px; background-color: var(--color-surface-secondary); border-left-width: 3px; border-left-color: var(--color-primary); font-size: 13px; line-height: 22px; }
+.hc-callout { padding: 20px; background-color: var(--color-surface-secondary); border-radius: 10px; }
+.hc-metrics { gap: 16px; flex-wrap: wrap; }
+.hc-metric { padding: 20px; border-width: 1px; border-color: var(--color-border); border-radius: 10px; flex: 1; min-width: 160px; gap: 6px; }
+.hc-number { font-size: 28px; font-weight: 600; }
+.hc-case-layout { display: flex; flex-direction: column; gap: 24px; }
+.hc-case-row { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-width: 1px; border-color: var(--color-border); border-radius: 8px; }
+.hc-case-row-selected { border-color: var(--color-primary); }
+.hc-case-detail { padding: 24px; border-width: 1px; border-color: var(--color-border); border-radius: 12px; }
+.hc-step-list { gap: 6px; }
+.hc-observation, .hc-live-stage { padding-top: 20px; border-top-width: 1px; border-top-color: var(--color-border); }
+.hc-fixture { padding: 24px; border-width: 1px; border-color: var(--color-border); border-radius: 12px; background-color: var(--color-surface); }
+.hc-result { padding: 20px; border-width: 1px; border-color: var(--color-border); border-radius: 10px; gap: 10px; }
+.hc-result-step { border-left-width: 2px; border-left-color: var(--color-border); padding-left: 14px; gap: 4px; }
+.hc-result-detail { padding-top: 12px; }
+.hc-status { font-size: 12px; font-weight: 600; }
+.hc-status-failed { color: var(--color-danger); }
+.hc-status-passed { color: var(--color-success); }
+.hc-status-blocked, .hc-status-unsupported { color: var(--color-text-secondary); }
+.hc-visibility-block { height: 56px; background-color: var(--color-surface-secondary); }
+.hc-visibility-collapsed { visibility: collapse; }
+.hc-sheet { padding: 24px; }
+.hc-permalink, .hc-case-link, .hc-back { font-size: 12px; color: var(--color-primary); padding: 4px; }
+/* xplat-web-only:start */
+.hc-root { height: 100%; overflow: hidden; }
+/* Web collapse needs explicit removal; CSS visibility:collapse is layout-dependent. */
+.hc-visibility-collapsed { visibility: visible; display: none; }
+.hc-actions .vx-button, .hc-result .vx-button { max-width: 100%; white-space: normal; }
+.hc-console { width: 100%; max-width: 1440px; margin: 0 auto; padding: 28px 32px 56px; }
+.hc-case-layout { display: grid; grid-template-columns: minmax(260px, 360px) minmax(0, 1fr); align-items: start; }
+.hc-catalog { max-height: 680px; overflow: auto; padding-right: 8px; }
+.hc-workbench { min-width: 0; }
+.hc-table-scroll { overflow: auto; }
+.hc-table-scroll table { min-width: 400px; width: 100%; }
+.hc-retained-fixture { height: 650px; overflow: auto; }
+.hc-permalink, .hc-case-link, .hc-back { text-decoration: none; }
+.hc-permalink:hover, .hc-case-link:hover, .hc-back:hover { text-decoration: underline; }
+.hc-case-row .vx-button { justify-content: flex-start; text-align: left; white-space: normal; }
+.hc-root .hc-code, .hc-root .hc-meta { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .hc-console { padding: 20px 16px 36px; }
+  .hc-case-layout { grid-template-columns: minmax(0, 1fr); }
+  .hc-catalog { max-height: 380px; }
+  .hc-case-detail, .hc-fixture { padding: 16px; }
+  .hc-title { font-size: 24px; }
+  .hc-metric { min-width: 130px; }
+}
+/* xplat-web-only:end */

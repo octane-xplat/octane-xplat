@@ -41,10 +41,13 @@
 			"outputs": []
 		},
 		"smoke": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["build"],
 			"cache": false,
 			"env": ["XPLAT_WEB_BROWSER"]
 		},
+		"smoke:navigation": { "dependsOn": ["build"], "cache": false },
+		"smoke:harness": { "dependsOn": ["build"], "cache": false, "env": ["XPLAT_WEB_BROWSER", "XPLAT_HARNESS_URL", "XPLAT_HARNESS_REPORT"] },
+		"smoke:showcase": { "dependsOn": ["build"], "cache": false, "env": ["XPLAT_WEB_BROWSER", "XPLAT_SHOWCASE_EVIDENCE", "XPLAT_SHOWCASE_URL"] },
 		"bench:vlist": {
 			"dependsOn": ["^typegen", "@xplat/app#gen"],
 			"cache": false,

@@ -11,7 +11,7 @@ the universal-runtime driver over `@nativescript/core`).
 The framework exists and is published: `packages/ui` ships as
 `@octane-xplat/ui` on npm, `packages/cli` as `@octane-xplat/cli` (dev/build/
 doctor/typecheck). `packages/app` + `apps/web` + `apps/mobile` host the confidence-focused kitchen sink
-and a separate `/harness` proving entry; `packages/demos` contains the retained seam-by-seam demo screens. `docs/` contains
+and a separate `/harness` test console (`/harness-baseline` retains the older integration fixture); `packages/demos` contains the retained seam-by-seam demo screens. `docs/` contains
 app-building guides. Internal implementation guidance and records live in
 [`.agents/docs/`](README.md); design decisions and proposals live in
 [`.agents/design/`](../design/README.md). Follow the
