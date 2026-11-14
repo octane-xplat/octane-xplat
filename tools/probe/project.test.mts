@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { appFor, dependencies, json, repo } from './project.ts'
+import { appFor, dependencies, fingerprint, json, repo } from './project.ts'
 
 // These are host imports, so a case must not need --dep to activate their
 // native binaries. A devDependency makes JS resolvable but skips ns prepare.
@@ -21,6 +23,31 @@ for (const target of ['ios', 'android']) {
     assert.ok((await json(join(appFor(target), 'package.json'))).dependencies[name])
   })
 }
+
+test('mobile host fingerprint follows renderer source changes while case content stays reloadable', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'probe-renderer-fingerprint-'))
+  try {
+    const renderer = join(root, 'node_modules/@octane-xplat/nativescript-octane')
+    await mkdir(join(renderer, 'src'), { recursive: true })
+    await writeFile(join(renderer, 'package.json'), JSON.stringify({
+      name: '@octane-xplat/nativescript-octane', version: '0.0.0',
+      exports: { '.': { '@nativescript/source': './src/index.ts' } },
+    }))
+    const source = join(renderer, 'src/index.ts')
+    const fixture = join(root, 'case.tsrx')
+    await writeFile(source, 'export const value = 1\n')
+    await writeFile(fixture, 'export default function Example() {}\n')
+    const deps = await dependencies('ios', fixture, [])
+    const before = await fingerprint(deps)
+    await writeFile(source, 'export const value = 2\n')
+    const after = await fingerprint(deps)
+    assert.notEqual(after.key, before.key)
+    await writeFile(fixture, 'export default function UpdatedExample() {}\n')
+    assert.equal((await fingerprint(deps)).key, after.key)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
 
 test('native preset folds the Windows branch in host builds', async () => {
   const cwd = process.cwd()

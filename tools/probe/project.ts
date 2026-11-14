@@ -202,6 +202,16 @@ export async function dependencies(target, caseFile, extra, dependencyAnchor = c
     }
   }
 
+  if (target === 'ios' || target === 'android') {
+    // The mobile shell embeds its renderer, while cases reload independently.
+    // Workspace edits must invalidate that installed shell even when the
+    // package version, lockfile and native plugin binaries are unchanged.
+    const renderer = resolved.get('@octane-xplat/nativescript-octane')
+    nativeFiles.push(
+      ...(await filesUnder(join(renderer, 'src'))).filter((file) => !file.endsWith('.spec.ts')),
+    )
+  }
+
   return { names, resolved, nativeFiles, app, pkg }
 }
 

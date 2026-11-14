@@ -369,6 +369,11 @@ device. The probe host supplies a LAN coordinator for physical iOS and isolates
 its app identity from consumer apps. These checks establish geometry and
 programmatic scroll behavior, not OS hit-testing or painted pixel parity.
 
+The mobile host embeds the NativeScript renderer. Its cache fingerprint includes
+that renderer's source, so a renderer edit rebuilds the installed host even when
+the package version is unchanged. Case-only edits reload independently. A run
+against an older host cannot qualify a renderer correction.
+
 The separate native input check sends coordinate taps through adb or simulator
 HID, then asserts that Button, Pressable and ClickableCard each activate once.
 It uses numeric hit frames and creates no images. The platform-content fixture
