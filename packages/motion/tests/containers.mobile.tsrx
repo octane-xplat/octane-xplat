@@ -26,6 +26,7 @@ let moveRoot = (_value: boolean) => {}
 let shift = (_value: boolean) => {}
 let enable = (_value: boolean) => {}
 let starts = 0
+let dragStarts = 0
 
 export default function ContainerProbe() @{
   const [wide, setWide] = useState(false)
@@ -83,6 +84,9 @@ export default function ContainerProbe() @{
           layout
           drag={enabled ? 'x' : false}
           dragMomentum={false}
+          onDragStart={() => {
+            dragStarts++
+          }}
           ref={save('drag')}
           onLayoutAnimationStart={() => {
             starts++
@@ -221,17 +225,26 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => starts > previousStarts, { timeout: 3000, interval: 5 })
   await sleep(100)
 
-  const moving = geometry(views.drag).x
+  const previousDragStarts = dragStarts
 
   input.send(views.drag, 'start', 0)
   await sleep(40)
-  close('grabbing active layout preserves position', geometry(views.drag).x, moving)
+  ctx.assert('touch down waits for pan intent', dragStarts, previousDragStarts)
+
+  // The shared pan owner claims after movement, not on pointer down. Sample
+  // presentation at that claim and include the initiating pointer displacement.
+  const moving = geometry(views.drag).x
+
   input.send(views.drag, 'move', 20)
+  await ctx.waitFor(() => dragStarts > previousDragStarts, { timeout: 3000, interval: 5 })
+  await sleep(40)
+  close('grabbing active layout preserves position', geometry(views.drag).x, moving + 20)
+  input.send(views.drag, 'move', 30)
   await sleep(40)
 
   const beforeDrag = geometry(views.drag).x
 
-  close('grabbed layout continues pointer movement', beforeDrag, moving + 20)
+  close('grabbed layout continues pointer movement', beforeDrag, moving + 30)
   shift(false)
   await ctx.waitFor(() => Math.abs(geometry(views.parent).layoutX - parentRest) <= 1, {
     timeout: 3000,
@@ -242,10 +255,10 @@ export async function run(ctx: ProbeContext) {
   close('drag survives layout commit', geometry(views.drag).x, beforeDrag)
   await sleep(180)
   close('drag cancels moving ancestor projection', geometry(views.drag).x, beforeDrag)
-  input.send(views.drag, 'move', 30)
+  input.send(views.drag, 'move', 40)
   await sleep(40)
   close('drag continues after rebase', geometry(views.drag).x, beforeDrag + 10)
-  input.send(views.drag, 'end', 30)
+  input.send(views.drag, 'end', 40)
   await sleep(40)
   close('early release does not jump', geometry(views.drag).x, beforeDrag + 10)
   await sleep(850)
