@@ -31,6 +31,35 @@ const claims = matchPreparedTree(commands, artifactNodes)
 // claims.visualByCommandId.get(50) === 0
 ```
 
+`createNativeClaims` coordinates initial wrapper claims through the existing root-local driver hook. Match the complete prepared logical tree before committing; the registry consumes each initial visual ID once, then ordinary later creation returns to the driver's registered constructors. The host still owns native binding, default restoration, Core/window lifecycle and disposal.
+
+```ts
+import { createNativeClaims } from '@octane-xplat/native-prerender'
+import { createNativeScriptRoot } from '@nativescript-community/octane'
+
+const claims = createNativeClaims(artifact.nodes, wrappers)
+const root = createNativeScriptRoot(host, { createView: claims.createView })
+const prepared = root.prepare(StartupComponent, artifact.seed)
+if (prepared.status === 'prepared') {
+  try {
+    claims.match(prepared.batch.commands)
+  } catch (error) {
+    prepared.abort()
+    claims.retire()
+    throw error
+  }
+  // Bind the validated native objects and restore native defaults first.
+  claims.commit(() => { prepared.commit() })
+}
+```
+
+A mismatch leaves the registry `rejected`; abort the prepared attempt and take ordinary-render recovery before claiming. An error during commit leaves it `failed`, even if every initial wrapper was claimed. Octane can publish logical state and callbacks after native apply fails, so an accepted commit cannot be treated as untouched or retried. Dispose that failed owner scope and native tree, then retire its claim registry. Retirement also releases claim maps and references when Core keeps logical owners for warm restoration.
+
+```ts
+// After host-owned cleanup of a failed or retired scope:
+claims.retire()
+```
+
 ## Candidate artifact contract
 
 The owning declarations are [schema.ts](src/schema.ts). The candidate `mason-label-v1` contract supports Mason containers, Labels and their logical text children, one deterministic seed object, light/dark AOT styles and bounded launch constraints. Numeric style lengths use the native host's logical points/DIPs; style keys retain their property-specific units. Final native value/asset/font applicability must be checked by the owning backend before allocation. Structural validation alone does not qualify a native setter or CSS parity.

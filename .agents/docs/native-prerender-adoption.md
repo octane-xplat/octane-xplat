@@ -44,6 +44,20 @@ It runs only when a non-text host is created during command application.
 Returning undefined uses the ordinary registered constructor. Supplied wrappers
 must be ViewBase instances without a live driver owner or logical parent.
 
+The private startup package's `createNativeClaims` owns the initial command-ID
+map and one-time consumption state. Keep native binding and lifecycle outside
+that portable guard. It distinguishes preflight rejection from a failed
+accepted commit; after initial claims are consumed, new client work uses
+ordinary constructors. Retire its maps and references alongside the native
+lease, including when Core retains the logical wrappers for restoration.
+
+Octane0.16.3's direct transaction marks host acceptance before apply and
+continues logical/lifecycle/layout publication after an apply error, preserving
+the first thrown value. A failed commit can therefore have published refs and
+callbacks; it cannot be handled as an aborted preparation. See the
+[pinned upstream transaction source](https://github.com/octanejs/octane/blob/octane%400.16.3/packages/octane/src/universal-core.ts)
+and foundation research commit `f774f79` in the private prior-art repository.
+
 ```ts
 import type { ViewBase } from '@nativescript/core'
 import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'

@@ -7,7 +7,7 @@ import { createNativeScriptRoot, registerElement } from '@nativescript-community
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
 import { captureMasonBaseline, qualifyRetiredHome } from './home-lifetime.js'
-import { ArtifactError, matchPreparedTree } from '@octane-xplat/native-prerender'
+import { ArtifactError, createNativeClaims } from '@octane-xplat/native-prerender'
 import { renderFallbackHome } from './home-fallback.js'
 import {
   prepareHomeApplication,
@@ -25,17 +25,6 @@ const check = (value, message) => {
 registerElement('masonview', View)
 const originalAttaches = new WeakMap()
 const originalLabelFactories = new WeakMap()
-function claimFactory(state) {
-  // This closure captures no Activity or surrounding render activation.
-  return (id, type) => {
-    state.hookCalls++
-    if (!state.claiming) return undefined
-    const index = state.map.get(id)
-    check(index !== undefined && resolved.nodes[index].kind === type, 'Home factory claim differs')
-    state.map.delete(id)
-    return state.wrappers[index]
-  }
-}
 function releaseClaimTree(host, wrappers) {
   const owned = new Set([host, ...wrappers])
   for (const view of wrappers.slice().reverse()) {
@@ -85,7 +74,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           )
           check(
             String(wrappers[9].text) === retainedCount &&
-              state.hookCalls === (retainedClaims.ordinary ? 0 : 19),
+              (retainedClaims.ordinary ? 0 : state.factoryCalls) === (retainedClaims.ordinary ? 0 : 19),
             'Retained Home state reset before restoration',
           )
           const window = prepareHomeApplication(activity)
@@ -101,7 +90,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             'Restored Home owners lack live native state',
           )
           check(
-            state.hookCalls === (retainedClaims.ordinary ? 0 : 19) &&
+            (retainedClaims.ordinary ? 0 : state.factoryCalls) === (retainedClaims.ordinary ? 0 : 19) &&
               host.getChildAt(0) === wrappers[0],
             'Restoration rerendered or replaced logical owners',
           )
@@ -111,13 +100,13 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
               phase: XPLAT_PRERENDER_HOME_STARTUP ? 'startup-restored' : 'owners-restored',
               ownerIds,
               count: String(wrappers[9].text),
-              hookCalls: state.hookCalls,
+              hookCalls: retainedClaims.ordinary ? 0 : state.factoryCalls,
               logicalRootRetained: true,
               nativeFactoriesRestored: true,
             }),
           )
           if (XPLAT_PRERENDER_HOME_STARTUP)
-            activity.acceptStartupRoot(host.nativeViewProtected, state.hookCalls)
+            activity.acceptStartupRoot(host.nativeViewProtected, retainedClaims.ordinary ? 0 : state.factoryCalls)
           else activity.acceptFallbackRoot(host.nativeViewProtected)
           return
         }
@@ -142,8 +131,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             for (let index = 0; index < host.getChildrenCount(); index++)
               visit(host.getChildAt(index))
             check(wrappers.length === 19, 'Ordinary startup wrapper topology differs')
-            const state = { claiming: false, hookCalls: 0, map: new Map(), wrappers }
-            retainedClaims = { wrappers, natives: [], parents: [], state, ordinary: true }
+            retainedClaims = { wrappers, natives: [], parents: [], ordinary: true }
             currentLease.claims = retainedClaims
             retainedOwnerIds = [host, ...wrappers].map((view) => view._domId)
           }
@@ -219,21 +207,21 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             return attach.call(this, child, atIndex)
           }
         }
-        const claimState = { claiming: false, hookCalls: 0, map: new Map(), wrappers }
+        const claimState = createNativeClaims(startup.nodes, wrappers)
         currentLease.claims.state = claimState
         if (XPLAT_PRERENDER_HOME_RESTORE || XPLAT_PRERENDER_HOME_STARTUP) {
           retainedClaims = currentLease.claims
           retainedOwnerIds = [host, ...wrappers].map((view) => view._domId)
         }
         root = createNativeScriptRoot(host, {
-          createView: claimFactory(claimState),
+          createView: claimState.createView,
         })
         if (!XPLAT_PRERENDER_HOME_STARTUP) {
           const aborted = root.prepare(Home, resolved.seed)
           check(aborted.status === 'prepared', 'Aborted Home prepare suspended')
           aborted.abort()
           check(
-            claimState.hookCalls === 0 &&
+            claimState.factoryCalls === 0 &&
               host.getChildrenCount() === 0 &&
               wrappers.every((view) => !view.parent),
             'Prepare/abort claimed Home wrappers',
@@ -245,15 +233,14 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         }
         const prepared = root.prepare(Home, liveSeed)
         check(prepared.status === 'prepared', 'Home prepare suspended')
-        let matched
         try {
-          matched = matchPreparedTree(prepared.batch.commands, startup.nodes).visualByCommandId
+          claimState.match(prepared.batch.commands)
         } catch (error) {
           if (!(error instanceof ArtifactError) || !window) throw error
           prepared.abort()
           check(
-            claimState.hookCalls === 0 &&
-              claimState.map.size === 0 &&
+            claimState.factoryCalls === 0 &&
+              claimState.pendingCount === 0 &&
               !host._context &&
               wrappers.every((view) => !view.parent && !view._context),
             'Unmatched Home already consumed native claims',
@@ -262,7 +249,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             JSON.stringify({
               phase: 'plan-rejected',
               reason: String(error),
-              hookCalls: claimState.hookCalls,
+              hookCalls: claimState.factoryCalls,
               preparedAborted: true,
               wrappersUnattached: true,
             }),
@@ -275,9 +262,10 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           host = ordinary.host
           Promise.resolve(discarded.unmount())
             .then(() => {
-              check(claimState.hookCalls === 0, 'Unmatched plan consumed late native claims')
+              check(claimState.factoryCalls === 0, 'Unmatched plan consumed late native claims')
+              claimState.retire()
               activity.recordHomeProof(
-                JSON.stringify({ phase: 'unmatched-disposed', hookCalls: claimState.hookCalls }),
+                JSON.stringify({ phase: 'unmatched-disposed', hookCalls: claimState.factoryCalls }),
               )
             })
             .catch((error) =>
@@ -285,30 +273,27 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             )
           return
         }
-        for (const [id, index] of matched) claimState.map.set(id, index)
-        check(claimState.map.size === 19, 'Home plan did not match all native records')
+        check(claimState.pendingCount === 19, 'Home plan did not match all native records')
         if (XPLAT_PRERENDER_HOME_ENTRY) {
-          check(window && claimState.hookCalls === 0, 'Home entry started after native claims')
+          check(window && claimState.factoryCalls === 0, 'Home entry started after native claims')
           acceptHomeApplication(activity, host, window)
         }
         host._setupAsRootView(activity)
         host.callLoaded()
         activity.restoreHomeDefaults()
-        claimState.claiming = true
         try {
-          prepared.commit()
+          claimState.commit(() => { prepared.commit() })
         } catch (error) {
           if (error !== injectedAttachmentFailure || !window) throw error
-          claimState.claiming = false
           const setupWrappers = wrappers.filter((view) => view._context === activity).length
           check(
-            claimState.hookCalls === 19 && attachmentCalls === 17 && setupWrappers > 0,
+            claimState.factoryCalls === 19 && attachmentCalls === 17 && setupWrappers > 0,
             'Injected failure did not reach partially established native ownership',
           )
           activity.recordHomeProof(
             JSON.stringify({
               phase: 'claim-failure',
-              hookCalls: claimState.hookCalls,
+              hookCalls: claimState.factoryCalls,
               attachmentCalls,
               setupWrappers,
               injectedFailureObserved: true,
@@ -330,6 +315,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           // wrappers; use Core's removal seam for an unlisted child.
           releaseClaimTree(host, wrappers)
           retireClaims(host, wrappers)
+          claimState.retire()
           check(
             host.getChildrenCount() === 0 &&
               !host._context &&
@@ -345,7 +331,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             JSON.stringify({
               phase: 'failed-adoption-disposed',
               releasedWrappers: wrappers.length,
-              hookCalls: claimState.hookCalls,
+              hookCalls: claimState.factoryCalls,
               contextsCleared: true,
               handlesCleared: true,
               parentsCleared: true,
@@ -355,11 +341,10 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           root = ordinary.root
           host = ordinary.host
           return
-        } finally {
-          claimState.claiming = false
         }
         check(
-          claimState.map.size === 0 && claimState.hookCalls === 19,
+          claimState.phase === 'live' && claimState.claimedCount === 19 &&
+            claimState.pendingCount === 0 && claimState.factoryCalls === 19,
           'Home claims not consumed exactly once',
         )
         const width = activity.getViewport().getWidth(),
@@ -403,7 +388,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             masonStats: XPLAT_PRERENDER_HOME_LIFETIME ? captureMasonBaseline(activity) : undefined,
             visualOwners: 19,
             logicalNodesMatched: 27,
-            hookCalls: claimState.hookCalls,
+            hookCalls: claimState.factoryCalls,
             prepareAbortMutationFree: !XPLAT_PRERENDER_HOME_STARTUP,
             identitiesRetained: true,
             logicalChildOrder: true,
@@ -415,9 +400,9 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         )
         activity.markBridgeReady()
         if (XPLAT_PRERENDER_HOME_STARTUP)
-          activity.acceptStartupRoot(host.nativeViewProtected, claimState.hookCalls)
+          activity.acceptStartupRoot(host.nativeViewProtected, claimState.factoryCalls)
         if (XPLAT_PRERENDER_HOME_PARITY)
-          qualifyHomeParity(activity, host, () => claimState.hookCalls, currentLease)
+          qualifyHomeParity(activity, host, () => claimState.factoryCalls, currentLease)
             .then(() => {
               if (XPLAT_PRERENDER_HOME_LIFETIME) return qualifyRetiredHome(activity, currentLease)
             })
@@ -468,14 +453,13 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
         )
         retiringClaims.natives.length = 0
         retiringClaims.parents.length = 0
-        retiringClaims.state.claiming = false
-        retiringClaims.state.map.clear()
+        if (!retiringClaims.ordinary) retiringClaims.state.retire()
         activity.recordHomeProof(
           JSON.stringify({
             phase: 'owners-retained',
             ownerIds: retainedOwnerIds,
             count: String(retiringClaims.wrappers[9].text),
-            hookCalls: retiringClaims.state.hookCalls,
+            hookCalls: retiringClaims.ordinary ? 0 : retiringClaims.state.factoryCalls,
             nativeHandlesCleared: true,
             rootUnmounted: false,
           }),
@@ -507,8 +491,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             retiringClaims.natives.length = 0
             retiringClaims.parents.length = 0
             retiringClaims.wrappers.length = 0
-            retiringClaims.state.claiming = false
-            retiringClaims.state.map.clear()
+            if (!retiringClaims.ordinary) retiringClaims.state.retire()
             activity.recordHomeProof(
               JSON.stringify({
                 phase: 'claims-retired',
