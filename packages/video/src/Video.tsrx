@@ -35,7 +35,7 @@ const platform = isAndroid ? 'android' : 'ios'
  *  `finished` even while looping — `onEnded` suppresses it under `loop` to
  *  match the web leaf. */
 export function Video(props: VideoProps): unknown @{
-  const host = useRef<any>(null)
+  const host = useRef<NSVideo | null>(null)
   const [playing, setPlaying] = useState(props.playing ?? props.autoPlay ?? false)
   const [startedSrc, setStartedSrc] = useState<string | undefined>(undefined)
   const started = startedSrc === props.src
@@ -50,11 +50,11 @@ export function Video(props: VideoProps): unknown @{
   // keep describing the outgoing clip after a keyed swap.
   useImperativeHandle(props.ref, () => handle, [])
 
-  const bindHost = useCallback((v: any) => {
+  const bindHost = useCallback((v: NSVideo | null) => {
     host.current = v
   }, [])
 
-  const drive = (v: any, next: boolean) => {
+  const drive = (v: NSVideo | null, next: boolean) => {
     if (!v) {
       return
     }
@@ -65,6 +65,14 @@ export function Video(props: VideoProps): unknown @{
       v.pause()
     }
   }
+
+  useEffect(() => {
+    // Retain the owned player: renderer detach may clear the ref before cleanup.
+    // NativeScript view removal alone does not invoke the plugin's destroy API.
+    const v = host.current
+
+    return () => v?.destroy()
+  }, [])
 
   // src + escape props land in effects: escape props are imperative writes
   // the host prop bag can't express, and `src` must arrive after the flags

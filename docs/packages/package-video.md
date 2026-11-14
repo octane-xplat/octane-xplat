@@ -73,6 +73,26 @@ Per-target limits are recorded in
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-video).
 
+## Closing a native preview
+
+On iOS and Android, removing `Video` stops playback and releases its native player. Render it only while the preview is open; the component handles player cleanup.
+
+```tsrx
+import { Video } from '@octane-xplat/video'
+
+export function Preview({ src, isOpen }: { src: string; isOpen: boolean }) @{
+  @if (isOpen) {
+    <Video src={src} autoPlay muted controls={false} className="video-preview" />
+  }
+}
+```
+
+Give the preview a bounded frame in your stylesheet:
+
+```css
+.video-preview { width: 320px; height: 220px; }
+```
+
 ## Experimental AppKit playback
 
 The AppKit engine is TypeScript driving AVFoundation through the host's

@@ -83,9 +83,26 @@ const video = compiled(
 const { Video } = await import(video)
 
 for (const controls of [false, true]) {
-  test(`poster covers each new clip until playback starts (controls=${controls})`, () => {
+  test(`poster and player ownership follow component lifetime (controls=${controls})`, async () => {
     const container = createObjectContainer('nativescript')
-    const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+    const destroyCounts = new Map<object, number>()
+    const driver = createObjectDriver('nativescript')
+    const getPublicInstance = driver.getPublicInstance.bind(driver)
+
+    driver.getPublicInstance = (...args) => {
+      const host = getPublicInstance(...args)
+
+      if (host && typeof host === 'object' && !destroyCounts.has(host)) {
+        destroyCounts.set(host, 0)
+        Object.assign(host, {
+          destroy: () => destroyCounts.set(host, destroyCounts.get(host)! + 1),
+        })
+      }
+
+      return host
+    }
+
+    const root = createUniversalRoot(container, driver)
     const nodes = (): any[] => {
       const visit = (children: any[]): any[] =>
         children.flatMap((node) => [node, ...visit(node.children ?? [])])
@@ -93,8 +110,12 @@ for (const controls of [false, true]) {
       return visit(container.children)
     }
 
-    const render = (src: string, poster?: string) =>
+    const render = async (src: string, poster?: string) => {
       flushUniversalAct(() => root.render(Video, { src, poster, controls }))
+      // Let passive effects acquire/update the public player before checking disposal.
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      assert.ok([...destroyCounts.values()].every((count) => count === 0))
+    }
 
     const posters = () =>
       nodes()
@@ -111,7 +132,7 @@ for (const controls of [false, true]) {
       )
 
     try {
-      render('one.mp4', 'one.jpg')
+      await render('one.mp4', 'one.jpg')
       assert.deepEqual(posters(), ['one.jpg'])
       assert.equal(
         nodes().some((node) => node.type === 'controls'),
@@ -120,16 +141,19 @@ for (const controls of [false, true]) {
 
       start()
       assert.deepEqual(posters(), [])
-      render('two.mp4', 'two.jpg')
+      await render('two.mp4', 'two.jpg')
       assert.deepEqual(posters(), ['two.jpg'])
-      render('two.mp4', 'updated.jpg')
+      await render('two.mp4', 'updated.jpg')
       assert.deepEqual(posters(), ['updated.jpg'])
       start()
       assert.deepEqual(posters(), [])
-      render('three.mp4')
+      await render('three.mp4')
       assert.deepEqual(posters(), [])
     } finally {
       root.unmount()
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      assert.ok(destroyCounts.size > 0)
+      assert.deepEqual([...destroyCounts.values()], [1])
     }
   })
 }

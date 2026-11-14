@@ -1,6 +1,6 @@
 # Images, video, and paged media
 
-Use for AppKit image/video leaves, Lightbox, Carousel/Pager, and file filters. Match each feature to its declared host; see the [task index](../primitives.md) for shared contracts.
+Use for native video ownership, AppKit image/video leaves, Lightbox, Carousel/Pager, and file filters. Match each feature to its declared host; see the [task index](../primitives.md) for shared contracts.
 
 ## Native Windows raster images
 
@@ -103,6 +103,15 @@ export function FreshPhoto({ src }: { src: string }) {
     onError={({ error }) => console.warn(error.message)} />
 }
 ```
+
+## Mobile video ownership
+
+The native Video component owns plugin-player disposal on unmount. Keep its
+captured-instance cleanup separate from source/prop updates; the ref may clear
+before cleanup runs. NativeScript view removal alone does not release the
+player. Use the plugin's public `destroy()` API, with no private-field or app
+cleanup patches. See the [ownership constraint](../../../../docs/upstream-limitations.md#player-disposal)
+and [consumer example](../../../../../docs/packages/package-video.md#closing-a-native-preview).
 
 ## AppKit video source subset
 

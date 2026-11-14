@@ -624,6 +624,28 @@ ownership, not real-touch qualification. See the
 
 ## Mobile Video callbacks (@nstudio/nativescript-exoplayer 6.2.0)
 
+### Player disposal
+
+The plugin exposes explicit `destroy()` ownership rather than tying player
+release to NativeScript view removal. In the published 6.2.0
+[iOS implementation](https://github.com/nstudio/nativescript-plugins/blob/f29a83d78dccb5c2c9aff00f1749bc2b6788b56d/packages/nativescript-exoplayer/index.ios.ts),
+`destroy()` pauses the AVPlayer, removes observers and clears its item. The
+[Android implementation](https://github.com/nstudio/nativescript-plugins/blob/f29a83d78dccb5c2c9aff00f1749bc2b6788b56d/packages/nativescript-exoplayer/index.android.ts)
+releases ExoPlayer through `destroy()`; `disposeNativeView()` only removes
+application event tracking. Do not assume a detached plugin view stops playback.
+
+The native Video component captures its owned plugin instance in a mount
+effect and calls public `destroy()` on component cleanup, even if the ref has
+already cleared. Ordinary source/prop updates retain the player. The compiled
+owner regression is `packages/video/tests/poster.mobile.test.mts`; the real iOS
+player/transition check is `packages/motion/tests/video-transition.ios.tsrx`.
+These have different evidence boundaries: the object driver cannot qualify
+native playback, and the iOS fixture's geometry cannot qualify visible video
+pixels, frame pacing or Android surface behavior. Recheck this explicit cleanup
+when upgrading the plugin; remove it only if plugin disposal takes ownership.
+
+### Playback callbacks
+
 Two dependency boundaries affect Android Video qualification. In the
 [plugin source at its published gitHead](https://github.com/nstudio/nativescript-plugins/blob/f29a83d78dccb5c2c9aff00f1749bc2b6788b56d/packages/nativescript-exoplayer/index.android.ts),
 `onPlayWhenReadyChanged` sets `eventPlaybackStart` without emitting
