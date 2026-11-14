@@ -94,6 +94,11 @@ and contextual colors. Runtime variable values must satisfy the same native
 contract. Keep optional native peers out of the packed browser consumer. A
 successful compiler build is not evidence of native layout or cascade parity.
 
+The repository probe runner injects curated utilities by default. Pass
+`--no-utilities` when qualifying generated CSS; importing both sheets can
+change values such as `text-sm` before the candidate reaches the host.
+See [probe stylesheet ownership](../../../docs/probing.md).
+
 ## Native layout styles
 
 Raw native layout uses `masonview`. Put CSS layout keys in its style bag or

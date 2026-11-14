@@ -34,6 +34,15 @@ bun run probe run examples/probes/signals.ts --target ios --device SIMULATOR_UDI
 bun run probe run examples/probes/counter.tsrx --target android --device DEVICE_SERIAL
 ```
 
+The runner adds UI tokens and curated utility classes by default. For a case
+that supplies generated utilities, pass `--no-utilities` so those classes do
+not compete with the case's stylesheet. UI tokens remain available; the case
+owns its stylesheet imports and compilation.
+
+```sh
+bun run probe run examples/probes/signals.ts --target web --no-utilities
+```
+
 For both mobile targets use `--ios-device` and `--android-device`. Boot your
 chosen simulator first; the runner does not reset another session's simulator.
 Unavailable requested targets return `unavailable` and a nonzero exit status.

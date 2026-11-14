@@ -50,7 +50,7 @@ export function validateResult(result, options) {
   )
 }
 
-async function caseConfig(project, target, options) {
+async function caseConfig(project, target, options, utilities = true) {
   const relative = JSON.stringify(options.case.replace(/\.(tsrx|tsx|ts|mjs|js)$/, ''))
   const runtime = JSON.stringify(join(directory, 'runtime.ts'))
   const native = ['ios', 'android'].includes(target)
@@ -58,7 +58,7 @@ async function caseConfig(project, target, options) {
     `import * as probe from ${relative}`,
     `import { executeCase } from ${runtime}`,
     `import '@octane-xplat/ui/theme/tokens.css'`,
-    `import '@octane-xplat/ui/theme/utilities.css'`,
+    ...(utilities ? [`import '@octane-xplat/ui/theme/utilities.css'`] : []),
   ]
 
   if (native) {
@@ -437,7 +437,7 @@ export async function runTarget(target, args, onResult, signal) {
   try {
     const firstOptions = { runId: '', case: args.case, target, timeout: args.timeout }
 
-    config = await caseConfig(project, target, firstOptions)
+    config = await caseConfig(project, target, firstOptions, args.utilities)
     if (native) {
       server = httpServer((request, response) => {
         void endpoint(request, response).catch((error) => {
@@ -559,7 +559,7 @@ export async function runTarget(target, args, onResult, signal) {
           }
         }
 
-        config = await caseConfig(project, target, options)
+        config = await caseConfig(project, target, options, args.utilities)
         if (native || target === 'macos') {
           const output = await build({ ...config, configFile: false, logLevel: 'silent' })
           const outputs = (Array.isArray(output) ? output : [output]).flatMap(

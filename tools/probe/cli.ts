@@ -25,6 +25,7 @@ export function argumentsFor(argv) {
       'startup-timeout': { type: 'string', default: '600000' },
       watch: { type: 'boolean', default: false },
       'fresh-process': { type: 'boolean', default: false },
+      'no-utilities': { type: 'boolean', default: false },
       verbose: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h' },
     },
@@ -80,6 +81,7 @@ export function argumentsFor(argv) {
     startupTimeout: Number(values['startup-timeout']),
     watch: values.watch,
     freshProcess: values['fresh-process'],
+    utilities: !values['no-utilities'],
     verbose: values.verbose,
   }
 }
@@ -89,7 +91,7 @@ export async function main(argv = process.argv.slice(2)) {
 
   if (args.command === 'help') {
     process.stdout.write(
-      'Usage: bun run probe doctor\n       bun run probe run <case.ts|case.tsrx> [--target web|ios|android|macos|linux]\n       bun run probe run <case> --targets web,ios,android,macos,linux\nOptions: --watch --fresh-process --device ID --ios-device ID --android-device ID\n         --deps package,package --resources DIR --timeout MS --startup-timeout MS --verbose\n',
+      'Usage: bun run probe doctor\n       bun run probe run <case.ts|case.tsrx> [--target web|ios|android|macos|linux]\n       bun run probe run <case> --targets web,ios,android,macos,linux\nOptions: --watch --fresh-process --no-utilities --device ID --ios-device ID --android-device ID\n         --deps package,package --resources DIR --timeout MS --startup-timeout MS --verbose\n',
     )
 
     return
