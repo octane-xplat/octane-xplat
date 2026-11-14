@@ -5,7 +5,7 @@ import { Application, Page } from '@nativescript/core'
 import { GestureTypes } from '@nativescript/core/ui/gestures'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
-import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
+import { bindNativeView } from '@octane-xplat/nativescript-mason-core/adoption'
 import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { Home } from './Home.tsrx'
 import { matchPreparedTree } from '@octane-xplat/native-prerender'
@@ -42,7 +42,7 @@ check(
 )
 check(nativeTreeUnchanged(), 'Rejected artifact unexpectedly created native Home views')
 const host = new View()
-host[native_] = nativeHost
+bindNativeView(host, nativeHost)
 host.setNativeView(nativeHost)
 host.width = '100%'
 host.height = '100%'

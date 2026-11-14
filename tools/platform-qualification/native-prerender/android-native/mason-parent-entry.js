@@ -3,11 +3,14 @@ import { Label } from '@nativescript/core/ui/label'
 import { Application } from '@nativescript/core/application'
 import { setActivityCallbacks } from '@nativescript/core/ui/frame'
 import { View } from 'xplat-prerender:mason/view'
-import { native_, style_ } from 'xplat-prerender:mason/symbols'
+import {
+  bindNativeView,
+  expectAttachedNative,
+  releaseNativeView,
+} from 'xplat-prerender:mason/adoption'
 
 let root
 let labels = []
-let originalAttach
 let ownerIds
 let claimsRetired = false
 const labelFactories = new WeakMap()
@@ -87,43 +90,31 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
         )
         if (reusingOwners)
           check(
-            !root.nativeViewProtected && !root._context && !root[native_] && !root[style_],
+            !root.nativeViewProtected && !root._context,
             'Retired root retained or recreated old native state',
           )
         const window = XPLAT_PRERENDER_APPLICATION ? prepareApplication(activity) : undefined
         if (!reusingOwners) root = new View()
-        root[native_] = activity.getMasonHost()
+        const masonHost = activity.getMasonHost()
+        bindNativeView(root, masonHost)
         const originalViews = [activity.getFirstLabel(), activity.getSecondLabel()]
         check(
-          root[native_].getChildCount() === originalViews.length &&
-            originalViews.every((view, index) => root[native_].getChildAt(index) === view),
+          masonHost.getChildCount() === originalViews.length &&
+            originalViews.every((view, index) => masonHost.getChildAt(index) === view),
           'Native adoption topology differs',
         )
-        if (XPLAT_PRERENDER_ADOPT_PARENT) {
-          const attach = root._addViewToNativeVisualTree
-          originalAttach = attach
-          root._addViewToNativeVisualTree = function (child, atIndex = -1) {
-            const native = child.nativeViewProtected
-            if (native && native.getParent() === this._view) {
-              const { nativeIndex } = this._nativeAttachIndex(child, atIndex)
-              check(
-                this._view.getChildAt(nativeIndex) === native,
-                'Existing native child order differs',
-              )
-              child._hasNativeView = true
-              child._isMasonChild = true
-              this._masonAdoptForeign(child)
-              return true
-            }
-            return attach.call(this, child, atIndex)
-          }
-        }
         labels = originalViews.map((native, index) => {
           const wrapper = reusingOwners ? labels[index] : new Label()
           if (!labelFactories.has(wrapper)) labelFactories.set(wrapper, wrapper.createNativeView)
           wrapper.createNativeView = () => native
           if (!reusingOwners) wrapper.text = String(native.getText())
           wrapper.fontSize = 18
+          if (XPLAT_PRERENDER_ADOPT_PARENT && !reusingOwners) {
+            // The native label is already attached under the Mason host; the
+            // supported seam consumes the expectation during addChild instead
+            // of inserting the native view a second time.
+            expectAttachedNative(wrapper)
+          }
           if (!reusingOwners) root.addChild(wrapper)
           return wrapper
         })
@@ -264,12 +255,9 @@ org.octanexplat.prerenderandroid.ProbeApplication.installBridge(
       }
       if (XPLAT_PRERENDER_APPLICATION_ENTRY) {
         // A native claim belongs to one Activity lifetime. Core may restore
-        // these JS owners, so drop the native/style caches and attachment
-        // closure before binding another Activity's native objects.
-        root[native_] = undefined
-        root[style_] = undefined
-        root._addViewToNativeVisualTree = originalAttach
-        originalAttach = undefined
+        // these JS owners, so release the bound native/style caches before
+        // binding another Activity's native objects.
+        releaseNativeView(root)
         claimsRetired = true
       } else {
         labels = []

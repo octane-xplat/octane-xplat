@@ -1,7 +1,7 @@
 import '@nativescript/core/globals'
 import { Application, Utils } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
-import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
+import { bindNativeView } from '@octane-xplat/nativescript-mason-core/adoption'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
 import { ArtifactError } from '@octane-xplat/native-prerender'
@@ -171,7 +171,7 @@ async function qualify() {
   async function recoverOrdinarily() {
     const ordinary = new View()
 
-    ordinary[native_] = viewport
+    bindNativeView(ordinary, viewport)
     style(ordinary)
     ordinary._setupAsRootView(context)
     ordinary.callLoaded()
@@ -520,7 +520,7 @@ async function qualify() {
   viewport.superview.addSubview(referenceViewport)
 
   const referenceHost = new View()
-  referenceHost[native_] = referenceViewport
+  bindNativeView(referenceHost, referenceViewport)
   style(referenceHost)
   referenceHost._setupAsRootView(context)
   referenceHost.callLoaded()

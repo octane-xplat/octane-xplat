@@ -16,7 +16,7 @@ export {
   observeBatches,
   renderNativeScriptApp,
 } from './driver.js'
-export type { BatchObserver, NativeScriptContainer } from './driver.js'
+export type { BatchObserver, NativeScriptContainer, NativeScriptRootOptions } from './driver.js'
 export { ELEMENTS, eventNameFor, onElementReplaced, registerElement } from './elements.js'
 export type { ElementConstructor } from './elements.js'
 export type { RenderItem } from './list-view.js'

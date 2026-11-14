@@ -62,7 +62,7 @@ claims.retire()
 
 ## Android wrapper binding
 
-The private Android platform asset `platforms/android/mason-binding.android.js` binds an already-mounted, backend-validated Mason/Label tree. It checks native classes, distinct objects, parents and child order before allocating wrappers, then returns the host, visual wrappers and portable claim registry. This is an internal host integration source, not a package export or a normal-app hydration API. Its optional native peers do not enter the portable root or Node codec.
+The Android platform asset `platforms/android/mason-binding.android.js`, exported as `@octane-xplat/native-prerender/android/mason-binding`, binds an already-mounted, backend-validated Mason/Label tree. It checks native classes, distinct objects, parents and child order before allocating wrappers, then returns the host, visual wrappers and portable claim registry. Both platform files are thin validators over the shared `platforms/mason-binding-core.js`; this is an internal host integration source, not a normal-app hydration API. Its optional native peers do not enter the portable root or Node codec.
 
 ```js
 import { bindAndroidMasonTree } from './platforms/android/mason-binding.android.js'
@@ -76,14 +76,14 @@ binding.claims.match(prepared.batch.commands)
 binding.commit(() => { prepared.commit() })
 ```
 
-Each existing child's first physical attachment establishes Core/Mason bookkeeping without reinserting its native object. Later attachments use ordinary Mason behavior, even if a callback moves a child before the initial commit returns. The binding restores attachment methods and Label factories after commit succeeds or throws. Failed accepted scopes still require disposal; restoring hooks does not undo their mutations. After Core teardown, retirement clears adopted Mason native/style caches and the claim registry. The owner may retain logical wrappers for ordinary warm restoration.
+The binding uses Mason's `@octane-xplat/nativescript-mason-core/adoption` API: `bindNativeView` associates each Mason `View` with its existing native layout view, and `expectAttachedNative` makes each wrapper's first native attach a one-shot adoption — Mason verifies the attached native parent and index, skips reinsertion and runs its foreign-child bookkeeping. Later attachments use ordinary Mason behavior, even if a callback moves a child before the initial commit returns. Commit requires every expectation consumed, then cancels any remainder and restores Label factories in the finally path. Failed accepted scopes still require disposal; canceling expectations does not undo their mutations. After Core teardown, retirement clears adopted Mason native/style caches through `releaseNativeView` and the claim registry. The owner may retain logical wrappers for ordinary warm restoration.
 
 ```js
 // Only after the host has released Core contexts, native handles and loaded state:
 binding.retire()
 ```
 
-The adapter uses version-sensitive Core/Mason internals. The maintained Android controls supply exact Core9.1.3 snapshots and were last qualified on repaired Mason beta.8; they need requalification on beta.10; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, default journals and failure recovery remain with the host. The configured keyed-list control and Home control exercise the same binding through different native trees.
+The adapter depends on the Mason adoption API, which no released Mason core ships yet: qualification uses a local `nativescript-mason` fork commit until a release includes it. The maintained Android controls supply exact Core9.1.3 snapshots and were last qualified on repaired Mason beta.8; they need requalification on the local beta.10 package; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, default journals and failure recovery remain with the host. The configured keyed-list control and Home control exercise the same binding through different native trees.
 
 ## iOS wrapper binding
 
@@ -103,9 +103,9 @@ binding.claims.match(prepared.batch.commands)
 binding.commit(() => { prepared.commit() })
 ```
 
-iOS Mason defers each native insert until the child loads, so the binding intercepts `_masonInsertNative`: the first insert of each pending wrapper reuses its pre-attached native object instead of `addViewAt`, while still running `_masonAdoptForeign` and `_masonMeasureForeign`. Commit requires the host to be set up and loaded first, otherwise inserts stay queued and commit fails loudly. `releaseIOSMasonOwners` and `releaseIOSMasonTree` own the same teardown boundary as Android; the tree release also clears `_masonPendingAdds` queues left by a failed insertion. Hook restoration, failure handling and retire semantics match the Android contract.
+iOS Mason defers each native insert until the child loads and consumes the child's attached-native expectation at that deferred insert point: the pre-attached native object is verified against the parent's `subviews` order, `addViewAt` is skipped, and Mason's foreign-child adoption and measurement still run. Commit requires the host to be set up and loaded first, otherwise inserts stay queued and commit fails loudly. `releaseIOSMasonOwners` and `releaseIOSMasonTree` own the same teardown boundary as Android; the tree release also discards queued pending adds through `discardPendingNativeAdds` after a failed insertion. Expectation cleanup, failure handling and retire semantics match the Android contract.
 
-The adapter uses version-sensitive Core/Mason internals. The maintained iOS controls supply Core9.1.3 and Mason beta.10; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, the mount default journal and failure recovery remain with the host.
+The adapter depends on the same local-fork Mason adoption API as Android. The maintained iOS controls supply Core9.1.3 and the local beta.10 Mason package; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, the mount default journal and failure recovery remain with the host.
 
 ## Candidate artifact contract
 

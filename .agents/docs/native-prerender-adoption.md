@@ -70,34 +70,42 @@ accepted commit; after initial claims are consumed, new client work uses
 ordinary constructors. Retire its maps and references alongside the native
 lease, including when Core retains the logical wrappers for restoration.
 
-The private Android `platforms/android/mason-binding.android.js` owns wrapper association
-for the backend-validated Mason/Label tree. It checks native classes, distinct
-objects and topology before creating wrappers. An initial existing-child attach
-updates Core/Mason bookkeeping without reinsertion; each child can take that
-path only once. Subsequent moves use ordinary Mason behavior, including moves
-from callbacks before the initial commit returns. Restore attachment methods
-and Label factories in commit's finally path so success and accepted failure
-release startup closures. Clear adopted Mason native/style caches only after
-Core contexts, native handles and loading have been released. The adapter is
-version-sensitive: keep the exact repaired Mason snapshot and Core9.1.3 evidence,
+The Android `platforms/android/mason-binding.android.js` and its iOS sibling
+are thin validators around the shared, platform-neutral
+`platforms/mason-binding-core.js`. The core module binds through Mason's
+`@octane-xplat/nativescript-mason-core/adoption` API: `bindNativeView` supplies
+each Mason `View`'s existing native layout view, `expectAttachedNative` marks
+every wrapper's first native attach for one-shot adoption, and
+`isAttachedNativeExpected`/`cancelAttachedNative` close out or retire those
+expectations. Mason itself verifies the attached native parent and resolved
+index at the ordinary attach point, skips the native insert and runs its
+foreign-child bookkeeping; every later insert or move of the same child takes
+the ordinary path, including moves from callbacks before the initial commit
+returns. Commit requires every expectation to be consumed, then cancels any
+remainder and restores Label factories in the finally path so success and
+accepted failure release startup closures. Clear adopted Mason native/style
+caches through `releaseNativeView` only after Core contexts, native handles
+and loading have been released. The adapter is version-sensitive: it depends
+on a local Mason fork commit carrying the adoption API (no Mason core release
+ships it yet); keep the exact repaired Mason snapshot and Core9.1.3 evidence,
 not just an npm version claim. It does not own window/lifecycle handoff or defaults.
 
 The exported iOS `platforms/ios/mason-binding.ios.js`
-(`@octane-xplat/native-prerender/ios/mason-binding`) owns the same contract for
-a backend-validated `MasonUIView`/`TNSLabel` tree. iOS Mason beta.10 defers each
-native insert until the child loads and queues it in `_masonPendingAdds`; the
-binding intercepts `_masonInsertNative` so a pending wrapper's first insert
-reuses its already-attached native object — skipping `addViewAt` but still
-running `_masonAdoptForeign` and `_masonMeasureForeign` — and delegates later
-inserts to ordinary Mason. Commit therefore requires the host to be set up and
-loaded first; a deferred insert left unconsumed fails loudly. A failed
-insertion can leave `_masonPendingAdds` queued alongside a dangling Core parent
-link; `releaseIOSMasonTree` clears both before teardown, and
+(`@octane-xplat/native-prerender/ios/mason-binding`) supplies only the
+`MasonUIView`/`TNSLabel` native-tree validator for the same shared core.
+iOS Mason defers each native insert until the child loads and queues it
+internally; Mason consumes a child's attached-native expectation at that
+deferred insert point, verifying `superview`/`subviews` order, skipping
+`addViewAt` and still running its foreign-child adoption and measurement.
+Commit therefore requires the host to be set up and loaded first; a deferred
+insert left unconsumed fails loudly. `releaseIOSMasonTree` discards queued
+pending adds through `discardPendingNativeAdds` before teardown, and
 `releaseIOSMasonOwners` keeps the same teardown-before-cache-clear boundary.
 The mount default journal lives on the `XplatMasonMount` instance (`views`,
 `root`, single-use `restoreDefaults`), not on associated objects, so a mount's
 baseline cannot leak into unrelated native views. The adapter is
-version-sensitive: keep exact Core9.1.3 and Mason beta.10 evidence.
+version-sensitive: keep exact Core9.1.3 and Mason beta.10 evidence plus the
+local adoption-API fork commit.
 
 Octane0.17.0's direct transaction marks host acceptance before apply and
 continues logical/lifecycle/layout publication after an apply error, preserving

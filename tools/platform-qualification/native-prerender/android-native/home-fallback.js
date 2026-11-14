@@ -1,6 +1,6 @@
 import { Application } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
-import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
+import { bindNativeView } from '@octane-xplat/nativescript-mason-core/adoption'
 import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { Home } from '../Home.tsrx'
 import { prepareHomeApplication, acceptHomeApplication } from './home-application.js'
@@ -12,9 +12,12 @@ export function renderFallbackHome(activity, seed = resolved.seed, existingWindo
   if (!Application.android.nativeApp) Application.android.init(activity.getApplication())
   const window = existingWindow ?? prepareHomeApplication(activity)
   const host = new View()
-  host[native_] = new org.octanexplat.prerenderandroid.HomeViewport(
-    activity,
-    org.nativescript.mason.masonkit.Mason.Companion.getShared(),
+  bindNativeView(
+    host,
+    new org.octanexplat.prerenderandroid.HomeViewport(
+      activity,
+      org.nativescript.mason.masonkit.Mason.Companion.getShared(),
+    ),
   )
   host.width = '100%'
   host.height = '100%'

@@ -1,7 +1,7 @@
 import '@nativescript/core/globals'
 import { Application, Utils } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
-import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
+import { bindNativeView } from '@octane-xplat/nativescript-mason-core/adoption'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
@@ -11,7 +11,7 @@ import {
   bindAndroidMasonTree,
   releaseAndroidMasonOwners,
   releaseAndroidMasonTree,
-} from '../../../../packages/native-prerender/platforms/android/mason-binding.android.js'
+} from '@octane-xplat/native-prerender/android/mason-binding'
 import { renderFallbackHome } from './home-fallback.js'
 import {
   prepareHomeApplication,
@@ -52,9 +52,12 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             'Retained Home state reset before restoration',
           )
           const window = prepareHomeApplication(activity)
-          host[native_] = new org.octanexplat.prerenderandroid.HomeViewport(
-            activity,
-            org.nativescript.mason.masonkit.Mason.Companion.getShared(),
+          bindNativeView(
+            host,
+            new org.octanexplat.prerenderandroid.HomeViewport(
+              activity,
+              org.nativescript.mason.masonkit.Mason.Companion.getShared(),
+            ),
           )
           acceptHomeApplication(activity, host, window)
           check(

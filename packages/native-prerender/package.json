@@ -22,7 +22,7 @@
 	"scripts": {
 		"build": "tsc --runExternalCode -p tsconfig.build.json --declaration false",
 		"typegen": "tsc --runExternalCode -p tsconfig.build.json --emitDeclarationOnly",
-		"typecheck": "tsc --runExternalCode -p tsconfig.json && node --check platforms/android/mason-binding.android.js && node --check platforms/ios/mason-binding.ios.js",
+		"typecheck": "tsc --runExternalCode -p tsconfig.json && node --check platforms/mason-binding-core.js && node --check platforms/android/mason-binding.android.js && node --check platforms/ios/mason-binding.ios.js",
 		"test": "node --test tests/*.test.mjs",
 		"test:codec:native": "node tests/native-codec.mjs"
 	},

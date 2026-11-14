@@ -6,7 +6,7 @@ import {
   bindAndroidMasonTree,
   releaseAndroidMasonOwners,
   releaseAndroidMasonTree,
-} from '../../../../packages/native-prerender/platforms/android/mason-binding.android.js'
+} from '@octane-xplat/native-prerender/android/mason-binding'
 
 import { StartupComponent } from 'xplat-prerender:component'
 import startup from 'xplat-prerender:startup'
