@@ -70,6 +70,10 @@ if (host) {
       { maxBuffer: 64 * 1024 * 1024 },
     )
     ssh(`tar -C ${quote(remote)} -xf -`, { input: entryTar })
+    // ns-linux decides .js module-ness by the nearest package.json "type";
+    // a bare tmpdir has none, so bundled entries with top-level await would
+    // run as CommonJS. Mirror this tool's own package.json.
+    ssh(`printf '%s' '{"type":"module"}' > ${quote(remote)}/package.json`)
     ssh(`cd ${quote(remote)} && ${command.map(quote).join(' ')}`, { stdio: 'inherit' })
   } finally {
     if (remote && /^\/tmp\/xplat-lre-[A-Za-z0-9]+$/.test(remote)) {
