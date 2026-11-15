@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import './screen.css'
-import { SafeArea, Text, VStack } from '@octane-xplat/ui'
+import { HStack, SafeArea, Text, VStack } from '@octane-xplat/ui'
 
 export interface ScreenProps {
   title: string
@@ -16,6 +16,9 @@ export function Screen(props: ScreenProps) @{
       @for (const item of props.items; key item) {
         <Text className="screen-copy">{item}</Text>
       }
+      <HStack id="spinner-row">
+        <VStack id="hydration-spinner" className="spinner" />
+      </HStack>
     </VStack>
   </SafeArea>
 }

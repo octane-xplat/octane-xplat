@@ -141,6 +141,20 @@ async function qualify(activity) {
     }),
   )
 
+  // Spin the hydration marker now that the live tree owns the screen; the
+  // cold mount draws it statically, so rotation marks the hydration seam.
+  const spinnerIndex = projectVisualTree(startup.nodes).findIndex(
+    (node) => node.props.id === 'hydration-spinner',
+  )
+  const spinner = spinnerIndex >= 0 ? wrappers[spinnerIndex]?.nativeViewProtected : undefined
+  if (spinner) {
+    const animator = android.animation.ObjectAnimator.ofFloat(spinner, 'rotation', [0, 360])
+    animator.setDuration(900)
+    animator.setInterpolator(new android.view.animation.LinearInterpolator())
+    animator.setRepeatCount(android.animation.ValueAnimator.INFINITE)
+    animator.start()
+  }
+
   // The hydrated tree stays on screen so the cold-to-live transition can be
   // evaluated visually; the runner leaves the app and device running.
   activity.recordProof(

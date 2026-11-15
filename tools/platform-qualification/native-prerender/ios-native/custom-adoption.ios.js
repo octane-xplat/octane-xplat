@@ -217,6 +217,23 @@ async function qualify() {
     logicalNodes: startup.nodes.length,
   })
 
+  // Spin the hydration marker now that the live tree owns the screen; the
+  // cold mount draws it statically, so rotation marks the hydration seam.
+  const spinnerIndex = projectVisualTree(startup.nodes).findIndex(
+    (node) => node.props.id === 'hydration-spinner',
+  )
+  const spinner = spinnerIndex >= 0 ? wrappers[spinnerIndex]?.nativeViewProtected : undefined
+  if (spinner) {
+    const animation = CABasicAnimation.animationWithKeyPath('transform.rotation.z')
+    animation.toValue = Math.PI * 2
+    animation.duration = 0.9
+    animation.repeatCount = 1e9
+    animation.timingFunction = CAMediaTimingFunction.functionWithName(
+      kCAMediaTimingFunctionLinear,
+    )
+    spinner.layer.addAnimationForKey(animation, 'hydration-spin')
+  }
+
   // The hydrated tree stays on screen so the cold-to-live transition can be
   // evaluated visually; the runner leaves the app and device running.
   proof({
