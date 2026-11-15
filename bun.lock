@@ -2376,6 +2376,33 @@
         "@octane-xplat/nativescript-octane",
       ],
     },
+    "packages/pretext": {
+      "name": "@octane-xplat/pretext",
+      "version": "0.20.0",
+      "dependencies": {
+        "@chenglou/pretext": "1.0.0",
+        "@formatjs/intl-getcanonicallocales": "3.3.0",
+        "@formatjs/intl-locale": "5.4.1",
+        "@formatjs/intl-segmenter": "12.3.0",
+        "@octane-xplat/platform": "workspace:*",
+      },
+      "devDependencies": {
+        "@nativescript/core": "catalog:",
+        "@nativescript/types": "catalog:",
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/linux-gtk": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
+        "tsrx-typegen": "workspace:*",
+        "typescript": "catalog:",
+      },
+      "peerDependencies": {
+        "@nativescript/core": ">=9.1.0 <10",
+      },
+      "optionalPeers": [
+        "@nativescript/core",
+      ],
+    },
     "packages/print": {
       "name": "@octane-xplat/print",
       "version": "0.20.0",
@@ -3715,6 +3742,8 @@
 
     "@casbin/expression-eval": ["@casbin/expression-eval@5.3.0", "", { "dependencies": { "jsep": "0.3.5" } }, "sha512-mMTHMYXcnBBv/zMvxMpcdVyt2bfw8Y0GnmRLbkFQ1CVJZb4XZp7xWjRh7ymOLuJdsu58rci9gmOOv/99DtJvPA=="],
 
+    "@chenglou/pretext": ["@chenglou/pretext@1.0.0", "", {}, "sha512-BxKiDMxWJhyzL8asvcgg3T9YnUU7OUFsKO8oRaR2SYAPX4Sh2wM9gqTBjrBaZ4fnl84cEQ8czC0Q1M83z3chsA=="],
+
     "@clack/core": ["@clack/core@1.5.1", "", { "dependencies": { "fast-wrap-ansi": "0.2.2", "sisteransi": "1.0.5" } }, "sha512-iHTrHA8MtVuLl2TfZySmcKv1qO2PoyC9Z7pfSDozEuV5vtY3/wcOPKJXlqJ5Oq2Cx5DDGQGAMVx6HZfRRoVEbQ=="],
 
     "@clack/prompts": ["@clack/prompts@1.8.1", "", { "dependencies": { "@clack/core": "1.5.1", "fast-string-width": "3.0.2", "fast-wrap-ansi": "0.2.2", "sisteransi": "1.0.5" } }, "sha512-dlT1m5e/0yUL0kRNcQn7yGLVThkgbB0Ga/1AmfDDC/8ik6AIiSf2QLQO2zPYvefsHP0aFgxO93cVLCCfDp7kzQ=="],
@@ -4594,6 +4623,8 @@
     "@octane-xplat/platform": ["@octane-xplat/platform@workspace:packages/platform"],
 
     "@octane-xplat/posthog": ["@octane-xplat/posthog@workspace:packages/posthog"],
+
+    "@octane-xplat/pretext": ["@octane-xplat/pretext@workspace:packages/pretext"],
 
     "@octane-xplat/print": ["@octane-xplat/print@workspace:packages/print"],
 

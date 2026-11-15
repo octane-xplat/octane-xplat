@@ -44,6 +44,8 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 - [Image manipulation](notes/image-manipulator.md) — frame/output ownership,
   platform boundaries, and programmatic pixel evidence.
+- [Pretext adapter](notes/pretext-adapter.md) — Pretext's non-browser
+  measurement hook and native width limits.
 
 - [Native drawer dependency review](native-drawer.md) — optional plugin boundary, gesture value, and follow-up acceptance criteria.
 

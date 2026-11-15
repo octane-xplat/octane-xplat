@@ -1,0 +1,12 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"typegen": {
+			"outputs": ["types/generated/**/*.d.ts"]
+		},
+		"build": {
+			"dependsOn": ["typegen"],
+			"outputs": ["dist/**"]
+		}
+	}
+}

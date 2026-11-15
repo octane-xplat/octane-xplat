@@ -1,0 +1,16 @@
+{
+	"extends": "./tsconfig.types.json",
+	"compilerOptions": {
+		"noEmit": false,
+		"declaration": false,
+		"emitDeclarationOnly": false,
+		"isolatedDeclarations": false,
+		"allowImportingTsExtensions": false,
+		"noEmitOnError": true,
+		"rootDir": "src",
+		"outDir": "dist",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": ["@nativescript/types"]
+	},
+	"include": ["src/**/*.ts", "../linux-gtk-renderer/src/gi.d.ts"]
+}

@@ -57,6 +57,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | I want to…                                      | Read this                                              |
 | ----------------------------------------------- | ------------------------------------------------------ |
 | Put text, buttons, and lists on a screen        | [Building screens](app/primitives.md)                  |
+| Measure and lay out text across platforms       | [Pretext text layout](packages/package-pretext.md)     |
 | Share a component between apps | [Publish a component library](app/component-libraries.md) |
 | Install build plugins separately from the CLI | [Project build plugins](packages/package-build.md) |
 | Understand the owned NativeScript renderer | [NativeScript renderer](packages/package-nativescript-octane.md) |

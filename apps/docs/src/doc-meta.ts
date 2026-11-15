@@ -166,6 +166,7 @@ export const GROUPS = [
       'package-pager',
       'package-picker',
       'package-platform',
+      'package-pretext',
       'package-posthog',
       'package-print',
       'package-push',

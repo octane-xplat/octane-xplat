@@ -136,6 +136,7 @@ declare module 'gi://Gtk?version=4.0' {
       set_opacity(opacity: number): void
       set_focusable(focusable: boolean): void
       set_tooltip_text(text: string | null): void
+      create_pango_layout(text: string | null): PangoLayout
       /** Non-varargs GtkAccessible property/value-array binding. */
       update_property(properties: number[], values: unknown[]): void
       reset_property(property: number): void
@@ -158,6 +159,18 @@ declare module 'gi://Gtk?version=4.0' {
       opacity: number
       readonly has_focus: boolean;
       [key: string]: any
+    }
+
+    interface PangoLayout {
+      set_font_description(description: PangoFontDescription | null): void
+      get_pixel_size(): [number, number]
+    }
+
+    interface PangoFontDescription {
+      set_family(family: string): void
+      set_absolute_size(size: number): void
+      set_weight(weight: number): void
+      set_style(style: number): void
     }
 
     class Box extends Widget {
@@ -719,7 +732,19 @@ declare module 'gi://Soup?version=3.0' {
 }
 
 declare module 'gi://Pango' {
-  const Pango: { WrapMode: { WORD_CHAR: number } }
+  interface FontDescription {
+    set_family(family: string): void
+    set_absolute_size(size: number): void
+    set_weight(weight: number): void
+    set_style(style: number): void
+  }
+
+  const Pango: {
+    WrapMode: { WORD_CHAR: number }
+    SCALE: number
+    Style: { NORMAL: number; ITALIC: number }
+    FontDescription: { new: () => FontDescription }
+  }
 
   export default Pango
 }

@@ -136,6 +136,7 @@ Workflows:
 - [Use Bamboo CSS utilities across web and native](bamboo-css.md)
 - [Ship a custom font across web and native](custom-fonts.md)
 - [Add rich text editing](rich-text-editing.md)
+- [Measure and lay out text with Pretext](pretext-text-layout.md)
 - [Render SVG images on AppKit](appkit-svg-images.md)
 - [Load and replace images on AppKit](appkit-image-loading.md)
 - [Render bundled icons across web, mobile, and AppKit](bundled-icons.md)

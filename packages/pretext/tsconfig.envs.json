@@ -1,0 +1,59 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"types": ["@nativescript/types"]
+	},
+	"environments": {
+		"web": {
+			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"exclude": [
+				"src/**/*.ios.ts",
+				"src/**/*.android.ts",
+				"src/**/*.macos.ts",
+				"src/**/*.linux.ts",
+				"src/**/*.windows.ts"
+			]
+		},
+		"native": {
+			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"exclude": [
+				"src/**/*.web.ts",
+				"src/**/*.macos.ts",
+				"src/**/*.linux.ts",
+				"src/**/*.windows.ts"
+			]
+		},
+		"macos": {
+			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"exclude": [
+				"src/**/*.web.ts",
+				"src/**/*.ios.ts",
+				"src/**/*.android.ts",
+				"src/**/*.linux.ts",
+				"src/**/*.windows.ts"
+			]
+		},
+		"linux": {
+			"files": ["../linux-gtk-renderer/src/gi.d.ts"],
+			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"exclude": [
+				"src/**/*.web.ts",
+				"src/**/*.ios.ts",
+				"src/**/*.android.ts",
+				"src/**/*.macos.ts",
+				"src/**/*.windows.ts"
+			]
+		},
+		"windows": {
+			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"exclude": [
+				"src/**/*.web.ts",
+				"src/**/*.ios.ts",
+				"src/**/*.android.ts",
+				"src/**/*.macos.ts",
+				"src/**/*.linux.ts"
+			]
+		}
+	}
+}

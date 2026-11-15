@@ -93,6 +93,8 @@
 				"@octane-xplat/pager#typegen",
 				"@octane-xplat/picker#typegen",
 				"@octane-xplat/platform#typegen",
+				"@octane-xplat/pretext#typegen",
+				"@octane-xplat/pretext#build",
 				"@octane-xplat/posthog#typegen",
 				"@octane-xplat/print#typegen",
 				"@octane-xplat/push#typegen",
