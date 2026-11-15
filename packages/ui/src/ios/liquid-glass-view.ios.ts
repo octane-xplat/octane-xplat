@@ -1,5 +1,5 @@
 import { View, Utils, type GlassEffectType } from '@nativescript/core'
-import { ELEMENTS } from '@nativescript-community/octane'
+import { ELEMENTS } from '@octane-xplat/nativescript-octane'
 import { UIBlurEffect, UIVisualEffect, UIVisualEffectView } from '@octane-xplat/platform/ios'
 
 const SYSTEM_MATERIAL_BLUR_STYLE = 8

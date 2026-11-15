@@ -78,7 +78,7 @@ function fixture(glassSupported, materialHost = true, container = false) {
         return { View: CoreView, Utils: { supportsGlass: () => glassSupported } }
       }
 
-      if (name === '@nativescript-community/octane') {
+      if (name === '@octane-xplat/nativescript-octane') {
         return { ELEMENTS: new Map([['masonview', MasonView]]) }
       }
 
