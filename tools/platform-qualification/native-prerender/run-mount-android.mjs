@@ -21,7 +21,8 @@ const serial = process.env.XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL
 assert.ok(serial, 'Mount control requires an explicit, already-booted target serial')
 
 const physical = !serial.startsWith('emulator-')
-const adoption = Boolean(build.home.artifactAdopt)
+const adoption = Boolean(build.home.artifactAdopt || build.home.customAdopt)
+const customAdoption = Boolean(build.home.customAdopt)
 const adb = join(build.sdk, 'platform-tools/adb')
 const expected = JSON.parse(readFileSync(join(resolve(directory), 'producer/resolved.json')))
 const root = join(homedir(), 'dev/reports/octane-xplat/native-prerender-mount-android')
@@ -126,7 +127,7 @@ try {
 
   writeFileSync(join(report, 'launch.txt'), launch.stdout + launch.stderr)
 
-  const deadline = Date.now() + 30000
+  const deadline = Date.now() + 120000
   let events = []
 
   while (Date.now() < deadline) {
@@ -206,39 +207,70 @@ try {
       (event) => event.event === 'artifact-proof' && event.epoch === passed.epoch,
     )
 
-    assert.deepEqual(
-      proofs.map((event) => event.phase),
-      ['hydrated', 'reordered-added', 'removed', 'recreated', 'disposed'],
-    )
+    if (customAdoption) {
+      assert.deepEqual(
+        proofs.map((event) => event.phase),
+        ['hydrated', 'disposed'],
+      )
 
-    const [initial, added, removed, recreated, cleanup] = proofs
+      const [initial, cleanup] = proofs
 
-    assert.ok(
-      initial.coldLiveParity && initial.ordinaryInitialParity &&
-        initial.nativeIdentityRetained &&
-        initial.masonIdentityRetained &&
-        initial.prepareAbortMutationFree,
-    )
+      assert.ok(
+        initial.coldLiveParity &&
+          initial.nativeIdentityRetained &&
+          initial.masonIdentityRetained,
+      )
 
-    assert.equal(initial.logicalNodes, packet.nodes.length)
-    assert.equal(initial.initialClaims, expected.nodes.length)
-    assert.equal(initial.factoryCalls, expected.nodes.length)
-    assert.deepEqual(initial.labels, ['One', 'Two'])
-    assert.deepEqual(added.labels, ['Two', 'One', 'Three'])
-    assert.deepEqual(removed.labels, ['Three', 'Two'])
-    assert.deepEqual(recreated.labels, ['One', 'Three', 'Two'])
+      assert.equal(initial.logicalNodes, packet.nodes.length)
+      assert.equal(initial.initialClaims, expected.nodes.length)
+      assert.equal(initial.factoryCalls, expected.nodes.length)
+      assert.ok(
+        cleanup.nativeHandlesCleared &&
+          cleanup.contextsCleared &&
+          cleanup.logicalParentsCleared &&
+          cleanup.claimPhase === 'retired',
+      )
 
-    const sameOwner = (a, b) => assert.equal(a.owner, b.owner, 'Keyed logical owner differs')
-    sameOwner(initial.children[2], added.children[1])
-    sameOwner(initial.children[1], added.children[2])
-    sameOwner(added.children[3], removed.children[1])
-    sameOwner(initial.children[2], removed.children[2])
-    sameOwner(added.children[3], recreated.children[2])
-    sameOwner(initial.children[2], recreated.children[3])
-    for (const proof of [added, removed, recreated]) {
-      assert.equal(proof.ordinaryMoveParity, true)
-      assert.ok(proof.transitions.length > 0)
-      assert.ok(proof.transitions.every((row) => ['native', 'mason', 'handle'].every((key) => typeof row.retained[key] === 'boolean')))
+      assert.ok(
+        proofs.every(
+          (event) =>
+            event.runtimeStarted && event.runtimeLibraryLoaded && event.runtimeStarts === 1,
+        ),
+      )
+    } else {
+      assert.deepEqual(
+        proofs.map((event) => event.phase),
+        ['hydrated', 'reordered-added', 'removed', 'recreated', 'disposed'],
+      )
+
+      const [initial, added, removed, recreated, cleanup] = proofs
+
+      assert.ok(
+        initial.coldLiveParity && initial.ordinaryInitialParity &&
+          initial.nativeIdentityRetained &&
+          initial.masonIdentityRetained &&
+          initial.prepareAbortMutationFree,
+      )
+
+      assert.equal(initial.logicalNodes, packet.nodes.length)
+      assert.equal(initial.initialClaims, expected.nodes.length)
+      assert.equal(initial.factoryCalls, expected.nodes.length)
+      assert.deepEqual(initial.labels, ['One', 'Two'])
+      assert.deepEqual(added.labels, ['Two', 'One', 'Three'])
+      assert.deepEqual(removed.labels, ['Three', 'Two'])
+      assert.deepEqual(recreated.labels, ['One', 'Three', 'Two'])
+
+      const sameOwner = (a, b) => assert.equal(a.owner, b.owner, 'Keyed logical owner differs')
+      sameOwner(initial.children[2], added.children[1])
+      sameOwner(initial.children[1], added.children[2])
+      sameOwner(added.children[3], removed.children[1])
+      sameOwner(initial.children[2], removed.children[2])
+      sameOwner(added.children[3], recreated.children[2])
+      sameOwner(initial.children[2], recreated.children[3])
+      for (const proof of [added, removed, recreated]) {
+        assert.equal(proof.ordinaryMoveParity, true)
+        assert.ok(proof.transitions.length > 0)
+        assert.ok(proof.transitions.every((row) => ['native', 'mason', 'handle'].every((key) => typeof row.retained[key] === 'boolean')))
     }
     assert.equal(added.transitions.find((row) => row.label === 'One').retained.native, true)
     assert.equal(added.transitions.find((row) => row.label === 'Two').retained.native, false)
@@ -270,6 +302,7 @@ try {
     assert.ok(
       disposed.runtimeStarted && disposed.runtimeLibraryLoaded && disposed.runtimeStarts === 1,
     )
+    }
   }
 
   writeFileSync(

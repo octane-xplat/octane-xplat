@@ -8,10 +8,12 @@ const [core, work, mason, driver] = process.argv.slice(2)
 if (!core || !work || !mason || !driver)
   throw new Error('Expected Core, work, Mason and candidate driver roots')
 const artifactAdopt = process.env.XPLAT_PRERENDER_ANDROID_ARTIFACT_ADOPT === '1'
-const configuration = artifactAdopt
+const customAdopt = process.env.XPLAT_PRERENDER_ANDROID_CUSTOM_ADOPT === '1'
+const componentAdopt = artifactAdopt || customAdopt
+const configuration = componentAdopt
   ? JSON.parse(readFileSync(join(work, 'producer/build.json'))).configuration
   : undefined
-if (artifactAdopt && (!configuration || !/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(configuration.exportName)))
+if (componentAdopt && (!configuration || !/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(configuration.exportName)))
   throw new Error('Variable adoption requires a configured producer entry/export')
 const source = import.meta.dirname
 const repo = resolve(source, '../../..')
@@ -35,7 +37,16 @@ function read(path) {
 read(import.meta.filename)
 read(compiler)
 const result = await Bun.build({
-  entrypoints: [join(source, artifactAdopt ? 'android-native/artifact-adoption.js' : 'android-native/home-adoption.js')],
+  entrypoints: [
+    join(
+      source,
+      artifactAdopt
+        ? 'android-native/artifact-adoption.js'
+        : customAdopt
+          ? 'android-native/custom-adoption.js'
+          : 'android-native/home-adoption.js',
+    ),
+  ],
   outdir: join(work, 'home-bundle'),
   target: 'browser',
   format: 'cjs',

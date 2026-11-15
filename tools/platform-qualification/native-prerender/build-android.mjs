@@ -50,9 +50,14 @@ if (
   throw new Error('Home mount control cannot combine with two-label wrapper modes')
 const homeAdopt = process.env.XPLAT_PRERENDER_ANDROID_HOME_ADOPT === '1'
 const artifactAdopt = process.env.XPLAT_PRERENDER_ANDROID_ARTIFACT_ADOPT === '1'
+const customAdopt = process.env.XPLAT_PRERENDER_ANDROID_CUSTOM_ADOPT === '1'
+if (artifactAdopt && customAdopt)
+  throw new Error('Variable and custom adoption are mutually exclusive')
 if (artifactAdopt && (!homeProducer || homeAdopt || variant !== 'debug'))
   throw new Error('Variable artifact adoption requires a debug producer build without fixed Home adoption')
-const javascriptAdopt = homeAdopt || artifactAdopt
+if (customAdopt && (!homeProducer || homeAdopt || variant !== 'debug'))
+  throw new Error('Custom adoption requires a debug producer build without fixed Home adoption')
+const javascriptAdopt = homeAdopt || artifactAdopt || customAdopt
 if (variant === 'release' && !homeProducer)
   throw new Error('Release qualification requires Home inputs')
 if (homeAdopt && !homeProducer) throw new Error('Home adoption requires an Android Home producer')
@@ -395,6 +400,7 @@ if (homeProducer) {
         options: {
           homeAdopt,
           artifactAdopt,
+          customAdopt,
           variant,
           homeParity,
           homeRecreate,
@@ -434,7 +440,7 @@ if (homeProducer) {
       '; public static final boolean STALE_ROOT_INSETS = ' +
       staleRootInsets +
       '; public static final boolean ARTIFACT_ADOPT = ' +
-      artifactAdopt +
+      (artifactAdopt || customAdopt) +
       '; public static final boolean STARTUP = ' +
       homeStartup +
       '; public static final boolean UNSUPPORTED_FONT_SCALE = ' +
@@ -446,6 +452,7 @@ if (homeProducer) {
   home = {
     adopt: homeAdopt,
     artifactAdopt,
+    customAdopt,
     parity: homeParity,
     recreate: homeRecreate,
     recreateCount: homeRecreateCount,
@@ -540,6 +547,8 @@ writeFileSync(
       applicationEntry,
       scope: artifactAdopt
         ? 'Variable-topology Android XPI1 native mount, configured JSX wrapper adoption and keyed client updates; bounded320x640 canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification'
+        : customAdopt
+          ? 'Custom-screen Android XPI1 native mount, configured JSX wrapper adoption and disposal; caller-bounded canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification'
         : home
         ? (homeFallback
             ? 'Android Home IR rejection and ordinary nineteen-view Core/Octane fallback control (' +

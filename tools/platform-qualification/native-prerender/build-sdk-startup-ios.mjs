@@ -14,7 +14,7 @@ import {
 
 import { createRequire } from 'node:module'
 import { homedir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { basename, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { assertProducerInputs } from './check-producer-inputs.mjs'
 
@@ -40,10 +40,17 @@ assert.equal(
 
 const fixture = process.env.XPLAT_PRERENDER_IOS_STARTUP_FIXTURE ?? 'home'
 const mode = process.env.XPLAT_PRERENDER_IOS_STARTUP_MODE ?? 'adopt'
+const customDir = process.env.XPLAT_PRERENDER_IOS_STARTUP_DIR
+  ? resolve(process.env.XPLAT_PRERENDER_IOS_STARTUP_DIR)
+  : null
 
 assert.ok(
-  fixture === 'home' || fixture === 'keyed',
-  'XPLAT_PRERENDER_IOS_STARTUP_FIXTURE must be home or keyed',
+  fixture === 'home' || fixture === 'keyed' || fixture === 'custom',
+  'XPLAT_PRERENDER_IOS_STARTUP_FIXTURE must be home, keyed or custom',
+)
+assert.ok(
+  fixture !== 'custom' || customDir,
+  'The custom fixture requires XPLAT_PRERENDER_IOS_STARTUP_DIR',
 )
 assert.ok(
   mode === 'adopt' || mode === 'seed-mismatch' || mode === 'attach-failure',
@@ -210,7 +217,7 @@ if (fixture === 'home') {
     join(app, 'src/component.js'),
     "export { Home as StartupComponent } from './Home.tsrx'\n",
   )
-} else {
+} else if (fixture === 'keyed') {
   for (const name of [
     'KeyedStartup.tsrx',
     'KeyedStartup.ios.tsrx',
@@ -227,6 +234,26 @@ if (fixture === 'home') {
   writeFileSync(
     join(app, 'src/component.js'),
     "export { KeyedStartup as StartupComponent } from './KeyedStartup.tsrx'\n",
+  )
+}
+
+if (fixture === 'custom') {
+  const configuration = JSON.parse(
+    readFileSync(join(customDir, 'startup.config.json')),
+  )
+  for (const name of readdirSync(customDir)) {
+    if (name === 'startup.config.json') continue
+    const file = join(customDir, name)
+    if (statSync(file).isFile()) copy(file, join(app, 'src', name))
+  }
+  copy(
+    join(source, 'ios-native/custom-adoption.ios.js'),
+    join(app, 'src/custom-adoption.ios.js'),
+  )
+  writeFileSync(join(app, 'src/main.js'), "import './custom-adoption.ios.js'\n")
+  writeFileSync(
+    join(app, 'src/component.js'),
+    `export { ${configuration.exportName} as StartupComponent } from './${basename(configuration.entry)}'\n`,
   )
 }
 json(join(app, 'src/mode.json'), mode)
@@ -324,7 +351,7 @@ if (fixture === 'home') {
     seed: { name: 'Alex', initialCompleted: 3 },
     environment: { width: 402, height: 874, reducedMotion: false },
   })
-} else {
+} else if (fixture === 'keyed') {
   const keyed = JSON.parse(
     readFileSync(join(source, 'producer/fixtures/keyed-startup.json')),
   )
@@ -332,6 +359,14 @@ if (fixture === 'home') {
   json(join(app, 'startup.config.json'), {
     ...keyed,
     entry: './src/KeyedStartup.tsrx',
+  })
+} else {
+  const custom = JSON.parse(
+    readFileSync(join(customDir, 'startup.config.json')),
+  )
+  json(join(app, 'startup.config.json'), {
+    ...custom,
+    entry: './src/' + basename(custom.entry),
   })
 }
 
@@ -422,9 +457,11 @@ json(join(work, 'build.json'), {
   scope:
     fixture === 'home'
       ? 'Normal SDK Home IR/adoption control with installed package sources and normal native Vite preset; four primitive exports; not app opt-in installation, OS input, presentation or performance qualification'
-      : 'Variable-topology iOS XPI1 native mount, configured JSX wrapper adoption and keyed client updates (' +
-        mode +
-        '); bounded 320x640 canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification',
+      : fixture === 'custom'
+        ? 'Custom-screen iOS XPI1 native mount, configured JSX wrapper adoption and disposal; caller-bounded canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification'
+        : 'Variable-topology iOS XPI1 native mount, configured JSX wrapper adoption and keyed client updates (' +
+          mode +
+          '); bounded 320x640 canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification',
 })
 
 console.log('SDK startup build complete: ' + work)

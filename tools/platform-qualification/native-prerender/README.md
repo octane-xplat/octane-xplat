@@ -239,6 +239,33 @@ goddard-agent resource run --json '{"resources":{"exclusive":["ios:91D40099-A056
 
 Results are retained below `~/dev/reports/octane-xplat/native-prerender-sdk-startup-ios`; the runner terminates its fixture and shuts down its owned simulator. The four-primitive facade and fixed Home host remain qualification boundaries. This does not provide app opt-in installation, OS input, visual/pixel presentation, complete CSS coverage, repeated-cycle memory stability or performance qualification. Handler-driven Button updates are separate from OS taps.
 
+## One-command control runner
+
+`test-prerender.sh` wraps the producer, build, device run and report phases for the maintained controls. It resolves the Mason adoption dist (`PRERENDER_MASON_DIST`, defaulting to the maintained `adopt-attached` fork worktree — the published beta.10 package lacks the seam), the owned driver, the NativeScript runtime and Core roots, the Android SDK and a JDK17 toolchain from this checkout, with per-path environment overrides.
+
+```sh
+tools/platform-qualification/native-prerender/test-prerender.sh ios home
+tools/platform-qualification/native-prerender/test-prerender.sh android home
+tools/platform-qualification/native-prerender/test-prerender.sh ios all
+tools/platform-qualification/native-prerender/test-prerender.sh android all
+```
+
+iOS controls: `home`, `keyed`, `seed-mismatch`, `attach-failure`, `all`. Android controls: `home`, `fallback-seed`, `fallback-attach`, `keyed`, `all`. The runner boots and shuts down the pinned simulator or the `elegant-fir-probe` emulator it owns, and refuses to start a keyed/custom Android run while another emulator is up. Reports land under `~/dev/reports/octane-xplat/` beside the manually invoked controls.
+
+### Custom screen control
+
+`<platform> app <dir>` runs the generic adoption path against a caller-supplied screen instead of a fixture. `<dir>` holds a `startup.config.json` plus the sources it names; copy `custom-template/` and edit it.
+
+```sh
+cp -R tools/platform-qualification/native-prerender/custom-template ~/my-screen
+tools/platform-qualification/native-prerender/test-prerender.sh ios app ~/my-screen
+tools/platform-qualification/native-prerender/test-prerender.sh android app ~/my-screen
+```
+
+`startup.config.json` selects the entry module and export, the seed passed to `StartupComponent` at runtime, and bounded environment values (the test canvas is a fixed 320×640 logical canvas, not the device window). `Screen.tsrx` is the component; `screen.css` is its stylesheet. The producer emits the startup artifact; the native host mounts it before JS; the driver then binds the existing native tree, verifies cold/live parity, native and Mason identity retention, and full disposal.
+
+The custom control qualifies arbitrary-screen adoption on the bounded canvas. It does not qualify a real app's Vite configuration, opt-in installation, OS input, compositor presentation, complete CSS coverage or startup performance.
+
 ## Retained Home runtime fixtures
 
 The real-screen experiment has separate native and JavaScript entry points:

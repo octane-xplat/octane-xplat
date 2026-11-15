@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "entry": "./Screen.tsrx",
+  "exportName": "Screen",
+  "seed": {
+    "title": "Hello from native pre-render",
+    "items": ["First row", "Second row"]
+  },
+  "environment": {
+    "width": 320,
+    "height": 640,
+    "reducedMotion": false
+  }
+}

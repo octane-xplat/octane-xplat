@@ -907,7 +907,8 @@
         "XPLAT_PRERENDER_NS_CLI",
         "XPLAT_PRERENDER_IOS_MASON_PACKAGE",
         "XPLAT_PRERENDER_IOS_STARTUP_FIXTURE",
-        "XPLAT_PRERENDER_IOS_STARTUP_MODE"
+        "XPLAT_PRERENDER_IOS_STARTUP_MODE",
+        "XPLAT_PRERENDER_IOS_STARTUP_DIR"
       ]
     },
     "@xplat/platform-qualification#probe:prerender:sdk:ios": {

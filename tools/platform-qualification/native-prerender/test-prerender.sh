@@ -5,12 +5,15 @@
 # and the Android Home emulator themselves.
 #
 # Usage:
-#   test-prerender.sh <platform> <control>
+#   test-prerender.sh <platform> <control> [dir]
 #
 #   platform  ios | android
 #
 #   iOS controls      home | keyed | seed-mismatch | attach-failure | all
 #   Android controls  home | fallback-seed | fallback-attach | keyed | all
+#   Custom screen     <platform> app <dir>
+#                     <dir> holds startup.config.json plus the .tsrx/.css
+#                     sources it names; copy custom-template/ to start.
 #
 # Paths resolve automatically from this repository; override with the
 # environment variables below when a prerelease lives elsewhere.
@@ -33,9 +36,10 @@ PKG="@xplat/platform-qualification"
 
 platform="${1:-}"
 control="${2:-}"
+custom_dir="${3:-}"
 
 usage() {
-  sed -n '2,25p' "${BASH_SOURCE[0]}"
+  sed -n '2,30p' "${BASH_SOURCE[0]}"
   exit "${1:-1}"
 }
 
@@ -65,11 +69,12 @@ if [ ! -f "$MASON_DIST/adoption.js" ]; then
 fi
 
 run_ios() {
-  local name="$1" fixture="$2" mode="$3"
+  local name="$1" fixture="$2" mode="$3" dir="${4:-}"
   echo "=== ios/$name: build ==="
   XPLAT_PRERENDER_IOS_MASON_PACKAGE="$MASON_DIST" \
   XPLAT_PRERENDER_IOS_STARTUP_FIXTURE="$fixture" \
   XPLAT_PRERENDER_IOS_STARTUP_MODE="$mode" \
+  XPLAT_PRERENDER_IOS_STARTUP_DIR="$dir" \
     turbo probe:prerender:sdk:startup:ios:build
   local build
   build="$(last_dir "$HOME/agent-scratch/octane-xplat/native-prerender-sdk-startup-ios")"
@@ -110,8 +115,9 @@ prepare_android_env() {
 
 produce_android() {
   local config="$1"
+  case "$config" in /*) ;; *) config="$SOURCE/producer/$config" ;; esac
   XPLAT_PRERENDER_HOME_PLATFORM=android \
-  XPLAT_PRERENDER_PRODUCER_CONFIG="$SOURCE/producer/$config" \
+  XPLAT_PRERENDER_PRODUCER_CONFIG="$config" \
     turbo probe:prerender:home:produce
   PRODUCER="$(last_dir "$HOME/agent-scratch/octane-xplat/native-prerender-home-producer")"
   [ -n "$PRODUCER" ] || { echo "error: no producer output produced" >&2; exit 1; }
@@ -197,7 +203,28 @@ android_one() {
   esac
 }
 
+require_custom_dir() {
+  [ -n "$custom_dir" ] || usage
+  [ -f "$custom_dir/startup.config.json" ] || {
+    echo "error: $custom_dir/startup.config.json missing" >&2
+    echo "Copy $SOURCE/custom-template and edit it." >&2
+    exit 2
+  }
+  custom_dir="$(cd "$custom_dir" && pwd)"
+}
+
 case "$platform:$control" in
+  ios:app)
+    require_custom_dir
+    run_ios app custom adopt "$custom_dir"
+    ;;
+  android:app)
+    require_custom_dir
+    prepare_android_env
+    produce_android "$custom_dir/startup.config.json"
+    build_android app XPLAT_PRERENDER_ANDROID_CUSTOM_ADOPT=1
+    run_android_keyed
+    ;;
   ios:home)           run_ios home home adopt ;;
   ios:keyed)          run_ios keyed keyed adopt ;;
   ios:seed-mismatch)  run_ios seed-mismatch keyed seed-mismatch ;;

@@ -31,7 +31,10 @@ const build = JSON.parse(readFileSync(join(work, 'build.json')))
 assert.equal(build.fixture, 'stock-sdk-startup')
 assert.equal(build.id, 'org.octanexplat.prerender.sdkstartupios')
 assert.equal(build.cliVersion, '9.1.1')
-assert.ok(['home', 'keyed'].includes(build.startupFixture), 'Unknown startup fixture')
+assert.ok(
+  ['home', 'keyed', 'custom'].includes(build.startupFixture),
+  'Unknown startup fixture',
+)
 assert.ok(
   ['adopt', 'seed-mismatch', 'attach-failure'].includes(build.startupMode),
   'Unknown startup mode',
@@ -208,7 +211,7 @@ try {
     'engine-init-begin',
     'engine-init-end',
     'js-entry-end',
-    ...(fixture === 'keyed' ? ['mount-disposed'] : []),
+    ...(fixture !== 'home' ? ['mount-disposed'] : []),
     'passed',
   ]
 
@@ -281,7 +284,32 @@ try {
 
     assert.ok(!proofs.some((proof) => proof.phase === 'failed'), JSON.stringify(proofs))
 
-    if (mode === 'adopt') {
+    if (mode === 'adopt' && fixture === 'custom') {
+      assert.deepEqual(
+        proofs.map((proof) => proof.phase),
+        ['hydrated', 'disposed'],
+      )
+
+      const [initial, cleanup] = proofs
+
+      assert.ok(
+        initial.coldLiveParity &&
+          initial.nativeIdentityRetained &&
+          initial.masonIdentityRetained,
+      )
+
+      assert.equal(initial.logicalNodes, packet.nodes.length)
+      assert.equal(initial.initialClaims, expected.nodes.length)
+      assert.equal(initial.factoryCalls, expected.nodes.length)
+      assert.ok(
+        cleanup.nativeHandlesCleared &&
+          cleanup.contextsCleared &&
+          cleanup.logicalParentsCleared &&
+          cleanup.viewportSubviews === 0 &&
+          cleanup.claimPhase === 'retired',
+        'Custom disposal did not release the adopted state',
+      )
+    } else if (mode === 'adopt') {
       assert.deepEqual(
         proofs.map((proof) => proof.phase),
         ['hydrated', 'reordered-added', 'removed', 'recreated', 'disposed'],
