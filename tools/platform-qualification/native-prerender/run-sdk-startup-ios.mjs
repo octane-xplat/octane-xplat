@@ -450,6 +450,22 @@ try {
 
     const shutdown = spawnSync('xcrun', ['simctl', 'shutdown', udid], { encoding: 'utf8' })
 
+    // An in-flight or already-finished shutdown exits nonzero (SimError 405);
+    // the goal is the end state, so verify the device state itself.
+    let shutdownOk = shutdown.status === 0
+    if (!shutdownOk) {
+      const list = spawnSync('xcrun', ['simctl', 'list', 'devices', '-j'], {
+        encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024,
+      })
+      if (list.status === 0) {
+        const devices = Object.values(JSON.parse(list.stdout).devices).flat()
+        shutdownOk = devices.some(
+          (device) => device.udid === udid && device.state === 'Shutdown',
+        )
+      }
+    }
+
     writeFileSync(
       join(report, 'status.json'),
       JSON.stringify(
@@ -458,7 +474,7 @@ try {
           normalSDK: true,
           fixture,
           mode,
-          simulatorShutdown: shutdown.status === 0,
+          simulatorShutdown: shutdownOk,
           osInputQualified: false,
           presentationQualified: false,
           performanceQualified: false,
@@ -469,6 +485,8 @@ try {
     )
 
     console.log('SDK startup report: ' + report)
-    assert.equal(shutdown.status, 0, shutdown.stderr)
+    if (!shutdownOk) {
+      assert.fail('simulator shutdown failed: ' + (shutdown.stderr ?? 'state check'))
+    }
   }
 }

@@ -15,6 +15,11 @@
 #                     <dir> holds startup.config.json plus the .tsrx/.css
 #                     sources it names; copy custom-template/ to start.
 #
+#   --run   Skip produce/build and reuse the newest matching build. The
+#           run scripts verify recorded source hashes (including the
+#           custom screen files) and reject a stale build, so editing
+#           sources still requires a rebuild.
+#
 # Paths resolve automatically from this repository; override with the
 # environment variables below when a prerelease lives elsewhere.
 #
@@ -34,12 +39,21 @@ SOURCE="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
 REPO="$(cd "$SOURCE/../../.." && pwd)"
 PKG="@xplat/platform-qualification"
 
+run_only=0
+rest=()
+for arg in "$@"; do
+  if [ "$arg" = "--run" ]; then run_only=1; else rest+=("$arg"); fi
+done
+if [ ${#rest[@]} -gt 0 ]; then set -- "${rest[@]}"; else set --; fi
+
 platform="${1:-}"
 control="${2:-}"
 custom_dir="${3:-}"
+run_flag=""
+[ "$run_only" = 1 ] && run_flag="--run"
 
 usage() {
-  sed -n '2,30p' "${BASH_SOURCE[0]}"
+  sed -n '2,34p' "${BASH_SOURCE[0]}"
   exit "${1:-1}"
 }
 
@@ -68,17 +82,49 @@ if [ ! -f "$MASON_DIST/adoption.js" ]; then
   exit 2
 fi
 
+find_ios_build() {
+  local fixture="$1" mode="$2" dir="${3:-}" d
+  for d in $(ls -dt "$HOME/agent-scratch/octane-xplat/native-prerender-sdk-startup-ios"/run-* 2>/dev/null); do
+    [ -f "$d/build.json" ] || continue
+    grep -q "\"startupFixture\": \"$fixture\"" "$d/build.json" || continue
+    grep -q "\"startupMode\": \"$mode\"" "$d/build.json" || continue
+    if [ -n "$dir" ] && ! grep -qF "\"$dir/" "$d/build.json"; then continue; fi
+    echo "$d"
+    return 0
+  done
+  echo "error: no matching ios/$fixture ($mode) build found; run without --run first" >&2
+  return 1
+}
+
+find_android_build() {
+  local pattern="$1" dir="${2:-}" d
+  for d in $(ls -dt "$HOME/agent-scratch/octane-xplat/native-prerender-android"/run-* 2>/dev/null); do
+    [ -f "$d/build.json" ] || continue
+    grep -q "$pattern" "$d/build.json" || continue
+    if [ -n "$dir" ] && ! grep -qF "\"$dir/" "$d/build.json"; then continue; fi
+    echo "$d"
+    return 0
+  done
+  echo "error: no matching android build found; run without --run first" >&2
+  return 1
+}
+
 run_ios() {
   local name="$1" fixture="$2" mode="$3" dir="${4:-}"
-  echo "=== ios/$name: build ==="
-  XPLAT_PRERENDER_IOS_MASON_PACKAGE="$MASON_DIST" \
-  XPLAT_PRERENDER_IOS_STARTUP_FIXTURE="$fixture" \
-  XPLAT_PRERENDER_IOS_STARTUP_MODE="$mode" \
-  XPLAT_PRERENDER_IOS_STARTUP_DIR="$dir" \
-    turbo probe:prerender:sdk:startup:ios:build
   local build
-  build="$(last_dir "$HOME/agent-scratch/octane-xplat/native-prerender-sdk-startup-ios")"
-  [ -n "$build" ] || { echo "error: no iOS build directory produced" >&2; return 1; }
+  if [ "$run_only" = 1 ]; then
+    build="$(find_ios_build "$fixture" "$mode" "$dir")" || return 1
+    echo "=== ios/$name: reusing $build ==="
+  else
+    echo "=== ios/$name: build ==="
+    XPLAT_PRERENDER_IOS_MASON_PACKAGE="$MASON_DIST" \
+    XPLAT_PRERENDER_IOS_STARTUP_FIXTURE="$fixture" \
+    XPLAT_PRERENDER_IOS_STARTUP_MODE="$mode" \
+    XPLAT_PRERENDER_IOS_STARTUP_DIR="$dir" \
+      turbo probe:prerender:sdk:startup:ios:build
+    build="$(last_dir "$HOME/agent-scratch/octane-xplat/native-prerender-sdk-startup-ios")"
+    [ -n "$build" ] || { echo "error: no iOS build directory produced" >&2; return 1; }
+  fi
   echo "=== ios/$name: run ($build) ==="
   XPLAT_PRERENDER_IOS_SDK_STARTUP_BUILD="$build" \
     turbo probe:prerender:sdk:startup:ios
@@ -195,8 +241,21 @@ kill_keyed_emulator() {
 android_one() {
   local name="$1" producer_config="$2"; shift 2
   prepare_android_env
-  produce_android "$producer_config"
-  build_android "$name" "$@"
+  if [ "$run_only" = 1 ]; then
+    local pattern
+    case "$name" in
+      home) pattern='"restore": true' ;;
+      fallback-seed) pattern='"fallback": "seed"' ;;
+      fallback-attach) pattern='"fallback": "attach"' ;;
+      keyed) pattern='"artifactAdopt": true' ;;
+      *) echo "error: no --run matcher for android/$name" >&2; exit 2 ;;
+    esac
+    ANDROID_BUILD="$(find_android_build "$pattern")" || exit 1
+    echo "=== android/$name: reusing $ANDROID_BUILD ==="
+  else
+    produce_android "$producer_config"
+    build_android "$name" "$@"
+  fi
   case "$name" in
     keyed) run_android_keyed ;;
     *) run_android_home "$name" ;;
@@ -221,8 +280,13 @@ case "$platform:$control" in
   android:app)
     require_custom_dir
     prepare_android_env
-    produce_android "$custom_dir/startup.config.json"
-    build_android app XPLAT_PRERENDER_ANDROID_CUSTOM_ADOPT=1
+    if [ "$run_only" = 1 ]; then
+      ANDROID_BUILD="$(find_android_build '"customAdopt": true' "$custom_dir")" || exit 1
+      echo "=== android/app: reusing $ANDROID_BUILD ==="
+    else
+      produce_android "$custom_dir/startup.config.json"
+      build_android app XPLAT_PRERENDER_ANDROID_CUSTOM_ADOPT=1
+    fi
     run_android_keyed
     ;;
   ios:home)           run_ios home home adopt ;;
@@ -261,10 +325,10 @@ case "$platform:$control" in
       XPLAT_PRERENDER_ANDROID_ARTIFACT_ADOPT=1
     ;;
   android:all)
-    "$0" android home
-    "$0" android fallback-seed
-    "$0" android fallback-attach
-    "$0" android keyed
+    "$0" android home $run_flag
+    "$0" android fallback-seed $run_flag
+    "$0" android fallback-attach $run_flag
+    "$0" android keyed $run_flag
     ;;
   *) usage ;;
 esac

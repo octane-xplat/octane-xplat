@@ -252,6 +252,8 @@ tools/platform-qualification/native-prerender/test-prerender.sh android all
 
 iOS controls: `home`, `keyed`, `seed-mismatch`, `attach-failure`, `all`. Android controls: `home`, `fallback-seed`, `fallback-attach`, `keyed`, `all`. The runner boots and shuts down the pinned simulator or the `elegant-fir-probe` emulator it owns, and refuses to start a keyed/custom Android run while another emulator is up. Reports land under `~/dev/reports/octane-xplat/` beside the manually invoked controls.
 
+Append `--run` to skip produce/build and reuse the newest matching scratch build: `test-prerender.sh ios app ~/my-screen --run`. The run scripts verify the recorded source hashes — including the supplied screen files — before launching, so an edited source makes a reused build fail with `Source changed; rebuild` rather than silently testing the old bytes. A stale or missing match still requires a full build.
+
 ### Custom screen control
 
 `<platform> app <dir>` runs the generic adoption path against a caller-supplied screen instead of a fixture. `<dir>` holds a `startup.config.json` plus the sources it names; copy `custom-template/` and edit it.
