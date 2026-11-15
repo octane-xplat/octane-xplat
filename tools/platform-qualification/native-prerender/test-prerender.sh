@@ -20,6 +20,10 @@
 #           custom screen files) and reject a stale build, so editing
 #           sources still requires a rebuild.
 #
+#   --shutdown
+#           Shut down the simulator/emulator after the run. By default
+#           the device is left running so a rerun skips the boot.
+#
 # Paths resolve automatically from this repository; override with the
 # environment variables below when a prerelease lives elsewhere.
 #
@@ -40,9 +44,15 @@ REPO="$(cd "$SOURCE/../../.." && pwd)"
 PKG="@xplat/platform-qualification"
 
 run_only=0
+keep_device=1
 rest=()
 for arg in "$@"; do
-  if [ "$arg" = "--run" ]; then run_only=1; else rest+=("$arg"); fi
+  case "$arg" in
+    --run) run_only=1 ;;
+    --keep-device) keep_device=1 ;;
+    --shutdown) keep_device=0 ;;
+    *) rest+=("$arg") ;;
+  esac
 done
 if [ ${#rest[@]} -gt 0 ]; then set -- "${rest[@]}"; else set --; fi
 
@@ -51,6 +61,8 @@ control="${2:-}"
 custom_dir="${3:-}"
 run_flag=""
 [ "$run_only" = 1 ] && run_flag="--run"
+device_flag=""
+[ "$keep_device" = 0 ] && device_flag="--shutdown"
 
 usage() {
   sed -n '2,34p' "${BASH_SOURCE[0]}"
@@ -127,6 +139,7 @@ run_ios() {
   fi
   echo "=== ios/$name: run ($build) ==="
   XPLAT_PRERENDER_IOS_SDK_STARTUP_BUILD="$build" \
+  XPLAT_PRERENDER_KEEP_DEVICE="$keep_device" \
     turbo probe:prerender:sdk:startup:ios
 }
 
@@ -195,39 +208,58 @@ run_android_home() {
   local name="$1"
   echo "=== android/$name: run ($ANDROID_BUILD) ==="
   XPLAT_PRERENDER_ANDROID_BUILD="$ANDROID_BUILD" \
+  XPLAT_PRERENDER_KEEP_DEVICE="$keep_device" \
     turbo probe:prerender:android
 }
 
 run_android_keyed() {
   local adb="$ANDROID_SDK/platform-tools/adb"
   local emu="$ANDROID_SDK/emulator/emulator"
+  local reused=0
   if "$adb" devices | grep -q '^emulator-'; then
-    echo "error: an emulator is already running; kill it before the keyed control" >&2
-    exit 3
+    if "$adb" devices | grep -q '^emulator-5566[[:space:]]*device'; then
+      local avd_name
+      avd_name="$("$adb" -s emulator-5566 emu avd name 2>/dev/null | head -1 | tr -d '\r')"
+      [ "$avd_name" = "elegant-fir-probe" ] || {
+        echo "error: emulator-5566 is running a different AVD: $avd_name" >&2
+        exit 3
+      }
+      reused=1
+      echo "=== android/keyed: reusing booted emulator-5566 ==="
+    else
+      echo "error: a different emulator is already running; kill it before the keyed control" >&2
+      exit 3
+    fi
   fi
-  mkdir -p "$HOME/agent-scratch/octane-xplat"
-  "$emu" -avd elegant-fir-probe -port 5566 -no-window -no-audio \
-    -no-snapshot-load -no-snapshot-save -no-boot-anim -gpu swiftshader_indirect \
-    > "$HOME/agent-scratch/octane-xplat/prerender-keyed-emulator.log" 2>&1 &
-  KEYED_EMU_PID=$!
-  trap 'kill_keyed_emulator' EXIT
-  local booted=0 i
-  for i in $(seq 1 240); do
-    [ "$("$adb" -s emulator-5566 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] && { booted=1; break; }
-    sleep 1
-  done
-  if [ "$booted" != "1" ]; then
-    echo "error: emulator boot timed out" >&2
-    kill_keyed_emulator
-    trap - EXIT
-    exit 4
+  if [ "$reused" = 0 ]; then
+    mkdir -p "$HOME/agent-scratch/octane-xplat"
+    "$emu" -avd elegant-fir-probe -port 5566 -no-window -no-audio \
+      -no-snapshot-load -no-snapshot-save -no-boot-anim -gpu swiftshader_indirect \
+      > "$HOME/agent-scratch/octane-xplat/prerender-keyed-emulator.log" 2>&1 &
+    KEYED_EMU_PID=$!
+    if [ "$keep_device" = 0 ]; then trap 'kill_keyed_emulator' EXIT; fi
+    local booted=0 i
+    for i in $(seq 1 240); do
+      [ "$("$adb" -s emulator-5566 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] && { booted=1; break; }
+      sleep 1
+    done
+    if [ "$booted" != "1" ]; then
+      echo "error: emulator boot timed out" >&2
+      kill_keyed_emulator
+      trap - EXIT
+      exit 4
+    fi
   fi
   echo "=== android/keyed: run ($ANDROID_BUILD) ==="
   XPLAT_PRERENDER_ANDROID_BUILD="$ANDROID_BUILD" \
   XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL=emulator-5566 \
     turbo probe:prerender:mount:android
-  kill_keyed_emulator
-  trap - EXIT
+  if [ "$keep_device" = 0 ]; then
+    kill_keyed_emulator
+    trap - EXIT
+  else
+    echo "=== android/keyed: emulator-5566 left running ==="
+  fi
 }
 
 kill_keyed_emulator() {
@@ -325,10 +357,10 @@ case "$platform:$control" in
       XPLAT_PRERENDER_ANDROID_ARTIFACT_ADOPT=1
     ;;
   android:all)
-    "$0" android home $run_flag
-    "$0" android fallback-seed $run_flag
-    "$0" android fallback-attach $run_flag
-    "$0" android keyed $run_flag
+    "$0" android home $run_flag $device_flag
+    "$0" android fallback-seed $run_flag $device_flag
+    "$0" android fallback-attach $run_flag $device_flag
+    "$0" android keyed $run_flag $device_flag
     ;;
   *) usage ;;
 esac

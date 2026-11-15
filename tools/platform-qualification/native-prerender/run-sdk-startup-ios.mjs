@@ -448,21 +448,29 @@ try {
   } finally {
     spawnSync('xcrun', ['simctl', 'terminate', udid, build.id], { encoding: 'utf8' })
 
-    const shutdown = spawnSync('xcrun', ['simctl', 'shutdown', udid], { encoding: 'utf8' })
+    // The device is kept booted by default so a rerun skips the boot;
+    // XPLAT_PRERENDER_KEEP_DEVICE=0 restores shutdown-and-verify.
+    const keepDevice = process.env.XPLAT_PRERENDER_KEEP_DEVICE !== '0'
+    let shutdownOk = false
+    let shutdownError = ''
+    if (!keepDevice) {
+      const shutdown = spawnSync('xcrun', ['simctl', 'shutdown', udid], { encoding: 'utf8' })
 
-    // An in-flight or already-finished shutdown exits nonzero (SimError 405);
-    // the goal is the end state, so verify the device state itself.
-    let shutdownOk = shutdown.status === 0
-    if (!shutdownOk) {
-      const list = spawnSync('xcrun', ['simctl', 'list', 'devices', '-j'], {
-        encoding: 'utf8',
-        maxBuffer: 16 * 1024 * 1024,
-      })
-      if (list.status === 0) {
-        const devices = Object.values(JSON.parse(list.stdout).devices).flat()
-        shutdownOk = devices.some(
-          (device) => device.udid === udid && device.state === 'Shutdown',
-        )
+      // An in-flight or already-finished shutdown exits nonzero (SimError 405);
+      // the goal is the end state, so verify the device state itself.
+      shutdownOk = shutdown.status === 0
+      shutdownError = shutdown.stderr ?? 'state check'
+      if (!shutdownOk) {
+        const list = spawnSync('xcrun', ['simctl', 'list', 'devices', '-j'], {
+          encoding: 'utf8',
+          maxBuffer: 16 * 1024 * 1024,
+        })
+        if (list.status === 0) {
+          const devices = Object.values(JSON.parse(list.stdout).devices).flat()
+          shutdownOk = devices.some(
+            (device) => device.udid === udid && device.state === 'Shutdown',
+          )
+        }
       }
     }
 
@@ -475,6 +483,7 @@ try {
           fixture,
           mode,
           simulatorShutdown: shutdownOk,
+          deviceKeptBooted: keepDevice,
           osInputQualified: false,
           presentationQualified: false,
           performanceQualified: false,
@@ -485,8 +494,8 @@ try {
     )
 
     console.log('SDK startup report: ' + report)
-    if (!shutdownOk) {
-      assert.fail('simulator shutdown failed: ' + (shutdown.stderr ?? 'state check'))
+    if (!keepDevice && !shutdownOk) {
+      assert.fail('simulator shutdown failed: ' + shutdownError)
     }
   }
 }

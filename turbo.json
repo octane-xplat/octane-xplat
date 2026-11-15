@@ -891,7 +891,8 @@
       "cache": false,
       "passThroughEnv": [
         "GODDARD_*",
-        "XPLAT_PRERENDER_IOS_SDK_STARTUP_BUILD"
+        "XPLAT_PRERENDER_IOS_SDK_STARTUP_BUILD",
+        "XPLAT_PRERENDER_KEEP_DEVICE"
       ]
     },
     "@xplat/platform-qualification#probe:prerender:sdk:startup:ios:build": {
@@ -994,6 +995,7 @@
         "XPLAT_PRERENDER_ANDROID_STARTUP_PATH",
         "XPLAT_PRERENDER_ANDROID_STARTUP_PAIRS",
         "XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL",
+        "XPLAT_PRERENDER_KEEP_DEVICE",
         "XPLAT_PRERENDER_TRACE_PROCESSOR",
         "GODDARD_*"
       ]

@@ -99,6 +99,9 @@ check(
 const serial = physical ? physicalSerial : 'emulator-5566'
 const avd = 'elegant-fir-probe'
 const deviceKind = physical ? 'physical' : 'emulator'
+// The emulator is kept running by default so a rerun skips the boot;
+// XPLAT_PRERENDER_KEEP_DEVICE=0 restores owned-emulator shutdown.
+const keepDevice = process.env.XPLAT_PRERENDER_KEEP_DEVICE !== '0'
 let deviceIdentity
 let interruption,
   cleaning = false
@@ -162,6 +165,7 @@ async function captureHeap() {
   }
 }
 const devices = await call(adb, ['devices'])
+let reusedEmulator = false
 if (physical)
   check(
     devices.output
@@ -170,10 +174,16 @@ if (physical)
     'Explicit physical device is not connected and authorized',
   )
 else {
-  check(
-    !devices.output.split('\n').some((line) => line.startsWith('emulator-')),
-    'Another Android emulator is present; cannot start a second',
-  )
+  const running = devices.output.split('\n').filter((line) => line.startsWith('emulator-'))
+  if (running.length) {
+    // An already-running emulator-5566 was not spawned by this run and is
+    // never killed below, so reuse it; the AVD check verifies its identity.
+    check(
+      running.length === 1 && running[0].split(/\s+/)[0] === 'emulator-5566',
+      'Another Android emulator is present; cannot start a second',
+    )
+    reusedEmulator = true
+  }
   check(
     (await call(emulator, ['-list-avds'])).output.split(/\r?\n/).includes(avd),
     'Required existing AVD is missing',
@@ -1372,13 +1382,15 @@ data_sources { config { name: "android.surfaceflinger.frametimeline" } }
       deviceKind,
       api: deviceIdentity.api,
       scope,
+      reusedEmulator,
+      deviceKeptBooted: deviceKind === 'emulator' && keepDevice,
     }),
   )
   console.log(JSON.stringify({ report, passed: true, scope }, null, 2))
 }
 
 try {
-  if (!physical) {
+  if (!physical && !reusedEmulator) {
     const descriptor = openSync(join(report, 'emulator.log'), 'w')
     child = spawn(
       emulator,
@@ -1621,7 +1633,7 @@ try {
   } catch (error) {
     errors.push('App diagnostic cleanup: ' + String(error))
   }
-  if (child?.pid && child.exitCode === null && child.signalCode === null) {
+  if (!keepDevice && child?.pid && child.exitCode === null && child.signalCode === null) {
     if (identityConfirmed) await device(['emu', 'kill'], 10000, false)
     const deadline = Date.now() + (identityConfirmed ? 15000 : 0)
     while (child.exitCode === null && child.signalCode === null && Date.now() < deadline)
