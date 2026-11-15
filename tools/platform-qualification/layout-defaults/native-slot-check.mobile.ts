@@ -39,4 +39,3 @@ export async function checkNativeSlot(ctx: ProbeContext, name: SlotName) {
     !!origin && !!next && Math.abs(next.y - origin.y - 20) <= 1,
   )
 }
-

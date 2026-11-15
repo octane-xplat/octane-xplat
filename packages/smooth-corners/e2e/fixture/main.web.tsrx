@@ -59,7 +59,7 @@ function App() @{
         id="layout-panel"
         corners={{ radius: 12 }}
         className={['layout-panel', layout !== 'block' && `layout-${layout}`]}
-        gap={8}
+        style={{ gap: 8 }}
       >
         <div id="layout-first" className="layout-child" />
         <div id="layout-second" className="layout-child" />
