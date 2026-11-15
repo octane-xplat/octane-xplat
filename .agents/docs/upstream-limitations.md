@@ -881,7 +881,9 @@ Still open on 3.0.9 (iOS and Android): `getParameter(CURRENT_PROGRAM)` returns
 a `WebGLProgram` wrapper for which `getProgramParameter(program, LINK_STATUS)`
 returns `null`. On 3.0.1, `getAttachedShaders` and `getShaderSource` on that
 wrapper also returned nothing (not rechecked on 3.0.9). Track programs at the
-call site instead of reading them back. Status: unworked-around in Xplat.
+call site instead of reading them back. Filed as
+[NativeScript/canvas#222](https://github.com/NativeScript/canvas/issues/222).
+Status: unworked-around in Xplat.
 
 Since 3.0.6 the iOS `CanvasNative.xcframework` is not in the npm package: the
 plugin's `nativescript.config.ts` adds local SwiftPM packages under
@@ -898,6 +900,7 @@ createImageBitmap worker path, which never completed in the engine demo
 `ImageBitmap.createFrom(asset)` then converts asset to bitmap reliably.
 Runtime evidence, 2026-11-14: `packages/demos/src/engine/image.mobile.ts`
 in the EngineDemo uses the sync path; both engines' glb textures decoded on
-iOS and Android. Status: worked around inside the demo; not reported
-upstream yet.
+iOS and Android. Filed as
+[NativeScript/canvas#223](https://github.com/NativeScript/canvas/issues/223).
+Status: worked around inside the demo.
 
