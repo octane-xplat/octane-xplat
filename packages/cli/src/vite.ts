@@ -30,9 +30,11 @@ import { nativeDevSocketPlugin } from './mcp/dev-socket.ts'
 import { masonCorePackage, masonEngine } from './mason-engine.ts'
 import { nativeUnicodeRegex } from './native-regex.ts'
 import { resolveTsrxLeaf } from './tsrx-leaf.ts'
+import { buildTarget, invocationTarget } from './vite-target.ts'
 
 export { css } from './css-platform.ts'
 export { devBridge } from './mcp/dev-bridge.ts'
+export { buildTarget } from './vite-target.ts'
 
 /** Select platform TSRX implementations in custom Vite and Vitest setups. */
 export function tsrx(platform = 'native') {
@@ -481,60 +483,14 @@ export const nativeExtensions = [
   '.json',
 ]
 
-/** The bundle platform the current invocation targets, read from
+/** The bundle platform the current invocation targets, read from XPLAT_TARGET,
  *  NATIVESCRIPT_BUNDLER_ENV or the ns/vite CLI args — undefined when the
  *  caller can't be identified (the generic native chain applies). */
 function nativePlatform() {
-  let platform
+  const platform = invocationTarget()
 
-  try {
-    const env = JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
-
-    platform =
-      env.platform ??
-      (env.android
-        ? 'android'
-        : env.windows
-          ? 'windows'
-          : env.visionos
-            ? 'visionos'
-            : env.ios
-              ? 'ios'
-              : undefined)
-  } catch {}
-
-  const args = process.argv.slice(2)
-
-  if (!platform) {
-    if (
-      args.some(
-        (arg) =>
-          arg === '--visionos' || arg === '--env.visionos' || arg.startsWith('--env.visionos='),
-      )
-    ) {
-      platform = 'visionos'
-    } else if (
-      args.some(
-        (arg) => arg === '--android' || arg === '--env.android' || arg.startsWith('--env.android='),
-      )
-    ) {
-      platform = 'android'
-    } else if (
-      args.some((arg) => arg === '--ios' || arg === '--env.ios' || arg.startsWith('--env.ios='))
-    ) {
-      platform = 'ios'
-    } else if (
-      args.some(
-        (arg) => arg === '--windows' || arg === '--env.windows' || arg.startsWith('--env.windows='),
-      )
-    ) {
-      platform = 'windows'
-    } else {
-      const platformIndex = args.indexOf('--platform')
-      const value = args.find((arg) => arg.startsWith('--platform='))?.slice('--platform='.length)
-
-      platform = value ?? (platformIndex >= 0 ? args[platformIndex + 1] : undefined)
-    }
+  if (platform === 'web' || platform === 'macos' || platform === 'linux' || platform === 'gtk') {
+    throw new Error(`The NativeScript preset cannot build target ${platform}`)
   }
 
   return platform
@@ -638,7 +594,7 @@ function platformTag(id) {
  *
  *  `platform` names the bundle target — 'web' | 'ios' | 'android' |
  *  'macos' | 'windows' | 'linux' | 'native' (generic: any native tag ok). */
-export function boundary(platform = 'native') {
+export function boundary(platform = buildTarget()) {
   const resolver = tsrx(platform)
   const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
   let command = 'build'

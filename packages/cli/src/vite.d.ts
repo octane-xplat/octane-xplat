@@ -6,10 +6,18 @@ export type { CssPlatform } from './css-platform.types.ts'
 
 import type { Plugin, UserConfig } from 'vite'
 
+/** Read the command's selected target, or NativeScript's invocation target.
+ * Direct Vite invocation defaults to web. Conflicting engine targets fail.
+ * @example
+ * import { buildTarget } from '@octane-xplat/cli/vite'
+ * console.log(buildTarget())
+ */
+export function buildTarget(): CssPlatform
+
 /** Select platform CSS siblings and compile build-time `@platform` blocks.
  * CSS suffixes replace the unsuffixed file; explicit platform filenames stay
- * exact. Native presets include this automatically; web apps add
- * `css('web')` to their Vite plugins. Defaults to `web`. */
+ * exact. Framework presets include this automatically. Custom configs default
+ * to the invocation's buildTarget(), or web for direct Vite. */
 export function css(platform?: CssPlatform): Plugin
 
 /** @internal Native CSS normalization used by the platform presets. */
@@ -40,6 +48,7 @@ export const nativeExtensions: string[]
 /** Selects platform implementations for unsuffixed explicit `.tsrx` imports.
  * Declaration-only contracts require a target implementation.
  * Includes tsrx and its platform-aware dependency optimization defaults.
+ * Defaults to the invocation's buildTarget(), or web for direct Vite.
  * Fails `vite build` when a platform-suffixed module foreign to the target
  *  is reachable in the graph (e.g. a `.web` leaf pulled into a mobile
  *  bundle transitively — lint catches direct imports, this catches the
@@ -69,8 +78,8 @@ export function nodeEnvDefine(mode: string): Record<string, string>
  *  MCP server discovers the endpoint through a same-uid session file under
  *  node_modules/.cache/xplat/dev-bridge/ and authenticates with the per-server
  *  token the plugin injects through a dev-only define. apply:'serve' — never
- *  part of a production build. Included automatically by native; web
- *  configs add it to `plugins` alongside boundary. */
+ *  part of a production build. Included automatically by native and the
+ *  umbrella config helper; custom configs add it alongside boundary. */
 export function devBridge(options?: { appRoot?: string }): Plugin
 
 export interface XplatNativeOptions {

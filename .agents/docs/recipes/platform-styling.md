@@ -2,11 +2,11 @@
 
 ID: platform-styling
 Targets: web, ios, android
-Related APIs: css, @platform, .web.css, .mobile.css, .ios.css, .android.css
+Related APIs: defineConfig, css, @platform, .web.css, .mobile.css, .ios.css, .android.css
 
 ## Starting point
 
-An app has shared CSS and working renderer Vite plugins. The developer wants
+An app has shared CSS and working framework Vite configuration. The developer wants
 small platform differences or a separate stylesheet without runtime branches.
 
 ## Requirements

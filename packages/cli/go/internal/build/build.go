@@ -263,7 +263,8 @@ func Command(ctx context.Context, values map[string]any) error {
 				fmt.Println("ns build " + strings.Join(redactedArgs(native, secrets), " "))
 			}
 		}
-		result, err := proc.RunForegroundProcessIO(ctx, args, projectRoot, project.ToolEnvironment(), os.Stdout, os.Stderr)
+		environment := append(project.ToolEnvironment(), "XPLAT_TARGET="+engine.Platform)
+		result, err := proc.RunForegroundProcessIO(ctx, args, projectRoot, environment, os.Stdout, os.Stderr)
 		if err != nil {
 			return err
 		}

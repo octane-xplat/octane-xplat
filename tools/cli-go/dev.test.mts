@@ -66,7 +66,7 @@ function fixture({ close = false, installed = true, multi = false } = {}) {
   put(
     app,
     'vite.config.mjs',
-    `export default {server:{port:0,host:'127.0.0.1'},plugins:[{name:'native-dev-receipt',configureServer(server){server.httpServer.once('listening',()=>{console.log('DEV_TEST_LISTENING http://127.0.0.1:'+server.httpServer.address().port);${close ? 'setTimeout(()=>server.close(),700)' : ''}})}}]}`,
+    `export default {server:{port:0,host:'127.0.0.1'},plugins:[{name:'native-dev-receipt',configureServer(server){server.httpServer.once('listening',()=>{console.log('DEV_TEST_TARGET '+process.env.XPLAT_TARGET);console.log('DEV_TEST_LISTENING http://127.0.0.1:'+server.httpServer.address().port);${close ? 'setTimeout(()=>server.close(),700)' : ''}})}}]}`,
   )
 
   if (installed) {
@@ -118,7 +118,7 @@ test('Go main dev serves actual project Vite and stops its owned listener', asyn
   const f = fixture(),
     child = spawn(binary, ['dev', 'web'], {
       cwd: f.app,
-      env: f.env,
+      env: { ...f.env, XPLAT_TARGET: 'ios' },
       stdio: ['ignore', 'pipe', 'pipe'],
     })
 
@@ -146,6 +146,7 @@ test('Go main dev serves actual project Vite and stops its owned listener', asyn
 
     assert.ok(address, output)
     assert.match(output, /\[web\] session sess_/)
+    assert.match(output, /DEV_TEST_TARGET web/)
 
     const response = await fetch(address)
 

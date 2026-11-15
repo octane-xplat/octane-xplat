@@ -332,16 +332,14 @@ contents are removed during the build.
 }
 ```
 
-The native Vite presets enable this automatically. Browser and DOM webview
-configs add `css('web')` alongside their existing renderer plugins;
-new starters already include it. Keep Vite's default PostCSS transformer.
-Existing PostCSS config plugins still run.
+The toolchain config helper enables this for the command's selected target.
+Native presets also include it. Keep Vite's default PostCSS transformer;
+existing PostCSS config plugins still run.
 
 ```ts
-import { defineConfig } from 'vite'
-import { css } from '@octane-xplat/cli/vite'
+import { defineConfig } from 'octane-xplat/vite'
 
-export default defineConfig({ plugins: [css('web')] })
+export default defineConfig({})
 ```
 
 Available targets are `web`, `ios`, `android`, `visionos`, `macos`,
@@ -498,7 +496,7 @@ export const badgeClass = css({ color: 'warning', borderRadius: 'md' })
 
 Use Bamboo's `_web`, `_mobile`, `_native`, or individual target conditions
 for the same build-time selection. These use the `@platform` compiler above;
-keep `css('web')` in the web Vite config. The portable utility subset
+keep the toolchain's `defineConfig` helper or the platform CSS plugin in custom configs. The portable utility subset
 still applies inside conditions. Bamboo platform conditions currently support
 single renderer builds, not SSR generation.
 

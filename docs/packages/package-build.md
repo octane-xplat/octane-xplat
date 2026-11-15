@@ -13,6 +13,16 @@ compatible Vite 8 release:
 bun add --dev @octane-xplat/build vite@^8.3.0
 ```
 
+New apps using the full `octane-xplat` toolchain receive these plugins automatically through its [config helper](package-toolchain.md#configure-a-web-app). This separate package is for custom configurations that compose their own compiler and platform plugins:
+
+```ts
+import { defineConfig } from 'vite'
+import { css, boundary } from '@octane-xplat/build/vite'
+
+// Add these to the custom compiler's existing plugins.
+export default defineConfig({ plugins: [css(), boundary()] })
+```
+
 For a web app, update the plugin import and matching calls in its existing
 `vite.config.ts` to the shorter names below. Keep the Octane compiler, other
 plugins, options and PostCSS configuration:

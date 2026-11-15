@@ -70,13 +70,12 @@ Vite's development dependency optimizer use the configured extension order,
 so a dependency's `./db` import can select `db.web.ts` before `db.ts`.
 Production builds alone do not exercise this step. The
 [web configuration example](../packages/package-toolchain.md#configure-a-web-app)
-includes the extension order:
+supplies the extension order automatically:
 
 ```ts
-import { boundary } from 'octane-xplat/vite'
+import { defineConfig } from 'octane-xplat/vite'
 
-// Keep this plugin in your existing Vite plugins array:
-const platformResolver = boundary('web')
+export default defineConfig({})
 ```
 
 ## CSS file variants
@@ -91,8 +90,8 @@ unsuffixed chain, matching its module fallback.
 import './card.css'
 ```
 
-Native Vite presets include CSS selection. For a browser or DOM webview,
-add `css('web')` to the app's existing Vite plugins. A browser running
+The toolchain config helper and native Vite presets include CSS selection. Custom
+browser or DOM webview configs add `css('web')` to their existing renderer plugins. A browser running
 on iOS still uses `web`. DOM webviews, including the legacy Linux
 WebKitGTK host, select `.web.css`.
 

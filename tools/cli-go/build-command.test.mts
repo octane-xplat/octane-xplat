@@ -85,7 +85,7 @@ function fakePackage(dir, name, manifest, body) {
   const path = join(dir, 'node_modules', name)
 
   put(dir, 'node_modules/' + name + '/package.json', { name, ...manifest })
-  put(dir, 'node_modules/' + name + '/run.mts', body)
+  put(dir, 'node_modules/' + name + '/run.mjs', body)
   return path
 }
 
@@ -117,7 +117,7 @@ test('build descriptor/help and unavailable selections need no Node or route wri
 
 test('actual project Vite build loads project config/plugins, baked routes and local engine', () => {
   const dir = project({
-    'vite.config.mjs': `import{writeFileSync}from'node:fs';export default{plugins:[{name:'probe',buildStart(){writeFileSync('config-observed.json',JSON.stringify({options:process.env.NODE_OPTIONS,path:process.env.NODE_PATH}))}}]}`,
+    'vite.config.mjs': `import{writeFileSync}from'node:fs';export default{plugins:[{name:'probe',buildStart(){writeFileSync('config-observed.json',JSON.stringify({options:process.env.NODE_OPTIONS,path:process.env.NODE_PATH,target:process.env.XPLAT_TARGET}))}}]}`,
     'index.html': '<script type="module" src="/main.js"></script>',
     'main.js': 'console.log("go-build-actual")',
     'app/index.tsrx': 'export const dataMode="baked";export default ()=>null\n',
@@ -127,6 +127,7 @@ test('actual project Vite build loads project config/plugins, baked routes and l
   const r = run(dir, ['--targets', ' web,web ', '--release'], {
     NODE_OPTIONS: '--no-warnings',
     NODE_PATH: '/not-project',
+    XPLAT_TARGET: 'ios',
   })
 
   status(r, 0)
@@ -136,6 +137,7 @@ test('actual project Vite build loads project config/plugins, baked routes and l
   assert.deepEqual(JSON.parse(readFileSync(join(dir, 'config-observed.json'))), {
     options: '',
     path: '',
+    target: 'web',
   })
 
   assert.equal(
@@ -199,7 +201,7 @@ test('Android store options forward validated argv; passwords arrive only from e
     dir,
     'nativescript',
     { bin: { ns: './run.mjs' } },
-    `import{writeFileSync,mkdirSync}from'node:fs';import{dirname}from'node:path';const a=process.argv.slice(2);const i=a.indexOf('--key-store-password'),j=a.indexOf('--key-store-alias-password');const dest=a[a.indexOf('--copy-to')+1];mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,'aab-bytes');console.log(JSON.stringify({argv:a.map((v,k)=>k===i+1||k===j+1?'***':v),storePw:a[i+1]===process.env.FIXTURE_STORE_PW,keyPw:a[j+1]===process.env.FIXTURE_KEY_PW}));`,
+    `import{writeFileSync,mkdirSync}from'node:fs';import{dirname}from'node:path';const a=process.argv.slice(2);const i=a.indexOf('--key-store-password'),j=a.indexOf('--key-store-alias-password');const dest=a[a.indexOf('--copy-to')+1];mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,'aab-bytes');console.log(JSON.stringify({argv:a.map((v,k)=>k===i+1||k===j+1?'***':v),target:process.env.XPLAT_TARGET,storePw:a[i+1]===process.env.FIXTURE_STORE_PW,keyPw:a[j+1]===process.env.FIXTURE_KEY_PW}));`,
   )
 
   const r = run(
@@ -245,6 +247,7 @@ test('Android store options forward validated argv; passwords arrive only from e
     'dist/app-release.aab',
   ])
 
+  assert.equal(seen.target, 'android')
   assert.equal(seen.storePw, true)
   assert.equal(seen.keyPw, true)
   assert.doesNotMatch(r.stdout + r.stderr, /store-secret-π|key-secret-π/)

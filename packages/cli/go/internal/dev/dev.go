@@ -377,6 +377,9 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 			// plugin surface must never define it into served app code.
 			observation.Environment = append(append([]string{}, execution.Environment...), "XPLAT_DEV_APP_BRIDGE="+bridge, "XPLAT_DEV_BACKEND="+backendGrants[engine.Target.ID])
 		}
+		if retain {
+			observation.Environment = append(append([]string{}, observation.Environment...), "XPLAT_TARGET="+engine.Target.Kind)
+		}
 		runCtx = project.WithExecution(runCtx, observation)
 		runCtx = withDevSinks(runCtx, devSinks{
 			Stream: func(record history.Record) {

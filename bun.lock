@@ -2998,6 +2998,9 @@
         "typescript": "7.1.0-beta",
         "vite": "8.3.6",
       },
+      "devDependencies": {
+        "octane": "catalog:",
+      },
     },
     "packages/tracking-transparency": {
       "name": "@octane-xplat/tracking-transparency",

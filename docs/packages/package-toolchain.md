@@ -18,36 +18,53 @@ Installing the toolchain does not install Xcode, Android SDKs, or desktop hosts.
 
 ## Configure a web app
 
-Import configuration helpers from `octane-xplat/vite`. This entry combines
-Vite's `defineConfig` and `mergeConfig`, Octane's compiler plugin, and the
-[Xplat platform presets](https://octane-xplat.goddardai.org/package-cli#native-vite-preset).
-For example, a web app's `vite.config.ts` can contain:
+Import `defineConfig` from `octane-xplat/vite` in `vite.config.ts`. It adds the Octane compiler, platform CSS, module boundary checks, development bridge, and tweak instrumentation. Keep app-specific settings and additional plugins in this file:
 
 ```ts
-import { defineConfig, octane, css, boundary } from 'octane-xplat/vite'
+import { defineConfig } from 'octane-xplat/vite'
 
 export default defineConfig({
-  plugins: [css('web'), ...octane(), boundary('web')],
-  resolve: {
-    conditions: ['web'],
-    extensions: [
-      '.web.tsrx', '.tsrx', '.web.tsx', '.tsx', '.web.ts',
-      '.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
-    ],
-  },
+  server: { port: 5200 },
 })
 ```
 
-The platform resolver included by `boundary('web')` also applies this
-extension order when Vite prepares dependencies for development. This keeps
-a dependency's browser file ahead of its native sibling. Custom optimizer
-extension lists take precedence; only set one when you need a different order:
+The command selects the build target. Web compilation uses browser files and the web runtime; NativeScript compilation uses the selected OS files and native runtime. The framework supplies matching CSS selection, boundary checks, and dependency resolution. Native starters use the same helper in `vite.config.native.mts`:
 
 ```ts
-// Optional addition to the Vite config above:
-const optimizeDeps = {
-  rolldownOptions: { resolve: { extensions: ['.web.ts', '.ts', '.js'] } },
-}
+import { defineConfig } from 'octane-xplat/vite'
+
+export default defineConfig({})
+```
+
+Direct `vite` invocation defaults to web. Direct `ns run`, `ns build`, and `ns test` use NativeScript's invocation target. You do not need to put platform names in either config:
+
+```sh
+bun run xplat dev web
+bun run xplat build --targets android
+# Direct engine commands also load the framework setup:
+bun run vite build
+bun run ns build android
+```
+
+When migrating an existing config, remove manual `octane()`, `css()`, `boundary()`, `devBridge()`, and `tweaks()` entries, the `native()` wrapper, `nodeEnvDefine()`, and the standard platform conditions and extension list. Keep your own aliases, plugins, server options, and other app settings. Configuration callbacks and promises are supported:
+
+```ts
+import { defineConfig } from 'octane-xplat/vite'
+
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/my-app/' : '/',
+}))
+```
+
+Experimental desktop hosts still use their host-specific presets with Vite's own `defineConfig`. Follow the [macOS](package-build.md) or [Linux](https://octane-xplat.goddardai.org/linux-package) setup for the selected host. Advanced configurations that compose individual framework plugins also use Vite's own helper:
+
+```ts
+import { defineConfig } from 'vite'
+import { boundary, css } from 'octane-xplat/vite'
+
+// Include these alongside the custom compiler configuration.
+const platformPlugins = [css(), boundary()]
+export default defineConfig({ plugins: platformPlugins })
 ```
 
 Run the configured app with these commands. The build creates a `dist/`

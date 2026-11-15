@@ -2,6 +2,7 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"include": [
-		"vite.d.ts"
+		"vite.d.ts",
+		"test/typecheck.ts"
 	]
 }

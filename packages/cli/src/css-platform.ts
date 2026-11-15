@@ -12,6 +12,7 @@ import loadPostcssConfig from 'postcss-load-config'
 import type { Alias, Plugin, UserConfig, ResolverFunction } from 'vite'
 
 import type { CssPlatform } from './css-platform.types.ts'
+import { buildTarget } from './vite-target.ts'
 
 export type { CssPlatform } from './css-platform.types.ts'
 
@@ -166,9 +167,9 @@ export function filterPlatformCss(css: string, platform: CssPlatform, from?: str
  * Select platform CSS siblings and compile build-time `@platform` blocks.
  * CSS suffixes replace the unsuffixed file; they never append to it. Explicit
  * platform filenames stay exact. Native presets include this automatically;
- * web apps add `css('web')` to their Vite plugins.
+ * custom configs can add `css()` to their Vite plugins.
  */
-export function css(platform: CssPlatform = 'web'): Plugin {
+export function css(platform: CssPlatform = buildTarget()): Plugin {
   if (!buildTargets.has(platform)) {
     throw new Error(`Unknown CSS build target: ${platform}`)
   }

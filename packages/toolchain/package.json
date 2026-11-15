@@ -32,6 +32,7 @@
 		"tweaks.d.ts"
 	],
 	"scripts": {
+		"test": "node --test test/*.test.mts",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
 		"test:packed": "node test/packed.mts",
 		"postinstall": "node install-native.mjs",
@@ -48,6 +49,9 @@
 		"@tsrx/oxc": "0.23.0",
 		"typescript": "7.1.0-beta",
 		"vite": "8.3.6"
+	},
+	"devDependencies": {
+		"octane": "catalog:"
 	},
 	"typescript": {
 		"contentMapper": {

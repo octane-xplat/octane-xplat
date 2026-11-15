@@ -21,7 +21,13 @@ extra args without `--` (`pnpm run test:ios --device UDID`). `xplat add`,
 `xplat upgrade`, and `xplat patches` work in both project kinds.
 
 Starters install `octane-xplat` for the shared CLI/compiler toolchain and
-import Vite helpers from `octane-xplat/vite`. Keep direct declarations for
+use the target-aware `defineConfig` from `octane-xplat/vite`. It owns compiler,
+CSS, boundary, tweaks and bridge plugins plus platform resolution. Keep only
+app settings/additional plugins in those configs; do not add the framework
+plugins again or wrap `native()` inside this helper. Commands select the target;
+direct Vite defaults to web and direct NativeScript commands supply their OS.
+Custom compiler and experimental desktop configs use `defineConfig` from `vite`
+with the appropriate explicit preset. Keep direct declarations for
 packages named in app imports, ambient types, or compiler peer contracts;
 do not rely on umbrella dependencies being hoisted. Runtime and target-specific
 packages stay app-owned. See the [toolchain package](../../../../docs/packages/package-toolchain.md).

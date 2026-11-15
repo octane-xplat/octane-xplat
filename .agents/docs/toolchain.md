@@ -125,6 +125,24 @@ snapshot service passes that flag on Windows and qualifies a long-cache-path
 fixture. Do not shorten a failing fixture or change the user's global Git config
 to hide this boundary.
 
+## Command-owned Vite target
+
+`xplat dev` and ordinary Vite/NativeScript builds pass `XPLAT_TARGET` to each
+selected engine process independently. The build target resolver in
+`packages/cli/src/vite-target.ts` reconciles this with NativeScript's bundler
+environment/arguments; contradictory or unknown targets fail. It never infers
+the build target from the host OS. Direct Vite defaults to web; an explicitly
+composed native preset retains the generic native chain when no target exists.
+
+The umbrella's `octane-xplat/vite` `defineConfig` composes web or NativeScript
+framework defaults and merges app options last. It owns compiler, CSS,
+boundary, tweaks and bridge setup, environment defines and platform resolution.
+Do not combine it with manual framework plugins or a `native()` wrapper.
+Low-level custom compiler and experimental desktop presets use Vite's own
+`defineConfig`; `css()` and `boundary()` default to the invocation target.
+Keep separate starter web/native config filenames for discovery and native-only
+projects; neither file chooses the platform or repeats framework defaults.
+
 ## Native renderer ownership
 
 `packages/nativescript-octane` owns the NativeScript renderer source and
