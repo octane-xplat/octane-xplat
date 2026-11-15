@@ -7,6 +7,7 @@ import {
   isAttachedNativeExpected,
   releaseNativeView,
 } from '@octane-xplat/nativescript-mason-core/adoption'
+import { native_ } from '@octane-xplat/nativescript-mason-core/symbols'
 import {
   ArtifactError,
   createNativeClaims,
@@ -136,7 +137,8 @@ export function releaseMasonOwners(host, wrappers) {
 
 /** Release Core parent links left outside Mason's collection by a failed insertion. */
 export function releaseMasonTree(host, wrappers) {
-  const owned = new Set([host, ...wrappers])
+  const owned = [host, ...wrappers]
+  const ownedSet = new Set(owned)
 
   for (const view of owned) {
     if (view instanceof View) {
@@ -151,13 +153,32 @@ export function releaseMasonTree(host, wrappers) {
 
     if (parent) {
       requireBinding(
-        owned.has(parent) && parent instanceof View,
+        ownedSet.has(parent) && parent instanceof View,
         'failed claim escaped its owner scope',
       )
 
       // A failed native insert clears its own parent link (Mason container
       // fix), so a remaining parent implies ordinary collection membership.
       parent.removeChild(view)
+    }
+
+    // That same rollback can leave the wrapper's bound native attached to an
+    // owned native parent with no Core parent edge left. The caller owns the
+    // pre-attached natives, so release detaches them explicitly. Ancestors are
+    // processed after descendants, so their bound native is still present.
+    const native = view.nativeViewProtected
+    const nativeParent = native ? native.superview ?? native.getParent?.() : null
+    if (native && nativeParent) {
+      // Match the bound native slot too: a host torn down by the caller has
+      // already cleared nativeViewProtected, while native_ survives until
+      // releaseNativeView.
+      const owner = owned.find(
+        (candidate) =>
+          candidate !== view &&
+          (candidate.nativeViewProtected ?? candidate[native_]) === nativeParent,
+      )
+      requireBinding(owner, 'failed native attachment escaped its owner scope')
+      owner._removeViewFromNativeVisualTree(view)
     }
 
     if (view.isLoaded) {
