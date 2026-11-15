@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/tokens.css'
 import './wrappers.css'
 import { useEffect, useState } from 'octane'
 import { View, VStack } from '@octane-xplat/ui'
-import { SmoothCorners } from '@octane-xplat/smooth-corners'
+import { SmoothCorners, type SmoothCornersProps } from '@octane-xplat/smooth-corners'
 import { ViewShot } from '@octane-xplat/view-shot'
 import type { ProbeContext } from '../../probe/context'
 
@@ -33,7 +33,10 @@ export default function Example(props: { kind: Kind }) {
   }, [])
 
   const className = ['layout-wrapper', mode !== 'block' && `layout-wrapper-${mode}`]
-  const style = mode === 'style' ? { display: 'flex', flexDirection: 'row' } : undefined
+  const style =
+    mode === 'style'
+      ? ({ display: 'flex', flexDirection: 'row' } satisfies SmoothCornersProps['style'])
+      : undefined
 
   return (
     <VStack width={320} height={240}>
