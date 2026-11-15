@@ -27,7 +27,7 @@
 
 set -euo pipefail
 
-SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SOURCE="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
 REPO="$(cd "$SOURCE/../../.." && pwd)"
 PKG="@xplat/platform-qualification"
 
