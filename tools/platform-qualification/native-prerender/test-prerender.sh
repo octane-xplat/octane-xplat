@@ -24,6 +24,14 @@
 #           Shut down the simulator/emulator after the run. By default
 #           the device is left running so a rerun skips the boot.
 #
+#   clean   Prune accumulated run-* directories: keeps the newest build
+#           per control (so --run still resolves), the newest producer
+#           output, and the newest --keep-reports report directories per
+#           suite. Also runs automatically after each control. Extra
+#           flags pass through to prune-runs.mjs:
+#             test-prerender.sh clean --dry-run --keep-reports 10
+#           Set XPLAT_PRERENDER_NO_PRUNE=1 to disable automatic pruning.
+#
 # Paths resolve automatically from this repository; override with the
 # environment variables below when a prerelease lives elsewhere.
 #
@@ -42,6 +50,11 @@ set -euo pipefail
 SOURCE="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
 REPO="$(cd "$SOURCE/../../.." && pwd)"
 PKG="@xplat/platform-qualification"
+
+if [ "${1:-}" = "clean" ]; then
+  shift
+  exec node "$SOURCE/prune-runs.mjs" "$@"
+fi
 
 run_only=0
 keep_device=1
@@ -365,3 +378,7 @@ case "$platform:$control" in
     ;;
   *) usage ;;
 esac
+
+if [ "${XPLAT_PRERENDER_NO_PRUNE:-0}" != "1" ]; then
+  node "$SOURCE/prune-runs.mjs" || echo "warning: run pruning failed" >&2
+fi

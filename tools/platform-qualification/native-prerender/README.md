@@ -254,6 +254,8 @@ iOS controls: `home`, `keyed`, `seed-mismatch`, `attach-failure`, `all`. Android
 
 Append `--run` to skip produce/build and reuse the newest matching scratch build: `test-prerender.sh ios app ~/my-screen --run`. The run scripts verify the recorded source hashes — including the supplied screen files — before launching, so an edited source makes a reused build fail with `Source changed; rebuild` rather than silently testing the old bytes. A stale or missing match still requires a full build.
 
+Scratch builds and report directories accumulate under `~/agent-scratch/octane-xplat/` and `~/dev/reports/octane-xplat/`; each build is roughly 900M on iOS and 140M on Android. After every run the wrapper prunes them automatically: it keeps the newest build per control (so `--run` still resolves), the newest producer output, and the newest five report directories per suite, and deletes abandoned build directories older than an hour. `test-prerender.sh clean` runs the same pruning on demand (`--dry-run` previews removals; `--keep-builds`/`--keep-reports` adjust retention); `XPLAT_PRERENDER_NO_PRUNE=1` disables the automatic pass.
+
 ### Custom screen control
 
 `<platform> app <dir>` runs the generic adoption path against a caller-supplied screen instead of a fixture. `<dir>` holds a `startup.config.json` plus the sources it names; copy `custom-template/` and edit it.
