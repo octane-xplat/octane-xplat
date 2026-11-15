@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs-style module; annotations pending (transitional)
 import { createRequire } from 'node:module'
-import { existsSync, realpathSync } from 'node:fs'
+import { chmodSync, existsSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { boundary, nodeEnvDefine, css } from '../vite.ts'
@@ -137,6 +137,61 @@ export function gtkLeafResolve() {
   }
 }
 
+const masonArches = ['x86_64', 'aarch64']
+const masonFiles = ['libxplatmason-gtk.so', 'XplatMason-1.0.typelib']
+
+/** Emits the installed renderer package's prebuilt Mason binding into the
+ *  bundle — both architectures at xplatmason/<arch>/, where the renderer's
+ *  bundled-typelib lookup expects them beside app.js. A missing package or
+ *  prebuilt file fails the build rather than shipping a bundle that can
+ *  only throw at startup. */
+function gtkPrebuiltMason(appRequire) {
+  return {
+    name: 'xplat-gtk-prebuilt-mason',
+    buildStart() {
+      let prebuilt
+
+      try {
+        prebuilt = join(
+          dirname(realpathSync(appRequire.resolve(`${renderer}/package.json`))),
+          'platforms/linux/prebuilt',
+        )
+      } catch (error) {
+        throw new Error(
+          `xplat-gtk-prebuilt-mason: could not resolve ${renderer} from this app — ` +
+            `it must be installed as a dependency (${error.message})`,
+        )
+      }
+
+      for (const arch of masonArches) {
+        for (const name of masonFiles) {
+          const source = join(prebuilt, arch, name)
+
+          if (!existsSync(source)) {
+            throw new Error(
+              `xplat-gtk-prebuilt-mason: ${renderer} has no prebuilt file ${source} — ` +
+                `reinstall the package or build native/xplatmason via build-prebuilt.sh`,
+            )
+          }
+
+          this.emitFile({
+            type: 'asset',
+            fileName: `xplatmason/${arch}/${name}`,
+            source: readFileSync(source),
+          })
+        }
+      }
+    },
+    writeBundle(options) {
+      // Vite writes assets mode 0644; the shared library keeps 0755 so the
+      // emitted bundle preserves the shipped permissions.
+      for (const arch of masonArches) {
+        chmodSync(join(options.dir ?? 'dist', 'xplatmason', arch, 'libxplatmason-gtk.so'), 0o755)
+      }
+    },
+  }
+}
+
 export async function linuxGtk(env, options = {}) {
   const mode = typeof env === 'string' ? env : env.mode
   const root = resolve(options.root ?? process.cwd())
@@ -157,6 +212,7 @@ export async function linuxGtk(env, options = {}) {
     plugins: [
       gtkLeafResolve(),
       gtkSlotDedupe(),
+      gtkPrebuiltMason(appRequire),
       css('gtk'),
       inlineStylesheets(),
       boundary('gtk'),

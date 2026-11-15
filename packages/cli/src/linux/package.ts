@@ -153,7 +153,7 @@ exec gjs -m "$APP_DIR/${bundle}" "$@"
 
   writeFileSync(
     join(appDir, 'README.txt'),
-    `${config.productName} ${config.version}\nRun ./${config.executableName} from any directory; it executes the bundled app with gjs -m, or ./install.sh to copy into XDG_DATA_HOME and install the desktop entry.\nRequires Python 3 for installation; GJS and GTK4 introspection data plus a graphical session for execution.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 python3 desktop-file-utils\n./uninstall.sh removes the installed application directory and desktop entry; settings under XDG_CONFIG_HOME are kept.\n`,
+    `${config.productName} ${config.version}\nRun ./${config.executableName} from any directory; it executes the bundled app with gjs -m, or ./install.sh to copy into XDG_DATA_HOME and install the desktop entry.\nRequires Python 3 for installation; GJS and GTK4 introspection data plus a graphical session for execution.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 libjson-glib-1.0-0 python3 desktop-file-utils\n./uninstall.sh removes the installed application directory and desktop entry; settings under XDG_CONFIG_HOME are kept.\n`,
   )
 }
 
