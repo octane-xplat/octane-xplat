@@ -53,6 +53,7 @@ Workflows:
 - [Add UI sound effects](ui-sounds.md)
 - [Add long-form audio playback](audio-playback.md)
 - [Keep an illustration when Canvas drawing is unavailable](canvas-fallback.md)
+- [Draw a browser shader with vgpu](vgpu.md)
 
 - [Select an image crop inline](inline-image-crop.md)
 - [Produce a transformed image file](image-manipulation.md)

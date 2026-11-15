@@ -46,6 +46,7 @@ export const GROUPS = [
       'keyboard-shortcuts-api',
       'software-keyboard',
       'movie-capture',
+      'vgpu',
       'virtual-list',
       'rich-text',
       'updates',

@@ -10,6 +10,10 @@ WebGPU/WGSL context kinds behind one `getContext` contract.
 bun add @octane-xplat/canvas
 ```
 
+For a browser shader, follow [Draw a GPU gradient with vgpu](../app/vgpu.md).
+It uses this package directly and covers failure handling, cleanup, and the
+current phone and desktop boundaries.
+
 ```tsx
 import { Canvas } from '@octane-xplat/canvas'
 
