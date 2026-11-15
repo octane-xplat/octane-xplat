@@ -425,198 +425,200 @@ export function WorkItemDetailTemplate() @{
         </LayoutHeader>
       }
       content={
-        <LayoutContent padding={6} role="main">
-          <VStack gap={6}>
-            {/* Description */}
-            <Section padding={SECTION_PADDING}>
-              <VStack gap={4}>
-                <SectionHeader title="Description" />
-                <Text type="body">
-                  Redesign the first-run onboarding sequence so new workspaces see a personalized
-                  starting state instead of an empty dashboard. The experiment targets activation: a
-                  workspace is activated when a member completes three setup actions in the first
-                  seven days.
-                </Text>
-                <VStack gap={2}>
-                  <Heading level={4}>Success criteria</Heading>
-                  <List listStyle="disc" density="compact">
-                    <ListItem label="Day-seven activation rises from 42 to 55 percent for new workspaces in the variant." />
-                    <ListItem label="Median time to first completed action drops below eight minutes." />
-                    <ListItem label="No regression in day-thirty retention." />
+        @{
+          <LayoutContent padding={6} role="main">
+            <VStack gap={6}>
+              {/* Description */}
+              <Section padding={SECTION_PADDING}>
+                <VStack gap={4}>
+                  <SectionHeader title="Description" />
+                  <Text type="body">
+                    Redesign the first-run onboarding sequence so new workspaces see a personalized
+                    starting state instead of an empty dashboard. The experiment targets activation:
+                    a workspace is activated when a member completes three setup actions in the
+                    first seven days.
+                  </Text>
+                  <VStack gap={2}>
+                    <Heading level={4}>Success criteria</Heading>
+                    <List listStyle="disc" density="compact">
+                      <ListItem label="Day-seven activation rises from 42 to 55 percent for new workspaces in the variant." />
+                      <ListItem label="Median time to first completed action drops below eight minutes." />
+                      <ListItem label="No regression in day-thirty retention." />
+                    </List>
+                  </VStack>
+                </VStack>
+              </Section>
+              <Divider />
+
+              {/* Subtasks */}
+              <Section padding={SECTION_PADDING}>
+                <VStack gap={4}>
+                  <SectionHeader
+                    title="Subtasks"
+                    action={<Button label="Add subtask" onPress={() => {}} />}
+                  />
+                  <HStack gap={3} vAlign="center">
+                    <Text type="supporting" color="secondary">
+                      {doneCount} of {subtasks.length} complete
+                    </Text>
+                    <StackItem size="fill">
+                      <ProgressBar
+                        label="Subtask progress"
+                        isLabelHidden
+                        value={subtasks.length ? (doneCount / subtasks.length) * 100 : 0}
+                        variant="success"
+                      />
+                    </StackItem>
+                  </HStack>
+                  <List>
+                    {subtasks.map((task) => (
+                      <CheckboxListItem
+                        key={task.id}
+                        label={task.title}
+                        isChecked={task.isDone}
+                        onCheck={(isDone) => setSubtaskDone(task.id, isDone)}
+                        endContent={
+                          <HStack gap={2} vAlign="center">
+                            <Timestamp
+                              value={Date.parse(task.due)}
+                              valueUnit="unix-milliseconds"
+                              format="date"
+                              type="supporting"
+                              color="secondary"
+                            />
+                            <Avatar name={task.assignee} size="sm" />
+                          </HStack>
+                        }
+                      />
+                    ))}
                   </List>
                 </VStack>
-              </VStack>
-            </Section>
-            <Divider />
+              </Section>
+              <Divider />
 
-            {/* Subtasks */}
-            <Section padding={SECTION_PADDING}>
-              <VStack gap={4}>
-                <SectionHeader
-                  title="Subtasks"
-                  action={<Button label="Add subtask" onPress={() => {}} />}
-                />
-                <HStack gap={3} vAlign="center">
-                  <Text type="supporting" color="secondary">
-                    {doneCount} of {subtasks.length} complete
-                  </Text>
-                  <StackItem size="fill">
-                    <ProgressBar
-                      label="Subtask progress"
-                      isLabelHidden
-                      value={subtasks.length ? (doneCount / subtasks.length) * 100 : 0}
-                      variant="success"
-                    />
-                  </StackItem>
-                </HStack>
-                <List>
-                  {subtasks.map((task) => (
-                    <CheckboxListItem
-                      key={task.id}
-                      label={task.title}
-                      isChecked={task.isDone}
-                      onCheck={(isDone) => setSubtaskDone(task.id, isDone)}
-                      endContent={
-                        <HStack gap={2} vAlign="center">
-                          <Timestamp
-                            value={Date.parse(task.due)}
-                            valueUnit="unix-milliseconds"
-                            format="date"
-                            type="supporting"
-                            color="secondary"
-                          />
-                          <Avatar name={task.assignee} size="sm" />
-                        </HStack>
-                      }
-                    />
-                  ))}
-                </List>
-              </VStack>
-            </Section>
-            <Divider />
-
-            {/* Attachments */}
-            <Section padding={SECTION_PADDING}>
-              <VStack gap={4}>
-                <SectionHeader
-                  title="Attachments"
-                  action={<Button label="Add attachment" onPress={() => {}} />}
-                />
-                <VStack gap={1}>
-                  {ATTACHMENTS.map((attachment) => (
-                    <Card key={attachment.id} padding={3}>
-                      <HStack gap={4} vAlign="center">
-                        <div
-                          style={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 'var(--radius-element)',
-                            backgroundColor: 'var(--color-background-muted)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <Icon
-                            name={ATTACHMENT_ICONS[attachment.kind]}
-                            size={20}
-                            color="secondary"
-                          />
-                        </div>
-                        <StackItem size="fill">
-                          <VStack gap={0}>
-                            <Link href={attachment.href}>
-                              <Text type="body" weight="semibold">
-                                {attachment.title}
-                              </Text>
-                            </Link>
-                            <Text type="supporting" color="secondary">
-                              {attachment.subtitle}
-                            </Text>
-                          </VStack>
-                        </StackItem>
-                      </HStack>
-                    </Card>
-                  ))}
-                </VStack>
-              </VStack>
-            </Section>
-            <Divider />
-
-            {/* Activity */}
-            <Section padding={SECTION_PADDING}>
-              <VStack gap={10}>
-                <SectionHeader
-                  title="Comments and activity"
-                  action={<Button label="Add comment" onPress={() => {}} />}
-                />
-                <VStack gap={6}>
-                  {ACTIVITY.map((entry) => {
-                    const isComment = entry.kind === 'comment'
-
-                    return (
-                      <HStack key={entry.id} gap={3} vAlign="start">
-                        <Avatar name={entry.author} size="sm" />
-                        <StackItem size="fill">
-                          <VStack gap={1}>
-                            <HStack gap={2} vAlign="center">
-                              <Text type="body" weight="semibold">
-                                {entry.author}
-                              </Text>
-                              @if (!isComment) {
-                                <Text type="supporting" color="secondary">
-                                  {entry.body}
-                                </Text>
-                              }
-                              <StackItem size="fill" />
-                              <Timestamp
-                                value={Date.parse(entry.time)}
-                                valueUnit="unix-milliseconds"
-                                format="relative"
-                                type="supporting"
-                                color="secondary"
-                              />
-                            </HStack>
-                            @if (isComment) {
-                              <>
-                                <Card variant="muted" padding={3}>
-                                  <Text type="body">{entry.body}</Text>
-                                </Card>
-                                <Link href="#" color="secondary">
-                                  Reply
-                                </Link>
-                              </>
-                            }
-                          </VStack>
-                        </StackItem>
-                      </HStack>
-                    )
-                  })}
-                </VStack>
-                <VStack gap={2} hAlign="stretch">
-                  <TextArea
-                    width="100%"
-                    label="Add a comment"
-                    isLabelHidden
-                    placeholder="Write a comment…"
-                    value={comment}
-                    onChange={(v) => setComment(v ?? '')}
-                    rows={5}
+              {/* Attachments */}
+              <Section padding={SECTION_PADDING}>
+                <VStack gap={4}>
+                  <SectionHeader
+                    title="Attachments"
+                    action={<Button label="Add attachment" onPress={() => {}} />}
                   />
-                  <HStack gap={2} hAlign="end">
-                    <Button label="Cancel" variant="ghost" onPress={() => setComment('')} />
-                    <Button
-                      label="Comment"
-                      variant="primary"
-                      isDisabled={comment.trim().length === 0}
-                      onPress={() => setComment('')}
-                    />
-                  </HStack>
+                  <VStack gap={1}>
+                    {ATTACHMENTS.map((attachment) => (
+                      <Card key={attachment.id} padding={3}>
+                        <HStack gap={4} vAlign="center">
+                          <div
+                            style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: 'var(--radius-element)',
+                              backgroundColor: 'var(--color-background-muted)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Icon
+                              name={ATTACHMENT_ICONS[attachment.kind]}
+                              size={20}
+                              color="secondary"
+                            />
+                          </div>
+                          <StackItem size="fill">
+                            <VStack gap={0}>
+                              <Link href={attachment.href}>
+                                <Text type="body" weight="semibold">
+                                  {attachment.title}
+                                </Text>
+                              </Link>
+                              <Text type="supporting" color="secondary">
+                                {attachment.subtitle}
+                              </Text>
+                            </VStack>
+                          </StackItem>
+                        </HStack>
+                      </Card>
+                    ))}
+                  </VStack>
                 </VStack>
-              </VStack>
-            </Section>
-          </VStack>
-        </LayoutContent>
+              </Section>
+              <Divider />
+
+              {/* Activity */}
+              <Section padding={SECTION_PADDING}>
+                <VStack gap={10}>
+                  <SectionHeader
+                    title="Comments and activity"
+                    action={<Button label="Add comment" onPress={() => {}} />}
+                  />
+                  <VStack gap={6}>
+                    {ACTIVITY.map((entry) => {
+                      const isComment = entry.kind === 'comment'
+
+                      return (
+                        <HStack key={entry.id} gap={3} vAlign="start">
+                          <Avatar name={entry.author} size="sm" />
+                          <StackItem size="fill">
+                            <VStack gap={1}>
+                              <HStack gap={2} vAlign="center">
+                                <Text type="body" weight="semibold">
+                                  {entry.author}
+                                </Text>
+                                @if (!isComment) {
+                                  <Text type="supporting" color="secondary">
+                                    {entry.body}
+                                  </Text>
+                                }
+                                <StackItem size="fill" />
+                                <Timestamp
+                                  value={Date.parse(entry.time)}
+                                  valueUnit="unix-milliseconds"
+                                  format="relative"
+                                  type="supporting"
+                                  color="secondary"
+                                />
+                              </HStack>
+                              @if (isComment) {
+                                <>
+                                  <Card variant="muted" padding={3}>
+                                    <Text type="body">{entry.body}</Text>
+                                  </Card>
+                                  <Link href="#" color="secondary">
+                                    Reply
+                                  </Link>
+                                </>
+                              }
+                            </VStack>
+                          </StackItem>
+                        </HStack>
+                      )
+                    })}
+                  </VStack>
+                  <VStack gap={2} hAlign="stretch">
+                    <TextArea
+                      width="100%"
+                      label="Add a comment"
+                      isLabelHidden
+                      placeholder="Write a comment…"
+                      value={comment}
+                      onChange={(v) => setComment(v ?? '')}
+                      rows={5}
+                    />
+                    <HStack gap={2} hAlign="end">
+                      <Button label="Cancel" variant="ghost" onPress={() => setComment('')} />
+                      <Button
+                        label="Comment"
+                        variant="primary"
+                        isDisabled={comment.trim().length === 0}
+                        onPress={() => setComment('')}
+                      />
+                    </HStack>
+                  </VStack>
+                </VStack>
+              </Section>
+            </VStack>
+          </LayoutContent>
+          }
       }
       end={
         !isNarrow && isDetailsOpen ? (

@@ -230,6 +230,17 @@ both export forms and the genuine-error case. Remove this hunk when upstream's
 bundled parser clears the context. This is declaration/compiler evidence;
 it does not establish renderer behavior.
 
+With Octane 0.17.0 and `@tsrx/content-mapper` 0.1.2, the Astryx sandbox's
+`payment-form.tsrx` and `work-item-detail.tsrx` passed the OXC TSRX parser but
+failed the type-only transform at the end of their large `Layout.content`
+expressions. Wrapping those prop values in an explicit `content={@{ ... }}`
+template lets the mapper check their existing `@if` branches. The examples'
+scoped typecheck and production build are the regression checks. This is a
+bounded workaround for those expression shapes, not a general prohibition on
+JSX-valued props; the precise upstream parser defect remains unisolated.
+Recheck this workaround when upgrading Octane's bundled type-only parser or
+the content mapper. See issue [#284](https://github.com/octane-xplat/octane-xplat/issues/284).
+
 `@octanejs/tiptap` 0.0.63 peers Tiptap `^3.28.0` and
 `@octanejs/lexical` 0.2.13 still pins Lexical 0.51.0. Overrides align their
 complete engine families with our direct imports at 3.32.2 and 0.53.0,
