@@ -40,11 +40,15 @@
 		"@octane-xplat/tiptap": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
+		"@nativescript/canvas": "3.0.9",
+		"@pixi/3d": "0.1.0",
 		"@tiptap/core": "3.32.2",
 		"@tiptap/pm": "3.32.2",
 		"@tiptap/starter-kit": "3.32.2",
 		"@tiptap/static-renderer": "3.32.2",
 		"lexical": "0.53.0",
+		"pixi.js": "8.23.0",
+		"playcanvas": "2.24.1",
 		"zeed-dom": "0.18.0"
 	},
 	"devDependencies": {

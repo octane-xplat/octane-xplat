@@ -6,12 +6,18 @@ import { Screen, ScrollableArea, View, Pressable, Text } from '@octane-xplat/ui'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { GoalCounter } from '@xplat/demos/GoalCounter.tsrx'
 import { PackingList } from '@xplat/demos/PackingList.tsrx'
+import { EngineDemo } from '@xplat/demos/EngineDemo.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import '@octane-xplat/ui/theme/utilities.css'
 
+// Build-time demo preselect for scripted verification runs
+// (XPLAT_DEMO_AUTO=engine lands the app inside the engine demo instead of
+// the picker); always defined by the app's vite config, '' by default.
+declare const __DEMO_AUTO__: string
+
 function DocsDemos() @{
-  const [demo, setDemo] = useState('')
+  const [demo, setDemo] = useState(__DEMO_AUTO__)
 
   <Screen className="vx-app flex-1">
     <ScrollableArea className="flex-1">
@@ -25,6 +31,9 @@ function DocsDemos() @{
         @if (demo === 'packing') {
           <PackingList />
         }
+        @if (demo === 'engine') {
+          <EngineDemo />
+        }
         @if (demo === '') {
           <View className="flex flex-col gap-4">
             <Text className="text-xl font-semibold">Docs demos · native runtime</Text>
@@ -33,6 +42,13 @@ function DocsDemos() @{
             </Pressable>
             <Pressable className="btn bg-primary" onPress={() => setDemo('packing')}>
               <Text className="text-onprimary">Packing list</Text>
+            </Pressable>
+            <Pressable
+              id="docs-demos-engine"
+              className="btn bg-primary"
+              onPress={() => setDemo('engine')}
+            >
+              <Text className="text-onprimary">3D engines</Text>
             </Pressable>
           </View>
         }

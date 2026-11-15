@@ -888,3 +888,16 @@ plugin's `nativescript.config.ts` adds local SwiftPM packages under
 `node_modules/@nativescript/canvas/platforms/ios/`, whose binary target
 downloads the GitHub release zip at build time. iOS builds therefore need
 network access to GitHub on a cold SwiftPM cache.
+
+## @nativescript/canvas 3.0.9: async createImageBitmap does not settle on iOS
+
+`ImageBitmap.createFrom(encodedBytes)` routes through the plugin's async
+createImageBitmap worker path, which never completed in the engine demo
+(5 decodes issued, 0 settled in 40 s on the iOS simulator). The synchronous
+`ImageAsset.loadFromEncodedBytesSync` decodes PNG/JPEG on the JS thread and
+`ImageBitmap.createFrom(asset)` then converts asset to bitmap reliably.
+Runtime evidence, 2026-11-14: `packages/demos/src/engine/image.mobile.ts`
+in the EngineDemo uses the sync path; both engines' glb textures decoded on
+iOS and Android. Status: worked around inside the demo; not reported
+upstream yet.
+
