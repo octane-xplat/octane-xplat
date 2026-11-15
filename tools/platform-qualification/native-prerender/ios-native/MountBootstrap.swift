@@ -52,13 +52,15 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
         outer.frame = window.bounds
         outer.layoutIfNeeded()
-        // A bounded test canvas, not a claim about the device's full window.
-        let canvas = CGRect(x: 0, y: 0, width: 320, height: 640)
+        // The fixture build fixes this to a bounded 320x640 canvas; the
+        // custom-screen build substitutes window.bounds so the mount
+        // fills the device for visual transition evaluation.
+        let canvas: CGRect = __XPLAT_PRERENDER_CANVAS__
         viewport = NSCMason.shared.createView()
         viewport.style.display = .Flex
         viewport.style.flexDirection = .Column
         let scale = window.screen.scale
-        viewport.style.setSizePoints(Float(320 * scale), Float(640 * scale))
+        viewport.style.setSizePoints(Float(canvas.width * scale), Float(canvas.height * scale))
         viewport.frame = canvas
         outer.addSubview(viewport)
         let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
@@ -71,7 +73,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
             let decoded = try XplatMasonArtifact.decode(Data(contentsOf: url), expectedBuildHash: mountBuildHash)
             guard try decoded.snapshot.supports(
                 fontScale: UIApplication.shared.preferredContentSizeCategory == .large ? 1 : 0,
-                width: 320, height: 640,
+                width: Double(canvas.width), height: Double(canvas.height),
                 reducedMotion: UIAccessibility.isReduceMotionEnabled
             ) else { throw XplatMasonArtifact.Invalid(reason: "launch constraints differ") }
             artifact = decoded.value
@@ -89,8 +91,8 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         let mounted = XplatMasonMount(artifact, theme: theme, scale: scale)
         mount = mounted
         viewport.addView(mounted.root)
-        viewport.computeWithSize(Float(320 * scale), Float(640 * scale))
-        viewport.markRootComputeApplied(Float(320 * scale), Float(640 * scale))
+        viewport.computeWithSize(Float(canvas.width * scale), Float(canvas.height * scale))
+        viewport.markRootComputeApplied(Float(canvas.width * scale), Float(canvas.height * scale))
         viewport.frame = canvas
         viewport.layoutIfNeeded()
         guard let mountedRoot = mounted.root as? MasonUIView else {
@@ -124,15 +126,28 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         completionTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [self] timer in
             attempts += 1
             let proofs = (try? JSONSerialization.jsonObject(with: Data(contentsOf: documents("artifact-proofs.json")))) as? [[String: Any]]
-            let completed = proofs?.last?["phase"] as? String == "disposed"
+            let lastPhase = proofs?.last?["phase"] as? String
+            let completed = lastPhase == "disposed" || lastPhase == "presented"
             let failed = proofs?.contains(where: { $0["phase"] as? String == "failed" }) == true ||
                 FileManager.default.fileExists(atPath: documents("entry-error.txt").path)
             guard completed || failed else { precondition(attempts < 3000, "Shared mount adoption did not complete"); return }
             timer.invalidate(); completionTimer = nil
             guard let mount else { preconditionFailure("Mount control lost its mount") }
             let adopt = proofs?.contains(where: { $0["phase"] as? String == "hydrated" }) == true
-            let detached = mount.views.allSatisfy { adopt ? $0.superview == nil : $0.window == nil }
             let nodes = NSCMason.shared.nodeForView(viewport).getChildren().count
+            if lastPhase == "presented" {
+                // Custom screens keep the hydrated tree on screen for visual
+                // transition evaluation; the runner leaves the app running.
+                let retained = mount.views.allSatisfy { $0.window != nil } && !viewport.subviews.isEmpty
+                record("mount-held", ["nativeChildren": viewport.subviews.count, "masonChildren": nodes, "nativeViewsDetached": !retained])
+                if failed || !retained {
+                    record("failed", ["reason": failed ? "fixture failure" : "presented viewport lost its native subtree", "adopt": adopt])
+                    return
+                }
+                record("passed", ["visualNodes": mount.views.count, "adoptionQualified": true, "presentationQualified": false, "presentationHeld": true])
+                return
+            }
+            let detached = mount.views.allSatisfy { adopt ? $0.superview == nil : $0.window == nil }
             let cleared = viewport.subviews.isEmpty && detached && nodes == 0
             record("mount-disposed", ["nativeChildren": viewport.subviews.count, "masonChildren": nodes, "nativeViewsDetached": detached])
             if failed || !cleared {

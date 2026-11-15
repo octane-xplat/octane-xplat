@@ -4,10 +4,7 @@ import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
 import { projectVisualTree } from '@octane-xplat/native-prerender'
-import {
-  bindIOSMasonTree,
-  releaseIOSMasonTree,
-} from '@octane-xplat/native-prerender/ios/mason-binding'
+import { bindIOSMasonTree } from '@octane-xplat/native-prerender/ios/mason-binding'
 import { writeProbeDiagnostic } from './write-native-diagnostic.ios.js'
 import { StartupComponent } from 'xplat-prerender:component'
 import startup from 'xplat-prerender:startup'
@@ -96,12 +93,6 @@ function rowsEquivalent(before, after) {
   return differences
 }
 
-function ownersReleased(owners) {
-  return [...owners].every(
-    (view) => !view.parent && !view._context && !view.nativeViewProtected && !view.isLoaded,
-  )
-}
-
 async function qualify() {
   const scheme = Application.systemAppearance?.() === 'dark' ? 'dark' : 'light'
 
@@ -131,8 +122,8 @@ async function qualify() {
   const binding = bindIOSMasonTree(startup.nodes, viewport, natives)
   const { host, wrappers, claims } = binding
 
-  host.width = 320
-  host.height = 640
+  host.width = viewport.bounds.size.width
+  host.height = viewport.bounds.size.height
   host.style.display = 'flex'
   host.style.flexDirection = 'column'
   host.className = className
@@ -209,32 +200,12 @@ async function qualify() {
     logicalNodes: startup.nodes.length,
   })
 
-  await Promise.resolve(root.unmount())
-  if (host.isLoaded) {
-    host.callUnloaded()
-  }
-
-  if (host._context) {
-    host._tearDownUI(true)
-  }
-
-  releaseIOSMasonTree(host, [...wrappers])
-  binding.retire()
-
-  check(
-    host.getChildrenCount() === 0 &&
-      ownersReleased(wrappers) &&
-      viewport.subviews.count === 0,
-    'Disposal retained owners or natives',
-  )
-
+  // The hydrated tree stays on screen so the cold-to-live transition can be
+  // evaluated visually; the runner leaves the app and device running.
   proof({
-    phase: 'disposed',
-    ownersReleased: wrappers.length,
+    phase: 'presented',
+    visualNodes: natives.length,
     viewportSubviews: viewport.subviews.count,
-    nativeHandlesCleared: true,
-    contextsCleared: true,
-    logicalParentsCleared: true,
     claimPhase: claims.phase,
   })
 }

@@ -250,7 +250,7 @@ tools/platform-qualification/native-prerender/test-prerender.sh ios all
 tools/platform-qualification/native-prerender/test-prerender.sh android all
 ```
 
-iOS controls: `home`, `keyed`, `seed-mismatch`, `attach-failure`, `all`. Android controls: `home`, `fallback-seed`, `fallback-attach`, `keyed`, `all`. The runner boots the pinned simulator or the `elegant-fir-probe` emulator as needed and leaves it running so a rerun skips the boot; pass `--shutdown` to power it off afterward. A keyed/custom Android run reuses an already-running `emulator-5566` once its AVD name checks out, and still refuses a different emulator. Reports land under `~/dev/reports/octane-xplat/` beside the manually invoked controls.
+iOS controls: `home`, `keyed`, `seed-mismatch`, `attach-failure`, `all`. Android controls: `home`, `fallback-seed`, `fallback-attach`, `keyed`, `all`. The runner boots the pinned simulator or the `elegant-fir-probe` emulator as needed and leaves both it and the fixture app running so a rerun skips the boot and the presented screen stays visible; pass `--shutdown` to restore terminate-and-power-off cleanup. A keyed/custom Android run reuses an already-running `emulator-5566` once its AVD name checks out, and still refuses a different emulator. Reports land under `~/dev/reports/octane-xplat/` beside the manually invoked controls.
 
 Append `--run` to skip produce/build and reuse the newest matching scratch build: `test-prerender.sh ios app ~/my-screen --run`. The run scripts verify the recorded source hashes — including the supplied screen files — before launching, so an edited source makes a reused build fail with `Source changed; rebuild` rather than silently testing the old bytes. A stale or missing match still requires a full build.
 
@@ -264,9 +264,9 @@ tools/platform-qualification/native-prerender/test-prerender.sh ios app ~/my-scr
 tools/platform-qualification/native-prerender/test-prerender.sh android app ~/my-screen
 ```
 
-`startup.config.json` selects the entry module and export, the seed passed to `StartupComponent` at runtime, and bounded environment values (the test canvas is a fixed 320×640 logical canvas, not the device window). `Screen.tsrx` is the component; `screen.css` is its stylesheet. The producer emits the startup artifact; the native host mounts it before JS; the driver then binds the existing native tree, verifies cold/live parity, native and Mason identity retention, and full disposal.
+`startup.config.json` selects the entry module and export, the seed passed to `StartupComponent` at runtime, and bounded environment values. Set `environment.width`/`height` to the target device's logical size (the pinned iPhone 18 Pro simulator is 402×874, the `elegant-fir-probe` Pixel 6 emulator is 412×915); the values resolve viewport-relative units at produce time, while the mount itself always fills the real window. `Screen.tsrx` is the component; `screen.css` is its stylesheet. The producer emits the startup artifact; the native host mounts it before JS; the driver then binds the existing native tree, verifies cold/live parity and native/Mason identity retention, and leaves the hydrated screen presented — the runner keeps the app and device running so the cold-to-live transition can be evaluated visually. `--shutdown` restores the old terminate-and-power-off cleanup.
 
-The custom control qualifies arbitrary-screen adoption on the bounded canvas. It does not qualify a real app's Vite configuration, opt-in installation, OS input, compositor presentation, complete CSS coverage or startup performance.
+The custom control qualifies arbitrary-screen adoption on the real window. It does not qualify a real app's Vite configuration, opt-in installation, OS input, compositor presentation, complete CSS coverage, disposal correctness or startup performance; the keyed fixture continues to cover bounded-canvas disposal.
 
 ## Retained Home runtime fixtures
 

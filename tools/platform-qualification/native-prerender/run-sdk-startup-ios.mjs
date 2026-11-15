@@ -211,7 +211,11 @@ try {
     'engine-init-begin',
     'engine-init-end',
     'js-entry-end',
-    ...(fixture !== 'home' ? ['mount-disposed'] : []),
+    ...(fixture === 'keyed'
+      ? ['mount-disposed']
+      : fixture === 'custom'
+        ? ['mount-held']
+        : []),
     'passed',
   ]
 
@@ -274,10 +278,18 @@ try {
   } else {
     assert.equal(events.find((event) => event.event === 'passed').adoptionQualified, true)
 
-    const disposed = events.find((event) => event.event === 'mount-disposed')
-    assert.equal(disposed.nativeChildren, 0)
-    assert.equal(disposed.masonChildren, 0)
-    assert.equal(disposed.nativeViewsDetached, true)
+    const teardown = events.find(
+      (event) =>
+        event.event === (fixture === 'custom' ? 'mount-held' : 'mount-disposed'),
+    )
+    if (fixture === 'custom') {
+      // The held path keeps the hydrated tree attached for visual evaluation.
+      assert.equal(teardown.nativeViewsDetached, false)
+    } else {
+      assert.equal(teardown.nativeChildren, 0)
+      assert.equal(teardown.masonChildren, 0)
+      assert.equal(teardown.nativeViewsDetached, true)
+    }
 
     const packet = JSON.parse(readFileSync(join(work, 'producer/startup.json')))
     const proofs = JSON.parse(readFileSync(join(documents, 'artifact-proofs.json')))
@@ -287,10 +299,10 @@ try {
     if (mode === 'adopt' && fixture === 'custom') {
       assert.deepEqual(
         proofs.map((proof) => proof.phase),
-        ['hydrated', 'disposed'],
+        ['hydrated', 'presented'],
       )
 
-      const [initial, cleanup] = proofs
+      const [initial, presented] = proofs
 
       assert.ok(
         initial.coldLiveParity &&
@@ -301,14 +313,8 @@ try {
       assert.equal(initial.logicalNodes, packet.nodes.length)
       assert.equal(initial.initialClaims, expected.nodes.length)
       assert.equal(initial.factoryCalls, expected.nodes.length)
-      assert.ok(
-        cleanup.nativeHandlesCleared &&
-          cleanup.contextsCleared &&
-          cleanup.logicalParentsCleared &&
-          cleanup.viewportSubviews === 0 &&
-          cleanup.claimPhase === 'retired',
-        'Custom disposal did not release the adopted state',
-      )
+      assert.equal(presented.visualNodes, expected.nodes.length)
+      assert.equal(presented.viewportSubviews, 1)
     } else if (mode === 'adopt') {
       assert.deepEqual(
         proofs.map((proof) => proof.phase),
@@ -446,11 +452,13 @@ try {
     passed = false
     throw error
   } finally {
-    spawnSync('xcrun', ['simctl', 'terminate', udid, build.id], { encoding: 'utf8' })
-
-    // The device is kept booted by default so a rerun skips the boot;
-    // XPLAT_PRERENDER_KEEP_DEVICE=0 restores shutdown-and-verify.
+    // The device and app are kept running by default so a rerun skips the
+    // boot and the presented screen stays visible for evaluation;
+    // XPLAT_PRERENDER_KEEP_DEVICE=0 restores terminate + shutdown-and-verify.
     const keepDevice = process.env.XPLAT_PRERENDER_KEEP_DEVICE !== '0'
+    if (!keepDevice)
+      spawnSync('xcrun', ['simctl', 'terminate', udid, build.id], { encoding: 'utf8' })
+
     let shutdownOk = false
     let shutdownError = ''
     if (!keepDevice) {

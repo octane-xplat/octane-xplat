@@ -1628,7 +1628,7 @@ try {
       const lifecycle = await readReceipt('lifecycle-result.json')
       if (lifecycle.status === 0)
         writeFileSync(join(report, 'lifecycle-result.json'), lifecycle.output)
-      await device(['shell', 'am', 'force-stop', build.id], 10000, false)
+      if (!keepDevice) await device(['shell', 'am', 'force-stop', build.id], 10000, false)
     }
   } catch (error) {
     errors.push('App diagnostic cleanup: ' + String(error))

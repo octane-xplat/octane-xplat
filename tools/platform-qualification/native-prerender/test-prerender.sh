@@ -253,6 +253,7 @@ run_android_keyed() {
   echo "=== android/keyed: run ($ANDROID_BUILD) ==="
   XPLAT_PRERENDER_ANDROID_BUILD="$ANDROID_BUILD" \
   XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL=emulator-5566 \
+  XPLAT_PRERENDER_KEEP_DEVICE="$keep_device" \
     turbo probe:prerender:mount:android
   if [ "$keep_device" = 0 ]; then
     kill_keyed_emulator

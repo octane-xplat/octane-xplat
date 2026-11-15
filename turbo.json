@@ -1012,6 +1012,7 @@
       "passThroughEnv": [
         "XPLAT_PRERENDER_ANDROID_BUILD",
         "XPLAT_PRERENDER_ANDROID_DEVICE_SERIAL",
+        "XPLAT_PRERENDER_KEEP_DEVICE",
         "GODDARD_*"
       ]
     },

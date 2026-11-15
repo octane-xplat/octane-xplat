@@ -27,7 +27,7 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
     private int draws, attempts, epoch;
     private final java.util.List<org.nativescript.mason.masonkit.Node> originalNodes = new java.util.ArrayList<>();
     private final java.util.List<Long> originalHandles = new java.util.ArrayList<>();
-    private boolean destroyed, adoptionComplete;
+    private boolean destroyed, adoptionComplete, adoptionPresented;
     private String theme, coldSnapshot;
     private HomeApplication app() { return (HomeApplication) getApplication(); }
     private static void check(boolean value, String reason) {
@@ -68,6 +68,12 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
         adoptionComplete = true;
         finish();
     }
+    public void presentAdoption() {
+        check(HomeBuild.ARTIFACT_ADOPT && !adoptionComplete && !adoptionPresented && com.tns.Runtime.isInitialized(), "Unexpected artifact presentation");
+        adoptionPresented = true;
+        try { record("mount-held", new JSONObject().put("nativeChildren", viewport.getChildCount()).put("masonChildren", viewport.getNode().getChildCount())); }
+        catch (Exception error) { throw new RuntimeException(error); }
+    }
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         epoch = app().nextEpoch();
@@ -78,8 +84,12 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
                 for (int count; (count = input.read(buffer)) >= 0;) data.write(buffer, 0, count);
             }
             artifact = MasonArtifact.decode(data.toByteArray(), HomeBuild.HASH);
-            // A bounded test canvas, not a claim about the device's full window.
-            check(artifact.snapshot.supports(getResources().getConfiguration().fontScale, 320, 640,
+            float density = getResources().getDisplayMetrics().density;
+            // Fixtures get a bounded test canvas; custom screens fill the
+            // window so the hydration transition can be evaluated visually.
+            int width = HomeBuild.FILL_WINDOW ? getResources().getDisplayMetrics().widthPixels : Math.round(320 * density);
+            int height = HomeBuild.FILL_WINDOW ? getResources().getDisplayMetrics().heightPixels : Math.round(640 * density);
+            check(artifact.snapshot.supports(getResources().getConfiguration().fontScale, width / density, height / density,
                 !android.animation.ValueAnimator.areAnimatorsEnabled()), "Test canvas does not satisfy launch constraints");
             theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
@@ -90,8 +100,6 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
             viewport = new View(this, mason);
             viewport.getStyle().setDisplay(Display.Flex);
             viewport.getStyle().setFlexDirection(FlexDirection.Column);
-            float density = getResources().getDisplayMetrics().density;
-            int width = Math.round(320 * density), height = Math.round(640 * density);
             viewport.getStyle().setSizePoints(width, height);
             FrameLayout canvas = new FrameLayout(this);
             canvas.addView(viewport, new FrameLayout.LayoutParams(width, height));
@@ -124,7 +132,7 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
                             }
                         }
                         coldSnapshot = snapshotMounted();
-                        record("mount-passed", new JSONObject().put("draws", draws).put("canvasWidth", 320).put("canvasHeight", 640)
+                        record("mount-passed", new JSONObject().put("draws", draws).put("canvasWidth", width / density).put("canvasHeight", height / density)
                             .put("visualNodes", artifact.nodes.size()).put("logicalNodes", artifact.snapshot.nodes.size())
                             .put("nodes", new org.json.JSONArray(coldSnapshot)));
                         if (HomeBuild.ARTIFACT_ADOPT) {
@@ -145,7 +153,7 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
     @Override public void onDestroy() {
         destroyed = true;
         try {
-            check(!HomeBuild.ARTIFACT_ADOPT || !com.tns.Runtime.isInitialized() || adoptionComplete,
+            check(!HomeBuild.ARTIFACT_ADOPT || !com.tns.Runtime.isInitialized() || adoptionComplete || adoptionPresented,
                 "Artifact Activity destroyed before JS cleanup");
             bridge = null;
             if (mount != null) {

@@ -239,7 +239,7 @@ for (const [name, destination] of [
             ? '<provider android:name="org.octanexplat.prerenderandroid.HomeReceiptProvider" android:authorities="' +
                 id +
                 '.receipts" android:exported="true" android:enabled="${receiptProviderEnabled}" />\n' +
-                '<activity android:name="org.octanexplat.prerenderandroid.MasonMountActivity" android:exported="true" />\n' +
+                '<activity android:name="org.octanexplat.prerenderandroid.MasonMountActivity" android:configChanges="density|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" android:exported="true" />\n' +
                 (homeStartup
                   ? '<profileable android:shell="true" />\n<activity android:name="org.octanexplat.prerenderandroid.HomeOrdinaryActivity" android:process=":ordinary" android:configChanges="keyboardHidden|orientation|screenSize" android:exported="true" />\n<provider android:name="org.octanexplat.prerenderandroid.HomeOrdinaryReceiptProvider" android:authorities="' +
                     id +
@@ -441,6 +441,8 @@ if (homeProducer) {
       staleRootInsets +
       '; public static final boolean ARTIFACT_ADOPT = ' +
       (artifactAdopt || customAdopt) +
+      '; public static final boolean FILL_WINDOW = ' +
+      customAdopt +
       '; public static final boolean STARTUP = ' +
       homeStartup +
       '; public static final boolean UNSUPPORTED_FONT_SCALE = ' +

@@ -396,10 +396,14 @@ const bootstrap =
 input(bootstrap)
 writeFileSync(
   join(app, 'native/main.swift'),
-  readFileSync(bootstrap, 'utf8').replace(
-    '__XPLAT_PRERENDER_BUILD_HASH__',
-    producer.manifest.buildHash,
-  ),
+  readFileSync(bootstrap, 'utf8')
+    .replace('__XPLAT_PRERENDER_BUILD_HASH__', producer.manifest.buildHash)
+    .replace(
+      '__XPLAT_PRERENDER_CANVAS__',
+      fixture === 'custom'
+        ? 'window.bounds'
+        : 'CGRect(x: 0, y: 0, width: 320, height: 640)',
+    ),
 )
 
 assertProducerInputs(producer.manifest)
@@ -458,7 +462,7 @@ json(join(work, 'build.json'), {
     fixture === 'home'
       ? 'Normal SDK Home IR/adoption control with installed package sources and normal native Vite preset; four primitive exports; not app opt-in installation, OS input, presentation or performance qualification'
       : fixture === 'custom'
-        ? 'Custom-screen iOS XPI1 native mount, configured JSX wrapper adoption and disposal; caller-bounded canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification'
+        ? 'Custom-screen iOS XPI1 native mount, configured JSX wrapper adoption and held presentation; real-window canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification'
         : 'Variable-topology iOS XPI1 native mount, configured JSX wrapper adoption and keyed client updates (' +
           mode +
           '); bounded 320x640 canvas, no normal app/window handoff, OS input, compositor presentation or performance qualification',

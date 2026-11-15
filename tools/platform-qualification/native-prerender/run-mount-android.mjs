@@ -23,6 +23,10 @@ assert.ok(serial, 'Mount control requires an explicit, already-booted target ser
 const physical = !serial.startsWith('emulator-')
 const adoption = Boolean(build.home.artifactAdopt || build.home.customAdopt)
 const customAdoption = Boolean(build.home.customAdopt)
+// The fixture app is left running by default so a rerun skips app/device
+// startup and the presented screen stays visible for evaluation;
+// XPLAT_PRERENDER_KEEP_DEVICE=0 restores force-stop cleanup.
+const keepDevice = process.env.XPLAT_PRERENDER_KEEP_DEVICE !== '0'
 const adb = join(build.sdk, 'platform-tools/adb')
 const expected = JSON.parse(readFileSync(join(resolve(directory), 'producer/resolved.json')))
 const root = join(homedir(), 'dev/reports/octane-xplat/native-prerender-mount-android')
@@ -145,7 +149,11 @@ try {
 
       if (
         mounted &&
-        events.some((event) => event.event === 'mount-disposed' && event.epoch === mounted.epoch)
+        events.some(
+          (event) =>
+            event.event === (customAdoption ? 'mount-held' : 'mount-disposed') &&
+            event.epoch === mounted.epoch,
+        )
       ) {
         break
       }
@@ -155,17 +163,22 @@ try {
   }
 
   const passed = events.findLast((event) => event.event === 'mount-passed')
-  const disposed = events.find(
-    (event) => event.event === 'mount-disposed' && event.epoch === passed?.epoch,
+  const teardown = events.find(
+    (event) =>
+      event.event === (customAdoption ? 'mount-held' : 'mount-disposed') &&
+      event.epoch === passed?.epoch,
   )
 
   assert.ok(
     passed &&
       passed.draws > 0 &&
-      disposed &&
-      disposed.nativeChildren === 0 &&
-      disposed.masonChildren === 0,
-    'Native mount/draw/disposal proof missing',
+      teardown &&
+      (customAdoption
+        ? teardown.nativeChildren > 0
+        : teardown.nativeChildren === 0 && teardown.masonChildren === 0),
+    customAdoption
+      ? 'Native mount/draw/presentation proof missing'
+      : 'Native mount/draw/disposal proof missing',
   )
 
   assert.ok(
@@ -210,10 +223,10 @@ try {
     if (customAdoption) {
       assert.deepEqual(
         proofs.map((event) => event.phase),
-        ['hydrated', 'disposed'],
+        ['hydrated', 'presented'],
       )
 
-      const [initial, cleanup] = proofs
+      const [initial, presented] = proofs
 
       assert.ok(
         initial.coldLiveParity &&
@@ -224,12 +237,8 @@ try {
       assert.equal(initial.logicalNodes, packet.nodes.length)
       assert.equal(initial.initialClaims, expected.nodes.length)
       assert.equal(initial.factoryCalls, expected.nodes.length)
-      assert.ok(
-        cleanup.nativeHandlesCleared &&
-          cleanup.contextsCleared &&
-          cleanup.logicalParentsCleared &&
-          cleanup.claimPhase === 'retired',
-      )
+      assert.equal(presented.visualNodes, expected.nodes.length)
+      assert.equal(presented.viewportChildren, 1)
 
       assert.ok(
         proofs.every(
@@ -300,7 +309,7 @@ try {
     )
 
     assert.ok(
-      disposed.runtimeStarted && disposed.runtimeLibraryLoaded && disposed.runtimeStarts === 1,
+      teardown.runtimeStarted && teardown.runtimeLibraryLoaded && teardown.runtimeStarts === 1,
     )
     }
   }
@@ -339,6 +348,6 @@ try {
       writeFileSync(join(report, 'logcat.txt'), logs.stdout + logs.stderr)
     }
 
-    device(['shell', 'am', 'force-stop', build.id], false)
+    if (!keepDevice) device(['shell', 'am', 'force-stop', build.id], false)
   }
 }

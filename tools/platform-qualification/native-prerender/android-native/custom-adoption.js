@@ -3,10 +3,7 @@ import { Application, Utils } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
 import { projectVisualTree } from '@octane-xplat/native-prerender'
-import {
-  bindAndroidMasonTree,
-  releaseAndroidMasonTree,
-} from '@octane-xplat/native-prerender/android/mason-binding'
+import { bindAndroidMasonTree } from '@octane-xplat/native-prerender/android/mason-binding'
 
 import { StartupComponent } from 'xplat-prerender:component'
 import startup from 'xplat-prerender:startup'
@@ -47,8 +44,8 @@ async function qualify(activity) {
   const { host, wrappers, claims } = binding
 
   const viewport = activity.getViewport()
-  host.width = 320
-  host.height = 640
+  host.width = Utils.layout.toDeviceIndependentPixels(viewport.getWidth())
+  host.height = Utils.layout.toDeviceIndependentPixels(viewport.getHeight())
   host.style.display = 'flex'
   host.style.flexDirection = 'column'
   host.className = 'ns-root ' + (scheme === 'dark' ? 'ns-dark' : 'xds-light')
@@ -120,8 +117,6 @@ async function qualify(activity) {
     'Initial claims differ',
   )
 
-  const all = new Set(wrappers)
-
   activity.recordProof(
     JSON.stringify({
       phase: 'hydrated',
@@ -134,37 +129,18 @@ async function qualify(activity) {
     }),
   )
 
-  await Promise.resolve(root.unmount())
-  if (host.isLoaded) {
-    host.callUnloaded()
-  }
-
-  if (host._context) {
-    host._tearDownUI(true)
-  }
-
-  releaseAndroidMasonTree(host, [...all])
-  binding.retire()
-  check(
-    host.getChildrenCount() === 0 &&
-      [...all].every(
-        (view) => !view.parent && !view._context && !view.nativeViewProtected && !view.isLoaded,
-      ),
-    'Disposal retained owners',
-  )
-
+  // The hydrated tree stays on screen so the cold-to-live transition can be
+  // evaluated visually; the runner leaves the app and device running.
   activity.recordProof(
     JSON.stringify({
-      phase: 'disposed',
-      ownersReleased: all.size,
-      nativeHandlesCleared: true,
-      contextsCleared: true,
-      logicalParentsCleared: true,
+      phase: 'presented',
+      visualNodes: natives.length,
+      viewportChildren: viewport.getChildCount(),
       claimPhase: claims.phase,
     }),
   )
 
-  activity.completeAdoption()
+  activity.presentAdoption()
 }
 
 org.octanexplat.prerenderandroid.MasonMountActivity.installBridge(
