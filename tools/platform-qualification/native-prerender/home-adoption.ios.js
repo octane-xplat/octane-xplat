@@ -70,6 +70,8 @@ const oldFrames = nativeViews.map((view) => ({
 }))
 const binding = bindIOSMasonTree(startup.nodes, nativeHost, nativeViews)
 const { host, wrappers, claims } = binding
+host.iosOverflowSafeArea = true
+for (const view of wrappers) view.iosOverflowSafeArea = true
 host.width = '100%'
 host.height = '100%'
 host.style.display = 'flex'

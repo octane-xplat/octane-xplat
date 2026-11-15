@@ -122,6 +122,11 @@ async function qualify() {
   const binding = bindIOSMasonTree(startup.nodes, viewport, natives)
   const { host, wrappers, claims } = binding
 
+  // Adopted views keep the cold-mounted frames exactly; NativeScript's
+  // safe-area clipping would otherwise double-apply the SafeArea inset.
+  host.iosOverflowSafeArea = true
+  for (const view of wrappers) view.iosOverflowSafeArea = true
+
   host.width = viewport.bounds.size.width
   host.height = viewport.bounds.size.height
   host.style.display = 'flex'
