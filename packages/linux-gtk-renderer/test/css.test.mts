@@ -1,8 +1,9 @@
 // Runtime-level stylesheet smoke — builds the css-smoke fixture bundle and
-// runs it under real GJS+GTK. Skipped only when gjs is missing; the
-// XplatMason typelib is NOT required (the Gtk.Box masonview fallback still
-// participates in the cascade). This IS runtime evidence — a real CssProvider
-// lands on real widgets and widget.get_color() reflects it.
+// runs it under real GJS+GTK. Mason is required (the bundle's masonview
+// hosts drive the cascade), so the run needs a resolvable XplatMason
+// binding — the shipped prebuilt on Linux or XPLAT_MASON_TYPELIB elsewhere.
+// This IS runtime evidence — a real CssProvider lands on real widgets and
+// widget.get_color() reflects it.
 import assert from 'node:assert/strict'
 import { rmSync } from 'node:fs'
 import { execFileSync, execSync, spawnSync } from 'node:child_process'
@@ -11,23 +12,15 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mjs'
 
 const pkg = fileURLToPath(new URL('..', import.meta.url))
 const fixture = join(pkg, 'test', 'fixtures')
 const outDir = join(fixture, 'dist-css')
 
-function gjsAvailable() {
-  try {
-    execFileSync('gjs', ['--version'], { stdio: 'pipe' })
-    return true
-  } catch {
-    return false
-  }
-}
-
 test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) => {
-  if (!gjsAvailable()) {
-    t.skip('gjs is not installed')
+  if (!gtkRuntimeReady()) {
+    t.skip(gtkRuntimeUnavailableReason())
     return
   }
 

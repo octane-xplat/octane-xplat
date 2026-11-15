@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 test(
   'GTK accessibility states and shared field flags reach native metadata and reset correctly',
@@ -14,8 +14,8 @@ test(
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-accessibility')
 
-    if (!gjsAvailable() || !masonTypelibPresent()) {
-      t.skip('GJS and XplatMason required for runtime')
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
       return
     }
 
@@ -28,11 +28,10 @@ test(
       })),
     })
 
-    const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const result = spawnSync('gjs', ['-m', join(outDir, 'app.js')], {
       encoding: 'utf8',
       timeout: 40000,
-      env: { ...process.env, XPLAT_MASON_TYPELIB: nativeDir, GTK_A11Y: 'test' },
+      env: { ...process.env, GTK_A11Y: 'test' },
     })
 
     assert.equal(result.status, 0, result.stdout + '\n' + result.stderr)

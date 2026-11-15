@@ -6,12 +6,12 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, gtkOsInputReady } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkOsInputReady } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
-test('GTK native widget transport receives X11 press and pan through OS hit-testing', async (t) => {
-  if (!gtkOsInputReady() || !gjsAvailable()) {
+test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', async (t) => {
+  if (!gtkOsInputReady() || !gtkRuntimeReady()) {
     t.skip('Requires Linux, X11 DISPLAY, GJS and xdotool')
     return
   }
@@ -27,13 +27,7 @@ test('GTK native widget transport receives X11 press and pan through OS hit-test
     })),
   })
 
-  const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-  const env = {
-    ...process.env,
-    ...(existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
-      ? { XPLAT_MASON_TYPELIB: nativeDir }
-      : {}),
-  }
+  const env = { ...process.env }
 
   const child = spawn('gjs', ['-m', join(outDir, 'app.js')], {
     env,

@@ -21,8 +21,7 @@ import {
   isMasonHostView,
   isMasonView,
   makeMasonView,
-  makeMasonFallbackView,
-  masonAvailable,
+  masonEngine,
   queueMasonLayout,
   releaseMasonNodes,
   MASON_STYLE_KEYS,
@@ -372,12 +371,11 @@ let applyingDepth = 0
 
 function instantiate(type: string): GtkView {
   switch (type) {
-    // The real layout engine when the XplatMason typelib is loadable —
-    // a Gtk.Widget + custom Gtk.LayoutManager driven by mason-c. The
-    // Gtk.Box fallback keeps the shim's emulation for builds without
-    // the native artifact (see src/mason.ts module note).
+    // mason-c drives every masonview — a Gtk.Widget + custom
+    // Gtk.LayoutManager. The binding is required and already verified at
+    // createGtkRoot (see src/mason.ts module note).
     case 'masonview':
-      return masonAvailable() ? makeMasonView() : makeMasonFallbackView()
+      return makeMasonView()
     case 'label':
       return new Gtk.Label({ label: '', xalign: 0 })
     case 'button':
@@ -5123,6 +5121,10 @@ export function createGtkContainer(
   host: GtkView,
   options: { service?: boolean } = {},
 ): GtkContainer {
+  // Mason is the layout engine for every container — a missing or
+  // unloadable binding throws here at startup, not at the first masonview.
+  masonEngine()
+
   // A renderer-owned Gtk.Overlay inside the host — the RootLayout
   // equivalent. The root content mounts into its main child; overlay layers
   // (dialogs, sheets, toasts) stack above it via `add_overlay`.
@@ -5453,6 +5455,10 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
       Promise.resolve().then(callback)
     }
   }
+
+  // Mason is the layout engine for every root — a missing or unloadable
+  // binding throws here at startup, not at the first masonview.
+  masonEngine()
 
   const container = createGtkContainer(host, { service: options.service === true })
   const root = createUniversalRoot(container, gtkDriver, {

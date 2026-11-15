@@ -9,6 +9,9 @@
 				"build",
 				"^build",
 				"^typegen"
+			],
+			"passThroughEnv": [
+				"XPLAT_MASON_TYPELIB"
 			]
 		},
 		"typecheck": {

@@ -7,20 +7,15 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('headless scrolling observes real GTK ranges, animation, content resize and OS wheel input', async (t) => {
   const outDir = join(fixture, 'dist-ui-scroll')
 
-  if (!gjsAvailable()) {
-    t.skip('gjs is not installed')
-    return
-  }
-
-  if (!masonTypelibPresent()) {
-    t.skip('XplatMason typelib required for runtime')
+  if (!gtkRuntimeReady()) {
+    t.skip(gtkRuntimeUnavailableReason())
     return
   }
 
@@ -37,7 +32,6 @@ test('headless scrolling observes real GTK ranges, animation, content resize and
 
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 
-  const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
   const osWheel =
     process.platform === 'linux' &&
     !!process.env.DISPLAY &&
@@ -45,7 +39,6 @@ test('headless scrolling observes real GTK ranges, animation, content resize and
 
   const env = {
     ...process.env,
-    XPLAT_MASON_TYPELIB: nativeDir,
     GTK_TEST_WHEEL: osWheel ? '1' : '0',
   }
 

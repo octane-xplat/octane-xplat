@@ -35,7 +35,6 @@ const pause = () =>
     }),
   )
 
-const fallback = GLib.getenv('GTK_RADIO_FALLBACK') === '1'
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -144,7 +143,7 @@ async function run() {
   window.present()
   await pause()
 
-  const native = fallback ? null : (globalThis as any).imports.gi.XplatMason
+  const native = (globalThis as any).imports.gi.XplatMason
 
   for (const id of ['radio-options', 'radio-children']) {
     const group = node(id),
@@ -156,10 +155,6 @@ async function run() {
     )
 
     check(id + ' applies width to the complete field', Math.abs(view.getBounds().width - 220) <= 2)
-    if (fallback) {
-      check(id + ' uses the Gtk.Box fallback host', view instanceof Gtk.Box)
-    }
-
     if (native) {
       check(
         id + ' inherits required metadata',
@@ -399,7 +394,7 @@ async function run() {
     await pause()
   }
 
-  if (!fallback) {
+  {
     let props: Parameters<typeof RadioScene>[0] = {}
     const render = async (next: Partial<typeof props>) => {
       props = { ...props, ...next }
@@ -752,7 +747,7 @@ async function run() {
   )
 
   window.destroy()
-  print('GTK_RADIO_RESULTS ' + JSON.stringify({ checks, failures, osInput, fallback }))
+  print('GTK_RADIO_RESULTS ' + JSON.stringify({ checks, failures, osInput }))
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
@@ -762,7 +757,6 @@ async function run() {
       JSON.stringify({
         checks,
         osInput,
-        fallback,
         gtk: [Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()].join('.'),
       }),
   )
@@ -774,7 +768,7 @@ let failed = false
 
 run().catch((error) => {
   failed = true
-  print('GTK_RADIO_FAILURES ' + JSON.stringify({ checks, failures, osInput, fallback }))
+  print('GTK_RADIO_FAILURES ' + JSON.stringify({ checks, failures, osInput }))
   console.error(error)
   try {
     root.unmount()

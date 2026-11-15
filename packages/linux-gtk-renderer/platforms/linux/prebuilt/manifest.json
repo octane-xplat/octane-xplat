@@ -1,0 +1,28 @@
+{
+	"baseline": {
+		"image": "ubuntu:24.04",
+		"gtk": "4.14.5+ds-0ubuntu0.10",
+		"json-glib": "1.8.0-2build2",
+		"minimum-glibc": "2.39"
+	},
+	"architectures": {
+		"x86_64": {
+			"revision": "0cdc3c80ea1b7cff74ce6b723f1d10a11f983a0d",
+			"toolchain": "stable",
+			"rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+			"sha256": {
+				"libxplatmason-gtk.so": "1c62355f7e93a78f2da718b8718f96f8f0d9024ce3955974c4b44c55e2ca62cc",
+				"XplatMason-1.0.typelib": "457f38b0fd4d6e3ad05d1fd60911631cfdced78f51a8acf3a28c8af00795b326"
+			}
+		},
+		"aarch64": {
+			"revision": "0cdc3c80ea1b7cff74ce6b723f1d10a11f983a0d",
+			"toolchain": "stable",
+			"rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+			"sha256": {
+				"libxplatmason-gtk.so": "7e2c0e8d591c7cb3e16899f31cc0cc1c0509b5b4cab4cc57bb55fc5babe94b79",
+				"XplatMason-1.0.typelib": "457f38b0fd4d6e3ad05d1fd60911631cfdced78f51a8acf3a28c8af00795b326"
+			}
+		}
+	}
+}

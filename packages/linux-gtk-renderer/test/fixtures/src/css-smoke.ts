@@ -2,8 +2,8 @@
 // real GJS+GTK, headless: the imported .css file reaches the renderer through
 // the CLI's inline-stylesheet injection, registerStylesheet restyles live
 // widgets, and widget.get_color() gives real GTK evidence. Prints one JSON
-// result object; the node test asserts on it. The XplatMason typelib is not
-// required — the Gtk.Box masonview fallback is fine.
+// result object; the node test asserts on it. The shipped XplatMason
+// binding drives the masonview hosts in this fixture.
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkContainer, gtkDriver, registerStylesheet } from '@octane-xplat/linux-gtk'

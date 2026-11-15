@@ -6,7 +6,7 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 test(
   'GTK checkbox and switch support native keyboard ownership and mixed selection',
@@ -15,8 +15,8 @@ test(
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-toggle-controls')
 
-    if (!gjsAvailable() || !masonTypelibPresent()) {
-      t.skip('GJS and XplatMason required for runtime')
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
       return
     }
 
@@ -29,7 +29,6 @@ test(
       })),
     })
 
-    const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const osInput =
       process.platform === 'linux' &&
       !!process.env.DISPLAY &&
@@ -39,7 +38,6 @@ test(
       ...process.env,
       GTK_A11Y: 'test',
       GTK_TOGGLE_CONTROLS_OS: osInput ? '1' : '0',
-      XPLAT_MASON_TYPELIB: nativeDir,
     }
 
     const child = spawn('gjs', ['-m', join(outDir, 'app.js')], {

@@ -5,15 +5,15 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable } from './gjs-availability.mjs'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('unmounted roots detach their window wiring (#229)', async (t) => {
   const outDir = join(fixture, 'dist-root-teardown')
 
-  if (!gjsAvailable()) {
-    t.skip('gjs is not installed')
+  if (!gtkRuntimeReady()) {
+    t.skip(gtkRuntimeUnavailableReason())
     return
   }
 

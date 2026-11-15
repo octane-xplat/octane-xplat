@@ -36,13 +36,11 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 
-  const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
   const osInput = input && gtkOsInputReady()
   const env = {
     ...process.env,
     GTK_A11Y: 'test',
     [marker + '_OS']: osInput ? '1' : '0',
-    XPLAT_MASON_TYPELIB: nativeDir,
   }
 
   const child = spawn('gjs', ['-m', bundle], { env, stdio: ['ignore', 'pipe', 'pipe'] })

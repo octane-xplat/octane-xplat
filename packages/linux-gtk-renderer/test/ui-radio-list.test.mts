@@ -6,22 +6,19 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
-for (const fallback of [false, true]) {
-  test(
-    'GTK radio lists preserve fields and grouped keyboard navigation (' +
-      (fallback ? 'Gtk.Box' : 'Mason') +
-      ')',
-    { timeout: 120000 },
-    async (t) => {
-      const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
-      const outDir = join(fixture, 'dist-ui-radio-list')
+test(
+  'GTK radio lists preserve fields and grouped keyboard navigation under Mason',
+  { timeout: 120000 },
+  async (t) => {
+    const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
+    const outDir = join(fixture, 'dist-ui-radio-list')
 
-      if (!gjsAvailable() || (!fallback && !masonTypelibPresent())) {
-        t.skip('GJS required, plus XplatMason for Mason mode')
-        return
-      }
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
+      return
+    }
 
       await build({
         logLevel: 'error',
@@ -32,7 +29,6 @@ for (const fallback of [false, true]) {
         })),
       })
 
-      const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
       const osInput =
         process.platform === 'linux' &&
         !!process.env.DISPLAY &&
@@ -42,33 +38,6 @@ for (const fallback of [false, true]) {
         ...process.env,
         GTK_A11Y: 'test',
         GTK_RADIO_OS: osInput ? '1' : '0',
-        XPLAT_MASON_TYPELIB: fallback ? undefined : nativeDir,
-        GTK_RADIO_FALLBACK: fallback ? '1' : '0',
-      }
-
-      if (fallback) {
-        if (env.GI_TYPELIB_PATH) {
-          env.GI_TYPELIB_PATH = env.GI_TYPELIB_PATH.split(':')
-            .filter((path) => path !== nativeDir)
-            .join(':')
-        }
-
-        const installed = spawnSync(
-          'gjs',
-          [
-            '-c',
-            'try { imports.gi.XplatMason; imports.system.exit(0) } catch (_) { imports.system.exit(1) }',
-          ],
-          { env },
-        )
-
-        if (installed.status === 0) {
-          t.skip(
-            'System Mason is available; an unavailable-Mason environment is required for fallback proof',
-          )
-
-          return
-        }
       }
 
       const child = spawn('gjs', ['-m', join(outDir, 'app.js')], {
@@ -144,26 +113,21 @@ for (const fallback of [false, true]) {
       const result = JSON.parse(line.slice('GTK_RADIO '.length))
 
       assert.ok(
-        result.checks >= (osInput ? (fallback ? 55 : 100) : fallback ? 18 : 50),
+        result.checks >= (osInput ? 100 : 50),
         JSON.stringify(result),
       )
 
       assert.equal(result.osInput, osInput)
-      assert.equal(result.fallback, fallback)
       t.diagnostic(
         process.platform +
           '; GTK ' +
           result.gtk +
           '; ' +
           result.checks +
-          ' assertions; ' +
-          (fallback
-            ? 'Gtk.Box; no typed native-value comparisons'
-            : 'Mason; typed native-value comparisons') +
+          ' assertions; Mason; typed native-value comparisons' +
           '; actual OS radio keys: ' +
           osInput +
           '; no images or AT-client proof',
       )
-    },
-  )
-}
+  },
+)

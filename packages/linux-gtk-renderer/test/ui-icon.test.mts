@@ -7,7 +7,7 @@ import { createServer } from 'node:http'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
@@ -17,8 +17,8 @@ test(
   async (t) => {
     const outDir = join(fixture, 'dist-ui-icon')
 
-    if (!gjsAvailable() || !masonTypelibPresent()) {
-      t.skip('GJS and XplatMason required for runtime')
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
       return
     }
 
@@ -35,7 +35,6 @@ test(
 
     assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\\.createElement|window\\.document/)
 
-    const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const svg =
       '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="9"><path d="M0 0h13v9H0z"/></svg>'
 
@@ -75,7 +74,6 @@ test(
       GTK_A11Y: 'test',
       GTK_ICON_FILE: join(outDir, 'fixture-icon.svg'),
       GTK_ICON_RESOURCE: join(outDir, 'fixture.gresource'),
-      XPLAT_MASON_TYPELIB: nativeDir,
       GTK_ICON_HTTP: 'http://127.0.0.1:' + server.address().port,
     }
 

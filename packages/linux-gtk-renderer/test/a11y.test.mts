@@ -10,15 +10,15 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const pkg = fileURLToPath(new URL('..', import.meta.url))
 const fixture = join(pkg, 'test', 'fixtures')
 const outDir = join(fixture, 'dist-a11y')
 
 test('accessible labels and widget names land on real GJS+GTK', async (t) => {
-  if (!gjsAvailable()) {
-    t.skip('gjs is not installed')
+  if (!gtkRuntimeReady()) {
+    t.skip(gtkRuntimeUnavailableReason())
     return
   }
 
