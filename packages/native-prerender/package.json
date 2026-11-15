@@ -17,6 +17,10 @@
 		"./ios/mason-binding": {
 			"types": "./platforms/ios/mason-binding.ios.d.ts",
 			"default": "./platforms/ios/mason-binding.ios.js"
+		},
+		"./android/mason-binding": {
+			"types": "./platforms/android/mason-binding.android.d.ts",
+			"default": "./platforms/android/mason-binding.android.js"
 		}
 	},
 	"scripts": {
