@@ -40,8 +40,12 @@ A first native slice of the GTK4/GJS renderer:
   `Gtk.LayoutManager` runs the engine inside GTK's measure/allocate
   passes; leaf children measure their widgets live via mason's
   `mason_node_new_node_with_context` callback (the GTK mirror of the
-  macOS `XPLViewMeasure` intrinsic-size read). Without the typelib,
-  `masonview` warns once and falls back to the `Gtk.Box` emulation.
+  macOS `XPLViewMeasure` intrinsic-size read). The binding is required —
+  `createGtkRoot` throws when `XplatMason` cannot load, resolving in order:
+  `XPLAT_MASON_TYPELIB` (developer override), the bundle's emitted
+  `xplatmason/<arch>/` directory, GI's own search paths. The package ships
+  the binding prebuilt for `x86_64`/`aarch64` under `platforms/linux/prebuilt/`
+  (Ubuntu 24.04 / GTK 4.14 / glibc 2.39 baseline).
   The style dict matches macOS except `margin`/`padding`, which GTK's
   measure/allocate channel already folds into leaf measures and child
   allocations (px-only there — percentage/auto is a gap).
@@ -153,8 +157,9 @@ labels computes `alpha` at its measured text width and `beta` flex-grown,
 `flexDirection:column` restacks, and `destroy` frees engine nodes. The ABI
 itself was exercised function-by-function in GJS before the driver pass
 (handle marshalling, `guint64[]` children, JSON styles, `GBytes` records,
-the leaf `gtk_widget_measure` callback). The Gtk.Box fallback is
-deliberately retained for typelib-absent builds.
+the leaf `gtk_widget_measure` callback). A Gtk.Box fallback existed for
+typelib-absent builds at the time; it was removed when Mason became
+required and shipped prebuilt.
 
 **NOT proven:** driver event wiring, widget mounting, and the interactive
 smoke path below remain unverified — the headless pass exercised layout,
@@ -336,10 +341,9 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
 - `accessibilityLabel` uses the non-varargs property-array binding; the
   [release audit](linux-gtk-release.md#accessibility-mechanism-and-evidence) records
   AT-SPI evidence and the button mnemonic relation handling.
-- `flexDirection` `*-reverse` renders unreversed under the Box fallback
-  (warns); under Mason the engine handles it. The fallback collapses
-  asymmetric `rowGap`/`columnGap` to `spacing` and cannot express
-  `justifyContent`/`alignItems` — the engine owns all four when present.
+- `flexDirection` `*-reverse` is handled by Mason (the engine owns
+  direction, gaps and alignment; the former Gtk.Box fallback rendered it
+  unreversed before the binding became required).
 - Mason leaf nodes measure `gtk_widget_measure` once per axis per pass and
   ignore the engine's `known`/`avail` constraint args — wrapped text and
   for-size-dependent natural sizes are approximate (documented gap, v1).
@@ -360,11 +364,11 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
   templates/mount-template ops are unadvertised and unhandled.
 - The `native` boundary set does not include `gtk` — `.gtk` leaves are
   foreign in generic native (NativeScript) bundles. Deliberate.
-- The Mason binding needs the gitignored build artifacts
-  (`native/xplatmason/build.sh` output) plus `GI_TYPELIB_PATH` or
-  `XPLAT_MASON_TYPELIB` at run time; without them `masonview` runs the
-  `Gtk.Box` emulation with a once warn. `build.sh` binds the facade by soname; supply both the typelib and library
-  search paths. Native consumer relocation remains unqualified.
+- Mason is required: the package ships `platforms/linux/prebuilt/<arch>/`
+  and the CLI preset emits it beside the bundle; `createGtkRoot` throws
+  when the binding cannot load. `XPLAT_MASON_TYPELIB` overrides for
+  `native/xplatmason/build.sh` development output — supply both the typelib
+  and library search paths there (the facade binds by soname).
 
 ## Canonical retained-pane routing
 
@@ -2138,8 +2142,8 @@ keeping each option imperatively focusable and using the selected/first enabled
 option when entering the group. Arrow handling uses logical group ownership,
 skips disabled/hidden rows and nested groups, and reverses horizontal arrows
 under RTL. The [WAI radio-group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/)
-is the fallback behavior reference. Both Mason and Gtk.Box fallback hosts have
-the focus override. Pointer focus is independent of selection, so read-only
+is the fallback behavior reference. The Mason host has
+the focus override (the former Gtk.Box fallback host did too). Pointer focus is independent of selection, so read-only
 rows focus without editing and respect native focus-on-click opt-out.
 
 The expanded case first found a pointer-focus failure on Gtk.Box (55 checks,

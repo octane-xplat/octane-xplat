@@ -22,8 +22,8 @@ on Linux.
 
 ## Acceptance criteria
 
-- AC1: The reader can install matching published packages, choose the Box fallback
-  or an explicit native Mason build, and declare `runtime: "gtk"`, the required package identity
+- AC1: The reader can install matching published packages — Mason ships prebuilt for
+  x86_64 and aarch64 — and declare `runtime: "gtk"`, the required package identity
   fields, and a `vite.gtk.config.ts` that applies the `linuxGtk` preset.
 - AC2: `xplat build --targets linux` emits a relocatable directory holding the
   single-file ESM bundle, an executable `gjs -m` launcher, `app.json`, a

@@ -90,14 +90,14 @@ The GTK binding on this base consumes a MasonCore archive from
 `build.native.desktop` target. This is a build-tooling gap, not evidence that
 Rust layout cannot execute on Linux.
 
-For this investigation, a task-local Linux artifact is built with the pinned
+For this investigation, a task-local Linux artifact was built with the pinned
 fork's `cargo rustc -p mason-c --lib --release --locked --target
 x86_64-unknown-linux-gnu --crate-type staticlib` and its exported
-`prepareHeaders` helper. Its manifest records the source revision, toolchain,
-Cargo.lock, header and archive hashes, and explicitly identifies this local
-preparation. The GTK facade is then built by its maintained `build.sh`.
-The task-local archive does not establish an upstream desktop build command or
-packaged consumer support. The maintained upstream producer remains a follow-up.
+`prepareHeaders` helper. That recipe became the committed producer:
+`packages/linux-gtk-renderer/native/xplatmason/build-prebuilt.sh` builds the
+engine archive and facade inside the Ubuntu 24.04 baseline image for both
+`x86_64` and `aarch64`, verifies against `mason-core.pin.json`, and stages the
+result under `platforms/linux/prebuilt/` in the published package.
 
 ## Primitive and layout slice
 
@@ -1060,11 +1060,12 @@ RadioList/RadioListItem and four existing radio types are curated through the
 shared native leaves. Availability is59 values/93 types. The private field
 owner now supplies group width, label, status and defaults; each option carries
 radio semantics and checked/name/help state. GTK provides one Tab entry per
-group, logical arrow navigation and separate pointer focus, on Mason and the
-Gtk.Box fallback.
+group, logical arrow navigation and separate pointer focus (checked on Mason
+and the now-removed Gtk.Box fallback).
 
 The public-root Linux suite passes52 cases without skips, including107 Mason
-and59 fallback radio checks with actual X11 keys/pointer input. All62 affected/
+and59 fallback radio checks (pre-cutover, when a fallback still existed) with
+actual X11 keys/pointer input. All62 affected/
 dependent typecheck tasks,58 Node checks,464 native object-driver tests and62
 focused web tests pass. See [the radio evidence](linux-gtk-renderer.md#public-gtk-radio-fields)
 for the baseline, fixes, contracts and explicit limits. Text-entry AC3 gains

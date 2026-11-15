@@ -24,11 +24,11 @@ bun add @octane-xplat/linux-gtk @octane-xplat/ui octane
 bun add -D @octane-xplat/cli @octanejs/vite-plugin vite
 ```
 
-The npm package includes JavaScript and declarations. GJS and GTK4 come from
-your Linux distribution. The default `Gtk.Box` layout needs no native build;
-it approximates flex layout and does not implement grid, reverse directions,
-or full alignment. For optional Mason layout, see the
-[renderer setup](../packages/package-linux-gtk-renderer.md#optional-native-layout).
+The npm package includes JavaScript, declarations, and the prebuilt Mason
+layout engine for `x86_64` and `aarch64` — no native build is needed. GJS
+and GTK4 come from your Linux distribution (Ubuntu 24.04 / GTK 4.14 is the
+baseline). Mason is required; see
+[Native layout](../packages/package-linux-gtk-renderer.md#native-layout--mason-ships-in-the-package).
 
 ## Configure the app
 
@@ -775,8 +775,9 @@ export function FeedViewport() {
 }
 ```
 
-Layout needs the repository-only [XplatMason binding](https://github.com/octane-xplat/octane-xplat/tree/main/packages/linux-gtk-renderer/native/xplatmason);
-the Gtk.Box fallback cannot provide Grid or full flex layout. Maintained GJS checks cover
+Layout uses the [XplatMason binding](https://github.com/octane-xplat/octane-xplat/tree/main/packages/linux-gtk-renderer/native/xplatmason),
+which ships prebuilt in the package for `x86_64` and `aarch64` and travels
+with the bundle the CLI produces. Maintained GJS checks cover
 mounting, direction/spacing updates, size inheritance, gesture callbacks and
 cleanup. This subset does not qualify the complete UI, accessibility or visual
 parity. Other root UI imports remain unavailable until their GTK implementation
@@ -784,11 +785,6 @@ is qualified. The primitive fixture has passed 42 assertions with the real
 Mason engine on Ubuntu 24.04 / GTK 4.14.5; a separate X11 pointer check exercises
 real clicks and drags. These checks do not qualify Wayland, assistive technology
 or visual parity.
-
-The binding consumes a prebuilt MasonCore archive. The published Mason fork
-currently has no desktop archive producer, so a fresh packaged consumer setup
-is still unqualified. The repository's [build record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/linux-gtk-ui-parity.md#mason-test-artifact-prerequisite)
-describes the pinned, locally prepared artifact used by these tests.
 
 The entry point mounts the app through the renderer's host helper. Import
 your stylesheets from the same module — the preset compiles and injects
@@ -1065,8 +1061,8 @@ This experimental subset has explicit limits: pane modals are rejected,
 transitions report skipped, and OS Back and window-close integration belong to
 the enclosing host. Generated GTK startup, incoming links, physical input and
 native Mason geometry need separate qualification. The maintained check passed
-13 assertions in GJS 1.82.3 / GTK 4.18.6 using Gtk.Box emulation; it does not
-establish the optional Mason typelib's layout behavior. See
+13 assertions in GJS 1.82.3 / GTK 4.18.6; it does not
+establish the full layout behavior. See
 [native GTK routing checks](../../.agents/docs/navigation-checks.md#native-gtk-retained-panes).
 
 ## Check the runtime

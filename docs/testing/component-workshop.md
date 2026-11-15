@@ -308,8 +308,11 @@ Do not treat the command above as a fresh npm installation path. A configured
 checkout needs `gjs`, the GTK4 typelib (on Debian/Ubuntu: `gjs libgtk-4-1
 gir1.2-gtk-4.0`), and the checkout renderer resolvable as
 `@octane-xplat/linux-gtk`. `xplat workshop doctor` probes these without opening a window.
-A missing XplatMason typelib warns and falls back to `Gtk.Box` layout. On
-macOS a Homebrew GJS run is a development stand-in, not Linux qualification.
+XplatMason is required and ships in the package — stories always exercise
+the real Mason layout. On
+macOS a Homebrew GJS run needs the `XPLAT_MASON_TYPELIB` override pointing at a
+`native/xplatmason/build.sh` output; it is a development stand-in, not Linux
+qualification.
 
 Linux stories resolve `.gtk` leaves ahead of shared modules; a story listing
 `linux` under `targets` mounts, while foreign leaves stay out of the bundle.
