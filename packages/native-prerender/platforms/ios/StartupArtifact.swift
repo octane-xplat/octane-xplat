@@ -18,12 +18,19 @@ enum XplatStartupArtifact {
         let value: NSDictionary
         let nodes: [Node]
         fileprivate init(_ value: NSDictionary, _ nodes: [Node]) { self.value = value; self.nodes = nodes }
-        func supports(fontScale: Double, width: Double, height: Double, reducedMotion: Bool) throws -> Bool {
-            try check([fontScale, width, height].allSatisfy { $0.isFinite && $0 >= 0 }, "invalid environment")
+        func supports(fontScale: Double, width: Double, height: Double, reducedMotion: Bool, safeAreaInsets: (top: Double, right: Double, bottom: Double, left: Double)) throws -> Bool {
+            try check([fontScale, width, height, safeAreaInsets.top, safeAreaInsets.right, safeAreaInsets.bottom, safeAreaInsets.left].allSatisfy { $0.isFinite && $0 >= 0 }, "invalid environment")
+            let insets: [String: Double] = [
+                "safeAreaTop": safeAreaInsets.top,
+                "safeAreaRight": safeAreaInsets.right,
+                "safeAreaBottom": safeAreaInsets.bottom,
+                "safeAreaLeft": safeAreaInsets.left,
+            ]
             for item in try array(field(value, "constraints")) {
                 let row = try object(item), input = try text(field(row, "input"))
                 if input == "fontScale", fontScale != (try number(field(row, "equals"))) { return false }
                 if input == "reducedMotion", reducedMotion != (try boolean(field(row, "equals"))) { return false }
+                if let actual = insets[input], actual != (try number(field(row, "equals"))) { return false }
                 if input == "width" || input == "height" {
                     let actual = input == "width" ? width : height
                     let min = try number(field(row, "min")), max = try number(field(row, "max"))
@@ -68,7 +75,7 @@ enum XplatStartupArtifact {
     private static let styleKeys: Set<String> = [
         "alignItems", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
-        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "paddingBottom",
+        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "minHeight", "paddingBottom",
         "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace",
     ]
     private static func check(_ value: Bool, _ reason: String) throws {
@@ -204,7 +211,7 @@ enum XplatStartupArtifact {
             return next
         }
         try check(visit(0, 0) == nodes.count, "unreachable node")
-        let constraints = try array(field(root, "constraints")); try check(constraints.count <= 4, "constraint count")
+        let constraints = try array(field(root, "constraints")); try check(constraints.count <= 8, "constraint count")
         var seen: Set<String> = []
         for value in constraints {
             let row = try object(value), input = try text(field(row, "input"))
@@ -216,6 +223,9 @@ enum XplatStartupArtifact {
                 try keys(row, ["input", "min", "max"])
                 let min = try number(field(row, "min")), max = try number(field(row, "max"))
                 try check(min >= 0 && max >= min, "dimension interval")
+            case "safeAreaTop", "safeAreaRight", "safeAreaBottom", "safeAreaLeft":
+                try keys(row, ["input", "equals"])
+                try check(try number(field(row, "equals")) >= 0, "safe-area inset")
             default: throw Invalid(reason: "unknown launch input")
             }
         }

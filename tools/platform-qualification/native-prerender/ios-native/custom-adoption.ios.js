@@ -3,7 +3,7 @@ import { Application, Utils } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
-import { projectVisualTree } from '@octane-xplat/native-prerender'
+import { projectPreparedTree, projectVisualTree } from '@octane-xplat/native-prerender'
 import { bindIOSMasonTree } from '@octane-xplat/native-prerender/ios/mason-binding'
 import { writeProbeDiagnostic } from './write-native-diagnostic.ios.js'
 import { StartupComponent } from 'xplat-prerender:component'
@@ -133,6 +133,18 @@ async function qualify() {
   const prepared = root.prepare(StartupComponent, startup.seed)
 
   check(prepared.status === 'prepared', 'Startup prepare suspended')
+
+  const projected = projectPreparedTree(prepared.batch.commands).nodes
+  if (JSON.stringify(projected) !== JSON.stringify(startup.nodes)) {
+    const diffs = []
+    for (let index = 0; index < Math.max(projected.length, startup.nodes.length); index++) {
+      if (JSON.stringify(projected[index]) !== JSON.stringify(startup.nodes[index])) {
+        diffs.push({ index, cold: startup.nodes[index], live: projected[index] })
+      }
+    }
+    check(false, 'Prepared nodes differ: ' + JSON.stringify(diffs.slice(0, 3)))
+  }
+
   claims.match(prepared.batch.commands)
   host._setupAsRootView(context)
   host.callLoaded()

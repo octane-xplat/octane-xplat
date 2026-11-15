@@ -80,10 +80,15 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
                 throw XplatMasonArtifact.Invalid(reason: "missing artifact")
             }
             let decoded = try XplatMasonArtifact.decode(Data(contentsOf: url), expectedBuildHash: homeBuildHash)
+            let windowInsets = window.safeAreaInsets
             guard try decoded.snapshot.supports(
                 fontScale: UIApplication.shared.preferredContentSizeCategory == .large ? 1 : 0,
                 width: Double(content.width), height: Double(content.height),
-                reducedMotion: UIAccessibility.isReduceMotionEnabled
+                reducedMotion: UIAccessibility.isReduceMotionEnabled,
+                safeAreaInsets: (
+                    top: Double(windowInsets.top), right: Double(windowInsets.right),
+                    bottom: Double(windowInsets.bottom), left: Double(windowInsets.left)
+                )
             ) else { throw XplatMasonArtifact.Invalid(reason: "launch constraints differ") }
             artifact = decoded.value
             guard let nodes = artifact["nodes"] as? [[String: Any]], nodes.count == 19,

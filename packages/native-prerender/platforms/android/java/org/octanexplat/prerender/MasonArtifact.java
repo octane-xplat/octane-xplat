@@ -67,7 +67,7 @@ public final class MasonArtifact {
         boolean nonnegative = n >= 0 && (!Float.isInfinite((float) n) && !Float.isNaN((float) n));
         boolean valid;
         switch (key) {
-            case "display": valid = "flex".equals(value); break;
+            case "display": valid = "flex".equals(value) || "block".equals(value); break;
             case "flexDirection": valid = "row".equals(value) || "column".equals(value); break;
             case "alignItems": valid = "center".equals(value); break;
             case "justifyContent": valid = "center".equals(value) || "space-between".equals(value); break;
@@ -86,7 +86,7 @@ public final class MasonArtifact {
                 break;
             case "color": case "backgroundColor": valid = value instanceof String && validColor((String) value); break;
             case "flexGrow": case "flexShrink": case "paddingTop": case "paddingRight": case "paddingBottom":
-            case "paddingLeft": case "rowGap": case "columnGap": case "minWidth": case "height":
+            case "paddingLeft": case "rowGap": case "columnGap": case "minWidth": case "minHeight": case "height":
             case "lineHeight": case "borderRadius": valid = nonnegative; break;
             default: throw new Invalid("unsupported style property: " + key);
         }

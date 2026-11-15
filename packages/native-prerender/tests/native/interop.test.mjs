@@ -69,15 +69,65 @@ for (const reader of readers) {
         { platform: 'android', fontScale: 1, width: 800, height: 800, reducedMotion: false },
         { platform: 'android', fontScale: 1, width: 801, height: 800, reducedMotion: false },
         { platform: 'android', fontScale: 1.3, width: 402, height: 800, reducedMotion: false },
+        {
+          platform: 'android',
+          fontScale: 1,
+          width: 320,
+          height: 800,
+          reducedMotion: false,
+          safeAreaInsets: { top: 24, right: 0, bottom: 16, left: 0 },
+        },
+        {
+          platform: 'android',
+          fontScale: 1,
+          width: 320,
+          height: 800,
+          reducedMotion: false,
+          safeAreaInsets: { top: 32, right: 0, bottom: 16, left: 0 },
+        },
       ]) {
         const result = invoke(
           reader,
           bytes,
           expected,
-          [env.fontScale, env.width, env.height, env.reducedMotion].map(String),
+          [
+            env.fontScale,
+            env.width,
+            env.height,
+            env.reducedMotion,
+            env.safeAreaInsets?.top ?? 0,
+            env.safeAreaInsets?.right ?? 0,
+            env.safeAreaInsets?.bottom ?? 0,
+            env.safeAreaInsets?.left ?? 0,
+          ].map(String),
         )
         assert.equal(result.status, 0, result.stderr)
         assert.equal(JSON.parse(result.stdout), checkLaunchEnvironment(artifact, env).supported)
+      }
+
+      const insetBytes = encodeStartupArtifact(
+        validateArtifact({
+          ...fixture(),
+          constraints: [
+            ...fixture().constraints,
+            { input: 'safeAreaTop', equals: 24 },
+            { input: 'safeAreaBottom', equals: 16 },
+          ],
+        }),
+      )
+      for (const [top, bottom, expectedSupported] of [
+        [24, 16, true],
+        [32, 16, false],
+        [24, 0, false],
+      ]) {
+        const result = invoke(
+          reader,
+          insetBytes,
+          expected,
+          [1, 320, 800, false, top, 0, bottom, 0].map(String),
+        )
+        assert.equal(result.status, 0, result.stderr)
+        assert.equal(JSON.parse(result.stdout), expectedSupported)
       }
     },
   )

@@ -43,7 +43,9 @@ export function parseProducerConfig(text, file) {
 
   if (
     !object(environment) ||
-    Object.keys(environment).length !== 3 ||
+    Object.keys(environment).some(
+      (key) => !['width', 'height', 'reducedMotion', 'safeAreaInsets'].includes(key),
+    ) ||
     !Number.isFinite(environment.width) ||
     environment.width <= 0 ||
     !Number.isFinite(environment.height) ||
@@ -51,6 +53,21 @@ export function parseProducerConfig(text, file) {
     typeof environment.reducedMotion !== 'boolean'
   ) {
     throw new Error('Producer environment requires positive width/height and boolean reducedMotion')
+  }
+
+  const insets = environment.safeAreaInsets
+  if (insets !== undefined) {
+    if (
+      !object(insets) ||
+      Object.keys(insets).length !== 4 ||
+      !['top', 'right', 'bottom', 'left'].every(
+        (edge) => Number.isFinite(insets[edge]) && insets[edge] >= 0,
+      )
+    ) {
+      throw new Error(
+        'Producer environment safeAreaInsets requires finite top/right/bottom/left values',
+      )
+    }
   }
 
   return {

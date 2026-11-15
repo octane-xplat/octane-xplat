@@ -12,6 +12,7 @@ const primitives = {
   Text: 'content/Text',
   VStack: 'layout/VStack',
   HStack: 'layout/HStack',
+  SafeArea: 'layout/SafeArea',
 }
 
 const data: Record<string, string> = {

@@ -84,18 +84,27 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
                 for (int count; (count = input.read(buffer)) >= 0;) data.write(buffer, 0, count);
             }
             artifact = MasonArtifact.decode(data.toByteArray(), HomeBuild.HASH);
-            float density = getResources().getDisplayMetrics().density;
+            double density = getResources().getDisplayMetrics().density;
             // Fixtures get a bounded test canvas; custom screens fill the
             // window so the hydration transition can be evaluated visually.
-            int width = HomeBuild.FILL_WINDOW ? getResources().getDisplayMetrics().widthPixels : Math.round(320 * density);
-            int height = HomeBuild.FILL_WINDOW ? getResources().getDisplayMetrics().heightPixels : Math.round(640 * density);
+            int width = HomeBuild.FILL_WINDOW ? getResources().getDisplayMetrics().widthPixels : (int) Math.round(320 * density);
+            int height = HomeBuild.FILL_WINDOW ? getResources().getDisplayMetrics().heightPixels : (int) Math.round(640 * density);
+            android.graphics.Insets bars = getWindowManager().getCurrentWindowMetrics().getWindowInsets()
+                .getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout());
+            record("mount-constraints", new JSONObject().put("width", width / density).put("height", height / density)
+                .put("safeAreaInsets", new JSONObject().put("top", bars.top / density).put("right", bars.right / density)
+                    .put("bottom", bars.bottom / density).put("left", bars.left / density)));
             check(artifact.snapshot.supports(getResources().getConfiguration().fontScale, width / density, height / density,
-                !android.animation.ValueAnimator.areAnimatorsEnabled()), "Test canvas does not satisfy launch constraints");
+                !android.animation.ValueAnimator.areAnimatorsEnabled(),
+                bars.top / density, bars.right / density, bars.bottom / density, bars.left / density),
+                "Test canvas does not satisfy launch constraints");
             theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
             MasonMount.Prepared prepared = MasonMount.prepare(this, artifact, theme);
             record("mount-preflight", new JSONObject().put("visualNodes", artifact.nodes.size())
-                .put("logicalNodes", artifact.snapshot.nodes.size()).put("theme", theme));
+                .put("logicalNodes", artifact.snapshot.nodes.size()).put("theme", theme)
+                .put("safeAreaInsets", new JSONObject().put("top", bars.top / density).put("right", bars.right / density)
+                    .put("bottom", bars.bottom / density).put("left", bars.left / density)));
             Mason mason = Mason.Companion.getShared();
             viewport = new View(this, mason);
             viewport.getStyle().setDisplay(Display.Flex);

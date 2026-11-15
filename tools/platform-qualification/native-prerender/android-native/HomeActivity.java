@@ -312,10 +312,14 @@ public class HomeActivity extends AppCompatActivity {
             try {
                 MasonMount.validateEnvironment(this);
                 android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+                android.graphics.Insets bars = getWindowManager().getCurrentWindowMetrics().getWindowInsets()
+                        .getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout());
                 if (!artifact.snapshot.supports(getResources().getConfiguration().fontScale,
                         metrics.widthPixels / (double) metrics.density,
                         metrics.heightPixels / (double) metrics.density,
-                        !android.animation.ValueAnimator.areAnimatorsEnabled()))
+                        !android.animation.ValueAnimator.areAnimatorsEnabled(),
+                        bars.top / (double) metrics.density, bars.right / (double) metrics.density,
+                        bars.bottom / (double) metrics.density, bars.left / (double) metrics.density))
                     throw new MasonMount.UnsupportedEnvironment("Startup artifact launch constraints differ");
                 scene = new HomeScene(this, artifact, theme);
             } catch (MasonMount.UnsupportedEnvironment rejected) {

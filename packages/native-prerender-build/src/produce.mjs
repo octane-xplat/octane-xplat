@@ -341,7 +341,7 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     const output = join(work, theme + '-tree.json')
     const input = join(work, theme + '-input.json')
 
-    json(input, { theme, seed, output })
+    json(input, { theme, seed, environment, output })
     run(homeBundle, input)
     trees[theme] = JSON.parse(readFileSync(output, 'utf8'))
     assert.equal(
@@ -400,7 +400,20 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
   const output = join(work, 'resolved.json')
   const cascadeInput = join(work, 'cascade-input.json')
 
-  json(cascadeInput, { tree: join(work, 'light-tree.json'), seed, sheets, environment, output })
+  // Safe-area insets become launch constraints only when the prepared tree
+  // actually read them; an unused declaration must not narrow adoption.
+  const consumesSafeAreaInsets = ['light', 'dark'].some((theme) =>
+    trees[theme].reads.includes('Application.safeAreaInsets'),
+  )
+
+  json(cascadeInput, {
+    tree: join(work, 'light-tree.json'),
+    seed,
+    sheets,
+    environment,
+    consumesSafeAreaInsets,
+    output,
+  })
   run(cascadeBundle, cascadeInput)
 
   const { launch, ...artifact } = JSON.parse(readFileSync(output, 'utf8'))

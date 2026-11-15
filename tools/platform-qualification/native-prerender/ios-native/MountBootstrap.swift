@@ -64,6 +64,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         viewport.frame = canvas
         outer.addSubview(viewport)
         let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
+        let windowInsets = window.safeAreaInsets
         let artifact: [String: Any]
         do {
             let resource = Bundle.main.url(forResource: "startup", withExtension: "bin", subdirectory: "app")
@@ -74,7 +75,11 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
             guard try decoded.snapshot.supports(
                 fontScale: UIApplication.shared.preferredContentSizeCategory == .large ? 1 : 0,
                 width: Double(canvas.width), height: Double(canvas.height),
-                reducedMotion: UIAccessibility.isReduceMotionEnabled
+                reducedMotion: UIAccessibility.isReduceMotionEnabled,
+                safeAreaInsets: (
+                    top: Double(windowInsets.top), right: Double(windowInsets.right),
+                    bottom: Double(windowInsets.bottom), left: Double(windowInsets.left)
+                )
             ) else { throw XplatMasonArtifact.Invalid(reason: "launch constraints differ") }
             artifact = decoded.value
             guard let nodes = artifact["nodes"] as? [[String: Any]], !nodes.isEmpty,
@@ -83,7 +88,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
             }
         } catch {
             let reason = (error as? XplatMasonArtifact.Invalid)?.reason ?? "artifact read failed"
-            try! JSONSerialization.data(withJSONObject: ["artifactRejected": true, "reason": reason, "theme": theme, "scale": scale, "rows": []]).write(to: documents("native-mount.json"), options: .atomic)
+            try! JSONSerialization.data(withJSONObject: ["artifactRejected": true, "reason": reason, "theme": theme, "scale": scale, "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left], "rows": []]).write(to: documents("native-mount.json"), options: .atomic)
             record("failed", ["reason": reason, "beforeEngineInit": true])
             return
         }
@@ -100,8 +105,8 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         }
         let rows = PrerenderHomeMount.snapshot(mountedRoot)
         precondition(rows.count == mounted.views.count && mounted.views.allSatisfy { $0.window === window && $0.frame.width > 0 && $0.frame.height > 0 })
-        try! JSONSerialization.data(withJSONObject: ["theme": theme, "scale": scale, "rows": rows]).write(to: documents("native-mount.json"), options: .atomic)
-        record("native-mounted", ["visualNodes": rows.count, "canvas": NSCoder.string(for: canvas), "owningScale": scale])
+        try! JSONSerialization.data(withJSONObject: ["theme": theme, "scale": scale, "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left], "rows": rows]).write(to: documents("native-mount.json"), options: .atomic)
+        record("native-mounted", ["visualNodes": rows.count, "canvas": NSCoder.string(for: canvas), "owningScale": scale, "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left]])
         PrerenderMountHost.mount = mounted
         PrerenderMountHost.viewport = viewport
         link = CADisplayLink(target: self, selector: #selector(tick))

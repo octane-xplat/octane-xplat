@@ -37,10 +37,11 @@ public final class StartupArtifactCheck {
     }
     public static void main(String[] args) throws Exception {
         try {
-            if (!(args.length == 3 || args.length == 4 || args.length == 7) || Files.size(Paths.get(args[0])) > 1048576) throw new IllegalArgumentException("Arguments or byte length");
+            if (!(args.length == 3 || args.length == 4 || args.length == 11) || Files.size(Paths.get(args[0])) > 1048576) throw new IllegalArgumentException("Arguments or byte length");
             StartupArtifact.Snapshot result = StartupArtifact.decode(Files.readAllBytes(Paths.get(args[0])), args[1], args[2]);
-            Object output = args.length == 4 ? result.visualNodes() : args.length == 7
-                ? result.supports(Double.parseDouble(args[3]), Double.parseDouble(args[4]), Double.parseDouble(args[5]), Boolean.parseBoolean(args[6]))
+            Object output = args.length == 4 ? result.visualNodes() : args.length == 11
+                ? result.supports(Double.parseDouble(args[3]), Double.parseDouble(args[4]), Double.parseDouble(args[5]), Boolean.parseBoolean(args[6]),
+                        Double.parseDouble(args[7]), Double.parseDouble(args[8]), Double.parseDouble(args[9]), Double.parseDouble(args[10]))
                 : result.value;
             System.out.write(json(output).getBytes(StandardCharsets.UTF_8));
         } catch (IllegalArgumentException error) {

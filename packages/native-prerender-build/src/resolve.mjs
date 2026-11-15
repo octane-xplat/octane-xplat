@@ -37,7 +37,9 @@ function cssNode(kind, props) {
 }
 
 const variants = {}
-const launch = compileLaunchConstraints(stylesheetMediaQueries(), input.environment)
+const launch = compileLaunchConstraints(stylesheetMediaQueries(), input.environment, {
+  consumesSafeAreaInsets: input.consumesSafeAreaInsets === true,
+})
 
 for (const colorScheme of ['light', 'dark']) {
   setStyleEnvironment(() => ({ ...input.environment, colorScheme }))

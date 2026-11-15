@@ -12,7 +12,7 @@ import { projectPreparedTree } from '@octane-xplat/native-prerender'
 
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 
-configureNativeBuildHost(input.theme)
+configureNativeBuildHost(input.theme, input.environment)
 
 const container = createObjectContainer('nativescript')
 const root = createUniversalRoot(container, createObjectDriver('nativescript'))

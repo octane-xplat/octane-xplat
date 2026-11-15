@@ -35,9 +35,9 @@ static uint32_t ARGB(UIColor *color) {
 }
 static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
-    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"maxWidth", @"height", @"lineHeight", @"userSelect"]];
+    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect"]];
     for (NSString *key in values) Require([known containsObject:key], [@"Unsupported property: " stringByAppendingString:key]);
-    if (values[@"display"]) { Require([values[@"display"] isEqual:@"flex"], @"Unsupported display"); style.display = MasonDisplayFlex; }
+    if (values[@"display"]) { Require([values[@"display"] isEqual:@"flex"] || [values[@"display"] isEqual:@"block"], @"Unsupported display"); style.display = [values[@"display"] isEqual:@"flex"] ? MasonDisplayFlex : MasonDisplayBlock; }
     if (values[@"flexDirection"]) {
         Require([@[@"row",@"column"] containsObject:values[@"flexDirection"]], @"Unsupported flex direction");
         style.flexDirection = [values[@"flexDirection"] isEqual:@"column"] ? MasonFlexDirectionColumn : MasonFlexDirectionRow;
@@ -51,6 +51,7 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     if (values[@"rowGap"]) [style setRowGap:[values[@"rowGap"] floatValue]*scale :0];
     if (values[@"columnGap"]) [style setColumnGap:[values[@"columnGap"] floatValue]*scale :0];
     if (values[@"minWidth"]) [style setMinSizeWidth:[values[@"minWidth"] floatValue]*scale :MasonDimensionCompatTypePoints];
+    if (values[@"minHeight"]) [style setMinSizeHeight:[values[@"minHeight"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if (values[@"maxWidth"]) { Require([values[@"maxWidth"] isEqual:@"100%"], @"Unsupported maximum width"); [style setMaxSizeWidth:1 :MasonDimensionCompatTypePercent]; }
     if (values[@"height"]) [style setSizeHeight:[values[@"height"] floatValue]*scale :MasonDimensionCompatTypePoints];
     // The examined SDK bulk border-width setter writes padding. Use its edge setters.
@@ -110,7 +111,7 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
             NSArray *rows = artifact[@"variants"][variant];
             Require(rows.count == records.count, @"Style projection differs");
             NSDictionary *values = rows[index][@"style"];
-            for (NSString *key in @[@"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"minWidth", @"height"]) {
+            for (NSString *key in @[@"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"minWidth", @"minHeight", @"height"]) {
                 if (!values[key]) continue;
                 double pixels = (double)[values[key] floatValue] * scale;
                 Require(isfinite(pixels) && pixels <= FLT_MAX, @"Scaled length exceeds native range");

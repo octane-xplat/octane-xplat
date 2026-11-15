@@ -219,6 +219,30 @@ test('bounded native launch checks accept interval edges and reject unsupported 
   const bad = fixture()
   bad.constraints = []
   assert.throws(() => validateArtifact(bad), /font scale preflight/)
+
+  const insetArtifact = validateArtifact({
+    ...fixture(),
+    constraints: [
+      ...fixture().constraints,
+      { input: 'safeAreaTop', equals: 24 },
+      { input: 'safeAreaBottom', equals: 16 },
+    ],
+  })
+  const insets = { top: 24, right: 0, bottom: 16, left: 0 }
+  assert.deepEqual(checkLaunchEnvironment(insetArtifact, { ...env, safeAreaInsets: insets }), {
+    supported: true,
+  })
+  assert.deepEqual(
+    checkLaunchEnvironment(insetArtifact, {
+      ...env,
+      safeAreaInsets: { ...insets, top: 32 },
+    }),
+    { supported: false, input: 'safeAreaTop' },
+  )
+  assert.deepEqual(checkLaunchEnvironment(insetArtifact, env), {
+    supported: false,
+    input: 'safeAreaTop',
+  })
 })
 
 test('rejects truncation, corruption, unknown features, trailing bytes and mismatched apps', () => {

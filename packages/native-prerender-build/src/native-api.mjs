@@ -55,6 +55,13 @@ export const Application = new Proxy(Object.create(null), {
         return undefined
       case 'systemAppearance':
         return () => theme
+      case 'safeAreaInsets':
+        if (!safeAreaInsets) {
+          throw new Error(
+            'Native startup producer: environment.safeAreaInsets required by safe-area read',
+          )
+        }
+        return safeAreaInsets
       default:
         throw new Error('Native startup producer: unsupported application read ' + String(key))
     }
@@ -63,6 +70,7 @@ export const Application = new Proxy(Object.create(null), {
 
 export const isIOS = platform === 'ios'
 export const isAndroid = platform === 'android'
+export const Screen = unavailable('Screen')
 export const Utils = unavailable('Utils')
 export const ScrollView = unavailable('ScrollView')
 export const Color = unavailable('Color')
@@ -81,9 +89,21 @@ export function registerElement(name, factory) {
   registrations.add(name)
 }
 
-export function configureNativeBuildHost(value) {
+let safeAreaInsets
+
+export function configureNativeBuildHost(value, environment) {
   if (theme || !['light', 'dark'].includes(value)) {
     throw new Error('Native startup producer: invalid or repeated environment initialization')
+  }
+
+  const insets = environment?.safeAreaInsets
+  if (insets !== undefined) {
+    safeAreaInsets = Object.freeze({
+      top: insets.top,
+      right: insets.right,
+      bottom: insets.bottom,
+      left: insets.left,
+    })
   }
 
   theme = value

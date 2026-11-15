@@ -74,13 +74,24 @@ public final class StartupArtifact {
             }
         }
         /** Inclusive bounds; false selects ordinary rendering before native allocation. */
-        public boolean supports(double fontScale, double width, double height, boolean reducedMotion) {
-            require(finite(fontScale) && finite(width) && finite(height) && fontScale >= 0 && width >= 0 && height >= 0, "invalid environment");
+        public boolean supports(double fontScale, double width, double height, boolean reducedMotion,
+                double safeAreaTop, double safeAreaRight, double safeAreaBottom, double safeAreaLeft) {
+            require(finite(fontScale) && finite(width) && finite(height) && finite(safeAreaTop) &&
+                finite(safeAreaRight) && finite(safeAreaBottom) && finite(safeAreaLeft) &&
+                fontScale >= 0 && width >= 0 && height >= 0 &&
+                safeAreaTop >= 0 && safeAreaRight >= 0 && safeAreaBottom >= 0 && safeAreaLeft >= 0,
+                "invalid environment");
             for (Object item : list(value.get("constraints"))) {
                 Map<String, Object> row = object(item);
                 String input = text(row.get("input"));
                 if (input.equals("fontScale") && fontScale != number(row.get("equals"))) return false;
                 if (input.equals("reducedMotion") && reducedMotion != (Boolean) row.get("equals")) return false;
+                double inset = -1;
+                if (input.equals("safeAreaTop")) inset = safeAreaTop;
+                if (input.equals("safeAreaRight")) inset = safeAreaRight;
+                if (input.equals("safeAreaBottom")) inset = safeAreaBottom;
+                if (input.equals("safeAreaLeft")) inset = safeAreaLeft;
+                if (inset >= 0 && inset != number(row.get("equals"))) return false;
                 if (input.equals("width") || input.equals("height")) {
                     double actual = input.equals("width") ? width : height;
                     if (actual < number(row.get("min")) || actual > number(row.get("max"))) return false;
@@ -92,7 +103,7 @@ public final class StartupArtifact {
     private static final Set<String> STYLE_KEYS = new HashSet<>(Arrays.asList(
         "alignItems", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
-        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "paddingBottom",
+        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "minHeight", "paddingBottom",
         "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace"));
     private static void require(boolean condition, String reason) { if (!condition) throw new Invalid(reason); }
     private static boolean finite(double value) { return !Double.isNaN(value) && !Double.isInfinite(value); }
@@ -197,15 +208,20 @@ public final class StartupArtifact {
             if (!kind.equals("#text")) visual.add(index);
         }
         require(visit(nodes, 0, 0) == nodes.size(), "unreachable node");
-        List<?> constraints = list(root.get("constraints")); require(constraints.size() <= 4, "constraint count");
+        List<?> constraints = list(root.get("constraints")); require(constraints.size() <= 8, "constraint count");
         Set<String> seen = new HashSet<>();
         for (Object item : constraints) {
             Map<String, Object> row = object(item); String input = text(row.get("input")); require(seen.add(input), "duplicate constraint");
             if (input.equals("fontScale")) { keys(row, "input", "equals"); require(number(row.get("equals")) == 1, "font scale"); }
             else if (input.equals("reducedMotion")) { keys(row, "input", "equals"); require(row.get("equals") instanceof Boolean, "motion constraint"); }
-            else {
-                require(input.equals("width") || input.equals("height"), "unknown launch input"); keys(row, "input", "min", "max");
+            else if (input.equals("width") || input.equals("height")) {
+                keys(row, "input", "min", "max");
                 double min = number(row.get("min")), max = number(row.get("max")); require(min >= 0 && max >= min, "dimension interval");
+            }
+            else {
+                require(input.equals("safeAreaTop") || input.equals("safeAreaRight") ||
+                    input.equals("safeAreaBottom") || input.equals("safeAreaLeft"), "unknown launch input");
+                keys(row, "input", "equals"); require(number(row.get("equals")) >= 0, "safe-area inset");
             }
         }
         require(seen.contains("fontScale"), "font scale preflight required");

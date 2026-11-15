@@ -21,17 +21,31 @@ function androidActivity(): any {
   return Application.android?.foregroundActivity ?? Application.android?.startActivity
 }
 
+function androidWindowManager(): any {
+  const manager = androidActivity()?.getWindowManager?.()
+  if (manager) {
+    return manager
+  }
+  const context =
+    Application.android?.context ?? Application.android?.nativeApp?.getApplicationContext?.()
+  return context?.getSystemService?.(android.content.Context.WINDOW_SERVICE)
+}
+
 function readAndroidInsets(): SafeAreaInsets {
   const decorView = androidActivity()?.getWindow?.()?.getDecorView?.()
-  const insets = decorView?.getRootWindowInsets?.()
-
-  if (!insets) {
-    return { top: 0, right: 0, bottom: 0, left: 0 }
-  }
-
   const scale = Screen.mainScreen.scale || 1
 
   if (android.os.Build.VERSION.SDK_INT >= 30) {
+    // WindowMetrics insets are available before the first decor-view dispatch;
+    // getRootWindowInsets returns null until then and would read as zero.
+    const insets =
+      androidWindowManager()?.getCurrentWindowMetrics?.()?.getWindowInsets?.() ??
+      decorView?.getRootWindowInsets?.()
+
+    if (!insets) {
+      return { top: 0, right: 0, bottom: 0, left: 0 }
+    }
+
     const systemBars =
       android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout()
 
@@ -45,6 +59,12 @@ function readAndroidInsets(): SafeAreaInsets {
     }
   }
 
+  const insets = decorView?.getRootWindowInsets?.()
+
+  if (!insets) {
+    return { top: 0, right: 0, bottom: 0, left: 0 }
+  }
+
   return {
     top: insets.getSystemWindowInsetTop() / scale,
     right: insets.getSystemWindowInsetRight() / scale,
@@ -54,6 +74,13 @@ function readAndroidInsets(): SafeAreaInsets {
 }
 
 function measure(): SafeAreaInsets {
+  // The native startup producer answers this read from its declared
+  // environment; real NativeScript has no such member and falls through.
+  const declared = (Application as { safeAreaInsets?: SafeAreaInsets }).safeAreaInsets
+  if (declared) {
+    return declared
+  }
+
   const view = Application.ios?.rootController?.view
   const insets = view?.safeAreaInsets
 
@@ -68,7 +95,7 @@ function measure(): SafeAreaInsets {
   return { top: 0, right: 0, bottom: 0, left: 0 }
 }
 
-/** Reads the root view's insets; Android and pre-attachment reads may be zero. */
+/** Reads the window's insets; reads before window attachment may be zero. */
 export function useSafeAreaInsets(): SafeAreaInsets {
   const [insets, setInsets] = useState<SafeAreaInsets>(measure)
 

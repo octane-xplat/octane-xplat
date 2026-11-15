@@ -4,16 +4,19 @@ import Foundation
     static func main() {
         do {
             let args = CommandLine.arguments
-            guard [4, 5, 8].contains(args.count),
+            guard [4, 5, 12].contains(args.count),
                   let size = try FileManager.default.attributesOfItem(atPath: args[1])[.size] as? NSNumber,
                   size.intValue <= 1048576 else { throw XplatStartupArtifact.Invalid(reason: "arguments or byte length") }
             let snapshot = try XplatStartupArtifact.decode(Data(contentsOf: URL(fileURLWithPath: args[1])), build: args[2], platform: args[3])
             let result: Any
             if args.count == 5 { result = try snapshot.visualNodes() }
-            else if args.count == 8 {
-                guard let scale = Double(args[4]), let width = Double(args[5]), let height = Double(args[6]), ["true", "false"].contains(args[7])
+            else if args.count == 12 {
+                guard let scale = Double(args[4]), let width = Double(args[5]), let height = Double(args[6]),
+                      let top = Double(args[8]), let right = Double(args[9]), let bottom = Double(args[10]), let left = Double(args[11]),
+                      ["true", "false"].contains(args[7])
                 else { throw XplatStartupArtifact.Invalid(reason: "environment arguments") }
-                result = try snapshot.supports(fontScale: scale, width: width, height: height, reducedMotion: args[7] == "true")
+                result = try snapshot.supports(fontScale: scale, width: width, height: height, reducedMotion: args[7] == "true",
+                                               safeAreaInsets: (top: top, right: right, bottom: bottom, left: left))
             } else { result = snapshot.value }
             FileHandle.standardOutput.write(try JSONSerialization.data(withJSONObject: result, options: [.fragmentsAllowed, .sortedKeys]))
         } catch {

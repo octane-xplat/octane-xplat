@@ -132,7 +132,7 @@ public final class MasonMount {
     }
     private void apply(android.view.View view, Style style, Map<String, Object> values) {
         style.setInBatch(true);
-        if (values.containsKey("display")) style.setDisplay(Display.Flex);
+        if (values.containsKey("display")) { supported("flex".equals(values.get("display")) || "block".equals(values.get("display")), "Unsupported display"); style.setDisplay("flex".equals(values.get("display")) ? Display.Flex : Display.Block); }
         if (values.containsKey("flexDirection")) style.setFlexDirection(values.get("flexDirection").equals("column") ? FlexDirection.Column : FlexDirection.Row);
         if (values.containsKey("flexGrow")) style.setFlexGrow(number(values, "flexGrow", 0));
         if (values.containsKey("flexShrink")) style.setFlexShrink(number(values, "flexShrink", 0));
@@ -143,6 +143,7 @@ public final class MasonMount {
         if (values.containsKey("rowGap")) style.setGapRow(number(values, "rowGap", 0) * density, (byte) 0);
         if (values.containsKey("columnGap")) style.setGapColumn(number(values, "columnGap", 0) * density, (byte) 0);
         if (values.containsKey("minWidth")) style.setMinSizeWidth(number(values, "minWidth", 0) * density, (byte) 1);
+        if (values.containsKey("minHeight")) style.setMinSizeHeight(number(values, "minHeight", 0) * density, (byte) 1);
         if (values.containsKey("maxWidth")) style.setMaxSizeWidth(1, (byte) 2);
         if (values.containsKey("height")) style.setSizeHeight(number(values, "height", 0) * density, (byte) 1);
         if (values.containsKey("alignItems")) style.setAlignItems(AlignItems.Center);

@@ -14,10 +14,16 @@ export type StyleRecord = {
   cssKeys: string[]
   inheritedKeys: string[]
 }
+export type SafeAreaInsetInput =
+  | 'safeAreaTop'
+  | 'safeAreaRight'
+  | 'safeAreaBottom'
+  | 'safeAreaLeft'
 export type LaunchConstraint =
   | { input: 'fontScale'; equals: 1 }
   | { input: 'reducedMotion'; equals: boolean }
   | { input: 'width' | 'height'; min: number; max: number }
+  | { input: SafeAreaInsetInput; equals: number }
 export type StartupArtifact = {
   version: 1
   platform: 'ios' | 'android'
@@ -55,6 +61,7 @@ export const STYLE_KEYS: readonly string[] = Object.freeze([
   'lineHeight',
   'maxWidth',
   'minWidth',
+  'minHeight',
   'paddingBottom',
   'paddingLeft',
   'paddingRight',
@@ -275,7 +282,7 @@ export function validateArtifact(input: unknown): StartupArtifact {
   const seed = copyProps(value.seed)
   const nodes = validateNodes(value.nodes)
   requireArtifact(
-    Array.isArray(value.constraints) && value.constraints.length <= 4,
+    Array.isArray(value.constraints) && value.constraints.length <= 8,
     'launch constraints',
   )
   const seen = new Set<string>()
@@ -293,6 +300,20 @@ export function validateArtifact(input: unknown): StartupArtifact {
       keys(constraint, ['input', 'equals'], 'motion constraint')
       requireArtifact(typeof constraint.equals === 'boolean', 'motion constraint')
       return { input: name, equals: constraint.equals }
+    }
+    if (name.startsWith('safeArea')) {
+      requireArtifact(
+        ['safeAreaTop', 'safeAreaRight', 'safeAreaBottom', 'safeAreaLeft'].includes(name),
+        'unknown launch input',
+      )
+      keys(constraint, ['input', 'equals'], 'safe area constraint')
+      requireArtifact(
+        typeof constraint.equals === 'number' &&
+          Number.isFinite(constraint.equals) &&
+          constraint.equals >= 0,
+        'safe area inset',
+      )
+      return { input: name as SafeAreaInsetInput, equals: constraint.equals }
     }
     requireArtifact(name === 'width' || name === 'height', 'unknown launch input')
     keys(constraint, ['input', 'min', 'max'], 'dimension constraint')

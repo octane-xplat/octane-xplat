@@ -7,6 +7,7 @@ export const primitiveModules = {
   Text: 'src/components/content/Text.tsrx',
   VStack: 'src/components/layout/VStack.tsrx',
   HStack: 'src/components/layout/HStack.tsrx',
+  SafeArea: 'src/components/layout/SafeArea.tsrx',
 }
 
 function packageRoot(entry, name) {
