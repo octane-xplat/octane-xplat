@@ -26,6 +26,14 @@ try {
 
   assert.equal(manifest.exports['.'].default, './src/index.ts')
 
+  const escapeEntry = manifest.exports['./escape-props']
+  assert.equal(escapeEntry.default, './src/escape-props.ts')
+  assert.ok(readFileSync(join(root, escapeEntry.types), 'utf8').includes('applyWebEscapeProps'))
+  const { applyNativeEscapeProps } = await loadSource(pathToFileURL(join(root, escapeEntry.default)))
+  const view = {}
+  applyNativeEscapeProps(view, { label: 'packed' })
+  assert.equal(view.label, 'packed')
+
   const typeFixture = join(root, 'component-props.check.ts')
 
   writeFileSync(

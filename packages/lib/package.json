@@ -22,6 +22,10 @@
 			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		},
+		"./escape-props": {
+			"types": "./types/generated/escape-props.d.ts",
+			"default": "./src/escape-props.ts"
+		},
 		"./route-pattern": {
 			"types": "./types/generated/route-pattern.d.ts",
 			"default": "./dist/route-pattern.js"

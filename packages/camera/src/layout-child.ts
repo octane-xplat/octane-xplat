@@ -1,3 +1,4 @@
+import { applyNativeEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { CameraViewProps } from './props'
 import { isIOS } from '@nativescript/core'
 import { mergeStyle } from './style-merge'
@@ -56,15 +57,7 @@ export function layoutChildProps(
 }
 
 export function applyEscapeProps(view: any, props: { ios?: any; android?: any }): void {
-  if (!view) {
-    return
-  }
-
-  const bag = isIOS ? props.ios : props.android
-
-  if (bag) {
-    Object.assign(view, bag)
-  }
+  applyNativeEscapeProps(view, isIOS ? props.ios : props.android)
 }
 
 const nativeRoles: Record<string, string> = {

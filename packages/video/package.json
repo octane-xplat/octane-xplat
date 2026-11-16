@@ -52,6 +52,7 @@
 		"typecheck": "node ../../scripts/typecheck.ts"
 	},
 	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
 		"@nstudio/nativescript-exoplayer": "6.2.0",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*"

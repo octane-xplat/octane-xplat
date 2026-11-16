@@ -610,6 +610,7 @@
         "@nativescript/mlkit-barcode-scanning": "3.0.4",
         "@nativescript/mlkit-core": "3.0.4",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
@@ -749,6 +750,7 @@
       "version": "0.20.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
         "mediabunny": "1.62.1",
       },
@@ -1375,6 +1377,7 @@
       "dependencies": {
         "@nativescript-community/ui-image": "5.0.18",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
@@ -1488,6 +1491,7 @@
       "dependencies": {
         "@nativescript-community/ui-image": "5.0.18",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/lib": "workspace:*",
       },
       "devDependencies": {
         "@nativescript/core": "catalog:",
@@ -1822,6 +1826,7 @@
       "version": "0.20.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/lib": "workspace:*",
         "lottie-web": "5.13.0",
       },
       "devDependencies": {
@@ -2498,6 +2503,7 @@
         "@formatjs/intl-locale": "5.4.1",
         "@formatjs/intl-segmenter": "12.3.0",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
@@ -3170,6 +3176,7 @@
       "dependencies": {
         "@nstudio/nativescript-exoplayer": "6.2.0",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {

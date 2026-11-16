@@ -49,6 +49,7 @@
 		"typegen": "tsrx-typegen --target octane"
 	},
 	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"lottie-web": "5.13.0"
 	},

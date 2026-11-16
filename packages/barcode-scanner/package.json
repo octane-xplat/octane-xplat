@@ -84,6 +84,7 @@
 		}
 	},
 	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
 		"@nativescript/mlkit-barcode-scanning": "3.0.4",
 		"@nativescript/mlkit-core": "3.0.4",
 		"@octane-xplat/jsx": "workspace:*",

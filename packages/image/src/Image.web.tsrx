@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { applyWebEscapeProps as applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { useLayoutEffect, useRef } from 'octane'
 import type { CSSProperties } from 'octane/jsx-runtime'
 import type { ImageProps, ImageSourceLike } from './props'
@@ -54,28 +55,6 @@ function layoutChildStyle(props: ImageProps) {
   }
 
   return style
-}
-
-/** Dash-named escape-bag keys are attributes; other keys use the DOM property
- *  where available. Mirrors ui's web escape-props. */
-function applyEscapeProps(element: any, props: ImageProps): void {
-  if (!element || !props.web) {
-    return
-  }
-
-  for (const [key, value] of Object.entries(props.web)) {
-    if (key.includes('-')) {
-      if (value == null || value === false) {
-        element.removeAttribute(key)
-      } else {
-        element.setAttribute(key, String(value))
-      }
-    } else if (key in element) {
-      element[key] = value
-    } else if (value != null && value !== false) {
-      element.setAttribute(key, String(value))
-    }
-  }
 }
 
 /** `blurhash:`/`thumbhash:` decode to a data: PNG (./hash-image — the ui

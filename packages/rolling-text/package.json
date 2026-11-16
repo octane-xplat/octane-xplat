@@ -55,6 +55,7 @@
 		"test:intl": "node --test tests/intl.mts"
 	},
 	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
 		"@formatjs/intl-getcanonicallocales": "3.3.0",
 		"@formatjs/intl-locale": "5.4.1",
 		"@formatjs/intl-segmenter": "12.3.0",

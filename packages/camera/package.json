@@ -60,6 +60,7 @@
 		"test:macos-runtime": "node tests/packed-consumer.mts --macos-native"
 	},
 	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"mediabunny": "1.62.1"
