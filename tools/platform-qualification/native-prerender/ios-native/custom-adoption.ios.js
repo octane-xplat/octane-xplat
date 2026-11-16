@@ -122,10 +122,21 @@ async function qualify() {
   const binding = bindIOSMasonTree(startup.nodes, viewport, natives)
   const { host, wrappers, claims } = binding
 
-  // Adopted views keep the cold-mounted frames exactly; NativeScript's
-  // safe-area clipping would otherwise double-apply the SafeArea inset.
-  host.iosOverflowSafeArea = true
-  for (const view of wrappers) view.iosOverflowSafeArea = true
+  // Adopted views keep the cold-mounted frames exactly: overflow is needed
+  // only where the cold frame already reaches outside the safe-area guide —
+  // on a guide-inset host the clip is what restores the cold frame.
+  const safeGuide = window.safeAreaLayoutGuide.layoutFrame
+  const overflowsSafeArea = (native) => {
+    const frame = native.convertRectToView(native.bounds, window)
+    return (
+      frame.origin.x < safeGuide.origin.x - 0.5 ||
+      frame.origin.y < safeGuide.origin.y - 0.5 ||
+      frame.origin.x + frame.size.width > safeGuide.origin.x + safeGuide.size.width + 0.5 ||
+      frame.origin.y + frame.size.height > safeGuide.origin.y + safeGuide.size.height + 0.5
+    )
+  }
+  host.iosOverflowSafeArea = overflowsSafeArea(viewport)
+  wrappers.forEach((view, index) => (view.iosOverflowSafeArea = overflowsSafeArea(natives[index])))
 
   host.width = viewport.bounds.size.width
   host.height = viewport.bounds.size.height

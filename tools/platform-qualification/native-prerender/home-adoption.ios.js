@@ -70,8 +70,22 @@ const oldFrames = nativeViews.map((view) => ({
 }))
 const binding = bindIOSMasonTree(startup.nodes, nativeHost, nativeViews)
 const { host, wrappers, claims } = binding
-host.iosOverflowSafeArea = true
-for (const view of wrappers) view.iosOverflowSafeArea = true
+// Overflow is needed only where the cold frame already reaches outside the
+// safe-area guide — on a guide-inset host the clip is what restores the
+// cold frame after live window-bounds layout.
+const safeGuide = window.safeAreaLayoutGuide.layoutFrame
+const overflowsSafeArea = (native) => {
+  const frame = native.convertRectToView(native.bounds, window)
+  return (
+    frame.origin.x < safeGuide.origin.x - 0.5 ||
+    frame.origin.y < safeGuide.origin.y - 0.5 ||
+    frame.origin.x + frame.size.width > safeGuide.origin.x + safeGuide.size.width + 0.5 ||
+    frame.origin.y + frame.size.height > safeGuide.origin.y + safeGuide.size.height + 0.5
+  )
+}
+host.iosOverflowSafeArea = overflowsSafeArea(nativeHost)
+for (let index = 0; index < wrappers.length; index++)
+  wrappers[index].iosOverflowSafeArea = overflowsSafeArea(nativeViews[index])
 host.width = '100%'
 host.height = '100%'
 host.style.display = 'flex'
