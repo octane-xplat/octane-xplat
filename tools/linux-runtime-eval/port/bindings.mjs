@@ -163,8 +163,7 @@ function wrapStruct(native,ref,owned=false,force=false){
       // GJS's GBytes.toArray convenience — copies the buffer, then drops the
       // transfer-full reference the facade handed over.
       if(ref.ns==='GLib'&&ref.name==='Bytes'&&p==='toArray')return()=>{
-        const [data,length]=obj.get_data()
-        const out=new Uint8Array(interop.bufferFromData(data,Number(length))).slice()
+        const out=obj.get_data().slice()
         if(!obj.__bytesFreed){obj.__bytesFreed=true;obj.unref()}
         return out
       }
@@ -256,6 +255,9 @@ function getClass(ns,name){
   constructors.set(id,klass);klass.__ref={ns,name,kind:record.kind}
   if(record.typeName)byTypeName.set(record.typeName,klass)
   if(record.typeInit&&typeof C[record.typeInit]==='function'){klass.__gtype=C[record.typeInit]();byGType.set(Number(klass.__gtype),klass)}
+  // GObject interfaces are implemented through GType, outside JS's prototype chain.
+  if(record.kind===8&&klass.__gtype)Object.defineProperty(klass,Symbol.hasInstance,{value:value=>
+    value?.__gobject===true&&!!g_type_is_a(nativeType(pointer(value)),klass.__gtype)})
   if(record.parent)Object.setPrototypeOf(klass.prototype,getClass(record.parent.ns,record.parent.name).prototype)
   for(const [methodName,method]of allMethods(ns,name)){
     if(typeof C[method.symbol]!=='function')continue
@@ -332,6 +334,8 @@ function callbackNative(fn,info,owner){
 }
 function invoke(info,values,self){
   const hidden=new Set(),out=[],args=[],cleanup=[],callbacks=[]
+  const byteReturn=info.returns.tag===15&&info.returns.element?.tag===3&&info.returns.length>=0
+  let byteLength
   try{
     for(const arg of info.args){if(arg.type.tag===15&&arg.type.length>=0)hidden.add(arg.type.length);if(arg.closure>=0)hidden.add(arg.closure);if(arg.destroy>=0)hidden.add(arg.destroy)}
     const lengths=new Map();let index=0
@@ -344,6 +348,11 @@ function invoke(info,values,self){
     if(self)args.push(pointer(self))
     for(let i=0;i<info.args.length;i++){
       const arg=info.args[i],type=arg.type
+      if(byteReturn&&i===info.returns.length){
+        if(arg.direction!==1)throw Error('Byte array return length must be an out parameter')
+        byteLength=new interop.Reference(typeForRef(type))
+        args.push(byteLength);continue
+      }
       if(hidden.has(i)){args.push(lengths.get(i)??null);continue}
       if(arg.direction===1){
         let memory,read
@@ -386,7 +395,18 @@ function invoke(info,values,self){
     if(error?.value){const native=new interop.Reference(_GError,error.value).value;const message=decode(native.message);g_error_free(error.value);throw Error(message)}
     const results=out.map(o=>o.read())
     const hasReturn=!(info.returns.tag===0&&!info.returns.pointer)&&!info.skipReturn
-    if(hasReturn)results.unshift(fromNative(raw,info.returns,info.transfer))
+    if(hasReturn){
+      if(byteReturn){
+        // GI hides the length parameter and presents a copied Uint8Array.
+        // Transfer-full C buffers belong to the caller; borrowed ones stay native.
+        try{
+          const length=Number(byteLength.value)
+          if(!Number.isSafeInteger(length)||length<0)throw Error('Invalid byte array return length')
+          if(length&&!raw)throw Error('Null byte array with nonzero length')
+          results.unshift(length?new Uint8Array(interop.bufferFromData(raw,length)).slice():new Uint8Array())
+        }finally{if(info.transfer===2&&raw)g_free(raw)}
+      }else results.unshift(fromNative(raw,info.returns,info.transfer))
+    }
     return results.length>1?results:results[0]
   }catch(error){throw Error(`${info.symbol}: ${error.message}`,{cause:error})}
   finally{

@@ -72,7 +72,7 @@ ICU_DATA=/path/on/linux/icu77 /path/on/linux/ns-linux tools/linux-runtime-eval/i
 
 For the remote renderer commands below, pass `LINUX_RUNTIME_EVAL_ICU_DATA=/path/on/linux/icu77` alongside the executable and Mason variables. This variable configures only NativeScript; the GJS control uses its own installed ICU data.
 
-`test:renderer-fixture` bundles existing GTK renderer fixtures and drives their windows with `xdotool` on Linux. It supports `ui-popover`, `ui-sheet`, `ui-focus`, and `ui-theme`. Run NativeScript and GJS against the same host and fixture to separate projection regressions from the existing GTK baseline:
+`test:renderer-fixture` bundles existing GTK renderer fixtures and drives their windows with `xdotool` on Linux. Its UI fixtures are `ui-popover`, `ui-sheet`, `ui-focus`, and `ui-theme`. Run NativeScript and GJS against the same host and fixture to separate projection regressions from the existing GTK baseline:
 
 ```sh
 goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"NativeScript GTK renderer fixture","wait_seconds":1}' -- \
@@ -87,7 +87,7 @@ goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-o
     bun run turbo run test:renderer-fixture --filter=@xplat/linux-runtime-eval -- ui-theme gjs
 ```
 
-Replace `ui-theme` with a supported fixture name. `LINUX_RUNTIME_EVAL_HOST` and `LINUX_RUNTIME_EVAL_VM` default to `andromeda.local` and `octane-linux`; executable and Mason paths are on the Linux VM. `LINUX_RUNTIME_EVAL_LOG_PATH` stores stdout and stderr locally, including on failure. The runner requires real OS input, a completion summary, and the fixture's minimum check count. An assertion failure is kept in the log and returns a non-zero exit.
+Replace `ui-theme` with a supported fixture name. `LINUX_RUNTIME_EVAL_HOST` and `LINUX_RUNTIME_EVAL_VM` default to `andromeda.local` and `octane-linux`; executable and Mason paths are on the Linux VM. `LINUX_RUNTIME_EVAL_LOG_PATH` stores stdout and stderr locally, including on failure. UI fixtures require real OS input, a completion summary, and the fixture's minimum check count. An assertion failure is kept in the log and returns a non-zero exit.
 
 Run all 37 maintained real GTK fixtures in series with either runtime. The 35 renderer fixtures build the same bundle and stage it on the VM; fixtures that declare input send actual keyboard or pointer events. Two accessibility fixtures also compare GTK's accessible states and labels. The runner writes one local log per fixture in a unique engine-specific directory under `LINUX_RUNTIME_EVAL_LOG_DIR`. Run both engines against the same VM to compare NativeScript failures with the GJS baseline:
 
@@ -111,6 +111,20 @@ Pass fixture stems after `--` for a smaller run, for example `-- ui-theme` or `-
 This command discovers only top-level `test/*.test.mjs` files that call `runGtkUiFixture` or `runGtkEvalFixture`; fixture source files under `test/fixtures/` are not counted separately. Missing typelibs or test failures remain failures in that engine's log; compare matching `*.native.log` and `*.gjs.log` files before classifying them as projection regressions. NativeScript's exported GI metadata currently lacks WebKitGTK 6.0, while GJS on Andromeda passes the WebView fixture; do not call WebView parity until the native metadata export includes it.
 
 The WebView GJS pass exercises `ui-webview` on this host; the NativeScript WebView result remains blocked on generated metadata and is not qualified by the other fixtures.
+
+### Check byte arrays and GTK interfaces
+
+The `projection` fixture checks decoded bytes, copied buffers, empty arrays, and GTK interface membership before broader UI runs. Use the same prepared runtime, Mason directory, and ICU data as above. It performs no OS input and prints a `GTK_PROJECTION` summary; the runner rejects failed checks or a missing summary.
+
+```sh
+goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"GTK projection smoke"}' -- \
+  env LINUX_RUNTIME_EVAL_EXECUTABLE=/path/on/linux/ns-linux \
+    LINUX_RUNTIME_EVAL_MASON_DIR=/path/on/linux/mason \
+    LINUX_RUNTIME_EVAL_ICU_DATA=/path/on/linux/icu77 \
+    bun run turbo run test:renderer-fixture --filter=@xplat/linux-runtime-eval -- projection native
+```
+
+Replace `native` with `gjs` to run the control on the same host.
 
 ## Real renderer port
 

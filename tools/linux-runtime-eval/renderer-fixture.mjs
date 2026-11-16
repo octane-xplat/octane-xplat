@@ -1,6 +1,14 @@
+import { resolve } from 'node:path'
 import { runRendererFixture } from './renderer-fixture-core.mjs'
 
 const fixtures = {
+  projection: {
+    entry: resolve(import.meta.dirname, 'port/projection-smoke.mjs'),
+    title: 'GTK projection smoke',
+    marker: 'GTK_PROJECTION',
+    input: false,
+    checks: 14,
+  },
   'ui-popover': {
     title: 'Octane GTK Popover test',
     marker: 'GTK_POPOVER',
