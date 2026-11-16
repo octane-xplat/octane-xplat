@@ -20,6 +20,10 @@ export const pendingFinalizers = new Map()
 const liveSignals = new Set()
 const registry = new FinalizationRegistry((entry) => {
   if (entry === 'proxy') { bridgeStats.objects--; return }
+  if (entry?.kind === 'glib-bytes') {
+    C.g_bytes_unref(entry.native)
+    return
+  }
   if (entry.live) { entry.live = false; bridgeStats.signals--; liveSignals.delete(entry) }
 })
 const scopes = new Set(), permanent = { callbacks: new Set(), timers: new Set() }
@@ -56,8 +60,31 @@ function fromNative(value,type,transfer=0){
   if(type.tag===1)return !!value
   if(type.tag===13||type.tag===14){if(typeof value==='string')return value;const str=decode(value);if(transfer===2)g_free(value);return str}
   if(type.tag===15&&type.zero){const result=[];for(let i=0;;i++){const p=new interop.Reference(t.pointer,value.add(i*8)).value;if(!p)break;result.push(fromNative(p,type.element))}return result}
-  if(type.tag===16){const ref=type.interface;if([5,6].includes(ref.kind))return Number(value);if(ref.ns==='GObject'&&ref.name.startsWith('ParamSpec'))return value;if(isObject(ref))return wrapObject(value,ref,transfer);if([3,4].includes(ref.kind))return wrapStruct(value,ref)}
+  if(type.tag===16){
+    const ref=type.interface
+    if([5,6].includes(ref.kind))return Number(value)
+    if(ref.ns==='GObject'&&ref.name.startsWith('ParamSpec'))return value
+    if(isObject(ref))return wrapObject(value,ref,transfer)
+    if([3,4].includes(ref.kind)){
+      if(ref.ns==='GLib'&&ref.name==='Bytes'){
+        if(typeof C.g_bytes_unref!=='function'||(transfer!==2&&typeof C.g_bytes_ref!=='function'))throw Error('GLib.Bytes reference functions are unavailable')
+        return wrapStruct(transfer===2?value:C.g_bytes_ref(value),ref,true,true)
+      }
+      return wrapStruct(value,ref)
+    }
+  }
   return value
+}
+function projectGdkPopupInterface(target,type){
+  const popup=getClass('Gdk','Popup')
+  if(!popup.__gtype||!g_type_is_a(type,popup.__gtype))return
+  // GtkNative.get_surface() is introspected as Gdk.Surface, while popup
+  // surfaces implement the separate Gdk.Popup interface. GJS resolves the
+  // instance's dynamic interface methods; mirror that for the probe wrapper.
+  for(const name of Object.getOwnPropertyNames(popup.prototype)){
+    if(name==='constructor'||Reflect.has(target,name))continue
+    Object.defineProperty(target,name,Object.getOwnPropertyDescriptor(popup.prototype,name))
+  }
 }
 const weakFinalized = (data, _dead) => {
   pendingFinalizers.delete(key(data))
@@ -94,6 +121,7 @@ function wrapObject(p,ref,transfer=0,prototype){
   const resolvedRef=selected.__ref??ref
   const target=Object.create(prototype??selected.prototype)
   Object.assign(target,{__native:w,__ref:resolvedRef,__gobject:true,__conn:new Map()})
+  projectGdkPopupInterface(target,type)
   const proxy=new Proxy(target,{
     get(obj,property,receiver){
       if(Reflect.has(obj,property))return Reflect.get(obj,property,receiver)
@@ -120,11 +148,11 @@ function wrapObject(p,ref,transfer=0,prototype){
   activeScope?.pending.set(key(w),name)
   bridgeStats.objects++;registry.register(proxy,'proxy',proxy);return proxy
 }
-function wrapStruct(native,ref){
-  if(native?.__native)return native
+function wrapStruct(native,ref,owned=false,force=false){
+  if(!force&&native?.__native)return native
   const klass=getClass(ref.ns,ref.name),target=Object.create(klass.prototype)
   target.__native=native;target.__ref=ref
-  return new Proxy(target,{
+  const proxy=new Proxy(target,{
     get(obj,p,receiver){
       if(Reflect.has(obj,p))return Reflect.get(obj,p,receiver)
       // GJS's GBytes.toArray convenience — copies the buffer, then drops the
@@ -139,6 +167,13 @@ function wrapStruct(native,ref){
     },
     set(obj,p,value,receiver){if(typeof p==='string'&&!p.startsWith('__')&&p in obj.__native){obj.__native[p]=pointer(value);return true}return Reflect.set(obj,p,value,receiver)}
   })
+  if(owned&&ref.ns==='GLib'&&ref.name==='Bytes'){
+    const token={}
+    const unref=proxy.unref
+    target.unref=function(...args){registry.unregister(token);target.__bytesFreed=true;return unref.apply(proxy,args)}
+    registry.register(proxy,{kind:'glib-bytes',native:pointer(native)},token)
+  }
+  return proxy
 }
 export const typeNameOf = value => decode(g_type_name(nativeType(pointer(value))))
 function valueType(spec){return new interop.Reference(_GParamSpec,spec).value.value_type}
@@ -197,6 +232,10 @@ function getClass(ns,name){
   if(record.values)return record.values
   const klass=function(...args){
     if([7,8].includes(record.kind))return makeObject(new.target,args[0])
+    if(ns==='GLib'&&name==='Bytes'){
+      if(typeof klass.new!=='function')throw Error('GLib.Bytes.new is not available in the native projection')
+      return klass.new(...args)
+    }
     const native=new (rawCtor(ns,name))()
     if(args[0]&&typeof args[0]==='object')Object.assign(native,args[0])
     return wrapStruct(native,{ns,name,kind:record.kind})

@@ -1,6 +1,6 @@
 # Evaluate the NativeScript Linux runtime
 
-This private probe compares a small compiled Octane screen on NativeScript's Linux V8 runtime and GJS. It does not change the shipping GTK renderer. It is a feasibility check, not production qualification.
+This private probe compares Octane's GTK renderer and shared UI on NativeScript's Linux V8 runtime and GJS. It does not change the shipping GTK renderer. It is an evaluation harness, not production qualification or a runtime installer.
 
 The NativeScript adapter uses GTK C functions, a JavaScript-defined `GtkLayoutManager`, and the real Mason C engine. The GJS control uses `Gtk.Box`; its input and lifecycle checks are comparable, but it does not compare Mason implementations. The adapter deliberately covers only the four widgets in this screen.
 
@@ -14,11 +14,13 @@ bun run turbo run build typecheck --filter=...@xplat/linux-runtime-eval
 
 The generated `dist/native/slice.js` and `dist/gjs/slice.js` are disposable. The checked-in screen tests a counter, uppercase-controlled text, stable widget identity, 100 microtask updates, 20 mount/unmount cycles, cancellation of a queued event, and a five-second drain. Native checks also observe Mason geometry, leaf measurement callbacks, and GObject finalization.
 
-## Prepare the NativeScript runtime
+## Prepare an exploratory NativeScript runtime
 
-Use an actual Linux ARM64 host with GTK4, GJS, Python 3, D-Bus, Xvfb, X11, and XTest libraries. No screenshots are captured. Reserve that host before running native tools. The remote mode below reuses an existing OrbStack VM and requires this checkout to be mounted at the same absolute path inside it.
+Use a Linux host with GTK4, GJS, Python 3, D-Bus, Xvfb, X11, and XTest libraries. `andromeda.local` and its existing OrbStack VM `octane-linux` are the preferred build and test host. No screenshots are captured. Reserve the host before running native tools. Remote mode requires this checkout to be mounted at the same absolute path inside the VM.
 
-Obtain `@nativescript/linux@0.1.0-alpha.2`, verify its npm integrity, and extract it into disposable task storage. Build a Linux ARM64 `libmason_c.so` from the matching Mason source; this tool consumes that artifact rather than managing Rust toolchains. Use that source's public `mason_native.h`. Keep the source revision and dependency lock alongside the run evidence.
+The manual steps below support exploratory runs only. They do not produce a pinned, reproducible, multi-architecture runtime distribution. The existing binaries in task scratch have incomplete build provenance and must not be treated as official artifacts. Building and packaging a verified runtime for each supported architecture remains a release gate.
+
+Obtain the runtime package, verify its npm integrity, and extract it into disposable task storage. Build `libmason_c.so` for the target architecture from the matching Mason source. This tool consumes that artifact rather than managing Rust toolchains. Use Mason's public `mason_native.h`; keep the source revisions, locks, and input hashes with the run evidence.
 
 Prepare a fresh task-owned executable directory on Linux; the output path must not exist:
 
@@ -34,14 +36,14 @@ The helper copies the executable, SDK metadata, and Mason library; generates add
 
 ## Run with OS input
 
-Run from the repository root under an owned Linux host reservation. For the existing `gtk-smoke` VM, wrap each command with `goddard-agent resource run` reserving `exclusive:["linux:gtk-smoke"]` and `resident_devices:1`. Preparation also needs `native_builds:1`. Leave an existing user-owned VM running after releasing the reservation.
+Run from the repository root under an owned Linux host reservation. For `andromeda.local`'s existing `octane-linux` VM, reserve `exclusive:["linux:andromeda-octane-linux"]` and `resident_devices:1`; preparation also needs `native_builds:1`. Leave the user-owned VM running after releasing the reservation.
 
 ```sh
-LINUX_RUNTIME_EVAL_VM=gtk-smoke \
+LINUX_RUNTIME_EVAL_HOST=andromeda.local LINUX_RUNTIME_EVAL_VM=octane-linux \
 LINUX_RUNTIME_EVAL_EXECUTABLE=/path/to/task-scratch/prepared/ns-linux \
   bun run turbo run test:runtime --filter=@xplat/linux-runtime-eval
 
-LINUX_RUNTIME_EVAL_VM=gtk-smoke LINUX_RUNTIME_EVAL_ENGINE=gjs \
+LINUX_RUNTIME_EVAL_HOST=andromeda.local LINUX_RUNTIME_EVAL_VM=octane-linux LINUX_RUNTIME_EVAL_ENGINE=gjs \
   bun run turbo run test:runtime --filter=@xplat/linux-runtime-eval
 ```
 
@@ -49,7 +51,7 @@ Omit `LINUX_RUNTIME_EVAL_VM` when running directly on Linux. The runner creates 
 
 The native engine always receives `NS_V8_FLAGS=--expose-gc`: runtime wrappers hold the only GObject reference, so the drain checks must be able to force V8 collections rather than just waiting.
 
-To run on a remote Linux host (for example `andromeda.local`'s OrbStack VM `octane-linux`), set `LINUX_RUNTIME_EVAL_HOST` to the ssh host; `LINUX_RUNTIME_EVAL_VM` then names the OrbStack VM on that host instead of a local one. `LINUX_RUNTIME_EVAL_EXECUTABLE` and `LINUX_RUNTIME_EVAL_MASON_DIR` are paths on the remote Linux side. The runner stages `input.py` and the entry's dist directory into a VM-local `/tmp/xplat-lre-*` directory and removes it afterwards:
+For `test:runtime`, set `LINUX_RUNTIME_EVAL_HOST` to the SSH host and `LINUX_RUNTIME_EVAL_VM` to its OrbStack VM. The runner stages its driver and the entry bundle into a VM-local `/tmp/xplat-lre-*` directory and removes it afterwards. The default host for `test:renderer-fixture` is `andromeda.local` with VM `octane-linux`:
 
 ```sh
 LINUX_RUNTIME_EVAL_HOST=andromeda.local \
@@ -57,6 +59,48 @@ LINUX_RUNTIME_EVAL_VM=octane-linux \
 LINUX_RUNTIME_EVAL_EXECUTABLE=/Users/alec/agent-scratch/.../ns-linux \
   bun run turbo run test:runtime --filter=@xplat/linux-runtime-eval
 ```
+
+## Run real renderer fixtures
+
+`test:renderer-fixture` bundles existing GTK renderer fixtures and drives their windows with `xdotool` on Linux. It supports `ui-popover`, `ui-sheet`, `ui-focus`, and `ui-theme`. Run NativeScript and GJS against the same host and fixture to separate projection regressions from the existing GTK baseline:
+
+```sh
+goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"NativeScript GTK renderer fixture","wait_seconds":1}' -- \
+  env LINUX_RUNTIME_EVAL_EXECUTABLE=/path/on/linux/ns-linux \
+    LINUX_RUNTIME_EVAL_MASON_DIR=/path/on/linux/mason \
+    LINUX_RUNTIME_EVAL_LOG_PATH=/path/to/ns-linux-ui-theme.log \
+    bun run turbo run test:renderer-fixture --filter=@xplat/linux-runtime-eval -- ui-theme native
+
+goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"GJS GTK renderer control","wait_seconds":1}' -- \
+  env LINUX_RUNTIME_EVAL_MASON_DIR=/path/on/linux/mason \
+    LINUX_RUNTIME_EVAL_LOG_PATH=/path/to/gjs-ui-theme.log \
+    bun run turbo run test:renderer-fixture --filter=@xplat/linux-runtime-eval -- ui-theme gjs
+```
+
+Replace `ui-theme` with a supported fixture name. `LINUX_RUNTIME_EVAL_HOST` and `LINUX_RUNTIME_EVAL_VM` default to `andromeda.local` and `octane-linux`; executable and Mason paths are on the Linux VM. `LINUX_RUNTIME_EVAL_LOG_PATH` stores stdout and stderr locally, including on failure. The runner requires real OS input, a completion summary, and the fixture's minimum check count. An assertion failure is kept in the log and returns a non-zero exit.
+
+Run all 37 maintained real GTK fixtures in series with either runtime. The 35 input-driven fixtures build the same bundle, stage it on the VM, and send actual keyboard or pointer input; two accessibility fixtures also compare GTK's accessible states and labels. The runner writes one local log per fixture in a unique engine-specific directory under `LINUX_RUNTIME_EVAL_LOG_DIR`. Run both engines against the same VM to compare NativeScript failures with the GJS baseline:
+
+```sh
+goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"NativeScript GTK renderer suite","wait_seconds":1}' -- \
+  env LINUX_RUNTIME_EVAL_ENGINE=native \
+    LINUX_RUNTIME_EVAL_EXECUTABLE=/path/on/linux/ns-linux \
+    LINUX_RUNTIME_EVAL_MASON_DIR=/path/on/linux/mason \
+    LINUX_RUNTIME_EVAL_LOG_DIR=/path/to/task-scratch/renderer-suite-logs \
+    bun run turbo run test:renderer-suite --filter=@xplat/linux-runtime-eval
+
+goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"GJS GTK renderer suite control","wait_seconds":1}' -- \
+  env LINUX_RUNTIME_EVAL_ENGINE=gjs \
+    LINUX_RUNTIME_EVAL_MASON_DIR=/path/on/linux/mason \
+    LINUX_RUNTIME_EVAL_LOG_DIR=/path/to/task-scratch/renderer-suite-logs \
+    bun run turbo run test:renderer-suite --filter=@xplat/linux-runtime-eval
+```
+
+Pass fixture stems after `--` for a smaller run, for example `-- ui-theme` or `-- a11y ui-accessibility`; omit them to run all 37.
+
+This command discovers only top-level `test/*.test.mjs` files that call `runGtkUiFixture` or `runGtkEvalFixture`; fixture source files under `test/fixtures/` are not counted separately. Missing typelibs or test failures remain failures in that engine's log; compare matching `*.native.log` and `*.gjs.log` files before classifying them as projection regressions. NativeScript's exported GI metadata currently lacks WebKitGTK 6.0, while GJS on Andromeda passes the WebView fixture; do not call WebView parity until the native metadata export includes it.
+
+The WebView GJS pass exercises `ui-webview` on this host; the NativeScript WebView result remains blocked on generated metadata and is not qualified by the other fixtures.
 
 ## Real renderer port
 
@@ -128,13 +172,13 @@ With `0.1.0-alpha.2`, native C frames in the CPU profile can carry the wrong sym
 
 ## Runtime versions
 
-The v2 projection in `port/bindings.mjs` targets runtimes at or after main `be71019d8` ([triniwiz/linux-runtime#25](https://github.com/triniwiz/linux-runtime/pull/25)): the runtime wraps every GObject it returns and the wrapper holds its own reference, so the projection owns no GObject references at all. It observes liveness through weak refs, delegates signal connect/disconnect to the wrapper's own methods, and drops only the caller-side reference of transfer-full returns for owned (non-floating) types.
+The v2 projection in `port/bindings.mjs` targets runtimes at or after main `be71019d8` ([triniwiz/linux-runtime#25](https://github.com/triniwiz/linux-runtime/pull/25)): the runtime wraps every GObject it returns and the wrapper holds its own reference, so the projection does not add GObject references. It observes liveness through weak refs and delegates signal connect/disconnect to the wrapper's own methods.
 
 It does not support `0.1.0-alpha.x` or main up to `0b2fe09a0`, where C-returned GObjects were bare pointers and the projection counted references itself. It throws at load time on those builds because `__nsGObject.object` is missing.
 
 Because liveness follows V8 collection of the wrapper, the drain checks need `NS_V8_FLAGS=--expose-gc` (injected by `run.mjs`) and the probes drop their own handles to dead trees before counting finalizations. The pass criteria themselves stay the same.
 
-On `be71019d8` the port's `cycle-pending-drained` and the slice's `native-widget-finalization` still fail. Functional checks pass. The cause is a runtime gap, not a renderer regression: the runtime keeps a signal handler's closure alive until disconnect or finalize. A handler that reaches its own object, like the renderer's `GtkTextView` `map`/`unmap` handlers, therefore keeps that object alive forever. GJS traces handler closures from the object's wrapper and collects such cycles.
+Upstream PR [#32](https://github.com/triniwiz/linux-runtime/pull/32) (merged at `57408ba`) fixed signal-handler retention when a handler captures the same object that owns it. The slice now finalizes all 132 created widgets on NativeScript, and the GJS control drains cleanly. Its previous three survivors came from the probe retaining the root handle from its last loop iteration; clearing that local handle fixed the measurement. Cross-object captures can still retain objects as expected, so finalization counts remain scoped evidence rather than a process-wide leak proof.
 
 Observe finalization with `g_object_weak_ref` (native) or a `GBinding`'s source (GJS). Don't use `GOBJECT_DEBUG=instance-count`: on the Debian 13 VM, `g_type_get_instance_count` returns 0 for every type, even live ones.
 
@@ -146,4 +190,4 @@ One local workaround hides a known gap; keep it in mind when reading results:
 
 The adapter defers signal delivery until the GTK native action finishes, then lets Octane flush through Promise microtasks. It preserves the caret during controlled rewrites, suppresses synchronous change echoes, disconnects native signals, cancels queued deliveries, and explicitly releases interop callbacks. Replacing GJS requires equivalent ownership and scheduling rules throughout the real renderer; these probe adapters are not a general GJS compatibility layer.
 
-The result does not qualify the shipping UI, selection/IME, Wayland, accessibility, x86_64, arbitrary custom widgets, visual parity, or application packaging. Object finalization checks count the probe-owned widgets; they do not establish that the entire engine or process is leak-free. Microtask timing covers idle programmatic updates, not OS-event latency or behavior during sustained resize. Keep measured results and raw logs in local reports and Silo, not this README.
+The result does not qualify the shipping UI, selection/IME, Wayland, screen-reader or AT-SPI behavior, other architectures, arbitrary custom widgets, visual parity, or application packaging. The paired accessibility fixtures check GTK accessible metadata only. Object finalization checks count the probe-owned widgets; they do not establish that the entire engine or process is leak-free. Microtask timing covers idle programmatic updates, not OS-event latency or behavior during sustained resize. Keep measured results and raw logs in local reports and Silo, not this README.

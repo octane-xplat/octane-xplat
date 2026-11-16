@@ -17,9 +17,12 @@ const wait = async (fn, ms = 3000) => {
     await api.pause(10)
   }
 }
+let mountNumber = 0
+
 function mount() {
+  const mountId = ++mountNumber
   const nodes = new Map(),
-    host = api.create('host')
+    host = api.create('host', { mount: mountId, widgetId: '<host>' })
   let root
   const detach = (node) => {
     api.detach(node.view)
@@ -51,7 +54,11 @@ function mount() {
             if (c.op === 'create') {
               const n = {
                 type: c.type,
-                view: api.create(c.type),
+                view: api.create(c.type, {
+                  mount: mountId,
+                  nodeId: c.id,
+                  widgetId: c.props?.id ?? null,
+                }),
                 props: {},
                 events: new Map(),
                 muted: false,
@@ -188,9 +195,12 @@ async function run() {
   }
   first.dispose()
   for (let i = 0; i < 20; i++) {
-    const instance = mount()
+    let instance = mount()
     await api.pause(10)
     instance.dispose()
+    // The async function remains active through the final collection below;
+    // release its last loop-local root explicitly before measuring finalizers.
+    instance = null
     check('cycle-baseline', stats.nodes === 0 && stats.callbacks === 0, { cycle: i, ...stats })
   }
   let cancelled = mount()
@@ -226,10 +236,13 @@ async function run() {
       globalThis.gc?.()
       await api.pause(50)
     }
-    check('native-widget-finalization', stats.finalized === stats.created, stats)
+    check('native-widget-finalization', stats.finalized === stats.created, {
+      ...stats,
+      pendingWidgets: api.pendingWidgets?.() ?? [],
+    })
   }
   check('native-measure-callback', !api.nativeRecords || stats.leafMeasures > 0, stats)
-  console.log(JSON.stringify({ complete: true, stats }))
+  console.log(JSON.stringify({ complete: true, stats, pendingWidgets: api.pendingWidgets?.() ?? [] }))
 }
 if (api.run) {
   api.run(run)

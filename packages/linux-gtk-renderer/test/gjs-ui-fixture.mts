@@ -2,15 +2,46 @@ import assert from 'node:assert/strict'
 import { execFileSync, spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { createInterface } from 'node:readline'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gtkRuntimeReady, gtkOsInputReady } from './gjs-availability.mts'
 
+/** Run a GTK fixture on the explicitly selected Andromeda evaluation runtime. */
+export async function runGtkEvalFixture(
+  t,
+  { stem, entry, title, marker, minChecks, input = false, define },
+) {
+  const engine = process.env.LINUX_RUNTIME_EVAL_ENGINE
+  if (!engine) throw Error('Set LINUX_RUNTIME_EVAL_ENGINE to native or gjs')
+
+  const { runRendererFixture } = await import('../../../tools/linux-runtime-eval/renderer-fixture-core.mjs')
+  const logDir = process.env.LINUX_RUNTIME_EVAL_LOG_DIR
+  const result = await runRendererFixture({
+    stem,
+    entry,
+    title,
+    marker,
+    input,
+    checks: minChecks,
+    engine,
+    define,
+    logPath: logDir ? resolve(logDir, `${stem}.${engine}.log`) : undefined,
+  })
+  t.diagnostic(
+    `${result.engine}; GTK ${result.gtk ?? result.fixture?.gtk ?? 'version not reported'}; ${result.checks} assertions; actual OS keyboard/click: ${result.osInput === true}`,
+  )
+  return result
+}
+
 /** Build one maintained UI fixture and drive its optional F12 input protocol.
  * Results name the real runtime and distinguish OS input from property checks. */
 export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input = true, define }) {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, { stem, title, marker, minChecks, input, define })
+  }
+
   // Availability first — building the bundle is pointless when nothing can
   // run it, and CI without the GTK toolchain must hit the skip path directly.
   if (!gtkRuntimeReady()) {

@@ -7,6 +7,8 @@
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
     "test:runtime": "node run.mjs",
     "test:port": "LINUX_RUNTIME_EVAL_SLICE=port node run.mjs",
+    "test:renderer-fixture": "node renderer-fixture.mjs",
+    "test:renderer-suite": "node renderer-suite.mjs",
     "build:port": "node port/build.mjs",
     "dev:port": "node port/build.mjs --watch"
   },

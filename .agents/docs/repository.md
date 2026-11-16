@@ -57,7 +57,8 @@ SDK interop remain separate features.
 
 For the isolated NativeScript Linux runtime comparison, see
 [`tools/linux-runtime-eval/README.md`](../../tools/linux-runtime-eval/README.md).
-It is a feasibility probe, separate from the shipping GJS renderer.
+It is a feasibility probe, separate from the shipping GJS renderer; current
+qualification boundaries are in the [runtime evaluation note](notes/linux-nativescript-runtime.md).
 
 | Path                                                                                       | What it is                                                                                                                                                                                        |
 | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

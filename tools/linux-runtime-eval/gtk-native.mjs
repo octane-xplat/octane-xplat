@@ -17,8 +17,17 @@ export const stats = {
   created: 0,
   finalized: 0,
 }
-const finalized = () => {
+const widgetTypes = {
+  host: 'GtkBox',
+  masonview: 'GtkBox',
+  label: 'GtkLabel',
+  button: 'GtkButton',
+  textfield: 'GtkEntry',
+}
+const liveWidgets = new Map()
+const finalized = (_data, dead) => {
   stats.finalized++
+  liveWidgets.delete(key(dead))
 }
 const layouts = new Map()
 const measureLeaf = (widget, kw, kh, _aw, _ah) => {
@@ -246,7 +255,7 @@ export const api = {
     gtk_window_set_decorated(p, false)
     return p
   },
-  create(type) {
+  create(type, context = {}) {
     let p
     if (type === 'host') {
       p = gtk_box_new(1, 0)
@@ -267,8 +276,19 @@ export const api = {
       throw Error(`unsupported type ${type}`)
     }
     g_object_ref_sink(p)
-    g_object_weak_ref(p, finalized, null)
     stats.created++
+    const address = key(p)
+    liveWidgets.set(address, {
+      address,
+      sequence: stats.created,
+      type: widgetTypes[type] ?? type,
+      mount: context.mount ?? null,
+      nodeId: context.nodeId ?? null,
+      widgetId: context.widgetId ?? null,
+      parentAtDestroy: null,
+      wrapper: new WeakRef(p),
+    })
+    g_object_weak_ref(p, finalized, null)
     stats.nodes++
     return p
   },
@@ -328,6 +348,10 @@ export const api = {
     }
   },
   destroy(p) {
+    const record = liveWidgets.get(key(p))
+    if (record) {
+      record.parentAtDestroy = gtk_widget_get_parent(p) !== null
+    }
     const layout = layouts.get(key(p))
     if (layout) {
       for (const n of layout.children.values()) {
@@ -357,4 +381,9 @@ export const api = {
   now: () => Number(g_get_monotonic_time()) / 1000,
   pause: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   nativeRecords: () => [...layouts.values()].map((l) => l.records),
+  pendingWidgets: () =>
+    [...liveWidgets.values()].map(({ wrapper, ...record }) => ({
+      ...record,
+      wrapperAlive: wrapper.deref() !== undefined,
+    })),
 }

@@ -5,12 +5,24 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 test(
   'GTK accessibility states and shared field flags reach native metadata and reset correctly',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      await runGtkEvalFixture(t, {
+        stem: 'ui-accessibility',
+        title: 'Octane GTK Accessibility test',
+        marker: 'GTK_ACCESSIBILITY',
+        minChecks: 58,
+        input: false,
+      })
+      return
+    }
+
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-accessibility')
 

@@ -88,3 +88,4 @@ in Silo/local storage. Plans are maintained outside `.agents/`.
 - [MCP consumer verification](mcp-verification.md) — source and packed consumer acceptance runners.
 
 - [Package verification runners](package-verification.md) — focused framework test and probe commands.
+- [NativeScript Linux runtime evaluation](notes/linux-nativescript-runtime.md) — GJS comparison, object lifetime evidence, and the official runtime packaging gates.
