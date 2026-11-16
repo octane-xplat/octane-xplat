@@ -5,7 +5,6 @@ import { refList } from '../../internal/accessibility/ref-list'
 import { useInteractionHost } from '../../gestures/host.tsrx'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { StackItemProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -39,7 +38,7 @@ export function StackItem(props: StackItemProps): unknown @{
     <scrollview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-stackitem', props.className)}
+      className={['vx-stackitem', props.className]}
       style={{ ...itemStyle, ...styleRecord(props.style) }}
       orientation="vertical"
       accessible={props.accessible}
@@ -60,7 +59,7 @@ export function StackItem(props: StackItemProps): unknown @{
     <masonview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-stackitem', props.className)}
+      className={['vx-stackitem', props.className]}
       style={{ ...itemStyle, ...styleRecord(props.style) }}
       accessible={props.accessible}
       accessibilityLabel={props.accessibilityLabel}

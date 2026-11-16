@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { NSView } from '@octane-xplat/platform/macos'
 import { useCallback, useContext, useEffect, useId, useRef, useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import type { SliderProps } from '../../props'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
@@ -110,7 +109,7 @@ function SliderThumb(props: {
   <masonview
     id={props.id}
     ref={bind}
-    className={cx('vx-slider-thumb', props.lower && 'vx-slider-thumb--lo')}
+    className={['vx-slider-thumb', props.lower && 'vx-slider-thumb--lo']}
     disabled={props.disabled}
     {...keyboardProps}
     onTap={() => {
@@ -325,7 +324,7 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 
   <masonview
     id={props.controlID}
-    className={cx('vx-slider-block', props.className)}
+    className={['vx-slider-block', props.className]}
     style={props.style}
   >
     {props.valueDisplay === 'text' ? (
@@ -336,12 +335,12 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
     ) : null}
     <masonview
       id={`${props.controlID}-trackbox`}
-      className={cx(
+      className={[
         'vx-slider',
         'vx-slider--appkit',
         range && 'vx-slider--range',
         disabled && 'vx-slider--disabled',
-      )}
+      ]}
       ref={(view: NSView | null) => {
         panHost.current = view
         input.ref(view)

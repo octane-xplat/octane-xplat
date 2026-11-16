@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { AlertProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import { Icon } from '../media/Icon.macos.tsrx'
 
@@ -12,7 +11,7 @@ export function Alert(props: AlertProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-alert', 'vx-alert--' + tone, props.className)}
+    className={['vx-alert', 'vx-alert--' + tone, props.className]}
     style={mergeStyle({ flexDirection: 'row', display: 'flex' }, props.style)}
   >
     @if (props.icon) {

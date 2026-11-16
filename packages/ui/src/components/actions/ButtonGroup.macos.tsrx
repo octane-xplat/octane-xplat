@@ -3,8 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ButtonGroupProps } from '../../props'
 import { ButtonGroupProvider } from './button-group-context'
 import { SizeProvider, useSize } from '../layout/size-context'
-import { cx } from '@octane-xplat/lib'
-
 export function ButtonGroup(props: ButtonGroupProps): unknown @{
   const orientation = props.orientation ?? 'horizontal'
   const size = useSize(props.size, 'md')
@@ -14,7 +12,7 @@ export function ButtonGroup(props: ButtonGroupProps): unknown @{
     <SizeProvider value={size}>
       <masonview
         id={props.id}
-        className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)}
+        className={['vx-button-group', `vx-button-group--${orientation}`, props.className]}
         style={mergeStyle({ display: 'flex' }, props.style)}
         accessible={true}
         accessibilityLabel={props.label}

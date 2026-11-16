@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useId } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { InputGroupProps, InputGroupTextProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -64,12 +63,12 @@ export function InputGroup(props: InputGroupProps): unknown @{
       <SizeProvider value={size}>
         <masonview
           ref={forwardedRef}
-          className={cx(
+          className={[
             'vx-inputgroup',
             fieldProps.isDisabled && 'vx-inputgroup--disabled',
             fieldProps.status && `vx-inputgroup--status-${fieldProps.status.type}`,
             `vx-inputgroup--size-${size}`,
-          )}
+          ]}
           isEnabled={!fieldProps.isDisabled}
           accessibilityRole={nativeAccessibilityRole('group')}
           accessibilityLabel={props.label}
@@ -104,7 +103,7 @@ export function InputGroupText(props: InputGroupTextProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-inputgroup-text', props.className)}
+    className={['vx-inputgroup-text', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <TextSlot>{props.children}</TextSlot>

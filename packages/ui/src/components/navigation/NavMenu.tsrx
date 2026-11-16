@@ -5,7 +5,6 @@ import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext, useMemo } from 'octane'
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
@@ -50,7 +49,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps): unknown @{
     <masonview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
-      className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)}
+      className={['vx-navmenu', 'vx-navmenu--' + size, props.className]}
       style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), minWidth })}
     >
       {props.children}
@@ -83,12 +82,12 @@ export function NavHeadingMenuItem(
   <Pressable
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-navmenu-item',
       'vx-navmenu-item--' + (ctx?.size ?? 'md'),
       isDisabled && 'vx-navmenu-item--disabled',
       props.className,
-    )}
+    ]}
     style={props.style}
     disabled={isDisabled}
     accessibilityRole={link.href != null ? 'link' : 'menuitem'}

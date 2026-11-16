@@ -5,7 +5,6 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import { Utils } from '@nativescript/core'
 import { fitTextArea } from './text-area-fit'
 import type { TextAreaProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
@@ -55,11 +54,11 @@ function TextAreaControl(inputProps: TextAreaProps) @{
   )
 
   <masonview
-    className={cx(
+    className={[
       'vx-textarea-shell',
       props.status && `vx-textarea-shell--status-${props.status.type}`,
       props.isDisabled && 'vx-textarea-shell--disabled',
-    )}
+    ]}
     style={mergeStyle({ flexDirection: 'column', alignItems: 'stretch' }, { display: 'flex' })}
   >
     {props.startIcon != null ? (
@@ -83,7 +82,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 
         applyEscapeProps(v, props)
       }}
-      className={cx(
+      className={[
         'vx-textarea',
         props.isDisabled && 'vx-textarea--disabled',
         props.isReadOnly && 'vx-textarea--readonly',
@@ -91,7 +90,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
         props.status && `vx-textarea--status-${props.status.type}`,
         props.size && `vx-textarea--size-${props.size}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         styleRecord(props.style),
         props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {},

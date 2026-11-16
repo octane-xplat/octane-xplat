@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useId, useRef, useState } from 'octane'
 import type { CheckboxGroupProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { useFieldControl } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 import { CheckboxListProvider } from './option-list-contexts'
@@ -52,7 +51,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): unknown @{
     <CheckboxListProvider value={context}>
       <masonview
         id={controlID}
-        className={cx(
+        className={[
           'vx-checkbox-group',
           'vx-checkbox-group--appkit',
           props.horizontal && 'vx-checkbox-group--row',
@@ -63,7 +62,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): unknown @{
           props.status && `vx-checkbox-group--status-${props.status.type}`,
           props.size && `vx-checkbox-group--size-${props.size}`,
           props.className,
-        )}
+        ]}
         style={props.style}
         accessibilityRole="group"
         accessibilityLabel={

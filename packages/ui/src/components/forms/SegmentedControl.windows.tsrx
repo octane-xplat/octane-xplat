@@ -6,7 +6,6 @@ import { WindowsRadioGroup } from './radio-control.windows'
 import { WindowsRadioProvider } from './radio-context.windows'
 import { SegmentedControlItem } from './SegmentedControlItem.windows.tsrx'
 import type { SegmentedControlProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { useFieldControlProps } from './field-context'
 import { SegmentedControlProvider } from './option-list-contexts'
@@ -62,7 +61,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
   <masonview
     ref={bindRoot}
     id={props.id}
-    className={cx(
+    className={[
       'vx-segmented',
       props.layout === 'fill' && 'vx-segmented--fill',
       props.isDisabled && 'vx-segmented--disabled',
@@ -71,7 +70,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
       props.status && `vx-segmented--status-${props.status.type}`,
       props.size && `vx-segmented--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     accessibilityLabel={
       props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label

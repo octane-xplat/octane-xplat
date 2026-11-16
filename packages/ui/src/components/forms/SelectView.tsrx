@@ -3,7 +3,6 @@ import { useTranslator } from '../../internal/platform/internationalization'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
-import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Icon } from '../media/Icon.tsrx'
 import { Popover } from '../overlays/Popover.tsrx'
@@ -37,13 +36,13 @@ export function SelectView(props: SelectViewProps): unknown @{
         anchor.current = view
       }}
       id={props.id}
-      className={cx(
+      className={[
         'vx-select-trigger',
         props.isDisabled && 'vx-select--disabled',
         props.isReadOnly && 'vx-select--readonly',
         busy && 'vx-select--loading',
         props.className,
-      )}
+      ]}
       style={props.style}
       disabled={props.isDisabled}
       onPress={() => props.onOpenChange(!props.open)}
@@ -55,7 +54,7 @@ export function SelectView(props: SelectViewProps): unknown @{
       accessibilityValue={props.triggerText}
     >
       <label
-        className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}
+        className={['vx-select-value', !props.selected.length && 'vx-select-placeholder']}
         text={props.triggerText}
       />
       @if (props.hasClear && props.selected.length && !blocked) {
@@ -166,12 +165,12 @@ export function SelectView(props: SelectViewProps): unknown @{
               @for (const option of group.options; key option.value) {
                 <masonview
                   id={props.id ? `${props.id}-option-${option.value}` : undefined}
-                  className={cx(
+                  className={[
                     'vx-menu-item',
                     'vx-select-option',
                     props.selected.includes(option.value) && 'vx-select-option--on',
                     option.isDisabled && 'vx-menu-item--disabled',
-                  )}
+                  ]}
                   onTap={() => props.onPick(option)}
                   accessibilityRole={nativeAccessibilityRole('button')}
                   accessibilityLabel={`${option.label ?? option.value}${option.description ? ', ' + option.description : ''}${props.selected.includes(option.value) ? ', Selected' : ''}${option.isDisabled ? ', Disabled' : ''}`}

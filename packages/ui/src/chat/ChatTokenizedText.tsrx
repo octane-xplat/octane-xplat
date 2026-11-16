@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatTokenizedTextProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { ChatTokenChip } from './chat-tokens.tsrx'
 import { tokenizeChatText } from './chat-tokenize'
 
@@ -16,7 +15,7 @@ export function ChatTokenizedText(props: ChatTokenizedTextProps): unknown @{
     return (
       <masonview
         id={props.id}
-        className={cx('vx-chattext', props.className)}
+        className={['vx-chattext', props.className]}
         style={mergeStyle({ flexWrap: 'wrap' }, mergeStyle({ display: 'flex' }, props.style))}
       >
         <label text={text} />
@@ -26,7 +25,7 @@ export function ChatTokenizedText(props: ChatTokenizedTextProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-chattext', props.className)}
+    className={['vx-chattext', props.className]}
     style={mergeStyle({ alignItems: 'center' }, mergeStyle({ display: 'flex' }, props.style))}
   >
     {tokenizeChatText(text, props.tokens).map((part) =>

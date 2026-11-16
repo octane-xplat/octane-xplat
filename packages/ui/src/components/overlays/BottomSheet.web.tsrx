@@ -8,7 +8,6 @@ import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } fro
 
 import type { BottomSheetProps } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents } from './sheet-detents.web'
@@ -117,7 +116,7 @@ function BottomSheetLayer(props: {
   <div
     ref={layer}
     data-vx-modal-layer={hasScrim ? '' : undefined}
-    className={cx('vx-sheet-layer', 'vx-bottom-sheet-layer', dark && 'dark')}
+    className={['vx-sheet-layer', 'vx-bottom-sheet-layer', dark && 'dark']}
   >
     {hasScrim && (
       <div
@@ -137,7 +136,7 @@ function BottomSheetLayer(props: {
         applyEscapeProps(el, sheet)
       }}
       id={sheet.id}
-      className={cx('vx-sheet', 'vx-bottom-sheet', sheet.className)}
+      className={['vx-sheet', 'vx-bottom-sheet', sheet.className]}
       role={hasScrim ? 'dialog' : 'region'}
       aria-modal={hasScrim ? true : undefined}
       aria-label={sheet.label}

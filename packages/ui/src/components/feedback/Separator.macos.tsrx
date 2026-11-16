@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { SeparatorProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Separator — hairline rule. `orientation` picks which axis it spans;
@@ -12,11 +11,11 @@ export function Separator(props: SeparatorProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-separator',
       vertical ? 'vx-separator--v' : 'vx-separator--h',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   />
 }

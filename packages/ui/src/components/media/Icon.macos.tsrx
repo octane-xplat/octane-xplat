@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { IconProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Image } from './Image.macos.tsrx'
 import { glyphSvgMarkup } from './svg-glyph'
 import { getIcon } from './icons'
@@ -17,7 +16,7 @@ export function Icon(props: IconProps): unknown @{
       <Image
         src={markup}
         id={props.id}
-        className={cx(props.className)}
+        className={[props.className]}
         alt={props.accessibilityLabel ?? ''}
         style={{ width: size, height: size }}
       />
@@ -25,7 +24,7 @@ export function Icon(props: IconProps): unknown @{
 
   <label
     id={props.id}
-    className={cx(props.className)}
+    className={[props.className]}
     style={{ width: size, height: size, fontSize: size * 0.75 }}
     accessibilityLabel={props.accessibilityLabel}
   >

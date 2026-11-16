@@ -45,7 +45,7 @@ export function Meter(props: MeterProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-meter', props.className)}
+    className={['vx-meter', props.className]}
     style={mergeStyle(
       { display: 'grid' },
       { width: size, height: size, ...styleRecord(props.style) },

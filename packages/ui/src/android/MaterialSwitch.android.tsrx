@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef } from 'octane'
 import type { MaterialSwitchProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -39,7 +38,7 @@ export function MaterialSwitch(inputProps: MaterialSwitchProps): unknown @{
     }}
     id={props.id}
     testID={props.testID ?? ''}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     checked={props.value}
     isEnabled={!props.isDisabled}

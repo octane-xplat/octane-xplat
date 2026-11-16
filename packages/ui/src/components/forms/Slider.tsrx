@@ -4,7 +4,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import type { SliderProps } from '../../props'
 import { refList } from '../../internal/accessibility/ref-list'
-import { cx } from '@octane-xplat/lib'
 import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useTooltip } from '../overlays/use-tooltip.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
@@ -155,7 +154,7 @@ function SliderControl(inputProps: SliderProps) @{
   <masonview
     id={props.id}
     ref={inputRef}
-    className={cx(
+    className={[
       'vx-slider',
       'vx-slider--native',
       isRange && 'vx-slider--range',
@@ -165,7 +164,7 @@ function SliderControl(inputProps: SliderProps) @{
       props.size && `vx-slider--size-${props.size}`,
       props.status && `vx-slider--status-${props.status.type}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { display: 'flex', height: hasMarks ? markTop + 20 : showsValue ? 48 : 28 },
       props.style,

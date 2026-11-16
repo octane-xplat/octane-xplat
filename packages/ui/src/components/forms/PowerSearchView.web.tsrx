@@ -11,7 +11,6 @@ import { Popover } from '../overlays/Popover.web.tsrx'
 import { PowerSearchToken } from './PowerSearchToken.web.tsrx'
 import { PowerSearchFilterEditor } from './PowerSearchFilterEditor.web.tsrx'
 import { powerSearchTranslate } from './power-search-strings'
-import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
 
 export function PowerSearchView(props: PowerSearchViewProps): JSX.Element @{
@@ -40,12 +39,12 @@ export function PowerSearchView(props: PowerSearchViewProps): JSX.Element @{
   <div
     id={props.id}
     ref={(node: any) => (anchor.current = node)}
-    className={cx(
+    className={[
       'vx-power-search',
       `vx-power-search--size-${size}`,
       props.isDisabled && 'vx-power-search--disabled',
       props.className,
-    )}
+    ]}
     style={props.style}
   >
     <div className="vx-power-search-row">
@@ -153,11 +152,11 @@ export function PowerSearchView(props: PowerSearchViewProps): JSX.Element @{
     {props.status?.message ? (
       <div
         role={props.status.type === 'error' ? 'alert' : 'status'}
-        className={cx(
+        className={[
           'vx-power-search-status',
           `vx-power-search-status--${props.status.type}`,
           `vx-power-search-status--${props.statusVariant ?? 'attached'}`,
-        )}
+        ]}
       >
         {props.status.message}
       </div>

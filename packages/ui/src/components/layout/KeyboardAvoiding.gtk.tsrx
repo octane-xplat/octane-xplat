@@ -3,8 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { KeyboardAvoidingProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
-
 // No on-screen keyboard on the GTK desktop — the component keeps the shared
 // column layout (the macOS leaf's contract) without inset avoidance.
 /**
@@ -18,7 +16,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-keyboard-avoiding', props.className)}
+    className={['vx-keyboard-avoiding', props.className]}
     style={mergeStyle({ display: 'flex', flexDirection: 'column' }, props.style)}
   >
     {props.children}

@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { ColorSwatchProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { nativeAccessibilityRole } from '../overlays/escape-props'
 import { normalizeHex } from '../../theme/color'
 
@@ -12,7 +11,7 @@ export function ColorSwatch(props: ColorSwatchProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-color-swatch', props.className)}
+    className={['vx-color-swatch', props.className]}
     style={mergeStyle(
       {
         display: 'flex',

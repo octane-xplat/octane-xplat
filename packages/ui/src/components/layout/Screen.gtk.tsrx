@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ScreenProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 // The GTK RootLayout equivalent is the renderer-owned Gtk.Overlay inside
@@ -26,7 +25,7 @@ export function Screen(props: ScreenProps): unknown @{
     style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
   >
     <masonview
-      className={cx('vx-screen-content', props.className)}
+      className={['vx-screen-content', props.className]}
       style={mergeStyle({ display: 'flex', flexDirection: 'column', flexGrow: 1 }, props.style)}
     >
       {props.children}

@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import { createAppKitLightboxGestures } from './lightbox-gestures.macos'
 import type { LightboxProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Button } from '../actions/controls.macos.tsrx'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
@@ -56,7 +55,7 @@ function LightboxPanel(
   <LayerDepthProvider value={props.layerDepth}>
     <masonview
       id={props.id}
-      className={cx('vx-lightbox', props.dark && 'ns-dark', props.className)}
+      className={['vx-lightbox', props.dark && 'ns-dark', props.className]}
       style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
     >
       <masonview

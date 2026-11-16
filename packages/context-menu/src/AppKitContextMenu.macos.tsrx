@@ -4,8 +4,6 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { AppKitContextMenuProps } from './macos/types'
 import { createContextMenuOwner } from './context-menu-owner.macos'
 import type { ContextMenuAttach } from './context-menu-owner.macos'
-import { cx } from '@octane-xplat/lib'
-
 const host = (): any => (globalThis as any).__xplatAppKit ?? {}
 
 /** macOS context menu — the trigger renders in place as this element's
@@ -37,7 +35,7 @@ export function AppKitContextMenu(props: AppKitContextMenuProps): unknown @{
   <masonview
     ref={owner.bind}
     id={props.id}
-    className={cx('xplat-appkit-context-menu', props.className)}
+    className={['xplat-appkit-context-menu', props.className]}
     style={props.style}
     accessibilityLabel={props.accessibilityLabel}
   >

@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { RadioGroupProps } from '../../props'
 import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
-import { cx } from '@octane-xplat/lib'
 import { useFieldControl } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 import { RadioListProvider } from './option-list-contexts'
@@ -151,7 +150,7 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
           id={controlID}
           ref={bind}
           {...keyboardProps}
-          className={cx(
+          className={[
             'vx-radio-group',
             'vx-radio-group--appkit',
             props.horizontal && 'vx-radio-group--row',
@@ -161,7 +160,7 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
             props.status && `vx-radio-group--status-${props.status.type}`,
             props.size && `vx-radio-group--size-${props.size}`,
             props.className,
-          )}
+          ]}
           style={props.style}
           accessibilityRole="radiogroup"
           accessibilityLabel={

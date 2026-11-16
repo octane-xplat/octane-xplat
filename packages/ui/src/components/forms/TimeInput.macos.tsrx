@@ -18,7 +18,6 @@ import {
 import type { ISOTimeString, TimeInputProps } from '../../props'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import type { NSTextField } from '@octane-xplat/platform/macos'
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
@@ -267,7 +266,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
 
   const control = (
     <masonview
-      className={cx(
+      className={[
         'vx-timeinput',
         'vx-timeinput--typed',
         isDisabled && 'vx-timeinput--disabled',
@@ -276,7 +275,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
         props.size && `vx-timeinput--size-${props.size}`,
         !isPendingValid && 'vx-timeinput--invalid',
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         { flexDirection: 'row', alignItems: 'center' },
         mergeStyle({ display: 'flex' }, props.style),
@@ -285,7 +284,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
       <textfield
         ref={bindInput}
         id={inputId}
-        className={cx('vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid')}
+        className={['vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid']}
         value={displayText}
         placeholder={props.placeholder ?? 'Select a time'}
         isEnabled={!isDisabled && !isBusy}
@@ -326,7 +325,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
       }
       @if (statusText != null) {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
           accessibilityLabel={
             props.statusVariant === 'tooltip' ? props.status?.message : undefined

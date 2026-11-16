@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import 'octane/signals'
-import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { Icon } from '../media/Icon.tsrx'
@@ -32,20 +31,20 @@ export function SelectView(props: SelectViewProps): unknown @{
       id={props.id}
       testID={props.testID}
       ref={measured.ref}
-      className={cx(
+      className={[
         'vx-select-trigger',
         props.isDisabled && 'vx-select--disabled',
         props.isReadOnly && 'vx-select--readonly',
         busy && 'vx-select--loading',
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex', flexDirection: 'row' }, props.style)}
     >
       {selected && props.renderValue ? (
         props.renderValue(selected)
       ) : (
         <label
-          className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}
+          className={['vx-select-value', !props.selected.length && 'vx-select-placeholder']}
           text={props.triggerText}
         />
       )}
@@ -100,12 +99,12 @@ export function SelectView(props: SelectViewProps): unknown @{
             }}
           >
             <masonview
-              className={cx(
+              className={[
                 'vx-menu-item',
                 'vx-select-option',
                 props.selected.includes(option.value) && 'vx-select-option--on',
                 option.isDisabled && 'vx-menu-item--disabled',
-              )}
+              ]}
               style={{ display: 'flex', flexDirection: 'row', minHeight: 32 }}
             >
               <masonview className="vx-select-check" style={{ display: 'flex' }}>

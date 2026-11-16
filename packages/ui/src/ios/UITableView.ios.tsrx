@@ -7,7 +7,6 @@ import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octan
 import { ScrollView } from '@nativescript/core'
 import type { UITableViewProps } from '../props'
 import type { RefreshConfig, RefreshController } from '../components/layout/refresh'
-import { cx } from '@octane-xplat/lib'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
 import { applyEscapeProps } from '../components/overlays/escape-props'
 import { REFRESH_HEADER_HEIGHT } from '../components/layout/refresh-metrics'
@@ -146,7 +145,7 @@ function UITableViewInner(props: {
         }
       }}
       id={props.id}
-      className={cx(props.className)}
+      className={[props.className]}
       style={props.style}
       itemTemplate={cells.itemTemplate}
       onItemLoading={cells.onItemLoading}
@@ -255,7 +254,7 @@ export function UITableView<T>(props: UITableViewProps<T>): unknown @{
             v.ios.clipsToBounds = true
           }
         }}
-        className={cx('vx-refresh-wrap', props.className)}
+        className={['vx-refresh-wrap', props.className]}
         style={mergeStyle({ display: 'grid' }, props.style)}
       >
         <MemoListView

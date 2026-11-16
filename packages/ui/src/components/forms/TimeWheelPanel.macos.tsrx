@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { formatISOTime, isTimeInRange, parseISOTime } from './datetime'
 
@@ -69,10 +68,10 @@ export function TimeWheelPanel(props: TimeWheelProps): unknown @{
         {choices.map((c: { value: number; label: string }) => (
           <masonview
             key={c.value}
-            className={cx(
+            className={[
               'vx-timewheel-option',
               c.value === currentValue && 'vx-timewheel-option--selected',
-            )}
+            ]}
             accessibilityRole="button"
             accessibilityState={{ selected: c.value === currentValue }}
             accessibilityLabel={`${label} ${c.label}`}

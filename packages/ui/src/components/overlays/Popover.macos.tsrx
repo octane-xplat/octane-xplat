@@ -2,7 +2,6 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { PopoverProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import { createAppKitPopoverOwner, type AppKitPopoverTarget } from './popover-owner.macos'
@@ -17,7 +16,7 @@ function PopoverPortal(props: {
   useLayoutEffect(() => props.committed(props.target.token), null)
   return createPortal(
     <masonview
-      className={cx('vx-popover', props.dark && 'ns-dark', props.panel.className)}
+      className={['vx-popover', props.dark && 'ns-dark', props.panel.className]}
       style={props.panel.style}
     >
       <LayerDepthProvider value={props.depth}>{props.panel.children}</LayerDepthProvider>

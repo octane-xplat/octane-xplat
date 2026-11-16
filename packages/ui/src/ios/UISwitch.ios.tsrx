@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef } from 'octane'
 import type { UISwitchProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -38,7 +37,7 @@ export function UISwitch(inputProps: UISwitchProps): unknown @{
     }}
     id={props.id}
     testID={props.testID ?? ''}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     checked={props.value}
     isEnabled={!props.isDisabled}

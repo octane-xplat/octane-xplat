@@ -78,11 +78,11 @@ export function FormField(props: FormFieldProps): unknown @{
     status?.message != null ? (
       <label
         id={statusId}
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${status.type}`,
           `vx-field-status--${statusVariant}`,
-        )}
+        ]}
         text={status.message}
       />
     ) : null
@@ -104,7 +104,7 @@ export function FormField(props: FormFieldProps): unknown @{
     <masonview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
-      className={cx(rootClass, 'vx-field--hl')}
+      className={[rootClass, 'vx-field--hl']}
       style={mergeStyle({ flexDirection: 'row' }, mergeStyle({ display: 'flex' }, fieldStyle))}
     >
       <masonview

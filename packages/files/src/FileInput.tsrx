@@ -4,7 +4,7 @@ import { useRef, useImperativeHandle, useId, useState } from 'octane'
 import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
 import { files as fileService } from './files'
-import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
+import { formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
@@ -98,7 +98,7 @@ function FileInputControl(inputProps: FileInputProps) @{
   useImperativeHandle(props.ref, () => ({ open: pick, native: hostRef.current }), undefined)
 
   <masonview
-    className={cx(
+    className={[
       'vx-fileinput',
       dropzone && 'vx-fileinput--dropzone',
       isDisabled && 'vx-fileinput--disabled',
@@ -106,7 +106,7 @@ function FileInputControl(inputProps: FileInputProps) @{
       statusType && `vx-fileinput--status-${statusType}`,
       props.size && `vx-fileinput--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ flexDirection: 'column' }, { display: 'flex', ...props.style })}
   >
     @if (files.length) {
@@ -176,14 +176,14 @@ function FileInputControl(inputProps: FileInputProps) @{
     }
     @if (statusText != null) {
       <label
-        className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}
+        className={['vx-field-icon', `vx-field-icon--${statusType}`]}
         text={statusText}
         accessibilityLabel={props.statusVariant === 'tooltip' ? statusMessage : undefined}
       />
     }
     @if (statusMessage && props.statusVariant !== 'tooltip') {
       <label
-        className={cx('vx-field-status', `vx-field-status--${statusType}`)}
+        className={['vx-field-status', `vx-field-status--${statusType}`]}
         text={statusMessage}
       />
     }

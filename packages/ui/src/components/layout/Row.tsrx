@@ -5,7 +5,6 @@ import { refList } from '../../internal/accessibility/ref-list'
 import { useInteractionHost } from '../../gestures/host.tsrx'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { RowProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -34,7 +33,7 @@ export function Row(props: RowProps): unknown @{
     id={props.id}
     testID={props.testID ?? ''}
     ref={forwardedRef}
-    className={cx('vx-row', props.className)}
+    className={['vx-row', props.className]}
     {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}

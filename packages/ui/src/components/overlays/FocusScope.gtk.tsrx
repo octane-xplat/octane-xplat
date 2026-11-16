@@ -2,8 +2,6 @@
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
-
 /** GTK has no `accessibilityViewIsModal`/`accessibilityElementsHidden` — the
  *  focus-scope's containment is carried by the overlay host's modal input
  *  suppression instead. The capability contract reports it truthfully. */
@@ -22,7 +20,7 @@ export function getFocusScopeCapabilities(): FocusScopeCapabilities {
 export function FocusScope(props: FocusScopeProps): unknown @{
   const refs = useMemo(() => refList(props.ref), [props.ref])
 
-  <masonview className={cx('vx-focus-scope', props.className)} style={props.style} ref={refs}>
+  <masonview className={['vx-focus-scope', props.className]} style={props.style} ref={refs}>
     {props.children}
   </masonview>
 }

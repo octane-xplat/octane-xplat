@@ -12,8 +12,6 @@ import {
   type TypeaheadLayerTarget,
 } from './typeahead-layer.macos'
 
-import { cx } from '@octane-xplat/lib'
-
 interface Props {
   anchor: PopoverAnchorRef
   input(): NSView | null
@@ -38,11 +36,11 @@ function ResultPortal(props: {
   useLayoutEffect(() => props.committed(props.target.token), null)
   return createPortal(
     <masonview
-      className={cx(
+      className={[
         'vx-typeahead-dropdown',
         'vx-typeahead-dropdown--appkit',
         props.dark && 'ns-dark',
-      )}
+      ]}
       onBlur={props.blur}
       style={{ display: 'flex', flexDirection: 'column', width: props.size.width }}
     >

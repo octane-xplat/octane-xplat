@@ -2,7 +2,6 @@
 import type { NSView } from '@octane-xplat/platform/macos'
 import './PresetTimeList.macos.css'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import { createAppKitTimeListFocus, type AppKitTimeOption } from './time-list-focus.macos'
 import type { ISOTimeString } from '../../props'
 
@@ -45,12 +44,12 @@ function TimeRow(props: RowProps) @{
   <masonview
     ref={bind}
     disabled={props.blocked}
-    className={cx(
+    className={[
       'vx-datetimeinput-timeoption',
       'vx-timeoption--appkit',
       props.selected && 'vx-datetimeinput-timeoption--selected',
       props.highlighted && 'vx-datetimeinput-timeoption--highlighted',
-    )}
+    ]}
     accessibilityRole="button"
     accessibilityLabel={props.option.label}
     accessibilityState={{ disabled: props.blocked, selected: props.selected }}

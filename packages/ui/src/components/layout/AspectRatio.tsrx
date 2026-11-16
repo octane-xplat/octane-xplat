@@ -4,7 +4,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { AspectRatioProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -35,12 +34,12 @@ export function AspectRatio(props: AspectRatioProps): unknown @{
   <masonview
     id={props.id}
     ref={hostRef}
-    className={cx(
+    className={[
       'vx-aspectratio',
       `vx-aspectratio-fit-${fit}`,
       ellipse && 'vx-aspectratio--ellipse',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { display: 'flex' },
       {

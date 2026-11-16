@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { IndicatorProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** CheckIndicator — the standalone selection mark (listbox options, menu
@@ -27,7 +26,7 @@ export function CheckIndicator(props: IndicatorProps<'singleSelection'>): unknow
     <masonview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-ind-check-slot', `vx-ind-check-slot--${size}`, props.className)}
+      className={['vx-ind-check-slot', `vx-ind-check-slot--${size}`, props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       {props.children}
@@ -36,12 +35,12 @@ export function CheckIndicator(props: IndicatorProps<'singleSelection'>): unknow
     <label
       id={props.id}
       ref={forwardedRef}
-      className={cx(
+      className={[
         'vx-ind-check',
         `vx-ind-check--${size}`,
         props.isDisabled && 'vx-ind-check--disabled',
         props.className,
-      )}
+      ]}
       style={props.style}
       text="✓"
     />

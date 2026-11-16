@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import { Popover } from './Popover.tsrx'
-import { cx } from '@octane-xplat/lib'
 import type {
   ContextLayerReturn,
   ContextRenderProps,
@@ -110,7 +109,7 @@ export function useLayer<O extends LayerOptions>(
               alignment={p.alignment ?? 'start'}
               offset={p.offset}
               onDismiss={() => hide()}
-              className={cx('vx-popover', props?.className)}
+              className={['vx-popover', props?.className]}
               style={props?.style}
               dismissOnEscape={
                 options.dismissOnEscape === true ||

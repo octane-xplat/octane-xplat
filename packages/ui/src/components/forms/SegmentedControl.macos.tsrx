@@ -2,7 +2,6 @@
 import type { NSView } from '@octane-xplat/platform/macos'
 import { useEffect, useRef, useState } from 'octane'
 import type { SegmentedControlProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useFieldControlProps } from './field-context'
 import { AppKitSegmentedProvider } from '../actions/segmented-control-context.macos'
@@ -60,7 +59,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
         root.current = view
       }}
       id={props.id}
-      className={cx(
+      className={[
         'vx-segmented',
         props.layout === 'fill' && 'vx-segmented--fill',
         props.isDisabled && 'vx-segmented--disabled',
@@ -69,7 +68,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
         props.status && `vx-segmented--status-${props.status.type}`,
         props.size && `vx-segmented--size-${props.size}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
       accessibilityRole="radiogroup"
       accessibilityLabel={

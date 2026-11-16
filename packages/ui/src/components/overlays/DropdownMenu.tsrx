@@ -5,7 +5,6 @@ import { MenuData } from './MenuParts.tsrx'
 import { MenuSurface } from './MenuSurface.tsrx'
 import { useRef, useState } from 'octane'
 import type { DropdownMenuProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Button } from '../actions/Button.tsrx'
 import { Icon } from '../media/Icon.tsrx'
 import { Popover } from './Popover.tsrx'
@@ -59,7 +58,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
         anchor.current = v
       }}
       id={props.id}
-      className={cx('vx-menu-trigger', button.className)}
+      className={['vx-menu-trigger', button.className]}
       isDisabled={disabled || button.isDisabled}
       endContent={endContent}
       onPress={() => setOpen(!open)}
@@ -82,7 +81,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
         placement={props.placement ?? 'bottom'}
         alignment={props.alignment}
         onDismiss={() => setOpen(false)}
-        className={cx('vx-menu', props.menuClassName)}
+        className={['vx-menu', props.menuClassName]}
         style={
           typeof props.menuWidth === 'number' ? { minWidth: props.menuWidth } : undefined
         }

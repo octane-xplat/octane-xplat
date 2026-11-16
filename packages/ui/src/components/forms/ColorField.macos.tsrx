@@ -2,7 +2,6 @@
 import { useRef, useState } from 'octane'
 import type { ColorFieldProps } from '../../props'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import { Text } from '../content/Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { normalizeHex } from '../../theme/color'
@@ -34,7 +33,7 @@ export function ColorField(props: ColorFieldProps): unknown @{
   }
 
   <masonview
-    className={cx('vx-color-field', props.className)}
+    className={['vx-color-field', props.className]}
     style={mergeStyle(
       { display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center' },
       styleRecord(props.style),

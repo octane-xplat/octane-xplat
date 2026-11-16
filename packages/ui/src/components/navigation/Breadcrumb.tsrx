@@ -24,8 +24,6 @@ import { Pressable } from '../actions/Pressable.tsrx'
 import { Text } from '../content/Text.tsrx'
 import { followHref } from './nav-href'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
-
 /** BreadcrumbItem part — native leaf renders the same link/text branches. */
 export function BreadcrumbItem(props: BreadcrumbItemProps): unknown @{
   const label = typeof props.children === 'string' ? props.children : ''
@@ -44,7 +42,7 @@ export function BreadcrumbItem(props: BreadcrumbItemProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-breadcrumb-crumb', props.className)}
+    className={['vx-breadcrumb-crumb', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {props.startIcon}
@@ -130,11 +128,11 @@ export function Breadcrumb(
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-breadcrumb',
       props.variant === 'supporting' && 'vx-breadcrumb--supporting',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     @for (const item of visible; index index; key index) {

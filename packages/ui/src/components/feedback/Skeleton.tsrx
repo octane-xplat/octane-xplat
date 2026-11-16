@@ -1,8 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { SkeletonProps } from '../../props'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
-
 /** Skeleton — placeholder block; `radius` resolves to dips on native. */
 export function Skeleton(props: SkeletonProps): unknown @{
   const radius =
@@ -16,7 +14,7 @@ export function Skeleton(props: SkeletonProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-skeleton', props.className)}
+    className={['vx-skeleton', props.className]}
     style={mergeStyle(
       { width: props.width, height: props.height, borderRadius: radius },
       styleRecord(props.style),

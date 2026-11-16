@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { EmptyProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
 
@@ -10,7 +9,7 @@ export function Empty(props: EmptyProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-empty', props.isCompact && 'vx-empty--compact', props.className)}
+    className={['vx-empty', props.isCompact && 'vx-empty--compact', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {props.icon ? (

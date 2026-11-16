@@ -2,7 +2,6 @@
 import { AppKitTextScope } from '../forms/text-context.macos.tsrx'
 import type { HeadingProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import { useTheme } from '../../theme/use-theme.tsrx'
 import { headingScaleStyle } from '../forms/text-scale'
 
@@ -23,12 +22,12 @@ export function Heading(props: HeadingProps): unknown @{
 
   <label
     id={props.id}
-    className={cx(
+    className={[
       'vx-heading',
       `vx-h${level}`,
       props.type && `vx-heading--${props.type}`,
       props.className,
-    )}
+    ]}
     style={headingStyle}
     maxLines={maxLines > 0 ? maxLines : undefined}
     whiteSpace={maxLines === 1 ? 'nowrap' : undefined}

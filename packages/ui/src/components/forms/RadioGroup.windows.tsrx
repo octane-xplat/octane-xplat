@@ -6,7 +6,6 @@ import { WindowsRadioGroup } from './radio-control.windows'
 import { WindowsRadioProvider } from './radio-context.windows'
 import { RadioListItem } from './RadioListItem.windows.tsrx'
 import type { RadioGroupProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { useFieldControlProps } from './field-context'
 import { RadioListProvider } from './option-list-contexts'
@@ -62,7 +61,7 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
   <masonview
     ref={bindRoot}
     id={props.id}
-    className={cx(
+    className={[
       'vx-radio-group',
       props.horizontal && 'vx-radio-group--row',
       props.isDisabled && 'vx-radio-group--disabled',
@@ -71,7 +70,7 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
       props.status && `vx-radio-group--status-${props.status.type}`,
       props.size && `vx-radio-group--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { flexDirection: props.horizontal ? 'row' : 'column' },
       mergeStyle({ display: 'flex' }, props.style),

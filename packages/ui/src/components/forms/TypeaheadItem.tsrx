@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { SearchableItem, TypeaheadItemProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
 
@@ -36,11 +35,11 @@ export function TypeaheadItem<T extends SearchableItem>(
   <masonview
     ref={forwardedRef}
     id={props.id}
-    className={cx(
+    className={[
       'vx-typeahead-item',
       props.isDisabled && 'vx-typeahead-item--disabled',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
   >

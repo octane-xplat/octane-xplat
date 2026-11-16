@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ProgressBarProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { useThemeScheme } from '../../theme/theme-scheme.macos'
 import { mutedColor, progressFillColor, textColor } from '../../theme/scheme-colors'
 
@@ -29,7 +28,7 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
   <masonview
     ref={props.ref}
     id={props.id}
-    className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)}
+    className={['vx-progressbar', `vx-progressbar--${variant}`, props.className]}
     style={mergeStyle(
       { display: 'flex', flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}) },
       props.style,
@@ -92,12 +91,12 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
             width: isIndeterminate ? '40%' : `${pct}%`,
           },
         )}
-        className={cx(
+        className={[
           'vx-progressbar-fill',
           'vx-progressbar-fill--appkit',
           `vx-progressbar-fill--${variant}`,
           isIndeterminate && 'vx-progressbar-fill--indeterminate',
-        )}
+        ]}
       />
       {marks.map((mark) => {
         const markPct = clamp(mark.value, 0, max) / max

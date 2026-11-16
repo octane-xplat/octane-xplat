@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useId, useCallback } from 'octane'
 import type { MobileNavProps, MobileNavToggleProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Button } from '../actions/Button.tsrx'
 import { Icon } from '../media/Icon.tsrx'
@@ -54,7 +53,7 @@ export function MobileNav(props: MobileNavProps): unknown @{
     <masonview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={id}
-      className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)}
+      className={['vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className]}
       {...layoutChildProps(props, mergeStyle({ display: 'grid' }, props.style))}
       accessibilityLabel={
         props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')
@@ -111,7 +110,7 @@ export function MobileNavToggle(props: MobileNavToggleProps): unknown @{
     <Button
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
-      className={cx('vx-mobilenav-toggle', props.className)}
+      className={['vx-mobilenav-toggle', props.className]}
       style={props.style}
       accessibilityLabel={props.label ?? 'Open navigation'}
       onPress={toggleMobileNav}

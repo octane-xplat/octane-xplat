@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useRef, useState } from 'octane'
 import { Pressable } from '../actions/Pressable.tsrx'
-import { cx } from '@octane-xplat/lib'
 import type { GridListProps } from '../../props'
 import { defaultItemKey, type Key, type Selection } from '../../data/list-data'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
@@ -81,7 +80,7 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
       props,
       mergeStyle({ flexWrap: isGrid ? 'wrap' : 'nowrap', display: 'flex' }, props.style),
     )}
-    className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)}
+    className={['vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className]}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
@@ -96,11 +95,11 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
         key: keys[index],
       })); key entry.key) {
       <Pressable
-        className={cx(
+        className={[
           'vx-gridlist-row',
           isGridListKeySelected(selection, entry.key) && 'vx-gridlist-row--selected',
           disabled.has(entry.key) && 'vx-gridlist-row--disabled',
-        )}
+        ]}
         style={
           isGrid && props.columns
             ? { width: `${100 / props.columns}%` }

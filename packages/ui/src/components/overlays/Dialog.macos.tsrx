@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { useContext, useState } from 'octane'
 import type { DialogHeaderProps, DialogProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { usePresentation } from './presentation.macos.tsrx'
 import { Button } from '../actions/controls.macos.tsrx'
 import { DialogContext, DialogProvider } from './dialog-context'
@@ -15,12 +14,12 @@ function DialogPanel(props: DialogProps & { dark?: boolean; layerDepth: number }
     >
       <masonview
         id={props.id}
-        className={cx(
+        className={[
           'vx-dialog',
           props.variant === 'fullscreen' && 'vx-dialog--fullscreen',
           props.dark && 'ns-dark',
           props.className,
-        )}
+        ]}
         style={{ padding: (props.padding ?? 5) * 4, ...styleRecord(props.style) }}
       >
         {props.children}
@@ -90,7 +89,7 @@ export function DialogHeader(props: DialogHeaderProps): unknown @{
   const requestClose = props.onOpenChange ?? ctx?.requestClose
 
   <masonview
-    className={cx('vx-dialog-header', props.className)}
+    className={['vx-dialog-header', props.className]}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
   >
     <masonview

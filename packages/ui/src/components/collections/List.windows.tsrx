@@ -5,7 +5,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ListProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -37,7 +36,7 @@ export function List(props: ListProps): unknown @{
 
   const markerFor = (index: number) =>
     listStyle === 'decimal' ? (
-      <label className={cx('vx-listmarker', 'vx-list-marker--number')} text={`${start + index}.`} />
+      <label className={['vx-listmarker', 'vx-list-marker--number']} text={`${start + index}.`} />
     ) : listStyle === 'disc' ? (
       <masonview className="vx-listmarker" style={{ display: 'flex' }}>
         <masonview className="vx-listmarker-dot" style={{ display: 'flex' }} />
@@ -62,12 +61,12 @@ export function List(props: ListProps): unknown @{
     <masonview
       id={props.id}
       ref={forwardedRef}
-      className={cx(
+      className={[
         'vx-list',
         `vx-list--density-${density}`,
         props.hasDividers && 'vx-list--dividers',
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
       accessible={props.accessible}
       accessibilityLabel={props.accessibilityLabel}
@@ -84,10 +83,10 @@ export function List(props: ListProps): unknown @{
       }
       {mapChildren(items, (child: any, index: number) => (
         <masonview
-          className={cx(
+          className={[
             'vx-list-row',
             props.hasDividers && index < items.length - 1 && 'vx-list-row--divider',
-          )}
+          ]}
           style={mergeStyle({ flexDirection: 'row', alignItems: 'stretch' }, { display: 'flex' })}
         >
           {markerFor(index)}

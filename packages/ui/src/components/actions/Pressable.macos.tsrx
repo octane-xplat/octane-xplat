@@ -4,7 +4,6 @@ import { useInteractionHost } from '../../gestures/host.macos.tsrx'
 import { pressOptions } from '../../gestures/semantic-press'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import { refList } from '../../internal/accessibility/ref-list'
-import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from '../layout/layout-child'
 
 const semanticAction = () => {}
@@ -24,7 +23,7 @@ export function Pressable(props: PressableProps): unknown @{
     id={props.id}
     testID={props.testID}
     accessible={props.accessible}
-    className={cx('vx-pressable', props.className)}
+    className={['vx-pressable', props.className]}
     disabled={props.disabled}
     onTap={props.disabled ? undefined : semanticAction}
     onDoubleTap={props.disabled || !props.onDoublePress ? undefined : semanticAction}

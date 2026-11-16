@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ThumbnailProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from './Icon.macos.tsrx'
 import { ActivityIndicator } from '../actions/controls.macos.tsrx'
 import { Skeleton } from '../feedback/Skeleton.macos.tsrx'
@@ -48,7 +47,7 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
         }
         @if (isRenderable(props.onRemove)) {
           <masonview
-            className={cx('vx-thumbnail-remove')}
+            className={['vx-thumbnail-remove']}
             style={mergeStyle(
               {
                 justifySelf: 'end',
@@ -85,7 +84,7 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
   const content = (
     <masonview
       id={props.id}
-      className={cx('vx-thumbnail', props.className)}
+      className={['vx-thumbnail', props.className]}
       style={mergeStyle(
         mergeStyle({ display: 'grid' }, { width: SIZE, height: SIZE }),
         props.style,

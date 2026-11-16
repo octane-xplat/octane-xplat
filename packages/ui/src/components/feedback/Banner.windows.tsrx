@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import type { BannerProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
@@ -52,7 +51,7 @@ export function Banner(props: BannerProps): unknown @{
   <masonview
     ref={(view: any) => applyEscapeProps(view, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-banner',
       'vx-banner-windows',
       `vx-banner--${status}`,
@@ -60,7 +59,7 @@ export function Banner(props: BannerProps): unknown @{
       props.container === 'section' && 'vx-banner--section',
       props.elevation && props.elevation !== 'none' && `vx-banner--elev-${props.elevation}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     accessible
     accessibilityLabel={name || 'Notice'}

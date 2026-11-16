@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { CircularProgressIndicatorProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** CircularProgressIndicator — the platform spinner (Android indeterminate
@@ -15,7 +14,7 @@ export function CircularProgressIndicator(
 
   <activityindicator
     id={props.id}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     busy={props.busy ?? true}
     ref={(el: any) => applyNativeProps(el, props)}

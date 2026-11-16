@@ -19,7 +19,6 @@ import type { PopoverInternalProps } from '../../internal-props'
 import { applyNativeProps } from '../../internal/platform/platformProps'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import { applyThemeClasses } from '../../theme/theme-host'
-import { cx } from '@octane-xplat/lib'
 import { rootLayoutFor } from '../layout/root-layout'
 import { createOverlayLifetime } from './overlay-lifetime'
 import { layerOffset } from './popover-position'
@@ -55,10 +54,10 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
   }, [props.ios, props.android])
 
   <masonview
-    className={cx(
+    className={[
       'vx-popover-layer vx-fixed-layer-surface',
       useThemeScheme() === 'dark' && 'ns-dark',
-    )}
+    ]}
   >
     {(props.lightDismiss ?? false) && (
       <masonview
@@ -70,7 +69,7 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
     <masonview
       ref={panelRef}
       accessibilityLabel={props.accessibilityLabel}
-      className={cx('vx-popover', props.className)}
+      className={['vx-popover', props.className]}
       style={mergeStyle(props.style, {
         position: 'absolute',
         left: props.x ?? 0,

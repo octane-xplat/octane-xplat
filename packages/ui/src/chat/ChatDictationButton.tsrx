@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatDictationButtonProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../components/media/Icon.tsrx'
 import { Button } from '../components/actions/Button.tsrx'
 
@@ -22,7 +21,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps): unknown @{
   @if (!hiddenUnsupported || dictation.isSupported) {
     <masonview
       id={props.id}
-      className={cx('vx-chatdict', props.className)}
+      className={['vx-chatdict', props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       @if (isListening) {
@@ -51,7 +50,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps): unknown @{
         </masonview>
       }
       <Button
-        className={cx('vx-chatdict-btn', `vx-chatdict-btn--${size}`)}
+        className={['vx-chatdict-btn', `vx-chatdict-btn--${size}`]}
         label={accessibleLabel}
         variant="ghost"
         size={size}

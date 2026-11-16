@@ -1,7 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { SeparatorProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
-
 /** Divider — hairline rule. `variant`/`label`/`isFullBleed` are class hooks
  *  the native stylesheet resolves; a labeled rule renders text between two
  *  segments. */
@@ -11,14 +9,14 @@ export function Separator(props: SeparatorProps): unknown @{
   @if (props.label != null) {
     <masonview
       id={props.id}
-      className={cx(
+      className={[
         'vx-separator',
         'vx-separator--labeled',
         vertical ? 'vx-separator--v' : 'vx-separator--h',
         props.variant === 'strong' && 'vx-separator--strong',
         props.isFullBleed && 'vx-separator--bleed',
         props.className,
-      )}
+      ]}
       style={props.style}
       accessibilityRole="none"
     >
@@ -32,13 +30,13 @@ export function Separator(props: SeparatorProps): unknown @{
   } @else {
     <masonview
       id={props.id}
-      className={cx(
+      className={[
         'vx-separator',
         vertical ? 'vx-separator--v' : 'vx-separator--h',
         props.variant === 'strong' && 'vx-separator--strong',
         props.isFullBleed && 'vx-separator--bleed',
         props.className,
-      )}
+      ]}
       style={props.style}
       accessibilityRole="none"
     />

@@ -13,8 +13,6 @@ import { Popover } from '../overlays/Popover.tsrx'
 import { PowerSearchToken } from './PowerSearchToken.tsrx'
 import { PowerSearchFilterEditor } from './PowerSearchFilterEditor.tsrx'
 import { powerSearchTranslate } from './power-search-strings'
-import { cx } from '@octane-xplat/lib'
-
 export function PowerSearchView(props: PowerSearchViewProps): unknown @{
   const size = useSize(props.size, 'md')
   const anchor = useRef<any>(null)
@@ -45,12 +43,12 @@ export function PowerSearchView(props: PowerSearchViewProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx(
+    className={[
       'vx-power-search',
       `vx-power-search--size-${size}`,
       props.isDisabled && 'vx-power-search--disabled',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     ref={(v: any) => {
       anchor.current = v
@@ -167,11 +165,11 @@ export function PowerSearchView(props: PowerSearchViewProps): unknown @{
     </Popover>
     {status?.message ? (
       <label
-        className={cx(
+        className={[
           'vx-power-search-status',
           `vx-power-search-status--${status.type}`,
           `vx-power-search-status--${props.statusVariant ?? 'attached'}`,
-        )}
+        ]}
         text={status.message}
       />
     ) : null}

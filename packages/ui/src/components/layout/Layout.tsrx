@@ -10,7 +10,6 @@ import type {
   LayoutPanelProps,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -79,7 +78,7 @@ export function Layout(props: LayoutProps): unknown @{
         <masonview
           id={props.id}
           ref={forwardedRef}
-          className={cx('vx-layout', props.className)}
+          className={['vx-layout', props.className]}
           style={mergeStyle(
             { display: 'flex', ...(isFill ? { flexGrow: 1 } : {}) },
             styleRecord(props.style),
@@ -145,7 +144,7 @@ export function LayoutHeader(props: LayoutHeaderProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-layout-header', hasDivider && 'vx-layout-header--divided', props.className)}
+    className={['vx-layout-header', hasDivider && 'vx-layout-header--divided', props.className]}
     style={mergeStyle(
       {
         display: 'flex',
@@ -218,7 +217,7 @@ export function LayoutContent(props: LayoutContentProps): unknown @{
     <scrollview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-layout-content', 'vx-layout-content--scroll', props.className)}
+      className={['vx-layout-content', 'vx-layout-content--scroll', props.className]}
       style={mergeStyle(sizeStyle, styleRecord(props.style))}
       orientation="vertical"
       accessible={props.accessible}
@@ -237,7 +236,7 @@ export function LayoutContent(props: LayoutContentProps): unknown @{
     <masonview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-layout-content', props.className)}
+      className={['vx-layout-content', props.className]}
       style={mergeStyle({ display: 'flex', ...sizeStyle, ...padStyle }, styleRecord(props.style))}
       accessible={props.accessible}
       accessibilityLabel={props.accessibilityLabel ?? props.label}
@@ -273,7 +272,7 @@ export function LayoutFooter(props: LayoutFooterProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-layout-footer', hasDivider && 'vx-layout-footer--divided', props.className)}
+    className={['vx-layout-footer', hasDivider && 'vx-layout-footer--divided', props.className]}
     style={mergeStyle(
       {
         display: 'flex',
@@ -324,12 +323,12 @@ export function LayoutPanel(props: LayoutPanelProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx(
+    className={[
       'vx-layout-panel',
       `vx-layout-panel--${area}`,
       props.hasDivider && 'vx-layout-panel--divided',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       {
         display: 'flex',

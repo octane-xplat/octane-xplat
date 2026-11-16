@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { TextInputProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
@@ -61,7 +60,7 @@ function TextInputControl(inputProps: TextInputProps) @{
   )
 
   <masonview
-    className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')}
+    className={['vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup']}
     style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
   >
     {props.startIcon != null ? (
@@ -85,7 +84,7 @@ function TextInputControl(inputProps: TextInputProps) @{
       }}
       id={props.id}
       testID={props.testID ?? ''}
-      className={cx(
+      className={[
         'vx-input',
         props.isDisabled && 'vx-input--disabled',
         props.isReadOnly && 'vx-input--readonly',
@@ -94,7 +93,7 @@ function TextInputControl(inputProps: TextInputProps) @{
         props.size && `vx-input--size-${props.size}`,
         props.inInputGroup && 'vx-input--ingroup',
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         styleRecord(props.style),
         props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {},

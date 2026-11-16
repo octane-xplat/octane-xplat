@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import 'octane/signals'
 import { useEffect, useRef, useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import type {
   AppRouteStacks,
   DropdownMenuProps,
@@ -108,7 +107,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
       <Button
         {...button}
         id={props.id ?? button.id}
-        className={cx('vx-menu-trigger', button.className)}
+        className={['vx-menu-trigger', button.className]}
         isDisabled={disabled}
         endContent={endContent}
         onPress={() => setOpen(!(latest.current.props.isOpen ?? local.current))}
@@ -141,11 +140,11 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
             }}
           >
             <masonview
-              className={cx(
+              className={[
                 'vx-menu-item',
                 item.isDisabled && 'vx-menu-item--disabled',
                 item.variant === 'destructive' && 'vx-menu-item--destructive',
-              )}
+              ]}
             >
               @if (item.icon) {
                 <Icon name={item.icon} />

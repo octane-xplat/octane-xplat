@@ -3,7 +3,6 @@ import { useInteractionHost } from '../../gestures/host.macos.tsrx'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { ViewProps } from '../../props'
 import { refList } from '../../internal/accessibility/ref-list'
-import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from './layout-child'
 
 export function View(props: ViewProps): unknown @{
@@ -13,7 +12,7 @@ export function View(props: ViewProps): unknown @{
     id={props.id}
     ref={refList(bindInput, props.ref)}
     {...layoutChildProps(props, props.style)}
-    className={cx('vx-view', props.className)}
+    className={['vx-view', props.className]}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={props.accessibilityRole}

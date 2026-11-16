@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ScreenProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { registerRootLayout, unregisterRootLayout } from './root-layout'
 import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
@@ -32,7 +31,7 @@ export function Screen(props: ScreenProps): unknown @{
   >
     <masonview
       iosIgnoreSafeArea={true}
-      className={cx('vx-screen-content', props.className)}
+      className={['vx-screen-content', props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
       ref={(v: any) => {
         if (v) {

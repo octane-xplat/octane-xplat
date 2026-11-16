@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { AbsoluteProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -16,7 +15,7 @@ export function Absolute(props: AbsoluteProps): unknown @{
   <masonview
     id={props.id}
     ref={(view: any) => applyEscapeProps(view, props)}
-    className={cx('vx-absolute', props.className)}
+    className={['vx-absolute', props.className]}
     style={props.style}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}

@@ -11,7 +11,6 @@ import { appKitHost } from '../../internal/platform/host-bridge'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
 import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { createAppKitSelectKeyboard } from './select-keyboard.macos'
-import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Popover } from '../overlays/Popover.macos.tsrx'
@@ -73,12 +72,12 @@ function SelectOptionRow(input: {
   <masonview
     ref={bind}
     id={props.id ? `${props.id}-option-${option.value}` : undefined}
-    className={cx(
+    className={[
       'vx-menu-item',
       'vx-select-option',
       props.selected.includes(option.value) && 'vx-select-option--on',
       (blocked || option.isDisabled || props.pending) && 'vx-menu-item--disabled',
-    )}
+    ]}
     disabled={blocked || option.isDisabled || props.pending}
     onTap={blocked || option.isDisabled || props.pending ? undefined : pick}
     accessibilityRole={nativeAccessibilityRole(props.multiple ? 'checkbox' : 'radio')}
@@ -431,7 +430,7 @@ export function SelectView(props: SelectViewProps): unknown @{
       {...triggerKeys}
       id={props.id}
       testID={props.testID}
-      className={cx(
+      className={[
         'vx-pressable',
         'vx-select-trigger',
         'vx-select-trigger--appkit',
@@ -440,7 +439,7 @@ export function SelectView(props: SelectViewProps): unknown @{
         props.isReadOnly && 'vx-select--readonly',
         busy && 'vx-select--loading',
         props.className,
-      )}
+      ]}
       style={props.style}
       disabled={props.isDisabled}
       onTap={
@@ -509,7 +508,7 @@ export function SelectView(props: SelectViewProps): unknown @{
         </masonview>
       ) : (
         <label
-          className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}
+          className={['vx-select-value', !props.selected.length && 'vx-select-placeholder']}
           text={props.triggerText}
         />
       )}

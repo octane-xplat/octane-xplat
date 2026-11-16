@@ -2,7 +2,6 @@
 import 'octane/signals'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
-import { cx } from '@octane-xplat/lib'
 import type { SliderProps } from '../../props'
 import { useFieldControl } from './field-context'
 import { FormField } from './FormField.tsrx'
@@ -149,7 +148,7 @@ export function Slider(inputProps: SliderProps): unknown @{
   const body = (
     <masonview
       id={props.id}
-      className={cx('vx-slider-body-windows', props.className)}
+      className={['vx-slider-body-windows', props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       @if (props.valueDisplay === 'tooltip') {
@@ -174,14 +173,14 @@ export function Slider(inputProps: SliderProps): unknown @{
             bindHost(host)
             input.ref(host)
           }}
-          className={cx(
+          className={[
             'vx-slider',
             'vx-slider-track-windows',
             range && 'vx-slider--range',
             disabled && 'vx-slider--disabled',
             props.isReadOnly && 'vx-slider--readonly',
             props.size && `vx-slider--size-${props.size}`,
-          )}
+          ]}
           isEnabled={!disabled}
           onPan={input.onPan}
           onTouch={onTouch}

@@ -12,7 +12,6 @@ import { createAppKitMenuFocus } from './menu-focus.macos'
 import { appKitHost } from '../../internal/platform/host-bridge'
 import { useDirection } from '../../internal/platform/internationalization'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
-import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Text } from '../content/Text.macos.tsrx'
 import type { AppKitMenuRows } from './menu-rows.macos'
@@ -225,7 +224,7 @@ export function MenuSurface(props: MenuSurfaceProps): unknown @{
   <masonview
     ref={bind}
     {...keys}
-    className={cx('vx-menu-list', 'vx-menu-list--appkit', props.className)}
+    className={['vx-menu-list', 'vx-menu-list--appkit', props.className]}
     style={props.style}
     accessibilityRole="menu"
     accessibilityLabel={props.label}

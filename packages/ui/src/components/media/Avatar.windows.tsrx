@@ -8,7 +8,6 @@ import type {
   AvatarStatusDotVariant,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Image } from './Image.tsrx'
 
@@ -33,11 +32,11 @@ function initials(name: string): string {
 export function AvatarStatusDot(props: AvatarStatusDotProps): unknown @{
   <masonview
     id={props.id}
-    className={cx(
+    className={[
       'vx-avatar-status',
       `vx-statusdot--${props.variant ?? 'neutral'}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ position: 'absolute', right: -1, bottom: -1 }, props.style)}
     accessibilityLabel={props.label ?? props.variant ?? 'status'}
   />
@@ -53,7 +52,7 @@ export function Avatar(props: AvatarProps): unknown @{
   <masonview
     ref={(view: NativeView | null) => applyEscapeProps(view, props)}
     id={props.id}
-    className={cx('vx-avatar', props.className)}
+    className={['vx-avatar', props.className]}
     style={mergeStyle(
       { display: 'flex', position: 'relative' },
       { ...styleRecord(props.style), ...box },

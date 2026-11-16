@@ -2,7 +2,6 @@
 import { mergeStyle } from '../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { ChatComposerDrawerProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { Badge } from '../components/feedback/Badge.tsrx'
 import {
   nativeAccessibilityRole,
@@ -33,7 +32,7 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className)}
+    className={['vx-chatdrawer', isCollapsed && 'vx-chatdrawer--collapsed', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     @if (canCollapse) {

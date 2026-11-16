@@ -10,7 +10,6 @@ import {
 } from 'octane'
 
 import type { DateInputProps, ISODateString } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { isDateComposing } from './date-keyboard'
 import { runDateChangeAction } from './date-field-action'
@@ -79,7 +78,7 @@ function StatusGlyph(props: StatusGlyphProps) @{
 
   const glyph = STATUS_GLYPHS[props.status.type]
   const span = (
-    <span className={cx('vx-field-icon', `vx-field-icon--${props.status.type}`)}>{glyph}</span>
+    <span className={['vx-field-icon', `vx-field-icon--${props.status.type}`]}>{glyph}</span>
   )
 
   if (props.variant === 'tooltip' && props.status.message) {
@@ -361,7 +360,7 @@ function DateInputControl(inputProps: CoreProps) @{
         shell.current = el
         anchor.current = el
       }}
-      className={cx(
+      className={[
         'vx-dateinput',
         `vx-dateinput--${surface}`,
         isDisabled && 'vx-dateinput--disabled',
@@ -371,7 +370,7 @@ function DateInputControl(inputProps: CoreProps) @{
         !isPendingValid && 'vx-dateinput--invalid',
         rejected !== null && 'vx-dateinput--invalid',
         props.className,
-      )}
+      ]}
       style={props.style}
     >
       {iconButton}
@@ -383,7 +382,7 @@ function DateInputControl(inputProps: CoreProps) @{
             }}
             id={inputId}
             type="date"
-            className={cx('vx-dateinput-nativeinput', 'vx-dateinput-input')}
+            className={['vx-dateinput-nativeinput', 'vx-dateinput-input']}
             value={shown && /^\d{4}-\d{2}-\d{2}$/.test(shown) ? shown : ''}
             min={props.min}
             max={props.max}
@@ -419,11 +418,11 @@ function DateInputControl(inputProps: CoreProps) @{
       ) : surface === 'sheet' ? (
         <button
           type="button"
-          className={cx(
+          className={[
             'vx-dateinput-input',
             'vx-dateinput-segment',
             !shown && 'vx-dateinput-segment--placeholder',
-          )}
+          ]}
           disabled={isDisabled || isBusy || undefined}
           aria-label={props.ariaLabel}
           aria-labelledby={props.ariaLabelledBy}
@@ -444,7 +443,7 @@ function DateInputControl(inputProps: CoreProps) @{
           id={inputId}
           type="text"
           role="combobox"
-          className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
+          className={['vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid']}
           value={displayValue}
           placeholder={displayPlaceholder}
           disabled={(isDisabled && !showsDisabledReason) || undefined}

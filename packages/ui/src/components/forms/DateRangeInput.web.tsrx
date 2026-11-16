@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useContext, useId, useMemo, useRef, useState } from 'octane'
 import type { DateRange, DateRangeInputProps, ISODateString } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from '../media/Icon.web.tsrx'
@@ -90,7 +89,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
       ref={(el: any) => {
         anchor.current = el
       }}
-      className={cx(
+      className={[
         'vx-daterangeinput',
         isDisabled && 'vx-daterangeinput--disabled',
         isBusy && 'vx-daterangeinput--loading',
@@ -98,7 +97,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         props.size && `vx-daterangeinput--size-${props.size}`,
         open && 'vx-daterangeinput--open',
         props.className,
-      )}
+      ]}
       style={props.style}
     >
       <button
@@ -107,10 +106,10 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         }}
         id={inputId}
         type="button"
-        className={cx(
+        className={[
           'vx-daterangeinput-trigger',
           !shown && 'vx-daterangeinput-trigger--placeholder',
-        )}
+        ]}
         disabled={(isDisabled && !showsDisabledReason) || undefined}
         aria-disabled={showsDisabledReason || undefined}
         aria-label={props.ariaLabel}
@@ -151,14 +150,14 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         props.statusVariant === 'tooltip' && props.status?.message ? (
           <Tooltip
             trigger={
-              <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+              <span className={['vx-field-icon', `vx-field-icon--${statusType}`]}>
                 {STATUS_GLYPHS[statusType]}
               </span>
             }
             content={props.status.message}
           />
         ) : (
-          <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+          <span className={['vx-field-icon', `vx-field-icon--${statusType}`]}>
             {STATUS_GLYPHS[statusType]}
           </span>
         )
@@ -197,10 +196,10 @@ function RangeControl(inputProps: DateRangeInputProps) @{
                 key={preset.label}
                 id={`${inputId}-preset-${index}`}
                 type="button"
-                className={cx(
+                className={[
                   'vx-daterangeinput-preset',
                   isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
-                )}
+                ]}
                 aria-pressed={isSelectedPreset(preset)}
                 disabled={isPresetDisabled(preset)}
                 onClick={() => {

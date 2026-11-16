@@ -14,7 +14,6 @@ import type {
   SideNavSectionProps,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Text } from '../content/Text.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
@@ -97,7 +96,7 @@ export function SideNav(props: SideNavProps): unknown @{
   @if (renderMode === 'topbar') {
     <masonview
       id={props.id}
-      className={cx('vx-sidenav', 'vx-sidenav--topbar', props.className)}
+      className={['vx-sidenav', 'vx-sidenav--topbar', props.className]}
       {...layoutChildProps(
         props,
         mergeStyle(
@@ -119,7 +118,7 @@ export function SideNav(props: SideNavProps): unknown @{
     </masonview>
   } @else {
     @if (renderMode === 'drawer') {
-      <MobileNav {...props} className={cx('vx-sidenav', 'vx-sidenav--drawer', props.className)}>
+      <MobileNav {...props} className={['vx-sidenav', 'vx-sidenav--drawer', props.className]}>
         {props.topContent}
         {props.children}
         @if (drawerFooter) {
@@ -184,7 +183,7 @@ export function SideNav(props: SideNavProps): unknown @{
           >
             <masonview
               id={props.id}
-              className={cx('vx-sidenav', collapsed && 'vx-sidenav--collapsed', props.className)}
+              className={['vx-sidenav', collapsed && 'vx-sidenav--collapsed', props.className]}
               style={mergeStyle(
                 { flexDirection: 'column' },
                 mergeStyle({ display: 'flex' }, props.style),
@@ -193,10 +192,10 @@ export function SideNav(props: SideNavProps): unknown @{
             >
               @if (props.header != null || props.topContent != null) {
                 <masonview
-                  className={cx(
+                  className={[
                     'vx-sidenav-stickytop',
                     collapsed && 'vx-sidenav-stickytop--collapsed',
-                  )}
+                  ]}
                   style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
                 >
                   {props.header}
@@ -214,7 +213,7 @@ export function SideNav(props: SideNavProps): unknown @{
                 </masonview>
               }
               <scrollview
-                className={cx(
+                className={[
                   'vx-sidenav-scrollable',
                   collapsed && 'vx-sidenav-scrollable--collapsed',
                   props.header == null &&
@@ -224,7 +223,7 @@ export function SideNav(props: SideNavProps): unknown @{
                     props.footerIcons == null &&
                     !(isCollapsible && cfg?.hasButton !== false) &&
                     'vx-sidenav-scrollable--nobottom',
-                )}
+                ]}
                 style={{ flexGrow: 1 }}
               >
                 <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
@@ -237,18 +236,18 @@ export function SideNav(props: SideNavProps): unknown @{
                 (isCollapsible && cfg?.hasButton !== false)
               ) {
                 <masonview
-                  className={cx(
+                  className={[
                     'vx-sidenav-stickybottom',
                     collapsed && 'vx-sidenav-stickybottom--collapsed',
-                  )}
+                  ]}
                   style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
                 >
                   {props.footer}
                   <masonview
-                    className={cx(
+                    className={[
                       'vx-sidenav-footerrow',
                       collapsed && 'vx-sidenav-footerrow--collapsed',
-                    )}
+                    ]}
                     style={mergeStyle(
                       {
                         flexDirection: collapsed ? 'column' : 'row',
@@ -290,14 +289,14 @@ export function SideNavSection(props: SideNavSectionProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-sidenav-section', props.className)}
+    className={['vx-sidenav-section', props.className]}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
   >
     <masonview
-      className={cx(
+      className={[
         'vx-sidenav-section-head',
         (props.isHeaderHidden || collapsed) && 'vx-visually-hidden',
-      )}
+      ]}
       style={mergeStyle(
         { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
         { display: 'flex' },
@@ -343,12 +342,12 @@ export function SideNavHeading(props: SideNavHeadingProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx(
+    className={[
       'vx-sidenav-heading',
       headerIsTrigger && 'vx-sidenav-heading--button',
       collapsed && 'vx-sidenav-heading--collapsed',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { flexDirection: 'row', alignItems: 'center' },
       mergeStyle({ display: 'flex' }, props.style),
@@ -523,7 +522,7 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 
   <masonview
     id={props.id}
-    className={cx('vx-sidenav-item', props.className)}
+    className={['vx-sidenav-item', props.className]}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
   >
     <masonview
@@ -536,13 +535,13 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
       style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
     >
       <Pressable
-        className={cx(
+        className={[
           'vx-sidenav-item-main',
           'vx-sidenav-item--' + size,
           link.selected && 'vx-sidenav-item--selected',
           isDisabled && 'vx-sidenav-item--disabled',
           railCollapsed && 'vx-sidenav-item--rail',
-        )}
+        ]}
         style={{ minHeight: ITEM_HEIGHT[size] }}
         disabled={isDisabled}
         accessibilityRole={link.href != null ? 'link' : 'button'}
@@ -583,10 +582,10 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
             !independentToggle
           ) {
             <masonview
-              className={cx(
+              className={[
                 'vx-sidenav-item-chevron',
                 !childrenCollapsed && 'vx-sidenav-item-chevron--expanded',
-              )}
+              ]}
               style={{ display: 'flex' }}
             >
               <Icon name="xplat-chevron-down" size={16} />
@@ -596,10 +595,10 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
       </Pressable>
       @if (independentToggle) {
         <Pressable
-          className={cx(
+          className={[
             'vx-sidenav-item-toggle',
             !childrenCollapsed && 'vx-sidenav-item-toggle--expanded',
-          )}
+          ]}
           onPress={toggleChildren}
           accessibilityLabel={
             childrenCollapsed ? `Expand ${props.label}` : `Collapse ${props.label}`
@@ -673,13 +672,13 @@ export function SideNavCollapseButton(props: SideNavCollapseButtonProps): unknow
   } @else {
     <Pressable
       id={props.id}
-      className={cx(
+      className={[
         'vx-sidenav-collapsebtn',
         `vx-sidenav-collapsebtn--${size}`,
         props.label == null && 'vx-sidenav-collapsebtn--icon',
         isCollapsed && 'vx-sidenav-collapsebtn--collapsed',
         props.className,
-      )}
+      ]}
       style={props.style}
       accessibilityLabel={props.label ?? (isCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
       onPress={toggle}

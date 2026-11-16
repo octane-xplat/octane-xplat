@@ -4,7 +4,6 @@ import { useInteractionHost } from '../../gestures/host.macos.tsrx'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { RowProps } from '../../props'
 import { refList } from '../../internal/accessibility/ref-list'
-import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from './layout-child'
 
 export function Row(props: RowProps): unknown @{
@@ -26,7 +25,7 @@ export function Row(props: RowProps): unknown @{
         mergeStyle({ display: 'flex' }, props.style),
       ),
     )}
-    className={cx(props.className)}
+    className={[props.className]}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={props.accessibilityRole}

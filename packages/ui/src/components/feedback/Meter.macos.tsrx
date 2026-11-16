@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import type { MeterProps } from '../../props'
 import { meterRange } from './meter-math'
 
@@ -19,7 +18,7 @@ export function Meter(props: MeterProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-meter', props.className)}
+    className={['vx-meter', props.className]}
     style={mergeStyle(
       {
         display: 'flex',

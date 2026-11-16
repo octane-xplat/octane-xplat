@@ -11,7 +11,7 @@ import {
 
 import type { FileInputFile, FileInputProps } from './props'
 import { files as fileService } from './files'
-import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
+import { formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
 
 const STATUS_GLYPHS = { error: '⚠', warning: '⚠', success: '✓' } as const
 
@@ -269,21 +269,21 @@ function FileInputControl(inputProps: FileInputProps) @{
         props.statusVariant === 'tooltip' && statusMessage ? (
           <Tooltip
             trigger={
-              <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+              <span className={['vx-field-icon', `vx-field-icon--${statusType}`]}>
                 {STATUS_GLYPHS[statusType]}
               </span>
             }
             content={statusMessage}
           />
         ) : (
-          <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+          <span className={['vx-field-icon', `vx-field-icon--${statusType}`]}>
             {STATUS_GLYPHS[statusType]}
           </span>
         )
       ) : null}
       @if (statusMessage && props.statusVariant !== 'tooltip') {
         <span
-          className={cx('vx-field-status', `vx-field-status--${statusType}`)}
+          className={['vx-field-status', `vx-field-status--${statusType}`]}
           role={statusType === 'error' ? 'alert' : 'status'}
         >
           {statusMessage}
@@ -308,7 +308,7 @@ function FileInputControl(inputProps: FileInputProps) @{
   useImperativeHandle(props.ref, () => ({ open: pick, native: fileInput.current }), undefined)
 
   <div
-    className={cx(
+    className={[
       'vx-fileinput',
       dropzone && 'vx-fileinput--dropzone',
       isDisabled && 'vx-fileinput--disabled',
@@ -317,7 +317,7 @@ function FileInputControl(inputProps: FileInputProps) @{
       statusType && `vx-fileinput--status-${statusType}`,
       props.size && `vx-fileinput--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={props.style}
     onDragOver={(e: any) => {
       e.preventDefault()

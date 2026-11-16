@@ -5,7 +5,6 @@ import { useMemo, useCallback, useRef } from 'octane'
 import type { ColorSliderProps } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
 import { refList } from '../../internal/accessibility/ref-list'
-import { cx } from '@octane-xplat/lib'
 import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
@@ -136,7 +135,7 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-color-slider', props.className)}
+    className={['vx-color-slider', props.className]}
     style={mergeStyle({ display: 'grid', height: 24 }, styleRecord(props.style))}
     accessibilityRole={nativeAccessibilityRole('adjustable')}
     accessibilityLabel={props.accessibilityLabel ?? 'hue'}

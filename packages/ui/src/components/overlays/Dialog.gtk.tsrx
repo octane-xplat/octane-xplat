@@ -4,7 +4,6 @@ import { useContext, useEffect, useId, useRef, useState } from 'octane'
 import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { SizeProvider } from '../layout/size-context'
 import type { DialogHeaderProps, DialogProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { useLayerDismissal } from './layer-dismissal.tsrx'
 import { DialogContext, DialogProvider } from './dialog-context'
 import { Button } from '../actions/Button.tsrx'
@@ -15,7 +14,7 @@ function DialogBody(props: DialogProps & { titleId: string }) @{
   const purpose = props.purpose ?? 'info'
 
   <masonview
-    className={cx('vx-dialog-host', props.className)}
+    className={['vx-dialog-host', props.className]}
     style={mergeStyle(
       {
         display: 'flex',
@@ -41,7 +40,7 @@ export function DialogHeader(props: DialogHeaderProps): unknown @{
   const requestClose = props.onOpenChange ?? ctx?.requestClose
 
   <masonview
-    className={cx('vx-dialog-header', props.className)}
+    className={['vx-dialog-header', props.className]}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
   >
     <masonview

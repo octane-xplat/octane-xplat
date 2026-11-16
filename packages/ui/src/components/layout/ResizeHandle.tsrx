@@ -4,7 +4,6 @@ import type { ResizeHandleProps } from '../../props'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
 import { refList } from '../../internal/accessibility/ref-list'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Pressable } from '../actions/Pressable.tsrx'
 
@@ -81,7 +80,7 @@ export function ResizeHandle(props: ResizeHandleProps): unknown @{
 
   <Pressable
     id={props.id}
-    className={cx(
+    className={[
       'vx-resize-handle',
       isHorizontal ? 'vx-resize-handle--h' : 'vx-resize-handle--v',
       props.position === 'overlay' && 'vx-resize-handle--overlay',
@@ -91,7 +90,7 @@ export function ResizeHandle(props: ResizeHandleProps): unknown @{
       collapsed && 'vx-resize-handle--collapsed',
       props.isDisabled && 'vx-resize-handle--disabled',
       props.className,
-    )}
+    ]}
     style={props.style}
     disabled={props.isDisabled}
     accessibilityRole="adjustable"

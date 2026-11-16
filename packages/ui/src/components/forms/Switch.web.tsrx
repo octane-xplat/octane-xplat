@@ -104,7 +104,7 @@ export function Switch(inputProps: SwitchProps): JSX.Element @{
 
   const textCol =
     ownChrome && props.label != null ? (
-      <div className={cx('vx-switch-text', `vx-switch-text--${size}`)}>
+      <div className={['vx-switch-text', `vx-switch-text--${size}`]}>
         {props.description != null ? (
           <div className="vx-field-head">
             <label htmlFor={controlId} className={labelClass}>
@@ -125,7 +125,7 @@ export function Switch(inputProps: SwitchProps): JSX.Element @{
     ) : null
 
   <div
-    className={cx(
+    className={[
       'vx-switch-field',
       `vx-switch-field--size-${size}`,
       checked && 'vx-switch-field--on',
@@ -134,20 +134,20 @@ export function Switch(inputProps: SwitchProps): JSX.Element @{
       loading && 'vx-switch-field--loading',
       props.status && `vx-switch-field--status-${props.status.type}`,
       props.className,
-    )}
+    ]}
     style={props.style}
     data-testid={props.testID}
   >
     <div
-      className={cx(
+      className={[
         'vx-switch-container',
         'vx-switch-row',
         props.isLabelHidden && 'vx-switch-container--label-hidden',
         props.labelSpacing === 'spread' && 'vx-switch-container--spread',
-      )}
+      ]}
     >
       {labelFirst ? textCol : null}
-      <div className={cx('vx-switch-wrapper', `vx-switch-wrapper--${size}`)}>
+      <div className={['vx-switch-wrapper', `vx-switch-wrapper--${size}`]}>
         <input
           ref={(el: any) => {
             if (el) {
@@ -177,12 +177,12 @@ export function Switch(inputProps: SwitchProps): JSX.Element @{
           }
         />
         <div
-          className={cx(
+          className={[
             'vx-switch',
             `vx-switch--size-${size}`,
             checked && 'vx-switch--on',
             props.isDisabled && 'vx-switch--disabled',
-          )}
+          ]}
           aria-hidden="true"
         >
           <div className="vx-switch-thumb">
@@ -220,11 +220,11 @@ export function Switch(inputProps: SwitchProps): JSX.Element @{
     @if (statusId != null) {
       <div
         id={statusId}
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${props.status!.type}`,
           'vx-field-status--detached',
-        )}
+        ]}
       >
         <span className="vx-field-status-row">
           <span className="vx-field-status-icon-slot">

@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { BadgeProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Badge — inline label chip. Pure composition; `vx-badge` supplies only the
@@ -10,7 +9,7 @@ export function Badge(props: BadgeProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-badge', props.className)}
+    className={['vx-badge', props.className]}
     style={mergeStyle({ display: 'flex', flexDirection: 'row' }, props.style)}
   >
     {typeof props.children === 'string' || typeof props.children === 'number' ? (

@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { IndicatorProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 // Registers the `svgview` element on mobile (svg.mobile.ts side effect);
 // resolves to the re-export-only svg.ts on web.
@@ -26,12 +25,12 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>): unkn
   const mark =
     props.state === 'indeterminate' ? (
       <masonview
-        className={cx('vx-ind-dash', `vx-ind-dash--${size}`)}
+        className={['vx-ind-dash', `vx-ind-dash--${size}`]}
         style={{ display: 'flex' }}
       />
     ) : props.state === 'checked' ? (
       <svgview
-        className={cx('vx-ind-checkmark', `vx-ind-checkmark--${size}`)}
+        className={['vx-ind-checkmark', `vx-ind-checkmark--${size}`]}
         src={CHECK_MARKUP}
         stretch="aspectFit"
       />
@@ -52,14 +51,14 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>): unkn
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx(
+    className={[
       'vx-checkbox',
       'vx-ind-checkbox',
       `vx-ind-checkbox--${size}`,
       props.state !== 'unchecked' && `vx-ind-checkbox--${props.state}`,
       props.isDisabled && 'vx-ind-checkbox--disabled',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {content}

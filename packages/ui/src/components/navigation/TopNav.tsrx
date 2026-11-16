@@ -18,7 +18,6 @@ import type {
   TopNavProps,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
@@ -67,7 +66,7 @@ export function TopNav(props: TopNavProps): unknown @{
     <masonview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
-      className={cx('vx-topnav', 'vx-topnav--mobilebar', props.className)}
+      className={['vx-topnav', 'vx-topnav--mobilebar', props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
       accessibilityLabel={label}
     >
@@ -87,7 +86,7 @@ export function TopNav(props: TopNavProps): unknown @{
     @if (renderMode === 'drawer') {
       <MobileNav
         label={label}
-        className={cx('vx-topnav', 'vx-topnav--drawer', props.className)}
+        className={['vx-topnav', 'vx-topnav--drawer', props.className]}
         style={props.style}
       >
         {props.heading}
@@ -101,7 +100,7 @@ export function TopNav(props: TopNavProps): unknown @{
         <masonview
           ref={(v: any) => applyEscapeProps(v, props)}
           id={props.id}
-          className={cx('vx-topnav', 'vx-topnav--grid', props.className)}
+          className={['vx-topnav', 'vx-topnav--grid', props.className]}
           style={mergeStyle({ display: 'grid', gridTemplateColumns: '1fr auto 1fr' }, props.style)}
           accessibilityLabel={label}
         >
@@ -154,7 +153,7 @@ export function TopNav(props: TopNavProps): unknown @{
         <masonview
           ref={(v: any) => applyEscapeProps(v, props)}
           id={props.id}
-          className={cx('vx-topnav', props.className)}
+          className={['vx-topnav', props.className]}
           style={mergeStyle({ display: 'flex' }, props.style)}
           accessibilityLabel={label}
         >
@@ -246,7 +245,7 @@ export function TopNavHeading(props: TopNavHeadingProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-topnav-heading', props.className)}
+    className={['vx-topnav-heading', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {headerIsTrigger ? (
@@ -326,7 +325,7 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
   <Pressable
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-topnav-item',
       'vx-topnav-item--' + size,
       isDrawer && 'vx-topnav-item--drawer',
@@ -334,7 +333,7 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
       props.isIconOnly && 'vx-topnav-item--icon',
       isDisabled && 'vx-topnav-item--disabled',
       props.className,
-    )}
+    ]}
     style={props.style}
     disabled={isDisabled}
     accessibilityRole={link.href != null ? 'link' : 'button'}
@@ -420,7 +419,7 @@ export function TopNavMenu(
         applyEscapeProps(v, props)
       }}
       id={props.id}
-      className={cx('vx-topnav-item', 'vx-topnavmenu-trigger', props.className)}
+      className={['vx-topnav-item', 'vx-topnavmenu-trigger', props.className]}
       style={props.style}
       onPress={() => setOpen(!open)}
     >
@@ -476,7 +475,7 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps): unknown @{
         applyEscapeProps(v, props)
       }}
       id={props.id}
-      className={cx('vx-topnav-item', 'vx-topnavmegamenu-trigger', props.className)}
+      className={['vx-topnav-item', 'vx-topnavmegamenu-trigger', props.className]}
       style={props.style}
       onPress={() => setOpenTracked(!open)}
     >
@@ -540,7 +539,7 @@ export function TopNavMegaMenuItem(
   <Pressable
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-topnavmegamenu-item', props.className)}
+    className={['vx-topnavmegamenu-item', props.className]}
     style={props.style}
     accessibilityRole={link.href != null ? 'link' : 'button'}
     disabled={link.disabled}
@@ -576,7 +575,7 @@ export function TopNavMegaMenuFeaturedCard(
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-topnavmegamenu-card', props.className)}
+    className={['vx-topnavmegamenu-card', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     @if (props.image != null) {

@@ -5,7 +5,6 @@ import type { CarouselHandle, CarouselProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { spacingStep } from './spacing'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 
@@ -205,7 +204,7 @@ export function Carousel(props: CarouselProps): unknown @{
   }, [count, measure, props.hasSnap, offsets])
 
   <masonview
-    className={cx('vx-carousel', props.className)}
+    className={['vx-carousel', props.className]}
     style={mergeStyle(
       { display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' },
       props.style,
@@ -235,10 +234,10 @@ export function Carousel(props: CarouselProps): unknown @{
       >
         {mapChildren(items, (child: any, i: number) => (
           <masonview
-            className={cx(
+            className={[
               'vx-carousel-slide',
               props.variant === 'proportional' && 'vx-carousel-slide--prop',
-            )}
+            ]}
             accessibilityLabel={`Slide ${i + 1} of ${count}`}
           >
             {child}

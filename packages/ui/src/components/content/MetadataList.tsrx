@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { MetadataListProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { MetadataListProvider } from './metadata-list-context'
 import { Grid } from '../layout/Grid.tsrx'
@@ -51,7 +50,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
     <masonview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
-      className={cx('vx-metadatalist', props.className)}
+      className={['vx-metadatalist', props.className]}
       style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style) })}
     >
       @if (props.title != null) {

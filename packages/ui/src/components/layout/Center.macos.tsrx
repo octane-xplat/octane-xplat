@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { CenterProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { spacingPx } from './stack-layout'
 
@@ -26,7 +25,7 @@ export function Center(props: CenterProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-center', props.className)}
+    className={['vx-center', props.className]}
     style={mergeStyle(
       {
         flexDirection: 'row',

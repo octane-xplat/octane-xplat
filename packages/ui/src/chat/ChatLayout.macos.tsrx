@@ -5,7 +5,6 @@ import { bindChatKeyboard } from './chat-keyboard'
 import type { ChatKeyboardBinding } from './chat-keyboard-types'
 import { checkChatPanelHeight } from './chat-keyboard-types'
 import type { ChatLayoutProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { useChatStreamScroll } from './useChatStreamScroll.tsrx'
 import { useChatNewMessages } from './useChatNewMessages.tsrx'
 import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.tsrx'
@@ -103,7 +102,7 @@ export function ChatLayout(props: ChatLayoutProps): unknown @{
     <masonview
       id={props.id}
       ref={attachRoot}
-      className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)}
+      className={['vx-chatlayout', `vx-chatlayout--${density}`, props.className]}
       style={mergeStyle({ display: 'flex', flexDirection: 'column' }, props.style)}
     >
       <scrollview
@@ -114,7 +113,7 @@ export function ChatLayout(props: ChatLayoutProps): unknown @{
       >
         <masonview
           ref={attachContent}
-          className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)}
+          className={['vx-chatlayout-messages', `vx-chatlayout-messages--${density}`]}
           style={{ display: 'flex', flexDirection: 'column' }}
         >
           {showEmpty && props.emptyState != null ? (
@@ -153,7 +152,7 @@ export function ChatLayout(props: ChatLayoutProps): unknown @{
         )}
         <masonview
           ref={attachDockPad}
-          className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)}
+          className={['vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`]}
           style={{ display: 'flex' }}
         >
           <masonview className="vx-chatlayout-dockinner" style={{ display: 'flex' }}>

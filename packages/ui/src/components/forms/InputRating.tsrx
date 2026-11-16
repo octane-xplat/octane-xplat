@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useState } from 'octane'
 import type { InputRatingProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -45,7 +44,7 @@ function InputRatingControl(inputProps: InputRatingProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-rating',
       props.isDisabled && 'vx-rating--disabled',
       props.isReadOnly && 'vx-rating--readonly',
@@ -53,7 +52,7 @@ function InputRatingControl(inputProps: InputRatingProps): unknown @{
       props.status && `vx-rating--status-${props.status.type}`,
       props.size && `vx-rating--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     isEnabled={!props.isDisabled}
     accessibilityRole={nativeAccessibilityRole('radiogroup')}
@@ -71,7 +70,7 @@ function InputRatingControl(inputProps: InputRatingProps): unknown @{
   >
     @for (const score of Array.from({ length: max }, (_, i) => i + 1); key score) {
       <masonview
-        className={cx('vx-rating-cell', score <= value && 'vx-rating-cell--on')}
+        className={['vx-rating-cell', score <= value && 'vx-rating-cell--on']}
         id={props.id ? `${props.id}-score-${score}` : undefined}
         isEnabled={!props.isDisabled}
         accessibilityRole={nativeAccessibilityRole('radio')}

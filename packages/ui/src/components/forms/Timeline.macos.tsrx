@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { TimelineProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.macos.tsrx'
 
@@ -10,7 +9,7 @@ export function Timeline(props: TimelineProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-timeline', props.className)}
+    className={['vx-timeline', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     @for (const e of props.items.map((item, i) => ({ item, i })); key e.item.key) {

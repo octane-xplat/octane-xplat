@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useState } from 'octane'
 import type { CheckboxGroupProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -48,7 +47,7 @@ function CheckboxGroupControl(inputProps: CheckboxGroupProps): unknown @{
   <masonview
     ref={(view: any) => applyEscapeProps(view, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-checkbox-group',
       'vx-checkbox-group--native',
       props.horizontal && 'vx-checkbox-group--row',
@@ -59,7 +58,7 @@ function CheckboxGroupControl(inputProps: CheckboxGroupProps): unknown @{
       props.status && `vx-checkbox-group--status-${props.status.type}`,
       props.size && `vx-checkbox-group--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     isEnabled={!props.isDisabled}
     accessibilityRole={nativeAccessibilityRole('group')}

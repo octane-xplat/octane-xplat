@@ -18,7 +18,6 @@ import {
 
 import { VirtualListCellPool, type VirtualListCell } from './virtual-list-cell-pool'
 
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -852,7 +851,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     id={props.id}
     testID={props.testID ?? ''}
     {...layoutChildProps(props, style)}
-    className={cx('vx-virtual-list', props.className)}
+    className={['vx-virtual-list', props.className]}
     orientation="vertical"
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
@@ -865,7 +864,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     onScroll={onScroll}
   >
     <masonview
-      className={cx('vx-virtual-list-content')}
+      className={['vx-virtual-list-content']}
       ref={(view: any) => observeLayout('content', view, onContentLayout)}
       style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
     >

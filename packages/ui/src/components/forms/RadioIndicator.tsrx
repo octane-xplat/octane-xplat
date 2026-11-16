@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { IndicatorProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** RadioIndicator — decorative circle (20/24dip); a filled dot appears
@@ -16,7 +15,7 @@ export function RadioIndicator(props: IndicatorProps<'singleSelection'>): unknow
       props.children
     ) : props.state === 'checked' ? (
       <masonview
-        className={cx('vx-radio-dot', 'vx-ind-radio-dot', `vx-ind-radio-dot--${size}`)}
+        className={['vx-radio-dot', 'vx-ind-radio-dot', `vx-ind-radio-dot--${size}`]}
         style={{ display: 'flex' }}
       />
     ) : null
@@ -34,14 +33,14 @@ export function RadioIndicator(props: IndicatorProps<'singleSelection'>): unknow
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx(
+    className={[
       'vx-radio',
       'vx-ind-radio',
       `vx-ind-radio--${size}`,
       props.state === 'checked' && 'vx-ind-radio--checked',
       props.isDisabled && 'vx-ind-radio--disabled',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {content}

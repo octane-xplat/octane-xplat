@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import type { PopoverProps } from '../../props'
 import type { PopoverInternalProps } from '../../internal-props'
 import { View } from '../layout/View.tsrx'
@@ -108,8 +107,8 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any }) @{
   <>
     {session
       ? createPortal(
-          <View className={cx('vx-popover-layer', dark && 'ns-dark')}>
-            <View className={cx('vx-popover', props.className)} style={props.style}>
+          <View className={['vx-popover-layer', dark && 'ns-dark']}>
+            <View className={['vx-popover', props.className]} style={props.style}>
               <LayerDepthProvider value={dismissal.depth}>
                 <SizeProvider value={null}>{props.children}</SizeProvider>
               </LayerDepthProvider>

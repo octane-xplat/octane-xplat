@@ -17,7 +17,6 @@ import { Overlay } from '@octane-xplat/ui'
 import { useMotionValue, useReducedMotion } from '@octane-xplat/motion'
 import { Image } from './Image.web.tsrx'
 import type { MotionValue } from '@octane-xplat/motion'
-import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
 import { useDialogPart, useDialogText } from './dialog-text.tsrx'
 import { clamp } from './math'
@@ -497,11 +496,11 @@ export function Trigger(props: LightboxTriggerPartProps): JSX.Element {
       ref={ref as never}
       type="button"
       aria-haspopup="dialog"
-      className={cx(
+      className={[
         'vx-lightbox-trigger',
         active && 'vx-lightbox-trigger--active',
         props.className,
-      )}
+      ]}
       style={props.style as never}
       data-testid={props.testID}
       data-lightbox-trigger={active ? '' : undefined}
@@ -545,7 +544,7 @@ export function Backdrop(props: LightboxPartProps): JSX.Element | null {
   return (
     <div
       ref={ref}
-      className={cx('vx-lightbox-backdrop', props.className)}
+      className={['vx-lightbox-backdrop', props.className]}
       style={mergeStyle({ position: 'fixed', inset: 0 }, props.style)}
       data-testid={props.testID}
     >
@@ -645,14 +644,14 @@ export function Popup(props: LightboxPartProps): JSX.Element | null {
       <div
         ref={ref}
         tabIndex={-1}
-        className={cx(
+        className={[
           'vx-lightbox-popup',
           mods,
           ctx.zoomed && 'vx-lightbox-popup--zoomed',
           ctx.dragging && 'vx-lightbox-popup--dragging',
           ctx.uiHidden && 'vx-lightbox-popup--ui-hidden',
           props.className,
-        )}
+        ]}
         style={mergeStyle({ position: 'fixed', inset: 0 }, props.style)}
         data-testid={props.testID}
         data-phase={ctx.phase}
@@ -890,11 +889,11 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
     <div
       ref={ref}
       aria-roledescription="carousel"
-      className={cx(
+      className={[
         'vx-lightbox-viewport',
         ctx.zoomed && 'vx-lightbox-viewport--zoomed',
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         {
           display: 'flex',
@@ -940,11 +939,11 @@ export function Slide(props: LightboxSlidePartProps): JSX.Element {
         aria-label={`${props.index + 1} of ${ctx.items.length}`}
         aria-hidden={current ? undefined : true}
         inert={!current}
-        className={cx(
+        className={[
           'vx-lightbox-slide',
           current && 'vx-lightbox-slide--current',
           props.className,
-        )}
+        ]}
         style={mergeStyle(
           {
             flex: '0 0 100%',
@@ -973,7 +972,7 @@ export function Close(
     <button
       type="button"
       aria-label="Close"
-      className={cx('vx-lightbox-close', props.className)}
+      className={['vx-lightbox-close', props.className]}
       style={props.style as never}
       data-testid={props.testID}
       onClick={(e: MouseEvent) => {
@@ -998,7 +997,7 @@ function NavButton(props: LightboxPartProps & { step: 1 | -1 }) {
       type="button"
       disabled={disabled}
       aria-label={props.step < 0 ? 'Previous image' : 'Next image'}
-      className={cx('vx-lightbox-nav', disabled && 'vx-lightbox-nav--disabled', props.className)}
+      className={['vx-lightbox-nav', disabled && 'vx-lightbox-nav--disabled', props.className]}
       style={props.style as never}
       data-testid={props.testID}
       onClick={() => ctx.goTo(target)}
@@ -1021,7 +1020,7 @@ export function Title(props: LightboxPartProps & { id?: string }): JSX.Element {
   const id = useDialogPart(ctx.dialogText, 'title', props.id, props.children)
 
   return (
-    <h2 id={id} className={cx('vx-lightbox-title', props.className)} style={props.style}>
+    <h2 id={id} className={['vx-lightbox-title', props.className]} style={props.style}>
       {props.children as never}
     </h2>
   )
@@ -1032,7 +1031,7 @@ export function Description(props: LightboxPartProps & { id?: string }): JSX.Ele
   const id = useDialogPart(ctx.dialogText, 'description', props.id, props.children)
 
   return (
-    <p id={id} className={cx('vx-lightbox-description', props.className)} style={props.style}>
+    <p id={id} className={['vx-lightbox-description', props.className]} style={props.style}>
       {props.children as never}
     </p>
   )

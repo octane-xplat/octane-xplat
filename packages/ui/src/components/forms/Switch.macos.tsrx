@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { NSView } from '@octane-xplat/platform/macos'
 import { useCallback, useId, useRef, useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import type { SwitchProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useFieldControl } from './field-context'
@@ -120,21 +119,21 @@ export function Switch(inputProps: SwitchProps): unknown @{
   }
 
   <masonview
-    className={cx('vx-switch-field--appkit', props.className)}
+    className={['vx-switch-field--appkit', props.className]}
     style={mergeStyle(props.width != null ? { width: props.width } : {}, props.style)}
   >
     <masonview
-      className={cx(
+      className={[
         'vx-switch-container--appkit',
         hasText && props.labelPosition === 'start' && 'vx-switch-container--label-start',
         props.labelSpacing === 'spread' && 'vx-switch-container--spread',
-      )}
+      ]}
     >
       <masonview
         id={controlID}
         ref={bind}
         testID={props.testID}
-        className={cx(
+        className={[
           'vx-switch',
           'vx-switch--appkit',
           `vx-switch--size-${size}`,
@@ -143,7 +142,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
           props.isReadOnly && 'vx-switch--readonly',
           loading && 'vx-switch--loading',
           props.status && `vx-switch--status-${props.status.type}`,
-        )}
+        ]}
         style={{ backgroundColor: checked ? colors.primary : colors.border }}
         accessibilityRole="switch"
         accessibilityLabel={
@@ -173,7 +172,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
           press={toggle}
         >
           <FormField
-            className={cx('vx-switch-text', size === 'sm' && 'vx-switch-text--sm')}
+            className={['vx-switch-text', size === 'sm' && 'vx-switch-text--sm']}
             inputID={controlID}
             label={props.label}
             description={props.description}
@@ -191,11 +190,11 @@ export function Switch(inputProps: SwitchProps): unknown @{
     @if (ownChrome && props.status?.message != null) {
       <label
         id={`${controlID}-status`}
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${props.status.type}`,
           'vx-field-status--detached',
-        )}
+        ]}
         text={props.status.message}
       />
     }

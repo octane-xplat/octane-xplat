@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { nativeAccessibilityState } from '../overlays/escape-props'
 import { useRef, useImperativeHandle, useContext, useId, useState } from 'octane'
 import type { DateRange, DateRangeInputProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from '../media/Icon.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
@@ -95,10 +94,10 @@ function RangeControl(inputProps: DateRangeInputProps) @{
                     selectRange(preset.getRange())
                   }
                 }}
-                className={cx(
+                className={[
                   'vx-daterangeinput-preset',
                   isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
-                )}
+                ]}
                 accessibilityRole="button"
                 isEnabled={!isPresetDisabled(preset)}
                 accessibilityState={nativeAccessibilityState({
@@ -133,7 +132,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
   <>
     <masonview
-      className={cx(
+      className={[
         'vx-daterangeinput',
         isDisabled && 'vx-daterangeinput--disabled',
         isBusy && 'vx-daterangeinput--loading',
@@ -141,15 +140,15 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         props.size && `vx-daterangeinput--size-${props.size}`,
         open && 'vx-daterangeinput--open',
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       <Pressable
         id={inputId}
-        className={cx(
+        className={[
           'vx-daterangeinput-trigger',
           !shown && 'vx-daterangeinput-trigger--placeholder',
-        )}
+        ]}
         disabled={isDisabled || isBusy}
         accessibilityLabel={
           props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
@@ -188,7 +187,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
       }
       @if (statusText != null) {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
           accessibilityLabel={
             props.statusVariant === 'tooltip' ? props.status?.message : undefined

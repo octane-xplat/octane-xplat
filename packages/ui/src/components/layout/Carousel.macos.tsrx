@@ -14,7 +14,6 @@ import {
 import type { CarouselProps } from '../../props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { spacingStep } from './spacing'
-import { cx } from '@octane-xplat/lib'
 import { useDirection } from '../../internal/platform/internationalization'
 import { createAppKitCarouselScroll } from './carousel-scroll.macos'
 import { createAppKitCarouselSnap } from './carousel-snap.macos'
@@ -225,7 +224,7 @@ export function Carousel(props: CarouselProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-carousel', 'vx-carousel--appkit', props.className)}
+    className={['vx-carousel', 'vx-carousel--appkit', props.className]}
     style={props.style}
     accessible={props.accessible}
     accessibilityRole={props.accessibilityRole ?? 'group'}
@@ -305,11 +304,11 @@ function AppKitCarouselSlide(props: {
 
   <masonview
     ref={bind}
-    className={cx(
+    className={[
       'vx-carousel-slide',
       'vx-carousel-slide--appkit',
       props.width != null && 'vx-carousel-slide--prop',
-    )}
+    ]}
     accessibilityRole="group"
     accessibilityLabel={`Slide ${props.index + 1} of ${props.count}`}
     style={{ width: props.width }}

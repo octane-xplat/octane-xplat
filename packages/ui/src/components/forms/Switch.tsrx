@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState, useContext } from 'octane'
 import type { SwitchProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -99,7 +98,7 @@ function SwitchControl(inputProps: SwitchProps & { standalone?: boolean }) @{
     onTap={isBlocked ? undefined : toggle}
   >
     <masonview
-      className={cx(
+      className={[
         'vx-switch',
         checked && 'vx-switch--on',
         props.isDisabled && 'vx-switch--disabled',
@@ -108,7 +107,7 @@ function SwitchControl(inputProps: SwitchProps & { standalone?: boolean }) @{
         props.status && `vx-switch--status-${props.status.type}`,
         props.size && `vx-switch--size-${props.size}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       <masonview className="vx-switch-thumb" style={{ display: 'flex' }} />

@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatComposerToken, ChatComposerTokenCustom } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../components/media/Icon.tsrx'
 
 /** Is this token the custom-render form? Shared by the input and the
@@ -25,7 +24,7 @@ export function ChatTokenChip(props: {
   const variant = token.variant ?? 'neutral'
 
   <masonview
-    className={cx('vx-chat-token', `vx-chattoken--${variant}`, props.className)}
+    className={['vx-chat-token', `vx-chattoken--${variant}`, props.className]}
     style={mergeStyle({ display: 'flex' })}
   >
     {token.icon ? <Icon name={token.icon} size={12} /> : null}

@@ -3,7 +3,6 @@ import type { JSX } from 'octane/jsx-runtime'
 import { useState } from 'octane'
 import { Icon, Pressable, Text } from '@octane-xplat/ui'
 import type { ClassValue } from '@octane-xplat/ui'
-import { cx } from '@octane-xplat/lib'
 import type { LightboxMedia, LightboxProps } from './props'
 import {
   Backdrop,
@@ -112,7 +111,7 @@ export function Lightbox(props: LightboxProps): JSX.Element {
       finalFocusRef={props.finalFocusRef}
     >
       <Popup
-        className={cx('vx-lightbox-layer', props.className)}
+        className={['vx-lightbox-layer', props.className]}
         style={props.style as Record<string, unknown>}
       >
         <Backdrop className="vx-lightbox-backdrop" />

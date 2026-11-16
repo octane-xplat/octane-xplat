@@ -17,7 +17,6 @@ import {
 
 import type { DateInputProps, ISODateString } from '../../props'
 import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
@@ -256,7 +255,7 @@ function DateInputControl(inputProps: DateInputProps) @{
   <>
     <masonview
       ref={bindAnchor}
-      className={cx(
+      className={[
         'vx-dateinput',
         'vx-dateinput-popover',
         isDisabled && 'vx-dateinput--disabled',
@@ -265,7 +264,7 @@ function DateInputControl(inputProps: DateInputProps) @{
         props.size && `vx-dateinput--size-${props.size}`,
         !isPendingValid && 'vx-dateinput--invalid',
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         { flexDirection: 'row', alignItems: 'center' },
         mergeStyle({ display: 'flex' }, props.style),
@@ -286,7 +285,7 @@ function DateInputControl(inputProps: DateInputProps) @{
       <textfield
         ref={bindInput}
         id={inputId}
-        className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
+        className={['vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid']}
         value={displayText}
         placeholder={props.placeholder ?? 'Select a date'}
         isEnabled={!isDisabled && !isBusy}
@@ -320,7 +319,7 @@ function DateInputControl(inputProps: DateInputProps) @{
       }
       @if (statusText != null) {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
           accessibilityLabel={
             props.statusVariant === 'tooltip' ? props.status?.message : undefined

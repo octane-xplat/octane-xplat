@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { ChipProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 
 /** Chip — small action/filter element with a selected state and an
@@ -9,12 +8,12 @@ import { Pressable } from './Pressable.macos.tsrx'
 export function Chip(props: ChipProps): unknown @{
   <Pressable
     id={props.id}
-    className={cx(
+    className={[
       'vx-chip',
       props.selected && 'vx-chip--on',
       props.disabled && 'vx-chip--disabled',
       props.className,
-    )}
+    ]}
     // `--on` chrome is a CSS modifier on web — inline the same values
     // (AppKit has no style layer; keep in step with .vx-chip--on).
     style={{

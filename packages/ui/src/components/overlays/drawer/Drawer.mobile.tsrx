@@ -4,7 +4,6 @@ import { Application, isAndroid, isIOS, type View } from '@nativescript/core'
 import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/animation-frame'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'octane'
 import { useSignal$ } from 'octane/signals/client'
-import { cx } from '@octane-xplat/lib'
 import { attachOwnedPan, useInputCallbackGuard } from '../../../gestures/external'
 import { createAnimatedValue } from '../../../internal/platform/animated-value'
 import { Pressable } from '../../actions/Pressable.tsrx'
@@ -221,7 +220,7 @@ export function Drawer(props: DrawerProps): unknown @{
   <masonview
     id={props.id}
     ref={attach}
-    className={cx('vx-drawer', 'vx-drawer--mobile', props.className)}
+    className={['vx-drawer', 'vx-drawer--mobile', props.className]}
     style={props.style}
     onLayoutChanged={ready}
   >

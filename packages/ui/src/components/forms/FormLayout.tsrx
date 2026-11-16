@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FormLayoutProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -38,7 +37,7 @@ export function FormLayout(props: FormLayoutProps): unknown @{
     <masonview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)}
+      className={['vx-formlayout', `vx-formlayout--${direction}`, props.className]}
       style={mergeStyle(
         direction === 'horizontal'
           ? { display: 'grid', gridAutoFlow: 'column', gridAutoColumns: '1fr' }

@@ -10,7 +10,6 @@ import {
 } from 'octane'
 
 import type { ISOTimeString, TimeInputProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { isDateComposing } from './date-keyboard'
 import { runDateChangeAction } from './date-field-action'
@@ -77,7 +76,7 @@ function TimeStatusGlyph(props: TimeStatusGlyphProps) @{
   }
 
   const span = (
-    <span className={cx('vx-field-icon', `vx-field-icon--${props.status.type}`)}>
+    <span className={['vx-field-icon', `vx-field-icon--${props.status.type}`]}>
       {STATUS_GLYPHS[props.status.type]}
     </span>
   )
@@ -330,7 +329,7 @@ function TimeInputControl(inputProps: CoreProps) @{
       ref={(el: any) => {
         anchor.current = el
       }}
-      className={cx(
+      className={[
         'vx-timeinput',
         `vx-timeinput--${surface}`,
         isDisabled && 'vx-timeinput--disabled',
@@ -339,7 +338,7 @@ function TimeInputControl(inputProps: CoreProps) @{
         props.size && `vx-timeinput--size-${props.size}`,
         !isPendingValid && 'vx-timeinput--invalid',
         props.className,
-      )}
+      ]}
       style={props.style}
     >
       {iconButton}
@@ -351,7 +350,7 @@ function TimeInputControl(inputProps: CoreProps) @{
             }}
             id={inputId}
             type="time"
-            className={cx('vx-timeinput-nativeinput', 'vx-timeinput-input')}
+            className={['vx-timeinput-nativeinput', 'vx-timeinput-input']}
             value={shown ?? ''}
             min={props.min}
             max={props.max}
@@ -383,11 +382,11 @@ function TimeInputControl(inputProps: CoreProps) @{
       ) : surface === 'sheet' ? (
         <button
           type="button"
-          className={cx(
+          className={[
             'vx-timeinput-input',
             'vx-timeinput-segment',
             !shown && 'vx-timeinput-segment--placeholder',
-          )}
+          ]}
           disabled={isDisabled || isBusy || undefined}
           aria-label={props.ariaLabel}
           aria-labelledby={props.ariaLabelledBy}
@@ -411,7 +410,7 @@ function TimeInputControl(inputProps: CoreProps) @{
           }}
           id={inputId}
           type="text"
-          className={cx('vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid')}
+          className={['vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid']}
           value={displayValue}
           placeholder={displayPlaceholder}
           disabled={(isDisabled && !showsDisabledReason) || undefined}

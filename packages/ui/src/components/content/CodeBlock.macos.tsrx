@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { PercentLengthType } from '@nativescript/core'
 import { useMemo, useState } from 'octane'
 import type { CodeBlockProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { getColorScheme } from '../../theme/colorScheme.macos'
@@ -106,7 +105,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-codeblock', `vx-codeblock--${container}`, props.className)}
+    className={['vx-codeblock', `vx-codeblock--${container}`, props.className]}
     style={mergeStyle(
       { flexDirection: 'column' },
       mergeStyle({ display: 'flex' }, { flexDirection: 'column', ...styleRecord(props.style) }),

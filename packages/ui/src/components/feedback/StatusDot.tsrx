@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useEffect, useRef } from 'octane'
 import type { StatusDotProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole } from '../overlays/escape-props'
 import { useColorScheme } from '../../theme/colorScheme'
 import { statusDotColor } from '../../theme/scheme-colors'
@@ -65,7 +64,7 @@ export function StatusDot(props: StatusDotProps): unknown @{
         applyEscapeProps(v, props)
       }}
       id={props.id}
-      className={cx('vx-statusdot', `vx-statusdot--${props.variant}`, props.className)}
+      className={['vx-statusdot', `vx-statusdot--${props.variant}`, props.className]}
       style={mergeStyle(
         { display: 'flex' },
         {

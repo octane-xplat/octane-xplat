@@ -2,7 +2,6 @@
 import type { ComplexSelectorViewProps } from '../forms/complex-selector-view'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { useSize } from '../layout/size-context'
-import { cx } from '@octane-xplat/lib'
 import { Popover } from '../overlays/Popover.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
@@ -23,12 +22,12 @@ export function ComplexSelectorView<Value>(
       }}
       type="button"
       id={triggerId}
-      className={cx(
+      className={[
         'vx-complex-selector-trigger',
         `vx-complex-selector-trigger--${props.variant ?? 'input'}`,
         `vx-complex-selector--size-${size}`,
         props.className,
-      )}
+      ]}
       aria-controls={contentId}
       disabled={props.isDisabled || props.isReadOnly || pending || props.isLoading}
       aria-label={props.label}
@@ -42,10 +41,10 @@ export function ComplexSelectorView<Value>(
         props.startIcon
       )}
       <span
-        className={cx(
+        className={[
           'vx-complex-selector-value',
           props.triggerLabel == null && props.value == null && 'vx-complex-selector-placeholder',
-        )}
+        ]}
       >
         {props.triggerLabel ??
           (props.value == null ? (props.placeholder ?? '') : String(props.value))}
@@ -129,13 +128,13 @@ export function ComplexSelectorView<Value>(
 
   <div
     id={props.id}
-    className={cx(
+    className={[
       'vx-field',
       props.status && `vx-field--${props.status.type}`,
       props.statusVariant === 'detached' && 'vx-field--status-detached',
       props.isDisabled && 'vx-field--disabled',
       props.className,
-    )}
+    ]}
     style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
   >
     {labelWithTooltip}
@@ -145,11 +144,11 @@ export function ComplexSelectorView<Value>(
     {trigger}
     @if (props.status?.message) {
       <div
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${props.status.type}`,
           props.statusVariant === 'detached' && 'vx-field-status--detached',
-        )}
+        ]}
       >
         {props.status.message}
       </div>

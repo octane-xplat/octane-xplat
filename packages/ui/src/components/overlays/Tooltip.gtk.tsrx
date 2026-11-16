@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import type { TooltipProps } from '../../props'
 import { View } from '../layout/View.tsrx'
 import { Text } from '../content/Text.tsrx'
@@ -56,7 +55,7 @@ export function Tooltip(props: TooltipProps): unknown @{
     </View>
     {open && session
       ? createPortal(
-          <View className={cx('vx-tooltip', props.contentClassName)} style={props.contentStyle}>
+          <View className={['vx-tooltip', props.contentClassName]} style={props.contentStyle}>
             {content}
           </View>,
           session.target,

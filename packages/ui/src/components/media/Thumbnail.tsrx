@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useRef, useState } from 'octane'
 import type { ThumbnailProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -98,11 +97,11 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
             )}
           >
             <Pressable
-              className={cx(
+              className={[
                 'vx-thumbnail-remove',
                 // Touch targets have no hover — 'hover' still shows it.
                 props.showRemoveOn !== 'always' && 'vx-thumbnail-remove--touch',
-              )}
+              ]}
               justifyContent="center"
               alignItems="center"
               style={{ borderRadius: 8 }}
@@ -123,7 +122,7 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
     <masonview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
-      className={cx('vx-thumbnail', props.className)}
+      className={['vx-thumbnail', props.className]}
       style={mergeStyle(
         mergeStyle({ display: 'grid' }, { width: SIZE, height: SIZE }),
         props.style,

@@ -12,7 +12,6 @@ import type {
   LayerOptions,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import {
   layerOffset,
   nativeLayerRTL,
@@ -31,7 +30,7 @@ function LayerPanel(props: {
   layerDepth?: number
 }) @{
   <masonview
-    className={cx('vx-popover', props.className)}
+    className={['vx-popover', props.className]}
     style={props.style}
     accessibilityLabel={props.label}
   >

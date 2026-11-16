@@ -4,7 +4,6 @@ import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/cor
 import { createPortal } from '../internal/platform/native-portal.tsrx'
 import { RouteOutlet } from '../routing/RouteOutlet.tsrx'
 import { registerStack } from '../components/layout/stacks'
-import { cx } from '@octane-xplat/lib'
 import { getIcon } from '../components/media/icons'
 import type { PlatformTabSpec, UITabBarProps } from '../props'
 import { applyEscapeProps } from '../components/overlays/escape-props'
@@ -141,7 +140,7 @@ function TabBarInner(props: {
     <tabview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
-      className={cx(props.className)}
+      className={[props.className]}
       style={props.style}
       items={items}
       selectedIndex={props.selectedIndex}

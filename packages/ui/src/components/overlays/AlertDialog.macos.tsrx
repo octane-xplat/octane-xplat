@@ -4,8 +4,6 @@ import { useState } from 'octane'
 import type { AlertDialogProps } from '../../props'
 import { Dialog } from './Dialog.macos.tsrx'
 import { Button } from '../actions/controls.macos.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 const ACTION_VARIANT_CLASS: Record<string, string> = {
   primary: 'vx-alertdialog-action--primary',
   secondary: 'btn-secondary',
@@ -34,7 +32,7 @@ export function AlertDialog(props: AlertDialogProps): unknown @{
       finalFocusRef={props.finalFocusRef}
       width={props.width ?? 400}
       isInline={props.isInline}
-      className={cx('vx-alertdialog', props.className)}
+      className={['vx-alertdialog', props.className]}
       style={props.style}
       id={props.id}
     >
@@ -68,7 +66,7 @@ export function AlertDialog(props: AlertDialogProps): unknown @{
           {props.cancelLabel ?? 'Cancel'}
         </Button>
         <Button
-          className={cx('btn', ACTION_VARIANT_CLASS[props.actionVariant ?? 'destructive'])}
+          className={['btn', ACTION_VARIANT_CLASS[props.actionVariant ?? 'destructive']]}
           onPress={props.onAction}
           isLoading={props.isActionLoading}
         >

@@ -2,7 +2,6 @@
 import { useColorScheme } from '../../theme/colorScheme'
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { CodeProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Text } from './Text.tsrx'
 import { mutedColor } from '../../theme/scheme-colors'
 import { nativeColor } from '../../theme/native-color'
@@ -20,7 +19,7 @@ export function Code(props: CodeProps): unknown @{
 
   <Text
     id={props.id}
-    className={cx('vx-code', props.color === 'secondary' && 'vx-color-secondary', props.className)}
+    className={['vx-code', props.color === 'secondary' && 'vx-color-secondary', props.className]}
     style={{ fontFamily: 'monospace', ...colorStyle, ...styleRecord(props.style) }}
   >
     {props.children}

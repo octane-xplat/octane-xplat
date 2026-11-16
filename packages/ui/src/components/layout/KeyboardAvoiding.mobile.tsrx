@@ -2,7 +2,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import { Application } from '@nativescript/core'
-import { cx } from '@octane-xplat/lib'
 import type { KeyboardAvoidanceBinding } from '../../internal/keyboard/keyboard-avoidance'
 import { bindKeyboardAvoidance } from '../../internal/keyboard/keyboard-avoidance'
 import {
@@ -73,7 +72,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
 
   <scrollview
     id={props.id}
-    className={cx('vx-keyboard-avoiding', props.className)}
+    className={['vx-keyboard-avoiding', props.className]}
     style={props.style}
     ref={forwardedRef}
   >

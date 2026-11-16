@@ -17,7 +17,7 @@ import { files as fileService } from './files.macos'
 import { createAppKitFileInputState } from './file-input-state.macos'
 import { appKitFileInputDetails } from './file-input-details.macos'
 import { appKitDroppedFiles } from './file-input-drop.macos'
-import { cx, formatFileSize } from './file-input-utils'
+import { formatFileSize } from './file-input-utils'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
@@ -133,7 +133,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 
   <masonview
     ref={bindDrop}
-    className={cx(
+    className={[
       'vx-fileinput',
       dropzone && 'vx-fileinput--dropzone',
       isDisabled && 'vx-fileinput--disabled',
@@ -141,7 +141,7 @@ function FileInputControl(inputProps: FileInputProps) @{
       statusType && `vx-fileinput--status-${statusType}`,
       props.size && `vx-fileinput--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ flexDirection: 'column' }, { display: 'flex', ...props.style })}
   >
     {files.length ? (
@@ -203,14 +203,14 @@ function FileInputControl(inputProps: FileInputProps) @{
     ) : null}
     {statusText != null ? (
       <label
-        className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}
+        className={['vx-field-icon', `vx-field-icon--${statusType}`]}
         text={statusText}
         accessibilityLabel={props.statusVariant === 'tooltip' ? statusMessage : undefined}
       />
     ) : null}
     {statusMessage && props.statusVariant !== 'tooltip' ? (
       <label
-        className={cx('vx-field-status', `vx-field-status--${statusType}`)}
+        className={['vx-field-status', `vx-field-status--${statusType}`]}
         text={statusMessage}
       />
     ) : null}

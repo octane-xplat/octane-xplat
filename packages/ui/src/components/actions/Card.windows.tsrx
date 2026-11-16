@@ -3,7 +3,6 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import type { View } from '@nativescript/core'
 import { TextSlot } from '../forms/text-slot.tsrx'
 import type { CardProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Card — native slots and explicit padding edges override the theme inset.
@@ -12,12 +11,12 @@ export function Card(props: CardProps): unknown @{
   <masonview
     ref={(v: View | null) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-card',
       props.variant && `vx-card--${props.variant}`,
       props.elevation && `vx-card--elev-${props.elevation}`,
       props.className,
-    )}
+    ]}
     style={{
       ...styleRecord(props.style),
       ...(props.padding == null

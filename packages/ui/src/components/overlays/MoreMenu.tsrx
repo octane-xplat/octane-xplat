@@ -6,8 +6,6 @@ import { Button } from '../actions/Button.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { BottomSheet } from './BottomSheet.tsrx'
 import { Icon } from '../media/Icon.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 function popoverPlacement(placement?: MoreMenuPlacement): any {
   if (placement === 'above') {
     return 'top'
@@ -79,7 +77,7 @@ export function MoreMenu(props: MoreMenuProps): unknown @{
           {props.items.map((item) => (
             <MenuItemView
               key={item.key}
-              className={cx('vx-menu-item', item.isDisabled && 'vx-menu-item--disabled')}
+              className={['vx-menu-item', item.isDisabled && 'vx-menu-item--disabled']}
               disabled={item.isDisabled}
               onPress={() => {
                 if (item.isDisabled) {

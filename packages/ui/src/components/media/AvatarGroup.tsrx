@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { AvatarGroupProps, AvatarGroupOverflowProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { Avatar } from './Avatar.tsrx'
@@ -19,7 +18,7 @@ export function AvatarGroup(props: AvatarGroupProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-avatar-group', props.className)}
+    className={['vx-avatar-group', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {typeof props.children === 'function'
@@ -49,7 +48,7 @@ export function AvatarGroupOverflow(props: AvatarGroupOverflowProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-avatar-overflow', props.className)}
+    className={['vx-avatar-overflow', props.className]}
     style={mergeStyle(
       { width: size, height: size, borderRadius: size / 2 },
       styleRecord(props.style),

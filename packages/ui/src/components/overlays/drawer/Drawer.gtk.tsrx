@@ -8,7 +8,6 @@ import {
   type UniversalRenderable,
 } from 'octane/universal/native'
 
-import { cx } from '@octane-xplat/lib'
 import { themeSchemeClasses } from '../../../theme/theme-host'
 import { mergeStyle } from './style-merge'
 import type { DrawerProps } from '../../../props'
@@ -137,7 +136,7 @@ export function Drawer(props: DrawerProps): unknown @{
     {open && layer
       ? createPortal(
           <masonview
-            className={cx('vx-drawer-panel', themeSchemeClasses(), props.className)}
+            className={['vx-drawer-panel', themeSchemeClasses(), props.className]}
             style={mergeStyle(
               // The portal target is a Gtk.Box — flexGrow is what
               // expands a child to fill its height there.

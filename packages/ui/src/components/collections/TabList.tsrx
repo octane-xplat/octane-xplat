@@ -80,7 +80,7 @@ export function TabList(props: TabListProps): unknown @{
 
   const row = (
     <masonview
-      className={cx('vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed')}
+      className={['vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed']}
       style={mergeStyle({ alignItems: 'flex-end' }, { display: 'flex' })}
     >
       {props.children}
@@ -167,12 +167,12 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
         ctx?._tabViews?.delete(props.value)
       }
     }}
-    className={cx(
+    className={[
       'vx-tab',
       isSelected && 'vx-tab--selected',
       ctx.layout === 'fill' && 'vx-tab--fill',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
     disabled={isDisabled}
     accessibilityRole={
@@ -204,7 +204,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
         {props.endContent != null ? props.endContent : null}
       </masonview>
       <masonview
-        className={cx('vx-tab-indicator', isSelected && 'vx-tab-indicator--on')}
+        className={['vx-tab-indicator', isSelected && 'vx-tab-indicator--on']}
         style={{ display: 'flex' }}
       />
     </masonview>

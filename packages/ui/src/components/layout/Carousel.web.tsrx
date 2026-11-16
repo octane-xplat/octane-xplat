@@ -5,7 +5,6 @@ import type { CarouselHandle, CarouselProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { spacingStep } from './spacing'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 
@@ -203,7 +202,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
 
   return (
     <div
-      className={cx('vx-carousel', props.className)}
+      className={['vx-carousel', props.className]}
       style={props.style}
       id={props.id}
       role="region"
@@ -238,10 +237,10 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
         >
           {mapChildren(items, (child: any, i: number) => (
             <div
-              className={cx(
+              className={[
                 'vx-carousel-slide',
                 props.variant === 'proportional' && 'vx-carousel-slide--prop',
-              )}
+              ]}
               role="group"
               aria-roledescription="slide"
               aria-label={`Slide ${i + 1} of ${count}`}

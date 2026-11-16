@@ -9,8 +9,6 @@ import type {
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import type { NavLinkInput } from './nav-link'
-import { cx } from '@octane-xplat/lib'
-
 export function NavLink<
   Contracts = RegisteredRouteContracts,
   Stacks extends string = keyof AppRouteStacks & string,
@@ -22,7 +20,7 @@ export function NavLink(props: NavLinkInput) @{
 
   <Pressable
     id={props.id}
-    className={cx(props.className, link.selected ? props.activeClassName : undefined)}
+    className={[props.className, link.selected ? props.activeClassName : undefined]}
     style={props.style}
     accessibilityRole="link"
     accessibilityState={{ disabled: link.disabled, selected: link.selected }}

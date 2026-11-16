@@ -2,7 +2,6 @@
 import { useDirection, useTranslator } from '../../internal/platform/internationalization'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { PaginationProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Pagination — ‹ › plus a windowed run of page buttons around `page`
@@ -38,7 +37,7 @@ export function Pagination(props: PaginationProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)}
+    className={['vx-pagination', props.disabled && 'vx-pagination--disabled', props.className]}
     style={mergeStyle(
       { flexDirection: 'row', alignItems: 'center' },
       mergeStyle({ display: 'flex' }, props.style),
@@ -64,7 +63,7 @@ export function Pagination(props: PaginationProps): unknown @{
           <label className="vx-page-ellipsis" text="…" />
         ) : (
           <masonview
-            className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')}
+            className={['vx-page-btn', e.page === current && 'vx-page-btn--on']}
             style={mergeStyle(
               { justifyContent: 'center', alignItems: 'center' },
               mergeStyle(

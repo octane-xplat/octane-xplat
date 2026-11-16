@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { hasCoarsePointer } from './coarse-pointer'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
@@ -162,7 +161,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 
   <>
     <masonview
-      className={cx(
+      className={[
         'vx-timeinput',
         `vx-timeinput--${surface}`,
         isDisabled && 'vx-timeinput--disabled',
@@ -171,7 +170,7 @@ function TimeInputControl(inputProps: CoreProps) @{
         props.size && `vx-timeinput--size-${props.size}`,
         !isPendingValid && 'vx-timeinput--invalid',
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       <Pressable
@@ -192,7 +191,7 @@ function TimeInputControl(inputProps: CoreProps) @{
             input.current = v
           }}
           id={inputId}
-          className={cx('vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid')}
+          className={['vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid']}
           hint={props.placeholder ?? 'Select a time'}
           isEnabled={!isDisabled && !isBusy}
           editable={!isDisabled && !isBusy}
@@ -213,11 +212,11 @@ function TimeInputControl(inputProps: CoreProps) @{
         />
       ) : (
         <Pressable
-          className={cx(
+          className={[
             'vx-timeinput-input',
             'vx-timeinput-segment',
             !shown && 'vx-timeinput-segment--placeholder',
-          )}
+          ]}
           disabled={isDisabled || isBusy}
           accessibilityLabel={
             props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
@@ -252,7 +251,7 @@ function TimeInputControl(inputProps: CoreProps) @{
       }
       @if (statusText != null) {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
           accessibilityLabel={
             props.statusVariant === 'tooltip' ? props.status?.message : undefined

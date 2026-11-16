@@ -2,7 +2,6 @@
 import { mergeStyle } from '../internal/layout/style-merge'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import type { ChatComposerDraft, ChatComposerInputControl, ChatComposerProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { ChatComposerProvider } from './chat-context.tsrx'
 import { ChatComposerInput } from './ChatComposerInput.tsrx'
 import { ChatSendButton } from './ChatSendButton.tsrx'
@@ -116,11 +115,11 @@ export function ChatComposer(props: ChatComposerProps): unknown @{
   const status = props.status
   const statusEl = status ? (
     <masonview
-      className={cx(
+      className={[
         'vx-chatcomposer-status',
         `vx-chatcomposer-status--${status.type}`,
         `vx-chatcomposer-status--${statusPosition}`,
-      )}
+      ]}
       accessibilityLiveRegion={status.type === 'error' ? 'assertive' : 'polite'}
       style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
     >
@@ -132,23 +131,23 @@ export function ChatComposer(props: ChatComposerProps): unknown @{
   <ChatComposerProvider value={composerContext}>
     <masonview
       id={props.id}
-      className={cx(
+      className={[
         'vx-chatcomposer',
         `vx-chatcomposer--${density}`,
         isDisabled && 'vx-chatcomposer--disabled',
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       {statusPosition === 'top' ? statusEl : null}
       {props.drawer}
       {/* Tap on empty body space focuses the input (registered control). */}
       <masonview
-        className={cx(
+        className={[
           'vx-chatcomposer-body',
           `vx-chatcomposer-body--${elevation}`,
           `vx-chatcomposer-body--${density}`,
-        )}
+        ]}
         onTap={() => inputControlRef.current?.focus()}
         style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
       >

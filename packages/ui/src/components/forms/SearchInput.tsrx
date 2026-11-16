@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { SearchInputProps } from '../../props'
 import { Icon } from '../media/Icon.tsrx'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
@@ -58,7 +57,7 @@ function SearchInputControl(inputProps: SearchInputProps) @{
   )
 
   <masonview
-    className={cx(
+    className={[
       'vx-search',
       props.isDisabled && 'vx-search--disabled',
       props.isReadOnly && 'vx-search--readonly',
@@ -66,7 +65,7 @@ function SearchInputControl(inputProps: SearchInputProps) @{
       props.status && `vx-search--status-${props.status.type}`,
       props.size && `vx-search--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {props.icon !== false ? (

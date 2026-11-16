@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { MetadataListProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { MetadataListProvider } from './metadata-list-context'
 import { Grid } from '../layout/appkit-layout.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
@@ -44,7 +43,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
   <MetadataListProvider value={{ labelPosition, labelWidth: props.label?.width, orientation }}>
     <masonview
       id={props.id}
-      className={cx('vx-metadatalist', props.className)}
+      className={['vx-metadatalist', props.className]}
       style={mergeStyle(
         { flexDirection: 'column' },
         mergeStyle({ display: 'flex' }, { flexDirection: 'column', ...styleRecord(props.style) }),

@@ -3,7 +3,6 @@ import { RouteOutlet } from '../../routing/RouteOutlet.macos.tsrx'
 import { routeTabKey, useRouteTabsSelection } from '../../routing/route-tabs-selection.tsrx'
 import { RoutePane } from '../../routing/RoutePane.tsrx'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import { TabList, Tab } from './TabList.macos.tsrx'
 import type { TabsProps } from '../../props'
 
@@ -17,7 +16,7 @@ export function Tabs(props: TabsProps): any {
     <>
       <masonview
         id={props.id}
-        className={cx('vx-tabs', props.className)}
+        className={['vx-tabs', props.className]}
         style={mergeStyle({ display: 'flex', flexDirection: 'column' }, props.style)}
       >
         <TabList

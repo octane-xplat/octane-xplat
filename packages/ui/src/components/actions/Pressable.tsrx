@@ -3,7 +3,6 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -50,7 +49,7 @@ export function Pressable(props: PressableProps): unknown @{
       ...styleRecord(props.style),
       ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}),
     })}
-    className={cx('vx-pressable', props.className)}
+    className={['vx-pressable', props.className]}
     isEnabled={!props.disabled}
     accessible={props.accessible ?? Boolean(props.onPress)}
     accessibilityLabel={props.accessibilityLabel}

@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from 'octane'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { createAppKitGridNavigation, type AppKitGridRow } from './grid-navigation.macos'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
-import { cx } from '@octane-xplat/lib'
 import type { GridListProps } from '../../props'
 import { defaultItemKey, type Key, type Selection } from '../../data/list-data'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
@@ -132,7 +131,7 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
         props.style,
       ),
     )}
-    className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)}
+    className={['vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className]}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
@@ -154,11 +153,11 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
             rowViews.current.delete(entry.key)
           }
         }}
-        className={cx(
+        className={[
           'vx-gridlist-row',
           isGridListKeySelected(selection, entry.key) && 'vx-gridlist-row--selected',
           disabled.has(entry.key) && 'vx-gridlist-row--disabled',
-        )}
+        ]}
         style={
           isGrid && props.columns
             ? { width: `${100 / props.columns}%` }

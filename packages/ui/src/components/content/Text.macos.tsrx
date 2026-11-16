@@ -4,7 +4,6 @@ import { AppKitTextContext, AppKitTextScope } from '../forms/text-context.macos.
 import { layoutChildProps } from '../layout/layout-child'
 import type { RichTextProps, RichTextSpanProps, TextProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import { useTheme } from '../../theme/use-theme.tsrx'
 import { textScaleStyle } from '../forms/text-scale'
 
@@ -26,20 +25,20 @@ export function Text(props: TextProps): unknown @{
   )
 
   @if (inText) {
-    <span className={cx(props.className)} style={textStyle}>
+    <span className={[props.className]} style={textStyle}>
       {props.children}
     </span>
   } @else {
     <label
       id={props.id}
       testID={props.testID}
-      className={cx(
+      className={[
         'vx-text',
         props.type && `vx-text--${props.type}`,
         props.size && `vx-text--size-${props.size}`,
         props.color && `vx-text--color-${props.color}`,
         props.className,
-      )}
+      ]}
       {...layoutChildProps(props, textStyle)}
       maxLines={maxLines > 0 ? maxLines : undefined}
       whiteSpace={maxLines === 1 ? 'nowrap' : undefined}
@@ -59,13 +58,13 @@ export function RichText(props: RichTextProps): unknown @{
   const inText = useContext(AppKitTextContext)
 
   @if (inText) {
-    <span className={cx('vx-rich-text', props.className)} style={props.style}>
+    <span className={['vx-rich-text', props.className]} style={props.style}>
       {props.children}
     </span>
   } @else {
     <label
       id={props.id}
-      className={cx('vx-rich-text', props.className)}
+      className={['vx-rich-text', props.className]}
       {...layoutChildProps(props, props.style)}
       accessibilityLabel={props.accessibilityLabel}
     >
@@ -79,7 +78,7 @@ export function RichTextSpan(props: RichTextSpanProps): unknown @{
   // hit-tests the tapped glyph, so only this run's range activates.
   <span
     text={props.text}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     {...(props.onPress ? { onLinkTap: props.onPress } : {})}
   >

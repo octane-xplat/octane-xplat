@@ -49,7 +49,7 @@ export function Link(props: LinkProps): unknown @{
       followHref(props.href)
     }}
   >
-    <TextSlot className={cx(props.hasUnderline && !props.isStandalone && 'vx-link--underline')}>
+    <TextSlot className={[props.hasUnderline && !props.isStandalone && 'vx-link--underline']}>
       {props.children}
     </TextSlot>
     @if (props.isExternalLink) {

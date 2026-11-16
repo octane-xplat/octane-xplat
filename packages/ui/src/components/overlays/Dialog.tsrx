@@ -6,7 +6,6 @@ import { useContext, useEffect, useId, useRef, useState } from 'octane'
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core'
 import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import type { DialogHeaderProps, DialogProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyThemeClasses } from '../../theme/theme-host'
 import { rootLayoutFor } from '../layout/root-layout'
 import { createOverlayLifetime } from './overlay-lifetime'
@@ -39,7 +38,7 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
     }}
   >
     <masonview
-      className={cx('vx-dialog', isFullscreen && 'vx-dialog--fullscreen', props.className)}
+      className={['vx-dialog', isFullscreen && 'vx-dialog--fullscreen', props.className]}
       accessible={true}
       accessibilityLabel={props.accessibilityLabel}
       accessibilityRole={purpose === 'required' ? 'alert' : undefined}
@@ -89,7 +88,7 @@ function DialogInline(props: DialogProps) @{
 
   <masonview
     id={props.id}
-    className={cx('vx-dialog', 'vx-dialog--inline', props.className)}
+    className={['vx-dialog', 'vx-dialog--inline', props.className]}
     style={{
       padding,
       width: typeof props.width === 'number' ? props.width : undefined,
@@ -249,7 +248,7 @@ export function DialogHeader(props: DialogHeaderProps): unknown @{
   const requestClose = props.onOpenChange ?? ctx?.requestClose
 
   <masonview
-    className={cx('vx-dialog-header', props.className)}
+    className={['vx-dialog-header', props.className]}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
     id={props.id}
   >

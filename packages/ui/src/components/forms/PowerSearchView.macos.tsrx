@@ -15,8 +15,6 @@ import { Popover } from '../overlays/Popover.macos.tsrx'
 import { PowerSearchToken } from './PowerSearchToken.macos.tsrx'
 import { PowerSearchFilterEditor } from './PowerSearchFilterEditor.macos.tsrx'
 import { powerSearchTranslate } from './power-search-strings'
-import { cx } from '@octane-xplat/lib'
-
 // The public handle uses a platform-neutral native type. Inspect the AppKit
 // control boundary before passing it to the native request owner.
 function appKitInput(view: unknown): view is NSView {
@@ -108,12 +106,12 @@ export function PowerSearchView(inProps: PowerSearchViewProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx(
+    className={[
       'vx-power-search',
       `vx-power-search--size-${size}`,
       props.isDisabled && 'vx-power-search--disabled',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     ref={bindAnchor}
   >
@@ -229,11 +227,11 @@ export function PowerSearchView(inProps: PowerSearchViewProps): unknown @{
     </Popover>
     {status?.message ? (
       <label
-        className={cx(
+        className={[
           'vx-power-search-status',
           `vx-power-search-status--${status.type}`,
           `vx-power-search-status--${props.statusVariant ?? 'attached'}`,
-        )}
+        ]}
         text={status.message}
       />
     ) : null}

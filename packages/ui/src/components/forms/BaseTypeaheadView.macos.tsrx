@@ -5,7 +5,6 @@ import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
 import { appKitTextChange } from '../../internal/platform/appkit-events.macos'
 import type { SearchableItem } from '../../props'
 import type { BaseTypeaheadViewProps } from './typeahead-view'
-import { cx } from '@octane-xplat/lib'
 import { TypeaheadResults } from './TypeaheadResults.macos.tsrx'
 import { appKitTypeaheadOwnsFocus } from './typeahead-layer.macos'
 import { TypeaheadItem } from './TypeaheadItem.macos.tsrx'
@@ -156,7 +155,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
   useLayoutEffect(resultsReady, [props.open, activeIndex, props.results])
 
   <masonview
-    className={cx('vx-typeahead', props.className)}
+    className={['vx-typeahead', props.className]}
     ref={bindShell}
     onBlur={fieldBlur}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
@@ -166,12 +165,12 @@ export function BaseTypeaheadView<T extends SearchableItem>(
       onFocus={props.onInputFocus}
       onKeyDown={keys}
       id={props.inputId}
-      className={cx(
+      className={[
         'vx-typeahead-input',
         `vx-typeahead-input--size-${props.size}`,
         props.isDisabled && 'vx-typeahead-input--disabled',
         props.inputClassName,
-      )}
+      ]}
       style={props.inputStyle}
       value={props.query}
       placeholder={props.placeholder}
@@ -234,12 +233,12 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 
               <masonview
                 ref={bindRow(item.id)}
-                className={cx(
+                className={[
                   'vx-typeahead-option',
                   `vx-typeahead-option--size-${props.size}`,
                   index === activeIndex && 'vx-typeahead-option--highlighted',
                   isSelected && 'vx-typeahead-option--selected',
-                )}
+                ]}
                 onTap={() => props.onSelect(item)}
                 accessibilityRole="option"
                 accessibilityLabel={item.label}

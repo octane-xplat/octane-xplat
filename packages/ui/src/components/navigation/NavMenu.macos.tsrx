@@ -5,8 +5,6 @@ import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext, useMemo } from 'octane'
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
-
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Text } from '../content/Text.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
@@ -49,7 +47,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps): unknown @{
   <NavHeadingMenuProvider value={ctx}>
     <masonview
       id={props.id}
-      className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)}
+      className={['vx-navmenu', 'vx-navmenu--' + size, props.className]}
       style={mergeStyle(
         { flexDirection: 'column' },
         mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), minWidth }),
@@ -84,12 +82,12 @@ export function NavHeadingMenuItem(
 
   <Pressable
     id={props.id}
-    className={cx(
+    className={[
       'vx-navmenu-item',
       'vx-navmenu-item--' + (ctx?.size ?? 'md'),
       isDisabled && 'vx-navmenu-item--disabled',
       props.className,
-    )}
+    ]}
     style={props.style}
     disabled={isDisabled}
     accessibilityRole={link.href != null ? 'link' : 'menuitem'}

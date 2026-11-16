@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { InputRatingProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { useFieldControlProps } from './field-context'
@@ -32,7 +31,7 @@ export function InputRating(inputProps: InputRatingProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-rating',
       props.isDisabled && 'vx-rating--disabled',
       props.isReadOnly && 'vx-rating--readonly',
@@ -40,7 +39,7 @@ export function InputRating(inputProps: InputRatingProps): unknown @{
       props.status && `vx-rating--status-${props.status.type}`,
       props.size && `vx-rating--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ flexDirection: 'row' }, mergeStyle({ display: 'flex' }, props.style))}
     accessibilityLabel={
       props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
@@ -56,7 +55,7 @@ export function InputRating(inputProps: InputRatingProps): unknown @{
   >
     @for (const score of Array.from({ length: max }, (_, i) => i + 1); key score) {
       <masonview
-        className={cx('vx-rating-cell', score <= value && 'vx-rating-cell--on')}
+        className={['vx-rating-cell', score <= value && 'vx-rating-cell--on']}
         style={mergeStyle({ display: 'flex' }, { width: 24, padding: 2 })}
         onTap={isBlocked ? undefined : () => setValue(score)}
       >

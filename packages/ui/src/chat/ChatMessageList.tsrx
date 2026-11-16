@@ -4,7 +4,6 @@ import { chatHost } from './chat-scroll-host'
 import { mergeStyle } from '../internal/layout/style-merge'
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import type { ChatMessageData, ChatMessageListProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { ChatListProvider, useChatLayoutContext } from './chat-context.tsrx'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
 import { ChatMessage as ChatMessageView } from './ChatMessage.tsrx'
@@ -89,7 +88,7 @@ export function ChatMessageList(props: ChatMessageListProps): unknown @{
   <ChatListProvider value={contextValue}>
     <masonview
       id={props.id}
-      className={cx('vx-chatlist', `vx-chatlist--${density}`, props.className)}
+      className={['vx-chatlist', `vx-chatlist--${density}`, props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
       accessibilityLiveRegion="polite"
     >

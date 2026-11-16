@@ -2,7 +2,6 @@
 import type { IconProps } from '../../props'
 import { getIcon } from './icons'
 import { useIconRegistry } from './icon-registry-context'
-import { cx } from '@octane-xplat/lib'
 import { applyNativeProps } from '../../internal/platform/platformProps'
 import { glyphSvgMarkup, isSvgSrc, svgSource } from './svg'
 
@@ -41,7 +40,7 @@ export function Icon(props: IconProps): unknown @{
   @if (markup) {
     <svgview
       id={props.id}
-      className={cx(props.className)}
+      className={[props.className]}
       src={markup}
       stretch="aspectFit"
       style={{ width: size, height: size }}
@@ -53,7 +52,7 @@ export function Icon(props: IconProps): unknown @{
     @if (glyph.font) {
       <label
         id={props.id}
-        className={cx(props.className)}
+        className={[props.className]}
         text={glyph.font.glyph}
         style={{ fontFamily: glyph.font.family, fontSize: size, color: color }}
         accessible={accessible}
@@ -65,7 +64,7 @@ export function Icon(props: IconProps): unknown @{
         @if (isSvgSrc(glyph.src)) {
           <svgview
             id={props.id}
-            className={cx(props.className)}
+            className={[props.className]}
             src={svgSource(glyph.src)}
             stretch="aspectFit"
             style={{ width: size, height: size }}
@@ -76,7 +75,7 @@ export function Icon(props: IconProps): unknown @{
         } @else {
           <image
             id={props.id}
-            className={cx(props.className)}
+            className={[props.className]}
             src={glyph.src}
             style={{ width: size, height: size }}
             accessible={accessible}
@@ -88,7 +87,7 @@ export function Icon(props: IconProps): unknown @{
         @if (glyph.text) {
           <label
             id={props.id}
-            className={cx(props.className)}
+            className={[props.className]}
             text={glyph.text}
             style={{ fontSize: size, color: color }}
             accessible={accessible}

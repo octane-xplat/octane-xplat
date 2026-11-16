@@ -8,8 +8,6 @@ import { themeSchemeClasses } from '../../theme/theme-host'
 import { Toast } from './Toast.tsrx'
 import { Popover } from './Popover.tsrx'
 import { createPortal } from '../../internal/platform/native-portal.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 /** Edge gap + inter-toast gap in dips (same values as the native leaf). */
 const EDGE_GAP = 16
 const STACK_GAP = 8
@@ -61,7 +59,7 @@ function ToastEdgeStack(props: {
   const end = props.position.endsWith('End')
 
   <masonview
-    className={cx('vx-toast-stack', themeSchemeClasses())}
+    className={['vx-toast-stack', themeSchemeClasses()]}
     style={mergeStyle(
       { flexDirection: 'column', width: STACK_WIDTH },
       mergeStyle({ display: 'flex', alignItems: end ? 'flex-end' : 'flex-start' }),

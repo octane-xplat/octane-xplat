@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext } from 'octane'
 import type { MetadataListItemProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { MetadataListContext } from './metadata-list-context'
 import { isRenderable } from '../../internal/rendering/is-renderable'
 
@@ -49,7 +48,7 @@ export function MetadataListItem(props: MetadataListItemProps): unknown @{
     return (
       <masonview
         id={props.id}
-        className={cx('vx-metadatalist-item', props.className)}
+        className={['vx-metadatalist-item', props.className]}
         style={mergeStyle(
           { flexDirection: 'column' },
           mergeStyle(

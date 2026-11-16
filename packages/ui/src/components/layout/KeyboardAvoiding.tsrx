@@ -2,8 +2,6 @@
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { KeyboardAvoidingProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
-
 // Targets without mobile keyboard insets retain neutral block flow.
 /**
  * Moves content out from under the on-screen keyboard without double-counting consumed insets. Import from `@octane-xplat/ui`.
@@ -16,7 +14,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-keyboard-avoiding', props.className)}
+    className={['vx-keyboard-avoiding', props.className]}
     style={props.style}
   >
     {props.children}

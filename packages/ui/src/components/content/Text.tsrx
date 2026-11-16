@@ -3,7 +3,6 @@ import { createContext, useContext } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { Application } from '@nativescript/core'
 import type { TextProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -74,7 +73,7 @@ export function Text(props: TextProps): unknown @{
   @if (inText) {
     <span
       ref={(v: any) => applyEscapeProps(v, props)}
-      className={cx(props.className)}
+      className={[props.className]}
       {...layoutChildProps(props, textStyle)}
     >
       {props.children}
@@ -87,13 +86,13 @@ export function Text(props: TextProps): unknown @{
       testID={props.testID ?? ''}
       ref={(v: any) => applyEscapeProps(v, props)}
       {...layoutChildProps(props, textStyle)}
-      className={cx(
+      className={[
         'vx-text',
         props.type && `vx-text--${props.type}`,
         props.size && `vx-text--size-${props.size}`,
         props.color && `vx-text--color-${props.color}`,
         props.className,
-      )}
+      ]}
       maxLines={maxLines}
       whiteSpace={maxLines === 1 ? 'nowrap' : 'normal'}
       textOverflow={maxLines > 0 ? 'ellipsis' : undefined}

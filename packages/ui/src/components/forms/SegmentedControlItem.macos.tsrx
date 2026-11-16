@@ -3,7 +3,6 @@ import type { NSView } from '@octane-xplat/platform/macos'
 import { useContext, useEffect, useRef } from 'octane'
 import type { SegmentedControlItemProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import { AppKitSegmentedContext } from '../actions/segmented-control-context.macos'
 
 /** Self-drawn AppKit segment with selection and scoped keyboard registration. */
@@ -40,12 +39,12 @@ export function SegmentedControlItem(props: SegmentedControlItemProps): unknown 
       view.current = element
     }}
     id={props.id}
-    className={cx(
+    className={[
       'vx-segment',
       selected && 'vx-segment--on',
       disabled && 'vx-segment--disabled',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     accessibilityRole="radio"
     accessibilityLabel={props.label ?? props.value}

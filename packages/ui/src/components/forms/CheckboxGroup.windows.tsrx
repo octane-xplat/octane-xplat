@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { View } from '@nativescript/core'
 import type { CheckboxGroupProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { Checkbox } from './Checkbox.tsrx'
 import { useFieldControlProps } from './field-context'
@@ -47,7 +46,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): unknown @{
   <masonview
     ref={(view: View | null) => applyEscapeProps(view, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-checkbox-group',
       props.horizontal && 'vx-checkbox-group--row',
       props.hasDividers && 'vx-checkbox-group--divided',
@@ -57,7 +56,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): unknown @{
       props.status && `vx-checkbox-group--status-${props.status.type}`,
       size && `vx-checkbox-group--size-${size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { flexDirection: props.horizontal ? 'row' : 'column' },
       mergeStyle({ display: 'flex' }, props.style),

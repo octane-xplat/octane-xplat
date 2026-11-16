@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { nativeAccessibilityState } from '../overlays/escape-props'
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { Icon } from '../media/Icon.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
@@ -234,7 +233,7 @@ export function Calendar(props: CalendarProps): unknown @{
       <masonview
         key={day.iso}
         onTap={state.isDisabled ? undefined : () => pick(day.iso)}
-        className={cx(
+        className={[
           'vx-calendar-day',
           state.isSelected && 'vx-calendar-day--selected',
           state.isRangeStart && 'vx-calendar-day--range-start',
@@ -244,7 +243,7 @@ export function Calendar(props: CalendarProps): unknown @{
           state.isDisabled && 'vx-calendar-day--disabled',
           day.isToday && 'vx-calendar-day--today',
           day.isWeekend && 'vx-calendar-day--weekend',
-        )}
+        ]}
         accessibilityLabel={fullLabel}
         accessibilityRole="button"
         accessibilityState={nativeAccessibilityState({
@@ -260,12 +259,12 @@ export function Calendar(props: CalendarProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx(
+    className={[
       'vx-calendar',
       mode === 'range' && 'vx-calendar--range',
       numberOfMonths === 2 && 'vx-calendar--two-months',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <masonview

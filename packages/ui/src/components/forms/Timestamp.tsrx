@@ -11,7 +11,6 @@ import {
   resolveTimestampFormat,
 } from './time-format'
 
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { textRoleClasses } from './text-role'
 
@@ -90,7 +89,7 @@ export function Timestamp(props: TimestampProps): unknown @{
   <label
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-timestamp', roleClasses, props.className)}
+    className={['vx-timestamp', roleClasses, props.className]}
     style={props.style}
     text={text}
     accessibilityLabel={relative ? absoluteLabel : undefined}

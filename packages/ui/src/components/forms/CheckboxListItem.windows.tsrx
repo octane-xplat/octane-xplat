@@ -2,7 +2,6 @@
 import 'octane/signals'
 import { useCallback, useContext, useEffect, useRef } from 'octane'
 import type { View } from '@nativescript/core'
-import { cx } from '@octane-xplat/lib'
 import type { CheckboxListItemProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { CheckboxListContext } from './option-list-contexts'
@@ -53,7 +52,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
   <masonview
     ref={bindRow}
     id={props.id}
-    className={cx(
+    className={[
       'vx-checkbox-row',
       'vx-checkboxlist-item',
       indicatorScope,
@@ -61,7 +60,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
       disabled && 'vx-checkbox--disabled',
       readOnly && 'vx-checkbox--readonly',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <Ind state={state} size={ctx?.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />

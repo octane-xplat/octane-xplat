@@ -9,7 +9,6 @@ import { applyEscapeProps } from './escape-props'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import { DialogContext, DialogProvider } from './dialog-context'
 import { spacingStep } from '../layout/spacing'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
@@ -136,7 +135,7 @@ function DialogModal(props: DialogProps) @{
   }, [])
 
   return (
-    <div ref={layerRef} className={cx('vx-dialog-layer', dark && 'dark')}>
+    <div ref={layerRef} className={['vx-dialog-layer', dark && 'dark']}>
       <DialogProvider value={{ titleId, isModal: true, requestClose: props.onOpenChange }}>
         <dialog
           ref={(el: HTMLDialogElement | null) => {
@@ -151,12 +150,12 @@ function DialogModal(props: DialogProps) @{
             }
           }}
           id={props.id}
-          className={cx(
+          className={[
             'vx-dialog',
             isFullscreen && 'vx-dialog--fullscreen',
             pos && 'vx-dialog--anchored',
             props.className,
-          )}
+          ]}
           style={{
             padding: `${padding}px`,
             width: isFullscreen ? '100%' : (toPx(props.width) ?? '400px'),
@@ -199,7 +198,7 @@ function DialogInline(props: DialogProps) @{
       <div
         ref={(el: any) => applyEscapeProps(el, props)}
         id={props.id}
-        className={cx('vx-dialog', 'vx-dialog--inline', props.className)}
+        className={['vx-dialog', 'vx-dialog--inline', props.className]}
         style={mergeStyle(
           {
             padding: `${padding}px`,
@@ -256,7 +255,7 @@ export function DialogHeader(props: DialogHeaderProps): JSX.Element @{
     props.endContentEdgeCompensation === 'inline' || props.endContentEdgeCompensation === 'all'
 
   <>
-    <div className={cx('vx-dialog-header', props.className)} style={props.style} id={props.id}>
+    <div className={['vx-dialog-header', props.className]} style={props.style} id={props.id}>
       {props.startContent != null && (
         <div className="vx-dialog-header-start">{props.startContent}</div>
       )}

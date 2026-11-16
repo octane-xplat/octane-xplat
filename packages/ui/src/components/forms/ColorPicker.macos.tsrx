@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { ColorPickerProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { ColorAreaView } from './ColorArea.tsrx'
 import { ColorSliderView } from './ColorSlider.tsrx'
 import { ColorField } from './ColorField.tsrx'
@@ -18,7 +17,7 @@ export function ColorPicker(props: ColorPickerProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-color-picker', props.className)}
+    className={['vx-color-picker', props.className]}
     style={mergeStyle(
       { display: 'flex', flexDirection: 'column', gap: 8 },
       styleRecord(props.style),

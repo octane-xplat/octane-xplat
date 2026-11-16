@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { HoverCardProps } from '../../props'
 import { useHoverCard } from './use-hover-card.tsrx'
-import { cx } from '@octane-xplat/lib'
 import { View } from '../layout/View.tsrx'
 
 /** Default (macOS) leaf — pointer intent comes from the AppKit host
@@ -29,7 +28,7 @@ export function HoverCard(props: HoverCardProps): unknown @{
     <View
       id={props.id}
       ref={card.ref}
-      className={cx('vx-hovercard-trigger', props.className)}
+      className={['vx-hovercard-trigger', props.className]}
       style={props.style}
       ios={props.ios}
       android={props.android}

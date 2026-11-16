@@ -9,7 +9,6 @@ import type {
 
 import type { NavigationItemImplementation, NavigationItemsImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
-import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.macos.tsrx'
@@ -24,7 +23,7 @@ function NavigationMenuRow(props: {
   const link = useNavigationItem({ ...item, isSelected: item.active, onClick: item.onSelect })
 
   <Pressable
-    className={cx('vx-navmenu-strip-item', link.selected && 'vx-navmenu-strip-item--active')}
+    className={['vx-navmenu-strip-item', link.selected && 'vx-navmenu-strip-item--active']}
     disabled={link.disabled}
     accessibilityRole={link.href != null ? 'link' : 'button'}
     accessibilityState={{ disabled: link.disabled, selected: link.selected }}
@@ -54,11 +53,11 @@ export function NavigationMenu(
   <masonview
     ref={(view: any) => applyEscapeProps(view, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-navmenu-strip',
       !isHorizontal && 'vx-navmenu-strip--vertical',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { display: 'flex', flexDirection: isHorizontal ? 'row' : 'column' },
       props.style,

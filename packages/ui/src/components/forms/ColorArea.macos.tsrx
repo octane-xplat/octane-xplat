@@ -5,7 +5,6 @@ import { useMemo, useCallback, useRef } from 'octane'
 import type { ColorAreaProps } from '../../props'
 import type { ColorAreaViewProps } from '../../internal-props'
 import { refList } from '../../internal/accessibility/ref-list'
-import { cx } from '@octane-xplat/lib'
 import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
@@ -144,7 +143,7 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-color-area', props.className)}
+    className={['vx-color-area', props.className]}
     style={mergeStyle({ display: 'grid', height: 160 }, styleRecord(props.style))}
     accessibilityRole={nativeAccessibilityRole('adjustable')}
     accessibilityLabel={props.accessibilityLabel ?? 'color'}

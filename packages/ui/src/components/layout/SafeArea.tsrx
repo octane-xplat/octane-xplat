@@ -2,7 +2,6 @@
 import { styleRecord } from '../../internal/layout/style-merge'
 import { useContext } from 'octane'
 import type { SafeAreaProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { useSafeAreaInsets } from './safeAreaInsets.tsrx'
 import {
@@ -26,7 +25,7 @@ export function SafeArea(props: SafeAreaProps): unknown @{
   <masonview
     id={props.id}
     ref={(host: any) => applyEscapeProps(host, props)}
-    className={cx('vx-safe-area', props.className)}
+    className={['vx-safe-area', props.className]}
     style={{
       ...styleRecord(props.style),
       paddingTop: applied.top,

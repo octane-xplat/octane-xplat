@@ -94,7 +94,7 @@ export function FormField(props: FormFieldProps): unknown @{
       <Tooltip
         trigger={
           <Pressable
-            className={cx('vx-field-status-trigger', `vx-field-status--${status.type}`)}
+            className={['vx-field-status-trigger', `vx-field-status--${status.type}`]}
             accessibilityRole="button"
             accessibilityLabel={status.message}
           >
@@ -107,11 +107,11 @@ export function FormField(props: FormFieldProps): unknown @{
     ) : status?.message != null ? (
       <label
         id={statusId}
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${status.type}`,
           `vx-field-status--${statusVariant}`,
-        )}
+        ]}
         text={status.message}
       />
     ) : null
@@ -139,20 +139,20 @@ export function FormField(props: FormFieldProps): unknown @{
       applyEscapeProps(view, props)
     }}
     id={props.id}
-    className={cx(rootClass, isHorizontalLabels && 'vx-field--hl')}
+    className={[rootClass, isHorizontalLabels && 'vx-field--hl']}
     style={mergeStyle(
       { display: 'flex', flexDirection: isHorizontalLabels ? 'row' : 'column' },
       fieldStyle,
     )}
   >
     <masonview
-      className={cx('vx-field-label-wrap', isHorizontalLabels && 'vx-field-hl-label')}
+      className={['vx-field-label-wrap', isHorizontalLabels && 'vx-field-hl-label']}
       style={{ display: labelNode == null ? 'none' : 'flex', flexDirection: 'column' }}
     >
       {labelNode}
     </masonview>
     <masonview
-      className={cx('vx-field-body', isHorizontalLabels && 'vx-field-hl-body')}
+      className={['vx-field-body', isHorizontalLabels && 'vx-field-hl-body']}
       style={{
         display: 'flex',
         flexDirection: 'column',

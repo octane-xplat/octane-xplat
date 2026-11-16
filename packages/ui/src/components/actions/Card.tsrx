@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { CardProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Card — container with optional header/footer slots. */
@@ -9,12 +8,12 @@ export function Card(props: CardProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-card',
       props.variant && `vx-card--${props.variant}`,
       props.elevation && `vx-card--elev-${props.elevation}`,
       props.className,
-    )}
+    ]}
     style={{
       ...styleRecord(props.style),
       ...(props.padding == null

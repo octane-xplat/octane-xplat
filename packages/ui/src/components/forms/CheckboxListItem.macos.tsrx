@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useContext } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import type { CheckboxListItemProps } from '../../props'
 import { CheckboxListContext } from './option-list-contexts'
 import { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
@@ -35,7 +34,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx(
+    className={[
       'vx-checkbox-row',
       'vx-checkboxlist-item',
       'vx-checkboxlist-row--appkit',
@@ -44,7 +43,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
       disabled && 'vx-checkbox--disabled',
       group?.isReadOnly && 'vx-checkbox--readonly',
       props.className,
-    )}
+    ]}
     style={props.style}
     accessibilityRole="checkbox"
     accessibilityLabel={

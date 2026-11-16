@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ToolbarProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { SizeProvider } from './size-context'
 import { layoutChildProps } from './layout-child'
@@ -22,13 +21,13 @@ export function Toolbar(props: ToolbarProps): unknown @{
     <masonview
       id={props.id}
       ref={(v: any) => applyEscapeProps(v, props)}
-      className={cx(
+      className={[
         'vx-toolbar',
         'vx-toolbar--' + (props.variant ?? 'transparent'),
         'vx-toolbar--' + size,
         dividerCls,
         props.className,
-      )}
+      ]}
       {...layoutChildProps(
         { ...props, gap: undefined },
         mergeStyle({ display: 'flex' }, props.style),

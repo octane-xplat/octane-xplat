@@ -7,8 +7,6 @@ import {
 } from './power-search-config'
 
 import { Pressable } from '../actions/Pressable.macos.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 export function PowerSearchToken(props: PowerSearchTokenProps): unknown @{
   const value = formatFilterValue(
     createInternalConfig(props.config),
@@ -24,7 +22,7 @@ export function PowerSearchToken(props: PowerSearchTokenProps): unknown @{
 
   <masonview className="vx-power-search-token-row" style={{ display: 'flex' }}>
     <Pressable
-      className={cx('vx-power-search-token', props.isDisabled && 'vx-power-search-token--disabled')}
+      className={['vx-power-search-token', props.isDisabled && 'vx-power-search-token--disabled']}
       onPress={props.onPress}
       accessibilityRole="button"
       accessibilityLabel={labelText}

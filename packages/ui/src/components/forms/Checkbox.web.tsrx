@@ -100,7 +100,7 @@ export function Checkbox(inputProps: CheckboxProps): JSX.Element @{
   }, [ownChrome, props.status?.message, props.status?.type])
 
   <div
-    className={cx(
+    className={[
       'vx-checkbox-input',
       props.size && `vx-checkbox-input--size-${props.size}`,
       props.isDisabled && 'vx-checkbox-input--disabled',
@@ -109,16 +109,16 @@ export function Checkbox(inputProps: CheckboxProps): JSX.Element @{
       props.status && `vx-checkbox--status-${props.status.type}`,
       checked && 'vx-checkbox--on',
       props.className,
-    )}
+    ]}
     style={props.style}
   >
     <div
-      className={cx(
+      className={[
         'vx-checkbox-container',
         'vx-checkbox-row',
         props.isLabelHidden && 'vx-checkbox-container--label-hidden',
         !props.isDisabled && indicatorScope,
-      )}
+      ]}
     >
       <div className="vx-checkbox-wrapper">
         <input
@@ -198,11 +198,11 @@ export function Checkbox(inputProps: CheckboxProps): JSX.Element @{
     @if (statusId != null) {
       <div
         id={statusId}
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${props.status!.type}`,
           'vx-field-status--detached',
-        )}
+        ]}
       >
         <span className="vx-field-status-row">
           <span className="vx-field-status-icon-slot">

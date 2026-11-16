@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useRef } from 'octane'
 import type { WebViewProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from '../layout/layout-child'
 
 export function WebView(props: WebViewProps): unknown @{
@@ -33,7 +32,7 @@ export function WebView(props: WebViewProps): unknown @{
     ref={view}
     id={props.id}
     {...layoutChildProps(props, props.style)}
-    className={cx('vx-webview', props.className)}
+    className={['vx-webview', props.className]}
     src={props.src}
     html={props.html}
     scrollEnabled={props.scrollEnabled}

@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useContext, useMemo, useRef } from 'octane'
 import type { NSView } from '@octane-xplat/platform/macos'
-import { cx } from '@octane-xplat/lib'
 import type { RadioListItemProps } from '../../props'
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator } from './RadioIndicator.macos.tsrx'
@@ -64,7 +63,7 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
   <masonview
     ref={bind}
     id={props.id}
-    className={cx(
+    className={[
       'vx-radio-row',
       'vx-radiolist-item',
       'vx-radio-row--appkit',
@@ -73,7 +72,7 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
       disabled && 'vx-radio--disabled',
       group?.isReadOnly && 'vx-radio--readonly',
       props.className,
-    )}
+    ]}
     style={props.style}
     accessibilityRole={group ? 'radio' : undefined}
     accessibilityLabel={group ? (props.label ?? props.value) : undefined}

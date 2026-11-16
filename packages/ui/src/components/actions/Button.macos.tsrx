@@ -2,7 +2,6 @@
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'octane'
 import type { NSView } from '@octane-xplat/platform/macos'
 import { openUrl } from '@octane-xplat/platform'
-import { cx } from '@octane-xplat/lib'
 import type { ButtonProps } from '../../props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { TextSlot } from '../forms/text-slot.tsrx'
@@ -91,7 +90,7 @@ export function Button(props: ButtonProps): unknown @{
     ref={ref}
     disabled={disabled}
     onPress={press}
-    className={cx(
+    className={[
       'vx-button',
       `vx-button--${props.variant ?? 'secondary'}`,
       `vx-button--size-${size}`,
@@ -101,7 +100,7 @@ export function Button(props: ButtonProps): unknown @{
       busy && 'vx-button--loading',
       isDisabled && 'vx-button--disabled',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       busy ? { display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' } : {},
       props.style,
@@ -114,7 +113,7 @@ export function Button(props: ButtonProps): unknown @{
     accessibilityValue={props.accessibilityValue ?? (busy ? 'Loading' : undefined)}
   >
     <masonview
-      className={cx('vx-button-content', busy && 'vx-button-content--hidden')}
+      className={['vx-button-content', busy && 'vx-button-content--hidden']}
       style={
         busy
           ? { gridRow: '1', gridColumn: '1', justifySelf: 'stretch', alignSelf: 'stretch' }

@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ToastProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import type { JSX } from 'octane/jsx-runtime'
 
@@ -136,12 +135,12 @@ export function Toast(props: ToastProps): JSX.Element @{
         applyEscapeProps(node, props)
       }}
       id={props.id}
-      className={cx(
+      className={[
         'vx-toast',
         `vx-toast--${type}`,
         props.isExiting && 'vx-toast--exiting',
         props.className,
-      )}
+      ]}
       style={mergeStyle({ touchAction: 'pan-y' }, props.style)}
       role={role}
       aria-live={type === 'error' ? 'assertive' : 'polite'}

@@ -8,7 +8,6 @@ import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import type { PopoverProps } from '../../props'
 import type { PopoverInternalProps } from '../../internal-props'
 import { applyNativeProps } from '../../internal/platform/platformProps'
-import { cx } from '@octane-xplat/lib'
 import {
   layerOffset,
   nativeLayerRTL,
@@ -148,7 +147,7 @@ function PopoverLayer(
 
   <masonview
     style={{ width: '100%', height: '100%' }}
-    className={cx('vx-popover-layer', useThemeScheme() === 'dark' && 'ns-dark')}
+    className={['vx-popover-layer', useThemeScheme() === 'dark' && 'ns-dark']}
   >
     {(props.dismissOnOutsideTap ?? true) && (
       <masonview
@@ -163,7 +162,7 @@ function PopoverLayer(
     <masonview
       ref={panelRef}
       opacity={settled ? 1 : 0}
-      className={cx('vx-popover', props.className)}
+      className={['vx-popover', props.className]}
       onLoaded={update}
       onLayoutChanged={update}
       style={mergeStyle({}, [

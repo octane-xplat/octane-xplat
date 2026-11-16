@@ -2,7 +2,6 @@
 import { isAndroid, isIOS, ImageSource, knownFolders, Screen } from '@nativescript/core'
 import { useLayoutEffect, useMemo, useRef } from 'octane'
 import type { ImageProps, ImageSourceLike } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child'
 import { isSvgSrc, svgSource } from './svg'
@@ -205,7 +204,7 @@ export function Image(props: ImageProps): unknown @{
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
       {...layoutChildProps(props)}
-      className={cx(props.className)}
+      className={[props.className]}
       src={svg}
       stretch={
         fit === 'none' ? 'none' : contentFitToStretch(fit === 'scale-down' ? 'contain' : fit)
@@ -222,7 +221,7 @@ export function Image(props: ImageProps): unknown @{
       }}
       id={props.id}
       {...layoutChildProps(props, props.style)}
-      className={cx(props.className)}
+      className={[props.className]}
     >
       <image
         ref={(v: any) => {
@@ -249,7 +248,7 @@ export function Image(props: ImageProps): unknown @{
       }}
       id={props.id}
       {...layoutChildProps(props, props.style)}
-      className={cx(props.className)}
+      className={[props.className]}
       stretch={contentFitToStretch(fit)}
       loadMode={props.decoding ?? 'async'}
       accessibilityLabel={props.alt}

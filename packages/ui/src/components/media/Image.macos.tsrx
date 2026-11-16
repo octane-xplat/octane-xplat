@@ -2,7 +2,6 @@
 import { useMemo, useState } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { layoutChildProps } from '../layout/layout-child'
-import { cx } from '@octane-xplat/lib'
 import { appKitImageSource } from './svg-image.macos'
 import { hashToPngBase64 } from './hash-image'
 import type { ImageProps } from '../../props'
@@ -108,7 +107,7 @@ export function Image(props: ImageProps): unknown @{
     onImageError={events.__appKitImageError}
     placeholder={placeholder}
     onImageGeometryChanged={sources ? onGeometry : undefined}
-    className={cx(props.className)}
+    className={[props.className]}
     {...layoutChildProps(props, style)}
     accessibilityLabel={props.alt ?? ''}
   />

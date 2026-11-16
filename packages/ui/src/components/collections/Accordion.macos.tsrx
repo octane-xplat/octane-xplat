@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { AccordionProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Collapsible } from './Collapsible.macos.tsrx'
 
@@ -40,7 +39,7 @@ export function Accordion(props: AccordionProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-accordion', props.className)}
+    className={['vx-accordion', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     @for (const item of props.items; key item.key) {

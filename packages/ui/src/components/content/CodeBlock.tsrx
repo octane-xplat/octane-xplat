@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { PercentLengthType } from '@nativescript/core'
 import { useMemo, useState } from 'octane'
 import type { CodeBlockProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
@@ -170,11 +169,11 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
         return (
           <masonview
             key={lineNo}
-            className={cx(
+            className={[
               'vx-codeblock-line',
               isHl && 'vx-codeblock-line--highlighted',
               diffKind != null && diffKind !== 'context' && `vx-codeblock-line--diff-${diffKind}`,
-            )}
+            ]}
             style={mergeStyle(
               { flexDirection: 'row' },
               mergeStyle(
@@ -232,13 +231,13 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-codeblock',
       `vx-codeblock--${container}`,
       `vx-codeblock--${size}`,
       collapsed && 'vx-codeblock--collapsed',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style) })}
   >
     {hasHeader ? (

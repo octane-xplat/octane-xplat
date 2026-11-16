@@ -15,7 +15,6 @@ import {
 
 import type { Label, View } from '@nativescript/core'
 import { Overlay, Pressable } from '@octane-xplat/ui'
-import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
 import { useDialogPart, useDialogText } from './dialog-text.tsrx'
 import { useMotionValue, useReducedMotion } from '@octane-xplat/motion'
@@ -480,11 +479,11 @@ export function Trigger(props: LightboxTriggerPartProps): unknown @{
   return (
     <Pressable
       ref={ref as never}
-      className={cx(
+      className={[
         'vx-lightbox-trigger',
         active && 'vx-lightbox-trigger--active',
         props.className,
-      )}
+      ]}
       style={props.style as never}
       id={props.id}
       testID={props.testID}
@@ -525,7 +524,7 @@ export function Backdrop(props: LightboxPartProps): unknown @{
   return (
     <masonview
       ref={ref as never}
-      className={cx('vx-lightbox-backdrop', props.className)}
+      className={['vx-lightbox-backdrop', props.className]}
       style={mergeStyle(
         {
           position: 'absolute',
@@ -633,14 +632,14 @@ export function Popup(props: LightboxPartProps): unknown @{
     >
       <masonview
         ref={host}
-        className={cx(
+        className={[
           'vx-lightbox-popup',
           `vx-lightbox-popup--${ctx.phase}`,
           ctx.zoomed && 'vx-lightbox-popup--zoomed',
           ctx.dragging && 'vx-lightbox-popup--dragging',
           ctx.uiHidden && 'vx-lightbox-popup--ui-hidden',
           props.className,
-        )}
+        ]}
         style={mergeStyle({ width: '100%', height: '100%', alignSelf: 'stretch' }, props.style)}
         id={props.id}
         testID={props.testID}
@@ -656,7 +655,7 @@ export function Viewport(props: LightboxPartProps): unknown @{
 
   return (
     <Track
-      className={cx('vx-lightbox-viewport', props.className)}
+      className={['vx-lightbox-viewport', props.className]}
       style={props.style}
       id={props.id}
       testID={props.testID}
@@ -687,11 +686,11 @@ export function Slide(props: LightboxSlidePartProps): unknown @{
   return (
     <SlideProvider value={{ index, onTap: props.onTap }}>
       <masonview
-        className={cx(
+        className={[
           'vx-lightbox-slide',
           current && 'vx-lightbox-slide--current',
           props.className,
-        )}
+        ]}
         style={props.style as never}
         id={props.id}
         testID={props.testID}
@@ -707,7 +706,7 @@ export function Close(props: LightboxPartProps & { onPress?: () => void }): unkn
 
   return (
     <Pressable
-      className={cx('vx-lightbox-close', props.className)}
+      className={['vx-lightbox-close', props.className]}
       style={props.style as never}
       id={props.id}
       testID={props.testID}
@@ -729,7 +728,7 @@ function NavButton(props: LightboxPartProps & { step: 1 | -1 }) @{
   return (
     <Pressable
       disabled={disabled}
-      className={cx('vx-lightbox-nav', disabled && 'vx-lightbox-nav--disabled', props.className)}
+      className={['vx-lightbox-nav', disabled && 'vx-lightbox-nav--disabled', props.className]}
       style={props.style as never}
       id={props.id}
       testID={props.testID}
@@ -756,7 +755,7 @@ export function Title(props: LightboxPartProps): unknown @{
   return (
     <label
       ref={ref}
-      className={cx('vx-lightbox-title', props.className)}
+      className={['vx-lightbox-title', props.className]}
       style={props.style as never}
       id={id}
       testID={props.testID}
@@ -774,7 +773,7 @@ export function Description(props: LightboxPartProps): unknown @{
   return (
     <label
       ref={ref}
-      className={cx('vx-lightbox-description', props.className)}
+      className={['vx-lightbox-description', props.className]}
       style={props.style as never}
       id={id}
       testID={props.testID}

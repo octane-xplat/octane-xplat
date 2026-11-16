@@ -12,7 +12,6 @@ import type { NavigationItemImplementation } from '../navigation/nav-link'
 import { useNavigationItem } from '../navigation/use-navigation-item.shared.tsrx'
 import { useSize } from '../layout/size-context'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
@@ -56,14 +55,14 @@ export function TabList(props: TabListProps): unknown @{
       <masonview
         id={props.id}
         ref={(view: any) => applyEscapeProps(view, props)}
-        className={cx(
+        className={[
           'vx-tablist',
           'vx-tablist--' + size,
           layout === 'fill' && 'vx-tablist--fill',
           props.hasDivider && 'vx-tablist--divided',
           props.isFullBleed && 'vx-tablist--bleed',
           props.className,
-        )}
+        ]}
         {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
       >
         <xplatwindowstabstrip
@@ -116,13 +115,13 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
       ref={(view: any) => applyEscapeProps(view, props)}
     >
       <masonview
-        className={cx(
+        className={[
           'vx-pressable',
           'vx-tab',
           selected && 'vx-tab--selected',
           ctx.layout === 'fill' && 'vx-tab--fill',
           props.className,
-        )}
+        ]}
         isEnabled={!link.disabled}
         style={mergeStyle({ display: 'flex', height: SIZE_HEIGHT[ctx.size] }, props.style)}
       >
@@ -155,7 +154,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
             {props.endContent}
           </masonview>
           <masonview
-            className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')}
+            className={['vx-tab-indicator', selected && 'vx-tab-indicator--on']}
             style={{ display: 'flex' }}
           />
         </masonview>

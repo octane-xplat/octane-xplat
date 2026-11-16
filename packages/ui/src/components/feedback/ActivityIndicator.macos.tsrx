@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { cx } from '@octane-xplat/lib'
 import type { ActivityIndicatorProps } from '../../props'
 import { useThemeScheme } from '../../theme/theme-scheme.macos'
 import { controlColors } from '../../internal/platform/control-colors.macos'
@@ -24,13 +23,13 @@ export function ActivityIndicator(props: ActivityIndicatorProps): unknown @{
   const ring = (
     <masonview
       id={labeled ? undefined : props.id}
-      className={cx(
+      className={[
         'vx-spinner',
         'vx-spinner--appkit',
         `vx-spinner--size-${props.size ?? 'md'}`,
         props.shade === 'onMedia' && 'vx-spinner--onmedia',
         !labeled && props.className,
-      )}
+      ]}
       style={mergeStyle(
         { borderColor: `${color}4d`, borderTopColor: color },
         !labeled ? props.style : undefined,
@@ -45,7 +44,7 @@ export function ActivityIndicator(props: ActivityIndicatorProps): unknown @{
   @if (labeled) {
     <masonview
       id={props.id}
-      className={cx('vx-spinner-row--appkit', props.className)}
+      className={['vx-spinner-row--appkit', props.className]}
       style={props.style}
       accessibilityRole="progressbar"
       accessibilityLabel={props.accessibilityLabel ?? text ?? 'Loading'}

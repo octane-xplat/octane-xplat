@@ -225,11 +225,11 @@ export function ToastViewportSurface(props: {
         return (
           <div
             key={pos}
-            className={cx(
+            className={[
               'vx-toast-stack',
               `vx-toast-stack--${pos[0] === 't' ? 'top' : 'bottom'}`,
               pos.endsWith('Start') ? 'vx-toast-stack--start' : 'vx-toast-stack--end',
-            )}
+            ]}
           >
             {list.map((entry) => {
               const o = entry.options
@@ -239,7 +239,7 @@ export function ToastViewportSurface(props: {
                 <div
                   key={entry.id}
                   data-toast-id={entry.id}
-                  className={cx('vx-toast-row', entry.exiting && 'vx-toast-row--exiting')}
+                  className={['vx-toast-row', entry.exiting && 'vx-toast-row--exiting']}
                 >
                   <ToastSurface
                     type={o.type ?? 'info'}

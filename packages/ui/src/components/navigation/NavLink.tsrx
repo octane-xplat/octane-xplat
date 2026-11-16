@@ -9,8 +9,6 @@ import type {
 import { Pressable } from '../actions/Pressable.tsrx'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import type { NavLinkInput } from './nav-link'
-import { cx } from '@octane-xplat/lib'
-
 /** Route link — resolves a typed destination and renders an active-aware anchor. */
 export function NavLink<
   Contracts = RegisteredRouteContracts,
@@ -23,7 +21,7 @@ export function NavLink(props: NavLinkInput) @{
 
   <Pressable
     id={props.id}
-    className={cx(props.className, link.selected ? props.activeClassName : undefined)}
+    className={[props.className, link.selected ? props.activeClassName : undefined]}
     style={props.style}
     accessibilityRole="link"
     accessibilityState={{ disabled: link.disabled, selected: link.selected }}

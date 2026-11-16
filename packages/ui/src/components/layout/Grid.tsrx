@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { GridProps, GridSpanProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -46,7 +45,7 @@ export function Grid(props: GridProps): unknown @{
     ref={(view: any) => {
       applyEscapeProps(view, props)
     }}
-    className={cx('vx-grid', props.className)}
+    className={['vx-grid', props.className]}
     style={mergeStyle(
       {
         display: 'grid',
@@ -73,7 +72,7 @@ export function Grid(props: GridProps): unknown @{
 export function GridSpan(props: GridSpanProps): unknown @{
   <masonview
     id={props.id}
-    className={cx('vx-gridspan', props.className)}
+    className={['vx-gridspan', props.className]}
     style={{
       ...styleRecord(props.style),
       gridColumn:

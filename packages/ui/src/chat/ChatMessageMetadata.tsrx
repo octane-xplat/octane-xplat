@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatMessageMetadataProps, ChatMessageStatus } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../components/media/Icon.tsrx'
 import { useChatMessageContext } from './chat-context.tsrx'
 
@@ -42,7 +41,7 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-chatmeta', isUser && 'vx-chatmeta--user', props.className)}
+    className={['vx-chatmeta', isUser && 'vx-chatmeta--user', props.className]}
     style={mergeStyle(
       { justifyContent: isUser ? 'flex-end' : 'flex-start' },
       mergeStyle({ display: 'flex' }, props.style),
@@ -66,7 +65,7 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps): unknown @{
     }
     {hasStatus ? (
       <masonview
-        className={cx('vx-chatmeta-status', `vx-chatmeta-status--${status}`)}
+        className={['vx-chatmeta-status', `vx-chatmeta-status--${status}`]}
         accessibilityLabel={`Message ${STATUS_LABEL[status].toLowerCase()}`}
         style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
       >

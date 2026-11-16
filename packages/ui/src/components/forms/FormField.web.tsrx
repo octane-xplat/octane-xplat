@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useContext, useEffect, useId } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { FormFieldProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
@@ -84,7 +83,7 @@ export function FormField(props: FormFieldProps): JSX.Element @{
       props.isGroupLabel ? (
         <span
           id={labelId}
-          className={cx('vx-field-label', props.isLabelHidden && 'vx-field-label--hidden')}
+          className={['vx-field-label', props.isLabelHidden && 'vx-field-label--hidden']}
         >
           {labelText}
         </span>
@@ -92,7 +91,7 @@ export function FormField(props: FormFieldProps): JSX.Element @{
         <label
           id={labelId}
           htmlFor={controlId}
-          className={cx('vx-field-label', props.isLabelHidden && 'vx-field-label--hidden')}
+          className={['vx-field-label', props.isLabelHidden && 'vx-field-label--hidden']}
         >
           {labelText}
         </label>
@@ -103,10 +102,10 @@ export function FormField(props: FormFieldProps): JSX.Element @{
     props.description != null ? (
       <span
         id={descriptionId}
-        className={cx(
+        className={[
           'vx-field-description',
           props.isLabelHidden && 'vx-field-description--hidden',
-        )}
+        ]}
       >
         {props.description}
       </span>
@@ -118,11 +117,11 @@ export function FormField(props: FormFieldProps): JSX.Element @{
     status?.message != null ? (
       <div
         id={statusId}
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${status.type}`,
           `vx-field-status--${statusVariant}`,
-        )}
+        ]}
       >
         {status.message}
       </div>

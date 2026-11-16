@@ -2,7 +2,6 @@
 import { useEffect, useRef } from 'octane'
 import type { HoverCardProps } from '../../props'
 import { useHoverCard } from './use-hover-card.web.tsrx'
-import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
 
 const isTextOnly = (children: any) => typeof children === 'string' || typeof children === 'number'
@@ -80,7 +79,7 @@ export function HoverCard(props: HoverCardProps): JSX.Element @{
         ref={card.ref}
         id={props.id}
         tabIndex={0}
-        className={cx(showIndication && 'vx-hovercard-indication')}
+        className={[showIndication && 'vx-hovercard-indication']}
         aria-haspopup={props.label ? 'dialog' : undefined}
         aria-controls={props.label && card.isOpen ? card.id : undefined}
         aria-describedby={props.label ? undefined : card.describedBy}

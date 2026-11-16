@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { AccessibilityRole } from '@nativescript/core'
 import type { HeadingProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyNativeProps } from '../../internal/platform/platformProps'
 import { useTheme } from '../../theme/use-theme.tsrx'
 import { headingScaleStyle } from '../forms/text-scale'
@@ -29,12 +28,12 @@ export function Heading(props: HeadingProps): unknown @{
 
   <label
     id={props.id}
-    className={cx(
+    className={[
       'vx-heading',
       `vx-h${level}`,
       props.type && `vx-heading--${props.type}`,
       props.className,
-    )}
+    ]}
     style={headingStyle}
     maxLines={maxLines}
     whiteSpace={maxLines === 1 ? 'nowrap' : 'normal'}

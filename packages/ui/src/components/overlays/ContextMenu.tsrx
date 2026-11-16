@@ -5,7 +5,6 @@ import { MenuData } from './MenuParts.tsrx'
 import { MenuSurface } from './MenuSurface.tsrx'
 import { useRef, useState } from 'octane'
 import type { ContextMenuProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Popover } from './Popover.tsrx'
@@ -47,7 +46,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
       }
     }}
     id={props.id}
-    className={cx('vx-contextmenu', props.className)}
+    className={['vx-contextmenu', props.className]}
     style={props.style}
     onLongPress={props.isDisabled ? undefined : () => setOpen(true)}
   >
@@ -77,7 +76,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
         placement={props.placement ?? 'bottom'}
         alignment={props.alignment}
         onDismiss={() => setOpen(false)}
-        className={cx('vx-menu', props.menuClassName)}
+        className={['vx-menu', props.menuClassName]}
       >
         <MenuSurface
           closeMenu={() => setOpen(false)}

@@ -8,8 +8,6 @@ import { useStore } from '../../data/useStore.macos.tsrx'
 import { useDetachedPresentation as usePresentation } from './presentation.macos.tsrx'
 import { Toast } from './Toast.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 const POSITIONS: ToastPosition[] = ['topStart', 'topEnd', 'bottomStart', 'bottomEnd']
 
 function ToastCard(props: { entry: ToastEntry }) @{
@@ -27,7 +25,7 @@ function ToastStack(props: {
   style?: any
 }) @{
   <masonview
-    className={cx('vx-toast-viewport', props.dark && 'ns-dark', props.className)}
+    className={['vx-toast-viewport', props.dark && 'ns-dark', props.className]}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
   >
     {props.entries.map((entry) => (

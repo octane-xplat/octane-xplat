@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useEffect, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -71,7 +70,7 @@ function PinInputControl(props: PinInputProps) @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, fieldProps)}
     id={fieldProps.id}
-    className={cx(
+    className={[
       'vx-pininput',
       'vx-pininput--native',
       fieldProps.isDisabled && 'vx-pininput--disabled',
@@ -80,7 +79,7 @@ function PinInputControl(props: PinInputProps) @{
       fieldProps.status && `vx-pininput--status-${fieldProps.status.type}`,
       fieldProps.size && `vx-pininput--size-${fieldProps.size}`,
       fieldProps.className,
-    )}
+    ]}
     style={mergeStyle({ flexDirection: 'row' }, mergeStyle({ display: 'flex' }, fieldProps.style))}
     isEnabled={!fieldProps.isDisabled}
     accessibilityRole={nativeAccessibilityRole('group')}

@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { NSView } from '@octane-xplat/platform/macos'
 import { useCallback, useId, useRef, useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import type { CheckboxProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useFieldControl } from './field-context'
@@ -60,21 +59,21 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
   }
 
   <masonview
-    className={cx('vx-checkbox-field--appkit', props.className)}
+    className={['vx-checkbox-field--appkit', props.className]}
     style={mergeStyle(props.width != null ? { width: props.width } : {}, props.style)}
   >
     <masonview
       id={controlID}
       ref={bind}
       testID={props.testID}
-      className={cx(
+      className={[
         'vx-checkbox-row--appkit',
         checked && 'vx-checkbox--on',
         props.isDisabled && 'vx-checkbox--disabled',
         props.isReadOnly && 'vx-checkbox--readonly',
         props.isLoading && 'vx-checkbox--loading',
         props.status && `vx-checkbox--status-${props.status.type}`,
-      )}
+      ]}
       style={{ opacity: props.isDisabled ? 0.5 : 1 }}
       accessibilityRole="checkbox"
       accessibilityLabel={
@@ -120,11 +119,11 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
     @if (!inField && props.status?.message != null) {
       <label
         id={`${controlID}-status`}
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${props.status.type}`,
           'vx-field-status--detached',
-        )}
+        ]}
         text={props.status.message}
       />
     }

@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { SeekBarProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** SeekBar — the platform widget (Android SeekBar via NativeScript
@@ -8,7 +7,7 @@ import { applyNativeProps } from '../internal/platform/platformProps'
 export function SeekBar(props: SeekBarProps): unknown @{
   <slider
     id={props.id}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     value={Array.isArray(props.value) ? props.value[1] : props.value}
     minValue={props.min ?? props.minValue ?? 0}

@@ -4,8 +4,6 @@ import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
 import { useEffect, useRef } from 'octane'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 /** Imperative content gets the same handle, scrolling and live theme as a
  * declaration. Context stays inside this detached root. */
 export function ImperativeSheetPanel(props: {
@@ -29,7 +27,7 @@ export function ImperativeSheetPanel(props: {
   <LayerDepthProvider value={dismissal.depth}>
     <masonview
       ref={view}
-      className={cx('vx-sheet', 'vx-bottom-sheet', dark && 'ns-dark')}
+      className={['vx-sheet', 'vx-bottom-sheet', dark && 'ns-dark']}
       style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
     >
       <label className="vx-sheet-grabber" accessibilityLabel="Drag to resize sheet">

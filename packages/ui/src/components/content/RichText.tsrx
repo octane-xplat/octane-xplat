@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { RichTextProps, RichTextSpanProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child'
 
@@ -12,7 +11,7 @@ export function RichText(props: RichTextProps): unknown @{
     id={props.id}
     ref={(el: any) => applyEscapeProps(el, props)}
     {...layoutChildProps(props, props.style)}
-    className={cx('vx-rich-text', props.className)}
+    className={['vx-rich-text', props.className]}
     whiteSpace="normal"
   >
     <formattedstring>{props.children}</formattedstring>
@@ -35,7 +34,7 @@ function runText(props: RichTextSpanProps): string {
 export function RichTextSpan(props: RichTextSpanProps): unknown @{
   <span
     text={runText(props)}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     onLinkTap={props.onPress}
   />

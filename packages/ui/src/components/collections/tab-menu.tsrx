@@ -2,7 +2,6 @@
 import { useContext, useRef, useState } from 'octane'
 import type { TabMenuProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
@@ -43,7 +42,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
         applyEscapeProps(v, props)
       }}
       id={props.id}
-      className={cx('vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className)}
+      className={['vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className]}
       style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
       accessibilityLabel={triggerLabel}
       accessibilityHint={props.label}
@@ -66,7 +65,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
           <Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
         </View>
         <View
-          className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')}
+          className={['vx-tab-indicator', selected && 'vx-tab-indicator--on']}
           style={{ display: 'flex' }}
         />
       </View>
@@ -85,10 +84,10 @@ export function TabMenu(props: TabMenuProps): unknown @{
         <Text className="vx-tabmenu-heading">{props.label}</Text>
         @for (const option of props.options; key option.value) {
           <Pressable
-            className={cx(
+            className={[
               'vx-tabmenu-item',
               ctx.value === option.value && 'vx-tabmenu-item--selected',
-            )}
+            ]}
             accessibilityState={{ selected: ctx.value === option.value }}
             onPress={() => pick(option.value)}
           >

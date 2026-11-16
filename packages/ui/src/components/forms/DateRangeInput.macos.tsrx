@@ -13,7 +13,6 @@ import {
 
 import type { DateRange, DateRangeInputProps } from '../../props'
 import type { NSView } from '@octane-xplat/platform/macos'
-import { cx } from '@octane-xplat/lib'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
@@ -150,7 +149,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
   <>
     <masonview
       ref={bindAnchor}
-      className={cx(
+      className={[
         'vx-daterangeinput',
         isDisabled && 'vx-daterangeinput--disabled',
         isBusy && 'vx-daterangeinput--loading',
@@ -158,7 +157,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
         props.size && `vx-daterangeinput--size-${props.size}`,
         open && 'vx-daterangeinput--open',
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         { flexDirection: 'row', alignItems: 'center' },
         mergeStyle({ display: 'flex' }, props.style),
@@ -166,10 +165,10 @@ function RangeControl(inputProps: DateRangeInputProps) @{
     >
       <Pressable
         id={inputId}
-        className={cx(
+        className={[
           'vx-daterangeinput-trigger',
           !shown && 'vx-daterangeinput-trigger--placeholder',
-        )}
+        ]}
         disabled={isDisabled || isBusy}
         accessibilityLabel={
           props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
@@ -206,7 +205,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
       }
       @if (statusText != null) {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
           accessibilityLabel={
             props.statusVariant === 'tooltip' ? props.status?.message : undefined
@@ -251,10 +250,10 @@ function RangeControl(inputProps: DateRangeInputProps) @{
                       selectRange(live.getRange())
                     }
                   }}
-                  className={cx(
+                  className={[
                     'vx-daterangeinput-preset',
                     isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
-                  )}
+                  ]}
                   accessibilityRole="button"
                   isEnabled={!isPresetDisabled(preset)}
                   accessibilityState={{

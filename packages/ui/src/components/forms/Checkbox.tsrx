@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState, useContext } from 'octane'
 import type { CheckboxProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -74,7 +73,7 @@ function CheckboxControl(inputProps: CheckboxProps & { standalone?: boolean }) @
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
     testID={props.testID ?? ''}
-    className={cx(
+    className={[
       'vx-checkbox-row',
       indicatorScope,
       checked && 'vx-checkbox--on',
@@ -84,7 +83,7 @@ function CheckboxControl(inputProps: CheckboxProps & { standalone?: boolean }) @
       props.status && `vx-checkbox--status-${props.status.type}`,
       props.size && `vx-checkbox--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     isEnabled={!props.isDisabled}
     accessibilityRole={nativeAccessibilityRole('checkbox')}

@@ -2,7 +2,6 @@
 import { createPortal } from '../../internal/platform/native-portal.web.tsrx'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { LightboxMedia, LightboxProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { isolateModalFocus } from './modal-focus.web'
 import { applyEscapeProps } from './escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
@@ -197,7 +196,7 @@ function LightboxLayer(props: {
     <div
       ref={layer}
       id={props.id}
-      className={cx('vx-lightbox-layer', props.className)}
+      className={['vx-lightbox-layer', props.className]}
       style={props.style}
       role="dialog"
       aria-modal={true}

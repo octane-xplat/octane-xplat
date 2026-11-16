@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useMemo, useRef } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from '../../props'
 import { applyEscapeProps } from './escape-props'
@@ -121,7 +120,7 @@ export function FocusScope(props: FocusScopeProps): JSX.Element @{
   <div
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-focus-scope', props.className)}
+    className={['vx-focus-scope', props.className]}
     style={props.style}
     role={props.accessibilityRole}
     aria-label={props.accessibilityLabel}

@@ -11,8 +11,7 @@ import {
   useState,
 } from 'octane'
 
-import type { CalendarProps, DateRange, ISODateString } from '../../props'
-import { cx } from '@octane-xplat/lib'
+import type { CalendarProps, ClassValue, DateRange, ISODateString } from '../../props'
 import { dateMessages } from './date-messages'
 import { createAppKitCalendarFocus, type AppKitCalendarState } from './calendar-focus.macos'
 import { useDirection } from '../../internal/platform/internationalization'
@@ -48,7 +47,7 @@ interface AppKitCalendarDayProps {
   iso: ISODateString
   label: string
   day: number
-  className: string
+  className: ClassValue
   disabled: boolean
   selected: boolean
   register(iso: ISODateString, view: NSView): () => void
@@ -366,7 +365,7 @@ export function Calendar(props: CalendarProps): unknown @{
         pick={focus.activate}
         disabled={state.isDisabled}
         selected={dayCarriesBand(state) || state.isSelected}
-        className={cx(
+        className={[
           'vx-calendar-day',
           state.isSelected && 'vx-calendar-day--selected',
           state.isRangeStart && 'vx-calendar-day--range-start',
@@ -376,7 +375,7 @@ export function Calendar(props: CalendarProps): unknown @{
           state.isDisabled && 'vx-calendar-day--disabled',
           day.isToday && 'vx-calendar-day--today',
           day.isWeekend && 'vx-calendar-day--weekend',
-        )}
+        ]}
       />
     )
   }
@@ -385,12 +384,12 @@ export function Calendar(props: CalendarProps): unknown @{
     ref={bind}
     onKeyDown={focus.keyDown}
     id={props.id}
-    className={cx(
+    className={[
       'vx-calendar',
       mode === 'range' && 'vx-calendar--range',
       numberOfMonths === 2 && 'vx-calendar--two-months',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
   >
     <masonview

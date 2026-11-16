@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { NavIconProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { layoutChildProps } from '../layout/layout-child'
 
@@ -9,7 +8,7 @@ import { layoutChildProps } from '../layout/layout-child'
 export function NavIcon(props: NavIconProps): unknown @{
   <masonview
     id={props.id}
-    className={cx('vx-navicon', props.className)}
+    className={['vx-navicon', props.className]}
     {...layoutChildProps(
       props,
       mergeStyle(

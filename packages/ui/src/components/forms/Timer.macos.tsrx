@@ -9,7 +9,6 @@ import {
   timerPresentation,
 } from './timer-format'
 
-import { cx } from '@octane-xplat/lib'
 import { textRoleClasses } from './text-role'
 
 /** Timer — macOS leaf, same as the mobile leaf (label + ISO duration). */
@@ -65,7 +64,7 @@ export function Timer(props: TimerProps): unknown @{
 
   <label
     id={props.id}
-    className={cx('vx-timer', roleClasses, props.className)}
+    className={['vx-timer', roleClasses, props.className]}
     style={styleRecord(props.style)}
     text={text}
     accessibilityValue={dateTime}

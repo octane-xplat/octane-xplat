@@ -5,7 +5,6 @@ import { refList } from '../../internal/accessibility/ref-list'
 import { useInteractionHost } from '../../gestures/host.tsrx'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { StackProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -53,7 +52,7 @@ export function Stack(props: StackProps): unknown @{
       id={props.id}
       testID={props.testID ?? ''}
       ref={forwardedRef}
-      className={cx('vx-stack', 'vx-stack--scroll', props.className)}
+      className={['vx-stack', 'vx-stack--scroll', props.className]}
       style={{ ...sizingStyle, ...styleRecord(props.style) }}
       orientation={layout.flexDirection === 'row' ? 'horizontal' : 'vertical'}
       accessible={props.accessible}
@@ -86,7 +85,7 @@ export function Stack(props: StackProps): unknown @{
       id={props.id}
       testID={props.testID ?? ''}
       ref={forwardedRef}
-      className={cx('vx-stack', props.className)}
+      className={['vx-stack', props.className]}
       style={mergeStyle(
         {
           flexDirection: layout.flexDirection,

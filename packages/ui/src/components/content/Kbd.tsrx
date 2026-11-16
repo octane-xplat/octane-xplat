@@ -1,8 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { KbdProps } from '../../props'
 import { TextSlot } from '../forms/text-slot.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 const aliases: Record<string, string> = {
   mod: '⌘',
   cmd: '⌘',
@@ -35,7 +33,7 @@ export function Kbd(props: KbdProps): unknown @{
           .map((k: string) => aliases[k.trim().toLowerCase()] ?? k.trim().toUpperCase())
       : null
 
-  <masonview id={props.id} className={cx('vx-kbd-group', props.className)} style={props.style}>
+  <masonview id={props.id} className={['vx-kbd-group', props.className]} style={props.style}>
     {caps ? (
       caps.map((cap: string, i: number) => <label key={i} className="vx-kbd" text={cap} />)
     ) : (

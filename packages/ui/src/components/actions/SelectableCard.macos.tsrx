@@ -4,7 +4,6 @@ import type { SelectableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useLayoutEffect, useRef } from 'octane'
 import { appKitHost } from '../../internal/platform/host-bridge'
-import { cx } from '@octane-xplat/lib'
 import { TextSlot } from '../forms/text-slot.tsrx'
 
 export function SelectableCard(props: SelectableCardProps): unknown @{
@@ -54,7 +53,7 @@ export function SelectableCard(props: SelectableCardProps): unknown @{
   <masonview
     ref={bind}
     id={props.id}
-    className={cx(
+    className={[
       'vx-pressable',
       'vx-card',
       'vx-selectable-card',
@@ -63,7 +62,7 @@ export function SelectableCard(props: SelectableCardProps): unknown @{
       props.isSelected && 'vx-selectable-card--selected',
       props.isDisabled && 'vx-card--disabled',
       props.className,
-    )}
+    ]}
     style={{
       ...styleRecord(props.style),
       paddingTop: (props.padding ?? 4) * 4,

@@ -5,7 +5,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useRef, useState } from 'octane'
 import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import type { LightboxProps, LightboxMedia } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { useLayerDismissal, LayerDepthProvider } from './layer-dismissal.tsrx'
 import { themeSchemeClasses } from '../../theme/theme-host'
 import { Icon } from '../media/Icon.tsrx'
@@ -82,7 +81,7 @@ function LightboxPanel(props: {
 
   <LayerDepthProvider value={props.layerDepth}>
     <masonview
-      className={cx('vx-lightbox', themeSchemeClasses(), props.className)}
+      className={['vx-lightbox', themeSchemeClasses(), props.className]}
       onSwipe={onSwipe}
       // GestureDrag claims every sequence it sees, which would starve
       // the swipe gesture — pan is only bound while zoomed.

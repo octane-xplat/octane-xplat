@@ -10,7 +10,6 @@ import type {
   ChatComposerTokenElementProps,
 } from '../props'
 
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../components/overlays/escape-props'
 import { isWritingText, writeText } from '../components/forms/text-write'
 import {
@@ -347,7 +346,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className)}
+    className={['vx-chatinput', isDisabled && 'vx-chatinput--disabled', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <ChatTriggerMenuOverlay
@@ -434,7 +433,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
 export function ChatComposerTokenElement(props: ChatComposerTokenElementProps): unknown @{
   <masonview
     id={props.id}
-    className={cx('vx-chattoken-el', props.className)}
+    className={['vx-chattoken-el', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <ChatTokenChip token={props.token} />

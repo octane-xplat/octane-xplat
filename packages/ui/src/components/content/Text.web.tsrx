@@ -5,7 +5,6 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
 import { useTheme } from '../../theme/use-theme.tsrx'
 import { textScaleStyle } from '../forms/text-scale'
-import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
 
 export function Text(props: TextProps): JSX.Element @{
@@ -51,13 +50,13 @@ export function Text(props: TextProps): JSX.Element @{
     id={props.id}
     data-testid={props.testID}
     ref={(el: any) => applyEscapeProps(el, props)}
-    className={cx(
+    className={[
       'vx-text',
       props.type && `vx-text--${props.type}`,
       props.size && `vx-text--size-${props.size}`,
       props.color && `vx-text--color-${props.color}`,
       props.className,
-    )}
+    ]}
     {...layoutChildProps(props, textStyle)}
     role={props.accessibilityRole}
     aria-label={props.accessibilityLabel}

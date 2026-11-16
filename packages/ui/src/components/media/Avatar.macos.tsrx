@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { AvatarProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Image } from './Image.macos.tsrx'
 
@@ -21,7 +20,7 @@ export function Avatar(props: AvatarProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-avatar', props.className)}
+    className={['vx-avatar', props.className]}
     style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), ...box })}
     accessibilityLabel={props.alt}
   >

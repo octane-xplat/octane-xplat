@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useContext, useId, useRef, useState } from 'octane'
 import type { InputNumberProps, TextInputHandle } from '../../props'
 import type { NSView } from '@octane-xplat/platform/macos'
-import { cx } from '@octane-xplat/lib'
 import { hasDateComposition } from './date-composition.macos'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
@@ -118,7 +117,7 @@ function InputNumberControl(
   <masonview
     ref={bind}
     id={props.rootID}
-    className={cx(
+    className={[
       'vx-inputnumber',
       props.isDisabled && 'vx-inputnumber--disabled',
       props.isReadOnly && 'vx-inputnumber--readonly',
@@ -126,7 +125,7 @@ function InputNumberControl(
       props.status && `vx-inputnumber--status-${props.status.type}`,
       `vx-inputnumber--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex', flexDirection: 'row', alignItems: 'center' }, props.style)}
     accessibilityState={{
       disabled: props.isDisabled,

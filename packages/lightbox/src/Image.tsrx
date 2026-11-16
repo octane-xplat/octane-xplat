@@ -5,7 +5,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import type { Image as NativeImage } from '@nativescript/core'
 import { observeNativeImage } from './native-image-source'
-import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
 import { useMotionValue } from '@octane-xplat/motion'
 import { createClipWriter } from './clip'
@@ -528,7 +527,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
   return (
     <masonview
       ref={wrapRef}
-      className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className)}
+      className={['vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className]}
       style={mergeStyle(
         F
           ? { position: 'absolute', left: F.x, top: F.y, width: F.w, height: F.h }

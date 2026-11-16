@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import type { ColorFieldProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Text } from '../content/Text.tsrx'
 import { TextInput } from './TextInput.tsrx'
 import { normalizeHex } from '../../theme/color'
@@ -29,7 +28,7 @@ export function ColorField(props: ColorFieldProps): unknown @{
     bump((n) => n + 1) // invalid input: drop the draft, restore current hex
   }
 
-  <masonview className={cx('vx-color-field', props.className)} style={props.style}>
+  <masonview className={['vx-color-field', props.className]} style={props.style}>
     @if (props.label) {
       <Text className="vx-color-field-label">{props.label}</Text>
     }

@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../internal/layout/style-merge'
 import type { ChatMessageBubbleProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { useChatMessageContext } from './chat-context.tsrx'
 
 const renderable = (v: any) => v != null && v !== false && v !== true
@@ -24,11 +23,11 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps): unknown @{
   <>
     {hasName ? (
       <masonview
-        className={cx(
+        className={[
           'vx-chatbubble-name',
           `vx-chatbubble-name--${density}`,
           isUser && 'vx-chatbubble-name--end',
-        )}
+        ]}
         style={mergeStyle({ alignSelf: isUser ? 'flex-end' : 'flex-start' }, { display: 'flex' })}
       >
         {props.name}
@@ -36,14 +35,14 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps): unknown @{
     ) : null}
     <masonview
       id={props.id}
-      className={cx(
+      className={[
         'vx-chatbubble',
         `vx-chatbubble--${variant}`,
         `vx-chatbubble--${sender}`,
         `vx-chatbubble--${density}`,
         props.group && `vx-chatbubble--${props.group}-${isUser ? 'user' : 'assistant'}`,
         props.className,
-      )}
+      ]}
       style={{
         ...(props.width != null ? { width: props.width } : {}),
         ...styleRecord(props.style),
@@ -53,11 +52,11 @@ export function ChatMessageBubble(props: ChatMessageBubbleProps): unknown @{
     </masonview>
     {hasMetadata ? (
       <masonview
-        className={cx(
+        className={[
           'vx-chatbubble-meta',
           `vx-chatbubble-meta--${density}`,
           isUser && 'vx-chatbubble-meta--end',
-        )}
+        ]}
         style={mergeStyle({ alignSelf: isUser ? 'flex-end' : 'flex-start' }, { display: 'flex' })}
       >
         {props.metadata}

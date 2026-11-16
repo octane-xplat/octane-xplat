@@ -4,7 +4,6 @@ import { useState } from 'octane'
 import { useContext } from 'octane'
 import type { CollapsibleProps, CollapsibleGroupProps } from '../../props'
 import { CollapsibleGroupContext, CollapsibleGroupProvider } from './collapsible-context'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Pressable } from '../actions/Pressable.tsrx'
 
@@ -40,7 +39,7 @@ export function Collapsible(props: CollapsibleProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)}
+    className={['vx-collapsible', open && 'vx-collapsible--open', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <Pressable
@@ -103,11 +102,11 @@ export function CollapsibleGroup(props: CollapsibleGroupProps): unknown @{
   <CollapsibleGroupProvider value={ctx}>
     <masonview
       id={props.id}
-      className={cx(
+      className={[
         'vx-collapsible-group',
         props.hasDividers && 'vx-collapsible-group--divided',
         props.className,
-      )}
+      ]}
       style={props.style}
     >
       {props.children}

@@ -3,7 +3,6 @@ import type { NSView } from '@octane-xplat/platform/macos'
 import { useEffect, useId, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from '../../props'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
-import { cx } from '@octane-xplat/lib'
 import { useFieldControl } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
@@ -110,7 +109,7 @@ export function PinInput(inputProps: PinInputProps): unknown @{
     <masonview
       id={controlID}
       onKeyDown={backspace}
-      className={cx(
+      className={[
         'vx-pininput',
         'vx-pininput--appkit',
         props.isDisabled && 'vx-pininput--disabled',
@@ -119,7 +118,7 @@ export function PinInput(inputProps: PinInputProps): unknown @{
         props.status && `vx-pininput--status-${props.status.type}`,
         props.size && `vx-pininput--size-${props.size}`,
         props.className,
-      )}
+      ]}
       style={props.style}
       accessibilityRole="group"
       accessibilityLabel={name}

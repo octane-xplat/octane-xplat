@@ -17,7 +17,6 @@ import type {
   ISOTimeString,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import { hasCoarsePointer } from './coarse-pointer'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
@@ -357,7 +356,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
       ref={(v: any) => {
         anchor.current = v
       }}
-      className={cx(
+      className={[
         'vx-datetimeinput',
         `vx-datetimeinput--${surface}`,
         isDisabled && 'vx-datetimeinput--disabled',
@@ -366,17 +365,17 @@ function DateTimeInputControl(inputProps: CoreProps) @{
         props.size && `vx-datetimeinput--size-${props.size}`,
         (!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       {surface === 'sheet' ? (
         <>
           <Pressable
-            className={cx(
+            className={[
               'vx-datetimeinput-segment',
               'vx-datetimeinput-date',
               !valueParts.date && 'vx-datetimeinput-segment--placeholder',
-            )}
+            ]}
             disabled={isDisabled || isBusy}
             accessibilityLabel={
               props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
@@ -397,11 +396,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
             />
           </Pressable>
           <Pressable
-            className={cx(
+            className={[
               'vx-datetimeinput-segment',
               'vx-datetimeinput-time',
               !(timeDraft ?? valueParts.time) && 'vx-datetimeinput-segment--placeholder',
-            )}
+            ]}
             disabled={isDisabled || isBusy}
             accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
             accessibilityLabel={timeLabelText}
@@ -442,11 +441,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
               dateInput.current = v
             }}
             id={dateId}
-            className={cx(
+            className={[
               'vx-datetimeinput-input',
               'vx-datetimeinput-dateinput',
               !isDateValid && 'vx-datetimeinput-input--invalid',
-            )}
+            ]}
             hint={props.placeholder ?? 'Select a date'}
             isEnabled={!isDisabled && !isBusy}
             editable={!isDisabled && !isBusy}
@@ -469,11 +468,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
             ref={(v: any) => {
               timeInput.current = v
             }}
-            className={cx(
+            className={[
               'vx-datetimeinput-input',
               'vx-datetimeinput-timeinput',
               !isTimeValid && 'vx-datetimeinput-input--invalid',
-            )}
+            ]}
             hint={props.timePlaceholder ?? 'Select a time'}
             isEnabled={!isDisabled && !isBusy}
             editable={!isDisabled && !isBusy}
@@ -515,7 +514,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
       }
       @if (statusText != null) {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
           accessibilityLabel={
             props.statusVariant === 'tooltip' ? props.status?.message : undefined
@@ -563,11 +562,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
             {timeOptions.map((opt) => (
               <masonview
                 key={opt.time}
-                className={cx(
+                className={[
                   'vx-datetimeinput-timeoption',
                   opt.time === (timeDraft ?? valueParts.time) &&
                     'vx-datetimeinput-timeoption--selected',
-                )}
+                ]}
                 accessibilityRole="button"
                 accessibilityState={nativeAccessibilityState({
                   selected: opt.time === (timeDraft ?? valueParts.time),

@@ -108,7 +108,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
         <masonview
           ref={forwardedRef}
           id={id}
-          className={cx(tableClasses, table.classes)}
+          className={[tableClasses, table.classes]}
           style={mergeStyle(
             { display: 'flex', flexDirection: 'column', flexShrink: 0 },
             mergeStyle(table.htmlProps?.style ?? {}, style),
@@ -141,12 +141,12 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
     <masonview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={id}
-      className={cx('vx-table-scroll', plan.scrollWrapper.classes)}
+      className={['vx-table-scroll', plan.scrollWrapper.classes]}
       style={{ display: 'flex', flexDirection: 'column' }}
     >
       <TableSlot value={plan.scrollWrapper.beforeTable} />
       <masonview
-        className={cx(tableClasses, plan.table.classes)}
+        className={[tableClasses, plan.table.classes]}
         style={mergeStyle(
           { display: 'flex', flexDirection: 'column' },
           mergeStyle(plan.table.htmlProps?.style ?? {}, style),
@@ -160,11 +160,11 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
               return (
                 <masonview
                   key={cell.column.key}
-                  className={cx(
+                  className={[
                     'vx-table-cell vx-table-th',
                     `vx-table-cell--${density}`,
                     cell.render.classes,
-                  )}
+                  ]}
                   style={mergeStyle(
                     cellStyle(cell.column, { display: 'flex', flexDirection: 'column' }),
                     cell.render.htmlProps?.style ?? {},
@@ -198,7 +198,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
           const rowNode = (
             <masonview
               key={String(row.key)}
-              className={cx('vx-table-row', row.render.classes)}
+              className={['vx-table-row', row.render.classes]}
               onTap={onRowTap}
               style={mergeStyle(
                 { display: 'flex', flexDirection: 'row' },
@@ -211,11 +211,11 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
                 row.cells.map((cell) => (
                   <masonview
                     key={cell.column.key}
-                    className={cx(
+                    className={[
                       'vx-table-cell',
                       `vx-table-cell--${density}`,
                       cell.render.classes,
-                    )}
+                    ]}
                     style={mergeStyle(
                       cellStyle(cell.column, { display: 'flex' }),
                       cell.render.htmlProps?.style ?? {},
@@ -258,21 +258,21 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 
 /** Table head section — renders column header rows. */
 export function TableHeader(props: TableHeaderProps): unknown @{
-  <masonview className={cx('vx-table-header', props.className)} style={props.style}>
+  <masonview className={['vx-table-header', props.className]} style={props.style}>
     {props.children}
   </masonview>
 }
 
 /** Table body section — renders data rows. */
 export function TableBody(props: TableBodyProps): unknown @{
-  <masonview className={cx('vx-table-body', props.className)} style={props.style}>
+  <masonview className={['vx-table-body', props.className]} style={props.style}>
     {props.children}
   </masonview>
 }
 
 /** Table foot section — renders summary/footer rows. */
 export function TableFooter(props: TableFooterProps): unknown @{
-  <masonview className={cx('vx-table-footer', props.className)} style={props.style}>
+  <masonview className={['vx-table-footer', props.className]} style={props.style}>
     {props.children}
   </masonview>
 }
@@ -283,7 +283,7 @@ export function TableRow(props: TableRowProps): unknown @{
 
   <masonview
     {...rest}
-    className={cx('vx-table-row', className)}
+    className={['vx-table-row', className]}
     style={mergeStyle({ display: 'flex', flexDirection: 'row' }, style ?? {})}
   >
     {children}
@@ -296,7 +296,7 @@ export function TableCell(props: TableCellProps): unknown @{
 
   <masonview
     {...rest}
-    className={cx('vx-table-cell', className)}
+    className={['vx-table-cell', className]}
     style={mergeStyle({ display: 'flex', flexGrow: colSpan ?? 1 }, style ?? {})}
   >
     {children}
@@ -309,7 +309,7 @@ export function TableHeaderCell(props: TableHeaderCellProps): unknown @{
 
   <masonview
     {...rest}
-    className={cx('vx-table-cell vx-table-th', className)}
+    className={['vx-table-cell vx-table-th', className]}
     style={mergeStyle({ display: 'flex' }, style ?? {})}
   >
     {children}

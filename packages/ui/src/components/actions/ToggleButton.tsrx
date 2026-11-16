@@ -4,8 +4,6 @@ import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from '../../props'
 import { useToggleButtonGroup, ToggleButtonGroupProvider } from './toggle-button-group-context'
 import { Button } from './Button.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 /**
  * Button with a pressed state (`isPressed`/`onPressedChange`), optional `pressedChangeAction`, and `pressedIcon`. Inside `ToggleButtonGroup` the group owns state via `value`. Import from `@octane-xplat/ui`.
  *
@@ -56,7 +54,7 @@ export function ToggleButton(props: ToggleButtonProps): unknown @{
         : undefined
     }
     accessibilityState={{ ...props.accessibilityState, pressed }}
-    className={cx('vx-toggle-button', pressed && 'vx-toggle-button--pressed', props.className)}
+    className={['vx-toggle-button', pressed && 'vx-toggle-button--pressed', props.className]}
   />
 }
 
@@ -100,11 +98,11 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps): unknown @{
   <ToggleButtonGroupProvider value={context}>
     <masonview
       id={props.id}
-      className={cx(
+      className={[
         'vx-toggle-button-group',
         `vx-button-group--${props.orientation ?? 'horizontal'}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
       accessible={true}
       accessibilityLabel={props.label}

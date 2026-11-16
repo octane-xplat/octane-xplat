@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useEffect, useRef } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ProgressBarProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole } from '../overlays/escape-props'
 import { useColorScheme } from '../../theme/colorScheme'
 import { mutedColor, progressFillColor } from '../../theme/scheme-colors'
@@ -107,7 +106,7 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
   <masonview
     ref={forwardedRef}
     id={props.id}
-    className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)}
+    className={['vx-progressbar', `vx-progressbar--${variant}`, props.className]}
     style={mergeStyle(
       { display: 'flex' },
       { ...(isDisabled ? { opacity: 0.38 } : {}), ...styleRecord(props.style) },
@@ -162,7 +161,7 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
         ref={(v: any) => {
           fill.current = v
         }}
-        className={cx('vx-progressbar-fill', `vx-progressbar-fill--${variant}`)}
+        className={['vx-progressbar-fill', `vx-progressbar-fill--${variant}`]}
       />
       {marks.map((mark) => {
         const markPct = clamp(mark.value, 0, max) / max

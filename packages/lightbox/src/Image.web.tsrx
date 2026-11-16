@@ -3,7 +3,6 @@ import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { useMotionValue } from '@octane-xplat/motion'
 import type { AnimationControls } from '@octane-xplat/motion'
-import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
 import { clamp, fit, lerpVisual, toStyle } from './math'
 import type { Rect, Visual } from './math'
@@ -829,7 +828,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
     <div
       ref={wrapRef}
       data-lightbox-image=""
-      className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded')}
+      className={['vx-lightbox-image', loaded && 'vx-lightbox-image--loaded']}
       style={{
         position: 'absolute',
         left: F?.x ?? 0,

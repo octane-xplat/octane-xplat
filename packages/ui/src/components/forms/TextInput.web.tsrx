@@ -3,7 +3,6 @@ import { useImperativeHandle, useRef, useState, useId } from 'octane'
 import { normStyle } from '../layout/layout-child.web'
 import type { TextInputProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { cx } from '@octane-xplat/lib'
 import { useFieldControl, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
@@ -102,12 +101,12 @@ export function TextInput(props: TextInputProps): JSX.Element @{
   // and the <label for> → input focus link). Inside a field, render bare.
   const shell = (
     <div
-      className={cx(
+      className={[
         'vx-input-shell',
         fieldProps.inInputGroup && 'vx-input-shell--ingroup',
         fieldProps.status && `vx-input-shell--status-${fieldProps.status.type}`,
         fieldProps.isDisabled && 'vx-input-shell--disabled',
-      )}
+      ]}
     >
       @if (fieldProps.startIcon != null) {
         <span className="vx-input-icon" aria-hidden="true">
@@ -129,7 +128,7 @@ export function TextInput(props: TextInputProps): JSX.Element @{
         }}
         id={needsChrome ? controlId : fieldProps.id}
         data-testid={fieldProps.testID}
-        className={cx(
+        className={[
           'vx-input',
           fieldProps.isDisabled && 'vx-input--disabled',
           fieldProps.isReadOnly && 'vx-input--readonly',
@@ -138,7 +137,7 @@ export function TextInput(props: TextInputProps): JSX.Element @{
           fieldProps.size && `vx-input--size-${fieldProps.size}`,
           fieldProps.inInputGroup && 'vx-input--ingroup',
           fieldProps.className,
-        )}
+        ]}
         style={{
           ...normStyle(fieldProps.style),
           ...(fieldProps.placeholderTextColor

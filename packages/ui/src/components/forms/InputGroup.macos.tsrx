@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useId } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { InputGroupProps, InputGroupTextProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { FormField } from './FormField.macos.tsrx'
 import { InputGroupProvider } from './input-group-context'
@@ -48,12 +47,12 @@ export function InputGroup(props: InputGroupProps): unknown @{
       <SizeProvider value={size}>
         <masonview
           ref={forwardedRef}
-          className={cx(
+          className={[
             'vx-inputgroup',
             props.isDisabled && 'vx-inputgroup--disabled',
             props.status && `vx-inputgroup--status-${props.status.type}`,
             `vx-inputgroup--size-${size}`,
-          )}
+          ]}
           accessibilityState={{ disabled: props.isDisabled }}
           style={mergeStyle({ flexDirection: 'row', alignItems: 'stretch' }, { display: 'flex' })}
         >
@@ -78,7 +77,7 @@ export function InputGroupText(props: InputGroupTextProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-inputgroup-text', props.className)}
+    className={['vx-inputgroup-text', props.className]}
     style={mergeStyle(
       { justifyContent: 'center', alignItems: 'center' },
       mergeStyle({ display: 'flex' }, props.style),

@@ -2,7 +2,6 @@
 import { LiquidGlassView } from './liquid-glass-view.ios'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { LiquidGlassProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../components/overlays/escape-props'
 import { layoutChildProps } from '../components/layout/layout-child'
 
@@ -23,11 +22,11 @@ export function LiquidGlass(props: LiquidGlassProps): unknown @{
       tint: props.tint,
       animateChangeDuration: props.animateChangeDuration,
     }}
-    className={cx(
+    className={[
       'vx-glass',
       props.variant === 'clear' ? 'vx-glass--clear' : undefined,
       props.className,
-    )}
+    ]}
   >
     {props.children}
   </liquidglass>

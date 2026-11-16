@@ -6,7 +6,6 @@ import type { NSView, NSTextField, NSTextView } from '@octane-xplat/platform/mac
 import { createAppKitDateFieldHandle } from './date-field-handle.macos'
 import { hasDateComposition } from './date-composition.macos'
 import type { Renderable, TextAreaProps, TextInputProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Text } from '../content/Text.macos.tsrx'
 import { Icon } from '../media/Icon.macos.tsrx'
@@ -165,11 +164,11 @@ function TextInputControl(inputProps: TextInputProps) @{
   const { el, value, isBlocked } = entry
 
   <masonview
-    className={cx(
+    className={[
       'vx-input-shell',
       'vx-input-shell--appkit',
       props.inInputGroup && 'vx-input-shell--ingroup',
-    )}
+    ]}
     accessibilityState={{ busy: props.isLoading }}
     style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
   >
@@ -194,7 +193,7 @@ function TextInputControl(inputProps: TextInputProps) @{
       placeholder={props.placeholder}
       placeholderTextColor={props.placeholderTextColor}
       returnKeyType={props.returnKeyType}
-      className={cx(
+      className={[
         'vx-input',
         props.isDisabled && 'vx-input--disabled',
         props.isReadOnly && 'vx-input--readonly',
@@ -203,7 +202,7 @@ function TextInputControl(inputProps: TextInputProps) @{
         props.size && `vx-input--size-${props.size}`,
         props.inInputGroup && 'vx-input--ingroup',
         props.className,
-      )}
+      ]}
       style={props.style}
       isEnabled={!props.isDisabled}
       editable={!isBlocked}
@@ -267,7 +266,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
       value={value}
       placeholder={props.placeholder}
       rows={props.rows ?? (props.autoGrow ? 1 : 3)}
-      className={cx(
+      className={[
         'vx-textarea',
         'vx-textarea--appkit',
         props.isDisabled && 'vx-textarea--disabled',
@@ -276,7 +275,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
         props.status && `vx-textarea--status-${props.status.type}`,
         props.size && `vx-textarea--size-${props.size}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {},
         props.style,

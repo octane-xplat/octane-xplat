@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { FieldGroupProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** FieldGroup — labeled group of related fields. */
@@ -9,7 +8,7 @@ export function FieldGroup(props: FieldGroupProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-fieldgroup', props.className)}
+    className={['vx-fieldgroup', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     accessibilityRole="group"
     accessibilityLabel={props.label}

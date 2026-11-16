@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { SpacerProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /**
@@ -13,7 +12,7 @@ export function Spacer(props: SpacerProps): unknown @{
   <masonview
     id={props.id}
     ref={(view: any) => applyEscapeProps(view, props)}
-    className={cx('vx-spacer', props.className)}
+    className={['vx-spacer', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   />
 }

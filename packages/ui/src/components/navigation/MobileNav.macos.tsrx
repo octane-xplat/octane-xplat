@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useId, useCallback } from 'octane'
 import type { MobileNavProps, MobileNavToggleProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Text } from '../content/Text.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
@@ -51,7 +50,7 @@ export function MobileNav(props: MobileNavProps): unknown @{
   } @else {
     <masonview
       id={id}
-      className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)}
+      className={['vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className]}
       {...layoutChildProps(props, mergeStyle({ display: 'grid' }, props.style))}
       accessibilityLabel={
         props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')
@@ -107,7 +106,7 @@ export function MobileNavToggle(props: MobileNavToggleProps): unknown @{
   } @else {
     <Pressable
       id={props.id}
-      className={cx('vx-mobilenav-toggle', props.className)}
+      className={['vx-mobilenav-toggle', props.className]}
       style={props.style}
       accessibilityLabel={props.label ?? 'Open navigation'}
       onPress={toggleMobileNav}

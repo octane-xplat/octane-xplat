@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { TooltipProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { View } from '../layout/View.tsrx'
 
 /** Touch-target leaf: renders the trigger unchanged and never mounts the
@@ -10,7 +9,7 @@ import { View } from '../layout/View.tsrx'
 export function Tooltip(props: TooltipProps): unknown @{
   <View
     id={props.id}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     ios={props.ios}
     android={props.android}

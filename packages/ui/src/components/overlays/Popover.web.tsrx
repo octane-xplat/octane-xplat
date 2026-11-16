@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from 'octane'
 import { useThemeScheme } from '../../theme/theme-scheme'
 import type { PopoverProps } from '../../props'
 import type { PopoverInternalProps } from '../../internal-props'
-import { cx } from '@octane-xplat/lib'
 import { resolveCSSLayerOffset } from './layer-position.web'
 import { positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position'
 import type { JSX } from 'octane/jsx-runtime'
@@ -148,7 +147,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
     <>
       {createPortal(
         <div
-          className={cx('vx-popover-layer', dark && 'dark')}
+          className={['vx-popover-layer', dark && 'dark']}
           style={{ position: 'fixed', inset: 0, zIndex: 1000, pointerEvents: 'none' }}
         >
           {(props.dismissOnOutsideTap ?? true) && (
@@ -161,7 +160,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
           )}
           <div
             ref={panelRef}
-            className={cx('vx-popover', props.className)}
+            className={['vx-popover', props.className]}
             style={{
               ...panelStyle(),
               position: 'fixed',

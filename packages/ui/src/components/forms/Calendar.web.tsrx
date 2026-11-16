@@ -2,7 +2,6 @@
 import type { JSX } from 'octane/jsx-runtime'
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { calendarKeyTarget, isDateComposing } from './date-keyboard'
 import { Icon } from '../media/Icon.web.tsrx'
@@ -420,7 +419,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
         <button
           type="button"
           data-date={day.iso}
-          className={cx(
+          className={[
             'vx-calendar-day',
             state.isSelected && 'vx-calendar-day--selected',
             state.isRangeStart && 'vx-calendar-day--range-start',
@@ -436,7 +435,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
             rounding === 'both' && 'vx-calendar-day--round-both',
             rounding === 'start' && 'vx-calendar-day--round-start',
             rounding === 'end' && 'vx-calendar-day--round-end',
-          )}
+          ]}
           tabIndex={isTabbable ? 0 : -1}
           disabled={state.isDisabled || undefined}
           aria-label={fullLabel}
@@ -459,12 +458,12 @@ export function Calendar(props: CalendarProps): JSX.Element @{
     dir={props.direction}
     lang={locale}
     id={props.id}
-    className={cx(
+    className={[
       'vx-calendar',
       mode === 'range' && 'vx-calendar--range',
       numberOfMonths === 2 && 'vx-calendar--two-months',
       props.className,
-    )}
+    ]}
     style={props.style}
     onKeyDown={handleKeyDown}
     {...props.web}

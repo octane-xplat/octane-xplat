@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { ComplexSelectorViewProps } from '../forms/complex-selector-view'
 import { useSize } from '../layout/size-context'
-import { cx } from '@octane-xplat/lib'
 import { FormField } from '../forms/FormField.macos.tsrx'
 import { Popover } from '../overlays/Popover.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
@@ -33,10 +32,10 @@ export function ComplexSelectorView<Value>(
       ref={(view: any) => {
         anchor.current = view
       }}
-      className={cx(
+      className={[
         'vx-complex-selector-trigger',
         `vx-complex-selector-trigger--${props.variant ?? 'input'}`,
-      )}
+      ]}
       disabled={props.isDisabled || props.isReadOnly || pending}
       accessibilityLabel={props.label}
       accessibilityHint={props.description}
@@ -50,10 +49,10 @@ export function ComplexSelectorView<Value>(
         props.startIcon
       )}
       <label
-        className={cx(
+        className={[
           'vx-complex-selector-value',
           props.triggerLabel == null && props.value == null && 'vx-complex-selector-placeholder',
-        )}
+        ]}
         text={
           typeof props.triggerLabel === 'string'
             ? props.triggerLabel
@@ -76,11 +75,11 @@ export function ComplexSelectorView<Value>(
         trigger
       ) : (
         <masonview
-          className={cx(
+          className={[
             'vx-complex-selector',
             `vx-complex-selector--size-${size}`,
             props.status && `vx-complex-selector--status-${props.status.type}`,
-          )}
+          ]}
           style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
         >
           {trigger}

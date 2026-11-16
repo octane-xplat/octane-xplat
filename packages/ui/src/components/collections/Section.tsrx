@@ -3,7 +3,6 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { SectionProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -37,7 +36,7 @@ export function Section(props: SectionProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx(
+    className={[
       'vx-section',
       `vx-section--${variant}`,
       dividers.has('top') && 'vx-section--divider-top',
@@ -45,7 +44,7 @@ export function Section(props: SectionProps): unknown @{
       dividers.has('start') && 'vx-section--divider-start',
       dividers.has('end') && 'vx-section--divider-end',
       props.className,
-    )}
+    ]}
     style={{
       paddingLeft: pInlineStart,
       paddingRight: pInlineEnd,

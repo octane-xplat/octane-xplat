@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { CollapsibleProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 
@@ -31,7 +30,7 @@ export function Collapsible(props: CollapsibleProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-collapsible', open && 'vx-collapsible--open', props.className)}
+    className={['vx-collapsible', open && 'vx-collapsible--open', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <Pressable

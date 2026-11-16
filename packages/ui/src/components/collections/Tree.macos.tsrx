@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useState } from 'octane'
 import type { Key, Selection, TreeProps, TreeListNode } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
 
@@ -36,11 +35,11 @@ function TreeRow(props: {
 
   <masonview className="vx-tree-node" style={{ display: 'flex' }}>
     <masonview
-      className={cx(
+      className={[
         'vx-tree-row',
         node.disabled && 'vx-tree-row--disabled',
         isSelected && 'vx-tree-row--selected',
-      )}
+      ]}
       style={mergeStyle(
         { display: 'flex' },
         { paddingLeft: props.depth * 16, ...(node.disabled ? { opacity: 0.5 } : {}) },
@@ -138,7 +137,7 @@ export function Tree<T extends TreeListNode = TreeListNode>(
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-tree', props.className)}
+    className={['vx-tree', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {props.nodes.map((node: T) => (

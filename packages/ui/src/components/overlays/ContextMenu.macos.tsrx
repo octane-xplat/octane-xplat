@@ -6,7 +6,6 @@ import { MenuData } from './MenuParts.macos.tsrx'
 import { MenuSurface } from './MenuSurface.macos.tsrx'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { ContextMenuProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
@@ -203,7 +202,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
     ref={bind}
     id={props.id}
     disabled={props.isDisabled}
-    className={cx('vx-contextmenu', props.className)}
+    className={['vx-contextmenu', props.className]}
     style={props.style}
     onKeyDown={keyDown}
     onLongPress={props.isDisabled ? undefined : () => openPointer()}
@@ -230,7 +229,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
       placement={props.placement ?? 'bottom'}
       alignment={props.alignment}
       onDismiss={closeMenu}
-      className={cx('vx-menu', props.menuClassName)}
+      className={['vx-menu', props.menuClassName]}
     >
       <AppKitMenuReturnProvider value={returnOwner}>
         <MenuSurface

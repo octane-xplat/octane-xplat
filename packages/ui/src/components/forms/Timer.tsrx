@@ -8,7 +8,6 @@ import {
   timerPresentation,
 } from './timer-format'
 
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { textRoleClasses } from './text-role'
 
@@ -68,7 +67,7 @@ export function Timer(props: TimerProps): unknown @{
   <label
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-timer', roleClasses, props.className)}
+    className={['vx-timer', roleClasses, props.className]}
     style={props.style}
     text={text}
     accessibilityValue={dateTime}

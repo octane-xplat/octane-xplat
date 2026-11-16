@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ListItemProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { useListContext } from './list-context'
 import { followHref } from '../navigation/nav-href'
@@ -72,14 +71,14 @@ export function ListItem(props: ListItemProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx(
+    className={[
       'vx-listitem',
       `vx-listitem--density-${ctx.density}`,
       interactive && 'vx-listitem--interactive',
       props.isDisabled && 'vx-listitem--disabled',
       props.isSelected && 'vx-listitem--selected',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { flexDirection: 'row', alignItems: 'center' },
       mergeStyle({ display: 'flex' }, props.style),

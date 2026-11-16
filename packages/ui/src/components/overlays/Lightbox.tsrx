@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'octane'
 import { GridLayout } from '@nativescript/core'
 import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import type { LightboxProps, LightboxMedia } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyThemeClasses } from '../../theme/theme-host'
 import { rootLayoutFor } from '../layout/root-layout'
 import { createOverlayLifetime } from './overlay-lifetime'
@@ -112,7 +111,7 @@ function LightboxPanel(props: {
     ref={(v: any) => {
       stage.current = v
     }}
-    className={cx('vx-lightbox', props.className)}
+    className={['vx-lightbox', props.className]}
     gestures={compete(pinch, drag)}
     accessibilityLabel={item?.alt ?? 'Media viewer'}
     style={{

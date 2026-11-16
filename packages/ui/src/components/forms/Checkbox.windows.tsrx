@@ -2,7 +2,6 @@
 import 'octane/signals'
 import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
-import { cx } from '@octane-xplat/lib'
 import type { CheckboxProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
@@ -71,7 +70,7 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
     <masonview
       ref={bindRow}
       id={props.id}
-      className={cx(
+      className={[
         'vx-checkbox-row',
         indicatorScope,
         checked && 'vx-checkbox--on',
@@ -81,7 +80,7 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
         props.status && `vx-checkbox--status-${props.status.type}`,
         props.size && `vx-checkbox--size-${props.size}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       <Ind
@@ -124,11 +123,11 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
     <masonview style={{ display: 'flex', flexDirection: 'column' }}>
       {row}
       <masonview
-        className={cx(
+        className={[
           'vx-field-status',
           `vx-field-status--${props.status.type}`,
           'vx-field-status--detached',
-        )}
+        ]}
       >
         <label text={props.status.message} />
       </masonview>

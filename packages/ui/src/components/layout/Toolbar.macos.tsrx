@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ToolbarProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { useLayoutEffect, useMemo, useRef } from 'octane'
 import { createAppKitToolbarFocus } from './toolbar-focus.macos'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
@@ -40,13 +39,13 @@ export function Toolbar(props: ToolbarProps): unknown @{
       id={props.id}
       ref={focus.bind}
       {...keyboardProps}
-      className={cx(
+      className={[
         'vx-toolbar',
         'vx-toolbar--' + (props.variant ?? 'transparent'),
         'vx-toolbar--' + size,
         dividerCls,
         props.className,
-      )}
+      ]}
       {...layoutChildProps(
         { ...props, gap: undefined },
         mergeStyle({ display: 'flex' }, props.style),

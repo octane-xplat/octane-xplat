@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { IndicatorProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
@@ -16,7 +15,7 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>): JSX.
   // svg when checked and the bar when indeterminate.
   const mark = (
     <>
-      <svg viewBox="0 0 10 10" className={cx('vx-ind-checkmark', `vx-ind-checkmark--${size}`)}>
+      <svg viewBox="0 0 10 10" className={['vx-ind-checkmark', `vx-ind-checkmark--${size}`]}>
         <path
           d="M8.5 2.5L4 7.5L1.5 5"
           stroke="currentColor"
@@ -26,7 +25,7 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>): JSX.
           strokeLinejoin="round"
         />
       </svg>
-      <span className={cx('vx-ind-dash', `vx-ind-dash--${size}`)} />
+      <span className={['vx-ind-dash', `vx-ind-dash--${size}`]} />
     </>
   )
 

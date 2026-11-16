@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { OverlayProps } from '../../props'
 import { useThemeScheme } from '../../theme/theme-scheme'
-import { cx } from '@octane-xplat/lib'
 import { isolateModalFocus } from './modal-focus.web'
 import { SizeProvider } from '../layout/size-context'
 import type { JSX } from 'octane/jsx-runtime'
@@ -44,7 +43,7 @@ export function Overlay(props: OverlayProps): JSX.Element | null @{
         <div
           ref={layer}
           data-vx-modal-layer={modal ? '' : undefined}
-          className={cx('vx-overlay', dark && 'dark', props.className)}
+          className={['vx-overlay', dark && 'dark', props.className]}
           style={{ ...styleRecord(props.style), position: 'fixed', inset: 0 }}
           {...props.web}
         >

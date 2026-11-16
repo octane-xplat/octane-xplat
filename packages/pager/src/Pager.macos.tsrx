@@ -3,7 +3,6 @@ import './Pager.css'
 import './Pager.macos.css'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { ScrollableArea, useDirection, type ScrollableAreaHandle } from '@octane-xplat/ui'
-import { cx } from '@octane-xplat/lib'
 import type { PagerProps } from './props'
 import { layoutChildProps } from './layout-child'
 import { createAppKitPagerState, type AppKitPagerFrame } from './pager-state.macos'
@@ -206,7 +205,7 @@ export function Pager(props: PagerProps): unknown @{
   @if (props.items.length) {
     <masonview
       id={props.id}
-      className={cx('vx-pager', 'vx-pager--appkit', props.className)}
+      className={['vx-pager', 'vx-pager--appkit', props.className]}
       style={layout.style}
       onLayoutChanged={queueMeasure}
       accessible={props.accessible}

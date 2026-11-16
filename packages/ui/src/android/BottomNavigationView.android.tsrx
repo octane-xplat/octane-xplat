@@ -2,7 +2,6 @@
 import { memo, useState } from 'octane'
 import { GridLayout, TabViewItem } from '@nativescript/core'
 import { createPortal } from '../internal/platform/native-portal.tsrx'
-import { cx } from '@octane-xplat/lib'
 import { getIcon } from '../components/media/icons'
 import { Icon } from '../components/media/Icon.tsrx'
 import { Pressable } from '../components/actions/Pressable.tsrx'
@@ -106,7 +105,7 @@ function NavInner(props: {
     <tabview
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
-      className={cx(props.className)}
+      className={[props.className]}
       style={props.style}
       items={items}
       selectedIndex={props.selectedIndex}

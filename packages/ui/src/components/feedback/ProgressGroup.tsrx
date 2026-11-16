@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ProgressGroupProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Meter } from './Meter.tsrx'
 
@@ -10,7 +9,7 @@ export function ProgressGroup(props: ProgressGroupProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-progressgroup', props.className)}
+    className={['vx-progressgroup', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     @for (const item of props.items; key item.key) {

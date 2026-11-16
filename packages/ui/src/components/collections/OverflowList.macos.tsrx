@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { OverflowItem, OverflowListProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from '../layout/layout-child'
 
 import { computeOverflow } from './overflow-math'
@@ -162,7 +161,7 @@ export function OverflowList(props: OverflowListProps): unknown @{
         }
       }}
       id={props.id}
-      className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)}
+      className={['vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className]}
       {...layoutChildProps(
         { ...props, gap: undefined },
         mergeStyle(

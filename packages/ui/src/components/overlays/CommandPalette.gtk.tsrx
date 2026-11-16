@@ -6,7 +6,6 @@ import type { CommandPaletteItem, CommandPaletteProps } from '../../props'
 import { createCommandPaletteController } from './command-palette-state'
 import { useStore } from '../../data/use-store.tsrx'
 import { groupTypeaheadItems } from '../forms/typeahead-source'
-import { cx } from '@octane-xplat/lib'
 import { useEffect, useRef, useState } from 'octane'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Icon } from '../media/Icon.tsrx'
@@ -84,7 +83,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
 
   <LayerDepthProvider value={props.depth}>
     <masonview
-      className={cx('vx-commandpalette', props.options.className)}
+      className={['vx-commandpalette', props.options.className]}
       style={mergeStyle(
         { flexDirection: 'column' },
         mergeStyle(
@@ -174,11 +173,11 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
                     }
                   }}
                   id={`${props.options.id ?? 'command-palette'}-item-${item.id}`}
-                  className={cx(
+                  className={[
                     'vx-menu-item',
                     item.disabled && 'vx-menu-item--disabled',
                     item.id === state.highlighted && 'vx-cmdk-highlighted',
-                  )}
+                  ]}
                   disabled={item.disabled}
                   accessibilityLabel={item.label}
                   accessibilityState={{

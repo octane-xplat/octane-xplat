@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext } from 'octane'
 import type { SearchableItem } from '../../props'
 import type { BaseTypeaheadViewProps } from './typeahead-view'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { isWritingText } from './text-write'
 import { Popover } from '../overlays/Popover.tsrx'
@@ -38,13 +37,13 @@ export function BaseTypeaheadView<T extends SearchableItem>(
         applyEscapeProps(v, props)
       }}
       id={props.inputId}
-      className={cx(
+      className={[
         'vx-typeahead-input',
         `vx-typeahead-input--size-${props.size}`,
         props.isDisabled && 'vx-typeahead-input--disabled',
         props.inputClassName,
         props.className,
-      )}
+      ]}
       style={{ ...styleRecord(props.style), ...styleRecord(props.inputStyle) }}
       hint={props.placeholder}
       accessibilityLabel={
@@ -106,12 +105,12 @@ export function BaseTypeaheadView<T extends SearchableItem>(
                 const isSelected = item.id === selectedId && selectedId != null
 
                 <masonview
-                  className={cx(
+                  className={[
                     'vx-typeahead-option',
                     `vx-typeahead-option--size-${props.size}`,
                     index === activeIndex && 'vx-typeahead-option--highlighted',
                     isSelected && 'vx-typeahead-option--selected',
-                  )}
+                  ]}
                   onTap={() => props.onSelect(item)}
                   accessibilityState={nativeAccessibilityState({
                     selected: isSelected,

@@ -5,7 +5,6 @@ import { createPortal } from '../../internal/platform/native-portal.tsrx'
 import { SizeProvider } from '../layout/size-context'
 import type { BottomSheetProps } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import { themeSchemeClasses } from '../../theme/theme-host'
 import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents, type SheetDetentsController } from './sheet-detents.gtk'
@@ -121,7 +120,7 @@ export function GtkSheetPanel(props: {
       panel.current = v
     }}
     id={props.id}
-    className={cx('vx-sheet-host', 'vx-bottom-sheet-host', themeSchemeClasses(), props.className)}
+    className={['vx-sheet-host', 'vx-bottom-sheet-host', themeSchemeClasses(), props.className]}
     style={mergeStyle({ display: 'flex', flexDirection: 'column' }, styleRecord(props.style))}
     accessibilityLabel={props.label ?? ''}
   >

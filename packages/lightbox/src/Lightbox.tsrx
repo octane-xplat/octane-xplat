@@ -2,7 +2,6 @@
 // Astryx convenience component: the default anatomy (close, prev/next,
 // counter, caption) assembled from the headless parts.
 import { Text } from '@octane-xplat/ui'
-import { cx } from '@octane-xplat/lib'
 import type { LightboxProps } from './props'
 import {
   Backdrop,
@@ -77,7 +76,7 @@ function LightboxBase(props: LightboxProps): unknown @{
       transition={props.transition}
       finalFocusRef={props.finalFocusRef}
     >
-      <Popup className={cx('vx-lightbox-layer', props.className)} style={props.style} id={props.id}>
+      <Popup className={['vx-lightbox-layer', props.className]} style={props.style} id={props.id}>
         <Backdrop />
         <Viewport>
           {props.media?.map((_, i) => (

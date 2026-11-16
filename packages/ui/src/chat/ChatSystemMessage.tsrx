@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatSystemMessageProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { Separator } from '../components/feedback/Separator.tsrx'
 
 /** Centered system message — "conversation started", date separators, status
@@ -11,7 +10,7 @@ export function ChatSystemMessage(props: ChatSystemMessageProps): unknown @{
     return (
       <masonview
         id={props.id}
-        className={cx('vx-chatsys', 'vx-chatsys--divider', props.className)}
+        className={['vx-chatsys', 'vx-chatsys--divider', props.className]}
         style={mergeStyle({ display: 'flex' }, props.style)}
       >
         <Separator className="vx-chatsys-rule" />
@@ -26,7 +25,7 @@ export function ChatSystemMessage(props: ChatSystemMessageProps): unknown @{
   return (
     <masonview
       id={props.id}
-      className={cx('vx-chatsys', props.className)}
+      className={['vx-chatsys', props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       <masonview

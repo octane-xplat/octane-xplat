@@ -165,11 +165,11 @@ export function TabList(props: TabListProps): unknown @{
 
   const row = (
     <masonview
-      className={cx(
+      className={[
         'vx-tabstrip',
         'vx-tabstrip--appkit',
         props.isFullBleed && 'vx-tabstrip--bleed',
-      )}
+      ]}
     >
       {props.children}
     </masonview>
@@ -257,12 +257,12 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
         ctx?._tabViews?.delete(props.value)
       }
     }}
-    className={cx(
+    className={[
       'vx-tab',
       isSelected && 'vx-tab--selected',
       ctx.layout === 'fill' && 'vx-tab--fill',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
     disabled={isDisabled}
     accessibilityRole={ctx.pattern === 'tabs' ? 'tab' : link.href != null ? 'link' : 'button'}
@@ -292,7 +292,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
         {props.endContent != null ? props.endContent : null}
       </masonview>
       <masonview
-        className={cx('vx-tab-indicator', isSelected && 'vx-tab-indicator--on')}
+        className={['vx-tab-indicator', isSelected && 'vx-tab-indicator--on']}
         style={{ display: 'flex' }}
       />
     </masonview>
@@ -465,7 +465,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
     <Pressable
       ref={triggerRef}
       id={props.id}
-      className={cx('vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className)}
+      className={['vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className]}
       style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
       accessibilityLabel={triggerLabel}
       accessibilityHint={props.label}
@@ -504,7 +504,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
           <Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
         </masonview>
         <masonview
-          className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')}
+          className={['vx-tab-indicator', selected && 'vx-tab-indicator--on']}
           style={{ display: 'flex' }}
         />
       </masonview>
@@ -551,7 +551,7 @@ function AppKitTabMenuOption(props: {
 
   <Pressable
     ref={row.ref}
-    className={cx('vx-tabmenu-item', props.selected && 'vx-tabmenu-item--selected')}
+    className={['vx-tabmenu-item', props.selected && 'vx-tabmenu-item--selected']}
     accessibilityRole="menuitemradio"
     accessibilityLabel={props.option.label}
     accessibilityState={{ checked: props.selected, selected: props.selected }}

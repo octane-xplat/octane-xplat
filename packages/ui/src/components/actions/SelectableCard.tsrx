@@ -2,8 +2,6 @@
 import type { SelectableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { Pressable } from './Pressable.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 /**
  * Card with a checked/selected semantic (`isSelected`/`onChange`). Import from `@octane-xplat/ui`.
  *
@@ -12,7 +10,7 @@ import { cx } from '@octane-xplat/lib'
 export function SelectableCard(props: SelectableCardProps): unknown @{
   <Pressable
     id={props.id}
-    className={cx(
+    className={[
       'vx-card',
       'vx-selectable-card',
       `vx-card--${props.variant ?? 'default'}`,
@@ -20,7 +18,7 @@ export function SelectableCard(props: SelectableCardProps): unknown @{
       props.isSelected && 'vx-selectable-card--selected',
       props.isDisabled && 'vx-card--disabled',
       props.className,
-    )}
+    ]}
     style={{
       ...styleRecord(props.style),
       paddingTop: (props.padding ?? 4) * 4,

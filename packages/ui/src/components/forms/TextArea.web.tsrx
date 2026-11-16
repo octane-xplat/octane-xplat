@@ -3,7 +3,6 @@ import { useImperativeHandle, useLayoutEffect, useRef, useState, useId } from 'o
 import { normStyle } from '../layout/layout-child.web'
 import type { TextAreaProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { cx } from '@octane-xplat/lib'
 import { useFieldControl, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'
@@ -117,11 +116,11 @@ export function TextArea(inputProps: TextAreaProps): JSX.Element @{
 
   const shell = (
     <div
-      className={cx(
+      className={[
         'vx-textarea-shell',
         props.status && `vx-textarea-shell--status-${props.status.type}`,
         props.isDisabled && 'vx-textarea-shell--disabled',
-      )}
+      ]}
       onClick={(e: any) => {
         if (e.target === e.currentTarget && !props.isDisabled && !props.isReadOnly) {
           el.current?.focus()
@@ -144,7 +143,7 @@ export function TextArea(inputProps: TextAreaProps): JSX.Element @{
         }}
         id={needsChrome ? controlId : props.id}
         data-testid={props.testID}
-        className={cx(
+        className={[
           'vx-textarea',
           props.isDisabled && 'vx-textarea--disabled',
           props.isReadOnly && 'vx-textarea--readonly',
@@ -154,7 +153,7 @@ export function TextArea(inputProps: TextAreaProps): JSX.Element @{
           props.size && `vx-textarea--size-${props.size}`,
           props.autoGrow && 'vx-textarea--autogrow',
           props.className,
-        )}
+        ]}
         style={{
           ...normStyle(props.style),
           ...(props.placeholderTextColor

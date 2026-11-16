@@ -5,7 +5,6 @@ import type { CommandPaletteItem, CommandPaletteProps } from '../../props'
 import { createCommandPaletteController } from './command-palette-state'
 import { useStore } from '../../data/use-store.tsrx'
 import { groupTypeaheadItems } from '../forms/typeahead-source'
-import { cx } from '@octane-xplat/lib'
 import { Screen } from '@nativescript/core'
 import { BottomSheet } from './BottomSheet.tsrx'
 import { TextInput } from '../forms/TextInput.tsrx'
@@ -39,7 +38,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
   }, [state.status, state.query, state.results])
 
   <masonview
-    className={cx('vx-commandpalette', props.options.className)}
+    className={['vx-commandpalette', props.options.className]}
     style={mergeStyle(
       { flexDirection: 'column' },
       mergeStyle(
@@ -121,11 +120,11 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
             @for (const item of group.items; key item.id) {
               <Pressable
                 id={`${props.options.id ?? 'command-palette'}-item-${item.id}`}
-                className={cx(
+                className={[
                   'vx-menu-item',
                   item.disabled && 'vx-menu-item--disabled',
                   item.id === state.highlighted && 'vx-cmdk-highlighted',
-                )}
+                ]}
                 disabled={item.disabled}
                 accessibilityRole="button"
                 accessibilityLabel={item.label}

@@ -2,7 +2,6 @@
 import { Utils } from '@nativescript/core'
 import { TextSlot } from '../forms/text-slot.tsrx'
 import type { ButtonProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.tsrx'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.tsrx'
 import { Icon } from '../media/Icon.tsrx'
@@ -73,7 +72,7 @@ export function Button(props: ButtonProps): unknown @{
       loading ? { display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' } : {},
       props.style,
     )}
-    className={cx(
+    className={[
       'vx-button',
       `vx-button--${props.variant ?? 'secondary'}`,
       size && `vx-button--size-${size}`,
@@ -83,7 +82,7 @@ export function Button(props: ButtonProps): unknown @{
       isDisabled && 'vx-button--disabled',
       group && `vx-button--group-${group.position}`,
       props.className,
-    )}
+    ]}
     accessibilityRole={props.accessibilityRole ?? 'button'}
     accessibilityLabel={
       props.accessibilityLabel ?? (props.isIconOnly || busy ? props.label : undefined)
@@ -92,7 +91,7 @@ export function Button(props: ButtonProps): unknown @{
     accessibilityValue={props.accessibilityValue ?? (busy ? 'Loading' : undefined)}
   >
     <masonview
-      className={cx('vx-button-content', loading && 'vx-button-content--hidden')}
+      className={['vx-button-content', loading && 'vx-button-content--hidden']}
       style={
         loading
           ? { gridRow: '1', gridColumn: '1', justifySelf: 'stretch', alignSelf: 'stretch' }

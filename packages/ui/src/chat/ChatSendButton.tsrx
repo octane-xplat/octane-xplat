@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { ChatSendButtonProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../components/media/Icon.tsrx'
 import { Pressable } from '../components/actions/Pressable.tsrx'
 import { useChatComposerContext } from './chat-context.tsrx'
@@ -31,12 +30,12 @@ export function ChatSendButton(props: ChatSendButtonProps): unknown @{
 
   <Pressable
     id={props.id}
-    className={cx(
+    className={[
       'vx-chatsend',
       `vx-chatsend--${size}`,
       isStopShown ? 'vx-chatsend--stop' : 'vx-chatsend--send',
       props.className,
-    )}
+    ]}
     style={props.style}
     accessibilityRole="button"
     accessibilityLabel={isStopShown ? 'Stop' : 'Send'}

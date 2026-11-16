@@ -2,7 +2,6 @@
 import { mergeStyle } from '../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { ChatToolCallItem, ChatToolCallStatus, ChatToolCallsProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../components/media/Icon.tsrx'
 import { Badge } from '../components/feedback/Badge.tsrx'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
@@ -45,7 +44,7 @@ function CallRow(props: { call: ChatToolCallItem }) @{
 
   const row = (
     <masonview
-      className={cx('vx-chattools-row', hasDetail && 'vx-chattools-row--toggle')}
+      className={['vx-chattools-row', hasDetail && 'vx-chattools-row--toggle']}
       accessibilityRole={hasDetail ? nativeAccessibilityRole('button') : undefined}
       accessibilityState={
         hasDetail ? nativeAccessibilityState({ expanded: isDetailOpen }) : undefined
@@ -54,7 +53,7 @@ function CallRow(props: { call: ChatToolCallItem }) @{
       style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
     >
       <masonview
-        className={cx('vx-chattools-status', `vx-chattools-status--${status}`)}
+        className={['vx-chattools-status', `vx-chattools-status--${status}`]}
         accessibilityLabel={statusAnnouncement(status, call.errorMessage)}
         style={{ display: 'flex' }}
       >
@@ -96,7 +95,7 @@ function CallRow(props: { call: ChatToolCallItem }) @{
       }
       @if (hasDetail) {
         <masonview
-          className={cx('vx-chattools-chev', isDetailOpen && 'vx-chattools-chev--open')}
+          className={['vx-chattools-chev', isDetailOpen && 'vx-chattools-chev--open']}
           style={{ display: 'flex' }}
         >
           <Icon name="xplat-chevron-down" size={12} />
@@ -147,7 +146,7 @@ export function ChatToolCalls(props: ChatToolCallsProps): unknown @{
     return (
       <masonview
         id={props.id}
-        className={cx('vx-chattools', props.className)}
+        className={['vx-chattools', props.className]}
         style={mergeStyle({ display: 'flex' }, props.style)}
       >
         <CallRow call={props.calls[0]} />
@@ -160,7 +159,7 @@ export function ChatToolCalls(props: ChatToolCallsProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-chattools', props.className)}
+    className={['vx-chattools', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <masonview
@@ -183,7 +182,7 @@ export function ChatToolCalls(props: ChatToolCallsProps): unknown @{
       ) : (
         <>
           <masonview
-            className={cx('vx-chattools-status', `vx-chattools-status--${latestStatus}`)}
+            className={['vx-chattools-status', `vx-chattools-status--${latestStatus}`]}
             accessibilityLabel={statusAnnouncement(latestStatus, latest.errorMessage)}
             style={{ display: 'flex' }}
           >
@@ -214,7 +213,7 @@ export function ChatToolCalls(props: ChatToolCallsProps): unknown @{
         }
       </masonview>
       <masonview
-        className={cx('vx-chattools-chev', isExpanded && 'vx-chattools-chev--open')}
+        className={['vx-chattools-chev', isExpanded && 'vx-chattools-chev--open']}
         style={{ display: 'flex' }}
       >
         <Icon name="xplat-chevron-down" size={12} />

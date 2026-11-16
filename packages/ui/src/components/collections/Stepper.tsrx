@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { StepperProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { StepperProvider } from '../forms/option-list-contexts'
 
@@ -20,11 +19,11 @@ export function Stepper(props: StepperProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-stepper',
       ctx.orientation === 'vertical' && 'vx-stepper--vertical',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { display: 'flex', flexDirection: ctx.orientation === 'vertical' ? 'column' : 'row' },
       props.style,
@@ -34,17 +33,17 @@ export function Stepper(props: StepperProps): unknown @{
       <masonview className="vx-stepper-cell" style={{ display: 'flex' }}>
         @if (e.i > 0) {
           <masonview
-            className={cx('vx-stepper-line', e.i <= current && 'vx-stepper-line--done')}
+            className={['vx-stepper-line', e.i <= current && 'vx-stepper-line--done']}
             style={{ display: 'flex' }}
           />
         }
         <masonview
-          className={cx(
+          className={[
             'vx-step',
             e.i < current && 'vx-step--done',
             e.i === current && 'vx-step--on',
             e.step.disabled && 'vx-step--disabled',
-          )}
+          ]}
           onTap={e.step.disabled ? undefined : () => props.onStepChange?.(e.i)}
           style={{ display: 'flex' }}
         >

@@ -22,8 +22,6 @@ import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Text } from '../content/Text.macos.tsrx'
 import { followHref } from './nav-href.macos'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
-
 /** BreadcrumbItem part — AppKit leaf renders the same link/text branches. */
 export function BreadcrumbItem(props: BreadcrumbItemProps): unknown @{
   const label = typeof props.children === 'string' ? props.children : ''
@@ -42,7 +40,7 @@ export function BreadcrumbItem(props: BreadcrumbItemProps): unknown @{
 
   <masonview
     id={props.id}
-    className={cx('vx-breadcrumb-crumb', props.className)}
+    className={['vx-breadcrumb-crumb', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     {props.startIcon}
@@ -123,7 +121,7 @@ export function Breadcrumb(
   <masonview
     ref={(view: any) => applyEscapeProps(view, props)}
     id={props.id}
-    className={cx('vx-breadcrumb', props.className)}
+    className={['vx-breadcrumb', props.className]}
     style={mergeStyle({ display: 'flex', flexDirection: 'row' }, props.style)}
   >
     @for (const item of visibleArr; index index; key index) {

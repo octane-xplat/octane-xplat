@@ -16,7 +16,6 @@ import type {
   ISOTimeString,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { isDateComposing, timeOptionIndex } from './date-keyboard'
 import { runDateChangeAction } from './date-field-action'
@@ -559,7 +558,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
       ref={(el: any) => {
         anchor.current = el
       }}
-      className={cx(
+      className={[
         'vx-datetimeinput',
         `vx-datetimeinput--${surface}`,
         isDisabled && 'vx-datetimeinput--disabled',
@@ -568,18 +567,18 @@ function DateTimeInputControl(inputProps: CoreProps) @{
         props.size && `vx-datetimeinput--size-${props.size}`,
         (!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
         props.className,
-      )}
+      ]}
       style={props.style}
     >
       {surface === 'sheet' ? (
         <>
           <button
             type="button"
-            className={cx(
+            className={[
               'vx-datetimeinput-segment',
               'vx-datetimeinput-date',
               !valueParts.date && 'vx-datetimeinput-segment--placeholder',
-            )}
+            ]}
             disabled={isDisabled || isBusy || undefined}
             aria-label={props.ariaLabel}
             aria-labelledby={props.ariaLabelledBy}
@@ -594,11 +593,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
           </button>
           <button
             type="button"
-            className={cx(
+            className={[
               'vx-datetimeinput-segment',
               'vx-datetimeinput-time',
               !(timeDraft ?? valueParts.time) && 'vx-datetimeinput-segment--placeholder',
-            )}
+            ]}
             disabled={isDisabled || isBusy || undefined}
             aria-label={timeLabelText}
             onClick={() => setOpen('sheet')}
@@ -697,11 +696,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
               }}
               id={dateId}
               type="text"
-              className={cx(
+              className={[
                 'vx-datetimeinput-input',
                 'vx-datetimeinput-dateinput',
                 !isDateValid && 'vx-datetimeinput-input--invalid',
-              )}
+              ]}
               value={dateDisplay}
               placeholder={props.placeholder ?? 'Select a date'}
               disabled={(isDisabled && !showsDisabledReason) || undefined}
@@ -738,11 +737,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
               id={timeId}
               type="text"
               role={timeOptions.length ? 'combobox' : undefined}
-              className={cx(
+              className={[
                 'vx-datetimeinput-input',
                 'vx-datetimeinput-timeinput',
                 !isTimeValid && 'vx-datetimeinput-input--invalid',
-              )}
+              ]}
               value={timeDisplay}
               placeholder={
                 isTimeFocused && !timeDisplay
@@ -805,7 +804,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
         <ActivityIndicator busy className="vx-datetimeinput-spinner" />
       }
       @if (statusType) {
-        <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+        <span className={['vx-field-icon', `vx-field-icon--${statusType}`]}>
           {STATUS_GLYPHS[statusType]}
         </span>
       }
@@ -873,12 +872,12 @@ function DateTimeInputControl(inputProps: CoreProps) @{
               type="button"
               role="option"
               aria-selected={opt.time === (timeDraft ?? valueParts.time)}
-              className={cx(
+              className={[
                 'vx-datetimeinput-timeoption',
                 index === activeTimeIndex && 'vx-datetimeinput-timeoption--highlighted',
                 opt.time === (timeDraft ?? valueParts.time) &&
                   'vx-datetimeinput-timeoption--selected',
-              )}
+              ]}
               onMouseDown={(e: any) => e.preventDefault()}
               onClick={() => selectTimeOption(opt.time)}
             >

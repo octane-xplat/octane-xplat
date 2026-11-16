@@ -5,7 +5,6 @@ import { useCallback, useImperativeHandle, useMemo, useRef, useState } from 'oct
 import type { ScrollableAreaHandle, ScrollableAreaProps } from '../../props'
 import { layoutChildProps } from './layout-child'
 import { spacingStep } from './spacing'
-import { cx } from '@octane-xplat/lib'
 import { useDirection } from '../../internal/platform/internationalization'
 import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
 import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
@@ -83,7 +82,7 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
     )}
     id={props.id}
     testID={props.testID}
-    className={cx('vx-scrollable', props.className)}
+    className={['vx-scrollable', props.className]}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel ?? props.label}
     accessibilityHint={props.accessibilityHint}
@@ -92,7 +91,7 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
     <masonview
       ref={contentProps.ref}
       onLayoutChanged={contentProps.onLayoutChanged}
-      className={cx('vx-scrollable-content', contentProps.className)}
+      className={['vx-scrollable-content', contentProps.className]}
       style={{
         // AppKit's auto-sized document root can shrink-wrap block children.
         // The viewport owns the cross-axis budget; callers need no width repair.

@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { UIActivityIndicatorViewProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** UIActivityIndicatorView — the platform spinner (UIKit). The self-drawn
@@ -12,7 +11,7 @@ export function UIActivityIndicatorView(props: UIActivityIndicatorViewProps): un
 
   <activityindicator
     id={props.id}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     busy={props.busy ?? true}
     ref={(el: any) => applyNativeProps(el, props)}

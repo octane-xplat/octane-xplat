@@ -4,7 +4,6 @@ import type { AlertDialogProps } from '../../props'
 import { Dialog } from './Dialog.web.tsrx'
 import { Button } from '../actions/Button.web.tsrx'
 import { Text } from '../content/Text.web.tsrx'
-import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
 
 const ACTION_VARIANT_CLASS: Record<string, string> = {
@@ -38,7 +37,7 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element @{
       isInline={props.isInline}
       finalFocusRef={props.finalFocusRef}
       accessibilityLabel={typeof props.title === 'string' ? props.title : undefined}
-      className={cx('vx-alertdialog', props.className)}
+      className={['vx-alertdialog', props.className]}
       style={props.style}
       id={props.id}
       web={props.web}
@@ -68,7 +67,7 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element @{
           {props.cancelLabel ?? 'Cancel'}
         </Button>
         <Button
-          className={cx('btn', ACTION_VARIANT_CLASS[props.actionVariant ?? 'destructive'])}
+          className={['btn', ACTION_VARIANT_CLASS[props.actionVariant ?? 'destructive']]}
           onPress={props.onAction}
           isLoading={props.isActionLoading}
         >

@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { UserProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Avatar } from '../media/Avatar.tsrx'
 
@@ -11,7 +10,7 @@ export function User(props: UserProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-user', props.onSelect && 'vx-user--pressable', props.className)}
+    className={['vx-user', props.onSelect && 'vx-user--pressable', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     onTap={props.onSelect}
   >

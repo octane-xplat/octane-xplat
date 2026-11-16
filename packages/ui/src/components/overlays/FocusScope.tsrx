@@ -2,7 +2,6 @@
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState, nativeAccessibilityRole } from './escape-props'
 
 /** Which `FocusScope` behavior flags this default mobile leaf honors — none.
@@ -55,7 +54,7 @@ export function FocusScope(props: FocusScopeProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-focus-scope', props.className)}
+    className={['vx-focus-scope', props.className]}
     style={props.style}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}

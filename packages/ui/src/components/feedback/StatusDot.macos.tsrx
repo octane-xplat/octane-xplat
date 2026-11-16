@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useEffect, useRef } from 'octane'
 import type { StatusDotProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { getColorScheme } from '../../theme/colorScheme.macos'
 import { statusDotColor } from '../../theme/scheme-colors'
 import { isRenderable } from '../../internal/rendering/is-renderable'
@@ -50,7 +49,7 @@ export function StatusDot(props: StatusDotProps): unknown @{
       dot.current = v
     }}
     id={props.id}
-    className={cx('vx-statusdot', `vx-statusdot--${props.variant}`, props.className)}
+    className={['vx-statusdot', `vx-statusdot--${props.variant}`, props.className]}
     style={mergeStyle(
       { display: 'flex' },
       {

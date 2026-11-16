@@ -2,14 +2,13 @@
 import './AppKitSheet.macos.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { createPortal, type UniversalRenderable } from 'octane/universal/native'
-import { cx } from '@octane-xplat/lib'
 import type { AppKitSheetProps } from './macos/types'
 import { createSheetOwner, type SheetPrepare } from './sheet-owner.macos'
 
 const host = (): any => (globalThis as any).__xplatAppKit ?? {}
 
 function ContentRoot(props: AppKitSheetProps) @{
-  <masonview className={cx('xplat-appkit-sheet-content', props.className)} style={props.style}>
+  <masonview className={['xplat-appkit-sheet-content', props.className]} style={props.style}>
     {props.content?.()}
   </masonview>
 }

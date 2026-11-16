@@ -1,8 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { ActivityIndicatorProps } from '../../props'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { cx } from '@octane-xplat/lib'
-
 const sizePx: Record<string, number> = { xsm: 12, sm: 16, md: 20, lg: 24, xl: 32 }
 
 /** ActivityIndicator — exported as `Spinner`. Native leaf: a fixed-size box
@@ -18,11 +16,11 @@ export function ActivityIndicator(props: ActivityIndicatorProps): unknown @{
   const ring = (
     <activityindicator
       id={props.id}
-      className={cx(
+      className={[
         'vx-spinner',
         props.shade === 'onMedia' && 'vx-spinner--onmedia',
         !props.label && props.className,
-      )}
+      ]}
       style={mergeStyle(
         { width: size, height: size },
         !props.label ? styleRecord(props.style) : undefined,
@@ -34,7 +32,7 @@ export function ActivityIndicator(props: ActivityIndicatorProps): unknown @{
   @if (props.label != null) {
     <masonview
       id={props.id}
-      className={cx('vx-spinner-row', props.className)}
+      className={['vx-spinner-row', props.className]}
       style={mergeStyle({ display: 'flex' }, styleRecord(props.style))}
     >
       {ring}

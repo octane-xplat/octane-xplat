@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useRef, useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from '../../props'
 import { useToggleButtonGroup, ToggleButtonGroupProvider } from './toggle-button-group-context'
-import { cx } from '@octane-xplat/lib'
 import { Button } from './Button.macos.tsrx'
 
 export function ToggleButton(props: ToggleButtonProps): unknown @{
@@ -50,12 +49,12 @@ export function ToggleButton(props: ToggleButtonProps): unknown @{
     }
     icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon}
     accessibilityState={{ ...props.accessibilityState, pressed }}
-    className={cx(
+    className={[
       'vx-toggle-button',
       pressed && 'vx-toggle-button--pressed',
       pressed && props.color && `vx-toggle-button--${props.color}`,
       props.className,
-    )}
+    ]}
   />
 }
 
@@ -92,11 +91,11 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps): unknown @{
   >
     <masonview
       id={props.id}
-      className={cx(
+      className={[
         'vx-toggle-button-group',
         `vx-button-group--${props.orientation ?? 'horizontal'}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
       accessibilityRole="group"
       accessibilityLabel={props.label}

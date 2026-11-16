@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { formatISOTime, isTimeInRange, parseISOTime } from './datetime'
 import type { JSX } from 'octane/jsx-runtime'
 
@@ -72,10 +71,10 @@ export function TimeWheelPanel(props: TimeWheelProps): JSX.Element @{
           type="button"
           role="option"
           aria-selected={c.value === currentValue}
-          className={cx(
+          className={[
             'vx-timewheel-option',
             c.value === currentValue && 'vx-timewheel-option--selected',
-          )}
+          ]}
           onClick={() => onPick(c.value)}
         >
           {c.label}

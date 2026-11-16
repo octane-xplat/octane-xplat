@@ -17,7 +17,6 @@ import type {
   StackProps,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -96,7 +95,7 @@ export function Stack(props: StackProps): unknown @{
     <scrollview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-stack', 'vx-stack--scroll', props.className)}
+      className={['vx-stack', 'vx-stack--scroll', props.className]}
       style={{ ...sizingStyle, ...styleRecord(props.style) }}
       orientation={layout.flexDirection === 'row' ? 'horizontal' : 'vertical'}
       accessible={props.accessible}
@@ -128,7 +127,7 @@ export function Stack(props: StackProps): unknown @{
     <masonview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-stack', props.className)}
+      className={['vx-stack', props.className]}
       style={mergeStyle(
         {
           flexDirection: layout.flexDirection,
@@ -176,7 +175,7 @@ export function StackItem(props: StackItemProps): unknown @{
     <scrollview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-stackitem', props.className)}
+      className={['vx-stackitem', props.className]}
       style={{ ...itemStyle, ...styleRecord(props.style) }}
       orientation="vertical"
       accessible={props.accessible}
@@ -197,7 +196,7 @@ export function StackItem(props: StackItemProps): unknown @{
     <masonview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-stackitem', props.className)}
+      className={['vx-stackitem', props.className]}
       style={{ ...itemStyle, ...styleRecord(props.style) }}
       accessible={props.accessible}
       accessibilityLabel={props.accessibilityLabel}
@@ -215,14 +214,14 @@ export function StackItem(props: StackItemProps): unknown @{
 }
 
 export function Absolute(props: AbsoluteProps): unknown @{
-  <masonview id={props.id} className={cx('vx-absolute', props.className)} style={props.style}>
+  <masonview id={props.id} className={['vx-absolute', props.className]} style={props.style}>
     {props.children}
   </masonview>
 }
 
 export function Spacer(props: SpacerProps): unknown @{
   <masonview
-    className={cx('vx-spacer vx-spacer--fill', props.className)}
+    className={['vx-spacer vx-spacer--fill', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   />
 }
@@ -275,7 +274,7 @@ export function Layout(props: LayoutProps): unknown @{
         <masonview
           id={props.id}
           ref={forwardedRef}
-          className={cx('vx-layout', props.className)}
+          className={['vx-layout', props.className]}
           style={mergeStyle(
             { display: 'flex', flexDirection: 'column', ...(isFill ? { flexGrow: 1 } : {}) },
             styleRecord(props.style),
@@ -333,7 +332,7 @@ export function LayoutHeader(props: LayoutHeaderProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-layout-header', hasDivider && 'vx-layout-header--divided', props.className)}
+    className={['vx-layout-header', hasDivider && 'vx-layout-header--divided', props.className]}
     style={mergeStyle(
       {
         display: 'flex',
@@ -401,7 +400,7 @@ export function LayoutContent(props: LayoutContentProps): unknown @{
     <scrollview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-layout-content', 'vx-layout-content--scroll', props.className)}
+      className={['vx-layout-content', 'vx-layout-content--scroll', props.className]}
       style={mergeStyle(sizeStyle, styleRecord(props.style))}
       orientation="vertical"
       accessibilityLabel={props.accessibilityLabel ?? props.label}
@@ -416,7 +415,7 @@ export function LayoutContent(props: LayoutContentProps): unknown @{
     <masonview
       id={props.id}
       ref={forwardedRef}
-      className={cx('vx-layout-content', props.className)}
+      className={['vx-layout-content', props.className]}
       style={mergeStyle(
         { display: 'flex', flexDirection: 'column', ...sizeStyle, ...padStyle },
         styleRecord(props.style),
@@ -451,7 +450,7 @@ export function LayoutFooter(props: LayoutFooterProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx('vx-layout-footer', hasDivider && 'vx-layout-footer--divided', props.className)}
+    className={['vx-layout-footer', hasDivider && 'vx-layout-footer--divided', props.className]}
     style={mergeStyle(
       {
         display: 'flex',
@@ -504,12 +503,12 @@ export function LayoutPanel(props: LayoutPanelProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx(
+    className={[
       'vx-layout-panel',
       `vx-layout-panel--${area}`,
       props.hasDivider && 'vx-layout-panel--divided',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       {
         display: 'flex',

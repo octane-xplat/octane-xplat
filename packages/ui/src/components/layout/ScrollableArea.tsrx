@@ -5,7 +5,6 @@ import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane'
 import { mergedRef } from '../../internal/accessibility/ref-list'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from '../../props'
 import type { RefreshConfig, RefreshController } from './refresh'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -150,7 +149,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
       }
     }}
     {...layoutChildProps(props, mergeStyle({ display: 'grid' }, viewportStyle(props)))}
-    className={cx('vx-refresh-wrap', props.className)}
+    className={['vx-refresh-wrap', props.className]}
   >
     <scrollview
       ref={forwardedRef}
@@ -223,7 +222,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
     id={props.id}
     testID={props.testID ?? ''}
     {...layoutChildProps(props, viewportStyle(props))}
-    className={cx('vx-scrollable', props.className)}
+    className={['vx-scrollable', props.className]}
     orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'}
     {...a11y(props)}
   >

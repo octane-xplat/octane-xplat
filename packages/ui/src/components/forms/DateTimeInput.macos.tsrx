@@ -20,7 +20,6 @@ import type {
   ISOTimeString,
 } from '../../props'
 
-import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
@@ -764,7 +763,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
   <>
     <masonview
       ref={bindAnchor}
-      className={cx(
+      className={[
         'vx-datetimeinput',
         'vx-datetimeinput-popover',
         isDisabled && 'vx-datetimeinput--disabled',
@@ -773,7 +772,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
         props.size && `vx-datetimeinput--size-${props.size}`,
         (!isDateValid || !isTimeValid) && 'vx-datetimeinput--invalid',
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         { flexDirection: 'row', alignItems: 'center' },
         mergeStyle({ display: 'flex' }, props.style),
@@ -802,11 +801,11 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
       <textfield
         ref={bindDate}
         id={dateId}
-        className={cx(
+        className={[
           'vx-datetimeinput-input',
           'vx-datetimeinput-dateinput',
           !isDateValid && 'vx-datetimeinput-input--invalid',
-        )}
+        ]}
         value={dateDisplay}
         placeholder={props.placeholder ?? 'Select a date'}
         isEnabled={!isDisabled && !isBusy}
@@ -829,11 +828,11 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
         ref={bindTime}
         id={`${dateId}-time`}
         onKeyDown={timeKeyDown}
-        className={cx(
+        className={[
           'vx-datetimeinput-input',
           'vx-datetimeinput-timeinput',
           !isTimeValid && 'vx-datetimeinput-input--invalid',
-        )}
+        ]}
         value={timeDisplay}
         placeholder={props.timePlaceholder ?? 'Select a time'}
         isEnabled={!isDisabled && !isBusy}
@@ -879,7 +878,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
       }
       @if (statusText != null) {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
           accessibilityLabel={
             props.statusVariant === 'tooltip' ? props.status?.message : undefined

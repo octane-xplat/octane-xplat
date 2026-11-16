@@ -2,7 +2,6 @@
 import { isAndroid, isIOS } from '@nativescript/core'
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { WebViewProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -185,7 +184,7 @@ export function WebView(props: WebViewProps): unknown @{
     }}
     id={props.id}
     {...layoutChildProps(props, props.style)}
-    className={cx('vx-webview', props.className)}
+    className={['vx-webview', props.className]}
     src={props.html !== undefined ? props.html : props.src}
     onLoaded={() => applyNativeScrollEnabled(el.current, props.scrollEnabled)}
     onLoadStarted={() => {

@@ -3,7 +3,6 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ListItemProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -81,14 +80,14 @@ export function ListItem(props: ListItemProps): unknown @{
   <masonview
     id={props.id}
     ref={forwardedRef}
-    className={cx(
+    className={[
       'vx-listitem',
       `vx-listitem--density-${density}`,
       interactive && 'vx-listitem--interactive',
       props.isDisabled && 'vx-listitem--disabled',
       props.isSelected && 'vx-listitem--selected',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     onTap={interactive && !props.isDisabled ? activate : undefined}
     accessible={props.accessible ?? (interactive ? true : undefined)}

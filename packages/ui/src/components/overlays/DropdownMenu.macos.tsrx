@@ -6,7 +6,6 @@ import { MenuSurface } from './MenuSurface.macos.tsrx'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { NSView } from '@octane-xplat/platform/macos'
 import type { DropdownMenuProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Button } from '../actions/controls.macos.tsrx'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
@@ -173,7 +172,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
       {...button}
       ref={mergedRef}
       id={props.id ?? button.id}
-      className={cx('vx-menu-trigger', button.className)}
+      className={['vx-menu-trigger', button.className]}
       isDisabled={disabled}
       endContent={endContent}
       onPress={() => setOpen('toggle', true)}
@@ -186,7 +185,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
       placement={props.placement ?? 'bottom'}
       alignment={props.alignment}
       onDismiss={closeMenu}
-      className={cx('vx-menu', props.menuClassName)}
+      className={['vx-menu', props.menuClassName]}
       style={typeof props.menuWidth === 'number' ? { minWidth: props.menuWidth } : undefined}
     >
       <AppKitMenuReturnProvider value={returnOwner}>

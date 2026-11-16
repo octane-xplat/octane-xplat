@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { TextSlot } from '../forms/text-slot.tsrx'
 import type { BlockquoteProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Blockquote — quoted content with an inline-start rule and secondary text.
@@ -11,7 +10,7 @@ export function Blockquote(props: BlockquoteProps): unknown @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx('vx-blockquote', props.className)}
+    className={['vx-blockquote', props.className]}
     style={props.style}
   >
     <TextSlot className="vx-blockquote-text">{props.children}</TextSlot>

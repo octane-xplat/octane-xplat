@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useState } from 'octane'
 import type { SegmentedControlProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -46,7 +45,7 @@ function SegmentedControlBody(inputProps: SegmentedControlProps) @{
   <masonview
     ref={(view: any) => applyEscapeProps(view, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-segmented',
       'vx-segmented--native',
       props.layout === 'fill' && 'vx-segmented--fill',
@@ -56,7 +55,7 @@ function SegmentedControlBody(inputProps: SegmentedControlProps) @{
       props.status && `vx-segmented--status-${props.status.type}`,
       props.size && `vx-segmented--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     isEnabled={!props.isDisabled}
     accessibilityRole={nativeAccessibilityRole('radiogroup')}

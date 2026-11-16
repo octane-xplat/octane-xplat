@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useId, useMemo, useState } from 'octane'
 import type { AppShellProps, MobileNavConfig } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { MobileNavToggle } from '../navigation/MobileNav.macos.tsrx'
 import { isMobileNavConfig } from './app-shell-config'
 import { layoutChildProps } from './layout-child'
@@ -126,12 +125,12 @@ export function AppShell(props: AppShellProps): unknown @{
   <AppShellMobileProvider value={mobileContextValue}>
     <masonview
       id={props.id}
-      className={cx(
+      className={[
         'vx-appshell',
         'vx-appshell--' + variant,
         isFill ? 'vx-appshell--fill' : 'vx-appshell--auto',
         props.className,
-      )}
+      ]}
       {...layoutChildProps(
         props,
         mergeStyle({ display: 'grid', gridTemplateRows: 'auto 1fr' }, props.style),
@@ -178,7 +177,7 @@ export function AppShell(props: AppShellProps): unknown @{
               { flexDirection: 'column' },
               mergeStyle({ display: 'flex' }, { gridColumn: '1' }),
             )}
-            className={cx('vx-appshell-sidenav', 'vx-appshell-sidenav--' + variant)}
+            className={['vx-appshell-sidenav', 'vx-appshell-sidenav--' + variant]}
           >
             {props.sideNav}
           </masonview>

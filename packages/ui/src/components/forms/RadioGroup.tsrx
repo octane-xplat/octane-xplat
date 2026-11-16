@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState, useContext } from 'octane'
 import type { RadioGroupProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -47,7 +46,7 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
   <masonview
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
-    className={cx(
+    className={[
       'vx-radio-group',
       props.horizontal && 'vx-radio-group--row',
       props.isDisabled && 'vx-radio-group--disabled',
@@ -56,7 +55,7 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
       props.status && `vx-radio-group--status-${props.status.type}`,
       props.size && `vx-radio-group--size-${props.size}`,
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     isEnabled={!props.isDisabled}
     accessibilityRole={nativeAccessibilityRole('radiogroup')}
@@ -80,13 +79,13 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
       return (
         <masonview
           key={opt.value}
-          className={cx(
+          className={[
             'vx-radio-row',
             indicatorScope,
             selected && 'vx-radio--on',
             disabled && 'vx-radio--disabled',
             props.isReadOnly && 'vx-radio--readonly',
-          )}
+          ]}
           isEnabled={!disabled}
           accessibilityRole={nativeAccessibilityRole('radio')}
           accessibilityLabel={opt.label ?? opt.value}

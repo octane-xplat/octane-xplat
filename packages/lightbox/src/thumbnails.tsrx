@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useLayoutEffect, useRef, useState } from 'octane'
 import { Pressable } from '@octane-xplat/ui'
-import { cx } from '@octane-xplat/lib'
 import './thumbnails.css'
 import { useLightboxCtx } from './root.tsrx'
 import { createThumbnailLayout } from './thumbnail-layout'
@@ -123,7 +122,7 @@ export function Thumbnails(props: LightboxPartProps): unknown {
         scrollBarIndicatorVisible={false}
         id={props.id}
         testID={props.testID}
-        className={cx('vx-lightbox-thumbnails', props.className)}
+        className={['vx-lightbox-thumbnails', props.className]}
         style={props.style}
       >
         <masonview ref={row} className="vx-lightbox-thumbnails-row">
@@ -151,7 +150,7 @@ export function Thumbnail(props: LightboxThumbnailPartProps): unknown {
       testID={props.testID}
       accessibilityLabel={`Show image ${props.index + 1}`}
       accessibilityState={{ selected: ctx.index === props.index }}
-      className={cx('vx-lightbox-thumbnail', props.className)}
+      className={['vx-lightbox-thumbnail', props.className]}
       style={props.style}
       onPress={() => {
         props.onPress?.(undefined)
@@ -182,7 +181,7 @@ export function ThumbnailIndicator(props: LightboxPartProps): unknown {
       id={props.id}
       testID={props.testID}
       accessible={false}
-      className={cx('vx-lightbox-thumbnail-indicator', props.className)}
+      className={['vx-lightbox-thumbnail-indicator', props.className]}
       style={props.style}
     >
       {props.children}

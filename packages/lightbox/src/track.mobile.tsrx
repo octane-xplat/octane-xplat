@@ -4,7 +4,6 @@
 // nearest slide with the SETTLE spring — the native counterpart of web's
 // scroll-snap viewport, with the same `progress = -x / stride` semantics.
 import { useLayoutEffect, useRef } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
 import { useMotionValue, type MotionValue } from '@octane-xplat/motion'
 import { FADE, SETTLE } from './constants'
@@ -350,7 +349,7 @@ export function Track(
   return (
     <masonview
       ref={clipRef}
-      className={cx('vx-lightbox-viewport', props.className)}
+      className={['vx-lightbox-viewport', props.className]}
       style={mergeStyle(
         { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, overflow: 'hidden' },
         props.style,

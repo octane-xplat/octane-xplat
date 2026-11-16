@@ -2,7 +2,6 @@
 import 'octane/signals'
 import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
-import { cx } from '@octane-xplat/lib'
 import type { SwitchProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
@@ -70,7 +69,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
     <masonview
       ref={bindTrack}
       id={props.id}
-      className={cx(
+      className={[
         'vx-switch',
         checked && 'vx-switch--on',
         props.isDisabled && 'vx-switch--disabled',
@@ -79,7 +78,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
         props.status && `vx-switch--status-${props.status.type}`,
         props.size && `vx-switch--size-${props.size}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       <masonview className="vx-switch-thumb" style={{ display: 'flex' }} />
@@ -135,11 +134,11 @@ export function Switch(inputProps: SwitchProps): unknown @{
       </masonview>
       @if (props.status?.message != null) {
         <masonview
-          className={cx(
+          className={[
             'vx-field-status',
             `vx-field-status--${props.status.type}`,
             'vx-field-status--detached',
-          )}
+          ]}
         >
           <label text={props.status.message} />
         </masonview>

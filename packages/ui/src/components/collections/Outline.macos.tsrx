@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'octane'
 import { createAppKitOutlineScroll } from './outline-scroll.macos'
 import { readReducedMotion } from '../../internal/platform/animation-host.macos'
 import type { OutlineProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { getColorScheme } from '../../theme/colorScheme.macos'
 import { accentColor, mutedColor, textColor } from '../../theme/scheme-colors'
 
@@ -56,7 +55,7 @@ export function Outline(props: OutlineProps): unknown @{
   <masonview
     ref={nav}
     id={props.id}
-    className={cx('vx-outline', `vx-outline--${density}`, props.className)}
+    className={['vx-outline', `vx-outline--${density}`, props.className]}
     style={mergeStyle(
       { flexDirection: 'column' },
       mergeStyle({ display: 'flex' }, { flexDirection: 'column', ...styleRecord(props.style) }),
@@ -70,7 +69,7 @@ export function Outline(props: OutlineProps): unknown @{
       return (
         <masonview
           key={item.id}
-          className={cx('vx-outline-item', isActive && 'vx-outline-item--active')}
+          className={['vx-outline-item', isActive && 'vx-outline-item--active']}
           style={mergeStyle(
             { flexDirection: 'row', alignItems: 'center' },
             mergeStyle(

@@ -3,7 +3,6 @@ import { normStyle } from '../layout/layout-child.web'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useTheme } from '../../theme/use-theme.tsrx'
 import { headingScaleStyle } from '../forms/text-scale'
-import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
 
 export function Heading(props: HeadingProps): JSX.Element @{
@@ -41,12 +40,12 @@ export function Heading(props: HeadingProps): JSX.Element @{
 
   <Tag
     id={props.id}
-    className={cx(
+    className={[
       'vx-heading',
       `vx-h${level}`,
       props.type && `vx-heading--${props.type}`,
       props.className,
-    )}
+    ]}
     style={headingStyle}
     ref={(el: any) => applyWebProps(el, props.web)}
   >

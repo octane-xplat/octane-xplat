@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane'
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from '../../props'
 import { useSize } from '../layout/size-context'
-import { cx } from '@octane-xplat/lib'
 import { FormField } from './FormField.macos.tsrx'
 import { useFieldControlProps } from './field-context'
 import { BaseTypeahead } from './BaseTypeahead.macos.tsrx'
@@ -113,12 +112,12 @@ export function Typeahead<T extends SearchableItem>(inProps: TypeaheadProps<T>):
       ref={(v: any) => {
         wrapperAnchor.current = v
       }}
-      className={cx(
+      className={[
         'vx-typeahead',
         `vx-typeahead--size-${size}`,
         props.isDisabled && 'vx-typeahead--disabled',
         props.status && `vx-typeahead--status-${props.status.type}`,
-      )}
+      ]}
       onTap={handleWrapperTap}
       accessibilityState={{ disabled: props.isDisabled }}
       style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}

@@ -2,7 +2,6 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useRef } from 'octane'
 import type { ToastProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import { Text } from '../content/Text.tsrx'
 
@@ -88,12 +87,12 @@ export function Toast(props: ToastProps): unknown @{
       applyEscapeProps(v, props)
     }}
     id={props.id}
-    className={cx(
+    className={[
       'vx-toast',
       `vx-toast--${type}`,
       props.isExiting && 'vx-toast--exiting',
       props.className,
-    )}
+    ]}
     style={mergeStyle({ display: 'flex' }, props.style)}
     accessibilityLiveRegion={type === 'error' ? 'assertive' : 'polite'}
   >

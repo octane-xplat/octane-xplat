@@ -5,7 +5,6 @@ import { layoutChildProps } from '../layout/layout-child'
 import { useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { Key, VirtualListProps, VirtualListScrollOptions } from '../../props'
 import { defaultItemKey } from '../../data/list-data'
-import { cx } from '@octane-xplat/lib'
 import { scrollableAreaOffset } from '../layout/scrollable-area-offset.macos'
 import { scrollableAreaMetrics } from '../layout/scrollable-area-metrics.macos'
 import {
@@ -539,7 +538,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }}
     id={props.id}
     testID={props.testID ?? ''}
-    className={cx('vx-virtual-list', props.className)}
+    className={['vx-virtual-list', props.className]}
     {...layoutChildProps(props, props.style)}
     accessibilityLabel={props.accessibilityLabel}
     onScroll={appKitScroll<AppKitScrollEvent>(onScroll)}

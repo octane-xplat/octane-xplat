@@ -3,7 +3,6 @@ import { markChatRow } from './chat-scroll-state'
 import { mergeStyle } from '../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import type { ChatMessageProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { ChatMessageProvider, useChatListContext } from './chat-context.tsrx'
 
 const renderable = (v: any) => v != null && v !== false && v !== true
@@ -28,12 +27,12 @@ export function ChatMessage(props: ChatMessageProps): unknown @{
     <masonview
       ref={markChatRow}
       id={props.id}
-      className={cx(
+      className={[
         'vx-chatmsg',
         `vx-chatmsg--${props.sender}`,
         `vx-chatmsg--${density}`,
         props.className,
-      )}
+      ]}
       style={mergeStyle(
         { flexDirection: 'row', justifyContent: isSystem ? 'center' : 'flex-start' },
         mergeStyle({ display: 'flex' }, props.style),
@@ -48,7 +47,7 @@ export function ChatMessage(props: ChatMessageProps): unknown @{
         </masonview>
       }
       <masonview
-        className={cx('vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`)}
+        className={['vx-chatmsg-content', `vx-chatmsg-content--${props.sender}`]}
         style={mergeStyle(
           {
             flexDirection: 'column',
@@ -64,11 +63,11 @@ export function ChatMessage(props: ChatMessageProps): unknown @{
           </masonview>
         }
         <masonview
-          className={cx(
+          className={[
             'vx-chatmsg-children',
             `vx-chatmsg-children--${props.sender}`,
             `vx-chatmsg-children--${density}`,
-          )}
+          ]}
           style={mergeStyle(
             {
               flexDirection: 'column',

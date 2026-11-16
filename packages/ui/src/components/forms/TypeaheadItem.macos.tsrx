@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { SearchableItem, TypeaheadItemProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.macos.tsrx'
 
 /** Default option content for typeahead dropdowns — label with an optional
@@ -22,11 +21,11 @@ export function TypeaheadItem<T extends SearchableItem>(
 
   <masonview
     id={props.id}
-    className={cx(
+    className={[
       'vx-typeahead-item',
       props.isDisabled && 'vx-typeahead-item--disabled',
       props.className,
-    )}
+    ]}
     style={mergeStyle(
       { flexDirection: 'row', alignItems: 'center' },
       mergeStyle({ display: 'flex' }, props.style),

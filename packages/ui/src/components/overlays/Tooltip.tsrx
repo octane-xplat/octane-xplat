@@ -2,13 +2,12 @@
 import { useEffect, useRef } from 'octane'
 import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
 import type { TooltipProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { View } from '../layout/View.tsrx'
 
 const host = () => appKitHost() ?? {}
 
 function TooltipPanel(props: { body?: any; className?: any; style?: any }) @{
-  <View className={cx('vx-tooltip', props.className)} style={props.style}>
+  <View className={['vx-tooltip', props.className]} style={props.style}>
     {props.body}
   </View>
 }

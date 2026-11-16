@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ToastProps, ToastContentRenderProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { Button } from '../actions/controls.macos.tsrx'
 import { toastTiming } from './toast-store'
 
@@ -93,7 +92,7 @@ export function Toast(props: ToastProps): unknown @{
   <masonview
     id={props.id}
     ref={view}
-    className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)}
+    className={['vx-toast', props.type === 'error' && 'vx-toast--error', props.className]}
     style={mergeStyle(
       { flexDirection: 'row', alignItems: 'center' },
       mergeStyle(

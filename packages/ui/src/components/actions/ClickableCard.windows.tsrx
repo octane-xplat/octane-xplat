@@ -3,7 +3,6 @@ import type { ClickableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { TextSlot } from '../forms/text-slot.tsrx'
 import { Pressable } from './Pressable.tsrx'
-import { cx } from '@octane-xplat/lib'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { Utils } from '@nativescript/core'
 
@@ -31,14 +30,14 @@ export function ClickableCard(props: ClickableCardProps): unknown @{
 
   <Pressable
     id={props.id}
-    className={cx(
+    className={[
       'vx-card',
       'vx-clickable-card',
       `vx-card--${props.variant ?? 'default'}`,
       props.elevation && `vx-card--elev-${props.elevation}`,
       props.isDisabled && 'vx-card--disabled',
       props.className,
-    )}
+    ]}
     style={{
       ...styleRecord(props.style),
       paddingTop: (props.padding ?? 4) * 4,

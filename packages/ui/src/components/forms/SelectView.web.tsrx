@@ -9,7 +9,6 @@ import { BottomSheet } from '../overlays/BottomSheet.web.tsrx'
 import { useMediaQuery$ } from '../../internal/platform/use-media-query.web.tsrx'
 import { CheckIndicator, CheckboxIndicator } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator.tsrx'
-import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** Select presentation — resolved finite-list state in, user intents out.
@@ -209,7 +208,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
       id={props.id}
       role={!props.searchable || props.isReadOnly ? 'combobox' : 'button'}
       tabIndex={props.isDisabled && !props.disabledMessage ? -1 : 0}
-      className={cx(
+      className={[
         'vx-select-trigger',
         props.variant === 'ghost' && 'vx-select--ghost',
         props.isDisabled && 'vx-select--disabled',
@@ -218,7 +217,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
         props.status && `vx-select--status-${props.status.type}`,
         props.size && `vx-select--size-${props.size}`,
         props.className,
-      )}
+      ]}
       style={props.style}
       aria-label={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
       aria-labelledby={props.ariaLabelledBy}
@@ -269,11 +268,11 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
           })}
         </span>
       ) : props.renderValue && props.selected.length && !props.multiple ? (
-        <span className={cx('vx-select-value')}>
+        <span className={['vx-select-value']}>
           {props.renderValue(props.options.find((o) => o.value === props.selected[0])!)}
         </span>
       ) : (
-        <span className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}>
+        <span className={['vx-select-value', !props.selected.length && 'vx-select-placeholder']}>
           {props.triggerText}
         </span>
       )}
@@ -406,13 +405,13 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
               role="option"
               aria-selected={props.selected.includes(option.value)}
               aria-disabled={option.isDisabled || props.pending || undefined}
-              className={cx(
+              className={[
                 'vx-menu-item',
                 'vx-select-option',
                 props.selected.includes(option.value) && 'vx-select-option--on',
                 active?.value === option.value && 'vx-select-option--highlighted',
                 option.isDisabled && 'vx-menu-item--disabled',
-              )}
+              ]}
               onMouseDown={(event: MouseEvent) => event.preventDefault()}
               onMouseEnter={() => {
                 if (!option.isDisabled) {
@@ -492,11 +491,11 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
                   key={option.value}
                   role="option"
                   aria-selected={props.selected.includes(option.value)}
-                  className={cx(
+                  className={[
                     'vx-menu-item',
                     'vx-select-option',
                     props.selected.includes(option.value) && 'vx-select-option--on',
-                  )}
+                  ]}
                   onClick={() => {
                     props.onPick(option)
                     close()
@@ -523,7 +522,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
                   <div
                     key={option.value}
                     role="option"
-                    className={cx('vx-menu-item', 'vx-select-option')}
+                    className={['vx-menu-item', 'vx-select-option']}
                     onClick={() => {
                       props.onPick(option)
                       close()

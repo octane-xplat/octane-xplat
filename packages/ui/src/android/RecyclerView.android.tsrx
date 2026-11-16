@@ -7,7 +7,6 @@ import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octan
 import { ScrollView } from '@nativescript/core'
 import type { RecyclerViewProps } from '../props'
 import type { RefreshConfig, RefreshController } from '../components/layout/refresh'
-import { cx } from '@octane-xplat/lib'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
 import { applyEscapeProps } from '../components/overlays/escape-props'
 import { REFRESH_HEADER_HEIGHT } from '../components/layout/refresh-metrics'
@@ -145,7 +144,7 @@ function RecyclerViewInner(props: {
         }
       }}
       id={props.id}
-      className={cx(props.className)}
+      className={[props.className]}
       style={props.style}
       itemTemplate={cells.itemTemplate}
       onItemLoading={cells.onItemLoading}
@@ -246,7 +245,7 @@ export function RecyclerView<T>(props: RecyclerViewProps<T>): unknown @{
   @if (props.items.length > 0) {
     @if (refreshCapable) {
       <masonview
-        className={cx('vx-refresh-wrap', props.className)}
+        className={['vx-refresh-wrap', props.className]}
         style={mergeStyle({ display: 'grid' }, props.style)}
       >
         <MemoListView

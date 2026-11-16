@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatLayoutScrollButtonProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { Icon } from '../components/media/Icon.tsrx'
 import { Pressable } from '../components/actions/Pressable.tsrx'
 
@@ -16,14 +15,14 @@ export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps): unkn
 
   <masonview
     id={props.id}
-    className={cx('vx-chatscroll-wrap', props.className)}
+    className={['vx-chatscroll-wrap', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
   >
     <Pressable
-      className={cx(
+      className={[
         'vx-chatscroll',
         props.label ? 'vx-chatscroll--expanded' : 'vx-chatscroll--collapsed',
-      )}
+      ]}
       accessibilityRole="button"
       accessibilityLabel={props.label ?? 'Scroll to bottom'}
       onPress={props.onPress}

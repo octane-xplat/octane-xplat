@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { UISliderProps } from '../props'
-import { cx } from '@octane-xplat/lib'
 import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** UISlider — the platform widget (UIKit UISlider via NativeScript `slider`).
@@ -8,7 +7,7 @@ import { applyNativeProps } from '../internal/platform/platformProps'
 export function UISlider(props: UISliderProps): unknown @{
   <slider
     id={props.id}
-    className={cx(props.className)}
+    className={[props.className]}
     style={props.style}
     value={Array.isArray(props.value) ? props.value[1] : props.value}
     minValue={props.min ?? props.minValue ?? 0}

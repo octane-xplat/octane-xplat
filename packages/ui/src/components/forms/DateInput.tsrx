@@ -11,7 +11,6 @@ import {
 } from 'octane'
 
 import type { DateInputProps, ISODateString } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import { hasCoarsePointer } from './coarse-pointer'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
@@ -212,7 +211,7 @@ function DateInputControl(inputProps: CoreProps) @{
             input.current = v
           }}
           id={inputId}
-          className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
+          className={['vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid']}
           hint={props.placeholder ?? 'Select a date'}
           isEnabled={!isDisabled && !isBusy}
           editable={!isDisabled && !isBusy}
@@ -233,11 +232,11 @@ function DateInputControl(inputProps: CoreProps) @{
         />
       ) : (
         <Pressable
-          className={cx(
+          className={[
             'vx-dateinput-input',
             'vx-dateinput-segment',
             !shown && 'vx-dateinput-segment--placeholder',
-          )}
+          ]}
           disabled={isDisabled || isBusy}
           accessibilityLabel={
             props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
@@ -264,13 +263,13 @@ function DateInputControl(inputProps: CoreProps) @{
       }
       @if (statusText != null && props.statusVariant !== 'tooltip') {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
         />
       }
       @if (statusText != null && props.statusVariant === 'tooltip') {
         <label
-          className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+          className={['vx-field-icon', `vx-field-icon--${props.status!.type}`]}
           text={statusText}
           accessibilityLabel={props.status?.message}
         />
@@ -293,7 +292,7 @@ function DateInputControl(inputProps: CoreProps) @{
       ref={(v: any) => {
         anchor.current = v
       }}
-      className={cx(
+      className={[
         'vx-dateinput',
         `vx-dateinput--${surface}`,
         isDisabled && 'vx-dateinput--disabled',
@@ -302,7 +301,7 @@ function DateInputControl(inputProps: CoreProps) @{
         props.size && `vx-dateinput--size-${props.size}`,
         !isPendingValid && 'vx-dateinput--invalid',
         props.className,
-      )}
+      ]}
       style={mergeStyle({ display: 'flex' }, props.style)}
     >
       {shellContent}

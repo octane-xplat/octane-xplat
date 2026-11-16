@@ -1,8 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { HoverCardProps } from '../../props'
 import { useHoverCard } from './use-hover-card.mobile.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 /** Touch-leaf HoverCard: a tap on the trigger opens the anchored card
  *  (`touchTrigger` 'auto'/'tap'; 'none' disables it). There is no hover
  *  or focus traversal on iOS/Android, so `delay`/`hideDelay`/
@@ -24,7 +22,7 @@ export function HoverCard(props: HoverCardProps): unknown @{
     <masonview
       id={props.id}
       ref={card.ref}
-      className={cx('vx-hovercard-trigger', props.className)}
+      className={['vx-hovercard-trigger', props.className]}
       style={props.style}
       ios={props.ios}
       android={props.android}

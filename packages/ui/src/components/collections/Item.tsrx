@@ -2,24 +2,22 @@
 import type { ItemComponent, ItemProps, ItemSlotProps } from '../../props'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Text } from '../content/Text.tsrx'
-import { cx } from '@octane-xplat/lib'
-
 function StartContent(props: ItemSlotProps) @{
-  <masonview className={cx('vx-item-leading', props.className)} style={{ display: 'flex' }}>
+  <masonview className={['vx-item-leading', props.className]} style={{ display: 'flex' }}>
     {props.children}
   </masonview>
 }
 
 function Content(props: ItemSlotProps) @{
-  <masonview className={cx('vx-item-content', props.className)}>{props.children}</masonview>
+  <masonview className={['vx-item-content', props.className]}>{props.children}</masonview>
 }
 
 function Description(props: ItemSlotProps) @{
-  <Text className={cx('vx-item-supporting', props.className)}>{props.children}</Text>
+  <Text className={['vx-item-supporting', props.className]}>{props.children}</Text>
 }
 
 function EndContent(props: ItemSlotProps) @{
-  <masonview className={cx('vx-item-trailing', props.className)} style={{ display: 'flex' }}>
+  <masonview className={['vx-item-trailing', props.className]} style={{ display: 'flex' }}>
     {props.children}
   </masonview>
 }
@@ -27,13 +25,13 @@ function EndContent(props: ItemSlotProps) @{
 function ItemView(props: ItemProps) @{
   <Pressable
     id={props.id}
-    className={cx(
+    className={[
       'vx-item',
       props.density === 'compact' && 'vx-item--compact',
       props.isSelected && 'vx-item--selected',
       props.isHighlighted && 'vx-item--highlighted',
       props.className,
-    )}
+    ]}
     style={props.style}
     onPress={props.onPress}
     disabled={props.isDisabled}

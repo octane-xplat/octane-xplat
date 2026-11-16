@@ -13,7 +13,6 @@ import {
   resolveTimestampFormat,
 } from './time-format'
 
-import { cx } from '@octane-xplat/lib'
 import { textRoleClasses } from './text-role'
 import { HoverCard } from '../overlays/HoverCard.tsrx'
 
@@ -100,7 +99,7 @@ export function Timestamp(props: TimestampProps): unknown @{
   const labelNode = (
     <label
       id={props.id}
-      className={cx('vx-timestamp', roleClasses, props.className)}
+      className={['vx-timestamp', roleClasses, props.className]}
       style={styleRecord(props.style)}
       text={text}
       accessibilityLabel={relative ? absoluteLabel : undefined}

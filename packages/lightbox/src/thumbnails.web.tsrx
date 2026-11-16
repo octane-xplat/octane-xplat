@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { JSX } from 'octane/jsx-runtime'
 import { createContext, useContext, useLayoutEffect, useRef, useState } from 'octane'
-import { cx } from '@octane-xplat/lib'
 import './thumbnails.web.css'
 import { useLightboxCtx } from './root.web.tsrx'
 import { createThumbnailLayout } from './thumbnail-layout'
@@ -114,7 +113,7 @@ export function Thumbnails(props: LightboxPartProps): JSX.Element {
         ref={ref}
         id={props.id}
         data-testid={props.testID}
-        className={cx('vx-lightbox-thumbnails', props.className)}
+        className={['vx-lightbox-thumbnails', props.className]}
         style={props.style}
       >
         {props.children as never}
@@ -142,7 +141,7 @@ export function Thumbnail(props: LightboxThumbnailPartProps): JSX.Element {
       data-lightbox-thumbnail=""
       aria-label={`Show image ${props.index + 1}`}
       aria-current={ctx.index === props.index || undefined}
-      className={cx('vx-lightbox-thumbnail', props.className)}
+      className={['vx-lightbox-thumbnail', props.className]}
       style={props.style}
       onClick={(event: MouseEvent) => {
         props.onPress?.(event)
@@ -167,7 +166,7 @@ export function ThumbnailIndicator(props: LightboxPartProps): JSX.Element {
       id={props.id}
       data-testid={props.testID}
       aria-hidden="true"
-      className={cx('vx-lightbox-thumbnail-indicator', props.className)}
+      className={['vx-lightbox-thumbnail-indicator', props.className]}
       style={props.style}
     >
       {props.children as never}

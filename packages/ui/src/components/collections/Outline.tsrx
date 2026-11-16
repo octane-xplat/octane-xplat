@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useEffect, useRef, useState } from 'octane'
 import type { OutlineProps } from '../../props'
-import { cx } from '@octane-xplat/lib'
 import {
   applyEscapeProps,
   nativeAccessibilityRole,
@@ -148,7 +147,7 @@ export function Outline(props: OutlineProps): unknown @{
       applyEscapeProps(v, props)
     }}
     id={props.id}
-    className={cx('vx-outline', `vx-outline--${density}`, props.className)}
+    className={['vx-outline', `vx-outline--${density}`, props.className]}
     style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style) })}
     accessible={true}
     accessibilityRole={nativeAccessibilityRole('none')}
@@ -160,7 +159,7 @@ export function Outline(props: OutlineProps): unknown @{
       return (
         <masonview
           key={item.id}
-          className={cx('vx-outline-item', isActive && 'vx-outline-item--active')}
+          className={['vx-outline-item', isActive && 'vx-outline-item--active']}
           style={mergeStyle(
             { flexDirection: 'row', alignItems: 'center' },
             mergeStyle(
