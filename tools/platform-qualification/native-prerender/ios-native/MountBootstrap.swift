@@ -7,6 +7,40 @@ import os.signpost
 // main.swift through NativeSource and the stock launcher; no Application.run
 // or Page handoff participates in this bounded 320x640 control.
 private let mountBuildHash = "__XPLAT_PRERENDER_BUILD_HASH__"
+// main.swift top-level lets evaluate at program entry, so this marks the
+// boundary between dyld/framework load and UIKit launch work.
+private let mainEnteredUptime = ProcessInfo.processInfo.systemUptime
+
+// Reads the startup artifact off the willConnectTo critical path: begin()
+// runs in main() before UIApplicationMain so the file read overlaps UIKit
+// launch and scene setup.
+final class PrerenderArtifactPrefetch {
+    private static var data: Data?
+    private static let ready = DispatchSemaphore(value: 0)
+    static func begin(_ resource: String, subdirectory: String?) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            data = Bundle.main.url(forResource: resource, withExtension: "bin", subdirectory: subdirectory).flatMap { try? Data(contentsOf: $0) }
+            ready.signal()
+        }
+    }
+    static func take() -> Data? {
+        ready.wait()
+        return data
+    }
+}
+
+private func processStartUptime() -> TimeInterval {
+    var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+    var kp = kinfo_proc()
+    var size = MemoryLayout<kinfo_proc>.size
+    let ok = mib.withUnsafeMutableBufferPointer { sysctl($0.baseAddress, u_int($0.count), &kp, &size, nil, 0) } == 0
+    guard ok, size == MemoryLayout<kinfo_proc>.size else {
+        return ProcessInfo.processInfo.systemUptime
+    }
+    let tv = kp.kp_proc.p_starttime
+    let startedWall = TimeInterval(tv.tv_sec) + TimeInterval(tv.tv_usec) / 1_000_000
+    return startedWall - (Date().timeIntervalSince1970 - ProcessInfo.processInfo.systemUptime)
+}
 
 final class MountDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]?) -> Bool { true }
@@ -42,7 +76,8 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
     }
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options: UIScene.ConnectionOptions) {
         guard let scene = scene as? UIWindowScene else { preconditionFailure("Expected window scene") }
-        record("native-launch")
+        let preSceneMs = (started - processStartUptime()) * 1000
+        record("native-launch", ["preSceneMs": preSceneMs, "spawnToMainMs": (mainEnteredUptime - processStartUptime()) * 1000])
         let controller = UIViewController()
         let outer = UIView()
         controller.view = outer
@@ -65,13 +100,17 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         outer.addSubview(viewport)
         let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
         let windowInsets = window.safeAreaInsets
+        record("native-window-ready")
         let artifact: [String: Any]
         do {
             let resource = Bundle.main.url(forResource: "startup", withExtension: "bin", subdirectory: "app")
             guard let url = resource else {
                 throw XplatMasonArtifact.Invalid(reason: "missing artifact")
             }
-            let decoded = try XplatMasonArtifact.decode(Data(contentsOf: url), expectedBuildHash: mountBuildHash)
+            let prefetched = PrerenderArtifactPrefetch.take()
+            let bytes = try prefetched ?? Data(contentsOf: url)
+            record("native-artifact-read", ["prefetched": prefetched != nil])
+            let decoded = try XplatMasonArtifact.decode(bytes, expectedBuildHash: mountBuildHash)
             guard try decoded.snapshot.supports(
                 fontScale: UIApplication.shared.preferredContentSizeCategory == .large ? 1 : 0,
                 width: Double(canvas.width), height: Double(canvas.height),
@@ -163,4 +202,5 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         }
     }
 }
+PrerenderArtifactPrefetch.begin("startup", subdirectory: "app")
 UIApplicationMain(CommandLine.argc, CommandLine.unsafeArgv, nil, NSStringFromClass(MountDelegate.self))

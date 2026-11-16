@@ -6,6 +6,40 @@ import os.signpost
 // Fixed Home control. The SDK variant uses NativeSource and the stock launcher;
 // the independent experimental host still compiles this file as main.swift.
 private let homeBuildHash = "__XPLAT_PRERENDER_BUILD_HASH__"
+// main.swift top-level lets evaluate at program entry, so this marks the
+// boundary between dyld/framework load and UIKit launch work.
+private let mainEnteredUptime = ProcessInfo.processInfo.systemUptime
+
+// Reads the startup artifact off the willConnectTo critical path: begin()
+// runs in main() before UIApplicationMain so the file read overlaps UIKit
+// launch and scene setup.
+final class PrerenderArtifactPrefetch {
+    private static var data: Data?
+    private static let ready = DispatchSemaphore(value: 0)
+    static func begin(_ resource: String, subdirectory: String?) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            data = Bundle.main.url(forResource: resource, withExtension: "bin", subdirectory: subdirectory).flatMap { try? Data(contentsOf: $0) }
+            ready.signal()
+        }
+    }
+    static func take() -> Data? {
+        ready.wait()
+        return data
+    }
+}
+
+private func processStartUptime() -> TimeInterval {
+    var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+    var kp = kinfo_proc()
+    var size = MemoryLayout<kinfo_proc>.size
+    let ok = mib.withUnsafeMutableBufferPointer { sysctl($0.baseAddress, u_int($0.count), &kp, &size, nil, 0) } == 0
+    guard ok, size == MemoryLayout<kinfo_proc>.size else {
+        return ProcessInfo.processInfo.systemUptime
+    }
+    let tv = kp.kp_proc.p_starttime
+    let startedWall = TimeInterval(tv.tv_sec) + TimeInterval(tv.tv_usec) / 1_000_000
+    return startedWall - (Date().timeIntervalSince1970 - ProcessInfo.processInfo.systemUptime)
+}
 
 final class HomeDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]?) -> Bool { true }
@@ -48,7 +82,7 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
     }
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options: UIScene.ConnectionOptions) {
         guard let scene = scene as? UIWindowScene else { preconditionFailure("Expected window scene") }
-        record("native-launch")
+        record("native-launch", ["preSceneMs": (started - processStartUptime()) * 1000, "spawnToMainMs": (mainEnteredUptime - processStartUptime()) * 1000])
         let controller = UIViewController()
         let outer = UIView()
         controller.view = outer
@@ -69,6 +103,7 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         root.style.setSizePoints(width, height)
         root.frame = content
         let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
+        record("native-window-ready")
         let artifact: [String: Any]
         do {
             #if XPLAT_PRERENDER_STOCK_SDK
@@ -79,7 +114,10 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
             guard let url = resource else {
                 throw XplatMasonArtifact.Invalid(reason: "missing artifact")
             }
-            let decoded = try XplatMasonArtifact.decode(Data(contentsOf: url), expectedBuildHash: homeBuildHash)
+            let prefetched = PrerenderArtifactPrefetch.take()
+            let bytes = try prefetched ?? Data(contentsOf: url)
+            record("native-artifact-read", ["prefetched": prefetched != nil])
+            let decoded = try XplatMasonArtifact.decode(bytes, expectedBuildHash: homeBuildHash)
             let windowInsets = window.safeAreaInsets
             guard try decoded.snapshot.supports(
                 fontScale: UIApplication.shared.preferredContentSizeCategory == .large ? 1 : 0,
@@ -223,4 +261,9 @@ final class HomeScene: UIResponder, UIWindowSceneDelegate {
         }
     }
 }
+#if XPLAT_PRERENDER_STOCK_SDK
+PrerenderArtifactPrefetch.begin("startup", subdirectory: "app")
+#else
+PrerenderArtifactPrefetch.begin("home", subdirectory: nil)
+#endif
 UIApplicationMain(CommandLine.argc, CommandLine.unsafeArgv, nil, NSStringFromClass(HomeDelegate.self))
