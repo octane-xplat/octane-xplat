@@ -22,7 +22,7 @@ function callable(info) {
     const arg=GI.callable_info_get_arg(info,i)
     args.push({name:arg.get_name(),type:type(GI.arg_info_get_type(arg)),direction:GI.arg_info_get_direction(arg),transfer:GI.arg_info_get_ownership_transfer(arg),scope:GI.arg_info_get_scope(arg),closure:GI.arg_info_get_closure(arg),destroy:GI.arg_info_get_destroy(arg),nullable:GI.arg_info_may_be_null(arg)})
   }
-  return {name:info.get_name(),args,returns:type(GI.callable_info_get_return_type(info)),transfer:GI.callable_info_get_caller_owns(info),skipReturn:GI.callable_info_skip_return(info),throws:GI.callable_info_can_throw_gerror(info)}
+  return {name:info.get_name(),args,returns:type(GI.callable_info_get_return_type(info)),transfer:GI.callable_info_get_caller_owns(info),instanceTransfer:GI.callable_info_get_instance_ownership_transfer(info),skipReturn:GI.callable_info_skip_return(info),throws:GI.callable_info_can_throw_gerror(info)}
 }
 function methods(info,prefix){const result={};for(let i=0;i<GI[prefix+'_get_n_methods'](info);i++){const m=GI[prefix+'_get_method'](info,i);result[m.get_name()]={...callable(m),symbol:GI.function_info_get_symbol(m),flags:GI.function_info_get_flags(m)}}return result}
 const output={namespaces:{}}

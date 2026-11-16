@@ -24,6 +24,10 @@ const registry = new FinalizationRegistry((entry) => {
     C.g_bytes_unref(entry.native)
     return
   }
+  if (entry?.kind === 'gsk-transform') {
+    C.gsk_transform_unref(entry.native)
+    return
+  }
   if (entry?.kind === 'gtk-accessible-list') {
     C.g_boxed_free(C.gtk_accessible_list_get_type(),entry.native)
     return
@@ -74,6 +78,7 @@ function fromNative(value,type,transfer=0){
         if(typeof C.g_bytes_unref!=='function'||(transfer!==2&&typeof C.g_bytes_ref!=='function'))throw Error('GLib.Bytes reference functions are unavailable')
         return wrapStruct(transfer===2?value:C.g_bytes_ref(value),ref,true,true)
       }
+      if(ref.ns==='Gsk'&&ref.name==='Transform')return wrapStruct(transfer===2?value:C.gsk_transform_ref(value),ref,true,true)
       if(ref.ns==='Gtk'&&ref.name==='AccessibleList')return wrapStruct(value,ref,transfer===2,true)
       return wrapStruct(value,ref)
     }
@@ -177,6 +182,18 @@ function wrapStruct(native,ref,owned=false,force=false){
     target.unref=function(...args){registry.unregister(token);target.__bytesFreed=true;return unref.apply(proxy,args)}
     registry.register(proxy,{kind:'glib-bytes',native:pointer(native)},token)
   }
+  if(owned&&ref.ns==='Gsk'&&ref.name==='Transform'){
+    const token={}
+    target.ref=()=>{
+      if(target.__transformFreed)throw Error('Gsk.Transform already released')
+      return wrapStruct(C.gsk_transform_ref(pointer(native)),ref,true,true)
+    }
+    target.unref=()=>{
+      if(target.__transformFreed)throw Error('Gsk.Transform already released')
+      target.__transformFreed=true;registry.unregister(token);C.gsk_transform_unref(pointer(native))
+    }
+    registry.register(proxy,{kind:'gsk-transform',native:pointer(native)},token)
+  }
   if(owned&&ref.ns==='Gtk'&&ref.name==='AccessibleList'){
     registry.register(proxy,{kind:'gtk-accessible-list',native:pointer(native)})
   }
@@ -244,8 +261,8 @@ function getClass(ns,name){
   if(record.values)return record.values
   const klass=function(...args){
     if([7,8].includes(record.kind))return makeObject(new.target,args[0])
-    if(ns==='GLib'&&name==='Bytes'){
-      if(typeof klass.new!=='function')throw Error('GLib.Bytes.new is not available in the native projection')
+    if((ns==='GLib'&&name==='Bytes')||(ns==='Gsk'&&name==='Transform')){
+      if(typeof klass.new!=='function')throw Error(`${ns}.${name}.new is not available in the native projection`)
       return klass.new(...args)
     }
     const native=new (rawCtor(ns,name))()
@@ -333,7 +350,7 @@ function callbackNative(fn,info,owner){
   return raw
 }
 function invoke(info,values,self){
-  const hidden=new Set(),out=[],args=[],cleanup=[],callbacks=[]
+  const hidden=new Set(),out=[],args=[],cleanup=[],callbacks=[],retain=[]
   const byteReturn=info.returns.tag===15&&info.returns.element?.tag===3&&info.returns.length>=0
   let byteLength
   try{
@@ -345,7 +362,14 @@ function invoke(info,values,self){
       const value=values[inputIndex++]
       if(arg.type.tag===15&&arg.type.length>=0&&value!=null)lengths.set(arg.type.length,typeof value==='string'?new TextEncoder().encode(value).length:value.length)
     })
-    if(self)args.push(pointer(self))
+    if(self){
+      if(self.__ref?.ns==='Gsk'&&self.__ref.name==='Transform'){
+        if(info.instanceTransfer===undefined)throw Error('Re-export GI schema with instance ownership metadata')
+        if(self.__transformFreed)throw Error('Gsk.Transform already released')
+        if(info.instanceTransfer===2)retain.push(()=>C.gsk_transform_ref(pointer(self)))
+      }else if(info.instanceTransfer===2&&self.__gobject)retain.push(()=>g_object_ref(pointer(self)))
+      args.push(pointer(self))
+    }
     for(let i=0;i<info.args.length;i++){
       const arg=info.args[i],type=arg.type
       if(byteReturn&&i===info.returns.length){
@@ -384,13 +408,20 @@ function invoke(info,values,self){
       else {
         // A transfer-full parameter consumes a native reference; add one for the
         // callee's consumption — the wrapper's own ref stays ours to release.
-        if(arg.transfer===2&&value?.__ref&&isObject(value.__ref))g_object_ref(pointer(value))
+        if(arg.transfer===2&&value?.__ref){
+          if(isObject(value.__ref))retain.push(()=>g_object_ref(pointer(value)))
+          else if(value.__ref.ns==='Gsk'&&value.__ref.name==='Transform'){
+            if(value.__transformFreed)throw Error('Gsk.Transform already released')
+            retain.push(()=>C.gsk_transform_ref(pointer(value)))
+          }
+        }
         value=pointer(value)
       }
       args.push(value??null)
     }
     const error=info.throws?new interop.Reference(t.pointer):null
     if(error)args.push(error)
+    for(const ref of retain)ref()
     const raw=C[info.symbol](...args)
     if(error?.value){const native=new interop.Reference(_GError,error.value).value;const message=decode(native.message);g_error_free(error.value);throw Error(message)}
     const results=out.map(o=>o.read())

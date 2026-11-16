@@ -112,9 +112,9 @@ This command discovers only top-level `test/*.test.mjs` files that call `runGtkU
 
 The WebView GJS pass exercises `ui-webview` on this host; the NativeScript WebView result remains blocked on generated metadata and is not qualified by the other fixtures.
 
-### Check byte arrays and GTK interfaces
+### Check projection values and ownership
 
-The `projection` fixture checks decoded bytes, copied buffers, empty arrays, and GTK interface membership before broader UI runs. Use the same prepared runtime, Mason directory, and ICU data as above. It performs no OS input and prints a `GTK_PROJECTION` summary; the runner rejects failed checks or a missing summary.
+The `projection` fixture checks decoded bytes, copied buffers, empty arrays, GTK interface membership, and transform construction and reuse before broader UI runs. Use the same prepared runtime, Mason directory, and ICU data as above. It performs no OS input and prints a `GTK_PROJECTION` summary; the runner rejects failed checks or a missing summary.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"GTK projection smoke"}' -- \
@@ -128,7 +128,7 @@ Replace `native` with `gjs` to run the control on the same host.
 
 ## Real renderer port
 
-`port/` runs the shipping renderer (`createGtkRoot` from `@octane-xplat/linux-gtk`) and shared `@octane-xplat/ui` components unchanged on the NativeScript runtime. `port/bindings.mjs` projects a GObject-style API (constructors, methods, properties, signals, `GObject.registerClass`, GLib sources) onto the runtime's generated C symbols — `beginScope`/`releaseScope` group created objects for teardown checks and own only timers and call-scoped callbacks — driven by a GI description exported from the target host: `research/linux-runtime-port/gi.json` by default — override with `LINUX_RUNTIME_EVAL_GI_SCHEMA` when testing a schema from another host (for example an x86_64 GTK 4.14 export) — produced on a Linux host by `port/export-gi.js` under GJS:
+`port/` runs the shipping renderer (`createGtkRoot` from `@octane-xplat/linux-gtk`) and shared `@octane-xplat/ui` components unchanged on the NativeScript runtime. `port/bindings.mjs` projects a GObject-style API (constructors, methods, properties, signals, `GObject.registerClass`, GLib sources) onto the runtime's generated C symbols — `beginScope`/`releaseScope` group created objects for teardown checks and own only timers and call-scoped callbacks — driven by a GI description exported from the target host: `research/linux-runtime-port/gi.json` by default — override with `LINUX_RUNTIME_EVAL_GI_SCHEMA` when testing a schema from another host (for example an x86_64 GTK 4.14 export) — produced on a Linux host by `port/export-gi.js` under GJS. Re-export after changing the exporter; transform methods require its `instanceTransfer` field so a native call can consume a reference without invalidating its JavaScript wrapper:
 
 ```sh
 gjs tools/linux-runtime-eval/port/export-gi.js research/linux-runtime-port/gi.json

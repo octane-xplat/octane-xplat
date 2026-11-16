@@ -1,6 +1,8 @@
 // Low-level projection contracts; run with test:renderer-fixture -- projection.
 import GLib from 'gi://GLib'
 import Gtk from 'gi://Gtk?version=4.0'
+import Gsk from 'gi://Gsk?version=4.0'
+import Graphene from 'gi://Graphene?version=1.0'
 
 Gtk.init()
 const failures=[]
@@ -34,5 +36,23 @@ check('Button does not implement Editable',!(button instanceof Gtk.Editable))
 check('null is not Editable',!(null instanceof Gtk.Editable))
 check('plain object is not Editable',!({} instanceof Gtk.Editable))
 check('class inheritance still works',entry instanceof Gtk.Widget)
+const point=new Graphene.Point({x:4,y:5})
+const at=(transform,x,y)=>{
+  const result=transform.transform_point(point)
+  return Math.abs(result.x-x)<0.001&&Math.abs(result.y-y)<0.001
+}
+const identity=new Gsk.Transform()
+check('opaque transform constructor',at(identity,4,5))
+const scaled=identity.scale(2,3)
+check('transform scale',at(scaled,8,15))
+check('consuming method preserves receiver wrapper',at(identity,4,5))
+const translated=scaled.translate(new Graphene.Point({x:10,y:20}))
+check('transform chain',at(translated,28,75))
+check('consuming chain preserves previous wrapper',at(scaled,8,15))
+for(let i=0;i<100;i++){
+  const next=identity.scale(2,3)
+  if(!at(next,8,15)||!at(identity,4,5))throw Error('Transform repeat failed')
+}
+check('repeated consuming transform calls',true)
 print('GTK_PROJECTION '+JSON.stringify({checks,failures,osInput:false,
   gtk:`${Gtk.get_major_version()}.${Gtk.get_minor_version()}.${Gtk.get_micro_version()}`}))
