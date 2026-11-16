@@ -301,14 +301,20 @@ try {
     // and source/artifact publication do not move into this worker.
     const { loadEnvManifest, expandEnvPrograms } = await import('./tsconfig-envs.ts')
     const project = process.cwd()
+    const loaded = loadEnvManifest(project)
     const configs = ['tsconfig.json']
       .filter((name) => existsSync(join(project, name)))
       .map((name) => join(project, name))
 
-    const loaded = loadEnvManifest(project)
-
     if (loaded) {
-      const required = ['native', 'macos'].filter((name) => loaded.manifest.environments[name])
+      const declared = loaded.manifest.environments
+      const required = [
+        ...(['native', 'ios', 'android', 'windows'].some((name) => declared[name])
+          ? ['native']
+          : []),
+        ...(declared.macos ? ['macos'] : []),
+      ]
+
       const roots = [
         fileURLToPath(srcUrl(import.meta.url, '')),
         fileURLToPath(new URL('.', import.meta.url)),

@@ -66,7 +66,13 @@ test('composing the full target set reproduces the template byte-for-byte', (t) 
 
   composeTargets(ALL, dir)
 
-  for (const rel of ['package.json', 'tsconfig.json', 'vite.config.ts', 'nativescript.config.ts']) {
+  for (const rel of [
+    'package.json',
+    'tsconfig.json',
+    'tsconfig.envs.json',
+    'vite.config.ts',
+    'nativescript.config.ts',
+  ]) {
     assert.equal(
       readFileSync(join(dir, rel), 'utf8'),
       readFileSync(join(TEMPLATE_DIR, rel), 'utf8'),
@@ -88,6 +94,8 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
   const pkg = JSON.parse(yaml)
 
   assert.equal(pkg.devDependencies['@tsrx/content-mapper'], undefined)
+  assert.equal(pkg.devDependencies.typescript, 'catalog:xplat')
+  assert.equal(pkg.workspaces.catalogs.xplat.typescript, '7.1.0-beta')
 
   const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
 
@@ -252,7 +260,12 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
   const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
 
   assert.equal(tsconfig.custom, true)
-  assert.ok(tsconfig.files.includes('references.d.ts'))
+  assert.ok(tsconfig.references.some((ref) => ref.path.endsWith('/ios.json')))
+
+  const envs = JSON.parse(readFileSync(join(dir, 'tsconfig.envs.json'), 'utf8')).environments
+
+  assert.deepEqual(Object.keys(envs), ['web', 'ios'])
+  assert.deepEqual(envs.ios.compilerOptions.types, ['@nativescript/types', 'vite/client'])
 
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
 
@@ -273,11 +286,7 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
   const yaml = readFileSync(join(dir, 'package.json'), 'utf8')
 
   assert.match(yaml, /@nativescript\/core@9\.1\.3/)
-  assert.ok(
-    yaml.includes(
-      `@nativescript/vite@${managedSpecifier('@nativescript/vite')}`,
-    ),
-  )
+  assert.ok(yaml.includes(`@nativescript/vite@${managedSpecifier('@nativescript/vite')}`))
 
   assert.ok(report.patchesAdded)
 })

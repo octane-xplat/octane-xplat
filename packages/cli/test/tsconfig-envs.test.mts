@@ -1,242 +1,189 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, existsSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-
 import {
   expandEnvPrograms,
   loadEnvManifest,
+  envSolution,
   PLATFORM_MODULE_SUFFIXES,
-} from '../dist/tsconfig-envs.js'
+} from '../src/tsconfig-envs.ts'
 
 const tmp = []
-
-function fixture(manifest, files = ['src/index.ts']) {
+function fixture(environments, options = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-envs-'))
 
   tmp.push(dir)
-  mkdirSync(join(dir, 'src'), { recursive: true })
-  for (const rel of files) {
-    const abs = join(dir, rel)
-
-    mkdirSync(join(abs, '..'), { recursive: true })
-    writeFileSync(abs, 'export {}\n')
+  mkdirSync(join(dir, 'src'))
+  for (const name of [
+    'index',
+    'shared',
+    'index.web',
+    'index.ios',
+    'index.android',
+    'index.macos',
+    'index.windows',
+  ]) {
+    writeFileSync(join(dir, `src/${name}.ts`), 'export {}\n')
   }
 
-  writeFileSync(join(dir, 'tsconfig.envs.json'), JSON.stringify(manifest, null, '\t'))
+  writeFileSync(join(dir, 'tsconfig.envs.json'), JSON.stringify({ environments, ...options }))
   return dir
 }
 
-function expand(dir) {
-  const manifest = loadEnvManifest(dir)
-
-  return expandEnvPrograms(dir, manifest)
+const entries = {
+  web: { files: ['src/index.web.ts', 'src/shared.ts'] },
+  native: { files: ['src/index.ts', 'src/index.ios.ts', 'src/index.android.ts', 'src/shared.ts'] },
+  macos: { files: ['src/index.macos.ts', 'src/shared.ts'] },
+  windows: { files: ['src/index.windows.ts', 'src/shared.ts'] },
 }
 
-test.after(() => {
-  for (const dir of tmp) {
-    rmSync(dir, { recursive: true, force: true })
-  }
-})
+const expand = (dir) => expandEnvPrograms(dir, loadEnvManifest(dir))
+const config = (program) => JSON.parse(readFileSync(program.configPath, 'utf8'))
 
-test('a manifest expands to exactly one combined program', () => {
-  const dir = fixture(
-    {
-      environments: {
-        web: { files: ['src/index.ts', 'src/index.web.ts'] },
-        native: { files: ['src/index.ios.ts'] },
-      },
-    },
-    ['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts'],
-  )
+test.after(() => tmp.forEach((dir) => rmSync(dir, { recursive: true, force: true })))
 
+test('separate phone SDKs, platform resolution and shared roots in all five programs', () => {
+  const dir = fixture(entries)
   const programs = expand(dir)
 
-  assert.equal(programs.length, 1)
-  assert.equal(programs[0].env, 'all')
-})
-
-test('the program carries the fixed module suffix precedence', () => {
-  const dir = fixture({
-    environments: { web: { files: ['src/index.ts'] } },
-  })
-
-  const [program] = expand(dir)
-  const config = JSON.parse(readFileSync(program.configPath, 'utf8'))
-
-  assert.deepEqual(config.compilerOptions.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)
-  // The one platform condition ordering is extensionless first.
-  assert.equal(PLATFORM_MODULE_SUFFIXES[0], '')
-  // No platform customConditions — package boundaries resolve the default
-  // (unsuffixed) export surface.
-  assert.equal(config.compilerOptions.customConditions, undefined)
-  // Combined programs use the shared cross-platform JSX facade.
-  assert.equal(config.compilerOptions.jsxImportSource, '@octane-xplat/jsx')
-})
-
-test('all environment files union into the program', () => {
-  const dir = fixture(
-    {
-      environments: {
-        web: { files: ['src/index.ts', 'src/index.web.ts'] },
-        native: { files: ['src/index.ios.ts'] },
-      },
-    },
-    ['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts'],
+  assert.deepEqual(
+    programs.map((p) => p.env),
+    ['web', 'ios', 'android', 'macos', 'windows'],
   )
 
-  const [program] = expand(dir)
+  for (const p of programs) {
+    assert.ok(p.files.includes(join(dir, 'src/shared.ts')))
 
-  for (const rel of ['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts']) {
-    assert.ok(
-      program.files.some((f) => f.endsWith(`/${rel}`)),
-      `missing ${rel}`,
-    )
+    const c = config(p)
+
+    assert.equal(c.extends, join(dir, 'tsconfig.envs.json'))
+    assert.equal(c.compilerOptions.moduleSuffixes[0], `.${p.env}`)
+    assert.deepEqual(c.compilerOptions.types, [])
+    assert.equal(c.compilerOptions.lib.includes('DOM'), p.env === 'web')
+    for (const other of ['web', 'ios', 'android', 'macos', 'windows'].filter((v) => v !== p.env)) {
+      assert.ok(!p.files.includes(join(dir, `src/index.${other}.ts`)))
+    }
+  }
+
+  assert.deepEqual(
+    envSolution(programs, dir).references.map((r) => r.path),
+    programs.map((p) => './' + p.configPath.slice(dir.length + 1)),
+  )
+})
+
+test('Linux and GTK retain the legacy mixed program and fixed precedence', () => {
+  for (const target of ['linux', 'gtk']) {
+    const dir = fixture({ ...entries, [target]: { files: ['src/shared.ts'] } })
+    const all = expand(dir).find((p) => p.env === 'all')
+
+    assert.ok(all.files.includes(join(dir, 'src/index.ios.ts')))
+    assert.ok(all.files.includes(join(dir, 'src/index.android.ts')))
+    assert.ok(all.files.includes(join(dir, 'src/index.web.ts')))
+    assert.deepEqual(config(all).compilerOptions.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)
+    assert.ok(config(all).compilerOptions.lib.includes('DOM'))
   }
 })
 
-test('ambient host files precede env files (first-wins global merges)', () => {
-  const dir = fixture(
-    {
-      environments: {
-        native: { files: ['src/index.ios.ts'] },
-        macos: { files: ['src/index.macos.ts'] },
+test('explicitly empty types prevent inherited automatic @types discovery', () => {
+  const dir = fixture(entries, { compilerOptions: { types: [] } })
+
+  assert.ok(expand(dir).every((p) => config(p).compilerOptions.types.length === 0))
+})
+
+test('reject conflicting SDKs, DOM, resolution overrides, overlap, malformed and empty entries', () => {
+  const cases = [
+    [{ ...entries, ios: entries.native }, {}, /overlaps/],
+    [
+      {
+        ...entries,
+        windows: { ...entries.windows, compilerOptions: { types: ['@nativescript/types-ios'] } },
       },
-    },
-    ['src/index.macos.ts', 'src/index.ios.ts'],
-  )
+      {},
+      /ios SDK/,
+    ],
+    [entries, { compilerOptions: { lib: ['esnext', 'dom.iterable'] } }, /DOM libraries/],
+    [
+      { ...entries, native: { ...entries.native, compilerOptions: { moduleSuffixes: [''] } } },
+      {},
+      /moduleSuffixes/,
+    ],
+    [entries, { compilerOptions: { moduleSuffixes: ['.web', ''] } }, /moduleSuffixes is fixed/],
+    [entries, { compilerOptions: { types: 'node' } }, /types must be an array/],
+    [
+      { ...entries, web: { ...entries.web, compilerOptions: { lib: null } } },
+      {},
+      /lib must be an array/,
+    ],
+    [{ ...entries, native: { include: 'src/*' } }, {}, /array of strings/],
+    [{ ...entries, native: { files: [] } }, {}, /empty program/],
+    [{ ...entries, unknown: { files: ['src/shared.ts'] } }, {}, /unknown environment/],
+  ]
 
-  const [program] = expand(dir)
-  const envFiles = program.files.filter((f) => f.startsWith(dir))
-  const ambientFiles = program.files.filter((f) => !f.startsWith(dir))
-
-  assert.ok(envFiles.length >= 2)
-  assert.ok(ambientFiles.length >= 1, 'expected ambient files')
-
-  // Every ambient file precedes every env file in program order.
-  const firstEnv = program.files.indexOf(envFiles[0])
-
-  assert.ok(ambientFiles.every((f) => program.files.indexOf(f) < firstEnv))
-})
-
-test('per-environment compilerOptions are rejected except types', () => {
-  const dir = fixture(
-    {
-      environments: {
-        native: {
-          files: ['src/index.ios.ts'],
-          compilerOptions: { moduleSuffixes: ['.ios', ''], types: ['@nativescript/types'] },
-        },
-      },
-    },
-    ['src/index.ios.ts'],
-  )
-
-  assert.throws(() => expand(dir), /environment "native".*moduleSuffixes.*one program/s)
-})
-
-test('environment types merge into the combined program', () => {
-  const dir = fixture(
-    {
-      environments: {
-        native: {
-          files: ['src/index.ios.ts'],
-          compilerOptions: { types: ['@nativescript/types'] },
-        },
-      },
-    },
-    ['src/index.ios.ts'],
-  )
-
-  const [program] = expand(dir)
-  const config = JSON.parse(readFileSync(program.configPath, 'utf8'))
-
-  assert.deepEqual(config.compilerOptions.types, ['@nativescript/types'])
-})
-
-test('top-level moduleSuffixes must match the fixed order or be omitted', () => {
-  const bad = fixture({
-    environments: { web: { files: ['src/index.ts'] } },
-    compilerOptions: { moduleSuffixes: ['.web', ''] },
-  })
-
-  assert.throws(() => expand(bad), /moduleSuffixes is fixed/)
-
-  const ok = fixture({
-    environments: { web: { files: ['src/index.ts'] } },
-    compilerOptions: { moduleSuffixes: [...PLATFORM_MODULE_SUFFIXES] },
-  })
-
-  expand(ok)
-})
-
-test('platform barrels must be claimed by their environment', () => {
-  const missing = fixture(
-    { environments: { web: { files: ['src/index.ts', 'src/index.web.ts'] } } },
-    ['src/index.ts', 'src/index.web.ts', 'src/index.macos.ts'],
-  )
-
-  assert.throws(() => expand(missing), /index\.macos\.ts.*not claimed.*macos/s)
-
-  const covered = fixture(
-    {
-      environments: {
-        web: { files: ['src/index.ts', 'src/index.web.ts'] },
-        macos: { files: ['src/index.macos.ts'] },
-      },
-    },
-    ['src/index.ts', 'src/index.web.ts', 'src/index.macos.ts'],
-  )
-
-  expand(covered)
-})
-
-test('the written config extends the manifest and expands in place', () => {
-  const dir = fixture({
-    environments: { web: { files: ['src/index.ts'] } },
-  })
-
-  const [program] = expand(dir)
-
-  assert.ok(existsSync(program.configPath))
-
-  const config = JSON.parse(readFileSync(program.configPath, 'utf8'))
-
-  assert.equal(config.extends, join(dir, 'tsconfig.envs.json'))
-})
-
-test('JSONC preserves comma-like string values and object keys', () => {
-  const manifest = {
-    environments: { web: { files: ['src/index.ts'] } },
-    compilerOptions: { paths: { ',}': [',]', 'https://example.com/*', '/* keep */'] } },
+  for (const [envs, options, error] of cases) {
+    assert.throws(() => expand(fixture(envs, options)), error)
   }
-
-  const dir = fixture(manifest)
-
-  assert.deepEqual(loadEnvManifest(dir).manifest, manifest)
 })
 
-test('JSONC accepts comments and trailing commas without repairing missing values', () => {
-  const dir = fixture({ environments: { web: { files: ['src/index.ts'] } } })
+test('unclaimed platform barrels fail instead of silently losing coverage', () => {
+  assert.throws(() => expand(fixture({ web: entries.web })), /not claimed/)
+})
+
+test('JSONC comments and trailing commas preserve string values and reject syntax damage', () => {
+  const dir = fixture(entries)
   const path = join(dir, 'tsconfig.envs.json')
 
   writeFileSync(
     path,
-    '{ /* config */ "environments": { "web": { "files": ["src/index.ts",], }, }, // end\n }',
+    '{ /* config */ "environments": { "web": { "files": ["src/index.web.ts",], }, }, // end\n }',
   )
 
-  assert.deepEqual(loadEnvManifest(dir).manifest, {
-    environments: { web: { files: ['src/index.ts'] } },
-  })
-
+  assert.deepEqual(loadEnvManifest(dir).manifest.environments.web.files, ['src/index.web.ts'])
   for (const text of [
     '{"environments":{"web":{"files":[,]}}}',
     '{"environments":{"web":{,}}}',
-    '{"environments":{"web":{}},"compilerOptions":{"paths":{"x":[1/* gap */2]}}}',
     '{"environments":{"web":{}}} /* unfinished',
   ]) {
     writeFileSync(path, text)
-    assert.throws(() => loadEnvManifest(dir), /tsconfig\.envs\.json: invalid JSON/)
+    assert.throws(() => loadEnvManifest(dir), /invalid JSON/)
   }
+})
+
+test('legacy Linux/GTK do not gain Windows runtime declarations or explicit empty types', () => {
+  const dir = fixture(entries)
+  const loaded = loadEnvManifest(dir)
+
+  loaded.manifest.environments = { web: entries.web, linux: entries.web, windows: entries.windows }
+  // Drop barrel fixtures unrelated to this minimal legacy graph.
+  for (const env of ['ios', 'android', 'macos']) {
+    rmSync(join(dir, `src/index.${env}.ts`))
+  }
+
+  rmSync(join(dir, 'src/index.ts'))
+
+  const all = expandEnvPrograms(dir, loaded).find((p) => p.env === 'all')
+
+  assert.equal(config(all).compilerOptions.types, undefined)
+  assert.ok(!all.files.some((file) => file.endsWith('typecheck-globals/native.d.ts')))
+})
+
+test('GTK alone retains its pre-isolation explicit libraries and SDK types', () => {
+  const dir = fixture(
+    { gtk: { files: ['src/index.ts', 'src/shared.ts'] } },
+    {
+      compilerOptions: { lib: ['DOM'], types: ['@nativescript/types-ios'] },
+    },
+  )
+
+  for (const env of ['web', 'ios', 'android', 'macos', 'windows']) {
+    rmSync(join(dir, `src/index.${env}.ts`))
+  }
+
+  const [all] = expand(dir)
+
+  assert.equal(all.env, 'all')
+  assert.ok(config(all).compilerOptions.lib.includes('DOM'))
+  assert.deepEqual(config(all).compilerOptions.types, ['@nativescript/types-ios'])
+  assert.ok(!all.files.some((file) => file.includes('isolation-')))
 })

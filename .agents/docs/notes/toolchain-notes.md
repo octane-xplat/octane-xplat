@@ -170,22 +170,11 @@ export function Example() {
 
 ### Editor diagnostics and typecheck authority
 
-The repository's authoritative type lane is `tsc --runExternalCode --noEmit` under the web
-and native app configs. The `@tsrx/oxc` editor server is an OXC parser/linter
-lane, not a TypeScript semantic checker. Capturing diagnostics from the
-checked-in `@tsrx/oxc` 0.13 server for the two List leaves produced only
-`oxlint-tsrx` `curly` diagnostics in `List.web.tsrx` (the unbraced `if`/`else`
-statements) and no diagnostics in `List.native.tsrx`; it produced no TypeScript
-type errors. The server also reported one unmapped projected-plugin notice.
-Both `tsrx-tsc --noEmit -p apps/web/tsconfig.json` and the native equivalent
-pass, so there is no real List typing defect to patch. Treat an OXC editor
-lint finding as a lint/configuration issue and use the dual `tsrx-tsc` lane to
-decide whether a reported TypeScript error is real.
-
-```sh
-pnpm exec tsrx-tsc --noEmit -p apps/web/tsconfig.json
-pnpm exec tsrx-tsc --noEmit -p apps/mobile/tsconfig.json
-```
+Semantic checking uses the installed TypeScript 7 compiler and native language
+server with the TSRX content mapper. The OXC editor server is a parser/linter,
+not the TypeScript semantic checker. Follow [platform typechecking](../platform-typechecking.md)
+for discoverable solution references, default shared-file context, transitive SDK
+checks, and the distinction between LSP evidence and actual editor evidence.
 
 ## Version pinning matrix (hard requirement)
 

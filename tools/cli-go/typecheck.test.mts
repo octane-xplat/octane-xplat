@@ -131,6 +131,7 @@ function invocations(directory) {
     .trim()
     .split('\n')
     .map((line) => JSON.parse(line))
+    .filter((call) => !call.argv.includes('--listFilesOnly'))
 }
 
 function reference(directory) {
@@ -252,7 +253,7 @@ test('canonical JSONC environment expansion replaces the legacy program and incl
 
   assert.equal(result.status, 0, result.stderr)
 
-  const file = join(directory, 'node_modules/.cache/xplat-typecheck/all.json')
+  const file = join(directory, 'node_modules/.cache/xplat-typecheck/ios.json')
   const generated = readFileSync(file, 'utf8')
   const expected = reference(directory)
 

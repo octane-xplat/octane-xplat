@@ -1,2 +1,1 @@
-/// <reference types="@nativescript/types" />
-/// <reference types="vite/client" />
+// Platform SDK declarations are selected by tsconfig.envs.json.

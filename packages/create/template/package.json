@@ -25,6 +25,7 @@
 				"nativescript": "9.1.1",
 				"octane": "0.17.0",
 				"octane-xplat": "0.20.0",
+				"typescript": "7.1.0-beta",
 				"typescript-classic": "npm:typescript@5.9.3",
 				"vite": "8.3.6",
 				"vitest": "4.1.11"
@@ -62,18 +63,19 @@
 		"octane": "catalog:xplat"
 	},
 	"devDependencies": {
-		"@octane-xplat/vite-octane": "catalog:xplat",
 		"@nativescript/android": "catalog:xplat",
 		"@nativescript/ios": "catalog:xplat",
 		"@nativescript/types": "catalog:xplat",
 		"@nativescript/unit-test-runner": "catalog:xplat",
 		"@nativescript/vite": "catalog:xplat",
+		"@octane-xplat/vite-octane": "catalog:xplat",
 		"@octane-xplat/workshop": "catalog:xplat",
 		"@octanejs/vite-plugin": "catalog:xplat",
 		"@tsrx/oxc": "catalog:xplat",
 		"jsdom": "catalog:xplat",
 		"nativescript": "catalog:xplat",
 		"octane-xplat": "catalog:xplat",
+		"typescript": "catalog:xplat",
 		"typescript-classic": "catalog:xplat",
 		"vite": "catalog:xplat",
 		"vitest": "catalog:xplat"

@@ -1,0 +1,14 @@
+{
+	"files": [],
+	"references": [
+		{
+			"path": "./node_modules/.cache/xplat-typecheck/web.json"
+		},
+		{
+			"path": "./node_modules/.cache/xplat-typecheck/ios.json"
+		},
+		{
+			"path": "./node_modules/.cache/xplat-typecheck/android.json"
+		}
+	]
+}

@@ -58,7 +58,8 @@
 		"test:packed": "node ../../scripts/check-packed-patches.mts --install",
 		"test:library": "node test/library-guide.mts",
 		"test": "node --test test/*.test.mts",
-		"test:scaffold": "node --test test/scaffold.test.mts"
+		"test:scaffold": "node --test test/scaffold.test.mts",
+		"test:platform-programs": "node --test test/platform-programs.mts"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.8.1",

@@ -1,0 +1,42 @@
+{
+	"extends": "./tsconfig.json",
+	"environments": {
+		"web": {
+			"include": [
+				"src/**/*.{ts,tsx,tsrx}"
+			],
+			"exclude": [
+				"src/**/*.spec.*",
+				"src/test.ts",
+				"src/main.ts"
+			],
+			"compilerOptions": {
+				"types": [
+					"vite/client"
+				]
+			}
+		},
+		"ios": {
+			"include": [
+				"src/**/*.{ts,tsx,tsrx}"
+			],
+			"compilerOptions": {
+				"types": [
+					"@nativescript/types",
+					"vite/client"
+				]
+			}
+		},
+		"android": {
+			"include": [
+				"src/**/*.{ts,tsx,tsrx}"
+			],
+			"compilerOptions": {
+				"types": [
+					"@nativescript/types",
+					"vite/client"
+				]
+			}
+		}
+	}
+}

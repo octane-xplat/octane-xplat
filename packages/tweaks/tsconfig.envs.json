@@ -13,9 +13,7 @@
 			"node"
 		],
 		"lib": [
-			"ESNext",
-			"DOM",
-			"DOM.Iterable"
+			"ESNext"
 		]
 	},
 	"environments": {
@@ -24,7 +22,14 @@
 				"src/**/*.ts",
 				"src/**/*.tsx",
 				"src/**/*.tsrx"
-			]
+			],
+			"compilerOptions": {
+				"lib": [
+					"ESNext",
+					"DOM",
+					"DOM.Iterable"
+				]
+			}
 		},
 		"macos": {
 			"include": [

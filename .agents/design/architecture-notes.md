@@ -258,18 +258,26 @@ packages/
 Single-package `src/` + two vite configs is also viable for a small app; the
 monorepo shape earns its cost once >1 app or a clean publish boundary exists.
 
-One `tsconfig.envs.json` per package declares which files each environment
-claims; `scripts/typecheck.ts` expands it into a single combined program
-using the shared presets (`jsxImportSource`, `lib`, ambient host-globals) in
-`packages/cli/src/tsconfig-envs.ts` under the fixed all-suffix
-`moduleSuffixes` order (extensionless first). Details in
-[module-resolution](../../docs/platform/module-resolution.md).
+One `tsconfig.envs.json` per package declares each environment's roots.
+`scripts/typecheck.ts` expands web, iOS, Android, macOS, and Windows into
+independent programs with target resolution, libraries, and ambient SDKs.
+`native` expands into separate phone programs. Linux/GTK retain the legacy
+combined program and fixed suffix order during their runtime transition.
+Declaration emission keeps its own configuration. Root solution references
+make the programs discoverable to the TypeScript 7 language server and TSRX
+content mapper; shared editor files still select one default context.
+See [platform typechecking](../docs/platform-typechecking.md) and decision #161.
 
 ```json
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": { "jsxImportSource": "octane", "moduleSuffixes": [".web", ""] },
-  "include": ["src/**/*"]
+  "environments": {
+    "web": { "files": ["src/index.web.ts"] },
+    "native": {
+      "files": ["src/index.ts"],
+      "compilerOptions": { "types": ["@nativescript/types"] }
+    }
+  }
 }
 ```
 

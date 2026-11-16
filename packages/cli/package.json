@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/cli",
 	"version": "0.20.0",
-	"description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android + experimental macOS)",
+	"description": "xplat \u2014 dev/build/doctor for octane-xplat apps (web + iOS + Android + experimental macOS)",
 	"keywords": [
 		"build",
 		"cli",
@@ -87,7 +87,7 @@
 		"test:mason-layout": "node --test test/mason-layout.test.mts",
 		"test:native-runtime": "node --test test/vite-native-runtime.test.mts test/mason-layout.test.mts",
 		"test:markdown": "node --test test/markdown-rich.test.ts",
-		"test:typecheck-envs": "node --test test/tsconfig-envs.test.mts",
+		"test:typecheck-envs": "node --test --test-concurrency=1 test/tsconfig-envs.test.mts test/platform-programs.test.mts",
 		"test:routes": "node --test --test-concurrency=2 test/route-*.test.mts",
 		"test:css-variables": "node --test test/native-css-variables.test.mts",
 		"test:css-platform": "node --test test/css-platform.test.mts test/css-layers.test.mts test/vite-inline-stylesheets.test.mts",

@@ -1,5 +1,12 @@
 {
-	"contentMappers": [{ "package": "@octane-xplat/cli", "extensions": [".tsrx"] }],
+	"contentMappers": [
+		{
+			"package": "@octane-xplat/cli",
+			"extensions": [
+				".tsrx"
+			]
+		}
+	],
 	"compilerOptions": {
 		"strict": true,
 		"target": "es2022",
@@ -18,11 +25,29 @@
 			".linux",
 			".windows"
 		],
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
-		"types": ["@nativescript/types"],
+		"lib": [
+			"ESNext"
+		],
+		"types": [],
 		"noEmit": true,
 		"skipLibCheck": true
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.tsrx"],
-	"exclude": ["dist", "types", "node_modules"]
+	"include": [],
+	"exclude": [
+		"dist",
+		"types",
+		"node_modules"
+	],
+	"files": [],
+	"references": [
+		{
+			"path": "./node_modules/.cache/xplat-typecheck/web.json"
+		},
+		{
+			"path": "./node_modules/.cache/xplat-typecheck/ios.json"
+		},
+		{
+			"path": "./node_modules/.cache/xplat-typecheck/android.json"
+		}
+	]
 }

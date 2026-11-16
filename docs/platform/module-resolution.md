@@ -156,16 +156,17 @@ bun run xplat routes
 
 TypeScript checks that the selected component accepts the options your screen
 gives it. In a created app, run `bun run typecheck` from the app folder to check
-all platform files in one program. If you're using an agent, ask it to
+all applicable platform programs. If you're using an agent, ask it to
 fix any errors and run the check again.
 
 The remaining details are for troubleshooting file resolution or maintaining
 the build configuration; you can skip them when that check passes.
 
 The build selects the active platform using the resolution order above.
-The scaffold's TypeScript program checks every variant together. Its fixed
-`moduleSuffixes` order starts with the unsuffixed file, so a passing typecheck
-checks the files' contracts, rather than proving runtime platform selection.
+The scaffold checks each platform in a separate TypeScript program. Each program
+uses that platform's standard TypeScript resolution and SDK declarations.
+Shared files are checked in every applicable program. A passing check does not
+prove that the app runs on a device.
 For TSRX modules, include `.tsrx` but leave out the platform name. TypeScript
 checks the unsuffixed contract; the platform preset selects the runtime leaf.
 Every platform family needs an unsuffixed module; lint checks this for source
@@ -211,9 +212,8 @@ export function Card() {
 }
 ```
 
-The combined program has no platform export condition, so the shared
-`HostElement` is `object`. Name the concrete host type where the ref is
-declared — no casts:
+Target programs bind the shared `HostElement` through platform conditions.
+Name the concrete host type where a native ref is declared:
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -235,17 +235,37 @@ types only. These settings add no runtime renderer:
 { "compilerOptions": { "jsxImportSource": "@octane-xplat/jsx", "customConditions": ["native"] } }
 ```
 
-An older `tsconfig.envs.json` app can opt into the facade in its top-level
-compiler options. `xplat typecheck` preserves that selection when combining
-its environments; manifests without an explicit source resolve the facade default (`@octane-xplat/jsx`); browser-only workspaces set `@octane-xplat/jsx/dom`. The legacy
-`octane` default:
+The app's `tsconfig.envs.json` lists each environment's source files. A
+`native` entry is shorthand for separate iOS and Android checks. Keep DOM
+libraries in the web environment; each native program receives only its matching
+SDK. Existing `@nativescript/types` requests are narrowed to the matching phone
+SDK and common runtime globals. Include shared files in every applicable entry,
+or import them from its roots:
 
 ```json
 {
-  "compilerOptions": { "jsxImportSource": "@octane-xplat/jsx" },
+  "extends": "./tsconfig.json",
   "environments": {
-    "web": { "include": ["src/**/*.web.tsx"] },
-    "native": { "include": ["src/**/*.mobile.tsx"] }
+    "web": { "files": ["src/Card.web.tsrx", "src/model.ts"] },
+    "native": {
+      "files": ["src/Card.mobile.tsrx", "src/model.ts"],
+      "compilerOptions": { "types": ["@nativescript/types"] }
+    }
+  }
+}
+```
+
+Use separate `ios` and `android` entries when their root lists differ. macOS
+and Windows use `macos` and `windows` entries. Existing Linux/GTK manifests
+retain their previous combined check during the Linux migration:
+
+```json
+{
+  "environments": {
+    "ios": { "files": ["src/Card.ios.tsrx", "src/model.ts"] },
+    "android": { "files": ["src/Card.android.tsrx", "src/model.ts"] },
+    "macos": { "files": ["src/Card.macos.tsrx", "src/model.ts"] },
+    "windows": { "files": ["src/Card.windows.tsrx", "src/model.ts"] }
   }
 }
 ```
@@ -280,6 +300,79 @@ uses the project's TypeScript 7.1 compiler:
 
 ```sh
 bun run xplat typecheck
+```
+
+### Editor project context
+
+After installing dependencies, run the app's typecheck once to generate its
+platform configurations. Run it again when you change manifest roots. New
+starters include a root `tsconfig.json` with solution references, which lets the
+language server discover those configurations from source files:
+
+```sh
+bun run typecheck
+```
+
+For an existing manifest-based app, keep common compiler options and the mapper
+entry in the root config, replace its broad `include`/`files` with an empty root
+list, and reference each generated program. This example matches the web/native
+manifest above. The cache files by themselves do not establish editor support:
+
+```json
+{
+  "contentMappers": [{ "package": "octane-xplat", "extensions": [".tsrx"] }],
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "jsxImportSource": "@octane-xplat/jsx",
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./node_modules/.cache/xplat-typecheck/web.json" },
+    { "path": "./node_modules/.cache/xplat-typecheck/ios.json" },
+    { "path": "./node_modules/.cache/xplat-typecheck/android.json" }
+  ]
+}
+```
+
+Use the project's TypeScript 7.1 compiler for semantic editor support. In VS Code,
+install the TSRX and TypeScript 7 extensions (version 1.0.2 or newer), trust the
+workspace, and follow the
+[TSRX native backend setup](https://github.com/tsrx-org/tsrx/blob/main/packages/vscode-plugin/README.md#native-backend-setup).
+New starters declare TypeScript directly so the editor can find it with Bun's
+isolated linker. For an older app, add the same supported compiler version, then
+select it in the editor settings:
+
+```sh
+bun add --dev typescript@7.1.0-beta
+```
+
+```json
+{
+  "js/ts.experimental.useTsgo": true,
+  "js/ts.tsdk.path": "node_modules/typescript"
+}
+```
+
+Platform leaves belong to their matching programs. Shared files can belong to
+several programs, but editor completion, hover, and diagnostics usually use one
+default project. They do not combine every SDK or check every target at once.
+For a deliberate shared-file context, change only the `references` array in your
+existing root config to keep that program's reference. Retain the other settings,
+reload the TypeScript language server, then restore the full list
+before editing other platform leaves. The CLI still checks every environment in
+the manifest. This fragment replaces only that field:
+
+```json
+{
+  "references": [{ "path": "./node_modules/.cache/xplat-typecheck/ios.json" }]
+}
 ```
 
 Native TypeScript does not resolve extensionless imports to TSRX files, and
@@ -324,7 +417,7 @@ project's chain. Upstream emits `['.<platform>', '.native', '']` — no
 iOS/Android/visionOS, so `.mobile` leaves resolve under the build-time check
 too.
 
-In a scaffolded app, run `bun run typecheck` for its combined program.
+In a scaffolded app, run `bun run typecheck` for its applicable platform programs.
 Check each target you ship; a browser typecheck does not validate native-only
 imports or platform globals.
 

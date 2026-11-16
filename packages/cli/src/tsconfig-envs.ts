@@ -1,22 +1,10 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Shared TypeScript environment presets + tsconfig.envs.json expansion.
-//
-// Every platform is intended to expose the same API surface at the type
-// level, so a package declares its checked surface once in tsconfig.envs.json
-// and this module synthesizes ONE program covering all of it. The program
-// lists every platform module suffix in a fixed precedence order
-// (extensionless first) so imports bind the unsuffixed default while each
-// variant file is checked as a program root under that same resolution.
-// Per-file @jsxImportSource pragmas select the JSX vocabulary, not a runtime
-// renderer: @octane-xplat/jsx for native targets, @octane-xplat/jsx/dom for
-// browser files. The program default is @octane-xplat/jsx; manifests can
-// override it in top-level compilerOptions (browser-only packages set /dom).
-//
-// TYPECHECK_ENVIRONMENTS keeps the per-platform resolution settings for
-// *consumers* of a packed package (tests/packed-consumer.mts) — a real
-// consumer app still typechecks one platform's selection.
+// Each target gets its own program and ambient SDK. Native manifest entries
+// expand to iOS and Android; Linux/GTK retain the legacy combined program.
 import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { parse, printParseErrorCode } from 'jsonc-parser'
 import { srcUrl } from './env.ts'
@@ -25,9 +13,11 @@ const MODULE_DIR = fileURLToPath(srcUrl(import.meta.url, ''))
 
 export const ENV_MANIFEST = 'tsconfig.envs.json'
 
+export type EnvProgram = { env: string; configPath: string; files: string[] }
+export type EnvSolution = { files: string[]; references: { path: string }[] }
+
 /**
- * The one platform-suffix precedence order for repository typecheck and
- * typegen programs: extensionless first, then every platform suffix. Imports
+ * The legacy Linux/GTK and declaration-emission suffix order: extensionless first, then every platform suffix. Imports
  * bind the unsuffixed default; variant files still enter the program as
  * roots so each is checked against the shared contract.
  */
@@ -44,21 +34,7 @@ export const PLATFORM_MODULE_SUFFIXES = [
   '.windows',
 ]
 
-/**
- * Options one program needs to compile sources for a target. `ambient` lists
- * narrow host-global declaration files (relative to this module) injected
- * into every program for that environment — JS-engine globals the runtime
- * provides but upstream types do not declare.
- *
- * These per-platform resolution settings drive consumer-side checks (a packed
- * package typechecked the way a single-platform app would). The envs-manifest
- * expansion uses only `lib` and `ambient` from them — merged across the
- * declared environments — because a manifest expands to one shared program,
- * not one per platform. `customConditions` is deliberately absent from the
- * combined program: every package's exports fall back to `types`/`default`,
- * the unsuffixed surface, which is the package-boundary analog of the
- * extensionless-first suffix order.
- */
+/** Platform resolution and ambient runtime declarations for checking and consumers. */
 export const TYPECHECK_ENVIRONMENTS = {
   web: {
     compilerOptions: {
@@ -73,6 +49,24 @@ export const TYPECHECK_ENVIRONMENTS = {
       jsxImportSource: '@octane-xplat/jsx',
       moduleSuffixes: ['.ios', '.android', '.mobile', ''],
       customConditions: ['native'],
+      lib: ['ESNext'],
+    },
+    ambient: ['typecheck-globals/native.d.ts'],
+  },
+  ios: {
+    compilerOptions: {
+      jsxImportSource: '@octane-xplat/jsx',
+      moduleSuffixes: ['.ios', '.mobile', '.native', ''],
+      customConditions: ['ios', 'native'],
+      lib: ['ESNext'],
+    },
+    ambient: ['typecheck-globals/native.d.ts'],
+  },
+  android: {
+    compilerOptions: {
+      jsxImportSource: '@octane-xplat/jsx',
+      moduleSuffixes: ['.android', '.mobile', '.native', ''],
+      customConditions: ['android', 'native'],
       lib: ['ESNext'],
     },
     ambient: ['typecheck-globals/native.d.ts'],
@@ -114,9 +108,10 @@ export const TYPECHECK_ENVIRONMENTS = {
     compilerOptions: {
       jsxImportSource: '@octane-xplat/jsx',
       moduleSuffixes: ['.windows', '.native', ''],
-      customConditions: ['native'],
+      customConditions: ['windows', 'native'],
       lib: ['ESNext'],
     },
+    ambient: ['typecheck-globals/native.d.ts'],
   },
 }
 
@@ -243,7 +238,7 @@ function resolveEnvFiles(dir, entry, label) {
 
 /** Map a `src/index[.<suffix>].*` barrel to the environment that must claim it. */
 function barrelEnv(rel) {
-  const match = /^src\/index(?:\.([A-Za-z]+))?\.(?:ts|tsx|mts|cts)$/.exec(rel)
+  const match = /^src\/index(?:\.([A-Za-z]+))?\.(?:ts|tsx|mts|cts|tsrx)$/.exec(rel)
 
   if (!match) {
     return null
@@ -268,43 +263,98 @@ function orderedUnion(set, order) {
 
 const LIB_ORDER = ['ESNext', 'DOM', 'DOM.Iterable']
 
-/**
- * Expand a tsconfig.envs.json manifest into the package's single combined
- * typecheck program. Returns [{ env: 'all', configPath, files }].
- *
- * Environments no longer select programs — each entry declares the slice of
- * the checked surface it claims (files/include/exclude, plus `types` for
- * host-global packages that slice needs). The generated program unions every
- * declared environment's files, merges lib/types across
- * them, and compiles under PLATFORM_MODULE_SUFFIXES. JSX vocabulary selection is
- * per-file via @jsxImportSource pragmas; the program default is `@octane-xplat/jsx`.
- * Everything else program-wide (paths, target, a different default
- * jsxImportSource) belongs in the manifest's top-level compilerOptions.
- */
+/** Platform tags on source files, including declarations and tests. */
+function sourcePlatform(file) {
+  return /\.(web|ios|android|mobile|native|macos|windows|linux|gtk)(?=\.)/.exec(file)?.[1]
+}
+
+function applicable(file, env) {
+  const tag = sourcePlatform(file)
+
+  if (!tag) {
+    return true
+  }
+
+  if (tag === 'mobile') {
+    return env === 'ios' || env === 'android'
+  }
+
+  if (tag === 'native') {
+    return ['ios', 'android', 'windows'].includes(env)
+  }
+
+  return tag === env
+}
+
+function platformTypes(types, env, dir) {
+  const require = createRequire(join(dir, 'package.json'))
+  const sdkPath = (name) => {
+    try {
+      return require.resolve(name)
+    } catch {
+      try {
+        const owner = require.resolve('@nativescript/types/package.json')
+
+        return createRequire(owner).resolve(name)
+      } catch {
+        return name
+      }
+    }
+  }
+
+  return types.flatMap((name) =>
+    name === '@nativescript/types'
+      ? ['ios', 'android'].includes(env)
+        ? [
+            sdkPath('@nativescript/types/globals.d.ts'),
+            sdkPath(`@nativescript/types-${env}/index.d.ts`),
+          ]
+        : []
+      : [name],
+  )
+}
+
+function validateOptions(options, label) {
+  if (
+    options !== undefined &&
+    (!options || typeof options !== 'object' || Array.isArray(options))
+  ) {
+    throw new Error(`${label}: compilerOptions must be an object`)
+  }
+
+  for (const key of ['types', 'lib']) {
+    const value = options?.[key]
+
+    if (
+      value !== undefined &&
+      (!Array.isArray(value) || value.some((item) => typeof item !== 'string'))
+    ) {
+      throw new Error(`${label}: compilerOptions.${key} must be an array of strings`)
+    }
+  }
+}
+
+/** Expand the manifest into independent platform programs; never merge SDKs. */
 export function expandEnvPrograms(
   dir,
   { path: manifestPath, manifest },
   { ambientRoot = MODULE_DIR } = {},
-): Array<{ env: string; configPath: string; files: string[] }> {
+): EnvProgram[] {
   const errors = []
   const resolved = {}
-  const files = new Set()
-  // Ambient host-globals come FIRST in the program: where ambient and
-  // package-shipped declarations collide (the AppKit globals vs
-  // @nativescript/types' ObjC classes) the earlier declaration wins, and
-  // the ambient copy is the tolerant one.
-  const ambient = new Set()
-  const lib = new Set()
-  const types = new Set()
+  const groups = new Map()
+
+  validateOptions(manifest.compilerOptions, ENV_MANIFEST)
+
+  const top = manifest.compilerOptions ?? {}
+  const legacy = { files: new Set(), ambient: new Set(), lib: new Set(), types: new Set() }
+  const hasLegacy = ['linux', 'gtk'].some((env) => manifest.environments[env])
 
   for (const [env, entry] of Object.entries(manifest.environments)) {
     const preset = TYPECHECK_ENVIRONMENTS[env]
 
     if (!preset) {
-      errors.push(
-        `${ENV_MANIFEST}: unknown environment "${env}" — expected one of: ${Object.keys(TYPECHECK_ENVIRONMENTS).join(', ')}`,
-      )
-
+      errors.push(`${ENV_MANIFEST}: unknown environment "${env}"`)
       continue
     }
 
@@ -313,127 +363,247 @@ export function expandEnvPrograms(
       continue
     }
 
+    validateOptions(entry.compilerOptions, `${ENV_MANIFEST} environment "${env}"`)
+    for (const key of ['files', 'include', 'exclude']) {
+      if (
+        entry[key] !== undefined &&
+        (!Array.isArray(entry[key]) || entry[key].some((v) => typeof v !== 'string'))
+      ) {
+        throw new Error(`${ENV_MANIFEST}: environment "${env}" ${key} must be an array of strings`)
+      }
+    }
+
     for (const key of Object.keys(entry.compilerOptions ?? {})) {
-      if (key === 'types') {
+      const allowed = ['linux', 'gtk'].includes(env) ? ['types'] : ['types', 'lib']
+
+      if (!allowed.includes(key)) {
+        errors.push(`${ENV_MANIFEST}: environment "${env}" cannot override compilerOptions.${key}`)
+      }
+    }
+
+    const files = resolveEnvFiles(dir, entry, `${ENV_MANIFEST} environment "${env}"`)
+
+    resolved[env] = files
+    for (const file of files) {
+      legacy.files.add(file)
+    }
+
+    for (const rel of env === 'windows' ? [] : (preset.ambient ?? [])) {
+      const file = resolve(ambientRoot, rel)
+
+      if (existsSync(file)) {
+        legacy.ambient.add(file)
+      }
+    }
+
+    for (const lib of preset.compilerOptions.lib) {
+      legacy.lib.add(lib)
+    }
+
+    for (const type of entry.compilerOptions?.types ?? []) {
+      legacy.types.add(type)
+    }
+
+    if (env === 'linux' || env === 'gtk') {
+      continue
+    }
+
+    for (const target of env === 'native' ? ['ios', 'android'] : [env]) {
+      if (groups.has(target)) {
+        errors.push(
+          `${ENV_MANIFEST}: "${target}" overlaps the native environment; declare native or separate ios/android entries`,
+        )
+
         continue
       }
 
-      errors.push(
-        `${ENV_MANIFEST}: environment "${env}" sets compilerOptions.${key}, but all environments share one program now — move it to the top-level compilerOptions (or a per-file pragma for jsxImportSource)`,
-      )
-    }
+      const options = TYPECHECK_ENVIRONMENTS[target]
+      const libs = entry.compilerOptions?.lib ?? options.compilerOptions.lib
 
-    const label = `${ENV_MANIFEST} environment "${env}"`
-    const envFiles = resolveEnvFiles(dir, entry, label)
-
-    resolved[env] = envFiles
-    for (const file of envFiles) {
-      files.add(file)
-    }
-
-    for (const rel of preset.ambient ?? []) {
-      const abs = resolve(ambientRoot, rel)
-
-      // Consumer installs won't have the repo-relative renderer source —
-      // they get these globals through the package's types instead.
-      if (existsSync(abs)) {
-        ambient.add(abs)
+      if (
+        !['web', 'linux'].includes(target) &&
+        [...(top.lib ?? []), ...libs].some((v) => /^dom(?:\.|$)/i.test(v))
+      ) {
+        errors.push(
+          `${ENV_MANIFEST}: DOM libraries are not allowed in "${target}"; put browser libraries in the web environment`,
+        )
       }
-    }
 
-    for (const value of preset.compilerOptions.lib ?? []) {
-      lib.add(value)
-    }
+      const types = platformTypes(
+        [...(top.types ?? []), ...(entry.compilerOptions?.types ?? [])],
+        target,
+        dir,
+      )
 
-    for (const value of entry.compilerOptions?.types ?? []) {
-      types.add(value)
+      for (const sdk of ['ios', 'android']) {
+        if (sdk !== target && types.some((t) => t.includes(`@nativescript/types-${sdk}`))) {
+          errors.push(`${ENV_MANIFEST}: ${sdk} SDK types are not allowed in "${target}"`)
+        }
+      }
+
+      const ambient = (options.ambient ?? [])
+        .map((rel) => resolve(ambientRoot, rel))
+        .filter(existsSync)
+
+      // A default implementation shadowed by a leaf is not an active root.
+      // Explicit imports can still reach it and are checked transitively.
+      const active = files
+        .filter((file) => applicable(file, target))
+        .filter((file) => {
+          if (sourcePlatform(file) || file.endsWith('.d.ts')) {
+            return true
+          }
+
+          const ext = /\.(tsrx|tsx|ts|mts|cts)$/.exec(file)?.[0]
+
+          return (
+            !ext ||
+            !options.compilerOptions.moduleSuffixes
+              .filter(Boolean)
+              .some((suffix) => existsSync(file.slice(0, -ext.length) + suffix + ext))
+          )
+        })
+
+      if (!active.length) {
+        errors.push(`${ENV_MANIFEST}: "${target}" resolved no applicable source files`)
+      }
+
+      groups.set(target, {
+        files: [...ambient, ...active],
+        compilerOptions: {
+          ...top,
+          ...options.compilerOptions,
+          // Keep JSX vocabulary explicit and independent of runtime resolution.
+          jsxImportSource: top.jsxImportSource ?? '@octane-xplat/jsx',
+          types: [...new Set(types)],
+          lib: [...new Set([...(top.lib ?? []), ...libs])],
+        },
+      })
     }
   }
 
-  // Every platform barrel must be claimed by a declared environment so a
-  // new index.<platform>.* can never ship without coverage.
-  const barrels = globSync('src/index*.ts', { cwd: dir })
-
-  for (const rel of barrels) {
+  for (const rel of globSync('src/index*.{ts,tsx,mts,cts,tsrx}', { cwd: dir })) {
     const env = barrelEnv(rel)
 
     if (!env) {
       continue
     }
 
-    const abs = `/${rel}`
+    const files =
+      env === 'any'
+        ? Object.values(resolved).flat()
+        : env === 'native'
+          ? [...(resolved.native ?? []), ...(resolved.ios ?? []), ...(resolved.android ?? [])]
+          : (resolved[env] ?? [])
 
-    if (env === 'any') {
-      const claimed = Object.values(resolved).some((files) => files.some((f) => f.endsWith(abs)))
-
-      if (!claimed) {
-        errors.push(`${ENV_MANIFEST}: ${rel} is not checked by any declared environment`)
-      }
-
-      continue
-    }
-
-    const claimed = resolved[env]?.some((f) => f.endsWith(abs))
-
-    if (!claimed) {
-      errors.push(`${ENV_MANIFEST}: ${rel} exists but is not claimed by the "${env}" environment`)
+    if (!files.includes(resolve(dir, rel))) {
+      errors.push(`${ENV_MANIFEST}: ${rel} is not claimed by the "${env}" environment`)
     }
   }
-
-  const top = manifest.compilerOptions ?? {}
 
   if (
     top.moduleSuffixes !== undefined &&
     !arraysEqual(top.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)
   ) {
     errors.push(
-      `${ENV_MANIFEST}: compilerOptions.moduleSuffixes is fixed — use the platform precedence order ${JSON.stringify(PLATFORM_MODULE_SUFFIXES)} or omit it (inherited)`,
+      `${ENV_MANIFEST}: top-level moduleSuffixes is fixed; configure platform resolution through environments`,
     )
-  }
-
-  for (const value of top.lib ?? []) {
-    lib.add(value)
-  }
-
-  for (const value of top.types ?? []) {
-    types.add(value)
   }
 
   if (errors.length) {
     throw new Error(errors.join('\n'))
   }
 
-  const compilerOptions = {
-    jsxImportSource: '@octane-xplat/jsx',
-    lib: orderedUnion(lib, LIB_ORDER),
-    ...top,
-    moduleSuffixes: PLATFORM_MODULE_SUFFIXES,
-  }
+  if (hasLegacy) {
+    // Preserve the pre-isolation Linux/GTK program, including its resolution
+    // and mixed declarations. The Linux runtime migration owns its cutover.
+    for (const env of ['linux', 'gtk']) {
+      groups.delete(env)
+    }
 
-  if (types.size) {
-    compilerOptions.types = [...types]
-  }
-
-  const allFiles = [...ambient, ...[...files].sort()]
-
-  const program = {
-    env: 'all',
-    config: {
-      extends: manifestPath,
-      compilerOptions,
-      files: allFiles,
-      include: [],
-      exclude: [],
-    },
-    files: allFiles,
+    groups.set('all', {
+      files: [...legacy.ambient, ...[...legacy.files].sort()],
+      compilerOptions: {
+        jsxImportSource: '@octane-xplat/jsx',
+        ...top,
+        lib: orderedUnion(new Set([...legacy.lib, ...(top.lib ?? [])]), LIB_ORDER),
+        ...(legacy.types.size || top.types !== undefined
+          ? { types: [...new Set([...legacy.types, ...(top.types ?? [])])] }
+          : {}),
+        moduleSuffixes: PLATFORM_MODULE_SUFFIXES,
+      },
+    })
   }
 
   const outDir = join(dir, 'node_modules', '.cache', 'xplat-typecheck')
 
   mkdirSync(outDir, { recursive: true })
-  program.configPath = join(outDir, 'all.json')
-  writeFileSync(program.configPath, JSON.stringify(program.config, null, '\t') + '\n')
-  delete program.config
+  return [...groups]
+    .sort(
+      ([a], [b]) =>
+        ['web', 'ios', 'android', 'macos', 'windows', 'all'].indexOf(a) -
+        ['web', 'ios', 'android', 'macos', 'windows', 'all'].indexOf(b),
+    )
+    .map(([env, group]) => {
+      const configPath = join(outDir, `${env}.json`)
 
-  return [program]
+      if (env !== 'all') {
+        // Compiler-only negative assertions also catch renamed/vendored ambient
+        // declarations that the SDK-path inspection cannot recognize.
+        const forbidden = [
+          ...(env === 'web' ? [] : ['document', 'window', 'HTMLElement']),
+          ...(env === 'ios' ? [] : ['UIView']),
+          ...(env === 'android' ? [] : ['android.os.Build']),
+        ]
+
+        const canary = join(outDir, `isolation-${env}.ts`)
+
+        writeFileSync(
+          canary,
+          'export {}\n' +
+            forbidden
+              .map((name) => `// @ts-expect-error ${name} must be absent in ${env}\nvoid ${name}\n`)
+              .join(''),
+        )
+
+        group.files = [...group.files, canary]
+      }
+
+      const config = { extends: manifestPath, ...group, include: [], exclude: [] }
+
+      writeFileSync(configPath, JSON.stringify(config, null, '\t') + '\n')
+      return { env, configPath, files: group.files }
+    })
+}
+
+/** A solution makes generated programs discoverable from ordinary source files. */
+export function envSolution(programs: EnvProgram[], dir: string): EnvSolution {
+  return {
+    files: [],
+    references: programs.map(({ configPath }) => ({
+      path: './' + configPath.slice(dir.length + 1).replaceAll('\\', '/'),
+    })),
+  }
+}
+
+/** Reject transitive ambient SDK leaks even when skipLibCheck hides their errors. */
+export function assertPlatformIsolation(env, files) {
+  if (env === 'all') {
+    return
+  }
+
+  for (const original of files) {
+    const file = original.replaceAll('\\', '/')
+    const sdk = /\/@nativescript\/types-(ios|android)\//.exec(file)?.[1]
+
+    if (
+      (env !== 'web' && /\/lib\.dom(?:\.[^/]*)?\.d\.ts$/i.test(file)) ||
+      file.endsWith('/@nativescript/types/index.d.ts') ||
+      (sdk && sdk !== env)
+    ) {
+      throw new Error(
+        `typecheck[${env}]: transitive ambient leakage from ${original}; select a platform declaration or move the import into its platform leaf`,
+      )
+    }
+  }
 }

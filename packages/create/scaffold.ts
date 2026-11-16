@@ -103,12 +103,7 @@ export const targets: Record<string, any> = {
     // allowBuilds entry for `nativescript` only exists once native-shared
     // resolves (web-only trees never install it).
     builds: ['nativescript'],
-    patches: [
-      '@nativescript/core',
-      '@nativescript/types',
-      'css',
-      '@nativescript/vite',
-    ],
+    patches: ['@nativescript/core', '@nativescript/types', 'css', '@nativescript/vite'],
     files: [
       'nativescript.config.ts',
       'vite.config.native.mts',
@@ -534,22 +529,37 @@ export const nativeCorePaths = {
 }
 
 /**
- * The tsconfig.json a given target set produces. One program covers every
- * platform suffix (moduleSuffixes is the fixed precedence order); a web-only
- * scaffold just drops the native ambient root and entrypoint.
+ * Shared options and discoverable references for the selected platform programs.
  */
 export function composeTsconfig(ids) {
   const resolved = new Set(resolveTargets(ids))
   const config = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'tsconfig.json'), 'utf8'))
 
   if (!resolved.has('native-shared')) {
-    delete config.files
     delete config.compilerOptions.paths
     config.compilerOptions.types = (config.compilerOptions.types ?? []).filter(
       (t) => t !== '@nativescript/types',
     )
+  }
 
-    config.exclude = [...new Set([...(config.exclude ?? []), 'src/main.ts'])]
+  config.references = ['web', 'ios', 'android']
+    .filter((env) => resolved.has(env))
+    .map((env) => ({
+      path: `./node_modules/.cache/xplat-typecheck/${env}.json`,
+    }))
+
+  return JSON.stringify(config, null, '\t') + '\n'
+}
+
+/** Environment roots and SDK declarations for the requested app targets. */
+export function composeEnvManifest(ids) {
+  const config = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'tsconfig.envs.json'), 'utf8'))
+  const resolved = new Set(resolveTargets(ids))
+
+  for (const env of Object.keys(config.environments)) {
+    if (!resolved.has(env)) {
+      delete config.environments[env]
+    }
   }
 
   return JSON.stringify(config, null, '\t') + '\n'
@@ -611,7 +621,7 @@ export function composeTargets(ids, dir, options?: { packageManager?: PackageMan
   mkdirSync(dir, { recursive: true })
 
   for (const rel of walk(TEMPLATE_DIR)) {
-    if (rel === 'package.json' || rel === 'tsconfig.json') {
+    if (rel === 'package.json' || rel === 'tsconfig.json' || rel === 'tsconfig.envs.json') {
       continue // generated below
     }
 
@@ -642,6 +652,7 @@ export function composeTargets(ids, dir, options?: { packageManager?: PackageMan
   )
 
   writeFileSync(join(dir, 'tsconfig.json'), composeTsconfig(ids))
+  writeFileSync(join(dir, 'tsconfig.envs.json'), composeEnvManifest(ids))
   if (packageManager === 'pnpm') {
     writeFileSync(join(dir, 'pnpm-workspace.yaml'), composePnpmWorkspace(ids))
   }
@@ -756,12 +767,43 @@ function copyMissing(rel, appRoot, report, present, copy) {
 }
 
 /**
- * Fold a native-capable app's sources into the one tsconfig program: the
- * manifest (tsconfig.envs.json) is gone — one program covers every platform
- * suffix — so enabling native means wiring the ambient declaration file and
- * the entrypoint into the app's own config.
+ * Add the selected platform to manifest projects and solution discovery.
+ * Older apps without a manifest retain their existing config migration.
  */
-function enableNativeInTsconfig(appRoot, read, write) {
+function enableNativeInTsconfig(appRoot, read, write, target) {
+  const envPath = join(appRoot, 'tsconfig.envs.json')
+  const envText = read(envPath)?.toString('utf8')
+
+  if (envText) {
+    const manifest = JSON.parse(envText)
+
+    if (!manifest.environments.native && !manifest.environments[target]) {
+      const template = JSON.parse(composeEnvManifest([target]))
+
+      manifest.environments[target] = template.environments[target]
+      write(envPath, Buffer.from(JSON.stringify(manifest, null, '\t') + '\n'), 0o644)
+    }
+
+    const configPath = join(appRoot, 'tsconfig.json')
+    const config = JSON.parse(read(configPath).toString('utf8'))
+
+    config.compilerOptions ??= {}
+    config.compilerOptions.paths ??= {}
+    for (const [key, value] of Object.entries(nativeCorePaths)) {
+      config.compilerOptions.paths[key] ??= value
+    }
+
+    const ref = `./node_modules/.cache/xplat-typecheck/${target}.json`
+
+    config.references ??= []
+    if (!config.references.some((entry) => entry.path === ref)) {
+      config.references.push({ path: ref })
+    }
+
+    write(configPath, Buffer.from(JSON.stringify(config, null, '\t') + '\n'), 0o644)
+    return true
+  }
+
   const path = join(appRoot, 'tsconfig.json')
   const text = read(path)?.toString('utf8') ?? ''
   let config
@@ -1017,10 +1059,10 @@ export function planTarget(appRoot, id) {
         manifest.main = tpl.main
       }
 
-      // Native sources join the app's single typecheck program — pull the
+      // Add native checking and preserve authored config — pull the
       // ambient declaration entry into the roots and un-exclude the
       // NativeScript entry that a web-only scaffold skips.
-      report.tsconfigUpdated = enableNativeInTsconfig(appRoot, read, write)
+      report.tsconfigUpdated = enableNativeInTsconfig(appRoot, read, write, id)
     }
   }
 

@@ -15,10 +15,13 @@ func TestTypecheckPlanRequiresExactProgramOrder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err = os.WriteFile(filepath.Join(projectPath, "tsconfig.envs.json"), []byte(`{"environments":{"native":{}}}`), 0644); err != nil {
+		t.Fatal(err)
+	}
 	inputs := map[string]typecheckConfig{"tsconfig.json": {}, "tsconfig.envs.json": {}, "tsconfig.native.json": {}}
 	expected := expectedTypecheckPrograms(projectPath, inputs)
-	if len(expected) != 2 || filepath.Base(expected[1]) != "all.json" {
-		t.Fatal("combined program did not replace the legacy native program")
+	if len(expected) != 3 || filepath.Base(expected[0]) != "tsconfig.json" || filepath.Base(expected[1]) != "ios.json" || filepath.Base(expected[2]) != "android.json" {
+		t.Fatal("isolated programs did not replace the legacy native program")
 	}
 	for _, path := range expected {
 		if err = os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -28,10 +31,10 @@ func TestTypecheckPlanRequiresExactProgramOrder(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	for _, configs := range [][]string{expected, {expected[1], expected[0]}, expected[:1], append(append([]string{}, expected...), expected[1]), {filepath.Join(projectPath, "unrelated.json")}, nil} {
+	for _, configs := range [][]string{expected, {expected[1], expected[0]}, expected[:1], expected[:2], append(append([]string{}, expected...), expected[1]), {filepath.Join(projectPath, "unrelated.json")}, nil} {
 		data, _ := json.Marshal(map[string]any{"version": 1, "configs": configs})
 		_, err := validateTypecheckPrograms(data, projectPath, inputs)
-		valid := len(configs) == 2 && configs[0] == expected[0] && configs[1] == expected[1]
+		valid := len(configs) == 3 && configs[0] == expected[0] && configs[1] == expected[1] && configs[2] == expected[2]
 		if (err == nil) != valid {
 			t.Fatalf("unexpected plan acceptance for %v: %v", configs, err)
 		}
@@ -139,5 +142,27 @@ func TestTypecheckInputChangesUseBytesAndTargets(t *testing.T) {
 	after, err := typecheckInputs(context.Background(), project)
 	if err != nil || sameTypecheckInputs(before, after) {
 		t.Fatal("changed compiler configuration was not observed")
+	}
+}
+
+func TestTransitiveSDKLeaksAreRejected(t *testing.T) {
+	for _, env := range []string{"web", "ios", "android", "macos", "windows", "all"} {
+		for _, path := range []string{"/sdk/lib.dom.d.ts", "/sdk/@nativescript/types-ios/index.d.ts", "/sdk/@nativescript/types-android/index.d.ts", "/sdk/@nativescript/types/index.d.ts"} {
+			allowed := env == "all" || (env == "web" && path == "/sdk/lib.dom.d.ts") || (env == "ios" && path == "/sdk/@nativescript/types-ios/index.d.ts") || (env == "android" && path == "/sdk/@nativescript/types-android/index.d.ts")
+			if (validateAmbientFiles(env, path) == nil) != allowed {
+				t.Fatalf("%s: %s", env, path)
+			}
+		}
+	}
+}
+
+func TestLinuxAndGTKRetainRootAndCombinedPlan(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "tsconfig.envs.json"), []byte(`{"environments":{"linux":{},"gtk":{}}}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	paths := expectedTypecheckPrograms(root, map[string]typecheckConfig{"tsconfig.json": {}, "tsconfig.envs.json": {}})
+	if len(paths) != 2 || filepath.Base(paths[0]) != "tsconfig.json" || filepath.Base(paths[1]) != "all.json" {
+		t.Fatalf("legacy plan changed: %v", paths)
 	}
 }

@@ -158,7 +158,7 @@ for (const targets of ['web', 'ios', 'android', 'web,ios,android', 'web+add-ios'
 
     const probe = {
       extends: './tsconfig.json',
-      compilerOptions: { types: [] },
+      compilerOptions: { types: [], lib: ['ESNext', 'DOM', 'DOM.Iterable'] },
       files: ['native.tsx', 'dom.web.tsx'],
       include: [],
       exclude: [],

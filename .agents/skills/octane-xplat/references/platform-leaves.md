@@ -148,14 +148,25 @@ router.push({ to: '/help' })
 
 ## tsconfigs
 
-New apps use one `tsconfig.json` with `jsxImportSource: "@octane-xplat/jsx"`.
-Browser JSX files explicitly select `@octane-xplat/jsx/dom` with a first-line
-pragma. `bun run typecheck` checks `.tsrx` and every platform variant together.
-A combined program resolves host handles as the shared `object` type — annotate the concrete view type at each ref declaration; a target-specific consumer
-can bind concrete handles through `customConditions: ["native"]` or `["macos"]`.
-Conditions bind host types only, never the intrinsic vocabulary.
-For the JSX facade's type-only boundary and configuration examples, see
-[JSX and host types](../../../../docs/platform/module-resolution.md#typescript).
+New apps use a solution `tsconfig.json` referencing platform programs generated
+from `tsconfig.envs.json`. Run `bun run typecheck` after installation and manifest
+changes. `native` manifests expand into separate iOS and Android programs; web,
+macOS, and Windows also have independent environments. Linux/GTK keep their
+legacy checking lane. Retain existing public SDK imports and ambient SDK use in
+matching leaves; do not introduce runtime import adapters to isolate checking.
+
+Keep `jsxImportSource: "@octane-xplat/jsx"` and browser-file `/dom` pragmas.
+Target conditions bind concrete host handles; annotate concrete ref types at
+ownership boundaries. Explicit TSRX imports still check the unsuffixed contract
+because TypeScript 7.1 cannot select `.web.tsrx` through `moduleSuffixes`.
+
+Use the actual TypeScript 7 language server and TSRX content mapper for semantic
+editor operations. The OXC server supplies lint/parser findings. Platform leaves
+are discovered through solution references; a shared file has one default editor
+project, while the CLI checks all applicable programs. Follow the
+[editor setup and context limits](../../../../docs/platform/module-resolution.md#editor-project-context)
+before claiming editor support. Cached CLI configs alone prove nothing about
+project discovery.
 
 ## Platform constants
 

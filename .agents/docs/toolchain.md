@@ -354,27 +354,17 @@ experience of agents writing Octane-xplat code effectively.
   `typecheck`, including package-specific checks. `bun run typecheck:apps` keeps
   the narrower harness-only scope; `bun run typecheck:scripts` checks repository
   tooling separately. Use a touched-package/dependents filter for focused work.
-- **Package typechecks use one `tsconfig.envs.json` per package** — never
-  `tsconfig.<platform>.json`. The manifest declares the checked surface once
-  (`environments.<env>.files|include|exclude`); `scripts/typecheck.ts`
-  expands the declared environments into **one combined program** using the
-  shared presets in `packages/cli/src/tsconfig-envs.ts` (lib / ambient /
-  types merged; `jsxImportSource` defaults to `@octane-xplat/jsx` (`/dom` for browser) with per-file pragmas
-  on native/macOS leaves) and runs `tsc --runExternalCode --noEmit` on it under
-  `node_modules/.cache/xplat-typecheck/`. Every program resolves under the
-  fixed `moduleSuffixes` order `["" , ".web", ".ios", ".android", ".mobile",
-".native", ".macos", ".linux", ".windows"]` — extensionless first — with no
-  platform `customConditions` (package boundaries resolve the default export
-  surface). Per-environment `compilerOptions` are rejected except `types`.
-  Every platform is meant to expose the same API surface at the type level, so
-  a `src/index.<platform>.ts` barrel that no declared environment checks fails
-  the run. `xplat typecheck` applies the same expansion to app manifests and
-  still honors a legacy `tsconfig.native.json` in older scaffolds. New app
-  and library templates explicitly select `@octane-xplat/jsx` for shared
-  native typing and `@octane-xplat/jsx/dom` in browser-file pragmas. Their
-  combined programs have opaque native host handles; target conditions bind
-  concrete hosts without changing intrinsic membership. See
-  [the app JSX setup](../../docs/platform/module-resolution.md#typescript).
+- **Package typechecks use `tsconfig.envs.json`** to declare applicable roots.
+  `scripts/typecheck.ts` and `xplat typecheck` expand separate web, iOS, Android,
+  macOS, and Windows programs; `native` expands into iOS and Android. Linux/GTK
+  retain the legacy combined program. Shared code is checked in every applicable
+  program, with platform SDK declarations and a transitive ambient-leak guard.
+  Root solution references make the generated programs discoverable to the
+  TypeScript 7 language server and its TSRX content mapper. Shared editor files
+  still have one default context. Read [platform checking](platform-typechecking.md)
+  for resolution, inherited settings, declaration leakage, editor setup, and the
+  evidence boundary. Declaration emission retains its own configs and is not an
+  isolation check.
 - **App typecheck roots follow the app graph.** The mobile harness includes its
   own source and package ambient declarations; imported framework source is
   checked transitively. Do not root a mobile app program in every package's
@@ -386,7 +376,7 @@ experience of agents writing Octane-xplat code effectively.
   harness can reach desktop source through shared imports, so its iOS build can report
   unresolved `./focus-clock` in macOS keyboard files and `./bridge` in Linux
   platform files. This is a checker-context limitation, not runtime qualification
-  for those desktop files. Keep the standalone combined package/harness
+  for those desktop files. Keep the standalone package/harness
   typecheck gate and assess actual mobile diagnostics separately. Source:
   [upstream checker at the 8.0.20 publish commit](https://github.com/NativeScript/NativeScript/blob/1fe745085ed609783355c51488ddc236aef0c0e1/packages/vite/helpers/typescript-check.ts).
   Recheck when upstream filters desktop roots or supports their resolver context.

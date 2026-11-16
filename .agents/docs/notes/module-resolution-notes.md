@@ -198,48 +198,14 @@ const color = select({ web: '#4f46e5', native: '#4338ca', default: '#4f46e5' })
 
 ## TypeScript
 
-One combined program per package/app — `tsconfig.envs.json` declares file
-claims per environment (`environments.<env>.files|include|exclude`) and
-`scripts/typecheck.ts` expands the manifest into a single `all.json` under
-`node_modules/.cache/xplat-typecheck/` via the shared presets in
-`packages/cli/src/tsconfig-envs.ts`:
+Environment checking uses independent target programs, with shared sources
+checked in each applicable environment. `native` expands into iOS and Android;
+Linux/GTK retain their pre-isolation combined lane. The canonical
+[platform checking contract](../platform-typechecking.md) owns SDK declarations,
+transitive-leak guards, solution discovery, and shared editor context. Declaration
+emission still uses its fixed unsuffixed-first order; a declaration emit does not
+prove platform isolation or runtime selection.
 
-```jsonc
-// tsconfig.envs.json — environments claim files; the program is shared
-{
-  "extends": "../../tsconfig.base.json",
-  "environments": {
-    "web": { "files": ["src/index.web.ts"] },
-    "native": {
-      "files": ["src/index.ts", "src/index.ios.ts"],
-      "compilerOptions": { "types": ["@nativescript/types"] }, // only allowed per-env option
-    },
-  },
-}
-```
-
-- Every program resolves under the same fixed `moduleSuffixes` precedence —
-  `["", ".web", ".ios", ".android", ".mobile", ".native", ".macos",
-".linux", ".windows"]`, extensionless first — so imports bind the shared
-  contract while variant files are still checked as roots.
-- Shared and leaf files typecheck in the **same** program — that's the point:
-  cross-variant drift (a `.ios` leaf importing a shared helper) surfaces at
-  the actual call boundary.
-- Per-file `/** @jsxImportSource … */` pragmas pick the renderer for
-  native/macOS leaves; the program default is `octane` (DOM-flavored, matching
-  shared + `.web` sources).
-- Package boundaries resolve the default/unsuffixed export surface — the
-  combined program carries **no** platform `customConditions`, the boundary
-  analog of extensionless-first.
-- Ambient host-globals (bridge globals, NativeScript) load ahead of env
-  files: duplicate global declarations are first-wins in TypeScript. The
-  AppKit class surface is module-scoped (`@octane-xplat/platform/macos`), so
-  the old ambient-first `NSObject` race is gone; what remains ambient is
-  `packages/macos-appkit/src/host-globals.d.ts` (dlopen, __xplatAppKit,
-  console/process) plus the upstream `@nativescript/types` set that NativeScript
-  Core's own declarations still consume.
-- Typecheck `.tsrx` with `tsrx-tsc --noEmit` (per octane repo rules), not plain
-  `tsc`.
 - **`exports` wildcards don't extension-resolve** (verified): `"./\*":
 "./src/*"` maps `@xplat/app/platform/storage` to a literal extensionless
   path that neither tsc nor vite/rolldown can load. Deep platform imports must

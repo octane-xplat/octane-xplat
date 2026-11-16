@@ -245,7 +245,7 @@ Use existing root and package scripts so declaration dependencies and caches
 remain ordered. Do not substitute a broad repository typecheck for the required
 touched-package/dependents filter. Read the
 [toolchain reference](../../../docs/toolchain.md) for task definitions and
-combined typecheck environments; do not infer runtime platform selection from
+separate platform typecheck environments; do not infer runtime platform selection from
 TypeScript's fixed suffix order.
 
 ```sh

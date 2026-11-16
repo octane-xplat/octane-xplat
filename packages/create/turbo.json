@@ -5,7 +5,11 @@
 	],
 	"tasks": {
 		"build": {
-			"outputs": ["dist/**", "template/patches/**", "library-template/patches/**"]
+			"outputs": [
+				"dist/**",
+				"template/patches/**",
+				"library-template/patches/**"
+			]
 		},
 		"pack:check": {
 			"dependsOn": [],
@@ -20,7 +24,9 @@
 			]
 		},
 		"test:packed": {
-			"dependsOn": ["pack:check"],
+			"dependsOn": [
+				"pack:check"
+			],
 			"cache": false
 		},
 		"test:library": {
@@ -36,6 +42,16 @@
 				"@octane-xplat/workshop#build",
 				"@octane-xplat/workshop#typegen",
 				"@octane-xplat/cli#build:go"
+			],
+			"cache": false
+		},
+		"test:platform-programs": {
+			"dependsOn": [
+				"build",
+				"@octane-xplat/ui#typegen",
+				"@octane-xplat/platform#typegen",
+				"@octane-xplat/nativescript-octane#typegen",
+				"@octane-xplat/workshop#typegen"
 			],
 			"cache": false
 		}

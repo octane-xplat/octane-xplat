@@ -35,7 +35,7 @@ bun run xplat build -t linux # experimental GTK/WebKit app directory + tar archi
 bun run xplat doctor       # environment, installed versions, runtime copies + patches
 bun run xplat upgrade --check # preview alignment to this CLI's compatibility set
 bun run xplat upgrade      # align workspace versions and patches, then install
-bun run xplat typecheck    # web + native tsconfigs
+bun run xplat typecheck    # separate platform programs
 bun run xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
 bun run xplat fmt          # format JS/TS/JSX/TSX + .tsrx and other Oxfmt languages in place (--check, --stdin-filepath)
 bun run xplat patches apply  # install the framework's patch set into this app

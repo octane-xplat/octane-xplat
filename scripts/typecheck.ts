@@ -1,13 +1,12 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// Package typecheck runner — expands tsconfig.envs.json into a single program
-// covering every declared environment's files (the shared expansion lives in
-// packages/cli/src/tsconfig-envs.ts) and runs tsc --runExternalCode on it. All platform
-// module suffixes resolve under one fixed precedence order, extensionless
-// first; per-file @jsxImportSource pragmas pick the renderer.
-// Run from a package directory via its "typecheck" script.
+// Check every applicable platform separately; Linux/GTK keep their legacy union.
 import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
-import { expandEnvPrograms, loadEnvManifest } from '../packages/cli/src/tsconfig-envs.ts'
+import {
+  assertPlatformIsolation,
+  expandEnvPrograms,
+  loadEnvManifest,
+} from '../packages/cli/src/tsconfig-envs.ts'
 
 const dir = process.cwd()
 const manifest = loadEnvManifest(dir)
@@ -31,6 +30,28 @@ try {
 
 for (const { env, configPath } of programs) {
   console.log(`typecheck[${env}]: tsc --runExternalCode --noEmit -p ${configPath}`)
+
+  const listing = spawnSync(
+    'bun',
+    ['run', 'tsc', '--runExternalCode', '--noEmit', '--listFilesOnly', '-p', configPath],
+    {
+      cwd: dir,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    },
+  )
+
+  if (listing.status !== 0) {
+    console.error(listing.stdout, listing.stderr)
+    process.exit(listing.status ?? 1)
+  }
+
+  try {
+    assertPlatformIsolation(env, listing.stdout.split(/\r?\n/))
+  } catch (error) {
+    console.error(error.message)
+    process.exit(1)
+  }
 
   const res = spawnSync('bun', ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', configPath], {
     shell: process.platform === 'win32',

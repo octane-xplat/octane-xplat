@@ -10,10 +10,12 @@ import (
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/project"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/routes"
+	"github.com/tailscale/hujson"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -58,9 +60,41 @@ func expectedTypecheckPrograms(projectRoot string, inputs map[string]typecheckCo
 		configs = append(configs, filepath.Join(projectRoot, "tsconfig.json"))
 	}
 	if _, ok := inputs["tsconfig.envs.json"]; ok {
-		configs = append(configs, filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck", "all.json"))
-	} else if _, ok := inputs["tsconfig.native.json"]; ok {
-		configs = append(configs, filepath.Join(projectRoot, "tsconfig.native.json"))
+		data, err := osfs.MetadataBytes(filepath.Join(projectRoot, "tsconfig.envs.json"), 1<<20)
+		if err != nil {
+			return nil
+		}
+		data, err = hujson.Standardize(data)
+		if err != nil {
+			return nil
+		}
+		var manifest struct{ Environments map[string]json.RawMessage }
+		if json.Unmarshal(data, &manifest) != nil {
+			return nil
+		}
+		names := map[string]bool{}
+		for env := range manifest.Environments {
+			switch env {
+			case "native":
+				names["ios"] = true
+				names["android"] = true
+			case "linux", "gtk":
+				names["all"] = true
+			case "web", "ios", "android", "macos", "windows":
+				names[env] = true
+			default:
+				return nil
+			}
+		}
+		for _, env := range []string{"web", "ios", "android", "macos", "windows", "all"} {
+			if names[env] {
+				configs = append(configs, filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck", env+".json"))
+			}
+		}
+	} else {
+		if _, ok := inputs["tsconfig.native.json"]; ok {
+			configs = append(configs, filepath.Join(projectRoot, "tsconfig.native.json"))
+		}
 	}
 	return configs
 }
@@ -70,7 +104,7 @@ func validateTypecheckPrograms(data json.RawMessage, projectRoot string, inputs 
 		Version int
 		Configs []string
 	}
-	if json.Unmarshal(data, &plan) != nil || plan.Version != 1 || plan.Configs == nil || !slices.Equal(plan.Configs, expectedTypecheckPrograms(projectRoot, inputs)) {
+	if json.Unmarshal(data, &plan) != nil || plan.Version != 1 || plan.Configs == nil || len(plan.Configs) == 0 || !slices.Equal(plan.Configs, expectedTypecheckPrograms(projectRoot, inputs)) {
 		return nil, errors.New("invalid typecheck program plan; update the selected project's @octane-xplat/cli")
 	}
 	for _, path := range plan.Configs {
@@ -80,6 +114,25 @@ func validateTypecheckPrograms(data json.RawMessage, projectRoot string, inputs 
 		}
 	}
 	return plan.Configs, nil
+}
+
+// Check the compiler's complete graph, not just authored root files. A triple
+// slash reference in a dependency bypasses compilerOptions.types.
+func validateAmbientFiles(env, listing string) error {
+	if env == "all" {
+		return nil
+	}
+	for _, line := range strings.Split(listing, "\n") {
+		file := strings.ReplaceAll(strings.TrimSpace(line), "\\", "/")
+		lower := strings.ToLower(file)
+		dom := strings.Contains(lower, "/lib.dom.") && strings.HasSuffix(lower, ".d.ts")
+		ios := strings.Contains(file, "/@nativescript/types-ios/")
+		android := strings.Contains(file, "/@nativescript/types-android/")
+		if (env != "web" && dom) || (ios && env != "ios") || (android && env != "android") || strings.HasSuffix(file, "/@nativescript/types/index.d.ts") {
+			return fmt.Errorf("typecheck[%s]: transitive ambient leakage from %s; select platform declarations or move the import into its platform leaf", env, line)
+		}
+	}
+	return nil
 }
 
 func Command(ctx context.Context, _ map[string]any) error {
@@ -142,6 +195,22 @@ func Command(ctx context.Context, _ map[string]any) error {
 			return err
 		}
 		fmt.Printf("Typechecking %s\n", config)
+		if filepath.Dir(config) == filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck") && filepath.Base(config) != "all.json" {
+			listing, err := proc.RunProcess(ctx, []string{node, checker, "--noEmit", "--runExternalCode", "--listFilesOnly", "-p", config}, projectRoot, project.ToolEnvironment())
+			if err != nil {
+				return err
+			}
+			if listing.Truncated {
+				return errors.New("typecheck declaration graph exceeded capture limit")
+			}
+			if listing.ExitCode != 0 {
+				return fmt.Errorf("typecheck declaration discovery failed: %s%s", listing.Stdout, listing.Stderr)
+			}
+			env := strings.TrimSuffix(filepath.Base(config), ".json")
+			if err := validateAmbientFiles(env, listing.Stdout); err != nil {
+				return err
+			}
+		}
 		process, err := proc.RunForegroundProcessIO(ctx, []string{node, checker, "--noEmit", "--runExternalCode", "-p", config}, projectRoot, project.ToolEnvironment(), os.Stdout, os.Stderr)
 		if err != nil {
 			return err
