@@ -90,6 +90,15 @@ export function Button(props: ButtonProps): unknown @{
     accessibilityState={{ ...props.accessibilityState, busy: busy || undefined }}
     accessibilityValue={props.accessibilityValue ?? (busy ? 'Loading' : undefined)}
   >
+    @if (loading) {
+      <masonview
+        className="vx-button-spinner"
+        accessible={false}
+        style={{ gridRow: '1', gridColumn: '1', justifySelf: 'center', alignSelf: 'center' }}
+      >
+        <ActivityIndicator />
+      </masonview>
+    }
     <masonview
       className={['vx-button-content', loading && 'vx-button-content--hidden']}
       style={
@@ -100,14 +109,5 @@ export function Button(props: ButtonProps): unknown @{
     >
       {content}
     </masonview>
-    {loading && (
-      <masonview
-        className="vx-button-spinner"
-        accessible={false}
-        style={{ gridRow: '1', gridColumn: '1', justifySelf: 'center', alignSelf: 'center' }}
-      >
-        <ActivityIndicator />
-      </masonview>
-    )}
   </Pressable>
 }
