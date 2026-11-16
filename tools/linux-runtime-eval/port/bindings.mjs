@@ -24,6 +24,10 @@ const registry = new FinalizationRegistry((entry) => {
     C.g_bytes_unref(entry.native)
     return
   }
+  if (entry?.kind === 'gtk-accessible-list') {
+    C.g_boxed_free(C.gtk_accessible_list_get_type(),entry.native)
+    return
+  }
   if (entry.live) { entry.live = false; bridgeStats.signals--; liveSignals.delete(entry) }
 })
 const scopes = new Set(), permanent = { callbacks: new Set(), timers: new Set() }
@@ -70,6 +74,7 @@ function fromNative(value,type,transfer=0){
         if(typeof C.g_bytes_unref!=='function'||(transfer!==2&&typeof C.g_bytes_ref!=='function'))throw Error('GLib.Bytes reference functions are unavailable')
         return wrapStruct(transfer===2?value:C.g_bytes_ref(value),ref,true,true)
       }
+      if(ref.ns==='Gtk'&&ref.name==='AccessibleList')return wrapStruct(value,ref,transfer===2,true)
       return wrapStruct(value,ref)
     }
   }
@@ -173,6 +178,9 @@ function wrapStruct(native,ref,owned=false,force=false){
     target.unref=function(...args){registry.unregister(token);target.__bytesFreed=true;return unref.apply(proxy,args)}
     registry.register(proxy,{kind:'glib-bytes',native:pointer(native)},token)
   }
+  if(owned&&ref.ns==='Gtk'&&ref.name==='AccessibleList'){
+    registry.register(proxy,{kind:'gtk-accessible-list',native:pointer(native)})
+  }
   return proxy
 }
 export const typeNameOf = value => decode(g_type_name(nativeType(pointer(value))))
@@ -181,6 +189,11 @@ function fillValue(memory,value,type){
   if(value?.__ref?.ns==='GObject'&&value.__ref.name==='Value'){
     // Copy the initialized GValue, preserving ref-counted contents.
     g_value_init(memory,pointer(value).g_type);g_value_copy(pointer(value),memory);return
+  }
+  if(value?.__ref?.ns==='Gtk'&&value.__ref.name==='AccessibleList'){
+    g_value_init(memory,C.gtk_accessible_list_get_type())
+    // The GValue owns a copy; the returned boxed wrapper keeps its own copy.
+    g_value_set_boxed(memory,pointer(value));return
   }
   type??=typeof value==='string'?64:typeof value==='boolean'?20:typeof value==='number'?24:80
   g_value_init(memory,type)
@@ -319,45 +332,56 @@ function callbackNative(fn,info,owner){
 }
 function invoke(info,values,self){
   const hidden=new Set(),out=[],args=[],cleanup=[],callbacks=[]
-  for(const arg of info.args){if(arg.type.tag===15&&arg.type.length>=0)hidden.add(arg.type.length);if(arg.closure>=0)hidden.add(arg.closure);if(arg.destroy>=0)hidden.add(arg.destroy)}
-  const lengths=new Map();let index=0
-  let inputIndex=0
-  info.args.forEach((arg,i)=>{
-    if(hidden.has(i)||arg.direction===1)return
-    const value=values[inputIndex++]
-    if(arg.type.tag===15&&arg.type.length>=0&&value!=null)lengths.set(arg.type.length,typeof value==='string'?new TextEncoder().encode(value).length:value.length)
-  })
-  if(self)args.push(pointer(self))
-  for(let i=0;i<info.args.length;i++){
-    const arg=info.args[i],type=arg.type
-    if(hidden.has(i)){args.push(lengths.get(i)??null);continue}
-    if(arg.direction===1){
-      let memory,read
-      if(type.tag===16&&[3,4].includes(type.interface.kind)){
-        const ref=type.interface
-        try{memory=new (rawCtor(ref.ns,ref.name))();read=()=>wrapStruct(memory,ref)}
-        catch{const flat=outStructFallback(ref);memory=flat.alloc();read=()=>flat.read(memory);cleanup.push(()=>interop.free(memory))}
-      }else{memory=new interop.Reference(typeForRef(type));read=()=>fromNative(memory.value,type,arg.transfer)}
-      args.push(memory);out.push({type,read});continue
-    }
-    let value=values[index++]
-    if(type.tag===15&&value!=null){if(type.length>=0)lengths.set(type.length,typeof value==='string'?new TextEncoder().encode(value).length:value.length);const properties=data.Gtk.AccessibleProperty.values
-      const stringProperties=['DESCRIPTION','KEY_SHORTCUTS','LABEL','ROLE_DESCRIPTION','VALUE_TEXT','PLACEHOLDER'].map(k=>properties[k])
-      const doubleProperties=['VALUE_MIN','VALUE_MAX','VALUE_NOW'].map(k=>properties[k])
-      const hints=info.symbol==='gtk_accessible_update_property_value'&&arg.name==='values'?values[0].map(p=>stringProperties.includes(p)?64:doubleProperties.includes(p)?60:undefined):undefined
-      value=prepareArray(value,type,cleanup,hints)}
-    else if(type.tag===16&&type.interface.kind===2&&typeof value==='function')value=callbackNative(value,data[type.interface.ns][type.interface.name],callbacks)
-    else {
-      // A transfer-full parameter consumes a native reference; add one for the
-      // callee's consumption — the wrapper's own ref stays ours to release.
-      if(arg.transfer===2&&value?.__ref&&isObject(value.__ref))g_object_ref(pointer(value))
-      value=pointer(value)
-    }
-    args.push(value??null)
-  }
-  const error=info.throws?new interop.Reference(t.pointer):null
-  if(error)args.push(error)
   try{
+    for(const arg of info.args){if(arg.type.tag===15&&arg.type.length>=0)hidden.add(arg.type.length);if(arg.closure>=0)hidden.add(arg.closure);if(arg.destroy>=0)hidden.add(arg.destroy)}
+    const lengths=new Map();let index=0
+    let inputIndex=0
+    info.args.forEach((arg,i)=>{
+      if(hidden.has(i)||arg.direction===1)return
+      const value=values[inputIndex++]
+      if(arg.type.tag===15&&arg.type.length>=0&&value!=null)lengths.set(arg.type.length,typeof value==='string'?new TextEncoder().encode(value).length:value.length)
+    })
+    if(self)args.push(pointer(self))
+    for(let i=0;i<info.args.length;i++){
+      const arg=info.args[i],type=arg.type
+      if(hidden.has(i)){args.push(lengths.get(i)??null);continue}
+      if(arg.direction===1){
+        let memory,read
+        if(type.tag===16&&[3,4].includes(type.interface.kind)){
+          const ref=type.interface
+          try{memory=new (rawCtor(ref.ns,ref.name))();read=()=>wrapStruct(memory,ref)}
+          catch{const flat=outStructFallback(ref);memory=flat.alloc();read=()=>flat.read(memory);cleanup.push(()=>interop.free(memory))}
+        }else{memory=new interop.Reference(typeForRef(type));read=()=>fromNative(memory.value,type,arg.transfer)}
+        args.push(memory);out.push({type,read});continue
+      }
+      let value=values[index++]
+      if(type.tag===15&&value!=null){if(type.length>=0)lengths.set(type.length,typeof value==='string'?new TextEncoder().encode(value).length:value.length);const properties=data.Gtk.AccessibleProperty.values
+        const stringProperties=['DESCRIPTION','KEY_SHORTCUTS','LABEL','ROLE_DESCRIPTION','VALUE_TEXT','PLACEHOLDER'].map(k=>properties[k])
+        const doubleProperties=['VALUE_MIN','VALUE_MAX','VALUE_NOW'].map(k=>properties[k])
+        const hints=info.symbol==='gtk_accessible_update_property_value'&&arg.name==='values'?values[0].map(p=>stringProperties.includes(p)?64:doubleProperties.includes(p)?60:undefined):undefined
+        value=prepareArray(value,type,cleanup,hints)}
+      else if(type.tag===17&&Array.isArray(value)){
+        // GList input parameters borrow a native list, not the JS array.
+        if(arg.transfer!==0)throw Error('Ownership-taking GList inputs are not projected')
+        let list=null
+        cleanup.push(()=>{if(list)g_list_free(list)})
+        for(const item of value){
+          if(!item?.__ref||!isObject(item.__ref))throw Error('GList inputs require projected GObjects')
+          list=g_list_append(list,pointer(item))
+        }
+        value=list
+      }
+      else if(type.tag===16&&type.interface.kind===2&&typeof value==='function')value=callbackNative(value,data[type.interface.ns][type.interface.name],callbacks)
+      else {
+        // A transfer-full parameter consumes a native reference; add one for the
+        // callee's consumption — the wrapper's own ref stays ours to release.
+        if(arg.transfer===2&&value?.__ref&&isObject(value.__ref))g_object_ref(pointer(value))
+        value=pointer(value)
+      }
+      args.push(value??null)
+    }
+    const error=info.throws?new interop.Reference(t.pointer):null
+    if(error)args.push(error)
     const raw=C[info.symbol](...args)
     if(error?.value){const native=new interop.Reference(_GError,error.value).value;const message=decode(native.message);g_error_free(error.value);throw Error(message)}
     const results=out.map(o=>o.read())
@@ -445,7 +469,7 @@ for(const [ns,records]of Object.entries(data))namespaces[ns]=new Proxy({}, {get(
   return getClass(ns,name)
 }})
 // Constants not included in typelib exports or represented as fundamental macros.
-namespaces.GObject=new Proxy(namespaces.GObject,{get(target,p){if(p==='registerClass')return registerClass;if(p==='TYPE_INT')return 24;if(p==='TYPE_BOOLEAN')return 20;if(p==='TYPE_STRING')return 64;return target[p]}})
+namespaces.GObject=new Proxy(namespaces.GObject,{get(target,p){if(p==='registerClass')return registerClass;if(p==='TYPE_INT')return 24;if(p==='TYPE_BOOLEAN')return 20;if(p==='TYPE_DOUBLE')return 60;if(p==='TYPE_STRING')return 64;return target[p]}})
 const timers=new Map()
 const deferRelease=callback=>setTimeout(()=>{interop.release(callback);bridgeStats.callbacks--},0)
 const addSource=(priority,ms,fn,idle=false)=>{

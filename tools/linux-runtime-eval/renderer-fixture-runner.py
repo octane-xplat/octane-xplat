@@ -145,7 +145,7 @@ def main(bundle):
             + "\n"
             + (input_error or "exit code " + str(code))
         )
-    if re.search(r"Gtk-CRITICAL|Gjs-CRITICAL|\[linux-gtk\] event handler failed", stderr):
+    if re.search(r"Gtk-CRITICAL|Gjs-CRITICAL|GLib-GObject-CRITICAL|\[linux-gtk\] event handler failed", stderr):
         raise RuntimeError("GTK runtime emitted a critical warning\n" + stderr)
     if re.search(r"ignored prop accessibilityLabel", stdout + stderr):
         raise RuntimeError("GTK runtime ignored accessibilityLabel")
