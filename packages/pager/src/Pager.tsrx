@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import './Pager.css'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { memo, useCallback, useEffect, useRef, useState } from 'octane'
 import {
   pickAccessibilityProps,
@@ -19,10 +20,9 @@ import { Pager as NSPager } from '@nativescript-community/ui-pager'
 import { GridLayout } from '@nativescript/core'
 import type { PagerProps } from './props'
 import {
-  applyEscapeProps,
   nativeAccessibilityRole,
   nativeAccessibilityState,
-} from './native/escape-props'
+} from './native/accessibility'
 
 import { layoutChildProps } from './layout-child'
 

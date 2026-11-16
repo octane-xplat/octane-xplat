@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { applyWebEscapeProps as applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { useLayoutEffect, useRef } from 'octane'
 import type { CSSProperties } from 'octane/jsx-runtime'
 import type { ImageProps, ImageSourceLike } from './props'

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { AnimatedImageProps } from './props'
-import { applyEscapeProps } from './escape-props.web'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { JSX } from 'octane/jsx-runtime'
 
 const OBJECT_FIT = {

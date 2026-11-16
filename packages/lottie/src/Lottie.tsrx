@@ -4,7 +4,8 @@ import { registerElement } from '@octane-xplat/nativescript-octane'
 import { isAndroid } from '@nativescript/core'
 import { LottieView } from './vendor/ui-lottie/src/lottie'
 import type { LottieHandle, LottieProps } from './props'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from './accessibility'
 import { layoutChildProps } from './layout-child'
 
 registerElement('xplatlottie', LottieView)

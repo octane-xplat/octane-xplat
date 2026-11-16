@@ -2,7 +2,7 @@
 import lottie, { type AnimationItem } from 'lottie-web'
 import { useState, useImperativeHandle, useEffect, useRef } from 'octane'
 import type { LottieHandle, LottieProps } from './props'
-import { applyEscapeProps } from './escape-props.web'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { layoutChildProps } from './layout-child.web'
 import type { JSX } from 'octane/jsx-runtime'
 

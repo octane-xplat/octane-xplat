@@ -1,7 +1,7 @@
 import { loadSource } from '../../../scripts/load-source.ts'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -28,11 +28,18 @@ try {
 
   const escapeEntry = manifest.exports['./escape-props']
   assert.equal(escapeEntry.default, './src/escape-props.ts')
-  assert.ok(readFileSync(join(root, escapeEntry.types), 'utf8').includes('applyWebEscapeProps'))
-  const { applyNativeEscapeProps } = await loadSource(pathToFileURL(join(root, escapeEntry.default)))
-  const view = {}
-  applyNativeEscapeProps(view, { label: 'packed' })
-  assert.equal(view.label, 'packed')
+  assert.ok(readFileSync(join(root, escapeEntry.types), 'utf8').includes('applyEscapeProps'))
+  assert.equal(escapeEntry.web, './src/escape-props.web.ts')
+  for (const [conditions, expected] of [
+    [['--conditions=browser'], escapeEntry.web],
+    [['--conditions=native', '--conditions=browser'], escapeEntry.native],
+  ]) {
+    const resolved = spawnSync('node', [...conditions, '--input-type=module', '-e', "console.log(import.meta.resolve('@octane-xplat/lib/escape-props'))"], { cwd: root, encoding: 'utf8' })
+    assert.equal(resolved.status, 0, resolved.stderr)
+    assert.equal(resolved.stdout.trim(), pathToFileURL(realpathSync(join(root, expected))).href)
+  }
+  const { applyEscapeProps } = await loadSource(pathToFileURL(join(root, escapeEntry.web)))
+  assert.equal(typeof applyEscapeProps, 'function')
 
   const typeFixture = join(root, 'component-props.check.ts')
 

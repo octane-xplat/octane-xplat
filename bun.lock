@@ -1698,9 +1698,16 @@
       "name": "@octane-xplat/lib",
       "version": "0.20.0",
       "devDependencies": {
+        "@nativescript/core": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "typescript": "catalog:",
       },
+      "peerDependencies": {
+        "@nativescript/core": ">=9.1.0 <10",
+      },
+      "optionalPeers": [
+        "@nativescript/core",
+      ],
     },
     "packages/lightbox": {
       "name": "@octane-xplat/lightbox",

@@ -24,6 +24,9 @@
 		},
 		"./escape-props": {
 			"types": "./types/generated/escape-props.d.ts",
+			"native": "./src/escape-props.ts",
+			"web": "./src/escape-props.web.ts",
+			"browser": "./src/escape-props.web.ts",
 			"default": "./src/escape-props.ts"
 		},
 		"./route-pattern": {
@@ -49,7 +52,14 @@
 		"test": "node --test tests/*.test.mts",
 		"test:packed": "node tests/packed-consumer.mts"
 	},
+	"peerDependencies": {
+		"@nativescript/core": ">=9.1.0 <10"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript/core": { "optional": true }
+	},
 	"devDependencies": {
+		"@nativescript/core": "catalog:",
 		"typescript": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	}

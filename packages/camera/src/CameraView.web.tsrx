@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { JSX } from 'octane/jsx-runtime'
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { CameraViewProps } from './props'
 import { attachSessionPreview } from './session'
-import { applyEscapeProps, layoutChildProps } from './layout-child.web'
+import { layoutChildProps } from './layout-child.web'
 
 /** Live web preview backed by getUserMedia. */
 export function CameraView(props: CameraViewProps): JSX.Element @{

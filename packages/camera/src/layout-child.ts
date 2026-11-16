@@ -1,6 +1,4 @@
-import { applyNativeEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { CameraViewProps } from './props'
-import { isIOS } from '@nativescript/core'
 import { mergeStyle } from './style-merge'
 
 /** NativeScript reads layout fields from a child view during parent layout. */
@@ -54,10 +52,6 @@ export function layoutChildProps(
   }
 
   return { style: typeof baseStyle === 'string' ? mergeStyle(style, baseStyle) : style }
-}
-
-export function applyEscapeProps(view: any, props: { ios?: any; android?: any }): void {
-  applyNativeEscapeProps(view, isIOS ? props.ios : props.android)
 }
 
 const nativeRoles: Record<string, string> = {

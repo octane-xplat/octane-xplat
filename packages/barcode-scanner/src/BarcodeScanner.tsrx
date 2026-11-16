@@ -1,17 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { applyNativeEscapeProps } from '@octane-xplat/lib/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
-import { isAndroid } from '@nativescript/core'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import { CameraPosition, DetectionType, MLKitView } from '@nativescript/mlkit-core'
 import type { BarcodeScannerHandle, BarcodeScannerProps } from './props'
 import { fromNativeFormat, toNativeFormats } from './format-map'
 
 registerElement('xplatbarcodescanner', MLKitView)
-
-function applyEscapeProps(view: any, props: BarcodeScannerProps): void {
-  applyNativeEscapeProps(view, isAndroid ? props.android : props.ios)
-}
 
 /** Live barcode/QR scanner — ML Kit's camera preview with `detectionType:
  *  barcode`. Decoding only; photo capture stays in @octane-xplat/camera. */

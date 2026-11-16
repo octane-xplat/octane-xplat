@@ -2,7 +2,7 @@
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import { Img } from '@nativescript-community/ui-image'
 import type { AnimatedImageProps } from './props'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 
 // @nativescript-community/ui-image — Fresco DraweeView on Android,
 // SDAnimatedImageView on iOS when `animatedImageView` is set (plain UIImageView

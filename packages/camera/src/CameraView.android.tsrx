@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { Application, View } from '@nativescript/core'
 import { registerElement } from '@octane-xplat/nativescript-octane'
@@ -7,7 +8,6 @@ import type { CameraViewProps } from './props'
 import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
 import {
-  applyEscapeProps,
   layoutChildProps,
   nativeAccessibilityRole,
   nativeAccessibilityState,

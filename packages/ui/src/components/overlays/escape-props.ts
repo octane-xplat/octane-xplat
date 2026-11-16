@@ -1,5 +1,5 @@
-import { applyNativeEscapeProps } from '@octane-xplat/lib/escape-props'
-import { isAndroid, isIOS, ScrollView } from '@nativescript/core'
+import { applyEscapeProps as applySharedEscapeProps } from '@octane-xplat/lib/escape-props'
+import { isAndroid, ScrollView } from '@nativescript/core'
 import type { NativeModifier, Role } from '../../props'
 import type { AccessibilityStateName } from '@octane-xplat/jsx/intrinsics'
 import { applyNativeModifiers } from '../../internal/platform/apply-native-modifiers.native'
@@ -43,7 +43,7 @@ export function applyEscapeProps(
     view.on?.('loaded', () => unclipAndroidContainer(view))
   }
 
-  applyNativeEscapeProps(view, isIOS ? props.ios : isAndroid ? props.android : undefined)
+  applySharedEscapeProps(view, props)
 
   applyNativeModifiers(view, props.modifiers)
 }

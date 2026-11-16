@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { applyNativeEscapeProps } from '@octane-xplat/lib/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { registerElement } from '@octane-xplat/nativescript-octane'
-import { ImageSource, isAndroid, isIOS, Screen } from '@nativescript/core'
+import { ImageSource, isIOS, Screen } from '@nativescript/core'
 import { Img, initialize } from '@nativescript-community/ui-image'
 import { useMemo, useRef } from 'octane'
 import type { ImageProps } from './props'
@@ -58,10 +58,6 @@ function layoutChildAttrs(props: ImageProps) {
   }
 
   return result
-}
-
-function applyEscapeProps(view: any, props: ImageProps): void {
-  applyNativeEscapeProps(view, isIOS ? props.ios : isAndroid ? props.android : undefined)
 }
 
 /** A `src` string → engine source. data: URIs decode to an ImageSource — the

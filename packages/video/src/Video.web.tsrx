@@ -2,7 +2,7 @@
 import type { JSX } from 'octane/jsx-runtime'
 import { useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { VideoHandle, VideoProps } from './props'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { layoutChildProps } from './layout-child.web'
 import { VideoChrome } from './video-chrome.web.tsrx'
 
