@@ -7,6 +7,7 @@ import {
   readFileSync,
   writeFileSync,
   cpSync,
+  existsSync,
   readdirSync,
   statSync,
   realpathSync,
@@ -412,11 +413,78 @@ const ns = process.env.XPLAT_PRERENDER_NS_CLI ?? '/opt/homebrew/bin/ns'
 const cliVersion = run(ns, ['--version']).split(/\r?\n/)[0]
 
 assert.equal(cliVersion, '9.1.1')
+run(ns, ['prepare', 'ios', '--release', '--path', app])
+
+// Defer NativeScript.framework: it stays an SPM dependency and still embeds
+// in .app/Frameworks, but no load command maps its 56MB image (V8) until
+// NativeScriptStart.setup() dlopen()s it after the native mount is proven.
+const internalStart = join(app, 'platforms/ios/internal/NativeScriptStart.m')
+let start = readFileSync(internalStart, 'utf8')
+assert.ok(
+  start.includes('Config* config = [[Config alloc] init];'),
+  'Unexpected generated NativeScriptStart.m contents',
+)
+start = start
+  .replace('#import <NativeScriptStart.h>', '#import <NativeScriptStart.h>\n#include <dlfcn.h>')
+  .replace(
+    'NSString* baseDir = [[NSBundle mainBundle] resourcePath];',
+    `if (NSClassFromString(@"NativeScript") == nil) {
+             NSString* frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"NativeScript.framework/NativeScript"];
+             if (dlopen(frameworkPath.fileSystemRepresentation, RTLD_NOW | RTLD_GLOBAL) == NULL) {
+                 NSLog(@"NativeScript deferred load failed: %s", dlerror());
+             }
+         }
+         NSString* baseDir = [[NSBundle mainBundle] resourcePath];`,
+  )
+  .replace('[Config alloc]', '[NSClassFromString(@"Config") alloc]')
+  .replace('[NativeScript alloc]', '[NSClassFromString(@"NativeScript") alloc]')
+writeFileSync(internalStart, start)
+
+// The SPM product stays a declared dependency so staging, header search
+// paths, metadata generation and the automatic .app embed keep working; the
+// custom linker wrapper strips the framework from the link itself so the
+// executable carries no load command for it.
+const nsldPath = join(app, 'platforms/ios/internal/nsld.sh')
+let nsld = readFileSync(nsldPath, 'utf8')
+assert.ok(
+  /"\$NS_LD" "\$@"\s*$/.test(nsld),
+  'Unexpected generated nsld.sh contents',
+)
+nsld = nsld.replace(
+  /"\$NS_LD" "\$@"\s*$/,
+  `# NativeScript.framework is dlopen()ed by NativeScriptStart.setup(); strip
+# the auto-linked product so the executable maps it only on demand.
+FILTERED_ARGS=()
+for ((i=1; i<=$#; i++)); do
+    arg="\${!i}"
+    if [[ "$arg" == "-framework" ]]; then
+        next=$((i+1))
+        if [[ "\${!next}" == "NativeScript" ]]; then
+            i=$next
+            continue
+        fi
+    fi
+    case "$arg" in
+        *NativeScript.framework/NativeScript|*NativeScript.xcframework*)
+            continue
+            ;;
+    esac
+    FILTERED_ARGS+=("$arg")
+done
+"$NS_LD" "\${FILTERED_ARGS[@]}"
+`,
+)
+writeFileSync(nsldPath, nsld)
+
 run(ns, ['build', 'ios', '--release', '--path', app])
 assertProducerInputs(producer.manifest)
 for (const [path, expected] of Object.entries(sourceHashes)) {
   assert.equal(hash(path), expected, 'Source changed during compilation: ' + path)
 }
+assert.ok(
+  readFileSync(internalStart, 'utf8').includes('dlopen'),
+  'ns build regenerated NativeScriptStart.m during compile',
+)
 
 const products = join(app, 'platforms/ios/build/Release-iphonesimulator')
 const names = readdirSync(products).filter((name) => name.endsWith('.app'))
@@ -430,6 +498,23 @@ const executable = run('plutil', [
   'raw',
   join(built, 'Info.plist'),
 ])
+
+const embeddedFramework = join(built, 'Frameworks/NativeScript.framework')
+if (!existsSync(embeddedFramework)) {
+  const builtFramework = join(products, 'NativeScript.framework')
+  assert.ok(
+    existsSync(builtFramework),
+    'Unlinked NativeScript.framework was not produced by the build',
+  )
+  cpSync(builtFramework, embeddedFramework, { recursive: true })
+  run('codesign', ['--force', '--deep', '--sign', '-', embeddedFramework])
+}
+
+const loadCommands = run('otool', ['-L', join(built, executable)])
+assert.ok(
+  !loadCommands.includes('NativeScript.framework'),
+  'NativeScript.framework is still a load command on the executable',
+)
 
 const inventory = (directory) =>
   Object.fromEntries(
