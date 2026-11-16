@@ -1,6 +1,6 @@
 # NativeScript Linux runtime evaluation
 
-Read this note when evaluating whether to replace GJS with `@nativescript/linux` for the GTK target. The shipping GTK package and CLI still use GJS; the private [evaluation harness](../../../tools/linux-runtime-eval/README.md) does not change that path.
+Read this note when migrating the GTK target from GJS to `@nativescript/linux`. NativeScript linux-runtime is the chosen direction; qualification failures identify work to resolve for the cutover. The shipping GTK package and CLI currently use GJS; the private [evaluation harness](../../../tools/linux-runtime-eval/README.md) develops and checks the replacement.
 
 ## Qualification boundary
 
@@ -15,6 +15,8 @@ The projection targets the NativeScript object model introduced by [upstream PR 
 The three unexplained widgets in the original slice were retained by the probe's final loop-local root handle. Clearing that local handle made the same x86_64 run finalize 132 of 132 widgets. Treat that as a corrected probe measurement, not an upstream runtime change.
 
 ## Runtime packaging
+
+The V8 runtime at `57408ba` initializes V8 without installing ICU common data. The exploratory x86_64 executable aborts on a standalone `Intl.DateTimeFormat` call when the dataset is absent; typeahead also hits SIGSEGV in V8's `JSSegments::Create`. Supplying the exact ICU 77 data through `ICU_DATA` lets the date fixtures pass and typeahead complete with the same assertion failures as GJS. The evaluation harness forwards `LINUX_RUNTIME_EVAL_ICU_DATA` to the remote native process. Its [Intl smoke](../../../tools/linux-runtime-eval/intl-smoke.mjs) checks multiple locales, a time-zone boundary, and word/grapheme segmentation. Package a dataset matching the pinned rusty_v8 version, retain its hash and license, and run the smoke before diagnosing UI date or segmentation failures. Do not mistake the fatal “out of memory” message for evidence that increasing the V8 heap is the fix.
 
 The runtime needs a pinned source revision, locked Rust dependencies, fixed compiler and system inputs, architecture-specific executable and GTK metadata, verified hashes, license material, and a shipped app launcher. Upstream's release producer is a starting point, but its container tags and Rust `stable` channel move; pin those inputs before calling a build reproducible. Track the packaged app path separately from the renderer package's Mason shared libraries.
 

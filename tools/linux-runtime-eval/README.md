@@ -62,6 +62,16 @@ LINUX_RUNTIME_EVAL_EXECUTABLE=/Users/alec/agent-scratch/.../ns-linux \
 
 ## Run real renderer fixtures
 
+The exploratory V8 executable requires ICU data matching its rusty_v8 build. With rusty_v8 147, an absent ICU 77 dataset makes even `new Intl.DateTimeFormat('en-US')` abort with `DateTimePatternGeneratorCache::CreateGenerator`; increasing the JavaScript heap does not supply the missing locale data. The matching [Chromium ICU dataset](https://chromium.googlesource.com/chromium/deps/icu/+/ee5f27adc28bd3f15b2c293f726d14d2e336cbd5/common/icudtl.dat) has SHA-256 `1cf67874b5a87a8363a86fb3f81e3cbbed54d389062dab8fb52308d5cf8c8612`. Store it on the Linux host as `icudt77l.dat` and set `LINUX_RUNTIME_EVAL_ICU_DATA` to its directory for NativeScript renderer runs. Keep its source revision, hash, and license with the eventual runtime package. A newer runtime may require a different ICU version.
+
+Run the maintained Intl smoke on Linux before testing UI components. It checks English and French formatting, a time-zone date boundary, and word/grapheme segmentation. Missing ICU data also makes V8's `Intl.Segmenter.segment()` crash with SIGSEGV, which prevents typeahead text processing:
+
+```sh
+ICU_DATA=/path/on/linux/icu77 /path/on/linux/ns-linux tools/linux-runtime-eval/intl-smoke.mjs
+```
+
+For the remote renderer commands below, pass `LINUX_RUNTIME_EVAL_ICU_DATA=/path/on/linux/icu77` alongside the executable and Mason variables. This variable configures only NativeScript; the GJS control uses its own installed ICU data.
+
 `test:renderer-fixture` bundles existing GTK renderer fixtures and drives their windows with `xdotool` on Linux. It supports `ui-popover`, `ui-sheet`, `ui-focus`, and `ui-theme`. Run NativeScript and GJS against the same host and fixture to separate projection regressions from the existing GTK baseline:
 
 ```sh

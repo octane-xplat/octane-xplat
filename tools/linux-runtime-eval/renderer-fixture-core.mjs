@@ -172,7 +172,12 @@ export async function runRendererFixture({
         XPLAT_MASON_TYPELIB: masonDir,
         LD_LIBRARY_PATH: masonDir,
       }
-      if (projected) environment.NS_V8_FLAGS = '--expose-gc'
+      if (projected) {
+        environment.NS_V8_FLAGS = '--expose-gc'
+        if (process.env.LINUX_RUNTIME_EVAL_ICU_DATA) {
+          environment.ICU_DATA = process.env.LINUX_RUNTIME_EVAL_ICU_DATA
+        }
+      }
       const assignments = Object.entries(environment)
         .map(([name, value]) => `${name}=${quote(value)}`)
         .join(' ')
