@@ -17,8 +17,6 @@ import {
 
 import { createMacOSDevBundle } from './dev-bundle.ts'
 
-export { runMacOSWebViewDev } from './webview-dev.ts'
-
 /** Run the configured Vite watcher and native host, restarting after native edits. */
 export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
   appRoot = resolve(appRoot)
@@ -40,12 +38,6 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
   }
 
   const target = readManifest().xplat?.targets?.macos
-
-  if (target?.renderer === 'webview') {
-    const { runMacOSWebViewDev } = await import('./webview-dev.ts')
-
-    return runMacOSWebViewDev(appRoot, options)
-  }
 
   if (target?.runtime !== 'appkit-node-api') {
     throw new Error('Declare xplat.targets.macos.runtime as "appkit-node-api"')

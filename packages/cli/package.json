@@ -69,7 +69,10 @@
 	},
 	"typescript": {
 		"contentMapper": {
-			"exec": ["node", "bin/tsrx-mapper.mjs"],
+			"exec": [
+				"node",
+				"bin/tsrx-mapper.mjs"
+			],
 			"dynamicConfig": true
 		}
 	},

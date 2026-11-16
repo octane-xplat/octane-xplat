@@ -16,33 +16,6 @@
 						"./types/generated/index.d.ts"
 					]
 				},
-				"./host": {
-					"source": "src/host-protocol.ts",
-					"runtime": [
-						"./src/host-protocol.ts"
-					],
-					"types": [
-						"./types/generated/host-protocol.d.ts"
-					]
-				},
-				"./host/web": {
-					"source": "src/host-runtime.web.ts",
-					"runtime": [
-						"./src/host-runtime.web.ts"
-					],
-					"types": [
-						"./types/generated/host-runtime.web.d.ts"
-					]
-				},
-				"./host/services": {
-					"source": "src/host-services.ts",
-					"runtime": [
-						"./src/host-services.ts"
-					],
-					"types": [
-						"./types/generated/host-services.d.ts"
-					]
-				},
 				"./testing": {
 					"source": "src/testing.mobile.ts",
 					"runtime": [

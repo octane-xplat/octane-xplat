@@ -1,11 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { environment } from './environment.web'
 
-vi.mock('./host-runtime.web', () => ({
-  desktopHostBootstrap: () => null,
-  desktopHostClient: () => null,
-}))
-
 beforeEach(() => {
   const browser = new EventTarget()
   const page = new EventTarget()

@@ -47,9 +47,7 @@ export async function inspectMacOSDoctor(
     'macOS host',
     macHost,
     process.platform,
-    target.renderer === 'webview'
-      ? 'run WKWebView with the JavaScriptCore + NativeScript host on macOS'
-      : 'run AppKit Node-API development and packaging on macOS',
+    'run AppKit Node-API development and packaging on macOS',
   )
 
   row(
@@ -66,9 +64,7 @@ export async function inspectMacOSDoctor(
       : typeof scripts.dev === 'string',
     target.dev
       ? inspectMacOSDevConfig(cwd, target.dev, target.renderer).issues.join('; ') ||
-          (target.renderer === 'webview'
-            ? 'CLI-owned WKWebView + JavaScriptCore runner'
-            : 'CLI-owned AppKit Node-API runner')
+          'CLI-owned AppKit Node-API runner'
       : scripts.dev
         ? 'present'
         : 'missing',

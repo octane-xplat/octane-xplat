@@ -48,6 +48,12 @@ func TestLinuxPlanRequiresExactPathsAndExecutableLauncher(t *testing.T) {
 	if _, err = publishLinuxPackage(context.Background(), root, release, stage, data); err == nil {
 		t.Fatal("escaping/mismatched archive accepted")
 	}
+	retired := plan
+	retired.Runtime = "webkitgtk"
+	data, _ = json.Marshal(retired)
+	if _, err = publishLinuxPackage(context.Background(), root, release, stage, data); err == nil {
+		t.Fatal("retired WebView package plan was accepted")
+	}
 	data, _ = json.Marshal(plan)
 	paths, err := publishLinuxPackage(context.Background(), root, release, stage, data)
 	if err != nil || len(paths) != 2 {

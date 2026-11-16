@@ -82,7 +82,7 @@ Local file URLs support empty/localhost authority and decode once. Do not pass
 content://, remote file authorities, raw query/fragment syntax or NUL; use share.url
 for non-file absolute URLs. Missing callbacks stay pending until window/app
 teardown; no timeout fabricates success. Screen teardown alone cannot cancel the
-native service. The separate hosted webview host still reports launch as shared.
+native service.
 Eight facade cases, intercepted picker and metadata/consumer fixtures require separate verification;
 AppKit event-context requirements (including mouse-down), native callbacks, OS UI,
 actual transfer, VoiceOver and packaged consumers require separate target qualification in #62.

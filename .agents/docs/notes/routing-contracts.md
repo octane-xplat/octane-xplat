@@ -1,5 +1,9 @@
 # Declared and runtime route contracts
 
+Desktop WebView app hosting and its native-service bridge are retired. Any
+WebKitGTK app-host evidence below is historical and does not qualify native
+GTK. Removed host paths are historical identifiers, not runnable procedures.
+
 The client has one executable catalog and one preparation pipeline. A declared
 contract is a promise about the route's inputs and successful data. A runtime
 registration cannot change that promise after an instance is constructed.

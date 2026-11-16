@@ -18,7 +18,7 @@ unsupported targets and OS-controlled release without promising permanent wakefu
 - AC1: Keep a mounted screen awake with a hook and release its request when it unmounts.
 - AC2: Use independent tags for overlapping activities; duplicates are a set rather than a reference count, and unknown cleanup is harmless.
 - AC3: Check availability and held state, handle false results, and understand background release and automatic foreground retry.
-- AC4: Understand display-only behavior, web prerequisites, Linux session dependence, and the unsupported Windows leaf; verify real sleep behavior on intended targets.
+- AC4: Understand display-only behavior, web prerequisites, native GTK unavailability, and Windows lifecycle limits; verify real sleep behavior on intended targets.
 - AC5: On native AppKit, check both activity methods without acquiring, retain each token with its creating receiver/release method across bridge replacement or loss, preserve failed-release retry and the existing tag set. Hook callback/warning changes must not cycle its request; teardown retires callbacks and starts release even if optional listener removal fails. Author target models and an idle manual fixture, keeping physical sleep/bridge/input/memory/packaged evidence separate.
 
 ## Documentation

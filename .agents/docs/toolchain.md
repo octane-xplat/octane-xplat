@@ -347,7 +347,7 @@ experience of agents writing Octane-xplat code effectively.
   filesystem walks, not git-aware — `node_modules` and `.turbo` logs are
   negated there). App packages order `@xplat/app#gen` (routes.gen +
   styled-system) ahead of `typecheck`/`build`/`test`. `test:packed`,
-  `test:macos-runtime`, and `apps/linux`'s `build` are `cache: false` — their
+  `test:macos-runtime` are `cache: false` — their
   side effects land outside declared `outputs`. `lint` stays a single
   repo-wide pass; `turbo run lint` works via the `//#lint` root task but is
   uncached for the same reason. `bun run typecheck` runs every declared workspace

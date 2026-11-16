@@ -1,5 +1,9 @@
 # Linux GTK renderer — v1 implementation status
 
+Desktop WebView app hosting and its native-service bridge are retired. Any
+WebKitGTK app-host evidence below is historical and does not qualify native
+GTK. Removed host paths are historical identifiers, not runnable procedures.
+
 > Status note for `packages/linux-gtk-renderer` (`@octane-xplat/linux-gtk`,
 > private). Follows the feasibility review
 > (`.agents/design/linux-gtk-feasibility-review.md`, gate verdict **fail** —
@@ -77,30 +81,18 @@ A first native slice of the GTK4/GJS renderer:
   AppKit-specific event types that don't fit the shared contract; that's a
   ui reconciliation workstream, not a types-only change.
 - **Compat shims**: `compat/native-core`, `compat/escape-props`.
-- **First-class CLI target** (follow-up change): `xplat.targets.linux.runtime`
-  now accepts `"gtk"` alongside `"webkitgtk"`. `xplat dev`/`xplat build`
-  detect it (`linuxRuntime` in `packages/cli/src/targets.ts`),
-  `inspectLinuxPackageConfig` validates it (identity fields as before;
-  `host.scheme` optional — the GTK host has no URI handling; `viteConfig`
-  defaults to `vite.gtk.config.ts`), and `packageLinux` branches: the GTK
-  path runs the app's `linuxGtk` Vite config into the staged app
-  directory and emits `app.js` (or any single top-level ESM file), an
-  executable `gjs -m` launcher, `app.json`, `README.txt`, and the usual tar
-  archive. **No host script, desktop entry, or installer ships** — bundle +
-  launcher is the honest minimum; GJS produces no binary, and URI/install
-  surfaces wait on runtime qualification. `xplat dev linux` stays app-owned
-  (`pnpm run dev`). Doctor differentiates the runtime check (GTK only, no
-  WebKitGTK/libsecret/Adwaita typelibs). Public doc:
-  `docs/platform/linux-gtk.md`; recipe: `.agents/docs/recipes/linux-gtk-package.md`.
-  apps/linux (webkitgtk) is unchanged — `gtk` is an alternate runtime value,
-  not a second linux target.
+- **CLI target**: `xplat.targets.linux.runtime` accepts only `"gtk"`.
+  Configuration validates identity and native build paths; `viteConfig` defaults
+  to `vite.gtk.config.ts`. Packaging emits a single-file ESM bundle, executable
+  `gjs -m` launcher, `app.json`, README, desktop entry, per-user install/uninstall
+  scripts, and a tar archive. GJS produces no binary. URI handling remains
+  unavailable. Linux users supply GJS/GTK4; the CLI ships no WebView host.
+  See `docs/platform/linux-gtk.md` and `.agents/docs/recipes/linux-gtk-package.md`.
 
 ## The `.gtk` suffix (deviation from the task brief)
 
-The brief asked for a `.linux` suffix seam. `.linux` is already claimed by
-the WebKitGTK renderer — the existing chain resolves `.linux.*` → `.web.*`
-→ unsuffixed, and `.linux` leaves carry DOM assumptions (see the capability
-inventory's resolution-model section). Reusing it would let DOM leaves
+The original brief asked for a `.linux` suffix seam. That suffix historically
+selected DOM leaves for the now-retired WebKitGTK app host. Reusing it would let those leaves
 resolve silently into a GJS bundle and would rewrite the meaning of every
 existing `.linux` file. The renderer therefore registers a distinct **`.gtk`**
 suffix:

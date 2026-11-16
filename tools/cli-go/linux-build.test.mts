@@ -47,7 +47,6 @@ const { packageLinux } = await import(
   pathToFileURL(join(dirname(tools.worker), 'linux/package.js')).href
 )
 
-const hostRoot = join(dirname(tools.worker), 'linux/host')
 let sequence = 0
 const posix = { skip: process.platform === 'win32' }
 function put(dir, file, value) {
@@ -88,18 +87,12 @@ function project(runtime = 'gtk') {
     process.platform === 'win32' ? 'junction' : 'dir',
   )
 
-  if (runtime === 'gtk') {
-    put(dir, 'main.js', 'export const value=42\n')
-    put(
-      dir,
-      'vite.linux.config.mjs',
-      `export default{build:{lib:{entry:'main.js',formats:['es'],fileName:()=> 'app.js'}}}`,
-    )
-  } else {
-    put(dir, 'index.html', '<script type="module" src="/main.js"></script>')
-    put(dir, 'main.js', 'console.log(42)')
-    put(dir, 'vite.linux.config.mjs', 'export default {}')
-  }
+  put(dir, 'main.js', 'export const value=42\n')
+  put(
+    dir,
+    'vite.linux.config.mjs',
+    `export default{build:{lib:{entry:'main.js',formats:['es'],fileName:()=> 'app.js'}}}`,
+  )
 
   return dir
 }
@@ -151,7 +144,7 @@ test('Linux schema advertises the worker and unsupported Windows host fails befo
   }
 })
 
-for (const runtime of ['gtk', 'webkitgtk']) {
+for (const runtime of ['gtk']) {
   test(
     `actual ${runtime} package matches canonical Node construction and a relocatable tar archive`,
     posix,
@@ -161,7 +154,7 @@ for (const runtime of ['gtk', 'webkitgtk']) {
 
       mkdirSync(stage, { recursive: true })
 
-      const canonical = await packageLinux(dir, { stagingRoot: stage, publish: false, hostRoot })
+      const canonical = await packageLinux(dir, { stagingRoot: stage, publish: false })
       const expected = files(canonical.appDir)
       const r = run(dir)
 

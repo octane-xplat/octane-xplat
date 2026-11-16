@@ -21,6 +21,3 @@ export declare function runMacOSDev(
     }) => void
   },
 ): Promise<void>
-
-/** Run a DOM frontend in WKWebView with the CLI-managed JavaScriptCore host. */
-export declare function runMacOSWebViewDev(appRoot?: string): Promise<void>

@@ -1,2 +1,2 @@
-// Linux's system webview uses the shared host-aware web implementation.
+// Browser implementation; native GTK requires a dedicated platform adapter.
 export { notifications } from './notifications.web'

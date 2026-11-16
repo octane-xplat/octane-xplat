@@ -166,26 +166,9 @@ export async function doctor() {
     }
   }
 
-  if (process.platform !== 'linux') {
-    targets.linux.issues.push(
-      'Run this command in a real Linux environment; no macOS stand-in is used',
-    )
-  } else {
-    const gjs = await inspect('gjs', [
-      '-c',
-      "imports.gi.versions.Gtk='4.0'; imports.gi.versions.WebKit='6.0'; imports.gi.versions.Adw='1'; imports.gi.versions.Secret='1'; const {Gtk,WebKit,Adw,Secret}=imports.gi;",
-    ])
-
-    if (gjs.code) {
-      targets.linux.issues.push(
-        'gjs or GTK4/WebKitGTK6/Adwaita/Secret introspection dependencies are unavailable',
-      )
-    }
-
-    if (!process.env.DISPLAY && !process.env.WAYLAND_DISPLAY) {
-      targets.linux.issues.push('No display session; run under an existing desktop or xvfb-run')
-    }
-  }
+  targets.linux.issues.push(
+    'Desktop WebView hosting has been removed; native GTK single-case probing is not implemented',
+  )
 
   for (const state of Object.values(targets)) {
     state.available = state.issues.length === 0

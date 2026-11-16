@@ -3,9 +3,8 @@
 > Keychain/Keystore-backed secure storage for Octane xplat — matching web + NativeScript implementations
 
 Store session tokens without displaying their contents. iOS and macOS use
-Keychain, Android uses the Keystore-backed plugin, and Linux uses the desktop
-host's Secret Service adapter. Experimental packaged Windows apps have a
-Credential Locker leaf. Plain browsers report `supported: false`.
+Keychain, and Android uses the Keystore-backed plugin. Experimental packaged Windows apps have a
+Credential Locker leaf. Native Linux GTK and plain browsers report `supported: false`.
 
 ```sh
 bun add @octane-xplat/secure-storage

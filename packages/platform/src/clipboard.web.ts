@@ -1,6 +1,5 @@
 // Clipboard — browser support is feature-detected; writes can still be denied
 // by browser policy or permission state.
-import { desktopHost, desktopHostClient, desktopHostSupports } from './host-runtime.web'
 
 export type Clipboard = {
   canCopy: boolean
@@ -12,20 +11,9 @@ export type Clipboard = {
 }
 
 const canCopy =
-  (typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function') ||
-  desktopHostClient() !== null
+  typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function'
 
 async function writeText(text: string): Promise<boolean> {
-  const host = desktopHost()
-
-  if (host && (await desktopHostSupports('clipboard', 'write'))) {
-    try {
-      return await host.clipboard.write(text)
-    } catch {
-      // Fall back to the browser API if the host call failed.
-    }
-  }
-
   try {
     await navigator.clipboard.writeText(text)
     return true
@@ -35,16 +23,6 @@ async function writeText(text: string): Promise<boolean> {
 }
 
 async function readText(): Promise<string | null> {
-  const host = desktopHost()
-
-  if (host && (await desktopHostSupports('clipboard', 'read'))) {
-    try {
-      return await host.clipboard.read()
-    } catch {
-      // Fall back to the browser API if the host call failed.
-    }
-  }
-
   try {
     return await navigator.clipboard.readText()
   } catch {

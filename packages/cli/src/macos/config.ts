@@ -11,33 +11,28 @@ const requiredPackageFields = [
   'minimumSystemVersion',
 ]
 
-const macOSRenderers = new Set(['appkit', 'webview'])
-
 function rendererOf(value, issues, prefix) {
-  const renderer = value ?? 'appkit'
-
-  if (!macOSRenderers.has(renderer)) {
-    issues.push(`${prefix}.renderer must be "appkit" or "webview"`)
-    return 'appkit'
+  if (value !== undefined && value !== 'appkit') {
+    issues.push(
+      `${prefix}.renderer must be "appkit"; desktop WebView hosting has been removed. Use native AppKit screens or run the app in a browser.`,
+    )
   }
 
-  return renderer
+  return 'appkit'
 }
 
-function resolveBuildPaths(appRoot, settings, issues, prefix, renderer, stage) {
-  const webview = renderer === 'webview'
-  const names = webview
-    ? [
-        'webViteConfig',
-        'hostViteConfig',
-        'hostBundleFile',
-        ...(stage === 'package' ? ['webOutDir'] : []),
-      ]
-    : ['viteConfig', 'bundleFile']
-
+function resolveBuildPaths(appRoot, settings, issues, prefix) {
   const paths = {}
 
-  for (const key of names) {
+  for (const key of ['webViteConfig', 'hostViteConfig', 'hostBundleFile', 'webOutDir']) {
+    if (settings[key] !== undefined) {
+      issues.push(
+        `${prefix}.${key} is no longer supported; configure native AppKit viteConfig and bundleFile`,
+      )
+    }
+  }
+
+  for (const key of ['viteConfig', 'bundleFile']) {
     if (typeof settings[key] !== 'string' || !settings[key].trim()) {
       issues.push(`missing ${prefix}.${key}`)
       continue
@@ -48,16 +43,12 @@ function resolveBuildPaths(appRoot, settings, issues, prefix, renderer, stage) {
       settings[key],
       `${prefix.slice('xplat.targets.macos.'.length)} ${key}`,
       issues,
-      {
-        mustExist: key.endsWith('Config'),
-      },
+      { mustExist: key.endsWith('Config') },
     )
   }
 
-  const bundleKey = webview ? 'hostBundleFile' : 'bundleFile'
-
-  if (typeof settings[bundleKey] === 'string' && !settings[bundleKey].endsWith('.cjs')) {
-    issues.push(`macOS ${bundleKey} must point to a CommonJS .cjs bundle`)
+  if (typeof settings.bundleFile === 'string' && !settings.bundleFile.endsWith('.cjs')) {
+    issues.push('macOS bundleFile must point to a CommonJS .cjs bundle')
   }
 
   return paths
@@ -148,14 +139,7 @@ export function inspectMacOSPackageConfig(appRoot, value, selectedRenderer) {
     )
   }
 
-  const buildPaths = resolveBuildPaths(
-    appRoot,
-    settings,
-    issues,
-    'xplat.targets.macos.package',
-    renderer,
-    'package',
-  )
+  const buildPaths = resolveBuildPaths(appRoot, settings, issues, 'xplat.targets.macos.package')
 
   const iconPath =
     settings.icon === undefined
@@ -226,19 +210,14 @@ export function inspectMacOSDevConfig(appRoot, value, selectedRenderer) {
     issues.push('xplat.targets.macos.dev must be an object')
   }
 
-  const renderer = rendererOf(selectedRenderer, issues, 'xplat.targets.macos')
+  rendererOf(selectedRenderer, issues, 'xplat.targets.macos')
 
-  if (renderer === 'webview') {
-    const paths = resolveBuildPaths(
-      appRoot,
-      settings,
-      issues,
-      'xplat.targets.macos.dev',
-      renderer,
-      'dev',
-    )
-
-    return { ...paths, issues }
+  for (const key of ['webViteConfig', 'hostViteConfig', 'hostBundleFile', 'webOutDir']) {
+    if (settings[key] !== undefined) {
+      issues.push(
+        `xplat.targets.macos.dev.${key} is no longer supported; configure native AppKit viteConfig and bundleFile`,
+      )
+    }
   }
 
   const paths = {}

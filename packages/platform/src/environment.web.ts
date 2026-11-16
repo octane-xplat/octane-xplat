@@ -1,10 +1,9 @@
 import { connectivity } from './connectivity.web'
-import { desktopHostBootstrap, desktopHostClient } from './host-runtime.web'
 import type { RuntimeEnvironment, RuntimeEnvironmentSnapshot } from './environment-types'
 
 export type { RuntimeEnvironment, RuntimeEnvironmentSnapshot } from './environment-types'
 
-/** Browser visibility/connectivity, or desktop WebView host activity when connected. */
+/** Browser visibility and connectivity. */
 export const environment: RuntimeEnvironment = {
   getSnapshot() {
     const network =
@@ -12,16 +11,9 @@ export const environment: RuntimeEnvironment = {
         ? undefined
         : connectivity.getState()
 
-    const state = typeof document === 'undefined' ? undefined : desktopHostBootstrap()?.appState
-
     return {
       online: network?.online,
-      active:
-        typeof document === 'undefined'
-          ? undefined
-          : state
-            ? state === 'active'
-            : document.visibilityState === 'visible',
+      active: typeof document === 'undefined' ? undefined : document.visibilityState === 'visible',
       capabilities: {
         connectivity: network !== undefined,
         activity: typeof document !== 'undefined',
@@ -47,23 +39,14 @@ export const environment: RuntimeEnvironment = {
       listener(snapshot())
     }
 
-    const host = desktopHostClient()
-    const stopHost = host?.on('app.state.change', (state) => {
-      active = state === 'active'
-      listener(snapshot())
-    })
-
-    if (!host) {
-      document.addEventListener('visibilitychange', visibility)
-      window.addEventListener('pageshow', visibility)
-      window.addEventListener('pagehide', hide)
-    }
+    document.addEventListener('visibilitychange', visibility)
+    window.addEventListener('pageshow', visibility)
+    window.addEventListener('pagehide', hide)
 
     const stopNetwork = connectivity.subscribe(network)
 
     return () => {
       stopNetwork()
-      stopHost?.()
       document.removeEventListener('visibilitychange', visibility)
       window.removeEventListener('pageshow', visibility)
       window.removeEventListener('pagehide', hide)

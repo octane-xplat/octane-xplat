@@ -27,7 +27,7 @@ function project(t) {
     xplat: {
       targets: {
         linux: {
-          runtime: 'webkitgtk',
+          runtime: 'gtk',
           host: { scheme: 'sample' },
           package: {
             applicationId: 'org.example.Sample',
@@ -40,7 +40,7 @@ function project(t) {
   }
 
   writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
-  writeFileSync(join(root, 'vite.linux.config.ts'), '')
+  writeFileSync(join(root, 'vite.gtk.config.ts'), '')
   mkdirSync(join(root, 'node_modules/vite'), { recursive: true })
   writeFileSync(
     join(root, 'node_modules/vite/package.json'),
@@ -49,7 +49,7 @@ function project(t) {
 
   writeFileSync(
     join(root, 'node_modules/vite/build.cjs'),
-    `const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'index.html'), '<h1>Sample</h1>');`,
+    `const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'app.js'), 'export const value = 42');`,
   )
 
   return { root, manifest }
@@ -69,46 +69,6 @@ function gtkProject(t) {
 
   return { root, manifest }
 }
-
-test('Linux packaging creates relocatable app, metadata, archive and per-user desktop installation', async (t) => {
-  const { root } = project(t)
-  const { appDir, archive } = await packageLinux(root)
-
-  assert.ok(existsSync(archive))
-  assert.deepEqual(JSON.parse(readFileSync(join(appDir, 'app.json'), 'utf8')), {
-    applicationId: 'org.example.Sample',
-    productName: 'Sample App',
-    scheme: 'sample',
-  })
-
-  assert.ok(
-    execFileSync('tar', ['-tzf', archive], { encoding: 'utf8' }).includes(
-      'sample-app/bundle/index.html',
-    ),
-  )
-
-  const relocated = join(root, 'relocated app')
-
-  cpSync(appDir, relocated, { recursive: true })
-  execFileSync('sh', ['-n', join(relocated, 'sample-app')])
-
-  const dataHome = join(root, 'data with spaces $dollar %percent')
-
-  execFileSync('sh', [join(relocated, 'install.sh')], {
-    env: { ...process.env, XDG_DATA_HOME: dataHome },
-  })
-
-  const installed = join(dataHome, 'org.example.Sample')
-
-  assert.ok(existsSync(join(installed, 'bundle/index.html')))
-
-  const desktop = readFileSync(join(dataHome, 'applications/org.example.Sample.desktop'), 'utf8')
-
-  assert.ok(desktop.includes('MimeType=x-scheme-handler/sample;'))
-  assert.ok(desktop.includes('Exec="'))
-  assert.ok(desktop.includes('%%percent'))
-  assert.ok(!desktop.includes(root + '/dist'))
-})
 
 test('GTK archive ships desktop entry and install/uninstall; install→reinstall→uninstall keeps settings', async (t) => {
   const { root } = gtkProject(t)
@@ -193,7 +153,7 @@ test('failed frontend build preserves previously packaged app', async (t) => {
   assert.equal(readFileSync(join(result.appDir, 'keep.txt'), 'utf8'), 'previous app')
 })
 
-test('linux target detection accepts gtk and webkitgtk runtimes and rejects others', (t) => {
+test('linux target detection accepts gtk and rejects retired or unknown runtimes', (t) => {
   const { root, manifest } = gtkProject(t)
 
   assert.equal(linuxRuntime(root), 'gtk')
@@ -201,8 +161,12 @@ test('linux target detection accepts gtk and webkitgtk runtimes and rejects othe
 
   manifest.xplat.targets.linux.runtime = 'webkitgtk'
   writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
-  assert.equal(linuxRuntime(root), 'webkitgtk')
-  assert.ok(hasLinux(root))
+  assert.equal(linuxRuntime(root), null)
+  assert.ok(!hasLinux(root))
+  assert.match(
+    inspectLinuxPackageConfig(root).issues.join('; '),
+    /desktop WebView hosting has been removed/,
+  )
 
   manifest.xplat.targets.linux.runtime = 'qt'
   writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))

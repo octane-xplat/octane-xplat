@@ -37,14 +37,6 @@
 			"dependsOn": ["^typegen"],
 			"cache": false
 		},
-		"@octane-xplat/desktop-webview#test:macos-movie-storage": {
-			"dependsOn": ["^typegen"],
-			"cache": false
-		},
-		"@octane-xplat/desktop-webview#test:macos-media-delegate": {
-			"dependsOn": ["^typegen"],
-			"cache": false
-		},
 
 		"test:scaffold": { "cache": false, "dependsOn": ["build"] },
 		"test:doctor": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["XPLAT_DOCTOR_REFERENCE_CLI"] },

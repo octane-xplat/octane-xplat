@@ -3,7 +3,7 @@
 > Show a camera preview, record a short movie, and reopen the saved result.
 
 Build a short video recorder with a live preview, a Record button, and a Stop
-button. This guide covers Android, Web, Linux, macOS, and Windows (WinUI 3)
+button. This guide covers Android, Web, macOS, and Windows (WinUI 3)
 movie capture; iOS uses the same session interface. Windows support is
 implemented through the NativeScript WinUI host but still needs a real Windows
 machine with a camera to finish qualification — see the gaps at the end of
@@ -61,14 +61,7 @@ async function allowCamera() {
 Browser recordings require persistent origin storage in this adapter. The
 camera permission action also asks the browser for persistence when permitted.
 A browser may refuse it even after granting camera access; stored clips remain
-subject to user-cleared site data. On Linux the packaged WebKitGTK host shows a
-GTK permission dialog the first time capture runs and remembers the decision
-per app; clips always commit to app-private files, so no storage grant is
-involved. Check capabilities
-again after that action and enable Record only when `available` is true.
-`reason` explains unavailable storage or preview. The current shared interface
-has no best-effort retention option, so these adapters reject recording rather
-than weakening retention silently.
+subject to user-cleared site data. Native Linux GTK has no recording adapter.
 
 ```ts
 async function canRecord() {
@@ -127,8 +120,8 @@ them:
 Without the matching key, `permissions()` stays `unknown` and
 `requestPermission` fails with `configurationMissing` — the system would
 reject the prompt outright, so the adapter fails instead. The macOS camera
-leaf is a compiled Swift host, so the AppKit backend and the WKWebView host
-both need a native build; `xplat` dev and package builds compile it when the
+leaf is a compiled Swift host, so the AppKit backend
+needs a native build; `xplat` dev and package builds compile it when the
 app depends on `@octane-xplat/camera`.
 
 ```ts
@@ -206,9 +199,9 @@ async function stop() {
 
 A duration limit requests stopping; it is not an editing cutoff. Android uses
 CameraX media-time enforcement and macOS uses `AVCaptureMovieFileOutput`
-media-time enforcement. Web, Linux, and Windows timers are best effort and may
+media-time enforcement. Web and Windows timers are best effort and may
 run late when the app is busy or suspended. Elapsed time is native
-media time on Android and macOS and an estimate on Web, Linux, and Windows;
+media time on Android and macOS and an estimate on Web and Windows;
 the clip's duration is read from finalized media.
 
 ```ts
@@ -237,17 +230,7 @@ await session.dispose()
 Keep the clip's `output` reference in your app's library. A fresh session can
 reopen that reference after app restart or page reload, without activating the
 camera. Release the returned access when playback ends; release does not delete
-the stored movie. Android, Linux, and Windows return app-private MP4 file URLs —
-on Linux the file sits under `~/.local/share/<applicationId>/media/` and the
-host also serves that directory same-origin through its `/-/media/` route —
-and macOS returns an app-private MOV file URL. Web commits bytes
-and metadata to IndexedDB and returns a stable resource ID; the opened Blob URL
-is temporary playback access.
-
-Inside a qualified macOS WKWebView host the same Web backend stores finalized
-bytes in the host's app-private Application Support directory instead of
-IndexedDB. Output still reopens through `session.openOutput` — the returned
-`url` is temporary playback access while `fileUrl` is the durable reference.
+the stored movie. Android and Windows return app-private MP4 file URLs; macOS returns an app-private MOV file URL. Web commits bytes and metadata to IndexedDB and returns a stable resource ID. The opened Blob URL is temporary playback access.
 
 ```ts
 import { createCameraSession } from '@octane-xplat/camera'
@@ -265,14 +248,7 @@ async function reviewSavedMovie(output: MovieOutput) {
 
 Android and Windows additionally accept a new writable absolute `.mp4`
 destination file URL. They reserve that path before capture and refuse
-existing files and known cache or temporary directories. Linux accepts a new
-`.mp4` file URL inside the app's private data root
-(`~/.local/share/<applicationId>/`). macOS accepts a new `.mov` file URL inside
-the app's private Application Support root. Both desktop hosts refuse existing
-files, missing directories, and paths outside the private root. Web does not
-accept native file destinations. Check the destination capability
-before
-showing that option.
+existing files and known cache or temporary directories. macOS accepts a new `.mov` file URL inside the app's private Application Support root and refuses existing files, missing directories, and paths outside that root. Web does not accept native file destinations. Check the destination capability before showing that option.
 
 ```ts
 const capabilities = await session.capabilities()
@@ -305,7 +281,7 @@ if (capabilities.cameraSwitchDuringRecording) {
 | Web                   | Available when canvas recording and manual frame submission are supported. Preview and recording share the held video source. Chromium timing is qualified with generated video and a mock microphone; other browser engines, physical browser cameras, and timing under severe host load remain unqualified.           |
 | Android               | Uses one persistent CameraX recorder while rebinding video. Audio stays active; the preview retains its last frame until the new source is ready. Physical front/back recording and packet timing have been exercised; image orientation and mirroring have not been visually verified. |
 | iOS                   | One sample writer keeps an independent microphone session active during video-input replacement. Physical iPhone front/back swaps, incoming audio, encoded timing, stop/limit races and background recovery have been exercised. Connection metadata verifies mirroring/orientation settings; their appearance has not been visually verified. |
-| macOS, Windows, Linux | Unavailable in their current native/host adapters. Web support does not imply support in a separate desktop camera adapter.                                                                                                                                                             |
+| macOS, Windows | Unavailable in their current native/host adapters. Web support does not imply support in a separate desktop camera adapter.                                                                                                                                                             |
 
 The session remains `recording` while `switchingCamera` is true. Disable repeated
 Flip presses during that interval and while saving, starting or finalizing.
@@ -423,11 +399,11 @@ if (capabilities.orientations.includes('landscapeRight')) {
 }
 ```
 
-Android, Web, and Linux currently advertise no fixed cardinal orientations.
+Android and Web currently advertise no fixed cardinal orientations.
 Omit
 `orientation`; clips report `unspecified` alongside actual presentation width
 and height. Android samples display rotation at start and reads the final MP4
-transform; Web and Linux read final container metadata. Windows advertises cardinal
+transform; Web reads final container metadata. Windows advertises cardinal
 orientations only while a live source exposes `SetRecordRotation`; clips
 otherwise report the rotation stored in the file. On macOS 14 and later the four
 cardinal orientations are advertised and locked through the recording
@@ -436,11 +412,7 @@ orientation request fails `unsupportedConfiguration`. macOS clips report the
 actual orientation read from the finalized MOV track transform. Recorded output
 is unmirrored;
 front-camera preview may be mirrored. No shared file suffix or codec is assumed:
-Android and Windows write MP4, iOS and macOS write MOV (`video/quicktime`), while Web
-and Linux select an explicitly supported WebM or MP4 codec and report the
-finalized file's actual MIME type, including codecs — on Ubuntu 24.04's
-WebKitGTK that resolves to MP4 (H.264/AAC) because WebM recording needs
-GStreamer ≥ 1.24.9.
+Android and Windows write MP4, iOS and macOS write MOV (`video/quicktime`), while Web selects an explicitly supported WebM or MP4 codec and reports the finalized file's actual MIME type, including codecs.
 
 ```ts
 const take = session.startRecording()
@@ -459,10 +431,8 @@ physical input, phone rotation, OS suspension, disk exhaustion, front-camera
 mirroring, or playback by an OS player after restart.
 
 Chromium checks cover WebM VP8/Opus; MP4-only browser hosts need their own codec,
-permission and persistence checks. Linux WebKitGTK MP4 recording has mock-device
-evidence; physical camera/audio hardware, interactive permission prompts and
-window occlusion remain unqualified. Native AppKit and WKWebView capture on a
-camera-equipped Mac remain unverified.
+permission and persistence checks. Native AppKit capture on a
+camera-equipped Mac remains unverified.
 
 Windows preview and MP4 recording have source implementations only. Real preview,
 permission prompts, recording, device contention, reopening after restart and

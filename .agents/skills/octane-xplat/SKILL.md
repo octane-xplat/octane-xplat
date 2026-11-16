@@ -8,7 +8,11 @@ description: Build or review Octane Xplat apps and framework components across w
 Build shared screens with Octane and `@octane-xplat/ui`. Web uses the DOM
 renderer; iOS/Android use NativeScript through `@octane-xplat/nativescript-octane`.
 Desktop hosts are experimental; choose the actual host before reusing a
-platform example. Platform divergence belongs at file boundaries.
+platform example. Desktop apps use native AppKit, GTK, or WinUI. General
+WebView app hosting and `@octane-xplat/platform/host*` service RPC are removed;
+do not reintroduce them. Richtext owns the local editor document channel used
+by RichText, Tiptap, and Lexical; keep it limited to editor operations. Embedded
+WebView widgets are a separate UI feature. Platform divergence belongs at file boundaries.
 
 ## Core constraints
 

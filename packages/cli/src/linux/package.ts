@@ -1,7 +1,6 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import {
   chmodSync,
-  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -15,11 +14,8 @@ import {
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { srcUrl } from '../env.ts'
 import { inspectLinuxPackageConfig } from './config.ts'
 
-const defaultHostRoot = fileURLToPath(srcUrl(import.meta.url, 'host/'))
 const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
 const desktopString = (value) => value.replaceAll('\\', '\\\\').replaceAll('\t', '\\t')
 
@@ -42,12 +38,11 @@ const findGtkBundle = (appDir) => {
   return entries[0]
 }
 
-/** Shared XDG install surface for both GJS runtimes: a `.desktop` entry,
+/** XDG install surface for native GTK apps: a `.desktop` entry,
  *  `install.sh` (replaces any previous install cleanly, then writes the
  *  absolute Exec path), and `uninstall.sh` (removes only the installed app
  *  directory and desktop entry — user settings under XDG_CONFIG_HOME stay).
- *  `execArgs` is the desktop Exec argument tail: ' %u' for the WebKitGTK URI
- *  handler, '' for the GTK runtime which registers no scheme. */
+ *  GTK currently registers no URI scheme. */
 function writeDesktopInstall(config, appDir, { scheme, execArgs }) {
   const execLine = `Exec=${config.executableName}${execArgs}`
 
@@ -119,7 +114,7 @@ printf 'Settings kept under %s\\n' "\${XDG_CONFIG_HOME:-$HOME/.config}/${config.
 /** GTK4/GJS runtime: a single-file ESM bundle plus an executable `gjs -m`
  *  launcher. GJS produces no binary, so the relocatable app directory and
  *  tar archive are the distributable artifacts. Ships the shared XDG
- *  desktop entry/installer like the WebKitGTK runtime; URI scheme handling
+ *  desktop entry/installer; URI scheme handling
  *  stays out until the GTK host grows URI services. */
 function buildGtkApp(config, vite, appRoot, appDir) {
   execFileSync(
@@ -162,14 +157,10 @@ exec gjs -m "$APP_DIR/${bundle}" "$@"
   )
 }
 
-/** Build a relocatable GJS/WebKitGTK app and tar archive from a Linux target. */
+/** Build a relocatable native GTK/GJS app and tar archive from a Linux target. */
 export async function packageLinux(
   appRoot: string,
-  {
-    stagingRoot,
-    publish = true,
-    hostRoot = defaultHostRoot,
-  }: { stagingRoot?: string; publish?: boolean; hostRoot?: string } = {},
+  { stagingRoot, publish = true }: { stagingRoot?: string; publish?: boolean } = {},
 ) {
   const config = inspectLinuxPackageConfig(appRoot)
 
@@ -199,62 +190,7 @@ export async function packageLinux(
 
   try {
     mkdirSync(appDir)
-    if (config.runtime === 'gtk') {
-      buildGtkApp(config, vite, appRoot, appDir)
-    } else {
-      execFileSync(
-        process.execPath,
-        [
-          vite,
-          'build',
-          '--config',
-          config.viteConfig,
-          '--base',
-          '/',
-          '--outDir',
-          join(appDir, 'bundle'),
-        ],
-        { cwd: appRoot, stdio: 'inherit' },
-      )
-
-      if (!existsSync(join(appDir, 'bundle', 'index.html'))) {
-        throw new Error(
-          'Linux packaging requires a static Vite frontend with index.html (not SSR or library output).',
-        )
-      }
-
-      cpSync(hostRoot, join(appDir, 'host'), { recursive: true })
-      writeFileSync(
-        join(appDir, 'app.json'),
-        JSON.stringify(
-          {
-            applicationId: config.applicationId,
-            productName: config.productName,
-            scheme: config.scheme,
-          },
-          null,
-          2,
-        ) + '\n',
-      )
-
-      writeFileSync(
-        join(appDir, config.executableName),
-        `#!/bin/sh
-set -eu
-APP_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-command -v gjs >/dev/null 2>&1 || { echo 'Install GJS, GTK4, libadwaita, WebKitGTK 6.0 and libsecret; see README.txt.' >&2; exit 1; }
-exec gjs "$APP_DIR/host/gjs-host.js" --bundle "$APP_DIR/bundle" "$@"
-`,
-      )
-
-      chmodSync(join(appDir, config.executableName), 0o755)
-      writeDesktopInstall(config, appDir, { scheme: config.scheme, execArgs: ' %u' })
-
-      writeFileSync(
-        join(appDir, 'README.txt'),
-        `${config.productName} ${config.version}\nRun ./${config.executableName} from any directory, or ./install.sh to copy into XDG_DATA_HOME and install the desktop entry.\nRequires Python 3 for installation; GJS, GTK4 (4.10+), libadwaita, WebKitGTK 6.0, libsecret, a graphical session, and D-Bus for execution.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 python3 desktop-file-utils xdg-utils\nSecret storage needs an unlocked Secret Service keyring. Notifications need a desktop notification service.\nRegister incoming links with: xdg-mime default ${config.applicationId}.desktop x-scheme-handler/${config.scheme}\n./uninstall.sh removes the installed application directory and desktop entry; settings under XDG_CONFIG_HOME are kept.\n`,
-      )
-    }
+    buildGtkApp(config, vite, appRoot, appDir)
 
     execFileSync(
       'tar',

@@ -6,24 +6,6 @@ import { useMediaQuery$ } from './use-media-query.web.tsrx'
 import { useBreakpoints$ } from '../../../../platform/src/breakpoints.web.tsrx'
 import { useWindowSize$ } from '../../../../platform/src/screen.web.tsrx'
 
-const desktop = vi.hoisted(() => ({
-  size: undefined as { width: number; height: number; orientation: 'landscape' } | undefined,
-  listeners: new Set<(size: { width: number; height: number; orientation: 'landscape' }) => void>(),
-}))
-
-vi.mock('../../../../platform/src/host-runtime.web', () => ({
-  desktopHostBootstrap: () => (desktop.size ? { windowSize: desktop.size } : undefined),
-  desktopHostClient: () =>
-    desktop.size
-      ? {
-          on: (_event: string, listener: (size: typeof desktop.size) => void) => {
-            desktop.listeners.add(listener)
-            return () => desktop.listeners.delete(listener)
-          },
-        }
-      : undefined,
-}))
-
 const cleanups: (() => void)[] = []
 
 afterEach(() => {
@@ -31,8 +13,6 @@ afterEach(() => {
     cleanup()
   }
 
-  desktop.size = undefined
-  desktop.listeners.clear()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
@@ -113,28 +93,4 @@ it('uses false when matchMedia is missing', () => {
   cleanups.push(() => root.unmount())
   act(() => root.render(<Responsive query="(min-width: 800px)" threshold={800} />))
   expect(host.querySelector('output')?.textContent).toMatch(/\/false$/)
-})
-
-it('derives breakpoint matches from desktop host dimensions rather than browser geometry', () => {
-  desktop.size = { width: 600, height: 400, orientation: 'landscape' }
-  window.innerWidth = 1500
-  vi.stubGlobal('matchMedia', undefined)
-
-  const host = document.createElement('div')
-  const root = createRoot(host)
-
-  cleanups.push(() => root.unmount())
-  act(() => root.render(<Responsive query="(min-width: 800px)" threshold={800} />))
-  expect(host.querySelector('output')?.textContent).toBe('600/false/false')
-  act(() => {
-    const next = { width: 1000, height: 500, orientation: 'landscape' as const }
-
-    for (const listener of desktop.listeners) {
-      listener(next)
-    }
-  })
-
-  expect(host.querySelector('output')?.textContent).toBe('1000/true/false')
-  act(() => root.unmount())
-  expect(desktop.listeners.size).toBe(0)
 })

@@ -69,7 +69,7 @@ found in Expo 57.0.20. Attribution and the MIT license are shipped in
 Java compilation and runtime remain unverified under the user's deferral.
 
 GTK and native Windows expose matching exports and explicit unavailable results;
-their print backends are not wired. Windows' existing WebView2 host is app-owned,
+their print backends are not wired. The former app-owned Windows WebView2 host has been removed;
 not a reusable native print API. No GTK/Windows print runtime check was run. A
 read-only check found andromeda.local running Darwin with Docker, without GJS in
 its default path; that is host evidence, not proof that GTK printing is impossible.

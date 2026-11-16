@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/platform",
 	"version": "0.20.0",
-	"description": "Headless platform capabilities for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Headless platform capabilities for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"biometrics",
@@ -39,18 +39,6 @@
 			"linux": "./src/index.ts",
 			"web": "./src/index.web.ts",
 			"default": "./src/index.ts"
-		},
-		"./host": {
-			"types": "./types/generated/host-protocol.d.ts",
-			"import": "./src/host-protocol.ts"
-		},
-		"./host/web": {
-			"types": "./types/generated/host-runtime.web.d.ts",
-			"import": "./src/host-runtime.web.ts"
-		},
-		"./host/services": {
-			"types": "./types/generated/host-services.d.ts",
-			"default": "./src/host-services.ts"
 		},
 		"./testing": {
 			"types": "./types/generated/testing.mobile.d.ts",

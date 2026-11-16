@@ -102,10 +102,9 @@ test('macOS tag set deduplicates and retains other owners; failed native calls r
   }
 })
 
-function browser(request, host = false) {
+function browser(request) {
   const events = new Map(),
-    sentinels = [],
-    calls = []
+    sentinels = []
 
   const document = {
     visibilityState: 'visible',
@@ -137,23 +136,9 @@ function browser(request, host = false) {
     },
   }
 
-  const { api } = load(
-    'keep-awake.web',
-    { navigator, document },
-    {
-      './host-runtime.web': {
-        desktopHostSupports: async () => host,
-        desktopHostClient: () => ({
-          call: async (...args) => {
-            calls.push(args)
-            return true
-          },
-        }),
-      },
-    },
-  )
+  const { api } = load('keep-awake.web', { navigator, document })
 
-  return { api, events, document, sentinels, calls }
+  return { api, events, document, sentinels }
 }
 
 test('web deduplicates, reports auto-release and reacquires visible requested tags', async () => {
@@ -212,7 +197,7 @@ test('pending web activation followed by cleanup cannot leak a sentinel', async 
   assert.equal(await api.isActivated(), false)
 })
 
-test('web denied requests return false and can retry; host takes priority', async () => {
+test('web denied requests return false and allow cleanup', async () => {
   const denied = browser(async () => {
     throw Error('denied')
   })
@@ -220,17 +205,6 @@ test('web denied requests return false and can retry; host takes priority', asyn
   assert.equal(await denied.api.activate(), false)
   assert.equal(await denied.api.isActivated(), false)
   await denied.api.deactivate()
-
-  const host = browser(null, true)
-
-  await host.api.activate('a')
-  await host.api.activate('a')
-  await host.api.deactivate('a')
-  assert.equal(host.sentinels.length, 0)
-  assert.deepEqual(host.calls, [
-    ['keepAwake', 'activate', 'a'],
-    ['keepAwake', 'deactivate', 'a'],
-  ])
 })
 
 function native(ios) {
@@ -350,77 +324,6 @@ test('Android defers before first activity, applies to new windows and clears ev
   assert.equal(n.activityHandlers.size, 0)
 })
 
-test('Linux host scopes cookies to webviews, handles zero cookies and releases on close', async () => {
-  const source = await readFile(
-    new URL('../../cli/src/linux/host/gjs-host.js', import.meta.url),
-    'utf8',
-  )
-
-  const parsed = ts.createSourceFile(
-    'host.js',
-    source,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.JS,
-  )
-
-  const definitions = ['dispatch', 'releaseKeepAwake']
-    .map((name) =>
-      parsed.statements
-        .find((node) => ts.isFunctionDeclaration(node) && node.name.text === name)
-        .getText(parsed),
-    )
-    .join('\n')
-
-  const cookies = new Map(),
-    replies = [],
-    calls = [],
-    released = []
-
-  let nextCookie = 0
-  const context = vm.createContext({
-    keepAwakeCookies: cookies,
-    hostCapabilities: { keepAwake: ['activate', 'deactivate'] },
-    Gtk: { ApplicationInhibitFlags: { IDLE: 8 } },
-    app: {
-      inhibit: (...args) => {
-        calls.push(args)
-        return nextCookie
-      },
-      uninhibit: (cookie) => released.push(cookie),
-    },
-    receiveProtocol: (_, reply) => replies.push(reply),
-  })
-
-  vm.runInContext(definitions, context)
-
-  const a = { get_root: () => 'a' },
-    b = { get_root: () => 'b' }
-
-  const dispatch = (wv, method, tag) => context.dispatch(wv, 'id', 'keepAwake', method, [tag], true)
-
-  dispatch(a, 'activate', 'reading')
-  assert.equal(replies.at(-1).value, false)
-  nextCookie = 11
-  dispatch(a, 'activate', 'reading')
-  dispatch(a, 'activate', 'reading')
-  nextCookie = 12
-  dispatch(b, 'activate', 'reading')
-  assert.deepEqual(calls, [
-    ['a', 8, 'reading'],
-    ['a', 8, 'reading'],
-    ['b', 8, 'reading'],
-  ])
-
-  dispatch(a, 'deactivate', 'unknown')
-  dispatch(a, 'deactivate', 'reading')
-  assert.deepEqual(released, [11])
-  assert.equal(cookies.get(b).size, 1)
-  context.releaseKeepAwake(b)
-  assert.deepEqual(released, [11, 12])
-  assert.equal(cookies.has(b), false)
-})
-
 test('hook owns a stable generated tag and filters release callbacks before cleanup', async () => {
   const source = await readFile(new URL('use-keep-awake.tsrx', root), 'utf8')
   const compiled = ts.transpile(source, {
@@ -491,103 +394,4 @@ test('hook owns a stable generated tag and filters release callbacks before clea
   assert.deepEqual(released, ['generated'])
   assert.equal(stopped, true)
   assert.equal(warnings.length, 0)
-})
-
-test('macOS desktop windows own independent tags and close cancels late activation', async () => {
-  const source = await readFile(
-    new URL('../../../apps/macos/src/desktop-webview-host.ts', import.meta.url),
-    'utf8',
-  )
-
-  const parsed = ts.createSourceFile(
-    'host.ts',
-    source,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TS,
-  )
-
-  const factory = parsed.statements.find(
-    (node) => ts.isFunctionDeclaration(node) && node.name?.text === 'createDesktopWebViewHost',
-  )
-
-  const names = ['keepAwakeTags', 'releaseKeepAwake', 'keepAwakeFor']
-  const declarations = factory.body.statements
-    .filter(
-      (node) =>
-        ts.isVariableStatement(node) &&
-        node.declarationList.declarations.some((declaration) =>
-          names.includes(declaration.name.text),
-        ),
-    )
-    .map((node) => node.getText(parsed))
-    .join('\n')
-
-  const held = new Set(),
-    calls = []
-
-  let delayed
-  const context = vm.createContext({
-    nextKeepAwakeOwner: 0,
-    createTaggedKeepAwake: load('keep-awake-tags').module.createTaggedKeepAwake,
-    keepAwake: {
-      isAvailable: async () => true,
-      activate: async (key) => {
-        calls.push(key)
-        if (delayed) {
-          await delayed
-        }
-
-        held.add(key)
-        return true
-      },
-      deactivate: async (key) => {
-        held.delete(key)
-        return true
-      },
-    },
-  })
-
-  const code = ts.transpile(
-    declarations +
-      '\nglobalThis.hostFor = keepAwakeFor; globalThis.releaseHost = releaseKeepAwake;',
-    { target: ts.ScriptTarget.ES2022 },
-  )
-
-  vm.runInContext(code, context)
-
-  const a = {},
-    b = {},
-    c = {}
-
-  const first = context.hostFor(a),
-    second = context.hostFor(b)
-
-  await first.activate('reading')
-  await second.activate('reading')
-  assert.equal(held.size, 2)
-  assert.equal(new Set(calls).size, 2)
-  context.releaseHost(a)
-  await Promise.resolve()
-  assert.equal(held.size, 1)
-  await second.deactivate('reading')
-  assert.equal(held.size, 0)
-
-  const third = context.hostFor(c)
-  let complete
-
-  delayed = new Promise((resolve) => {
-    complete = resolve
-  })
-
-  const activation = third.activate('late')
-
-  while (calls.length < 3) {
-    await Promise.resolve()
-  }
-
-  context.releaseHost(c)
-  complete()
-  assert.equal(await activation, false)
-  assert.equal(held.size, 0)
 })

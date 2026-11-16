@@ -401,7 +401,7 @@ Blank or whitespace-only text does nothing on AppKit. Calls before host setup or
 after host termination do nothing and are not replayed. Once the host is set up,
 calls can post before any window opens and after a window closes. There are no
 announcement timers, observers, or retained messages to clean up. A macOS
-WKWebView frontend uses the web live region instead.
+Browser screens use the web live region instead.
 
 To check delivery, enable the target's screen reader, trigger a real successful
 save, and listen for the message (or check braille output). Confirm focus stays
@@ -590,7 +590,7 @@ console.log(accepted ? 'Use System Settings to change the permission' : 'Setting
 | `geolocation`                       | `getCurrentPosition(options)`                                                                | `@octane-xplat/geolocation` leaf                                                                                                                                                     |
 | `connectivity`                      | `getState()` + `subscribe(listener)`                                                         | web also exposes connection type where `navigator.connection` exists                                                                                                                 |
 | `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | Unsupported in a browser; experimental native Windows reads package identity and reports null fields when unavailable                                                                 |
-| `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | WKWebView and native Windows submit asynchronously; this API cannot return the host's eventual result                                                                          |
+| `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | Native Windows submits asynchronously; this API cannot return the host's eventual result                                                                          |
 | `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                              | WinRT CryptographicBuffer candidate on Windows; runtime verification pending                                                                                                         |
 | `openSettings`                      | capability; `open()`                                                                         | [AppKit opens System Settings without selecting a pane](#open-settings); iOS/Android open app settings; unsupported on web                                                                                                                                                                   |
 | `media.pickImage()`, `pickImages()` | pick existing image(s)                                                                       | `@octane-xplat/media` leaf                                                                                                                                                           |
@@ -681,7 +681,7 @@ const linkResult = await share.url('https://example.com', 'Example')
 ```
 
 On iOS, Android, and macOS, these calls open the native share picker. A macOS
-WKWebView asks its host to open the picker. In a browser, they use the Web
+Browser implementations use the Web
 Share API when available and copy the content when the browser offers
 clipboard access. Check the result: `shared` means the share flow was
 opened or completed by the target, `copied` means the fallback copied the
@@ -1552,120 +1552,3 @@ const reader = response.body.getReader()
 try { console.log((await reader.read()).value?.byteLength) }
 finally { await reader.cancel(); reader.releaseLock() }
 ```
-
-## Desktop webview host protocol
-
-A `.web` frontend can run in a browser or a system webview. In a desktop
-webview, framework leaves and app-defined services use the same typed host
-channel for calls, replies, events, and capability discovery. The protocol
-types are shared between the frontend and the native JavaScript host; they are
-compile-time contracts, with no runtime schema validator.
-
-```ts
-import { desktopHost } from '@octane-xplat/platform/host/web'
-
-const host = desktopHost()
-if (host && (await host.supports('clipboard', 'write'))) {
-  await host.clipboard.write('Hello from the webview')
-}
-```
-
-Extend the framework service and event maps with app-owned entries:
-
-```ts
-import type {
-  FrameworkHostEvents,
-  FrameworkHostServices,
-} from '@octane-xplat/platform/host/services'
-
-interface InvoiceServices extends FrameworkHostServices {
-  invoices: {
-    load(id: string): Promise<{ id: string; total: number } | null>
-  }
-}
-
-interface InvoiceEvents extends FrameworkHostEvents {
-  'invoices.changed': { id: string }
-}
-```
-
-The frontend uses `createHostClient<InvoiceServices, InvoiceEvents>()`; the
-host registers the same `InvoiceServices` methods with
-`createHostDispatcher<InvoiceServices, InvoiceEvents>()`. `client.call()`
-infers arguments and replies, `client.on()` infers event payloads, and
-`client.capabilities()` reports the methods registered by that host. Calls
-and events carry JSON messages; keep service results and event payloads
-serializable. Capability discovery describes availability; it does not
-replace handling a failed service call.
-
-```ts
-// Continue with InvoiceServices and InvoiceEvents above.
-import {
-  createHostClient,
-  createHostDispatcher,
-  type HostTransport,
-  type HostReplyPort,
-} from '@octane-xplat/platform/host'
-
-// The webview adapter supplies transport and port; the host supplies services.
-export function frontend(transport: HostTransport) {
-  const client = createHostClient<InvoiceServices, InvoiceEvents>(transport)
-  const off = client.on('invoices.changed', (event) => console.log(event.id))
-
-  return {
-    load: (id: string) => client.call('invoices', 'load', id),
-    capabilities: () => client.capabilities(),
-    dispose: () => {
-      off()
-      client.dispose()
-    },
-  }
-}
-
-export function host(services: InvoiceServices, port: HostReplyPort) {
-  const dispatcher = createHostDispatcher<InvoiceServices, InvoiceEvents>(services, port)
-  dispatcher.emit('invoices.changed', { id: 'invoice-42' })
-
-  return dispatcher // adapter forwards incoming JSON to dispatcher.dispatch(message)
-}
-```
-
-`@octane-xplat/platform/host/web` exposes `desktopHost()`, a typed facade for
-framework-owned services. It returns `null` outside a desktop webview:
-
-```ts
-import { desktopHost } from '@octane-xplat/platform/host/web'
-
-const host = desktopHost()
-if (host && (await host.supports('secureStorage', 'set'))) {
-  await host.secureStorage.set('preferred-language', 'es')
-}
-```
-
-The framework map covers `app`, `clipboard`, `files`, `notifications`,
-`secureStorage`, `appearance`, `windows`, `system`, and `storage`; events cover
-app state, window resize, incoming links, appearance, and window closure. The
-host injects bootstrap app info, app state, window size, initial URL, and color
-scheme before application code runs. Public platform leaves use this facade or
-the typed client. Clipboard, app info, lifecycle, window size, deep links,
-outbound links, sharing, files, notifications, secure storage, and color scheme
-keep their browser fallbacks outside a desktop host. The synchronous `storage`
-API remains `localStorage` on `.web` — its `flush()` stays a no-op — and apps
-needing host persistence can call `desktopHost().storage` directly.
-
-```ts
-import { storage } from '@octane-xplat/platform'
-import { desktopHost, desktopHostBootstrap } from '@octane-xplat/platform/host/web'
-
-storage.setString('last-screen', 'trips') // browser storage
-const host = desktopHost()
-if (host) await host.storage.set('last-screen', 'trips') // asynchronous host storage
-console.log(desktopHostBootstrap()?.windowSize)
-```
-
-A macOS WKWebView uses NativeScript in the JavaScriptCore host to implement
-native services; Linux keeps its GJS adapter on the same protocol. A standalone
-Windows WebView2 host maps the same service names through WebMessage. This
-shares the service contract without requiring the mediator runtimes to match. A
-future CEF frontend would standardize the web engine, not the host-side
-JavaScript runtime (Annotation 2).

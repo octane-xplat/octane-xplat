@@ -1,8 +1,7 @@
 /** Embedded web document surface for the `webview` intrinsic — the GTK
  *  counterpart of macos-renderer/src/webview.ts (WKWebView) and the NS
  *  `webview` element (WKWebView / android.webkit.WebView). Backed by
- *  WebKitGTK 6.0 (`WebKit.WebView`), the same stack the existing
- *  DOM-in-WebKitGTK Linux runtime requires.
+ *  WebKitGTK 6.0 (`WebKit.WebView`) for embedded documents.
  *
  *  The namespace resolves lazily through `imports.gi` (same loader as
  *  src/mason.ts's XplatMason): hosts without the WebKit-6.0 typelib keep a

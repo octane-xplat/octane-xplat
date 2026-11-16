@@ -130,24 +130,6 @@
         "wrangler": "^4.0.0",
       },
     },
-    "apps/linux": {
-      "name": "@xplat/linux",
-      "version": "0.0.0",
-      "dependencies": {
-        "@octane-xplat/ui": "workspace:*",
-        "@xplat/app": "workspace:*",
-        "@xplat/demos": "workspace:*",
-        "octane": "catalog:",
-      },
-      "devDependencies": {
-        "@octane-xplat/bamboo": "workspace:*",
-        "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/jsx": "workspace:*",
-        "@octanejs/vite-plugin": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
     "apps/macos": {
       "name": "@xplat/macos",
       "version": "0.0.0",
@@ -155,7 +137,6 @@
         "@nativescript/macos-node-api": "catalog:",
         "@octane-xplat/bamboo": "workspace:*",
         "@octane-xplat/camera": "workspace:*",
-        "@octane-xplat/desktop-webview": "workspace:*",
         "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
@@ -1095,14 +1076,6 @@
       },
       "peerDependencies": {
         "octane": ">=0.6.3 <1",
-      },
-    },
-    "packages/desktop-webview": {
-      "name": "@octane-xplat/desktop-webview",
-      "version": "0.20.0",
-      "dependencies": {
-        "@nativescript/macos-node-api": "catalog:",
-        "@octane-xplat/platform": "workspace:*",
       },
     },
     "packages/devtools": {
@@ -4508,8 +4481,6 @@
 
     "@octane-xplat/date-picker": ["@octane-xplat/date-picker@workspace:packages/date-picker"],
 
-    "@octane-xplat/desktop-webview": ["@octane-xplat/desktop-webview@workspace:packages/desktop-webview"],
-
     "@octane-xplat/devtools": ["@octane-xplat/devtools@workspace:packages/devtools"],
 
     "@octane-xplat/devtools-desktop": ["@octane-xplat/devtools-desktop@workspace:apps/devtools"],
@@ -5471,8 +5442,6 @@
     "@xplat/docs": ["@xplat/docs@workspace:apps/docs"],
 
     "@xplat/feedback-worker": ["@xplat/feedback-worker@workspace:tools/feedback-worker"],
-
-    "@xplat/linux": ["@xplat/linux@workspace:apps/linux"],
 
     "@xplat/macos": ["@xplat/macos@workspace:apps/macos"],
 

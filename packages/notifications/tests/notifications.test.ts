@@ -192,7 +192,6 @@ test('iOS notify drops denied sends without touching the center', async () => {
 
 test('web absence is unsupported and notify throws UnavailabilityError', async () => {
   const leaf = loadLeaf('notifications.web', {
-    desktopHost: () => null,
     UnavailabilityError,
   })
 
@@ -207,7 +206,7 @@ test('web absence is unsupported and notify throws UnavailabilityError', async (
   assert.throws(() => leaf.notify('title'), UnavailabilityError)
 })
 
-test('web forwards granted notifications and preserves desktop host delivery', async () => {
+test('web forwards granted notifications and drops denied delivery', async () => {
   const calls: unknown[] = []
   class Notification {
     static permission = 'granted'
@@ -216,19 +215,11 @@ test('web forwards granted notifications and preserves desktop host delivery', a
     }
   }
 
-  const leaf = loadLeaf('notifications.web', { desktopHost: () => null, Notification })
+  const leaf = loadLeaf('notifications.web', { Notification })
 
   leaf.notify('title', 'body')
   assert.equal(calls.length, 1)
   Notification.permission = 'denied'
   leaf.notify('blocked')
   assert.equal(calls.length, 1)
-
-  const hostLeaf = loadLeaf('notifications.web', {
-    desktopHost: () => ({ notifications: { notify: async (title: string) => calls.push(title) } }),
-  })
-
-  hostLeaf.notify('host')
-  await flush()
-  assert.equal(calls[1], 'host')
 })

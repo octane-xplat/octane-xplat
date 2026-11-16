@@ -1,1 +1,0 @@
-../../../packages/cli/src/linux/host/bridge-selftest.linux.js

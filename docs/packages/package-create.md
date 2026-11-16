@@ -5,8 +5,8 @@
 
 Xplat's target direction spans web, iOS, Android, macOS, Windows, and Linux.
 This starter configures **web, iOS, and Android**. macOS, Windows, and Linux
-are separate experiments — an AppKit host, a WinUI 3 scaffold with runtime
-verification pending, and a WebKitGTK webview host. See
+are separate experiments — native AppKit, WinUI 3, and GTK4/GJS hosts with
+platform-specific qualification limits. See
 [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 The framework is `0.x` and its API surface is still changing.
 

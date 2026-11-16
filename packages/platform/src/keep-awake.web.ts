@@ -1,4 +1,3 @@
-import { desktopHostClient, desktopHostSupports } from './host-runtime.web'
 import { KeepAwakeDefaultTag, type KeepAwakeImpl } from './keep-awake.types'
 
 export { KeepAwakeDefaultTag } from './keep-awake.types'
@@ -6,7 +5,6 @@ export type { KeepAwakeImpl, KeepAwakeOptions } from './keep-awake.types'
 
 const tags = new Set<string>()
 const sentinels = new Map<string, WakeLockSentinel>()
-const hostTags = new Set<string>()
 const listeners = new Set<(tag: string) => void>()
 let pending = Promise.resolve(true)
 const enqueue = (operation: () => Promise<boolean>) => {
@@ -18,18 +16,8 @@ const enqueue = (operation: () => Promise<boolean>) => {
 
 const browserAvailable = () => typeof navigator !== 'undefined' && !!navigator.wakeLock
 async function acquire(tag: string): Promise<boolean> {
-  if (sentinels.has(tag) || hostTags.has(tag)) {
+  if (sentinels.has(tag)) {
     return true
-  }
-
-  if (await desktopHostSupports('keepAwake', 'activate')) {
-    const result = await desktopHostClient()!.call('keepAwake', 'activate', tag)
-
-    if (result) {
-      hostTags.add(tag)
-    }
-
-    return result
   }
 
   if (!browserAvailable() || document.visibilityState !== 'visible') {
@@ -86,14 +74,6 @@ export const keepAwake: KeepAwakeImpl = {
     }),
   deactivate: (tag = KeepAwakeDefaultTag) =>
     enqueue(async () => {
-      if (hostTags.has(tag)) {
-        if (!(await desktopHostClient()!.call('keepAwake', 'deactivate', tag))) {
-          return false
-        }
-
-        hostTags.delete(tag)
-      }
-
       const sentinel = sentinels.get(tag)
 
       if (sentinel) {
@@ -108,9 +88,8 @@ export const keepAwake: KeepAwakeImpl = {
 
       return keepAwake.isAvailable()
     }),
-  isActivated: () => pending.then(() => sentinels.size > 0 || hostTags.size > 0),
-  isAvailable: async () =>
-    browserAvailable() || (await desktopHostSupports('keepAwake', 'activate')),
+  isActivated: () => pending.then(() => sentinels.size > 0),
+  isAvailable: async () => browserAvailable(),
   onRelease(listener) {
     listeners.add(listener)
     return () => {

@@ -114,7 +114,7 @@ func DeclaredPlatforms(path string, manifest map[string]any) []string {
 	if cli.ValueAt(manifest, "xplat", "targets", "macos", "runtime") == "appkit-node-api" {
 		platforms = append(platforms, "macos")
 	}
-	if runtime := cli.ValueAt(manifest, "xplat", "targets", "linux", "runtime"); runtime == "webkitgtk" || runtime == "gtk" {
+	if runtime := cli.ValueAt(manifest, "xplat", "targets", "linux", "runtime"); runtime == "gtk" {
 		platforms = append(platforms, "linux")
 	}
 	return platforms

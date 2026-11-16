@@ -125,7 +125,7 @@ async function caseConfig(project, target, options, utilities = true) {
   const base = (
     await loadConfigFromFile(
       { command: 'serve', mode: 'development' },
-      join(appFor(target), target === 'linux' ? 'vite.linux.config.ts' : 'vite.config.ts'),
+      join(appFor(target), 'vite.config.ts'),
     )
   ).config
 
@@ -306,11 +306,6 @@ export async function runTarget(target, args, onResult, signal) {
         ],
         { verbose: args.verbose },
       )
-    } else if (target === 'linux') {
-      host = ownedProcess('gjs', [join(appFor(target), 'host/gjs-host.js'), url], {
-        env: { ...process.env, XPLAT_PROBE_APP_ID: project.appId },
-        verbose: args.verbose,
-      })
     } else if (target === 'macos') {
       const { createMacOSConfig } = await import(join(appFor(target), 'vite.shared.mjs'))
       const shellConfigFactory = createMacOSConfig({ packaged: true })

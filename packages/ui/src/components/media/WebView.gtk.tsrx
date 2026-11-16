@@ -4,8 +4,7 @@ import type { WebViewProps } from '../../props'
 import { layoutChildProps } from '../layout/layout-child'
 
 /** Embedded web document — WebKitGTK 6.0 `WebKit.WebView` through the
- *  renderer's `webview` intrinsic (same stack as the DOM-in-WebKitGTK
- *  Linux runtime). `html` flows through the `html` prop's
+ *  renderer's `webview` intrinsic. `html` flows through the `html` prop's
  *  `load_html`/`load_uri` split in the renderer; load failures surface on
  *  `load-failed`, which the renderer splits into onLoad/onError. The web
  *  process needs a session D-Bus for WebKitGTK's bubblewrap sandbox —

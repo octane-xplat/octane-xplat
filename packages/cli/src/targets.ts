@@ -38,16 +38,15 @@ export const hasWeb = (cwd) => viteConfigFiles.some((file) => existsSync(`${cwd}
 
 export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
 
-/** The opt-in macOS AppKit or WKWebView target currently used by apps/macos. */
+/** The opt-in macOS AppKit target currently used by apps/macos. */
 export const hasMacOS = (cwd) =>
   readJson(`${cwd}/package.json`)?.xplat?.targets?.macos?.runtime === 'appkit-node-api'
 
-/** The declared Linux runtime: 'webkitgtk' (webview host, apps/linux) or
- *  'gtk' (native GTK4/GJS renderer). Any other value is not a linux target. */
+/** The declared Linux runtime: 'gtk' (native GTK4/GJS renderer). Any other value is not a linux target. */
 export const linuxRuntime = (cwd) => {
   const runtime = readJson(`${cwd}/package.json`)?.xplat?.targets?.linux?.runtime
 
-  return runtime === 'webkitgtk' || runtime === 'gtk' ? runtime : null
+  return runtime === 'gtk' ? runtime : null
 }
 
 export const hasLinux = (cwd) => linuxRuntime(cwd) !== null
@@ -259,7 +258,7 @@ export function discoverTargets(cwd) {
     targets.push({
       kind: 'macos',
       id: 'macos',
-      name: 'macOS (experimental AppKit / WKWebView)',
+      name: 'macOS (experimental AppKit)',
     })
   }
 
@@ -267,7 +266,7 @@ export function discoverTargets(cwd) {
     targets.push({
       kind: 'linux',
       id: 'linux',
-      name: `Linux (experimental ${linuxRuntime(cwd) === 'gtk' ? 'GTK4/GJS native' : 'WebKitGTK webview'})`,
+      name: `Linux (experimental GTK4/GJS native)`,
     })
   }
 
@@ -302,7 +301,7 @@ export function buildTargets(cwd) {
     t.push({
       kind: 'macos',
       id: 'macos',
-      name: 'macOS (experimental AppKit / WKWebView)',
+      name: 'macOS (experimental AppKit)',
     })
   }
 
@@ -310,7 +309,7 @@ export function buildTargets(cwd) {
     t.push({
       kind: 'linux',
       id: 'linux',
-      name: `Linux (experimental ${linuxRuntime(cwd) === 'gtk' ? 'GTK4/GJS native' : 'WebKitGTK webview'})`,
+      name: `Linux (experimental GTK4/GJS native)`,
     })
   }
 

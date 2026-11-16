@@ -5,15 +5,13 @@
 
 This is an advanced setup guide for an existing Octane app.
 Start with [the browser app](../start/toolchain.md#create-and-run) first.
-The **GTK runtime** is the second value of `xplat.targets.linux.runtime`:
-where `"webkitgtk"` shows your web UI inside a system WebView, `"gtk"`
-renders the same components with native GTK4 widgets through the GJS
-JavaScript engine.
+The **GTK runtime**, selected with `xplat.targets.linux.runtime: "gtk"`, renders native GTK4 widgets through the GJS JavaScript engine.
 
-The runtime is experimental and early. Install the experimental renderer package alongside the CLI. A counter and retained route panes have run in a real GJS/GTK session
-with programmatic event dispatch. Packaging remains build evidence; OS input,
-visual parity and the complete shared UI are not qualified by those checks. For the qualified webview
-target, see [Package a Linux WebKitGTK app](linux-package.md).
+```json
+{ "xplat": { "targets": { "linux": { "runtime": "gtk" } } } }
+```
+
+The runtime remains experimental. A counter and retained route panes have run in a real GJS/GTK session with programmatic event dispatch. Packaging is build evidence; those checks do not qualify OS input, visual parity, or the complete shared UI. The former WebView app host and its service bridge have been removed.
 
 ## Install the renderer
 
@@ -56,11 +54,11 @@ Add the Linux target to `package.json` with the `gtk` runtime:
 }
 ```
 
-`applicationId`, `productName`, `executableName`, and `version` follow the
-same rules as the WebKitGTK target; see [its configuration
-reference](linux-package.md#configure-the-app). `viteConfig` defaults to
-`vite.gtk.config.ts`. `host.scheme` is not needed — the GTK host has no
-incoming-link handling yet.
+Use a reverse-DNS `applicationId` with at least three segments, such as `com.example.MyApp`. Keep `productName` on one line and use only letters, digits, underscores, or hyphens in `executableName`. The version is a semantic version, such as `1.0.0`. `viteConfig` is a path inside your app and defaults to `vite.gtk.config.ts`. The GTK host has no incoming-link handling yet, so `host.scheme` is not needed.
+
+```json
+{ "applicationId": "com.example.MyApp", "productName": "My App", "executableName": "my-app", "version": "1.0.0", "viteConfig": "vite.gtk.config.ts" }
+```
 
 Create `vite.gtk.config.ts` using the CLI's GTK preset:
 

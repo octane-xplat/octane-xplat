@@ -2,7 +2,7 @@
 
 ID: platform-leaves
 Targets: web, ios, android, macos, linux
-Related APIs: @octane-xplat/jsx, jsxImportSource, xplat typecheck, moduleSuffixes, .web.tsrx, .mobile.tsrx, .ios.tsrx, .android.tsrx, .macos.tsrx, .windows.tsrx, .linux.tsrx
+Related APIs: @octane-xplat/jsx, jsxImportSource, xplat typecheck, moduleSuffixes, .web.tsrx, .mobile.tsrx, .ios.tsrx, .android.tsrx, .macos.tsrx, .windows.tsrx, .gtk.tsrx
 
 ## Starting point
 
@@ -18,10 +18,10 @@ outside this recipe's scope.
 
 ## Acceptance criteria
 
-- AC1: The same import reaches `.web` in a browser or DOM webview; native targets select their most-specific implementation and fall back to the unsuffixed module.
+- AC1: The same import reaches `.web` in a browser; native targets select their most-specific implementation and fall back to the unsuffixed module.
 - AC2: `.mobile` overrides the unsuffixed default on iOS and Android; `.ios` and `.android` override `.mobile` only on their matching OS, and `.macos` overrides the default on macOS.
 - AC3: The reader can typecheck the shared caller and its .tsrx leaves on web, iOS, Android, and macOS using the documented import and shim conventions.
-- AC4: Existing Linux WebKitGTK apps retain `.linux` precedence over `.web` during migration; new DOM webview frontends use `.web`.
+- AC4: Native Linux GTK components select `.gtk` then the unsuffixed module; retired WebView host configuration is rejected.
 
 - AC5: CSS imports select one platform sibling with fallback, while explicit imports allow shared-plus-platform composition.
 
@@ -37,6 +37,6 @@ outside this recipe's scope.
   The [experimental native CLI](../../../docs/packages/package-cli.md#native-executable)
   invokes the project's existing checker and supplies installed ambient declarations;
   command qualification on macOS does not establish app runtime behavior on a target.
-- AC4: [Linux compatibility resolution](../../../docs/platform/module-resolution.md#file-variants) and [experimental Linux target](../../../docs/start/toolchain.md#experimental-linux-target-webkitgtk-webview).
+- AC4: [Native GTK setup](../../../docs/platform/linux-gtk.md) and [file variants](../../../docs/platform/module-resolution.md#file-variants).
 
 - AC5: [CSS file variants](../../../docs/platform/module-resolution.md#css-file-variants) and the maintained [CSS pipeline tests](../../../packages/cli/test/css-platform.test.mts).

@@ -546,7 +546,6 @@ await navigation.refresh() // Revalidate the current screen without a leave pane
 | Android Back | The claimed OS Back event asks before Frame traversal or modal dismissal. Predictive animation is unqualified. |
 | Native routed modal | Canonical dismissal asks within the modal flow. Direct SDK cancellation is disabled on fullscreen surfaces. |
 | AppKit panes and routed modals | Canonical navigation and in-window modal dismissal use the same confirmation. Escape/outside callbacks request guarded dismissal; raw host closure is cleanup. |
-| Linux WebKitGTK | The production app passed handler-driven confirmation, refusal and approval checks in its actual Linux WebView. OS input and the separate GTK/GJS renderer remain unqualified. |
 | Windows | Shared contract and types. No Windows VM is available. |
 | Document reload, external links, window/process exit, forced owner teardown | Outside this client confirmation hook. Browser unload prompts and native exit policy need their own integration. |
 

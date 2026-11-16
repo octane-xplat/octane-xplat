@@ -15,25 +15,20 @@
 		"bench:virtual-list": "node ./scripts/bench-virtual-list.ts",
 		"bench:virtual-list-scroll": "node ./scripts/bench-virtual-list-scroll.ts",
 		"package": "xplat build --targets macos",
-		"webview:proof": "node ./scripts/webview-proof.ts --verify",
-		"webview:dev": "node ./scripts/webview-dev.ts",
 		"test:announce": "node test/verify-announce.mts",
 		"smoke": "node scripts/smoke.ts",
 		"verify-hmr": "node scripts/verify-hmr.ts",
 		"test:animation": "node test/verify-animation.mts",
 		"test:layout-channels": "node test/verify-layout-channels.mts",
 		"test:layout-placement": "node test/verify-layout-placement.mts",
-		"test:camera-webview": "node ./scripts/camera-webview-proof.ts --verify",
 		"test:routing": "node test/verify-routing.mts",
 		"test:shortcuts-runtime": "node test/verify-shortcuts.mts",
-		"test:app-menu-runtime": "node test/verify-app-menu.mts",
-		"test:webview-packaged": "node ./scripts/webview-packaged-proof.ts --verify"
+		"test:app-menu-runtime": "node test/verify-app-menu.mts"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/camera": "workspace:*",
-		"@octane-xplat/desktop-webview": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
@@ -58,10 +53,7 @@
 					"viteConfig": "vite.dev.config.mjs",
 					"bundleFile": "dist/dev/app.cjs",
 					"shellViteConfig": "vite.dev-shell.config.mjs",
-					"shellBundleFile": "dist/dev/shell.cjs",
-					"webViteConfig": "vite.webview-app.config.mjs",
-					"hostViteConfig": "vite.webview-app-host.config.mjs",
-					"hostBundleFile": "dist/webview-app-host/host.cjs"
+					"shellBundleFile": "dist/dev/shell.cjs"
 				},
 				"package": {
 					"productName": "Octane macOS spike",
@@ -71,10 +63,6 @@
 					"minimumSystemVersion": "13.5",
 					"viteConfig": "vite.package.config.mjs",
 					"bundleFile": "dist/package-build/main.cjs",
-					"webViteConfig": "vite.webview-app.config.mjs",
-					"hostViteConfig": "vite.webview-app-host.config.mjs",
-					"hostBundleFile": "dist/webview-app-host/host.cjs",
-					"webOutDir": "dist/webview-app",
 					"entitlements": "entitlements.plist",
 					"infoPlist": {
 						"NSCameraUsageDescription": "This app records video with the camera.",

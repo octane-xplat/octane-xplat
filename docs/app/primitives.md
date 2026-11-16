@@ -1488,9 +1488,7 @@ remote or file page; for `html`, it submits the supplied HTML again. AppKit
 `SafeArea` is a neutral wrapper, so `edges` adds no desktop inset. Removing the component stops loading,
 clears the delegate and ref, and ignores pending measurements.
 
-This embedded component does not install a service bridge. To run an entire
-DOM app in a macOS webview window, use the separate
-[desktop-webview app-shell workflow](../platform/macos-webview.md).
+This embedded component does not install a service bridge. Desktop WebView app hosting has been removed; native screens can still embed this widget.
 
 ### Fit and position an image
 

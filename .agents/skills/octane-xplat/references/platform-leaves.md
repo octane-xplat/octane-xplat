@@ -12,8 +12,7 @@ it:
 - **iOS:** `.ios.*` → `.mobile.*` → unsuffixed.
 - **Android:** `.android.*` → `.mobile.*` → unsuffixed.
 - **macOS / Windows native:** `.macos.*` / `.windows.*` → unsuffixed.
-- **Linux GTK:** `.gtk.*` → unsuffixed (GTK4/GJS host).
-- **Linux workshop (GTK):** `.gtk.*` → unsuffixed; the GTK renderer hosts chrome and stories natively. `.stories.linux.*` is dropped from the linux catalog (rename to `.gtk`; keep `.web` for `--target web`). App-level `.linux.*` leaves remain the DOM/webview chain in `@xplat/linux`.
+- **Linux GTK:** `.gtk.*` → unsuffixed (GTK4/GJS host). Workshop uses the same chain; rename `.stories.linux.*` to `.stories.gtk.*`, keeping `.web` for browser stories.
 
 Use `.web` for browser-specific APIs or markup, `.mobile` when iOS and Android
 share an implementation that differs from the native default, and an OS suffix
@@ -26,7 +25,7 @@ checks all variants together with a fixed, extensionless-first suffix order;
 that order does not change the runtime resolver.
 
 Choose the actual renderer before adding a desktop variant. Desktop hosts are
-experimental; native GTK and DOM webviews are different targets. Read
+experimental; desktop WebView app hosting has been removed. Read
 [GTK setup](../../../../docs/platform/linux-gtk.md),
 [macOS native](../../../../docs/platform/macos-native.md), or
 [Windows setup](../../../../docs/platform/windows-setup.md) for host boundaries.
@@ -118,10 +117,9 @@ For GTK adapters, retain the shared file's source extension: a shared
 `pan.tsrx` needs `pan.gtk.tsrx`. The current GTK preset checks unsuffixed
 `.tsrx` before `.gtk.ts`, so changing the extension can silently select the
 shared host implementation.
-`/macos` and `/linux` carry AppKit- and GTK-only contracts (for example
-`useOutlineFromView` on `/macos`, `LinuxWindowHandle` on `/linux`) that are
-deliberately kept off the shared root so `@octane-xplat/ui` exports the same
-names on every target.
+`/macos` carries AppKit-only contracts such as `useOutlineFromView`, kept off
+the shared root. The former `/linux` WebView-host entry point and
+`LinuxWindowHandle` have been removed; GTK uses the shared `WindowHandle`.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */

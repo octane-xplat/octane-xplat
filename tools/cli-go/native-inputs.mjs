@@ -86,8 +86,6 @@ export function nativeInputs(root) {
     'packages/build/vite.package.config.ts',
     'packages/cli/src/linux/package.ts',
     'packages/cli/src/linux/config.ts',
-    'packages/cli/src/linux/host/gjs-host.js',
-    'packages/cli/src/linux/host/bridge-selftest.linux.js',
     'packages/cli/package.json',
     'packages/create/compatibility.json',
     'packages/cli/src/package-manager.ts',

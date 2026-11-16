@@ -7,7 +7,7 @@ Related APIs: xplat build, xplat dev, xplat doctor, xplat.targets.linux.runtime,
 ## Starting point
 
 An existing Octane consumer app that wants a native GTK4 window
-on Linux instead of a WebKitGTK webview.
+on Linux.
 
 ## Requirements
 

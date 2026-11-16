@@ -260,20 +260,8 @@ try {
     }
 
     const { packageLinux } = await import('./linux/package.ts')
-    // Full CLI emit keeps payloads in src; curated workers keep this small
-    // Linux host beside the emitted module. No host/runtime is embedded.
-    const roots = [
-      fileURLToPath(srcUrl(import.meta.url, 'linux/host/')),
-      fileURLToPath(new URL('./linux/host/', import.meta.url)),
-    ]
 
-    const hostRoot = roots.find((root) => existsSync(join(root, 'gjs-host.js')))
-
-    if (!hostRoot) {
-      throw new Error('Update the selected CLI: Linux host assets are missing')
-    }
-
-    data = await packageLinux(process.cwd(), { stagingRoot: stage, publish: false, hostRoot })
+    data = await packageLinux(process.cwd(), { stagingRoot: stage, publish: false })
   } else if (request.operation === 'fmt-plan') {
     if (
       !Array.isArray(request.inputs) ||

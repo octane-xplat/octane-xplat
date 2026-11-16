@@ -529,7 +529,7 @@ yet run on a Linux host; no visual or pixel review; no OS input.
 ## Platform seam
 
 GTK variant files use the `.gtk` suffix (`foo.gtk.tsx`), resolved before the
-unsuffixed native default. `.linux` files belong to the WebKitGTK renderer
+unsuffixed native default. `.linux` files belonged to the retired WebKitGTK app host
 and are unreachable inside a GTK bundle — see the capability inventory for
 why the two suffixes must not collide.
 

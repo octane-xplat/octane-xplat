@@ -82,7 +82,6 @@ Platform notes:
   under app-private storage, cache, and shared external storage are
   covered; a path outside those roots rejects.
 - **Web** resolves `'unavailable'`: browsers can't share a file by path.
-  In a macOS-hosted webview the call forwards to the AppKit share picker.
 - **Native macOS** presents `NSSharingServicePicker` for the file through the
   package-owned bridge; keep the file available until the promise settles.
 
@@ -128,9 +127,7 @@ it synchronously on a main-thread invocation; actual mouse-down/mouse-up,
 keyboard and accessibility activation remain unqualified. Off-main calls are
 marshalled to the main queue and may lack that event context. There is no timer
 that fabricates success, and a service that never calls its delegate remains
-pending until its presenter closes or the app terminates. The separate hosted
-webview host still reports shared on picker launch; this native leaf change does
-not qualify or replace that backend.
+pending until its presenter closes or the app terminates.
 
 The AppKit share picker, recipient selection, file transfer, cancellation,
 thread/marshalling behavior, keyboard/VoiceOver and signing remain unqualified.

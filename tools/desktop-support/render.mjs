@@ -37,7 +37,6 @@ const toolPackages = new Set([
   'bamboo',
   'cli',
   'create-octane-xplat',
-  'desktop-webview',
   'jsx',
   'lint',
   'mcp',

@@ -540,42 +540,9 @@ set of components and style tokens, while missing host services report
 general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for the measured boundary.
 
-### System WKWebView renderer
+### Desktop hosting boundary
 
-Set `xplat.targets.macos.renderer` to `"webview"` to run the app's DOM
-frontend in the system WKWebView. The default remains the experimental AppKit
-renderer. The WebView path uses the same universal JavaScriptCore host and
-NativeScript mediator, while the frontend resolves `.web` implementations.
-Development serves the frontend from loopback and packages it under
-`Contents/Resources/web`; packaged pages load through the app's `xplat://app`
-scheme. The supported minimum remains macOS 13.5.
-
-```json
-{ "xplat": { "targets": { "macos": { "renderer": "webview" } } } }
-```
-
-Configure `webViteConfig`, `hostViteConfig`, and `hostBundleFile` under both
-`xplat.targets.macos.dev` and `.package`; packaging also requires `webOutDir`.
-All paths are relative to the app root. `xplat doctor` checks this renderer
-configuration. The frontend and host exchange typed calls, replies, events,
-and capabilities through `@octane-xplat/platform/host`; see the
-[WKWebView host guide](../platform/macos-webview.md) for configuration and custom services.
-
-```json
-{
-  "dev": {
-    "webViteConfig": "vite.webview.config.mjs",
-    "hostViteConfig": "vite.webview-host.config.mjs",
-    "hostBundleFile": "dist/webview-host/host.cjs"
-  },
-  "package": {
-    "webViteConfig": "vite.webview.config.mjs",
-    "hostViteConfig": "vite.webview-host.config.mjs",
-    "hostBundleFile": "dist/webview-host/host.cjs",
-    "webOutDir": "dist/web"
-  }
-}
-```
+Desktop WebView app hosting has been removed. macOS apps use the experimental native AppKit renderer. Apps that retain DOM screens can run in a browser. The local WebView used by [rich text editing](../app/rich-text.md#macos-appkit-editing) remains owned by the editor package.
 
 ## Experimental Windows target
 
@@ -584,40 +551,10 @@ is not provided yet. The framework repository has a private experimental WinUI
 3 harness; its test-host instructions and preview dependency pins are for
 framework contributors, not downstream apps. See [Windows support status](../platform/windows-setup.md).
 
-## Experimental Linux target (WebKitGTK webview)
+## Experimental Linux target
 
-Declare `xplat.targets.linux.runtime: 'webkitgtk'` and Linux package settings.
-`bun run xplat build --targets linux` builds the static frontend and ships the
-GJS host, relocatable launcher, per-user installer, desktop entry, and tar archive.
-Follow [Package a Linux WebKitGTK app](../platform/linux-package.md) for the complete
-configuration, prerequisites, installation, URI handling, and verification flow.
+The Linux target uses native GTK4 widgets through GJS. It remains experimental; follow [Package a Linux GTK4/GJS app](../platform/linux-gtk.md) for setup, packaging, and runtime qualification limits. The former `"webkitgtk"` runtime and desktop service bridge have been removed.
 
 ```json
-{
-  "xplat": {
-    "targets": {
-      "linux": {
-        "runtime": "webkitgtk",
-        "package": {
-          "applicationId": "com.example.MyApp",
-          "productName": "My App",
-          "executableName": "my-app",
-          "viteConfig": "vite.linux.config.mjs"
-        }
-      }
-    }
-  }
-}
+{ "xplat": { "targets": { "linux": { "runtime": "gtk" } } } }
 ```
-
-The target renders DOM inside system WebKitGTK, with `.linux` → `.web` → shared
-resolution. It uses the desktop host protocol for OS services. The real host
-has been exercised on the Ubuntu 24.04 x86-64 VM on Andromeda; the macOS
-WKWebView stand-in is development evidence only. `xplat dev linux`
-continues to run the app's configured dev script; see the [harness host
-notes](../../apps/linux/host/README.md) for its Vite/GTK loop.
-
-A second, earlier-stage runtime value — `"gtk"` — renders native GTK4 widgets
-through GJS instead of a WebView. It is only usable inside this repository
-today (the renderer package is private and unverified at runtime); see
-[Package a Linux GTK4/GJS app](../platform/linux-gtk.md).

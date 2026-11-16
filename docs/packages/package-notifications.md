@@ -22,12 +22,6 @@ The shared service contract: `supported`, `isAvailable()`, and the
 `getPermissions()`/`requestPermissions()` pair returning
 `{status: 'granted' | 'denied' | 'undetermined' | 'unsupported', granted,
 canAskAgain}` — the contract is that get never prompts and request may.
-The hosted macOS webview bridge still uses an authorization request for reads;
-avoid probing through that backend until its separate bridge is corrected. `notify(title, body?)`
-fires immediately — delayed scheduling and cancellation are deliberately out
-of scope. On iOS the leaf posts an untriggered request to
-UNUserNotificationCenter directly, because the plugin only offers a fixed
-~2s scheduled trigger; delivery now matches the immediate macOS/web path.
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-notifications).
 
@@ -39,8 +33,7 @@ UNUserNotificationCenter directly, because the plugin only offers a fixed
 - **Web** — the Notification API
 - **macOS (AppKit)** — Apple UserNotifications through the leaf's compiled
   Objective-C source
-- **Linux** — the desktop host bridge (org.freedesktop.Notifications on the
-  session bus); reports unsupported without a host
+- **Linux GTK** — no dedicated native adapter; notifications are unavailable
 
 Notifications require a packaged app bundle identity. Install the package as a
 runtime dependency and use `xplat dev` or `xplat build` so the CLI loads its
@@ -70,8 +63,7 @@ const shared = await permissions.getPermissions('notifications')
 ```
 
 Explicit requests read back the OS authorization state. A request error alone
-does not establish denial. This change applies to native AppKit; the hosted
-webview backend still has its separate ensure-only bridge.
+does not establish denial. This change applies to native AppKit.
 
 Compilation, actual bridge callbacks, OS prompts, relaunch/revocation, delivery
 and signing remain unqualified.

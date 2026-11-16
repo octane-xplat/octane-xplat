@@ -1,13 +1,4 @@
 import { CameraCaptureError } from './types'
-import {
-  cameraHost,
-  commitHostMovie,
-  openHostMovie,
-  removeHostReservation,
-  reserveHostMovie,
-  type CameraHost,
-} from './host-movie.web'
-
 import { commitMovie, openStoredMovie, removeReservation, reserveMovie } from './movie-storage.web'
 import { inspectMovie } from './movie-metadata.web'
 import { createRecordingVideoSource, supportsRecordingVideoSource } from './recording-source.web'
@@ -74,15 +65,6 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   let switchWarning: CaptureIssue | undefined
   let pendingSwitch: { cancel: () => void } | undefined
   let captureFailure: ((cause: unknown) => Promise<void>) | undefined
-  // Desktop native webview probe: 'unknown' until the capability request
-  // settles; 'available' means app-private file storage and honest host
-  // permission status replace browser storage and permission queries.
-  let hostState: 'unknown' | 'available' | 'absent' = 'unknown'
-  const hostProbe = cameraHost().then((host) => {
-    hostState = host ? 'available' : 'absent'
-    return host
-  })
-
   const lease = {}
   const known: Record<CameraPermissionKind, CameraPermissionStatus> = {
     camera: 'unknown',
@@ -91,16 +73,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const browserStorage = () => typeof indexedDB !== 'undefined' && !!navigator.storage?.persisted
 
-  // A settled desktop-host probe means app-private file storage replaces
-  // IndexedDB. While the probe is pending keep the browser answer;
-  // `capabilities()` awaits the probe for the settled result.
   const supported = () =>
     typeof navigator !== 'undefined' &&
     globalThis.isSecureContext === true &&
     !!navigator.mediaDevices?.getUserMedia &&
     typeof MediaRecorder !== 'undefined' &&
     !!mimeType() &&
-    (hostState === 'available' || browserStorage())
+    browserStorage()
 
   const mimeType = () =>
     typeof MediaRecorder === 'undefined'
@@ -331,9 +310,6 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
   }
 
-  const hostMediaKind = (kind: CameraPermissionKind) =>
-    kind === 'microphone' ? 'microphone' : 'camera'
-
   async function checkPermission(kind: CameraPermissionKind): Promise<CameraPermissionStatus> {
     if (globalThis.isSecureContext !== true || !navigator.mediaDevices?.getUserMedia) {
       return 'unavailable'
@@ -341,33 +317,6 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     if (!policyAllows(kind)) {
       return 'blocked'
-    }
-
-    const desktop = await hostProbe
-
-    if (desktop) {
-      try {
-        const { status } = await desktop.call('camera', 'permissionStatus', {
-          kind: hostMediaKind(kind),
-        })
-
-        if (status === 'granted' || status === 'notDetermined') {
-          return status
-        }
-
-        if (status === 'restricted') {
-          return 'restricted'
-        }
-
-        if (status === 'denied' || status === 'blocked') {
-          return 'denied'
-        }
-
-        // 'undeclared' and unknown statuses stay honest but unadorned.
-        return 'unknown'
-      } catch {
-        return 'unknown'
-      }
     }
 
     try {
@@ -478,35 +427,6 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         persistent = (await navigator.storage?.persist?.().catch(() => false)) ?? false
       }
 
-      const desktop = await hostProbe
-
-      if (desktop) {
-        const { status: hostStatus } = await desktop.call('camera', 'requestPermission', {
-          kind: hostMediaKind(kind),
-        })
-
-        if (hostStatus === 'undeclared') {
-          throw error(
-            'configurationMissing',
-            'requestPermission',
-            `Missing ${kind === 'camera' ? 'NSCameraUsageDescription' : 'NSMicrophoneUsageDescription'} in the host app's Info.plist`,
-          )
-        }
-
-        if (hostStatus !== 'granted') {
-          known[kind] =
-            hostStatus === 'denied' || hostStatus === 'blocked'
-              ? 'denied'
-              : hostStatus === 'restricted'
-                ? 'restricted'
-                : 'unknown'
-
-          return known[kind]
-        }
-        // The system permission is granted — the capture delegate grants
-        // this trusted origin, so the acquisition below gets the track.
-      }
-
       try {
         if (kind === 'camera') {
           await acquireCamera()
@@ -547,14 +467,12 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
     },
     getCapabilities: async () => {
-      const desktop = await hostProbe
-
       persistent = (await navigator.storage?.persisted?.().catch(() => false)) ?? false
 
       const devices = (await navigator.mediaDevices?.enumerateDevices?.().catch(() => [])) ?? []
       const settings = stream?.getVideoTracks()[0]?.getSettings()
       const mime = mimeType()
-      const storageReady = persistent || !!desktop
+      const storageReady = persistent
 
       return {
         supported: supported(),
@@ -597,33 +515,28 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         output: {
           mimeType: mime,
           container: !mime ? '' : mime.startsWith('video/mp4') ? 'mp4' : 'webm',
-          storage: desktop ? 'appPrivateFile' : 'originLocal',
-          destinationFileUrl: !!desktop,
+          storage: 'originLocal',
+          destinationFileUrl: false,
         },
       }
     },
     previewReady: () =>
       ready && !!host && !released && stream?.getVideoTracks()[0]?.readyState === 'live',
     validateStart: (options) => {
-      // Once the desktop-host probe settles absent, browser storage rules
-      // apply synchronously. A pending probe defers both checks to the
-      // async start path, which knows the real storage owner.
-      if (hostState === 'absent') {
-        if (!persistent) {
-          throw error(
-            'destinationUnavailable',
-            'startRecording',
-            'Persistent origin storage has not been granted; check capabilities after a user permission action',
-          )
-        }
+      if (!persistent) {
+        throw error(
+          'destinationUnavailable',
+          'startRecording',
+          'Persistent origin storage has not been granted; check capabilities after a user permission action',
+        )
+      }
 
-        if (options.destinationFileUrl) {
-          throw error(
-            'unsupportedConfiguration',
-            'startRecording',
-            'Browser output does not accept native file URLs',
-          )
-        }
+      if (options.destinationFileUrl) {
+        throw error(
+          'unsupportedConfiguration',
+          'startRecording',
+          'Browser output does not accept native file URLs',
+        )
       }
 
       if (options.orientation && options.orientation !== 'unspecified') {
@@ -899,7 +812,6 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       let recordingStream = new MediaStream([video, ...(request.audio ? audio : [])])
-      let desktop: CameraHost | null = null
       let reservation: string | undefined
       let stage: 'preparation' | 'capture' | 'finalization' | 'storage' = 'preparation'
       const chunks: Blob[] = []
@@ -911,8 +823,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       captureFailure = fail
       void (async () => {
         try {
-          desktop = await hostProbe
-          if (request.destinationPath && !desktop) {
+          if (request.destinationPath) {
             throw error(
               'unsupportedConfiguration',
               'startRecording',
@@ -920,26 +831,15 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
             )
           }
 
-          if (desktop) {
-            reservation = (
-              await reserveHostMovie(desktop, {
-                destinationFileUrl: request.destinationPath
-                  ? `file://${request.destinationPath.split('/').map(encodeURIComponent).join('/')}`
-                  : undefined,
-                container: mimeType().startsWith('video/mp4') ? 'mp4' : 'webm',
-              })
-            ).fileUrl
-          } else {
-            if (!(await navigator.storage?.persisted?.())) {
-              throw error(
-                'destinationUnavailable',
-                'startRecording',
-                'Persistent storage is unavailable',
-              )
-            }
-
-            reservation = await reserveMovie()
+          if (!(await navigator.storage?.persisted?.())) {
+            throw error(
+              'destinationUnavailable',
+              'startRecording',
+              'Persistent storage is unavailable',
+            )
           }
+
+          reservation = await reserveMovie()
 
           if (!source || video.readyState !== 'live' || document.visibilityState === 'hidden') {
             throw error(
@@ -1076,19 +976,16 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
                 stage = 'storage'
 
-                const output = desktop
-                  ? await commitHostMovie(desktop, reservation!, bytes)
-                  : {
-                      kind: 'browserStorage' as const,
-                      resourceId: reservation!,
-                      retention: 'persistent' as const,
-                    }
-
-                const clip: MovieClip = { ...metadata, output }
-
-                if (!desktop) {
-                  await commitMovie(reservation!, bytes, clip)
+                const clip: MovieClip = {
+                  ...metadata,
+                  output: {
+                    kind: 'browserStorage',
+                    resourceId: reservation!,
+                    retention: 'persistent',
+                  },
                 }
+
+                await commitMovie(reservation!, bytes, clip)
 
                 settle(
                   {
@@ -1135,9 +1032,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
         failing = true
         if (reservation) {
-          await (desktop
-            ? removeHostReservation(desktop, reservation)
-            : removeReservation(reservation).catch(() => {}))
+          await removeReservation(reservation).catch(() => {})
         }
 
         settle(
@@ -1175,17 +1070,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     },
     openOutput: async (output) => {
       if (output.kind === 'nativeFile') {
-        const desktop = await hostProbe
-
-        if (!desktop) {
-          throw error(
-            'unavailable',
-            'openOutput',
-            'File-backed output requires the desktop host that recorded it',
-          )
-        }
-
-        return openHostMovie(desktop, output)
+        throw error('unavailable', 'openOutput', 'Native file output cannot be opened in a browser')
       }
 
       return openStoredMovie(output)

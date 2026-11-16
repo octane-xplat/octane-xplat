@@ -1,8 +1,6 @@
-// Notifications — desktop webview hosts own local notification delivery;
-// outside a host this uses the Web Notification API.
+// Notifications — Web Notification API.
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
-import { desktopHost } from '@octane-xplat/platform/host/web'
 import type { NotificationsImpl } from './types'
 
 const dom = () => typeof Notification !== 'undefined'
@@ -14,33 +12,14 @@ const fromStatus = (status: string): PermissionResponse => ({
   canAskAgain: status === 'granted' || status === 'undetermined',
 })
 
-// The host wire carries only ensure() — probing there may prompt.
-async function hostPermissions() {
-  const host = desktopHost()
-
-  if (host && (await host.supports('notifications', 'ensure'))) {
-    return fromStatus(await host.notifications.ensure())
-  }
-
-  return null
-}
-
 export const notifications: Permissioned<NotificationsImpl> = {
   get supported() {
-    return desktopHost() !== null || dom()
+    return dom()
   },
   async isAvailable() {
-    const host = desktopHost()
-
-    return host !== null ? await host.supports('notifications', 'notify') : dom()
+    return dom()
   },
   async getPermissions() {
-    const hosted = await hostPermissions()
-
-    if (hosted) {
-      return hosted
-    }
-
     if (!dom()) {
       return fromStatus('unsupported')
     }
@@ -48,12 +27,6 @@ export const notifications: Permissioned<NotificationsImpl> = {
     return fromStatus(Notification.permission)
   },
   async requestPermissions() {
-    const hosted = await hostPermissions()
-
-    if (hosted) {
-      return hosted
-    }
-
     if (!dom()) {
       return fromStatus('unsupported')
     }
@@ -61,13 +34,6 @@ export const notifications: Permissioned<NotificationsImpl> = {
     return fromStatus(await Notification.requestPermission())
   },
   notify(title, body) {
-    const host = desktopHost()
-
-    if (host) {
-      void host.notifications.notify(title, body).catch(() => {})
-      return
-    }
-
     if (!dom()) {
       throw new UnavailabilityError('notifications')
     }

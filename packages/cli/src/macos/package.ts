@@ -196,11 +196,7 @@ export async function packageMacOS(
   }
 
   const config = readPackageConfig(appRoot)
-  const { settings, renderer, iconPath, entitlementsPath } = config
-  const viteConfig = renderer === 'webview' ? config.hostViteConfig : config.viteConfig
-  const bundleFile = renderer === 'webview' ? config.hostBundleFile : config.bundleFile
-  const webViteConfig = renderer === 'webview' ? config.webViteConfig : null
-  const webOutDir = renderer === 'webview' ? config.webOutDir : null
+  const { settings, iconPath, entitlementsPath, viteConfig, bundleFile } = config
 
   const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
   const notaryProfile = process.env.MACOS_NOTARY_PROFILE
@@ -251,11 +247,7 @@ export async function packageMacOS(
     throw new Error(`JavaScriptCore host is unavailable: ${hostInspection.issues.join('; ')}`)
   }
 
-  console.log(
-    renderer === 'webview'
-      ? '[macos-package] building production web frontend and JavaScriptCore host'
-      : '[macos-package] building production Octane bundle',
-  )
+  console.log('[macos-package] building production Octane bundle')
 
   const native = await buildMacOSNative(appRoot, {
     minimumSystemVersion: settings.minimumSystemVersion,
@@ -277,18 +269,8 @@ export async function packageMacOS(
     cwd: appRoot,
   })
 
-  if (webViteConfig) {
-    run(process.execPath, [viteExecutable(appRoot), 'build', '--config', webViteConfig], {
-      cwd: appRoot,
-    })
-  }
-
   if (!existsSync(bundleFile)) {
     throw new Error(`Packaged JS bundle not found: ${bundleFile}`)
-  }
-
-  if (webOutDir && !existsSync(join(webOutDir, 'index.html'))) {
-    throw new Error(`Packaged web frontend must contain index.html: ${webOutDir}`)
   }
 
   await validateHostBundle(bundleFile, appRoot)
@@ -347,9 +329,6 @@ export async function packageMacOS(
     await mkdir(join(resourcesPath, 'licenses'), { recursive: true })
     await mkdir(packagedAppPath, { recursive: true })
     await cp(bundleFile, join(packagedAppPath, 'main.cjs'))
-    if (webOutDir) {
-      await cp(webOutDir, join(resourcesPath, 'web'), { recursive: true })
-    }
 
     await cp(join(hostBundle, 'host'), mainExecutable)
     await cp(native.metadata.arm64, join(resourcesPath, 'metadata.macos.arm64.nsmd'))

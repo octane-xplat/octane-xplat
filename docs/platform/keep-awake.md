@@ -165,12 +165,11 @@ export async function closePresentation(): Promise<boolean> {
 | iOS     | Application idle timer; foreground only. No added permission.                                                                                                                                                                   |
 | Android | `FLAG_KEEP_SCREEN_ON` on activity windows, on the UI thread. No wake-lock permission.                                                                                                                                           |
 | Web     | Screen Wake Lock, requiring HTTPS or localhost, a visible document, and permission-policy allowance. Missing API returns false.                                                                                                 |
-| macOS   | Foundation activity token preventing idle display sleep while permitting idle system sleep; native AppKit and desktop WKWebView hosts.                                                                                          |
-| Linux   | Desktop host uses GTK `IDLE` inhibition; a zero cookie returns false. Session support varies. Without that host capability, tries the browser API if exposed by WebKitGTK. Runtime qualification requires a real Linux session. |
+| macOS   | Foundation activity token preventing idle display sleep while permitting idle system sleep; native AppKit.                                                                                          |
+| Linux GTK | No native keep-awake adapter; unsupported. |
 | Windows | Experimental WinRT [DisplayRequest](https://learn.microsoft.com/en-us/uwp/api/windows.system.display.displayrequest); tags share one request, with creation/release dispatched to the UI thread. Background requests wait for resume. Native construction and mocked ownership passed; grants, real lifecycle and physical sleep prevention remain unqualified. |
 
-This is screen-sleep prevention, not a CPU/background-task wake lock. Linux uses
-`IDLE` rather than `SUSPEND` to preserve that boundary. OS policy still takes
+This is screen-sleep prevention, not a CPU/background-task wake lock. OS policy still takes
 precedence. API results and mocked lifecycle tests do not establish physical
 sleep prevention. On each intended target, shorten its automatic screen timeout,
 open the activity, check the display stays on, then close it and check ordinary

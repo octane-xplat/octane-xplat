@@ -24,12 +24,11 @@ Consumer guidance: [movie-capture](../../docs/app/movie-capture.md).
 
 ```sh
 bun run turbo run test --filter=@octane-xplat/camera
-node packages/camera/tests/browser-conformance.web.mts
+bun run turbo run test:web --filter=@octane-xplat/camera
 bun run probe run packages/camera/tests/movie-capture.android.tsrx \
   --target android --device DEVICE_ID --deps @octane-xplat/camera --timeout 130000
 bun run probe run packages/camera/tests/movie-capture.macos.tsrx \
   --target macos --deps @octane-xplat/camera --timeout 120000
-bun run turbo run test:camera-webview --filter=@xplat/macos
 ```
 
 ## navigation-ui
@@ -260,15 +259,13 @@ bun run probe run examples/probes/native-date-picker.macos.tsrx --target macos -
 
 ## linux-package
 
-Consumer guidance: [linux-package](../../docs/platform/linux-package.md).
+Consumer guidance: [native GTK packaging](../../docs/platform/linux-gtk.md).
+The former WebView-host consumer verifier was removed. The native CLI
+packaging gate verifies GTK archive construction, relocation and publication
+ownership; it does not execute GTK or establish desktop input.
 
 ```sh
-mkdir -p /tmp/xplat-linux-packs
-bun run --cwd packages/cli pack --pack-destination /tmp/xplat-linux-packs
-bun run --cwd packages/platform pack --pack-destination /tmp/xplat-linux-packs
-node packages/cli/test/verify-linux-consumer.mts \
-  /tmp/xplat-linux-packs/octane-xplat-cli-0.7.3.tgz \
-  /tmp/xplat-linux-packs/octane-xplat-platform-0.7.3.tgz
+bun run turbo run test:go-linux-build --filter=@octane-xplat/cli
 ```
 
 ## local-notifications

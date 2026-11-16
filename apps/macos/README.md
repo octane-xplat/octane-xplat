@@ -69,32 +69,7 @@ import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 const root = createMacOSRoot(host.contentView, harnessFontOptions)
 ```
 
-## System WebView backend
-
-The macOS target can also run the full shared app through the system WKWebView.
-Set `xplat.targets.macos.renderer` to `"webview"`; the CLI then builds the
-`.web` frontend and a JavaScriptCore/NativeScript host. The sample configuration
-in this app points to `vite.webview-app.config.mjs` and
-`vite.webview-app-host.config.mjs`. See the [WKWebView host guide](../../docs/platform/macos-webview.md)
-for configuration and the typed service protocol. AppKit remains the fallback
-when no renderer is selected.
-
-```json
-{
-  "xplat": {
-    "targets": {
-      "macos": { "runtime": "appkit-node-api", "renderer": "webview" }
-    }
-  }
-}
-```
-
-The independent protocol proof runs with
-`bun run --filter @xplat/macos webview:proof`; it verifies framework services,
-capability discovery, an app-defined service and event, and deep-link delivery
-inside a real WKWebView. `bun run --filter @xplat/macos webview:dev` launches that
-proof fixture for manual development. The configured renderer uses the full
-shared app from `apps/web/src/main.tsrx`.
+## Native AppKit harness
 
 `apps/macos` imports `App` from `@xplat/app`, and the app imports UI components
 from `@octane-xplat/ui` without a Vite alias for the package root. The package's
@@ -489,7 +464,7 @@ the in-repository sweep covers its shared harness, not every AppKit API.
 ## Embedded WebView verification
 
 The shared `@octane-xplat/ui` `WebView` embeds WKWebView inside an AppKit screen;
-it is separate from the system WebView app-shell backend above.
+general WebView app-shell hosting and its service bridge have been removed.
 Run `bun run --cwd apps/macos node test/verify-webview.mts` from the
 repository root for the isolated compiled component fixture. It exercises real
 WebKit load callbacks, reload, HTML replacement, local-file history and errors,

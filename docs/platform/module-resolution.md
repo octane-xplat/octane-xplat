@@ -18,13 +18,13 @@ a file does not make an experimental platform ready for release.
 
 ```text
 Card.tsrx          native default
-Card.web.tsrx      browser or DOM webview implementation
+Card.web.tsrx      browser implementation
 Card.mobile.tsrx   shared iOS and Android implementation
 Card.ios.tsrx      iOS-specific implementation
 Card.android.tsrx  Android-specific implementation
 Card.macos.tsrx    macOS-specific implementation
 Card.windows.tsrx  Windows-specific implementation
-Card.linux.tsrx    legacy Linux WebKitGTK override
+Card.gtk.tsrx      native GTK implementation
 ```
 
 Import `Card` without naming a platform, for example
@@ -51,17 +51,13 @@ their platform's own views. The selection order is:
 | iOS                               | `.ios` → `.mobile` → unsuffixed     |
 | Android                           | `.android` → `.mobile` → unsuffixed |
 | macOS AppKit                      | `.macos` → unsuffixed               |
-| macOS WKWebView                   | `.web` → unsuffixed                 |
 | Windows (when configured)         | `.windows` → unsuffixed             |
-| Windows WebView (when configured) | `.web` → unsuffixed                 |
 | Linux GTK4/GJS native             | `.gtk` → unsuffixed                 |
-| Linux WebKitGTK (legacy)          | `.linux` → `.web` → unsuffixed      |
 
 There is no general `.native` or `.desktop` filename tier. Native code goes in
 the ordinary module; the suffixes identify exceptions to that default. A DOM
 webview uses `.web`; `.macos` and `.windows` are reserved for native frontends.
-Existing Linux `.linux` overrides remain for compatibility and take
-precedence over `.web` while the Linux target migrates to the shared contract.
+Desktop WebView app hosting has been removed. Native Linux UI uses `.gtk` files.
 
 ## Dependencies during web development
 
@@ -91,9 +87,8 @@ import './card.css'
 ```
 
 The toolchain config helper and native Vite presets include CSS selection. Custom
-browser or DOM webview configs add `css('web')` to their existing renderer plugins. A browser running
-on iOS still uses `web`. DOM webviews, including the legacy Linux
-WebKitGTK host, select `.web.css`.
+browser or DOM webview configs add `css('web')` to their existing renderer plugins.
+A browser running on iOS still uses `web`.
 
 ```ts
 import { defineConfig } from 'vite'

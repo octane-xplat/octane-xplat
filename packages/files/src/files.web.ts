@@ -1,6 +1,4 @@
-// Files — web leaf. Desktop webview hosts own real pickers and file:// refs;
-// outside a host this uses opaque object URLs and browser downloads.
-import { desktopHost } from '@octane-xplat/platform/host/web'
+// Files — browser pickers, opaque object URLs, and downloads.
 import {
   assertSafeFileName,
   concatBytes,
@@ -132,28 +130,10 @@ export const files: Files = {
   async pickMultiple(accept = '*/*', _opts?: { startingFolder?: string }): Promise<FileRef[]> {
     return chooseFiles(accept, true)
   },
-  async pick(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef | null> {
-    const host = desktopHost()
-
-    if (host && (await host.supports('files', 'pick'))) {
-      return host.files.pick(accept, { startingFolder: opts?.startingFolder })
-    }
-
+  async pick(accept = '*/*', _opts?: { startingFolder?: string }): Promise<FileRef | null> {
     return (await chooseFiles(accept, false))[0] ?? null
   },
   async readText(ref: FileRef): Promise<string> {
-    const host = desktopHost()
-
-    if (host && (await host.supports('files', 'readText'))) {
-      const text = await host.files.readText(ref.uri)
-
-      if (text === null) {
-        throw new Error(`Unable to read host file: ${ref.uri}`)
-      }
-
-      return text
-    }
-
     // fetchBytes applies the same response.ok guard readBytes enforces —
     // a bare fetch().text() would resolve an HTTP error body as content.
     return new TextDecoder().decode(await fetchBytes(ref.uri))
@@ -174,25 +154,11 @@ export const files: Files = {
       return bytes
     }
 
-    // Host file:// refs need a host binary read, which the desktop service
-    // contract does not provide; other URLs go through fetch.
     return fetchBytes(ref.uri, opts)
   },
-  /** Desktop hosts write the selected path; plain web starts a download. */
+  /** Start a browser download. */
   async writeText(name: string, text: string): Promise<FileRef> {
     assertSafeFileName(name)
-
-    const host = desktopHost()
-
-    if (host && (await host.supports('files', 'writeText'))) {
-      const file = await host.files.writeText(name, text)
-
-      if (!file) {
-        throw new Error('Host file save was cancelled')
-      }
-
-      return file
-    }
 
     const uri = mintObjectUrl(new Blob([text], { type: 'text/plain' }))
     const a = document.createElement('a')
@@ -202,7 +168,7 @@ export const files: Files = {
     a.click()
     return { name, uri }
   },
-  /** The desktop host contract is text-only, so bytes always download. */
+  /** Download bytes through an object URL. */
   async writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
     assertSafeFileName(name)
 

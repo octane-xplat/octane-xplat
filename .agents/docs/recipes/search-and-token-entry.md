@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/ui, Select, Selector, MultiSelector, SelectOption, h
 
 ## Starting point
 
-An app already uses `@octane-xplat/ui` and needs users to find one or more values, create free-text values, or choose from a custom popup. Linux WebKitGTK uses the web implementation; the GJS/GTK renderer has a separate curated UI surface. macOS remains experimental.
+An app already uses `@octane-xplat/ui` and needs users to find one or more values, create free-text values, or choose from a custom popup. The GJS/GTK renderer has a curated native UI surface. macOS remains experimental.
 
 ## Requirements
 

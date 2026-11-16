@@ -385,14 +385,9 @@ func discoverDevTargets(ctx context.Context, projectPath string) ([]devTarget, e
 		case "windows":
 			result = append(result, devTarget{Kind: kind, ID: kind, Name: "Windows (ns run windows)"})
 		case "macos":
-			result = append(result, devTarget{Kind: kind, ID: kind, Name: "macOS (experimental AppKit / WKWebView)"})
+			result = append(result, devTarget{Kind: kind, ID: kind, Name: "macOS (experimental AppKit)"})
 		case "linux":
-			runtime := cli.ValueAt(manifest, "xplat", "targets", "linux", "runtime")
-			label := "WebKitGTK webview"
-			if runtime == "gtk" {
-				label = "GTK4/GJS native"
-			}
-			result = append(result, devTarget{Kind: kind, ID: kind, Name: "Linux (experimental " + label + ")"})
+			result = append(result, devTarget{Kind: kind, ID: kind, Name: "Linux (experimental GTK4/GJS native)"})
 		}
 	}
 	return result, ctx.Err()

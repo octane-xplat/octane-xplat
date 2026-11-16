@@ -485,19 +485,10 @@ export async function inspectDoctor({
     if (process.platform === 'linux') {
       const runtime = check('gjs', [
         '-c',
-        config.runtime === 'gtk'
-          ? `imports.gi.versions.Gtk = '4.0'; const {Gtk} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version());`
-          : `imports.gi.versions.Gtk = '4.0'; imports.gi.versions.Adw = '1'; imports.gi.versions.WebKit = '6.0'; imports.gi.versions.Secret = '1'; const {Gtk, Adw, WebKit, Secret} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version() + ', WebKitGTK 6.0, libadwaita, libsecret');`,
+        `imports.gi.versions.Gtk = '4.0'; const {Gtk} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version());`,
       ])
 
-      row(
-        'Linux runtime',
-        runtime.ok,
-        runtime.out,
-        config.runtime === 'gtk'
-          ? 'install gjs gir1.2-gtk-4.0 (GTK 4.10+)'
-          : 'install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 (GTK 4.10+)',
-      )
+      row('Linux runtime', runtime.ok, runtime.out, 'install gjs gir1.2-gtk-4.0 (GTK 4.10+)')
 
       row(
         'Linux graphical session',
@@ -513,10 +504,7 @@ export async function inspectDoctor({
         'run in a desktop session or dbus-run-session',
       )
     } else {
-      message(
-        'info',
-        `Linux archive can be built here; verify the ${config.runtime === 'gtk' ? 'GJS/GTK4' : 'GJS/WebKitGTK'} runtime on Linux.`,
-      )
+      message('info', `Linux archive can be built here; verify the GJS/GTK4 runtime on Linux.`)
     }
   }
 

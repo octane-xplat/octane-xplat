@@ -1,5 +1,9 @@
 # Verify release navigation
 
+Desktop WebView app hosting and its native-service bridge are retired. Any
+WebKitGTK app-host evidence below is historical and does not qualify native
+GTK. Removed host paths are historical identifiers, not runnable procedures.
+
 Exercise the canonical client in production builds and inspect rendered text
 and native objects. These checks capture no screenshots. Source checks, object
 drivers, browser input, native callbacks and OS input establish different things.
@@ -476,13 +480,7 @@ states, sheet/overlay dismissal and absence of unhandled errors. Run the built
 host with the maintained harness script on a Linux machine with its documented
 GJS, GTK, libadwaita and WebKitGTK dependencies installed:
 
-```sh
-bun run --filter @xplat/linux build
-XPLAT_PROBE_APP_ID=org.octane.xplat.routing.cutover \
-XPLAT_SELFTEST_SCRIPT="$PWD/apps/linux/host/harness-selftest.web.js" \
-xvfb-run -a dbus-run-session -- \
-  apps/linux/dist/linux/octane-xplat/octane-xplat --self-test
-```
+The former WebView-host verification command was removed with that host.
 
 The run reused cached image
 `sha256:250e217a92c1b39a7251f0267159ef014512a36f9b730a77b0cdabe5dd1f166b`
@@ -1156,23 +1154,15 @@ copy and adds the actual Linux platform bridge required by the host's normal
 readiness check; the routing bundle is unchanged. The next command prints a
 `linuxArtifactDirectory` for the host.
 
-```sh
-XPLAT_ROUTING_ARTIFACT_DIR="$PWD/research/routing-effects" bun run --filter @xplat/web smoke:routing
-node apps/linux/scripts/routing-effects-build.mts \
-  "/absolute/path/from/artifactDirectory" "$PWD/research/routing-effects"
-```
+The former WebView-host verification command was removed with that host.
 
-On Linux with the [host dependencies](../../apps/linux/host/README.md) installed,
+On Linux with the host dependencies (retired) installed,
 use the printed Linux artifact path as `--bundle`. The qualification run used the
 cached Debian GTK/WebKitGTK container already recorded above, software rendering,
 read-only source/artifact mounts, disabled networking and an owned Xvfb/D-Bus
 session. The host's bridge readiness check remained enabled.
 
-```sh
-XPLAT_SELFTEST_SCRIPT="$PWD/apps/linux/host/routing-effects-selftest.web.js" \
-xvfb-run -a dbus-run-session -- gjs packages/cli/src/linux/host/gjs-host.js \
-  --bundle "/absolute/path/from/linuxArtifactDirectory" --self-test
-```
+The former WebView-host verification command was removed with that host.
 
 Document positions are restored against the committed DOM. Nested scrollers and
 layout shifts after that commit remain application-owned. No additional live

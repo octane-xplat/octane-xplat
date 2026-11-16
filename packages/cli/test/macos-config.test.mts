@@ -34,79 +34,33 @@ test('macOS AppKit configuration keeps its existing Vite bundle contract', (t) =
   assert.equal(config.bundleFile, join(root, 'dist/app.cjs'))
 })
 
-test('macOS webview dev configuration requires a frontend and CommonJS host bundle', (t) => {
+test('macOS development and packaging reject retired renderer and build fields', (t) => {
   const root = project(t)
 
-  write(root, 'vite.web.config.mjs')
-  write(root, 'vite.host.config.mjs')
-
-  const config = inspectMacOSDevConfig(
-    root,
-    {
-      webViteConfig: 'vite.web.config.mjs',
-      hostViteConfig: 'vite.host.config.mjs',
-      hostBundleFile: 'dist/host.cjs',
-    },
-    'webview',
-  )
-
-  assert.deepEqual(config.issues, [])
-  assert.equal(config.webViteConfig, join(root, 'vite.web.config.mjs'))
-  assert.equal(config.hostBundleFile, join(root, 'dist/host.cjs'))
-
-  const invalid = inspectMacOSDevConfig(
-    root,
-    {
-      webViteConfig: 'vite.web.config.mjs',
-      hostViteConfig: 'vite.host.config.mjs',
-      hostBundleFile: 'dist/host.js',
-    },
-    'webview',
-  )
-
-  assert.ok(
-    invalid.issues.some((issue) =>
-      issue.includes('hostBundleFile must point to a CommonJS .cjs bundle'),
-    ),
-  )
-})
-
-test('macOS webview package configuration validates the static frontend output', (t) => {
-  const root = project(t)
-
-  write(root, 'vite.web.config.mjs')
-  write(root, 'vite.host.config.mjs')
+  write(root, 'vite.config.mjs')
 
   const settings = {
-    productName: 'Octane Test',
-    bundleIdentifier: 'org.octane.test',
-    executableName: 'OctaneTest',
-    version: '1.0.0',
-    minimumSystemVersion: '13.5',
+    viteConfig: 'vite.config.mjs',
+    bundleFile: 'dist/app.cjs',
     webViteConfig: 'vite.web.config.mjs',
     hostViteConfig: 'vite.host.config.mjs',
     hostBundleFile: 'dist/host.cjs',
     webOutDir: 'dist/web',
   }
 
-  const config = inspectMacOSPackageConfig(root, settings, 'webview')
+  for (const inspect of [inspectMacOSDevConfig, inspectMacOSPackageConfig]) {
+    const config = inspect(root, settings, 'webview')
 
-  assert.deepEqual(config.issues, [])
-  assert.equal(config.renderer, 'webview')
-  assert.equal(config.webOutDir, join(root, 'dist/web'))
-
-  const missingOutput = inspectMacOSPackageConfig(
-    root,
-    { ...settings, webOutDir: undefined },
-    'webview',
-  )
-
-  assert.ok(missingOutput.issues.includes('missing xplat.targets.macos.package.webOutDir'))
+    assert.match(config.issues.join('; '), /desktop WebView hosting has been removed/)
+    for (const key of ['webViteConfig', 'hostViteConfig', 'hostBundleFile', 'webOutDir']) {
+      assert.ok(config.issues.some((issue) => issue.includes(`${key} is no longer supported`)))
+    }
+  }
 })
 
 test('macOS renderer selection rejects unknown names', (t) => {
   const root = project(t)
   const config = inspectMacOSDevConfig(root, {}, 'cef')
 
-  assert.ok(config.issues.includes('xplat.targets.macos.renderer must be "appkit" or "webview"'))
+  assert.match(config.issues.join('; '), /renderer must be "appkit"/)
 })

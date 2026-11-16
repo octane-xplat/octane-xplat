@@ -44,6 +44,15 @@ The NativeScript renderer and Vite flavor are maintained as source in
 `packages/nativescript-octane` and `packages/vite-octane`. They use the repository
 toolchain and lockstep release; see [native renderer ownership](toolchain.md#native-renderer-ownership).
 
+## Desktop hosting boundary
+
+Desktop apps use native AppKit, GTK, or WinUI. General WebView app hosting,
+`@octane-xplat/desktop-webview`, and `@octane-xplat/platform/host*` service RPC
+have been removed. Do not recreate a shared bridge package. Richtext owns its
+local editor document transport, reused by Tiptap and Lexical; that transport
+must remain limited to editing. Embedded WebView widgets and native renderer
+SDK interop remain separate features.
+
 ## Layout
 
 | Path                                                                                       | What it is                                                                                                                                                                                        |

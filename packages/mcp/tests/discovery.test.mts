@@ -132,7 +132,7 @@ test('macos and linux platforms come from xplat.targets', () => {
       xplat: {
         targets: {
           macos: { runtime: 'appkit-node-api' },
-          linux: { runtime: 'webkitgtk' },
+          linux: { runtime: 'gtk' },
         },
       },
     },

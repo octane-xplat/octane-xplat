@@ -24,7 +24,7 @@ func runLinuxPackage(ctx context.Context, project, worker string) error {
 }
 func publishLinuxPackage(ctx context.Context, root *os.Root, release, stage string, data json.RawMessage) ([]string, error) {
 	var plan linuxPackagePlan
-	if json.Unmarshal(data, &plan) != nil || plan.Version != 1 || !linuxExecutableName.MatchString(plan.ExecutableName) || !linuxPackageVersion.MatchString(plan.PackageVersion) || (plan.Runtime != "gtk" && plan.Runtime != "webkitgtk") {
+	if json.Unmarshal(data, &plan) != nil || plan.Version != 1 || !linuxExecutableName.MatchString(plan.ExecutableName) || !linuxPackageVersion.MatchString(plan.PackageVersion) || plan.Runtime != "gtk" {
 		return nil, errors.New("invalid Linux package plan")
 	}
 	name := plan.ExecutableName
@@ -39,9 +39,6 @@ func publishLinuxPackage(ctx context.Context, root *os.Root, release, stage stri
 		return nil, errors.New("Linux app must be a staged ordinary directory")
 	}
 	critical := []string{filepath.Join(directory, name), filepath.Join(directory, "app.json"), filepath.Join(directory, "README.txt"), archive}
-	if plan.Runtime == "webkitgtk" {
-		critical = append(critical, filepath.Join(directory, "bundle/index.html"), filepath.Join(directory, "host/gjs-host.js"))
-	}
 	for _, path := range critical {
 		info, err = root.Lstat(path)
 		if err != nil || !info.Mode().IsRegular() || info.Size() == 0 {

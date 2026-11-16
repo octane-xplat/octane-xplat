@@ -132,11 +132,7 @@ export async function dependencies(target, caseFile, extra, dependencyAnchor = c
     roots.push(dirname(roots.at(-1)))
   }
 
-  roots.push(
-    app,
-    ...['web', 'mobile', 'macos', 'linux'].map((name) => join(repo, 'apps', name)),
-    repo,
-  )
+  roots.push(app, ...['web', 'mobile', 'macos'].map((name) => join(repo, 'apps', name)), repo)
 
   const resolved = new Map()
   const development = Object.keys(pkg.devDependencies ?? {}).filter(

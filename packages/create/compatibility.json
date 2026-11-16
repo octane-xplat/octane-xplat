@@ -28,7 +28,6 @@
 		"@octane-xplat/crypto",
 		"@octane-xplat/css-engine",
 		"@octane-xplat/date-picker",
-		"@octane-xplat/desktop-webview",
 		"@octane-xplat/devtools",
 		"@octane-xplat/dnd-kit",
 		"@octane-xplat/docs-search",

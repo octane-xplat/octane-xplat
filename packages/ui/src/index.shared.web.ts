@@ -17,7 +17,6 @@
 //   @octane-xplat/ui/nativescript  — shared iOS/Android plumbing.
 //   @octane-xplat/ui/web           — DOM-only contracts (web/linux builds).
 //   @octane-xplat/ui/macos         — AppKit-specific contracts.
-//   @octane-xplat/ui/linux         — GTK-specific contracts.
 
 // Foundations and common controls
 export { View } from './components/layout/View.web.tsrx'

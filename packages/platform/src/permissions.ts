@@ -3,7 +3,7 @@
 // their {getPermissions, requestPermissions} pair into the dep-free
 // __xplatPermissionOwners global at module scope, so this seam reports
 // 'unsupported' when a leaf is absent rather than guessing — same convention
-// as __xplatBridge / __xplatAppKit.
+// as __xplatAppKit.
 import type { PermissionResponse } from '@octane-xplat/lib/capability'
 import type { PermissionKind } from './types'
 

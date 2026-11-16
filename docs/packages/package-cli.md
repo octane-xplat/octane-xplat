@@ -97,8 +97,7 @@ See [Release an iOS or Android app](https://octane-xplat.goddardai.org/native-re
 for signing setup and store distribution.
 
 Linux packaging and its required manifest settings are documented in
-[Package a Linux app](https://octane-xplat.goddardai.org/linux-package). The CLI ships the
-GJS host; Linux users supply the GTK/WebKit system runtime.
+[Package a Linux app](https://octane-xplat.goddardai.org/linux-package). Linux users supply GJS and GTK4; the CLI packages the native application bundle.
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-cli).
 

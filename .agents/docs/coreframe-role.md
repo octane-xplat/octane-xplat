@@ -67,7 +67,7 @@ concerns.
   `biometrics`, `share`, `haptics`, `push`/`notifications`, and the editor
   leaves (`richtext`, `tiptap`, `lexical`) with their known limits.
 - **Renderers and targets**: DOM for web, NativeScript for iOS/Android,
-  experimental AppKit for macOS, `desktop-webview` for desktop hosting.
+  experimental native AppKit/GTK/WinUI for desktop hosting. DOM apps run in a browser; the general desktop WebView bridge is removed.
 - **Toolchain**: `xplat` dev/build/doctor/typecheck, suffix module resolution,
   seam lint rules, the `create` scaffolder, and the lockstep package release.
 
