@@ -200,7 +200,8 @@ const color = select({ web: '#4f46e5', native: '#4338ca', default: '#4f46e5' })
 
 Environment checking uses independent target programs, with shared sources
 checked in each applicable environment. `native` expands into iOS and Android;
-Linux/GTK retain their pre-isolation combined lane. The canonical
+Linux WebKit and native GTK also have independent programs with their existing
+DOM and GJS declarations respectively. The canonical
 [platform checking contract](../platform-typechecking.md) owns SDK declarations,
 transitive-leak guards, solution discovery, and shared editor context. Declaration
 emission still uses its fixed unsuffixed-first order; a declaration emit does not

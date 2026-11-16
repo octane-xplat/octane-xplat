@@ -20,7 +20,7 @@ outside this recipe's scope.
 
 - AC1: The same import reaches `.web` in a browser; native targets select their most-specific implementation and fall back to the unsuffixed module.
 - AC2: `.mobile` overrides the unsuffixed default on iOS and Android; `.ios` and `.android` override `.mobile` only on their matching OS, and `.macos` overrides the default on macOS.
-- AC3: The reader can typecheck shared code and its .tsrx leaves in separate web, iOS, Android, macOS, and Windows programs; discover the matching leaf projects in the language service; and understand the single default context used for shared editor files.
+- AC3: The reader can typecheck shared code and its .tsrx leaves in separate web, iOS, Android, macOS, Windows, and native Linux GTK programs; discover the matching leaf projects in the language service; and understand the single default context used for shared editor files.
 - AC4: Native Linux GTK components select `.gtk` then the unsuffixed module; retired WebView host configuration is rejected.
 
 - AC5: CSS imports select one platform sibling with fallback, while explicit imports allow shared-plus-platform composition.

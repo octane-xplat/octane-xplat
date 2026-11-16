@@ -1,5 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// Check every applicable platform separately; Linux/GTK keep their legacy union.
+// Check every applicable platform separately, including Linux WebKit and GTK.
 import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
 import {

@@ -7,7 +7,6 @@ import {
   expandEnvPrograms,
   loadEnvManifest,
   envSolution,
-  PLATFORM_MODULE_SUFFIXES,
 } from '../src/tsconfig-envs.ts'
 
 const tmp = []
@@ -73,19 +72,6 @@ test('separate phone SDKs, platform resolution and shared roots in all five prog
   )
 })
 
-test('Linux and GTK retain the legacy mixed program and fixed precedence', () => {
-  for (const target of ['linux', 'gtk']) {
-    const dir = fixture({ ...entries, [target]: { files: ['src/shared.ts'] } })
-    const all = expand(dir).find((p) => p.env === 'all')
-
-    assert.ok(all.files.includes(join(dir, 'src/index.ios.ts')))
-    assert.ok(all.files.includes(join(dir, 'src/index.android.ts')))
-    assert.ok(all.files.includes(join(dir, 'src/index.web.ts')))
-    assert.deepEqual(config(all).compilerOptions.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)
-    assert.ok(config(all).compilerOptions.lib.includes('DOM'))
-  }
-})
-
 test('explicitly empty types prevent inherited automatic @types discovery', () => {
   const dir = fixture(entries, { compilerOptions: { types: [] } })
 
@@ -94,6 +80,8 @@ test('explicitly empty types prevent inherited automatic @types discovery', () =
 
 test('reject conflicting SDKs, DOM, resolution overrides, overlap, malformed and empty entries', () => {
   const cases = [
+    [{ ...entries, gtk: { files: ['src/shared.ts'], compilerOptions: { lib: ['DOM'] } } }, {}, /DOM libraries/],
+    [{ ...entries, linux: { files: ['src/shared.ts'], compilerOptions: { types: ['@nativescript/types-ios'] } } }, {}, /ios SDK/],
     [{ ...entries, ios: entries.native }, {}, /overlaps/],
     [
       {
@@ -150,40 +138,29 @@ test('JSONC comments and trailing commas preserve string values and reject synta
   }
 })
 
-test('legacy Linux/GTK do not gain Windows runtime declarations or explicit empty types', () => {
+test('Linux WebKit and GTK have separate declarations, suffixes, and fallback roots', () => {
   const dir = fixture(entries)
+  for (const name of ['widget.web', 'widget.linux', 'fallback.web', 'other.gtk']) {
+    writeFileSync(join(dir, `src/${name}.ts`), 'export {}\n')
+  }
   const loaded = loadEnvManifest(dir)
-
-  loaded.manifest.environments = { web: entries.web, linux: entries.web, windows: entries.windows }
-  // Drop barrel fixtures unrelated to this minimal legacy graph.
-  for (const env of ['ios', 'android', 'macos']) {
-    rmSync(join(dir, `src/index.${env}.ts`))
+  loaded.manifest.environments.linux = { include: ['src/*.ts'] }
+  loaded.manifest.environments.gtk = { include: ['src/*.ts'] }
+  const programs = expandEnvPrograms(dir, loaded)
+  assert.equal(programs.some((p) => p.env === 'all'), false)
+  const linux = programs.find((p) => p.env === 'linux')
+  const gtk = programs.find((p) => p.env === 'gtk')
+  assert.deepEqual(config(linux).compilerOptions.moduleSuffixes, ['.linux', '.web', ''])
+  assert.deepEqual(config(gtk).compilerOptions.moduleSuffixes, ['.gtk', ''])
+  assert.ok(config(linux).compilerOptions.lib.includes('DOM'))
+  assert.ok(!config(gtk).compilerOptions.lib.includes('DOM'))
+  assert.ok(linux.files.includes(join(dir, 'src/widget.linux.ts')))
+  assert.ok(linux.files.includes(join(dir, 'src/fallback.web.ts')))
+  assert.ok(!linux.files.includes(join(dir, 'src/widget.web.ts')))
+  assert.ok(!gtk.files.some((f) => /\.(web|linux|ios|android)\.ts$/.test(f)))
+  assert.ok(gtk.files.some((f) => f.endsWith('linux-gtk-renderer/src/host-globals.d.ts')))
+  for (const p of [linux, gtk]) {
+    assert.deepEqual(config(p).compilerOptions.types, [])
+    assert.ok(p.files.some((f) => f.includes(`isolation-${p.env}.ts`)))
   }
-
-  rmSync(join(dir, 'src/index.ts'))
-
-  const all = expandEnvPrograms(dir, loaded).find((p) => p.env === 'all')
-
-  assert.equal(config(all).compilerOptions.types, undefined)
-  assert.ok(!all.files.some((file) => file.endsWith('typecheck-globals/native.d.ts')))
-})
-
-test('GTK alone retains its pre-isolation explicit libraries and SDK types', () => {
-  const dir = fixture(
-    { gtk: { files: ['src/index.ts', 'src/shared.ts'] } },
-    {
-      compilerOptions: { lib: ['DOM'], types: ['@nativescript/types-ios'] },
-    },
-  )
-
-  for (const env of ['web', 'ios', 'android', 'macos', 'windows']) {
-    rmSync(join(dir, `src/index.${env}.ts`))
-  }
-
-  const [all] = expand(dir)
-
-  assert.equal(all.env, 'all')
-  assert.ok(config(all).compilerOptions.lib.includes('DOM'))
-  assert.deepEqual(config(all).compilerOptions.types, ['@nativescript/types-ios'])
-  assert.ok(!all.files.some((file) => file.includes('isolation-')))
 })

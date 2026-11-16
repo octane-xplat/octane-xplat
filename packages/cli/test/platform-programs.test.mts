@@ -15,7 +15,7 @@ import { nativeLsp } from './native-lsp.mts'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const compiler = join(repo, 'node_modules/typescript/bin/tsc')
-const targets = ['web', 'ios', 'android', 'macos', 'windows']
+const targets = ['web', 'ios', 'android', 'macos', 'windows', 'linux', 'gtk']
 
 function fixture(t) {
   const dir = mkdtempSync(join(repo, 'research-platform-types-'))
@@ -54,6 +54,7 @@ function fixture(t) {
   const environments = {}
 
   for (const env of targets) {
+    put(`src/resolved.${env}.ts`, `export const resolved = '${env}' as const\n`)
     put(`src/context.${env}.d.ts`, `declare const platformContext: '${env}'\n`)
 
     const own = {
@@ -62,28 +63,32 @@ function fixture(t) {
       android: 'android.os.Build.MODEL',
       macos: 'dlopen("AppKit", 1)',
       windows: 'console.log("Windows")',
+      linux: 'document.title',
+      gtk: 'print(ARGV.join(" ")); Gtk.init()',
     }[env]
 
     const forbidden = [
-      ...(env !== 'web' ? ['document.title'] : []),
+      ...(!['web', 'linux'].includes(env) ? ['document.title'] : []),
       ...(env !== 'ios' ? ['UIView.new()'] : []),
       ...(env !== 'android' ? ['android.os.Build.MODEL'] : []),
+      ...(env !== 'gtk' ? ['print(ARGV.join(" "))'] : []),
       ...(env !== 'macos' ? ['dlopen("AppKit", 1)'] : []),
     ]
 
     put(
       `src/leaf.${env}.ts`,
-      `${['ios', 'android'].includes(env) ? "import type { View } from '@nativescript/core/ui/core/view/index.js'\nexport type NativeView = View\n" : ''}import './shared'\nexport const selected = platformContext\n${own}\n` +
+      `${['ios', 'android'].includes(env) ? "import type { View } from '@nativescript/core/ui/core/view/index.js'\nexport type NativeView = View\n" : ''}${env === 'gtk' ? "import Gtk from 'gi://Gtk?version=4.0'\n" : ''}import './shared'\nimport { resolved } from './resolved'\nexport const checkedResolution: '${env}' = resolved\nexport const selected = platformContext\n${own}\n` +
         forbidden.map((v) => `// @ts-expect-error unavailable in ${env}\n${v}\n`).join(''),
     )
 
     put(
       `src/Leaf.${env}.tsrx`,
-      `export function Leaf() @{\n const selected = platformContext\n <>{selected}</>\n}\n`,
+      `import { resolved } from './resolved'\nexport const checkedResolution: '${env}' = resolved\nexport function Leaf() @{\n const selected = platformContext\n <>{selected}</>\n}\n`,
     )
 
     environments[env] = {
       files: [
+        ...(env === 'gtk' ? [join(repo, 'packages/linux-gtk-renderer/src/gi.d.ts')] : []),
         `src/leaf.${env}.ts`,
         `src/Leaf.${env}.tsrx`,
         `src/context.${env}.d.ts`,
@@ -154,7 +159,7 @@ test(
 
       assert.equal(listing.status, 0, listing.stdout + listing.stderr)
       assertPlatformIsolation(program.env, listing.stdout.split(/\r?\n/))
-      assert.equal(/[/\\]lib\.dom\.d\.ts/.test(listing.stdout), program.env === 'web')
+      assert.equal(/[/\\]lib\.dom\.d\.ts/.test(listing.stdout), ['web', 'linux'].includes(program.env))
       assert.equal(listing.stdout.includes('@nativescript/types-ios/'), program.env === 'ios')
       assert.equal(
         listing.stdout.includes('@nativescript/types-android/'),
@@ -169,7 +174,7 @@ test(
 
     put('src/leak.d.ts', '/// <reference lib="dom" />\nexport {}\n')
     put('src/shared.ts', "import './leak'\nexport const sharedContext = platformContext\n")
-    for (const program of programs.filter((p) => p.env !== 'web')) {
+    for (const program of programs.filter((p) => !['web', 'linux'].includes(p.env))) {
       const listing = tsc(dir, program, '--listFilesOnly')
 
       assert.throws(
@@ -257,7 +262,7 @@ test(
         },
       })
 
-      assert.match(JSON.stringify(hover), /platformContext:.*(web|ios|android|macos|windows)/)
+      assert.match(JSON.stringify(hover), /platformContext:.*(web|ios|android|macos|windows|linux|gtk)/)
     }
   },
 )

@@ -1,6 +1,6 @@
 ### Check platform code in separate TypeScript programs
 
-`xplat typecheck` now checks web, iOS, Android, macOS, and Windows in separate programs so browser and phone SDK declarations cannot hide mistakes in another platform. A `native` manifest entry expands into separate iOS and Android checks. Existing SDK imports and runtime APIs stay the same. Linux/GTK keep their previous combined checking lane.
+`xplat typecheck` now checks web, iOS, Android, macOS, Windows, Linux WebKit, and native GTK in separate programs so browser and phone SDK declarations cannot hide mistakes in another platform. A `native` manifest entry expands into separate iOS and Android checks. Existing SDK imports and runtime APIs stay the same. Linux WebKit keeps browser declarations; native GTK uses its existing GJS declarations without browser globals.
 
 **Breaking change:** Move browser libraries out of shared compiler options when a manifest also checks native platforms:
 

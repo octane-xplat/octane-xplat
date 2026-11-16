@@ -17,7 +17,10 @@
 			"path": "./node_modules/.cache/xplat-typecheck/windows.json"
 		},
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/all.json"
+			"path": "./node_modules/.cache/xplat-typecheck/linux.json"
+		},
+		{
+			"path": "./node_modules/.cache/xplat-typecheck/gtk.json"
 		}
 	]
 }

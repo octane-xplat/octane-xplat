@@ -1,11 +1,12 @@
 # Platform TypeScript programs
 
 `packages/cli/src/tsconfig-envs.ts` owns environment expansion. A manifest's
-`web`, `ios`, `android`, `macos`, and `windows` entries produce separate programs.
+`web`, `ios`, `android`, `macos`, `windows`, `linux`, and `gtk` entries produce separate programs.
 `native` is a shorthand for two programs, never a merged phone SDK. Do not declare
-`native` together with `ios` or `android`. Linux/GTK retain the old `all.json`
-union, fixed suffix order, libraries, and ambient roots until their owning task
-cuts over those paths. This exception does not qualify Linux isolation.
+`native` together with `ios` or `android`. Linux WebKit (`linux`) retains DOM
+libraries and `.linux` → `.web` → unsuffixed resolution. Native GTK (`gtk`)
+uses the existing GJS host declarations and `.gtk` → unsuffixed resolution
+without DOM libraries. These programs change checking, not host runtime selection.
 
 Each isolated program uses its target's module suffixes and export conditions.
 Shared files included by the manifest or reached through imports are checked in
@@ -24,12 +25,15 @@ files from the declared umbrella dependency so Bun's isolated linker does not
 require consumers to add undeclared direct dependencies. Preserve existing
 module-scoped SDK APIs on main. macOS uses its existing AppKit/Node host declarations;
 Windows keeps the existing module-scoped WinRT surface and narrow JS globals.
-This work does not strengthen the WinRT surface's existing `any` types.
+This work does not strengthen the WinRT surface's existing `any` types. GTK
+introspection declarations remain module-scoped; include the existing
+`@octane-xplat/linux-gtk/gi` declarations in the GTK entry when importing `gi://`
+modules. Their hand-maintained subset and `any` fallbacks are not a complete SDK check.
 
 Both checking runners inspect `tsc --listFilesOnly` before checking. Generated
 negative assertions also catch foreign globals from renamed or custom ambient
 declarations. A transitive
-DOM library in a non-web program, foreign phone SDK, or umbrella SDK index fails
+DOM library in a program other than web or Linux WebKit, foreign phone SDK, or umbrella SDK index fails
 even with `skipLibCheck`. This matters for generated public declarations and
 triple-slash references, which bypass `compilerOptions.types`. Keep declaration
 emission (`tsconfig.types.json`) distinct from environment validation; an emit
@@ -59,7 +63,7 @@ TypeScript 7's native LSP (`tsc --lsp --stdio`) and the actual
 `packages/cli/test/platform-programs.test.mts`. The fixture uses real phone SDKs,
 checks transitive declaration lists, opens TS and TSRX leaves without naming
 projects, and verifies target-specific hover and diagnostics. It also introduces
-errors in shared TS/TSRX files and checks all five compiler programs. The OXC
+errors in shared TS/TSRX files and checks all seven compiler programs. The OXC
 TSRX server is a parser/linter; it does not establish semantic TypeScript support.
 
 A shared file can belong to several programs. An editor request normally uses

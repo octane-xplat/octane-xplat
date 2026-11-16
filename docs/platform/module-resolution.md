@@ -256,8 +256,9 @@ or import them from its roots:
 ```
 
 Use separate `ios` and `android` entries when their root lists differ. macOS
-and Windows use `macos` and `windows` entries. Existing Linux/GTK manifests
-retain their previous combined check during the Linux migration:
+and Windows use `macos` and `windows` entries. Linux WebKit uses `linux` with
+browser declarations; native GTK uses `gtk` with its existing GJS declarations
+and no DOM library. These checks retain the existing runtime resolution:
 
 ```json
 {
@@ -265,7 +266,9 @@ retain their previous combined check during the Linux migration:
     "ios": { "files": ["src/Card.ios.tsrx", "src/model.ts"] },
     "android": { "files": ["src/Card.android.tsrx", "src/model.ts"] },
     "macos": { "files": ["src/Card.macos.tsrx", "src/model.ts"] },
-    "windows": { "files": ["src/Card.windows.tsrx", "src/model.ts"] }
+    "windows": { "files": ["src/Card.windows.tsrx", "src/model.ts"] },
+    "linux": { "files": ["src/Card.linux.tsrx", "src/model.ts"] },
+    "gtk": { "files": ["src/Card.gtk.tsrx", "src/model.ts"] }
   }
 }
 ```
@@ -337,6 +340,20 @@ manifest above. The cache files by themselves do not establish editor support:
     { "path": "./node_modules/.cache/xplat-typecheck/web.json" },
     { "path": "./node_modules/.cache/xplat-typecheck/ios.json" },
     { "path": "./node_modules/.cache/xplat-typecheck/android.json" }
+  ]
+}
+```
+
+For Linux, reference the programs declared in your manifest. Keep only the host
+entries your app uses; `linux` is the WebKit DOM host and `gtk` is the native GJS
+host. Replace any old `all.json` reference:
+
+```json
+{
+  "files": [],
+  "references": [
+    { "path": "./node_modules/.cache/xplat-typecheck/linux.json" },
+    { "path": "./node_modules/.cache/xplat-typecheck/gtk.json" }
   ]
 }
 ```

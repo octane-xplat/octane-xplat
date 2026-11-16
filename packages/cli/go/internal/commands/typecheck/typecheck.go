@@ -78,15 +78,13 @@ func expectedTypecheckPrograms(projectRoot string, inputs map[string]typecheckCo
 			case "native":
 				names["ios"] = true
 				names["android"] = true
-			case "linux", "gtk":
-				names["all"] = true
-			case "web", "ios", "android", "macos", "windows":
+			case "web", "ios", "android", "macos", "windows", "linux", "gtk":
 				names[env] = true
 			default:
 				return nil
 			}
 		}
-		for _, env := range []string{"web", "ios", "android", "macos", "windows", "all"} {
+		for _, env := range []string{"web", "ios", "android", "macos", "windows", "linux", "gtk"} {
 			if names[env] {
 				configs = append(configs, filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck", env+".json"))
 			}
@@ -119,16 +117,13 @@ func validateTypecheckPrograms(data json.RawMessage, projectRoot string, inputs 
 // Check the compiler's complete graph, not just authored root files. A triple
 // slash reference in a dependency bypasses compilerOptions.types.
 func validateAmbientFiles(env, listing string) error {
-	if env == "all" {
-		return nil
-	}
 	for _, line := range strings.Split(listing, "\n") {
 		file := strings.ReplaceAll(strings.TrimSpace(line), "\\", "/")
 		lower := strings.ToLower(file)
 		dom := strings.Contains(lower, "/lib.dom.") && strings.HasSuffix(lower, ".d.ts")
 		ios := strings.Contains(file, "/@nativescript/types-ios/")
 		android := strings.Contains(file, "/@nativescript/types-android/")
-		if (env != "web" && dom) || (ios && env != "ios") || (android && env != "android") || strings.HasSuffix(file, "/@nativescript/types/index.d.ts") {
+		if (env != "web" && env != "linux" && dom) || (ios && env != "ios") || (android && env != "android") || strings.HasSuffix(file, "/@nativescript/types/index.d.ts") {
 			return fmt.Errorf("typecheck[%s]: transitive ambient leakage from %s; select platform declarations or move the import into its platform leaf", env, line)
 		}
 	}
@@ -195,7 +190,7 @@ func Command(ctx context.Context, _ map[string]any) error {
 			return err
 		}
 		fmt.Printf("Typechecking %s\n", config)
-		if filepath.Dir(config) == filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck") && filepath.Base(config) != "all.json" {
+		if filepath.Dir(config) == filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck") {
 			listing, err := proc.RunProcess(ctx, []string{node, checker, "--noEmit", "--runExternalCode", "--listFilesOnly", "-p", config}, projectRoot, project.ToolEnvironment())
 			if err != nil {
 				return err

@@ -1,7 +1,7 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Shared TypeScript environment presets + tsconfig.envs.json expansion.
 // Each target gets its own program and ambient SDK. Native manifest entries
-// expand to iOS and Android; Linux/GTK retain the legacy combined program.
+// expand to iOS and Android; Linux WebKit and GTK use distinct host programs.
 import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { createRequire } from 'node:module'
@@ -17,7 +17,7 @@ export type EnvProgram = { env: string; configPath: string; files: string[] }
 export type EnvSolution = { files: string[]; references: { path: string }[] }
 
 /**
- * The legacy Linux/GTK and declaration-emission suffix order: extensionless first, then every platform suffix. Imports
+ * The declaration-emission suffix order: extensionless first, then every platform suffix. Imports
  * bind the unsuffixed default; variant files still enter the program as
  * roots so each is checked against the shared contract.
  */
@@ -256,13 +256,6 @@ function barrelEnv(rel) {
 const arraysEqual = (a, b) =>
   Array.isArray(a) && a.length === b.length && a.every((v, i) => v === b[i])
 
-/** Fixed-order union: known keys first in `order`, extras appended in insertion order. */
-function orderedUnion(set, order) {
-  return [...order.filter((v) => set.has(v)), ...[...set].filter((v) => !order.includes(v))]
-}
-
-const LIB_ORDER = ['ESNext', 'DOM', 'DOM.Iterable']
-
 /** Platform tags on source files, including declarations and tests. */
 function sourcePlatform(file) {
   return /\.(web|ios|android|mobile|native|macos|windows|linux|gtk)(?=\.)/.exec(file)?.[1]
@@ -283,7 +276,7 @@ function applicable(file, env) {
     return ['ios', 'android', 'windows'].includes(env)
   }
 
-  return tag === env
+  return tag === env || (env === 'linux' && tag === 'web')
 }
 
 function platformTypes(types, env, dir) {
@@ -347,8 +340,6 @@ export function expandEnvPrograms(
   validateOptions(manifest.compilerOptions, ENV_MANIFEST)
 
   const top = manifest.compilerOptions ?? {}
-  const legacy = { files: new Set(), ambient: new Set(), lib: new Set(), types: new Set() }
-  const hasLegacy = ['linux', 'gtk'].some((env) => manifest.environments[env])
 
   for (const [env, entry] of Object.entries(manifest.environments)) {
     const preset = TYPECHECK_ENVIRONMENTS[env]
@@ -374,7 +365,7 @@ export function expandEnvPrograms(
     }
 
     for (const key of Object.keys(entry.compilerOptions ?? {})) {
-      const allowed = ['linux', 'gtk'].includes(env) ? ['types'] : ['types', 'lib']
+      const allowed = ['types', 'lib']
 
       if (!allowed.includes(key)) {
         errors.push(`${ENV_MANIFEST}: environment "${env}" cannot override compilerOptions.${key}`)
@@ -384,30 +375,6 @@ export function expandEnvPrograms(
     const files = resolveEnvFiles(dir, entry, `${ENV_MANIFEST} environment "${env}"`)
 
     resolved[env] = files
-    for (const file of files) {
-      legacy.files.add(file)
-    }
-
-    for (const rel of env === 'windows' ? [] : (preset.ambient ?? [])) {
-      const file = resolve(ambientRoot, rel)
-
-      if (existsSync(file)) {
-        legacy.ambient.add(file)
-      }
-    }
-
-    for (const lib of preset.compilerOptions.lib) {
-      legacy.lib.add(lib)
-    }
-
-    for (const type of entry.compilerOptions?.types ?? []) {
-      legacy.types.add(type)
-    }
-
-    if (env === 'linux' || env === 'gtk') {
-      continue
-    }
-
     for (const target of env === 'native' ? ['ios', 'android'] : [env]) {
       if (groups.has(target)) {
         errors.push(
@@ -425,7 +392,7 @@ export function expandEnvPrograms(
         [...(top.lib ?? []), ...libs].some((v) => /^dom(?:\.|$)/i.test(v))
       ) {
         errors.push(
-          `${ENV_MANIFEST}: DOM libraries are not allowed in "${target}"; put browser libraries in the web environment`,
+          `${ENV_MANIFEST}: DOM libraries are not allowed in "${target}"; put browser libraries in the web or linux environment`,
         )
       }
 
@@ -450,6 +417,10 @@ export function expandEnvPrograms(
       const active = files
         .filter((file) => applicable(file, target))
         .filter((file) => {
+          if (target === 'linux' && sourcePlatform(file) === 'web') {
+            return !existsSync(file.replace(/\.web(?=\.)/, '.linux'))
+          }
+
           if (sourcePlatform(file) || file.endsWith('.d.ts')) {
             return true
           }
@@ -514,60 +485,37 @@ export function expandEnvPrograms(
     throw new Error(errors.join('\n'))
   }
 
-  if (hasLegacy) {
-    // Preserve the pre-isolation Linux/GTK program, including its resolution
-    // and mixed declarations. The Linux runtime migration owns its cutover.
-    for (const env of ['linux', 'gtk']) {
-      groups.delete(env)
-    }
-
-    groups.set('all', {
-      files: [...legacy.ambient, ...[...legacy.files].sort()],
-      compilerOptions: {
-        jsxImportSource: '@octane-xplat/jsx',
-        ...top,
-        lib: orderedUnion(new Set([...legacy.lib, ...(top.lib ?? [])]), LIB_ORDER),
-        ...(legacy.types.size || top.types !== undefined
-          ? { types: [...new Set([...legacy.types, ...(top.types ?? [])])] }
-          : {}),
-        moduleSuffixes: PLATFORM_MODULE_SUFFIXES,
-      },
-    })
-  }
-
   const outDir = join(dir, 'node_modules', '.cache', 'xplat-typecheck')
 
   mkdirSync(outDir, { recursive: true })
   return [...groups]
     .sort(
       ([a], [b]) =>
-        ['web', 'ios', 'android', 'macos', 'windows', 'all'].indexOf(a) -
-        ['web', 'ios', 'android', 'macos', 'windows', 'all'].indexOf(b),
+        ['web', 'ios', 'android', 'macos', 'windows', 'linux', 'gtk'].indexOf(a) -
+        ['web', 'ios', 'android', 'macos', 'windows', 'linux', 'gtk'].indexOf(b),
     )
     .map(([env, group]) => {
       const configPath = join(outDir, `${env}.json`)
 
-      if (env !== 'all') {
-        // Compiler-only negative assertions also catch renamed/vendored ambient
-        // declarations that the SDK-path inspection cannot recognize.
-        const forbidden = [
-          ...(env === 'web' ? [] : ['document', 'window', 'HTMLElement']),
-          ...(env === 'ios' ? [] : ['UIView']),
-          ...(env === 'android' ? [] : ['android.os.Build']),
-        ]
+      // Compiler-only negative assertions also catch renamed/vendored ambient
+      // declarations that the SDK-path inspection cannot recognize.
+      const forbidden = [
+        ...(['web', 'linux'].includes(env) ? [] : ['document', 'window', 'HTMLElement']),
+        ...(env === 'ios' ? [] : ['UIView']),
+        ...(env === 'android' ? [] : ['android.os.Build']),
+      ]
 
-        const canary = join(outDir, `isolation-${env}.ts`)
+      const canary = join(outDir, `isolation-${env}.ts`)
 
-        writeFileSync(
-          canary,
-          'export {}\n' +
-            forbidden
-              .map((name) => `// @ts-expect-error ${name} must be absent in ${env}\nvoid ${name}\n`)
-              .join(''),
-        )
+      writeFileSync(
+        canary,
+        'export {}\n' +
+          forbidden
+            .map((name) => `// @ts-expect-error ${name} must be absent in ${env}\nvoid ${name}\n`)
+            .join(''),
+      )
 
-        group.files = [...group.files, canary]
-      }
+      group.files = [...group.files, canary]
 
       const config = { extends: manifestPath, ...group, include: [], exclude: [] }
 
@@ -588,16 +536,12 @@ export function envSolution(programs: EnvProgram[], dir: string): EnvSolution {
 
 /** Reject transitive ambient SDK leaks even when skipLibCheck hides their errors. */
 export function assertPlatformIsolation(env, files) {
-  if (env === 'all') {
-    return
-  }
-
   for (const original of files) {
     const file = original.replaceAll('\\', '/')
     const sdk = /\/@nativescript\/types-(ios|android)\//.exec(file)?.[1]
 
     if (
-      (env !== 'web' && /\/lib\.dom(?:\.[^/]*)?\.d\.ts$/i.test(file)) ||
+      (!['web', 'linux'].includes(env) && /\/lib\.dom(?:\.[^/]*)?\.d\.ts$/i.test(file)) ||
       file.endsWith('/@nativescript/types/index.d.ts') ||
       (sdk && sdk !== env)
     ) {

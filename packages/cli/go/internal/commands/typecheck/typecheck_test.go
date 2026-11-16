@@ -146,9 +146,9 @@ func TestTypecheckInputChangesUseBytesAndTargets(t *testing.T) {
 }
 
 func TestTransitiveSDKLeaksAreRejected(t *testing.T) {
-	for _, env := range []string{"web", "ios", "android", "macos", "windows", "all"} {
+	for _, env := range []string{"web", "ios", "android", "macos", "windows", "linux", "gtk"} {
 		for _, path := range []string{"/sdk/lib.dom.d.ts", "/sdk/@nativescript/types-ios/index.d.ts", "/sdk/@nativescript/types-android/index.d.ts", "/sdk/@nativescript/types/index.d.ts"} {
-			allowed := env == "all" || (env == "web" && path == "/sdk/lib.dom.d.ts") || (env == "ios" && path == "/sdk/@nativescript/types-ios/index.d.ts") || (env == "android" && path == "/sdk/@nativescript/types-android/index.d.ts")
+			allowed := ((env == "web" || env == "linux") && path == "/sdk/lib.dom.d.ts") || (env == "ios" && path == "/sdk/@nativescript/types-ios/index.d.ts") || (env == "android" && path == "/sdk/@nativescript/types-android/index.d.ts")
 			if (validateAmbientFiles(env, path) == nil) != allowed {
 				t.Fatalf("%s: %s", env, path)
 			}
@@ -156,13 +156,13 @@ func TestTransitiveSDKLeaksAreRejected(t *testing.T) {
 	}
 }
 
-func TestLinuxAndGTKRetainRootAndCombinedPlan(t *testing.T) {
+func TestLinuxAndGTKHaveSeparatePrograms(t *testing.T) {
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "tsconfig.envs.json"), []byte(`{"environments":{"linux":{},"gtk":{}}}`), 0644); err != nil {
 		t.Fatal(err)
 	}
 	paths := expectedTypecheckPrograms(root, map[string]typecheckConfig{"tsconfig.json": {}, "tsconfig.envs.json": {}})
-	if len(paths) != 2 || filepath.Base(paths[0]) != "tsconfig.json" || filepath.Base(paths[1]) != "all.json" {
-		t.Fatalf("legacy plan changed: %v", paths)
+	if len(paths) != 3 || filepath.Base(paths[0]) != "tsconfig.json" || filepath.Base(paths[1]) != "linux.json" || filepath.Base(paths[2]) != "gtk.json" {
+		t.Fatalf("Linux programs missing: %v", paths)
 	}
 }
