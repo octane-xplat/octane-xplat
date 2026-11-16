@@ -79,7 +79,7 @@ goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-o
 
 Replace `ui-theme` with a supported fixture name. `LINUX_RUNTIME_EVAL_HOST` and `LINUX_RUNTIME_EVAL_VM` default to `andromeda.local` and `octane-linux`; executable and Mason paths are on the Linux VM. `LINUX_RUNTIME_EVAL_LOG_PATH` stores stdout and stderr locally, including on failure. The runner requires real OS input, a completion summary, and the fixture's minimum check count. An assertion failure is kept in the log and returns a non-zero exit.
 
-Run all 37 maintained real GTK fixtures in series with either runtime. The 35 input-driven fixtures build the same bundle, stage it on the VM, and send actual keyboard or pointer input; two accessibility fixtures also compare GTK's accessible states and labels. The runner writes one local log per fixture in a unique engine-specific directory under `LINUX_RUNTIME_EVAL_LOG_DIR`. Run both engines against the same VM to compare NativeScript failures with the GJS baseline:
+Run all 37 maintained real GTK fixtures in series with either runtime. The 35 renderer fixtures build the same bundle and stage it on the VM; fixtures that declare input send actual keyboard or pointer events. Two accessibility fixtures also compare GTK's accessible states and labels. The runner writes one local log per fixture in a unique engine-specific directory under `LINUX_RUNTIME_EVAL_LOG_DIR`. Run both engines against the same VM to compare NativeScript failures with the GJS baseline:
 
 ```sh
 goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"NativeScript GTK renderer suite","wait_seconds":1}' -- \
