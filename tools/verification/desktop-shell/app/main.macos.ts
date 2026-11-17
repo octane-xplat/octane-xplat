@@ -11,9 +11,9 @@ import {
 } from '@octane-xplat/platform/macos'
 
 import { storage } from '@octane-xplat/platform'
-import { openWindow } from '@octane-xplat/ui'
 import {
   appMenu,
+  windows,
   createTray,
   keepAppResident,
   type Tray,
@@ -43,28 +43,28 @@ import {
 import { STATUS_SUFFIX } from './version'
 
 function openInspector() {
-  if (inspectorHandle && !inspectorHandle.isClosed) {
+  if (inspectorHandle) {
     return
   }
 
-  const handle = openWindow({
+  if (!windows.supported) {
+    lastError$.set('Native secondary windows are unavailable')
+    marker('INSPECTOR_OPEN_FAIL')
+    return
+  }
+
+  const handle = windows.open({
     data: { window: 'inspector' },
     title: 'Inspector',
     size: { width: 320, height: 160 },
   })
 
-  if (!handle) {
-    lastError$.set('openWindow returned null')
-    marker('INSPECTOR_OPEN_FAIL')
-    return
-  }
-
   setInspectorHandle(handle)
   inspectorCount$.set(inspectorCount$.getSnapshot() + 1)
   inspectorOpen$.set(true)
-  marker(`INSPECTOR_OPENED id=${handle.id}`)
+  marker(`INSPECTOR_OPENED id=w${inspectorCount$.getSnapshot()}`)
 
-  void handle.closed.then(() => {
+  handle.on('closed', () => {
     inspectorOpen$.set(false)
     setInspectorHandle(null)
     marker('INSPECTOR_CLOSED')

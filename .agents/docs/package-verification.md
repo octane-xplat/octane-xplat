@@ -224,6 +224,23 @@ bun run probe run packages/table/examples/interactive.tsrx --target ios --device
 bun run probe run packages/table/examples/geometry.tsrx --target macos --deps @octane-xplat/table
 ```
 
+## Desktop windows
+
+Consumer guidance: [open a second window](../../docs/packages/package-desktop.md#open-a-second-window).
+The fixtures use the real native close methods and check root disposal and event
+ordering. They do not send OS input.
+
+```sh
+bun run turbo run test:window-macos-runtime --filter=@octane-xplat/desktop
+
+# Linux host over SSH with GJS, Xvfb and a session bus.
+DESKTOP_WINDOW_GTK_HOST=LINUX_HOST \
+bun run turbo run test:window-gtk-runtime --filter=@octane-xplat/desktop
+```
+
+Set `DESKTOP_WINDOW_GTK_VM` to use an existing OrbStack VM, locally or on the SSH host. Reserve
+the Linux VM before running the GTK task. The AppKit task uses the prebuilt JSC host.
+
 ## tray
 
 Consumer guidance: [tray](../../docs/packages/package-tray.md).

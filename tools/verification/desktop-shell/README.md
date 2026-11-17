@@ -15,7 +15,7 @@ image capture.
   - `Inspector.tsrx` — secondary window (`inspector-title`, `inspector-close`).
   - `main.macos.ts` — the AppKit entry: `runMacOSApp` +
     `setWindowContentResolver` (`@octane-xplat/macos-appkit/host`),
-    `openWindow` (`@octane-xplat/ui`), `appMenu`, `createTray` +
+    `windows.open` (`@octane-xplat/desktop`), `appMenu`, `createTray` +
     `keepAppResident`, `createGlobalShortcuts`, platform `storage`.
 - `macos-input.c` — AX-tree queries and CGEvent posting at the HID tap,
   compiled by the runner with `xcrun clang`.
@@ -90,7 +90,7 @@ under `~/agent-scratch/octane-xplat/hushed-dew/linux-run-N/` (kept for
 evidence; README declares it disposable — remove manually when done).
 
 - `app/main.gtk.ts` — the GTK entry: `runGtkApp` + `setWindowContentResolver`
-  (`@octane-xplat/linux-gtk/host`), `openWindow`, `appMenu`, `createTray` +
+  (`@octane-xplat/linux-gtk/host`), `windows.open`, `appMenu`, `createTray` +
   `keepAppResident`, `createGlobalShortcuts({ appId })`, platform `storage`.
   `journey.ts`/`App.tsrx`/`Inspector.tsrx` are shared unchanged with macOS.
 - `linux.mts` — the runner (`--phase build|journey|all`).

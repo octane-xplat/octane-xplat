@@ -1,6 +1,6 @@
 # Desktop application services
 
-> Add native menus, tray icons, and system-wide hotkeys from one package.
+> Add native menus, tray icons, secondary windows, and system-wide hotkeys from one package.
 
 Use `@octane-xplat/desktop` in an existing native macOS, Linux GTK, or Windows app. A **tray icon** is the small app icon beside the system clock. A **global shortcut** runs even when your app does not have keyboard focus. Desktop hosts remain experimental; each feature guide describes its host requirements and verified limits.
 
@@ -42,6 +42,59 @@ export function installWindowMenu(): () => void {
 }
 ```
 
+## Open a second window
+
+Use a second window for an inspector or editor that should stay beside the main screen. On AppKit and Linux GTK, register the screen with your host's `setWindowContentResolver` at startup. The following is a macOS example. In a GTK startup file, import the resolver from `@octane-xplat/linux-gtk/host`.
+
+```ts
+import { setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
+import Inspector from './Inspector.tsrx'
+
+setWindowContentResolver((data) => {
+  if (data && typeof data === 'object' && 'screen' in data && data.screen === 'inspector') {
+    return Inspector
+  }
+})
+```
+
+After the main window has mounted, call `windows.open` from a menu or button action. Check `windows.supported` before showing the action. The check returns false on Windows, web, and mobile. This service opens regular windows. It leaves app startup and window content with the host.
+
+```ts
+import { windows } from '@octane-xplat/desktop'
+
+export function openInspector(hasUnsavedEdits: () => boolean) {
+  if (!windows.supported) return
+
+  const inspector = windows.open({
+    title: 'Inspector',
+    data: { screen: 'inspector' },
+  })
+
+  inspector.on('close', (event) => {
+    if (hasUnsavedEdits()) event.preventDefault()
+  })
+  inspector.on('closed', () => console.log('Inspector closed'))
+  return inspector
+}
+```
+
+### Close the window
+
+Calling `close()` requests the same close as the window's close button. Call `preventDefault()` before the listener returns to keep it open. Use `destroy()` for teardown when the window must close regardless of unsaved changes. The `closed` event and promise are delivered after the window's content has unmounted.
+
+```ts
+import type { DesktopWindow } from '@octane-xplat/desktop'
+
+export function requestInspectorClose(inspector: DesktopWindow) {
+  inspector.close()
+}
+
+export async function disposeInspector(inspector: DesktopWindow) {
+  inspector.destroy()
+  await inspector.closed
+}
+```
+
 ## Choose your next feature
 
 All features use the package root. Imports do not create a tray icon, register a hotkey, install a menu, or keep the app running. The following imports introduce no owned resources; the feature guides show creation, failure handling, and cleanup.
@@ -76,4 +129,4 @@ import {
 } from '@octane-xplat/desktop'
 ```
 
-Portable file access, clipboard, appearance, and notifications retain their existing packages. This package does not yet provide the proposed Electron-style window constructor, single-instance lifecycle, display catalog, shell service, or native dialog service.
+Portable file access, clipboard, appearance, and notifications retain their existing packages. This package does not yet provide single-instance lifecycle, a display catalog, a shell service, or native dialogs.

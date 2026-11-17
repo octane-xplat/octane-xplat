@@ -5,6 +5,7 @@
       "outputs": ["types/generated/**/*.d.ts"]
     },
     "build": {
+      "dependsOn": ["@octane-xplat/platform#typegen", "@octane-xplat/lib#typegen"],
       "outputs": ["dist/**/*.js"]
     },
     "typecheck": {
@@ -26,6 +27,15 @@
       "dependsOn": ["typegen", "build", "@octane-xplat/lib#build"],
       "cache": false,
       "env": ["APP_MENU_WINDOWS_HOST", "APP_MENU_WINDOWS_RUNTIME"]
+    },
+    "test:window-gtk-runtime": {
+      "dependsOn": ["build", "@octane-xplat/linux-gtk#build"],
+      "cache": false,
+      "env": ["DESKTOP_WINDOW_GTK_HOST", "DESKTOP_WINDOW_GTK_VM"]
+    },
+    "test:window-macos-runtime": {
+      "dependsOn": ["build", "@octane-xplat/lib#typegen"],
+      "cache": false
     },
     "test:tray-macos-runtime": {
       "dependsOn": ["typegen", "build"],

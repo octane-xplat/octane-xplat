@@ -129,7 +129,7 @@ limitations. Do not load the entire reference tree by default.
 
 ## Desktop application services
 
-Use `@octane-xplat/desktop` for native application menus, tray icons, global hotkeys, app residency and app-wide window visibility. Import all symbols from the root; the former app-menu, tray and global-shortcuts packages and feature subpaths are removed. The [desktop guide](../../../docs/packages/package-desktop.md) links the feature workflows. Importing the package acquires no native resources. Keep focused commands in `@octane-xplat/shortcuts`; portable device services retain their existing packages. Future Electron-inspired app/window/shell/display/dialog APIs are not implemented by this package cutover.
+Use `@octane-xplat/desktop` for native application menus, tray icons, global hotkeys, app residency and app-wide window visibility. Import all symbols from the root; the former app-menu, tray and global-shortcuts packages and feature subpaths are removed. The [desktop guide](../../../docs/packages/package-desktop.md) links the feature workflows. Importing the package acquires no native resources. Keep focused commands in `@octane-xplat/shortcuts`; portable device services retain their existing packages. For regular secondary windows on AppKit and GTK, use [`windows.open`](../../../docs/packages/package-desktop.md#open-a-second-window) after the host mounts and registers a content resolver. A synchronous `close` listener can cancel the request. Use `destroy` only for forced teardown. Windows does not expose this capability.
 
 ## Canonical documentation and scope
 

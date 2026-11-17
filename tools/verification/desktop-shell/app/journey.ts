@@ -1,6 +1,5 @@
 import 'octane/signals'
 import { createStore } from '@octane-xplat/ui/data'
-import type { WindowHandle } from '@octane-xplat/ui'
 import { storage } from '@octane-xplat/platform'
 
 /** Shared business state for the desktop-shell journey app. Platform-agnostic:
@@ -19,9 +18,14 @@ export const statusSuffix$ = createStore('')
 export const STORAGE_KEY = 'desktop-shell.name'
 
 /** The live inspector window handle, set by the platform entry. */
-export let inspectorHandle: WindowHandle | null = null
+interface InspectorHandle {
+  readonly isClosed: boolean
+  close(): void
+}
 
-export function setInspectorHandle(handle: WindowHandle | null) {
+export let inspectorHandle: InspectorHandle | null = null
+
+export function setInspectorHandle(handle: InspectorHandle | null) {
   inspectorHandle = handle
 }
 

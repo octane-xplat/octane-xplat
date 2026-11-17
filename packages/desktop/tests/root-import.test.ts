@@ -28,6 +28,7 @@ it('loads the macOS root and checks capabilities without acquiring native resour
   const desktop = await import('../src/index.macos')
 
   expect(desktop.appMenu.supported).toBe(true)
+  expect(desktop.windows.supported).toBe(false)
   await expect(desktop.getTrayAvailability()).resolves.toEqual({
     available: true,
     platform: 'macos',
@@ -49,4 +50,13 @@ it('exposes the same symbols from native and unsupported roots', async () => {
 
   expect(Object.keys(fallback).sort()).toEqual(Object.keys(macos).sort())
   expect(Object.keys(web).sort()).toEqual(Object.keys(macos).sort())
+})
+
+it('reports secondary desktop windows as unavailable on the default and web roots', async () => {
+  for (const { windows } of [await import('../src/index'), await import('../src/index.web')]) {
+    expect(windows.supported).toBe(false)
+    expect(() => windows.open()).toThrowError(
+      expect.objectContaining({ name: 'UnavailabilityError', feature: 'windows.open' }),
+    )
+  }
 })

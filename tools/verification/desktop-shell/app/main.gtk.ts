@@ -1,9 +1,9 @@
 import 'octane/signals'
 import { runGtkApp, setWindowContentResolver } from '@octane-xplat/linux-gtk/host'
 import { storage } from '@octane-xplat/platform'
-import { openWindow } from '@octane-xplat/ui'
 import {
   appMenu,
+  windows,
   createTray,
   keepAppResident,
   type Tray,
@@ -35,28 +35,28 @@ import { STATUS_SUFFIX } from './version'
 const APP_ID = 'org.octane.xplat.shell-journey'
 
 function openInspector() {
-  if (inspectorHandle && !inspectorHandle.isClosed) {
+  if (inspectorHandle) {
     return
   }
 
-  const handle = openWindow({
+  if (!windows.supported) {
+    lastError$.set('Native secondary windows are unavailable')
+    marker('INSPECTOR_OPEN_FAIL')
+    return
+  }
+
+  const handle = windows.open({
     data: { window: 'inspector' },
     title: 'Inspector',
     size: { width: 320, height: 160 },
   })
 
-  if (!handle) {
-    lastError$.set('openWindow returned null')
-    marker('INSPECTOR_OPEN_FAIL')
-    return
-  }
-
-  setInspectorHandle(handle as any)
+  setInspectorHandle(handle)
   inspectorCount$.set(inspectorCount$.getSnapshot() + 1)
   inspectorOpen$.set(true)
   marker(`INSPECTOR_OPENED id=w${inspectorCount$.getSnapshot()}`)
 
-  void handle.closed.then(() => {
+  handle.on('closed', () => {
     inspectorOpen$.set(false)
     setInspectorHandle(null)
     marker('INSPECTOR_CLOSED')
@@ -336,7 +336,7 @@ runGtkApp(
 
       // DESKTOP_SHELL_DIAG_OPEN=timeout opens the Inspector from a GLib
       // timeout instead of inside the dbusmenu Event handler — bisects the
-      // BadDrawable crash between the D-Bus-callback context and openWindow.
+      // BadDrawable crash between the D-Bus-callback context and windows.open.
       if (
         (globalThis as any).imports?.gi?.GLib?.getenv?.('DESKTOP_SHELL_DIAG_OPEN') === 'timeout'
       ) {

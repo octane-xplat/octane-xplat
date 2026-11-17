@@ -47,8 +47,11 @@ try {
   writeFileSync(
     join(temporary, 'consumer.ts'),
     `
-import { appMenu, type AppMenu, type AppMenuEntry, type AppMenuOptions, type AppMenuService, type AppMenuSubmenu } from '@octane-xplat/desktop'
+import { appMenu, windows, type DesktopWindow, type AppMenu, type AppMenuEntry, type AppMenuOptions, type AppMenuService, type AppMenuSubmenu } from '@octane-xplat/desktop'
 export const service: AppMenuService = appMenu
+export function openInspector(): DesktopWindow | undefined {
+ return windows.supported ? windows.open({ title: 'Inspector' }) : undefined
+}
 export const entry: AppMenuEntry = { type: 'separator', key: 's' }
 export function install(menus: readonly AppMenuSubmenu[], options?: AppMenuOptions): AppMenu {
  return appMenu.install(menus, options)
