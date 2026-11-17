@@ -77,6 +77,7 @@ public final class MasonArtifact {
             case "textOverflow": valid = "clip".equals(value) || "ellipsis".equals(value); break;
             case "userSelect": valid = "none".equals(value); break;
             case "borderWidth": valid = n == 0; break;
+            case "opacity": valid = n >= 0 && n <= 1; break;
             case "fontWeight": valid = n >= 100 && n <= 900 && n % 100 == 0; break;
             case "fontSize": valid = nonnegative && n > 0; break;
             case "fontFamily":

@@ -6,7 +6,7 @@
 
 static NSDictionary *CaptureDefaults(UIView *view) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
-    NSMutableDictionary *defaults = [@{@"borderRadius":style.borderRadius.length ? style.borderRadius : @"0"} mutableCopy];
+    NSMutableDictionary *defaults = [@{@"borderRadius":style.borderRadius.length ? style.borderRadius : @"0", @"alpha":@(view.alpha)} mutableCopy];
     if ([view isKindOfClass:UILabel.class]) {
         UILabel *label = (UILabel *)view;
         defaults[@"font"] = label.font;
@@ -35,7 +35,7 @@ static uint32_t ARGB(UIColor *color) {
 }
 static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
-    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect"]];
+    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect", @"opacity"]];
     for (NSString *key in values) Require([known containsObject:key], [@"Unsupported property: " stringByAppendingString:key]);
     if (values[@"display"]) { Require([values[@"display"] isEqual:@"flex"] || [values[@"display"] isEqual:@"block"], @"Unsupported display"); style.display = [values[@"display"] isEqual:@"flex"] ? MasonDisplayFlex : MasonDisplayBlock; }
     if (values[@"flexDirection"]) {
@@ -70,6 +70,8 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     if (values[@"backgroundColor"]) style.backgroundColor = ARGB(Color(values[@"backgroundColor"]));
     if (values[@"borderRadius"]) style.borderRadius = [NSString stringWithFormat:@"%gpx", [values[@"borderRadius"] doubleValue]];
     if (values[@"cornerShape"]) style.cornerShape = values[@"cornerShape"];
+    // Core 9.1.3 opacity writes UIView.alpha; its getDefault reads it back.
+    if (values[@"opacity"]) view.alpha = [values[@"opacity"] doubleValue];
     // Font/color inheritance was resolved by the producer. Container values do not paint text.
     if ([view isKindOfClass:UILabel.class]) {
         UILabel *label = (UILabel *)view;
@@ -147,6 +149,7 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
         UIView *view = journal[@"view"];
         NSDictionary *defaults = journal[@"defaults"];
         [NSCMason.shared styleForView:view].borderRadius = defaults[@"borderRadius"];
+        view.alpha = [defaults[@"alpha"] doubleValue];
         if ([view isKindOfClass:UILabel.class]) {
             UILabel *label = (UILabel *)view;
             label.font = defaults[@"font"];

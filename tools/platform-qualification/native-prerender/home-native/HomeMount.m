@@ -5,7 +5,7 @@ static void Require(BOOL condition, NSString *message) {
 }
 static NSDictionary *Paint(UIView *view) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
-    NSMutableDictionary *result = [@{@"backgroundColor":@(style.backgroundColor),@"borderRadius":style.borderRadius,@"cornerShape":style.cornerShape} mutableCopy];
+    NSMutableDictionary *result = [@{@"backgroundColor":@(style.backgroundColor),@"borderRadius":style.borderRadius,@"cornerShape":style.cornerShape,@"alpha":@(view.alpha)} mutableCopy];
     result[@"layoutValues"] = [view valueForKey:@"prerenderLayoutValues"];
     result[@"effectiveRadii"] = [view valueForKey:@"prerenderEffectiveRadii"];
     if ([view isKindOfClass:UILabel.class]) {

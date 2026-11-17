@@ -62,6 +62,7 @@ export const STYLE_KEYS: readonly string[] = Object.freeze([
   'maxWidth',
   'minWidth',
   'minHeight',
+  'opacity',
   'paddingBottom',
   'paddingLeft',
   'paddingRight',
@@ -213,6 +214,8 @@ export function validateNodes(input: unknown): LogicalNode[] {
             'accessibilityRole',
             'accessibilityLabel',
             'accessibilityHint',
+            'accessibilityState',
+            'accessibilityValue',
           ].includes(key)
         )
           {string(props[key], 'host prop ' + key)}
@@ -247,9 +250,10 @@ function validateStyle(value: unknown): Record<string, string | number> {
   for (const key of Object.keys(input).sort()) {
     const value = input[key]
     requireArtifact(STYLE_KEYS.includes(key), 'unsupported style ' + key)
-    if (typeof value === 'string') {style[key] = string(value, 'style value')}
+    if (typeof value === 'string' && key !== 'opacity') {style[key] = string(value, 'style value')}
     else {
       requireArtifact(typeof value === 'number' && Number.isFinite(value), 'style value')
+      requireArtifact(key !== 'opacity' || (value >= 0 && value <= 1), 'style value')
       style[key] = value === 0 ? 0 : value
     }
   }

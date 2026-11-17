@@ -25,6 +25,7 @@ enum XplatMasonArtifact {
         case "textOverflow": valid = text == "clip" || text == "ellipsis"
         case "userSelect": valid = text == "none"
         case "borderWidth": valid = numeric && scalar == 0
+        case "opacity": valid = numeric && scalar >= 0 && scalar <= 1
         case "fontWeight": valid = numeric && (100...900).contains(scalar) && scalar.truncatingRemainder(dividingBy: 100) == 0
         case "fontSize": valid = nonnegativeFloat && scalar > 0
         case "fontFamily":

@@ -311,3 +311,22 @@ test('top-level className joins like the live driver before validation', () => {
     assert.deepEqual([...matchPreparedTree(batch, projection.nodes).visualByCommandId], [[100, 0]])
   }
 })
+
+test('disabled controls: string accessibility state/value and bounded opacity', () => {
+  const value = fixture()
+  Object.assign(value.nodes[0].props, { accessibilityState: 'disabled', accessibilityValue: 'Loading' })
+  value.variants.light[0].style.opacity = 0.5
+  value.variants.light[0].cssKeys = ['fontSize', 'opacity']
+  const canonical = validateArtifact(value)
+  assert.equal(canonical.nodes[0].props.accessibilityState, 'disabled')
+  assert.deepEqual(decodeStartupArtifact(encodeStartupArtifact(value), expected), canonical)
+  for (const opacity of [-0.1, 1.5, '0.5']) {
+    const invalid = fixture()
+    invalid.variants.light[0].style.opacity = opacity
+    invalid.variants.light[0].cssKeys = ['fontSize', 'opacity']
+    assert.throws(() => validateArtifact(invalid), /style value/)
+  }
+  const object = fixture()
+  object.nodes[0].props.accessibilityState = { disabled: true }
+  assert.throws(() => validateArtifact(object), /accessibilityState/)
+})

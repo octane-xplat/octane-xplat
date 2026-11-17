@@ -75,7 +75,7 @@ enum XplatStartupArtifact {
     private static let styleKeys: Set<String> = [
         "alignItems", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
-        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "minHeight", "paddingBottom",
+        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "minHeight", "opacity", "paddingBottom",
         "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace",
     ]
     private static func check(_ value: Bool, _ reason: String) throws {
@@ -165,7 +165,7 @@ enum XplatStartupArtifact {
             let key = try text(key), value = try field(node.props, key)
             try check(key.utf8.allSatisfy { $0 < 128 }, "host prop name")
             switch key {
-            case "id", "className", "text", "testID", "whiteSpace", "accessibilityRole", "accessibilityLabel", "accessibilityHint": _ = try text(value)
+            case "id", "className", "text", "testID", "whiteSpace", "accessibilityRole", "accessibilityLabel", "accessibilityHint", "accessibilityState", "accessibilityValue": _ = try text(value)
             case "accessible", "isEnabled": _ = try boolean(value)
             case "maxLines": _ = try integer(value, 0, 1000000)
             case "style": try style(value)

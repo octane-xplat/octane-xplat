@@ -40,6 +40,7 @@ public final class MasonMount {
     private final List<android.content.res.ColorStateList> defaultColors = new ArrayList<>();
     private final List<Float> defaultFontSizes = new ArrayList<>();
     private final List<String> defaultRadii = new ArrayList<>();
+    private final List<Float> defaultAlphas = new ArrayList<>();
     private final List<List<Point<LengthPercentage>>> defaultCorners = new ArrayList<>();
     private boolean defaultsRestored;
     private static void check(boolean value, String reason) {
@@ -118,6 +119,7 @@ public final class MasonMount {
             // display:flex selects Flex. The viewport is explicitly Flex.
             if (view instanceof View) style.setDisplay(Display.Block);
             defaultRadii.add(style.getBorderRadius());
+            defaultAlphas.add(view.getAlpha());
             defaultCorners.add(java.util.Arrays.asList(copyRadius(style.getBorderTopLeftRadius()),
                 copyRadius(style.getBorderTopRightRadius()), copyRadius(style.getBorderBottomRightRadius()),
                 copyRadius(style.getBorderBottomLeftRadius())));
@@ -151,6 +153,8 @@ public final class MasonMount {
         if (values.containsKey("backgroundColor")) style.setBackgroundColor(color((String) values.get("backgroundColor")));
         if (values.containsKey("borderRadius")) style.setBorderRadius(Float.toString(number(values, "borderRadius", 0)) + "px");
         if (values.containsKey("cornerShape")) style.setCornerShape((String) values.get("cornerShape"));
+        // Core 9.1.3 opacity calls View.setAlpha.
+        if (values.containsKey("opacity")) view.setAlpha((float) number(values, "opacity", 1));
         if (values.containsKey("borderWidth")) {
             style.setBorderLeftWidth(0, (byte) 0); style.setBorderRightWidth(0, (byte) 0);
             style.setBorderTopWidth(0, (byte) 0); style.setBorderBottomWidth(0, (byte) 0);
@@ -180,6 +184,7 @@ public final class MasonMount {
             Style style = mason.styleForView(view);
             style.setInBatch(true);
             style.setBorderRadius(defaultRadii.get(index));
+            view.setAlpha(defaultAlphas.get(index));
             List<Point<LengthPercentage>> corners = defaultCorners.get(index);
             style.setBorderTopLeftRadius(copyRadius(corners.get(0)));
             style.setBorderTopRightRadius(copyRadius(corners.get(1)));

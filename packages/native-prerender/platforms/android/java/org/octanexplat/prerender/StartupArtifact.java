@@ -103,7 +103,7 @@ public final class StartupArtifact {
     private static final Set<String> STYLE_KEYS = new HashSet<>(Arrays.asList(
         "alignItems", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
-        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "minHeight", "paddingBottom",
+        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "minHeight", "opacity", "paddingBottom",
         "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace"));
     private static void require(boolean condition, String reason) { if (!condition) throw new Invalid(reason); }
     private static boolean finite(double value) { return !Double.isNaN(value) && !Double.isInfinite(value); }
@@ -167,7 +167,8 @@ public final class StartupArtifact {
             String key = item.getKey(); Object value = item.getValue();
             switch (key) {
                 case "id": case "className": case "text": case "testID": case "whiteSpace":
-                case "accessibilityRole": case "accessibilityLabel": case "accessibilityHint": text(value); break;
+                case "accessibilityRole": case "accessibilityLabel": case "accessibilityHint":
+                case "accessibilityState": case "accessibilityValue": text(value); break;
                 case "accessible": case "isEnabled": require(value instanceof Boolean, "boolean host prop"); break;
                 case "maxLines": integer(value, 0, 1000000); break;
                 case "style": style(value); break;

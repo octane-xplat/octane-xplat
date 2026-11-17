@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import './screen.css'
-import { HStack, Pressable, SafeArea, Text, View, VStack } from '@octane-xplat/ui'
+import { Button, HStack, Pressable, SafeArea, Text, View, VStack } from '@octane-xplat/ui'
 
 export interface ScreenProps {
   title: string
@@ -26,6 +26,7 @@ export function Screen(props: ScreenProps) @{
       >
         <Text className="screen-action-label">Template action</Text>
       </Pressable>
+      <Button id="screen-disabled" label="Disabled action" isDisabled />
       <HStack id="spinner-row">
         <VStack id="hydration-spinner" className="spinner" />
       </HStack>

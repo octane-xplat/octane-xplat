@@ -53,7 +53,7 @@ final class HomeComparison {
             boolean laidOut = view.getWidth() > 0 && view.getHeight() > 0;
             JSONObject item = new JSONObject().put("index", row.index).put("kind", row.kind).put("parent", row.parent)
                 .put("left", view.getLeft()).put("top", view.getTop()).put("width", view.getWidth()).put("height", view.getHeight())
-                .put("attached", view.isAttachedToWindow())
+                .put("attached", view.isAttachedToWindow()).put("alpha", (double) view.getAlpha())
                 .put("computedX", computed(laidOut ? node.getComputedX() : 0, laidOut)).put("computedY", computed(laidOut ? node.getComputedY() : 0, laidOut))
                 .put("computedWidth", computed(laidOut ? node.getComputedWidth() : 0, laidOut)).put("computedHeight", computed(laidOut ? node.getComputedHeight() : 0, laidOut))
                 .put("display", style.getDisplay().toString()).put("direction", style.getFlexDirection().toString())

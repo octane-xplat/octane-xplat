@@ -21,7 +21,13 @@ function fixture() {
     seed: { title: 'Hello, 世界', count: 3, '\u00e9': 'composed', 'e\u0301': 'decomposed' },
     constraints: [{ input: 'fontScale', equals: 1 }],
     nodes: [
-      { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
+      {
+        index: 0,
+        parent: null,
+        path: '0',
+        kind: 'masonview',
+        props: { accessibilityState: 'disabled', accessibilityValue: 'Loading' },
+      },
       { index: 1, parent: 0, path: '0/0', kind: 'label', props: {} },
       { index: 2, parent: 1, path: '0/0/0', kind: '#text', props: { value: 'Hello, ' } },
       { index: 3, parent: 1, path: '0/0/1', kind: '#text', props: { value: '世界' } },
@@ -33,8 +39,8 @@ function fixture() {
           { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
           {
             node: 1,
-            style: { fontSize: 15, color: '#172033' },
-            cssKeys: ['fontSize'],
+            style: { fontSize: 15, color: '#172033', opacity: 0.5 },
+            cssKeys: ['fontSize', 'opacity'],
             inheritedKeys: ['color'],
           },
         ],
