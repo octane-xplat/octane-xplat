@@ -45,4 +45,4 @@ Record the exact revision, target, device/API/density, artifact, assertions, and
 
 ## Mason core beta.11 Android binding
 
-Mason core 1.0.0-beta.11's `setSmoothCorners` helper reads `native.style`. On the NativeScript Android probe host, the Mason view exposes `getStyle()` while `style` is undefined; the published helper throws before applying a setting. The canonical Mason patch resolves `getStyle()` as a fallback. The Android integration fixture must pass before dropping this hunk. This observation does not establish the behavior of other runtimes or iOS.
+Mason core 1.0.0-beta.11's `setSmoothCorners` helper reads `native.style`. On the NativeScript Android probe host, the Mason view exposes `getStyle()` while `style` is undefined; the published helper throws before applying a setting. Mason core beta.12 resolves `getStyle()` as a fallback, so Xplat no longer patches that helper. The upstream release reports a packed NativeScript Android consumer test for updates and reset. This observation does not establish the behavior of other runtimes or iOS.

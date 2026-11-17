@@ -142,7 +142,7 @@ export function ClippedCard() {
 | macOS (AppKit) | Core Graphics/CAShapeLayer masks the decorative surface | Resolved hidden overflow enables the content mask; the outer shadowPath stays unclipped |
 | Linux / Windows webview | Uses the web leaf | Same browser implementation; native desktop renderer support is separate |
 
-Mason core beta.11 owns mobile smooth surface painting and hidden-overflow clipping. Android elevation still uses the component's outline adapter; Mason does not supply elevation outlines. The older mobile clip and border adapters remain until their replacements are qualified on both mobile targets. See [verification](../docs/smooth-corners-verification.md) for the Android helper patch and evidence limits.
+Mason core beta.11 owns mobile smooth surface painting and hidden-overflow clipping. Android elevation still uses the component's outline adapter; Mason does not supply elevation outlines. The older mobile clip and border adapters remain until their replacements are qualified on both mobile targets. See [verification](../docs/smooth-corners-verification.md) for the Android helper compatibility and evidence limits.
 
 `shadow` is explicitly supported on web/iOS/AppKit and throws on Android. `android.elevation` is native elevation in DIPs, with OS-controlled appearance. Web spread regenerates the larger/smaller silhouette, matching the native shadow-path approach. Portable border/shadow color syntax is CSS hex (alpha last), comma-separated rgb()/rgba(), or transparent; reject unsupported syntax rather than substituting black. Numeric validation rejects non-finite/negative radii and widths, smoothing outside [0,1], exponents below 2, and invalid shadow values before native drawing.
 

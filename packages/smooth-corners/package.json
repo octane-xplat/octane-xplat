@@ -62,7 +62,7 @@
 		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/nativescript-octane": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.11",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:",
 		"octane": "catalog:",
@@ -74,7 +74,7 @@
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.0 <10",
 		"@octane-xplat/nativescript-octane": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": ">=1.0.0-beta.11 <2",
+		"@octane-xplat/nativescript-mason-core": ">=1.0.0-beta.12 <2",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
