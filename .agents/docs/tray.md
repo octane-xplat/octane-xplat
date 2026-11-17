@@ -1,12 +1,6 @@
 # System tray host boundaries
 
-`@octane-xplat/tray` is an optional leaf owning the OS tray/status-bar
-surface. It is not the in-window menu family (`DropdownMenu`/`ContextMenu`
-in ui) and not the application menu bar (`@octane-xplat/app-menu` owns
-`NSApp.mainMenu` and the `Gtk.Application` menubar — ownership was
-coordinated with that task; the leaves share `MenuOption`-compatible row
-shapes but no code). The public guide is
-[System tray](../../docs/packages/package-tray.md).
+The `src/tray/` module in `packages/desktop` owns the OS tray/status-bar surface. In-window menus remain in ui; native application menus belong to the desktop menu module. App residency and window visibility belong to `src/app/` and do not depend on a tray item. All consumer imports use `@octane-xplat/desktop`. See [desktop ownership](desktop.md) and the public [System tray](../../docs/packages/package-tray.md) guide.
 
 ## Shared model
 
@@ -16,24 +10,23 @@ menu model (`buildMenuModel`) that assigns stable command ids per row.
 definition drives the tray and in-app menus — keep it a data shape, never a
 component. Unsupported leaves (web, iOS, Android) report
 `unsupported-platform` from `getTrayAvailability` and reject `createTray`;
-window helpers are inert there except where the platform leaf requires its
+window helpers throw there; platform leaves also require their
 own runtime (Windows throws `unsupported-runtime` via `requireWin32`).
 
 ## AppKit host
 
-`src/index.macos.ts` uses `NSStatusBar.systemStatusBar.statusItemWithLength`
+`src/tray/index.macos.ts` uses `NSStatusBar.systemStatusBar.statusItemWithLength`
 through `@octane-xplat/platform/macos`; `id` sets `autosaveName` for
 persistent ordering. The item's `NSStatusItemButton` gets the image/title/
 tooltip, a bound action target for primary activation, and `NSMenu` for the
 secondary surface. Checkbox/radio state is controlled — native state moves
-only on `update`. `keepAppResident` toggles `NSApplication` activation
-policy and `hideWindowsOnClose` hooks the app's window-close path; a
-delegate that already ends the app on last-window-close makes it throw
+only on `update`. `src/app/index.macos.ts` holds automatic termination and `hideWindowsOnClose`
+retains the current windows after close; a delegate that already ends the app on last-window-close makes it throw
 `resident-conflict`. macOS file icons accept `isTemplate`.
 
 ## GTK host
 
-`src/index.gtk.ts` speaks `org.kde.StatusNotifierItem` over the session bus
+`src/tray/index.gtk.ts` speaks `org.kde.StatusNotifierItem` over the session bus
 in pure Gio — no appindicator typelibs. The menu is exported on
 `com.canonical.dbusmenu`; sections and radio groups get separator+header
 rows around them (the dbusmenu convention — the emitted top-level row count
@@ -48,7 +41,7 @@ live items. `keepAppResident` holds the `Gtk.Application` with
 
 ## Windows host
 
-`src/index.windows.ts` requires `NSWinRT.win32.call` plus
+`src/tray/index.windows.ts` requires `NSWinRT.win32.call` plus
 `interop.pointerFromBuffer`; `requireWin32` throws `unsupported-runtime`
 without them (helpers as well as `createTray`). An eval `Worker` owns a
 message-only window (registered `DefWindowProcW` class, `HWND_MESSAGE`

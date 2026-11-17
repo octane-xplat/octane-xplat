@@ -99,6 +99,7 @@ export const GROUPS = [
     slugs: [
       'package-ads',
       'package-app-menu',
+      'package-desktop',
       'package-audio',
       'package-auth',
       'package-background-tasks',

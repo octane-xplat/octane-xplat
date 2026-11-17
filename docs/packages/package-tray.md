@@ -6,30 +6,31 @@ Give your desktop app a persistent icon in the macOS menu bar, the Windows
 notification area, or a Linux tray area. People can click it to show or hide
 your window, open a context menu, or trigger a quick action.
 
-`@octane-xplat/tray` creates that icon on macOS, Linux, and Windows. It is a
-different thing from the application menu bar owned by
-[`@octane-xplat/app-menu`](package-app-menu.md) — the menu bar holds menus
+`createTray` from `@octane-xplat/desktop` creates that icon on macOS, Linux, and Windows. It is a
+different thing from the [application menu API](package-app-menu.md) — the menu bar holds menus
 like File and Edit at the top of the screen or window, while a tray icon lives
 in the system status area beside the clock. It is also different from
 `DropdownMenu` and `ContextMenu` in [`@octane-xplat/ui`](package-ui.md),
 which draw menus inside your app's window.
 
-[Generated API reference](https://octane-xplat.goddardai.org/api-tray).
+[Generated API reference](https://octane-xplat.goddardai.org/api-desktop).
 
 ## Install and try
 
-After the package's first framework release, run this in your app directory.
+This feature is part of [Desktop application services](package-desktop.md).
+
+From your existing desktop app directory, install the desktop package.
 Keep its version aligned with your other Xplat packages.
 
 ```sh
-bun add @octane-xplat/tray
+bun add @octane-xplat/desktop
 ```
 
 Check support, then create the tray item once. `createTray` returns a handle
 you keep for the life of the icon.
 
 ```ts
-import { createTray, getTrayAvailability } from '@octane-xplat/tray'
+import { createTray, getTrayAvailability } from '@octane-xplat/desktop'
 
 const availability = await getTrayAvailability()
 if (availability.available) {
@@ -56,7 +57,7 @@ reason — `createTray` rejects with a `TrayError` carrying the same code, so
 unsupported hosts fail visibly instead of silently doing nothing.
 
 ```ts
-import { createTray, getTrayAvailability, TrayError } from '@octane-xplat/tray'
+import { createTray, getTrayAvailability, TrayError } from '@octane-xplat/desktop'
 
 async function startTray() {
   const availability = await getTrayAvailability()
@@ -143,7 +144,7 @@ selection.
 `TrayMenuItem` is field-compatible with the `MenuOption` data rows accepted
 by `DropdownMenu` and `ContextMenu` in `@octane-xplat/ui`, so one menu
 definition can drive the tray and an in-app menu. It is not the
-`@octane-xplat/app-menu` entry type — the application menu bar and the tray
+`AppMenuEntry` type — the application menu bar and the tray
 are separate surfaces.
 
 ## React to clicks
@@ -153,7 +154,7 @@ toggling your window. With `onActivate` set, the menu only opens on
 secondary click.
 
 ```ts
-import { createTray, toggleAppWindows } from '@octane-xplat/tray'
+import { createTray, toggleAppWindows } from '@octane-xplat/desktop'
 
 const tray = await createTray({
   id: 'my-app',
@@ -195,23 +196,58 @@ control the app's top-level windows, and `keepAppResident` keeps the app
 running after the last window closes.
 
 ```ts
-import { hideAppWindows, keepAppResident, showAppWindows } from '@octane-xplat/tray'
+import { hideAppWindows, keepAppResident, showAppWindows } from '@octane-xplat/desktop'
 
 const residency = keepAppResident({ hideWindowsOnClose: true })
 // Later: showAppWindows() / residency.release()
 ```
 
-`showAppWindows` shows the app's windows and focuses the first one,
-`hideAppWindows` hides them all, `toggleAppWindows` flips between the two,
-and `areAppWindowsVisible` reports current state. On macOS `keepAppResident`
-switches `NSApplication` activation policy so the app can run as an
-accessory; `hideWindowsOnClose` hides windows when the last one closes.
-On Linux it holds the `Gtk.Application` alive with `Gio.Application.hold`.
-On Windows the packaged host already keeps the process alive while JS runs,
-so the hold is inert and `hideWindowsOnClose` is not implemented. Calling
-`release` ends the hold. On web and mobile these helpers are inert no-ops
-except `keepAppResident`, which throws on macOS when the app delegate still
-ends the app on last-window-close (`resident-conflict`).
+`showAppWindows` reveals and focuses app windows, `hideAppWindows` hides visible windows, `toggleAppWindows` switches visibility, and `areAppWindowsVisible` reports whether any app window is visible. These helpers belong to the desktop app lifetime and work without creating a tray icon.
+
+```ts
+import {
+  showAppWindows,
+  hideAppWindows,
+  toggleAppWindows,
+  areAppWindowsVisible,
+} from '@octane-xplat/desktop'
+
+export const windowActions = {
+  show: showAppWindows,
+  hide: hideAppWindows,
+  toggle: toggleAppWindows,
+  isVisible: areAppWindowsVisible,
+}
+```
+
+On macOS, `keepAppResident` disables automatic termination for the hold's lifetime. `hideWindowsOnClose` retains the current windows by setting `releasedWhenClosed` to false so they can be shown again; activation policy remains the host's responsibility. A delegate that explicitly ends the app on last-window-close causes `resident-conflict`. On Linux the hold uses `Gio.Application.hold`, and `hideWindowsOnClose` sets the current windows' hide-on-close flag. On Windows the host keeps the process alive while JavaScript runs, so the hold is inert and `hideWindowsOnClose` is unimplemented. Release the handle when its owner ends.
+
+```ts
+import { keepAppResident } from '@octane-xplat/desktop'
+
+export function startResidency(): () => void {
+  const residency = keepAppResident({ hideWindowsOnClose: true })
+  return () => residency.release()
+}
+```
+
+On web and mobile, window and residency helpers throw `TrayError` with code `unsupported-platform`. A Windows host without the Win32 projection throws `unsupported-runtime`. Handle the error when a shared action can reach an unsupported host.
+
+```ts
+import { showAppWindows, TrayError } from '@octane-xplat/desktop'
+
+export function revealWindows(): boolean {
+  try {
+    return showAppWindows()
+  } catch (error) {
+    if (error instanceof TrayError) {
+      console.log(error.code, error.message)
+      return false
+    }
+    throw error
+  }
+}
+```
 
 ## Platform support and limits
 

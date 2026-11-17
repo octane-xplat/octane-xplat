@@ -182,16 +182,7 @@ function sleep(ms) {
 
 // ---------- build phase ----------
 
-const DIRECT_DEPS = [
-  'app-menu',
-  'css-engine',
-  'global-shortcuts',
-  'jsx',
-  'macos-appkit',
-  'platform',
-  'tray',
-  'ui',
-]
+const DIRECT_DEPS = ['desktop', 'css-engine', 'jsx', 'macos-appkit', 'platform', 'ui']
 
 function packageDirs() {
   const dirs = new Map()
@@ -272,17 +263,13 @@ async function buildPhase() {
     tarballs[name] = await packOne(dirs.get(name), packs)
   }
 
-  for (const required of [
-    '@octane-xplat/tray',
-    '@octane-xplat/app-menu',
-    '@octane-xplat/global-shortcuts',
-  ]) {
+  for (const required of ['@octane-xplat/desktop']) {
     if (!tarballHas(tarballs[required], 'package/dist/')) {
       throw new Error(`${required} tarball ships no dist/`)
     }
   }
 
-  log('tray/app-menu/global-shortcuts tarballs ship dist/')
+  log('desktop tarballs ship dist/')
 
   rmSync(join(packs, 'native-cli'), { recursive: true, force: true })
 
@@ -306,13 +293,11 @@ async function buildPhase() {
     private: true,
     type: 'module',
     dependencies: {
-      '@octane-xplat/app-menu': tarballs['@octane-xplat/app-menu'],
+      '@octane-xplat/desktop': tarballs['@octane-xplat/desktop'],
       '@octane-xplat/css-engine': tarballs['@octane-xplat/css-engine'],
-      '@octane-xplat/global-shortcuts': tarballs['@octane-xplat/global-shortcuts'],
       '@octane-xplat/jsx': tarballs['@octane-xplat/jsx'],
       '@octane-xplat/macos-appkit': tarballs['@octane-xplat/macos-appkit'],
       '@octane-xplat/platform': tarballs['@octane-xplat/platform'],
-      '@octane-xplat/tray': tarballs['@octane-xplat/tray'],
       '@octane-xplat/ui': tarballs['@octane-xplat/ui'],
       '@nativescript/macos-node-api':
         compatibility.packages['@nativescript/macos-node-api'].version,

@@ -53,12 +53,8 @@
 				"@octane-xplat/cli#build",
 				"@octane-xplat/cli#build:go",
 				"@octane-xplat/macos-build#build",
-				"@octane-xplat/app-menu#build",
-				"@octane-xplat/app-menu#typegen",
-				"@octane-xplat/tray#build",
-				"@octane-xplat/tray#typegen",
-				"@octane-xplat/global-shortcuts#build",
-				"@octane-xplat/global-shortcuts#typegen",
+				"@octane-xplat/desktop#build",
+				"@octane-xplat/desktop#typegen",
 				"@octane-xplat/ui#build",
 				"@octane-xplat/ui#typegen",
 				"@octane-xplat/platform#typegen",
@@ -98,24 +94,22 @@
 				"@octane-xplat/ui#typegen",
 				"@octane-xplat/platform#typegen",
 				"@octane-xplat/lib#typegen",
-				"@octane-xplat/app-menu#typegen",
-				"@octane-xplat/tray#typegen",
-				"@octane-xplat/global-shortcuts#typegen"
+				"@octane-xplat/desktop#typegen"
 			],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "DESKTOP_SHELL_*"]
+			"passThroughEnv": [
+				"GODDARD_*",
+				"XPLAT_*",
+				"DESKTOP_SHELL_*"
+			]
 		},
 		"test:desktop-shell:linux": {
 			"dependsOn": [
 				"@octane-xplat/cli#build",
 				"@octane-xplat/cli#build:go",
 				"@octane-xplat/linux-gtk#build",
-				"@octane-xplat/app-menu#build",
-				"@octane-xplat/app-menu#typegen",
-				"@octane-xplat/tray#build",
-				"@octane-xplat/tray#typegen",
-				"@octane-xplat/global-shortcuts#build",
-				"@octane-xplat/global-shortcuts#typegen",
+				"@octane-xplat/desktop#build",
+				"@octane-xplat/desktop#typegen",
 				"@octane-xplat/ui#build",
 				"@octane-xplat/ui#typegen",
 				"@octane-xplat/platform#typegen",

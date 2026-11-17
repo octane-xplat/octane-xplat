@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
-import { appMenu } from '../../../packages/app-menu/src/index.macos.ts'
+import { appMenu } from '../../../packages/desktop/src/index.macos.ts'
 
 function Content() {
   return (

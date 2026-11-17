@@ -6,29 +6,31 @@ Give your desktop app a menu bar at the top of the screen (macOS) or its
 window (Linux and Windows). Put commands like New and Save within reach,
 with keyboard shortcuts and nested menus.
 
-`@octane-xplat/app-menu` installs that menu bar on macOS, Linux, and Windows. It is a
+`@octane-xplat/desktop` installs that menu bar on macOS, Linux, and Windows. It is a
 different thing from `DropdownMenu` and `ContextMenu` in
 [`@octane-xplat/ui`](package-ui.md): those draw menus inside your app's
-window, while this package owns the application menu bar with native controls.
-It is also different from a tray or status-bar icon, which lives beside the clock and is owned by
-`@octane-xplat/tray`.
+window, while `appMenu` owns the application menu bar with native controls.
+A tray or status-bar icon lives beside the clock; use the same package's
+[tray API](package-tray.md) for that surface.
 
-[Generated API reference](https://octane-xplat.goddardai.org/api-app-menu).
+[Generated API reference](https://octane-xplat.goddardai.org/api-desktop).
 
 ## Install and try
 
-After the package's first framework release, run this in your app directory.
+This feature is part of [Desktop application services](package-desktop.md).
+
+From your existing desktop app directory, install the desktop package.
 Keep its version aligned with your other Xplat packages.
 
 ```sh
-bun add @octane-xplat/app-menu
+bun add @octane-xplat/desktop
 ```
 
 Install a menu bar once, after your desktop window has mounted.
 Menu-bar entries are always submenus — the bar itself only holds menu titles like File and Edit.
 
 ```ts
-import { appMenu } from '@octane-xplat/app-menu'
+import { appMenu } from '@octane-xplat/desktop'
 
 const handle = appMenu.install([
   {
@@ -58,7 +60,7 @@ throws an `UnavailabilityError` you can catch — it never silently does
 nothing.
 
 ```ts
-import { appMenu } from '@octane-xplat/app-menu'
+import { appMenu } from '@octane-xplat/desktop'
 
 if (appMenu.supported) {
   appMenu.install(menus)

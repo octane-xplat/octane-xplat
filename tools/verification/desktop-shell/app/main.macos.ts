@@ -12,9 +12,14 @@ import {
 
 import { storage } from '@octane-xplat/platform'
 import { openWindow } from '@octane-xplat/ui'
-import { appMenu } from '@octane-xplat/app-menu'
-import { createTray, keepAppResident, type Tray } from '@octane-xplat/tray'
-import { createGlobalShortcuts, type GlobalShortcuts } from '@octane-xplat/global-shortcuts'
+import {
+  appMenu,
+  createTray,
+  keepAppResident,
+  type Tray,
+  createGlobalShortcuts,
+  type GlobalShortcuts,
+} from '@octane-xplat/desktop'
 import App from './App.tsrx'
 import Inspector from './Inspector.tsrx'
 import {

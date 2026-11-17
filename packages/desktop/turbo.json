@@ -1,0 +1,63 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "typegen": {
+      "outputs": ["types/generated/**/*.d.ts"]
+    },
+    "build": {
+      "outputs": ["dist/**/*.js"]
+    },
+    "typecheck": {
+      "dependsOn": ["typegen", "^typegen"]
+    },
+    "test": {
+      "dependsOn": ["typegen", "^typegen"]
+    },
+    "test:packed": {
+      "dependsOn": ["typegen", "build", "@octane-xplat/lib#typegen"],
+      "cache": false
+    },
+    "test:menu-gtk-runtime": {
+      "dependsOn": ["typegen", "build"],
+      "cache": false,
+      "env": ["APP_MENU_GTK_HOST", "APP_MENU_GTK_VM"]
+    },
+    "test:menu-windows-runtime": {
+      "dependsOn": ["typegen", "build", "@octane-xplat/lib#build"],
+      "cache": false,
+      "env": ["APP_MENU_WINDOWS_HOST", "APP_MENU_WINDOWS_RUNTIME"]
+    },
+    "test:tray-macos-runtime": {
+      "dependsOn": ["typegen", "build"],
+      "cache": false
+    },
+    "test:tray-macos-packaged": {
+      "dependsOn": ["typegen", "build"],
+      "cache": false
+    },
+    "test:tray-gtk-runtime": {
+      "dependsOn": ["typegen", "build"],
+      "cache": false,
+      "env": ["TRAY_GTK_HOST", "TRAY_GTK_VM"]
+    },
+    "test:shortcuts-windows-runtime": {
+      "dependsOn": ["typegen", "build"],
+      "cache": false,
+      "env": ["GLOBAL_SHORTCUTS_WINDOWS_HOST", "GLOBAL_SHORTCUTS_WINDOWS_RUNTIME"]
+    },
+    "test:shortcuts-macos-runtime": {
+      "dependsOn": ["typegen", "build"],
+      "cache": false
+    },
+    "test:shortcuts-gtk-runtime": {
+      "dependsOn": ["typegen", "build"],
+      "cache": false,
+      "env": ["GLOBAL_SHORTCUTS_LINUX_HOST"]
+    },
+    "test:tray-windows-runtime": {
+      "dependsOn": ["typegen", "build"],
+      "cache": false,
+      "env": ["TRAY_WINDOWS_HOST", "TRAY_WINDOWS_RUNTIME"]
+    }
+  }
+}

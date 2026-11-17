@@ -1,0 +1,31 @@
+import type { AppResidency } from './types.js'
+import { unsupportedApp } from './unsupported.js'
+
+export type * from './types.js'
+
+const stub = unsupportedApp()
+
+/** Reveal and focus the app's windows; `false` when no app window exists to show. */
+export function showAppWindows(): boolean {
+  return stub.showAppWindows()
+}
+
+/** Hide the app's visible windows. */
+export function hideAppWindows(): void {
+  return stub.hideAppWindows()
+}
+
+/** Toggle window visibility; returns the visibility after toggling. */
+export function toggleAppWindows(): boolean {
+  return stub.toggleAppWindows()
+}
+
+/** Whether any app window is currently visible. */
+export function areAppWindowsVisible(): boolean {
+  return stub.areAppWindowsVisible()
+}
+
+/** Keep the app running without visible windows until the returned residency releases. */
+export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): AppResidency {
+  return stub.keepAppResident(options)
+}

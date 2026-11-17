@@ -2,7 +2,7 @@
 
 ID: tray
 Targets: macos, linux, windows
-Related APIs: @octane-xplat/tray, createTray, getTrayAvailability, Tray, TrayMenuItem, TrayIcon, keepAppResident, showAppWindows, hideAppWindows, toggleAppWindows, areAppWindowsVisible
+Related APIs: @octane-xplat/desktop, createTray, getTrayAvailability, Tray, TrayMenuItem, TrayIcon, keepAppResident, showAppWindows, hideAppWindows, toggleAppWindows, areAppWindowsVisible
 
 ## Starting point
 
@@ -27,8 +27,8 @@ visible windows when intended.
 
 ## Documentation
 
-- AC1: [Check support first](../../../docs/packages/package-tray.md#check-support-first), [shared unsupported tests](../../../packages/tray/tests/unsupported.test.ts).
+- AC1: [Check support first](../../../docs/packages/package-tray.md#check-support-first), [shared unsupported tests](../../../packages/desktop/tests/tray/unsupported.test.ts).
 - AC2: [Pick the icon](../../../docs/packages/package-tray.md#pick-the-icon), [platform table](../../../docs/packages/package-tray.md#platform-support-and-limits).
-- AC3: [Build the menu](../../../docs/packages/package-tray.md#build-the-menu), [react to clicks](../../../docs/packages/package-tray.md#react-to-clicks), [update and clean up](../../../docs/packages/package-tray.md#update-and-clean-up), [menu normalization tests](../../../packages/tray/tests/shared.test.ts).
-- AC4: [Keep the app resident](../../../docs/packages/package-tray.md#keep-the-app-resident), [macOS runtime driver](../../../packages/tray/tests/appkit-runtime.mts), [GTK residency fixture](../../../packages/tray/tests/fixtures/tray-window.gtk.js), [Windows host note](../../../docs/packages/package-tray.md#platform-support-and-limits).
-- AC5: [What has been tested](../../../docs/packages/package-tray.md#interaction-limits), [packaged macOS driver](../../../packages/tray/tests/macos-packaged.mts), [GTK runtime driver](../../../packages/tray/tests/gtk-runtime.mts), [Windows runtime driver](../../../packages/tray/tests/windows-runtime.mts).
+- AC3: [Build the menu](../../../docs/packages/package-tray.md#build-the-menu), [react to clicks](../../../docs/packages/package-tray.md#react-to-clicks), [update and clean up](../../../docs/packages/package-tray.md#update-and-clean-up), [menu normalization tests](../../../packages/desktop/tests/tray/shared.test.ts).
+- AC4: [Keep the app resident](../../../docs/packages/package-tray.md#keep-the-app-resident), [macOS runtime driver](../../../packages/desktop/tests/tray/appkit-runtime.mts), [GTK residency fixture](../../../packages/desktop/tests/tray/fixtures/tray-window.gtk.js), [Windows host note](../../../docs/packages/package-tray.md#platform-support-and-limits).
+- AC5: [What has been tested](../../../docs/packages/package-tray.md#interaction-limits), [packaged macOS driver](../../../packages/desktop/tests/tray/macos-packaged.mts), [GTK runtime driver](../../../packages/desktop/tests/tray/gtk-runtime.mts), [Windows runtime driver](../../../packages/desktop/tests/tray/windows-runtime.mts).

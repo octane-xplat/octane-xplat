@@ -56,6 +56,7 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Native Screen bounds](screen-safe-area.md) — first layout, prepared Pages, and inset ownership.
 - [Software keyboard handling](keyboard.md) — native movement and focused-input feasibility boundaries.
 - [Keyboard shortcuts](shortcuts.md) — Shared engine boundaries and desktop input evidence.
+- [Desktop services](desktop.md) — package ownership, root imports, and app lifetime boundaries.
 - [Application menu](app-menu.md) — menu-bar ownership, generation-gated dispatch, and desktop host constraints.
 - [System tray](tray.md) — tray/status-bar ownership, desktop host constraints, and the file-based Windows IPC.
 - [Implementation notes](notes/README.md) — current implementation observations and evidence.

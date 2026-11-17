@@ -3,9 +3,14 @@ import { Application, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { storage } from '@octane-xplat/platform'
 import { openWindow } from '@octane-xplat/ui'
-import { appMenu } from '@octane-xplat/app-menu'
-import { createTray, keepAppResident, type Tray } from '@octane-xplat/tray'
-import { createGlobalShortcuts, type GlobalShortcuts } from '@octane-xplat/global-shortcuts'
+import {
+  appMenu,
+  createTray,
+  keepAppResident,
+  type Tray,
+  createGlobalShortcuts,
+  type GlobalShortcuts,
+} from '@octane-xplat/desktop'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import App from './App.tsrx'

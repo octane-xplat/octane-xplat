@@ -34,18 +34,7 @@ const REMOTE = process.env.DESKTOP_SHELL_LINUX_HOST ?? 'andromeda.local'
 const APP_ID = 'org.octane.xplat.shell-journey'
 const APP_NAME = 'desktop-shell-journey'
 const PRODUCT = 'Desktop Shell Journey'
-const DIRECT_DEPS = [
-  'app-menu',
-  'css-engine',
-  'global-shortcuts',
-  'jsx',
-  'linux-gtk',
-  'platform',
-  'tray',
-  'ui',
-  'camera',
-  'lib',
-]
+const DIRECT_DEPS = ['desktop', 'css-engine', 'jsx', 'linux-gtk', 'platform', 'ui', 'camera', 'lib']
 
 const CONTAINER = join(here, 'linux/container')
 
@@ -141,12 +130,7 @@ async function buildPhase() {
     tarballs[name] = await packOne(dirs.get(name), packs)
   }
 
-  for (const required of [
-    '@octane-xplat/tray',
-    '@octane-xplat/app-menu',
-    '@octane-xplat/global-shortcuts',
-    '@octane-xplat/linux-gtk',
-  ]) {
+  for (const required of ['@octane-xplat/desktop', '@octane-xplat/linux-gtk']) {
     const list = execFileSync('tar', ['-tzf', tarballs[required].replace(/^file:/, '')], {
       encoding: 'utf8',
     })
@@ -156,7 +140,7 @@ async function buildPhase() {
     }
   }
 
-  log('tray/app-menu/global-shortcuts/linux-gtk tarballs ship dist/')
+  log('desktop/linux-gtk tarballs ship dist/')
 
   rmSync(join(packs, 'native-cli'), { recursive: true, force: true })
 
@@ -182,13 +166,11 @@ async function buildPhase() {
     private: true,
     type: 'module',
     dependencies: {
-      '@octane-xplat/app-menu': tarballs['@octane-xplat/app-menu'],
+      '@octane-xplat/desktop': tarballs['@octane-xplat/desktop'],
       '@octane-xplat/css-engine': tarballs['@octane-xplat/css-engine'],
-      '@octane-xplat/global-shortcuts': tarballs['@octane-xplat/global-shortcuts'],
       '@octane-xplat/jsx': tarballs['@octane-xplat/jsx'],
       '@octane-xplat/linux-gtk': tarballs['@octane-xplat/linux-gtk'],
       '@octane-xplat/platform': tarballs['@octane-xplat/platform'],
-      '@octane-xplat/tray': tarballs['@octane-xplat/tray'],
       '@octane-xplat/ui': tarballs['@octane-xplat/ui'],
       octane: compatibility.packages.octane.version,
     },

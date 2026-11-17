@@ -6,8 +6,8 @@ Use `DropdownMenu` for a button that opens actions. Use `ContextMenu` for action
 on an existing piece of content. Both come from `@octane-xplat/ui` and use the
 same menu parts on web, iOS, Android, and macOS. These menus live inside your
 app's window — for the OS menu bar on desktop (File, Edit, and your own menus),
-use [`@octane-xplat/app-menu`](../packages/package-app-menu.md) instead. For a
-persistent icon beside the system clock, use [`@octane-xplat/tray`](../packages/package-tray.md).
+use [`@octane-xplat/desktop`](../packages/package-app-menu.md) instead. For a
+persistent icon beside the system clock, use [`@octane-xplat/desktop`](../packages/package-tray.md).
 
 ## Start with actions
 

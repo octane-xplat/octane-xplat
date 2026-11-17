@@ -34,8 +34,8 @@
 		"api": {
 			"dependsOn": [
 				"@octane-xplat/ads#typegen",
-				"@octane-xplat/app-menu#typegen",
-				"@octane-xplat/app-menu#build",
+				"@octane-xplat/desktop#typegen",
+				"@octane-xplat/desktop#build",
 				"@octane-xplat/audio#typegen",
 				"@octane-xplat/auth#typegen",
 				"@octane-xplat/background-tasks#typegen",
@@ -62,8 +62,6 @@
 				"@octane-xplat/firebase-crashlytics#typegen",
 				"@octane-xplat/geofencing#typegen",
 				"@octane-xplat/geolocation#typegen",
-				"@octane-xplat/global-shortcuts#typegen",
-				"@octane-xplat/global-shortcuts#build",
 				"@octane-xplat/gif#typegen",
 				"@octane-xplat/haptics#typegen",
 				"@octane-xplat/icons#typegen",
@@ -119,8 +117,6 @@
 				"@octane-xplat/table#typegen",
 				"@octane-xplat/tiptap#typegen",
 				"@octane-xplat/tracking-transparency#typegen",
-				"@octane-xplat/tray#typegen",
-				"@octane-xplat/tray#build",
 				"tsrx-typegen#build",
 				"@octane-xplat/ui#typegen",
 				"@octane-xplat/ui#build",

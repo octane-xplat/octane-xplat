@@ -1,10 +1,6 @@
 # Application menu host boundaries
 
-`@octane-xplat/app-menu` is an optional leaf owning the OS application menu
-bar. It is not the in-window menu family (`DropdownMenu`/`ContextMenu` in ui)
-and not the tray/status-bar surface (`@octane-xplat/tray` owns `NSStatusItem`
-and StatusNotifierItem — ownership boundaries were coordinated with that
-task). The public guide is [Application menu](../../docs/packages/package-app-menu.md).
+The `src/menu/` module in `packages/desktop` owns the OS application menu bar. It is separate from in-window menus (`DropdownMenu`/`ContextMenu` in ui) and the same package's tray module. All consumer imports use `@octane-xplat/desktop`. See [desktop ownership](desktop.md) and the public [Application menu](../../docs/packages/package-app-menu.md) guide.
 
 ## Controller and model
 
@@ -37,7 +33,7 @@ mirrored in the fixture.
 
 ## GTK host
 
-`src/host.gtk.ts` requires the default `Gio.Application` to be a
+`packages/desktop/src/menu/host.gtk.ts` requires the default `Gio.Application` to be a
 `Gtk.Application`; otherwise `UnavailabilityError`. Every actionable node is
 a `Gio.SimpleAction` named `xplat-menu-<instance>-<generation>-<nodeId>` —
 per-tree names let the new generation register before the old is retired,
@@ -90,7 +86,7 @@ Apps provide their own action callbacks. Alt/F10 menu-bar semantics and automati
 multi-window propagation are not implemented.
 
 Use the maintained packed-package driver in
-`packages/app-menu/tests/windows-runtime.mts` with the runtime path and SSH host
+`packages/desktop/tests/menu/windows-runtime.mts` with the runtime path and SSH host
 shown in its public guide. It uses UI Automation text/structure and native
 SendInput; it neither captures nor analyzes images. The driver uses right Control
 for ordinary chords and left Control for Control+Alt chords: the pinned host's

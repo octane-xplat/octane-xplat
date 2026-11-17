@@ -1,0 +1,4 @@
+export * from './app/index.gtk.js'
+export * from './menu/index.gtk.js'
+export * from './tray/index.gtk.js'
+export * from './shortcuts/index.gtk.js'

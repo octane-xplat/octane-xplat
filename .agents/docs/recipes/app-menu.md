@@ -2,7 +2,7 @@
 
 ID: app-menu
 Targets: macos, linux, windows
-Related APIs: @octane-xplat/app-menu, appMenu, AppMenuEntry, AppMenuRole, AppMenuOptions
+Related APIs: @octane-xplat/desktop, appMenu, AppMenuEntry, AppMenuRole, AppMenuOptions
 
 ## Starting point
 
@@ -27,8 +27,8 @@ prior bar through `dispose`.
 
 ## Documentation
 
-- AC1: [Install and try](../../../docs/packages/package-app-menu.md#install-and-try), [support check](../../../docs/packages/package-app-menu.md#check-support-first), [update and clean up](../../../docs/packages/package-app-menu.md#update-and-clean-up), [controller tests](../../../packages/app-menu/tests/controller.test.ts).
-- AC2: [Choose the keys](../../../docs/packages/package-app-menu.md#choose-the-keys), [accelerator tests](../../../packages/app-menu/tests/accelerator.test.ts).
-- AC3: [Build the menu tree](../../../docs/packages/package-app-menu.md#build-the-menu-tree), [platform limits](../../../docs/packages/package-app-menu.md#platform-support-and-limits), [macOS runtime fixture](../../../apps/macos/test/verify-app-menu.mts), [GTK runtime driver](../../../packages/app-menu/tests/gtk-runtime.mts), [packed Windows runtime driver](../../../packages/app-menu/tests/windows-runtime.mts).
+- AC1: [Install and try](../../../docs/packages/package-app-menu.md#install-and-try), [support check](../../../docs/packages/package-app-menu.md#check-support-first), [update and clean up](../../../docs/packages/package-app-menu.md#update-and-clean-up), [controller tests](../../../packages/desktop/tests/menu/controller.test.ts).
+- AC2: [Choose the keys](../../../docs/packages/package-app-menu.md#choose-the-keys), [accelerator tests](../../../packages/desktop/tests/menu/accelerator.test.ts).
+- AC3: [Build the menu tree](../../../docs/packages/package-app-menu.md#build-the-menu-tree), [platform limits](../../../docs/packages/package-app-menu.md#platform-support-and-limits), [macOS runtime fixture](../../../apps/macos/test/verify-app-menu.mts), [GTK runtime driver](../../../packages/desktop/tests/menu/gtk-runtime.mts), [packed Windows runtime driver](../../../packages/desktop/tests/menu/windows-runtime.mts).
 
-- AC4: [Windows fixture](../../../packages/app-menu/tests/fixtures/menu.windows.js), [native input driver](../../../packages/app-menu/tests/fixtures/menu-driver.windows.ps1), [lifecycle tests](../../../packages/app-menu/tests/host-windows.test.ts).
+- AC4: [Windows fixture](../../../packages/desktop/tests/menu/fixtures/menu.windows.js), [native input driver](../../../packages/desktop/tests/menu/fixtures/menu-driver.windows.ps1), [lifecycle tests](../../../packages/desktop/tests/menu/host-windows.test.ts).

@@ -2,7 +2,7 @@
 
 ID: global-shortcuts
 Targets: macos, linux, windows
-Related APIs: @octane-xplat/global-shortcuts, createGlobalShortcuts, getGlobalShortcutSupport, parseAccelerator, GlobalShortcutResult
+Related APIs: @octane-xplat/desktop, createGlobalShortcuts, getGlobalShortcutSupport, parseAccelerator, GlobalShortcutResult
 
 ## Starting point
 
@@ -24,6 +24,6 @@ exit.
 
 ## Documentation
 
-- AC1: [Install and try](../../../docs/packages/package-global-shortcuts.md#install-and-try), [support check](../../../docs/packages/package-global-shortcuts.md#check-support-first), [cleanup](../../../docs/packages/package-global-shortcuts.md#clean-up), [workspace example](../../../packages/global-shortcuts/examples/quick-entry.ts).
-- AC2: [Choose the keys](../../../docs/packages/package-global-shortcuts.md#choose-the-keys), [parser tests](../../../packages/global-shortcuts/tests/accelerator.test.ts).
-- AC3: [Handle refusals](../../../docs/packages/package-global-shortcuts.md#handle-refusals), [platform limits](../../../docs/packages/package-global-shortcuts.md#platform-support-and-limits), [registry tests](../../../packages/global-shortcuts/tests/registry.test.ts).
+- AC1: [Install and try](../../../docs/packages/package-global-shortcuts.md#install-and-try), [support check](../../../docs/packages/package-global-shortcuts.md#check-support-first), [cleanup](../../../docs/packages/package-global-shortcuts.md#clean-up), [workspace example](../../../packages/desktop/examples/shortcuts/quick-entry.ts).
+- AC2: [Choose the keys](../../../docs/packages/package-global-shortcuts.md#choose-the-keys), [parser tests](../../../packages/desktop/tests/shortcuts/accelerator.test.ts).
+- AC3: [Handle refusals](../../../docs/packages/package-global-shortcuts.md#handle-refusals), [platform limits](../../../docs/packages/package-global-shortcuts.md#platform-support-and-limits), [registry tests](../../../packages/desktop/tests/shortcuts/registry.test.ts).

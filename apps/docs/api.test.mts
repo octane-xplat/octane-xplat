@@ -43,7 +43,7 @@ test('API task prepares declarations and builds for every published package', ()
 })
 
 test('desktop declaration caches include the published type entry', () => {
-  for (const name of ['app-menu', 'global-shortcuts', 'shortcuts', 'tray']) {
+  for (const name of ['desktop', 'shortcuts']) {
     const root = `../../packages/${name}`
     const manifest = JSON.parse(readFileSync(`${root}/package.json`, 'utf8'))
     const config = JSON.parse(readFileSync(`${root}/turbo.json`, 'utf8'))

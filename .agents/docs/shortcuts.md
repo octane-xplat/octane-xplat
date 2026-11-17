@@ -21,7 +21,7 @@ event without DOM types. An optional `platform` override makes `Mod` resolution
 deterministic without changing defaults. Explicit physical codes must not fall
 back to a logical match on a different position. Application commands, menu
 presentation and settings persistence remain app concerns. System-wide OS
-hotkeys are owned by `@octane-xplat/global-shortcuts` (Carbon /
+hotkeys are owned by `@octane-xplat/desktop` (Carbon /
 `RegisterHotKey` worker / XDG GlobalShortcuts portal); do not extend this
 package for unfocused delivery.
 

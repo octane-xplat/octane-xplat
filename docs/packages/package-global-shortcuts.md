@@ -6,21 +6,23 @@ A global shortcut is a key combination the operating system watches for every
 app. Press it while another app is in front, and your desktop app still hears
 it. Quick-entry windows, push-to-talk buttons and screenshot tools use this.
 
-`@octane-xplat/global-shortcuts` registers these on macOS, Windows and Linux.
+`@octane-xplat/desktop` registers these on macOS, Windows and Linux.
 It is separate from [`@octane-xplat/shortcuts`](package-shortcuts.md), which
 handles keys only while your app's window has focus. Use that package for
 in-app commands and this one only for the few actions that must work from
 anywhere.
 
-[Generated API reference](https://octane-xplat.goddardai.org/api-global-shortcuts).
+[Generated API reference](https://octane-xplat.goddardai.org/api-desktop).
 
 ## Install and try
 
-After the package's first framework release, run this in your app directory.
+This feature is part of [Desktop application services](package-desktop.md).
+
+From your existing desktop app directory, install the desktop package.
 Keep its version aligned with your other Xplat packages.
 
 ```sh
-bun add @octane-xplat/global-shortcuts
+bun add @octane-xplat/desktop
 ```
 
 Put this in your desktop app's startup code. It registers Command+Shift+Space
@@ -28,7 +30,7 @@ on macOS, or Control+Shift+Space on Windows and Linux. Switch to another app
 and press it: your app prints “Show quick entry”.
 
 ```ts
-import { createGlobalShortcuts } from '@octane-xplat/global-shortcuts'
+import { createGlobalShortcuts } from '@octane-xplat/desktop'
 
 const globalShortcuts = createGlobalShortcuts()
 
@@ -58,7 +60,7 @@ those targets the package still imports, reports `supported: false`, and every
 a “global shortcut” setting.
 
 ```ts
-import { getGlobalShortcutSupport } from '@octane-xplat/global-shortcuts'
+import { getGlobalShortcutSupport } from '@octane-xplat/desktop'
 
 const support = await getGlobalShortcutSupport()
 if (!support.supported) {
@@ -82,7 +84,7 @@ keyboard layout. A single letter such as `k` is rejected with a message that
 suggests `KeyK`.
 
 ```ts
-import { parseAccelerator } from '@octane-xplat/global-shortcuts'
+import { parseAccelerator } from '@octane-xplat/desktop'
 
 const parsed = parseAccelerator('mod+shift+keyk', { platform: 'windows' })
 if (parsed.ok) console.log(parsed.accelerator.text) // "Ctrl+Shift+KeyK"
@@ -152,7 +154,7 @@ drops them when the process ends. If `onPress` throws, the error goes to the
 Later presses still arrive.
 
 ```ts
-import { createGlobalShortcuts } from '@octane-xplat/global-shortcuts'
+import { createGlobalShortcuts } from '@octane-xplat/desktop'
 
 const globalShortcuts = createGlobalShortcuts({
   onError: (error) => console.error('Global shortcut failed', error),
@@ -176,7 +178,7 @@ process has no default `Gio.Application`. The first ID a process uses is kept;
 the desktop stores the person's chosen keys under that ID and each shortcut `id`.
 
 ```ts
-import { createGlobalShortcuts } from '@octane-xplat/global-shortcuts'
+import { createGlobalShortcuts } from '@octane-xplat/desktop'
 
 const globalShortcuts = createGlobalShortcuts({ appId: 'com.example.QuickNotes' })
 ```

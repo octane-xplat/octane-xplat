@@ -85,7 +85,7 @@ Consumer guidance: [app-menu](../../docs/packages/package-app-menu.md).
 ```sh
 APP_MENU_WINDOWS_HOST=WINDOWS_HOST \
 APP_MENU_WINDOWS_RUNTIME='C:\path\to\windows\bin' \
-bun run turbo run test:windows-runtime --filter=@octane-xplat/app-menu
+bun run turbo run test:menu-windows-runtime --filter=@octane-xplat/desktop
 ```
 
 ## audio
@@ -232,14 +232,14 @@ Consumer guidance: [tray](../../docs/packages/package-tray.md).
 # Windows: signed-in host with the pinned NativeScript runtime built.
 TRAY_WINDOWS_HOST=WINDOWS_HOST \
 TRAY_WINDOWS_RUNTIME='C:\path\to\windows\bin' \
-bun run turbo run test:windows-runtime --filter=@octane-xplat/tray
+bun run turbo run test:tray-windows-runtime --filter=@octane-xplat/desktop
 
 # Linux: a VM reachable over SSH with gjs, dbus-run-session, and xvfb.
 TRAY_GTK_HOST=LINUX_HOST TRAY_GTK_DIRECT=1 \
-bun run turbo run test:gtk-runtime --filter=@octane-xplat/tray
+bun run turbo run test:tray-gtk-runtime --filter=@octane-xplat/desktop
 
 # macOS: packaged fixture app.
-bun run turbo run test:macos-packaged --filter=@octane-xplat/tray
+bun run turbo run test:tray-macos-packaged --filter=@octane-xplat/desktop
 ```
 
 ## context-menu
