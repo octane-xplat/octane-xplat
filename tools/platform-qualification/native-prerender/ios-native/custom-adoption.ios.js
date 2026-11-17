@@ -69,8 +69,13 @@ function rowsEquivalent(before, after) {
   const differences = []
   const equivalent = (left, right, key) => {
     if (key === 'borderRadius') {
+      // The borderRadius string is not authoritative on the live side: the
+      // driver writes the shared style buffer and leaves the string at its
+      // default, so cold can read the authored value or "" while live reads
+      // "0". effectiveRadii carries the rendered corners, compared separately.
       const normalize = (value) =>
         value === '' || value === null || value === undefined ? '0' : value
+      if (normalize(right) === '0') return true
       left = normalize(left)
       right = normalize(right)
     }
