@@ -81,6 +81,12 @@ for (let i = 0; i < 5; i++) {
       container.rootSignalId === undefined,
     `cycle ${i}: container wiring fields cleared`,
   )
+  check(
+    container.overlay === undefined &&
+      container.contentHost === undefined &&
+      host.get_first_child() === null,
+    `cycle ${i}: root releases its detached native hosts`,
+  )
 }
 
 // Pre-window host: wiring waits on notify::root; unmount must remove that
@@ -126,6 +132,6 @@ print(
   `GTK_ROOT_TEARDOWN ${JSON.stringify({
     checks,
     gtk: `${Gtk.get_major_version()}.${Gtk.get_minor_version()}.${Gtk.get_micro_version()}`,
-    engine: 'gjs',
+    engine: '__nsGObject' in globalThis ? 'native' : 'gjs',
   })}`,
 )

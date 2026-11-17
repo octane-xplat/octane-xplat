@@ -52,7 +52,7 @@ test('unmounted roots detach their window wiring (#229)', async (t) => {
 
   const { checks, gtk, engine } = JSON.parse(line.slice('GTK_ROOT_TEARDOWN '.length))
 
-  assert.ok(checks >= 39, `Expected mount/unmount wiring assertions, got ${checks}`)
+  assert.ok(checks >= 44, `Expected mount/unmount wiring and host assertions, got ${checks}`)
 
   t.diagnostic(
     `${process.platform}; GTK ${gtk}; ${checks} assertions; ${engine}; five remount cycles + pre-window unwire, no OS input`,

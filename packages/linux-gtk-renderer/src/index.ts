@@ -5513,6 +5513,10 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
       }
     }
 
+    // A retained root handle may outlive the tree. Release its references
+    // to the detached renderer-owned widgets as part of unmount.
+    container.overlay = undefined
+    container.contentHost = undefined
     liveGtkContainers.delete(container)
     if (liveGtkContainers.size === 0) {
       delete (globalThis as any).__octaneGtkHost
