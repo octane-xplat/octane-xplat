@@ -22,6 +22,21 @@ export interface GtkWindowService {
   setWindowContentResolver(resolve: WindowContentResolver | null): void
 }
 
+/** Window roots owned by this renderer instance, including the unparented ones. */
+const ownedWindows = new Set<GtkWindowServiceController>()
+let windowsClosing = false
+
+export function liveGtkWindows(): ReadonlySet<GtkWindowServiceController> {
+  return ownedWindows
+}
+
+export function closeGtkWindows(): void {
+  windowsClosing = true
+  for (const controller of Array.from(ownedWindows)) {
+    controller.close()
+  }
+}
+
 const KINDS = new Set(['regular', 'dialog', 'popup'])
 
 function normalizeWindowSize(size: any, source: string): { width: number; height: number } {
@@ -58,6 +73,10 @@ export function createGtkWindowService(deps: {
   const open = (options: Record<string, any> = {}): GtkWindowServiceController => {
     if (options === null || typeof options !== 'object' || Array.isArray(options)) {
       throw new TypeError('openWindow options must be an object')
+    }
+
+    if (windowsClosing) {
+      throw new Error('Cannot open a GTK window while the application is quitting')
     }
 
     const kind = options.kind ?? 'regular'
@@ -152,6 +171,7 @@ export function createGtkWindowService(deps: {
       }
 
       controller.isClosed = true
+      ownedWindows.delete(controller)
       try {
         mounted.root.unmount()
       } catch {
@@ -172,24 +192,28 @@ export function createGtkWindowService(deps: {
       return false
     })
 
-    const component =
-      options.component ??
-      (typeof resolver === 'function' ? resolver(options.data ?? null, controller) : null)
+    try {
+      const component =
+        options.component ??
+        (typeof resolver === 'function' ? resolver(options.data ?? null, controller) : null)
 
-    if (typeof component !== 'function') {
-      try {
-        win.destroy()
-      } catch {}
+      if (typeof component !== 'function') {
+        throw new Error(
+          options.component == null
+            ? 'Install a window content resolver before calling openWindow() — the GTK host bridge exposes setWindowContentResolver'
+            : 'openWindow component must resolve to a component',
+        )
+      }
 
-      throw new Error(
-        options.component == null
-          ? 'Install a window content resolver before calling openWindow() — the GTK host bridge exposes setWindowContentResolver'
-          : 'openWindow component must resolve to a component',
-      )
+      mounted.root.render(component, options.props ?? { data: options.data ?? null, controller })
+      if (!controller.isClosed) {
+        ownedWindows.add(controller)
+        win.present()
+      }
+    } catch (error) {
+      controller.close()
+      throw error
     }
-
-    mounted.root.render(component, options.props ?? { data: options.data ?? null, controller })
-    win.present()
     return controller
   }
 

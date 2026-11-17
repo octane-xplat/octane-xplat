@@ -56,6 +56,7 @@ try {
 
   assert.doesNotMatch(output, /DESKTOP_WINDOW_FAIL|Gjs-CRITICAL|Gtk-CRITICAL/)
   assert.match(output, /DESKTOP_WINDOW_OK/)
+  assert.match(output, /DESKTOP_APP_QUIT_OK/)
   console.log(output.trim())
 } finally {
   try {

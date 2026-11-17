@@ -4,7 +4,7 @@
 
 ## Internal boundaries
 
-- `src/app/` owns app residency and app-wide window visibility. These operations do not require a tray item. Their existing `TrayError` failure contract is retained.
+- `src/app/` owns app readiness, quit, residency, and app-wide window visibility. The AppKit delegate and GTK host check app and window vetoes before closing managed windows. AppKit restarts the approved native termination after closing windows, so closed notifications can run before the process exits. GTK routes the framework menu role through the same quit path. These operations do not require a tray item. Their existing `TrayError` failure contract is retained.
 - `src/window/` owns secondary window handles and close events. AppKit uses `performClose` and GTK uses `Gtk.Window.close` so calls reach the same veto as native close controls. The host controller owns content and forced teardown. Only regular windows are exposed: sheet and popup behavior differs between hosts, and the Windows host currently provides an asynchronous open request without a qualified per-window close veto.
 - `src/menu/` owns the native application menu bar; see [menu host boundaries](app-menu.md).
 - `src/tray/` owns status/tray icons and their menus; see [tray host boundaries](tray.md).

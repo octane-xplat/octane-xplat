@@ -1,6 +1,8 @@
 import { projection, call, u32, i32, ptr, bufferAddress } from '../windows-interop.js'
 import { TrayError } from '../tray/errors.js'
-import type { AppResidency } from './types.js'
+
+import { createAppLifecycle } from './lifecycle.js'
+import type { AppResidency, DesktopApp } from './types.js'
 
 export type * from './types.js'
 
@@ -89,3 +91,6 @@ export function keepAppResident(_options?: { hideWindowsOnClose?: boolean }): Ap
   // an inert hold so callers can keep uniform resident semantics.
   return { release() {} }
 }
+
+/** Native application readiness and quit. */
+export const app: DesktopApp = createAppLifecycle()

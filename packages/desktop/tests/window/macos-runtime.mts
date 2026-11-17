@@ -42,7 +42,8 @@ try {
   assert.equal(result.status, 0, `${result.error ?? ''}\n${output}`)
   assert.doesNotMatch(output, /DESKTOP_WINDOW_FAIL/)
   assert.match(output, /DESKTOP_WINDOW_OK/)
-  console.log('DESKTOP_WINDOW_OK (AppKit)')
+  assert.match(output, /DESKTOP_APP_QUIT_OK/)
+  console.log('DESKTOP_WINDOW_OK and DESKTOP_APP_QUIT_OK (AppKit)')
 } finally {
   await rm(directory, { recursive: true, force: true })
 }

@@ -13,6 +13,7 @@ import {
   NSApplication,
   NSApplicationActivationPolicy,
   NSApplicationDelegate,
+  NSApplicationTerminateReply,
   NSBundle,
   NSEventMask,
   NSFileManager,
@@ -172,6 +173,15 @@ interface PlatformServices {
   primaryWindow: NSWindow | null
 }
 
+interface AppKitLifecycle {
+  isReady(): boolean
+  whenReady(): Promise<void>
+  quit(): void
+  addQuitGuard(guard: () => boolean): () => void
+  didFinishLaunching(): void
+  shouldTerminate(): 0 | 1
+}
+
 interface MacosWindowingShared {
   resolver: WindowContentResolver | null
   appDelegate: AppDelegate | null
@@ -189,6 +199,7 @@ interface MacosWindowingShared {
 }
 
 declare global {
+  var __xplatAppKitLifecycle: AppKitLifecycle | undefined
   var __xplatMacosWindowing: MacosWindowingShared | undefined
   var __xplatAppKitOpenWindow:
     | ((options: MacOSOpenWindowOptions) => AppKitWindowController)
@@ -230,6 +241,93 @@ shared.platformServices ??= {
 }
 
 const applicationClosed = shared.applicationClosed
+
+function createAppKitLifecycle(): AppKitLifecycle {
+  const quitGuards = new Set<() => boolean>()
+  let resolveReady!: () => void
+  const ready = new Promise<void>((resolve) => {
+    resolveReady = resolve
+  })
+  let didFinish = false
+  let quitPending = false
+  let quitApproved = false
+
+  return {
+    isReady: () => didFinish,
+    whenReady: () => ready,
+    didFinishLaunching() {
+      didFinish = true
+      resolveReady()
+    },
+    addQuitGuard(guard) {
+      quitGuards.add(guard)
+      return () => quitGuards.delete(guard)
+    },
+    quit() {
+      if (!didFinish) {
+        throw new Error('Wait for app.whenReady() before requesting quit')
+      }
+
+      if (!quitPending && shared.running) {
+        app.terminate(null)
+      }
+    },
+    shouldTerminate() {
+      if (quitApproved) {
+        return NSApplicationTerminateReply.Now
+      }
+
+      if (quitPending) {
+        return NSApplicationTerminateReply.Cancel
+      }
+
+      quitPending = true
+      try {
+        for (const guard of Array.from(quitGuards)) {
+          if (!guard()) {
+            quitPending = false
+            return NSApplicationTerminateReply.Cancel
+          }
+        }
+
+        // Map iteration includes windows opened by a synchronous guard. None
+        // of the guarded windows close until the entire request is approved.
+        for (const controller of shared.byNative.values()) {
+          if (controller.onCloseRequested?.() === false) {
+            quitPending = false
+            return NSApplicationTerminateReply.Cancel
+          }
+        }
+      } catch (error) {
+        quitPending = false
+        console.error('[macos] quit guard failed', error)
+        return NSApplicationTerminateReply.Cancel
+      }
+
+      // Stop accepting windows before returning to the native loop. Restart
+      // termination after teardown to avoid an AppKit pending-quit loop.
+      shared.running = false
+      setTimeout(() => {
+        for (const controller of Array.from(shared.byNative.values())) {
+          try {
+            controller.close()
+          } catch (error) {
+            console.error('[macos] error closing window during app quit', error)
+          }
+        }
+
+        // Give the full promise queue a turn before AppKit exits the process.
+        setTimeout(() => {
+          quitApproved = true
+          app.terminate(null)
+        }, 0)
+      }, 0)
+      return NSApplicationTerminateReply.Cancel
+    },
+  }
+}
+
+const lifecycle = (globalThis.__xplatAppKitLifecycle ??= createAppKitLifecycle())
 
 function controllerFor(nativeWindow: NSWindow): WindowControllerBase | null {
   const direct = shared.byNative.get(nativeWindow)
@@ -336,6 +434,7 @@ class AppDelegate extends NSObject {
   }
 
   applicationDidFinishLaunching() {
+    lifecycle.didFinishLaunching()
     app.activateIgnoringOtherApps(true)
     // Under OCTANE_MACOS_EXTERNAL_RUNLOOP the host owns the event loop;
     // -stop: would terminate it and a JS pump would double-dispatch.
@@ -346,6 +445,10 @@ class AppDelegate extends NSObject {
 
     app.stop(this)
     setTimeout(() => this.pumpEvents(), 0)
+  }
+
+  applicationShouldTerminate(): 0 | 1 {
+    return lifecycle.shouldTerminate()
   }
 
   applicationShouldTerminateAfterLastWindowClosed() {

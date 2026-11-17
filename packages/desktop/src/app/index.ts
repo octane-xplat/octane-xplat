@@ -1,5 +1,7 @@
-import type { AppResidency } from './types.js'
 import { unsupportedApp } from './unsupported.js'
+
+import { createAppLifecycle } from './lifecycle.js'
+import type { AppResidency, DesktopApp } from './types.js'
 
 export type * from './types.js'
 
@@ -29,3 +31,15 @@ export function areAppWindowsVisible(): boolean {
 export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): AppResidency {
   return stub.keepAppResident(options)
 }
+
+/**
+ * Native application readiness and quit. Requires the framework's AppKit or GTK host.
+ * @example
+ * ```ts
+ * import { app } from '@octane-xplat/desktop'
+ * if (app.supported) {
+ *   void app.whenReady().then(() => console.log('App is ready'))
+ * }
+ * ```
+ */
+export const app: DesktopApp = createAppLifecycle()

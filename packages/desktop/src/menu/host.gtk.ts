@@ -1,3 +1,4 @@
+import { app as desktopApp } from '../app/index.gtk.js'
 import Gtk from 'gi://Gtk?version=4.0'
 import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'
@@ -75,7 +76,11 @@ export const host: AppMenuHost = {
 
     function roleBehavior(role: AppMenuRole): void {
       if (role === 'quit') {
-        app.quit()
+        if (desktopApp.isReady()) {
+          desktopApp.quit()
+        } else {
+          app.quit()
+        }
         return
       }
 

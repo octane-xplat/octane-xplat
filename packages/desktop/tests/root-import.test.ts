@@ -29,6 +29,7 @@ it('loads the macOS root and checks capabilities without acquiring native resour
 
   expect(desktop.appMenu.supported).toBe(true)
   expect(desktop.windows.supported).toBe(false)
+  expect(desktop.app.supported).toBe(false)
   await expect(desktop.getTrayAvailability()).resolves.toEqual({
     available: true,
     platform: 'macos',
@@ -59,4 +60,13 @@ it('reports secondary desktop windows as unavailable on the default and web root
       expect.objectContaining({ name: 'UnavailabilityError', feature: 'windows.open' }),
     )
   }
+})
+
+it('reports app lifecycle as unavailable without a desktop host', async () => {
+  const { app } = await import('../src/index.web')
+
+  expect(app.supported).toBe(false)
+  expect(app.isReady()).toBe(false)
+  await expect(app.whenReady()).rejects.toMatchObject({ name: 'UnavailabilityError', feature: 'app' })
+  expect(() => app.quit()).toThrowError(expect.objectContaining({ name: 'UnavailabilityError', feature: 'app' }))
 })

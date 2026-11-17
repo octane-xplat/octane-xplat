@@ -1,5 +1,7 @@
-import type { AppResidency } from './types.js'
 import { unsupportedApp } from './unsupported.js'
+
+import { createAppLifecycle } from './lifecycle.js'
+import type { AppResidency, DesktopApp } from './types.js'
 
 export type * from './types.js'
 
@@ -29,3 +31,6 @@ export function areAppWindowsVisible(): boolean {
 export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): AppResidency {
   return stub.keepAppResident(options)
 }
+
+/** Native application readiness and quit. */
+export const app: DesktopApp = createAppLifecycle()

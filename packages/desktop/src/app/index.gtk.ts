@@ -1,6 +1,8 @@
 import Gio from 'gi://Gio'
 import { TrayError } from '../tray/errors.js'
-import type { AppResidency } from './types.js'
+
+import { createAppLifecycle } from './lifecycle.js'
+import type { AppResidency, DesktopApp } from './types.js'
 
 export type * from './types.js'
 
@@ -140,3 +142,6 @@ export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): App
     },
   }
 }
+
+/** Native application readiness and quit. */
+export const app: DesktopApp = createAppLifecycle('__xplatGtkLifecycle')

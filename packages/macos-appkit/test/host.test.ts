@@ -36,6 +36,7 @@ export const NSSharingServicePicker = undefined
 export const NSEventMask = { Any: 0 }
 export const NSApplicationActivationPolicy = { Regular: 0, Accessory: 1 }
 export const NSApplicationDelegate = {}
+export const NSApplicationTerminateReply = { Cancel: 0, Now: 1, Later: 2 }
 export const NSWindowDelegate = {}
 
 export const NSAccessibilityAnnouncementKey = 'AXAnnouncement'

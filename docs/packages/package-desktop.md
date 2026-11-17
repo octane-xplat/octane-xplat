@@ -95,6 +95,38 @@ export async function disposeInspector(inspector: DesktopWindow) {
 }
 ```
 
+## Wait for startup and request quit
+
+In an app started with `runMacOSApp` or `runGtkApp`, use `app.whenReady()` to wait until the primary window has mounted and the host is ready for commands. Put setup that needs a running app in the callback. On Windows, web, and mobile, `app.supported` is false.
+
+```ts
+import { app } from '@octane-xplat/desktop'
+
+if (app.supported) {
+  void app.whenReady().then(() => console.log('Desktop startup is complete'))
+}
+```
+
+Use `app.quit()` after readiness when a user selects Quit. A `before-quit` listener can stop the attempt synchronously. If the app allows quit, the host checks the close guards on managed secondary windows before closing them. A window veto keeps the app and all its windows open. A later quit attempt runs the checks again. Native last-window behavior follows the host’s own policy.
+
+```ts
+import { app, type DesktopBeforeQuitEvent } from '@octane-xplat/desktop'
+
+export function protectUnsavedWork(hasUnsavedWork: () => boolean) {
+  const protect = (event: DesktopBeforeQuitEvent) => {
+    if (hasUnsavedWork()) event.preventDefault()
+  }
+
+  app.on('before-quit', protect)
+  return () => app.off('before-quit', protect)
+}
+
+export async function quitFromSettings() {
+  await app.whenReady()
+  app.quit()
+}
+```
+
 ## Choose your next feature
 
 All features use the package root. Imports do not create a tray icon, register a hotkey, install a menu, or keep the app running. The following imports introduce no owned resources; the feature guides show creation, failure handling, and cleanup.

@@ -3,10 +3,42 @@
 // bundles this module and calls runGtkApp; `gjs -m` executes the bundle.
 import Gtk from 'gi://Gtk?version=4.0'
 import Gio from 'gi://Gio'
+import GLib from 'gi://GLib'
+import { closeGtkWindows, liveGtkWindows } from './window-service.js'
 import { createGtkRoot } from './index.js'
 import type { GtkContainer, GtkRoot, GtkView } from './index.js'
 
 export { setWindowContentResolver } from './index.js'
+
+const quitGuards = new Set<() => boolean>()
+let didFinish = false
+let quitApplication: (() => void) | undefined
+let resolveReady!: () => void
+const ready = new Promise<void>((resolve) => {
+  resolveReady = resolve
+})
+
+const lifecycle = {
+  isReady: () => didFinish,
+  whenReady: () => ready,
+  quit() {
+    if (!didFinish) {
+      throw new Error('Wait for app.whenReady() before requesting quit')
+    }
+
+    quitApplication?.()
+  },
+  addQuitGuard(guard: () => boolean) {
+    quitGuards.add(guard)
+    return () => quitGuards.delete(guard)
+  },
+}
+
+declare global {
+  var __xplatGtkLifecycle: typeof lifecycle | undefined
+}
+
+globalThis.__xplatGtkLifecycle = lifecycle
 
 export interface GtkAppOptions {
   /** Reverse-DNS app id, e.g. `dev.xplat.demo`. */
@@ -66,6 +98,42 @@ export function runGtkApp(
   let shutdownRan = false
   let mountCleanup: (() => void) | undefined
 
+  let quitPending = false
+
+  function requestQuit() {
+    if (quitPending || shutdownRan) {
+      return
+    }
+
+    quitPending = true
+    try {
+      for (const guard of Array.from(quitGuards)) {
+        if (!guard()) {
+          quitPending = false
+          return
+        }
+      }
+
+      for (const controller of liveGtkWindows()) {
+        if (controller.onCloseRequested?.() === false) {
+          quitPending = false
+          return
+        }
+      }
+    } catch (error) {
+      quitPending = false
+      console.error('[linux-gtk] quit guard failed', error)
+      return
+    }
+
+    closeGtkWindows()
+
+    GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+      app.quit()
+      return GLib.SOURCE_REMOVE
+    })
+  }
+
   // runMacOSApp parity: on shutdown run the mount's cleanup exactly once,
   // then release the mounted root. Connected once — the cleanup guard does
   // not depend on mount returning a function.
@@ -75,6 +143,8 @@ export function runGtkApp(
     }
 
     shutdownRan = true
+    quitApplication = undefined
+    closeGtkWindows()
     try {
       mountCleanup?.()
     } finally {
@@ -109,6 +179,9 @@ export function runGtkApp(
     mounted = { app, window, content, container, root }
     mountCleanup = mount(mounted) ?? undefined
     window.present()
+    quitApplication = requestQuit
+    didFinish = true
+    resolveReady()
   })
 
   return app.run(null)

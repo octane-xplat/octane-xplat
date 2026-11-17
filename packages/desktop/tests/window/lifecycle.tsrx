@@ -1,5 +1,10 @@
 // @jsxImportSource @octane-xplat/jsx
-import { windows } from '@octane-xplat/desktop'
+import {
+  app,
+  windows,
+  type DesktopBeforeQuitEvent,
+  type DesktopWindowCloseEvent,
+} from '@octane-xplat/desktop'
 import { useLayoutEffect } from 'octane'
 
 let contentMounts = 0
@@ -67,4 +72,55 @@ export async function verifyWindowLifecycle(readWindow: () => {
   check(Number(requests) === 2, 'destroy skips close listeners')
 
   console.log('DESKTOP_WINDOW_OK')
+}
+
+export function beforeAppStarts(): Promise<void> {
+  check(app.supported && !app.isReady(), 'host lifecycle installed before startup')
+  return app.whenReady()
+}
+
+export async function verifyAppLifecycle(requestNativeQuit: () => void) {
+  check(app.isReady(), 'ready after host startup')
+  const first = windows.open({ title: 'First editor' })
+  const second = windows.open({ title: 'Second editor' })
+  let closeRequests = 0
+  first.on('close', () => {
+    closeRequests++
+  })
+
+  const cancelQuit = (event: DesktopBeforeQuitEvent) => {
+    app.quit() // Reentrant requests must not dispatch a second event.
+    event.preventDefault()
+  }
+
+  app.on('before-quit', cancelQuit)
+  requestNativeQuit()
+  check(!first.isClosed && !second.isClosed && closeRequests === 0, 'before-quit runs before window guards')
+  app.off('before-quit', cancelQuit)
+
+  const cancelClose = (event: DesktopWindowCloseEvent) => event.preventDefault()
+  second.on('close', cancelClose)
+  app.quit()
+  check(!first.isClosed && !second.isClosed && Number(closeRequests) === 1, 'window veto keeps both editors open')
+  second.off('close', cancelClose)
+
+  let closed = 0
+  for (const window of [first, second]) {
+    window.on('closed', () => closed++)
+  }
+
+  app.quit()
+
+  let refusedNewWindow = false
+  try {
+    windows.open({ title: 'Too late to open' })
+  } catch {
+    refusedNewWindow = true
+  }
+  check(refusedNewWindow, 'approved quit refuses new windows')
+
+  await Promise.all([first.closed, second.closed])
+  check(first.isClosed && second.isClosed && closed === 2, 'approved quit closed both editors')
+  check(Number(closeRequests) === 2 && Number(contentUnmounts) === 4, 'quit unmounts without dispatching close twice')
+  console.log('DESKTOP_APP_QUIT_OK')
 }
