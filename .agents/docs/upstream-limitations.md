@@ -864,3 +864,43 @@ fixture declares and uses both automatic uniforms to avoid depending on that
 error path while measuring content layout. This is a fixture constraint, not
 a runtime fix or a claim that missing uniforms are safely supported. Recheck
 the missing-uniform case when upgrading Android or the NativeScript runtime.
+
+## @nativescript/canvas: CURRENT_PROGRAM readback is not queryable
+
+Through `@nativescript/canvas` 3.0.1, `getProgramParameter` returned `null`
+for `ACTIVE_UNIFORM_BLOCKS`, so PixiJS bound no uniform buffers and the iOS
+simulator segfaulted on the first mesh draw. Upstream fixed that and related
+WebGL2 query, name-buffer and offset gaps in
+[NativeScript/canvas#209](https://github.com/NativeScript/canvas/pull/209)
+(3.0.7); Xplat pins 3.0.9. Runtime evidence, 2026-11-14: PixiJS 8.23.0 plus
+`@pixi/3d` 0.1.0 and PlayCanvas 2.24.1 passed their probes unshimmed on the
+iOS simulator and the Android emulator, with `ACTIVE_UNIFORM_BLOCKS` reading
+`1` natively.
+
+Still open on 3.0.9 (iOS and Android): `getParameter(CURRENT_PROGRAM)` returns
+a `WebGLProgram` wrapper for which `getProgramParameter(program, LINK_STATUS)`
+returns `null`. On 3.0.1, `getAttachedShaders` and `getShaderSource` on that
+wrapper also returned nothing (not rechecked on 3.0.9). Track programs at the
+call site instead of reading them back. Filed as
+[NativeScript/canvas#222](https://github.com/NativeScript/canvas/issues/222).
+Status: unworked-around in Xplat.
+
+Since 3.0.6 the iOS `CanvasNative.xcframework` is not in the npm package: the
+plugin's `nativescript.config.ts` adds local SwiftPM packages under
+`node_modules/@nativescript/canvas/platforms/ios/`, whose binary target
+downloads the GitHub release zip at build time. iOS builds therefore need
+network access to GitHub on a cold SwiftPM cache.
+
+## @nativescript/canvas 3.0.9: async createImageBitmap does not settle on iOS
+
+`ImageBitmap.createFrom(encodedBytes)` routes through the plugin's async
+createImageBitmap worker path, which never completed in the engine demo
+(5 decodes issued, 0 settled in 40 s on the iOS simulator). The synchronous
+`ImageAsset.loadFromEncodedBytesSync` decodes PNG/JPEG on the JS thread and
+`ImageBitmap.createFrom(asset)` then converts asset to bitmap reliably.
+Runtime evidence, 2026-11-14: `packages/demos/src/engine/image.mobile.ts`
+in the EngineDemo uses the sync path; both engines' glb textures decoded on
+iOS and Android. Filed as
+[NativeScript/canvas#223](https://github.com/NativeScript/canvas/issues/223).
+Status: worked around inside the demo.
+

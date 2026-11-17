@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) =>
   native(mode, {
     extra: {
       define: {
+        __DEMO_AUTO__: JSON.stringify(process.env.XPLAT_DEMO_AUTO ?? ''),
         __VISUAL_CAPTURE__: JSON.stringify(
           process.env.VISUAL_CAPTURE_URL
             ? {
@@ -37,6 +38,26 @@ export default defineConfig(({ mode }) =>
                     source === '/src/index.ts'
                   ) {
                     return fileURLToPath(new URL('./src/docs-demos.mobile.tsrx', import.meta.url))
+                  }
+                },
+              },
+              {
+                // The native bundle splits node_modules into vendor.mjs,
+                // which evaluates FLAT before any app (bundle.mjs) module.
+                // Pixi's module-init touches `navigator` (isSafari via the
+                // stock DOMAdapter) and `Intl?.Segmenter` (CanvasTextMetrics
+                // static block, which throws on the unbound identifier),
+                // and the NativeScript V8 build ships without Intl — so the
+                // seeds must run inside vendor eval, not in app code.
+                name: 'docs-demos-vendor-seed',
+                generateBundle(_options: unknown, bundle: Record<string, { type: string; fileName: string; code?: string }>) {
+                  for (const chunk of Object.values(bundle)) {
+                    if (chunk.type === 'chunk' && /vendor.*\.mjs$/.test(chunk.fileName) && chunk.code) {
+                      chunk.code =
+                        `globalThis.navigator ??= { userAgent: 'NativeScript', gpu: null };\n` +
+                        `globalThis.Intl ??= {};\n` +
+                        chunk.code
+                    }
                   }
                 },
               },

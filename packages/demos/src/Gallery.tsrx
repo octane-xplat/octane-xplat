@@ -48,6 +48,7 @@ import {
   AnimatedImageDemo,
   CachedImageDemo,
   CanvasDemo,
+  EngineDemo,
   ShaderDemo,
 } from './hosted-demos'
 
@@ -130,6 +131,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
   { id: 'auth', title: 'Provider sign-in', kind: 'proof' },
   { id: 'push', title: 'Push notifications', kind: 'proof' },
   { id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
+  { id: 'engine-demo', title: '3D engines', kind: 'proof' },
   { id: 'shaders', title: 'Shader / SimplexNoise', kind: 'proof' },
   { id: 'effects', title: 'Shader effects', kind: 'proof' },
 ]
@@ -217,6 +219,7 @@ const renderCachedImage = () => <CachedImageDemo />
 const renderAuth = () => <AuthDemo />
 const renderPush = () => <PushDemo />
 const renderCanvas = () => <CanvasDemo />
+const renderEngineDemo = () => <EngineDemo />
 const renderEffects = () => <EffectsDemo />
 const renderShaders = () => <ShaderDemo />
 const renderMotionPatterns = () => <MotionPatterns />
@@ -275,6 +278,7 @@ export const RENDER: Record<string, () => any> = {
   auth: renderAuth,
   push: renderPush,
   canvas: renderCanvas,
+  'engine-demo': renderEngineDemo,
   shaders: renderShaders,
   effects: renderEffects,
   'motion-patterns': renderMotionPatterns,
