@@ -1,7 +1,7 @@
 import { useFocusWithinState } from './focus-within-state.tsrx'
 import type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state.tsrx'
 
-export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within.tsrx'
+export type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state.tsrx'
 
 /**
  * GTK leaf — imports the shared state module directly; importing
