@@ -262,6 +262,11 @@ run_android_keyed() {
       trap - EXIT
       exit 4
     fi
+    node "$SOURCE/android-settle.mjs" "$adb" emulator-5566 || {
+      kill_keyed_emulator
+      trap - EXIT
+      exit 4
+    }
   fi
   echo "=== android/keyed: run ($ANDROID_BUILD) ==="
   XPLAT_PRERENDER_ANDROID_BUILD="$ANDROID_BUILD" \

@@ -11,6 +11,7 @@ import {
 } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { settleAndroid } from './android-settle.mjs'
 import { completedHomeEpoch } from './home-events.mjs'
 import { readAndroidBuild } from './read-android-build.mjs'
 import { qualifyAndroidStartup } from './qualify-android-startup.mjs'
@@ -1428,6 +1429,7 @@ try {
     check(Date.now() < bootDeadline, 'Owned emulator boot timed out')
     await pause(1000)
   }
+  if (child) await settleAndroid({ adb, serial, log: (line) => console.error(line) })
   const api = Number((await device(['shell', 'getprop', 'ro.build.version.sdk'])).output)
   const properties = {}
   for (const key of [
