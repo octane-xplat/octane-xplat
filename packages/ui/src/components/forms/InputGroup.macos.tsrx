@@ -3,7 +3,8 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useId } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { InputGroupProps, InputGroupTextProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { FormField } from './FormField.macos.tsrx'
 import { InputGroupProvider } from './input-group-context'
 import { SizeProvider, useSize } from '../layout/size-context'
@@ -19,7 +20,7 @@ export function InputGroup(props: InputGroupProps): unknown @{
     () =>
       refList((v: any) => {
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }, props.ref),
     [props.ref, props.ios, props.android, props.web],
@@ -68,7 +69,7 @@ export function InputGroupText(props: InputGroupTextProps): unknown @{
     () =>
       refList((v: any) => {
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }, props.ref),
     [props.ref, props.ios, props.android, props.web],

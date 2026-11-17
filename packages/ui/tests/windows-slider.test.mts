@@ -36,7 +36,8 @@ function compiled(name, source, imports = {}, template = true) {
     : source
 
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
-    const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+    const target = specifier === 'octane' ? runtimeUrl :
+      specifier === '@octane-xplat/lib/escape-props' || specifier.endsWith('/ui-host-props') || specifier.endsWith('/native-accessibility') ? support : imports[specifier]
 
     return target ? 'from ' + JSON.stringify(target) : match
   })
@@ -64,6 +65,8 @@ export const SizeContext=createContext('md');
 export const cx=(...values)=>values.flat(Infinity).filter(Boolean).join(' ');
 export const mergeStyle=(base,style)=>({...base,...style});
 export const applyEscapeProps=()=>{};
+export const prepareUIHost=()=>{};
+export const applyUIHostModifiers=()=>{};
 export const focused=[];
 export const focusSliderInput=view=>{focused.push(view);return view!=null;};
 export const queueSliderInputFocus=()=>()=>{};

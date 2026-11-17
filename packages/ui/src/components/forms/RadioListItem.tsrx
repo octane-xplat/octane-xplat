@@ -2,11 +2,9 @@
 import { useContext } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { RadioListItemProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
@@ -23,7 +21,7 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
   const Ind = useIndicator('radio') ?? RadioIndicator
 
   <masonview
-    ref={(e: any) => applyEscapeProps(e, props)}
+    ref={(e: any) => void (prepareUIHost(e), applyEscapeProps(e, props), applyUIHostModifiers(e, props))}
     id={props.id}
     className={[
       'vx-radio-row',

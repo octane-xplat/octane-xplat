@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { StepperProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 
 /** Stepper — numbered step row with connectors. Steps before `current`
  *  show a done mark; tapping a non-disabled step calls `onStepChange`. */
@@ -9,7 +10,7 @@ export function Stepper(props: StepperProps): unknown @{
   const current = props.current ?? 0
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-stepper', props.className]}
     style={mergeStyle({ flexDirection: 'row' }, mergeStyle({ display: 'flex' }, props.style))}

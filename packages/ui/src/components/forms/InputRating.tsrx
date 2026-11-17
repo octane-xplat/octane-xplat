@@ -2,11 +2,9 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useState } from 'octane'
 import type { InputRatingProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { getIcon } from '../media/icons'
 import { useIconRegistry } from '../media/icon-registry-context'
@@ -42,7 +40,7 @@ function InputRatingControl(inputProps: InputRatingProps): unknown @{
   }
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={[
       'vx-rating',

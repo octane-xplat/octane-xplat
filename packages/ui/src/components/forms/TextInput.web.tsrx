@@ -2,7 +2,7 @@
 import { useImperativeHandle, useRef, useState, useId } from 'octane'
 import { normStyle } from '../layout/layout-child.web'
 import type { TextInputProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { useFieldControl, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'

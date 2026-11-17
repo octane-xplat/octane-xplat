@@ -3,7 +3,7 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { MeterProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { meterRange } from './meter-math'
-import { nativeAccessibilityRole } from '../overlays/escape-props'
+import { nativeAccessibilityRole } from '../../internal/accessibility/native-accessibility'
 import '../media/svg'
 
 /** Ring markup matching the web leaf's conic-gradient: a track circle plus a

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef } from 'octane'
 import type { ToolbarProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { useListFocus } from '../collections/list-focus.web.tsrx'
 import { SizeProvider } from './size-context'
 import { layoutChildProps } from './layout-child.web'

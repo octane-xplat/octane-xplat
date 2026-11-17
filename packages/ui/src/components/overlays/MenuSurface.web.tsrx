@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'octane'
 import type { MenuSurfaceProps } from '../../props'
 import { MenuProvider } from './menu-context'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** Each portaled submenu is its own keyboard boundary. Escape belongs to Popover. */

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from '../internal/layout/style-merge'
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type {
   TableProps,
   TableHeaderProps,

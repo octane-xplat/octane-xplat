@@ -3,11 +3,9 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useRef } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { layoutChildProps } from '../layout/layout-child'
 import { useInteractionHost } from '../../gestures/host.gtk.tsrx'
@@ -27,7 +25,7 @@ export function Pressable(props: PressableProps): unknown @{
         (v: object | null) => {
           host.current = v
           if (v) {
-            applyEscapeProps(v, props)
+            void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
           }
         },
         bindInput,

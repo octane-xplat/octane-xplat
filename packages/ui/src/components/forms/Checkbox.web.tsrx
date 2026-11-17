@@ -2,7 +2,7 @@
 import { useEffect, useState, useId } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import type { CheckboxProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { useFieldControl } from './field-context'
 import { announce } from '../../internal/accessibility/announce.web'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'

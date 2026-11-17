@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useState } from 'octane'
 import type { Key, Selection, TreeProps, TreeListNode } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
 import { useLinkComponent } from '../navigation/use-link-component.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'

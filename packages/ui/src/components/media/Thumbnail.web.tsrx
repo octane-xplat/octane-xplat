@@ -2,7 +2,7 @@
 import { useLinkedState } from 'octane'
 import { useImageMode } from './use-image-mode.web.tsrx'
 import type { ThumbnailProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
 import { Skeleton } from '../feedback/Skeleton.web.tsrx'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.web.tsrx'

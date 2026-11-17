@@ -17,7 +17,8 @@ import type {
 } from './nav-link'
 
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Text } from '../content/Text.macos.tsrx'
 import { followHref } from './nav-href.macos'
@@ -119,7 +120,7 @@ export function Breadcrumb(
   )
 
   <masonview
-    ref={(view: any) => applyEscapeProps(view, props)}
+    ref={(view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))}
     id={props.id}
     className={['vx-breadcrumb', props.className]}
     style={mergeStyle({ display: 'flex', flexDirection: 'row' }, props.style)}

@@ -4,7 +4,8 @@ import { useState } from 'octane'
 import { useContext } from 'octane'
 import type { CollapsibleProps, CollapsibleGroupProps } from '../../props'
 import { CollapsibleGroupContext, CollapsibleGroupProvider } from './collapsible-context'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Pressable } from '../actions/Pressable.tsrx'
 
 /** Self-drawn collapsible — `trigger` toggles `children` between shown and
@@ -37,7 +38,7 @@ export function Collapsible(props: CollapsibleProps): unknown @{
   }
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-collapsible', open && 'vx-collapsible--open', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}

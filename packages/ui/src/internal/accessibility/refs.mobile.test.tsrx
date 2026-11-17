@@ -8,10 +8,7 @@ vi.mock('../../components/media/svg', () => ({
 }))
 
 import { describe, expect, it, vi } from 'vitest'
-import {
-  nativeAccessibilityState,
-  nativeAccessibilityRole,
-} from '../../components/overlays/escape-props'
+import { nativeAccessibilityState, nativeAccessibilityRole } from './native-accessibility'
 
 import { useImperativeHandle, useMemo, useRef } from 'octane'
 import { useMeasure$ } from '../../components/layout/useMeasure.tsrx'
@@ -38,7 +35,9 @@ vi.mock('@nativescript/core', () => ({
   isAndroid: true,
 }))
 
-vi.mock('../../components/overlays/escape-props', () => ({
+vi.mock('@octane-xplat/lib/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('../platform/ui-host-props', () => ({ prepareUIHost() {}, applyUIHostModifiers() {} }))
+vi.mock('./native-accessibility', () => ({
   applyEscapeProps() {},
   nativeAccessibilityState() {},
   nativeAccessibilityRole() {},

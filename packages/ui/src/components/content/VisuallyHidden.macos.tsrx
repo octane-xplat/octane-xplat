@@ -2,7 +2,8 @@
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { VisuallyHiddenProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 
 /** VisuallyHidden — 1pt opacity-0 container; keeps content in the a11y
  *  tree while rendering invisible (AppKit hidden views drop from
@@ -12,7 +13,7 @@ export function VisuallyHidden(props: VisuallyHiddenProps): unknown @{
     () =>
       refList((v: any) => {
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }, props.ref),
     [props.ref, props.ios, props.android, props.web],

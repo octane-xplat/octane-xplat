@@ -5,7 +5,7 @@ import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { useCallback, useContext, useMemo, useRef } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Text } from '../content/Text.web.tsrx'
 import {

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useId, useState } from 'octane'
 import type { CheckboxGroupProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { Checkbox } from './Checkbox.web.tsrx'
 import { List } from '../collections/List.web.tsrx'
 import { ListItem } from '../collections/ListItem.web.tsrx'

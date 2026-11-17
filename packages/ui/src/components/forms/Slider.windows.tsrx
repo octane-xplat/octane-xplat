@@ -5,7 +5,8 @@ import type { View } from '@nativescript/core'
 import type { SliderProps } from '../../props'
 import { useFieldControl } from './field-context'
 import { FormField } from './FormField.tsrx'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useControlPan } from '../../gestures/control.windows.tsrx'
@@ -53,7 +54,7 @@ export function Slider(inputProps: SliderProps): unknown @{
     [measured.ref],
   )
 
-  useEffect(() => applyEscapeProps(host.current, props), [props])
+  useEffect(() => void (prepareUIHost(host.current), applyEscapeProps(host.current, props), applyUIHostModifiers(host.current, props)), [props])
   useEffect(() => {
     drag.current = null
     contact.current = false

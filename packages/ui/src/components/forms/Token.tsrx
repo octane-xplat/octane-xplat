@@ -5,7 +5,9 @@ import { refList } from '../../internal/accessibility/ref-list'
 import { Utils } from '@nativescript/core'
 import type { TokenProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { Icon } from '../media/Icon.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 
@@ -88,7 +90,7 @@ export function Token(props: TokenProps): unknown @{
     () =>
       refList((v: any) => {
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }, props.ref),
     [props.ref, props.ios, props.android, props.web],

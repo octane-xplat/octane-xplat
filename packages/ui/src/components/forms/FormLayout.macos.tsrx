@@ -3,7 +3,8 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FormLayoutProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
 
 /** FormLayout — vertical column / horizontal row / horizontal-labels
@@ -20,7 +21,7 @@ export function FormLayout(props: FormLayoutProps): unknown @{
     () =>
       refList((v: any) => {
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }, props.ref),
     [props.ref, props.ios, props.android, props.web],

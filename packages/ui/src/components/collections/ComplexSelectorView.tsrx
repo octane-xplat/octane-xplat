@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { nativeAccessibilityState } from '../overlays/escape-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import type { ComplexSelectorViewProps } from '../forms/complex-selector-view'
 import { useSize } from '../layout/size-context'
 import { FormField } from '../forms/FormField.tsrx'

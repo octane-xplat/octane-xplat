@@ -2,7 +2,7 @@
 import { useState, useContext } from 'octane'
 import { CollapsibleGroupContext, CollapsibleGroupProvider } from './collapsible-context'
 import type { CollapsibleProps, CollapsibleGroupProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 

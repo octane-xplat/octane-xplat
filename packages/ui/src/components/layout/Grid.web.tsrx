@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { GridProps, GridSpanProps, GridResponsiveColumns } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { gridTrackListToCss } from '../collections/grid-tracks'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import type { JSX } from 'octane/jsx-runtime'

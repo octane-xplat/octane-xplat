@@ -8,7 +8,8 @@ import './radio-control.windows'
 import './RadioGroup.windows.css'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { SegmentedControlItemProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { SegmentedControlContext } from './option-list-contexts'
 
 /** `SegmentedControlItem` — one segment inside a `SegmentedControl`
@@ -29,7 +30,7 @@ export function SegmentedControlItem(props: SegmentedControlItemProps): unknown 
     [measured.ref],
   )
 
-  useEffect(() => applyEscapeProps(segment.current, props), [props])
+  useEffect(() => void (prepareUIHost(segment.current), applyEscapeProps(segment.current, props), applyUIHostModifiers(segment.current, props)), [props])
   useEffect(() => group?.restore(), [group, selected, disabled, props.value])
 
   <masonview

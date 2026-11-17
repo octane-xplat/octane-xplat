@@ -7,11 +7,9 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type { TabListProps, TabProps, TabMenuProps } from '../../props'
 import { useSize } from '../layout/size-context'
 import { cx } from '@octane-xplat/lib'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
@@ -99,7 +97,7 @@ export function TabList(props: TabListProps): unknown @{
   <TabListProvider value={ctx}>
     <masonview
       id={props.id}
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       className={cls}
       {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
     >
@@ -160,7 +158,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
   <Pressable
     id={props.id}
     ref={(v: any) => {
-      applyEscapeProps(v, props)
+      void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       if (v) {
         ctx?._tabViews?.set(props.value, v)
       } else {

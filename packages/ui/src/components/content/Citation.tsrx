@@ -3,7 +3,8 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { Utils } from '@nativescript/core'
 import type { CitationProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { useColorScheme } from '../../theme/colorScheme'
 import { accentColor, mutedColor, textColor } from '../../theme/scheme-colors'
 import { nativeColor } from '../../theme/native-color'
@@ -81,7 +82,7 @@ export function Citation(props: CitationProps): unknown @{
 
   return isLink ? (
     <Pressable
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       className={cls}
       style={props.style}
@@ -101,7 +102,7 @@ export function Citation(props: CitationProps): unknown @{
     </Pressable>
   ) : (
     <masonview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       className={cls}
       style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style) })}

@@ -8,7 +8,7 @@ import {
   timerPresentation,
 } from './timer-format'
 
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { textRoleClasses } from './text-role'
 import type { JSX } from 'octane/jsx-runtime'
 

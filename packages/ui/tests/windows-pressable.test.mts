@@ -36,7 +36,8 @@ function compiled(name, source, imports = {}, template = true) {
     : source
 
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
-    const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+    const target = specifier === 'octane' ? runtimeUrl :
+      specifier === '@octane-xplat/lib/escape-props' || specifier.endsWith('/ui-host-props') || specifier.endsWith('/native-accessibility') ? support : imports[specifier]
 
     return target ? 'from ' + JSON.stringify(target) : match
   })
@@ -65,6 +66,8 @@ export const mergeStyle=(base,style)=>({...base,...style});
 export const styleRecord=style=>style??{};
 export {refList} from ${JSON.stringify(refs)};
 export const applyEscapeProps=()=>{};
+export const prepareUIHost=()=>{};
+export const applyUIHostModifiers=()=>{};
 export const nativeAccessibilityRole=value=>value;
 export const nativeAccessibilityState=value=>value?.disabled?'disabled':undefined;
 export const useMeasure$=()=>({ref:()=>{},bounds$:{get:()=> ({width:120,height:32})}});

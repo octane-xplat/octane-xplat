@@ -2,11 +2,9 @@
 import { isAndroid, isIOS } from '@nativescript/core'
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { WebViewProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { layoutChildProps } from '../layout/layout-child'
 import { android } from '@octane-xplat/platform/android'
@@ -180,7 +178,7 @@ export function WebView(props: WebViewProps): unknown @{
         return
       }
 
-      applyEscapeProps(v, props)
+      void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
     }}
     id={props.id}
     {...layoutChildProps(props, props.style)}

@@ -2,7 +2,9 @@
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState, nativeAccessibilityRole } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState, nativeAccessibilityRole } from '../../internal/accessibility/native-accessibility'
 
 /** Which `FocusScope` behavior flags this default mobile leaf honors — none.
  * Desktop AppKit has a dedicated native focus implementation. */
@@ -45,7 +47,7 @@ export function FocusScope(props: FocusScopeProps): unknown @{
     () =>
       refList((v: any) => {
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }, props.ref),
     [props.ref, props.ios, props.android, props.web],

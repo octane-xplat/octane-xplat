@@ -3,7 +3,8 @@ import 'octane/signals'
 import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
 import type { CheckboxProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
 import { mergeStyle } from '../../internal/layout/style-merge'
@@ -33,7 +34,7 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
     [measured.ref],
   )
 
-  useEffect(() => applyEscapeProps(rowView.current, props), [props])
+  useEffect(() => void (prepareUIHost(rowView.current), applyEscapeProps(rowView.current, props), applyUIHostModifiers(rowView.current, props)), [props])
 
   const requestChange = (next: boolean) => {
     if (isBlocked) {

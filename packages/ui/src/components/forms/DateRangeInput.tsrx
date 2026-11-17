@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { nativeAccessibilityState } from '../overlays/escape-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { useRef, useImperativeHandle, useContext, useId, useState } from 'octane'
 import type { DateRange, DateRangeInputProps } from '../../props'
 import { runDateChangeAction } from './date-field-action'

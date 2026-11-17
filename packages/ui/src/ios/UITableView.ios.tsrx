@@ -8,7 +8,8 @@ import { ScrollView } from '@nativescript/core'
 import type { UITableViewProps } from '../props'
 import type { RefreshConfig, RefreshController } from '../components/layout/refresh'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
 import { REFRESH_HEADER_HEIGHT } from '../components/layout/refresh-metrics'
 import { createPullToRefresh } from '../components/layout/refresh'
 import { createListViewabilityTracker } from '../components/collections/list-viewability-core'
@@ -139,7 +140,7 @@ function UITableViewInner(props: {
       ref={(v: any) => {
         lv.current = v
         props.runtime.list.current = v
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         if (v) {
           tryInitialScroll()
         }

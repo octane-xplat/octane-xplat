@@ -70,7 +70,7 @@ function DataSurface(props: any) @{
   </MenuSurface>
 }
 
-import { nativeAccessibilityRole } from './escape-props'
+import { nativeAccessibilityRole } from '../../internal/accessibility/native-accessibility'
 
 function all(node: any): any[] {
   return [node, ...(node.children ?? []).flatMap(all)]

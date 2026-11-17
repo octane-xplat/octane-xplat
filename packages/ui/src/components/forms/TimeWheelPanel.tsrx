@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { nativeAccessibilityState } from '../overlays/escape-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from '../../props'
 import { Pressable } from '../actions/Pressable.tsrx'

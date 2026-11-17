@@ -12,7 +12,8 @@ import type { NavigationItemImplementation } from '../navigation/nav-link'
 import { useNavigationItem } from '../navigation/use-navigation-item.shared.tsrx'
 import { useSize } from '../layout/size-context'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
 import { TabListContext, TabListProvider } from '../navigation/nav-contexts'
@@ -54,7 +55,7 @@ export function TabList(props: TabListProps): unknown @{
     <TabListProvider value={ctx}>
       <masonview
         id={props.id}
-        ref={(view: any) => applyEscapeProps(view, props)}
+        ref={(view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))}
         className={[
           'vx-tablist',
           'vx-tablist--' + size,
@@ -112,7 +113,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
     <xplatwindowstabheader
       id={props.id}
       settings={{ value: props.value, label: props.label, disabled: link.disabled, request }}
-      ref={(view: any) => applyEscapeProps(view, props)}
+      ref={(view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))}
     >
       <masonview
         className={[

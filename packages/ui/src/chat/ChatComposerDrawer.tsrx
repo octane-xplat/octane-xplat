@@ -3,10 +3,7 @@ import { mergeStyle } from '../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { ChatComposerDrawerProps } from '../props'
 import { Badge } from '../components/feedback/Badge.tsrx'
-import {
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../components/overlays/escape-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../internal/accessibility/native-accessibility'
 
 /** Collapsible drawer panel for a chat composer — attachments, context
  *  chips, previews. With `count`, a toggle row renders the collapsed

@@ -2,7 +2,8 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane'
 import type { CarouselHandle, CarouselProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { spacingStep } from './spacing'
 import { Icon } from '../media/Icon.tsrx'
@@ -215,7 +216,7 @@ export function Carousel(props: CarouselProps): unknown @{
     <scrollview
       ref={(v: any) => {
         scroller.current = v
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }}
       orientation="horizontal"
       className="vx-carousel-viewport"

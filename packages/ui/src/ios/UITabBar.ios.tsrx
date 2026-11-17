@@ -6,7 +6,8 @@ import { RouteOutlet } from '../routing/RouteOutlet.tsrx'
 import { registerStack } from '../components/layout/stacks'
 import { getIcon } from '../components/media/icons'
 import type { PlatformTabSpec, UITabBarProps } from '../props'
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
 
 // TabViewItem content is a plain native view — the driver can't parent
 // reconciled children into <tabviewitem>, so each pane is a GridLayout portal
@@ -138,7 +139,7 @@ function TabBarInner(props: {
 
   <>
     <tabview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       className={[props.className]}
       style={props.style}

@@ -1,11 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { GridProps, GridSpanProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { gridTrackListToCss } from '../collections/grid-tracks'
 
@@ -43,7 +41,7 @@ export function Grid(props: GridProps): unknown @{
   <masonview
     id={props.id}
     ref={(view: any) => {
-      applyEscapeProps(view, props)
+      void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))
     }}
     className={['vx-grid', props.className]}
     style={mergeStyle(

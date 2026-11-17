@@ -5,11 +5,9 @@ import { refList } from '../../internal/accessibility/ref-list'
 import { useInteractionHost } from '../../gestures/host.tsrx'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { StackProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { resolveStackLayout } from './stack-layout'
 
@@ -38,7 +36,7 @@ export function Stack(props: StackProps): unknown @{
       refList(
         (v: any) => {
           if (v) {
-            applyEscapeProps(v, props)
+            void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
           }
         },
         bindInput,

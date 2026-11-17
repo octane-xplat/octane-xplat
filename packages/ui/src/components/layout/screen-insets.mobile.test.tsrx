@@ -7,7 +7,9 @@ import {
 } from 'octane/universal/native'
 
 vi.mock('./root-layout', () => ({ registerRootLayout() {}, unregisterRootLayout() {} }))
-vi.mock('../overlays/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('@octane-xplat/lib/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('../../internal/platform/ui-host-props', () => ({ prepareUIHost() {}, applyUIHostModifiers() {} }))
+vi.mock('../../internal/accessibility/native-accessibility', () => ({ applyEscapeProps() {} }))
 vi.mock('../../internal/keyboard/tap-to-blur', () => ({ attachTapToBlur() {} }))
 
 import { Screen } from './Screen.tsrx'

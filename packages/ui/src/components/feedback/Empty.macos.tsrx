@@ -1,13 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { EmptyProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Icon } from '../media/Icon.macos.tsrx'
 
 /** Empty — empty-state block: icon + title + description + actions. */
 export function Empty(props: EmptyProps): unknown @{
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-empty', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}

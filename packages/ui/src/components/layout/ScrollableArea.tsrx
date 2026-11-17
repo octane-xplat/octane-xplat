@@ -5,11 +5,9 @@ import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane'
 import { mergedRef } from '../../internal/accessibility/ref-list'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from '../../props'
 import type { RefreshConfig, RefreshController } from './refresh'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { layoutChildProps } from './layout-child'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.tsrx'
@@ -137,7 +135,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
       mergedRef((v: any) => {
         scroller.current = v
         bindInput(v)
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }),
     [bindInput, props.ios, props.android, props.web],
   )
@@ -212,7 +210,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
       mergedRef((v: any) => {
         scroller.current = v
         bindInput(v)
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }),
     [bindInput, props.ios, props.android, props.web],
   )

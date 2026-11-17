@@ -14,7 +14,9 @@ import {
 import { ScrollableArea } from './ScrollableArea.tsrx'
 import type { ScrollableAreaHandle } from '../../props'
 
-vi.mock('../overlays/escape-props', () => ({
+vi.mock('@octane-xplat/lib/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('../../internal/platform/ui-host-props', () => ({ prepareUIHost() {}, applyUIHostModifiers() {} }))
+vi.mock('../../internal/accessibility/native-accessibility', () => ({
   applyEscapeProps() {},
   nativeAccessibilityRole() {},
   nativeAccessibilityState() {},

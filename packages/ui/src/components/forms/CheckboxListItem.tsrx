@@ -2,11 +2,9 @@
 import { useContext } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { CheckboxListItemProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { CheckboxListContext } from './option-list-contexts'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
@@ -39,7 +37,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
   }
 
   <masonview
-    ref={(e: any) => applyEscapeProps(e, props)}
+    ref={(e: any) => void (prepareUIHost(e), applyEscapeProps(e, props), applyUIHostModifiers(e, props))}
     id={props.id}
     className={[
       'vx-checkbox-row',

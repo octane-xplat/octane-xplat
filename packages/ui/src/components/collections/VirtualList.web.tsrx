@@ -15,7 +15,7 @@ import {
 
 import { VirtualListCellPool } from './virtual-list-cell-pool'
 
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
 import type { JSX } from 'octane/jsx-runtime'
 

@@ -3,7 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { descriptorChildren } from 'octane'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { OverflowItem, OverflowListProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { computeOverflow } from './overflow-math'
 import { layoutChildProps } from '../layout/layout-child.web'
 

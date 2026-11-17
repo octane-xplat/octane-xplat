@@ -2,7 +2,8 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useId, useCallback } from 'octane'
 import type { MobileNavProps, MobileNavToggleProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Button } from '../actions/Button.tsrx'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
@@ -51,7 +52,7 @@ export function MobileNav(props: MobileNavProps): unknown @{
     null
   } @else {
     <masonview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={id}
       className={['vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className]}
       {...layoutChildProps(props, mergeStyle({ display: 'grid' }, props.style))}
@@ -108,7 +109,7 @@ export function MobileNavToggle(props: MobileNavToggleProps): unknown @{
     null
   } @else {
     <Button
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       className={['vx-mobilenav-toggle', props.className]}
       style={props.style}

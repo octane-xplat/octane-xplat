@@ -2,11 +2,9 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useEffect, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { FieldContext, useFieldControlProps } from './field-context'
 import { NativeToggleField } from './NativeToggleField.tsrx'
@@ -68,7 +66,7 @@ function PinInputControl(props: PinInputProps) @{
   }
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, fieldProps)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, fieldProps), applyUIHostModifiers(v, fieldProps))}
     id={fieldProps.id}
     className={[
       'vx-pininput',

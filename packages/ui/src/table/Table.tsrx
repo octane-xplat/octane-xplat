@@ -13,7 +13,8 @@ import type {
 } from '../props'
 
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
 import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './pipeline'
 
 import { TableContext, TableContextProvider } from './table-context'
@@ -139,7 +140,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 
   const tableElement = (
     <masonview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={id}
       className={['vx-table-scroll', plan.scrollWrapper.classes]}
       style={{ display: 'flex', flexDirection: 'column' }}

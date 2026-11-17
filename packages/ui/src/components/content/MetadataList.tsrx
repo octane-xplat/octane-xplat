@@ -2,7 +2,8 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { MetadataListProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { MetadataListProvider } from './metadata-list-context'
 import { Grid } from '../layout/Grid.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
@@ -48,7 +49,7 @@ export function MetadataList(props: MetadataListProps): unknown @{
 
   <MetadataListProvider value={{ labelPosition, labelWidth: props.label?.width, orientation }}>
     <masonview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       className={['vx-metadatalist', props.className]}
       style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style) })}

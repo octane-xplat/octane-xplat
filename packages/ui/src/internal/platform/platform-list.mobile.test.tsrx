@@ -16,7 +16,9 @@ vi.mock('@nativescript/core', () => ({
 }))
 
 vi.mock('./native-portal.tsrx', () => ({ createPortal: (children: any) => children }))
-vi.mock('../../components/overlays/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('@octane-xplat/lib/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('./ui-host-props', () => ({ prepareUIHost() {}, applyUIHostModifiers() {} }))
+vi.mock('../accessibility/native-accessibility', () => ({ applyEscapeProps() {} }))
 vi.mock('../../components/layout/refresh', () => ({ createPullToRefresh: vi.fn() }))
 vi.mock('../../components/feedback/ActivityIndicator.tsrx', () => ({
   ActivityIndicator: () => null,

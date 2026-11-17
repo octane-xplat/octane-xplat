@@ -37,7 +37,9 @@ vi.mock('../../components/layout/Grid.tsrx', async () => {
 })
 
 vi.mock('../../components/media/Image', () => ({ Image: () => null }))
-vi.mock('../../components/overlays/escape-props', () => ({
+vi.mock('@octane-xplat/lib/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('../platform/ui-host-props', () => ({ prepareUIHost() {}, applyUIHostModifiers() {} }))
+vi.mock('../accessibility/native-accessibility', () => ({
   applyEscapeProps() {},
   nativeAccessibilityRole: (v: any) => v,
   nativeAccessibilityState: (v: any) => v,

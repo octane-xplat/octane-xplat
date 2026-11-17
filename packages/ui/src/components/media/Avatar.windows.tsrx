@@ -8,7 +8,8 @@ import type {
   AvatarStatusDotVariant,
 } from '../../props'
 
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Image } from './Image.tsrx'
 
 const namedSizes: Record<string, number> = { xsm: 16, sm: 24, md: 32, lg: 40, xl: 48 }
@@ -50,7 +51,7 @@ export function Avatar(props: AvatarProps): unknown @{
   const fallback = props.fallback ?? (props.name ? initials(props.name) : '')
 
   <masonview
-    ref={(view: NativeView | null) => applyEscapeProps(view, props)}
+    ref={(view: NativeView | null) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))}
     id={props.id}
     className={['vx-avatar', props.className]}
     style={mergeStyle(

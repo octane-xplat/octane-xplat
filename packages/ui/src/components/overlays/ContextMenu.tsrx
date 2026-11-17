@@ -5,7 +5,8 @@ import { MenuData } from './MenuParts.tsrx'
 import { MenuSurface } from './MenuSurface.tsrx'
 import { useRef, useState } from 'octane'
 import type { ContextMenuProps } from '../../props'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Popover } from './Popover.tsrx'
 import { MenuSheet, useMenuSheet } from './menu-sheet.tsrx'
@@ -42,7 +43,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
     ref={(v: any) => {
       anchor.current = v
       if (v) {
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }
     }}
     id={props.id}

@@ -3,7 +3,9 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { SearchInputProps } from '../../props'
 import { Icon } from '../media/Icon.tsrx'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
 import { FieldContext, useFieldControlProps } from './field-context'
@@ -81,7 +83,7 @@ function SearchInputControl(inputProps: SearchInputProps) @{
           return
         }
 
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }}
       className="vx-search-field"
       hint={props.placeholder}

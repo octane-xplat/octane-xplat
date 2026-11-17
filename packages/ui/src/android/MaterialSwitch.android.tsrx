@@ -1,11 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef } from 'octane'
 import type { MaterialSwitchProps } from '../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../internal/accessibility/native-accessibility'
 
 import { useFieldControlProps } from '../components/forms/field-context'
 
@@ -34,7 +32,7 @@ export function MaterialSwitch(inputProps: MaterialSwitchProps): unknown @{
   <switch
     ref={(v: any) => {
       el.current = v
-      applyEscapeProps(v, props)
+      void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
     }}
     id={props.id}
     testID={props.testID ?? ''}

@@ -5,7 +5,8 @@ import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext, useMemo } from 'octane'
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
@@ -47,7 +48,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps): unknown @{
 
   <NavHeadingMenuProvider value={ctx}>
     <masonview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       className={['vx-navmenu', 'vx-navmenu--' + size, props.className]}
       style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), minWidth })}
@@ -80,7 +81,7 @@ export function NavHeadingMenuItem(
   }
 
   <Pressable
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={[
       'vx-navmenu-item',

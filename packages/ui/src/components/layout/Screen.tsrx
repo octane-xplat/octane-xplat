@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ScreenProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { registerRootLayout, unregisterRootLayout } from './root-layout'
 import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
 
@@ -25,7 +26,7 @@ export function Screen(props: ScreenProps): unknown @{
     iosIgnoreSafeArea={true}
     className="vx-screen-shell"
     id={props.id}
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     onLoaded={(e: any) => registerRootLayout(e.object)}
     onUnloaded={(e: any) => unregisterRootLayout(e.object)}
   >

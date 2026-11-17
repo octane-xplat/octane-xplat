@@ -2,7 +2,8 @@
 import { LiquidGlassView } from './liquid-glass-view.ios'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { LiquidGlassProps } from '../props'
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
 import { layoutChildProps } from '../components/layout/layout-child'
 
 // Retain the intrinsic ABI while Mason owns the single container box.
@@ -14,7 +15,7 @@ registerElement('liquidglass', LiquidGlassView)
 export function LiquidGlass(props: LiquidGlassProps): unknown @{
   <liquidglass
     id={props.id}
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     {...layoutChildProps(props)}
     iosGlassEffect={{
       variant: props.variant ?? 'regular',

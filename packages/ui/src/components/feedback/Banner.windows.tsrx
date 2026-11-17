@@ -2,7 +2,8 @@
 import { useState } from 'octane'
 import type { BannerProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Collapsible } from '../collections/Collapsible.tsrx'
 import { TextSlot } from '../forms/text-slot.tsrx'
@@ -49,7 +50,7 @@ export function Banner(props: BannerProps): unknown @{
   }
 
   <masonview
-    ref={(view: any) => applyEscapeProps(view, props)}
+    ref={(view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))}
     id={props.id}
     className={[
       'vx-banner',

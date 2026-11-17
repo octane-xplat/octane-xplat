@@ -4,7 +4,8 @@ import type { ResizeHandleProps } from '../../props'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
 import { refList } from '../../internal/accessibility/ref-list'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Pressable } from '../actions/Pressable.tsrx'
 
 /** ResizeHandle — draggable separator bound to a useResizable region.
@@ -96,7 +97,7 @@ export function ResizeHandle(props: ResizeHandleProps): unknown @{
     accessibilityRole="adjustable"
     accessibilityLabel={props.label ?? 'Resize handle'}
     accessibilityValue={resizable ? String(Math.round(resizable._size)) : undefined}
-    ref={refList(input.ref, (view: any) => applyEscapeProps(view, props))}
+    ref={refList(input.ref, (view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props)))}
     onPress={onTap}
   >
     {props.children ?? <masonview className="vx-resize-handle-pill" style={{ display: 'flex' }} />}

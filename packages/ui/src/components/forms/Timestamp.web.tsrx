@@ -15,7 +15,7 @@ import {
 } from './time-format'
 
 import type { TimestampFormat } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { HoverCard } from '../overlays/HoverCard.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { copyText } from '../../internal/platform/clipboard-write'

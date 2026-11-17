@@ -12,7 +12,7 @@ import type {
   SizeValue,
 } from '../../props'
 
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { spacingPx } from './stack-layout'
 import {

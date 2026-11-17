@@ -8,7 +8,9 @@ import { Pressable } from '../actions/Pressable.macos.tsrx'
 import type { GridListProps } from '../../props'
 import { defaultItemKey, type Key, type Selection } from '../../data/list-data'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
-import { applyEscapeProps, nativeAccessibilityRole } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole } from '../../internal/accessibility/native-accessibility'
 import { layoutChildProps } from '../layout/layout-child'
 import { refList } from '../../internal/accessibility/ref-list'
 
@@ -65,7 +67,7 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
       refList<object>(
         (v: object | null) => {
           if (v) {
-            applyEscapeProps(v, props)
+            void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
           }
         },
         root,

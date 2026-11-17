@@ -2,7 +2,7 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ToastProps } from '../../props'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { JSX } from 'octane/jsx-runtime'
 
 const SWIPE_DISMISS_PX = 44

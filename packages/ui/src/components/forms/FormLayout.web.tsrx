@@ -2,7 +2,7 @@
 import { useMemo, useContext } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FormLayoutProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
 import type { JSX } from 'octane/jsx-runtime'

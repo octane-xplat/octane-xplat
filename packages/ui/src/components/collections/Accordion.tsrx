@@ -2,7 +2,8 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { AccordionProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Collapsible } from './Collapsible.tsrx'
 
 /** Self-drawn accordion — a list of Collapsibles sharing one open-state.
@@ -37,7 +38,7 @@ export function Accordion(props: AccordionProps): unknown @{
   }
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-accordion', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}

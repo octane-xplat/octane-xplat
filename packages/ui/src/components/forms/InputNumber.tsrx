@@ -2,7 +2,9 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useRef, useState } from 'octane'
 import type { InputNumberProps, TextInputHandle } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.tsrx'
 import { TextInput } from './TextInput.tsrx'
@@ -64,7 +66,7 @@ function InputNumberControl(inputProps: InputNumberProps): unknown @{
   }
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     className={[
       'vx-inputnumber',
       'vx-inputnumber--native',

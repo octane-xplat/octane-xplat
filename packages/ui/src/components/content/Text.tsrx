@@ -3,11 +3,9 @@ import { createContext, useContext } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { Application } from '@nativescript/core'
 import type { TextProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { layoutChildProps } from '../layout/layout-child'
 import { useTheme } from '../../theme/use-theme.tsrx'
@@ -72,7 +70,7 @@ export function Text(props: TextProps): unknown @{
 
   @if (inText) {
     <span
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       className={[props.className]}
       {...layoutChildProps(props, textStyle)}
     >
@@ -84,7 +82,7 @@ export function Text(props: TextProps): unknown @{
     <label
       id={props.id}
       testID={props.testID ?? ''}
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       {...layoutChildProps(props, textStyle)}
       className={[
         'vx-text',

@@ -2,11 +2,9 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useState } from 'octane'
 import type { SegmentedControlProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { FieldContext, useFieldControlProps } from './field-context'
 import { NativeToggleField } from './NativeToggleField.tsrx'
@@ -43,7 +41,7 @@ function SegmentedControlBody(inputProps: SegmentedControlProps) @{
   }
 
   <masonview
-    ref={(view: any) => applyEscapeProps(view, props)}
+    ref={(view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))}
     id={props.id}
     className={[
       'vx-segmented',

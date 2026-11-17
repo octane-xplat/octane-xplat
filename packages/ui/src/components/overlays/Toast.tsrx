@@ -2,7 +2,8 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useRef } from 'octane'
 import type { ToastProps } from '../../props'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Text } from '../content/Text.tsrx'
 
 const SWIPE_DISMISS_DIP = 44
@@ -80,7 +81,7 @@ export function Toast(props: ToastProps): unknown @{
   <masonview
     ref={(v: any) => {
       el.current = v
-      applyEscapeProps(v, props)
+      void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
     }}
     id={props.id}
     className={[

@@ -18,7 +18,7 @@ import { TextSlot } from './text-slot.tsrx'
 
 import { CheckIndicator, CheckboxIndicator } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator.tsrx'
-import { nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 function SelectOptionRow(input: {
   option: SelectOption

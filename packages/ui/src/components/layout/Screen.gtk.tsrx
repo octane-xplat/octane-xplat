@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ScreenProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 
 // The GTK RootLayout equivalent is the renderer-owned Gtk.Overlay inside
 // each root's content host — imperative overlay/dialog/sheet services mount
@@ -21,7 +22,7 @@ export function Screen(props: ScreenProps): unknown @{
   <masonview
     className="vx-screen-shell"
     id={props.id}
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
   >
     <masonview

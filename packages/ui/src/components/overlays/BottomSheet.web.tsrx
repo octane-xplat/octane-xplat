@@ -12,7 +12,7 @@ import { useThemeScheme } from '../../theme/theme-scheme'
 import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents } from './sheet-detents.web'
 import { isolateModalFocus } from './modal-focus.web'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { JSX } from 'octane/jsx-runtime'
 
 const BASE_SCRIM = 0.4

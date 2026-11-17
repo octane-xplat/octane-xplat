@@ -2,7 +2,8 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext } from 'octane'
 import type { MetadataListItemProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { MetadataListContext } from './metadata-list-context'
 import { isRenderable } from '../../internal/rendering/is-renderable'
 
@@ -50,7 +51,7 @@ export function MetadataListItem(props: MetadataListItemProps): unknown @{
   if (isStacked) {
     return (
       <masonview
-        ref={(v: any) => applyEscapeProps(v, props)}
+        ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
         id={props.id}
         className={['vx-metadatalist-item', props.className]}
         style={mergeStyle({ display: 'flex' }, { marginBottom: 8, ...styleRecord(props.style) })}

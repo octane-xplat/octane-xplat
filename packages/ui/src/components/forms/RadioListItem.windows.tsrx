@@ -8,7 +8,8 @@ import './radio-control.windows'
 import './RadioGroup.windows.css'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { RadioListItemProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator.tsrx'
@@ -31,7 +32,7 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
     [measured.ref],
   )
 
-  useEffect(() => applyEscapeProps(row.current, props), [props])
+  useEffect(() => void (prepareUIHost(row.current), applyEscapeProps(row.current, props), applyUIHostModifiers(row.current, props)), [props])
   useEffect(() => group?.restore(), [group, selected, disabled, props.value])
 
   const Ind = useIndicator('radio') ?? RadioIndicator

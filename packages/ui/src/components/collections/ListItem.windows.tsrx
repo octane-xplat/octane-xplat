@@ -7,11 +7,9 @@ import { TextSlot } from '../forms/text-slot.tsrx'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ListItemProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { useListContext } from './list-context'
 import { followHref } from '../navigation/nav-href'
@@ -58,7 +56,7 @@ export function ListItem(props: ListItemProps): unknown @{
       refList(
         (v: View | null) => {
           if (v) {
-            applyEscapeProps(v, props)
+            void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
           }
         },
         ...refList(props.ref),

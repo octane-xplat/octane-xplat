@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useContext } from 'octane'
 import type { MetadataListItemProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { MetadataListContext } from './metadata-list-context'
 import { isRenderable } from '../../internal/rendering/is-renderable'
 import type { JSX } from 'octane/jsx-runtime'

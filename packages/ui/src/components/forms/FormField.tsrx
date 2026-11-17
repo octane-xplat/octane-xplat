@@ -3,7 +3,8 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext, useId, useRef } from 'octane'
 import type { FormFieldProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
 import { Tooltip } from '../overlays/Tooltip.tsrx'
@@ -136,7 +137,7 @@ export function FormField(props: FormFieldProps): unknown @{
   <masonview
     ref={(view: any) => {
       fieldRef.current = view
-      applyEscapeProps(view, props)
+      void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))
     }}
     id={props.id}
     className={[rootClass, isHorizontalLabels && 'vx-field--hl']}

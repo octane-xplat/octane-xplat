@@ -2,7 +2,7 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { MobileNavProps, MobileNavToggleProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { Button } from '../actions/Button.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Text } from '../content/Text.web.tsrx'

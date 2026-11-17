@@ -3,7 +3,8 @@ import 'octane/signals'
 import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
 import type { SwitchProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMeasure$ } from '../layout/useMeasure.tsrx'
@@ -26,7 +27,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
     [measured.ref],
   )
 
-  useEffect(() => applyEscapeProps(trackView.current, props), [props])
+  useEffect(() => void (prepareUIHost(trackView.current), applyEscapeProps(trackView.current, props), applyUIHostModifiers(trackView.current, props)), [props])
 
   const checked = props.value ?? internal
   const isBlocked = props.isDisabled || props.isReadOnly

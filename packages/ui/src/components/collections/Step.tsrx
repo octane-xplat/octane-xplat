@@ -2,7 +2,9 @@
 import { useContext } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { StepProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { StepperContext } from '../forms/option-list-contexts'
 
 /** `Step` — one node in a `Stepper` (Astryx child part). Its state derives
@@ -31,7 +33,7 @@ export function Step(props: StepProps): unknown @{
     )
 
   <masonview
-    ref={(e: any) => applyEscapeProps(e, props)}
+    ref={(e: any) => void (prepareUIHost(e), applyEscapeProps(e, props), applyUIHostModifiers(e, props))}
     id={props.id}
     className={[
       'vx-step',

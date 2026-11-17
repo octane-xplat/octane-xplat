@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { NavIconProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Icon } from '../media/Icon.tsrx'
 import { layoutChildProps } from '../layout/layout-child'
 
@@ -10,7 +11,7 @@ import { layoutChildProps } from '../layout/layout-child'
  *  registered icon name. */
 export function NavIcon(props: NavIconProps): unknown @{
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-navicon', props.className]}
     {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}

@@ -2,7 +2,8 @@
 import { useContext, useRef, useState } from 'octane'
 import type { TabMenuProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
 import { View } from '../layout/View.tsrx'
@@ -39,7 +40,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
     <Pressable
       ref={(v: any) => {
         anchor.current = v
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }}
       id={props.id}
       className={['vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className]}

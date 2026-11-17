@@ -4,7 +4,8 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { AspectRatioProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { useMeasure$ } from './useMeasure.macos.tsrx'
 
 /** AspectRatio — derives `height = measured width / ratio` like the
@@ -18,7 +19,7 @@ export function AspectRatio(props: AspectRatioProps): unknown @{
   const derivedHeight = bounds != null && bounds.width > 0 ? bounds.width / props.ratio : undefined
 
   const hostRef = useMemo(
-    () => refList((view: any) => applyEscapeProps(view, props), ref, props.ref),
+    () => refList((view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props)), ref, props.ref),
     [ref, props.ref, props.ios, props.android, props.web],
   )
 

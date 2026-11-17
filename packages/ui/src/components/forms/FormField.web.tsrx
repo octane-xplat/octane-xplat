@@ -2,7 +2,7 @@
 import { useContext, useEffect, useId } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { FormFieldProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'

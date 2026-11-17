@@ -2,7 +2,8 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useId, useMemo, useState } from 'octane'
 import type { AppShellProps, MobileNavConfig } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { MobileNavToggle } from '../navigation/MobileNav.tsrx'
 import { isMobileNavConfig } from './app-shell-config'
 import { layoutChildProps } from './layout-child'
@@ -125,7 +126,7 @@ export function AppShell(props: AppShellProps): unknown @{
 
   <AppShellMobileProvider value={mobileContextValue}>
     <masonview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       className={[
         'vx-appshell',

@@ -3,7 +3,9 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext } from 'octane'
 import type { SearchableItem } from '../../props'
 import type { BaseTypeaheadViewProps } from './typeahead-view'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { isWritingText } from './text-write'
 import { Popover } from '../overlays/Popover.tsrx'
 import { TypeaheadItem } from './TypeaheadItem.tsrx'
@@ -34,7 +36,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
           return
         }
 
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }}
       id={props.inputId}
       className={[

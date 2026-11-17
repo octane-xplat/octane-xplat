@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { CitationProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { isRenderable } from '../../internal/rendering/is-renderable'
 import type { JSX } from 'octane/jsx-runtime'

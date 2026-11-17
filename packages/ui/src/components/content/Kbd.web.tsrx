@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { KbdProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { JSX } from 'octane/jsx-runtime'
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '')

@@ -8,7 +8,7 @@ import { Pressable } from '../components/actions/Pressable.tsrx'
 import { Text } from '../components/content/Text.tsrx'
 import { RouteOutlet } from '../routing/RouteOutlet.tsrx'
 import type { BottomNavigationViewProps, PlatformTabSpec } from '../props'
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
 
 // The OS tab bar retains a canonical route outlet in each named pane.
 type TabPaneProps = { render: () => any; stack?: string }
@@ -103,7 +103,7 @@ function NavInner(props: {
 
   <>
     <tabview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyUIHostModifiers(v, props))}
       id={props.id}
       className={[props.className]}
       style={props.style}

@@ -3,7 +3,8 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ListProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { ListProvider } from './list-context'
 
@@ -39,7 +40,7 @@ export function List(props: ListProps): unknown @{
     () =>
       refList((v: any) => {
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }, props.ref),
     [props.ref, props.ios, props.android, props.web],

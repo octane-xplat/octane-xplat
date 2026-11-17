@@ -2,7 +2,8 @@
 import { useDirection, useTranslator } from '../../internal/platform/internationalization'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { PaginationProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 
 /** Pagination — ‹ › plus a windowed run of page buttons around `page`
  *  (first, last, `siblingCount` each side, … for gaps). */
@@ -35,7 +36,7 @@ export function Pagination(props: PaginationProps): unknown @{
   }
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-pagination', props.disabled && 'vx-pagination--disabled', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}

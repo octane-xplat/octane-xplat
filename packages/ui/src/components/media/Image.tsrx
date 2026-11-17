@@ -2,7 +2,8 @@
 import { isAndroid, isIOS, ImageSource, knownFolders, Screen } from '@nativescript/core'
 import { useLayoutEffect, useMemo, useRef } from 'octane'
 import type { ImageProps, ImageSourceLike } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { layoutChildProps } from '../layout/layout-child'
 import { isSvgSrc, svgSource } from './svg'
 import { createSizedImageBinding } from './image-sizing'
@@ -201,7 +202,7 @@ export function Image(props: ImageProps): unknown @{
 
   @if (svg != null) {
     <svgview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       {...layoutChildProps(props)}
       className={[props.className]}
@@ -226,7 +227,7 @@ export function Image(props: ImageProps): unknown @{
       <image
         ref={(v: any) => {
           imageRef.current = v
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
           if (v) {
             binding.update(null, v, update)
           }
@@ -241,7 +242,7 @@ export function Image(props: ImageProps): unknown @{
     <image
       ref={(v: any) => {
         imageRef.current = v
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         if (v) {
           binding.update(v, v, update)
         }

@@ -10,7 +10,7 @@ import { TextInput } from './TextInput.tsrx'
 import { FieldProvider } from './field-context'
 import { CheckIndicator, CheckboxIndicator } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator.tsrx'
-import { nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 /** Select presentation — resolved finite-list state in, user intents out.
  *  Internal only; consumers use `Select`. */

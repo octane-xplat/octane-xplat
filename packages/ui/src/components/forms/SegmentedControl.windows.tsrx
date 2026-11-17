@@ -6,7 +6,9 @@ import { WindowsRadioGroup } from './radio-control.windows'
 import { WindowsRadioProvider } from './radio-context.windows'
 import { SegmentedControlItem } from './SegmentedControlItem.windows.tsrx'
 import type { SegmentedControlProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { useFieldControlProps } from './field-context'
 import { SegmentedControlProvider } from './option-list-contexts'
 
@@ -45,7 +47,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
 
   useEffect(() => {
     group.update(current, Boolean(props.isDisabled), Boolean(props.isReadOnly), select)
-    applyEscapeProps(group.root, props)
+    void (prepareUIHost(group.root), applyEscapeProps(group.root, props), applyUIHostModifiers(group.root, props))
   }, [group, current, props])
 
   useEffect(() => () => group.cancelFocusReset(), [group])

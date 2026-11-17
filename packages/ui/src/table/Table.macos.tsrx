@@ -16,7 +16,8 @@ import type {
 } from '../props'
 
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
 import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './pipeline'
 
 import { TableContext, TableContextProvider } from './table-context'
@@ -137,7 +138,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 
     const node = (
       <scrollview
-        ref={refList<NSScrollView>(bindViewport, (view) => applyEscapeProps(view, props))}
+        ref={refList<NSScrollView>(bindViewport, (view) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props)))}
         orientation="horizontal"
         onLayoutChanged={measureViewport}
         accessibilityLabel="Table"
@@ -190,7 +191,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
   const tableElement = (
     <scrollview
       ref={refList<NSScrollView>(plan.scrollWrapper.htmlProps?.ref, bindViewport, (view) =>
-        applyEscapeProps(view, props),
+        void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props)),
       )}
       id={id}
       orientation="horizontal"

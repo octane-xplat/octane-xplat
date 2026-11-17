@@ -3,7 +3,9 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useEffect, useRef } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ProgressBarProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityRole } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole } from '../../internal/accessibility/native-accessibility'
 import { useColorScheme } from '../../theme/colorScheme'
 import { mutedColor, progressFillColor } from '../../theme/scheme-colors'
 import { nativeColor } from '../../theme/native-color'
@@ -99,7 +101,7 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
   }, [isIndeterminate])
 
   const forwardedRef = useMemo(
-    () => refList((v: any) => applyEscapeProps(v, props), props.ref),
+    () => refList((v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props)), props.ref),
     [props.ref, props.ios, props.android, props.web],
   )
 

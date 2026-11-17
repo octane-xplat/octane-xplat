@@ -2,11 +2,9 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useEffect, useRef, useState } from 'octane'
 import type { OutlineProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { useColorScheme } from '../../theme/colorScheme'
 import { accentColor, mutedColor, textColor } from '../../theme/scheme-colors'
@@ -144,7 +142,7 @@ export function Outline(props: OutlineProps): unknown @{
   <masonview
     ref={(v: any) => {
       navRef.current = v
-      applyEscapeProps(v, props)
+      void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
     }}
     id={props.id}
     className={['vx-outline', `vx-outline--${density}`, props.className]}

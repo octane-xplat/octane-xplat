@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { TextProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
 import { useTheme } from '../../theme/use-theme.tsrx'
 import { textScaleStyle } from '../forms/text-scale'

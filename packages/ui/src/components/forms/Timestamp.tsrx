@@ -11,7 +11,8 @@ import {
   resolveTimestampFormat,
 } from './time-format'
 
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { textRoleClasses } from './text-role'
 
 /** Timestamp — human-readable instant on native. A label carrying the
@@ -87,7 +88,7 @@ export function Timestamp(props: TimestampProps): unknown @{
   })
 
   <label
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-timestamp', roleClasses, props.className]}
     style={props.style}

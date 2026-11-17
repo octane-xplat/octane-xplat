@@ -9,7 +9,7 @@ import type {
 
 import type { NavigationItemImplementation, NavigationItemsImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
 import { useListFocus } from '../collections/list-focus.web.tsrx'
 

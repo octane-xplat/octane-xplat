@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { SpacerProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { JSX } from 'octane/jsx-runtime'
 
 export function Spacer(props: SpacerProps): JSX.Element @{

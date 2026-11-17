@@ -10,7 +10,8 @@ import type {
   ChatComposerTokenElementProps,
 } from '../props'
 
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
 import { isWritingText, writeText } from '../components/forms/text-write'
 import {
   ChatTriggerMenuOverlay,
@@ -386,7 +387,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
           return
         }
 
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         fit(v)
         if (textRef.current) {
           writeText(v, textRef.current)

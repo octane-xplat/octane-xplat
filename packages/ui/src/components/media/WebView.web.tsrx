@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { WebViewHandle, WebViewProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
 import { isWebViewMessage } from './webview-post'
 import type { JSX } from 'octane/jsx-runtime'

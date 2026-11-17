@@ -2,7 +2,8 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { OverflowItem, OverflowListProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { computeOverflow } from './overflow-math'
 import { layoutChildProps } from '../layout/layout-child'
 
@@ -157,7 +158,7 @@ export function OverflowList(props: OverflowListProps): unknown @{
       ref={(v: any) => {
         container.current = v
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
           v.on?.('layoutChanged', calculate)
         }
       }}

@@ -5,10 +5,7 @@ import type { ChatToolCallItem, ChatToolCallStatus, ChatToolCallsProps } from '.
 import { Icon } from '../components/media/Icon.tsrx'
 import { Badge } from '../components/feedback/Badge.tsrx'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
-import {
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../components/overlays/escape-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../internal/accessibility/native-accessibility'
 
 const STATUS_ICON: Record<ChatToolCallStatus, string | null> = {
   pending: 'xplat-clock',

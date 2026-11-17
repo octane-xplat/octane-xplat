@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { nativeAccessibilityState } from '../overlays/escape-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import {
   useImperativeHandle,
   useEffect,

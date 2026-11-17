@@ -2,7 +2,9 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useState } from 'octane'
 import type { Key, Selection, TreeProps, TreeListNode } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
 
 function leafKeys(nodes: readonly TreeListNode[], into: Key[] = []): Key[] {
@@ -128,7 +130,7 @@ export function Tree<T extends TreeListNode = TreeListNode>(
   }
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-tree', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}

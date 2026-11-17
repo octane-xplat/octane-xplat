@@ -19,7 +19,9 @@ vi.mock('@nativescript/core', async () => ({
   Utils: { layout: { toDeviceIndependentPixels: (value: number) => value } },
 }))
 
-vi.mock('../overlays/escape-props', () => ({
+vi.mock('@octane-xplat/lib/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('../../internal/platform/ui-host-props', () => ({ prepareUIHost() {}, applyUIHostModifiers() {} }))
+vi.mock('../../internal/accessibility/native-accessibility', () => ({
   applyEscapeProps: () => {},
   nativeAccessibilityRole: (role: unknown) => role,
   nativeAccessibilityState: (state: any) => (state?.disabled ? 'disabled' : undefined),

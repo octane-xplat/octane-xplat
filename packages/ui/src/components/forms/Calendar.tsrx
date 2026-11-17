@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { nativeAccessibilityState } from '../overlays/escape-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from '../../props'
 import { dateMessages } from './date-messages'

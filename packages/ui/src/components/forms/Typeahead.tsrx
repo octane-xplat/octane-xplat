@@ -3,7 +3,9 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane'
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from '../../props'
 import { useSize } from '../layout/size-context'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { FormField } from './FormField.tsrx'
 import { BaseTypeahead } from './BaseTypeahead.tsrx'
 import { Token } from './Token.tsrx'
@@ -135,7 +137,7 @@ export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>): u
       ref={(v: any) => {
         wrapperAnchor.current = v
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }}
       className={[

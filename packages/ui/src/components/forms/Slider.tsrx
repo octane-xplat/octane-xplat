@@ -8,11 +8,9 @@ import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useTooltip } from '../overlays/use-tooltip.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { FieldContext, useFieldControlProps } from './field-context'
 import { applySliderAccessibility } from './slider-accessibility'
@@ -62,7 +60,7 @@ function SliderControl(inputProps: SliderProps) @{
     }
   }, [])
 
-  useEffect(() => applyEscapeProps(host.current, props))
+  useEffect(() => void (prepareUIHost(host.current), applyEscapeProps(host.current, props), applyUIHostModifiers(host.current, props)))
 
   const press = useRef(0)
   const drag = useRef<{ lo: number; hi: number; which: 'lo' | 'hi' | null } | null>(null)

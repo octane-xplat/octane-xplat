@@ -19,7 +19,8 @@ import type {
 
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { toChildArray } from '../../internal/rendering/child-array'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Text } from '../content/Text.tsrx'
 import { followHref } from './nav-href'
@@ -126,7 +127,7 @@ export function Breadcrumb(
   )
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={[
       'vx-breadcrumb',

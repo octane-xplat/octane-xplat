@@ -2,7 +2,7 @@
 import { useImperativeHandle, useLayoutEffect, useRef, useState, useId } from 'octane'
 import { normStyle } from '../layout/layout-child.web'
 import type { TextAreaProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { useFieldControl, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'

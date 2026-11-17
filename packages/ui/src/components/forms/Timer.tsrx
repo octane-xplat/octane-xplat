@@ -8,7 +8,8 @@ import {
   timerPresentation,
 } from './timer-format'
 
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { textRoleClasses } from './text-role'
 
 /** Timer — live elapsed duration label since `startTimeMs` (ms; defaults to
@@ -65,7 +66,7 @@ export function Timer(props: TimerProps): unknown @{
   })
 
   <label
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-timer', roleClasses, props.className]}
     style={props.style}

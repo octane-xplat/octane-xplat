@@ -21,7 +21,9 @@ vi.mock('@nativescript/core', () => ({
   Application: { ios: {} },
 }))
 
-vi.mock('../overlays/escape-props', () => ({
+vi.mock('@octane-xplat/lib/escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('../../internal/platform/ui-host-props', () => ({ prepareUIHost() {}, applyUIHostModifiers() {} }))
+vi.mock('../../internal/accessibility/native-accessibility', () => ({
   applyEscapeProps() {},
   nativeAccessibilityState() {},
   nativeAccessibilityRole() {},

@@ -3,7 +3,8 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { PercentLengthType } from '@nativescript/core'
 import { useMemo, useState } from 'octane'
 import type { CodeBlockProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { useColorScheme } from '../../theme/colorScheme'
@@ -229,7 +230,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
   )
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={[
       'vx-codeblock',

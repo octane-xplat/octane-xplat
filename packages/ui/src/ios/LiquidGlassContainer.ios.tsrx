@@ -3,7 +3,8 @@ import { LiquidGlassContainerView } from './liquid-glass-container-view.ios'
 import { registerElement } from '@octane-xplat/nativescript-octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import type { LiquidGlassContainerProps } from '../props'
-import { applyEscapeProps } from '../components/overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
 import { layoutChildProps } from '../components/layout/layout-child'
 
 declare module '@octane-xplat/jsx/intrinsics' {
@@ -22,7 +23,7 @@ registerElement('liquidglasscontainer', LiquidGlassContainerView)
 export function LiquidGlassContainer(props: LiquidGlassContainerProps): unknown @{
   <liquidglasscontainer
     id={props.id}
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     {...layoutChildProps(props)}
     iosGlassEffect={{ spacing: props.spacing ?? 8 }}
     className={['vx-glass-container', props.className]}

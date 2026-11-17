@@ -10,7 +10,8 @@ import type {
 import type { NavigationItemImplementation, NavigationItemsImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Text } from '../content/Text.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
@@ -51,7 +52,7 @@ export function NavigationMenu(
   const isHorizontal = props.horizontal !== false
 
   <masonview
-    ref={(view: any) => applyEscapeProps(view, props)}
+    ref={(view: any) => void (prepareUIHost(view), applyEscapeProps(view, props), applyUIHostModifiers(view, props))}
     id={props.id}
     className={[
       'vx-navmenu-strip',

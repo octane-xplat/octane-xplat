@@ -34,7 +34,8 @@ function compiled(name, source, imports = {}) {
   }).code
 
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
-    const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+    const target = specifier === 'octane' ? runtimeUrl :
+      specifier === '@octane-xplat/lib/escape-props' || specifier.endsWith('/ui-host-props') || specifier.endsWith('/native-accessibility') ? support : imports[specifier]
 
     return target ? 'from ' + JSON.stringify(target) : match
   })
@@ -61,6 +62,8 @@ export const CheckboxListContext=createContext(null);
 export const CheckboxListProvider=CheckboxListContext;
 export const useFieldControlProps=props=>({...props,size:props.size??'md'});
 export const applyEscapeProps=()=>{};
+export const prepareUIHost=()=>{};
+export const applyUIHostModifiers=()=>{};
 export const nativeAccessibilityState=state=>state?.disabled?'disabled':undefined;
 export const cx=(...values)=>values.flat(Infinity).filter(Boolean).join(' ');
 export const mergeStyle=(base,style)=>({...base,...style});

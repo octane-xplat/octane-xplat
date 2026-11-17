@@ -18,7 +18,8 @@ import type {
   TopNavProps,
 } from '../../props'
 
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
 import { Image } from '../media/Image.tsrx'
@@ -64,7 +65,7 @@ export function TopNav(props: TopNavProps): unknown @{
 
   @if (renderMode === 'mobile-bar') {
     <masonview
-      ref={(v: any) => applyEscapeProps(v, props)}
+      ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
       id={props.id}
       className={['vx-topnav', 'vx-topnav--mobilebar', props.className]}
       style={mergeStyle({ display: 'flex' }, props.style)}
@@ -98,7 +99,7 @@ export function TopNav(props: TopNavProps): unknown @{
     } @else {
       @if (hasCenter) {
         <masonview
-          ref={(v: any) => applyEscapeProps(v, props)}
+          ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
           id={props.id}
           className={['vx-topnav', 'vx-topnav--grid', props.className]}
           style={mergeStyle({ display: 'grid', gridTemplateColumns: '1fr auto 1fr' }, props.style)}
@@ -151,7 +152,7 @@ export function TopNav(props: TopNavProps): unknown @{
         </masonview>
       } @else {
         <masonview
-          ref={(v: any) => applyEscapeProps(v, props)}
+          ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
           id={props.id}
           className={['vx-topnav', props.className]}
           style={mergeStyle({ display: 'flex' }, props.style)}
@@ -243,7 +244,7 @@ export function TopNavHeading(props: TopNavHeadingProps): unknown @{
     ) : null
 
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-topnav-heading', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}
@@ -323,7 +324,7 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
   const activate = () => link.activateNative(followHref)
 
   <Pressable
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={[
       'vx-topnav-item',
@@ -416,7 +417,7 @@ export function TopNavMenu(
     <Pressable
       ref={(v: any) => {
         anchor.current = v
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }}
       id={props.id}
       className={['vx-topnav-item', 'vx-topnavmenu-trigger', props.className]}
@@ -472,7 +473,7 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps): unknown @{
     <Pressable
       ref={(v: any) => {
         anchor.current = v
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }}
       id={props.id}
       className={['vx-topnav-item', 'vx-topnavmegamenu-trigger', props.className]}
@@ -537,7 +538,7 @@ export function TopNavMegaMenuItem(
   }
 
   <Pressable
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-topnavmegamenu-item', props.className]}
     style={props.style}
@@ -573,7 +574,7 @@ export function TopNavMegaMenuFeaturedCard(
   props: TopNavMegaMenuFeaturedCardProps,
 ): unknown @{
   <masonview
-    ref={(v: any) => applyEscapeProps(v, props)}
+    ref={(v: any) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={['vx-topnavmegamenu-card', props.className]}
     style={mergeStyle({ display: 'flex' }, props.style)}

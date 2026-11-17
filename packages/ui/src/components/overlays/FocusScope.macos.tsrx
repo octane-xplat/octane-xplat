@@ -3,7 +3,8 @@ import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 import { useEffect, useMemo, useRef } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from '../../props'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { createAppKitFocusScopeManager } from '../../internal/accessibility/focus-scope-state.macos'
 
 const scopes = createAppKitFocusScopeManager()
@@ -53,7 +54,7 @@ export function FocusScope(props: FocusScopeProps): unknown @{
       return
     }
 
-    applyEscapeProps(view, live.current)
+    void (prepareUIHost(view), applyEscapeProps(view, live.current), applyUIHostModifiers(view, live.current))
 
     const release = scopes.bind(view, () => live.current)
 

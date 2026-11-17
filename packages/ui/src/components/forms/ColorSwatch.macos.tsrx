@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { ColorSwatchProps } from '../../props'
-import { nativeAccessibilityRole } from '../overlays/escape-props'
+import { nativeAccessibilityRole } from '../../internal/accessibility/native-accessibility'
 import { normalizeHex } from '../../theme/color'
 
 /** Small color chip. */

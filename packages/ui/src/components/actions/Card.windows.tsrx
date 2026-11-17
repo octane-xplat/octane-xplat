@@ -3,13 +3,14 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import type { View } from '@nativescript/core'
 import { TextSlot } from '../forms/text-slot.tsrx'
 import type { CardProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 
 /** Card — native slots and explicit padding edges override the theme inset.
  * Windows shorthand setters otherwise lose to class-derived edge values. */
 export function Card(props: CardProps): unknown @{
   <masonview
-    ref={(v: View | null) => applyEscapeProps(v, props)}
+    ref={(v: View | null) => void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))}
     id={props.id}
     className={[
       'vx-card',

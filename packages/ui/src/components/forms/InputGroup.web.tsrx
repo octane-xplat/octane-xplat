@@ -2,7 +2,7 @@
 import { useMemo, useId } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { InputGroupProps, InputGroupTextProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { FormField } from './FormField.web.tsrx'
 import { InputGroupProvider } from './input-group-context'

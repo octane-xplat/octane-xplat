@@ -4,7 +4,7 @@ import { refList } from '../../internal/accessibility/ref-list'
 import { useInteractionHost } from '../../gestures/host.web.tsrx'
 import { InteractionScopeProvider } from '../../gestures/context.tsrx'
 import type { ViewProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { layoutChildProps } from './layout-child.web'
 import type { JSX } from 'octane/jsx-runtime'
 

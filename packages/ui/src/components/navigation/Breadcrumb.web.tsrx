@@ -20,7 +20,7 @@ import type {
 import { isChildrenBlock } from 'octane'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { useLinkComponent } from './use-link-component.web.tsrx'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { toChildArray } from '../../internal/rendering/child-array'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { JSX } from 'octane/jsx-runtime'

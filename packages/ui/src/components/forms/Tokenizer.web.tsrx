@@ -20,7 +20,7 @@ import type {
 
 import { useSize } from '../layout/size-context'
 import type { TypeaheadQueryEntries } from '../../internal-props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { FormField } from './FormField.web.tsrx'
 import { BaseTypeahead } from './BaseTypeahead.web.tsrx'
 import { Token } from './Token.web.tsrx'

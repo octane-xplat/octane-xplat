@@ -6,7 +6,8 @@ import { MenuData } from './MenuParts.macos.tsrx'
 import { MenuSurface } from './MenuSurface.macos.tsrx'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { ContextMenuProps } from '../../props'
-import { applyEscapeProps } from './escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
 import { TextSlot } from '../forms/text-slot.tsrx'
@@ -140,7 +141,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
         return
       }
 
-      applyEscapeProps(view, live.current.props)
+      void (prepareUIHost(view), applyEscapeProps(view, live.current.props), applyUIHostModifiers(view, live.current.props))
       if (!contextSupported) {
         return
       }
@@ -182,7 +183,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 
   useLayoutEffect(() => {
     if (anchor.current) {
-      applyEscapeProps(anchor.current, props)
+      void (prepareUIHost(anchor.current), applyEscapeProps(anchor.current, props), applyUIHostModifiers(anchor.current, props))
     }
   }, [props])
 

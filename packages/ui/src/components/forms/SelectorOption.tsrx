@@ -1,13 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { SelectorOptionProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 
 /** `SelectorOption` — the styled option row used inside `renderOption`/
  *  `renderValue` results (Astryx part): icon lane, label, description. */
 export function SelectorOption(props: SelectorOptionProps): unknown @{
   <masonview
-    ref={(e: any) => applyEscapeProps(e, props)}
+    ref={(e: any) => void (prepareUIHost(e), applyEscapeProps(e, props), applyUIHostModifiers(e, props))}
     id={props.id}
     className={[
       'vx-selectoroption',

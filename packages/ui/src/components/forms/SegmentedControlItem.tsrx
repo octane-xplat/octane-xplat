@@ -2,11 +2,9 @@
 import { useContext } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { SegmentedControlItemProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { SegmentedControlContext } from './option-list-contexts'
 
@@ -19,7 +17,7 @@ export function SegmentedControlItem(props: SegmentedControlItemProps): unknown 
   const blocked = disabled || ctx?.isReadOnly
 
   <masonview
-    ref={(e: any) => applyEscapeProps(e, props)}
+    ref={(e: any) => void (prepareUIHost(e), applyEscapeProps(e, props), applyUIHostModifiers(e, props))}
     id={props.id}
     className={[
       'vx-segment',

@@ -5,7 +5,9 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import { Utils } from '@nativescript/core'
 import { fitTextArea } from './text-area-fit'
 import type { TextAreaProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
 import { FieldContext, useFieldControlProps } from './field-context'
@@ -80,7 +82,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
           return
         }
 
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }}
       className={[
         'vx-textarea',

@@ -3,11 +3,9 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { CenterProps } from '../../props'
-import {
-  applyEscapeProps,
-  nativeAccessibilityRole,
-  nativeAccessibilityState,
-} from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityRole, nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 
 import { spacingPx } from './stack-layout'
 
@@ -21,7 +19,7 @@ export function Center(props: CenterProps): unknown @{
     () =>
       refList((v: any) => {
         if (v) {
-          applyEscapeProps(v, props)
+          void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
         }
       }, props.ref),
     [props.ref, props.ios, props.android, props.web],

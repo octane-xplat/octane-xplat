@@ -2,7 +2,9 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { TextInputProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
+import { nativeAccessibilityState } from '../../internal/accessibility/native-accessibility'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
 import { Pressable } from '../actions/Pressable.tsrx'
@@ -80,7 +82,7 @@ function TextInputControl(inputProps: TextInputProps) @{
           return
         }
 
-        applyEscapeProps(v, props)
+        void (prepareUIHost(v), applyEscapeProps(v, props), applyUIHostModifiers(v, props))
       }}
       id={props.id}
       testID={props.testID ?? ''}

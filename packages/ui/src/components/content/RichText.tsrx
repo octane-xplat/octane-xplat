@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { RichTextProps, RichTextSpanProps } from '../../props'
-import { applyEscapeProps } from '../overlays/escape-props'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
+import { prepareUIHost, applyUIHostModifiers } from '../../internal/platform/ui-host-props'
 import { layoutChildProps } from '../layout/layout-child'
 
 /** Native rich text is a Label hosting one FormattedString. The driver knows
@@ -9,7 +10,7 @@ import { layoutChildProps } from '../layout/layout-child'
 export function RichText(props: RichTextProps): unknown @{
   <label
     id={props.id}
-    ref={(el: any) => applyEscapeProps(el, props)}
+    ref={(el: any) => void (prepareUIHost(el), applyEscapeProps(el, props), applyUIHostModifiers(el, props))}
     {...layoutChildProps(props, props.style)}
     className={['vx-rich-text', props.className]}
     whiteSpace="normal"
