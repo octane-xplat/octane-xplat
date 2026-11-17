@@ -9,6 +9,8 @@ const ui = dirname(require.resolve('@octane-xplat/ui'))
 const source = join(import.meta.dirname, 'src')
 const primitives = {
   Button: 'actions/Button',
+  Pressable: 'actions/Pressable',
+  View: 'layout/View',
   Text: 'content/Text',
   VStack: 'layout/VStack',
   HStack: 'layout/HStack',
@@ -23,7 +25,7 @@ const data: Record<string, string> = {
   'xplat-prerender:mode': 'mode.json',
 }
 
-// Only qualification data and the existing four-primitive eligibility boundary
+// Only qualification data and the existing seven-primitive eligibility boundary
 // are special. Compilation, native resolution and CSS use the installed preset.
 export default defineConfig(async ({ mode }) =>
   native(

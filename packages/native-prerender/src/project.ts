@@ -25,6 +25,25 @@ export type PreparedMatch = {
   visualByCommandId: Map<number, number>
 }
 
+// Mirror the nativescript-octane driver's clsx-style className join.
+function normalizeClass(value: unknown): string {
+  if (typeof value === 'number') {
+    return value ? String(value) : ''
+  }
+  if (typeof value === 'string') {
+    return value
+  }
+  if (Array.isArray(value)) {
+    return value.map(normalizeClass).filter(Boolean).join(' ')
+  }
+  if (value && typeof value === 'object') {
+    return Object.keys(value)
+      .filter((key) => Reflect.get(value, key))
+      .join(' ')
+  }
+  return ''
+}
+
 function commandProps(input: unknown): LiteralObject {
   function object(input: unknown, depth: number): LiteralObject {
     requireArtifact(depth < 24, 'command props nesting limit')
@@ -34,9 +53,11 @@ function commandProps(input: unknown): LiteralObject {
       const value = props[key]
       if (value === undefined) {continue}
       portable[key] =
-        value !== null && typeof value === 'object' && !Array.isArray(value)
-          ? object(value, depth + 1)
-          : copyLiteral(value)
+        depth === 0 && key === 'className'
+          ? normalizeClass(value)
+          : value !== null && typeof value === 'object' && !Array.isArray(value)
+            ? object(value, depth + 1)
+            : copyLiteral(value)
     }
     return portable
   }

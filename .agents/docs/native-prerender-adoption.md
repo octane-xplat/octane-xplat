@@ -43,8 +43,11 @@ absent resolution candidates are both inputs: a newly created platform sibling
 invalidates an old artifact even when its previous sources remain unchanged.
 Native packaging verifies both sets before copying and after compilation. The qualification
 command only selects inputs and scratch placement. It keeps a dedicated
-build-host plugin and four shared primitive exports from the installed UI source layout; it does not load the
-app's Vite configuration or establish full UI-barrel eligibility. Generic
+build-host plugin and seven shared primitive exports from the installed UI source layout; it does not load the
+app's Vite configuration or establish full UI-barrel eligibility. Top-level
+`className` accepts the driver's clsx-style shapes and is normalized to the
+same joined string before validation, so `View`'s `['vx-view', props.className]`
+array survives. Generic
 logical projection, backend preflight and native mounting belong to the reusable
 package; the Android and iOS wrapper bindings now also belong to that package. The fixed
 Home host, generic mount host, observations and adoption controls remain in qualification tooling. Native mounts must not contain seed, node-count or
@@ -199,7 +202,7 @@ The separate stock SDK startup mount control compiles a fixture bootstrap
 through NativeSource with `XPLAT_PRERENDER_STOCK_SDK`, emits XPI1 as
 `startup.bin` into the normal Vite app bundle, and calls the same SDK helpers.
 Its producer resolves from the isolated app's installed package tree; the live
-bundle uses the installed native preset and the existing four-primitive
+bundle uses the installed native preset and the existing seven-primitive
 qualification facade. The `home` fixture reuses the Home identity, Core
 Page/window and style/layout assertions. The `keyed` fixture mounts a
 variable-topology KeyedStartup inside a bounded 320x640-point viewport — a test

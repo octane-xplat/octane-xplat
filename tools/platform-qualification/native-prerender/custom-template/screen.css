@@ -1,12 +1,28 @@
 .screen {
   flex: 1;
   padding: 16px;
+  row-gap: 12px;
   background-color: #ffffff;
+}
+
+.screen-header {
+  padding-bottom: 8px;
 }
 
 .screen-copy {
   color: #1a2b3c;
   font-size: 20px;
+}
+
+.screen-action {
+  padding: 10px 14px;
+  background-color: #2f6fed;
+  border-radius: 8px;
+}
+
+.screen-action-label {
+  color: #ffffff;
+  font-size: 16px;
 }
 
 .spinner {

@@ -293,3 +293,21 @@ test('decoder rejects malicious binary lengths, tags, UTF-8 and numeric payloads
   numeric.writeDoubleLE(Infinity, index)
   assert.throws(() => decodeStartupArtifact(resign(numeric), expected), /non-finite/)
 })
+
+test('top-level className joins like the live driver before validation', () => {
+  const cases = [
+    [['vx-view', ['extra', null, 'more'], false, 0], 'vx-view extra more'],
+    [{ a: true, b: false, c: 1 }, 'a c'],
+    [4, '4'],
+    ['kept', 'kept'],
+  ]
+  for (const [input, joined] of cases) {
+    const batch = [
+      { op: 'create', id: 100, type: 'masonview', props: { className: input } },
+      { op: 'insert', id: 100, parent: null, before: null },
+    ]
+    const projection = projectPreparedTree(batch)
+    assert.equal(projection.nodes[0].props.className, joined)
+    assert.deepEqual([...matchPreparedTree(batch, projection.nodes).visualByCommandId], [[100, 0]])
+  }
+})

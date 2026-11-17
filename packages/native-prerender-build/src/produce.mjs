@@ -494,7 +494,7 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     scope:
       'Private configured Node/Vite ' +
       platform +
-      ' render-only producer with four shared primitive exports, explicit environment, AOT theme variants and XPI1 encoding; not normal app integration, general eligibility, SSR or native runtime qualification',
+      ' render-only producer with seven shared primitive exports, explicit environment, AOT theme variants and XPI1 encoding; not normal app integration, general eligibility, SSR or native runtime qualification',
   }
 
   json(join(work, 'build.json'), manifest)

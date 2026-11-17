@@ -4,6 +4,8 @@ import { dirname, join, resolve } from 'node:path'
 
 export const primitiveModules = {
   Button: 'src/components/actions/Button.tsrx',
+  Pressable: 'src/components/actions/Pressable.tsrx',
+  View: 'src/components/layout/View.tsrx',
   Text: 'src/components/content/Text.tsrx',
   VStack: 'src/components/layout/VStack.tsrx',
   HStack: 'src/components/layout/HStack.tsrx',
