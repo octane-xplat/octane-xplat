@@ -47,6 +47,20 @@ sh tools/linux-runtime-eval/build-runtime-executable.sh \
 
 The script verifies all three archives and the Cargo lock before building in a fresh directory. A successful run produces a stripped `ns-linux`, the upstream runtime license, a checksum file and an input manifest. Check `runtime-linkage.txt` for the binary's library and glibc requirements. To check reproducibility, run the script again with the same inputs in a different output directory and compare both checksum files. The SDK metadata, TypeScript declarations, Mason libraries, ICU data and remaining dependency licenses are separate distribution inputs.
 
+### Stage the runtime payload
+
+After preparing the SDK with the source-built executable and generating the WebKit metadata, assemble the files for one Linux architecture. Supply the SDK's `framework/typings` directory and a directory with `icu.txt`, `mason.txt`, and `v8.txt` license notices.
+
+```sh
+python3 tools/linux-runtime-eval/stage-runtime-bundle.py \
+  --arch x86_64 --build /path/to/runtime-build --prepared /path/to/prepared \
+  --webkit /path/to/webkit.bin --icu /path/to/icudt77l.dat \
+  --schema /path/to/gi.json --typings /path/to/sdk/typings \
+  --licenses /path/to/licenses --output /path/to/new-payload
+```
+
+The payload includes the executable, its metadata and libraries, the GI schema, ICU data, notices, and TypeScript declarations. `manifest.json` records the architecture and SHA-256 of each file. It is written last. A payload without it is incomplete. Pass the staged `icu/` directory as `ICU_DATA` when launching the staged executable.
+
 ## Run with OS input
 
 Run from the repository root under an owned Linux host reservation. For `andromeda.local`'s existing `octane-linux` VM, reserve `exclusive:["linux:andromeda-octane-linux"]` and `resident_devices:1`; preparation also needs `native_builds:1`. Leave the user-owned VM running after releasing the reservation.
