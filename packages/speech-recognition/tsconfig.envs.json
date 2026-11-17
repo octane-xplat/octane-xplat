@@ -25,8 +25,7 @@
 			"compilerOptions": { "types": ["@nativescript/types"] }
 		},
 		"macos": { "include": ["src/index.macos.ts", "src/**/*.macos.ts"] },
-		"linux": { "include": ["src/index.linux.ts"] },
-		"gtk": { "include": ["src/index.gtk.ts"] },
+		"gtk": { "include": ["src/index.gtk.ts", "src/index.linux.ts"] },
 		"windows": { "include": ["src/index.windows.ts", "src/**/*.windows.ts"] }
 	}
 }

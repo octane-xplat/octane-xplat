@@ -17,7 +17,7 @@
 		"macos": {
 			"include": ["src/index.macos.ts", "src/**/*.macos.ts"]
 		},
-		"linux": {
+		"gtk": {
 			"include": ["src/index.linux.ts"]
 		},
 		"windows": {

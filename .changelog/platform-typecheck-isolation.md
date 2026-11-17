@@ -1,6 +1,6 @@
 ### Check platform code in separate TypeScript programs
 
-`xplat typecheck` now checks web, iOS, Android, macOS, Windows, Linux WebKit, and native GTK in separate programs so browser and phone SDK declarations cannot hide mistakes in another platform. A `native` manifest entry expands into separate iOS and Android checks. Existing SDK imports and runtime APIs stay the same. Linux WebKit keeps browser declarations; native GTK uses its existing GJS declarations without browser globals.
+`xplat typecheck` now checks web, iOS, Android, macOS, Windows, and native Linux GTK in separate programs so browser and phone SDK declarations cannot hide mistakes in another platform. A `native` manifest entry expands into separate iOS and Android checks. Existing SDK imports and runtime APIs stay the same. Native Linux GTK uses its existing GJS declarations without browser globals. Desktop WebView app hosting remains retired; apps can still embed the WebView component.
 
 **Breaking change:** Move browser libraries out of shared compiler options when a manifest also checks native platforms:
 
@@ -12,6 +12,16 @@
       "compilerOptions": { "lib": ["ESNext", "DOM", "DOM.Iterable"] }
     },
     "native": { "files": ["src/index.ts"] }
+  }
+}
+```
+
+Move any old `linux` manifest entry into `gtk` and replace its solution reference with `gtk.json`. The GTK check uses native declarations, including for existing explicitly listed native service barrels:
+
+```json
+{
+  "environments": {
+    "gtk": { "files": ["src/index.gtk.ts"] }
   }
 }
 ```

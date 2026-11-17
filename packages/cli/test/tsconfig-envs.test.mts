@@ -81,7 +81,8 @@ test('explicitly empty types prevent inherited automatic @types discovery', () =
 test('reject conflicting SDKs, DOM, resolution overrides, overlap, malformed and empty entries', () => {
   const cases = [
     [{ ...entries, gtk: { files: ['src/shared.ts'], compilerOptions: { lib: ['DOM'] } } }, {}, /DOM libraries/],
-    [{ ...entries, linux: { files: ['src/shared.ts'], compilerOptions: { types: ['@nativescript/types-ios'] } } }, {}, /ios SDK/],
+    [{ ...entries, gtk: { files: ['src/shared.ts'], compilerOptions: { types: ['@nativescript/types-ios'] } } }, {}, /ios SDK/],
+    [{ ...entries, linux: { files: ['src/shared.ts'] } }, {}, /linux.*retired/],
     [{ ...entries, ios: entries.native }, {}, /overlaps/],
     [
       {
@@ -138,29 +139,23 @@ test('JSONC comments and trailing commas preserve string values and reject synta
   }
 })
 
-test('Linux WebKit and GTK have separate declarations, suffixes, and fallback roots', () => {
+test('native Linux uses GTK declarations and no browser suffix fallback', () => {
   const dir = fixture(entries)
-  for (const name of ['widget.web', 'widget.linux', 'fallback.web', 'other.gtk']) {
+  for (const name of ['widget.web', 'widget.gtk', 'index.linux']) {
     writeFileSync(join(dir, `src/${name}.ts`), 'export {}\n')
   }
   const loaded = loadEnvManifest(dir)
-  loaded.manifest.environments.linux = { include: ['src/*.ts'] }
   loaded.manifest.environments.gtk = { include: ['src/*.ts'] }
   const programs = expandEnvPrograms(dir, loaded)
-  assert.equal(programs.some((p) => p.env === 'all'), false)
-  const linux = programs.find((p) => p.env === 'linux')
+  assert.equal(programs.some((p) => p.env === 'all' || p.env === 'linux'), false)
   const gtk = programs.find((p) => p.env === 'gtk')
-  assert.deepEqual(config(linux).compilerOptions.moduleSuffixes, ['.linux', '.web', ''])
   assert.deepEqual(config(gtk).compilerOptions.moduleSuffixes, ['.gtk', ''])
-  assert.ok(config(linux).compilerOptions.lib.includes('DOM'))
+  assert.deepEqual(config(gtk).compilerOptions.customConditions, ['gtk', 'native'])
   assert.ok(!config(gtk).compilerOptions.lib.includes('DOM'))
-  assert.ok(linux.files.includes(join(dir, 'src/widget.linux.ts')))
-  assert.ok(linux.files.includes(join(dir, 'src/fallback.web.ts')))
-  assert.ok(!linux.files.includes(join(dir, 'src/widget.web.ts')))
-  assert.ok(!gtk.files.some((f) => /\.(web|linux|ios|android)\.ts$/.test(f)))
+  assert.ok(gtk.files.includes(join(dir, 'src/widget.gtk.ts')))
+  assert.ok(gtk.files.includes(join(dir, 'src/index.linux.ts')), 'retain explicit native service barrel coverage')
+  assert.ok(!gtk.files.some((f) => /\.(web|ios|android)\.ts$/.test(f)))
   assert.ok(gtk.files.some((f) => f.endsWith('linux-gtk-renderer/src/host-globals.d.ts')))
-  for (const p of [linux, gtk]) {
-    assert.deepEqual(config(p).compilerOptions.types, [])
-    assert.ok(p.files.some((f) => f.includes(`isolation-${p.env}.ts`)))
-  }
+  assert.deepEqual(config(gtk).compilerOptions.types, [])
+  assert.ok(gtk.files.some((f) => f.includes('isolation-gtk.ts')))
 })

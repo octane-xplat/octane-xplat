@@ -256,9 +256,9 @@ or import them from its roots:
 ```
 
 Use separate `ios` and `android` entries when their root lists differ. macOS
-and Windows use `macos` and `windows` entries. Linux WebKit uses `linux` with
-browser declarations; native GTK uses `gtk` with its existing GJS declarations
-and no DOM library. These checks retain the existing runtime resolution:
+and Windows use `macos` and `windows` entries. Native Linux uses `gtk` with
+its existing GJS declarations and no DOM library. Move any old `linux` manifest
+roots into `gtk`. These checks match the native desktop targets:
 
 ```json
 {
@@ -267,7 +267,6 @@ and no DOM library. These checks retain the existing runtime resolution:
     "android": { "files": ["src/Card.android.tsrx", "src/model.ts"] },
     "macos": { "files": ["src/Card.macos.tsrx", "src/model.ts"] },
     "windows": { "files": ["src/Card.windows.tsrx", "src/model.ts"] },
-    "linux": { "files": ["src/Card.linux.tsrx", "src/model.ts"] },
     "gtk": { "files": ["src/Card.gtk.tsrx", "src/model.ts"] }
   }
 }
@@ -344,17 +343,28 @@ manifest above. The cache files by themselves do not establish editor support:
 }
 ```
 
-For Linux, reference the programs declared in your manifest. Keep only the host
-entries your app uses; `linux` is the WebKit DOM host and `gtk` is the native GJS
-host. Replace any old `all.json` reference:
+For native Linux, reference the `gtk` program declared in your manifest. Replace
+any old `all.json` or `linux.json` reference:
 
 ```json
 {
   "files": [],
   "references": [
-    { "path": "./node_modules/.cache/xplat-typecheck/linux.json" },
     { "path": "./node_modules/.cache/xplat-typecheck/gtk.json" }
   ]
+}
+```
+
+The embedded `WebView` component remains available in native apps. If you build
+a browser document for it, check that document in a separate `web` program and
+keep its browser globals out of the native host code:
+
+```json
+{
+  "environments": {
+    "gtk": { "include": ["src/native/**/*.ts", "src/native/**/*.tsrx"] },
+    "web": { "include": ["src/web-content/**/*.ts", "src/web-content/**/*.tsrx"] }
+  }
 }
 ```
 

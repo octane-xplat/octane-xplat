@@ -78,13 +78,13 @@ func expectedTypecheckPrograms(projectRoot string, inputs map[string]typecheckCo
 			case "native":
 				names["ios"] = true
 				names["android"] = true
-			case "web", "ios", "android", "macos", "windows", "linux", "gtk":
+			case "web", "ios", "android", "macos", "windows", "gtk":
 				names[env] = true
 			default:
 				return nil
 			}
 		}
-		for _, env := range []string{"web", "ios", "android", "macos", "windows", "linux", "gtk"} {
+		for _, env := range []string{"web", "ios", "android", "macos", "windows", "gtk"} {
 			if names[env] {
 				configs = append(configs, filepath.Join(projectRoot, "node_modules", ".cache", "xplat-typecheck", env+".json"))
 			}
@@ -123,7 +123,7 @@ func validateAmbientFiles(env, listing string) error {
 		dom := strings.Contains(lower, "/lib.dom.") && strings.HasSuffix(lower, ".d.ts")
 		ios := strings.Contains(file, "/@nativescript/types-ios/")
 		android := strings.Contains(file, "/@nativescript/types-android/")
-		if (env != "web" && env != "linux" && dom) || (ios && env != "ios") || (android && env != "android") || strings.HasSuffix(file, "/@nativescript/types/index.d.ts") {
+		if (env != "web" && dom) || (ios && env != "ios") || (android && env != "android") || strings.HasSuffix(file, "/@nativescript/types/index.d.ts") {
 			return fmt.Errorf("typecheck[%s]: transitive ambient leakage from %s; select platform declarations or move the import into its platform leaf", env, line)
 		}
 	}

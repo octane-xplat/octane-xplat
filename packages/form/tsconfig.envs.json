@@ -46,7 +46,7 @@
 				"src/**/*.test.*"
 			]
 		},
-		"linux": {
+		"gtk": {
 			"include": [
 				"src/**/*.ts",
 				"src/**/*.tsrx",

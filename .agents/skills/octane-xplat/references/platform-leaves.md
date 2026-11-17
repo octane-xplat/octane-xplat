@@ -151,8 +151,9 @@ router.push({ to: '/help' })
 New apps use a solution `tsconfig.json` referencing platform programs generated
 from `tsconfig.envs.json`. Run `bun run typecheck` after installation and manifest
 changes. `native` manifests expand into separate iOS and Android programs; web,
-macOS, Windows, Linux WebKit (`linux`), and native GTK (`gtk`) also have independent
-environments. Only web and Linux WebKit carry DOM libraries. Retain existing public SDK imports and ambient SDK use in
+macOS, Windows, and native Linux GTK (`gtk`) also have independent
+environments. Only web carries DOM libraries. Move any retired `linux` manifest
+entry into `gtk`; do not add a desktop WebView target. Retain existing public SDK imports and ambient SDK use in
 matching leaves; do not introduce runtime import adapters to isolate checking.
 
 Keep `jsxImportSource: "@octane-xplat/jsx"` and browser-file `/dom` pragmas.

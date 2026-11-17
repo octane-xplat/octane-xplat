@@ -34,7 +34,7 @@
 				"src/**/*.windows.ts"
 			]
 		},
-		"linux": {
+		"gtk": {
 			"files": ["../linux-gtk-renderer/src/gi.d.ts"],
 			"include": ["src/**/*.ts", "examples/**/*.ts"],
 			"exclude": [

@@ -15,7 +15,7 @@ import { nativeLsp } from './native-lsp.mts'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const compiler = join(repo, 'node_modules/typescript/bin/tsc')
-const targets = ['web', 'ios', 'android', 'macos', 'windows', 'linux', 'gtk']
+const targets = ['web', 'ios', 'android', 'macos', 'windows', 'gtk']
 
 function fixture(t) {
   const dir = mkdtempSync(join(repo, 'research-platform-types-'))
@@ -63,12 +63,11 @@ function fixture(t) {
       android: 'android.os.Build.MODEL',
       macos: 'dlopen("AppKit", 1)',
       windows: 'console.log("Windows")',
-      linux: 'document.title',
       gtk: 'print(ARGV.join(" ")); Gtk.init()',
     }[env]
 
     const forbidden = [
-      ...(!['web', 'linux'].includes(env) ? ['document.title'] : []),
+      ...(env !== 'web' ? ['document.title'] : []),
       ...(env !== 'ios' ? ['UIView.new()'] : []),
       ...(env !== 'android' ? ['android.os.Build.MODEL'] : []),
       ...(env !== 'gtk' ? ['print(ARGV.join(" "))'] : []),
@@ -159,7 +158,7 @@ test(
 
       assert.equal(listing.status, 0, listing.stdout + listing.stderr)
       assertPlatformIsolation(program.env, listing.stdout.split(/\r?\n/))
-      assert.equal(/[/\\]lib\.dom\.d\.ts/.test(listing.stdout), ['web', 'linux'].includes(program.env))
+      assert.equal(/[/\\]lib\.dom\.d\.ts/.test(listing.stdout), program.env === 'web')
       assert.equal(listing.stdout.includes('@nativescript/types-ios/'), program.env === 'ios')
       assert.equal(
         listing.stdout.includes('@nativescript/types-android/'),
@@ -174,7 +173,7 @@ test(
 
     put('src/leak.d.ts', '/// <reference lib="dom" />\nexport {}\n')
     put('src/shared.ts', "import './leak'\nexport const sharedContext = platformContext\n")
-    for (const program of programs.filter((p) => !['web', 'linux'].includes(p.env))) {
+    for (const program of programs.filter((p) => p.env !== 'web')) {
       const listing = tsc(dir, program, '--listFilesOnly')
 
       assert.throws(
@@ -262,7 +261,7 @@ test(
         },
       })
 
-      assert.match(JSON.stringify(hover), /platformContext:.*(web|ios|android|macos|windows|linux|gtk)/)
+      assert.match(JSON.stringify(hover), /platformContext:.*(web|ios|android|macos|windows|gtk)/)
     }
   },
 )

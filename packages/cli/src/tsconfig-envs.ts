@@ -1,7 +1,7 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Shared TypeScript environment presets + tsconfig.envs.json expansion.
 // Each target gets its own program and ambient SDK. Native manifest entries
-// expand to iOS and Android; Linux WebKit and GTK use distinct host programs.
+// expand to iOS and Android; native Linux uses the GTK host program.
 import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { createRequire } from 'node:module'
@@ -83,23 +83,12 @@ export const TYPECHECK_ENVIRONMENTS = {
     // surface itself is module-scoped now — @octane-xplat/platform/macos.
     ambient: ['typecheck-globals/macos.d.ts', '../../macos-appkit/src/host-globals.d.ts'],
   },
-  linux: {
-    compilerOptions: {
-      jsxImportSource: '@octane-xplat/jsx/dom',
-      moduleSuffixes: ['.linux', '.web', ''],
-      customConditions: ['linux', 'web'],
-      lib: ['ESNext', 'DOM', 'DOM.Iterable'],
-    },
-  },
-  // The GTK4/GJS renderer — a native target, not the linux WebKit surface:
-  // .gtk files never see .linux/.web leaves, and the program carries no DOM
-  // lib. jsxImportSource is the shared native contract; the `gtk` condition
-  // binds the host element type.
+  // Native Linux uses GTK4/GJS, without browser libraries or web fallbacks.
   gtk: {
     compilerOptions: {
       jsxImportSource: '@octane-xplat/jsx',
       moduleSuffixes: ['.gtk', ''],
-      customConditions: ['gtk'],
+      customConditions: ['gtk', 'native'],
       lib: ['ESNext'],
     },
     ambient: ['../../linux-gtk-renderer/src/host-globals.d.ts'],
@@ -124,7 +113,7 @@ const SUFFIX_ENV = {
   native: 'native',
   macos: 'macos',
   windows: 'windows',
-  linux: 'linux',
+  linux: 'gtk',
   gtk: 'gtk',
 }
 
@@ -276,7 +265,8 @@ function applicable(file, env) {
     return ['ios', 'android', 'windows'].includes(env)
   }
 
-  return tag === env || (env === 'linux' && tag === 'web')
+  // Historical .linux service barrels remain explicit roots, not a UI suffix tier.
+  return tag === env || (env === 'gtk' && tag === 'linux')
 }
 
 function platformTypes(types, env, dir) {
@@ -345,7 +335,11 @@ export function expandEnvPrograms(
     const preset = TYPECHECK_ENVIRONMENTS[env]
 
     if (!preset) {
-      errors.push(`${ENV_MANIFEST}: unknown environment "${env}"`)
+      errors.push(
+        env === 'linux'
+          ? `${ENV_MANIFEST}: environment "linux" is retired; move native Linux roots to "gtk" (GJS, no DOM)`
+          : `${ENV_MANIFEST}: unknown environment "${env}"`,
+      )
       continue
     }
 
@@ -388,11 +382,11 @@ export function expandEnvPrograms(
       const libs = entry.compilerOptions?.lib ?? options.compilerOptions.lib
 
       if (
-        !['web', 'linux'].includes(target) &&
+        target !== 'web' &&
         [...(top.lib ?? []), ...libs].some((v) => /^dom(?:\.|$)/i.test(v))
       ) {
         errors.push(
-          `${ENV_MANIFEST}: DOM libraries are not allowed in "${target}"; put browser libraries in the web or linux environment`,
+          `${ENV_MANIFEST}: DOM libraries are not allowed in "${target}"; put browser libraries in the web environment`,
         )
       }
 
@@ -417,10 +411,6 @@ export function expandEnvPrograms(
       const active = files
         .filter((file) => applicable(file, target))
         .filter((file) => {
-          if (target === 'linux' && sourcePlatform(file) === 'web') {
-            return !existsSync(file.replace(/\.web(?=\.)/, '.linux'))
-          }
-
           if (sourcePlatform(file) || file.endsWith('.d.ts')) {
             return true
           }
@@ -491,8 +481,8 @@ export function expandEnvPrograms(
   return [...groups]
     .sort(
       ([a], [b]) =>
-        ['web', 'ios', 'android', 'macos', 'windows', 'linux', 'gtk'].indexOf(a) -
-        ['web', 'ios', 'android', 'macos', 'windows', 'linux', 'gtk'].indexOf(b),
+        ['web', 'ios', 'android', 'macos', 'windows', 'gtk'].indexOf(a) -
+        ['web', 'ios', 'android', 'macos', 'windows', 'gtk'].indexOf(b),
     )
     .map(([env, group]) => {
       const configPath = join(outDir, `${env}.json`)
@@ -500,7 +490,7 @@ export function expandEnvPrograms(
       // Compiler-only negative assertions also catch renamed/vendored ambient
       // declarations that the SDK-path inspection cannot recognize.
       const forbidden = [
-        ...(['web', 'linux'].includes(env) ? [] : ['document', 'window', 'HTMLElement']),
+        ...(env === 'web' ? [] : ['document', 'window', 'HTMLElement']),
         ...(env === 'ios' ? [] : ['UIView']),
         ...(env === 'android' ? [] : ['android.os.Build']),
       ]
@@ -541,7 +531,7 @@ export function assertPlatformIsolation(env, files) {
     const sdk = /\/@nativescript\/types-(ios|android)\//.exec(file)?.[1]
 
     if (
-      (!['web', 'linux'].includes(env) && /\/lib\.dom(?:\.[^/]*)?\.d\.ts$/i.test(file)) ||
+      (env !== 'web' && /\/lib\.dom(?:\.[^/]*)?\.d\.ts$/i.test(file)) ||
       file.endsWith('/@nativescript/types/index.d.ts') ||
       (sdk && sdk !== env)
     ) {

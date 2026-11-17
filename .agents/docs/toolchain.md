@@ -356,7 +356,7 @@ experience of agents writing Octane-xplat code effectively.
   tooling separately. Use a touched-package/dependents filter for focused work.
 - **Package typechecks use `tsconfig.envs.json`** to declare applicable roots.
   `scripts/typecheck.ts` and `xplat typecheck` expand separate web, iOS, Android,
-  macOS, Windows, Linux WebKit, and native GTK programs; `native` expands into iOS and Android. Shared code is checked in every applicable
+  macOS, Windows, and native Linux GTK programs; `native` expands into iOS and Android. Shared code is checked in every applicable
   program, with platform SDK declarations and a transitive ambient-leak guard.
   Root solution references make the generated programs discoverable to the
   TypeScript 7 language server and its TSRX content mapper. Shared editor files
