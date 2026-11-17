@@ -34,6 +34,19 @@ python3 tools/linux-runtime-eval/prepare-metadata.py \
 
 The helper copies the executable, SDK metadata, and Mason library; generates additional metadata under `metadata/`; and records input hashes. The runtime finds extra metadata and `lib/` beside its executable. The generated module uses a library name rather than an absolute library path, so the prepared directory can move. This is a probe bundle, not an installer or complete application package.
 
+### Build the pinned executable
+
+On a macOS build host, reserve a native build slot. Use Rust 1.99.1 with the target's Linux standard library, Zig 0.17.1, LLVM 23.1.5, Python 3 and pkg-config. ARM64 also requires LLD 22.1.8 for the final link so Rust's Cortex-A53 workaround is applied. Set `LINUX_RUNTIME_LLVM_BIN` or `LINUX_RUNTIME_ARM64_LLD` when those tools are outside Homebrew's default paths. The optional `LINUX_RUNTIME_RUST_TOOLCHAIN` selects a local rustup name for the same pinned compiler.
+
+Put the [pinned linux-runtime source archive](https://codeload.github.com/triniwiz/linux-runtime/tar.gz/57408ba5e9cfe4a48bc68223c9d53a869d2cee5f) in the input directory as `source.tar.gz`. From the [rusty_v8 147.4.0 release](https://github.com/denoland/rusty_v8/releases/tag/v147.4.0), save `librusty_v8_release_<arch>-unknown-linux-gnu.a.gz` as `v8-147.4.0-<arch>.a.gz`. Supply the frozen target GLib build inputs as `glib-sysroot-<arch>.tar.gz`. This archive contains the target headers, pkg-config files and shared libraries for GLib, GObject and libffi. Use `x86_64` or `aarch64` for `<arch>`.
+
+```sh
+sh tools/linux-runtime-eval/build-runtime-executable.sh \
+  x86_64 /path/to/inputs /path/to/new-build
+```
+
+The script verifies all three archives and the Cargo lock before building in a fresh directory. A successful run produces a stripped `ns-linux`, the upstream runtime license, a checksum file and an input manifest. Check `runtime-linkage.txt` for the binary's library and glibc requirements. To check reproducibility, run the script again with the same inputs in a different output directory and compare both checksum files. The SDK metadata, TypeScript declarations, Mason libraries, ICU data and remaining dependency licenses are separate distribution inputs.
+
 ## Run with OS input
 
 Run from the repository root under an owned Linux host reservation. For `andromeda.local`'s existing `octane-linux` VM, reserve `exclusive:["linux:andromeda-octane-linux"]` and `resident_devices:1`; preparation also needs `native_builds:1`. Leave the user-owned VM running after releasing the reservation.
