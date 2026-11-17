@@ -63,3 +63,24 @@ diff --git a/view/index.ios.js b/view/index.ios.js
              // One native call computes a root for the host's specs, or reads a child's placed box.
              // @ts-ignore
              setMeasuredFromNative(this, nativeView.mason_measure(widthMeasureSpec, heightMeasureSpec, root, false));
+diff --git a/smooth-corners.js b/smooth-corners.js
+--- a/smooth-corners.js
++++ b/smooth-corners.js
+@@ -3,7 +3,8 @@ import { encodeSmoothCorners } from './smooth-corners-config';
+  * to restore authored CSS radii. Windows and non-Mason hosts throw explicitly. */
+ export function setSmoothCorners(surface, options) {
+     const native = surface._view;
+-    if (typeof native?.style?.setSmoothCorners !== 'function') {
++    const style = native?.style ?? native?.getStyle?.();
++    if (typeof style?.setSmoothCorners !== 'function') {
+         throw new Error('This Mason native host does not support smooth corners; iOS and Android adapters are required');
+     }
+     const values = options === null ? null : encodeSmoothCorners(options);
+@@ -13,6 +14,6 @@ export function setSmoothCorners(surface, options) {
+         values.forEach((value, index) => { array[index] = value; });
+         input = array;
+     }
+-    if (!native.style.setSmoothCorners(input))
++    if (!style.setSmoothCorners(input))
+         throw new RangeError('The native Mason surface rejected smooth corner settings');
+ }

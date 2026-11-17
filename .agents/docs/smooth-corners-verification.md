@@ -27,7 +27,7 @@ Use the existing installed browser engines. A missing engine is unavailable evid
 
 ## Check native runtimes
 
-Reserve the selected physical device or simulator and native build capacity with the host resource broker before invoking native tasks. Pass an existing device ID explicitly; the package tasks never create or select devices. The Android task checks native CSS path forwarding, background updates, resize, overflow, native touch dispatch and disposal. Native dispatch is separate from OS input.
+Reserve the selected physical device or simulator and native build capacity with the host resource broker before invoking native tasks. Pass an existing device ID explicitly; the package tasks never create or select devices. The Android task checks Mason border ownership, resize, overflow and synthetic native touch dispatch. iOS runtime behavior, disposal, background changes and broader layout remain separate qualifications. Native dispatch is separate from OS input.
 
 ```sh
 bun run turbo run test:android --filter=@octane-xplat/smooth-corners -- --device DEVICE_SERIAL
@@ -42,3 +42,7 @@ bun run turbo run test:android-input --filter=@octane-xplat/smooth-corners -- --
 ```
 
 Record the exact revision, target, device/API/density, artifact, assertions, and limitations in Silo. Geometry, native mask reads, OS input, accessibility, pixel parity, and dense-panel performance are separate evidence. Current fixtures do not qualify all of those areas. Native GTK and Windows adapters remain unsupported; do not promote package import/build results into support claims.
+
+## Mason core beta.11 Android binding
+
+Mason core 1.0.0-beta.11's `setSmoothCorners` helper reads `native.style`. On the NativeScript Android probe host, the Mason view exposes `getStyle()` while `style` is undefined; the published helper throws before applying a setting. The canonical Mason patch resolves `getStyle()` as a fallback. The Android integration fixture must pass before dropping this hunk. This observation does not establish the behavior of other runtimes or iOS.

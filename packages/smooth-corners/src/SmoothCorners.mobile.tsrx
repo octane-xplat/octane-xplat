@@ -4,30 +4,29 @@ import { validateSurfaceProps } from './validation.ts'
 import { useCallback, useEffect, useRef } from 'octane'
 import { isIOS } from '@nativescript/core'
 import type { View } from '@nativescript/core'
+import { setSmoothCorners } from '@octane-xplat/nativescript-mason-core'
 import {
-  applySmoothClip as applyIosClip,
   applySmoothShadow as applyIosShadow,
-  disposeSmoothClip as disposeIosClip,
   disposeSmoothShadow as disposeIosShadow,
 } from './apply.ios'
 
 import {
-  applySmoothClip as applyAndroidClip,
   applySmoothShadow as applyAndroidShadow,
-  disposeSmoothClip as disposeAndroidClip,
   disposeSmoothShadow as disposeAndroidShadow,
 } from './apply.android'
 
 import { outerLayoutProps, paintedStyle } from './layout-child'
+import { createMasonSurfaceOwner } from './mason-surface'
 import type { SmoothCornersProps } from './props'
 import { clipsChildren, contentLayout, contentPaintReset, surfaceLayout } from './surface'
 
-type SmoothNativeView = View & { style: View['style'] & { overflowX?: string; overflowY?: string } }
+type SmoothNativeView = View & {
+  readonly _view: unknown
+  style: View['style'] & { overflowX?: string; overflowY?: string }
+}
 
-const applyClip = isIOS ? applyIosClip : applyAndroidClip
 const applyShadow = isIOS ? applyIosShadow : applyAndroidShadow
 const disposeShadow = isIOS ? disposeIosShadow : disposeAndroidShadow
-const disposeClip = isIOS ? disposeIosClip : disposeAndroidClip
 
 /** The decorative surface is masked independently of the content host.
  * Parent layout metadata remains on the outer wrapper. */
@@ -46,23 +45,24 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
     props,
   })
 
+  const owner = useRef(createMasonSurfaceOwner(setSmoothCorners))
+
   state.current.props = props
 
   const apply = useCallback(() => {
     const s = state.current
 
-    if (s.inner) {
+    if (s.inner?._view) {
       const style = s.inner.style
 
-      applyClip(
+      owner.current.update(
         s.inner,
-        { ...s.props, border: undefined, shadow: undefined },
-        clipsChildren(style.overflowX, style.overflowY),
+        clipsChildren(style.overflowX, style.overflowY) ? s.props.corners : null,
       )
     }
 
-    if (s.surface) {
-      applyClip(s.surface, { ...s.props, shadow: undefined })
+    if (s.surface?._view) {
+      owner.current.update(s.surface, s.props.corners)
     }
 
     if (s.outer) {
@@ -80,10 +80,10 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
         prev.off?.('layoutChanged', apply)
         prev.style?.off?.('overflowXChange', apply)
         prev.style?.off?.('overflowYChange', apply)
-        if (which !== 'outer') {
-          disposeClip(prev)
-        } else {
+        if (which === 'outer') {
           disposeShadow(prev)
+        } else {
+          owner.current.dispose(prev)
         }
       }
 
@@ -138,7 +138,12 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
         <masonview
           ref={bindSurface.current}
           className={props.className}
-          style={{ ...paintedStyle(props.style), ...surfaceLayout }}
+          style={{
+            ...paintedStyle(props.style),
+            ...surfaceLayout,
+            borderWidth: props.border?.width ?? 0,
+            borderColor: props.border?.color,
+          }}
         />
         {props.children}
       </masonview>

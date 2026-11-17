@@ -11,7 +11,7 @@ Two tiers coexist:
   whatever the engine picks: `CALayer.cornerCurve` on iOS, superellipse(n=4)
   on patched non-uniform iOS paths, CSS `corner-shape` on Chromium, plain
   round on Android/other browsers. "Smooth-ish," not cross-target identical.
-- **Tier 2 (this package):** one JS-generated curve shapes the surface on every target, with
+- **Tier 2 (this package):** matched browser-reference and native-engine curves shape the surface, with
   optional clipping of descendants. Required when pixels must match iOS (sheets, cards, hero
   surfaces) or when the caller wants exact smoothing control.
 
@@ -55,11 +55,11 @@ src/
   path.ts                     shared: generateCommands → PathCommand[]; 'continuous' (Rosenfeld)
                               builder + stitcher; delegates other curves to @lisse/core/path
   SmoothCorners.tsrx          explicit unsupported default
-  SmoothCorners.mobile.tsrx   shared mobile leaf; isIOS dispatches the native adapters
+  SmoothCorners.mobile.tsrx   Mason surface and content ownership; platform shadow adapters
   SmoothCorners.windows.tsrx  explicit unsupported WinUI boundary
   SmoothCorners.gtk.tsrx      explicit unsupported GTK boundary
-  apply.ios.ts                Mason CSS clipPath ownership + CGMutablePath border stroke/shadowPath
-  apply.android.ts            Mason CSS clipPath + foreground border; outline only for explicit elevation
+  apply.ios.ts                legacy clip/border adapter and iOS shadowPath
+  apply.android.ts            legacy clip/border adapter and outline for explicit elevation
   layout-child.ts             layout-prop split: parent metadata → outer, flex props → inner
   layout-child.web.ts         same split folded into element style objects
   SmoothCorners.web.tsrx      clip-path: path(d) + SVG stroke overlay + shadow-only SVG filter
@@ -103,10 +103,7 @@ The outer wrapper owns parent layout metadata and inline box geometry. The conte
 `path.ts` emits a `PathCommand[]` (`M/L/C/A/Z`, absolute) — parse `@lisse/core`'s
 `generatePath()` `d` (emitters only produce `M l c a z`, circular arcs only)
 and stitch `continuous` corners from the Rosenfeld table. The command list is
-the single cross-platform artifact: web stringifies it, native leaves build
-native path objects from it. Dependency is `@lisse/core` — leaf package, so a
-real `dependencies` entry is allowed (decision #51); import only `/path` on
-native so DOM-touching modules never bundle.
+the browser reference and the source of the AppKit and mobile shadow paths. Mason core generates the mobile surface and content outline in Rust against that reference. `@lisse/core` remains a leaf dependency (decision #51); import only `/path` on native so DOM-touching modules never bundle.
 
 ## Per-platform rendering
 
@@ -115,8 +112,7 @@ its own smooth clip; only `overflow: hidden` requests a matching clip on the
 content host. Removing hidden overflow removes the owned content mask. Shadows
 belong to the outer host (SVG shadow-only filter on web, native shadow path or
 elevation on native) so content clipping does not cut them off. Keep the
-painting surface out of layout, accessibility, and input. The generated curve
-remains shared; native overflow/hit-testing still needs target qualification.
+painting surface out of layout, accessibility, and input. Mason owns the mobile surface outline; native overflow/hit-testing still needs target qualification.
 
 The visible default is the platform initial value — the package ships no
 stylesheet rule for it. An earlier unlayered `.vx-smooth-corners { overflow:
@@ -141,12 +137,12 @@ export function ClippedCard() {
 | Target | Surface painting | Child clipping and shadow |
 | --- | --- | --- |
 | Web | Background and inside SVG border on a decorative path-clipped surface | Computed hidden overflow enables a matching content clip; a shadow-only SVG filter sits outside it |
-| iOS | Mason-owned path() clip on the decorative surface; a native inside-border stroke | Hidden content receives the same Mason clipPath; visible clears only the owned CSS value; outer shadowPath stays unclipped |
-| Android | Mason paints the path-clipped background; a foreground Drawable paints the inside border | Mason CSS path() owns optional child clipping and curved-region touch exclusion; outer android.elevation uses an outline |
+| iOS | Mason smooth-corner surface and style-painted inside border | Hidden content requests the Mason outline; outer shadowPath stays unclipped |
+| Android | Mason smooth-corner surface and style-painted inside border | Mason owns optional child clipping and curved-region touch exclusion; outer android.elevation uses an outline |
 | macOS (AppKit) | Core Graphics/CAShapeLayer masks the decorative surface | Resolved hidden overflow enables the content mask; the outer shadowPath stays unclipped |
 | Linux / Windows webview | Uses the web leaf | Same browser implementation; native desktop renderer support is separate |
 
-Android outline paths are usable for elevation but do not imply arbitrary child clipping: Outline.canClip supports every shape only on API 33+, whereas setPath was added in API 30. Mason core 1.0.0-beta.8 implements CSS path clipping in ClipPath.kt/Mask.kt with an antialiased layer and native touch exclusion. Use that existing owner on every supported Android version; do not add an outline or rectangular fallback for content. The foreground border converts the entire logical path to device pixels once, preserving radius ratios at non-unit density. Restore component-owned CSS values, foregrounds and elevation outlines on detachment without clearing another owner's replacement.
+Mason core beta.11 owns mobile smooth surface painting and hidden-overflow clipping. Android elevation still uses the component's outline adapter; Mason does not supply elevation outlines. The older mobile clip and border adapters remain until their replacements are qualified on both mobile targets. See [verification](../docs/smooth-corners-verification.md) for the Android helper patch and evidence limits.
 
 `shadow` is explicitly supported on web/iOS/AppKit and throws on Android. `android.elevation` is native elevation in DIPs, with OS-controlled appearance. Web spread regenerates the larger/smaller silhouette, matching the native shadow-path approach. Portable border/shadow color syntax is CSS hex (alpha last), comma-separated rgb()/rgba(), or transparent; reject unsupported syntax rather than substituting black. Numeric validation rejects non-finite/negative radii and widths, smoothing outside [0,1], exponents below 2, and invalid shadow values before native drawing.
 
