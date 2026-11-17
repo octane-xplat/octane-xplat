@@ -13,6 +13,7 @@ import {
 } from './bindings.mjs'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { PortScreen, portState } from './screen.gtk.tsx'
+import { getNativeGtkMajorVersion } from './native-sdk-smoke.ts'
 const { Gtk, GLib } = namespaces
 
 const check = (name, ok, detail) => {
@@ -51,6 +52,8 @@ const frame = (widget, target) => {
 }
 
 Gtk.init()
+const nativeGtkMajor = getNativeGtkMajorVersion()
+check('native-sdk-gtk-version', nativeGtkMajor === Gtk.MAJOR_VERSION, nativeGtkMajor)
 const options = {
   scheduleMicrotask: (callback) =>
     GLib.idle_add(0, () => {

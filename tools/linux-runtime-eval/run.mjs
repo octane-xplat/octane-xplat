@@ -21,6 +21,9 @@ const runtime = engine === 'gjs' ? ['gjs', '-m'] : [executable]
 // --expose-gc lets the port/slice drain checks force V8 collections; without
 // it they silently fall back to waiting.
 const envVars = engine === 'native' ? ['NS_V8_FLAGS=--expose-gc'] : []
+if (engine === 'native' && process.env.LINUX_RUNTIME_EVAL_ICU_DATA) {
+  envVars.push(`ICU_DATA=${process.env.LINUX_RUNTIME_EVAL_ICU_DATA}`)
+}
 if (masonDir) {
   envVars.push(`XPLAT_MASON_TYPELIB=${masonDir}`, `LD_LIBRARY_PATH=${masonDir}`)
 }

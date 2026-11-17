@@ -154,10 +154,21 @@ XPLAT_MASON_TYPELIB=/path/to/facade LD_LIBRARY_PATH=/path/to/facade \
 
 `port/main.mjs` is a self-checking probe on the same input contract as the slice; `port/gjs-main.mjs` is the same screen through the shipping GI path for geometry parity.
 
+Typecheck the port's direct GTK call against the SDK declarations from the extracted runtime package:
+
 ```sh
-bun run turbo run build:port --filter=@xplat/linux-runtime-eval   # dist/port-native + dist/port-gjs
+bun run turbo run typecheck:sdk --filter=@xplat/linux-runtime-eval -- \
+  /path/to/extracted/package/framework/typings/index.d.ts
+```
+
+The NativeScript port runs that same TypeScript function and checks that `gtk_get_major_version()` agrees with the renderer's projected GTK namespace. Run with the SDK metadata, Mason libraries and ICU data from the prepared runtime:
+
+```sh
 LINUX_RUNTIME_EVAL_HOST=andromeda.local LINUX_RUNTIME_EVAL_VM=octane-linux \
+LINUX_RUNTIME_EVAL_GI_SCHEMA=/path/to/exported/gi.json \
 LINUX_RUNTIME_EVAL_EXECUTABLE=/path/to/task-scratch/prepared/ns-linux \
+LINUX_RUNTIME_EVAL_MASON_DIR=/path/to/task-scratch/prepared \
+LINUX_RUNTIME_EVAL_ICU_DATA=/path/to/icu77 \
   bun run turbo run test:port --filter=@xplat/linux-runtime-eval
 ```
 

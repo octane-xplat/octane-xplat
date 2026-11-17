@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node build.mjs",
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+    "typecheck:sdk": "tsc --runExternalCode --ignoreConfig --noEmit --strict --skipLibCheck port/native-sdk-smoke.ts",
     "test:runtime": "node run.mjs",
     "test:port": "LINUX_RUNTIME_EVAL_SLICE=port node run.mjs",
     "test:renderer-fixture": "node renderer-fixture.mjs",
