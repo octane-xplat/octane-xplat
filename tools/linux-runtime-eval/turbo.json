@@ -3,6 +3,7 @@
   "tasks": {
     "typecheck:sdk": { "cache": false, "outputs": [] },
     "test:metadata": { "cache": false, "outputs": [] },
+    "build:installed-app": { "dependsOn": ["^typegen", "^build"], "cache": false, "outputs": [] },
     "test:runtime": {
       "dependsOn": ["build"],
       "cache": false,

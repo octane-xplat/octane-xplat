@@ -61,6 +61,26 @@ python3 tools/linux-runtime-eval/stage-runtime-bundle.py \
 
 The payload includes the executable, its metadata and libraries, the GI schema, ICU data, notices, and TypeScript declarations. `manifest.json` records the architecture and SHA-256 of each file. It is written last. A payload without it is incomplete. Pass the staged `icu/` directory as `ICU_DATA` when launching the staged executable.
 
+### Launch an archived app
+
+From the repository root, typecheck the consumer with the staged SDK and build its app archive:
+
+```sh
+bun run turbo run typecheck:sdk --filter=@xplat/linux-runtime-eval -- \
+  /path/to/payload/typings/index.d.ts
+bun run turbo run build:installed-app --filter=@xplat/linux-runtime-eval -- \
+  /path/to/payload /path/to/new-app
+```
+
+Extract `new-app.tar.gz` in task scratch on Andromeda's Linux VM under a VM reservation. Launch the extracted app from outside that directory:
+
+```sh
+cd /tmp
+dbus-run-session -- xvfb-run -a /path/to/extracted/new-app/launch
+```
+
+The probe reports `{"installedGtkApp":true,"gtkMajor":4}` after the window maps and its rendered label matches. It uses the repository renderer and the executable and ICU data embedded in the archive. This exercises the runtime payload in a relocated app. The build still uses the evaluation preset, before the CLI packaging switch.
+
 ## Run with OS input
 
 Run from the repository root under an owned Linux host reservation. For `andromeda.local`'s existing `octane-linux` VM, reserve `exclusive:["linux:andromeda-octane-linux"]` and `resident_devices:1`; preparation also needs `native_builds:1`. Leave the user-owned VM running after releasing the reservation.
