@@ -22,7 +22,7 @@ The manual steps below support exploratory runs only. They do not produce a pinn
 
 Obtain the runtime package, verify its npm integrity, and extract it into disposable task storage. Build `libmason_c.so` for the target architecture from the matching Mason source. This tool consumes that artifact rather than managing Rust toolchains. Use Mason's public `mason_native.h`; keep the source revisions, locks, and input hashes with the run evidence.
 
-Prepare a fresh task-owned executable directory on Linux; the output path must not exist:
+Prepare a fresh task-owned executable directory on x86_64 or aarch64 Linux. The helper selects the runtime and metadata generator for the host architecture and checks the executable and libraries. Pass `--runtime /path/to/source-built/ns-linux` to pair the source build with the package's SDK metadata. The output path must not exist:
 
 ```sh
 python3 tools/linux-runtime-eval/prepare-metadata.py \
