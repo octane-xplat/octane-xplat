@@ -69,7 +69,7 @@ test(`${platform} backend lowers the complete logical artifact to its expected v
 test(`${platform} backend rejects structurally valid unsupported native setter values in either theme`, () => {
   for (const theme of ['light', 'dark'])
     for (const [key, value] of [
-      ['display', 'block'],
+      ['display', 'grid'],
       ['flexDirection', 'row-reverse'],
       ['alignItems', 'stretch'],
       ['justifyContent', 'start'],
