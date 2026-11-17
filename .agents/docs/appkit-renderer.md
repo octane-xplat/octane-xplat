@@ -36,6 +36,15 @@ through the acquired adapter. Synchronization that reads several props runs
 after the whole bag has been merged. New element support belongs in adapter
 definition/assembly and its feature owner, not a generic lifecycle switch.
 
+Property removal is renderer- and control-specific. AppKit supplies `undefined`
+clears for previously applied non-nullish values, including authored props, and
+each adapter decides what that means. The text-value writer releases controlled
+ownership on `undefined` without clearing the displayed text. The NativeScript
+driver instead restores registered setters with `unsetValue` and ordinary
+properties from captured defaults. Do not replace these policies with a common
+reset operation without preserving their different contracts. A generic loop
+over removed names alone does not remove the platform-specific work.
+
 The registry owns element support and containment queries as well as identity
 maps. It has no service dependencies and is constructed first. Node creation,
 batch validation and projection consult that same registry, including live
