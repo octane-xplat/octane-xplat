@@ -7,7 +7,7 @@ const fixtures = {
     title: 'GTK projection smoke',
     marker: 'GTK_PROJECTION',
     input: false,
-    checks: 20,
+    checks: 24,
   },
   'ui-popover': {
     title: 'Octane GTK Popover test',

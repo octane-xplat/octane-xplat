@@ -14,6 +14,7 @@ if(!OBJ)throw Error('bindings v2 requires __nsGObject.object (runtime >= be71019
 const pointer = value => value?.__native ?? value
 const key = value => { const p = pointer(value); return p?.toBigInt ? p.toBigInt().toString() : p?.toString() }
 const constructors = new Map(), byTypeName = new Map(), byGType = new Map()
+const nativeMethods = new WeakSet(), classProperties = new Map()
 const proxies = new WeakMap()
 // ptrKey -> GType name: every GObject proxy we create, until its weak notify.
 export const pendingFinalizers = new Map()
@@ -66,6 +67,15 @@ const toWrapper = (p) => {
 function fromNative(value,type,transfer=0){
   if(value==null)return value
   if(type.tag===1)return !!value
+  if(type.tag===20){
+    // GError callback arguments are borrowed; copy their fields before the
+    // callback returns so the JS value cannot retain a dangling C pointer.
+    try{
+      const error=new interop.Reference(_GError,value).value
+      const domain=Number(error.domain),code=Number(error.code),message=decode(error.message)
+      return {domain,code,message,matches:(otherDomain,otherCode)=>domain===Number(otherDomain)&&code===Number(otherCode)}
+    }finally{if(transfer===2)g_error_free(value)}
+  }
   if(type.tag===13||type.tag===14){if(typeof value==='string')return value;const str=decode(value);if(transfer===2)g_free(value);return str}
   if(type.tag===15&&type.zero){const result=[];for(let i=0;;i++){const p=new interop.Reference(t.pointer,value.add(i*8)).value;if(!p)break;result.push(fromNative(p,type.element))}return result}
   if(type.tag===16){
@@ -107,6 +117,13 @@ const weakFinalized = (data, _dead) => {
 const dropTransfer = (w, type) => {
   if(!g_type_is_a(type,g_initially_unowned_get_type()))g_object_unref(w)
 }
+function objectPropertySpec(w,name){
+  const klass=new interop.Reference(t.pointer,w).value,id=key(klass)
+  let properties=classProperties.get(id)
+  if(!properties){properties=new Map();classProperties.set(id,properties)}
+  if(!properties.has(name))properties.set(name,g_object_class_find_property(klass,name)??null)
+  return properties.get(name)
+}
 function wrapObject(p,ref,transfer=0,prototype){
   if(!p)return null
   p = p.__native ?? p
@@ -134,18 +151,20 @@ function wrapObject(p,ref,transfer=0,prototype){
   projectGdkPopupInterface(target,type)
   const proxy=new Proxy(target,{
     get(obj,property,receiver){
-      if(Reflect.has(obj,property))return Reflect.get(obj,property,receiver)
-      if(typeof property!=='string')return undefined
+      const present=Reflect.has(obj,property)
+      const existing=present?Reflect.get(obj,property,receiver):undefined
+      if(typeof property!=='string'||(present&&!nativeMethods.has(existing)))return existing
+      // GJS resolves an introspected property before a same-named native method
+      // (for example WebKit.WebView.is_loading).
       const propertyName=property.replaceAll('_','-')
-      const klass=new interop.Reference(t.pointer,w).value
-      const spec=g_object_class_find_property(klass,propertyName)
+      const spec=objectPropertySpec(w,propertyName)
       if(spec)return propertyGet(proxy,propertyName,spec)
-      return undefined
+      return existing
     },
     set(obj,property,value,receiver){
-      if(typeof property==='string'&&!property.startsWith('__')&&!Reflect.has(obj,property)){
-        const klass=new interop.Reference(t.pointer,w).value
-        const spec=g_object_class_find_property(klass,property.replaceAll('_','-'))
+      const existing=Reflect.has(obj,property)?Reflect.get(obj,property,receiver):undefined
+      if(typeof property==='string'&&!property.startsWith('__')&&(!Reflect.has(obj,property)||nativeMethods.has(existing))){
+        const spec=objectPropertySpec(w,property.replaceAll('_','-'))
         if(spec){propertySet(proxy,property.replaceAll('_','-'),value,spec);return true}
       }
       return Reflect.set(obj,property,value,receiver)
@@ -278,8 +297,11 @@ function getClass(ns,name){
   if(record.parent)Object.setPrototypeOf(klass.prototype,getClass(record.parent.ns,record.parent.name).prototype)
   for(const [methodName,method]of allMethods(ns,name)){
     if(typeof C[method.symbol]!=='function')continue
-    if(method.flags&1)Object.defineProperty(klass.prototype,methodName,{value:function(...args){return invoke(method,args,this)},writable:true})
-    else Object.defineProperty(klass,methodName,{value:(...args)=>invoke(method,args),configurable:true})
+    if(method.flags&1){
+      const projected=function(...args){return invoke(method,args,this)}
+      nativeMethods.add(projected)
+      Object.defineProperty(klass.prototype,methodName,{value:projected,writable:true})
+    }else Object.defineProperty(klass,methodName,{value:(...args)=>invoke(method,args),configurable:true})
   }
   // Signal/property sugar on top of the runtime's own wrapper methods; the
   // runtime owns the closure — it is freed on disconnect or instance finalize.
