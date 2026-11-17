@@ -1,6 +1,7 @@
 {
   "extends": ["//"],
   "tasks": {
+    "test:metadata": { "cache": false, "outputs": [] },
     "test:runtime": {
       "dependsOn": ["build"],
       "cache": false,

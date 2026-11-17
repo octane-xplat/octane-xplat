@@ -108,13 +108,28 @@ goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-o
 
 Pass fixture stems after `--` for a smaller run, for example `-- ui-theme` or `-- a11y ui-accessibility`; omit them to run all 37.
 
-This command discovers only top-level `test/*.test.mjs` files that call `runGtkUiFixture` or `runGtkEvalFixture`; fixture source files under `test/fixtures/` are not counted separately. Missing typelibs or test failures remain failures in that engine's log; compare matching `*.native.log` and `*.gjs.log` files before classifying them as projection regressions. NativeScript's exported GI metadata currently lacks WebKitGTK 6.0, while GJS on Andromeda passes the WebView fixture; do not call WebView parity until the native metadata export includes it.
+This command discovers only top-level `test/*.test.mjs` files that call `runGtkUiFixture` or `runGtkEvalFixture`; fixture source files under `test/fixtures/` are not counted separately. Missing typelibs or test failures remain failures in that engine's log; compare matching `*.native.log` and `*.gjs.log` files before classifying them as projection regressions. The WebView fixture needs WebKitGTK 6.0 and JavaScriptCore metadata in the prepared NativeScript runtime; generate that metadata and the matching GI schema as described below.
 
-The WebView GJS pass exercises `ui-webview` on this host; the NativeScript WebView result remains blocked on generated metadata and is not qualified by the other fixtures.
+### Prepare WebKitGTK metadata
+
+For the WebView fixture, use WebKitGTK 6.0 and JavaScriptCore headers matching the installed libraries, the libsoup 3 headers, GTK4 development headers, and the Linux metadata generator. Run this on the target Linux architecture after preparing the runtime directory. The output paths must be new:
+
+```sh
+python3 tools/linux-runtime-eval/prepare-webkit-metadata.py \
+  --generator /path/to/metadata-generator \
+  --webkit-include /path/to/include/webkitgtk-6.0 \
+  --soup-include /path/to/include/libsoup-3.0 \
+  --output /path/to/prepared/metadata/webkit.bin \
+  --manifest /path/to/prepared/webkit-manifest.json
+```
+
+The generator records its own hash, header-tree hashes, GTK version and metadata hash. It uses the target system's GTK headers; these records alone do not establish a reproducible runtime build. Re-export the GI schema on the same host with WebKitGTK 6.0 and JavaScriptCore typelibs installed, then pass its local path with `LINUX_RUNTIME_EVAL_GI_SCHEMA` when running the NativeScript fixture. Set `LINUX_RUNTIME_EVAL_EXECUTABLE` and `LINUX_RUNTIME_EVAL_MASON_DIR` to the prepared directory's executable and Mason files as in the suite commands above.
+
+The `ui-webview` fixture tests document loading and the imperative handle without OS input. Its pass does not establish visual parity or other architectures.
 
 ### Check projection values and ownership
 
-The `projection` fixture checks decoded bytes, copied buffers, empty arrays, GTK interface membership, and transform construction and reuse before broader UI runs. Use the same prepared runtime, Mason directory, and ICU data as above. It performs no OS input and prints a `GTK_PROJECTION` summary; the runner rejects failed checks or a missing summary.
+The `projection` fixture checks decoded bytes, copied buffers, empty arrays, GTK interface membership, property precedence, GLib errors, and transform construction and reuse before broader UI runs. Use the same prepared runtime, Mason directory, and ICU data as above. It performs no OS input and prints a `GTK_PROJECTION` summary; the runner rejects failed checks or a missing summary.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"GTK projection smoke"}' -- \
