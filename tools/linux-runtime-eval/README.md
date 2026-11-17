@@ -16,7 +16,7 @@ The generated `dist/native/slice.js` and `dist/gjs/slice.js` are disposable. The
 
 ## Prepare an exploratory NativeScript runtime
 
-Use a Linux host with GTK4, GJS, Python 3, D-Bus, Xvfb, X11, and XTest libraries. `andromeda.local` and its existing OrbStack VM `octane-linux` are the preferred build and test host. No screenshots are captured. Reserve the host before running native tools. Remote mode requires this checkout to be mounted at the same absolute path inside the VM.
+Use the existing `octane-linux` VM on `andromeda.local` for Linux testing. The fixtures require GTK4, GJS, Python 3, D-Bus, Xvfb, X11, and XTest libraries. No screenshots are captured. Reserve the VM before running native tools. Remote mode requires this checkout to be mounted at the same absolute path inside the VM.
 
 The manual steps below support exploratory runs only. They do not produce a pinned, reproducible, multi-architecture runtime distribution. The existing binaries in task scratch have incomplete build provenance and must not be treated as official artifacts. Building and packaging a verified runtime for each supported architecture remains a release gate.
 
@@ -156,7 +156,7 @@ XPLAT_MASON_TYPELIB=/path/to/facade LD_LIBRARY_PATH=/path/to/facade \
 
 ```sh
 bun run turbo run build:port --filter=@xplat/linux-runtime-eval   # dist/port-native + dist/port-gjs
-LINUX_RUNTIME_EVAL_VM=gtk-smoke \
+LINUX_RUNTIME_EVAL_HOST=andromeda.local LINUX_RUNTIME_EVAL_VM=octane-linux \
 LINUX_RUNTIME_EVAL_EXECUTABLE=/path/to/task-scratch/prepared/ns-linux \
   bun run turbo run test:port --filter=@xplat/linux-runtime-eval
 ```
@@ -178,7 +178,8 @@ python3 tools/linux-runtime-eval/prepare-metadata.py \
 The same task runs the GJS control: `LINUX_RUNTIME_EVAL_ENGINE=gjs LINUX_RUNTIME_EVAL_SLICE=port` runs `dist/port-gjs/app.js` under `gjs -m` through the same input driver. GJS needs `LINUX_RUNTIME_EVAL_MASON_DIR` set to a directory containing the facade typelib and its libraries, which becomes `XPLAT_MASON_TYPELIB` + `LD_LIBRARY_PATH` inside the guest. `ns-linux` finds Mason through the bundle's prepared metadata even without it:
 
 ```sh
-LINUX_RUNTIME_EVAL_VM=gtk-smoke LINUX_RUNTIME_EVAL_ENGINE=gjs \
+LINUX_RUNTIME_EVAL_HOST=andromeda.local LINUX_RUNTIME_EVAL_VM=octane-linux \
+LINUX_RUNTIME_EVAL_ENGINE=gjs \
 LINUX_RUNTIME_EVAL_MASON_DIR=/path/to/task-scratch/facade-dir \
   bun run turbo run test:port --filter=@xplat/linux-runtime-eval
 ```
