@@ -7,6 +7,7 @@ import {
   flushUniversalSync,
 } from 'octane/universal/native'
 
+import { cx } from '../../lib/src/cx.ts'
 import { InternationalizationProvider } from '../../ui/src/components/forms/InternationalizationProvider.tsrx'
 import { Pager } from './Pager.macos.tsrx'
 
@@ -110,13 +111,14 @@ function mount(extra: any = {}) {
     return container.children.flatMap(walk)
   }
 
-  const one = (name: string) =>
-    all().find((node) => String(node.props?.className).split(' ').includes(name))
+  // Host props keep the declarative className value verbatim — primitives now
+  // pass class arrays, which only the platform driver normalizes. Match tokens
+  // the same way the driver does.
+  const classes = (node: any) => cx(node.props?.className).split(' ')
 
-  const pages = () =>
-    all().filter((node) =>
-      String(node.props?.className).split(' ').includes('vx-pager-page--appkit'),
-    )
+  const one = (name: string) => all().find((node) => classes(node).includes(name))
+
+  const pages = () => all().filter((node) => classes(node).includes('vx-pager-page--appkit'))
 
   const render = (props: any) => flushUniversalSync(() => root.render(Fixture, props))
   const emit = (name: string, object: any) => {
