@@ -368,7 +368,11 @@ experience of agents writing Octane-xplat code effectively.
   still have one default context. Read [platform checking](platform-typechecking.md)
   for resolution, inherited settings, declaration leakage, editor setup, and the
   evidence boundary. Declaration emission retains its own configs and is not an
-  isolation check.
+  isolation check. Because Vite 8's oxc transform follows those root references,
+  a references-style package's `vite build` config must pin `tsconfig` to the
+  committed env manifest — the programs are absent until a typecheck run, so an
+  unpinned config fails `build:packages` on a fresh checkout.
+  `bun run check:vite-tsconfigs` enforces the pin.
 - **App typecheck roots follow the app graph.** The mobile harness includes its
   own source and package ambient declarations; imported framework source is
   checked transitively. Do not root a mobile app program in every package's
