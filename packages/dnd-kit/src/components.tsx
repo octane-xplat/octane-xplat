@@ -8,7 +8,7 @@ import {
   useSyncExternalStore,
 } from 'octane'
 
-import { View, useMeasure$ } from '@octane-xplat/ui'
+import { View, useMeasure$, usePanGesture$ } from '@octane-xplat/ui'
 import { DndController } from './controller'
 import { dragStyle } from './geometry'
 import { arrayMove } from './sort'
@@ -121,17 +121,23 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
     [controller, options.id, measurement.ref],
   )
 
-  const onPan = useCallback(
-    (event: Parameters<DraggableResult['onPan']>[0]) => entity.current?.onPan?.(event),
-    [],
-  )
+  // A configured handle, not the View onPan convenience path: its fixed 8px
+  // floor would clamp activationDistance below the documented contract.
+  const pan = usePanGesture$({
+    axis: 'both',
+    activation: { distance: options.activationDistance ?? 0 },
+    enabled: options.disabled !== true,
+    onStart: (sample) => entity.current?.onPan?.({ phase: 'start', sample }),
+    onUpdate: (sample) => entity.current?.onPan?.({ phase: 'update', sample }),
+    onFinalize: (terminal) => entity.current?.onPan?.({ phase: 'finish', terminal }),
+  })
 
   const isDragging = snapshot.isDragging && snapshot.active?.id === options.id
   const transform = isDragging ? snapshot.transform : { x: 0, y: 0 }
 
   return {
     ref,
-    onPan,
+    pan,
     isDragging,
     transform,
     style: dragStyle(transform.x, transform.y, isDragging),
@@ -249,11 +255,11 @@ function SortableRow<T extends DndId>(props: {
   return (
     <View
       ref={sortable.ref}
-      onPan={props.list.renderHandle ? undefined : sortable.onPan}
+      gestures={props.list.renderHandle ? undefined : sortable.pan}
       style={sortable.style}
     >
       {props.list.renderItem(props.id, props.index)}
-      {props.list.renderHandle?.(props.id, props.index, sortable.onPan)}
+      {props.list.renderHandle?.(props.id, props.index, sortable.pan)}
     </View>
   )
 }

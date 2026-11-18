@@ -1,5 +1,5 @@
 import type { CollisionDetector, Data, UniqueIdentifier } from '@dnd-kit/abstract'
-import type { PanNotification, ViewProps } from '@octane-xplat/ui'
+import type { PanGesture, ViewProps } from '@octane-xplat/ui'
 
 /** Identifier type for draggables/droppables. */
 export type DndId = UniqueIdentifier
@@ -89,13 +89,13 @@ export interface DroppableOptions extends DraggableOptions {
 export interface DraggableResult {
   /** Ref callback wiring the node into the dnd registry. */
   ref(element: any): void
-  /** Attach to the drag surface; it may be a descendant of the measured `ref` node. */
-  onPan(event: PanNotification): void
+  /** Pan handle honoring activationDistance/disabled; attach with View `gestures` to the drag surface — it may be a descendant of the measured `ref` node. */
+  pan: PanGesture
   /** True while this node is the active drag. */
   isDragging: boolean
   /** Current drag offset applied to the element. */
   transform: { x: number; y: number }
-  /** Spread into View with ref and onPan. */
+  /** Spread into View with ref and pan. */
   style: NonNullable<ViewProps['style']>
 }
 
@@ -130,7 +130,7 @@ export interface SortableListProps<T extends DndId = DndId> extends Omit<ViewPro
   /** Minimum movement before any row starts dragging, in platform logical units. Defaults to 0. */
   activationDistance?: number
   /** Render a separate drag surface; when supplied, row pan input is attached only to this handle. */
-  renderHandle?(id: T, index: number, onPan: DraggableResult['onPan']): ViewProps['children']
+  renderHandle?(id: T, index: number, pan: DraggableResult['pan']): ViewProps['children']
   /** Called after a successful drop within this list; caller owns the item order. */
   onReorder(items: T[], event: DragEvent): void
   /** Opt the node out of dragging/dropping. */

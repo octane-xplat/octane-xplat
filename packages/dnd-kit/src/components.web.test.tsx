@@ -82,10 +82,10 @@ async function flush() {
   }
 }
 
-function DragSource() {
-  const drag = useDraggable({ id: 'source' })
+function DragSource(props: { activationDistance?: number }) {
+  const drag = useDraggable({ id: 'source', activationDistance: props.activationDistance })
 
-  return <View id="drag-source" ref={drag.ref} onPan={drag.onPan} style={drag.style} />
+  return <View id="drag-source" ref={drag.ref} gestures={drag.pan} style={drag.style} />
 }
 
 function DropTarget() {
@@ -137,11 +137,50 @@ describe('@octane-xplat/dnd-kit (web)', () => {
     })
   })
 
+  it('activates below the 8px convenience threshold at activationDistance 4', async () => {
+    const onDragStart = vi.fn()
+    const onDragEnd = vi.fn()
+    const { element } = mount(
+      <DndContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+        <DragSource activationDistance={4} />
+        <DropTarget />
+      </DndContext>,
+    )
+
+    await flush()
+
+    const source = element.querySelector('#drag-source')!
+    const target = element.querySelector('#drop-target')!
+
+    setBounds(source, 0)
+    setBounds(target, 80)
+
+    act(() => source.dispatchEvent(pointer('pointerdown', 20, 20)))
+    await flush()
+    // Four pixels meets activationDistance but not the convenience pan floor.
+    act(() => source.dispatchEvent(pointer('pointermove', 20, 24)))
+    await flush()
+
+    expect(onDragStart).toHaveBeenCalledTimes(1)
+
+    act(() => source.dispatchEvent(pointer('pointermove', 20, 100)))
+    await flush()
+    act(() => source.dispatchEvent(pointer('pointerup', 20, 100)))
+    await flush()
+
+    expect(onDragEnd.mock.calls[0]?.[0]).toMatchObject({
+      active: { id: 'source' },
+      over: { id: 'target' },
+      canceled: false,
+    })
+  })
+
   it('reports pointer cancellation without a successful drop', async () => {
+    const onDragStart = vi.fn()
     const onDragEnd = vi.fn()
     const onDragCancel = vi.fn()
     const { element } = mount(
-      <DndContext onDragEnd={onDragEnd} onDragCancel={onDragCancel}>
+      <DndContext onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={onDragCancel}>
         <DragSource />
         <DropTarget />
       </DndContext>,
@@ -154,10 +193,11 @@ describe('@octane-xplat/dnd-kit (web)', () => {
     setBounds(source, 0)
     act(() => source.dispatchEvent(pointer('pointerdown', 20, 20)))
     await flush()
-    // Pan activates after the 8px convenience threshold; cancel mid-drag.
-    act(() => source.dispatchEvent(pointer('pointermove', 20, 100)))
-    await flush()
-    act(() => source.dispatchEvent(pointer('pointercancel', 20, 100)))
+    // activationDistance defaults to 0: the drag starts on pointerdown, so a
+    // cancel with no movement must still produce onDragCancel.
+    expect(onDragStart).toHaveBeenCalledTimes(1)
+
+    act(() => source.dispatchEvent(pointer('pointercancel', 20, 20)))
     await flush()
 
     expect(onDragCancel).toHaveBeenCalledTimes(1)

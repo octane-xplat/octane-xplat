@@ -66,8 +66,9 @@ export function EmptyTasks() {
 ## Compose drag and drop
 
 Use `DndContext` around cooperating children. A draggable attaches `ref` and
-`style` to the measured, translated View; attach `onPan` to that View or to a
-separate descendant handle. `ref` is the Xplat View binding callback, not a DOM
+`style` to the measured, translated View; attach the returned `pan` gesture
+handle through the View `gestures` prop — on that View or on a separate
+descendant handle. `ref` is the Xplat View binding callback, not a DOM
 ref prop. `useMeasure$` observes layout; live geometry is read again during drag
 and auto-scroll. Set `activationDistance` to delay drag start until the pan has
 moved that far in platform logical units (web CSS pixels, native DIPs, or
@@ -82,7 +83,7 @@ function Card() {
   return (
     <View ref={drag.ref} style={drag.style}>
       <Text>Move me</Text>
-      <View onPan={drag.onPan}>
+      <View gestures={drag.pan}>
         <Text>⠿</Text>
       </View>
     </View>
@@ -162,8 +163,8 @@ export function TasksWithHandles() {
       activationDistance={8}
       onReorder={setItems}
       renderItem={(id) => <Text>{String(id)}</Text>}
-      renderHandle={(id, _index, onPan) => (
-        <View onPan={onPan}>
+      renderHandle={(id, _index, pan) => (
+        <View gestures={pan}>
           <Text>⠿ {String(id)}</Text>
         </View>
       )}
@@ -197,7 +198,7 @@ import {
 function SortableRow({ id }: { id: string }) {
   const drag = useSortable({ id })
   return (
-    <View ref={drag.ref} onPan={drag.onPan} style={drag.style}>
+    <View ref={drag.ref} gestures={drag.pan} style={drag.style}>
       <Text>{id}</Text>
     </View>
   )
@@ -319,7 +320,7 @@ export function ScrollingTasks({ autoScroll }: { autoScroll: AutoScroll }) {
 ## Limits and verification
 
 Pan input activates immediately by default; `activationDistance` opts into a
-movement threshold, and `onPan` can be attached to a separate handle while
+movement threshold, and `pan` can be attached to a separate handle while
 `ref` and `style` stay on the draggable View. `SortableList` exposes matching
 `activationDistance` and `renderHandle` props. Keyboard sensors, a screen-reader
 announcement layer, and drag overlays remain out of scope. Platform constraints: no

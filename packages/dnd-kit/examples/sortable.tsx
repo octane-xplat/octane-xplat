@@ -18,8 +18,8 @@ export default function SortableExample(): unknown {
             <Text>{String(id)}</Text>
           </View>
         )}
-        renderHandle={(id, _index, onPan) => (
-          <View id={`dnd-handle-${id}`} onPan={onPan} style={{ padding: 12 }}>
+        renderHandle={(id, _index, pan) => (
+          <View id={`dnd-handle-${id}`} gestures={pan} style={{ padding: 12 }}>
             <Text>⠿</Text>
           </View>
         )}
