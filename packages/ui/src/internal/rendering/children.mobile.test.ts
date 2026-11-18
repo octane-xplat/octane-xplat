@@ -82,6 +82,28 @@ it('updates deferred expressions, inserts and removes children', async () => {
   expect(container.children).toEqual([])
 })
 
+it('keeps @if template children as opaque slots in inspected children', async () => {
+  const { ConditionalSlotChildren } = await import('../../../tests/children.fixture.mobile.tsrx')
+  const container = createObjectContainer('nativescript')
+  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const rows = () => container.children[0].children
+
+  root.render(ConditionalSlotChildren, { last: false })
+  expect(rows()).toHaveLength(2)
+  expect(rows()[1].children).toEqual([])
+
+  const slot = rows()[1]
+  root.render(ConditionalSlotChildren, { last: true })
+  expect(rows()).toHaveLength(2)
+  expect(rows()[1]).toBe(slot)
+  expect(rows()[1].children[0].props.text).toBe('last')
+
+  root.render(ConditionalSlotChildren, { last: false })
+  expect(rows()[1]).toBe(slot)
+  expect(rows()[1].children).toEqual([])
+  root.unmount()
+})
+
 it('renders ordinary JSX list rows, overflow and native leaf text hosts', async () => {
   const { CollectionLeaves } = await import('../../../tests/children.fixture.mobile.tsrx')
   const container = createObjectContainer('nativescript')

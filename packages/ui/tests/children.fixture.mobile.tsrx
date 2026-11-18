@@ -37,6 +37,13 @@ export function ChangingChildren(props: any) @{
     {props.values.map((value: string) => (
       <label key={value} text={value} />
     ))}
+    {props.last && <label text="last" />}
+  </Rows>
+}
+
+export function ConditionalSlotChildren(props: any) @{
+  <Rows>
+    <label text="first" />
     @if (props.last) {
       <label text="last" />
     }
