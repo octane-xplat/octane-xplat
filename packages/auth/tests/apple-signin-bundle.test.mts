@@ -7,6 +7,7 @@ import { after, test } from 'node:test'
 import { createLogger, build } from 'vite'
 import { octane } from 'octane/compiler/vite'
 import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
+import { expandEnvPrograms, loadEnvManifest } from '../../cli/src/tsconfig-envs.ts'
 
 // Issue #165 — a consumer bundling the package root for Android must not
 // reference @nativescript/apple-sign-in's iOS-only SignInButton export.
@@ -15,6 +16,12 @@ import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
 // implementation and the Android graph never touches the plugin class.
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const dir = mkdtempSync(join(tmpdir(), 'xplat-auth-bundle-'))
+
+// The package's solution tsconfig.json references generated env programs
+// under node_modules/.cache/xplat-typecheck/; rolldown's transform follows
+// them while resolving the symlinked package's sources. Expand the manifest
+// once, as the typecheck task does, so the references are not dangling.
+expandEnvPrograms(packageRoot, loadEnvManifest(packageRoot))
 
 after(() => rmSync(dir, { recursive: true, force: true }))
 
