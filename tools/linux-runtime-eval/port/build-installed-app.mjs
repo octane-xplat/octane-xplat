@@ -79,7 +79,7 @@ exec "$APP_DIR/runtime/ns-linux" "$APP_DIR/app.js" "$@"
 chmodSync(resolve(output, 'launch'), 0o755)
 const archiveFd = openSync(archive, 'wx')
 try {
-  execFileSync('tar', ['-czf', '-', '-C', dirname(output), '--', basename(output)], {
+  execFileSync('tar', ['--no-xattrs', '-czf', '-', '-C', dirname(output), '--', basename(output)], {
     stdio: ['ignore', archiveFd, 'inherit'],
     env: { ...process.env, COPYFILE_DISABLE: '1' },
   })
