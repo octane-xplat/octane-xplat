@@ -177,6 +177,12 @@ function mount(component, props) {
   return { root, nodes, input, render: (props) => root.render(component, props) }
 }
 
+const classNames = (value) =>
+  [value]
+    .flat(Infinity)
+    .flatMap((entry) => (typeof entry === 'string' ? entry.split(/\s+/) : []))
+    .filter(Boolean)
+
 const options = [
   { value: 'alpha', label: 'Alpha' },
   { value: 'bravo', label: 'Bravo' },
@@ -262,7 +268,7 @@ for (const guard of ['isDisabled', 'isReadOnly']) {
   })
 }
 
-test('provider updates reach unchanged child items, indicator state and string class names', async () => {
+test('provider updates reach unchanged child items, indicator state and class tokens', async () => {
   const changes = []
   const props = { value: ['alpha'], density: 'compact', onValueChange: (v) => changes.push(v) }
   const f = mount(Items, props)
@@ -278,10 +284,19 @@ test('provider updates reach unchanged child items, indicator state and string c
     assert.equal(f.input('Child Bravo').props.checked, true)
     assert.ok(f.nodes().some((n) => n.type === 'indicator' && n.props.size === 'sm'))
 
-    const rows = f.nodes().filter((n) => n.props.className?.includes('vx-checkboxlist-item'))
+    const rows = f
+      .nodes()
+      .filter((n) => classNames(n.props.className).includes('vx-checkboxlist-item'))
 
     assert.equal(rows.length, 3)
-    assert.ok(rows.every((row) => typeof row.props.className === 'string'))
+    assert.deepEqual(
+      rows.map((row) => classNames(row.props.className)),
+      [
+        ['vx-checkbox-row', 'vx-checkboxlist-item', 'vx-indicator-scope'],
+        ['vx-checkbox-row', 'vx-checkboxlist-item', 'vx-indicator-scope', 'vx-checkbox--on'],
+        ['vx-checkbox-row', 'vx-checkboxlist-item', 'vx-indicator-scope'],
+      ],
+    )
     assert.ok(f.nodes().some((n) => n.type === 'label' && n.props.text === 'End'))
   } finally {
     f.root.unmount()

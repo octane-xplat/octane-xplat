@@ -526,7 +526,7 @@ test('Windows TabList mounts and refreshes controlled tabs without adding peers'
     peers()[0].props.settings.onPress()
     assert.deepEqual(first, ['third'])
     assert.deepEqual(current, ['first'])
-    assert.ok(f.nodes().some((n) => n.props.className?.includes('vx-tab--selected')))
+    assert.ok(f.nodes().some((n) => classNames(n.props.className).includes('vx-tab--selected')))
   } finally {
     f.root.unmount()
   }
@@ -651,6 +651,11 @@ const text = (fixture) =>
 
 const buttons = (fixture) => fixture.nodes().filter((node) => node.type === 'xplatwindowsbutton')
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
+const classNames = (value) =>
+  [value]
+    .flat(Infinity)
+    .flatMap((entry) => (typeof entry === 'string' ? entry.split(/\s+/) : []))
+    .filter(Boolean)
 
 test('Windows Banner renders and updates its public header, body and presentation props', () => {
   const f = mount(Banner, {
@@ -677,9 +682,9 @@ test('Windows Banner renders and updates its public header, body and presentatio
     assert.equal(host().props.accessibilityLabel, 'Saved')
     assert.equal(host().props.accessibilityLiveRegion, 'polite')
     assert.equal(host().props.style.width, 240)
-    assert.match(host().props.className, /vx-banner--success/)
-    assert.match(host().props.className, /vx-banner--section/)
-    assert.match(host().props.className, /vx-banner--elev-low/)
+    assert.ok(classNames(host().props.className).includes('vx-banner--success'))
+    assert.ok(classNames(host().props.className).includes('vx-banner--section'))
+    assert.ok(classNames(host().props.className).includes('vx-banner--elev-low'))
     assert.equal(buttons(f).length, 0)
     f.render({
       id: 'notice',
@@ -695,11 +700,10 @@ test('Windows Banner renders and updates its public header, body and presentatio
     assert.ok(!text(f).includes('More information'))
     assert.equal(host().props.accessibilityLabel, 'Failed')
     assert.equal(host().props.accessibilityLiveRegion, 'assertive')
-    assert.match(host().props.className, /vx-banner--floating/)
-    assert.doesNotMatch(
-      host().props.className,
-      /vx-banner--success|vx-banner--section|vx-banner--elev-low/,
-    )
+    assert.ok(classNames(host().props.className).includes('vx-banner--floating'))
+    assert.ok(!classNames(host().props.className).includes('vx-banner--success'))
+    assert.ok(!classNames(host().props.className).includes('vx-banner--section'))
+    assert.ok(!classNames(host().props.className).includes('vx-banner--elev-low'))
   } finally {
     f.root.unmount()
   }
@@ -969,10 +973,9 @@ test('Windows ListItem uses one native action with current names, callbacks and 
     assert.equal(current, 1)
     assert.equal(first, 1)
     assert.ok(
-      f
-        .nodes()
-        .find((node) => node.props.id === 'row')
-        .props.className.includes('vx-listitem--selected'),
+      classNames(f.nodes().find((node) => node.props.id === 'row').props.className).includes(
+        'vx-listitem--selected',
+      ),
     )
 
     f.render({ id: 'row', label: 'Static' })
