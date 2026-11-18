@@ -59,6 +59,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { packedUiPlatformConditions } from './packed-ui-conditions.ts'
 import { publishablePackages } from './publishable.ts'
 import { verifyAndroidTests } from './verify-android-tests.ts'
 import { stageRelease } from '../tools/cli-go/stage-release.mjs'
@@ -534,13 +535,16 @@ try {
 
       const manifest = JSON.parse(readFileSync(join(installed, 'package.json'), 'utf8'))
 
-      for (const target of ['web', 'native', 'macos', 'linux']) {
+      for (const target of packedUiPlatformConditions) {
         const entry = manifest.exports['.'][target]
+
+        assert.ok(entry, `packed ui manifest dropped the '${target}' conditional export`)
+
         const runtime = typeof entry === 'string' ? entry : entry.default
         const types = typeof entry === 'string' ? manifest.exports['.'].types : entry.types
 
-        assert.ok(runtime.startsWith('./src/'), `${target} runtime must use source`)
-        assert.ok(types.endsWith('.d.ts'), `${target} types must use declarations`)
+        assert.ok(runtime?.startsWith('./src/'), `${target} runtime must use source`)
+        assert.ok(types?.endsWith('.d.ts'), `${target} types must use declarations`)
         assert.ok(existsSync(join(installed, runtime)), `${target} source missing`)
         assert.ok(existsSync(join(installed, types)), `${target} declarations missing`)
       }

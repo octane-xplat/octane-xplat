@@ -4,6 +4,9 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { delimiter, join } from 'node:path'
 import { test } from 'node:test'
+import { fileURLToPath } from 'node:url'
+
+import { packedUiPlatformConditions } from './packed-ui-conditions.ts'
 
 test('quick consumer mode refuses native qualification before creating or resetting work', () => {
   const directory = mkdtempSync(join(tmpdir(), 'consumer-options-test-'))
@@ -82,3 +85,14 @@ process.exit(1)
     }
   },
 )
+
+test('packed ui platform contract tracks the real ui manifest conditions', () => {
+  const manifest = JSON.parse(
+    readFileSync(fileURLToPath(new URL('../packages/ui/package.json', import.meta.url)), 'utf8'),
+  )
+  const conditions = Object.keys(manifest.exports['.'])
+    .filter((key) => key !== 'types' && key !== 'default')
+    .sort()
+
+  assert.deepEqual(conditions, [...packedUiPlatformConditions].sort())
+})
