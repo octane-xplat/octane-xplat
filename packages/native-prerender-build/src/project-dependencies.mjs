@@ -10,6 +10,7 @@ export const primitiveModules = {
   VStack: 'src/components/layout/VStack.tsrx',
   HStack: 'src/components/layout/HStack.tsrx',
   SafeArea: 'src/components/layout/SafeArea.tsrx',
+  Screen: 'src/components/layout/Screen.tsrx',
   ScrollableArea: 'src/components/layout/ScrollableArea.tsrx',
 }
 

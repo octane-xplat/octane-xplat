@@ -51,6 +51,7 @@ export const ARTIFACT_LIMITS = Object.freeze({
 })
 export const STYLE_KEYS: readonly string[] = Object.freeze([
   'alignItems',
+  'alignSelf',
   'backgroundColor',
   'borderRadius',
   'borderWidth',
@@ -82,6 +83,7 @@ export const STYLE_KEYS: readonly string[] = Object.freeze([
   'textOverflow',
   'userSelect',
   'whiteSpace',
+  'width',
 ])
 
 export class ArtifactError extends Error {
@@ -229,7 +231,7 @@ export function validateNodes(input: unknown): LogicalNode[] {
           ].includes(key)
         )
           {string(props[key], 'host prop ' + key)}
-        else if (['accessible', 'isEnabled'].includes(key))
+        else if (['accessible', 'isEnabled', 'iosIgnoreSafeArea'].includes(key))
           {requireArtifact(typeof props[key] === 'boolean', 'boolean host prop')}
         else if (key === 'maxLines') {integer(props[key], 0, 1000000, key)}
         else if (key === 'orientation')

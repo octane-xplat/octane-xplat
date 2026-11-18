@@ -16,6 +16,7 @@ const primitives = {
   HStack: 'layout/HStack',
   SafeArea: 'layout/SafeArea',
   ScrollableArea: 'layout/ScrollableArea',
+  Screen: 'layout/Screen',
 }
 
 const data: Record<string, string> = {
@@ -26,7 +27,7 @@ const data: Record<string, string> = {
   'xplat-prerender:mode': 'mode.json',
 }
 
-// Only qualification data and the existing eight-primitive eligibility boundary
+// Only qualification data and the existing nine-primitive eligibility boundary
 // are special. Compilation, native resolution and CSS use the installed preset.
 export default defineConfig(async ({ mode }) =>
   native(

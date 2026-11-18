@@ -101,10 +101,10 @@ public final class StartupArtifact {
         }
     }
     private static final Set<String> STYLE_KEYS = new HashSet<>(Arrays.asList(
-        "alignItems", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
+        "alignItems", "alignSelf", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
         "fontWeight", "height", "justifyContent", "lineHeight", "maxHeight", "maxWidth", "minWidth", "minHeight", "opacity", "overflowX", "overflowY", "paddingBottom",
-        "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace"));
+        "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace", "width"));
     private static void require(boolean condition, String reason) { if (!condition) throw new Invalid(reason); }
     private static boolean finite(double value) { return !Double.isNaN(value) && !Double.isInfinite(value); }
     private static String text(Object value) {
@@ -169,7 +169,7 @@ public final class StartupArtifact {
                 case "id": case "className": case "text": case "testID": case "whiteSpace":
                 case "accessibilityRole": case "accessibilityLabel": case "accessibilityHint":
                 case "accessibilityState": case "accessibilityValue": text(value); break;
-                case "accessible": case "isEnabled": require(value instanceof Boolean, "boolean host prop"); break;
+                case "accessible": case "isEnabled": case "iosIgnoreSafeArea": require(value instanceof Boolean, "boolean host prop"); break;
                 case "maxLines": integer(value, 0, 1000000); break;
                 case "orientation": require(node.kind.equals("scrollview") && Arrays.asList("vertical", "horizontal").contains(text(value)), "scroll orientation"); break;
                 case "style": style(value); break;

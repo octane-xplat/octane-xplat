@@ -78,6 +78,12 @@ export const View = unavailable('View')
 export const GestureEvents = unavailable('GestureEvents')
 export const GestureTypes = unavailable('GestureTypes')
 export const SVGView = unavailable('SVGView')
+export const RootLayout = unavailable('RootLayout')
+export const getRootLayout = unavailable('getRootLayout')
+
+// Screen attaches its overlay host from a ref; the producer never commits refs.
+export const attachForeignChild = unavailable('attachForeignChild')
+export const detachForeignChild = unavailable('detachForeignChild')
 
 // The unused Icon dependency registers its client factory at module evaluation.
 // Record the declaration, never call it; the visual projection rejects svgview.

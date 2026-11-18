@@ -366,3 +366,15 @@ test('scrollview is a Mason container with a bounded orientation and scroll styl
   text.nodes.push({ index: 2, path: '0/1', parent: 0, kind: '#text', props: { value: 'x' } })
   assert.throws(() => validateArtifact(text), /child kind/)
 })
+
+test('Screen shell keys: alignSelf stretch, percentage size and iosIgnoreSafeArea', () => {
+  const value = fixture()
+  value.nodes[0].props.iosIgnoreSafeArea = true
+  Object.assign(value.variants.light[0].style, { alignSelf: 'stretch', width: '100%', height: '100%' })
+  value.variants.light[0].cssKeys = ['alignSelf', 'fontSize', 'height', 'width']
+  const canonical = validateArtifact(value)
+  assert.deepEqual(decodeStartupArtifact(encodeStartupArtifact(value), expected), canonical)
+  const invalid = fixture()
+  invalid.nodes[0].props.iosIgnoreSafeArea = 'yes'
+  assert.throws(() => validateArtifact(invalid), /boolean host prop/)
+})

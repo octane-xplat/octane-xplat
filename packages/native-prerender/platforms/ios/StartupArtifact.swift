@@ -73,10 +73,10 @@ enum XplatStartupArtifact {
         }
     }
     private static let styleKeys: Set<String> = [
-        "alignItems", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
+        "alignItems", "alignSelf", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
         "fontWeight", "height", "justifyContent", "lineHeight", "maxHeight", "maxWidth", "minWidth", "minHeight", "opacity", "overflowX", "overflowY", "paddingBottom",
-        "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace",
+        "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace", "width",
     ]
     private static func check(_ value: Bool, _ reason: String) throws {
         guard value else { throw Invalid(reason: reason) }
@@ -166,7 +166,7 @@ enum XplatStartupArtifact {
             try check(key.utf8.allSatisfy { $0 < 128 }, "host prop name")
             switch key {
             case "id", "className", "text", "testID", "whiteSpace", "accessibilityRole", "accessibilityLabel", "accessibilityHint", "accessibilityState", "accessibilityValue": _ = try text(value)
-            case "accessible", "isEnabled": _ = try boolean(value)
+            case "accessible", "isEnabled", "iosIgnoreSafeArea": _ = try boolean(value)
             case "maxLines": _ = try integer(value, 0, 1000000)
             case "orientation": try check(node.kind == "scrollview" && ["vertical", "horizontal"].contains(try text(value)), "scroll orientation")
             case "style": try style(value)

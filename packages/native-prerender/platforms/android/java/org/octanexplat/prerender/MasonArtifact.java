@@ -70,6 +70,9 @@ public final class MasonArtifact {
             case "display": valid = "flex".equals(value) || "block".equals(value); break;
             case "flexDirection": valid = "row".equals(value) || "column".equals(value); break;
             case "alignItems": valid = "center".equals(value); break;
+            case "alignSelf": valid = "stretch".equals(value); break;
+            case "width": valid = "100%".equals(value); break;
+            case "height": valid = nonnegative || "100%".equals(value); break;
             case "justifyContent": valid = "center".equals(value) || "space-between".equals(value); break;
             case "maxWidth": case "maxHeight": valid = "100%".equals(value); break;
             case "overflowX": case "overflowY": valid = "scroll".equals(value) || "hidden".equals(value); break;
@@ -88,7 +91,7 @@ public final class MasonArtifact {
                 break;
             case "color": case "backgroundColor": valid = value instanceof String && validColor((String) value); break;
             case "flexGrow": case "flexShrink": case "paddingTop": case "paddingRight": case "paddingBottom":
-            case "paddingLeft": case "rowGap": case "columnGap": case "minWidth": case "minHeight": case "height":
+            case "paddingLeft": case "rowGap": case "columnGap": case "minWidth": case "minHeight":
             case "lineHeight": case "borderRadius": valid = nonnegative; break;
             default: throw new Invalid("unsupported style property: " + key);
         }

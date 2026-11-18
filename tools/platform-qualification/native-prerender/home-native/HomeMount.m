@@ -31,7 +31,15 @@ static void Snapshot(UIView *view, NSString *path, NSMutableArray *rows) {
     CGRect frame=view.frame;
     BOOL label=[view isKindOfClass:UILabel.class];
     [rows addObject:@{@"paint":Paint(view),@"path":path,@"kind":label ? @"label":(((MasonUIView *)view).isScrollContainer ? @"scrollview" : @"masonview"),@"text":label ? (((UILabel *)view).text ?: @"") : @"",@"frame":@{@"x":@(frame.origin.x),@"y":@(frame.origin.y),@"width":@(frame.size.width),@"height":@(frame.size.height)}}];
-    if (!label) for (NSUInteger index=0;index<view.subviews.count;index++) Snapshot(view.subviews[index],[path stringByAppendingFormat:@"/%lu",(unsigned long)index],rows);
+    // Only artifact kinds: a Screen attaches its overlay RootLayout (a plain
+    // UIView) after hydration, outside the startup artifact.
+    if (!label) {
+        NSUInteger slot = 0;
+        for (UIView *child in view.subviews) {
+            if (![child isKindOfClass:MasonUIView.class] && ![child isKindOfClass:UILabel.class]) continue;
+            Snapshot(child, [path stringByAppendingFormat:@"/%lu", (unsigned long)slot++], rows);
+        }
+    }
 }
 @implementation PrerenderHomeMount
 + (NSArray<NSDictionary *> *)snapshot:(MasonUIView *)root {

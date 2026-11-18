@@ -18,6 +18,8 @@ enum XplatMasonArtifact {
         case "display": valid = text == "flex" || text == "block"
         case "flexDirection": valid = text == "row" || text == "column"
         case "alignItems": valid = text == "center"
+        case "alignSelf": valid = text == "stretch"
+        case "width": valid = text == "100%"
         case "justifyContent": valid = text == "center" || text == "space-between"
         case "maxWidth", "maxHeight": valid = text == "100%"
         case "overflowX", "overflowY": valid = text == "scroll" || text == "hidden"
@@ -33,8 +35,9 @@ enum XplatMasonArtifact {
             let trim = CharacterSet(charactersIn: " \t\"'")
             valid = text.map { !$0.components(separatedBy: ",").contains { $0.trimmingCharacters(in: trim).isEmpty } } ?? false
         case "backgroundColor", "color": valid = text.map(validColor) ?? false
-        case "flexGrow", "flexShrink", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "rowGap", "columnGap", "minWidth", "minHeight", "height", "lineHeight", "borderRadius":
+        case "flexGrow", "flexShrink", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "rowGap", "columnGap", "minWidth", "minHeight", "lineHeight", "borderRadius":
             valid = nonnegativeFloat
+        case "height": valid = nonnegativeFloat || text == "100%"
         default: valid = false
         }
         guard valid else { throw Invalid(reason: "unsupported style value: " + key) }

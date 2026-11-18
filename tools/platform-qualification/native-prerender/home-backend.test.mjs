@@ -141,3 +141,29 @@ test(`${platform} backend lowers a scrollview container and rejects unsupported 
     assert.match(result.stderr, /Home IR rejected/)
   }
 })
+test(`${platform} backend accepts Screen shell styles and rejects other values`, () => {
+  const shell = () => {
+    const artifact = fixture()
+    artifact.nodes[0].props = { iosIgnoreSafeArea: true }
+    for (const theme of ['light', 'dark'])
+      Object.assign(artifact.variants[theme][0].style, {
+        alignSelf: 'stretch',
+        width: '100%',
+        height: '100%',
+      })
+    return artifact
+  }
+  const accepted = native(shell())
+  assert.equal(accepted.status, 0, accepted.stderr)
+  for (const [key, value] of [
+    ['alignSelf', 'center'],
+    ['width', '50%'],
+    ['height', '50%'],
+  ]) {
+    const artifact = shell()
+    artifact.variants.light[0].style[key] = value
+    const result = native(artifact)
+    assert.equal(result.status, 1, `${key}=${value}: ${result.stderr}`)
+    assert.match(result.stderr, /Home IR rejected/)
+  }
+})

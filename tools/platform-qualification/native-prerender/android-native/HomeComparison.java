@@ -22,6 +22,16 @@ final class HomeComparison {
     private static boolean container(android.view.View view) {
         return view instanceof View || view instanceof org.nativescript.mason.masonkit.Scroll;
     }
+    // A Screen attaches its overlay RootLayout after hydration, outside the
+    // startup artifact; it follows every artifact child.
+    private static int foreignChildren(ViewGroup parent) {
+        int count = 0;
+        for (int index = 0; index < parent.getChildCount(); index++) {
+            android.view.View child = parent.getChildAt(index);
+            if (!container(child) && !(child instanceof StyleableTextView)) count++;
+        }
+        return count;
+    }
     static List<android.view.View> collect(MasonArtifact.Artifact artifact, View viewport) {
         check(viewport.getChildCount() == 1, "Reference viewport root count differs");
         List<android.view.View> views = new ArrayList<>();
@@ -36,7 +46,7 @@ final class HomeComparison {
         views.add(view);
         if (container(view)) {
             ViewGroup parent = (ViewGroup) view;
-            check(parent.getChildCount() == row.children.size(), "Reference child count differs");
+            check(parent.getChildCount() - foreignChildren(parent) == row.children.size(), "Reference child count differs");
             for (int child = 0; child < row.children.size(); child++) collect(artifact, parent.getChildAt(child), row.children.get(child), views);
         }
     }
@@ -77,7 +87,8 @@ final class HomeComparison {
             radius(item, "radiusTopRight", style.getBorderTopRightRadius());
             radius(item, "radiusBottomRight", style.getBorderBottomRightRadius());
             radius(item, "radiusBottomLeft", style.getBorderBottomLeftRadius());
-            check(node.getChildCount() == row.children.size(), "Home Mason child count differs");
+            int foreign = view instanceof ViewGroup && !(view instanceof StyleableTextView) ? foreignChildren((ViewGroup) view) : 0;
+            check(node.getChildCount() - foreign == row.children.size(), "Home Mason child count differs");
             if (container(view)) for (int child = 0; child < row.children.size(); child++) {
                 android.view.View expected = views.get(row.children.get(child));
                 check(((ViewGroup) view).getChildAt(child) == expected && node.getChildAt(child) == mason.nodeForView(expected), "Home native/Mason child order differs");
