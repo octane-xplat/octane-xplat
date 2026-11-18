@@ -90,11 +90,13 @@
 		},
 		"test:desktop-shell:windows": {
 			"dependsOn": [
+				"@xplat/app#gen",
 				"@octane-xplat/cli#build",
 				"@octane-xplat/ui#typegen",
 				"@octane-xplat/platform#typegen",
 				"@octane-xplat/lib#typegen",
-				"@octane-xplat/desktop#typegen"
+				"@octane-xplat/desktop#typegen",
+				"@octane-xplat/desktop#build"
 			],
 			"cache": false,
 			"passThroughEnv": [

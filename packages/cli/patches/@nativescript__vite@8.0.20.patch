@@ -182,6 +182,15 @@ index a05696b..e909d6e 100644
      }
      catch {
          return undefined;
+@@ -80,7 +83,7 @@ function createTsrxCheckConfig(tsConfigPath, parsedConfig, rootNames, platform) {
+         compilerOptions: {
+             noEmit: true,
+             incremental: false,
+-            moduleSuffixes: getModuleSuffixes(platform),
++            moduleSuffixes: parsedConfig.options.moduleSuffixes,
+         },
+     };
+ }
 @@ -92,7 +95,7 @@ function runTsrxTypeCheck(binPath, opts, tsConfigPath, parsedConfig, rootNames,
      try {
          const configPath = path.join(tempDir, 'tsconfig.json');
@@ -191,7 +200,27 @@ index a05696b..e909d6e 100644
      }
      finally {
          fs.rmSync(tempDir, { recursive: true, force: true });
-@@ -304,9 +307,9 @@ export function typescriptCheckPlugin(opts) {
+@@ -259,7 +262,6 @@ function getParsedConfig(ts, tsConfigPath, platform) {
+     const parsedConfig = ts.getParsedCommandLineOfConfigFile(tsConfigPath, {
+         noEmit: true,
+         incremental: false,
+-        moduleSuffixes: getModuleSuffixes(platform),
+     }, {
+         ...ts.sys,
+         onUnRecoverableConfigFileDiagnostic: (diagnostic) => {
+@@ -269,6 +271,11 @@ function getParsedConfig(ts, tsConfigPath, platform) {
+     if (!parsedConfig) {
+         throw new Error('[ns-vite] Failed to read TypeScript configuration.');
+     }
++    // The Windows harness links this flavor through the workspace, so the
++    // checker can come from the mobile Vite version without a Windows flag.
++    if (platform || !parsedConfig.options.customConditions?.includes('windows') || !parsedConfig.options.moduleSuffixes) {
++        parsedConfig.options.moduleSuffixes = getModuleSuffixes(platform);
++    }
+     return parsedConfig;
+ }
+ function shouldSkipFileForPlatform(fileName, platform) {
+@@ -304,9 +311,9 @@ export function typescriptCheckPlugin(opts) {
              const parsedConfig = getParsedConfig(ts, tsConfigPath, opts.platform);
              const failOnError = shouldFailOnTypeCheckError(opts, parsedConfig);
              const rootNames = parsedConfig.fileNames.filter((fileName) => !shouldSkipFileForPlatform(fileName, opts.platform));
@@ -204,7 +233,7 @@ index a05696b..e909d6e 100644
                  return;
              }
              const program = ts.createProgram({
-@@ -323,7 +326,7 @@ export function typescriptCheckPlugin(opts) {
+@@ -323,7 +330,7 @@ export function typescriptCheckPlugin(opts) {
              }
              if (opts.logDiagnostics !== false) {
                  if (hasUnresolvedTsrxImport(ts, diagnostics)) {

@@ -432,6 +432,14 @@ experience of agents writing Octane-xplat code effectively.
   take the classic path (same as before the retarget). The generated check
   config's `tsrx.platform` key is a Volar-plugin option and is inert under
   native tsc.
+  In the checkout, `vite-octane` uses its Vite 8.0.20 development dependency
+  even when the Windows harness pins the Windows preview. The 8.0.20 checker
+  has no Windows platform flag. The patch retains the declared `moduleSuffixes`
+  for a project with the `windows` export condition when no platform is
+  detected, including in its generated TSRX check config. Detected mobile
+  targets still use their platform-specific suffix order. The Windows preview
+  already resolves its Windows flag. Retire this fallback when the checkout
+  checker uses a Windows-aware Vite build.
 - **`@nativescript/vite` 8.0.20/8.0.21 parse top-level import records via Oxc
   (`parseAst`) instead of Babel.** Babel 7.29.9 `skipBlockComment` rescans to
   the next line break for every block comment — ~1.5 s per parse on the ~1.9 MB
