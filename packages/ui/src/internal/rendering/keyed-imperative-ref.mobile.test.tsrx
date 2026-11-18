@@ -139,6 +139,20 @@ function findByType(container: any, type: string, parent: any = null): any {
 
 function mount(Feed: any, props: any = {}, driver = createObjectDriver('nativescript')) {
   const container = createObjectContainer('nativescript')
+  const getPublicInstance = driver.getPublicInstance.bind(driver)
+
+  // The plugin owns player disposal: Video's unmount cleanup calls public
+  // destroy() on the xplatvideo host, so the object stand-in needs it.
+  driver.getPublicInstance = (c: any, id: number) => {
+    const host = getPublicInstance(c, id)
+
+    if (host?.type === 'xplatvideo') {
+      Object.assign(host, { destroy: () => {} })
+    }
+
+    return host
+  }
+
   const root = createUniversalRoot(container, driver)
   const ref = { current: null as any }
 
