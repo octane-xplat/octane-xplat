@@ -26,6 +26,21 @@ it('retains ordinary cascade layers and native units without compiler opt-in', (
   assert.match(result, /12dip/)
 })
 
+it('skips ?raw/?url css wrappers in the native per-file transform', () => {
+  const pipeline = pxToDip()
+
+  pipeline.configResolved({ command: 'serve', plugins: [] })
+
+  const wrapper = 'export default ".a { width: 1px }"'
+
+  assert.equal(pipeline.transform.call({ warn() {} }, wrapper, 'x.css?raw'), undefined)
+  assert.equal(pipeline.transform.call({ warn() {} }, wrapper, 'x.css?url'), undefined)
+  assert.match(
+    pipeline.transform.call({ warn() {} }, '.a { width: 1px }', 'x.css'),
+    /1dip/,
+  )
+})
+
 it('converts declaration lengths without rewriting utility selectors or text', () => {
   const css = String.raw`@source inline("w-[12px]");
 @media (min-width: 640px) {

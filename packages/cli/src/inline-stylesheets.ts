@@ -12,6 +12,7 @@
 // sees the finalized `virtual:bamboo.css` asset alongside every
 // module-imported sheet, in emission order.
 
+import { cssWrapperQuery } from './css-platform.ts'
 import { processNativeCss } from './vite.ts'
 
 export function inlineStylesheets() {
@@ -31,6 +32,12 @@ export function inlineStylesheets() {
         }
 
         if (!id.split('?')[0].endsWith('.css')) {
+          return
+        }
+
+        // `?raw`/`?url` imports load as a JS wrapper (export default "..."),
+        // not stylesheet text — leave them to Vite.
+        if (cssWrapperQuery.test(id)) {
           return
         }
 

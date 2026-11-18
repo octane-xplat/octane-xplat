@@ -24,7 +24,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import postcss from 'postcss'
 import valueParser from 'postcss-value-parser'
-import { css } from './css-platform.ts'
+import { css, cssWrapperQuery } from './css-platform.ts'
 import { devBridge } from './mcp/dev-bridge.ts'
 import { nativeDevSocketPlugin } from './mcp/dev-socket.ts'
 import { masonCorePackage, masonEngine } from './mason-engine.ts'
@@ -339,6 +339,12 @@ export function pxToDip(options: { masonSafeAreaEnvironment?: boolean } = {}) {
       }
 
       if (!id.split('?')[0].endsWith('.css')) {
+        return
+      }
+
+      // `?raw`/`?url` imports load as a JS wrapper (export default "..."),
+      // not stylesheet text — leave them to Vite.
+      if (cssWrapperQuery.test(id)) {
         return
       }
 

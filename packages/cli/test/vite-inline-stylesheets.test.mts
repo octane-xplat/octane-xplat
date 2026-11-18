@@ -26,6 +26,11 @@ writeFileSync(
   "import Gtk from 'gi://Gtk?version=4.0'\nimport './a.css'\nexport const g = Gtk.MAJOR_VERSION\n",
 )
 
+writeFileSync(
+  join(dir, 'src', 'raw-entry.ts'),
+  "import cssText from './b.css?raw'\nimport './a.css'\nexport const text = cssText\n",
+)
+
 it('collects .css assets, processes them, and prepends one push line to the entry chunk', async () => {
   const out = join(dir, 'out')
 
@@ -116,6 +121,27 @@ it('prepends the push before ESM imports for the GTK host', async () => {
   assert.ok(cssQ.includes('@media'), 'media rule kept')
   assert.ok(cssQ.includes('300px') && !cssQ.includes('300dip'), `media prelude keeps px: ${cssQ}`)
   assert.ok(cssQ.includes('width:10dip'), 'media body still px→dip')
+})
+
+it('leaves ?raw css imports as text wrappers instead of parsing them as css', async () => {
+  const out = join(dir, 'out-raw')
+
+  await build({
+    root: dir,
+    logLevel: 'silent',
+    plugins: [platformCss('gtk'), inlineStylesheets()],
+    build: {
+      cssCodeSplit: true,
+      outDir: out,
+      lib: { entry: 'src/raw-entry.ts', formats: ['cjs'], fileName: 'main' },
+      rollupOptions: { output: { codeSplitting: false } },
+    },
+  })
+
+  const js = readdirSync(out).find((f) => f.endsWith('.cjs') || f.endsWith('.js'))
+  const code = readFileSync(join(out, js), 'utf8')
+
+  assert.ok(code.includes('padding: 2px 4px'), `raw css text preserved unprocessed: ${code}`)
 })
 
 it('preserves ordinary cascade layers through desktop per-file and emitted CSS delivery', async () => {

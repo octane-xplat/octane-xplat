@@ -33,6 +33,11 @@ const qualified = /\.(web|ios|android|visionos|mobile|macos|windows|linux|gtk|na
 const cssId = /\.css(?:[?#].*)?$/
 const cleanId = (id: string) => id.split(/[?#]/, 1)[0]
 
+/** `?raw`/`?url` css requests resolve to a JavaScript wrapper (an
+ *  `export default` string or a URL), not stylesheet text — native CSS
+ *  transforms must skip them. */
+export const cssWrapperQuery = /(?:\?|&)(?:raw|url)(?:&|$)/
+
 function suffixes(platform: CssPlatform): string[] {
   if (platform === 'ios' || platform === 'android') {
     return [platform, 'mobile']
@@ -338,7 +343,7 @@ export function css(platform: CssPlatform = buildTarget()): Plugin {
     transform(code, id) {
       if (
         !cssId.test(id) ||
-        /(?:\?|&)(?:raw|url)(?:&|$)/.test(id) ||
+        cssWrapperQuery.test(id) ||
         !code.includes('@platform') ||
         [...deferred].some((suffix) => cleanId(id).endsWith(suffix))
       ) {
