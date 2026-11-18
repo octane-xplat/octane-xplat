@@ -32,6 +32,13 @@ export function webHost(): Plugin[] {
 					],
 				},
 				ssr: {
+					// Top-level `resolve` feeds only the client environment in
+					// Vite 8 — without the web condition here the SSR bundle
+					// resolves conditional exports (e.g.
+					// @octane-xplat/lib/escape-props) to their native defaults.
+					resolve: {
+						conditions: ['web', 'module', 'node', 'development|production'],
+					},
 					noExternal: [
 						'@octane-xplat/web-host',
 						'@octane-xplat/ui',
