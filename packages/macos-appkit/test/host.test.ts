@@ -126,6 +126,7 @@ const syntax = registerHooks({
 
 const host = await import('../src/host.ts')
 const { defineUniversalComponent } = await import('octane/universal/native')
+const platform: any = await import('@octane-xplat/platform/macos')
 
 const {
   runMacOSApp,
@@ -284,6 +285,127 @@ test('closing the primary window clears it so services fall back to a live windo
   shared.appDelegate.windowWillClose({ object: reopened.window })
   secondary.close()
   app.keyWindow = null
+})
+
+test('a failed openWindow releases the window and every registration', () => {
+  const registrations = () => ({
+    byNative: shared.byNative.size,
+    parentWindows: shared.parentWindows.size,
+    closeHandlers: shared.windowCloseHandlers.size,
+  })
+  const before = registrations()
+
+  const originalClose = platform.NSWindow.prototype.close
+  let closes = 0
+  platform.NSWindow.prototype.close = function (this: unknown) {
+    closes += 1
+    return originalClose.call(this)
+  }
+
+  try {
+    setWindowContentResolver(() => {
+      throw new Error('resolver exploded')
+    })
+    assert.throws(() => openSecondary({}), /resolver exploded/)
+
+    setWindowContentResolver(() => 'not-a-component')
+    assert.throws(() => openSecondary({}), /setWindowContentResolver|component/)
+
+    setWindowContentResolver(null)
+    assert.throws(
+      () =>
+        openSecondary({
+          component: defineUniversalComponent('macos', () => {
+            throw new Error('render exploded')
+          }),
+        }),
+      /render exploded/,
+    )
+  } finally {
+    platform.NSWindow.prototype.close = originalClose
+    setWindowContentResolver(null)
+  }
+
+  assert.deepEqual(registrations(), before)
+  assert.equal(closes, 3)
+})
+
+test('createHostedWindow releases the window and registrations when presentation fails', () => {
+  const registrations = () => ({
+    byNative: shared.byNative.size,
+    parentWindows: shared.parentWindows.size,
+    closeHandlers: shared.windowCloseHandlers.size,
+  })
+  const before = registrations()
+
+  const originalClose = platform.NSWindow.prototype.close
+  let closes = 0
+  platform.NSWindow.prototype.close = function (this: unknown) {
+    closes += 1
+    return originalClose.call(this)
+  }
+
+  try {
+    const parent = {
+      window: {
+        beginSheetCompletionHandler() {
+          throw new Error('sheet presentation failed')
+        },
+      },
+    }
+
+    assert.throws(
+      () =>
+        createHostedWindow({
+          kind: 'dialog',
+          parent: parent as any,
+          size: { width: 240, height: 160 },
+        }),
+      /sheet presentation failed/,
+    )
+  } finally {
+    platform.NSWindow.prototype.close = originalClose
+  }
+
+  assert.deepEqual(registrations(), before)
+  assert.equal(closes, 1)
+})
+
+test('createAppKitWindow releases the window and registrations when presentation fails', () => {
+  const originalOrder = platform.NSWindow.prototype.makeKeyAndOrderFront
+  const originalClose = platform.NSWindow.prototype.close
+  let closes = 0
+
+  platform.NSWindow.prototype.makeKeyAndOrderFront = function () {
+    throw new Error('orderFront failed')
+  }
+  platform.NSWindow.prototype.close = function (this: unknown) {
+    closes += 1
+    return originalClose.call(this)
+  }
+
+  try {
+    const before = {
+      closeHandlers: shared.windowCloseHandlers.size,
+      resizeListeners: shared.platformServices.windowResizeListeners.size,
+    }
+    shared.platformServices.primaryWindow = null
+
+    assert.throws(() => createAppKitWindow({}), /orderFront failed/)
+
+    assert.deepEqual(
+      {
+        closeHandlers: shared.windowCloseHandlers.size,
+        resizeListeners: shared.platformServices.windowResizeListeners.size,
+      },
+      before,
+    )
+    assert.equal(shared.platformServices.primaryWindow, null)
+    assert.equal(closes, 1)
+  } finally {
+    platform.NSWindow.prototype.makeKeyAndOrderFront = originalOrder
+    platform.NSWindow.prototype.close = originalClose
+  }
 })
 
 test('runMacOSApp calls mount cleanup once before unmount, then stops the host', async () => {

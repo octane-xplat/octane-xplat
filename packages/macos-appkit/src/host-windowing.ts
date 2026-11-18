@@ -859,56 +859,87 @@ export function createAppKitWindow(options: CreateAppKitWindowOptions = {}): App
   nativeWindow.releasedWhenClosed = false
   nativeWindow.autorecalculatesKeyViewLoop = true
 
-  nativeWindow.center()
-  nativeWindow.delegate = appDelegate()
-  app.delegate = shared.appDelegate as unknown as NSApplicationDelegate
-  shared.platformServices.primaryWindow ??= nativeWindow
-
-  const contentView = makeContentView(size)
-  // Pin the content size as a required constraint. Without it, every
-  // required child-pin chain hands the solver a path where a nested
-  // view's hugging priority (750) outranks the window↔content constraint
-  // (WindowSizeStayPut, 500) — and AppKit resizes the window to the
-  // content's fitting size. The pins track the last applied size so
-  // explicit/user resizes still take: a fixed constant would lock the
-  // window at its initial size forever.
-  const widthPin = contentView.widthAnchor.constraintEqualToConstant(size.width)
-  const heightPin = contentView.heightAnchor.constraintEqualToConstant(size.height)
-
-  widthPin.active = true
-  heightPin.active = true
-  subscribeAppKitEvent(shared.platformServices.windowResizeListeners, (resized) => {
-    if (resized !== nativeWindow) {
-      return
-    }
-
-    const bounds = nativeWindow.contentView?.bounds?.size
-
-    if (!bounds) {
-      return
-    }
-
-    widthPin.constant = Number(bounds.width)
-    heightPin.constant = Number(bounds.height)
-  })
-
-  nativeWindow.contentView = contentView
-
   let resolveWindowClosed!: () => void
   const windowClosed = new Promise<void>((resolve) => {
     resolveWindowClosed = resolve
   })
 
-  shared.windowCloseHandlers.set(nativeWindow, resolveWindowClosed)
-  nativeWindow.makeKeyAndOrderFront(app)
+  // A failed open releases the same registrations a close would: the
+  // pin-tracking listener, the close handler, the primary designation,
+  // and the native window itself.
+  let pinTracking: { dispose(): void } | undefined
+  let contentView: NSView | undefined
 
-  return {
-    app,
-    window: nativeWindow,
-    contentView,
-    applicationClosed,
-    windowClosed,
-    delegate: shared.appDelegate,
+  try {
+    nativeWindow.center()
+    nativeWindow.delegate = appDelegate()
+    app.delegate = shared.appDelegate as unknown as NSApplicationDelegate
+    shared.platformServices.primaryWindow ??= nativeWindow
+
+    contentView = makeContentView(size)
+    // Pin the content size as a required constraint. Without it, every
+    // required child-pin chain hands the solver a path where a nested
+    // view's hugging priority (750) outranks the window↔content constraint
+    // (WindowSizeStayPut, 500) — and AppKit resizes the window to the
+    // content's fitting size. The pins track the last applied size so
+    // explicit/user resizes still take: a fixed constant would lock the
+    // window at its initial size forever.
+    const widthPin = contentView.widthAnchor.constraintEqualToConstant(size.width)
+    const heightPin = contentView.heightAnchor.constraintEqualToConstant(size.height)
+
+    widthPin.active = true
+    heightPin.active = true
+    pinTracking = subscribeAppKitEvent(shared.platformServices.windowResizeListeners, (resized) => {
+      if (resized !== nativeWindow) {
+        return
+      }
+
+      const bounds = nativeWindow.contentView?.bounds?.size
+
+      if (!bounds) {
+        return
+      }
+
+      widthPin.constant = Number(bounds.width)
+      heightPin.constant = Number(bounds.height)
+    })
+
+    nativeWindow.contentView = contentView
+
+    // windowWillClose and applicationWillTerminate settle windowClosed
+    // through this handler; it retires the pin tracker with the window.
+    shared.windowCloseHandlers.set(nativeWindow, () => {
+      pinTracking?.dispose()
+      resolveWindowClosed()
+    })
+
+    nativeWindow.makeKeyAndOrderFront(app)
+
+    return {
+      app,
+      window: nativeWindow,
+      contentView,
+      applicationClosed,
+      windowClosed,
+      delegate: shared.appDelegate,
+    }
+  } catch (error) {
+    const closeHandler = takeNativeWindowValue(shared.windowCloseHandlers, nativeWindow)
+
+    closeHandler?.()
+    pinTracking?.dispose()
+
+    if (sameNativeWindow(shared.platformServices.primaryWindow, nativeWindow)) {
+      shared.platformServices.primaryWindow = null
+    }
+
+    try {
+      nativeWindow.close()
+    } catch (closeError) {
+      console.error('[macos] failed to close a window after setup failed', closeError)
+    }
+
+    throw error
   }
 }
 
@@ -1199,81 +1230,111 @@ export function createHostedWindow(options: MacOSOpenWindowOptions = {}): Hosted
     'createHostedWindow',
   )
 
-  const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    { origin: { x: 0, y: 0 }, size },
-    REGULAR_STYLE,
-    2,
-    false,
-  )
+  let nativeWindow: NSWindow | undefined
+  let finalizeClose: (() => void) | undefined
+  let controller: (HostedWindowController & WindowControllerBase) | undefined
 
-  nativeWindow.title = String(options.title ?? 'Octane window')
-  nativeWindow.releasedWhenClosed = false
-  nativeWindow.autorecalculatesKeyViewLoop = true
-  nativeWindow.delegate = appDelegate()
-  nativeWindow.contentView = makeContentView(size)
-  if (parentWindow) {
-    shared.parentWindows.set(nativeWindow, parentWindow)
-  }
+  try {
+    nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+      { origin: { x: 0, y: 0 }, size },
+      REGULAR_STYLE,
+      2,
+      false,
+    )
 
-  let resolveWindowClosed!: () => void
-  const closed = new Promise<void>((resolve) => {
-    resolveWindowClosed = resolve
-  })
+    nativeWindow.title = String(options.title ?? 'Octane window')
+    nativeWindow.releasedWhenClosed = false
+    nativeWindow.autorecalculatesKeyViewLoop = true
+    nativeWindow.delegate = appDelegate()
+    nativeWindow.contentView = makeContentView(size)
 
-  let isClosed = false
-  const finalizeClose = () => {
-    if (isClosed) {
-      return
+    if (parentWindow) {
+      shared.parentWindows.set(nativeWindow, parentWindow)
     }
 
-    isClosed = true
-    shared.windowCloseHandlers.delete(nativeWindow)
-    shared.byNative.delete(nativeWindow)
-    shared.parentWindows.delete(nativeWindow)
-    resolveWindowClosed()
-  }
+    let resolveWindowClosed!: () => void
+    const closed = new Promise<void>((resolve) => {
+      resolveWindowClosed = resolve
+    })
 
-  const controller: HostedWindowController & WindowControllerBase = {
-    window: nativeWindow,
-    contentView: nativeWindow.contentView,
-    closed,
-    get isClosed() {
-      return isClosed
-    },
-    setTitle(title: string) {
-      nativeWindow.title = String(title)
-    },
-    close() {
+    let isClosed = false
+
+    finalizeClose = () => {
       if (isClosed) {
         return
       }
 
-      if (kind === 'dialog' && parentWindow) {
-        parentWindow.endSheet(nativeWindow)
-      } else {
+      isClosed = true
+      shared.windowCloseHandlers.delete(nativeWindow!)
+      shared.byNative.delete(nativeWindow!)
+      shared.parentWindows.delete(nativeWindow!)
+      resolveWindowClosed()
+    }
+
+    controller = {
+      window: nativeWindow,
+      contentView: nativeWindow.contentView,
+      closed,
+      get isClosed() {
+        return isClosed
+      },
+      setTitle(title: string) {
+        nativeWindow!.title = String(title)
+      },
+      close() {
+        if (isClosed) {
+          return
+        }
+
+        if (kind === 'dialog' && parentWindow) {
+          parentWindow.endSheet(nativeWindow!)
+        } else {
+          nativeWindow!.close()
+        }
+
+        finalizeClose!()
+      },
+      __didClose() {
+        finalizeClose!()
+      },
+    }
+
+    shared.byNative.set(nativeWindow, controller)
+    shared.windowCloseHandlers.set(nativeWindow, finalizeClose)
+
+    if (kind === 'dialog' && parentWindow) {
+      const beginSheet =
+        parentWindow.beginSheetCompletionHandler ?? (parentWindow as any).beginSheet
+
+      beginSheet.call(parentWindow, nativeWindow, null as any)
+    } else {
+      nativeWindow.center()
+      nativeWindow.makeKeyAndOrderFront(app)
+    }
+  } catch (error) {
+    try {
+      finalizeClose?.()
+    } catch (cleanupError) {
+      console.error('[macos] failed to clean up a hosted window after setup failed', cleanupError)
+    }
+
+    if (nativeWindow) {
+      // finalizeClose may never have been installed; drop partial registrations.
+      shared.windowCloseHandlers.delete(nativeWindow)
+      shared.byNative.delete(nativeWindow)
+      shared.parentWindows.delete(nativeWindow)
+
+      try {
         nativeWindow.close()
+      } catch (closeError) {
+        console.error('[macos] failed to close a hosted window after setup failed', closeError)
       }
+    }
 
-      finalizeClose()
-    },
-    __didClose() {
-      finalizeClose()
-    },
+    throw error
   }
 
-  shared.byNative.set(nativeWindow, controller)
-  shared.windowCloseHandlers.set(nativeWindow, finalizeClose)
-
-  if (kind === 'dialog' && parentWindow) {
-    const beginSheet = parentWindow.beginSheetCompletionHandler ?? (parentWindow as any).beginSheet
-
-    beginSheet.call(parentWindow, nativeWindow, null as any)
-  } else {
-    nativeWindow.center()
-    nativeWindow.makeKeyAndOrderFront(app)
-  }
-
-  return controller
+  return controller!
 }
 
 /**
