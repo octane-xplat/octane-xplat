@@ -268,7 +268,7 @@ func TestAndroidNativeReportsReal(t *testing.T) {
 func TestAndroidNativeReportReferenceCorpus(t *testing.T) {
 	path := os.Getenv("XPLAT_GO_ANDROID_REPORT_CORPUS")
 	if path == "" {
-		t.Skip("Node reference corpus runner")
+		t.Skip("reference corpus runner")
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {

@@ -559,8 +559,9 @@ installation, assert real warnings/uncaught errors/rejections reach native logs,
 and close the test-owned browser. It captures no images and is opt-in outside
 lightweight PR checks. This does not qualify UI inspection or other controls.
 
-`test:go-reports` compares native Apple parsing against the actual retained Node
-engine, including null/empty fields, numeric JSON representations, identity/time
+`test:go-reports` checks native Apple parsing against a pinned semantic corpus —
+the reference expectations the retained Node engine produced before the cutover —
+including null/empty fields, numeric JSON representations, identity/time
 rejection and candidate/confirmed associations. Native units cover atomic bounded
 retention, integrity, concurrent readers and complete 4 MiB originals. Set
 `XPLAT_GO_APPLE_REPORTS_REAL=1` for `test:go-dev` to abort only its disposable
@@ -569,7 +570,7 @@ its retained original hash. It uses the real macOS report directory and removes
 only its own native history cache after preserving local evidence; OS reports
 are left in place. No images are captured. This is opt-in outside PR checks.
 
-Android diagnostics adds a nine-case Node comparison for exit kinds, process
+Android diagnostics adds a nine-case pinned comparison for exit kinds, process
 scope, CRLF and unavailable formats. An explicit owned-device gate is split into
 preparation (native build reservation) and runtime (resident Android reservation):
 
