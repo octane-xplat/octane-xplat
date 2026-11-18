@@ -2,17 +2,12 @@
 import { mergeStyle } from './style-merge'
 import { createContext, useContext, useState } from 'octane'
 import { Pressable, Text, openWindow } from '@octane-xplat/ui'
-import { createStore, useStore, type Store } from '@octane-xplat/ui/data'
+import { createStore, useStore } from '@octane-xplat/ui/data'
 import { defineStory } from '@octane-xplat/workshop'
+import type { IsolationFixture, IsolationProps } from './isolation-fixture'
 
-type Fixture = {
-  account: Store<{ name: string }>
-  nested: { label: string }
-  own: (cleanup: () => void) => void
-}
-
-const Account = createContext<Fixture | null>(null)
-function AccountProvider(props: { fixture: Fixture; children?: unknown }) {
+const Account = createContext<IsolationFixture | null>(null)
+function AccountProvider(props: { fixture: IsolationFixture; children?: unknown }) {
   return <Account value={props.fixture}>{props.children}</Account>
 }
 
@@ -23,7 +18,7 @@ function Overlay() {
   return <Text accessibilityLabel="Story account overlay">{account.name}</Text>
 }
 
-function Isolated(props: { label?: string; fixture: Fixture }) {
+function Isolated(props: IsolationProps & { fixture: IsolationFixture }) {
   const fixture = useContext(Account)!
   const account = useStore(fixture.account)
   const [local, setLocal] = useState(0)
@@ -55,7 +50,7 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
   )
 }
 
-export const Isolation = defineStory<{ label?: string }, void, Fixture>({
+export const Isolation = defineStory<IsolationProps, void, IsolationFixture>({
   id: 'isolation/resources',
   title: 'Examples / Isolation and overlay',
   targets: ['macos'],

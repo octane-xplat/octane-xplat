@@ -1,2 +1,5 @@
 // Type contract only. The target build must select a platform implementation.
-export declare const Isolation: typeof import('./isolation.stories.web.tsrx').Isolation
+import type { StoryDefinition } from '@octane-xplat/workshop'
+import type { IsolationFixture, IsolationProps } from './isolation-fixture'
+
+export declare const Isolation: StoryDefinition<IsolationProps, void, IsolationFixture>
