@@ -26,6 +26,7 @@ vi.mock('@nativescript/core', () => {
     off(type: string, fn: (data: unknown) => void) {
       this.listeners.get(type)?.delete(fn)
     }
+    requestLayout(): void {}
     notify(data: { eventName: string }) {
       for (const fn of this.listeners.get(data.eventName) ?? []) {
         fn(data)
