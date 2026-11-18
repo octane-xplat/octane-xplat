@@ -1,18 +1,12 @@
-import { Application, AndroidApplication, ContentView, Frame, Page, View } from '@nativescript/core'
+import { Application, ContentView, Frame, Page, View } from '@nativescript/core'
 
 import type { CatalogEntry } from '../catalog'
 import type { WorkshopTarget } from '../contract'
 import { NativeWorkshopController } from '../native/controller'
 import { NativeWorkshopChrome } from '../native/chrome.tsrx'
 import { createMobileStageHost } from './mount.mobile'
+import { installDismissal } from './dismissal'
 import { createNativeScriptRoot, type UniversalComponent } from '@octane-xplat/nativescript-octane'
-import { android, androidx } from '@octane-xplat/platform/android'
-import {
-  UIKeyCommand,
-  UIKeyModifierFlags,
-  UIMenuElementAttributes,
-  UIViewController,
-} from '@octane-xplat/platform/ios'
 
 /** Options for mounting the mobile workshop. */
 export interface MobileWorkshopOptions {
@@ -101,7 +95,6 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
   })
 
   let disposed = false
-  let syncEscapeCommand: (() => void) | undefined
 
   /** Host keys may dismiss shell chrome only while this page owns the host. */
   function dismissAllowed(): boolean {
@@ -116,7 +109,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
       return false
     }
 
-    syncEscapeCommand?.()
+    dismissal.sync()
     return true
   }
 
@@ -124,148 +117,16 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
     const size = page.getActualSize()
 
     controller.resize(size.width, size.height)
-    syncEscapeCommand?.()
+    dismissal.sync()
   }
 
   // The iOS Escape key command must track every overlay change, not just
   // layout — store updates cover panel/stageOnly transitions too.
-  const unsubscribe = controller.store.subscribe(() => syncEscapeCommand?.())
+  const unsubscribe = controller.store.subscribe(() => dismissal.sync())
 
   page.on(View.layoutChangedEvent, layout)
 
-  const back = (event: any) => {
-    // A story-owned modal keeps OS Back. Shell dismissal takes precedence
-    // only on this page, never in an unrelated navigation root.
-    if (dismissAllowed() && tryDismiss()) {
-      event.cancel = true
-    }
-  }
-
-  Application.android?.on(AndroidApplication.activityBackPressedEvent, back)
-
-  // Android hardware Escape: unhandled key events bubble from the focused
-  // view to its ancestors, so a story view that consumes Escape keeps it and
-  // IME composition is handled before dispatch. Consuming the down and its
-  // paired up prevents any host-level Escape-to-back translation when the
-  // shell dismissed. The listener lives on this page's root view only.
-  function installAndroidDismissal(): () => void {
-    const ViewCompat = androidx?.core?.view?.ViewCompat
-
-    if (typeof ViewCompat?.addOnUnhandledKeyEventListener !== 'function') {
-      return () => {}
-    }
-
-    let attached: android.view.View | undefined
-    let escapeDown = false
-    const listener = new androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat({
-      onUnhandledKeyEvent(_view: android.view.View, event: android.view.KeyEvent): boolean {
-        if (event.getKeyCode() !== android.view.KeyEvent.KEYCODE_ESCAPE) {
-          return false
-        }
-
-        const action = event.getAction()
-
-        if (action === android.view.KeyEvent.ACTION_DOWN) {
-          // Repeats only dispatch while we hold the press.
-          if (event.getRepeatCount() > 0) {
-            return escapeDown
-          }
-
-          escapeDown = dismissAllowed() && tryDismiss()
-          return escapeDown
-        }
-
-        if (action === android.view.KeyEvent.ACTION_UP) {
-          const handled = escapeDown
-
-          escapeDown = false
-          return handled
-        }
-
-        return escapeDown
-      },
-    })
-
-    const attach = () => {
-      const native = page.android as android.view.View | undefined
-
-      if (!native || attached === native) {
-        return
-      }
-
-      ViewCompat.addOnUnhandledKeyEventListener(native, listener)
-      attached = native
-    }
-
-    page.on(View.loadedEvent, attach)
-    if (page.isLoaded) {
-      attach()
-    }
-
-    return () => {
-      page.off(View.loadedEvent, attach)
-      if (attached) {
-        ViewCompat.removeOnUnhandledKeyEventListener(attached, listener)
-        attached = undefined
-      }
-    }
-  }
-
-  // iOS hardware Escape: a disabled-by-default key command on the page view
-  // controller resolves through the responder chain to the page's supported
-  // escape hook, so story views nearer the first responder and presented
-  // story modals keep priority. Enabling it only while a shell dismissal is
-  // available leaves the key (and marked-text composition) with the story.
-  // Hosts without UIViewController.addKeyCommand (iOS 15) keep the toolbar
-  // and accessibility-escape paths only.
-  function installIosDismissal(): () => void {
-    const vc = (page as any).ios as UIViewController | undefined
-
-    if (!vc?.respondsToSelector?.('addKeyCommand:')) {
-      return () => {}
-    }
-
-    const command = UIKeyCommand.keyCommandWithInputModifierFlagsAction(
-      UIKeyInputEscape,
-      0 as UIKeyModifierFlags,
-      'accessibilityPerformEscape',
-    )
-
-    const previous = page.onAccessibilityPerformEscape
-
-    // The VoiceOver escape gesture and the key command reach the same
-    // hook; both apply shell dismissal before any earlier handler.
-    page.onAccessibilityPerformEscape = () => {
-      if (dismissAllowed() && tryDismiss()) {
-        return true
-      }
-
-      return previous?.() ?? false
-    }
-
-    vc.addKeyCommand(command)
-    // UIMenuElementAttributes.Disabled is an ambient const enum, which this
-    // configuration reads only in type position.
-    syncEscapeCommand = () => {
-      command.attributes =
-        controller.panel || controller.stageOnly
-          ? (0 as UIMenuElementAttributes)
-          : (1 as UIMenuElementAttributes)
-    }
-
-    syncEscapeCommand()
-    return () => {
-      syncEscapeCommand = undefined
-      page.onAccessibilityPerformEscape = previous
-      vc.removeKeyCommand(command)
-    }
-  }
-
-  const releaseDismissal = Application.ios
-    ? installIosDismissal()
-    : Application.android
-      ? installAndroidDismissal()
-      : () => {}
+  const dismissal = installDismissal({ page, controller, dismissAllowed, tryDismiss })
 
   const exit = () => {
     void runtime
@@ -285,8 +146,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
       disposed = true
       unsubscribe()
       page.off(View.layoutChangedEvent, layout)
-      releaseDismissal()
-      Application.android?.off(AndroidApplication.activityBackPressedEvent, back)
+      dismissal.release()
       Application.off(Application.exitEvent, exit)
       root.unmount()
       await controller.dispose()
