@@ -3,6 +3,7 @@
 import { createRequire } from 'node:module'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { transformTsconfig } from '../packages/cli/src/tsconfig-pin.ts'
 
 const requireWeb = createRequire(new URL('../apps/web/package.json', import.meta.url))
 
@@ -12,6 +13,10 @@ export async function loadSource(url, options = {}) {
   const server = await createServer({
     configFile: false,
     root: dirname(file),
+    // Solution tsconfigs reference generated env programs that may not exist
+    // here; pin the committed env manifest while a reference dangles, the
+    // same seam the tsrx plugin applies to app setups.
+    tsconfig: transformTsconfig(dirname(file)),
     logLevel: 'error',
     server: { middlewareMode: true, watch: null, hmr: false },
     ...options,
