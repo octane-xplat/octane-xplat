@@ -112,7 +112,17 @@ export function createGtkWindowService(deps: {
 
     win.set_child(content)
 
-    const mounted = deps.mount(content)
+    let mounted: { root: { render(c: any, p: any): void; unmount(): void } }
+
+    try {
+      mounted = deps.mount(content)
+    } catch (error) {
+      try {
+        win.destroy()
+      } catch {}
+
+      throw error
+    }
 
     let resolveClosed!: () => void
     const closed = new Promise<void>((resolve) => {
@@ -172,14 +182,30 @@ export function createGtkWindowService(deps: {
       return false
     })
 
-    const component =
-      options.component ??
-      (typeof resolver === 'function' ? resolver(options.data ?? null, controller) : null)
+    // A failed open tears down like controller.close(): the mounted root
+    // (its liveGtkContainers registration, window wiring, and overlay) and
+    // the Gtk.Window must not outlive the exception.
+    const abort = () => {
+      finish()
 
-    if (typeof component !== 'function') {
       try {
         win.destroy()
       } catch {}
+    }
+
+    let component: unknown
+
+    try {
+      component =
+        options.component ??
+        (typeof resolver === 'function' ? resolver(options.data ?? null, controller) : null)
+    } catch (error) {
+      abort()
+      throw error
+    }
+
+    if (typeof component !== 'function') {
+      abort()
 
       throw new Error(
         options.component == null
@@ -188,7 +214,13 @@ export function createGtkWindowService(deps: {
       )
     }
 
-    mounted.root.render(component, options.props ?? { data: options.data ?? null, controller })
+    try {
+      mounted.root.render(component, options.props ?? { data: options.data ?? null, controller })
+    } catch (error) {
+      abort()
+      throw error
+    }
+
     win.present()
     return controller
   }
