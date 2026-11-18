@@ -270,14 +270,21 @@ test('JavaScript-only packages list every worker without importing executable co
       exports: {
         './worker': './run.mjs',
         './diagnostics': { node: './run.cjs', default: './run.js' },
+        './typed': './dist/typed.js',
         './package.json': './package.json',
       },
     }),
   )
 
-  for (const file of ['run.ts', 'run.cjs', 'run.js']) {
+  for (const file of ['run.mjs', 'run.cjs', 'run.js']) {
     writeFileSync(join(root, file), 'throw new Error("Do not execute a worker to document it")\n')
   }
+
+  mkdirSync(join(root, 'src'))
+  writeFileSync(
+    join(root, 'src/typed.ts'),
+    '/** Report worker health. */\nexport function health(): boolean {\n  return true\n}\n',
+  )
 
   const markdown = await packageMarkdown(join(root, 'package.json'))
 
@@ -285,6 +292,7 @@ test('JavaScript-only packages list every worker without importing executable co
   assert.match(markdown, /`worker-package\/worker`/)
   assert.match(markdown, /`worker-package\/diagnostics`/)
   assert.match(markdown, /See the package guide for usage/)
+  assert.match(markdown, /Report worker health/)
   assert.doesNotMatch(markdown, /worker-package\/package\.json/)
 
   const manifest = JSON.parse(readFileSync(join(root, 'package.json')))

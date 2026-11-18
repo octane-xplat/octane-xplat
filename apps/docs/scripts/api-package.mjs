@@ -193,8 +193,12 @@ export async function packageMarkdown(manifestPath) {
     if (sources.size) {
       // Emit once per package, using its own compiler settings, rather than
       // asking exports-md to launch one compiler per wildcard entry point.
+      // Monorepo packages without their own tsconfig inherit the workspace
+      // base; packages outside this layout use the staging resolver config.
+      const workspaceBase = resolve(source, '../../tsconfig.base.json')
       const configPath =
-        ts.findConfigFile(source, ts.sys.fileExists) ?? resolve(source, '../../tsconfig.base.json')
+        ts.findConfigFile(source, ts.sys.fileExists) ??
+        (existsSync(workspaceBase) ? workspaceBase : join(staging, 'tsconfig.json'))
 
       const config = ts.readConfigFile(configPath, ts.sys.readFile)
 
