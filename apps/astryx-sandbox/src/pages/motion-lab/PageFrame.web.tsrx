@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Section, HStack, VStack, Heading, Text } from '@octane-xplat/ui'
 import { cx } from '../../cx'

@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import type { TiptapEditorProps } from './types'
 import browser from '../dist/macos/browser.js'
 import { NativeEditor } from '@octane-xplat/richtext/macos-host'

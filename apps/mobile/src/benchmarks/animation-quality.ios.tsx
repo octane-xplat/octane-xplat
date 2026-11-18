@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import {
   Application,
   File,

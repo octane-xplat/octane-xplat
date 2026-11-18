@@ -1,5 +1,4 @@
 // Type contract only.
-/** @jsxImportSource @octane-xplat/jsx */
 
 export type InputEmit = (event: string, data?: Record<string, unknown>) => void
 

@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { createPortal, type UniversalRenderable } from 'octane/universal/native'
 import { useCallback, useState } from 'octane'
 

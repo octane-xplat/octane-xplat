@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { cx } from '../../cx'
 // Copyright (c) Meta Platforms, Inc. and affiliates.

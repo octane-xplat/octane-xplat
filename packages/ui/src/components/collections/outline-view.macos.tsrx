@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useMemo, useState } from 'octane'
 import type { OutlineFromViewCapabilities, OutlineItem } from '../../props'
 import { appKitHost } from '../../internal/platform/host-bridge'

@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import type { NSView } from '@octane-xplat/platform/macos'
 import { useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { createAppKitGridCellFocus } from './grid-cell-focus.macos'

@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
 import { useOwnedContent } from './use-owned-content.macos.tsrx'
 import { openBottomSheetWithOwner } from './bottom-sheet-service.macos'

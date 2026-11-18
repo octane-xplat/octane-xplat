@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 // Safe-area insets — native leaf. iOS reads UIView.safeAreaInsets; Android
 // reads the foreground activity's root WindowInsets in device-independent px.
 import { useEffect, useState } from 'octane'

@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 import './ShellLabPage.inline.css'
 import type { Renderable } from '@octane-xplat/ui'
 // Copyright (c) Meta Platforms, Inc. and affiliates.

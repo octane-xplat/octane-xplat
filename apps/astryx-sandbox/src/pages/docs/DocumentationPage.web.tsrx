@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 import './DocumentationPage.inline.css'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 

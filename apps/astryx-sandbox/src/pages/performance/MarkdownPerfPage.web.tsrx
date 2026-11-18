@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Ported from facebook/astryx apps/sandbox/src/app/(fullscreen)/pages/markdown-perf/page.tsx
 // (pinned revision ebd939b665361a078015377c0dfe50cc3c1d70a4). The upstream

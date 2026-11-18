@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { derived$ } from 'octane/signals'
 import { useSignal$ } from 'octane/signals/client'
 import { useCallback, useLayoutEffect, useRef } from 'octane'

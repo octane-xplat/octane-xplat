@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot } from 'octane'
 import { DataScreen, DataSharedReader, DataRetained } from '@octane-xplat/app/data-probe.tsrx'
 import { runDataTrace } from '@octane-xplat/app/data-trace'

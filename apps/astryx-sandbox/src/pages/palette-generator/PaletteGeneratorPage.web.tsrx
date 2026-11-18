@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 import { Field } from '@octane-xplat/ui'
 import './PaletteGeneratorPage.inline.css'
 // Copyright (c) Meta Platforms, Inc. and affiliates.

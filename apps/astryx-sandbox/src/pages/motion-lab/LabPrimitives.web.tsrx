@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Card, Divider, Badge, Slider, Grid, HStack, VStack, Heading, Text } from '@octane-xplat/ui'
 import { cx } from '../../cx'

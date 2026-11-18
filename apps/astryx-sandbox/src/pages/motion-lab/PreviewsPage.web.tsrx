@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Badge, Banner, Grid, Link, VStack, Heading, Text } from '@octane-xplat/ui'
 import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'

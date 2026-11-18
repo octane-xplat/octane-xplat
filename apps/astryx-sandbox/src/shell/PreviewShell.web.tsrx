@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream (fullscreen)/PreviewShell.tsx — preview chrome for
 // template routes and fullscreen authored pages: sidebar tree over all 714
 // template destinations, command-palette navigation, preview/code views,

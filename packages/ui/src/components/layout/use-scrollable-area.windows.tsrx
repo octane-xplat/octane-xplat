@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useLayoutEffect, useRef, useState } from 'octane'
 import type { Octane } from 'octane/jsx-runtime'
 import type {

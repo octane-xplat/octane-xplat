@@ -1,4 +1,3 @@
-/** @jsxImportSource @octane-xplat/jsx */
 import './styles'
 import { useEffect } from 'octane'
 import { App } from '@octane-xplat/app'
