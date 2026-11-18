@@ -1401,7 +1401,11 @@ server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(p
       const session = panel.sessions().find((entry) => entry.state === 'ready')
 
       assert.ok(session, 'panel ready frame carried no ready app session')
-      assert.deepEqual(session.channels?.map((entry) => entry.id).sort(), ['probe', 'stream'])
+      assert.deepEqual(session.channels?.map((entry) => entry.id).sort(), [
+        'probe',
+        'stream',
+        'xplat-actions',
+      ])
       await until(
         () =>
           panel.backends().some((entry) => entry.channel === 'probe' && entry.targetId === 'web'),
