@@ -18,7 +18,7 @@ class OrientationDelegate extends UIResponder implements UIApplicationDelegate {
   }
 }
 
-import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
+import { Application, File, Page, knownFolders, path } from '@nativescript/core'
 import * as Screen from '../src/index'
 
 const folder = knownFolders.documents().path
@@ -44,10 +44,6 @@ const assert = (condition: unknown, message: string) => {
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 const page = new Page()
-const label = new Label()
-
-label.text = 'Screen orientation lifecycle'
-page.content = label
 
 let started = false
 

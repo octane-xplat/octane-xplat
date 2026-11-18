@@ -1,4 +1,4 @@
-import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
+import { Application, File, Page, knownFolders, path } from '@nativescript/core'
 import {
   Stripe,
   initStripe,
@@ -35,11 +35,7 @@ async function waitFor(predicate: () => boolean) {
   }
 }
 
-const page = new Page(),
-  label = new Label()
-
-label.text = 'Packed Stripe SDK guard checks'
-page.content = label
+const page = new Page()
 
 let started = false
 

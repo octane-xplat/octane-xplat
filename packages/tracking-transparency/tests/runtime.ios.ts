@@ -1,6 +1,6 @@
 const applicationActive = 0 // UIApplicationStateActive from UIKit.
 
-import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
+import { Application, File, Page, knownFolders, path } from '@nativescript/core'
 import * as Tracking from '../src/index'
 
 const nativeStatus = () => {
@@ -44,11 +44,7 @@ const result = (phase: string, error?: unknown) => {
   )
 }
 
-const page = new Page(),
-  label = new Label()
-
-label.text = 'Tracking permission guard checks'
-page.content = label
+const page = new Page()
 
 let started = false
 let backgroundArmed = false
