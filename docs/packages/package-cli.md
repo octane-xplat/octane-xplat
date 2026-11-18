@@ -612,7 +612,29 @@ declarations of linked packages.
 cd /path/to/octane-xplat
 bun install
 bun run turbo run build:go --filter=@octane-xplat/cli
+bun run turbo run build --filter=@octane-xplat/cli  # refresh the umbrella's CLI Vite exports
 bun run turbo run build --filter=@octane-xplat/ui   # only for linked packages
+```
+
+For iOS and Android, link the two app-declared NativeScript packages from the
+same checkout as the umbrella. See [which packages to declare](package-toolchain.md#keep-app-dependencies-explicit).
+Build both packages from the checkout before starting the app.
+
+```sh
+bun run turbo run build --filter=@octane-xplat/nativescript-octane --filter=@octane-xplat/vite-octane
+```
+
+If Node reports a missing `buildTarget` export, check the linked CLI path and
+rebuild its `dist` from that revision.
+
+If your pnpm project installs links through a custom hook, run that project's
+install command before starting NativeScript. Preserve those links by calling
+NativeScript directly with its install-skip flag. Keep any project-specific
+preparation step before the corresponding native command.
+
+```sh
+pnpm exec ns run ios --disable-npm-install
+pnpm exec ns build android --disable-npm-install
 ```
 
 If a pnpm 11 install resolves the
@@ -861,11 +883,12 @@ import { native } from '@octane-xplat/cli/vite'
 export default defineConfig(({ mode }) => native(mode))
 ```
 
-The preset resolves the canonical renderer patch's MasonKit imports through
-the app's declared layout engine, including the style subpath: Mason core on
-iOS/Android, or full MasonKit in the repository's experimental Windows harness.
-This also works with pnpm's isolated linker. Keep the canonical renderer patch;
-no edited renderer copy is needed. Core and full MasonKit cannot share an app.
+The preset resolves the owned renderer's MasonKit imports through the app's
+declared layout engine, including the style subpath. Use Mason core on
+iOS/Android. The repository's experimental Windows harness uses full MasonKit.
+This also works with pnpm's isolated linker. The owned renderer includes the
+fixes previously shipped in the community renderer patch. Core and full
+MasonKit cannot share an app.
 See [Windows support status](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md)
 before choosing Windows; a downstream Windows setup is not documented yet.
 

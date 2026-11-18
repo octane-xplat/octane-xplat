@@ -28,7 +28,7 @@ export default defineConfig({
 })
 ```
 
-The command selects the build target. Web compilation uses browser files and the web runtime; NativeScript compilation uses the selected OS files and native runtime. The framework supplies matching CSS selection, boundary checks, and dependency resolution. Native starters use the same helper in `vite.config.native.mts`:
+The command selects the build target. Web compilation uses browser files and the web runtime, while NativeScript compilation uses the selected OS files and native runtime. The framework supplies matching CSS selection, boundary checks, and dependency resolution. Use the same helper in `vite.config.native.mts` and pass your app's options directly:
 
 ```ts
 import { defineConfig } from 'octane-xplat/vite'
@@ -93,6 +93,19 @@ remain app-owned too.
   }
 }
 ```
+
+For iOS or Android, declare `@octane-xplat/nativescript-octane` in
+`dependencies` and `@octane-xplat/vite-octane` in `devDependencies`.
+The native preset looks them up in the app's install. The creator adds both
+entries when you select a NativeScript target. Keep both versions aligned
+with `octane-xplat`. When linking a local checkout, link both owned packages
+from the same checkout as the umbrella.
+
+If your app still declares `@nativescript-community/octane` or
+`@nativescript-community/vite-octane`, replace those entries before running
+`xplat upgrade`. Update direct imports and remove the old renderer patch
+registrations. The upgrade command aligns managed versions and external
+patches after the package names are in place.
 
 Keep the creator's catalogs and patches. Installing the umbrella alone does
 not configure the patches required by the framework. Use the

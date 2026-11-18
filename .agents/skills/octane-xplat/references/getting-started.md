@@ -29,8 +29,12 @@ direct Vite defaults to web and direct NativeScript commands supply their OS.
 Custom compiler and experimental desktop configs use `defineConfig` from `vite`
 with the appropriate explicit preset. Keep direct declarations for
 packages named in app imports, ambient types, or compiler peer contracts;
-do not rely on umbrella dependencies being hoisted. Runtime and target-specific
-packages stay app-owned. See the [toolchain package](../../../../docs/packages/package-toolchain.md).
+do not rely on umbrella dependencies being hoisted. For iOS and Android, match
+the app's direct `@octane-xplat/nativescript-octane` runtime and
+`@octane-xplat/vite-octane` dev dependency to the umbrella revision. Replace
+the previous community package names and remove their patch registrations
+before aligning versions with `xplat upgrade`. See the
+[toolchain package](../../../../docs/packages/package-toolchain.md).
 
 Run checks and subsequent dev sessions from the generated app directory. Only
 use platform scripts enabled in that app's manifest.
