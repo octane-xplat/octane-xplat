@@ -1,13 +1,24 @@
 export type Literal = null | boolean | number | string | Literal[] | LiteralObject
 export type LiteralObject = { [key: string]: Literal }
 export type ContainerKind = 'masonview' | 'scrollview'
-export type HostKind = ContainerKind | 'label' | '#text'
+export type PlaceholderKind = 'activityindicator'
+export type HostKind = ContainerKind | 'label' | '#text' | PlaceholderKind
+/** Unsupported leaf hosts mount an empty, authored-size Mason box; hydration replaces it. */
+export const PLACEHOLDER_HOSTS: Readonly<Record<PlaceholderKind, readonly string[]>> =
+  Object.freeze({
+    activityindicator: Object.freeze(['id', 'className', 'style', 'busy']),
+  })
+export function isPlaceholderKind(value: unknown): value is PlaceholderKind {
+  return typeof value === 'string' && Object.hasOwn(PLACEHOLDER_HOSTS, value)
+}
 /** Mason layout containers; `scrollview` is MasonKit's Scroll (a Mason view with scroll overflow). */
 export function isContainerKind(value: unknown): value is ContainerKind {
   return value === 'masonview' || value === 'scrollview'
 }
 export function isHostKind(value: unknown): value is HostKind {
-  return isContainerKind(value) || value === 'label' || value === '#text'
+  return (
+    isContainerKind(value) || value === 'label' || value === '#text' || isPlaceholderKind(value)
+  )
 }
 export type LogicalNode = {
   index: number
@@ -214,6 +225,14 @@ export function validateNodes(input: unknown): LogicalNode[] {
     if (kind === '#text') {
       requireArtifact(Object.keys(props).join(',') === 'value', 'text props')
       string(props.value, 'canonical text value')
+    } else if (isPlaceholderKind(kind)) {
+      const allowed = PLACEHOLDER_HOSTS[kind]
+      for (const key of Object.keys(props)) {
+        requireArtifact(allowed.includes(key), 'unsupported host prop ' + key)
+        if (key === 'id' || key === 'className') {string(props[key], 'host prop ' + key)}
+        else if (key === 'busy') {requireArtifact(typeof props[key] === 'boolean', 'boolean host prop')}
+        else {validateStyle(props[key])}
+      }
     } else {
       for (const key of Object.keys(props)) {
         if (

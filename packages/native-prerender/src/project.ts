@@ -1,6 +1,7 @@
 import {
   ARTIFACT_LIMITS,
   isHostKind,
+  isPlaceholderKind,
   copyLiteral,
   integer,
   record,
@@ -16,7 +17,9 @@ export type VisualNode = {
   logicalNode: number
   path: string
   parent: number | null
-  kind: 'masonview' | 'scrollview' | 'label'
+  kind: 'masonview' | 'scrollview' | 'label' | 'placeholder'
+  /** The logical kind a placeholder replaces at hydration; unset on real hosts. */
+  hostKind?: HostKind
   props: LiteralObject
   children: number[]
   text: string
@@ -164,12 +167,15 @@ export function projectVisualTree(input: unknown): VisualNode[] {
     const value = node.props.text
     const text = value === undefined ? '' : value
     requireArtifact(typeof text === 'string', 'label text')
+    const kind = isPlaceholderKind(node.kind) ? 'placeholder' : node.kind
+    const placeholder = kind === 'placeholder'
     visual.push({
       index,
       logicalNode: node.index,
       path,
       parent,
-      kind: node.kind,
+      kind,
+      ...(placeholder ? { hostKind: node.kind } : {}),
       props: node.props,
       children: [],
       text,

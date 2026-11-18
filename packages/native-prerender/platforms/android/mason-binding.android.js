@@ -50,12 +50,26 @@ function validateNativeTree(visual, viewport, nativeViews) {
   }
 }
 
+/**
+ * Detach a cold placeholder native synchronously. removeView clears the Mason
+ * node immediately, but MasonKit batches the native detach on a posted
+ * main-loop flush (NodeUtils.queueRemoval), so the child is still attached
+ * when the next sibling verifies its index. removeViewInLayout detaches it now.
+ */
+function removeColdNative(parent, child) {
+  parent.removeView(child)
+  if (child.getParent() === parent) {
+    parent.removeViewInLayout(child)
+  }
+}
+
 /** Bind a backend-validated, already-mounted tree; the caller owns Core/window lifecycle. */
 export function bindAndroidMasonTree(nodes, viewport, nativeViews, { beforeAttach } = {}) {
   return bindMasonTree(nodes, viewport, nativeViews, {
     beforeAttach,
     createLabel: () => new Label(),
     validateNativeTree,
+    removeColdNative,
   })
 }
 

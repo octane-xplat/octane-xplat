@@ -155,7 +155,8 @@ public final class MasonMount {
         if (values.containsKey("overflowY")) style.setOverflowY("scroll".equals(values.get("overflowY")) ? Overflow.Scroll : Overflow.Hidden);
         if ("100%".equals(values.get("height"))) style.setSizeHeight(1, (byte) 2);
         else if (values.containsKey("height")) style.setSizeHeight(number(values, "height", 0) * density, (byte) 1);
-        if (values.containsKey("width")) style.setSizeWidth(1, (byte) 2);
+        if ("100%".equals(values.get("width"))) style.setSizeWidth(1, (byte) 2);
+        else if (values.containsKey("width")) style.setSizeWidth(number(values, "width", 0) * density, (byte) 1);
         if (values.containsKey("alignSelf")) style.setAlignSelf(AlignSelf.Stretch);
         if (values.containsKey("alignItems")) style.setAlignItems(AlignItems.Center);
         if (values.containsKey("justifyContent")) style.setJustifyContent(values.get("justifyContent").equals("center") ? JustifyContent.Center : JustifyContent.SpaceBetween);

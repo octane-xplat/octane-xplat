@@ -54,6 +54,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     var viewport: MasonUIView!
     var mount: XplatMasonMount?
+    var placeholderIndexes: Set<Int> = []
     var runtimeStarted = false
     var frames = 0
     var link: CADisplayLink?
@@ -125,6 +126,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
                   nodes.first?["kind"] as? String == "masonview" else {
                 throw XplatMasonArtifact.Invalid(reason: "unsupported mount topology")
             }
+            placeholderIndexes = Set(nodes.indices.filter { nodes[$0]["kind"] as? String == "placeholder" })
         } catch {
             let reason = (error as? XplatMasonArtifact.Invalid)?.reason ?? "artifact read failed"
             try! JSONSerialization.data(withJSONObject: ["artifactRejected": true, "reason": reason, "theme": theme, "scale": scale, "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left], "rows": []]).write(to: documents("native-mount.json"), options: .atomic)
@@ -182,7 +184,11 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
             if lastPhase == "presented" {
                 // Custom screens keep the hydrated tree on screen for visual
                 // transition evaluation; the runner leaves the app running.
-                let retained = mount.views.allSatisfy { $0.window != nil } && !viewport.subviews.isEmpty
+                // Placeholder cold natives are detached by design once the live
+                // host replaces them, so retention only covers real records.
+                let retained = mount.views.enumerated().allSatisfy {
+                    placeholderIndexes.contains($0.offset) ? $0.element.window == nil : $0.element.window != nil
+                } && !viewport.subviews.isEmpty
                 record("mount-held", ["nativeChildren": viewport.subviews.count, "masonChildren": nodes, "nativeViewsDetached": !retained])
                 if failed || !retained {
                     record("failed", ["reason": failed ? "fixture failure" : "presented viewport lost its native subtree", "adopt": adopt])

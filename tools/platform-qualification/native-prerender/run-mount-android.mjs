@@ -235,7 +235,10 @@ try {
       )
 
       assert.equal(initial.logicalNodes, packet.nodes.length)
-      assert.equal(initial.initialClaims, expected.nodes.length)
+      assert.equal(
+        initial.initialClaims + (initial.replacedClaims ?? 0),
+        expected.nodes.length,
+      )
       assert.equal(initial.factoryCalls, expected.nodes.length)
       assert.equal(presented.visualNodes, expected.nodes.length)
       assert.equal(presented.viewportChildren, 1)

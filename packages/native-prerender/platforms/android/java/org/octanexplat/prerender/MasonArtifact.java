@@ -12,15 +12,19 @@ public final class MasonArtifact {
         public Invalid(String reason) { super(reason); }
     }
     public static final class Node {
+
         public final int index, parent;
         public final String kind, path, text;
+        /** The logical kind a placeholder replaces at hydration; null on real hosts. */
+        public final String hostKind;
         public final Map<String, Object> props;
         public final List<Integer> children;
         Node(int index, int parent, String kind, String path, String text,
-             Map<String, Object> props, List<Integer> children) {
+             Map<String, Object> props, List<Integer> children, String hostKind) {
             this.index = index; this.parent = parent; this.kind = kind;
             this.path = path; this.text = text; this.props = props;
             this.children = Collections.unmodifiableList(new ArrayList<>(children));
+            this.hostKind = hostKind;
         }
     }
     public static final class StyleRecord {
@@ -43,8 +47,12 @@ public final class MasonArtifact {
         }
         public Map<String, Object> projection() {
             List<Object> projectedNodes = new ArrayList<>();
-            for (Node n : nodes) projectedNodes.add(map("index", n.index, "parent", n.parent < 0 ? null : n.parent,
-                "kind", n.kind, "path", n.path, "text", n.text, "props", n.props, "children", n.children));
+            for (Node n : nodes) {
+                Map<String, Object> projected = map("index", n.index, "parent", n.parent < 0 ? null : n.parent,
+                    "kind", n.kind, "path", n.path, "text", n.text, "props", n.props, "children", n.children);
+                if (n.hostKind != null) projected.put("hostKind", n.hostKind);
+                projectedNodes.add(projected);
+            }
             Map<String, Object> projectedVariants = new LinkedHashMap<>();
             for (Map.Entry<String, List<StyleRecord>> variant : variants.entrySet()) {
                 List<Object> rows = new ArrayList<>();
@@ -71,8 +79,7 @@ public final class MasonArtifact {
             case "flexDirection": valid = "row".equals(value) || "column".equals(value); break;
             case "alignItems": valid = "center".equals(value); break;
             case "alignSelf": valid = "stretch".equals(value); break;
-            case "width": valid = "100%".equals(value); break;
-            case "height": valid = nonnegative || "100%".equals(value); break;
+            case "width": case "height": valid = nonnegative || "100%".equals(value); break;
             case "justifyContent": valid = "center".equals(value) || "space-between".equals(value); break;
             case "maxWidth": case "maxHeight": valid = "100%".equals(value); break;
             case "overflowX": case "overflowY": valid = "scroll".equals(value) || "hidden".equals(value); break;
@@ -123,7 +130,8 @@ public final class MasonArtifact {
             Object parent = row.get("parent");
             nodes.add(new Node(index, parent == null ? -1 : ((Number) parent).intValue(),
                 (String) row.get("kind"), (String) row.get("path"), (String) row.get("text"),
-                (Map<String, Object>) row.get("props"), (List<Integer>) row.get("children")));
+                (Map<String, Object>) row.get("props"), (List<Integer>) row.get("children"),
+                (String) row.get("hostKind")));
         }
         Map<String, List<StyleRecord>> variants = new LinkedHashMap<>();
         Map<String, Object> source = (Map<String, Object>) snapshot.value.get("variants");

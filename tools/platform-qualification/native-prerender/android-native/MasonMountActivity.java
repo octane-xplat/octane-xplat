@@ -55,9 +55,16 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
     public void restoreDefaults() { mount.restoreDefaults(); }
     public void checkInitialIdentities() {
         Mason mason = Mason.Companion.getShared();
-        for (int index = 0; index < mount.views().size(); index++)
+        for (int index = 0; index < mount.views().size(); index++) {
+            if (artifact.nodes.get(index).kind.equals("placeholder")) {
+                // The placeholder's cold box must be fully detached; its node
+                // was removed from the Mason tree during hydration.
+                check(mount.views().get(index).getParent() == null, "Placeholder cold native still attached");
+                continue;
+            }
             check(mason.nodeForView(mount.views().get(index)) == originalNodes.get(index) &&
                 originalNodes.get(index).getNativePtr() == originalHandles.get(index), "Initial Mason identity changed");
+        }
     }
     public void recordProof(String fields) {
         try { record("artifact-proof", new JSONObject(fields)); }

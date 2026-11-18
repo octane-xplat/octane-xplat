@@ -12,6 +12,7 @@ export const primitiveModules = {
   SafeArea: 'src/components/layout/SafeArea.tsrx',
   Screen: 'src/components/layout/Screen.tsrx',
   ScrollableArea: 'src/components/layout/ScrollableArea.tsrx',
+  Spinner: { path: 'src/components/feedback/ActivityIndicator.tsrx', export: 'ActivityIndicator' },
 }
 
 function packageRoot(entry, name) {

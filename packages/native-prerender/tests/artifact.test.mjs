@@ -378,3 +378,99 @@ test('Screen shell keys: alignSelf stretch, percentage size and iosIgnoreSafeAre
   invalid.nodes[0].props.iosIgnoreSafeArea = 'yes'
   assert.throws(() => validateArtifact(invalid), /boolean host prop/)
 })
+
+test('placeholder hosts stay leaf-only with bounded props and project as placeholders', () => {
+  const batch = [
+    { op: 'create', id: 100, type: 'masonview', props: { className: 'screen' } },
+    {
+      op: 'create',
+      id: 101,
+      type: 'activityindicator',
+      props: {
+        id: 'spin',
+        className: 'vx-spinner',
+        style: { width: 16, height: 16 },
+        busy: true,
+      },
+    },
+    { op: 'create', id: 102, type: 'label', props: { text: 'Title' } },
+    { op: 'insert', id: 101, parent: 100, before: null },
+    { op: 'insert', id: 102, parent: 100, before: null },
+    { op: 'insert', id: 100, parent: null, before: null },
+  ]
+  const projection = projectPreparedTree(batch)
+  const visual = projectVisualTree(projection.nodes)
+  assert.equal(visual.length, 3)
+  assert.equal(visual[1].kind, 'placeholder')
+  assert.equal(visual[1].hostKind, 'activityindicator')
+  assert.deepEqual(visual[1].children, [])
+  assert.deepEqual(visual[0].children, [1, 2])
+  assert.equal(visual[2].kind, 'label')
+
+  // The logical node keeps its real kind, so an exact match still gates it.
+  assert.deepEqual(
+    [...matchPreparedTree(batch, projection.nodes).visualByCommandId],
+    [
+      [100, 0],
+      [101, 1],
+      [102, 2],
+    ],
+  )
+
+  const artifact = validateArtifact({
+    version: 1,
+    platform: 'android',
+    hostContract: 'mason-label-v1',
+    build: expected.build,
+    seed: {},
+    constraints: [{ input: 'fontScale', equals: 1 }],
+    nodes: projection.nodes,
+    variants: Object.fromEntries(
+      ['light', 'dark'].map((theme) => [
+        theme,
+        projection.nodes
+          .filter((node) => node.kind !== '#text')
+          .map((node) => ({
+            node: node.index,
+            style: node.kind === 'activityindicator' ? { width: 16, height: 16 } : {},
+            cssKeys: [],
+            inheritedKeys: [],
+          })),
+      ]),
+    ),
+  })
+  assert.equal(artifact.nodes[1].kind, 'activityindicator')
+  assert.equal(
+    decodeStartupArtifact(encodeStartupArtifact(artifact), expected).nodes[1].kind,
+    'activityindicator',
+  )
+
+  const sized = structuredClone(projection.nodes)
+  // busy is only valid on placeholder hosts.
+  sized[0].props.busy = true
+  assert.throws(() => validateArtifact({ ...artifact, nodes: sized }), /unsupported host prop busy/)
+
+  for (const props of [
+    { busy: 'yes' },
+    { plugin: true },
+    { accessibilityLabel: 'x' },
+  ]) {
+    const nodes = structuredClone(projection.nodes)
+    nodes[1].props = props
+    assert.throws(() => validateArtifact({ ...artifact, nodes }), /host prop|boolean host prop/)
+  }
+
+  // A placeholder may not own children.
+  assert.throws(
+    () =>
+      projectPreparedTree([
+        { op: 'create', id: 0, type: 'masonview', props: {} },
+        { op: 'create', id: 1, type: 'activityindicator', props: {} },
+        { op: 'create', id: 2, type: 'label', props: { text: 'x' } },
+        { op: 'insert', id: 1, parent: 0, before: null },
+        { op: 'insert', id: 2, parent: 1, before: null },
+        { op: 'insert', id: 0, parent: null, before: null },
+      ]),
+    /child kind/,
+  )
+})

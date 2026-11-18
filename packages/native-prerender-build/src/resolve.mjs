@@ -57,6 +57,21 @@ function scrollviewStyle(props, style) {
   }
 }
 
+// A placeholder mounts an empty box: only authored box geometry survives into
+// the startup tree. Every other resolved key is dropped and reported.
+const PLACEHOLDER_BOX_KEYS = new Set([
+  'alignSelf',
+  'flexGrow',
+  'flexShrink',
+  'height',
+  'maxHeight',
+  'maxWidth',
+  'minHeight',
+  'minWidth',
+  'width',
+])
+const droppedPlaceholderStyles = new Map()
+
 const variants = {}
 const launch = compileLaunchConstraints(stylesheetMediaQueries(), input.environment, {
   consumesSafeAreaInsets: input.consumesSafeAreaInsets === true,
@@ -75,7 +90,9 @@ for (const colorScheme of ['light', 'dark']) {
   host.computedStyle = hostCascade.style
   host.computedCustomProps = hostCascade.customProps
 
-  const cssNodes = nodes.map((node) => cssNode(node.kind, node.props))
+  // Placeholders keep their logical kind so CSS matching sees the real host
+  // type the live tree will create.
+  const cssNodes = nodes.map((node) => cssNode(node.hostKind ?? node.kind, node.props))
 
   nodes.forEach((node, index) => {
     cssNodes[index].parent = node.parent === null ? host : cssNodes[node.parent]
@@ -87,19 +104,39 @@ for (const colorScheme of ['light', 'dark']) {
 
     node.computedStyle = result.style
     node.computedCustomProps = result.customProps
-    if (result.animations.length) {
+    // A placeholder is replaced by its live native host during hydration, so
+    // its authored animation never needs a cold-mount equivalent.
+    if (result.animations.length && nodes[index].kind !== 'placeholder') {
       throw new Error('Native startup producer: initial animations unsupported')
     }
 
-    return {
-      index,
-      style:
-        nodes[index].kind === 'scrollview'
-          ? scrollviewStyle(nodes[index].props, result.style)
-          : result.style,
-      cssKeys: [...result.cssKeys],
-      inheritedKeys: [...result.inheritedKeys],
+    let style =
+      nodes[index].kind === 'scrollview'
+        ? scrollviewStyle(nodes[index].props, result.style)
+        : result.style
+    let cssKeys = [...result.cssKeys]
+    let inheritedKeys = [...result.inheritedKeys]
+
+    if (nodes[index].kind === 'placeholder') {
+      if (typeof style.width !== 'number' || typeof style.height !== 'number') {
+        throw new Error(
+          `Native startup producer: placeholder size not authored for ${nodes[index].hostKind} at ${nodes[index].path}`,
+        )
+      }
+      const kept = {}
+      const dropped = droppedPlaceholderStyles.get(index) ?? new Set()
+      for (const key of Object.keys(style)) {
+        if (PLACEHOLDER_BOX_KEYS.has(key)) {kept[key] = style[key]}
+        else {dropped.add(key)}
+      }
+      droppedPlaceholderStyles.set(index, dropped)
+      style = kept
+      // Provenance requires every cssKeys entry to name a surviving key.
+      cssKeys = cssKeys.filter((key) => key in kept)
+      inheritedKeys = inheritedKeys.filter((key) => key in kept)
     }
+
+    return { index, style, cssKeys, inheritedKeys }
   })
 }
 
@@ -113,6 +150,17 @@ writeFileSync(
       nodes,
       variants,
       launch,
+      placeholders: nodes.flatMap((node, index) =>
+        node.kind === 'placeholder'
+          ? [
+              {
+                path: node.path,
+                hostKind: node.hostKind,
+                droppedStyles: [...(droppedPlaceholderStyles.get(index) ?? [])].sort(),
+              },
+            ]
+          : [],
+      ),
     },
     null,
     2,

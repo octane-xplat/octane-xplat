@@ -22,13 +22,23 @@ final class HomeComparison {
     private static boolean container(android.view.View view) {
         return view instanceof View || view instanceof org.nativescript.mason.masonkit.Scroll;
     }
+    // A placeholder slot holds the cold Mason box before hydration and the
+    // live host's native after: NativeScript's ActivityIndicator creates an
+    // android.widget.ProgressBar. The hydration check pins the live class.
+    private static boolean expectedKind(MasonArtifact.Artifact artifact, int index, android.view.View view) {
+        String kind = artifact.nodes.get(index).kind;
+        if (kind.equals("label")) return view instanceof StyleableTextView;
+        if (kind.equals("scrollview")) return view instanceof org.nativescript.mason.masonkit.Scroll;
+        if (kind.equals("placeholder")) return view instanceof android.widget.ProgressBar || view instanceof View;
+        return view instanceof View;
+    }
     // A Screen attaches its overlay RootLayout after hydration, outside the
     // startup artifact; it follows every artifact child.
-    private static int foreignChildren(ViewGroup parent) {
+    private static int foreignChildren(MasonArtifact.Artifact artifact, ViewGroup parent, MasonArtifact.Node row) {
         int count = 0;
         for (int index = 0; index < parent.getChildCount(); index++) {
             android.view.View child = parent.getChildAt(index);
-            if (!container(child) && !(child instanceof StyleableTextView)) count++;
+            if (index >= row.children.size() || !expectedKind(artifact, row.children.get(index), child)) count++;
         }
         return count;
     }
@@ -42,11 +52,11 @@ final class HomeComparison {
     private static void collect(MasonArtifact.Artifact artifact, android.view.View view, int index, List<android.view.View> views) {
         MasonArtifact.Node row = artifact.nodes.get(index);
         check(index == views.size(), "Reference visual order differs");
-        check(row.kind.equals("label") ? view instanceof StyleableTextView : row.kind.equals("scrollview") ? view instanceof org.nativescript.mason.masonkit.Scroll : view instanceof View, "Reference native class differs");
+        check(expectedKind(artifact, index, view), "Reference native class differs");
         views.add(view);
         if (container(view)) {
             ViewGroup parent = (ViewGroup) view;
-            check(parent.getChildCount() - foreignChildren(parent) == row.children.size(), "Reference child count differs");
+            check(parent.getChildCount() - foreignChildren(artifact, parent, row) == row.children.size(), "Reference child count differs");
             for (int child = 0; child < row.children.size(); child++) collect(artifact, parent.getChildAt(child), row.children.get(child), views);
         }
     }
@@ -61,6 +71,16 @@ final class HomeComparison {
         JSONArray result = new JSONArray();
         for (MasonArtifact.Node row : artifact.nodes) {
             android.view.View view = views.get(row.index);
+            if (row.kind.equals("placeholder")) {
+                // The placeholder slot may hold the detached cold box or the
+                // live ProgressBar; never ask Mason for the foreign child's
+                // style and never touch the removed node's layout.
+                result.put(new JSONObject().put("index", row.index).put("kind", row.kind).put("parent", row.parent)
+                    .put("left", view.getLeft()).put("top", view.getTop()).put("width", view.getWidth()).put("height", view.getHeight())
+                    .put("attached", view.isAttachedToWindow()).put("alpha", (double) view.getAlpha())
+                    .put("class", view.getClass().getName()));
+                continue;
+            }
             Style style = mason.styleForView(view);
             org.nativescript.mason.masonkit.Node node = mason.nodeForView(view);
             boolean laidOut = view.getWidth() > 0 && view.getHeight() > 0;
@@ -87,11 +107,14 @@ final class HomeComparison {
             radius(item, "radiusTopRight", style.getBorderTopRightRadius());
             radius(item, "radiusBottomRight", style.getBorderBottomRightRadius());
             radius(item, "radiusBottomLeft", style.getBorderBottomLeftRadius());
-            int foreign = view instanceof ViewGroup && !(view instanceof StyleableTextView) ? foreignChildren((ViewGroup) view) : 0;
+            int foreign = view instanceof ViewGroup && !(view instanceof StyleableTextView) ? foreignChildren(artifact, (ViewGroup) view, row) : 0;
             check(node.getChildCount() - foreign == row.children.size(), "Home Mason child count differs");
             if (container(view)) for (int child = 0; child < row.children.size(); child++) {
-                android.view.View expected = views.get(row.children.get(child));
-                check(((ViewGroup) view).getChildAt(child) == expected && node.getChildAt(child) == mason.nodeForView(expected), "Home native/Mason child order differs");
+                android.view.View actual = ((ViewGroup) view).getChildAt(child);
+                // After hydration the placeholder slot holds the live
+                // ProgressBar, not the retained cold box in `views`.
+                boolean placeholder = artifact.nodes.get(row.children.get(child)).kind.equals("placeholder");
+                check((actual == views.get(row.children.get(child)) || placeholder && actual instanceof android.widget.ProgressBar) && node.getChildAt(child) == mason.nodeForView(actual), "Home native/Mason child order differs");
             }
             if (view instanceof StyleableTextView) {
                 StyleableTextView text = (StyleableTextView) view;

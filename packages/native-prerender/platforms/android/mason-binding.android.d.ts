@@ -4,7 +4,7 @@ import type { NativeClaims } from '@octane-xplat/native-prerender'
 
 export type AndroidMasonBinding = {
   host: View
-  wrappers: (View | Label)[]
+  wrappers: (View | Label | null)[]
   claims: NativeClaims<View | Label>
   commit(apply: () => undefined): void
   retire(): void
@@ -18,5 +18,5 @@ export function bindAndroidMasonTree(
   options?: { beforeAttach?(count: number): void },
 ): AndroidMasonBinding
 
-export function releaseAndroidMasonOwners(host: View, wrappers: readonly ViewBase[]): void
-export function releaseAndroidMasonTree(host: View, wrappers: readonly ViewBase[]): void
+export function releaseAndroidMasonOwners(host: View, wrappers: readonly (ViewBase | null)[]): void
+export function releaseAndroidMasonTree(host: View, wrappers: readonly (ViewBase | null)[]): void

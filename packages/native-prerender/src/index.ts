@@ -1,7 +1,9 @@
 export {
   ARTIFACT_LIMITS,
+  PLACEHOLDER_HOSTS,
   STYLE_KEYS,
   ArtifactError,
+  isPlaceholderKind,
   validateArtifact,
   validateNodes,
 } from './schema.ts'
@@ -10,6 +12,7 @@ export type {
   LiteralObject,
   LogicalNode,
   HostKind,
+  PlaceholderKind,
   StyleRecord,
   LaunchConstraint,
   StartupArtifact,

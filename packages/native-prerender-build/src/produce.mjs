@@ -150,9 +150,12 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
 
             if (id === '\0xplat-render-primitives') {
               return Object.entries(primitiveModules)
-                .map(
-                  ([name, path]) => `export { ${name} } from ${JSON.stringify(join(uiRoot, path))}`,
-                )
+                .map(([name, spec]) => {
+                  const { path, export: exported = name } =
+                    typeof spec === 'string' ? { path: spec } : spec
+                  const clause = exported === name ? exported : `${exported} as ${name}`
+                  return `export { ${clause} } from ${JSON.stringify(join(uiRoot, path))}`
+                })
                 .join('\n')
             }
 
@@ -496,10 +499,11 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
       .update(readFileSync(join(work, 'startup.bin')))
       .digest('hex'),
     logicalNodeCount: logicalNodes.length,
+    placeholders: artifact.placeholders ?? [],
     scope:
       'Private configured Node/Vite ' +
       platform +
-      ' render-only producer with nine shared primitive exports, explicit environment, AOT theme variants and XPI1 encoding; not normal app integration, general eligibility, SSR or native runtime qualification',
+      ' render-only producer with ten shared primitive exports, explicit environment, AOT theme variants and XPI1 encoding; not normal app integration, general eligibility, SSR or native runtime qualification',
   }
 
   json(join(work, 'build.json'), manifest)

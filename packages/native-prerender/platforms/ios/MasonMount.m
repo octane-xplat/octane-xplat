@@ -58,7 +58,8 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     if (values[@"overflowY"]) style.overflowY = [values[@"overflowY"] isEqual:@"scroll"] ? MasonOverflowScroll : MasonOverflowHidden;
     if ([values[@"height"] isKindOfClass:NSString.class]) { Require([values[@"height"] isEqual:@"100%"], @"Unsupported height"); [style setSizeHeight:1 :MasonDimensionCompatTypePercent]; }
     else if (values[@"height"]) [style setSizeHeight:[values[@"height"] floatValue]*scale :MasonDimensionCompatTypePoints];
-    if (values[@"width"]) { Require([values[@"width"] isEqual:@"100%"], @"Unsupported width"); [style setSizeWidth:1 :MasonDimensionCompatTypePercent]; }
+    if ([values[@"width"] isKindOfClass:NSString.class]) { Require([values[@"width"] isEqual:@"100%"], @"Unsupported width"); [style setSizeWidth:1 :MasonDimensionCompatTypePercent]; }
+    else if (values[@"width"]) [style setSizeWidth:[values[@"width"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if (values[@"alignSelf"]) { Require([values[@"alignSelf"] isEqual:@"stretch"], @"Unsupported self alignment"); style.alignSelf = MasonAlignSelfStretch; }
     // The examined SDK bulk border-width setter writes padding. Use its edge setters.
     if (values[@"borderWidth"]) {
@@ -110,11 +111,11 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     for (NSUInteger index=0; index<records.count; index++) {
         NSDictionary *record = records[index];
         Require([record[@"index"] unsignedIntegerValue] == index && [styles[index][@"index"] unsignedIntegerValue] == index, @"Noncanonical index");
-        Require([@[@"masonview",@"scrollview",@"label"] containsObject:record[@"kind"]], @"Unknown host kind");
+        Require([@[@"masonview",@"scrollview",@"label",@"placeholder"] containsObject:record[@"kind"]], @"Unknown host kind");
         Require(index == 0 ? record[@"parent"] == NSNull.null : [record[@"parent"] unsignedIntegerValue] < index, @"Invalid parent ordering");
         // Decoding validated property semantics. Check owning-scale conversion
         // for every record before allocating the first native view.
-        if (index > 0) Require(![records[[record[@"parent"] unsignedIntegerValue]][@"kind"] isEqual:@"label"], @"Label cannot contain visual children");
+        if (index > 0) Require([@[@"masonview",@"scrollview"] containsObject:records[[record[@"parent"] unsignedIntegerValue]][@"kind"]], @"Only containers can own visual children");
         for (NSString *variant in @[@"light", @"dark"]) {
             NSArray *rows = artifact[@"variants"][variant];
             Require(rows.count == records.count, @"Style projection differs");

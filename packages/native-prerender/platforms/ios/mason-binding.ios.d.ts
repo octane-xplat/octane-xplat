@@ -4,7 +4,7 @@ import type { NativeClaims } from '@octane-xplat/native-prerender'
 
 export type IOSMasonBinding = {
   host: View
-  wrappers: (View | Label)[]
+  wrappers: (View | Label | null)[]
   claims: NativeClaims<View | Label>
   commit(apply: () => undefined): void
   retire(): void
@@ -18,5 +18,5 @@ export function bindIOSMasonTree(
   options?: { beforeAttach?(count: number): void },
 ): IOSMasonBinding
 
-export function releaseIOSMasonOwners(host: View, wrappers: readonly ViewBase[]): void
-export function releaseIOSMasonTree(host: View, wrappers: readonly ViewBase[]): void
+export function releaseIOSMasonOwners(host: View, wrappers: readonly (ViewBase | null)[]): void
+export function releaseIOSMasonTree(host: View, wrappers: readonly (ViewBase | null)[]): void

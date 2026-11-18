@@ -55,7 +55,10 @@ public final class StartupArtifact {
             for (VisualRecord visual : records) {
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put("index", visual.index); row.put("logicalNode", visual.node.index); row.put("path", visual.path);
-                row.put("parent", visual.parent < 0 ? null : visual.parent); row.put("kind", visual.node.kind);
+                row.put("parent", visual.parent < 0 ? null : visual.parent);
+                boolean placeholder = visual.node.kind.equals("activityindicator");
+                row.put("kind", placeholder ? "placeholder" : visual.node.kind);
+                if (placeholder) row.put("hostKind", visual.node.kind);
                 row.put("props", visual.node.props); row.put("text", visual.text);
                 row.put("children", Collections.unmodifiableList(new ArrayList<>(visual.children)));
                 result.add(Collections.unmodifiableMap(row));
@@ -163,6 +166,18 @@ public final class StartupArtifact {
             keys(node.props, "value"); text(node.props.get("value"));
             return;
         }
+        if (node.kind.equals("activityindicator")) {
+            for (Map.Entry<String, Object> item : node.props.entrySet()) {
+                String key = item.getKey(); Object value = item.getValue();
+                switch (key) {
+                    case "id": case "className": text(value); break;
+                    case "busy": require(value instanceof Boolean, "boolean host prop"); break;
+                    case "style": style(value); break;
+                    default: throw new Invalid("unsupported host prop " + key);
+                }
+            }
+            return;
+        }
         for (Map.Entry<String, Object> item : node.props.entrySet()) {
             String key = item.getKey(); Object value = item.getValue();
             switch (key) {
@@ -196,7 +211,7 @@ public final class StartupArtifact {
         for (int index = 0; index < records.size(); index++) {
             Map<String, Object> row = object(records.get(index)); keys(row, "index", "path", "parent", "kind", "props");
             require(integer(row.get("index"), 0, 1023) == index, "node index");
-            String kind = text(row.get("kind")); require(Arrays.asList("masonview", "scrollview", "label", "#text").contains(kind), "host kind");
+            String kind = text(row.get("kind")); require(Arrays.asList("masonview", "scrollview", "label", "#text", "activityindicator").contains(kind), "host kind");
             int parent = -1;
             if (index == 0) require(row.get("parent") == null && !kind.equals("#text"), "root parent or kind");
             else {

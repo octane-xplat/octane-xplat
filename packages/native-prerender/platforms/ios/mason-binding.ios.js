@@ -48,12 +48,18 @@ function validateNativeTree(visual, viewport, nativeViews) {
   }
 }
 
+/** Detach a cold placeholder native; MasonUIView.removeView detaches synchronously. */
+function removeColdNative(parent, child) {
+  parent.removeView(child)
+}
+
 /** Bind a backend-validated, already-mounted tree; the caller owns Core/window lifecycle. */
 export function bindIOSMasonTree(nodes, viewport, nativeViews, { beforeAttach } = {}) {
   return bindMasonTree(nodes, viewport, nativeViews, {
     beforeAttach,
     createLabel: () => new Label(),
     validateNativeTree,
+    removeColdNative,
   })
 }
 

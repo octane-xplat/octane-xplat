@@ -30,7 +30,7 @@ const isMasonContainer = (view) => view instanceof View || view instanceof Scrol
  * `validateNativeTree(visual, viewport, nativeViews)` performs the platform's
  * native class/parent/order checks; the caller owns Core/window lifecycle.
  */
-export function bindMasonTree(nodes, viewport, nativeViews, { beforeAttach, createLabel, validateNativeTree } = {}) {
+export function bindMasonTree(nodes, viewport, nativeViews, { beforeAttach, createLabel, validateNativeTree, removeColdNative } = {}) {
   const visual = projectVisualTree(nodes)
 
   validateNativeTree(visual, viewport, nativeViews)
@@ -40,6 +40,11 @@ export function bindMasonTree(nodes, viewport, nativeViews, { beforeAttach, crea
 
   const factories = new Map()
   const wrappers = visual.map((row, index) => {
+    // Placeholder records adopt nothing: the live host creates its own native.
+    if (row.kind === 'placeholder') {
+      return null
+    }
+
     const wrapper =
       row.kind === 'label' ? createLabel() : row.kind === 'scrollview' ? new Scroll() : new View()
 
@@ -64,12 +69,16 @@ export function bindMasonTree(nodes, viewport, nativeViews, { beforeAttach, crea
   // native already in place; Mason verifies parent/index, skips the insert and
   // runs ordinary adoption. Later attaches of the same wrapper are ordinary.
   for (const wrapper of wrappers) {
-    expectAttachedNative(wrapper, { onAttach: () => beforeAttach?.(++attachmentCalls) })
+    if (wrapper !== null) {
+      expectAttachedNative(wrapper, { onAttach: () => beforeAttach?.(++attachmentCalls) })
+    }
   }
 
   function restore() {
     for (const wrapper of wrappers) {
-      cancelAttachedNative(wrapper)
+      if (wrapper !== null) {
+        cancelAttachedNative(wrapper)
+      }
     }
 
     for (const [wrapper, factory] of factories) {
@@ -87,13 +96,26 @@ export function bindMasonTree(nodes, viewport, nativeViews, { beforeAttach, crea
     commit(apply) {
       try {
         claims.commit(() => {
+          // Remove each placeholder's cold native from both the native
+          // hierarchy and Mason's node tree (removeColdNative does both and
+          // returns only once the native detach is complete). The live host
+          // inserts through the ordinary path at the same index inside this
+          // synchronous turn, before later siblings verify theirs.
+          for (const row of visual) {
+            if (row.kind !== 'placeholder') {
+              continue
+            }
+            const parent = row.parent === null ? viewport : nativeViews[row.parent]
+            removeColdNative(parent, nativeViews[row.index])
+          }
+
           const result = apply()
 
           requireBinding(result === undefined, 'native binding requires a synchronous commit')
           // iOS keeps inserts deferred until the host loads; every expectation
           // must be consumed by the time commit returns on both platforms.
           requireBinding(
-            wrappers.every((wrapper) => !isAttachedNativeExpected(wrapper)),
+            wrappers.every((wrapper) => wrapper === null || !isAttachedNativeExpected(wrapper)),
             'native visual attachments were not fully consumed',
           )
         })
@@ -113,7 +135,7 @@ export function bindMasonTree(nodes, viewport, nativeViews, { beforeAttach, crea
 
 /** Clear adopted caches only after Core has released this generation's native state. */
 export function releaseMasonOwners(host, wrappers) {
-  const owners = [host, ...wrappers]
+  const owners = [host, ...wrappers.filter((wrapper) => wrapper !== null)]
 
   requireBinding(
     owners.every(
@@ -141,7 +163,7 @@ export function releaseMasonOwners(host, wrappers) {
 
 /** Release Core parent links left outside Mason's collection by a failed insertion. */
 export function releaseMasonTree(host, wrappers) {
-  const owned = [host, ...wrappers]
+  const owned = [host, ...wrappers.filter((wrapper) => wrapper !== null)]
   const ownedSet = new Set(owned)
 
   for (const view of owned) {
@@ -153,6 +175,10 @@ export function releaseMasonTree(host, wrappers) {
   }
 
   for (const view of wrappers.slice().reverse()) {
+    if (view === null) {
+      continue
+    }
+
     const parent = view.parent
 
     if (parent) {

@@ -7,6 +7,7 @@ import {
   SafeArea,
   Screen as ScreenShell,
   ScrollableArea,
+  Spinner,
   Text,
   View,
   VStack,
@@ -22,6 +23,7 @@ export function Screen(props: ScreenProps) @{
     <SafeArea id="screen-safe-area">
       <VStack id="screen" className="screen">
         <View id="screen-header" className="screen-header">
+          <Spinner id="screen-spinner" size="sm" />
           <Text id="screen-title" className="screen-copy">
             {props.title}
           </Text>

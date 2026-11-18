@@ -67,7 +67,7 @@ function snapshotJson(root) {
   )
 }
 
-function rowsEquivalent(before, after) {
+function rowsEquivalent(before, after, skipped = new Set()) {
   const differences = []
   const equivalent = (left, right, key) => {
     if (key === 'borderRadius') {
@@ -89,6 +89,8 @@ function rowsEquivalent(before, after) {
     return [...keys].every((child) => equivalent(left?.[child], right?.[child], child))
   }
   before.forEach((row, index) => {
+    // Placeholder rows compare cold box vs live replacement elsewhere.
+    if (skipped.has(index)) return
     for (const key of new Set([...Object.keys(row), ...Object.keys(after[index] ?? {})])) {
       const left = row[key],
         right = after[index]?.[key]
@@ -105,6 +107,11 @@ async function qualify() {
 
   check(scheme === nativeSnapshot.theme, 'Native/live configured theme differs')
 
+  const visual = projectVisualTree(startup.nodes)
+  const placeholderIndexes = new Set(
+    visual.flatMap((row, index) => (row.kind === 'placeholder' ? [index] : [])),
+  )
+
   const mountViews = mount.views
   const natives = Array.from({ length: mountViews.count }, (_, index) =>
     mountViews.objectAtIndex(index),
@@ -112,7 +119,7 @@ async function qualify() {
 
   check(mount.root === natives[0], 'Native mount root order differs')
   check(
-    natives.length === projectVisualTree(startup.nodes).length,
+    natives.length === visual.length,
     'Native count differs from artifact nodes',
   )
 
@@ -125,7 +132,6 @@ async function qualify() {
 
   const css = sheets.map((sheet) => sheet.css).join('\n')
   const className = 'ns-root ' + (scheme === 'dark' ? 'ns-dark' : 'xds-light')
-
   const binding = bindIOSMasonTree(startup.nodes, viewport, natives)
   const { host, wrappers, claims } = binding
 
@@ -143,7 +149,10 @@ async function qualify() {
     )
   }
   host.iosOverflowSafeArea = overflowsSafeArea(viewport)
-  wrappers.forEach((view, index) => (view.iosOverflowSafeArea = overflowsSafeArea(natives[index])))
+  wrappers.forEach(
+    (view, index) =>
+      view !== null && (view.iosOverflowSafeArea = overflowsSafeArea(natives[index])),
+  )
 
   host.width = viewport.bounds.size.width
   host.height = viewport.bounds.size.height
@@ -196,7 +205,7 @@ async function qualify() {
 
   const cold = nativeSnapshot.rows
   const live = snapshotJson(mount.root)
-  const differences = rowsEquivalent(cold, live)
+  const differences = rowsEquivalent(cold, live, placeholderIndexes)
 
   check(
     differences.length === 0,
@@ -204,23 +213,43 @@ async function qualify() {
   )
 
   check(
-    wrappers.every(
-      (view, index) =>
-        view.nativeViewProtected === natives[index] &&
-        NSCMason.shared.nodeForView(
-          natives[index],
-          natives[index] instanceof TNSLabel,
-        ) === originalNodes[index] &&
-        String(originalNodes[index].nativePtr) === originalHandles[index] &&
-        view.isLoaded &&
-        view._context === context,
+    visual.every((row, index) =>
+      row.kind === 'placeholder'
+        ? wrappers[index] === null && natives[index].superview === null
+        : wrappers[index].nativeViewProtected === natives[index] &&
+          NSCMason.shared.nodeForView(
+            natives[index],
+            natives[index] instanceof TNSLabel,
+          ) === originalNodes[index] &&
+          String(originalNodes[index].nativePtr) === originalHandles[index] &&
+          wrappers[index].isLoaded &&
+          wrappers[index]._context === context,
     ),
     'Adoption replaced native objects or failed Core ownership',
   )
 
+  // Each placeholder's slot must now hold the live host's native view at the
+  // cold frame size, with the cold box fully detached.
+  for (const index of placeholderIndexes) {
+    const row = visual[index]
+    const parent = row.parent === null ? mount.root : natives[row.parent]
+    const slot = Number(row.path.split('/').pop())
+    const replacement = parent.subviews.objectAtIndex(slot)
+    check(
+      replacement.isKindOfClass(UIActivityIndicatorView.class()),
+      'Placeholder replacement class differs',
+    )
+    check(
+      Math.abs(replacement.frame.size.width - cold[index].frame.width) <= 0.5 &&
+        Math.abs(replacement.frame.size.height - cold[index].frame.height) <= 0.5,
+      'Placeholder replacement size differs',
+    )
+    check(natives[index].superview === null, 'Placeholder cold native still attached')
+  }
+
   check(
     claims.phase === 'live' &&
-      claims.claimedCount === natives.length &&
+      claims.claimedCount + claims.replacedCount === natives.length &&
       claims.factoryCalls === natives.length,
     'Initial claims differ',
   )
@@ -231,6 +260,7 @@ async function qualify() {
     nativeIdentityRetained: true,
     masonIdentityRetained: true,
     initialClaims: claims.claimedCount,
+    replacedClaims: claims.replacedCount,
     factoryCalls: claims.factoryCalls,
     logicalNodes: startup.nodes.length,
   })

@@ -19,7 +19,6 @@ enum XplatMasonArtifact {
         case "flexDirection": valid = text == "row" || text == "column"
         case "alignItems": valid = text == "center"
         case "alignSelf": valid = text == "stretch"
-        case "width": valid = text == "100%"
         case "justifyContent": valid = text == "center" || text == "space-between"
         case "maxWidth", "maxHeight": valid = text == "100%"
         case "overflowX", "overflowY": valid = text == "scroll" || text == "hidden"
@@ -37,7 +36,7 @@ enum XplatMasonArtifact {
         case "backgroundColor", "color": valid = text.map(validColor) ?? false
         case "flexGrow", "flexShrink", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "rowGap", "columnGap", "minWidth", "minHeight", "lineHeight", "borderRadius":
             valid = nonnegativeFloat
-        case "height": valid = nonnegativeFloat || text == "100%"
+        case "width", "height": valid = nonnegativeFloat || text == "100%"
         default: valid = false
         }
         guard valid else { throw Invalid(reason: "unsupported style value: " + key) }
@@ -74,8 +73,10 @@ enum XplatMasonArtifact {
                   let parent = row["parent"], let kind = row["kind"],
                   let text = row["text"], let props = row["props"],
                   let children = row["children"] else { throw Invalid(reason: "visual projection") }
-            nodes.append(["index": index, "path": path, "parent": parent,
-                          "kind": kind, "text": text, "props": props, "children": children])
+            var projected: [String: Any] = ["index": index, "path": path, "parent": parent,
+                          "kind": kind, "text": text, "props": props, "children": children]
+            if let hostKind = row["hostKind"] { projected["hostKind"] = hostKind }
+            nodes.append(projected)
         }
         guard let source = snapshot.value["variants"] as? NSDictionary,
               let seed = snapshot.value["seed"] as? NSDictionary else { throw Invalid(reason: "artifact projection") }

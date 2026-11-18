@@ -30,12 +30,17 @@ async function qualify(activity) {
 
   check(scheme === activity.getMountTheme(), 'Native/live configured theme differs')
 
+  const visual = projectVisualTree(startup.nodes)
+  const placeholderIndexes = new Set(
+    visual.flatMap((row, index) => (row.kind === 'placeholder' ? [index] : [])),
+  )
+
   const natives = Array.from({ length: activity.getViewCount() }, (_, index) =>
     activity.getView(index),
   )
 
   check(
-    natives.length === projectVisualTree(startup.nodes).length,
+    natives.length === visual.length,
     'Native count differs from artifact nodes',
   )
 
@@ -73,9 +78,40 @@ async function qualify(activity) {
   host._setupAsRootView(activity)
   host.callLoaded()
   activity.restoreDefaults()
-  binding.commit(() => {
-    prepared.commit()
-  })
+  try {
+    binding.commit(() => {
+      prepared.commit()
+    })
+  } catch (error) {
+    const dump = visual.map((row, index) => {
+      const parent = row.parent === null ? viewport : natives[row.parent]
+      const children = []
+      for (let i = 0; i < parent.getChildCount(); i++) {
+        const child = parent.getChildAt(i)
+        children.push({
+          slot: i,
+          class: String(child.getClass().getName()),
+          isNative: natives.indexOf(child),
+        })
+      }
+      let placeholder
+      if (row.kind === 'placeholder') {
+        const box = natives[index]
+        const boxNode = mason.nodeForView(box)
+        const parentNode = mason.nodeForView(parent)
+        placeholder = {
+          boxParentView: String(box.getParent()?.getClass()?.getName()),
+          boxNodeParentIsParentNode: boxNode.getParent() === parentNode,
+          boxNodeLayoutParentIsParentNode: boxNode.getLayoutParent() === parentNode,
+          boxNodeAnonymous: boxNode.isAnonymous(),
+          parentNodeChildren: parentNode.getChildren().indexOf(boxNode),
+        }
+      }
+      return { index, kind: row.kind, children, placeholder }
+    })
+    check(false, 'Commit failed: ' + String(error) + ' TREE ' + JSON.stringify(dump))
+    throw error
+  }
 
   function layout() {
     const width = viewport.getWidth(),
@@ -100,6 +136,8 @@ async function qualify(activity) {
   const differences = []
 
   cold.forEach((row, index) => {
+    // Placeholder rows compare cold box vs live replacement below.
+    if (placeholderIndexes.has(index)) return
     for (const key of new Set([...Object.keys(row), ...Object.keys(live[index])])) {
       const a = row[key],
         b = live[index][key]
@@ -113,20 +151,40 @@ async function qualify(activity) {
   check(differences.length === 0, 'Cold/live differs: ' + JSON.stringify(differences))
   activity.checkInitialIdentities()
   check(
-    wrappers.every(
-      (view, index) =>
-        view.nativeViewProtected === natives[index] &&
-        mason.nodeForView(natives[index]) === originalNodes[index] &&
-        String(originalNodes[index].getNativePtr()) === originalHandles[index] &&
-        view.isLoaded &&
-        view._context === activity,
+    visual.every((row, index) =>
+      row.kind === 'placeholder'
+        ? wrappers[index] === null && natives[index].getParent() === null
+        : wrappers[index].nativeViewProtected === natives[index] &&
+          mason.nodeForView(natives[index]) === originalNodes[index] &&
+          String(originalNodes[index].getNativePtr()) === originalHandles[index] &&
+          wrappers[index].isLoaded &&
+          wrappers[index]._context === activity,
     ),
     'Adoption replaced native objects or failed Core ownership',
   )
 
+  // Each placeholder's slot must now hold the live host's native view at the
+  // cold frame size, with the cold box fully detached.
+  for (const index of placeholderIndexes) {
+    const row = visual[index]
+    const parent = row.parent === null ? viewport : natives[row.parent]
+    const slot = Number(row.path.split('/').pop())
+    const replacement = parent.getChildAt(slot)
+    check(
+      replacement instanceof android.widget.ProgressBar,
+      'Placeholder replacement class differs',
+    )
+    check(
+      Math.abs(replacement.getWidth() - cold[index].width) <= 1 &&
+        Math.abs(replacement.getHeight() - cold[index].height) <= 1,
+      'Placeholder replacement size differs',
+    )
+    check(natives[index].getParent() === null, 'Placeholder cold native still attached')
+  }
+
   check(
     claims.phase === 'live' &&
-      claims.claimedCount === natives.length &&
+      claims.claimedCount + claims.replacedCount === natives.length &&
       claims.factoryCalls === natives.length,
     'Initial claims differ',
   )
@@ -138,6 +196,7 @@ async function qualify(activity) {
       nativeIdentityRetained: true,
       masonIdentityRetained: true,
       initialClaims: claims.claimedCount,
+      replacedClaims: claims.replacedCount,
       factoryCalls: claims.factoryCalls,
       logicalNodes: startup.nodes.length,
     }),
