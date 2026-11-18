@@ -35,8 +35,9 @@ export function Leaf(props: ViewProps) @{
   comma-joined ("a,b") and matches nothing. `cx()` from `@octane-xplat/lib` flattens
   and joins; every native leaf normalizes `props.className` through it.
 
-- The `@jsxImportSource` pragma MUST be line 1 — any import/comment before
-  it may select the wrong JSX types in projects with an older default.
+- Native `.tsx` files inherit the project setting. For native host tags in
+  `.tsrx`, put `/** @jsxImportSource @octane-xplat/jsx */` on the first line
+  so Octane's type transform selects the native vocabulary.
 - Hooks import from `'octane'` even on native — the compiler retargets to
   `@octane-xplat/nativescript-octane`. The native build also aliases
   `octane` → `octane/universal/native` so dep-scanning doesn't vendor the
@@ -141,7 +142,6 @@ framework-owned surfaces, list cells, and routes with an outlet use portals
 instead. Do not replace their content owners with new roots.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/jsx */
 // Host.mobile.tsx — the app supplies hostView after creating its native host.
 import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { GridLayout } from '@nativescript/core'

@@ -118,12 +118,11 @@ export function NameField() {
 }
 ```
 
-- `.mobile.tsrx`/`.ios.tsrx`/`.android.tsrx` files and unsuffixed native-default files containing JSX must
-  start with `/** @jsxImportSource @octane-xplat/jsx */` on
-  line 1 — nothing may precede it:
+- Native `.tsx` files inherit shared JSX types from the app config. A native
+  `.tsrx` file that uses host elements needs the shared pragma on line 1.
+  A leaf that only uses shared components can omit it.
 
 ```tsrx
-/** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '@octane-xplat/ui'
 
 export function NativeGreeting() { return <Text>Hello</Text> }

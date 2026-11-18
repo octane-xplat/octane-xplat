@@ -122,7 +122,6 @@ the shared root. The former `/linux` WebView-host entry point and
 `LinuxWindowHandle` have been removed; GTK uses the shared `WindowHandle`.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/jsx */
 // PackedToggle.ios.tsx
 import { UISwitch } from '@octane-xplat/ui/ios'
 
@@ -156,7 +155,10 @@ environments. Only web carries DOM libraries. Move any retired `linux` manifest
 entry into `gtk`; do not add a desktop WebView target. Retain existing public SDK imports and ambient SDK use in
 matching leaves; do not introduce runtime import adapters to isolate checking.
 
-Keep `jsxImportSource: "@octane-xplat/jsx"` and browser-file `/dom` pragmas.
+Keep `jsxImportSource: "@octane-xplat/jsx"` for native `.tsx` leaves. For
+native host elements in `.tsrx`, keep the first-line shared pragma because
+Octane's type transform defaults to browser JSX. Keep the `/dom` pragma
+on browser leaves in mixed projects.
 Target conditions bind concrete host handles; annotate concrete ref types at
 ownership boundaries. Explicit `.tsrx` imports select the matching platform leaf through
 `moduleSuffixes` with the pinned TypeScript build.
@@ -263,7 +265,6 @@ See the [tooltip example](../../../../docs/platform/linux-gtk.md#tooltips) and
 [upstream record](../../../docs/notes/linux-gtk-renderer.md#gtk-4145-accessible-list-constructor-guard).
 
 ```tsx
-/** @jsxImportSource @octane-xplat/jsx */
 import { Tooltip } from '@octane-xplat/ui'
 
 export function Help() {

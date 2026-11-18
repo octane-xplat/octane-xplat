@@ -47,11 +47,11 @@ WebView widgets are a separate UI feature. Platform divergence belongs at file b
   implementations. Import unsuffixed module names with explicit `.tsrx` extensions for TSRX; the build selects the leaf.
   The unsuffixed file is the native default; `.web`, `.mobile`, and OS suffixes
   provide overrides. See [platform leaves](references/platform-leaves.md).
-- New apps default to the shared `@octane-xplat/jsx` types. An explicit native
-  pragma selects that same facade; browser intrinsic files select
-  `@octane-xplat/jsx/dom`. Put a JSX pragma first when present. Types do not select
-  the renderer; retain the app's Vite presets. Every workspace — including
-  `packages/ui` — uses the same facade.
+- Native `.tsx` inherits the app's shared `@octane-xplat/jsx` setting. For
+  native host elements in `.tsrx`, put `@jsxImportSource @octane-xplat/jsx`
+  on the first line because Octane's type transform defaults to browser
+  JSX. Browser leaves in mixed projects use `@octane-xplat/jsx/dom`. The
+  Vite presets select the renderer.
 - Refs on native elements name the concrete host type where declared:
   `useRef<View | null>(null)` or `(view: NSView | null) => …` — never `any` or
   casts. An unannotated handle is the shared `HostElement` (`object`), which

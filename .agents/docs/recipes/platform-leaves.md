@@ -39,7 +39,9 @@ outside this recipe's scope.
   command qualification on macOS does not establish app runtime behavior on a target.
   Maintained compiler/LSP fixture: `packages/cli/test/platform-programs.test.mts`;
   it uses the real TSRX mapper and phone SDKs, tests solution discovery, and
-  checks transitive ambient leakage. The generated starter screen and entrypoints
+  checks transitive ambient leakage. The JSX consumer fixture in
+  `packages/create/test/jsx-consumer.test.mts` checks the inherited native JSX
+  source and the browser override. The generated starter screen and entrypoints
   also compile through `packages/create/test/platform-programs.mts`.
   This is not GUI editor or runtime evidence.
 - AC4: [Native GTK setup](../../../docs/platform/linux-gtk.md) and [file variants](../../../docs/platform/module-resolution.md#file-variants).

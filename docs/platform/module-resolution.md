@@ -197,12 +197,13 @@ export function Card() {
 }
 ```
 
-Native JSX files inherit the shared vocabulary, or select it explicitly.
-A renderer-specific pragma overrides the app default, so use the facade:
+Native `.tsx` files inherit the shared vocabulary from the app config. In a
+`.tsrx` file that uses native host elements such as `masonview` and `label`,
+put the shared JSX comment on the first line. Octane's TSRX type transform
+defaults to Octane's browser JSX types when the file has no comment.
 
-```tsx
+```tsrx
 /** @jsxImportSource @octane-xplat/jsx */
-
 export function Card() {
   return (
     <masonview style={{ display: 'grid' }}>
@@ -216,7 +217,6 @@ Target programs bind the shared `HostElement` through platform conditions.
 Name the concrete host type where a native ref is declared:
 
 ```tsx
-/** @jsxImportSource @octane-xplat/jsx */
 // Spinner.ios.tsx
 import type { View } from '@nativescript/core'
 import { useRef } from 'octane'

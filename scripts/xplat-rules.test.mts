@@ -93,26 +93,28 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
     )
   })
 
-  test(`${label} requires the facade pragma on every native file and rejects retired pragmas`, async () => {
+  test(`${label} requires the native JSX pragma for TSRX host elements and allows component-only leaves`, async () => {
     const { checkNativePragmaFirstLine } = await import(module)
-    const body = 'export function Card() @{ <gridlayout /> }'
+    const body = 'export function Card() @{ <masonview /> }'
 
-    // Native-suffixed files accept only the facade pragma.
     for (const filename of [
       'Card.mobile.tsrx',
       'packages/ui/src/routing/RoutePane.gtk.tsrx',
       'Card.macos.tsrx',
     ]) {
-      const source = '/** @jsxImportSource @octane-xplat/jsx */\n' + body
-
-      assert.deepEqual(
-        checkNativePragmaFirstLine(parseModule(source, filename), source, filename),
-        [],
-        filename,
-      )
+      for (const source of [
+        'export function Card() @{ <><View /><Widgets.Label /></> }',
+        '/** @jsxImportSource @octane-xplat/jsx */\n' + body,
+      ]) {
+        assert.deepEqual(
+          checkNativePragmaFirstLine(parseModule(source, filename), source, filename),
+          [],
+          filename,
+        )
+      }
     }
 
-    // Every retired pragma is rejected wherever it appears.
+    // Retired pragmas are rejected in both native and browser sources.
     for (const retired of [
       '@octane-xplat/nativescript-octane',
       '@octane-xplat/macos-appkit',
@@ -139,7 +141,7 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
       assert.match(failures[0].message, /@octane-xplat\/jsx\/dom/)
     }
 
-    // A native file with no pragma (or a displaced one) still fails.
+    // Native host elements require a correct, first-line pragma.
     for (const prefix of [
       '',
       '/** @jsxImportSource @octane-xplat/jsx/dom */\n',
