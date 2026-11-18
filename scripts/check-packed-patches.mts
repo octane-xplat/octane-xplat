@@ -52,7 +52,13 @@ function checkConfig(label, pkg, base) {
 }
 
 try {
-  run('bun', ['pm', 'pack', '--destination', work], join(repo, 'packages/create'))
+  // --ignore-scripts keeps prepack's vite rebuild from emptying packages/create
+  // dist while parallel tasks read it (e.g. toolchain's packed consumer).
+  run(
+    'bun',
+    ['pm', 'pack', '--ignore-scripts', '--destination', work],
+    join(repo, 'packages/create'),
+  )
 
   const tarball = readdirSync(work).find((name) => name.endsWith('.tgz'))
 

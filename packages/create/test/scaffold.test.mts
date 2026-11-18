@@ -900,7 +900,9 @@ test('bin scaffolds a pnpm project without installing when pnpm is missing', (t)
 })
 
 test('pack ships the bunfig template and Bun scaffolds land it as bunfig.toml', (t) => {
-  const dry = spawnSync('bun', ['pm', 'pack', '--dry-run'], {
+  // --ignore-scripts keeps prepack's vite rebuild from emptying dist while
+  // sibling test files spawn dist/index.js in parallel.
+  const dry = spawnSync('bun', ['pm', 'pack', '--dry-run', '--ignore-scripts'], {
     cwd: fileURLToPath(new URL('..', import.meta.url)),
     encoding: 'utf8',
   })
