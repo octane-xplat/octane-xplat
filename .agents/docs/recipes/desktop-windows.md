@@ -1,12 +1,12 @@
 # Open a second desktop window
 
 ID: desktop-windows
-Targets: macos, linux
+Targets: macos, linux, windows
 Related APIs: @octane-xplat/desktop, windows, DesktopWindow, app, setWindowContentResolver
 
 ## Starting point
 
-An AppKit or GTK app that needs a regular window for an inspector or editor.
+An AppKit, GTK, or NativeScript Windows app that needs a regular window for an inspector or editor.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ its handle for close, cancellation, and forced teardown. Request quit through th
 
 ## Documentation
 
-- AC1: [Open a second window](../../../docs/packages/package-desktop.md#open-a-second-window), [AppKit entry](../../../tools/verification/desktop-shell/app/main.macos.ts), [GTK entry](../../../tools/verification/desktop-shell/app/main.gtk.ts).
+- AC1: [Open a second window](../../../docs/packages/package-desktop.md#open-a-second-window), [AppKit entry](../../../tools/verification/desktop-shell/app/main.macos.ts), [GTK entry](../../../tools/verification/desktop-shell/app/main.gtk.ts), [Windows entry](../../../tools/verification/desktop-shell/app/main.windows.ts).
 - AC2: [Close the window](../../../docs/packages/package-desktop.md#close-the-window), [native lifecycle assertions](../../../packages/desktop/tests/window/lifecycle.tsrx).
 - AC3: [Close the window](../../../docs/packages/package-desktop.md#close-the-window), [native lifecycle assertions](../../../packages/desktop/tests/window/lifecycle.tsrx).
 - AC4: [Wait for startup and request quit](../../../docs/packages/package-desktop.md#wait-for-startup-and-request-quit), [native lifecycle assertions](../../../packages/desktop/tests/window/lifecycle.tsrx).

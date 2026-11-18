@@ -162,7 +162,9 @@ interactive session.
 
 - `app/main.windows.ts` — mounts through `renderNativeScriptApp`, supplies the
   Inspector through `Application.setWindowContentResolver`, and adds a
-  Windows-only `Open Inspector` app-menu item.
+  Windows-only `Open Inspector` app-menu item. Waits for `app.whenReady()`
+  before setup and drives the inspector and exit through `windows.open` and
+  `app.quit()` from `@octane-xplat/desktop`.
 - `windows.mts` — the runner (`--phase build|journey|all`).
 - `windows/driver.ps1` — the in-session driver: SendInput for keyboard and
   mouse, and UI Automation for names, control types, focus, and Invoke.

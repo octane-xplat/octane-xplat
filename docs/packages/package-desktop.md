@@ -57,7 +57,23 @@ setWindowContentResolver((data) => {
 })
 ```
 
-After the main window has mounted, call `windows.open` from a menu or button action. Check `windows.supported` before showing the action. The check returns false on Windows, web, and mobile. This service opens regular windows. It leaves app startup and window content with the host.
+On the experimental Windows NativeScript host, register the resolver on `Application` before startup. It returns a NativeScript `Page` for the requested window.
+
+```ts
+import { Application, Label, Page } from '@nativescript/core'
+
+Application.setWindowContentResolver(({ isPrimary, data }) => {
+  if (isPrimary || data?.screen !== 'inspector') return
+
+  const page = new Page()
+  const label = new Label()
+  label.text = 'Inspector'
+  page.content = label
+  return page
+})
+```
+
+After the main window has mounted, call `windows.open` from a menu or button action. Check `windows.supported` before showing the action. The check returns false on web and mobile. This service opens regular windows. The host runs the app and supplies window content.
 
 ```ts
 import { windows } from '@octane-xplat/desktop'
@@ -97,7 +113,7 @@ export async function disposeInspector(inspector: DesktopWindow) {
 
 ## Wait for startup and request quit
 
-In an app started with `runMacOSApp` or `runGtkApp`, use `app.whenReady()` to wait until the primary window has mounted and the host is ready for commands. Put setup that needs a running app in the callback. On Windows, web, and mobile, `app.supported` is false.
+On AppKit, GTK, and the experimental Windows NativeScript host, use `app.whenReady()` to wait until the primary window has mounted. Put setup that needs a running app in the callback. On web and mobile, `app.supported` is false.
 
 ```ts
 import { app } from '@octane-xplat/desktop'
@@ -107,7 +123,7 @@ if (app.supported) {
 }
 ```
 
-Use `app.quit()` after readiness when a user selects Quit. A `before-quit` listener can stop the attempt synchronously. If the app allows quit, the host checks the close guards on managed secondary windows before closing them. A window veto keeps the app and all its windows open. A later quit attempt runs the checks again. Native last-window behavior follows the host’s own policy.
+Use `app.quit()` after readiness when a user selects Quit. A `before-quit` listener can stop the attempt synchronously. If the app allows quit, the host checks the close guards on managed secondary windows before closing them. A window veto keeps the app and all its windows open. A later quit attempt runs the checks again. On Windows, create every secondary window with `windows.open`. If the guards allow quit but a secondary window was opened directly through NativeScript, `app.quit()` throws before closing any window. Native last-window behavior follows the host’s policy.
 
 ```ts
 import { app, type DesktopBeforeQuitEvent } from '@octane-xplat/desktop'

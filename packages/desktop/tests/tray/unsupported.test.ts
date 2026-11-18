@@ -1,10 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { TrayError } from '../../src/tray/errors'
 import * as native from '../../src/index'
 import * as web from '../../src/index.web'
 import * as windowsTray from '../../src/tray/index.windows'
 import * as windowsApp from '../../src/app/index.windows'
+import { windows as secondaryWindows } from '../../src/window/index.windows'
+
+vi.mock('@nativescript/core/application/application.windows', () => ({ Application: {} }))
 
 const windows = { ...windowsTray, ...windowsApp }
 
@@ -61,6 +64,15 @@ describe('unsupported variants', () => {
 // Win32 projection it still reports and throws the same explicit unsupported
 // state instead of crashing on a missing global.
 describe('windows leaf without the Win32 projection', () => {
+  it('reports window and lifecycle APIs unavailable outside the Windows host', async () => {
+    expect(windows.app.supported).toBe(false)
+    expect(windows.app.isReady()).toBe(false)
+    await expect(windows.app.whenReady()).rejects.toMatchObject({ name: 'UnavailabilityError' })
+    expect(() => windows.app.quit()).toThrowError(expect.objectContaining({ name: 'UnavailabilityError' }))
+    expect(secondaryWindows.supported).toBe(false)
+    expect(() => secondaryWindows.open()).toThrowError(expect.objectContaining({ name: 'UnavailabilityError' }))
+  })
+
   it('reports unsupported-runtime', async () => {
     const availability = await windows.getTrayAvailability()
 

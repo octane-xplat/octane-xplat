@@ -2,9 +2,10 @@ import 'octane/signals'
 import { Application, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { storage } from '@octane-xplat/platform'
-import { openWindow } from '@octane-xplat/ui'
 import {
+  app,
   appMenu,
+  windows,
   createTray,
   keepAppResident,
   type Tray,
@@ -38,18 +39,27 @@ import { APP_VERSION, STATUS_SUFFIX } from './version'
 // Windows entry for the desktop-shell journey. The packaged NativeScript
 // WinUI host has no app-host package like runMacOSApp/runGtkApp: the entry
 // mounts through renderNativeScriptApp and supplies secondary-window content
-// through Application.setWindowContentResolver, which openWindow() requests
-// reach on this host.
+// through Application.setWindowContentResolver.
 
 type Root = ReturnType<typeof renderNativeScriptApp>
 
 const roots = new Set<Root>()
 
-function mountPage(component: unknown): Page {
+function mountPage(component: unknown, secondary = false): Page {
   const page = new Page()
 
   page.actionBarHidden = true
-  roots.add(renderNativeScriptApp(page, component as never))
+  const root = renderNativeScriptApp(page, component as never)
+  roots.add(root)
+  if (secondary) {
+    const unmount = () => {
+      page.off('unloaded', unmount)
+      if (roots.delete(root)) {
+        root.unmount()
+      }
+    }
+    page.on('unloaded', unmount)
+  }
   return page
 }
 
@@ -58,24 +68,24 @@ function openInspector() {
     return
   }
 
-  const handle = openWindow({
+  if (!windows.supported) {
+    lastError$.set('Native secondary windows are unavailable')
+    marker('INSPECTOR_OPEN_FAIL')
+    return
+  }
+
+  const handle = windows.open({
     data: { window: 'inspector' },
     title: 'Inspector',
     size: { width: 320, height: 160 },
   })
-
-  if (!handle) {
-    lastError$.set('openWindow returned null')
-    marker('INSPECTOR_OPEN_FAIL')
-    return
-  }
 
   setInspectorHandle(handle)
   inspectorCount$.set(inspectorCount$.getSnapshot() + 1)
   inspectorOpen$.set(true)
   marker(`INSPECTOR_OPENED id=w${inspectorCount$.getSnapshot()}`)
 
-  void handle.closed.then(() => {
+  handle.on('closed', () => {
     inspectorOpen$.set(false)
     setInspectorHandle(null)
     marker('INSPECTOR_CLOSED')
@@ -84,7 +94,7 @@ function openInspector() {
 
 Application.setWindowContentResolver((request: { isPrimary?: boolean; data?: unknown }) => {
   if ((request.data as { window?: string } | undefined)?.window === 'inspector') {
-    return mountPage(Inspector)
+    return mountPage(Inspector, true)
   }
 
   return undefined
@@ -120,22 +130,15 @@ function cleanup() {
 
 Application.on(Application.exitEvent, cleanup)
 
-// NativeWindow.close() refuses the primary window on this host, and the
-// platform exposes no app-quit API, so quit closes the native WinUI window the
-// way the title-bar close button does; core then raises `exit` once the last
-// window is gone.
-function nativeWindow(): { Close(): void; Activate(): void } | undefined {
+function nativeWindow(): { Activate(): void } | undefined {
   return (
-    Application.primaryWindow as
-      | { windows?: { window?: { Close(): void; Activate(): void } } }
-      | undefined
+    Application.primaryWindow as { windows?: { window?: { Activate(): void } } } | undefined
   )?.windows?.window
 }
 
 function quit() {
   marker('QUIT_REQUESTED')
-  inspectorHandle?.close()
-  nativeWindow()?.Close()
+  app.quit()
 }
 
 async function setUpShell() {
@@ -243,9 +246,7 @@ const entry = {
   create() {
     const page = mountPage(App)
 
-    setTimeout(() => {
-      void setUpShell().catch((error) => marker(`SETUP_ERROR ${String(error)}`))
-    }, 0)
+    void app.whenReady().then(setUpShell).catch((error) => marker(`SETUP_ERROR ${String(error)}`))
 
     return page
   },

@@ -1,7 +1,7 @@
 import { lookupGlobal, UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { DesktopApp, DesktopBeforeQuitEvent } from './types.js'
 
-interface AppLifecycleHost {
+export interface AppLifecycleHost {
   isReady(): boolean
   whenReady(): Promise<void>
   quit(): void
@@ -27,12 +27,12 @@ function hostFor(bridge: string): AppLifecycleHost | undefined {
 type BeforeQuitListener = (event: DesktopBeforeQuitEvent) => void
 
 /** Build the app facade without reading native globals or installing callbacks at import. */
-export function createAppLifecycle(bridge?: string): DesktopApp {
+export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | undefined)): DesktopApp {
   const listeners: BeforeQuitListener[] = []
   let unsubscribe: (() => void) | undefined
 
   function host() {
-    return bridge ? hostFor(bridge) : undefined
+    return typeof bridge === 'function' ? bridge() : bridge ? hostFor(bridge) : undefined
   }
 
   function requireHost(): AppLifecycleHost {

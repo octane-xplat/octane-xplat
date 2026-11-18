@@ -4,7 +4,7 @@ export interface DesktopWindowOptions {
   data?: Record<string, unknown>
   /** Title in the window's title bar. */
   title?: string
-  /** Initial content size in logical pixels (AppKit points or GTK logical pixels). */
+  /** Initial content size in logical pixels. */
   size?: { width: number; height: number }
 }
 

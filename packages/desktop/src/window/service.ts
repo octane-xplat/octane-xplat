@@ -7,7 +7,7 @@ import type {
   DesktopWindowService,
 } from './types.js'
 
-interface NativeWindowController<Window> {
+export interface NativeWindowController<Window> {
   readonly window: Window
   readonly isClosed: boolean
   readonly closed: Promise<void>

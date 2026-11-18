@@ -241,6 +241,9 @@ bun run turbo run test:window-gtk-runtime --filter=@octane-xplat/desktop
 Set `DESKTOP_WINDOW_GTK_VM` to use an existing OrbStack VM, locally or on the SSH host. Reserve
 the Linux VM before running the GTK task. The AppKit task uses the prebuilt JSC host.
 
+The [Windows desktop-shell journey](../../tools/verification/desktop-shell/README.md#desktop-shell-journey-windows)
+exercises readiness, inspector windows and quit through the package root on the packaged host.
+
 ## tray
 
 Consumer guidance: [tray](../../docs/packages/package-tray.md).
