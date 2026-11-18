@@ -42,10 +42,14 @@ interface CellState {
 interface ListState {
   readonly view: ListView
   readonly createRoot: (host: ViewBase) => UniversalRoot
+  readonly itemTemplate: () => ContentView
   readonly cells: Set<CellState>
   readonly onItemLoading: (data: EventData) => void
   renderItem: RenderItem
 }
+
+/** `itemTemplate` is typed `string | Template`; clearing it restores the default template. */
+const CLEARED = null as never
 
 const lists = new WeakMap<ListView, ListState>()
 const cells = new WeakMap<View, CellState>()
@@ -106,6 +110,7 @@ export function setRenderItem(
       view,
       createRoot,
       renderItem,
+      itemTemplate: () => createCell(created).host,
       cells: new Set(),
       onItemLoading(data) {
         const args = data as ItemEventData
@@ -119,7 +124,7 @@ export function setRenderItem(
     }
     lists.set(view, created)
     view.on('itemLoading', created.onItemLoading)
-    view.itemTemplate = () => createCell(created).host
+    view.itemTemplate = created.itemTemplate
     return
   }
   if (state.renderItem === renderItem) {
@@ -142,6 +147,11 @@ export function releaseListView(view: ListView): void {
   }
   lists.delete(view)
   view.off('itemLoading', state.onItemLoading)
+  // Drop the template that vends cells through this state, so a repopulated
+  // list falls back to default template behavior.
+  if (view.itemTemplate === state.itemTemplate) {
+    view.itemTemplate = CLEARED
+  }
   for (const cell of state.cells) {
     cells.delete(cell.host)
     cell.root.unmount()

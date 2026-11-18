@@ -149,6 +149,22 @@ describe('listview renderItem', () => {
     expect(hosts.every((host) => host.content === null)).toBe(true)
   })
 
+  it('drops the installed itemTemplate when the render item is removed', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(create(1, 'listview', { items: rows('a', 'b'), renderItem: renderRow }), insert(1))
+    const list = view<MockListView>(1)
+    list.show(0, 1)
+    expect(typeof list.itemTemplate).toBe('function')
+
+    apply(update(1, { items: rows('a', 'b') }))
+    expect(list.itemTemplate).toBeNull()
+
+    // A repopulated cell falls back to default template behavior rather than
+    // vending an unbound host through the released state.
+    list.show(2)
+    expect(list.cells[2].view).toBeNull()
+  })
+
   it('keeps deferring events raised by a batch that nests a cell render', async () => {
     class LoadingLayout extends MockLayoutBase {
       override insertChild(child: MockView, index: number): void {
