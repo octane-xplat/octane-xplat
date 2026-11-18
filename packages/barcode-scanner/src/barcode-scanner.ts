@@ -1,82 +1,11 @@
 // Barcode scanner — native service leaf. Live scanning is the <BarcodeScanner>
 // component (mlkit-core's MLKitView); this file owns the camera permission
 // ensure (platform primitives, media's pattern) and headless still decode.
-import { Application, ImageSource } from '@nativescript/core'
+import { ImageSource } from '@nativescript/core'
 import { DetectionType, detectWithStillImage } from '@nativescript/mlkit-core'
-import { android } from '@octane-xplat/platform/android'
-import type { BarcodeFormat, BarcodeScannerService, PermissionResult, ScannedCode } from './types'
+import type { BarcodeFormat, BarcodeScannerService, ScannedCode } from './types'
+import { ensureCameraPermission } from './barcode-permission'
 import { fromNativeFormat, toNativeFormats } from './format-map'
-
-let scanRequestCode = 7723
-
-async function ensure(): Promise<PermissionResult> {
-  try {
-    if (Application.ios) {
-      const av = (globalThis as any).AVCaptureDevice
-      const video = (globalThis as any).AVMediaTypeVideo
-      // 0=notDetermined 1=restricted 2=denied 3=authorized
-      const status = av?.authorizationStatusForMediaType?.(video)
-
-      if (status === 3) {
-        return 'granted'
-      }
-
-      if (status === 1 || status === 2) {
-        return 'denied'
-      }
-
-      if (typeof av?.requestAccessForMediaTypeCompletionHandler !== 'function') {
-        return 'unsupported'
-      }
-
-      return await new Promise<PermissionResult>((resolve) => {
-        av.requestAccessForMediaTypeCompletionHandler(video, (granted: boolean) =>
-          resolve(granted ? 'granted' : 'denied'),
-        )
-      })
-    }
-
-    const perm = 'android.permission.CAMERA'
-    const activity = Application.android.foregroundActivity ?? Application.android.startActivity
-
-    if (
-      activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED
-    ) {
-      return 'granted'
-    }
-
-    if (!activity) {
-      return 'denied'
-    }
-
-    return await new Promise<PermissionResult>((resolve) => {
-      const requestCode = scanRequestCode++
-      const event = Application.android.activityRequestPermissionsEvent
-      const onResult = (args: any) => {
-        if (args.requestCode !== requestCode) {
-          return
-        }
-
-        Application.android.off(event, onResult)
-        resolve(
-          args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
-            ? 'granted'
-            : 'denied',
-        )
-      }
-
-      Application.android.on(event, onResult)
-      try {
-        activity.requestPermissions([perm], requestCode)
-      } catch {
-        Application.android.off(event, onResult)
-        resolve('denied')
-      }
-    })
-  } catch {
-    return 'denied'
-  }
-}
 
 async function toImageSource(image: unknown): Promise<any> {
   if (image instanceof ImageSource) {
@@ -103,7 +32,7 @@ async function toImageSource(image: unknown): Promise<any> {
 export const barcodeScanner: BarcodeScannerService = {
   supported: true,
 
-  ensure,
+  ensure: ensureCameraPermission,
 
   async scanImage(image: unknown, formats?: BarcodeFormat[]): Promise<ScannedCode[]> {
     const source = await toImageSource(image)

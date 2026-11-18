@@ -11,7 +11,13 @@
 			]
 		},
 		"native": {
-			"files": ["src/index.ts", "src/haptics.ts", "src/player.ts", "src/sounds.ts"]
+			"files": [
+				"src/index.ts",
+				"src/haptics.ios.ts",
+				"src/haptics.android.ts",
+				"src/player.ts",
+				"src/sounds.ts"
+			]
 		}
 	}
 }

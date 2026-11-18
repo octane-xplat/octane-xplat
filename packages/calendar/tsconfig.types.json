@@ -31,7 +31,8 @@
 	},
 	"include": [
 		"src/types.ts",
-		"src/calendar.ts",
+		"src/calendar.ios.ts",
+		"src/calendar.android.ts",
 		"src/calendar.web.ts",
 		"src/calendar.macos.ts",
 		"src/calendar.linux.ts",

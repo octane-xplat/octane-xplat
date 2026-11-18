@@ -1,10 +1,15 @@
 // Contacts — native leaf over @nativescript/contacts. The plugin's worker
 // fetch is normalized into our Expo-shaped Contact; permission goes through
 // the platform primitives directly (same rationale as media's ensureCamera:
-// plugin-side request helpers can't drift).
-import { Application } from '@nativescript/core'
-import { Contact as NativeContact, Contacts as NativeContacts } from '@nativescript/contacts'
-import { android } from '@octane-xplat/platform/android'
+// plugin-side request helpers can't drift). Plugin surfaces differ per
+// platform, so every plugin call lives in the contacts-store leaves.
+import {
+  createNativeContact,
+  ensureContactsPermission,
+  fetchContactById,
+  fetchContacts,
+  fetchContactsByName,
+} from './contacts-store'
 import type {
   Contact,
   ContactAddress,
@@ -14,10 +19,6 @@ import type {
   NewContact,
   PermissionResult,
 } from './types'
-
-// iOS CNContactStore — outside the @nativescript/types default subset.
-declare const CNContactStore: any
-declare const CNEntityTypeContacts: number | undefined
 
 const ALL_FIELDS: ContactField[] = [
   'name',
@@ -54,77 +55,6 @@ function pluginFields(fields?: ContactField[]): string[] {
   }
 
   return mapped
-}
-
-function iosEnsure(): Promise<PermissionResult> {
-  const store = typeof CNContactStore === 'undefined' ? null : CNContactStore.new?.()
-
-  if (!store || typeof CNEntityTypeContacts === 'undefined') {
-    return Promise.resolve('unsupported')
-  }
-
-  // CNAuthorizationStatus: 0 notDetermined, 1 restricted, 2 denied, 3 authorized
-  const status = CNContactStore.authorizationStatusForEntityType(CNEntityTypeContacts)
-
-  if (status === 3) {
-    return Promise.resolve('granted')
-  }
-
-  if (status === 1 || status === 2) {
-    return Promise.resolve('denied')
-  }
-
-  return new Promise((resolve) => {
-    store.requestAccessForEntityTypeCompletionHandler(CNEntityTypeContacts, (granted: boolean) =>
-      resolve(granted ? 'granted' : 'denied'),
-    )
-  })
-}
-
-let contactRequestCode = 7719
-
-function androidEnsure(): Promise<PermissionResult> {
-  const perm = 'android.permission.READ_CONTACTS'
-  const activity = Application.android.foregroundActivity ?? Application.android.startActivity
-
-  try {
-    if (
-      activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED
-    ) {
-      return Promise.resolve('granted')
-    }
-
-    if (!activity) {
-      return Promise.resolve('denied')
-    }
-
-    return new Promise<PermissionResult>((resolve) => {
-      const requestCode = contactRequestCode++
-      const event = Application.android.activityRequestPermissionsEvent
-      const onResult = (args: any) => {
-        if (args.requestCode !== requestCode) {
-          return
-        }
-
-        Application.android.off(event, onResult)
-        resolve(
-          args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
-            ? 'granted'
-            : 'denied',
-        )
-      }
-
-      Application.android.on(event, onResult)
-      try {
-        activity.requestPermissions([perm], requestCode)
-      } catch {
-        Application.android.off(event, onResult)
-        resolve('denied')
-      }
-    })
-  } catch {
-    return Promise.resolve('denied')
-  }
 }
 
 function asContact(native: any): Contact {
@@ -218,38 +148,29 @@ export const contacts: Contacts = {
   supported: true,
 
   ensure(): Promise<PermissionResult> {
-    return Application.ios ? iosEnsure() : androidEnsure()
+    return ensureContactsPermission()
   },
 
   async getAll(options?: GetContactsOptions): Promise<Contact[]> {
-    const result = await NativeContacts.getAllContacts(pluginFields(options?.fields))
+    const result = await fetchContacts(pluginFields(options?.fields))
 
     return applyPage(applySort((result?.data ?? []).map(asContact), options?.sort), options)
   },
 
   async getByName(predicate: string, fields?: ContactField[]): Promise<Contact[]> {
-    const result = await NativeContacts.getContactsByName(predicate, pluginFields(fields))
+    const result = await fetchContactsByName(predicate, pluginFields(fields))
 
     return (result?.data ?? []).map(asContact)
   },
 
   async getById(id: string, fields?: ContactField[]): Promise<Contact | null> {
-    if (Application.ios) {
-      const result = await NativeContacts.getContactById(id, pluginFields(fields))
-      const native = result?.data ?? result
-
-      return native ? asContact(native) : null
-    }
-
-    // Plugin ships getContactById for iOS only — full-store fetch + filter.
-    const result = await NativeContacts.getAllContactsWithoutWorker(pluginFields(fields))
-    const native = (result?.data ?? []).find((c: any) => String(c?.id) === id)
+    const native = await fetchContactById(id, pluginFields(fields))
 
     return native ? asContact(native) : null
   },
 
   async add(contact: NewContact): Promise<string> {
-    const native = new (NativeContact as any)()
+    const native = createNativeContact()
 
     applyNewContact(native, contact)
     native.save()
@@ -263,7 +184,7 @@ export const contacts: Contacts = {
       throw new Error(`contacts.update: no contact with id ${id}`)
     }
 
-    const native = new (NativeContact as any)()
+    const native = createNativeContact()
 
     native.id = id
     applyNewContact(native, contact)
@@ -272,7 +193,7 @@ export const contacts: Contacts = {
   },
 
   async remove(id: string): Promise<void> {
-    const native = new (NativeContact as any)()
+    const native = createNativeContact()
 
     native.id = id
     native.delete()

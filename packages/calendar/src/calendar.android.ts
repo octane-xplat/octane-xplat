@@ -1,54 +1,8 @@
-// Calendar — native leaf, custom bridge (nativescript-calendar is stale).
-// iOS: EventKit EKEventStore via declare-const bridging (auth-session
-// pattern). Android: CalendarContract through the content provider.
-import { Application, Utils, isIOS } from '@nativescript/core'
-import { android } from '@octane-xplat/platform/android'
+// Calendar — Android leaf, custom bridge (nativescript-calendar is stale).
+// CalendarContract through the content provider.
+import { Application, Utils } from '@nativescript/core'
+import { android, java } from '@octane-xplat/platform/android'
 import type { Calendar, CalendarEvent, CalendarInfo, NewEvent, PermissionResult } from './types'
-
-declare const EKEventStore: any
-declare const EKEntityTypeEvent: number | undefined
-declare const EKEvent: any
-declare const NSDate: any
-
-let store: any = null
-const eventStore = () => {
-  if (!store && typeof EKEventStore !== 'undefined') {
-    store = EKEventStore.new()
-  }
-
-  return store
-}
-
-function iosEnsure(): Promise<PermissionResult> {
-  const s = eventStore()
-
-  if (!s || typeof EKEntityTypeEvent === 'undefined') {
-    return Promise.resolve('unsupported')
-  }
-
-  const status = EKEventStore.authorizationStatusForEntityType(EKEntityTypeEvent)
-
-  // 0 notDetermined 1 restricted 2 denied 3 fullAccess/authorized 4 writeOnly
-  if (status === 3 || status === 4) {
-    return Promise.resolve('granted')
-  }
-
-  if (status === 1 || status === 2) {
-    return Promise.resolve('denied')
-  }
-
-  return new Promise((resolve) => {
-    if (typeof s.requestFullAccessToEventsWithCompletion === 'function') {
-      s.requestFullAccessToEventsWithCompletion((granted: boolean) =>
-        resolve(granted ? 'granted' : 'denied'),
-      )
-    } else {
-      s.requestAccessToEntityTypeCompletion(EKEntityTypeEvent, (granted: boolean) =>
-        resolve(granted ? 'granted' : 'denied'),
-      )
-    }
-  })
-}
 
 let calRequestCode = 7731
 
@@ -93,41 +47,6 @@ function androidEnsure(): Promise<PermissionResult> {
     })
   } catch {
     return Promise.resolve('denied')
-  }
-}
-
-function iosCalendars(): CalendarInfo[] {
-  const s = eventStore()
-  const out: CalendarInfo[] = []
-  const list = s?.calendarsForEntityType?.(EKEntityTypeEvent ?? 0)
-
-  for (let i = 0; i < (list?.count ?? 0); i++) {
-    const c = list.objectAtIndex(i)
-
-    out.push({
-      id: String(c.calendarIdentifier ?? ''),
-      title: String(c.title ?? ''),
-      color: c.CGColor ? String(c.CGColor) : undefined,
-      source: c.source?.title ? String(c.source.title) : undefined,
-      allowsModifications: !!c.allowsContentModifications,
-      isPrimary: false,
-    })
-  }
-
-  return out
-}
-
-function iosEvent(e: any): CalendarEvent {
-  return {
-    id: String(e.eventIdentifier ?? ''),
-    calendarId: e.calendar?.calendarIdentifier ? String(e.calendar.calendarIdentifier) : undefined,
-    title: String(e.title ?? ''),
-    startDate: new Date((e.startDate?.timeIntervalSince1970 ?? 0) * 1000),
-    endDate: new Date((e.endDate?.timeIntervalSince1970 ?? 0) * 1000),
-    allDay: !!e.allDay,
-    location: e.location ? String(e.location) : undefined,
-    notes: e.notes ? String(e.notes) : undefined,
-    timeZone: e.timeZone?.name ? String(e.timeZone.name) : undefined,
   }
 }
 
@@ -203,32 +122,19 @@ function androidEvent(row: any): CalendarEvent {
   }
 }
 
-/** Calendar service — EventKit/CalendarContract. */
+/** Calendar service — CalendarContract. */
 export const calendar: Calendar = {
-  supported: isIOS ? typeof EKEventStore !== 'undefined' : true,
+  supported: true,
 
   ensure(): Promise<PermissionResult> {
-    return isIOS ? iosEnsure() : androidEnsure()
+    return androidEnsure()
   },
 
   async getCalendars(): Promise<CalendarInfo[]> {
-    return isIOS ? iosCalendars() : androidCalendars()
+    return androidCalendars()
   },
 
   async getDefaultCalendar(): Promise<CalendarInfo | null> {
-    if (isIOS) {
-      const s = eventStore()
-      const def = s?.defaultCalendarForNewEvents
-
-      return def
-        ? {
-            id: String(def.calendarIdentifier),
-            title: String(def.title ?? ''),
-            allowsModifications: !!def.allowsContentModifications,
-          }
-        : null
-    }
-
     return androidCalendars().find((c) => c.isPrimary) ?? androidCalendars()[0] ?? null
   },
 
@@ -237,25 +143,6 @@ export const calendar: Calendar = {
     endDate: Date,
     calendarIds?: string[],
   ): Promise<CalendarEvent[]> {
-    if (isIOS) {
-      const s = eventStore()
-      const begin = NSDate.dateWithTimeIntervalSince1970(startDate.getTime() / 1000)
-      const end = NSDate.dateWithTimeIntervalSince1970(endDate.getTime() / 1000)
-      const predicate = s.predicateForEventsWithStartDateEndDateCalendars(begin, end, null)
-      const list = s.eventsMatchingPredicate(predicate)
-      const out: CalendarEvent[] = []
-
-      for (let i = 0; i < (list?.count ?? 0); i++) {
-        const e = iosEvent(list.objectAtIndex(i))
-
-        if (!calendarIds?.length || calendarIds.includes(e.calendarId ?? '')) {
-          out.push(e)
-        }
-      }
-
-      return out
-    }
-
     const selection = calendarIds?.length
       ? `calendar_id IN (${calendarIds.map(() => '?').join(',')})`
       : ''
@@ -283,12 +170,6 @@ export const calendar: Calendar = {
   },
 
   async getEvent(id: string): Promise<CalendarEvent | null> {
-    if (isIOS) {
-      const e = eventStore()?.eventWithIdentifier?.(id)
-
-      return e ? iosEvent(e) : null
-    }
-
     const rows = androidQuery(
       (android.net.Uri as any).withAppendedId(EVENTS_URI(), Number(id)),
       ['_id', 'calendar_id', 'title', 'dtstart', 'dtend', 'allDay', 'eventLocation', 'description'],
@@ -301,27 +182,6 @@ export const calendar: Calendar = {
   },
 
   async createEvent(calendarId: string | undefined, event: NewEvent): Promise<string> {
-    if (isIOS) {
-      const s = eventStore()
-      const e = EKEvent.eventWithEventStore(s)
-
-      e.title = event.title
-      e.startDate = NSDate.dateWithTimeIntervalSince1970(event.startDate.getTime() / 1000)
-      e.endDate = NSDate.dateWithTimeIntervalSince1970(event.endDate.getTime() / 1000)
-      e.allDay = !!event.allDay
-      e.location = event.location
-      e.notes = event.notes
-      e.calendar = calendarId
-        ? (s.calendarWithIdentifier?.(calendarId) ?? s.defaultCalendarForNewEvents)
-        : s.defaultCalendarForNewEvents
-
-      if (!s.saveEventSpanError(e, 0, null)) {
-        throw new Error('calendar.createEvent: EKEventStore.saveEvent failed')
-      }
-
-      return String(e.eventIdentifier ?? '')
-    }
-
     const values = new android.content.ContentValues()
     const def = await calendar.getDefaultCalendar()
 
@@ -346,42 +206,6 @@ export const calendar: Calendar = {
   },
 
   async updateEvent(id: string, patch: Partial<NewEvent>): Promise<string> {
-    if (isIOS) {
-      const s = eventStore()
-      const e = s.eventWithIdentifier?.(id)
-
-      if (!e) {
-        throw new Error(`calendar.updateEvent: no event ${id}`)
-      }
-
-      if (patch.title !== undefined) {
-        e.title = patch.title
-      }
-
-      if (patch.startDate) {
-        e.startDate = NSDate.dateWithTimeIntervalSince1970(patch.startDate.getTime() / 1000)
-      }
-
-      if (patch.endDate) {
-        e.endDate = NSDate.dateWithTimeIntervalSince1970(patch.endDate.getTime() / 1000)
-      }
-
-      if (patch.allDay !== undefined) {
-        e.allDay = patch.allDay
-      }
-
-      if (patch.location !== undefined) {
-        e.location = patch.location
-      }
-
-      if (patch.notes !== undefined) {
-        e.notes = patch.notes
-      }
-
-      s.saveEventSpanError(e, 0, null)
-      return id
-    }
-
     const values = new android.content.ContentValues()
 
     if (patch.title !== undefined) {
@@ -396,7 +220,7 @@ export const calendar: Calendar = {
       values.put('dtend', java.lang.Long.valueOf(patch.endDate.getTime()))
     }
 
-    if (patch.location !== undefined) {
+    if (patch.location) {
       values.put('eventLocation', patch.location)
     }
 
@@ -415,17 +239,6 @@ export const calendar: Calendar = {
   },
 
   async deleteEvent(id: string): Promise<void> {
-    if (isIOS) {
-      const s = eventStore()
-      const e = s.eventWithIdentifier?.(id)
-
-      if (e) {
-        s.removeEventSpanError(e, 0, null)
-      }
-
-      return
-    }
-
     resolver()?.delete(
       (android.net.Uri as any).withAppendedId(EVENTS_URI(), Number(id)),
       null,

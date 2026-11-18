@@ -34,6 +34,8 @@
 		"src/props.ts",
 		"src/native-elements.d.ts",
 		"src/barcode-scanner.ts",
+		"src/barcode-permission.ios.ts",
+		"src/barcode-permission.android.ts",
 		"src/barcode-scanner.web.ts",
 		"src/barcode-scanner.macos.ts",
 		"src/barcode-scanner.linux.ts",

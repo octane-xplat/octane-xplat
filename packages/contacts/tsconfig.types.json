@@ -32,6 +32,9 @@
 	"include": [
 		"src/types.ts",
 		"src/contacts.ts",
+		"src/contacts-store.mobile.ts",
+		"src/contacts-store.ios.ts",
+		"src/contacts-store.android.ts",
 		"src/contacts.web.ts",
 		"src/contacts.macos.ts",
 		"src/contacts.linux.ts",

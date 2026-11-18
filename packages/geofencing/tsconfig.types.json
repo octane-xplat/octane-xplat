@@ -31,7 +31,9 @@
 	},
 	"include": [
 		"src/types.ts",
-		"src/geofencing.ts",
+		"src/geofencing.mobile.ts",
+		"src/geofencing.ios.ts",
+		"src/geofencing.android.ts",
 		"src/geofencing.web.ts",
 		"src/geofencing.macos.ts",
 		"src/geofencing.linux.ts",

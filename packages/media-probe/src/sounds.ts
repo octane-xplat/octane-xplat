@@ -21,7 +21,9 @@ export const playUiTone = () => {
   active.add(oscillator)
   oscillator.onended = () => active.delete(oscillator)
   oscillator.start()
-  oscillator.stop(context.currentTime + 0.13)
+  // iOS declares no scheduled stop(when) — its stop() would cut the tone
+  // instantly, so schedule the stop on the JS clock instead.
+  setTimeout(() => oscillator.stop(), 130)
 }
 
 export const stopUiTones = () => {
