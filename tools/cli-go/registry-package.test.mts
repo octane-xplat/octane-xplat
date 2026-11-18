@@ -6,6 +6,7 @@ import { createRequire } from 'node:module'
 import { setTimeout as delay } from 'node:timers/promises'
 import {
   readFileSync,
+  readdirSync,
   writeFileSync,
   mkdirSync,
   existsSync,
@@ -65,16 +66,47 @@ test('production layout selects only the host payload and installs a direct nati
 
   const build = JSON.parse(readFileSync(binary + '.json'))
   // The scoped .npmrc sends every @octane-xplat/* dependency to the private
-  // registry, so serve each of the CLI's scoped deps there too.
+  // registry, so serve the workspace dependency closure of both install roots
+  // (the CLI directly, and the umbrella transitively) there too.
+  const workspace = new Map()
+
+  for (const dir of readdirSync(join(root, 'packages'))) {
+    const manifestPath = join(root, 'packages', dir, 'package.json')
+
+    if (existsSync(manifestPath)) {
+      workspace.set(JSON.parse(readFileSync(manifestPath)).name, dir)
+    }
+  }
+
+  const served = new Map()
+  const queue = ['@octane-xplat/cli', 'octane-xplat']
+
+  for (const name of queue) {
+    const dir = workspace.get(name)
+
+    if (!dir || served.has(name)) {
+      continue
+    }
+
+    served.set(name, dir)
+
+    const manifest = JSON.parse(readFileSync(join(root, 'packages', dir, 'package.json')))
+    const optionalPeers = manifest.peerDependenciesMeta ?? {}
+
+    for (const dep of Object.keys(manifest.dependencies ?? {})) {
+      queue.push(dep)
+    }
+
+    for (const dep of Object.keys(manifest.peerDependencies ?? {})) {
+      if (!optionalPeers[dep]?.optional) {
+        queue.push(dep)
+      }
+    }
+  }
+
   const depPackages = []
 
-  for (const [name, dir] of [
-    ['@octane-xplat/docs-search', 'docs-search'],
-    ['@octane-xplat/lib', 'lib'],
-    ['@octane-xplat/lint', 'lint'],
-    ['create-octane-xplat', 'create'],
-    ['octane-xplat', 'toolchain'],
-  ]) {
+  for (const [name, dir] of served) {
     const depTarball = join(scratch, dir + '.tgz')
 
     // `bun pm pack` packs the current workspace; it ignores a path argument.
@@ -145,7 +177,7 @@ test('production layout selects only the host payload and installs a direct nati
   writeFileSync(input, JSON.stringify({ packages, ready, requests, maxRequests: 128 }))
   registry = spawn(
     process.execPath,
-    [join(root, 'tools/cli-go/upgrade-registry-fixture.mjs'), input],
+    [join(root, 'tools/cli-go/registry-fixture.mjs'), input],
     { stdio: 'ignore' },
   )
 
