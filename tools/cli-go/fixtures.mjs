@@ -102,11 +102,20 @@ export function prepareFixtures(
       JSON.stringify({
         version: 1,
         workshopCompiler: Object.fromEntries(
-          ['octane', '@octanejs/vite-plugin', '@tsrx/oxc'].map((name) => [
-            name,
-            JSON.parse(readFileSync(join(root, 'package.json'))).devDependencies[name] ??
-              JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[name],
-          ]),
+          ['octane', '@octanejs/vite-plugin', '@tsrx/oxc'].map((name) => {
+            const manifest = JSON.parse(readFileSync(join(root, 'package.json')))
+            const declared = manifest.devDependencies[name]
+
+            // The installed consumer is not a workspace root; record the
+            // catalog-resolved version a packed install would carry.
+            if (declared === undefined || declared === 'catalog:') {
+              return [name, manifest.workspaces.catalog[name]]
+            }
+            if (declared.startsWith('catalog:')) {
+              return [name, manifest.workspaces.catalogs[declared.slice('catalog:'.length)][name]]
+            }
+            return [name, declared]
+          }),
         ),
         workshopStorybook: JSON.parse(readFileSync(join(root, 'packages/workshop/package.json')))
           .dependencies.storybook,
