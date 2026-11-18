@@ -46,6 +46,7 @@ vi.mock('../accessibility/native-accessibility', () => ({
 }))
 
 import { OrdinaryChildren } from '../../../tests/children.fixture.mobile.tsrx'
+import { hasClassToken } from '../../tests/class-tokens'
 
 it('normalizes ordinary JSX sibling boundaries', () => {
   const container = createObjectContainer('nativescript')
@@ -149,7 +150,7 @@ it('normalizes ordinary children in Carousel, MetadataList and OverflowList', as
 
   const nodes = container.children.flatMap(walk)
   const slides = nodes.filter((node) =>
-    String(node.props.className).split(' ').includes('vx-carousel-slide'),
+    hasClassToken(node.props.className, 'vx-carousel-slide'),
   )
 
   expect(slides.map((slide) => slide.children[0].props.text)).toEqual(['slide1', 'slide2'])

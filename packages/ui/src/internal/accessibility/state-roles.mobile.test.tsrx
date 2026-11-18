@@ -21,6 +21,7 @@ import { TextInput } from '../../components/forms/TextInput.tsrx'
 import { Switch } from '../../components/forms/Switch.tsrx'
 import { Checkbox } from '../../components/forms/Checkbox.tsrx'
 import { RadioGroup } from '../../components/forms/RadioGroup.tsrx'
+import { classTokens, hasClassToken } from '../../tests/class-tokens'
 
 function setup() {
   const container = createObjectContainer('nativescript')
@@ -48,7 +49,7 @@ function findNative(
     node.type === type &&
     (label === undefined || node.props?.accessibilityLabel === label) &&
     (role === undefined || node.props?.accessibilityRole === role) &&
-    (className === undefined || String(node.props?.className).split(' ').includes(className))
+    (className === undefined || hasClassToken(node.props?.className, className))
   ) {
     return node
   }
@@ -250,11 +251,11 @@ describe('native choices', () => {
 
     const group = findNative(container, 'masonview', undefined, undefined, 'vx-radio-group')
 
-    expect(String(group.children[1].props.className)).toContain('vx-radio--on')
+    expect(classTokens(group.children[1].props.className)).toContain('vx-radio--on')
     container.dispatchEvent(group.children[0], 'tap', {})
     expect(change).toHaveBeenLastCalledWith('a')
-    expect(String(group.children[0].props.className)).toContain('vx-radio--on')
-    expect(String(group.children[1].props.className)).not.toContain('vx-radio--on')
+    expect(classTokens(group.children[0].props.className)).toContain('vx-radio--on')
+    expect(classTokens(group.children[1].props.className)).not.toContain('vx-radio--on')
     root.unmount()
   })
 
@@ -270,10 +271,10 @@ describe('native choices', () => {
 
     const group = findNative(container, 'masonview', undefined, undefined, 'vx-radio-group')
 
-    expect(String(group.children[1].props.className)).toContain('vx-radio--on')
+    expect(classTokens(group.children[1].props.className)).toContain('vx-radio--on')
     container.dispatchEvent(group.children[0], 'tap', {})
     expect(change).toHaveBeenLastCalledWith('a')
-    expect(String(group.children[0].props.className)).not.toContain('vx-radio--on')
+    expect(classTokens(group.children[0].props.className)).not.toContain('vx-radio--on')
     root.unmount()
   })
 })

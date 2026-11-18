@@ -42,6 +42,7 @@ import {
   CheckboxIndicator,
   CheckIndicator,
 } from '../feedback/indicators'
+import { classTokens, hasClassToken } from '../../tests/class-tokens'
 
 function mount(component: any, props: any = {}) {
   const container = createObjectContainer('nativescript')
@@ -56,9 +57,7 @@ function findByClass(node: any, cls: string): any {
     return null
   }
 
-  const classes = String(node.props?.className ?? '').split(' ')
-
-  if (classes.includes(cls)) {
+  if (hasClassToken(node.props?.className, cls)) {
     return node
   }
 
@@ -125,7 +124,7 @@ describe('native layout leaves', () => {
     const { container, root } = mount(Center as any, { axis: 'vertical' })
     const view = container.children[0]
 
-    expect(String(view.props.className)).toContain('vx-center')
+    expect(classTokens(view.props.className)).toContain('vx-center')
     expect(view.props.style?.justifyContent).toBe('flex-start')
     expect(view.props.style?.flexDirection).toBeUndefined()
     expect(view.props.style?.alignItems).toBeUndefined()
@@ -141,8 +140,8 @@ describe('native layout leaves', () => {
 
     const view = container.children[0]
 
-    expect(String(view.props.className)).toContain('vx-section--muted')
-    expect(String(view.props.className)).toContain('vx-section--divider-top')
+    expect(classTokens(view.props.className)).toContain('vx-section--muted')
+    expect(classTokens(view.props.className)).toContain('vx-section--divider-top')
     expect(view.props.style?.paddingTop).toBe(8)
     root.unmount()
   })
@@ -150,7 +149,7 @@ describe('native layout leaves', () => {
   it('VisuallyHidden renders a hidden container that keeps the tree', () => {
     const { container, root } = mount(VisuallyHidden as any)
 
-    expect(String(container.children[0].props.className)).toContain('vx-visually-hidden')
+    expect(classTokens(container.children[0].props.className)).toContain('vx-visually-hidden')
     root.unmount()
   })
 })
@@ -174,7 +173,7 @@ describe('native FormLayout + InputGroup', () => {
       children: [],
     })
 
-    expect(container.children[0].props.className).toContain('vx-formlayout')
+    expect(classTokens(container.children[0].props.className)).toContain('vx-formlayout')
     root.unmount()
   })
 
