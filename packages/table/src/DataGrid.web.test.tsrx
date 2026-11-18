@@ -80,9 +80,9 @@ const input = (id: string, text: string) =>
 
 const pan = (id: string, type: string, x: number) =>
   act(() => {
-    const event = new Event(type, { bubbles: true })
+    const event = new MouseEvent(type, { bubbles: true, button: 0, clientX: x, clientY: 0 })
 
-    Object.assign(event, { clientX: x, clientY: 0, pointerId: 1 })
+    Object.defineProperty(event, 'pointerId', { value: 1 })
     document.getElementById(id)!.dispatchEvent(event)
   })
 
@@ -156,35 +156,51 @@ describe('DataGrid controls', () => {
     expect(names()[0]).toBe('Alice1')
   })
 
-  it('resizes within bounds with matching row widths and rolls back cancelled pans', () => {
-    mount({ resizableColumns: true })
+  it.each(['ltr', 'rtl'] as const)(
+    'resizes within bounds with %s pans and rolls back cancellation',
+    (direction) => {
+      mount({ resizableColumns: true, direction })
 
-    const width = () =>
-      (document.getElementById('grid-th-name')!.parentElement as HTMLElement).style.width
+      const dx = direction === 'rtl' ? -200 : 200
 
-    click('grid-th-name-widen')
-    expect(width()).toBe('150px')
-    expect((document.querySelector('#grid-row-a .vx-table-cell') as HTMLElement).style.width).toBe(
-      '150px',
-    )
+      const width = () =>
+        (document.getElementById('grid-th-name')!.parentElement as HTMLElement).style.width
 
-    pan('grid-th-name-resize', 'pointerdown', 0)
-    pan('grid-th-name-resize', 'pointermove', 200)
-    expect(width()).toBe('180px')
-    pan('grid-th-name-resize', 'pointercancel', 200)
-    expect(width()).toBe('150px')
-  })
+      click('grid-th-name-widen')
+      expect(width()).toBe('150px')
+      expect(
+        (document.querySelector('#grid-row-a .vx-table-cell') as HTMLElement).style.width,
+      ).toBe('150px')
 
-  it('reorders on release and preserves order on cancellation', () => {
-    mount({ reorderableColumns: true })
-    pan('grid-th-name-drag', 'pointerdown', 0)
-    pan('grid-th-name-drag', 'pointermove', 200)
-    pan('grid-th-name-drag', 'pointercancel', 200)
-    expect(names()[0]).toBe('Alice1')
-    pan('grid-th-name-drag', 'pointerdown', 0)
-    pan('grid-th-name-drag', 'pointerup', 200)
-    expect(names()[0]).toBe('1Alice')
-  })
+      pan('grid-th-name-resize', 'pointerdown', 0)
+      pan('grid-th-name-resize', 'pointermove', dx)
+      expect(width()).toBe('180px')
+      pan('grid-th-name-resize', 'pointercancel', dx)
+      expect(width()).toBe('150px')
+      pan('grid-th-name-resize', 'pointerdown', 0)
+      pan('grid-th-name-resize', 'pointermove', -dx)
+      pan('grid-th-name-resize', 'pointerup', -dx)
+      expect(width()).toBe('100px')
+    },
+  )
+
+  it.each(['ltr', 'rtl'] as const)(
+    'reorders on %s release and preserves order on cancellation',
+    (direction) => {
+      mount({ reorderableColumns: true, direction })
+
+      const dx = direction === 'rtl' ? -200 : 200
+
+      pan('grid-th-name-drag', 'pointerdown', 0)
+      pan('grid-th-name-drag', 'pointermove', dx)
+      pan('grid-th-name-drag', 'pointercancel', dx)
+      expect(names()[0]).toBe('Alice1')
+      pan('grid-th-name-drag', 'pointerdown', 0)
+      pan('grid-th-name-drag', 'pointermove', dx)
+      pan('grid-th-name-drag', 'pointerup', dx)
+      expect(names()[0]).toBe('1Alice')
+    },
+  )
 
   it('forwards controlled callbacks without changing the owner snapshot', () => {
     const changed = vi.fn()

@@ -1,5 +1,5 @@
 import { useRef } from 'octane'
-import { Pressable, HStack as Row, Text, View } from '@octane-xplat/ui'
+import { Pressable, HStack as Row, Text, View, type ViewProps } from '@octane-xplat/ui'
 import { dragTarget, moveColumn, resizedWidth } from './grid-layout'
 
 /** Pan handlers use shared gesture payloads; no browser resize listeners. */
@@ -34,10 +34,9 @@ export function ColumnDrag(props: {
     }
   }
 
-  const onPan = (event: any, resize: boolean) => {
-    if (event.state === 'began') {
+  const onPan = (event: Parameters<NonNullable<ViewProps['onPan']>>[0], resize: boolean) => {
+    if (event.phase === 'start') {
       begin()
-      return
     }
 
     const start = drag.current
@@ -46,7 +45,7 @@ export function ColumnDrag(props: {
       return
     }
 
-    if (event.state === 'cancelled') {
+    if (event.phase === 'finish' && event.terminal.outcome === 'cancelled') {
       if (resize) {
         props.table.setColumnSizing((old: Record<string, number>) => {
           const next = { ...old }
@@ -65,7 +64,8 @@ export function ColumnDrag(props: {
       return
     }
 
-    const dx = event.dx * (props.direction === 'rtl' ? -1 : 1)
+    const sample = event.phase === 'finish' ? event.terminal.sample : event.sample
+    const dx = sample.translation.x * (props.direction === 'rtl' ? -1 : 1)
 
     if (resize && Number.isFinite(dx)) {
       props.table.setColumnSizing((old: any) => ({
@@ -74,7 +74,7 @@ export function ColumnDrag(props: {
       }))
     }
 
-    if (event.state === 'ended') {
+    if (event.phase === 'finish') {
       if (!resize) {
         const target = dragTarget(start.columns, props.column.id, dx)
 

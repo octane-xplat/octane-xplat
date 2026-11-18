@@ -1,19 +1,23 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { describe, expect, it, vi } from 'vitest'
-import {
-  createObjectContainer,
-  createObjectDriver,
-  createUniversalRoot,
-  flushUniversalSync,
-} from 'octane/universal/native'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 
 import { useState } from 'octane'
+import {
+  createNativeGestureContainer,
+  NativeGestureView,
+} from '../../ui/tests/native-gesture-object-driver'
+
+import {
+  createNativeGestureDriver,
+  dispatchFixtureContacts,
+} from '../../ui/tests/native-gesture-surface'
 
 vi.mock('@nativescript/core', () => ({
   isIOS: false,
   isAndroid: true,
   Application: { on() {}, off() {} },
-  View: class {},
+  View: NativeGestureView,
   Property: class {
     constructor(_o?: any) {}
     register() {}
@@ -21,12 +25,20 @@ vi.mock('@nativescript/core', () => ({
   CSSType: () => () => {},
 }))
 
-vi.mock('../../ui/src/components/layout/pan.tsrx', () => ({ usePan: () => undefined }))
+vi.mock(
+  '../../ui/src/gestures/native-surface',
+  () => import('../../ui/tests/native-gesture-surface'),
+)
+
 // Exercise control state without loading the native SVG plugin in the object driver.
 vi.mock('../../ui/src/components/media/svg', () => ({}))
 vi.mock('@octane-xplat/ui', () => import('../tests/native-controls.mobile.tsrx'))
 
 import { DataGrid } from './DataGrid.tsrx'
+
+const roots: { unmount(): void }[] = []
+
+afterEach(() => roots.splice(0).forEach((root) => root.unmount()))
 
 const data = [
   { id: 'a', name: 'Alice' },
@@ -71,9 +83,10 @@ function Controlled() {
 
 describe('native DataGrid selection integration', () => {
   it('updates retained controls for caller state, mixed selection and off-page ordinals', () => {
-    const container = createObjectContainer('nativescript')
-    const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+    const container = createNativeGestureContainer('nativescript')
+    const root = createUniversalRoot(container, createNativeGestureDriver(container))
 
+    roots.push(root)
     root.render(Controlled as any, {})
 
     const get = (id: string) => find(container.children, id)
@@ -97,6 +110,71 @@ describe('native DataGrid selection integration', () => {
     press('grid-clear-selection')
     press('grid-previous')
     expect(get('grid-select-a').props.accessibilityState).toBe('unchecked')
-    root.unmount()
   })
 })
+
+// Normalized contact ingress exercises the real shared owner, not OS input.
+it.each(['ltr', 'rtl'] as const)(
+  'resizes and reorders with %s native contacts and rolls back cancellation',
+  (direction) => {
+    const container = createNativeGestureContainer('nativescript')
+    const root = createUniversalRoot(container, createNativeGestureDriver(container))
+
+    roots.push(root)
+
+    let table: any
+
+    root.render(DataGrid, {
+      id: 'grid',
+      data,
+      columns: [
+        { accessorKey: 'name', size: 140, minSize: 100, maxSize: 180 },
+        { accessorKey: 'id', size: 100 },
+      ],
+      resizableColumns: true,
+      reorderableColumns: true,
+      direction,
+      renderSelectionActions: (value: any) => {
+        table = value
+        return null
+      },
+      showRowSelection: true,
+    })
+
+    let time = 0
+    const send = (id: string, type: 'down' | 'move' | 'up' | 'cancel', x: number) => {
+      const host = find(container.children, id)
+      const changed = { id: 'one', kind: 'touch' as const, window: { x, y: 0 }, screen: null }
+
+      flushUniversalSync(() =>
+        dispatchFixtureContacts(container, {
+          type,
+          time: (time += 100),
+          changed,
+          contacts: type === 'up' || type === 'cancel' ? [] : [changed],
+          hitPath: [host],
+        }),
+      )
+    }
+
+    const dx = direction === 'rtl' ? -200 : 200
+
+    send('grid-th-name-resize', 'down', 0)
+    send('grid-th-name-resize', 'move', dx)
+    expect(table.getColumn('name').getSize()).toBe(180)
+    send('grid-th-name-resize', 'cancel', dx)
+    expect(table.getColumn('name').getSize()).toBe(140)
+    send('grid-th-name-resize', 'down', 0)
+    send('grid-th-name-resize', 'move', dx)
+    send('grid-th-name-resize', 'up', dx)
+    expect(table.getColumn('name').getSize()).toBe(180)
+    send('grid-th-name-drag', 'down', 0)
+    send('grid-th-name-drag', 'move', dx)
+    send('grid-th-name-drag', 'cancel', dx)
+    expect(table.getVisibleLeafColumns().map((column: any) => column.id)).toEqual(['name', 'id'])
+    send('grid-th-name-drag', 'down', 0)
+    send('grid-th-name-drag', 'move', dx)
+    send('grid-th-name-drag', 'up', dx)
+    expect(table.getVisibleLeafColumns().map((column: any) => column.id)).toEqual(['id', 'name'])
+  },
+)
