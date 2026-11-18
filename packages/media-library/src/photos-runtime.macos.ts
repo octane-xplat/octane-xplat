@@ -34,11 +34,11 @@ export const appleHost: AppleHost = {
     }
 
     if (!subscribe) {
+      const changeObserver: unknown = Reflect.get(globalThis, 'PHPhotoLibraryChangeObserver')
+
       subscribe = observerFactory(
         NSObject,
-        'PHPhotoLibraryChangeObserver' in globalThis
-          ? globalThis.PHPhotoLibraryChangeObserver
-          : undefined,
+        changeObserver,
         `XplatLibraryObserver${NSUUID.UUID().UUIDString.replace(/-/g, '')}`,
         (callback) => NSOperationQueue.mainQueue.addOperationWithBlock(callback),
         (observer) =>
