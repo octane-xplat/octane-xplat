@@ -310,10 +310,12 @@ After installing dependencies, run the app's typecheck once to generate its
 platform configurations. Run it again when you change manifest roots. New
 starters include a root `tsconfig.json` with solution references, which lets the
 language server discover those configurations from source files. These
-references exist for editor discovery only — while a generated program is still
-absent, the framework's Vite preset pins the transform to the committed
-`tsconfig.envs.json` instead, so installs, tests, and builds never wait on
-them:
+references exist for editor discovery. While an app's generated program is
+absent, the framework's Vite preset uses its committed `tsconfig.envs.json`.
+When Vite discovers TypeScript configs for individual files, the preset also
+uses a linked package's own manifest if its generated program is missing.
+Run the typecheck when you want to check types and populate the editor's
+platform projects:
 
 ```sh
 bun run typecheck

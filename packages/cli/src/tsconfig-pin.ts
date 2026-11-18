@@ -1,6 +1,7 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { parse as parseJsonc } from 'jsonc-parser'
 
 /**
  * Vite 8's oxc transform resolves each file's governing tsconfig.json and
@@ -35,11 +36,17 @@ export function transformTsconfig(root) {
     return undefined
   }
 
-  const references = readFileSync(join(dir, 'tsconfig.json'), 'utf8').matchAll(
-    /"path"\s*:\s*"([^"]+)"/g,
-  )
+  const config = parseJsonc(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+  const references = Array.isArray(config?.references) ? config.references : []
 
-  return [...references].some(([, path]) => !existsSync(resolve(dir, path)))
+  return references.some((reference) => {
+    const path = reference?.path
+    return (
+      typeof path === 'string' &&
+      /^(?:\.\/)?node_modules\/\.cache\/xplat-typecheck\//.test(path.replaceAll('\\', '/')) &&
+      !existsSync(resolve(dir, path))
+    )
+  })
     ? manifest
     : undefined
 }

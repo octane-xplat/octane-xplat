@@ -20,7 +20,7 @@ import { serverBoundary } from '@octane-xplat/lib/server-boundary'
 import { installedPackageDir, installedPackageRoot } from './package-root.ts'
 import { createRequire } from 'node:module'
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
+import { dirname, extname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import postcss from 'postcss'
 import valueParser from 'postcss-value-parser'
@@ -39,8 +39,51 @@ export { css } from './css-platform.ts'
 export { devBridge } from './mcp/dev-bridge.ts'
 export { buildTarget } from './vite-target.ts'
 
+function linkedTransformConfigs(root) {
+  while (!existsSync(join(root, 'package.json'))) {
+    const parent = dirname(root)
+    if (parent === root) {
+      return []
+    }
+    root = parent
+  }
+
+  const configs = []
+  const visited = new Set([realpathSync(root)])
+  const visit = (dir, entry = false) => {
+    const { dependencies, optionalDependencies, peerDependencies, devDependencies } = JSON.parse(
+      readFileSync(join(dir, 'package.json'), 'utf8'),
+    )
+    const names = Object.keys({
+      ...dependencies,
+      ...optionalDependencies,
+      ...peerDependencies,
+      ...(entry ? devDependencies : {}),
+    })
+    for (const name of names) {
+      const linked = installedPackageRoot(dir, name)
+      if (
+        !linked ||
+        visited.has(linked) ||
+        linked.replaceAll('\\', '/').includes('/node_modules/')
+      ) {
+        continue
+      }
+      visited.add(linked)
+      if (existsSync(join(linked, 'tsconfig.json')) && transformTsconfig(linked)) {
+        configs.push(linked)
+      }
+      visit(linked)
+    }
+  }
+  visit(root, true)
+  return configs
+}
+
 /** Select platform TSRX implementations in custom Vite and Vitest setups. */
 export function tsrx(platform = 'native') {
+  let linkedFallback
+
   return {
     name: 'xplat-tsrx-resolution',
     enforce: 'post',
@@ -48,13 +91,51 @@ export function tsrx(platform = 'native') {
     // pin the transform tsconfig here so every composition carrying tsrx
     // survives an ungenerated checkout. Plugin config merges above user
     // config in Vite, so yield to an explicit tsconfig outright.
-    config(config) {
+    async config(config) {
+      linkedFallback = undefined
       if (config.tsconfig !== undefined) {
         return
       }
 
-      const tsconfig = transformTsconfig(config.root ?? config.test?.root ?? process.cwd())
-      return tsconfig ? { tsconfig } : undefined
+      const root = resolve(config.root ?? config.test?.root ?? process.cwd())
+      const tsconfig = transformTsconfig(root)
+      if (tsconfig) {
+        return { tsconfig }
+      }
+      if (config.oxc === false) {
+        return
+      }
+
+      const linked = linkedTransformConfigs(root)
+      if (!linked.length) {
+        return
+      }
+
+      // Vite's built-in transform accepts one tsconfig path for the whole
+      // graph. Keep its discovery for other modules, and transform the
+      // affected linked files with their own committed config.
+      // A programmatic Vite root can be a fixture without an install of its
+      // own. In that case use the invoking project's Vite.
+      const { createFilter, transformWithOxc } = await importApp('vite', [root, process.cwd()])
+      const { include, exclude, jsxRefreshInclude, jsxRefreshExclude } = config.oxc ?? {}
+      const defaultExclude = exclude ?? /\.js$/
+      const source = createFilter(include ?? /\.(m?ts|[jt]sx)$/, defaultExclude, { resolve: root })
+      const refresh = createFilter(jsxRefreshInclude, jsxRefreshExclude, { resolve: root })
+      const linkedPaths = linked.map((dir) =>
+        dir.replaceAll('\\', '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+      )
+      const linkedSource = new RegExp(
+        `^(?:${linkedPaths.join('|')})/(?!node_modules/|.*/node_modules/).+`,
+      )
+      const hasRefreshFilter = Boolean(jsxRefreshInclude || jsxRefreshExclude)
+      linkedFallback = { source, refresh, hasRefreshFilter, linkedSource, transformWithOxc }
+      // A positive refresh filter also opts files into the built-in transform.
+      return {
+        oxc: {
+          exclude: exclude === undefined ? [defaultExclude, linkedSource] : [linkedSource],
+          ...(hasRefreshFilter ? { jsxRefreshExclude: [linkedSource] } : {}),
+        },
+      }
     },
     // Vite 8's Rolldown optimizer has its own extension defaults. Run after
     // normal configResolved hooks (including nativeExtensionOrder), and keep
@@ -73,6 +154,63 @@ export function tsrx(platform = 'native') {
         return resolveTsrxLeaf(source, importer, platform)
       },
     },
+    async transform(code, id) {
+      if (!linkedFallback?.linkedSource.test(id)) {
+        return
+      }
+      const file = id.split('?', 1)[0]
+      const { oxc, build, consumer } = this.environment.config
+      const lang = build.rolldownOptions?.moduleTypes?.[extname(file)]
+      const mappedTypeScript = lang === 'ts' || lang === 'tsx'
+      const refresh = linkedFallback.hasRefreshFilter && linkedFallback.refresh(id)
+      if (
+        !(linkedFallback.source(id) || linkedFallback.source(file) || mappedTypeScript || refresh)
+      ) {
+        return
+      }
+      if (oxc === false) {
+        return
+      }
+      const {
+        include: _include,
+        exclude: _exclude,
+        jsxInject,
+        jsxRefreshInclude: _jsxRefreshInclude,
+        jsxRefreshExclude: _jsxRefreshExclude,
+        ...options
+      } = oxc
+      const tsconfig = transformTsconfig(dirname(file))
+      const jsx = options.jsx
+      if (
+        typeof jsx === 'object' &&
+        jsx.refresh &&
+        (consumer === 'server' ||
+          (linkedFallback.hasRefreshFilter && !refresh) ||
+          (!file.endsWith('x') &&
+            !code.includes(`${jsx.importSource ?? 'react'}/jsx-runtime`) &&
+            !code.includes(`${jsx.importSource ?? 'react'}/jsx-dev-runtime`)))
+      ) {
+        options.jsx = { ...jsx, refresh: false }
+      }
+      const refreshLang = refresh && !/\.(?:m?js|jsx|tsx?)$/.test(file) ? 'js' : undefined
+      const result = await linkedFallback.transformWithOxc(code, id, {
+        ...options,
+        tsconfig,
+        lang: mappedTypeScript ? lang : refreshLang,
+        sourcemap: this.environment.mode !== 'build' || !!build.sourcemap,
+      })
+      for (const path of result.tsconfigFilePaths ?? []) {
+        this.addWatchFile(path)
+      }
+      for (const warning of result.warnings) {
+        this.warn(warning)
+      }
+      return {
+        code: jsxInject && /\.[jt]sx$/.test(file) ? `${jsxInject};${result.code}` : result.code,
+        map: result.map,
+        moduleType: 'js',
+      }
+    },
   }
 }
 
@@ -87,10 +225,10 @@ export function tsrx(platform = 'native') {
 // Lazy per call: the config file can be loaded while cwd is still the repo
 // root (vite loadConfigFromFile), with the real app cwd set later — freezing
 // a root-scoped require would strand importApp on the wrong package.json.
-const importApp = (spec) => {
+const importApp = (spec, paths?) => {
   const req = createRequire(join(process.cwd(), 'package.json'))
 
-  return import(pathToFileURL(realpathSync(req.resolve(spec))).href)
+  return import(pathToFileURL(realpathSync(req.resolve(spec, paths && { paths }))).href)
 }
 
 // The toolchain/runtime realms have their own serving paths (`/ns/core`,
@@ -674,11 +812,16 @@ export function boundary(platform = buildTarget()) {
     // Both wrapped plugins contribute `config` fragments — the server
     // boundary's source-map hardening and tsrx's fresh-checkout tsconfig
     // pin. A plain spread would keep only the last hook.
-    config(userConfig, env) {
+    async config(userConfig, env) {
       return mergeConfigFragments(
         base.config?.(userConfig, env),
-        resolver.config?.(userConfig, env),
+        await resolver.config?.(userConfig, env),
       )
+    },
+    async transform(code, id, options) {
+      const transformed = await resolver.transform.call(this, code, id)
+      const checked = await base.transform.call(this, transformed?.code ?? code, id, options)
+      return checked ? { ...transformed, ...checked } : transformed
     },
     configResolved(config) {
       resolver.configResolved(config)

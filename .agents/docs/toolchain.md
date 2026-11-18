@@ -383,6 +383,15 @@ experience of agents writing Octane-xplat code effectively.
   fails every transform on an ungenerated checkout, so suites pin the committed
   env manifest and packages running vitest with no config file gain a minimal
   pinned `vitest.config.mts`. `bun run check:vite-tsconfigs` enforces the pin.
+- **Linked app source uses a package-local fallback.** Vite 8.3.6 follows
+  project references during [its built-in transform](https://github.com/vitejs/vite/blob/v8.3.6/packages/vite/src/node/plugins/oxc.ts).
+  With the normal reference discovery, a missing generated program in a
+  linked package can fail the whole build. The shared Vite boundary delegates
+  affected linked files to Vite's Oxc transform with that package's committed
+  env manifest. The rest of the graph retains ordinary discovery and an
+  explicit `tsconfig` still wins. The [linked consumer test](../../packages/cli/test/vite-tsconfig-pin.test.mts)
+  checks this without generating project files. Revisit the fallback when
+  Vite can select a per-module config or handle absent generated references.
 - **App typecheck roots follow the app graph.** The mobile harness includes its
   own source and package ambient declarations; imported framework source is
   checked transitively. Do not root a mobile app program in every package's
