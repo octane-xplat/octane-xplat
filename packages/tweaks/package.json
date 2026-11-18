@@ -62,7 +62,7 @@
 		"build": "bun run typegen && tsc --runExternalCode -p tsconfig.vite.build.json",
 		"typegen": "tsc --runExternalCode -p tsconfig.types.json",
 		"typecheck": "node ../../scripts/typecheck.ts",
-		"test": "node --test test/"
+		"test": "node --test test/*.test.mts test/vite/*.test.mts"
 	},
 	"dependencies": {
 		"@octane-xplat/devtools": "workspace:*",
