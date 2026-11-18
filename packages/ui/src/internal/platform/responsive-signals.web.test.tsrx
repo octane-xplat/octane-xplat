@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+// @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { derived$, isWritableSignal } from 'octane/signals'
 import { afterEach, expect, it, vi } from 'vitest'

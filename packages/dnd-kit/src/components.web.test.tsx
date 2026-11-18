@@ -5,6 +5,33 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { View } from '@octane-xplat/ui'
 import { DndContext, useDraggable, useDroppable } from './index.web'
 
+/** jsdom supplies no DOMMatrixReadOnly; the gesture host composes ancestor
+ *  transforms through it. Drag offsets come from pointer deltas, so an
+ *  identity 2D stub that honors matrix()/matrix3d() is sufficient. */
+class Matrix {
+  a = 1
+  b = 0
+  c = 0
+  d = 1
+  is2D = true
+  constructor(value: string) {
+    if (/matrix3d\(/.test(value)) {
+      this.is2D = false
+      return
+    }
+
+    const matrix = /matrix\(([^)]+)\)/.exec(value)?.[1].split(',').map(Number)
+
+    if (matrix && matrix.length >= 6) {
+      ;[this.a, this.b, this.c, this.d] = matrix
+    }
+  }
+}
+
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'DOMMatrixReadOnly', { configurable: true, value: Matrix })
+}
+
 const roots: ReturnType<typeof createRoot>[] = []
 
 function mount(jsx: any) {
@@ -20,9 +47,18 @@ function mount(jsx: any) {
 }
 
 function pointer(type: string, clientX: number, clientY: number): PointerEvent {
-  const event = new Event(type, { bubbles: true, cancelable: true })
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    button: 0,
+    clientX,
+    clientY,
+  })
 
-  Object.assign(event, { pointerId: 1, clientX, clientY })
+  Object.defineProperties(event, {
+    pointerId: { value: 1 },
+    pointerType: { value: 'mouse' },
+  })
   return event as PointerEvent
 }
 
@@ -118,7 +154,10 @@ describe('@octane-xplat/dnd-kit (web)', () => {
     setBounds(source, 0)
     act(() => source.dispatchEvent(pointer('pointerdown', 20, 20)))
     await flush()
-    act(() => source.dispatchEvent(pointer('pointercancel', 20, 20)))
+    // Pan activates after the 8px convenience threshold; cancel mid-drag.
+    act(() => source.dispatchEvent(pointer('pointermove', 20, 100)))
+    await flush()
+    act(() => source.dispatchEvent(pointer('pointercancel', 20, 100)))
     await flush()
 
     expect(onDragCancel).toHaveBeenCalledTimes(1)

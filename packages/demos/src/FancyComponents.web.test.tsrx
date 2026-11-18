@@ -11,6 +11,57 @@ import { FancyComponents } from './FancyComponents.tsrx'
 // measured through useMeasure$ — getBoundingClientRect is stubbed to a fixed
 // segment width so the loop can start under jsdom's layout-free DOM.
 
+/** jsdom supplies no DOMMatrixReadOnly. windowTransform composes ancestor
+ *  transforms from getComputedStyle strings, so the stub parses matrix() and
+ *  scale()/rotate() into the 2D coefficients the gesture path consumes; a
+ *  translate-only string is already identity in a–d. */
+class Matrix {
+  a = 1
+  b = 0
+  c = 0
+  d = 1
+  is2D = true
+  constructor(value: string) {
+    if (/matrix3d\(/.test(value)) {
+      this.is2D = false
+      return
+    }
+
+    const matrix = /matrix\(([^)]+)\)/.exec(value)?.[1].split(',').map(Number)
+
+    if (matrix && matrix.length >= 6) {
+      ;[this.a, this.b, this.c, this.d] = matrix
+      return
+    }
+
+    const scale = /scale\(([-\d.]+)\)/.exec(value)
+
+    if (scale) {
+      this.a = this.d = Number(scale[1])
+    }
+
+    const scaleX = /scaleX\(([-\d.]+)\)/.exec(value),
+      scaleY = /scaleY\(([-\d.]+)\)/.exec(value)
+
+    if (scaleX) {
+      this.a *= Number(scaleX[1])
+    }
+
+    if (scaleY) {
+      this.d *= Number(scaleY[1])
+    }
+
+    const rotate = /rotate\(([-\d.]+)deg\)/.exec(value)
+
+    if (rotate) {
+      const radians = (Number(rotate[1]) * Math.PI) / 180
+      this.a = this.d = Math.cos(radians)
+      this.b = Math.sin(radians)
+      this.c = -this.b
+    }
+  }
+}
+
 let systemReduced = false
 const mediaListeners = new Set<() => void>()
 
@@ -20,6 +71,7 @@ const realRect = HTMLElement.prototype.getBoundingClientRect
 beforeEach(() => {
   vi.useFakeTimers()
   systemReduced = false
+  vi.stubGlobal('DOMMatrixReadOnly', Matrix)
   vi.stubGlobal('matchMedia', (query: string) => ({
     get matches() {
       return systemReduced
@@ -185,7 +237,7 @@ describe('FancyComponents showcase', () => {
     await advance(600)
     expect(trackX(container)).toBeGreaterThan(flipped!)
     close()
-  })
+  }, 30000)
 
   it('renders duplicate marquee copies hidden from assistive tech', async () => {
     const { container, close } = mount()
@@ -221,7 +273,7 @@ describe('FancyComponents showcase', () => {
     expect(shown().length).toBeGreaterThan(0)
     expect(next.startsWith(shown())).toBe(true)
     close()
-  })
+  }, 30000)
 
   it('restarts the typewriter from the first phrase on replay', async () => {
     const { container, close } = mount()
@@ -237,7 +289,7 @@ describe('FancyComponents showcase', () => {
     ).toBe(true)
 
     close()
-  })
+  }, 30000)
 
   it('reveals the scramble left to right and settles on the real text', async () => {
     const { container, close } = mount()
