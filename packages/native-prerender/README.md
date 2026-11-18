@@ -162,6 +162,17 @@ const result = checkLaunchEnvironment(artifact, {
 // { supported: false, input: 'fontScale' }
 ```
 
+Declared `launchInputs` select the logical tree itself, beyond constraint predicates: each names a persisted `appSettings.string` read (the `ApplicationSettings`/`storage.getString` store) with up to four declared values and a `default` for absent keys. The producer renders one tree per point of the declared product — including the absent-key point when `default` is `null`, at most eight trees — crossed with light/dark, and the artifact carries `launchInputs` plus per-bind `{ bind, nodes, variants }` trees. `selectLaunchTree` (and the equivalent Swift/Java `selectIndex`) resolves the stored values and returns the exact matching tree or `null`; a stored value outside the declared domain never selects another tree — callers must fall back to JavaScript boot. Artifacts without `launchInputs` keep the flat shape byte-for-byte.
+
+```ts
+import { selectLaunchTree } from '@octane-xplat/native-prerender'
+
+const tree = selectLaunchTree(artifact, (name) =>
+  ApplicationSettings.hasKey(name) ? ApplicationSettings.getString(name) : null,
+)
+// tree === null → ordinary JavaScript boot; otherwise hydrate against tree.nodes
+```
+
 ## Binary and development JSON
 
 The Node-only `./codec` entry writes XPI1 and a readable JSON form using the same logical validation. Both require the installed app's exact build identity and platform when read. The checksum detects corruption; it does not authenticate a server response.
@@ -178,7 +189,7 @@ const debug = writeStartupJson(decoded)
 const inspected = readStartupJson(debug, expected)
 ```
 
-XPI1 has an 80-byte little-endian header: four magic bytes, a 16-bit version, 16-bit required flags (currently zero), 32-bit total byte length, 32-bit logical node count, 32-byte build identity and 32-byte payload SHA-256. Its payload is a tagged binary value tree, not JSON text or a native struct. Tags 0–6 encode null, false, true, finite float64, UTF-8 string, array and object. Strings/counts are 32-bit length-prefixed; object keys use sorted UTF-16 order and must be unique. Numbers normalize negative zero to zero.
+XPI1 has an 80-byte little-endian header: four magic bytes, a 16-bit version, 16-bit required flags (bit 0 marks a `launchInputs`/`trees` payload; flat artifacts keep zero), 32-bit total byte length, 32-bit logical node count (all trees' nodes when layered), 32-byte build identity and 32-byte payload SHA-256. Its payload is a tagged binary value tree, not JSON text or a native struct. Tags 0–6 encode null, false, true, finite float64, UTF-8 string, array and object. Strings/counts are 32-bit length-prefixed; object keys use sorted UTF-16 order and must be unique. Numbers normalize negative zero to zero.
 
 Binary input is limited to 1MiB, 1024 logical nodes, 64 tree levels, 100000 binary values and 65536 UTF-8 bytes per string. Literal data has additional collection/depth bounds. Pretty JSON has a separate 8MiB byte limit to accommodate indentation and must still fit the binary limits. Unknown fields, flags, host kinds, properties, broken references, nonportable values and malformed bytes fail before mounting. `./codec` is for build/inspection hosts and must not be imported into the native app runtime.
 

@@ -197,14 +197,29 @@ try {
     'Native mount started JS',
   )
 
-  assert.equal(passed.visualNodes, expected.nodes.length)
-  assert.equal(passed.nodes.length, expected.nodes.length)
+  const canonicalBind = (bind) =>
+    JSON.stringify(
+      Object.keys(bind ?? {})
+        .sort()
+        .map((name) => [name, bind[name]]),
+    )
+  const resolvedTrees = expected.trees ?? [{ bind: {}, nodes: expected.nodes }]
+  const expectedTree =
+    resolvedTrees.find((tree) => canonicalBind(tree.bind) === canonicalBind(passed.bind)) ??
+    assert.fail('Mounted bind ' + canonicalBind(passed.bind) + ' matches no resolved tree')
+
+  assert.equal(passed.visualNodes, expectedTree.nodes.length)
+  assert.equal(passed.nodes.length, expectedTree.nodes.length)
 
   const packet = JSON.parse(readFileSync(join(resolve(directory), 'producer/startup.json')))
+  const packetTrees = packet.trees ?? [{ bind: {}, nodes: packet.nodes }]
+  const packetTree =
+    packetTrees.find((tree) => canonicalBind(tree.bind) === canonicalBind(passed.bind)) ??
+    assert.fail('Mounted bind matches no artifact tree')
 
-  assert.equal(passed.logicalNodes, packet.nodes.length)
+  assert.equal(passed.logicalNodes, packetTree.nodes.length)
   passed.nodes.forEach((node, index) => {
-    const row = expected.nodes[index]
+    const row = expectedTree.nodes[index]
 
     assert.equal(node.kind, row.kind)
     assert.equal(node.parent, row.parent ?? -1)
@@ -234,13 +249,13 @@ try {
           initial.masonIdentityRetained,
       )
 
-      assert.equal(initial.logicalNodes, packet.nodes.length)
+      assert.equal(initial.logicalNodes, packetTree.nodes.length)
       assert.equal(
         initial.initialClaims + (initial.replacedClaims ?? 0),
-        expected.nodes.length,
+        expectedTree.nodes.length,
       )
-      assert.equal(initial.factoryCalls, expected.nodes.length)
-      assert.equal(presented.visualNodes, expected.nodes.length)
+      assert.equal(initial.factoryCalls, expectedTree.nodes.length)
+      assert.equal(presented.visualNodes, expectedTree.nodes.length)
       assert.equal(presented.viewportChildren, 1)
 
       assert.ok(
@@ -264,9 +279,9 @@ try {
           initial.prepareAbortMutationFree,
       )
 
-      assert.equal(initial.logicalNodes, packet.nodes.length)
-      assert.equal(initial.initialClaims, expected.nodes.length)
-      assert.equal(initial.factoryCalls, expected.nodes.length)
+      assert.equal(initial.logicalNodes, packetTree.nodes.length)
+      assert.equal(initial.initialClaims, expectedTree.nodes.length)
+      assert.equal(initial.factoryCalls, expectedTree.nodes.length)
       assert.deepEqual(initial.labels, ['One', 'Two'])
       assert.deepEqual(added.labels, ['Two', 'One', 'Three'])
       assert.deepEqual(removed.labels, ['Three', 'Two'])
@@ -288,9 +303,9 @@ try {
     assert.equal(added.transitions.find((row) => row.label === 'Two').retained.native, false)
     assert.notEqual(initial.children[1].owner, recreated.children[1].owner)
     assert.notEqual(initial.children[1].native, recreated.children[1].native)
-    assert.equal(added.factoryCalls, expected.nodes.length + 1)
-    assert.equal(removed.factoryCalls, expected.nodes.length + 1)
-    assert.equal(recreated.factoryCalls, expected.nodes.length + 2)
+    assert.equal(added.factoryCalls, expectedTree.nodes.length + 1)
+    assert.equal(removed.factoryCalls, expectedTree.nodes.length + 1)
+    assert.equal(recreated.factoryCalls, expectedTree.nodes.length + 2)
     assert.ok(
       added.adoptedOwnersRetained &&
         added.ordinaryCreation &&

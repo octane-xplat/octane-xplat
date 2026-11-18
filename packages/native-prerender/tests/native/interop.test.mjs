@@ -3,8 +3,13 @@ import { spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import test from 'node:test'
-import { fixture, expected, resign } from '../fixture.mjs'
-import { validateArtifact, projectVisualTree, checkLaunchEnvironment } from '../../src/index.ts'
+import { fixture, treesFixture, expected, resign } from '../fixture.mjs'
+import {
+  validateArtifact,
+  projectVisualTree,
+  checkLaunchEnvironment,
+  selectLaunchTree,
+} from '../../src/index.ts'
 import { encodeStartupArtifact, decodeStartupArtifact } from '../../src/codec.ts'
 
 const readers = JSON.parse(process.env.XPLAT_PRERENDER_NATIVE_READERS ?? 'null')
@@ -178,6 +183,31 @@ for (const reader of readers) {
       }
       assert.equal(invoke(reader, encoded, { ...expected, platform: 'ios' }).status, 1)
       assert.equal(invoke(reader, encoded, { ...expected, build: 'cd'.repeat(32) }).status, 1)
+    },
+  )
+  test(
+    reader.name + ': launch-input artifacts decode, and native selection agrees with the schema resolver',
+    () => {
+      const artifact = validateArtifact(treesFixture())
+      const encoded = encodeStartupArtifact(artifact)
+      const result = invoke(reader, encoded)
+      assert.equal(result.status, 0, result.stderr)
+      assert.deepEqual(JSON.parse(result.stdout), plain(artifact))
+      const cases = [
+        [['theme-preference=dark'], { 'theme-preference': 'dark' }],
+        [['theme-preference=light'], { 'theme-preference': 'light' }],
+        [[], {}],
+        [['theme-preference=sepia'], { 'theme-preference': 'sepia' }],
+        [['theme-preference='], { 'theme-preference': '' }],
+        [['unrelated=ignored'], { unrelated: 'ignored' }],
+      ]
+      for (const [pairs, stored] of cases) {
+        const selected = selectLaunchTree(artifact, (name) => stored[name] ?? null)
+        const index = selected ? artifact.trees.indexOf(selected) : -1
+        const result = invoke(reader, encoded, expected, ['select', ...pairs])
+        assert.equal(result.status, 0, `${JSON.stringify(stored)}: ${result.stderr}`)
+        assert.equal(JSON.parse(result.stdout), index, JSON.stringify(stored))
+      }
     },
   )
   const producer = process.env.XPLAT_HOME_CODEC_PRODUCER

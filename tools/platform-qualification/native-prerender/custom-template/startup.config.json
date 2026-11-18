@@ -19,5 +19,13 @@
       "bottom": 34,
       "left": 0
     }
-  }
+  },
+  "launchInputs": [
+    {
+      "name": "theme-preference",
+      "source": "appSettings.string",
+      "values": ["dark", "light"],
+      "default": null
+    }
+  ]
 }

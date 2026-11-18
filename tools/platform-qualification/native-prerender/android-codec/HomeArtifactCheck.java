@@ -42,10 +42,21 @@ public final class HomeArtifactCheck {
     }
     public static void main(String[] args) {
         try {
-            if (args.length != 2) throw new MasonArtifact.Invalid("expected artifact path and build hash");
+            if (args.length < 2) throw new MasonArtifact.Invalid("expected artifact path and build hash");
+            // Trailing name=value pairs seed the launch-input resolver; an
+            // omitted name resolves as an absent stored key (its declared
+            // default applies). Flat artifacts ignore the resolver.
+            Map<String, String> stored = new java.util.LinkedHashMap<>();
+            for (int index = 2; index < args.length; index++) {
+                int mark = args[index].indexOf('=');
+                if (mark < 0) throw new MasonArtifact.Invalid("expected name=value resolver arguments");
+                stored.put(args[index].substring(0, mark), args[index].substring(mark + 1));
+            }
             if (Files.size(Paths.get(args[0])) > 1024 * 1024) throw new MasonArtifact.Invalid("size limit");
             byte[] bytes = Files.readAllBytes(Paths.get(args[0]));
-            System.out.write(json(MasonArtifact.decode(bytes, args[1]).projection()).getBytes(StandardCharsets.UTF_8));
+            MasonArtifact.Artifact selected = MasonArtifact.decode(bytes, args[1]).select(stored::get);
+            if (selected == null) throw new MasonArtifact.Invalid("launch inputs outside declared domain");
+            System.out.write(json(selected.projection()).getBytes(StandardCharsets.UTF_8));
         } catch (Exception error) {
             System.err.println("Home IR rejected: " + error.getMessage());
             System.exit(1);

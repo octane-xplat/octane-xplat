@@ -5,6 +5,14 @@
   background-color: #ffffff;
 }
 
+.screen-preference-dark {
+  background-color: #10151c;
+}
+
+.screen-preference-light {
+  background-color: #f4f8ff;
+}
+
 .screen-header {
   padding-bottom: 8px;
 }

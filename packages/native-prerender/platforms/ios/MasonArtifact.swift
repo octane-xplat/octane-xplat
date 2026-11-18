@@ -59,16 +59,29 @@ enum XplatMasonArtifact {
         }
         return true
     }
-    struct Artifact {
-        let snapshot: XplatStartupArtifact.Snapshot
+    // One prerendered tree projected for the Mason/Label backend.
+    struct Projected {
+        let tree: XplatStartupArtifact.Tree
         let value: [String: Any]
     }
-    static func decode(_ data: Data, expectedBuildHash: String) throws -> Artifact {
+    struct Artifact {
         let snapshot: XplatStartupArtifact.Snapshot
-        do { snapshot = try XplatStartupArtifact.decode(data, build: expectedBuildHash, platform: "ios") }
-        catch let error as XplatStartupArtifact.Invalid { throw Invalid(reason: error.reason) }
+        let trees: [Projected]
+        // Flat artifacts' single projection — the unchanged pre-layer contract.
+        // Launch-input artifacts must go through select() instead.
+        var value: [String: Any] { trees[0].value }
+        // Resolve declared launch inputs and return the matching projection.
+        // nil means the resolved values match no bind — callers must fall back
+        // to JavaScript boot, never pick another tree. Flat artifacts return
+        // their single projection without invoking the resolver.
+        func select(_ resolve: (String) -> String?) -> Projected? {
+            guard let index = snapshot.selectIndex(resolve) else { return nil }
+            return trees[index]
+        }
+    }
+    private static func project(_ tree: XplatStartupArtifact.Tree, seed: NSDictionary) throws -> [String: Any] {
         var nodes: [[String: Any]] = []
-        for item in try snapshot.visualNodes() {
+        for item in try tree.visualNodes() {
             // Only these fixed ASCII fields become Swift dictionaries. Arbitrary
             // seed/prop objects retain NSDictionary's exact UTF-16 key identity.
             guard let row = item as? NSDictionary,
@@ -81,11 +94,9 @@ enum XplatMasonArtifact {
             if let hostKind = row["hostKind"] { projected["hostKind"] = hostKind }
             nodes.append(projected)
         }
-        guard let source = snapshot.value["variants"] as? NSDictionary,
-              let seed = snapshot.value["seed"] as? NSDictionary else { throw Invalid(reason: "artifact projection") }
         var variants: [String: Any] = [:]
         for theme in ["light", "dark"] {
-            guard let input = source[theme] as? [NSDictionary] else { throw Invalid(reason: "style records") }
+            guard let input = tree.variants[theme] as? [NSDictionary] else { throw Invalid(reason: "style records") }
             var records: [[String: Any]] = []
             for row in input {
                 guard let style = row["style"] as? [String: Any],
@@ -97,6 +108,17 @@ enum XplatMasonArtifact {
             }
             variants[theme] = records
         }
-        return Artifact(snapshot: snapshot, value: ["seed": seed, "nodes": nodes, "variants": variants])
+        return ["seed": seed, "nodes": nodes, "variants": variants]
+    }
+    static func decode(_ data: Data, expectedBuildHash: String) throws -> Artifact {
+        let snapshot: XplatStartupArtifact.Snapshot
+        do { snapshot = try XplatStartupArtifact.decode(data, build: expectedBuildHash, platform: "ios") }
+        catch let error as XplatStartupArtifact.Invalid { throw Invalid(reason: error.reason) }
+        guard let seed = snapshot.value["seed"] as? NSDictionary else { throw Invalid(reason: "artifact projection") }
+        var trees: [Projected] = []
+        for tree in snapshot.trees {
+            trees.append(Projected(tree: tree, value: try project(tree, seed: seed)))
+        }
+        return Artifact(snapshot: snapshot, trees: trees)
     }
 }

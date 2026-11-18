@@ -37,12 +37,25 @@ public final class StartupArtifactCheck {
     }
     public static void main(String[] args) throws Exception {
         try {
-            if (!(args.length == 3 || args.length == 4 || args.length == 11) || Files.size(Paths.get(args[0])) > 1048576) throw new IllegalArgumentException("Arguments or byte length");
+            if (!(args.length == 3 || args.length == 11 || (args.length >= 4 && (args[3].equals("visual") || args[3].equals("select")))) || Files.size(Paths.get(args[0])) > 1048576) throw new IllegalArgumentException("Arguments or byte length");
             StartupArtifact.Snapshot result = StartupArtifact.decode(Files.readAllBytes(Paths.get(args[0])), args[1], args[2]);
-            Object output = args.length == 4 ? result.visualNodes() : args.length == 11
-                ? result.supports(Double.parseDouble(args[3]), Double.parseDouble(args[4]), Double.parseDouble(args[5]), Boolean.parseBoolean(args[6]),
-                        Double.parseDouble(args[7]), Double.parseDouble(args[8]), Double.parseDouble(args[9]), Double.parseDouble(args[10]))
-                : result.value;
+            Object output;
+            if (args.length >= 4 && args[3].equals("visual")) output = result.visualNodes();
+            else if (args.length >= 4 && args[3].equals("select")) {
+                // name=value pairs seed the resolver; omitted names resolve as
+                // absent stored keys. Prints the selected tree index or -1.
+                Map<String, String> stored = new java.util.LinkedHashMap<>();
+                for (int index = 4; index < args.length; index++) {
+                    int mark = args[index].indexOf('=');
+                    if (mark < 0) throw new IllegalArgumentException("expected name=value resolver arguments");
+                    stored.put(args[index].substring(0, mark), args[index].substring(mark + 1));
+                }
+                Integer index = result.selectIndex(stored::get);
+                output = index == null ? -1 : index;
+            } else if (args.length == 11) {
+                output = result.supports(Double.parseDouble(args[3]), Double.parseDouble(args[4]), Double.parseDouble(args[5]), Boolean.parseBoolean(args[6]),
+                        Double.parseDouble(args[7]), Double.parseDouble(args[8]), Double.parseDouble(args[9]), Double.parseDouble(args[10]));
+            } else output = result.value;
             System.out.write(json(output).getBytes(StandardCharsets.UTF_8));
         } catch (IllegalArgumentException error) {
             System.err.println("Native startup rejected: " + error.getMessage()); System.exit(1);

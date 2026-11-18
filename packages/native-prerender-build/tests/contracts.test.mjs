@@ -160,3 +160,111 @@ test('producer configuration resolves its entry and retains explicit seed and la
 
   assert.throws(() => parseProducerConfig(' '.repeat(1024 * 1024 + 1), '/app/startup.json'), /1MiB/)
 })
+
+test('producer launch inputs validate bounded persisted-string declarations', () => {
+  const base = {
+    version: 1,
+    entry: './screen.tsrx',
+    exportName: 'Startup',
+    seed: {},
+    environment: { width: 320, height: 640, reducedMotion: false },
+  }
+  const input = {
+    name: 'theme-preference',
+    source: 'appSettings.string',
+    values: ['dark', 'light'],
+    default: null,
+  }
+  const parse = (extra) => parseProducerConfig(JSON.stringify({ ...base, ...extra }), '/app/startup.json')
+
+  assert.deepEqual(parse({ launchInputs: [input] }).launchInputs, [input])
+  assert.equal(parse({}).launchInputs, undefined)
+  // A non-null default still adds its declared value point, not a null tree.
+  assert.deepEqual(parse({ launchInputs: [{ ...input, default: 'light' }] }).launchInputs[0].default, 'light')
+  // Two inputs of 1+null and 1 declared value give the 2x2 product bound.
+  assert.equal(
+    parse({
+      launchInputs: [
+        input,
+        { ...input, name: 'density', values: ['compact'], default: 'compact' },
+      ],
+    }).launchInputs.length,
+    2,
+  )
+
+  for (const launchInputs of [
+    [],
+    'dark',
+    [{ ...input, source: 'userDefaults.string' }],
+    [{ ...input, values: ['a', 'b', 'c', 'd', 'e'] }],
+    [{ ...input, values: ['a', 'a'] }],
+    [{ ...input, values: [] }],
+    [{ ...input, values: [1] }],
+    [{ ...input, default: 'sepia' }],
+    [{ ...input, default: undefined }],
+    [{ ...input, name: 'has\nnewline' }],
+    [{ ...input, name: 'x'.repeat(129) }],
+    [{ name: 'theme-preference' }],
+    [input, input],
+    [input, { ...input, name: 'other' }].concat(
+      Array.from({ length: 7 }, (_, index) => ({ ...input, name: 'n' + index, default: 'dark' })),
+    ),
+    // 3x3 product: each input contributes two values plus the null point.
+    [input, { ...input, name: 'second' }],
+    // Three inputs (3x3x2) exceed the product bound as well.
+    [input, { ...input, name: 'a' }, { ...input, name: 'b', values: ['x'] }],
+  ]) {
+    assert.throws(
+      () => parse({ launchInputs }),
+      undefined,
+      'Accepted ' + JSON.stringify(launchInputs),
+    )
+  }
+})
+
+test('build host ApplicationSettings exposes only the declared launch bind', () => {
+  const module = new URL('../src/native-api.mjs', import.meta.url).href
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '--eval',
+      `
+    import assert from 'node:assert/strict';
+    globalThis.XPLAT_HOME_PLATFORM = 'android';
+    const api = await import(${JSON.stringify(module)});
+    assert.throws(() => api.ApplicationSettings.getString('theme-preference'), /during module setup/);
+    api.configureNativeBuildHost('light', { width: 320, height: 640, reducedMotion: false }, { 'theme-preference': 'dark' });
+    assert.equal(api.ApplicationSettings.getString('theme-preference'), 'dark');
+    assert.equal(api.ApplicationSettings.getString('theme-preference', 'fallback'), 'dark');
+    assert.throws(() => api.ApplicationSettings.getString('undeclared'), /undeclared/);
+    assert.throws(() => api.ApplicationSettings.setString, /unsupported native read/);
+    assert.throws(() => api.ApplicationSettings.hasKey, /unsupported native read/);
+    assert.ok(api.nativeBuildHostEvidence().reads.includes('ApplicationSettings.getString:theme-preference'));
+  `,
+    ],
+    { encoding: 'utf8' },
+  )
+  assert.equal(result.status, 0, result.stderr)
+})
+
+test('a null launch bind resolves like an absent persisted key', () => {
+  const module = new URL('../src/native-api.mjs', import.meta.url).href
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '--eval',
+      `
+    import assert from 'node:assert/strict';
+    globalThis.XPLAT_HOME_PLATFORM = 'ios';
+    const api = await import(${JSON.stringify(module)});
+    api.configureNativeBuildHost('dark', { width: 320, height: 640, reducedMotion: false }, { 'theme-preference': null });
+    assert.equal(api.ApplicationSettings.getString('theme-preference'), undefined);
+    assert.equal(api.ApplicationSettings.getString('theme-preference', 'app'), 'app');
+  `,
+    ],
+    { encoding: 'utf8' },
+  )
+  assert.equal(result.status, 0, result.stderr)
+})

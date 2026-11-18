@@ -1,5 +1,5 @@
 import '@nativescript/core/globals'
-import { Application, Utils } from '@nativescript/core'
+import { Application, ApplicationSettings, Utils } from '@nativescript/core'
 import { Scroll } from '@octane-xplat/nativescript-mason-core/scroll'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
@@ -7,6 +7,7 @@ import {
   prepareFirstFrame,
   projectPreparedTree,
   projectVisualTree,
+  selectLaunchTree,
 } from '@octane-xplat/native-prerender'
 import { bindAndroidMasonTree } from '@octane-xplat/native-prerender/android/mason-binding'
 
@@ -34,7 +35,27 @@ async function qualify(activity) {
 
   check(scheme === activity.getMountTheme(), 'Native/live configured theme differs')
 
-  const visual = projectVisualTree(startup.nodes)
+  // The Java mount resolved the same persisted inputs before engine init;
+  // re-selecting here must land on the identical bind or the cold mount and
+  // the live prepared tree would compare different topologies. Absent keys
+  // resolve to each declaration's default; hasKey keeps an absent key
+  // distinct from a stored empty string.
+  const tree = selectLaunchTree(startup, (name) =>
+    ApplicationSettings.hasKey(name) ? ApplicationSettings.getString(name) : null,
+  )
+  check(tree, 'Persisted launch inputs selected no startup tree')
+  const canonicalBind = (bind) =>
+    JSON.stringify(
+      Object.keys(bind ?? {})
+        .sort()
+        .map((name) => [name, bind[name]]),
+    )
+  check(
+    canonicalBind(tree.bind) === canonicalBind(JSON.parse(activity.getMountBind())),
+    'Live launch bind differs from the mounted tree',
+  )
+
+  const visual = projectVisualTree(tree.nodes)
   const placeholderIndexes = new Set(
     visual.flatMap((row, index) => (row.kind === 'placeholder' ? [index] : [])),
   )
@@ -62,7 +83,7 @@ async function qualify(activity) {
   const mason = org.nativescript.mason.masonkit.Mason.Companion.getShared()
   const originalNodes = natives.map((view) => mason.nodeForView(view))
   const originalHandles = originalNodes.map((node) => String(node.getNativePtr()))
-  const binding = bindAndroidMasonTree(startup.nodes, activity.getViewport(), natives)
+  const binding = bindAndroidMasonTree(tree.nodes, activity.getViewport(), natives)
   const { host, wrappers, claims } = binding
 
   const viewport = activity.getViewport()
@@ -79,11 +100,11 @@ async function qualify(activity) {
   check(prepared.status === 'prepared', 'Startup prepare suspended')
 
   const projected = projectPreparedTree(prepared.batch.commands).nodes
-  if (JSON.stringify(projected) !== JSON.stringify(startup.nodes)) {
+  if (JSON.stringify(projected) !== JSON.stringify(tree.nodes)) {
     const diffs = []
-    for (let index = 0; index < Math.max(projected.length, startup.nodes.length); index++) {
-      if (JSON.stringify(projected[index]) !== JSON.stringify(startup.nodes[index])) {
-        diffs.push({ index, cold: startup.nodes[index], live: projected[index] })
+    for (let index = 0; index < Math.max(projected.length, tree.nodes.length); index++) {
+      if (JSON.stringify(projected[index]) !== JSON.stringify(tree.nodes[index])) {
+        diffs.push({ index, cold: tree.nodes[index], live: projected[index] })
       }
     }
     check(false, 'Prepared nodes differ: ' + JSON.stringify(diffs.slice(0, 3)))
@@ -251,7 +272,7 @@ async function qualify(activity) {
       initialClaims: claims.claimedCount,
       replacedClaims: claims.replacedCount,
       factoryCalls: claims.factoryCalls,
-      logicalNodes: startup.nodes.length,
+      logicalNodes: tree.nodes.length,
       replacements,
       motionAlpha,
     }),
@@ -259,7 +280,7 @@ async function qualify(activity) {
 
   // Spin the hydration marker now that the live tree owns the screen; the
   // cold mount draws it statically, so rotation marks the hydration seam.
-  const spinnerIndex = projectVisualTree(startup.nodes).findIndex(
+  const spinnerIndex = projectVisualTree(tree.nodes).findIndex(
     (node) => node.props.id === 'hydration-spinner',
   )
   const spinner = spinnerIndex >= 0 ? wrappers[spinnerIndex]?.nativeViewProtected : undefined

@@ -31,11 +31,22 @@ public final class StartupArtifact {
         }
         public List<Integer> children() { return Collections.unmodifiableList(children); }
     }
-    public static final class Snapshot {
-        public final Map<String, Object> value;
+    public static final class LaunchInput {
+        public final String name;
+        public final List<String> values;
+        public final String fallback;
+        private LaunchInput(String name, List<String> values, String fallback) {
+            this.name = name; this.values = Collections.unmodifiableList(values); this.fallback = fallback;
+        }
+    }
+    /** One prerendered tree for a launch-input bind; owns its logical nodes and both style variants. */
+    public static final class Tree {
+        public final Map<String, Object> bind;
         public final List<Node> nodes;
-        private Snapshot(Map<String, Object> value, List<Node> nodes) {
-            this.value = value; this.nodes = Collections.unmodifiableList(nodes);
+        public final Map<String, Object> variants;
+        public final Map<String, Object> value;
+        private Tree(Map<String, Object> bind, List<Node> nodes, Map<String, Object> variants, Map<String, Object> value) {
+            this.bind = bind; this.nodes = Collections.unmodifiableList(nodes); this.variants = variants; this.value = value;
         }
         public List<Map<String, Object>> visualNodes() {
             List<VisualRecord> records = new ArrayList<>();
@@ -75,6 +86,51 @@ public final class StartupArtifact {
                 this.index = index; this.parent = parent; this.path = path; this.node = node;
                 text = node.props.containsKey("text") ? (String) node.props.get("text") : "";
             }
+        }
+    }
+    public static final class Snapshot {
+        public final Map<String, Object> value;
+        /** First tree's nodes — the only tree for flat artifacts. Launch-input artifacts must resolve through select(). */
+        public final List<Node> nodes;
+        public final List<LaunchInput> launchInputs;
+        public final List<Tree> trees;
+        private Snapshot(Map<String, Object> value, List<LaunchInput> launchInputs, List<Tree> trees) {
+            this.value = value;
+            this.launchInputs = Collections.unmodifiableList(launchInputs);
+            this.trees = Collections.unmodifiableList(trees);
+            this.nodes = trees.isEmpty() ? Collections.emptyList() : trees.get(0).nodes;
+        }
+        /**
+         * Resolve declared launch inputs and pick the matching prerendered tree
+         * index. A null resolver result means the key is absent; the declared
+         * default then applies. Returns null when the effective values match no
+         * bind — callers must fall back to JavaScript boot, never pick another
+         * tree. Flat artifacts return index 0 without resolving.
+         */
+        public Integer selectIndex(java.util.function.Function<String, String> resolve) {
+            if (launchInputs.isEmpty()) return trees.isEmpty() ? null : 0;
+            Map<String, String> effective = new LinkedHashMap<>();
+            for (LaunchInput input : launchInputs) {
+                String stored = resolve.apply(input.name);
+                effective.put(input.name, stored != null ? stored : input.fallback);
+            }
+            for (int index = 0; index < trees.size(); index++) {
+                Tree tree = trees.get(index); boolean match = true;
+                for (LaunchInput input : launchInputs) {
+                    Object bound = tree.bind.get(input.name); String expected = effective.get(input.name);
+                    if (expected == null ? bound != null : !expected.equals(bound)) { match = false; break; }
+                }
+                if (match) return index;
+            }
+            return null;
+        }
+        public Tree select(java.util.function.Function<String, String> resolve) {
+            Integer index = selectIndex(resolve);
+            return index == null ? null : trees.get(index);
+        }
+        public List<Map<String, Object>> visualNodes() {
+            require(launchInputs.isEmpty(), "visual projection requires tree selection");
+            return trees.get(0).visualNodes();
         }
         /** Inclusive bounds; false selects ordinary rendering before native allocation. */
         public boolean supports(double fontScale, double width, double height, boolean reducedMotion,
@@ -220,13 +276,13 @@ public final class StartupArtifact {
         for (int child : node.children) expected = visit(nodes, child, expected);
         return expected;
     }
-    private static Snapshot validate(Object value, int count, String build, String platform) {
-        Map<String, Object> root = object(value);
-        keys(root, "version", "platform", "hostContract", "build", "seed", "constraints", "nodes", "variants");
-        require(number(root.get("version")) == 1 && "mason-label-v1".equals(root.get("hostContract")), "schema or host contract");
-        require(build.equals(root.get("build")) && platform.equals(root.get("platform")), "artifact/app identity");
-        object(root.get("seed")); literalBounds(root.get("seed"), 0, new int[]{100000});
-        List<?> records = list(root.get("nodes")); require(records.size() == count, "header node count");
+    private static final class NodeList {
+        final List<Node> nodes;
+        final List<Integer> visual;
+        NodeList(List<Node> nodes, List<Integer> visual) { this.nodes = nodes; this.visual = visual; }
+    }
+    private static NodeList nodes(Object value) {
+        List<?> records = list(value); require(records.size() >= 1 && records.size() <= 1024, "node count");
         List<Node> nodes = new ArrayList<>(); List<Integer> visual = new ArrayList<>();
         for (int index = 0; index < records.size(); index++) {
             Map<String, Object> row = object(records.get(index)); keys(row, "index", "path", "parent", "kind", "props");
@@ -245,6 +301,57 @@ public final class StartupArtifact {
             if (!kind.equals("#text")) visual.add(index);
         }
         require(visit(nodes, 0, 0) == nodes.size(), "unreachable node");
+        return new NodeList(nodes, visual);
+    }
+    private static Map<String, Object> variants(Object value, List<Integer> visual, int count) {
+        Map<String, Object> variants = object(value); keys(variants, "light", "dark");
+        Map<String, Object> normalizedVariants = new LinkedHashMap<>();
+        for (String theme : new String[]{"light", "dark"}) {
+            List<?> rows = list(variants.get(theme)); require(rows.size() == visual.size(), "variant node count");
+            List<Object> normalized = new ArrayList<>();
+            for (int index = 0; index < rows.size(); index++) {
+                Map<String, Object> row = object(rows.get(index)); keys(row, "node", "style", "cssKeys", "inheritedKeys");
+                require(integer(row.get("node"), 0, count - 1) == visual.get(index), "style node identity");
+                style(row.get("style")); Map<String, Object> style = object(row.get("style"));
+                Map<String, Object> copy = new LinkedHashMap<>(row);
+                copy.put("cssKeys", provenance(row.get("cssKeys"), style)); copy.put("inheritedKeys", provenance(row.get("inheritedKeys"), style));
+                normalized.add(Collections.unmodifiableMap(copy));
+            }
+            normalizedVariants.put(theme, Collections.unmodifiableList(normalized));
+        }
+        return Collections.unmodifiableMap(normalizedVariants);
+    }
+    private static List<LaunchInput> launchInputs(Object value) {
+        List<?> input = list(value); require(input.size() >= 1 && input.size() <= 8, "launch inputs");
+        Set<String> seen = new HashSet<>(); List<LaunchInput> result = new ArrayList<>();
+        for (Object item : input) {
+            Map<String, Object> row = object(item); keys(row, "name", "source", "values", "default");
+            String name = text(row.get("name"));
+            require(name.length() <= 128 && name.chars().allMatch(code -> code >= 0x20 && code <= 0x7e) && seen.add(name), "launch input name");
+            require("appSettings.string".equals(row.get("source")), "launch input source");
+            List<?> values = list(row.get("values")); require(values.size() >= 1 && values.size() <= 4, "launch input values");
+            List<String> domain = new ArrayList<>();
+            for (Object item2 : values) { String entry = text(item2); require(!domain.contains(entry), "duplicate launch input value"); domain.add(entry); }
+            Object fallback = row.get("default");
+            String effective = null;
+            if (fallback instanceof String) { require(domain.contains(fallback), "launch input default"); effective = (String) fallback; }
+            else require(fallback == null && row.containsKey("default"), "launch input default");
+            result.add(new LaunchInput(name, domain, effective));
+        }
+        int product = 1;
+        for (LaunchInput input2 : result) product *= input2.values.size() + (input2.fallback == null ? 1 : 0);
+        require(product <= 8, "launch input product");
+        return result;
+    }
+    private static Snapshot validate(Object value, int count, String build, String platform, boolean layered) {
+        Map<String, Object> root = object(value);
+        boolean layeredKeys = root.containsKey("launchInputs") || root.containsKey("trees");
+        require(layeredKeys == layered, "binary launch flags");
+        if (layered) keys(root, "version", "platform", "hostContract", "build", "seed", "constraints", "launchInputs", "trees");
+        else keys(root, "version", "platform", "hostContract", "build", "seed", "constraints", "nodes", "variants");
+        require(number(root.get("version")) == 1 && "mason-label-v1".equals(root.get("hostContract")), "schema or host contract");
+        require(build.equals(root.get("build")) && platform.equals(root.get("platform")), "artifact/app identity");
+        object(root.get("seed")); literalBounds(root.get("seed"), 0, new int[]{100000});
         List<?> constraints = list(root.get("constraints")); require(constraints.size() <= 8, "constraint count");
         Set<String> seen = new HashSet<>();
         for (Object item : constraints) {
@@ -262,24 +369,48 @@ public final class StartupArtifact {
             }
         }
         require(seen.contains("fontScale"), "font scale preflight required");
-        Map<String, Object> variants = object(root.get("variants")); keys(variants, "light", "dark");
-        Map<String, Object> normalizedVariants = new LinkedHashMap<>();
-        for (String theme : new String[]{"light", "dark"}) {
-            List<?> rows = list(variants.get(theme)); require(rows.size() == visual.size(), "variant node count");
-            List<Object> normalized = new ArrayList<>();
-            for (int index = 0; index < rows.size(); index++) {
-                Map<String, Object> row = object(rows.get(index)); keys(row, "node", "style", "cssKeys", "inheritedKeys");
-                require(integer(row.get("node"), 0, count - 1) == visual.get(index), "style node identity");
-                style(row.get("style")); Map<String, Object> style = object(row.get("style"));
-                Map<String, Object> copy = new LinkedHashMap<>(row);
-                copy.put("cssKeys", provenance(row.get("cssKeys"), style)); copy.put("inheritedKeys", provenance(row.get("inheritedKeys"), style));
-                normalized.add(Collections.unmodifiableMap(copy));
-            }
-            normalizedVariants.put(theme, Collections.unmodifiableList(normalized));
-        }
+        List<LaunchInput> launchInputs = new ArrayList<>(); List<Tree> trees = new ArrayList<>();
         Map<String, Object> normalizedRoot = new LinkedHashMap<>(root);
-        normalizedRoot.put("variants", Collections.unmodifiableMap(normalizedVariants));
-        return new Snapshot(Collections.unmodifiableMap(normalizedRoot), nodes);
+        if (layered) {
+            launchInputs = launchInputs(root.get("launchInputs"));
+            int product = 1;
+            for (LaunchInput input : launchInputs) product *= input.values.size() + (input.fallback == null ? 1 : 0);
+            List<?> input = list(root.get("trees")); require(input.size() == product, "tree count");
+            Set<String> binds = new HashSet<>(); List<Object> normalizedTrees = new ArrayList<>(); int total = 0;
+            for (Object item : input) {
+                Map<String, Object> row = object(item); keys(row, "bind", "nodes", "variants");
+                Map<String, Object> bind = object(row.get("bind"));
+                String[] names = launchInputs.stream().map(entry -> entry.name).toArray(String[]::new);
+                keys(bind, names);
+                StringBuilder canonical = new StringBuilder();
+                for (LaunchInput declared : launchInputs) {
+                    Object bound = bind.get(declared.name);
+                    if (bound instanceof String) {
+                        require(declared.values.contains(bound), "tree bind value outside declared domain");
+                        canonical.append(declared.name).append("=\"").append(bound).append("\";");
+                    } else {
+                        require(bound == null && declared.fallback == null, "tree bind value outside declared domain");
+                        canonical.append(declared.name).append("=null;");
+                    }
+                }
+                require(binds.add(canonical.toString()), "duplicate tree bind");
+                NodeList treeNodes = nodes(row.get("nodes")); total += treeNodes.nodes.size();
+                require(total <= count, "tree node count");
+                Map<String, Object> treeVariants = variants(row.get("variants"), treeNodes.visual, treeNodes.nodes.size());
+                Map<String, Object> normalized = new LinkedHashMap<>();
+                normalized.put("bind", bind); normalized.put("nodes", row.get("nodes")); normalized.put("variants", treeVariants);
+                normalizedTrees.add(Collections.unmodifiableMap(normalized));
+                trees.add(new Tree(bind, treeNodes.nodes, treeVariants, Collections.unmodifiableMap(normalized)));
+            }
+            require(total == count, "header node count");
+            normalizedRoot.put("trees", Collections.unmodifiableList(normalizedTrees));
+        } else {
+            NodeList flat = nodes(root.get("nodes")); require(flat.nodes.size() == count, "header node count");
+            Map<String, Object> flatVariants = variants(root.get("variants"), flat.visual, flat.nodes.size());
+            trees.add(new Tree(Collections.emptyMap(), flat.nodes, flatVariants, Collections.emptyMap()));
+            normalizedRoot.put("variants", flatVariants);
+        }
+        return new Snapshot(Collections.unmodifiableMap(normalizedRoot), launchInputs, trees);
     }
     private static final class Reader {
         final ByteBuffer bytes; int values;
@@ -327,7 +458,9 @@ public final class StartupArtifact {
         require(expectedBuild != null && expectedBuild.matches("[0-9a-f]{64}") && Arrays.asList("ios", "android").contains(expectedPlatform), "expected identity");
         byte[] data = Arrays.copyOf(input, input.length); Reader reader = new Reader(data);
         require(Arrays.equals(reader.take(4), new byte[]{'X', 'P', 'I', '1'}), "binary magic");
-        reader.need(4); require(reader.bytes.getShort() == 1 && reader.bytes.getShort() == 0 && reader.uint() == data.length, "binary version, flags or length");
+        reader.need(2); require(reader.bytes.getShort() == 1, "binary version");
+        reader.need(2); int flags = reader.bytes.getShort(); require(flags == 0 || flags == 1, "binary flags");
+        require(reader.uint() == data.length, "binary length");
         int count = reader.count(1024); require(count > 0, "node count");
         require(hex(reader.take(32)).equals(expectedBuild), "binary build identity");
         byte[] checksum = reader.take(32);
@@ -336,6 +469,6 @@ public final class StartupArtifact {
             require(MessageDigest.isEqual(checksum, sha.digest()), "payload checksum");
         } catch (NoSuchAlgorithmException error) { throw new IllegalStateException(error); }
         Object value = reader.literal(0); require(!reader.bytes.hasRemaining(), "trailing bytes");
-        return validate(value, count, expectedBuild, expectedPlatform);
+        return validate(value, count, expectedBuild, expectedPlatform, flags == 1);
     }
 }

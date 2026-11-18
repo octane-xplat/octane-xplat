@@ -1,5 +1,12 @@
 import { createHash } from 'node:crypto'
-import { ARTIFACT_LIMITS, integer, record, requireArtifact, validateArtifact } from './schema.ts'
+import {
+  ARTIFACT_LIMITS,
+  artifactNodeCount,
+  integer,
+  record,
+  requireArtifact,
+  validateArtifact,
+} from './schema.ts'
 import type { StartupArtifact, Literal, LiteralObject } from './schema.ts'
 
 export type ArtifactIdentity = { build: string; platform: 'ios' | 'android' }
@@ -67,8 +74,10 @@ export function encodeStartupArtifact(input: unknown): Uint8Array {
   const header = Buffer.alloc(HEADER_BYTES)
   header.write('XPI1')
   header.writeUInt16LE(1, 4)
+  // Flag bit 0: the payload carries launchInputs/trees instead of flat nodes.
+  header.writeUInt16LE(artifact.trees ? 1 : 0, 6)
   header.writeUInt32LE(bytes, 8)
-  header.writeUInt32LE(artifact.nodes.length, 12)
+  header.writeUInt32LE(artifactNodeCount(artifact), 12)
   Buffer.from(artifact.build, 'hex').copy(header, 16)
   digest(payload).copy(header, 48)
   return Buffer.concat([header, payload])
@@ -91,10 +100,11 @@ export function decodeStartupArtifact(
     'artifact byte length',
   )
   const data = Buffer.from(input)
+  const flags = data.readUInt16LE(6)
   requireArtifact(
     data.subarray(0, 4).equals(Buffer.from('XPI1')) &&
       data.readUInt16LE(4) === 1 &&
-      data.readUInt16LE(6) === 0,
+      (flags === 0 || flags === 1),
     'binary version or required flags',
   )
   requireArtifact(data.readUInt32LE(8) === data.length, 'binary length')
@@ -152,8 +162,10 @@ export function decodeStartupArtifact(
   }
   const artifact = validateArtifact(literal(0))
   requireArtifact(
-    offset === data.length && artifact.nodes.length === count,
-    'trailing bytes or header node count',
+    offset === data.length &&
+      artifactNodeCount(artifact) === count &&
+      (artifact.trees !== undefined) === (flags === 1),
+    'trailing bytes, header node count or launch flags',
   )
   identity(artifact, expected)
   return artifact

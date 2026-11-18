@@ -1,4 +1,4 @@
-import type { LiteralObject, StartupArtifact } from '@octane-xplat/native-prerender'
+import type { LaunchInput, LiteralObject, StartupArtifact } from '@octane-xplat/native-prerender'
 
 export type NativeStartupEnvironment = { width: number; height: number; reducedMotion: boolean }
 export type NativeStartupConfiguration = {
@@ -6,6 +6,7 @@ export type NativeStartupConfiguration = {
   exportName: string
   seed: LiteralObject
   environment: NativeStartupEnvironment
+  launchInputs?: LaunchInput[]
 }
 
 export type NativeStartupBuildOptions = {
@@ -27,11 +28,13 @@ export type NativeStartupManifest = {
   buildHash: string
   warnings: string[]
   nativeImports: { importer: string | undefined; request: string }[]
-  nativeReads: Record<'light' | 'dark', string[]>
+  /** `light`/`dark` keys without launch inputs; `name=value/.../theme` keys with them. */
+  nativeReads: Record<string, string[]>
   registrations: string[]
   startupFormat: 'XPI1'
   dimensionQueries: string[]
   startupArtifactHash: string
+  /** Total logical nodes across the artifact (all trees when launch inputs exist). */
   logicalNodeCount: number
   scope: string
 }

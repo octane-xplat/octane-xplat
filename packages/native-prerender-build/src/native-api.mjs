@@ -1,6 +1,7 @@
 // Build-host capabilities for the supported mobile render host, not a NativeScript substitute.
 // Unavailable services and constructors fail if render or module setup uses them.
 let theme
+let settingsBind
 const reads = []
 const registrations = new Set()
 function rejectWrite() {
@@ -74,6 +75,42 @@ export const Application = new Proxy(Object.create(null), {
 
 export const isIOS = platform === 'ios'
 export const isAndroid = platform === 'android'
+/**
+ * Launch-input read surface mirroring real `ApplicationSettings.getString`:
+ * returns the persisted value for the key or the caller's default when the key
+ * is absent. The producer only "persists" declared launch inputs — each one is
+ * bound to one point of its declared domain per render variant — so any other
+ * key is an undeclared read and rejects. Every write and every other member is
+ * unsupported, matching the real object's role at startup: a persisted-read
+ * input, never state the app mutates before mount.
+ */
+export const ApplicationSettings = new Proxy(Object.create(null), {
+  set: rejectWrite,
+  defineProperty: rejectWrite,
+  deleteProperty: rejectWrite,
+  setPrototypeOf: rejectWrite,
+  get(_target, key) {
+    if (key === 'getString') {
+      return (name, defaultValue) => {
+        if (!settingsBind) {
+          throw new Error(
+            'Native startup producer: native environment read during module setup',
+          )
+        }
+        if (typeof name !== 'string' || !Object.hasOwn(settingsBind, name)) {
+          throw new Error(
+            'Native startup producer: undeclared ApplicationSettings read ' + String(name),
+          )
+        }
+        reads.push('ApplicationSettings.getString:' + name)
+        return settingsBind[name] ?? defaultValue
+      }
+    }
+    throw new Error(
+      'Native startup producer: unsupported native read ApplicationSettings.' + String(key),
+    )
+  },
+})
 export const Screen = unavailable('Screen')
 export const Device = unavailable('Device')
 export const knownFolders = unavailable('knownFolders')
@@ -124,7 +161,7 @@ export function registerElement(name, factory) {
 
 let safeAreaInsets
 
-export function configureNativeBuildHost(value, environment) {
+export function configureNativeBuildHost(value, environment, bind) {
   if (theme || !['light', 'dark'].includes(value)) {
     throw new Error('Native startup producer: invalid or repeated environment initialization')
   }
@@ -161,6 +198,10 @@ export function configureNativeBuildHost(value, environment) {
     })
   }
 
+  // Declared launch-input values for this render variant. An absent bind still
+  // configures the gate so post-setup reads report "undeclared" rather than
+  // "during module setup".
+  settingsBind = Object.freeze({ ...bind })
   theme = value
 }
 

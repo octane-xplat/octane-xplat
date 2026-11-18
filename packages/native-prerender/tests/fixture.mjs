@@ -64,6 +64,28 @@ export function fixture(texts) {
     ),
   }
 }
+export function treesFixture(texts) {
+  const flat = fixture(texts)
+  const { nodes, variants, ...rest } = flat
+  const launchInputs = [
+    {
+      name: 'theme-preference',
+      source: 'appSettings.string',
+      values: ['dark', 'light'],
+      default: null,
+    },
+  ]
+  const trees = ['dark', 'light', null].map((value) => ({
+    bind: { 'theme-preference': value },
+    nodes: nodes.map((node) =>
+      node.index === 0
+        ? { ...node, props: { ...node.props, className: value == null ? 'app' : 'app ' + value } }
+        : node,
+    ),
+    variants,
+  }))
+  return { ...rest, launchInputs, trees }
+}
 export function resign(data) {
   const result = Buffer.from(data)
   result.writeUInt32LE(result.length, 8)

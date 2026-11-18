@@ -78,26 +78,53 @@ if (producer) {
   const build = JSON.parse(readFileSync(join(producer, 'build.json'), 'utf8'))
   assert.equal(build.platform, 'android', 'Expected an Android producer artifact')
   const expected = JSON.parse(readFileSync(join(producer, 'resolved.json'), 'utf8'))
-  const decoded = run(
-    join(resolve(javaHome), 'bin/java'),
-    [
-      '-cp',
-      classes,
-      'org.octanexplat.prerenderandroid.HomeArtifactCheck',
-      join(producer, 'startup.bin'),
-      build.buildHash,
-    ],
-    process.env,
-    false,
-  )
-  const { scope, ...projection } = expected
-  for (const rows of Object.values(projection.variants))
-    for (const row of rows) {
-      row.cssKeys.sort()
-      row.inheritedKeys.sort()
+  const sortRows = (projection) => {
+    for (const rows of Object.values(projection.variants))
+      for (const row of rows) {
+        row.cssKeys.sort()
+        row.inheritedKeys.sort()
+      }
+    return projection
+  }
+  const java = join(resolve(javaHome), 'bin/java')
+  const reader = (pairs) => [
+    '-cp',
+    classes,
+    'org.octanexplat.prerenderandroid.HomeArtifactCheck',
+    join(producer, 'startup.bin'),
+    build.buildHash,
+    ...pairs,
+  ]
+  if (expected.trees) {
+    // Each bind's resolver arguments are its non-null launch-input values; a
+    // null bind resolves through the absent-key declaration default.
+    for (const tree of expected.trees) {
+      const pairs = Object.entries(tree.bind)
+        .filter(([, value]) => value !== null)
+        .map(([name, value]) => name + '=' + value)
+      const decoded = run(java, reader(pairs), process.env, false)
+      const { bind, placeholders, ...projection } = tree
+      assert.deepEqual(
+        JSON.parse(decoded),
+        sortRows({ seed: expected.seed, ...projection }),
+        'Bind ' + JSON.stringify(bind),
+      )
     }
-  assert.deepEqual(JSON.parse(decoded), projection)
-  console.log('Actual Android producer binary matches its complete semantic projection')
+    // A persisted value outside the declared domain must select nothing.
+    const outside = spawnSync(
+      java,
+      reader([build.configuration.launchInputs[0].name + '=__outside_domain__']),
+      { encoding: 'utf8', timeout: 15000 },
+    )
+    assert.equal(outside.status, 1, 'Out-of-domain value selected a tree')
+    assert.match(outside.stderr, /outside declared domain/)
+    console.log('Actual Android producer binary matches every bind projection')
+  } else {
+    const decoded = run(java, reader([]), process.env, false)
+    const { scope, ...projection } = expected
+    assert.deepEqual(JSON.parse(decoded), sortRows(projection))
+    console.log('Actual Android producer binary matches its complete semantic projection')
+  }
 }
 for (const [path, digest] of Object.entries(inputHashes))
   if (hash(path) !== digest) throw new Error('Codec source changed during checks: ' + path)

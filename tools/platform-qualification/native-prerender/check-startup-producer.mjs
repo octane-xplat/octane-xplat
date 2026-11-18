@@ -20,36 +20,61 @@ assert.deepEqual(
   artifact,
   readStartupJson(readFileSync(join(root, 'startup.json'), 'utf8'), identity),
 )
-assert.deepEqual(plain(artifact.nodes), json('light-tree.json').logicalNodes)
-assert.deepEqual(json('light-tree.json').logicalNodes, json('dark-tree.json').logicalNodes)
-assert.equal(artifact.nodes.length, manifest.logicalNodeCount)
-const visual = projectVisualTree(artifact.nodes)
 const previous = json('resolved.json')
-assert.deepEqual(plain(visual.map(({ logicalNode, ...node }) => node)), previous.nodes)
-for (const theme of ['light', 'dark']) {
-  const canonical = (records) =>
-    records.map((record) => ({
-      ...plain(record),
-      cssKeys: [...record.cssKeys].sort(),
-      inheritedKeys: [...record.inheritedKeys].sort(),
-    }))
+const canonical = (records) =>
+  records.map((record) => ({
+    ...plain(record),
+    cssKeys: [...record.cssKeys].sort(),
+    inheritedKeys: [...record.inheritedKeys].sort(),
+  }))
+// Flat artifacts have one implicit tree; launch-input artifacts check every
+// bind's prepared tree pair and resolved cascade independently.
+const trees = artifact.trees ?? [{ bind: null, nodes: artifact.nodes, variants: artifact.variants }]
+const resolvedTrees = previous.trees ?? [previous]
+assert.equal(trees.length, resolvedTrees.length)
+let logicalTotal = 0
+let visualTotal = 0
+for (const [index, tree] of trees.entries()) {
+  logicalTotal += tree.nodes.length
+  if (artifact.trees) {
+    assert.deepEqual(plain(tree.nodes), json('tree-' + index + '-light.json').logicalNodes)
+    assert.deepEqual(
+      json('tree-' + index + '-light.json').logicalNodes,
+      json('tree-' + index + '-dark.json').logicalNodes,
+    )
+    assert.deepEqual(plain(tree.bind), resolvedTrees[index].bind)
+  } else {
+    assert.deepEqual(plain(tree.nodes), json('light-tree.json').logicalNodes)
+    assert.deepEqual(json('light-tree.json').logicalNodes, json('dark-tree.json').logicalNodes)
+  }
+  const visual = projectVisualTree(tree.nodes)
+  visualTotal += visual.length
   assert.deepEqual(
-    canonical(
-      artifact.variants[theme].map(({ node, ...record }, index) => {
-        assert.equal(node, visual[index].logicalNode)
-        return { index, ...record }
-      }),
-    ),
-    canonical(previous.variants[theme]),
+    plain(visual.map(({ logicalNode, ...node }) => node)),
+    resolvedTrees[index].nodes,
   )
+  for (const theme of ['light', 'dark']) {
+    assert.deepEqual(
+      canonical(
+        tree.variants[theme].map(({ node, ...record }, row) => {
+          assert.equal(node, visual[row].logicalNode)
+          return { index: row, ...record }
+        }),
+      ),
+      canonical(resolvedTrees[index].variants[theme]),
+    )
+  }
 }
+assert.equal(logicalTotal, manifest.logicalNodeCount)
 console.log(
   JSON.stringify(
     {
       passed: true,
       platform: artifact.platform,
-      logicalNodes: artifact.nodes.length,
-      visualNodes: visual.length,
+      trees: trees.length,
+      binds: trees.map((tree) => tree.bind),
+      logicalNodes: logicalTotal,
+      visualNodes: visualTotal,
       bytes: bytes.length,
       build: artifact.build,
       scope:

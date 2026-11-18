@@ -1,5 +1,5 @@
 import { requireArtifact } from './schema.ts'
-import type { SafeAreaInsetInput, StartupArtifact } from './schema.ts'
+import type { LiteralObject, SafeAreaInsetInput, StartupArtifact, StartupTree } from './schema.ts'
 
 export type SafeAreaInsets = { top: number; right: number; bottom: number; left: number }
 export type LaunchEnvironment = {
@@ -52,4 +52,40 @@ export function checkLaunchEnvironment(
     }
   }
   return { supported: true }
+}
+
+/**
+ * Resolve declared launch inputs and pick the matching prerendered tree.
+ * `resolve` returns the persisted value for a declared input name, or
+ * `null`/`undefined` when the key is absent; an absent key resolves to the
+ * declaration's `default`. Returns `null` when the effective values match no
+ * bind — callers must fall back to JavaScript boot, never pick another tree.
+ * For flat artifacts (no launch inputs) the resolver is never invoked.
+ */
+export function selectLaunchTree(
+  artifact: StartupArtifact,
+  resolve: (name: string) => string | null | undefined,
+): StartupTree | null {
+  if (!artifact.trees) {
+    return {
+      bind: Object.create(null) as LiteralObject,
+      nodes: artifact.nodes,
+      variants: artifact.variants,
+    }
+  }
+  const launchInputs = artifact.launchInputs
+  const effective = Object.create(null) as Record<string, string | null>
+  for (const input of launchInputs) {
+    const stored = resolve(input.name)
+    requireArtifact(
+      stored === null || stored === undefined || typeof stored === 'string',
+      'launch input resolution must return a string or null',
+    )
+    effective[input.name] = stored ?? input.default
+  }
+  return (
+    artifact.trees.find((tree) =>
+      launchInputs.every((input) => tree.bind[input.name] === effective[input.name]),
+    ) ?? null
+  )
 }

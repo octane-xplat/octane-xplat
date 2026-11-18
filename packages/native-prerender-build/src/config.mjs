@@ -17,10 +17,14 @@ export function parseProducerConfig(text, file) {
   const fields = ['version', 'entry', 'exportName', 'seed', 'environment']
 
   if (
-    Object.keys(value).length !== fields.length ||
-    fields.some((key) => !Object.hasOwn(value, key))
+    fields.some((key) => !Object.hasOwn(value, key)) ||
+    Object.keys(value).some((key) => ![...fields, 'launchInputs'].includes(key))
   ) {
-    throw new Error('Producer configuration requires exactly ' + fields.join(', '))
+    throw new Error(
+      'Producer configuration requires exactly ' +
+        fields.join(', ') +
+        ' plus optional launchInputs',
+    )
   }
 
   if (value.version !== 1) {
@@ -70,10 +74,80 @@ export function parseProducerConfig(text, file) {
     }
   }
 
+  const launchInputs = parseLaunchInputs(value.launchInputs)
+
   return {
     entry: resolve(dirname(file), value.entry),
     exportName: value.exportName,
     seed: value.seed,
     environment,
+    ...(launchInputs ? { launchInputs } : {}),
   }
+}
+
+/**
+ * Declared persisted inputs the producer renders a launch tree for. The first
+ * cut is bounded: enum-string reads from the ApplicationSettings store only,
+ * at most four declared values per input, and the Cartesian product across
+ * inputs (including each null default's absent-key point) must stay at or
+ * below eight rendered trees.
+ */
+function parseLaunchInputs(input) {
+  if (input === undefined) {
+    return undefined
+  }
+
+  if (!Array.isArray(input) || input.length < 1 || input.length > 8) {
+    throw new Error('Producer launchInputs must declare 1..8 inputs')
+  }
+
+  const names = new Set()
+  const launchInputs = input.map((candidate) => {
+    if (
+      candidate === null ||
+      typeof candidate !== 'object' ||
+      Array.isArray(candidate) ||
+      Object.keys(candidate).sort().join(',') !== 'default,name,source,values'
+    ) {
+      throw new Error('Producer launch input requires name, source, values and default')
+    }
+
+    const name = candidate.name
+    if (typeof name !== 'string' || !/^[\x20-\x7e]{1,128}$/.test(name) || names.has(name)) {
+      throw new Error('Producer launch input names must be unique printable ASCII strings')
+    }
+    names.add(name)
+
+    if (candidate.source !== 'appSettings.string') {
+      throw new Error("Producer launch input source must be 'appSettings.string'")
+    }
+
+    const values = candidate.values
+    if (
+      !Array.isArray(values) ||
+      values.length < 1 ||
+      values.length > 4 ||
+      values.some((value) => typeof value !== 'string' || value.length > 256) ||
+      new Set(values).size !== values.length
+    ) {
+      throw new Error('Producer launch input values must be 1..4 unique strings')
+    }
+
+    const fallback = candidate.default
+    if (fallback !== null && !values.includes(fallback)) {
+      throw new Error('Producer launch input default must be one of values or null')
+    }
+
+    return { name, source: 'appSettings.string', values: [...values], default: fallback }
+  })
+
+  const product = launchInputs.reduce(
+    (count, item) => count * (item.values.length + (item.default === null ? 1 : 0)),
+    1,
+  )
+  if (product > 8) {
+    throw new Error('Producer launch input Cartesian product exceeds eight trees')
+  }
+
+  return launchInputs
 }

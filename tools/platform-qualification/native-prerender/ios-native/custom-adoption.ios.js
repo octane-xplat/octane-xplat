@@ -1,5 +1,5 @@
 import '@nativescript/core/globals'
-import { Application, Utils } from '@nativescript/core'
+import { Application, ApplicationSettings, Utils } from '@nativescript/core'
 import { Scroll } from '@octane-xplat/nativescript-mason-core/scroll'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
@@ -8,6 +8,7 @@ import {
   prepareFirstFrame,
   projectPreparedTree,
   projectVisualTree,
+  selectLaunchTree,
 } from '@octane-xplat/native-prerender'
 import { bindIOSMasonTree } from '@octane-xplat/native-prerender/ios/mason-binding'
 import { writeProbeDiagnostic } from './write-native-diagnostic.ios.js'
@@ -54,6 +55,26 @@ const nativeSnapshot = JSON.parse(
       null,
     ),
   ),
+)
+
+// The Swift mount resolves the same persisted inputs before engine init;
+// re-selecting here must land on the identical bind or the cold mount and the
+// live prepared tree would compare different topologies. Absent keys resolve
+// to each declaration's default; hasKey keeps an absent key distinct from a
+// stored empty string.
+const tree = selectLaunchTree(startup, (name) =>
+  ApplicationSettings.hasKey(name) ? ApplicationSettings.getString(name) : null,
+)
+check(tree, 'Persisted launch inputs selected no startup tree')
+const canonicalBind = (bind) =>
+  JSON.stringify(
+    Object.keys(bind ?? {})
+      .sort()
+      .map((name) => [name, bind[name]]),
+  )
+check(
+  canonicalBind(tree.bind) === canonicalBind(nativeSnapshot.bind),
+  'Live launch bind differs from the mounted tree',
 )
 
 function snapshotJson(root) {
@@ -114,7 +135,7 @@ async function qualify() {
 
   check(scheme === nativeSnapshot.theme, 'Native/live configured theme differs')
 
-  const visual = projectVisualTree(startup.nodes)
+  const visual = projectVisualTree(tree.nodes)
   const placeholderIndexes = new Set(
     visual.flatMap((row, index) => (row.kind === 'placeholder' ? [index] : [])),
   )
@@ -150,7 +171,7 @@ async function qualify() {
 
   const css = sheets.map((sheet) => sheet.css).join('\n')
   const className = 'ns-root ' + (scheme === 'dark' ? 'ns-dark' : 'xds-light')
-  const binding = bindIOSMasonTree(startup.nodes, viewport, natives)
+  const binding = bindIOSMasonTree(tree.nodes, viewport, natives)
   const { host, wrappers, claims } = binding
 
   // Adopted views keep the cold-mounted frames exactly: overflow is needed
@@ -185,11 +206,11 @@ async function qualify() {
   check(prepared.status === 'prepared', 'Startup prepare suspended')
 
   const projected = projectPreparedTree(prepared.batch.commands).nodes
-  if (JSON.stringify(projected) !== JSON.stringify(startup.nodes)) {
+  if (JSON.stringify(projected) !== JSON.stringify(tree.nodes)) {
     const diffs = []
-    for (let index = 0; index < Math.max(projected.length, startup.nodes.length); index++) {
-      if (JSON.stringify(projected[index]) !== JSON.stringify(startup.nodes[index])) {
-        diffs.push({ index, cold: startup.nodes[index], live: projected[index] })
+    for (let index = 0; index < Math.max(projected.length, tree.nodes.length); index++) {
+      if (JSON.stringify(projected[index]) !== JSON.stringify(tree.nodes[index])) {
+        diffs.push({ index, cold: tree.nodes[index], live: projected[index] })
       }
     }
     check(false, 'Prepared nodes differ: ' + JSON.stringify(diffs.slice(0, 3)))
@@ -314,14 +335,14 @@ async function qualify() {
     initialClaims: claims.claimedCount,
     replacedClaims: claims.replacedCount,
     factoryCalls: claims.factoryCalls,
-    logicalNodes: startup.nodes.length,
+    logicalNodes: tree.nodes.length,
     replacements,
     motionAlpha,
   })
 
   // Spin the hydration marker now that the live tree owns the screen; the
   // cold mount draws it statically, so rotation marks the hydration seam.
-  const spinnerIndex = projectVisualTree(startup.nodes).findIndex(
+  const spinnerIndex = projectVisualTree(tree.nodes).findIndex(
     (node) => node.props.id === 'hydration-spinner',
   )
   const spinner = spinnerIndex >= 0 ? wrappers[spinnerIndex]?.nativeViewProtected : undefined

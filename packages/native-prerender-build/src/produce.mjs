@@ -6,7 +6,7 @@ import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { parse, walk } from 'css-tree'
-import { validateArtifact } from '@octane-xplat/native-prerender'
+import { artifactNodeCount, validateArtifact } from '@octane-xplat/native-prerender'
 import { encodeStartupArtifact, writeStartupJson } from '@octane-xplat/native-prerender/codec'
 import { parseProducerConfig } from './config.mjs'
 import {
@@ -15,6 +15,18 @@ import {
   motionModules,
   packageRoot,
 } from './project-dependencies.mjs'
+
+/** Every declared-input bind point: each declared value plus the null point when its default is null. */
+function bindPoints(launchInputs) {
+  let points = [{}]
+  for (const input of launchInputs) {
+    const domain = [...input.values, ...(input.default === null ? [null] : [])]
+    points = points.flatMap((point) =>
+      domain.map((value) => ({ ...point, [input.name]: value })),
+    )
+  }
+  return points
+}
 
 /** Compile one deterministic initial screen using the selected project's toolchain. */
 export async function produceNativeStartup({ projectDir, configurationFile, outputDir, platform }) {
@@ -201,6 +213,24 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
               )
             }
 
+            // The real platform package's storage leaf wires lifecycle writes
+            // at module evaluation, which the build host correctly rejects.
+            // The startup facade exposes only the launch-input read seam:
+            // storage.getString resolves through the build host's bounded
+            // ApplicationSettings; every write/other member rejects.
+            if (id === '\0xplat-platform') {
+              return [
+                `import { ApplicationSettings } from ${JSON.stringify(join(source, 'native-api.mjs'))}`,
+                "const write = () => { throw new Error('Native startup producer: native state writes unsupported') }",
+                'export const storage = {',
+                '  getString: (key) => ApplicationSettings.getString(key) ?? null,',
+                '  setString: write,',
+                '  remove: write,',
+                '  flush: write,',
+                '}',
+              ].join('\n')
+            }
+
             if (id.startsWith(cssPrefix)) {
               const path = Buffer.from(id.slice(cssPrefix.length), 'base64url').toString('utf8')
 
@@ -286,6 +316,10 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
 
             if (request === 'octane' || request.startsWith('octane/')) {
               return toolchain.resolve(request === 'octane' ? 'octane/universal/native' : request)
+            }
+
+            if (request === '@octane-xplat/platform') {
+              return '\0xplat-platform'
             }
 
             if (request === '@octane-xplat/ui') {
@@ -407,33 +441,42 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
   read(join(project.root, 'package.json'))
 
   const homeBundle = await bundle(join(source, 'prepare.mjs'), 'home-bundle')
-  const trees = {}
+  const launchInputs = configuration.launchInputs
 
-  for (const theme of ['light', 'dark']) {
-    const output = join(work, theme + '-tree.json')
-    const input = join(work, theme + '-input.json')
+  // One render point per declared launch-input bind crossed with light/dark.
+  // Without launchInputs a single unbound bind keeps the flat artifact path.
+  const binds = launchInputs ? bindPoints(launchInputs) : [undefined]
+  const renders = []
 
-    json(input, { theme, seed, environment, output })
-    run(homeBundle, input)
-    trees[theme] = JSON.parse(readFileSync(output, 'utf8'))
-    assert.equal(
-      trees[theme].platform,
-      platform,
-      'Build host platform differs from selected leaves',
+  for (const [bindIndex, bind] of binds.entries()) {
+    const pair = {}
+    for (const theme of ['light', 'dark']) {
+      const stem = bind ? 'tree-' + bindIndex + '-' + theme : theme + '-tree'
+      const output = join(work, stem + '.json')
+      const input = join(work, stem + '-input.json')
+
+      json(input, { theme, seed, environment, ...(bind ? { bind } : {}), output })
+      run(homeBundle, input)
+      pair[theme] = JSON.parse(readFileSync(output, 'utf8'))
+      assert.equal(
+        pair[theme].platform,
+        platform,
+        'Build host platform differs from selected leaves',
+      )
+    }
+
+    assert.deepEqual(
+      pair.light.nodes,
+      pair.dark.nodes,
+      'Theme-dependent initial host props/topology unsupported',
     )
+    assert.deepEqual(
+      pair.light.logicalNodes,
+      pair.dark.logicalNodes,
+      'Theme-dependent logical ownership unsupported',
+    )
+    renders.push({ bind, pair })
   }
-
-  assert.deepEqual(
-    trees.light.nodes,
-    trees.dark.nodes,
-    'Theme-dependent initial host props/topology unsupported',
-  )
-
-  assert.deepEqual(
-    trees.light.logicalNodes,
-    trees.dark.logicalNodes,
-    'Theme-dependent logical ownership unsupported',
-  )
 
   const warnings = []
   const sheets = [
@@ -469,28 +512,53 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
   json(join(work, 'sheets.json'), sheets)
 
   const cascadeBundle = await bundle(join(source, 'resolve.mjs'), 'cascade-bundle')
-  const output = join(work, 'resolved.json')
-  const cascadeInput = join(work, 'cascade-input.json')
 
   // Safe-area insets become launch constraints only when the prepared tree
   // actually read them; an unused declaration must not narrow adoption.
-  const consumesSafeAreaInsets = ['light', 'dark'].some((theme) =>
-    trees[theme].reads.includes('Application.safeAreaInsets'),
+  const consumesSafeAreaInsets = renders.some(({ pair }) =>
+    ['light', 'dark'].some((theme) => pair[theme].reads.includes('Application.safeAreaInsets')),
   )
 
-  json(cascadeInput, {
-    tree: join(work, 'light-tree.json'),
-    seed,
-    sheets,
-    environment,
-    consumesSafeAreaInsets,
-    output,
-  })
-  run(cascadeBundle, cascadeInput)
+  // Cascade resolution is per tree: each bind owns its logical nodes and both
+  // system-appearance style variants.
+  const resolved = []
+  for (const [bindIndex, { bind }] of renders.entries()) {
+    const suffix = bind ? '-' + bindIndex : ''
+    const output = join(work, 'resolved' + suffix + '.json')
+    const cascadeInput = join(work, 'cascade-input' + suffix + '.json')
+    json(cascadeInput, {
+      tree: join(work, (bind ? 'tree-' + bindIndex + '-light' : 'light-tree') + '.json'),
+      seed,
+      sheets,
+      environment,
+      consumesSafeAreaInsets,
+      output,
+    })
+    run(cascadeBundle, cascadeInput)
+    const { launch, ...cascaded } = JSON.parse(readFileSync(output, 'utf8'))
+    json(output, cascaded)
+    resolved.push({ launch, cascaded })
+  }
 
-  const { launch, ...artifact } = JSON.parse(readFileSync(output, 'utf8'))
+  // Constraints are a property of the fixed environment, not of a bind; every
+  // tree must resolve to the same launch predicate.
+  const launch = resolved[0].launch
+  for (const item of resolved.slice(1)) {
+    assert.deepEqual(item.launch, launch, 'Launch constraints differ across launch-input binds')
+  }
 
-  json(output, artifact)
+  if (launchInputs) {
+    json(join(work, 'resolved.json'), {
+      scope: resolved[0].cascaded.scope,
+      seed,
+      trees: renders.map(({ bind }, index) => ({
+        bind,
+        nodes: resolved[index].cascaded.nodes,
+        variants: resolved[index].cascaded.variants,
+        placeholders: resolved[index].cascaded.placeholders,
+      })),
+    })
+  }
 
   const bundleHashes = Object.fromEntries(
     [homeBundle, cascadeBundle].map((path) => [
@@ -511,8 +579,24 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
   }
 
   const buildHash = createHash('sha256').update(JSON.stringify(binding)).digest('hex')
-  const logicalNodes = trees.light.logicalNodes
-  const visualNodes = logicalNodes.filter((node) => node.kind !== '#text')
+
+  function treePart(pair, cascaded) {
+    const logicalNodes = pair.light.logicalNodes
+    const visualNodes = logicalNodes.filter((node) => node.kind !== '#text')
+    return {
+      nodes: logicalNodes,
+      variants: Object.fromEntries(
+        ['light', 'dark'].map((theme) => [
+          theme,
+          cascaded.variants[theme].map(({ index, ...record }) => ({
+            node: visualNodes[index].index,
+            ...record,
+          })),
+        ]),
+      ),
+    }
+  }
+
   const startup = validateArtifact({
     version: 1,
     platform,
@@ -522,16 +606,20 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     // Unsupported mobile media inputs were rejected during cascade preparation.
     // Mason lays out flow and supported percentages in the actual native viewport.
     constraints: launch.constraints,
-    nodes: logicalNodes,
-    variants: Object.fromEntries(
-      ['light', 'dark'].map((theme) => [
-        theme,
-        artifact.variants[theme].map(({ index, ...record }) => ({
-          node: visualNodes[index].index,
-          ...record,
-        })),
-      ]),
-    ),
+    ...(launchInputs
+      ? {
+          launchInputs: launchInputs.map((input) => ({
+            name: input.name,
+            source: input.source,
+            values: [...input.values],
+            default: input.default,
+          })),
+          trees: renders.map(({ bind, pair }, index) => ({
+            bind,
+            ...treePart(pair, resolved[index].cascaded),
+          })),
+        }
+      : treePart(renders[0].pair, resolved[0].cascaded)),
   })
 
   writeFileSync(join(work, 'startup.bin'), encodeStartupArtifact(startup))
@@ -548,22 +636,45 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     }
   }
 
+  // Per render point: `light`/`dark` keys on the flat path (unchanged shape),
+  // `name=value&.../theme` keys for launch-input trees.
+  const readPoints = renders.flatMap(({ bind, pair }, bindIndex) =>
+    ['light', 'dark'].map((theme) => [
+      bind
+        ? launchInputs.map((input) => input.name + '=' + JSON.stringify(bind[input.name])).join('&') +
+            '/' +
+            theme
+        : theme,
+      pair[theme].reads,
+    ]),
+  )
   const manifest = {
     ...binding,
     buildHash,
     warnings,
     nativeImports,
-    nativeReads: Object.fromEntries(
-      Object.entries(trees).map(([theme, tree]) => [theme, tree.reads]),
-    ),
-    registrations: trees.light.registrations,
+    nativeReads: Object.fromEntries(readPoints),
+    registrations: launchInputs
+      ? [
+          ...new Set(
+            renders.flatMap(({ pair }) =>
+              ['light', 'dark'].flatMap((theme) => pair[theme].registrations),
+            ),
+          ),
+        ]
+      : renders[0].pair.light.registrations,
     startupFormat: 'XPI1',
     dimensionQueries: launch.dimensionQueries,
     startupArtifactHash: createHash('sha256')
       .update(readFileSync(join(work, 'startup.bin')))
       .digest('hex'),
-    logicalNodeCount: logicalNodes.length,
-    placeholders: artifact.placeholders ?? [],
+    logicalNodeCount: artifactNodeCount(startup),
+    placeholders: launchInputs
+      ? renders.map(({ bind }, index) => ({
+          bind,
+          placeholders: resolved[index].cascaded.placeholders ?? [],
+        }))
+      : (resolved[0].cascaded.placeholders ?? []),
     scope:
       'Private configured Node/Vite ' +
       platform +

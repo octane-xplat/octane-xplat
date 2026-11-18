@@ -70,6 +70,37 @@ export type LaunchConstraint =
   | { input: 'reducedMotion'; equals: boolean }
   | { input: 'width' | 'height'; min: number; max: number }
   | { input: SafeAreaInsetInput; equals: number }
+/**
+ * A persisted string setting resolved once before native mount. The first cut
+ * only supports enum-string reads from the same store `ApplicationSettings`
+ * uses; `default` is the value used when the stored key is absent. A resolved
+ * value outside `values` (with `default === null` the absent/`null` point also
+ * belongs to the domain) never selects a tree.
+ */
+export type LaunchInput = {
+  name: string
+  source: 'appSettings.string'
+  values: string[]
+  default: string | null
+}
+/**
+ * One prerendered tree for a launch-input bind. `bind` carries every declared
+ * input name with either one of its declared values or `null` (only declared
+ * when the input's `default` is `null`). Each tree owns its logical nodes and
+ * both system-appearance style variants, so binds may differ in topology.
+ */
+export type StartupTree = {
+  bind: LiteralObject
+  nodes: LogicalNode[]
+  variants: { light: StyleRecord[]; dark: StyleRecord[] }
+}
+/**
+ * Artifacts without `launchInputs` keep the flat `nodes` + `variants` form
+ * (byte-for-byte compatible). Artifacts with launch inputs carry the
+ * declaration plus one `StartupTree` per point of the declared input product;
+ * launch resolves each input and must fall back to JavaScript boot when the
+ * resolved values match no bind.
+ */
 export type StartupArtifact = {
   version: 1
   platform: 'ios' | 'android'
@@ -77,16 +108,36 @@ export type StartupArtifact = {
   build: string
   seed: LiteralObject
   constraints: LaunchConstraint[]
-  nodes: LogicalNode[]
-  variants: { light: StyleRecord[]; dark: StyleRecord[] }
-}
+} & (
+  | {
+      nodes: LogicalNode[]
+      variants: { light: StyleRecord[]; dark: StyleRecord[] }
+      launchInputs?: never
+      trees?: never
+    }
+  | {
+      launchInputs: LaunchInput[]
+      trees: StartupTree[]
+      nodes?: never
+      variants?: never
+    }
+)
 export const ARTIFACT_LIMITS = Object.freeze({
   nodes: 1024,
   depth: 64,
   values: 100000,
   bytes: 1048576,
   debugBytes: 8388608,
+  launchInputs: 8,
+  launchValues: 4,
+  trees: 8,
 })
+/** Total logical nodes across the artifact; also the header node count. */
+export function artifactNodeCount(artifact: StartupArtifact): number {
+  return artifact.trees
+    ? artifact.trees.reduce((count, tree) => count + tree.nodes.length, 0)
+    : artifact.nodes.length
+}
 export const STYLE_KEYS: readonly string[] = Object.freeze([
   'alignItems',
   'alignSelf',
@@ -352,13 +403,110 @@ function provenance(value: unknown, style: Record<string, string | number>): str
   )
   return result.sort()
 }
+function validateVariants(
+  input: unknown,
+  visual: LogicalNode[],
+): { light: StyleRecord[]; dark: StyleRecord[] } {
+  const variants = record(input, 'variants')
+  keys(variants, ['light', 'dark'], 'variants')
+  function variant(value: unknown): StyleRecord[] {
+    requireArtifact(Array.isArray(value) && value.length === visual.length, 'variant node count')
+    return value.map((value, index) => {
+      const item = record(value, 'style record')
+      keys(item, ['node', 'style', 'cssKeys', 'inheritedKeys'], 'style record')
+      requireArtifact(item.node === visual[index].index, 'style node identity')
+      const style = validateStyle(item.style)
+      return {
+        node: visual[index].index,
+        style,
+        cssKeys: provenance(item.cssKeys, style),
+        inheritedKeys: provenance(item.inheritedKeys, style),
+      }
+    })
+  }
+  return { light: variant(variants.light), dark: variant(variants.dark) }
+}
+function validateLaunchInputs(input: unknown): LaunchInput[] {
+  requireArtifact(
+    Array.isArray(input) && input.length >= 1 && input.length <= ARTIFACT_LIMITS.launchInputs,
+    'launch inputs',
+  )
+  const seen = new Set<string>()
+  const launchInputs = input.map((value) => {
+    const item = record(value, 'launch input')
+    keys(item, ['name', 'source', 'values', 'default'], 'launch input')
+    const name = string(item.name, 'launch input name')
+    requireArtifact(
+      name.length <= 128 && /^[\x20-\x7e]+$/.test(name),
+      'launch input name must be printable ASCII',
+    )
+    requireArtifact(!seen.has(name), 'duplicate launch input')
+    seen.add(name)
+    requireArtifact(item.source === 'appSettings.string', 'unsupported launch input source')
+    requireArtifact(
+      Array.isArray(item.values) &&
+        item.values.length >= 1 &&
+        item.values.length <= ARTIFACT_LIMITS.launchValues,
+      'launch input values',
+    )
+    const values = item.values.map((value) => string(value, 'launch input value'))
+    requireArtifact(new Set(values).size === values.length, 'duplicate launch input value')
+    requireArtifact(
+      item.default === null || values.includes(item.default as string),
+      'launch input default',
+    )
+    return { name, source: 'appSettings.string' as const, values, default: item.default as string | null }
+  })
+  const product = launchInputs.reduce(
+    (count, item) => count * (item.values.length + (item.default === null ? 1 : 0)),
+    1,
+  )
+  requireArtifact(product <= ARTIFACT_LIMITS.trees, 'launch input product')
+  return launchInputs
+}
+function validateTrees(input: unknown, launchInputs: LaunchInput[]): StartupTree[] {
+  const domains = launchInputs.map((item) =>
+    new Set<Literal>(item.default === null ? [...item.values, null] : item.values),
+  )
+  const product = domains.reduce((count, domain) => count * domain.size, 1)
+  requireArtifact(Array.isArray(input) && input.length === product, 'tree count')
+  let total = 0
+  const seen = new Set<string>()
+  const trees = input.map((value) => {
+    const tree = record(value, 'tree')
+    keys(tree, ['bind', 'nodes', 'variants'], 'tree')
+    const input = record(tree.bind, 'tree bind')
+    const bind: LiteralObject = Object.create(null)
+    for (const [index, item] of launchInputs.entries()) {
+      const value = input[item.name]
+      requireArtifact(
+        value !== undefined && domains[index].has(value as Literal),
+        'tree bind value outside declared domain',
+      )
+      bind[item.name] = value as Literal
+    }
+    requireArtifact(Object.keys(input).length === launchInputs.length, 'tree bind inputs differ')
+    const nodes = validateNodes(tree.nodes)
+    total += nodes.length
+    requireArtifact(total <= ARTIFACT_LIMITS.nodes, 'tree node count')
+    const visual = nodes.filter((node) => node.kind !== '#text')
+    const variants = validateVariants(tree.variants, visual)
+    const canonical = launchInputs
+      .map((item) => item.name + '=' + JSON.stringify(bind[item.name]))
+      .join('&')
+    requireArtifact(!seen.has(canonical), 'duplicate tree bind')
+    seen.add(canonical)
+    return { bind, nodes, variants }
+  })
+  return trees
+}
 export function validateArtifact(input: unknown): StartupArtifact {
   const value = record(input, 'artifact')
-  keys(
-    value,
-    ['version', 'platform', 'hostContract', 'build', 'seed', 'constraints', 'nodes', 'variants'],
-    'artifact',
-  )
+  const layered =
+    Object.hasOwn(value, 'launchInputs') || Object.hasOwn(value, 'trees')
+      ? ['version', 'platform', 'hostContract', 'build', 'seed', 'constraints', 'launchInputs', 'trees']
+      : ['version', 'platform', 'hostContract', 'build', 'seed', 'constraints', 'nodes', 'variants']
+  keys(value, layered, 'artifact')
   requireArtifact(
     value.version === 1 && value.hostContract === 'mason-label-v1',
     'unsupported schema or host contract',
@@ -368,7 +516,6 @@ export function validateArtifact(input: unknown): StartupArtifact {
   const build = string(value.build, 'build identity')
   requireArtifact(/^[a-f0-9]{64}$/.test(build), 'expected SHA-256 build identity')
   const seed = copyProps(value.seed)
-  const nodes = validateNodes(value.nodes)
   requireArtifact(
     Array.isArray(value.constraints) && value.constraints.length <= 8,
     'launch constraints',
@@ -419,24 +566,22 @@ export function validateArtifact(input: unknown): StartupArtifact {
     return { input: name, min, max }
   })
   requireArtifact(seen.has('fontScale'), 'native font scale preflight is required')
-  const variants = record(value.variants, 'variants')
-  keys(variants, ['light', 'dark'], 'variants')
-  const visual = nodes.filter((node) => node.kind !== '#text')
-  function variant(value: unknown): StyleRecord[] {
-    requireArtifact(Array.isArray(value) && value.length === visual.length, 'variant node count')
-    return value.map((value, index) => {
-      const item = record(value, 'style record')
-      keys(item, ['node', 'style', 'cssKeys', 'inheritedKeys'], 'style record')
-      requireArtifact(item.node === visual[index].index, 'style node identity')
-      const style = validateStyle(item.style)
-      return {
-        node: visual[index].index,
-        style,
-        cssKeys: provenance(item.cssKeys, style),
-        inheritedKeys: provenance(item.inheritedKeys, style),
-      }
-    })
+  if (Object.hasOwn(value, 'launchInputs') || Object.hasOwn(value, 'trees')) {
+    const launchInputs = validateLaunchInputs(value.launchInputs)
+    const trees = validateTrees(value.trees, launchInputs)
+    return {
+      version: 1,
+      platform,
+      hostContract: 'mason-label-v1',
+      build,
+      seed,
+      constraints,
+      launchInputs,
+      trees,
+    }
   }
+  const nodes = validateNodes(value.nodes)
+  const visual = nodes.filter((node) => node.kind !== '#text')
   return {
     version: 1,
     platform,
@@ -445,6 +590,6 @@ export function validateArtifact(input: unknown): StartupArtifact {
     seed,
     constraints,
     nodes,
-    variants: { light: variant(variants.light), dark: variant(variants.dark) },
+    variants: validateVariants(value.variants, visual),
   }
 }

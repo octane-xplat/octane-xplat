@@ -37,13 +37,30 @@ public final class MasonArtifact {
     }
     public static final class Artifact {
         public final org.octanexplat.prerender.StartupArtifact.Snapshot snapshot;
+        /** The bind this projection was built for; empty on flat artifacts. */
+        public final Map<String, Object> bind;
         public final Map<String, Object> seed;
         public final List<Node> nodes;
         public final Map<String, List<StyleRecord>> variants;
-        Artifact(org.octanexplat.prerender.StartupArtifact.Snapshot snapshot, Map<String, Object> seed, List<Node> nodes, Map<String, List<StyleRecord>> variants) {
-            this.snapshot = snapshot; this.seed = seed;
+        private final List<Artifact> trees;
+        Artifact(org.octanexplat.prerender.StartupArtifact.Snapshot snapshot, Map<String, Object> bind,
+                 Map<String, Object> seed, List<Node> nodes, Map<String, List<StyleRecord>> variants, List<Artifact> trees) {
+            this.snapshot = snapshot; this.bind = bind; this.seed = seed;
             this.nodes = Collections.unmodifiableList(nodes);
             this.variants = Collections.unmodifiableMap(variants);
+            this.trees = trees;
+        }
+        /** Every prerendered tree's projection; exactly one entry on flat artifacts. */
+        public List<Artifact> trees() { return Collections.unmodifiableList(trees); }
+        /**
+         * Resolve declared launch inputs and return the matching projection.
+         * Null means the resolved values match no bind — callers must fall back
+         * to JavaScript boot, never pick another tree. Flat artifacts return
+         * their single projection without invoking the resolver.
+         */
+        public Artifact select(java.util.function.Function<String, String> resolve) {
+            Integer index = snapshot.selectIndex(resolve);
+            return index == null ? null : trees.get(index);
         }
         public Map<String, Object> projection() {
             List<Object> projectedNodes = new ArrayList<>();
@@ -123,12 +140,10 @@ public final class MasonArtifact {
         return true;
     }
     @SuppressWarnings("unchecked") // Snapshot ingress validates each complete record.
-    public static Artifact decode(byte[] data, String expectedBuildHash) {
-        final org.octanexplat.prerender.StartupArtifact.Snapshot snapshot;
-        try { snapshot = org.octanexplat.prerender.StartupArtifact.decode(data, expectedBuildHash, "android"); }
-        catch (org.octanexplat.prerender.StartupArtifact.Invalid error) { throw new Invalid(error.getMessage()); }
+    private static Artifact project(org.octanexplat.prerender.StartupArtifact.Snapshot snapshot,
+            org.octanexplat.prerender.StartupArtifact.Tree tree, Map<String, Object> seed, List<Artifact> trees) {
         List<Node> nodes = new ArrayList<>();
-        for (Map<String, Object> row : snapshot.visualNodes()) {
+        for (Map<String, Object> row : tree.visualNodes()) {
             int index = ((Number) row.get("index")).intValue();
             Object parent = row.get("parent");
             nodes.add(new Node(index, parent == null ? -1 : ((Number) parent).intValue(),
@@ -137,10 +152,9 @@ public final class MasonArtifact {
                 (String) row.get("hostKind")));
         }
         Map<String, List<StyleRecord>> variants = new LinkedHashMap<>();
-        Map<String, Object> source = (Map<String, Object>) snapshot.value.get("variants");
         for (String theme : new String[]{"light", "dark"}) {
             List<StyleRecord> rows = new ArrayList<>();
-            for (Object item : (List<?>) source.get(theme)) {
+            for (Object item : (List<?>) tree.variants.get(theme)) {
                 Map<String, Object> row = (Map<String, Object>) item;
                 Map<String, Object> style = (Map<String, Object>) row.get("style");
                 for (Map.Entry<String, Object> entry : style.entrySet()) validateStyle(entry.getKey(), entry.getValue());
@@ -148,6 +162,21 @@ public final class MasonArtifact {
             }
             variants.put(theme, Collections.unmodifiableList(rows));
         }
-        return new Artifact(snapshot, (Map<String, Object>) snapshot.value.get("seed"), nodes, variants);
+        return new Artifact(snapshot, tree.bind, seed, nodes, variants, trees);
+    }
+    public static Artifact decode(byte[] data, String expectedBuildHash) {
+        final org.octanexplat.prerender.StartupArtifact.Snapshot snapshot;
+        try { snapshot = org.octanexplat.prerender.StartupArtifact.decode(data, expectedBuildHash, "android"); }
+        catch (org.octanexplat.prerender.StartupArtifact.Invalid error) { throw new Invalid(error.getMessage()); }
+        Map<String, Object> seed = (Map<String, Object>) snapshot.value.get("seed");
+        // The shared list is complete after decode; nothing mutates it later.
+        List<Artifact> trees = new ArrayList<>();
+        for (org.octanexplat.prerender.StartupArtifact.Tree tree : snapshot.trees) {
+            trees.add(project(snapshot, tree, seed, trees));
+        }
+        // The returned artifact is the flat-compatible single projection;
+        // launch-input artifacts carry every tree's projection for select().
+        Artifact first = trees.get(0);
+        return new Artifact(snapshot, first.bind, seed, first.nodes, first.variants, trees);
     }
 }

@@ -102,6 +102,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         let theme = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
         let windowInsets = window.safeAreaInsets
         record("native-window-ready")
+        var selectedBind: NSDictionary?
         let artifact: [String: Any]
         do {
             let resource = Bundle.main.url(forResource: "startup", withExtension: "bin", subdirectory: "app")
@@ -121,7 +122,14 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
                     bottom: Double(windowInsets.bottom), left: Double(windowInsets.left)
                 )
             ) else { throw XplatMasonArtifact.Invalid(reason: "launch constraints differ") }
-            artifact = decoded.value
+            // Resolve declared launch inputs from the same persisted store the
+            // app's ApplicationSettings reads; no matching bind means JS boot.
+            let defaults = UserDefaults.standard
+            guard let selected = decoded.select({ defaults.string(forKey: $0) }) else {
+                throw XplatMasonArtifact.Invalid(reason: "launch inputs outside declared domain")
+            }
+            selectedBind = selected.tree.bind
+            artifact = selected.value
             guard let nodes = artifact["nodes"] as? [[String: Any]], !nodes.isEmpty,
                   nodes.first?["kind"] as? String == "masonview" else {
                 throw XplatMasonArtifact.Invalid(reason: "unsupported mount topology")
@@ -133,7 +141,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
             record("failed", ["reason": reason, "beforeEngineInit": true])
             return
         }
-        record("native-binary-decoded", ["nodes": (artifact["nodes"] as! [Any]).count, "buildHash": mountBuildHash, "beforeEngineInit": true])
+        record("native-binary-decoded", ["nodes": (artifact["nodes"] as! [Any]).count, "buildHash": mountBuildHash, "bind": selectedBind ?? [:], "beforeEngineInit": true])
         let mounted = XplatMasonMount(artifact, theme: theme, scale: scale)
         mount = mounted
         viewport.addView(mounted.root)
@@ -146,7 +154,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
         }
         let rows = PrerenderHomeMount.snapshot(mountedRoot)
         precondition(rows.count == mounted.views.count && mounted.views.allSatisfy { $0.window === window && $0.frame.width > 0 && $0.frame.height > 0 })
-        try! JSONSerialization.data(withJSONObject: ["theme": theme, "scale": scale, "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left], "rows": rows]).write(to: documents("native-mount.json"), options: .atomic)
+        try! JSONSerialization.data(withJSONObject: ["theme": theme, "scale": scale, "bind": selectedBind ?? [:], "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left], "rows": rows]).write(to: documents("native-mount.json"), options: .atomic)
         record("native-mounted", ["visualNodes": rows.count, "canvas": NSCoder.string(for: canvas), "owningScale": scale, "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left]])
         PrerenderMountHost.mount = mounted
         PrerenderMountHost.viewport = viewport

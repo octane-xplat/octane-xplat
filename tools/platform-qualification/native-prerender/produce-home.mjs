@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { produceNativeStartup } from '@octane-xplat/native-prerender-build'
+import { artifactNodeCount } from '@octane-xplat/native-prerender'
 
 const source = import.meta.dirname
 const parent = join(homedir(), 'agent-scratch/octane-xplat/native-prerender-home-producer')
@@ -13,11 +14,14 @@ const result = await produceNativeStartup({
   outputDir,
   platform: process.env.XPLAT_PRERENDER_HOME_PLATFORM ?? 'ios',
 })
+const trees = result.artifact.trees ?? [result.artifact]
 console.log('Home producer output: ' + result.directory)
 console.log(JSON.stringify({
-  visualNodes: result.artifact.nodes.filter((node) => node.kind !== '#text').length,
-  logicalNodes: result.artifact.nodes.length,
-  themes: Object.keys(result.artifact.variants),
+  trees: trees.length,
+  binds: trees.map((tree) => tree.bind),
+  visualNodes: trees.map((tree) => tree.nodes.filter((node) => node.kind !== '#text').length),
+  logicalNodes: artifactNodeCount(result.artifact),
+  themes: Object.keys(trees[0].variants),
   bytes: readFileSync(join(outputDir, 'startup.bin')).length,
   buildHash: result.manifest.buildHash,
 }))

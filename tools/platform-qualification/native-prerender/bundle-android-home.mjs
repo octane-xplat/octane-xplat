@@ -122,6 +122,10 @@ const result = await Bun.build({
           else if (args.path === '@octane-xplat/motion')
             base = join(source, 'motion-primitives.ts')
           else if (args.path === '@octane-xplat/lib') base = join(repo, 'packages/lib/src/index.ts')
+          // The platform barrel pulls unrelated device/browser surfaces; the
+          // launch-input seam only needs the real ApplicationSettings-backed leaf.
+          else if (args.path === '@octane-xplat/platform')
+            base = join(repo, 'packages/platform/src/storage.ts')
           else if (args.path === '@octane-xplat/icons')
             base = join(repo, 'packages/icons/src/index.ts')
           else if (args.path === '@octane-xplat/css-engine')

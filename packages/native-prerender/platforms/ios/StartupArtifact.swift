@@ -14,10 +14,57 @@ enum XplatStartupArtifact {
             self.index = index; self.parent = parent; self.path = path; self.kind = kind; self.props = props
         }
     }
+    struct LaunchInput {
+        let name: String, values: [String], `default`: String?
+    }
+    // One prerendered tree for a launch-input bind; owns its logical nodes and
+    // both system-appearance style variants, so binds may differ in topology.
+    struct Tree {
+        let bind: NSDictionary
+        let nodes: [Node]
+        let variants: NSDictionary
+        let value: NSDictionary
+        func visualNodes() throws -> NSArray {
+            return try XplatStartupArtifact.visualNodes(nodes)
+        }
+    }
     struct Snapshot {
         let value: NSDictionary
+        // First tree's nodes — the only tree for flat artifacts. Launch-input
+        // artifacts must resolve through select() before projecting.
         let nodes: [Node]
-        fileprivate init(_ value: NSDictionary, _ nodes: [Node]) { self.value = value; self.nodes = nodes }
+        let launchInputs: [LaunchInput]
+        let trees: [Tree]
+        fileprivate init(_ value: NSDictionary, _ launchInputs: [LaunchInput], _ trees: [Tree]) {
+            self.value = value; self.launchInputs = launchInputs; self.trees = trees
+            self.nodes = trees.first?.nodes ?? []
+        }
+        // Resolve declared launch inputs and pick the matching prerendered
+        // tree. A nil resolver result means the key is absent; the declared
+        // default then applies. Returns nil when the effective values match no
+        // bind — callers must fall back to JavaScript boot, never pick another
+        // tree. Flat artifacts return their single tree without resolving.
+        func selectIndex(_ resolve: (String) -> String?) -> Int? {
+            guard !launchInputs.isEmpty else { return trees.isEmpty ? nil : 0 }
+            var effective: [String: String?] = [:]
+            // An absent key (nil resolver result) resolves to the declared
+            // default; a present key keeps its stored value.
+            for input in launchInputs {
+                let stored = resolve(input.name)
+                effective[input.name] = stored != nil ? stored : input.default
+            }
+            return trees.firstIndex { tree in
+                launchInputs.allSatisfy { input in
+                    let bound = tree.bind.object(forKey: input.name as NSString)
+                    if let value = effective[input.name]! { return (bound as? String) == value }
+                    return bound is NSNull
+                }
+            }
+        }
+        func select(_ resolve: (String) -> String?) -> Tree? {
+            guard let index = selectIndex(resolve) else { return nil }
+            return trees[index]
+        }
         func supports(fontScale: Double, width: Double, height: Double, reducedMotion: Bool, safeAreaInsets: (top: Double, right: Double, bottom: Double, left: Double)) throws -> Bool {
             try check([fontScale, width, height, safeAreaInsets.top, safeAreaInsets.right, safeAreaInsets.bottom, safeAreaInsets.left].allSatisfy { $0.isFinite && $0 >= 0 }, "invalid environment")
             let insets: [String: Double] = [
@@ -40,6 +87,11 @@ enum XplatStartupArtifact {
             return true
         }
         func visualNodes() throws -> NSArray {
+            try check(launchInputs.isEmpty, "visual projection requires tree selection")
+            return try trees[0].visualNodes()
+        }
+    }
+    private static func visualNodes(_ nodes: [Node]) throws -> NSArray {
             final class Visual {
                 let node: Node, parent: Int, path: String
                 var children: [Int] = []
@@ -72,8 +124,7 @@ enum XplatStartupArtifact {
                 pairs += [("props", visual.node.props), ("children", visual.children), ("text", visual.text)]
                 result.append(try dictionary(pairs))
             }
-            return NSArray(array: result)
-        }
+        return NSArray(array: result)
     }
     // Each placeholder kind's allowed props with their value type; cold mounts
     // an empty box, so only authored geometry reaches the startup tree anyway.
@@ -206,14 +257,9 @@ enum XplatStartupArtifact {
         }
         try check(node.kind == "label" || node.props.object(forKey: "text") == nil, "container text prop")
     }
-    private static func validate(_ value: Any, _ count: Int, _ build: String, _ platform: String) throws -> Snapshot {
-        let root = try object(value)
-        try keys(root, ["version", "platform", "hostContract", "build", "seed", "constraints", "nodes", "variants"])
-        try check(number(field(root, "version")) == 1 && text(field(root, "hostContract")) == "mason-label-v1", "schema or host contract")
-        try check(text(field(root, "build")) == build && text(field(root, "platform")) == platform, "artifact/app identity")
-        let seed = try object(field(root, "seed")); var remaining = 100000
-        try literalBounds(seed, 0, &remaining)
-        let input = try array(field(root, "nodes")); try check(input.count == count, "header node count")
+    private static func nodes(_ value: Any) throws -> ([Node], [Int]) {
+        let input = try array(value)
+        try check(input.count >= 1 && input.count <= 1024, "node count")
         var nodes: [Node] = [], visual: [Int] = []
         for (index, value) in input.enumerated() {
             let row = try object(value)
@@ -243,6 +289,66 @@ enum XplatStartupArtifact {
             return next
         }
         try check(visit(0, 0) == nodes.count, "unreachable node")
+        return (nodes, visual)
+    }
+    private static func variants(_ value: Any, _ visual: [Int], _ count: Int) throws -> NSDictionary {
+        let variants = try object(value); try keys(variants, ["light", "dark"])
+        var normalized: [(String, Any)] = []
+        for theme in ["light", "dark"] {
+            let rows = try array(field(variants, theme)); try check(rows.count == visual.count, "variant node count")
+            var output: [NSDictionary] = []
+            for (index, value) in rows.enumerated() {
+                let row = try object(value); try keys(row, ["node", "style", "cssKeys", "inheritedKeys"])
+                try check(integer(field(row, "node"), 0, count - 1) == visual[index], "style node identity")
+                let data = try object(field(row, "style")); try style(data)
+                output.append(try dictionary([
+                    ("node", visual[index]), ("style", data),
+                    ("cssKeys", provenance(field(row, "cssKeys"), data)),
+                    ("inheritedKeys", provenance(field(row, "inheritedKeys"), data)),
+                ]))
+            }
+            normalized.append((theme, NSArray(array: output)))
+        }
+        return try dictionary(normalized)
+    }
+    private static func launchInputs(_ value: Any) throws -> [LaunchInput] {
+        let input = try array(value); try check(input.count >= 1 && input.count <= 8, "launch inputs")
+        var seen: Set<String> = [], result: [LaunchInput] = []
+        for item in input {
+            let row = try object(item); try keys(row, ["name", "source", "values", "default"])
+            let name = try text(field(row, "name"))
+            try check(name.utf8.count <= 128 && name.utf8.allSatisfy { $0 >= 0x20 && $0 <= 0x7e } && seen.insert(name).inserted, "launch input name")
+            try check(try text(field(row, "source")) == "appSettings.string", "launch input source")
+            let values = try array(field(row, "values")); try check(values.count >= 1 && values.count <= 4, "launch input values")
+            var domain: [String] = []
+            for item in values {
+                let value = try text(item)
+                try check(!domain.contains(value), "duplicate launch input value")
+                domain.append(value)
+            }
+            let fallback = try field(row, "default")
+            var effective: String?
+            if let value = fallback as? String {
+                try check(domain.contains(value), "launch input default")
+                effective = value
+            } else {
+                try check(fallback is NSNull, "launch input default")
+            }
+            result.append(LaunchInput(name: name, values: domain, default: effective))
+        }
+        return result
+    }
+    private static func validate(_ value: Any, _ count: Int, _ build: String, _ platform: String, _ layered: Bool) throws -> Snapshot {
+        let root = try object(value)
+        let layeredKeys = root.object(forKey: "launchInputs" as NSString) != nil || root.object(forKey: "trees" as NSString) != nil
+        try check(layeredKeys == layered, "binary launch flags")
+        try keys(root, layered
+            ? ["version", "platform", "hostContract", "build", "seed", "constraints", "launchInputs", "trees"]
+            : ["version", "platform", "hostContract", "build", "seed", "constraints", "nodes", "variants"])
+        try check(number(field(root, "version")) == 1 && text(field(root, "hostContract")) == "mason-label-v1", "schema or host contract")
+        try check(text(field(root, "build")) == build && text(field(root, "platform")) == platform, "artifact/app identity")
+        let seed = try object(field(root, "seed")); var remaining = 100000
+        try literalBounds(seed, 0, &remaining)
         let constraints = try array(field(root, "constraints")); try check(constraints.count <= 8, "constraint count")
         var seen: Set<String> = []
         for value in constraints {
@@ -262,29 +368,51 @@ enum XplatStartupArtifact {
             }
         }
         try check(seen.contains("fontScale"), "font scale preflight required")
-        let variants = try object(field(root, "variants")); try keys(variants, ["light", "dark"])
-        var normalized: [(String, Any)] = []
-        for theme in ["light", "dark"] {
-            let rows = try array(field(variants, theme)); try check(rows.count == visual.count, "variant node count")
-            var output: [NSDictionary] = []
-            for (index, value) in rows.enumerated() {
-                let row = try object(value); try keys(row, ["node", "style", "cssKeys", "inheritedKeys"])
-                try check(integer(field(row, "node"), 0, count - 1) == visual[index], "style node identity")
-                let data = try object(field(row, "style")); try style(data)
-                output.append(try dictionary([
-                    ("node", visual[index]), ("style", data),
-                    ("cssKeys", provenance(field(row, "cssKeys"), data)),
-                    ("inheritedKeys", provenance(field(row, "inheritedKeys"), data)),
-                ]))
+        var launchInputs: [LaunchInput] = [], trees: [Tree] = [], normalizedTrees: [NSDictionary] = []
+        if layered {
+            launchInputs = try self.launchInputs(field(root, "launchInputs"))
+            var product = 1
+            for input in launchInputs { product *= input.values.count + (input.default == nil ? 1 : 0) }
+            let input = try array(field(root, "trees")); try check(input.count == product, "tree count")
+            var binds: Set<String> = [], total = 0
+            for item in input {
+                let row = try object(item); try keys(row, ["bind", "nodes", "variants"])
+                let bind = try object(field(row, "bind"))
+                try keys(bind, launchInputs.map { $0.name })
+                var canonical = ""
+                for declared in launchInputs {
+                    let bound = try field(bind, declared.name)
+                    if let bound = bound as? String {
+                        try check(declared.values.contains(bound), "tree bind value outside declared domain")
+                        canonical += declared.name + "=\"" + bound + "\";"
+                    } else {
+                        try check(bound is NSNull && declared.default == nil, "tree bind value outside declared domain")
+                        canonical += declared.name + "=null;"
+                    }
+                }
+                try check(binds.insert(canonical).inserted, "duplicate tree bind")
+                let (nodes, visual) = try self.nodes(field(row, "nodes"))
+                total += nodes.count
+                try check(total <= count, "tree node count")
+                let variants = try self.variants(field(row, "variants"), visual, nodes.count)
+                normalizedTrees.append(try dictionary([("bind", bind), ("nodes", field(row, "nodes")), ("variants", variants)]))
+                trees.append(Tree(bind: bind, nodes: nodes, variants: variants, value: normalizedTrees.last!))
             }
-            normalized.append((theme, NSArray(array: output)))
+            try check(total == count, "header node count")
+        } else {
+            let (nodes, visual) = try self.nodes(field(root, "nodes"))
+            try check(nodes.count == count, "header node count")
+            let variants = try self.variants(field(root, "variants"), visual, nodes.count)
+            trees = [Tree(bind: NSDictionary(), nodes: nodes, variants: variants, value: NSDictionary())]
         }
         var result: [(String, Any)] = []
         for key in root.allKeys {
             let key = try text(key)
-            result.append((key, key == "variants" ? try dictionary(normalized) : try field(root, key)))
+            if key == "variants" { result.append((key, trees[0].variants)) }
+            else if key == "trees" { result.append((key, NSArray(array: normalizedTrees))) }
+            else { result.append((key, try field(root, key))) }
         }
-        return Snapshot(try dictionary(result), nodes)
+        return Snapshot(try dictionary(result), launchInputs, trees)
     }
     private struct Reader {
         let bytes: [UInt8]
@@ -337,13 +465,16 @@ enum XplatStartupArtifact {
         try check(build.utf8.count == 64 && build.utf8.allSatisfy { (48...57).contains($0) || (97...102).contains($0) } && ["ios", "android"].contains(platform), "expected identity")
         var reader = Reader(bytes: Array(data))
         try check(Array(reader.take(4)) == [88, 80, 73, 49], "binary magic")
-        try check(reader.uint(2) == 1 && reader.uint(2) == 0 && reader.uint() == UInt64(data.count), "binary version, flags or length")
+        try check(reader.uint(2) == 1, "binary version")
+        let flags = try reader.uint(2)
+        try check(flags == 0 || flags == 1, "binary flags")
+        try check(reader.uint() == UInt64(data.count), "binary length")
         let count = try reader.count(1024); try check(count > 0, "node count")
         let actual = try reader.take(32).map { String(format: "%02x", $0) }.joined()
         try check(actual == build, "binary build identity")
         let checksum = try reader.take(32)
         try check(Array(SHA256.hash(data: data.subdata(in: 80 ..< data.count))) == Array(checksum), "payload checksum")
         let value = try reader.literal(0); try check(reader.offset == reader.bytes.count, "trailing bytes")
-        return try validate(value, count, build, platform)
+        return try validate(value, count, build, platform, flags == 1)
     }
 }

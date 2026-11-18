@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { expected, commands, fixture, resign } from './fixture.mjs'
+import { expected, commands, fixture, treesFixture, resign } from './fixture.mjs'
 import {
   validateArtifact,
   projectPreparedTree,
   projectVisualTree,
   matchPreparedTree,
   checkLaunchEnvironment,
+  selectLaunchTree,
+  artifactNodeCount,
 } from '../src/index.ts'
 import {
   encodeStartupArtifact,
@@ -196,6 +198,136 @@ test('pretty JSON has its own bounded overhead and can round-trip a compact bina
   assert.ok(binary.length < 1048576)
   assert.ok(Buffer.byteLength(json) > 1048576)
   assert.deepEqual(readStartupJson(json, expected), decodeStartupArtifact(binary, expected))
+})
+
+test('launch-input artifacts round-trip with a set header flag while flat artifacts stay byte-identical', () => {
+  const layered = validateArtifact(treesFixture())
+  const encoded = encodeStartupArtifact(layered)
+  assert.equal(encoded[6], 1)
+  assert.equal(encoded.readUInt32LE(12), artifactNodeCount(layered))
+  assert.equal(
+    artifactNodeCount(layered),
+    layered.trees.reduce((count, tree) => count + tree.nodes.length, 0),
+  )
+  assert.deepEqual(decodeStartupArtifact(encoded, expected), layered)
+  assert.deepEqual(readStartupJson(writeStartupJson(layered), expected), layered)
+  assert.deepEqual(
+    encodeStartupArtifact(readStartupJson(writeStartupJson(layered), expected)),
+    encoded,
+  )
+  // Flat artifacts keep flag 0; the header carries their single tree's count.
+  const flat = encodeStartupArtifact(fixture())
+  assert.equal(flat[6], 0)
+  // A flag/payload shape mismatch or wrong total rejects after checksum.
+  const wrongCount = Buffer.from(encoded)
+  wrongCount.writeUInt32LE(encoded.readUInt32LE(12) - 1, 12)
+  assert.throws(() => decodeStartupArtifact(resign(wrongCount), expected), /node count|launch flags|trailing/)
+  const flipped = Buffer.from(encoded)
+  flipped[6] = 0
+  assert.throws(() => decodeStartupArtifact(resign(flipped), expected), /flags|version/)
+})
+
+test('launch tree selection is exact: declared values, defaults, and never a guess', () => {
+  const artifact = validateArtifact(treesFixture())
+  const binds = artifact.trees.map((tree) => ({ ...tree.bind }))
+  assert.deepEqual(binds, [
+    { 'theme-preference': 'dark' },
+    { 'theme-preference': 'light' },
+    { 'theme-preference': null },
+  ])
+  for (const [value, index] of [
+    ['dark', 0],
+    ['light', 1],
+    [null, 2],
+    [undefined, 2],
+  ]) {
+    const selected = selectLaunchTree(artifact, (name) =>
+      name === 'theme-preference' ? value : null,
+    )
+    assert.equal(selected, artifact.trees[index])
+  }
+  // A persisted value outside the declared domain selects nothing; the
+  // resolver must not substitute the declaration default for a present key.
+  for (const value of ['sepia', '', 'DARK']) {
+    assert.equal(
+      selectLaunchTree(artifact, () => value),
+      null,
+      'Out-of-domain value ' + JSON.stringify(value) + ' selected a tree',
+    )
+  }
+  // The resolver may only answer strings or absence.
+  for (const value of [3, true, {}, []]) {
+    assert.throws(() => selectLaunchTree(artifact, () => value), /string or null/)
+  }
+  // Flat artifacts resolve their single tree without consulting the resolver.
+  const flat = validateArtifact(fixture())
+  const selected = selectLaunchTree(flat, () => {
+    throw new Error('resolver must not run')
+  })
+  assert.deepEqual({ ...selected.bind }, {})
+  assert.equal(selected.nodes, flat.nodes)
+  assert.equal(selected.variants, flat.variants)
+})
+
+test('launch-input schema rejects malformed declarations and binds', () => {
+  const layered = () => structuredClone(treesFixture())
+  const cases = [
+    (x) => {
+      x.launchInputs[0].source = 'userDefaults.string'
+    },
+    (x) => {
+      x.launchInputs[0].values = ['a', 'b', 'c', 'd', 'e']
+    },
+    (x) => {
+      x.launchInputs[0].values = ['dark', 'dark']
+    },
+    (x) => {
+      x.launchInputs[0].default = 'sepia'
+    },
+    (x) => {
+      x.launchInputs[0].name = 'bad\nname'
+    },
+    (x) => {
+      x.launchInputs.push({ ...x.launchInputs[0] })
+    },
+    (x) => {
+      x.trees[0].bind['theme-preference'] = 'sepia'
+    },
+    (x) => {
+      delete x.trees[0].bind['theme-preference']
+    },
+    (x) => {
+      x.trees[0].bind.extra = 'dark'
+    },
+    (x) => {
+      x.trees[1].bind['theme-preference'] = 'dark'
+    },
+    (x) => {
+      x.trees.pop()
+    },
+    (x) => {
+      x.launchInputs = undefined
+    },
+    (x) => {
+      delete x.trees
+    },
+    (x) => {
+      x.trees[0].variants.light[0].node = 9
+    },
+  ]
+  for (const mutate of cases) {
+    const value = layered()
+    mutate(value)
+    assert.throws(() => validateArtifact(value))
+  }
+  // Each input's null point exists only when its default is null.
+  const nonNull = layered()
+  nonNull.launchInputs[0].default = 'light'
+  nonNull.trees = nonNull.trees.filter((tree) => tree.bind['theme-preference'] !== null)
+  assert.equal(validateArtifact(nonNull).trees.length, 2)
+  const missing = layered()
+  missing.launchInputs[0].default = 'dark'
+  assert.throws(() => validateArtifact(missing), /tree count|outside declared domain/)
 })
 
 test('bounded native launch checks accept interval edges and reject unsupported inputs', () => {

@@ -28,6 +28,7 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
     private final java.util.List<org.nativescript.mason.masonkit.Node> originalNodes = new java.util.ArrayList<>();
     private final java.util.List<Long> originalHandles = new java.util.ArrayList<>();
     private boolean destroyed, adoptionComplete, adoptionPresented;
+    private int logicalNodes;
     private String theme, coldSnapshot;
     private HomeApplication app() { return (HomeApplication) getApplication(); }
     private static void check(boolean value, String reason) {
@@ -43,6 +44,7 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
     public android.view.View getView(int index) { return mount.views().get(index); }
     public int getViewCount() { return mount.views().size(); }
     public String getMountTheme() { return theme; }
+    public String getMountBind() { return new JSONObject(artifact.bind).toString(); }
     public String snapshotCold() { return coldSnapshot; }
     public String snapshotMounted() {
         try { return HomeComparison.snapshot(artifact, mount.views()).toString(); }
@@ -105,11 +107,19 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
                 !android.animation.ValueAnimator.areAnimatorsEnabled(),
                 bars.top / density, bars.right / density, bars.bottom / density, bars.left / density),
                 "Test canvas does not satisfy launch constraints");
+            // Resolve declared launch inputs from the same SharedPreferences
+            // store NativeScript ApplicationSettings reads; no matching bind
+            // means JavaScript boot, never a guessed tree.
+            android.content.SharedPreferences settings = getApplicationContext().getSharedPreferences("prefs.db", 0);
+            Integer treeIndex = artifact.snapshot.selectIndex(name -> settings.contains(name) ? settings.getString(name, null) : null);
+            check(treeIndex != null, "Launch inputs outside declared domain");
+            artifact = artifact.trees().get(treeIndex);
+            logicalNodes = artifact.snapshot.trees.get(treeIndex).nodes.size();
             theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
             MasonMount.Prepared prepared = MasonMount.prepare(this, artifact, theme);
             record("mount-preflight", new JSONObject().put("visualNodes", artifact.nodes.size())
-                .put("logicalNodes", artifact.snapshot.nodes.size()).put("theme", theme)
+                .put("logicalNodes", logicalNodes).put("bind", new JSONObject(artifact.bind)).put("theme", theme)
                 .put("safeAreaInsets", new JSONObject().put("top", bars.top / density).put("right", bars.right / density)
                     .put("bottom", bars.bottom / density).put("left", bars.left / density)));
             Mason mason = Mason.Companion.getShared();
@@ -149,7 +159,7 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
                         }
                         coldSnapshot = snapshotMounted();
                         record("mount-passed", new JSONObject().put("draws", draws).put("canvasWidth", width / density).put("canvasHeight", height / density)
-                            .put("visualNodes", artifact.nodes.size()).put("logicalNodes", artifact.snapshot.nodes.size())
+                            .put("visualNodes", artifact.nodes.size()).put("logicalNodes", logicalNodes).put("bind", new JSONObject(artifact.bind))
                             .put("nodes", new org.json.JSONArray(coldSnapshot)));
                         if (HomeBuild.ARTIFACT_ADOPT) {
                             app().startRuntime();
