@@ -1,6 +1,7 @@
 import { tsrx } from '@octane-xplat/cli/vite'
 import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
+import { existsSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
 import { octane } from 'octane/compiler/vite'
 import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
@@ -27,7 +28,24 @@ const NATIVE_EXTS = [
 
 const configDir = dirname(fileURLToPath(import.meta.url))
 
+// Vite 8's oxc transform resolves each file's governing tsconfig.json and
+// follows its project references. Packages whose root tsconfig is a
+// references-only solution point at generated env programs under
+// node_modules/.cache/xplat-typecheck — which exist only after a typecheck
+// run — so every transform fails on an ungenerated checkout. Pin the test
+// transform to the package's committed env manifest (or its declaration
+// config when the package has no root tsconfig at all, which also covers
+// cross-package imports into references-style packages) so loading the
+// suite never depends on generated typecheck state.
+const packageFile = (name) => join(configDir, name)
+const testTsconfig = existsSync(packageFile('tsconfig.envs.json'))
+  ? packageFile('tsconfig.envs.json')
+  : existsSync(packageFile('tsconfig.types.json'))
+    ? packageFile('tsconfig.types.json')
+    : undefined
+
 export default defineConfig({
+  ...(testTsconfig ? { tsconfig: testTsconfig } : {}),
   plugins: [
     tsrx('ios'),
     octane({
