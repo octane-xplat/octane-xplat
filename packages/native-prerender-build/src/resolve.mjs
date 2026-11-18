@@ -36,6 +36,27 @@ function cssNode(kind, props) {
   }
 }
 
+// The nativescript-octane driver writes local styles on every scrollview:
+// applyMasonDefaults at creation, then the inline `style` prop, then the
+// `orientation` prop (applyMasonContainerProp). Local writes outrank CSS;
+// inline keys keep the cascade's normalized values.
+function scrollviewStyle(props, style) {
+  const horizontal = props.orientation === 'horizontal'
+  const orientation = {
+    flexDirection: horizontal ? 'row' : 'column',
+    overflowX: horizontal ? 'scroll' : 'hidden',
+    overflowY: horizontal ? 'hidden' : 'scroll',
+  }
+  const inline = Object.keys(props.style ?? {}).filter((key) => key in style)
+  return {
+    ...style,
+    display: 'flex',
+    ...orientation,
+    ...Object.fromEntries(inline.map((key) => [key, style[key]])),
+    ...(props.orientation === undefined ? {} : orientation),
+  }
+}
+
 const variants = {}
 const launch = compileLaunchConstraints(stylesheetMediaQueries(), input.environment, {
   consumesSafeAreaInsets: input.consumesSafeAreaInsets === true,
@@ -72,7 +93,10 @@ for (const colorScheme of ['light', 'dark']) {
 
     return {
       index,
-      style: result.style,
+      style:
+        nodes[index].kind === 'scrollview'
+          ? scrollviewStyle(nodes[index].props, result.style)
+          : result.style,
       cssKeys: [...result.cssKeys],
       inheritedKeys: [...result.inheritedKeys],
     }

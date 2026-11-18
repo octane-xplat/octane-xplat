@@ -1,6 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import './screen.css'
-import { Button, HStack, Pressable, SafeArea, Text, View, VStack } from '@octane-xplat/ui'
+import {
+  Button,
+  HStack,
+  Pressable,
+  SafeArea,
+  ScrollableArea,
+  Text,
+  View,
+  VStack,
+} from '@octane-xplat/ui'
 
 export interface ScreenProps {
   title: string
@@ -15,9 +24,11 @@ export function Screen(props: ScreenProps) @{
           {props.title}
         </Text>
       </View>
-      @for (const item of props.items; key item) {
-        <Text className="screen-copy">{item}</Text>
-      }
+      <ScrollableArea id="screen-list" className="screen-list">
+        @for (const item of props.items; key item) {
+          <Text className="screen-copy">{item}</Text>
+        }
+      </ScrollableArea>
       <Pressable
         id="screen-action"
         className="screen-action"

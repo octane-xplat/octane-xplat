@@ -71,7 +71,8 @@ public final class MasonArtifact {
             case "flexDirection": valid = "row".equals(value) || "column".equals(value); break;
             case "alignItems": valid = "center".equals(value); break;
             case "justifyContent": valid = "center".equals(value) || "space-between".equals(value); break;
-            case "maxWidth": valid = "100%".equals(value); break;
+            case "maxWidth": case "maxHeight": valid = "100%".equals(value); break;
+            case "overflowX": case "overflowY": valid = "scroll".equals(value) || "hidden".equals(value); break;
             case "cornerShape": valid = "squircle".equals(value); break;
             case "whiteSpace": valid = "normal".equals(value) || "nowrap".equals(value); break;
             case "textOverflow": valid = "clip".equals(value) || "ellipsis".equals(value); break;

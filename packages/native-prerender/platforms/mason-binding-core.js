@@ -1,3 +1,4 @@
+import { Scroll } from '@octane-xplat/nativescript-mason-core/scroll'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import {
   bindNativeView,
@@ -22,6 +23,8 @@ function requireBinding(value, message) {
 
 export { requireBinding }
 
+const isMasonContainer = (view) => view instanceof View || view instanceof Scroll
+
 /**
  * Bind a backend-validated, already-mounted tree through Mason's adoption API.
  * `validateNativeTree(visual, viewport, nativeViews)` performs the platform's
@@ -37,9 +40,10 @@ export function bindMasonTree(nodes, viewport, nativeViews, { beforeAttach, crea
 
   const factories = new Map()
   const wrappers = visual.map((row, index) => {
-    const wrapper = row.kind === 'label' ? createLabel() : new View()
+    const wrapper =
+      row.kind === 'label' ? createLabel() : row.kind === 'scrollview' ? new Scroll() : new View()
 
-    if (wrapper instanceof View) {
+    if (row.kind !== 'label') {
       bindNativeView(wrapper, nativeViews[index])
     } else {
       factories.set(wrapper, wrapper.createNativeView)
@@ -113,13 +117,13 @@ export function releaseMasonOwners(host, wrappers) {
 
   requireBinding(
     owners.every(
-      (view) => !view._context && !view.isLoaded && (view instanceof View || !view.nativeViewProtected),
+      (view) => !view._context && !view.isLoaded && (isMasonContainer(view) || !view.nativeViewProtected),
     ),
     'native owners must be torn down before cache retirement',
   )
 
   for (const wrapper of owners) {
-    if (wrapper instanceof View) {
+    if (isMasonContainer(wrapper)) {
       // A bound-but-never-attached view pairs nativeViewProtected with the
       // adopted object; releaseNativeView clears that pairing and throws only
       // when live Core state remains.
@@ -141,7 +145,7 @@ export function releaseMasonTree(host, wrappers) {
   const ownedSet = new Set(owned)
 
   for (const view of owned) {
-    if (view instanceof View) {
+    if (isMasonContainer(view)) {
       // An accepted failure can leave queued iOS inserts behind; drop them
       // without replaying against a discarded tree. No-op on Android.
       discardPendingNativeAdds(view)
@@ -153,7 +157,7 @@ export function releaseMasonTree(host, wrappers) {
 
     if (parent) {
       requireBinding(
-        ownedSet.has(parent) && parent instanceof View,
+        ownedSet.has(parent) && isMasonContainer(parent),
         'failed claim escaped its owner scope',
       )
 

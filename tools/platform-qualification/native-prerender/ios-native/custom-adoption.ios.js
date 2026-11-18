@@ -1,5 +1,6 @@
 import '@nativescript/core/globals'
 import { Application, Utils } from '@nativescript/core'
+import { Scroll } from '@octane-xplat/nativescript-mason-core/scroll'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
@@ -19,6 +20,7 @@ const check = (value, reason) => {
 const settle = () => new Promise((done) => setTimeout(done, 50))
 
 registerElement('masonview', View)
+registerElement('scrollview', Scroll)
 
 const proofs = []
 

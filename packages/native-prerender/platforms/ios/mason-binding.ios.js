@@ -22,10 +22,13 @@ function validateNativeTree(visual, viewport, nativeViews) {
   )
   for (const row of visual) {
     const native = nativeViews[row.index]
-    const container = row.kind === 'masonview'
+    const container = row.kind !== 'label'
 
+    // Mason core Scroll is a MasonUIView marked as a scroll container.
     requireBinding(
-      container ? native instanceof MasonUIView : native instanceof TNSLabel,
+      container
+        ? native instanceof MasonUIView && native.isScrollContainer === (row.kind === 'scrollview')
+        : native instanceof TNSLabel,
       'native visual class differs',
     )
 

@@ -35,7 +35,7 @@ static uint32_t ARGB(UIColor *color) {
 }
 static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
-    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect", @"opacity"]];
+    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect", @"opacity", @"maxHeight", @"overflowX", @"overflowY"]];
     for (NSString *key in values) Require([known containsObject:key], [@"Unsupported property: " stringByAppendingString:key]);
     if (values[@"display"]) { Require([values[@"display"] isEqual:@"flex"] || [values[@"display"] isEqual:@"block"], @"Unsupported display"); style.display = [values[@"display"] isEqual:@"flex"] ? MasonDisplayFlex : MasonDisplayBlock; }
     if (values[@"flexDirection"]) {
@@ -53,6 +53,9 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     if (values[@"minWidth"]) [style setMinSizeWidth:[values[@"minWidth"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if (values[@"minHeight"]) [style setMinSizeHeight:[values[@"minHeight"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if (values[@"maxWidth"]) { Require([values[@"maxWidth"] isEqual:@"100%"], @"Unsupported maximum width"); [style setMaxSizeWidth:1 :MasonDimensionCompatTypePercent]; }
+    if (values[@"maxHeight"]) { Require([values[@"maxHeight"] isEqual:@"100%"], @"Unsupported maximum height"); [style setMaxSizeHeight:1 :MasonDimensionCompatTypePercent]; }
+    if (values[@"overflowX"]) style.overflowX = [values[@"overflowX"] isEqual:@"scroll"] ? MasonOverflowScroll : MasonOverflowHidden;
+    if (values[@"overflowY"]) style.overflowY = [values[@"overflowY"] isEqual:@"scroll"] ? MasonOverflowScroll : MasonOverflowHidden;
     if (values[@"height"]) [style setSizeHeight:[values[@"height"] floatValue]*scale :MasonDimensionCompatTypePoints];
     // The examined SDK bulk border-width setter writes padding. Use its edge setters.
     if (values[@"borderWidth"]) {
@@ -104,11 +107,11 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     for (NSUInteger index=0; index<records.count; index++) {
         NSDictionary *record = records[index];
         Require([record[@"index"] unsignedIntegerValue] == index && [styles[index][@"index"] unsignedIntegerValue] == index, @"Noncanonical index");
-        Require([@[@"masonview",@"label"] containsObject:record[@"kind"]], @"Unknown host kind");
+        Require([@[@"masonview",@"scrollview",@"label"] containsObject:record[@"kind"]], @"Unknown host kind");
         Require(index == 0 ? record[@"parent"] == NSNull.null : [record[@"parent"] unsignedIntegerValue] < index, @"Invalid parent ordering");
         // Decoding validated property semantics. Check owning-scale conversion
         // for every record before allocating the first native view.
-        if (index > 0) Require([records[[record[@"parent"] unsignedIntegerValue]][@"kind"] isEqual:@"masonview"], @"Label cannot contain visual children");
+        if (index > 0) Require(![records[[record[@"parent"] unsignedIntegerValue]][@"kind"] isEqual:@"label"], @"Label cannot contain visual children");
         for (NSString *variant in @[@"light", @"dark"]) {
             NSArray *rows = artifact[@"variants"][variant];
             Require(rows.count == records.count, @"Style projection differs");
@@ -127,7 +130,11 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
         NSDictionary *record = records[index];
         UIView *view;
         if ([record[@"kind"] isEqual:@"label"]) { TNSLabel *label = [TNSLabel new]; label.userInteractionEnabled = YES; label.text = record[@"text"]; view=label; }
-        else view = [NSCMason.shared createView];
+        else {
+            view = [NSCMason.shared createView];
+            // Mason core Scroll is a plain MasonUIView marked as a scroll container.
+            if ([record[@"kind"] isEqual:@"scrollview"]) ((MasonUIView *)view).isScrollContainer = YES;
+        }
         view.accessibilityIdentifier = [NSString stringWithFormat:@"prerender-%lu", (unsigned long)index];
         [views addObject:view];
         if (index > 0) { UIView *parent=views[[record[@"parent"] unsignedIntegerValue]]; Require([parent isKindOfClass:MasonUIView.class], @"Label cannot contain visual children"); [(MasonUIView *)parent addView:view]; }

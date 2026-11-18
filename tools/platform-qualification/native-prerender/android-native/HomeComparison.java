@@ -19,6 +19,9 @@ final class HomeComparison {
     private static void check(boolean value, String reason) {
         if (!value) throw new IllegalStateException(reason);
     }
+    private static boolean container(android.view.View view) {
+        return view instanceof View || view instanceof org.nativescript.mason.masonkit.Scroll;
+    }
     static List<android.view.View> collect(MasonArtifact.Artifact artifact, View viewport) {
         check(viewport.getChildCount() == 1, "Reference viewport root count differs");
         List<android.view.View> views = new ArrayList<>();
@@ -29,9 +32,9 @@ final class HomeComparison {
     private static void collect(MasonArtifact.Artifact artifact, android.view.View view, int index, List<android.view.View> views) {
         MasonArtifact.Node row = artifact.nodes.get(index);
         check(index == views.size(), "Reference visual order differs");
-        check(row.kind.equals("label") ? view instanceof StyleableTextView : view instanceof View, "Reference native class differs");
+        check(row.kind.equals("label") ? view instanceof StyleableTextView : row.kind.equals("scrollview") ? view instanceof org.nativescript.mason.masonkit.Scroll : view instanceof View, "Reference native class differs");
         views.add(view);
-        if (view instanceof View) {
+        if (container(view)) {
             ViewGroup parent = (ViewGroup) view;
             check(parent.getChildCount() == row.children.size(), "Reference child count differs");
             for (int child = 0; child < row.children.size(); child++) collect(artifact, parent.getChildAt(child), row.children.get(child), views);
@@ -54,6 +57,8 @@ final class HomeComparison {
             JSONObject item = new JSONObject().put("index", row.index).put("kind", row.kind).put("parent", row.parent)
                 .put("left", view.getLeft()).put("top", view.getTop()).put("width", view.getWidth()).put("height", view.getHeight())
                 .put("attached", view.isAttachedToWindow()).put("alpha", (double) view.getAlpha())
+                .put("overflowX", style.getOverflowX().toString()).put("overflowY", style.getOverflowY().toString())
+                .put("scrollX", view.getScrollX()).put("scrollY", view.getScrollY())
                 .put("computedX", computed(laidOut ? node.getComputedX() : 0, laidOut)).put("computedY", computed(laidOut ? node.getComputedY() : 0, laidOut))
                 .put("computedWidth", computed(laidOut ? node.getComputedWidth() : 0, laidOut)).put("computedHeight", computed(laidOut ? node.getComputedHeight() : 0, laidOut))
                 .put("display", style.getDisplay().toString()).put("direction", style.getFlexDirection().toString())
@@ -73,9 +78,9 @@ final class HomeComparison {
             radius(item, "radiusBottomRight", style.getBorderBottomRightRadius());
             radius(item, "radiusBottomLeft", style.getBorderBottomLeftRadius());
             check(node.getChildCount() == row.children.size(), "Home Mason child count differs");
-            if (view instanceof View) for (int child = 0; child < row.children.size(); child++) {
+            if (container(view)) for (int child = 0; child < row.children.size(); child++) {
                 android.view.View expected = views.get(row.children.get(child));
-                check(((View) view).getChildAt(child) == expected && node.getChildAt(child) == mason.nodeForView(expected), "Home native/Mason child order differs");
+                check(((ViewGroup) view).getChildAt(child) == expected && node.getChildAt(child) == mason.nodeForView(expected), "Home native/Mason child order differs");
             }
             if (view instanceof StyleableTextView) {
                 StyleableTextView text = (StyleableTextView) view;

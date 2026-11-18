@@ -1,6 +1,14 @@
 export type Literal = null | boolean | number | string | Literal[] | LiteralObject
 export type LiteralObject = { [key: string]: Literal }
-export type HostKind = 'masonview' | 'label' | '#text'
+export type ContainerKind = 'masonview' | 'scrollview'
+export type HostKind = ContainerKind | 'label' | '#text'
+/** Mason layout containers; `scrollview` is MasonKit's Scroll (a Mason view with scroll overflow). */
+export function isContainerKind(value: unknown): value is ContainerKind {
+  return value === 'masonview' || value === 'scrollview'
+}
+export function isHostKind(value: unknown): value is HostKind {
+  return isContainerKind(value) || value === 'label' || value === '#text'
+}
 export type LogicalNode = {
   index: number
   path: string
@@ -59,10 +67,13 @@ export const STYLE_KEYS: readonly string[] = Object.freeze([
   'height',
   'justifyContent',
   'lineHeight',
+  'maxHeight',
   'maxWidth',
   'minWidth',
   'minHeight',
   'opacity',
+  'overflowX',
+  'overflowY',
   'paddingBottom',
   'paddingLeft',
   'paddingRight',
@@ -180,10 +191,7 @@ export function validateNodes(input: unknown): LogicalNode[] {
     keys(node, ['index', 'path', 'parent', 'kind', 'props'], 'node')
     requireArtifact(node.index === index, 'node index')
     const kind = node.kind
-    requireArtifact(
-      kind === 'masonview' || kind === 'label' || kind === '#text',
-      'unsupported host kind',
-    )
+    requireArtifact(isHostKind(kind), 'unsupported host kind')
     let parent: number | null = null
     if (index === 0)
       {requireArtifact(node.parent === null && kind !== '#text', 'root kind or parent')}
@@ -191,7 +199,9 @@ export function validateNodes(input: unknown): LogicalNode[] {
       parent = integer(node.parent, 0, index - 1, 'node parent')
       const owner = nodes[parent]
       requireArtifact(
-        owner.kind === 'masonview' ? kind !== '#text' : owner.kind === 'label' && kind === '#text',
+        isContainerKind(owner.kind)
+          ? kind !== '#text'
+          : owner.kind === 'label' && kind === '#text',
         'invalid child kind',
       )
     }
@@ -222,6 +232,8 @@ export function validateNodes(input: unknown): LogicalNode[] {
         else if (['accessible', 'isEnabled'].includes(key))
           {requireArtifact(typeof props[key] === 'boolean', 'boolean host prop')}
         else if (key === 'maxLines') {integer(props[key], 0, 1000000, key)}
+        else if (key === 'orientation')
+          {requireArtifact(kind === 'scrollview' && ['vertical', 'horizontal'].includes(props[key] as string), 'scroll orientation')}
         else if (key === 'style') {validateStyle(props[key])}
         else {throw new ArtifactError('unsupported host prop ' + key)}
       }

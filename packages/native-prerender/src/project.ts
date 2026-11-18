@@ -1,5 +1,6 @@
 import {
   ARTIFACT_LIMITS,
+  isHostKind,
   copyLiteral,
   integer,
   record,
@@ -15,7 +16,7 @@ export type VisualNode = {
   logicalNode: number
   path: string
   parent: number | null
-  kind: 'masonview' | 'label'
+  kind: 'masonview' | 'scrollview' | 'label'
   props: LiteralObject
   children: number[]
   text: string
@@ -82,10 +83,7 @@ export function projectPreparedTree(input: unknown): PreparedProjection {
         !created.has(id) && created.size < ARTIFACT_LIMITS.nodes,
         'duplicate or excessive hosts',
       )
-      requireArtifact(
-        kind === 'masonview' || kind === 'label' || kind === '#text',
-        'unsupported host kind',
-      )
+      requireArtifact(isHostKind(kind), 'unsupported host kind')
       const props = commandProps(command.props)
       if (kind === '#text') {
         const value = props.value

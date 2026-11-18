@@ -22,12 +22,14 @@ function validateNativeTree(visual, viewport, nativeViews) {
   requireBinding(viewport.getChildCount() === 1, 'native viewport root count differs')
   for (const row of visual) {
     const native = nativeViews[row.index]
-    const container = row.kind === 'masonview'
+    const container = row.kind !== 'label'
 
     requireBinding(
-      container
-        ? native instanceof org.nativescript.mason.masonkit.View
-        : native instanceof org.nativescript.widgets.StyleableTextView,
+      row.kind === 'scrollview'
+        ? native instanceof org.nativescript.mason.masonkit.Scroll
+        : container
+          ? native instanceof org.nativescript.mason.masonkit.View
+          : native instanceof org.nativescript.widgets.StyleableTextView,
       'native visual class differs',
     )
 

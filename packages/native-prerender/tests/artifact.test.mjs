@@ -330,3 +330,39 @@ test('disabled controls: string accessibility state/value and bounded opacity', 
   object.nodes[0].props.accessibilityState = { disabled: true }
   assert.throws(() => validateArtifact(object), /accessibilityState/)
 })
+
+test('scrollview is a Mason container with a bounded orientation and scroll styles', () => {
+  const batch = [
+    { op: 'create', id: 1, type: 'scrollview', props: { orientation: 'vertical' } },
+    { op: 'create', id: 2, type: 'masonview', props: {} },
+    { op: 'insert', id: 2, parent: 1, before: null },
+    { op: 'insert', id: 1, parent: null, before: null },
+  ]
+  const { nodes } = projectPreparedTree(batch)
+  assert.deepEqual(
+    projectVisualTree(nodes).map((node) => node.kind),
+    ['scrollview', 'masonview'],
+  )
+  const value = fixture()
+  value.nodes = nodes
+  const style = { overflowX: 'hidden', overflowY: 'scroll', maxHeight: '100%' }
+  value.variants = Object.fromEntries(
+    ['light', 'dark'].map((theme) => [
+      theme,
+      nodes.map((node) => ({ node: node.index, style, cssKeys: ['maxHeight'], inheritedKeys: [] })),
+    ]),
+  )
+  const canonical = validateArtifact(value)
+  assert.deepEqual(decodeStartupArtifact(encodeStartupArtifact(value), expected), canonical)
+  for (const [index, orientation] of [
+    [0, 'diagonal'],
+    [1, 'vertical'],
+  ]) {
+    const invalid = structuredClone(value)
+    invalid.nodes[index].props.orientation = orientation
+    assert.throws(() => validateArtifact(invalid), /scroll orientation/)
+  }
+  const text = structuredClone(value)
+  text.nodes.push({ index: 2, path: '0/1', parent: 0, kind: '#text', props: { value: 'x' } })
+  assert.throws(() => validateArtifact(text), /child kind/)
+})

@@ -9,6 +9,10 @@
   padding-bottom: 8px;
 }
 
+.screen-list {
+  flex-grow: 1;
+}
+
 .screen-copy {
   color: #1a2b3c;
   font-size: 20px;

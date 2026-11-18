@@ -75,7 +75,7 @@ enum XplatStartupArtifact {
     private static let styleKeys: Set<String> = [
         "alignItems", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
-        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "minHeight", "opacity", "paddingBottom",
+        "fontWeight", "height", "justifyContent", "lineHeight", "maxHeight", "maxWidth", "minWidth", "minHeight", "opacity", "overflowX", "overflowY", "paddingBottom",
         "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace",
     ]
     private static func check(_ value: Bool, _ reason: String) throws {
@@ -168,6 +168,7 @@ enum XplatStartupArtifact {
             case "id", "className", "text", "testID", "whiteSpace", "accessibilityRole", "accessibilityLabel", "accessibilityHint", "accessibilityState", "accessibilityValue": _ = try text(value)
             case "accessible", "isEnabled": _ = try boolean(value)
             case "maxLines": _ = try integer(value, 0, 1000000)
+            case "orientation": try check(node.kind == "scrollview" && ["vertical", "horizontal"].contains(try text(value)), "scroll orientation")
             case "style": try style(value)
             default: throw Invalid(reason: "unsupported host prop " + key)
             }
@@ -187,13 +188,13 @@ enum XplatStartupArtifact {
             let row = try object(value)
             try keys(row, ["index", "path", "parent", "kind", "props"])
             try check(integer(field(row, "index"), 0, 1023) == index, "node index")
-            let kind = try text(field(row, "kind")); try check(["masonview", "label", "#text"].contains(kind), "host kind")
+            let kind = try text(field(row, "kind")); try check(["masonview", "scrollview", "label", "#text"].contains(kind), "host kind")
             var parent = -1
             if index == 0 { try check(field(row, "parent") is NSNull && kind != "#text", "root parent or kind") }
             else {
                 parent = try integer(field(row, "parent"), 0, index - 1)
                 let owner = nodes[parent].kind
-                try check(owner == "masonview" ? kind != "#text" : owner == "label" && kind == "#text", "child kind")
+                try check(owner == "masonview" || owner == "scrollview" ? kind != "#text" : owner == "label" && kind == "#text", "child kind")
             }
             let path = parent < 0 ? "0" : nodes[parent].path + "/" + String(nodes[parent].children.count)
             try check(text(field(row, "path")) == path && path.split(separator: "/", omittingEmptySubsequences: false).count <= 64, "node address or depth")

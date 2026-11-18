@@ -103,7 +103,7 @@ public final class StartupArtifact {
     private static final Set<String> STYLE_KEYS = new HashSet<>(Arrays.asList(
         "alignItems", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
-        "fontWeight", "height", "justifyContent", "lineHeight", "maxWidth", "minWidth", "minHeight", "opacity", "paddingBottom",
+        "fontWeight", "height", "justifyContent", "lineHeight", "maxHeight", "maxWidth", "minWidth", "minHeight", "opacity", "overflowX", "overflowY", "paddingBottom",
         "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace"));
     private static void require(boolean condition, String reason) { if (!condition) throw new Invalid(reason); }
     private static boolean finite(double value) { return !Double.isNaN(value) && !Double.isInfinite(value); }
@@ -171,6 +171,7 @@ public final class StartupArtifact {
                 case "accessibilityState": case "accessibilityValue": text(value); break;
                 case "accessible": case "isEnabled": require(value instanceof Boolean, "boolean host prop"); break;
                 case "maxLines": integer(value, 0, 1000000); break;
+                case "orientation": require(node.kind.equals("scrollview") && Arrays.asList("vertical", "horizontal").contains(text(value)), "scroll orientation"); break;
                 case "style": style(value); break;
                 default: throw new Invalid("unsupported host prop " + key);
             }
@@ -195,12 +196,12 @@ public final class StartupArtifact {
         for (int index = 0; index < records.size(); index++) {
             Map<String, Object> row = object(records.get(index)); keys(row, "index", "path", "parent", "kind", "props");
             require(integer(row.get("index"), 0, 1023) == index, "node index");
-            String kind = text(row.get("kind")); require(Arrays.asList("masonview", "label", "#text").contains(kind), "host kind");
+            String kind = text(row.get("kind")); require(Arrays.asList("masonview", "scrollview", "label", "#text").contains(kind), "host kind");
             int parent = -1;
             if (index == 0) require(row.get("parent") == null && !kind.equals("#text"), "root parent or kind");
             else {
                 parent = integer(row.get("parent"), 0, index - 1); String owner = nodes.get(parent).kind;
-                require(owner.equals("masonview") ? !kind.equals("#text") : owner.equals("label") && kind.equals("#text"), "child kind");
+                require(owner.equals("masonview") || owner.equals("scrollview") ? !kind.equals("#text") : owner.equals("label") && kind.equals("#text"), "child kind");
             }
             String path = parent < 0 ? "0" : nodes.get(parent).path + "/" + nodes.get(parent).children.size();
             require(path.equals(row.get("path")) && path.split("/", -1).length <= 64, "node address or depth");

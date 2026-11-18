@@ -13,6 +13,7 @@ import org.nativescript.mason.masonkit.enums.AlignItems;
 import org.nativescript.mason.masonkit.enums.Display;
 import org.nativescript.mason.masonkit.enums.FlexDirection;
 import org.nativescript.mason.masonkit.enums.JustifyContent;
+import org.nativescript.mason.masonkit.enums.Overflow;
 import org.nativescript.widgets.StyleableTextView;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +111,8 @@ public final class MasonMount {
                 text.setGravity(android.view.Gravity.CENTER_VERTICAL);
                 text.setText(row.text);
                 view = text;
-            } else view = View.createFlexView(mason, context);
+            } else if (row.kind.equals("scrollview")) view = mason.createScrollView(context);
+            else view = View.createFlexView(mason, context);
             views.add(view);
             Style style = mason.styleForView(view);
             // The live foreign-child adapter supplies this Text default.
@@ -129,7 +131,7 @@ public final class MasonMount {
             defaultFontSizes.add(label == null ? 0 : label.getTextSize());
             apply(view, style, styles.get(row.index).style);
             if (row.parent < 0) viewport.addView(view);
-            else ((View) views.get(row.parent)).addView(view);
+            else ((android.view.ViewGroup) views.get(row.parent)).addView(view);
         }
     }
     private void apply(android.view.View view, Style style, Map<String, Object> values) {
@@ -147,6 +149,9 @@ public final class MasonMount {
         if (values.containsKey("minWidth")) style.setMinSizeWidth(number(values, "minWidth", 0) * density, (byte) 1);
         if (values.containsKey("minHeight")) style.setMinSizeHeight(number(values, "minHeight", 0) * density, (byte) 1);
         if (values.containsKey("maxWidth")) style.setMaxSizeWidth(1, (byte) 2);
+        if (values.containsKey("maxHeight")) style.setMaxSizeHeight(1, (byte) 2);
+        if (values.containsKey("overflowX")) style.setOverflowX("scroll".equals(values.get("overflowX")) ? Overflow.Scroll : Overflow.Hidden);
+        if (values.containsKey("overflowY")) style.setOverflowY("scroll".equals(values.get("overflowY")) ? Overflow.Scroll : Overflow.Hidden);
         if (values.containsKey("height")) style.setSizeHeight(number(values, "height", 0) * density, (byte) 1);
         if (values.containsKey("alignItems")) style.setAlignItems(AlignItems.Center);
         if (values.containsKey("justifyContent")) style.setJustifyContent(values.get("justifyContent").equals("center") ? JustifyContent.Center : JustifyContent.SpaceBetween);

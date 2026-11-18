@@ -113,3 +113,31 @@ test(`${platform} backend rejects structurally valid unsupported native setter v
       assert.match(result.stderr, /Home IR rejected/)
     }
 })
+test(`${platform} backend lowers a scrollview container and rejects unsupported scroll values`, () => {
+  const scrolling = () => {
+    const artifact = fixture()
+    artifact.nodes[0].kind = 'scrollview'
+    artifact.nodes[0].props = { orientation: 'vertical' }
+    for (const theme of ['light', 'dark'])
+      Object.assign(artifact.variants[theme][0].style, {
+        overflowX: 'hidden',
+        overflowY: 'scroll',
+        maxHeight: '100%',
+      })
+    return artifact
+  }
+  const accepted = native(scrolling())
+  assert.equal(accepted.status, 0, accepted.stderr)
+  assert.equal(JSON.parse(accepted.stdout).nodes[0].kind, 'scrollview')
+  for (const [key, value] of [
+    ['overflowY', 'auto'],
+    ['overflowX', 'visible'],
+    ['maxHeight', '50%'],
+  ]) {
+    const artifact = scrolling()
+    artifact.variants.dark[0].style[key] = value
+    const result = native(artifact)
+    assert.equal(result.status, 1, `${key}=${value}: ${result.stderr}`)
+    assert.match(result.stderr, /Home IR rejected/)
+  }
+})
