@@ -4,7 +4,7 @@
 	],
 	"tasks": {
 		"test": {
-			"dependsOn": []
+			"dependsOn": ["@octane-xplat/cli#build"]
 		},
 		"test:ios-api": {
 			"cache": false

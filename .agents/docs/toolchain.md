@@ -371,8 +371,12 @@ experience of agents writing Octane-xplat code effectively.
   isolation check. Because Vite 8's oxc transform follows those root references,
   a references-style package's `vite build` config must pin `tsconfig` to the
   committed env manifest — the programs are absent until a typecheck run, so an
-  unpinned config fails `build:packages` on a fresh checkout.
-  `bun run check:vite-tsconfigs` enforces the pin.
+  unpinned config fails `build:packages` on a fresh checkout. The same rule
+  covers every vitest invocation (`test`, `test:native`, `--config` operands,
+  `vitest.config.*` discovery and `vite.config.*` fallback): an unpinned suite
+  fails every transform on an ungenerated checkout, so suites pin the committed
+  env manifest and packages running vitest with no config file gain a minimal
+  pinned `vitest.config.mts`. `bun run check:vite-tsconfigs` enforces the pin.
 - **App typecheck roots follow the app graph.** The mobile harness includes its
   own source and package ambient declarations; imported framework source is
   checked transitively. Do not root a mobile app program in every package's
