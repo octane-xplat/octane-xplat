@@ -34,6 +34,8 @@ python3 tools/linux-runtime-eval/prepare-metadata.py \
 
 The helper copies the executable, SDK metadata, and Mason library; generates additional metadata under `metadata/`; and records input hashes. The runtime finds extra metadata and `lib/` beside its executable. The generated module uses a library name rather than an absolute library path, so the prepared directory can move. This is a probe bundle, not an installer or complete application package.
 
+To prepare ARM64 metadata inside the Andromeda x86_64 VM, pass `--arch aarch64 --generator-runner /path/to/arm64-runner` and supply ARM64 runtime and library files. The runner receives the ARM64 generator path and its arguments. It should invoke the generator through QEMU user emulation with the extracted ARM64 library sysroot. The WebKit helper accepts the same runner and a `--sysroot` for Clang. Set `PKG_CONFIG_SYSROOT_DIR` and `PKG_CONFIG_LIBDIR` to select the ARM64 GTK headers for that run.
+
 ### Build the pinned executable
 
 On a macOS build host, reserve a native build slot. Use Rust 1.99.1 with the target's Linux standard library, Zig 0.17.1, LLVM 23.1.5, Python 3 and pkg-config. ARM64 also requires LLD 22.1.8 for the final link so Rust's Cortex-A53 workaround is applied. Set `LINUX_RUNTIME_LLVM_BIN` or `LINUX_RUNTIME_ARM64_LLD` when those tools are outside Homebrew's default paths. The optional `LINUX_RUNTIME_RUST_TOOLCHAIN` selects a local rustup name for the same pinned compiler.

@@ -9,12 +9,17 @@ import tempfile
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--generator', type=Path, required=True, help='Linux metadata-generator executable')
+parser.add_argument('--generator-runner', type=Path, help='Executable that invokes the target metadata generator with its arguments')
+parser.add_argument('--sysroot', type=Path, help='Target compiler sysroot (also set target pkg-config paths)')
 parser.add_argument('--webkit-include', type=Path, required=True, help='Directory containing webkit/ and jsc/ headers')
 parser.add_argument('--soup-include', type=Path, required=True, help='Directory containing libsoup/ headers')
 parser.add_argument('--output', type=Path, required=True, help='New output metadata .bin file')
 parser.add_argument('--manifest', type=Path, required=True, help='New JSON input and output manifest')
 args = parser.parse_args()
 generator = args.generator.resolve(strict=True)
+runner = args.generator_runner.resolve(strict=True) if args.generator_runner else None
+generator_command = [str(runner), str(generator)] if runner else [str(generator)]
+compiler_flags = [f'--sysroot={args.sysroot.resolve(strict=True)}'] if args.sysroot else []
 webkit = args.webkit_include.resolve(strict=True)
 soup = args.soup_include.resolve(strict=True)
 output = args.output.resolve()
@@ -66,8 +71,8 @@ with tempfile.TemporaryDirectory(prefix='webkit-metadata-', dir=output.parent) a
     )
     umbrella.write_text('#include <jsc/jsc.h>\n#include <webkit/webkit.h>\n')
     subprocess.run(
-        [str(generator), '-input-umbrella', str(umbrella), '-output-bin', str(generated),
-         'Xclang', f'-fmodule-map-file={modulemap}', f'-I{webkit}', f'-I{soup}', *gtk_includes],
+        [*generator_command, '-input-umbrella', str(umbrella), '-output-bin', str(generated),
+         'Xclang', *compiler_flags, f'-fmodule-map-file={modulemap}', f'-I{webkit}', f'-I{soup}', *gtk_includes],
         cwd=generator.parent,
         check=True,
     )
@@ -81,6 +86,8 @@ with tempfile.TemporaryDirectory(prefix='webkit-metadata-', dir=output.parent) a
         'gtkIncludes': gtk_includes,
         'metadataSha256': digest(generated),
     }
+    if runner:
+        record['generatorRunnerSha256'] = digest(runner)
     # Output paths must be new; do not overwrite a previous run's evidence.
     with output.open('xb') as target, generated.open('rb') as source:
         while chunk := source.read(1024 * 1024):
