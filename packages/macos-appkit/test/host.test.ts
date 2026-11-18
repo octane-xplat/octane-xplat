@@ -244,6 +244,48 @@ test('openWindow enforces the resolver contract and unmounts on close', async ()
   )
 })
 
+test('closing the primary window clears it so services fall back to a live window', async () => {
+  // Earlier tests created main windows that were never closed; retire
+  // whatever holds the designation so this test owns it.
+  if (shared.platformServices.primaryWindow) {
+    shared.appDelegate.windowWillClose({ object: shared.platformServices.primaryWindow })
+  }
+
+  const primary = createAppKitWindow({ title: 'Primary' })
+  const app: any = primary.app
+
+  assert.equal(shared.platformServices.primaryWindow, primary.window)
+
+  setWindowContentResolver(() => defineUniversalComponent('macos', () => null))
+  const secondary = openSecondary({ title: 'Fallback' })
+
+  // Opening another window does not take over the designation.
+  assert.equal(shared.platformServices.primaryWindow, primary.window)
+
+  app.keyWindow = secondary.window
+  secondary.window.contentView.bounds = {
+    origin: { x: 0, y: 0 },
+    size: { width: 111, height: 222 },
+  }
+
+  shared.appDelegate.windowWillClose({ object: primary.window })
+  await primary.windowClosed
+
+  // The closed window is no longer primary; readers fall through to the
+  // live key window instead of anchoring to the closed one.
+  assert.equal(shared.platformServices.primaryWindow, null)
+  assert.equal(bridge.windowSize.width, 111)
+  assert.equal(bridge.windowSize.height, 222)
+
+  // A later main window retakes the designation.
+  const reopened = createAppKitWindow({ title: 'Reopened' })
+  assert.equal(shared.platformServices.primaryWindow, reopened.window)
+
+  shared.appDelegate.windowWillClose({ object: reopened.window })
+  secondary.close()
+  app.keyWindow = null
+})
+
 test('runMacOSApp calls mount cleanup once before unmount, then stops the host', async () => {
   const order: string[] = []
   let stopCalls = 0

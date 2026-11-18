@@ -314,6 +314,19 @@ function takeNativeWindowValue<T>(map: Map<NSWindow, T>, nativeWindow: NSWindow)
   return null
 }
 
+// The window platform services read for geometry and presentation anchors:
+// the designated primary window while it is open, else AppKit's live
+// key/main window ordering.
+function currentServiceWindow(): NSWindow | null {
+  return (
+    shared.platformServices.primaryWindow ??
+    app.keyWindow ??
+    app.mainWindow ??
+    app.windows?.firstObject ??
+    null
+  )
+}
+
 class AppDelegate extends NSObject {
   static ObjCProtocols = [NSApplicationDelegate, NSWindowDelegate]
 
@@ -407,6 +420,13 @@ class AppDelegate extends NSObject {
     const nativeWindow = notification.object as NSWindow
     const controller = controllerFor(nativeWindow)
 
+    // releasedWhenClosed keeps the NSWindow alive past close, so clear the
+    // primary reference before teardown — otherwise service consumers keep
+    // anchoring to the closed window instead of the live key/main window.
+    if (sameNativeWindow(shared.platformServices.primaryWindow, nativeWindow)) {
+      shared.platformServices.primaryWindow = null
+    }
+
     if (controller) {
       controller.__didClose()
     } else {
@@ -426,6 +446,7 @@ class AppDelegate extends NSObject {
     }
 
     shared.windowCloseHandlers.clear()
+    shared.platformServices.primaryWindow = null
     // Synchronous teardown seam for runMacOSApp — mount cleanup must run
     // before the root unmount queued by the close handlers above.
     notifyAppKitListeners(shared.terminating ?? new Set<() => void>(), (handler) => handler())
@@ -503,8 +524,7 @@ function installPlatformServices() {
         return services.appState
       },
       get windowSize() {
-        const window =
-          services.primaryWindow ?? app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject
+        const window = currentServiceWindow()
 
         const size = window?.contentView?.bounds?.size ??
           window?.contentView?.frame?.size ??
@@ -554,7 +574,7 @@ function installPlatformServices() {
         title?: string
         file?: string
       }) {
-        const anchor = services.primaryWindow?.contentView
+        const anchor = currentServiceWindow()?.contentView
 
         if (!anchor || typeof NSSharingServicePicker === 'undefined') {
           return 'unavailable'
