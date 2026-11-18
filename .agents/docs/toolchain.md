@@ -335,7 +335,12 @@ experience of agents writing Octane-xplat code effectively.
   `bun run check:pack`, `bun run test:packed`, and the package-test half of `bun run test`
   delegate to `turbo run`. Results cache locally under `.turbo/` (gitignored —
   shared across worktrees of this clone): unchanged tasks reuse cached results,
-  and touching a leaf package invalidates its tasks and dependents.
+  and touching a leaf package invalidates its tasks and dependents. A package
+  `turbo.json` that narrows `typegen` `outputs` below the root `types/**`
+  default must still declare `<output dir>/.tsrx-typegen-manifest.json` — the
+  manifest is a real task output, and a cache hit that restores declarations
+  without it makes `tsrx-typegen` refuse its own output until the directory is
+  removed.
   Common build, typecheck, and test tasks depend on `^typegen`, which both
   orders dependency declaration emit first and folds each dep's file hash into
   the dependent — the edge covers even script-less deps because turbo still

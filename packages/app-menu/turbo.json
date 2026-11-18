@@ -5,7 +5,8 @@
 	"tasks": {
 		"typegen": {
 			"outputs": [
-				"types/generated/**/*.d.ts"
+				"types/generated/**/*.d.ts",
+				"types/generated/.tsrx-typegen-manifest.json"
 			]
 		},
 		"build": {

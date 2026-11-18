@@ -42,14 +42,18 @@ test('API task prepares declarations and builds for every published package', ()
   }
 })
 
-test('desktop declaration caches include the published type entry', () => {
-  for (const name of ['app-menu', 'global-shortcuts', 'shortcuts', 'tray']) {
+test('desktop declaration caches include the published type entry and ownership manifest', () => {
+  for (const name of ['app-menu', 'global-shortcuts', 'pretext', 'shortcuts', 'tray']) {
     const root = `../../packages/${name}`
     const manifest = JSON.parse(readFileSync(`${root}/package.json`, 'utf8'))
     const config = JSON.parse(readFileSync(`${root}/turbo.json`, 'utf8'))
 
     assert.equal(manifest.types, './types/generated/index.d.ts')
     assert.ok(config.tasks.typegen.outputs.includes('types/generated/**/*.d.ts'), name)
+    assert.ok(
+      config.tasks.typegen.outputs.includes('types/generated/.tsrx-typegen-manifest.json'),
+      name,
+    )
   }
 })
 
