@@ -3,11 +3,13 @@
 // subset, same as platform's auth-session). Android launches a Chrome Custom
 // Tab via androidx.browser — pulled in by platforms/android/include.gradle.
 import { Application, Color, Utils, isIOS } from '@nativescript/core'
-import { NSURL, UIApplication, UIWindowScene } from '@octane-xplat/platform/ios'
 import type { OpenBrowserOptions, WebBrowser, WebBrowserResult } from './types'
 
 declare const SFSafariViewController: any
 declare const SFSafariViewControllerConfiguration: any
+declare const NSURL: any
+declare const UIApplication: any
+type UIWindowScene = any
 
 // UIModalPresentationStyle
 const PRESENTATION: Record<string, number> = {
@@ -99,7 +101,9 @@ function androidOpen(url: string, options?: OpenBrowserOptions): Promise<WebBrow
       const builder = new tabs.CustomTabsIntent.Builder()
 
       if (options?.toolbarColor) {
-        builder.setToolbarColor(android.graphics.Color.parseColor(options.toolbarColor))
+        builder.setToolbarColor(
+          (globalThis as any).android.graphics.Color.parseColor(options.toolbarColor),
+        )
       }
 
       if (options?.showTitle) {
@@ -110,7 +114,7 @@ function androidOpen(url: string, options?: OpenBrowserOptions): Promise<WebBrow
         builder.setUrlBarHidingEnabled(true)
       }
 
-      builder.build().launchUrl(activity, android.net.Uri.parse(url))
+      builder.build().launchUrl(activity, (globalThis as any).android.net.Uri.parse(url))
       resolve({ type: 'opened' })
     } catch {
       resolve({ type: 'cancel' })
@@ -198,7 +202,7 @@ export const webBrowser: WebBrowser = {
     return withTabsClient(packageName, (client) => {
       const session = client.newSession(null)
 
-      session?.mayLaunchUrl(android.net.Uri.parse(url), null, null)
+      session?.mayLaunchUrl((globalThis as any).android.net.Uri.parse(url), null, null)
     })
   },
 }

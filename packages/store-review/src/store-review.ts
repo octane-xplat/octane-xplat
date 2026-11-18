@@ -52,9 +52,10 @@ function androidPackageName(): string {
 
 function androidHasAction(): boolean {
   try {
-    const intent = new android.content.Intent(
-      android.content.Intent.ACTION_VIEW,
-      android.net.Uri.parse('market://details?id=' + androidPackageName()),
+    const androidApi = (globalThis as any).android
+    const intent = new androidApi.content.Intent(
+      androidApi.content.Intent.ACTION_VIEW,
+      androidApi.net.Uri.parse('market://details?id=' + androidPackageName()),
     )
 
     return intent.resolveActivity(androidContext().getPackageManager()) != null
