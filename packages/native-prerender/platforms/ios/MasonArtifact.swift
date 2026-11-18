@@ -15,11 +15,14 @@ enum XplatMasonArtifact {
         let text = value as? String
         let valid: Bool
         switch key {
-        case "display": valid = text == "flex" || text == "block"
+        case "display": valid = text == "flex" || text == "block" || text == "grid"
         case "flexDirection": valid = text == "row" || text == "column"
         case "alignItems": valid = text == "center"
-        case "alignSelf": valid = text == "stretch"
+        case "alignSelf": valid = text == "stretch" || text == "center"
         case "justifyContent": valid = text == "center" || text == "space-between"
+        case "justifySelf": valid = text == "stretch" || text == "center"
+        case "gridRow", "gridColumn": valid = text == "1"
+        case "gridTemplateRows", "gridTemplateColumns": valid = text == "1fr"
         case "maxWidth", "maxHeight": valid = text == "100%"
         case "overflowX", "overflowY": valid = text == "scroll" || text == "hidden"
         case "cornerShape": valid = text == "squircle"

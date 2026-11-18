@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import test from 'node:test'
@@ -50,9 +51,49 @@ function fixture() {
 }
 let sequence = 0
 function native(artifact) {
+  return nativeBytes(encodeStartupArtifact(artifact))
+}
+function nativeBytes(bytes) {
   const path = join(work, 'backend-' + sequence++ + '.bin')
-  writeFileSync(path, encodeStartupArtifact(artifact))
+  writeFileSync(path, bytes)
   return spawnSync(binary, [path, build], { encoding: 'utf8', timeout: 15000 })
+}
+/** The schema gates bounded style values at encode, so an out-of-contract
+ *  value only reaches the native validators through a forged artifact: swap
+ *  the string literal under `key` and refresh the length fields and payload
+ *  checksum so the binary stays well-formed. */
+function forged(artifact, key, from, to) {
+  const original = Buffer.from(encodeStartupArtifact(artifact))
+  const name = Buffer.from(key, 'utf8')
+  let cursor = 0
+  for (;;) {
+    const at = original.indexOf(name, cursor)
+    assert.ok(at >= 0, 'missing style key ' + key)
+    cursor = at + name.length
+    if (original[cursor] !== 4) {continue}
+    const length = original.readUInt32LE(cursor + 1)
+    const start = cursor + 5
+    if (!original.subarray(start, start + length).equals(Buffer.from(from, 'utf8'))) {continue}
+    const value = Buffer.from(to, 'utf8')
+    const bytes = Buffer.concat([
+      original.subarray(0, start),
+      value,
+      original.subarray(start + length),
+    ])
+    bytes.writeUInt32LE(value.length, cursor + 1)
+    bytes.writeUInt32LE(bytes.length, 8)
+    createHash('sha256').update(bytes.subarray(80)).digest().copy(bytes, 48)
+    return bytes
+  }
+}
+const GRID_STYLE = {
+  display: 'grid',
+  gridTemplateRows: '1fr',
+  gridTemplateColumns: '1fr',
+  gridRow: '1',
+  gridColumn: '1',
+  justifySelf: 'stretch',
+  alignSelf: 'center',
 }
 test(`${platform} backend lowers the complete logical artifact to its expected visual records`, () => {
   const artifact = fixture(),
@@ -232,7 +273,6 @@ test(`${platform} backend schema rejects a placeholder with children and unknown
 test(`${platform} backend rejects structurally valid unsupported native setter values in either theme`, () => {
   for (const theme of ['light', 'dark'])
     for (const [key, value] of [
-      ['display', 'grid'],
       ['flexDirection', 'row-reverse'],
       ['alignItems', 'stretch'],
       ['justifyContent', 'start'],
@@ -313,7 +353,6 @@ test(`${platform} backend accepts Screen shell styles and rejects other values`,
   const accepted = native(shell())
   assert.equal(accepted.status, 0, accepted.stderr)
   for (const [key, value] of [
-    ['alignSelf', 'center'],
     ['width', '50%'],
     ['height', '50%'],
   ]) {
@@ -323,4 +362,29 @@ test(`${platform} backend accepts Screen shell styles and rejects other values`,
     assert.equal(result.status, 1, `${key}=${value}: ${result.stderr}`)
     assert.match(result.stderr, /Home IR rejected/)
   }
+})
+test(`${platform} backend accepts the loading Button grid subset and rejects other values`, () => {
+  const accepted = fixture()
+  for (const theme of ['light', 'dark'])
+    Object.assign(accepted.variants[theme][0].style, GRID_STYLE)
+  const result = native(accepted)
+  assert.equal(result.status, 0, result.stderr)
+  // Bounded values gate at the schema during encode; forge checksum-valid
+  // binaries so the native validators see each out-of-contract value anyway.
+  for (const theme of ['light', 'dark'])
+    for (const [key, from, to] of [
+      ['display', 'grid', 'contents'],
+      ['gridRow', '1', '2'],
+      ['gridColumn', '1', '2'],
+      ['gridTemplateRows', '1fr', 'auto'],
+      ['gridTemplateColumns', '1fr', 'auto'],
+      ['justifySelf', 'stretch', 'end'],
+      ['alignSelf', 'center', 'end'],
+    ]) {
+      const artifact = fixture()
+      Object.assign(artifact.variants[theme][0].style, GRID_STYLE)
+      const rejected = nativeBytes(forged(artifact, key, from, to))
+      assert.equal(rejected.status, 1, `${theme} ${key}=${to}: ${rejected.stderr}`)
+      assert.match(rejected.stderr, /Home IR rejected/)
+    }
 })

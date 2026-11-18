@@ -95,8 +95,13 @@ export const STYLE_KEYS: readonly string[] = Object.freeze([
   'fontFamily',
   'fontSize',
   'fontWeight',
+  'gridColumn',
+  'gridRow',
+  'gridTemplateColumns',
+  'gridTemplateRows',
   'height',
   'justifyContent',
+  'justifySelf',
   'lineHeight',
   'maxHeight',
   'maxWidth',
@@ -116,6 +121,20 @@ export const STYLE_KEYS: readonly string[] = Object.freeze([
   'width',
 ])
 
+/**
+ * Bounded enum-style style values, aligned with the native Mason backend
+ * contract. The loading `Button` grid (one shared 1x1 cell plus self
+ * alignments) is the whole supported subset; unlisted keys stay structural.
+ */
+export const STYLE_VALUE_BOUNDS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  alignSelf: Object.freeze(['center', 'stretch']),
+  display: Object.freeze(['block', 'flex', 'grid']),
+  gridColumn: Object.freeze(['1']),
+  gridRow: Object.freeze(['1']),
+  gridTemplateColumns: Object.freeze(['1fr']),
+  gridTemplateRows: Object.freeze(['1fr']),
+  justifySelf: Object.freeze(['center', 'stretch']),
+})
 export class ArtifactError extends Error {
   constructor(message: string) {
     super('Native startup IR: ' + message)
@@ -304,6 +323,9 @@ function validateStyle(value: unknown): Record<string, string | number> {
   for (const key of Object.keys(input).sort()) {
     const value = input[key]
     requireArtifact(STYLE_KEYS.includes(key), 'unsupported style ' + key)
+    const bounds = STYLE_VALUE_BOUNDS[key]
+    if (bounds !== undefined)
+      {requireArtifact(typeof value === 'string' && bounds.includes(value), 'style value')}
     if (typeof value === 'string' && key !== 'opacity') {style[key] = string(value, 'style value')}
     else {
       requireArtifact(typeof value === 'number' && Number.isFinite(value), 'style value')

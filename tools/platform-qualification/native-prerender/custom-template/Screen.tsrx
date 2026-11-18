@@ -44,6 +44,7 @@ export function Screen(props: ScreenProps) @{
           <Text className="screen-action-label">Template action</Text>
         </Pressable>
         <Button id="screen-disabled" label="Disabled action" isDisabled />
+        <Button id="screen-loading" label="Loading action" isLoading />
         <HStack id="spinner-row">
           <VStack id="hydration-spinner" className="spinner" />
         </HStack>

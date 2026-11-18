@@ -89,7 +89,7 @@ enum XplatStartupArtifact {
     private static let styleKeys: Set<String> = [
         "alignItems", "alignSelf", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
-        "fontWeight", "height", "justifyContent", "lineHeight", "maxHeight", "maxWidth", "minWidth", "minHeight", "opacity", "overflowX", "overflowY", "paddingBottom",
+        "fontWeight", "gridColumn", "gridRow", "gridTemplateColumns", "gridTemplateRows", "height", "justifyContent", "justifySelf", "lineHeight", "maxHeight", "maxWidth", "minWidth", "minHeight", "opacity", "overflowX", "overflowY", "paddingBottom",
         "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace", "width",
     ]
     private static func check(_ value: Bool, _ reason: String) throws {

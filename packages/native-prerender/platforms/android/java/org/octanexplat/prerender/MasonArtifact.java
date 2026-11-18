@@ -75,12 +75,15 @@ public final class MasonArtifact {
         boolean nonnegative = n >= 0 && (!Float.isInfinite((float) n) && !Float.isNaN((float) n));
         boolean valid;
         switch (key) {
-            case "display": valid = "flex".equals(value) || "block".equals(value); break;
+            case "display": valid = "flex".equals(value) || "block".equals(value) || "grid".equals(value); break;
             case "flexDirection": valid = "row".equals(value) || "column".equals(value); break;
             case "alignItems": valid = "center".equals(value); break;
-            case "alignSelf": valid = "stretch".equals(value); break;
+            case "alignSelf": valid = "stretch".equals(value) || "center".equals(value); break;
             case "width": case "height": valid = nonnegative || "100%".equals(value); break;
             case "justifyContent": valid = "center".equals(value) || "space-between".equals(value); break;
+            case "justifySelf": valid = "stretch".equals(value) || "center".equals(value); break;
+            case "gridRow": case "gridColumn": valid = "1".equals(value); break;
+            case "gridTemplateRows": case "gridTemplateColumns": valid = "1fr".equals(value); break;
             case "maxWidth": case "maxHeight": valid = "100%".equals(value); break;
             case "overflowX": case "overflowY": valid = "scroll".equals(value) || "hidden".equals(value); break;
             case "cornerShape": valid = "squircle".equals(value); break;

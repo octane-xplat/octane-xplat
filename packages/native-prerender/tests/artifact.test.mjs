@@ -379,6 +379,37 @@ test('Screen shell keys: alignSelf stretch, percentage size and iosIgnoreSafeAre
   assert.throws(() => validateArtifact(invalid), /boolean host prop/)
 })
 
+test('loading Button grid styles accept the bounded subset and reject other values', () => {
+  const value = fixture()
+  Object.assign(value.variants.light[0].style, {
+    display: 'grid',
+    gridTemplateRows: '1fr',
+    gridTemplateColumns: '1fr',
+    gridRow: '1',
+    gridColumn: '1',
+    justifySelf: 'stretch',
+    alignSelf: 'stretch',
+  })
+  value.variants.light[1].style.justifySelf = 'center'
+  value.variants.light[1].style.alignSelf = 'center'
+  const canonical = validateArtifact(value)
+  assert.equal(canonical.variants.light[0].style.display, 'grid')
+  assert.deepEqual(decodeStartupArtifact(encodeStartupArtifact(value), expected), canonical)
+  for (const [key, invalid] of [
+    ['gridRow', '2'],
+    ['gridColumn', '1 / 3'],
+    ['gridTemplateRows', 'auto'],
+    ['gridTemplateColumns', '1fr 1fr'],
+    ['justifySelf', 'end'],
+    ['alignSelf', 'end'],
+    ['display', 'contents'],
+  ]) {
+    const bad = fixture()
+    bad.variants.light[0].style[key] = invalid
+    assert.throws(() => validateArtifact(bad), /style value/, key + '=' + invalid)
+  }
+})
+
 test('placeholder hosts stay leaf-only with bounded props and project as placeholders', () => {
   const batch = [
     { op: 'create', id: 100, type: 'masonview', props: { className: 'screen' } },

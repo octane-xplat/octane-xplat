@@ -66,7 +66,11 @@ ordinary path at the same index, counted as `replacedCount` rather than
 `claimedCount`. `Icon` always carries numeric size (`namedSizes` maps every
 named size), so the built-in `xplat-check` glyph lowers to a sized
 `svgview` placeholder. Placeholder styles keep box geometry only; the producer
-reports dropped keys per placeholder in the build manifest. Generic
+reports dropped keys per placeholder in the build manifest. A loading `Button`
+is eligible through that placeholder path plus a bounded grid subset —
+`display: grid`, `1fr` single-cell templates, `gridRow`/`gridColumn: 1` and
+`stretch`/`center` self-alignment — whose schema and backend bounds reject
+every other grid value. Generic
 logical projection, backend preflight and native mounting belong to the reusable
 package; the Android and iOS wrapper bindings now also belong to that package. The fixed
 Home host, generic mount host, observations and adoption controls remain in qualification tooling. Native mounts must not contain seed, node-count or

@@ -14,6 +14,7 @@ import org.nativescript.mason.masonkit.enums.AlignSelf;
 import org.nativescript.mason.masonkit.enums.Display;
 import org.nativescript.mason.masonkit.enums.FlexDirection;
 import org.nativescript.mason.masonkit.enums.JustifyContent;
+import org.nativescript.mason.masonkit.enums.JustifySelf;
 import org.nativescript.mason.masonkit.enums.Overflow;
 import org.nativescript.widgets.StyleableTextView;
 import java.util.ArrayList;
@@ -137,7 +138,14 @@ public final class MasonMount {
     }
     private void apply(android.view.View view, Style style, Map<String, Object> values) {
         style.setInBatch(true);
-        if (values.containsKey("display")) { supported("flex".equals(values.get("display")) || "block".equals(values.get("display")), "Unsupported display"); style.setDisplay("flex".equals(values.get("display")) ? Display.Flex : Display.Block); }
+        if (values.containsKey("display")) {
+            supported("flex".equals(values.get("display")) || "block".equals(values.get("display")) || "grid".equals(values.get("display")), "Unsupported display");
+            style.setDisplay("flex".equals(values.get("display")) ? Display.Flex : "grid".equals(values.get("display")) ? Display.Grid : Display.Block);
+        }
+        if (values.containsKey("gridRow")) style.setGridRow((String) values.get("gridRow"));
+        if (values.containsKey("gridColumn")) style.setGridColumn((String) values.get("gridColumn"));
+        if (values.containsKey("gridTemplateRows")) style.setGridTemplateRows((String) values.get("gridTemplateRows"));
+        if (values.containsKey("gridTemplateColumns")) style.setGridTemplateColumns((String) values.get("gridTemplateColumns"));
         if (values.containsKey("flexDirection")) style.setFlexDirection(values.get("flexDirection").equals("column") ? FlexDirection.Column : FlexDirection.Row);
         if (values.containsKey("flexGrow")) style.setFlexGrow(number(values, "flexGrow", 0));
         if (values.containsKey("flexShrink")) style.setFlexShrink(number(values, "flexShrink", 0));
@@ -157,7 +165,8 @@ public final class MasonMount {
         else if (values.containsKey("height")) style.setSizeHeight(number(values, "height", 0) * density, (byte) 1);
         if ("100%".equals(values.get("width"))) style.setSizeWidth(1, (byte) 2);
         else if (values.containsKey("width")) style.setSizeWidth(number(values, "width", 0) * density, (byte) 1);
-        if (values.containsKey("alignSelf")) style.setAlignSelf(AlignSelf.Stretch);
+        if (values.containsKey("alignSelf")) style.setAlignSelf("center".equals(values.get("alignSelf")) ? AlignSelf.Center : AlignSelf.Stretch);
+        if (values.containsKey("justifySelf")) style.setJustifySelf("center".equals(values.get("justifySelf")) ? JustifySelf.Center : JustifySelf.Stretch);
         if (values.containsKey("alignItems")) style.setAlignItems(AlignItems.Center);
         if (values.containsKey("justifyContent")) style.setJustifyContent(values.get("justifyContent").equals("center") ? JustifyContent.Center : JustifyContent.SpaceBetween);
         if (values.containsKey("backgroundColor")) style.setBackgroundColor(color((String) values.get("backgroundColor")));

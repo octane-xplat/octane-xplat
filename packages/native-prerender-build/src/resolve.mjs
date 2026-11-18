@@ -114,6 +114,11 @@ for (const colorScheme of ['light', 'dark']) {
       nodes[index].kind === 'scrollview'
         ? scrollviewStyle(nodes[index].props, result.style)
         : result.style
+    // The IR only carries #hex and rgba() colors. CSS `transparent` is the
+    // driver's rgba(0,0,0,0), so fold the keyword before backend validation.
+    for (const key of ['color', 'backgroundColor']) {
+      if (style[key] === 'transparent') {style = { ...style, [key]: 'rgba(0, 0, 0, 0)' }}
+    }
     let cssKeys = [...result.cssKeys]
     let inheritedKeys = [...result.inheritedKeys]
 

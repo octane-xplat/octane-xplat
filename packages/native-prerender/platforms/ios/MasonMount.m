@@ -35,9 +35,16 @@ static uint32_t ARGB(UIColor *color) {
 }
 static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
-    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect", @"opacity", @"maxHeight", @"overflowX", @"overflowY", @"alignSelf", @"width"]];
+    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"justifySelf", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect", @"opacity", @"maxHeight", @"overflowX", @"overflowY", @"alignSelf", @"width", @"gridRow", @"gridColumn", @"gridTemplateRows", @"gridTemplateColumns"]];
     for (NSString *key in values) Require([known containsObject:key], [@"Unsupported property: " stringByAppendingString:key]);
-    if (values[@"display"]) { Require([values[@"display"] isEqual:@"flex"] || [values[@"display"] isEqual:@"block"], @"Unsupported display"); style.display = [values[@"display"] isEqual:@"flex"] ? MasonDisplayFlex : MasonDisplayBlock; }
+    if (values[@"display"]) {
+        Require([values[@"display"] isEqual:@"flex"] || [values[@"display"] isEqual:@"block"] || [values[@"display"] isEqual:@"grid"], @"Unsupported display");
+        style.display = [values[@"display"] isEqual:@"flex"] ? MasonDisplayFlex : [values[@"display"] isEqual:@"grid"] ? MasonDisplayGrid : MasonDisplayBlock;
+    }
+    if (values[@"gridRow"]) { Require([values[@"gridRow"] isEqual:@"1"], @"Unsupported grid row"); style.gridRow = values[@"gridRow"]; }
+    if (values[@"gridColumn"]) { Require([values[@"gridColumn"] isEqual:@"1"], @"Unsupported grid column"); style.gridColumn = values[@"gridColumn"]; }
+    if (values[@"gridTemplateRows"]) { Require([values[@"gridTemplateRows"] isEqual:@"1fr"], @"Unsupported grid template rows"); style.gridTemplateRows = values[@"gridTemplateRows"]; }
+    if (values[@"gridTemplateColumns"]) { Require([values[@"gridTemplateColumns"] isEqual:@"1fr"], @"Unsupported grid template columns"); style.gridTemplateColumns = values[@"gridTemplateColumns"]; }
     if (values[@"flexDirection"]) {
         Require([@[@"row",@"column"] containsObject:values[@"flexDirection"]], @"Unsupported flex direction");
         style.flexDirection = [values[@"flexDirection"] isEqual:@"column"] ? MasonFlexDirectionColumn : MasonFlexDirectionRow;
@@ -60,7 +67,14 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     else if (values[@"height"]) [style setSizeHeight:[values[@"height"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if ([values[@"width"] isKindOfClass:NSString.class]) { Require([values[@"width"] isEqual:@"100%"], @"Unsupported width"); [style setSizeWidth:1 :MasonDimensionCompatTypePercent]; }
     else if (values[@"width"]) [style setSizeWidth:[values[@"width"] floatValue]*scale :MasonDimensionCompatTypePoints];
-    if (values[@"alignSelf"]) { Require([values[@"alignSelf"] isEqual:@"stretch"], @"Unsupported self alignment"); style.alignSelf = MasonAlignSelfStretch; }
+    if (values[@"alignSelf"]) {
+        Require([values[@"alignSelf"] isEqual:@"stretch"] || [values[@"alignSelf"] isEqual:@"center"], @"Unsupported self alignment");
+        style.alignSelf = [values[@"alignSelf"] isEqual:@"center"] ? MasonAlignSelfCenter : MasonAlignSelfStretch;
+    }
+    if (values[@"justifySelf"]) {
+        Require([values[@"justifySelf"] isEqual:@"stretch"] || [values[@"justifySelf"] isEqual:@"center"], @"Unsupported self justification");
+        style.justifySelf = [values[@"justifySelf"] isEqual:@"center"] ? MasonJustifySelfCenter : MasonJustifySelfStretch;
+    }
     // The examined SDK bulk border-width setter writes padding. Use its edge setters.
     if (values[@"borderWidth"]) {
         Require([values[@"borderWidth"] doubleValue] == 0, @"Unsupported border width");
