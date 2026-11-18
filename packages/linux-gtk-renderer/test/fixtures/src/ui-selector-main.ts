@@ -390,6 +390,14 @@ async function run() {
   await pause()
   check('unmount releases managed nodes', container.nodes.size === 0)
   check('unmount releases shared window controllers', controllerCount(window) === windowBaseline)
+  check(
+    'unmount clears window wiring',
+    !container.windowConnections?.length &&
+      !container.rootSignalId &&
+      !container.modalityControllers &&
+      !container.layerKeyController &&
+      !container.window,
+  )
   check('shared chrome provider refcount returns to zero', container.popoverChromeUsers?.() === 0)
   check('stale trigger cannot create a new popup', lastTrigger.createPopover({}) === null)
   print(

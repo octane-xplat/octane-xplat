@@ -513,6 +513,14 @@ async function run() {
   )
 
   check('unmount releases shared window controllers', controllerCount(window) === windowBaseline)
+  check(
+    'unmount clears window wiring',
+    !container.windowConnections?.length &&
+      !container.rootSignalId &&
+      !container.modalityControllers &&
+      !container.layerKeyController &&
+      !container.window,
+  )
   check('unmount releases popup controllers', controllerCount(popup5) === popup5Controllers - 2)
   check('shared chrome provider refcount returns to zero', container.popoverChromeUsers?.() === 0)
   check('stale anchor cannot create a new popup', lastAnchor.createPopover({}) === null)

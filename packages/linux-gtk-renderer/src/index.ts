@@ -1786,6 +1786,58 @@ function wireContainerWindow(container: GtkContainer) {
   container.window = root
 }
 
+/** Teardown mirror of wireContainerWindow. unmount must release every handler
+ *  and controller the window wiring installed — the window usually outlives
+ *  the root (remounts, hot reload, multi-root hosts), and stale entries keep
+ *  firing resize/modality/layer-key dispatch against the dead container. */
+function unwireContainerWindow(container: GtkContainer) {
+  if (container.rootSignalId) {
+    try {
+      container.host.disconnect?.(container.rootSignalId)
+    } catch {
+      // host or signal already gone
+    }
+
+    container.rootSignalId = undefined
+  }
+
+  for (const [emitter, id] of container.windowConnections ?? []) {
+    try {
+      emitter.disconnect(id)
+    } catch {
+      // emitter or connection already gone
+    }
+  }
+
+  container.windowConnections = undefined
+  container.surfaceWired = false
+
+  const window = container.window
+
+  if (window) {
+    for (const controller of container.modalityControllers ?? []) {
+      try {
+        window.remove_controller(controller)
+      } catch {
+        // controller already detached with the window
+      }
+    }
+
+    if (container.layerKeyController) {
+      try {
+        window.remove_controller(container.layerKeyController)
+      } catch {
+        // controller already detached with the window
+      }
+    }
+  }
+
+  container.modalityControllers = undefined
+  container.layerKeyController = undefined
+  container.layerKeySink = null
+  container.window = undefined
+}
+
 function observeGtkSettings() {
   if (settingsObserved) {
     return
@@ -5432,6 +5484,9 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
       ;(globalThis as any).imports?.system?.gc?.()
     } catch {}
 
+    // Release the window-level wiring before teardown emissions — handlers
+    // that survive the root keep dispatching into the dead container.
+    unwireContainerWindow(container)
     universalUnmount()
     for (const layer of Array.from(container.overlayLayerHandles ?? [])) {
       layer.dispose()
