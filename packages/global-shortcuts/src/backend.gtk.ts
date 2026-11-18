@@ -1,7 +1,7 @@
 import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'
 import { linuxKeysym } from './accelerator.js'
-import type { BindOutcome, BindRequest, HotkeyBackend } from './backend.js'
+import type { BindOutcome, BindRequest, HotkeyBackend } from './backend-types.js'
 import type { GlobalShortcutSupport } from './types.js'
 
 // The shared gi.d.ts does not declare the Gio D-Bus surface used here; one

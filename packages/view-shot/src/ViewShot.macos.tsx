@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import './ViewShot.css'
-import type { NSView } from '@octane-xplat/platform/macos'
+import type { HostElement } from '@octane-xplat/jsx/jsx-runtime'
 import { useViewShot } from './use-view-shot'
 import type { ViewShotProps } from './props'
 
 export function ViewShot(props: ViewShotProps): unknown {
-  const attach: (view: NSView | null) => void = useViewShot(props)
+  const attach: (view: HostElement | null) => void = useViewShot(props)
 
   return (
     <masonview

@@ -12,7 +12,7 @@ import {
 } from '@octane-xplat/platform/macos'
 
 import { macKeyCode } from './accelerator.js'
-import type { BindOutcome, BindRequest, HotkeyBackend } from './backend.js'
+import type { BindOutcome, BindRequest, HotkeyBackend } from './backend-types.js'
 import type { Accelerator, GlobalShortcutSupport } from './types.js'
 
 // Carbon modifier bits.

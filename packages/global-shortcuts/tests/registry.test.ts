@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import type { BindOutcome, BindRequest, HotkeyBackend } from '../src/backend'
+import type { BindOutcome, BindRequest, HotkeyBackend } from '../src/backend-types'
 import { createRegistry } from '../src/registry'
 
 interface FakeBackend extends HotkeyBackend {

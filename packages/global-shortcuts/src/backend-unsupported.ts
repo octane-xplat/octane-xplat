@@ -1,4 +1,4 @@
-import type { HotkeyBackend } from './backend.js'
+import type { HotkeyBackend } from './backend-types.js'
 import type { GlobalShortcutPlatform, GlobalShortcutSupport } from './types.js'
 
 /** Backend for entries with no global-hotkey mechanism. */

@@ -1,5 +1,5 @@
 import { windowsKeyMapping } from './accelerator.js'
-import type { BindOutcome, BindRequest, HotkeyBackend } from './backend.js'
+import type { BindOutcome, BindRequest, HotkeyBackend } from './backend-types.js'
 import type { Accelerator, GlobalShortcutSupport } from './types.js'
 
 // The NativeScript Windows runtime does not tick timers inside workers and

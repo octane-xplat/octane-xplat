@@ -1,5 +1,5 @@
 import { parseAccelerator } from './accelerator.js'
-import type { HotkeyBackend } from './backend.js'
+import type { HotkeyBackend } from './backend-types.js'
 import { staticallyReserved } from './reserved.js'
 import type {
   Accelerator,

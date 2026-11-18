@@ -864,3 +864,15 @@ fixture declares and uses both automatic uniforms to avoid depending on that
 error path while measuring content layout. This is a fixture constraint, not
 a runtime fix or a claim that missing uniforms are safely supported. Recheck
 the missing-uniform case when upgrading Android or the NativeScript runtime.
+
+## @nativescript/google-maps: platform declaration files do not re-export shared types (1.8.0)
+
+`index.ios.d.ts` and `index.android.d.ts` import `Coordinate` (and the other
+shared `index.d.ts` types) for their own declarations but do not re-export
+them, so `@nativescript/google-maps` consumers cannot import `Coordinate`
+under a platform-suffixed typecheck or build resolution (`Module ...
+declares 'Coordinate' locally, but it is not exported`). Source evidence
+only; not a runtime limitation. Xplat workaround: `packages/maps`' shared
+`MapView.tsrx` declares the `{ lat, lng }` shape locally rather than
+importing it. Recheck if a plugin release re-exports the common types from
+the platform declaration entries.

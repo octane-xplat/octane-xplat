@@ -6,7 +6,6 @@ import {
   CameraUpdate,
   CameraPosition as NativeCameraPosition,
   MapView as NativeMapView,
-  type Coordinate,
 } from '@nativescript/google-maps'
 
 import type {
@@ -20,6 +19,14 @@ import type {
 } from './props'
 
 import type { CameraPosition } from './props'
+
+// The plugin's index.ios.d.ts/index.android.d.ts import Coordinate for
+// internal use without re-exporting it (upstream 1.8.0); the shared lat/lng
+// shape is declared locally instead.
+interface Coordinate {
+  lat: number
+  lng: number
+}
 
 registerElement('xplatmapview', NativeMapView)
 

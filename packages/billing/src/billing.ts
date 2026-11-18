@@ -160,7 +160,10 @@ export const billing: Billing = {
       throw new Error('billing.finishTransaction: purchase lacks its native transaction')
     }
 
-    await native.finish(options)
+    // consume is a Play Billing concept; the iOS Transaction declares a
+    // zero-argument finish(), so call through the wider signature.
+    const transaction: { finish(options?: { consume?: boolean }): Promise<void> } = native
+    await transaction.finish(options)
   },
 
   async showManageSubscriptions(options?: { subscriptionGroupId?: string }): Promise<void> {
