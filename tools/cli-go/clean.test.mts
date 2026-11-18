@@ -275,7 +275,7 @@ test('clean refuses an active native build, then succeeds after cancellation rel
   put(dir, 'node_modules/vite/package.json', {
     name: 'vite',
     version: 'fixture',
-    bin: { vite: 'run.ts' },
+    bin: { vite: 'run.mjs' },
   })
 
   put(
