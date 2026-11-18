@@ -17,7 +17,20 @@ export const primitiveModules = {
   Image: 'src/components/media/Image.tsrx',
 }
 
-function packageRoot(entry, name) {
+/**
+ * Bounded motion facade, mirroring primitiveModules: the startup render host
+ * exposes only `motion.View`/`motion.Row`/`motion.Pressable` from
+ * `@octane-xplat/motion`'s components module. MotionConfig, hooks, Presence,
+ * createMotion and the rest of the real index stay outside the facade and
+ * fail as unsupported if imported.
+ */
+export const motionModules = {
+  View: 'MotionView',
+  Row: 'MotionRow',
+  Pressable: 'MotionPressable',
+}
+
+export function packageRoot(entry, name) {
   let directory = dirname(realpathSync(entry))
 
   for (;;) {

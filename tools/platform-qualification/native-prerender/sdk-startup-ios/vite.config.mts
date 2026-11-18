@@ -6,6 +6,7 @@ import { native } from '@octane-xplat/build/vite'
 
 const require = createRequire(import.meta.url)
 const ui = dirname(require.resolve('@octane-xplat/ui'))
+const motionSource = dirname(require.resolve('@octane-xplat/motion'))
 const source = join(import.meta.dirname, 'src')
 const primitives = {
   Button: 'actions/Button',
@@ -30,8 +31,11 @@ const data: Record<string, string> = {
   'xplat-prerender:mode': 'mode.json',
 }
 
-// Only qualification data and the existing twelve-primitive eligibility boundary
-// are special. Compilation, native resolution and CSS use the installed preset.
+const motionComponents = ['MotionView', 'MotionRow', 'MotionPressable']
+
+// Only qualification data and the existing eligibility boundary — twelve
+// primitives plus bounded motion.View/Row/Pressable — are special. Compilation,
+// native resolution and CSS use the installed preset.
 export default defineConfig(async ({ mode }) =>
   native(
     { mode },
@@ -46,6 +50,10 @@ export default defineConfig(async ({ mode }) =>
                 return '\0home-primitives'
               }
 
+              if (id === '@octane-xplat/motion') {
+                return '\0home-motion'
+              }
+
               if (Object.hasOwn(data, id)) {
                 return join(source, data[id])
               }
@@ -58,6 +66,16 @@ export default defineConfig(async ({ mode }) =>
                       `export { ${name} } from ${JSON.stringify(join(ui, 'components', path + '.tsrx'))}`,
                   )
                   .join('\n')
+              }
+
+              if (id === '\0home-motion') {
+                return [
+                  ...motionComponents.map(
+                    (name) =>
+                      `import { ${name} } from ${JSON.stringify(join(motionSource, 'components.tsrx'))}`,
+                  ),
+                  `export const motion = { View: MotionView, Row: MotionRow, Pressable: MotionPressable }`,
+                ].join('\n')
               }
             },
             generateBundle() {

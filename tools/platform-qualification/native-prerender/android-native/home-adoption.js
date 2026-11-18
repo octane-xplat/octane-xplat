@@ -6,7 +6,7 @@ import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescr
 import { Home } from '../Home.tsrx'
 import { qualifyHomeParity, HomeLeaseRetired } from './home-parity.js'
 import { captureMasonBaseline, qualifyRetiredHome } from './home-lifetime.js'
-import { ArtifactError } from '@octane-xplat/native-prerender'
+import { ArtifactError, prepareFirstFrame } from '@octane-xplat/native-prerender'
 import {
   bindAndroidMasonTree,
   releaseAndroidMasonOwners,
@@ -168,7 +168,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
           createView: claimState.createView,
         })
         if (!XPLAT_PRERENDER_HOME_STARTUP) {
-          const aborted = root.prepare(Home, resolved.seed)
+          const aborted = prepareFirstFrame(root, Home, resolved.seed)
           check(aborted.status === 'prepared', 'Aborted Home prepare suspended')
           aborted.abort()
           check(
@@ -182,7 +182,7 @@ org.octanexplat.prerenderandroid.HomeApplication.installBridge(
             'Prepare/abort changed native Home',
           )
         }
-        const prepared = root.prepare(Home, liveSeed)
+        const prepared = prepareFirstFrame(root, Home, liveSeed)
         check(prepared.status === 'prepared', 'Home prepare suspended')
         try {
           claimState.match(prepared.batch.commands)

@@ -8,7 +8,7 @@ import { setiOSWindow } from '@nativescript/core/application/helpers-common'
 import { bindNativeView } from '@octane-xplat/nativescript-mason-core/adoption'
 import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { Home } from './Home.tsrx'
-import { matchPreparedTree } from '@octane-xplat/native-prerender'
+import { matchPreparedTree, prepareFirstFrame } from '@octane-xplat/native-prerender'
 import sheets from 'xplat-prerender:styles'
 import resolved from 'xplat-prerender:artifact'
 import startup from 'xplat-prerender:startup'
@@ -57,7 +57,7 @@ const candidate = createNativeScriptRoot(host, {
     throw new Error('Rejected pre-render must not claim a view')
   },
 })
-const prepared = candidate.prepare(Home, resolved.seed)
+const prepared = prepareFirstFrame(candidate, Home, resolved.seed)
 check(prepared.status === 'prepared', 'Home fallback prepare suspended')
 matchPreparedTree(prepared.batch.commands, startup.nodes)
 prepared.abort()
@@ -67,7 +67,7 @@ check(
   'Rejected preparation mutated native tree',
 )
 const root = createNativeScriptRoot(host)
-const live = root.prepare(Home, resolved.seed)
+const live = prepareFirstFrame(root, Home, resolved.seed)
 check(live.status === 'prepared', 'Ordinary fallback prepare suspended')
 const page = new Page()
 page.actionBarHidden = true

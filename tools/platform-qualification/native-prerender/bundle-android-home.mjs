@@ -119,6 +119,8 @@ const result = await Bun.build({
           else if (args.path.startsWith('@octane-xplat/nativescript-mason-core/'))
             base = join(mason, args.path.slice('@octane-xplat/nativescript-mason-core/'.length))
           else if (args.path === '@octane-xplat/ui') base = join(source, 'home-primitives.ts')
+          else if (args.path === '@octane-xplat/motion')
+            base = join(source, 'motion-primitives.ts')
           else if (args.path === '@octane-xplat/lib') base = join(repo, 'packages/lib/src/index.ts')
           else if (args.path === '@octane-xplat/icons')
             base = join(repo, 'packages/icons/src/index.ts')

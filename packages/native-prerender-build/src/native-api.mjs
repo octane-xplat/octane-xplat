@@ -33,24 +33,28 @@ if (!['ios', 'android'].includes(platform)) {
   throw new Error('Native startup producer: unsupported platform')
 }
 
-const platformPresence = unavailable('Application.' + platform)
-
 export const Application = new Proxy(Object.create(null), {
   set: rejectWrite,
   defineProperty: rejectWrite,
   deleteProperty: rejectWrite,
   setPrototypeOf: rejectWrite,
   get(_target, key) {
+    // Platform identity is fixed at produce and read during module setup
+    // (motion's clock picks its time source this way); it never depends on
+    // the configured theme, so answer before the environment gate. Reduced-
+    // motion readers only branch on the boolean — effect-time members like
+    // addNotificationObserver never exist under prepare.
+    if (key === 'ios' || key === 'android') {
+      reads.push('Application.' + key)
+      return platform === key
+    }
+
     if (!theme) {
       throw new Error('Native startup producer: native environment read during module setup')
     }
 
     reads.push('Application.' + String(key))
     switch (key) {
-      case 'ios':
-        return platform === 'ios' ? platformPresence : undefined
-      case 'android':
-        return platform === 'android' ? platformPresence : undefined
       case 'primaryWindow':
         return undefined
       case 'systemAppearance':
@@ -71,6 +75,7 @@ export const Application = new Proxy(Object.create(null), {
 export const isIOS = platform === 'ios'
 export const isAndroid = platform === 'android'
 export const Screen = unavailable('Screen')
+export const Device = unavailable('Device')
 export const knownFolders = unavailable('knownFolders')
 // Image resolves data:…;base64 srcs synchronously during render through
 // resolveRasterSource; the result only reaches effect-time bindings, never
@@ -122,6 +127,28 @@ let safeAreaInsets
 export function configureNativeBuildHost(value, environment) {
   if (theme || !['light', 'dark'].includes(value)) {
     throw new Error('Native startup producer: invalid or repeated environment initialization')
+  }
+
+  // Reduced-motion readers run during render (useState initializers). The
+  // declared environment must be what they observe. iOS reads one global
+  // function, so both values are honest there. Android's read goes through
+  // Device.sdkVersion plus Settings.Global/ValueAnimator — surfaces the
+  // build host does not stub — so a `true` declaration rejects instead of
+  // silently rendering with a false assumption while the artifact claims
+  // the opposite launch constraint. `globalThis.android` stays unset, which
+  // answers `false` truthfully.
+  if (platform !== 'ios' && environment?.reducedMotion === true) {
+    throw new Error(
+      'Native startup producer: environment.reducedMotion requires unstubbed Android native reads',
+    )
+  }
+
+  if (platform === 'ios') {
+    const reducedMotion = environment?.reducedMotion === true
+    globalThis.UIAccessibilityIsReduceMotionEnabled = () => {
+      reads.push('UIAccessibilityIsReduceMotionEnabled')
+      return reducedMotion
+    }
   }
 
   const insets = environment?.safeAreaInsets

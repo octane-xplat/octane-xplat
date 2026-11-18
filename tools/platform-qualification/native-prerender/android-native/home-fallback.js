@@ -3,6 +3,7 @@ import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { bindNativeView } from '@octane-xplat/nativescript-mason-core/adoption'
 import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { Home } from '../Home.tsrx'
+import { prepareFirstFrame } from '@octane-xplat/native-prerender'
 import { prepareHomeApplication, acceptHomeApplication } from './home-application.js'
 import resolved from 'xplat-prerender:artifact'
 import sheets from 'xplat-prerender:styles'
@@ -31,7 +32,7 @@ export function renderFallbackHome(activity, seed = resolved.seed, existingWindo
     host.callLoaded()
   }
   const root = createNativeScriptRoot(host)
-  const prepared = root.prepare(Home, seed)
+  const prepared = prepareFirstFrame(root, Home, seed)
   if (prepared.status !== 'prepared') throw new Error('Ordinary fallback Home suspended')
   if (XPLAT_PRERENDER_HOME_STARTUP) acceptHomeApplication(activity, host, window)
   prepared.commit()

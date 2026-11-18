@@ -56,7 +56,12 @@ test('mobile selector evaluation does not inherit AppKit hover support', () => {
 test('fixed Home build host rejects native capabilities and captures deferred registration', async () => {
   const api = await import('../src/native-api.mjs')
 
-  assert.throws(() => api.Application.ios, /environment read during module setup/)
+  // Platform identity is fixed at produce and readable during module setup —
+  // motion's clock picks its time source this way — while every other
+  // environment member still rejects until configured.
+  assert.equal(api.Application.ios, true)
+  assert.equal(api.Application.android, false)
+  assert.throws(() => api.Application.on, /environment read during module setup/)
   assert.throws(() => new api.View(), /unsupported native allocation/)
   assert.throws(() => new api.SVGView(), /unsupported native allocation/)
   assert.throws(() => api.Utils.openUrl, /unsupported native read/)
@@ -77,10 +82,10 @@ test('fixed Home build host rejects native capabilities and captures deferred re
   assert.equal(api.isIOS, true)
   assert.equal(api.isAndroid, false)
   assert.equal(api.Application.systemAppearance(), 'dark')
-  assert.equal(Boolean(api.Application.ios), true)
-  assert.equal(api.Application.android, undefined)
+  assert.equal(api.Application.ios, true)
+  assert.equal(api.Application.android, false)
   assert.equal(api.Application.primaryWindow, undefined)
-  assert.throws(() => api.Application.ios.nativeApp, /unsupported native read/)
+  assert.throws(() => api.Application.iosNativeApp, /unsupported application read/)
   assert.throws(() => api.Application.on, /unsupported application read/)
   assert.throws(() => {
     api.Application.primaryWindow = {}
@@ -113,9 +118,9 @@ test('Android build facts select Android without exposing native service objects
     assert.equal(api.isIOS, false);
     assert.equal(api.isAndroid, true);
     api.configureNativeBuildHost('light');
-    assert.equal(api.Application.ios, undefined);
-    assert.equal(Boolean(api.Application.android), true);
-    assert.throws(() => api.Application.android.foregroundActivity, /unsupported native read/);
+    assert.equal(api.Application.ios, false);
+    assert.equal(api.Application.android, true);
+    assert.throws(() => api.Application.foregroundActivity, /unsupported application read/);
     assert.equal(api.nativeBuildHostEvidence().platform, 'android');
   `,
     ],

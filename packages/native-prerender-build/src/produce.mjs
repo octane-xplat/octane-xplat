@@ -9,7 +9,12 @@ import { parse, walk } from 'css-tree'
 import { validateArtifact } from '@octane-xplat/native-prerender'
 import { encodeStartupArtifact, writeStartupJson } from '@octane-xplat/native-prerender/codec'
 import { parseProducerConfig } from './config.mjs'
-import { resolveProject, primitiveModules } from './project-dependencies.mjs'
+import {
+  resolveProject,
+  primitiveModules,
+  motionModules,
+  packageRoot,
+} from './project-dependencies.mjs'
 
 /** Compile one deterministic initial screen using the selected project's toolchain. */
 export async function produceNativeStartup({ projectDir, configurationFile, outputDir, platform }) {
@@ -110,6 +115,23 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
   const { seed, environment } = configuration
   const cssFiles = new Set()
   const nativeImports = []
+  // Resolved lazily: a project without @octane-xplat/motion installed keeps
+  // producing while any motion import rejects with a clear reason.
+  let motionRoot
+  function motionFacadeRoot() {
+    if (motionRoot === undefined) {
+      try {
+        motionRoot = packageRoot(
+          project.require.resolve('@octane-xplat/motion'),
+          '@octane-xplat/motion',
+        )
+      } catch {
+        motionRoot = null
+      }
+    }
+
+    return motionRoot
+  }
   async function bundle(entry, name) {
     const cssPrefix = '\0xplat-startup-css:'
 
@@ -157,6 +179,17 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
                   return `export { ${clause} } from ${JSON.stringify(join(uiRoot, path))}`
                 })
                 .join('\n')
+            }
+
+            if (id === '\0xplat-render-motion') {
+              const facade = motionFacadeRoot()
+              return [
+                ...Object.entries(motionModules).map(
+                  ([name, exported]) =>
+                    `import { ${exported} as ${name} } from ${JSON.stringify(join(facade, 'src/components.tsrx'))}`,
+                ),
+                `export const motion = { ${Object.keys(motionModules).join(', ')} }`,
+              ].join('\n')
             }
 
             if (id === '\0xplat-startup-component') {
@@ -223,6 +256,13 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
               return join(source, 'native-api.mjs')
             }
 
+            // Motion's clock imports the frame scheduler; it only runs inside
+            // effects, so a no-op stub stands in for the native module.
+            if (request === '@nativescript/core/animation-frame') {
+              nativeImports.push({ importer, request })
+              return join(source, 'animation-frame.mjs')
+            }
+
             if (request.startsWith('@nativescript/core/')) {
               throw new Error('Unsupported native module: ' + request)
             }
@@ -252,6 +292,17 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
               return '\0xplat-render-primitives'
             }
 
+            if (request === '@octane-xplat/motion') {
+              if (!motionFacadeRoot()) {
+                throw new Error(
+                  'Native startup motion facade requires @octane-xplat/motion installed: ' +
+                    importer,
+                )
+              }
+
+              return '\0xplat-render-motion'
+            }
+
             if (request === '@octane-xplat/css-engine') {
               return join(cssRoot, 'src/index.ts')
             }
@@ -279,6 +330,19 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
             }
 
             const path = isAbsolute(request) ? request : resolve(dirname(importer), request)
+
+            // Motion's projection barrier has platform leaves that pull the
+            // live driver; the producer has no measured layout either way, so
+            // every barrier specifier (including explicit platform suffixes)
+            // force-resolves to the generic leaf where layoutSupported=false
+            // and `layout` props reject honestly.
+            const motionRootResolved = motionFacadeRoot()
+            if (motionRootResolved) {
+              const barrier = join(motionRootResolved, 'src/projection/barrier')
+              if (path === barrier || path.startsWith(barrier + '.')) {
+                return barrier + '.ts'
+              }
+            }
 
             if (path === join(cssRoot, 'src/vendor/media-query.ts')) {
               return join(source, 'mobile-media-query.mjs')
@@ -503,7 +567,7 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     scope:
       'Private configured Node/Vite ' +
       platform +
-      ' render-only producer with twelve shared primitive exports, explicit environment, AOT theme variants and XPI1 encoding; not normal app integration, general eligibility, SSR or native runtime qualification',
+      ' render-only producer with twelve shared primitive exports plus bounded motion.View/Row/Pressable support, explicit environment, AOT theme variants and XPI1 encoding; not normal app integration, general eligibility, SSR or native runtime qualification',
   }
 
   json(join(work, 'build.json'), manifest)

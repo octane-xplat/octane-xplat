@@ -2,6 +2,7 @@ import { Utils } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 import { Home } from '../Home.tsrx'
+import { prepareFirstFrame } from '@octane-xplat/native-prerender'
 import resolved from 'xplat-prerender:artifact'
 
 const check = (value, message) => {
@@ -89,7 +90,7 @@ export async function qualifyHomeParity(activity, host, factoryCalls, lease) {
   let attached = false
   let initialCompared, preRuntimeCompared, baselineCompared, removedCompared, restoredCompared
   try {
-    const prepared = reference.prepare(Home, resolved.seed)
+    const prepared = prepareFirstFrame(reference, Home, resolved.seed)
     check(prepared.status === 'prepared', 'Ordinary reference preparation suspended')
     prepared.commit()
     activity.attachReference(native)

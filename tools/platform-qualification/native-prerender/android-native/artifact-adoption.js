@@ -2,6 +2,7 @@ import '@nativescript/core/globals'
 import { Application, Utils } from '@nativescript/core'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
+import { prepareFirstFrame } from '@octane-xplat/native-prerender'
 import {
   bindAndroidMasonTree,
   releaseAndroidMasonOwners,
@@ -55,13 +56,13 @@ async function qualify(activity) {
   host.css = sheets.map((sheet) => sheet.css).join('\n')
 
   const root = createNativeScriptRoot(host, { createView: claims.createView })
-  const abort = root.prepare(StartupComponent, startup.seed)
+  const abort = prepareFirstFrame(root, StartupComponent, startup.seed)
 
   check(abort.status === 'prepared', 'Configured prepare suspended')
   abort.abort()
   check(claims.factoryCalls === 0 && host.getChildrenCount() === 0, 'Aborted prepare claimed views')
 
-  const prepared = root.prepare(StartupComponent, startup.seed)
+  const prepared = prepareFirstFrame(root, StartupComponent, startup.seed)
 
   check(prepared.status === 'prepared', 'Configured prepare suspended')
   claims.match(prepared.batch.commands)
@@ -205,7 +206,7 @@ async function qualify(activity) {
   ordinary.callLoaded()
 
   const reference = createNativeScriptRoot(ordinary)
-  const referencePrepared = reference.prepare(StartupComponent, startup.seed)
+  const referencePrepared = prepareFirstFrame(reference, StartupComponent, startup.seed)
 
   check(referencePrepared.status === 'prepared', 'Ordinary configured prepare suspended')
   referencePrepared.commit()
@@ -271,7 +272,7 @@ async function qualify(activity) {
     const props = { ...startup.seed, title: 'Updated screen', labels }
 
     for (const target of [root, reference]) {
-      const next = target.prepare(StartupComponent, props)
+      const next = prepareFirstFrame(target, StartupComponent, props)
 
       check(next.status === 'prepared', 'Configured update suspended')
       next.commit()

@@ -3,7 +3,11 @@ import { Application, Utils } from '@nativescript/core'
 import { Scroll } from '@octane-xplat/nativescript-mason-core/scroll'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
-import { projectPreparedTree, projectVisualTree } from '@octane-xplat/native-prerender'
+import {
+  prepareFirstFrame,
+  projectPreparedTree,
+  projectVisualTree,
+} from '@octane-xplat/native-prerender'
 import { bindAndroidMasonTree } from '@octane-xplat/native-prerender/android/mason-binding'
 
 import { StartupComponent } from 'xplat-prerender:component'
@@ -34,6 +38,17 @@ async function qualify(activity) {
   const placeholderIndexes = new Set(
     visual.flatMap((row, index) => (row.kind === 'placeholder' ? [index] : [])),
   )
+  // Hosts whose artifact style carries a baked first-frame motion opacity
+  // animate after hydration; their live alpha is legitimately in flight.
+  // The cold row's alpha must still equal the baked artifact value — that is
+  // what proves the cold mount rendered the same first frame the live
+  // prepared tree emitted — so it is asserted separately below.
+  const inFlightAlpha = new Map(
+    visual.flatMap((row, index) => {
+      const baked = row.kind === 'placeholder' ? undefined : row.props?.style?.opacity
+      return typeof baked === 'number' ? [[index, baked]] : []
+    }),
+  )
 
   const natives = Array.from({ length: activity.getViewCount() }, (_, index) =>
     activity.getView(index),
@@ -59,7 +74,7 @@ async function qualify(activity) {
   host.css = sheets.map((sheet) => sheet.css).join('\n')
 
   const root = createNativeScriptRoot(host, { createView: claims.createView })
-  const prepared = root.prepare(StartupComponent, startup.seed)
+  const prepared = prepareFirstFrame(root, StartupComponent, startup.seed)
 
   check(prepared.status === 'prepared', 'Startup prepare suspended')
 
@@ -134,11 +149,29 @@ async function qualify(activity) {
   const cold = JSON.parse(String(activity.snapshotCold()))
   const live = JSON.parse(String(activity.snapshotMounted()))
   const differences = []
+  const motionAlpha = []
+
+  for (const [index, baked] of inFlightAlpha) {
+    check(
+      typeof cold[index]?.alpha === 'number' &&
+        Math.abs(cold[index].alpha - baked) <= 0.0001,
+      'Cold alpha differs from baked artifact opacity at ' + visual[index].path,
+    )
+    motionAlpha.push({
+      index,
+      path: visual[index].path,
+      artifact: baked,
+      cold: cold[index]?.alpha,
+      live: live[index]?.alpha,
+    })
+  }
 
   cold.forEach((row, index) => {
     // Placeholder rows compare cold box vs live replacement below.
     if (placeholderIndexes.has(index)) return
     for (const key of new Set([...Object.keys(row), ...Object.keys(live[index])])) {
+      // The in-flight motion row's live alpha moves after hydration.
+      if (key === 'alpha' && inFlightAlpha.has(index)) continue
       const a = row[key],
         b = live[index][key]
 
@@ -220,6 +253,7 @@ async function qualify(activity) {
       factoryCalls: claims.factoryCalls,
       logicalNodes: startup.nodes.length,
       replacements,
+      motionAlpha,
     }),
   )
 

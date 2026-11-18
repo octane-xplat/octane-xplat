@@ -43,7 +43,8 @@ absent resolution candidates are both inputs: a newly created platform sibling
 invalidates an old artifact even when its previous sources remain unchanged.
 Native packaging verifies both sets before copying and after compilation. The qualification
 command only selects inputs and scratch placement. It keeps a dedicated
-build-host plugin and twelve shared primitive exports from the installed UI source layout; it does not load the
+build-host plugin, twelve shared primitive exports from the installed UI source layout and a bounded
+`motion.View`/`motion.Row`/`motion.Pressable` facade from the installed motion source; it does not load the
 app's Vite configuration or establish full UI-barrel eligibility. Top-level
 `className` accepts the driver's clsx-style shapes and is normalized to the
 same joined string before validation, so `View`'s `['vx-view', props.className]`
@@ -78,7 +79,30 @@ reports dropped keys per placeholder in the build manifest. A loading `Button`
 is eligible through that placeholder path plus a bounded grid subset —
 `display: grid`, `1fr` single-cell templates, `gridRow`/`gridColumn: 1` and
 `stretch`/`center` self-alignment — whose schema and backend bounds reject
-every other grid value. Generic
+every other grid value.
+
+The motion facade emits real `masonview` hosts, never placeholders. Refs and
+effects never run under `root.prepare`, so the mount effect's first-frame
+seed is instead baked into emitted `style`: while
+`globalThis.__xplatPrerenderFirstFrame === true` — set by the producer build
+host and by `prepareFirstFrame` around every live first `prepare`, then
+cleared — a motion host merges `initial === false ? animate : initial` into
+its host `style`. Only channels inside the startup style bounds bake; today
+that is numeric `opacity` 0–1, and every other channel throws loudly at
+produce and identically under the live first-frame flag. After hydration the
+mount effect animates from the baked state, so a baked `opacity` row's live
+alpha is legitimately in flight: parity snapshots skip that one leaf while
+asserting the cold snapshot's alpha equals the baked artifact value and
+reporting both. A channel duplicated in ordinary `style` and `initial` may be
+written once more after hydration; that bounded overwrite is the only
+sanctioned divergence. Unsupported motion stays unsupported — `layout`
+(generic barrier, `layoutSupported = false`), gestures, `exit` outside a
+mounted `Presence`, `whileTap` targets, MotionValue style writers and custom
+transitions all still throw. The facade excludes `MotionConfig`, hooks,
+`Presence` and `createMotion`; importing them fails. iOS reduced-motion reads
+the configured `environment.reducedMotion` through the accessibility global;
+Android's `true` rejects because the producer does not stub the
+`Device`/`Settings.Global` read path. Generic
 logical projection, backend preflight and native mounting belong to the reusable
 package; the Android and iOS wrapper bindings now also belong to that package. The fixed
 Home host, generic mount host, observations and adoption controls remain in qualification tooling. Native mounts must not contain seed, node-count or
@@ -233,8 +257,8 @@ The separate stock SDK startup mount control compiles a fixture bootstrap
 through NativeSource with `XPLAT_PRERENDER_STOCK_SDK`, emits XPI1 as
 `startup.bin` into the normal Vite app bundle, and calls the same SDK helpers.
 Its producer resolves from the isolated app's installed package tree; the live
-bundle uses the installed native preset and the existing twelve-primitive
-qualification facade. The `home` fixture reuses the Home identity, Core
+bundle uses the installed native preset and the existing qualification facade —
+twelve primitives plus bounded `motion.View`/`motion.Row`/`motion.Pressable`. The `home` fixture reuses the Home identity, Core
 Page/window and style/layout assertions. The `keyed` fixture mounts a
 variable-topology KeyedStartup inside a bounded 320x640-point viewport — a test
 canvas without `Application.run` or a Page — and exercises the exported iOS

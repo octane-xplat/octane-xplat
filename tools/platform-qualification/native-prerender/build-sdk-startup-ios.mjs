@@ -143,6 +143,8 @@ for (const name of [
   'native-prerender',
   'css-engine',
   'ui',
+  'motion',
+  'platform',
   'lib',
   'icons',
   'jsx',

@@ -4,7 +4,11 @@ import { Scroll } from '@octane-xplat/nativescript-mason-core/scroll'
 import { View } from '@octane-xplat/nativescript-mason-core/view'
 import { setiOSWindow } from '@nativescript/core/application/helpers-common'
 import { createNativeScriptRoot, registerElement } from '@octane-xplat/nativescript-octane'
-import { projectPreparedTree, projectVisualTree } from '@octane-xplat/native-prerender'
+import {
+  prepareFirstFrame,
+  projectPreparedTree,
+  projectVisualTree,
+} from '@octane-xplat/native-prerender'
 import { bindIOSMasonTree } from '@octane-xplat/native-prerender/ios/mason-binding'
 import { writeProbeDiagnostic } from './write-native-diagnostic.ios.js'
 import { StartupComponent } from 'xplat-prerender:component'
@@ -67,9 +71,10 @@ function snapshotJson(root) {
   )
 }
 
-function rowsEquivalent(before, after, skipped = new Set()) {
+function rowsEquivalent(before, after, skipped = new Set(), alphaExempt = new Set()) {
   const differences = []
-  const equivalent = (left, right, key) => {
+  const equivalent = (left, right, key, index) => {
+    if (key === 'alpha' && alphaExempt.has(index)) return true
     if (key === 'borderRadius') {
       // The borderRadius string is not authoritative on the live side: the
       // driver writes the shared style buffer and leaves the string at its
@@ -86,7 +91,9 @@ function rowsEquivalent(before, after, skipped = new Set()) {
     if (left === null || right === null || typeof left !== 'object' || typeof right !== 'object')
       return left === right
     const keys = new Set([...Object.keys(left), ...Object.keys(right)])
-    return [...keys].every((child) => equivalent(left?.[child], right?.[child], child))
+    return [...keys].every((child) =>
+      equivalent(left?.[child], right?.[child], child, index),
+    )
   }
   before.forEach((row, index) => {
     // Placeholder rows compare cold box vs live replacement elsewhere.
@@ -94,7 +101,7 @@ function rowsEquivalent(before, after, skipped = new Set()) {
     for (const key of new Set([...Object.keys(row), ...Object.keys(after[index] ?? {})])) {
       const left = row[key],
         right = after[index]?.[key]
-      if (!equivalent(left, right, key)) {
+      if (!equivalent(left, right, key, index)) {
         differences.push({ index, key, before: left, after: right })
       }
     }
@@ -110,6 +117,17 @@ async function qualify() {
   const visual = projectVisualTree(startup.nodes)
   const placeholderIndexes = new Set(
     visual.flatMap((row, index) => (row.kind === 'placeholder' ? [index] : [])),
+  )
+  // Hosts whose artifact style carries a baked first-frame motion opacity
+  // animate after hydration; their live alpha is legitimately in flight.
+  // The cold row's alpha must still equal the baked artifact value — that is
+  // what proves the cold mount rendered the same first frame the live
+  // prepared tree emitted — so it is asserted separately below.
+  const inFlightAlpha = new Map(
+    visual.flatMap((row, index) => {
+      const baked = row.kind === 'placeholder' ? undefined : row.props?.style?.opacity
+      return typeof baked === 'number' ? [[index, baked]] : []
+    }),
   )
 
   const mountViews = mount.views
@@ -162,7 +180,7 @@ async function qualify() {
   host.css = css
 
   const root = createNativeScriptRoot(host, { createView: claims.createView })
-  const prepared = root.prepare(StartupComponent, startup.seed)
+  const prepared = prepareFirstFrame(root, StartupComponent, startup.seed)
 
   check(prepared.status === 'prepared', 'Startup prepare suspended')
 
@@ -205,7 +223,27 @@ async function qualify() {
 
   const cold = nativeSnapshot.rows
   const live = snapshotJson(mount.root)
-  const differences = rowsEquivalent(cold, live, placeholderIndexes)
+  const motionAlpha = []
+  for (const [index, baked] of inFlightAlpha) {
+    const coldAlpha = cold[index]?.paint?.alpha
+    check(
+      typeof coldAlpha === 'number' && Math.abs(coldAlpha - baked) <= 0.0001,
+      'Cold alpha differs from baked artifact opacity at ' + visual[index].path,
+    )
+    motionAlpha.push({
+      index,
+      path: visual[index].path,
+      artifact: baked,
+      cold: coldAlpha,
+      live: live[index]?.paint?.alpha,
+    })
+  }
+  const differences = rowsEquivalent(
+    cold,
+    live,
+    placeholderIndexes,
+    new Set(inFlightAlpha.keys()),
+  )
 
   check(
     differences.length === 0,
@@ -278,6 +316,7 @@ async function qualify() {
     factoryCalls: claims.factoryCalls,
     logicalNodes: startup.nodes.length,
     replacements,
+    motionAlpha,
   })
 
   // Spin the hydration marker now that the live tree owns the screen; the

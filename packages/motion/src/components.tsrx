@@ -33,6 +33,24 @@ const VariantContext = createContext<VariantNode | null>(null)
 /** host node → its motion controller; powers `useAnimate` scope lookup. */
 export const controllers: WeakMap<object, Controller> = new WeakMap<object, Controller>()
 
+/**
+ * Native startup prerender seam. While the startup tree's first frame is
+ * prepared — on the producer's build host or inside the live first
+ * `root.prepare` — `globalThis.__xplatPrerenderFirstFrame === true` and a
+ * motion host bakes the seed its mount effect applies into the emitted
+ * `style`, so the cold artifact and the live prepared tree carry identical
+ * first-frame state. The flag is set and cleared by
+ * `@octane-xplat/native-prerender`'s `prepareFirstFrame` and the producer
+ * build host; it is absent everywhere else. Cross-package magic global is
+ * deliberate: motion must not depend on the private startup packages.
+ */
+const PRERENDER_STYLE_BOUNDS: Readonly<Record<string, readonly [number, number]>> = {
+  // Intersection of motion channels and the startup IR's bounded style keys:
+  // `opacity` is the only channel with an emitted style key (numeric 0–1).
+  // Transform channels (`x`/`y`/`scale*`/`rotate`) have no startup style key.
+  opacity: [0, 1],
+}
+
 const GESTURE_PROPS: Record<
   GestureKind,
   { target: 'whileTap' | 'whileFocus'; transition: 'whileTapTransition' | 'whileFocusTransition' }
@@ -212,6 +230,35 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
         ['transform', 'translateX', 'translateY', 'animation', 'transition'].includes(key)
       ) {
         throw new Error(`motion: unsupported or conflicting style ${key}`)
+      }
+
+      style[key] = value
+    }
+  }
+
+  // First-frame prerender: merge the target the mount effect seeds into the
+  // emitted style (initialDefinition === false ? animate : initial target).
+  // A channel outside the startup style bounds is a loud produce-time reject;
+  // the identical live-side throw is unreachable because produce rejected it.
+  if (
+    (globalThis as { __xplatPrerenderFirstFrame?: boolean }).__xplatPrerenderFirstFrame ===
+    true
+  ) {
+    const seed: Readonly<Record<string, unknown>> =
+      initialDefinition === false ? resolvedAnimate.target : resolvedInitial.target
+
+    for (const [key, raw] of Object.entries(seed)) {
+      const value = raw instanceof MotionValue ? raw.get() : raw
+      const bound = PRERENDER_STYLE_BOUNDS[key]
+
+      if (
+        bound === undefined ||
+        typeof value !== 'number' ||
+        !Number.isFinite(value) ||
+        value < bound[0] ||
+        value > bound[1]
+      ) {
+        throw new Error(`motion: startup prerender cannot emit ${key}`)
       }
 
       style[key] = value

@@ -31,15 +31,23 @@ const claims = matchPreparedTree(commands, artifactNodes)
 // claims.visualByCommandId.get(50) === 0
 ```
 
+`prepareFirstFrame` wraps the live first `root.prepare` for artifact adoption. Refs and effects never run under `prepare`, so `@octane-xplat/motion` reads `globalThis.__xplatPrerenderFirstFrame === true` and bakes each motion host's mount-effect seed (`initial === false ? animate : initial`) into emitted `style` — the cold artifact bakes the same seed at produce. Channels outside the startup style bounds (`opacity` 0–1 today) throw identically on both sides. The flag exists only during this call.
+
+```ts
+import { prepareFirstFrame } from '@octane-xplat/native-prerender'
+
+const prepared = prepareFirstFrame(root, StartupComponent, artifact.seed)
+```
+
 `createNativeClaims` coordinates initial wrapper claims through the existing root-local driver hook. Match the complete prepared logical tree before committing; the registry consumes each initial visual ID once, then ordinary later creation returns to the driver's registered constructors. The host still owns native binding, default restoration, Core/window lifecycle and disposal.
 
 ```ts
-import { createNativeClaims } from '@octane-xplat/native-prerender'
+import { createNativeClaims, prepareFirstFrame } from '@octane-xplat/native-prerender'
 import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
 
 const claims = createNativeClaims(artifact.nodes, wrappers)
 const root = createNativeScriptRoot(host, { createView: claims.createView })
-const prepared = root.prepare(StartupComponent, artifact.seed)
+const prepared = prepareFirstFrame(root, StartupComponent, artifact.seed)
 if (prepared.status === 'prepared') {
   try {
     claims.match(prepared.batch.commands)
@@ -69,7 +77,7 @@ import { bindAndroidMasonTree } from './platforms/android/mason-binding.android.
 
 const binding = bindAndroidMasonTree(artifact.nodes, viewport, nativeViews)
 const root = createNativeScriptRoot(binding.host, { createView: binding.claims.createView })
-const prepared = root.prepare(StartupComponent, artifact.seed)
+const prepared = prepareFirstFrame(root, StartupComponent, artifact.seed)
 if (prepared.status !== 'prepared') throw new Error('Startup suspended')
 binding.claims.match(prepared.batch.commands)
 // The owning host establishes Core/window/loading state and restores native defaults.
@@ -96,7 +104,7 @@ import { bindIOSMasonTree } from '@octane-xplat/native-prerender/ios/mason-bindi
 const views = Array.from({ length: mount.views.count }, (_, index) => mount.views.objectAtIndex(index))
 const binding = bindIOSMasonTree(artifact.nodes, viewport, views)
 const root = createNativeScriptRoot(binding.host, { createView: binding.claims.createView })
-const prepared = root.prepare(StartupComponent, artifact.seed)
+const prepared = prepareFirstFrame(root, StartupComponent, artifact.seed)
 if (prepared.status !== 'prepared') throw new Error('Startup suspended')
 binding.claims.match(prepared.batch.commands)
 // The owning host establishes Core/window/loading state and restores native defaults.

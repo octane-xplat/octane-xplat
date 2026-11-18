@@ -8,7 +8,7 @@ import {
 import { StartupComponent } from 'xplat-prerender:component'
 import { configureNativeBuildHost, nativeBuildHostEvidence } from './native-api.mjs'
 import { projectStartup } from './project.mjs'
-import { projectPreparedTree } from '@octane-xplat/native-prerender'
+import { prepareFirstFrame, projectPreparedTree } from '@octane-xplat/native-prerender'
 
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 
@@ -16,7 +16,9 @@ configureNativeBuildHost(input.theme, input.environment)
 
 const container = createObjectContainer('nativescript')
 const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-const prepared = root.prepare(StartupComponent, input.seed)
+// The first-frame flag bakes each motion host's initial seed into emitted
+// style; the live first prepare must do the same or trees diverge.
+const prepared = prepareFirstFrame(root, StartupComponent, input.seed)
 
 if (prepared.status !== 'prepared') {
   throw new Error('Native startup producer: preparation suspended')

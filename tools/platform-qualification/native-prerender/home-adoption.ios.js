@@ -1,6 +1,7 @@
 // Fixed Home qualification fixture; the host build supplies three virtual data modules.
 import { writeProbeDiagnostic } from './write-native-diagnostic.ios.js'
 import { qualifyHomeLifetime } from './home-lifetime.ios.js'
+import { prepareFirstFrame } from '@octane-xplat/native-prerender'
 import { bindIOSMasonTree } from '@octane-xplat/native-prerender/ios/mason-binding'
 import '@nativescript/core/globals'
 import { Application, Page, Utils } from '@nativescript/core'
@@ -93,7 +94,7 @@ host.style.flexDirection = 'column'
 host.className = 'ns-root ' + (scheme === 'dark' ? 'ns-dark' : 'xds-light')
 host.css = sheets.map((sheet) => sheet.css).join('\n')
 const root = createNativeScriptRoot(host, { createView: claims.createView })
-const aborted = root.prepare(Home, resolved.seed)
+const aborted = prepareFirstFrame(root, Home, resolved.seed)
 check(aborted.status === 'prepared', 'Aborted Home prepare suspended')
 aborted.abort()
 check(
@@ -105,7 +106,7 @@ check(
   wrappers.every((view) => !view.parent) && claims.factoryCalls === 0,
   'Aborted prepare claimed wrappers',
 )
-const prepared = root.prepare(Home, resolved.seed)
+const prepared = prepareFirstFrame(root, Home, resolved.seed)
 check(prepared.status === 'prepared', 'Actual Home prepare suspended')
 claims.match(prepared.batch.commands)
 check(claims.phase === 'ready' && claims.pendingCount === 19, 'Not all visual nodes validated')
@@ -357,7 +358,7 @@ function accept() {
     siblingHost.css = host.css
     siblingHost.callLoaded()
     const siblingRoot = createNativeScriptRoot(siblingHost)
-    const siblingPrepared = siblingRoot.prepare(Home, { name: 'Blair', initialCompleted: 7 })
+    const siblingPrepared = prepareFirstFrame(siblingRoot, Home, { name: 'Blair', initialCompleted: 7 })
     check(siblingPrepared.status === 'prepared', 'Ordinary sibling Home suspended')
     siblingPrepared.commit()
     const siblingViews = []
@@ -394,7 +395,7 @@ function accept() {
     layoutHost.css = host.css
     layoutHost.callLoaded()
     const layoutRoot = createNativeScriptRoot(layoutHost)
-    const layoutPrepared = layoutRoot.prepare(Home, resolved.seed)
+    const layoutPrepared = prepareFirstFrame(layoutRoot, Home, resolved.seed)
     check(layoutPrepared.status === 'prepared', 'Layout reference Home suspended')
     layoutPrepared.commit()
     const layoutViews = []
@@ -561,11 +562,11 @@ function accept() {
         return undefined
       },
     })
-    const fallbackAborted = fallbackRoot.prepare(Home, { name: 'Casey', initialCompleted: 9 })
+    const fallbackAborted = prepareFirstFrame(fallbackRoot, Home, { name: 'Casey', initialCompleted: 9 })
     check(fallbackAborted.status === 'prepared', 'Fallback prepare suspended')
     fallbackAborted.abort()
     check(fallbackCalls === 0, 'Factory ran during aborted preparation')
-    const fallbackPrepared = fallbackRoot.prepare(Home, { name: 'Casey', initialCompleted: 9 })
+    const fallbackPrepared = prepareFirstFrame(fallbackRoot, Home, { name: 'Casey', initialCompleted: 9 })
     check(fallbackPrepared.status === 'prepared', 'Fallback render suspended')
     fallbackPrepared.commit()
     check(
@@ -577,7 +578,7 @@ function accept() {
       rejectedHost._setupAsRootView({})
       rejectedHost.callLoaded()
       const rejectedRoot = createNativeScriptRoot(rejectedHost, { createView: factory })
-      const attempt = rejectedRoot.prepare(Home, resolved.seed)
+      const attempt = prepareFirstFrame(rejectedRoot, Home, resolved.seed)
       check(attempt.status === 'prepared', 'Rejection test prepare suspended')
       let failure = null
       try {
