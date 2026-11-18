@@ -271,7 +271,8 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 
   assert.equal(manifest.main, 'src/main.ts')
   assert.equal(manifest.scripts.lint, 'custom-lint')
-  assert.equal(manifest.scripts['dev:ios'], 'ns run ios')
+  assert.equal(manifest.scripts['dev:ios'], 'xplat dev ios')
+  assert.equal(manifest.scripts['build:ios'], 'xplat build ios')
   assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
 
   assert.equal(
@@ -538,7 +539,15 @@ for (const pm of ['bun', 'pnpm']) {
       assert.equal(existsSync(join(dir, 'index.html')), web)
       assert.equal(existsSync(join(dir, 'nativescript.config.ts')), native)
       assert.equal(Boolean(pkg.scripts.dev), web)
-      assert.equal(Boolean(pkg.scripts['dev:ios']), ids.includes('ios'))
+      assert.equal(pkg.scripts.build, web ? 'xplat build web' : undefined)
+      for (const platform of ['ios', 'android']) {
+        for (const command of ['dev', 'build']) {
+          assert.equal(
+            pkg.scripts[`${command}:${platform}`],
+            ids.includes(platform) ? `xplat ${command} ${platform}` : undefined,
+          )
+        }
+      }
       assert.equal(
         Boolean(pkg.devDependencies['@nativescript/unit-test-runner']),
         native,

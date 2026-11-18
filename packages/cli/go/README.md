@@ -438,9 +438,11 @@ target. Secrets are resolved from their named environment variables and the
 printed `ns build` line redacts forwarded values; each iOS/Android build then
 reports its produced `Artifact:` path and type. macOS uses the separate
 project packaging worker and a native
-locked staging/publication boundary for its app and DMG. Interactive terminals
-use a bounded comma-list selection; noninteractive commands select all available
-targets. Missing tools are installation errors, never permission to download them.
+locked staging/publication boundary for its app and DMG. Pass one target as a
+positional argument or a comma-separated list with `--targets`. With neither,
+interactive terminals prompt for targets and noninteractive commands select all
+available targets. Missing tools are installation errors, never permission to
+download them.
 Projects with routes also need their installed `@octane-xplat/cli` worker for
 automatic baking. Linux packaging runs the selected CLI worker on macOS/Linux,
 using the canonical GTK/GJS or WebKitGTK packager and the same native locked
@@ -453,8 +455,8 @@ qualification; invoking a fixture engine only proves the adapter contract.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go build workflows"}' -- bun run turbo run test:go-build --filter=@octane-xplat/cli
 # From a project with the selected build engine installed:
-/absolute/path/to/xplat-go build --targets web
-/absolute/path/to/xplat-go build --targets macos
+/absolute/path/to/xplat-go build web
+/absolute/path/to/xplat-go build --targets web,macos
 # On macOS arm64, compile a native C leaf and verify actual app/DMG packaging:
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go macOS packaging"}' -- bun run turbo run test:go-build-macos-real --filter=@octane-xplat/cli
 ```

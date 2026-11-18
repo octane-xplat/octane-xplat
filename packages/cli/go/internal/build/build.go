@@ -148,6 +148,16 @@ func PrepareBuildEngines(ctx context.Context, projectRoot string, selected []str
 }
 
 func Command(ctx context.Context, values map[string]any) error {
+	requested := routes.OptionalString(values, "targets")
+	if target := routes.OptionalString(values, "target"); target != nil {
+		if requested != nil {
+			return errors.New("pass either a single target or --targets, not both")
+		}
+		if strings.Contains(*target, ",") {
+			return errors.New("pass a single target or use --targets for a comma-separated list")
+		}
+		requested = target
+	}
 	projectRoot, err := os.Getwd()
 	if err != nil {
 		return err
@@ -160,7 +170,6 @@ func Command(ctx context.Context, values map[string]any) error {
 	if err != nil {
 		return err
 	}
-	requested := routes.OptionalString(values, "targets")
 	if requested == nil && len(available) > 0 && proc.ForegroundInput(ctx) != nil && proc.BuildTerminal(proc.ForegroundInput(ctx)) && proc.BuildTerminal(os.Stdout) {
 		fmt.Printf("Build targets (comma list; Enter selects %s): ", strings.Join(available, ","))
 		type answer struct {

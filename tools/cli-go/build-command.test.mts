@@ -100,19 +100,41 @@ function isolated(files = {}, manifest = {}) {
 test('build descriptor/help and unavailable selections need no Node or route writes', () => {
   const dir = project({ 'src/app/index.tsrx': 'export default ()=>null\n' })
 
-  for (const flag of ['--help', '--schema']) {
-    const r = run(dir, [flag], { PATH: '' })
+  const help = run(dir, ['--help'], { PATH: '' })
+  status(help, 0)
+  assert.match(help.stdout, /Usage: xplat build \[target\]/)
+  assert.match(help.stdout, /--targets/)
 
-    status(r, 0)
-    assert.match(r.stdout, /targets/)
-  }
+  const schema = run(dir, ['--schema'], { PATH: '' })
+  status(schema, 0)
+  assert.deepEqual(JSON.parse(schema.stdout).data.input.positionals, [
+    { name: 'target', required: false, min: null, max: null },
+  ])
 
-  for (const args of [[], ['--targets', 'web'], ['--targets='], ['--targets']]) {
+  for (const args of [[], ['web'], ['--targets', 'web'], ['--targets='], ['--targets']]) {
     const r = run(dir, args, { PATH: '' })
 
     status(r, 1)
     assert.equal(existsSync(join(dir, 'src/routes.gen.web.ts')), false)
   }
+})
+
+test('positional build rejects conflicting or multiple targets before any build work', () => {
+  const dir = project({
+    'vite.config.mjs': 'export default {}',
+    'index.html': 'hello',
+    'app/index.tsrx': 'export default ()=>null\n',
+  })
+
+  const conflict = run(dir, ['web', '--targets', 'web'], { PATH: '' })
+  status(conflict, 1)
+  assert.match(conflict.stderr, /pass either a single target or --targets/)
+
+  const list = run(dir, ['web,web'], { PATH: '' })
+  status(list, 1)
+  assert.match(list.stderr, /use --targets for a comma-separated list/)
+  assert.equal(existsSync(join(dir, 'dist')), false)
+  assert.equal(existsSync(join(dir, 'routes.gen.web.ts')), false)
 })
 
 test('actual project Vite build loads project config/plugins, baked routes and local engine', () => {
@@ -166,9 +188,13 @@ test('preflight rejects every missing engine before route baking or earlier targ
   assert.equal(existsSync(join(dir, 'routes.gen.web.ts')), false)
 })
 
-test('NativeScript engine receives selected platform/release argv and failure stops later builds', () => {
+test('positional Android build selects only Android and forwards release arguments', () => {
   const dir = isolated(
-    { 'nativescript.config.ts': 'export default {}' },
+    {
+      'nativescript.config.ts': 'export default {}',
+      'vite.config.mjs': 'export default {}',
+      'index.html': 'hello',
+    },
     { devDependencies: { '@nativescript/android': '9.0.0' } },
   )
 
@@ -179,7 +205,7 @@ test('NativeScript engine receives selected platform/release argv and failure st
     `console.log(JSON.stringify({argv:process.argv.slice(2),cwd:process.cwd()}));console.error('ns stderr π');process.exitCode=7`,
   )
 
-  const r = run(dir, ['--targets', 'android', '--release'])
+  const r = run(dir, ['android', '--release'])
 
   status(r, 1)
 
@@ -189,6 +215,7 @@ test('NativeScript engine receives selected platform/release argv and failure st
   assert.match(r.stderr, /ns stderr π/)
   assert.match(r.stderr, /android build exited 7/)
   assert.doesNotMatch(r.stdout, /Build complete/)
+  assert.equal(existsSync(join(dir, 'dist')), false)
 })
 
 test('Android store options forward validated argv; passwords arrive only from environment references', () => {
@@ -401,7 +428,6 @@ test(
     )
 
     const r = run(dir, [
-      '--targets',
       'ios',
       '--release',
       '--for-device',

@@ -106,9 +106,9 @@ Choose a declared target explicitly so a release job does not build every
 platform in the app:
 
 ```sh
-bun run xplat build --targets android --release
+bun run xplat build android --release
 # On a Mac with the iOS toolchain:
-bun run xplat build --targets ios --release
+bun run xplat build ios --release
 ```
 
 Xplat regenerates routes and calls NativeScript's release build. **Build

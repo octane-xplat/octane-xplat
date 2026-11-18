@@ -55,25 +55,30 @@ and split large collections across separate registrations.
 bun run xplat fonts add ./Inter.ttf
 ```
 
-The scaffolded app's `bun run dev` / `bun run build` / `bun run dev:ios` scripts drive
-the supported targets directly; `xplat` is the multi-target front end. The
-experimental macOS target is configured by the app and packaged by `xplat`.
+The starter's dev and build scripts call `xplat` for the selected platform.
+For example, `bun run dev:ios` runs `xplat dev ios`, and `bun run build:ios`
+runs `xplat build ios`.
 
 ```sh
 bun run dev
 bun run build
 bun run dev:ios
+bun run build:ios
+```
+
+Pass a platform after `xplat build` to build just that platform. Use
+`--targets` for a comma-separated list. Choose one form per command.
+
+```sh
+bun run xplat build web
+bun run xplat build --targets web,android
 ```
 
 With `xplat build --targets`, every requested kind must be available for that
 app. A mixed selection such as `web,android` fails before route generation or
 any build starts if Android is unavailable. The error lists the available kinds.
-Without `--targets`, the interactive picker or noninteractive all-target
+Without a platform or `--targets`, the interactive picker or noninteractive all-target
 selection still applies.
-
-```sh
-bun run xplat build --targets web,android
-```
 
 Phone targets accept the store-artifact options of the release workflow:
 `--aab` and `--key-store-path`/`--key-store-alias` plus

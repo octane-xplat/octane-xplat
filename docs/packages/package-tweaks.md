@@ -110,8 +110,8 @@ are no longer on screen. Property and element filters do not narrow Save.
 
 ## Limits
 
-- Tweaks are live only under `xplat dev`. Apps started with `ns run`
-  (`dev:ios`/`dev:android`) or production builds carry the plain literal.
+- Tweaks are live only under `xplat dev`. Apps started directly with `ns run`
+  and production builds carry the plain literal.
 - The native devtools app runs on macOS only and builds itself with the
   macOS host packages. Add them once:
   `bun add -D @octane-xplat/macos-build @octane-xplat/macos-appkit @nativescript/macos-node-api`.

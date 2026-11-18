@@ -26,7 +26,7 @@ committing secrets, test the distributed result, and prepare an update.
 ## Documentation
 
 - AC1: [Release inputs](../../../docs/start/native-release.md#check-the-app-you-will-release).
-- AC2: [Target selection and direct NativeScript packaging](../../../docs/start/native-release.md#build-one-release-target).
+- AC2: [Target selection and direct NativeScript packaging](../../../docs/start/native-release.md#build-one-release-target), [CLI build regression](../../../tools/cli-go/build-command.test.mts).
 - AC3: [Android upload artifact and internal testing](../../../docs/start/native-release.md#produce-an-android-app-bundle).
 - AC4: [iOS archive and TestFlight](../../../docs/start/native-release.md#archive-the-ios-app).
 - AC5: [Distributed-build acceptance](../../../docs/start/native-release.md#test-the-distributed-build).
