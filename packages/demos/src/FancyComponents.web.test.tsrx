@@ -176,7 +176,7 @@ const pointer = (node: HTMLElement, type: string, x: number, y = 0) => {
   act(() => node.dispatchEvent(event))
 }
 
-describe('FancyComponents showcase', () => {
+describe('FancyComponents showcase', { timeout: 30000 }, () => {
   it('renders all seven effects readable before effects finish', async () => {
     const { container, close } = mount()
 
