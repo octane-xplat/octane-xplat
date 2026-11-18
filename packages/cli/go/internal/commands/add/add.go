@@ -233,7 +233,7 @@ func validateAddPlan(ctx context.Context, projectPath, root, id, manager string,
 		if (observed.Kind == "missing" && entry.Before != nil) || (observed.Kind == "file" && (entry.Before == nil || observed.Hash != *entry.Before)) {
 			return fail("scaffold output before-image mismatch")
 		}
-		if observed.Kind == "file" && entry.Path != filepath.Join(projectPath, "package.json") && entry.Path != filepath.Join(projectPath, "tsconfig.json") && entry.Path != filepath.Join(root, "package.json") && entry.Path != filepath.Join(root, "pnpm-workspace.yaml") && filepath.Dir(entry.Path) != filepath.Join(root, "patches") {
+		if observed.Kind == "file" && entry.Path != filepath.Join(projectPath, "package.json") && entry.Path != filepath.Join(projectPath, "tsconfig.json") && entry.Path != filepath.Join(projectPath, "tsconfig.envs.json") && entry.Path != filepath.Join(root, "package.json") && entry.Path != filepath.Join(root, "pnpm-workspace.yaml") && filepath.Dir(entry.Path) != filepath.Join(root, "patches") {
 			return fail("scaffold cannot overwrite existing source/assets")
 		}
 		bytes, err := base64.StdEncoding.Strict().DecodeString(*entry.Content)
