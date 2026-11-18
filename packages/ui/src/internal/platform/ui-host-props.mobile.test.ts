@@ -27,4 +27,24 @@ describe('UI native host setup', () => {
     prepareUIHost(scroll)
     expect(native.setClipChildren).not.toHaveBeenCalled()
   })
+
+  it('registers the loaded handler once per host across repeat prepares', () => {
+    const handlers: Array<() => void> = []
+    const host = {
+      android: { setClipChildren: vi.fn(), setClipToPadding: vi.fn() },
+      on: (_event: string, cb: () => void) => handlers.push(cb),
+    }
+
+    prepareUIHost(host)
+    prepareUIHost(host)
+    expect(handlers).toHaveLength(1)
+
+    const other = {
+      android: { setClipChildren: vi.fn(), setClipToPadding: vi.fn() },
+      on: (_event: string, cb: () => void) => handlers.push(cb),
+    }
+
+    prepareUIHost(other)
+    expect(handlers).toHaveLength(2)
+  })
 })

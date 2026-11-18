@@ -108,3 +108,82 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
   detachAgain()
   assert.equal(removed.length, 2)
 })
+
+test('iOS tap-to-blur defers the recognizer until a window becomes key', () => {
+  const context = vm.createContext({ exports: {} })
+  const ios = new Proxy({}, { get: (_target, name) => context[name] })
+
+  context.require = (specifier) => {
+    if (specifier === '@octane-xplat/platform/ios') {
+      return ios
+    }
+
+    throw new Error(`Unexpected module: ${specifier}`)
+  }
+
+  vm.runInContext(compiled, context)
+
+  const { attachTapToBlur } = context.exports
+  const added = []
+  const removed = []
+  const watched = []
+  const unwatched = []
+  const observers = new Map()
+  const keyWindowStub = {
+    addGestureRecognizer: (recognizer) => added.push(recognizer),
+    removeGestureRecognizer: (recognizer) => removed.push(recognizer),
+    endEditing: () => {},
+  }
+  const application = { connectedScenes: { allObjects: [] }, keyWindow: null }
+
+  Object.assign(context, {
+    NSObject: class {
+      static extend(methods) {
+        return { new: () => Object.create(methods) }
+      }
+    },
+    UIGestureRecognizerDelegate: {},
+    interop: { types: { void: {}, id: {} } },
+    UITapGestureRecognizer: {
+      alloc: () => ({ initWithTargetAction: (target, action) => ({ target, action }) }),
+    },
+    UITextField: { class: () => 'field' },
+    UITextView: { class: () => 'text' },
+    UIWindowDidBecomeKeyNotification: 'UIWindowDidBecomeKeyNotification',
+    NSNotificationCenter: {
+      defaultCenter: {
+        addObserverForNameObjectQueueUsingBlock: (name, _object, _queue, block) => {
+          watched.push(name)
+          observers.set(name, block)
+          return { name }
+        },
+        removeObserver: (observer) => unwatched.push(observer),
+      },
+    },
+    UIApplication: { sharedApplication: application },
+  })
+
+  // Attaching before any window is key must not drop the recognizer; it is
+  // retried when the first window becomes key.
+  const detach = attachTapToBlur({})
+
+  assert.equal(added.length, 0)
+  assert.deepEqual(watched, ['UIWindowDidBecomeKeyNotification'])
+
+  application.keyWindow = keyWindowStub
+  observers.get('UIWindowDidBecomeKeyNotification')({})
+  assert.equal(added.length, 1)
+  assert.equal(unwatched.length, 1)
+
+  detach()
+  assert.deepEqual(removed, [added[0]])
+
+  // A view that detaches before any window becomes key drops its observer.
+  application.keyWindow = null
+  const detachEarly = attachTapToBlur({})
+
+  assert.equal(added.length, 1)
+  assert.equal(watched.length, 2)
+  detachEarly()
+  assert.equal(unwatched.length, 2)
+})

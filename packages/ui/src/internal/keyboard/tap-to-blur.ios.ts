@@ -12,11 +12,13 @@
  *  `cancelsTouchesInView` stays false so taps still reach buttons. */
 
 import {
+  NSNotificationCenter,
   NSObject,
   UIApplication,
   UITapGestureRecognizer,
   UITextField,
   UITextView,
+  UIWindowDidBecomeKeyNotification,
   UIWindowScene,
   interop,
 } from '@octane-xplat/platform/ios'
@@ -44,6 +46,7 @@ let iosCount = 0
 let iosTarget: any = null
 let iosRecognizer: any = null
 let iosWindow: any = null
+let iosPendingObserver: any = null
 
 function iosAttach() {
   iosCount++
@@ -54,9 +57,64 @@ function iosAttach() {
   const appWin = appWindow()
 
   if (!appWin) {
+    // An attach can run before the first window becomes key; retry on the
+    // transition instead of silently dropping the recognizer.
+    iosWatchKeyWindow()
     return
   }
 
+  iosBind(appWin)
+}
+
+function iosWatchKeyWindow() {
+  if (iosPendingObserver) {
+    return
+  }
+
+  try {
+    const center: any = NSNotificationCenter?.defaultCenter
+    iosPendingObserver = center?.addObserverForNameObjectQueueUsingBlock?.(
+      UIWindowDidBecomeKeyNotification,
+      null,
+      null,
+      iosKeyWindowDidChange,
+    )
+  } catch {
+    iosPendingObserver = null
+  }
+}
+
+function iosUnwatchKeyWindow() {
+  const observer = iosPendingObserver
+  iosPendingObserver = null
+
+  if (!observer) {
+    return
+  }
+
+  try {
+    const center: any = NSNotificationCenter?.defaultCenter
+    center?.removeObserver?.(observer)
+  } catch {}
+}
+
+function iosKeyWindowDidChange() {
+  iosUnwatchKeyWindow()
+
+  if (iosCount <= 0 || iosRecognizer) {
+    return
+  }
+
+  const appWin = appWindow()
+
+  if (appWin) {
+    iosBind(appWin)
+  } else {
+    iosWatchKeyWindow()
+  }
+}
+
+function iosBind(appWin: any) {
   iosWindow = appWin
   // The probe runtime does not provide NativeClass. Register through the
   // Objective-C bridge lazily, and reuse the class across attach cycles.
@@ -103,7 +161,12 @@ function iosAttach() {
 
 function iosDetach() {
   iosCount--
-  if (iosCount > 0 || !iosRecognizer) {
+  if (iosCount > 0) {
+    return
+  }
+
+  if (!iosRecognizer) {
+    iosUnwatchKeyWindow()
     return
   }
 
