@@ -85,6 +85,10 @@ enum XplatStartupArtifact {
             "id": "string", "className": "string", "style": "style", "src": "string",
             "stretch": "string", "accessible": "boolean", "accessibilityLabel": "string",
         ],
+        "image": [
+            "id": "string", "className": "string", "style": "style", "stretch": "string",
+            "loadMode": "string", "accessibilityLabel": "string",
+        ],
     ]
     private static let styleKeys: Set<String> = [
         "alignItems", "alignSelf", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",

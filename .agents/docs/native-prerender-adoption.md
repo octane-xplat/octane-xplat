@@ -43,7 +43,7 @@ absent resolution candidates are both inputs: a newly created platform sibling
 invalidates an old artifact even when its previous sources remain unchanged.
 Native packaging verifies both sets before copying and after compilation. The qualification
 command only selects inputs and scratch placement. It keeps a dedicated
-build-host plugin and eleven shared primitive exports from the installed UI source layout; it does not load the
+build-host plugin and twelve shared primitive exports from the installed UI source layout; it does not load the
 app's Vite configuration or establish full UI-barrel eligibility. Top-level
 `className` accepts the driver's clsx-style shapes and is normalized to the
 same joined string before validation, so `View`'s `['vx-view', props.className]`
@@ -58,14 +58,22 @@ content column (`alignSelf: stretch`, `width`/`height: 100%`,
 `iosIgnoreSafeArea`); its overlay `RootLayout` host is attached by a ref after
 hydration, outside the artifact, so parity snapshots skip non-artifact children
 (decision #163). `Spinner` was the first placeholder host,
-and `Icon`'s `<svgview>` is the second: an unsupported leaf with a bounded prop
+`Icon`'s `<svgview>` the second and `Image`'s plain `<image>` leaf the third:
+an unsupported leaf with a bounded prop
 set and an authored numeric width and height in every theme variant lowers to
 an empty Mason box in the startup tree; during commit the binding removes that
 box from the native and Mason trees and the live host inserts through the
 ordinary path at the same index, counted as `replacedCount` rather than
 `claimedCount`. `Icon` always carries numeric size (`namedSizes` maps every
 named size), so the built-in `xplat-check` glyph lowers to a sized
-`svgview` placeholder. Placeholder styles keep box geometry only; the producer
+`svgview` placeholder. Only `Image`'s plain `<image>` path qualifies: SVG srcs
+still route to `svgview`, and the computed-rect path's inner fill-stretched
+`<image>` carries no authored size, so `contentFit: 'none'`/`'scale-down'` and
+positioned content reject at the sizing gate. `src` never enters the emitted
+host — the build host's `ImageSource.fromBase64Sync` returns an opaque marker
+that only effect-time bindings consume — so the `image` prop table stays
+bounded to `id`, `className`, `style`, `stretch`, `loadMode` and
+`accessibilityLabel`. Placeholder styles keep box geometry only; the producer
 reports dropped keys per placeholder in the build manifest. A loading `Button`
 is eligible through that placeholder path plus a bounded grid subset —
 `display: grid`, `1fr` single-cell templates, `gridRow`/`gridColumn: 1` and
@@ -225,7 +233,7 @@ The separate stock SDK startup mount control compiles a fixture bootstrap
 through NativeSource with `XPLAT_PRERENDER_STOCK_SDK`, emits XPI1 as
 `startup.bin` into the normal Vite app bundle, and calls the same SDK helpers.
 Its producer resolves from the isolated app's installed package tree; the live
-bundle uses the installed native preset and the existing eleven-primitive
+bundle uses the installed native preset and the existing twelve-primitive
 qualification facade. The `home` fixture reuses the Home identity, Core
 Page/window and style/layout assertions. The `keyed` fixture mounts a
 variable-topology KeyedStartup inside a bounded 320x640-point viewport — a test

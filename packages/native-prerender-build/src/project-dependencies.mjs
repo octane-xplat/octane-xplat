@@ -14,6 +14,7 @@ export const primitiveModules = {
   ScrollableArea: 'src/components/layout/ScrollableArea.tsrx',
   Spinner: { path: 'src/components/feedback/ActivityIndicator.tsrx', export: 'ActivityIndicator' },
   Icon: 'src/components/media/Icon.tsrx',
+  Image: 'src/components/media/Image.tsrx',
 }
 
 function packageRoot(entry, name) {

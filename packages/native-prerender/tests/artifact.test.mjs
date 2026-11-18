@@ -605,3 +605,101 @@ test('the svgview placeholder validates its bounded props and round-trips', () =
     /child kind/,
   )
 })
+
+test('the image placeholder validates its bounded props and round-trips', () => {
+  const batch = [
+    { op: 'create', id: 100, type: 'masonview', props: { className: 'screen' } },
+    {
+      op: 'create',
+      id: 101,
+      type: 'image',
+      props: {
+        id: 'img',
+        className: 'vx-image',
+        style: { width: 40, height: 40 },
+        stretch: 'aspectFill',
+        loadMode: 'async',
+        accessibilityLabel: 'check',
+      },
+    },
+    { op: 'create', id: 102, type: 'label', props: { text: 'Title' } },
+    { op: 'insert', id: 101, parent: 100, before: null },
+    { op: 'insert', id: 102, parent: 100, before: null },
+    { op: 'insert', id: 100, parent: null, before: null },
+  ]
+  const projection = projectPreparedTree(batch)
+  const visual = projectVisualTree(projection.nodes)
+  assert.equal(visual.length, 3)
+  assert.equal(visual[1].kind, 'placeholder')
+  assert.equal(visual[1].hostKind, 'image')
+  assert.deepEqual(visual[1].children, [])
+  assert.deepEqual(visual[0].children, [1, 2])
+  assert.equal(visual[2].kind, 'label')
+
+  // The logical node keeps its real kind, so an exact match still gates it.
+  assert.deepEqual(
+    [...matchPreparedTree(batch, projection.nodes).visualByCommandId],
+    [
+      [100, 0],
+      [101, 1],
+      [102, 2],
+    ],
+  )
+
+  const artifact = validateArtifact({
+    version: 1,
+    platform: 'android',
+    hostContract: 'mason-label-v1',
+    build: expected.build,
+    seed: {},
+    constraints: [{ input: 'fontScale', equals: 1 }],
+    nodes: projection.nodes,
+    variants: Object.fromEntries(
+      ['light', 'dark'].map((theme) => [
+        theme,
+        projection.nodes
+          .filter((node) => node.kind !== '#text')
+          .map((node) => ({
+            node: node.index,
+            style: node.kind === 'image' ? { width: 40, height: 40 } : {},
+            cssKeys: [],
+            inheritedKeys: [],
+          })),
+      ]),
+    ),
+  })
+  assert.equal(artifact.nodes[1].kind, 'image')
+  assert.equal(
+    decodeStartupArtifact(encodeStartupArtifact(artifact), expected).nodes[1].kind,
+    'image',
+  )
+
+  const sized = structuredClone(projection.nodes)
+  // Placeholder props are only valid on their own host kind; raster srcs
+  // never reach the emitted host, so src stays rejected here.
+  sized[0].props.loadMode = 'sync'
+  assert.throws(
+    () => validateArtifact({ ...artifact, nodes: sized }),
+    /unsupported host prop loadMode/,
+  )
+
+  for (const props of [{ busy: true }, { src: 'data:image/png;base64,x' }, { plugin: true }]) {
+    const nodes = structuredClone(projection.nodes)
+    nodes[1].props = props
+    assert.throws(() => validateArtifact({ ...artifact, nodes }), /host prop|boolean host prop/)
+  }
+
+  // A placeholder may not own children.
+  assert.throws(
+    () =>
+      projectPreparedTree([
+        { op: 'create', id: 0, type: 'masonview', props: {} },
+        { op: 'create', id: 1, type: 'image', props: {} },
+        { op: 'create', id: 2, type: 'label', props: { text: 'x' } },
+        { op: 'insert', id: 1, parent: 0, before: null },
+        { op: 'insert', id: 2, parent: 1, before: null },
+        { op: 'insert', id: 0, parent: null, before: null },
+      ]),
+    /child kind/,
+  )
+})

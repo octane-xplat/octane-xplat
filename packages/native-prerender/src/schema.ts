@@ -1,7 +1,7 @@
 export type Literal = null | boolean | number | string | Literal[] | LiteralObject
 export type LiteralObject = { [key: string]: Literal }
 export type ContainerKind = 'masonview' | 'scrollview'
-export type PlaceholderKind = 'activityindicator' | 'svgview'
+export type PlaceholderKind = 'activityindicator' | 'svgview' | 'image'
 export type HostKind = ContainerKind | 'label' | '#text' | PlaceholderKind
 export type PlaceholderPropType = 'string' | 'boolean' | 'style'
 /**
@@ -24,6 +24,14 @@ export const PLACEHOLDER_HOSTS: Readonly<
     src: 'string',
     stretch: 'string',
     accessible: 'boolean',
+    accessibilityLabel: 'string',
+  }),
+  image: Object.freeze({
+    id: 'string',
+    className: 'string',
+    style: 'style',
+    stretch: 'string',
+    loadMode: 'string',
     accessibilityLabel: 'string',
   }),
 })

@@ -127,6 +127,16 @@ test(`${platform} backend accepts each placeholder leaf and numeric authored wid
       },
       { width: 24, height: 24 },
     ],
+    [
+      'image',
+      {
+        id: 'img',
+        stretch: 'aspectFill',
+        loadMode: 'async',
+        accessibilityLabel: 'check',
+      },
+      { width: 40, height: 40 },
+    ],
   ]) {
     const artifact = fixture()
     artifact.nodes = [
@@ -161,6 +171,7 @@ test(`${platform} backend rejects unsupported placeholder style values`, () => {
   for (const [kind, extra] of [
     ['activityindicator', { busy: true }],
     ['svgview', { src: '<svg/>' }],
+    ['image', { stretch: 'aspectFill', loadMode: 'async' }],
   ])
     for (const width of ['50%', -1, '16px']) {
       const artifact = fixture()
@@ -229,6 +240,44 @@ test(`${platform} backend schema rejects a placeholder with children and unknown
         { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
         { node: 1, style: { width: 24, height: 24 }, cssKeys: [], inheritedKeys: [] },
         { node: 2, style: {}, cssKeys: [], inheritedKeys: [] },
+      ],
+    },
+    {
+      pattern: /child kind/,
+      nodes: [
+        { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
+        {
+          index: 1,
+          parent: 0,
+          path: '0/0',
+          kind: 'image',
+          props: { style: { width: 40, height: 40 }, stretch: 'aspectFill' },
+        },
+        { index: 2, parent: 1, path: '0/0/0', kind: 'label', props: {} },
+      ],
+      variants: [
+        { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
+        { node: 1, style: { width: 40, height: 40 }, cssKeys: [], inheritedKeys: [] },
+        { node: 2, style: {}, cssKeys: [], inheritedKeys: [] },
+      ],
+    },
+    {
+      // Raster srcs never reach the emitted image host; the prop table stays
+      // bounded to what Image actually lowers.
+      pattern: /unsupported host prop src/,
+      nodes: [
+        { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
+        {
+          index: 1,
+          parent: 0,
+          path: '0/0',
+          kind: 'image',
+          props: { src: 'data:image/png;base64,x' },
+        },
+      ],
+      variants: [
+        { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
+        { node: 1, style: {}, cssKeys: [], inheritedKeys: [] },
       ],
     },
     {

@@ -71,6 +71,28 @@ export const Application = new Proxy(Object.create(null), {
 export const isIOS = platform === 'ios'
 export const isAndroid = platform === 'android'
 export const Screen = unavailable('Screen')
+export const knownFolders = unavailable('knownFolders')
+// Image resolves data:…;base64 srcs synchronously during render through
+// resolveRasterSource; the result only reaches effect-time bindings, never
+// emitted props — a marker in the startup tree fails literal/prop validation
+// loudly. Every other ImageSource member stays unavailable like the rest of
+// the native surface.
+const prerenderImageSource = Object.freeze({ __prerenderImageSource: true })
+export const ImageSource = new Proxy(Object.create(null), {
+  set: rejectWrite,
+  defineProperty: rejectWrite,
+  deleteProperty: rejectWrite,
+  setPrototypeOf: rejectWrite,
+  get(_target, key) {
+    if (key === 'fromBase64Sync') {
+      reads.push('ImageSource.fromBase64Sync')
+      return () => prerenderImageSource
+    }
+    throw new Error(
+      'Native startup producer: unsupported native read ImageSource.' + String(key),
+    )
+  },
+})
 export const Utils = unavailable('Utils')
 export const ScrollView = unavailable('ScrollView')
 export const Color = unavailable('Color')

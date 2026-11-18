@@ -231,10 +231,12 @@ async function qualify() {
   // Each placeholder's slot must now hold the live host's native view at the
   // cold frame size, with the cold box fully detached. The expected class is
   // keyed on the record's hostKind: activityindicator -> Core's
-  // UIActivityIndicatorView, svgview -> the vendored ui-svg SVGKFastImageView.
+  // UIActivityIndicatorView, svgview -> the vendored ui-svg SVGKFastImageView,
+  // image -> Core's UIImageView.
   const replacementClasses = {
     activityindicator: UIActivityIndicatorView.class(),
     svgview: SVGKFastImageView.class(),
+    image: UIImageView.class(),
   }
   const replacements = {}
   for (const index of placeholderIndexes) {

@@ -116,6 +116,11 @@ public final class StartupArtifact {
         svg.put("src", "string"); svg.put("stretch", "string");
         svg.put("accessible", "boolean"); svg.put("accessibilityLabel", "string");
         PLACEHOLDER_PROPS.put("svgview", Collections.unmodifiableMap(svg));
+        Map<String, String> image = new LinkedHashMap<>();
+        image.put("id", "string"); image.put("className", "string");
+        image.put("style", "style"); image.put("stretch", "string");
+        image.put("loadMode", "string"); image.put("accessibilityLabel", "string");
+        PLACEHOLDER_PROPS.put("image", Collections.unmodifiableMap(image));
     }
     private static final Set<String> STYLE_KEYS = new HashSet<>(Arrays.asList(
         "alignItems", "alignSelf", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",

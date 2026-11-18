@@ -101,6 +101,7 @@ test('placeholder indexes take a null slot, count as replaced and still gate the
   for (const [kind, props] of [
     ['activityindicator', { busy: true }],
     ['svgview', { src: '<svg xmlns="http://www.w3.org/2000/svg"/>', stretch: 'aspectFit' }],
+    ['image', { stretch: 'aspectFill', loadMode: 'async' }],
   ]) {
     const batch = [
       { op: 'create', id: 100, type: 'masonview', props: {} },

@@ -4,6 +4,7 @@ import {
   Button,
   HStack,
   Icon,
+  Image,
   Pressable,
   SafeArea,
   Screen as ScreenShell,
@@ -26,6 +27,12 @@ export function Screen(props: ScreenProps) @{
         <View id="screen-header" className="screen-header">
           <Spinner id="screen-spinner" size="sm" />
           <Icon id="screen-icon" name="xplat-check" />
+          <Image
+            id="screen-image"
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAEUlEQVR4nGPQz3/7H4QZYAwAVZ4KKR7n/GkAAAAASUVORK5CYII="
+            alt="check"
+            style={{ width: 40, height: 40 }}
+          />
           <Text id="screen-title" className="screen-copy">
             {props.title}
           </Text>

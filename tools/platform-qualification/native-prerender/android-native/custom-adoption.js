@@ -170,13 +170,14 @@ async function qualify(activity) {
   // android.view.View.extend subclass. The generated name embeds the extend
   // call site (android.view.View_<file>_<line>_<col>_, or
   // com.tns.gen.android.view.View_* on older runtimes); only the prefix is
-  // stable across bundles.
+  // stable across bundles. image -> Core's org.nativescript.widgets.ImageView.
   const replacementClasses = {
     activityindicator: (view) => view instanceof android.widget.ProgressBar,
     svgview: (view) => {
       const name = String(view.getClass().getName())
       return name.startsWith('android.view.View_') || name.startsWith('com.tns.gen.android.view.View')
     },
+    image: (view) => view instanceof org.nativescript.widgets.ImageView,
   }
   const replacements = {}
   for (const index of placeholderIndexes) {

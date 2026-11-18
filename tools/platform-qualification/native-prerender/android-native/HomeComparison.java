@@ -39,6 +39,7 @@ final class HomeComparison {
     // runtime names generated classes after the base class plus the extend
     // call site (android.view.View_<file>_<line>_<col>_, older runtimes use
     // com.tns.gen.android.view.View_*); only the prefix is stable.
+    // image -> Core's org.nativescript.widgets.ImageView.
     private static boolean liveReplacement(String hostKind, android.view.View view) {
         if (hostKind == null) return false;
         if (hostKind.equals("activityindicator")) return view instanceof android.widget.ProgressBar;
@@ -46,6 +47,7 @@ final class HomeComparison {
             String name = view.getClass().getName();
             return name.startsWith("android.view.View_") || name.startsWith("com.tns.gen.android.view.View");
         }
+        if (hostKind.equals("image")) return view instanceof org.nativescript.widgets.ImageView;
         return false;
     }
     // A Screen attaches its overlay RootLayout after hydration, outside the
