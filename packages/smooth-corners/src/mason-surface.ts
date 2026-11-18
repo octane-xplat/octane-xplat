@@ -9,14 +9,20 @@ export function createMasonSurfaceOwner(set: Setter) {
 
   return {
     update(surface: Surface, options: CornerOptions | null) {
-      if (!surface._view) return
+      if (!surface._view) {
+        return
+      }
       const key = JSON.stringify(options)
-      if (applied.get(surface) === key) return
+      if (applied.get(surface) === key) {
+        return
+      }
       set(surface, options)
       applied.set(surface, key)
     },
     dispose(surface: Surface) {
-      if (applied.has(surface) && surface._view) set(surface, null)
+      if (applied.has(surface) && surface._view) {
+        set(surface, null)
+      }
       applied.delete(surface)
     },
   }

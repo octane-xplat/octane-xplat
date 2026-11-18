@@ -11,8 +11,11 @@ test('app config installs the web pipeline, preserves app options and transforms
   const root = mkdtempSync(join(tmpdir(), 'xplat-app-config-'))
   const originalNodeEnv = process.env.NODE_ENV
   t.after(() => {
-    if (originalNodeEnv === undefined) delete process.env.NODE_ENV
-    else process.env.NODE_ENV = originalNodeEnv
+    if (originalNodeEnv === undefined) {
+      delete process.env.NODE_ENV
+    } else {
+      process.env.NODE_ENV = originalNodeEnv
+    }
   })
   t.after(() => rmSync(root, { recursive: true, force: true }))
   // Use the installed workspace runtime while keeping the fixture's source in root.
@@ -62,7 +65,9 @@ createRoot(document.getElementById('root')!).render(<App />)
           {
             postcssPlugin: 'app-postcss',
             Declaration(decl) {
-              if (decl.value === 'green') decl.value = 'purple'
+              if (decl.value === 'green') {
+                decl.value = 'purple'
+              }
             },
           },
         ],
@@ -135,8 +140,11 @@ createRoot(document.getElementById('root')!).render(<App />)
 test('config accepts a promise and fails clearly for host-specific desktop targets', async (t) => {
   const original = process.env.XPLAT_TARGET
   t.after(() => {
-    if (original === undefined) delete process.env.XPLAT_TARGET
-    else process.env.XPLAT_TARGET = original
+    if (original === undefined) {
+      delete process.env.XPLAT_TARGET
+    } else {
+      process.env.XPLAT_TARGET = original
+    }
   })
   delete process.env.XPLAT_TARGET
   const config = await defineConfig(Promise.resolve({ base: '/app/' }))({
@@ -155,8 +163,11 @@ test('the web preset pins the transform tsconfig while env program references da
   const root = mkdtempSync(join(tmpdir(), 'xplat-tsconfig-pin-'))
   const original = process.env.XPLAT_TARGET
   t.after(() => {
-    if (original === undefined) delete process.env.XPLAT_TARGET
-    else process.env.XPLAT_TARGET = original
+    if (original === undefined) {
+      delete process.env.XPLAT_TARGET
+    } else {
+      process.env.XPLAT_TARGET = original
+    }
     rmSync(root, { recursive: true, force: true })
   })
   delete process.env.XPLAT_TARGET
@@ -209,8 +220,11 @@ test('the same app config selects matching native compiler, CSS and resolution d
       NATIVESCRIPT_BUNDLER_ENV: previous.bundler,
       NS_VENDOR_EXCLUDE: previous.vendor,
     })) {
-      if (value === undefined) delete process.env[key]
-      else process.env[key] = value
+      if (value === undefined) {
+        delete process.env[key]
+      } else {
+        process.env[key] = value
+      }
     }
     rmSync(root, { recursive: true, force: true })
   })

@@ -4,10 +4,14 @@ import { applyNativeModifiers } from './apply-native-modifiers.native'
 
 /** Keep Android overflow visible for non-scrolling containers once loaded. */
 export function prepareUIHost(view: any): void {
-  if (!view || !isAndroid) return
+  if (!view || !isAndroid) {
+    return
+  }
   view.on?.('loaded', () => {
     const native = view.android
-    if (!native || view instanceof ScrollView || typeof native.setClipChildren !== 'function') return
+    if (!native || view instanceof ScrollView || typeof native.setClipChildren !== 'function') {
+      return
+    }
     native.setClipChildren(false)
     native.setClipToPadding(false)
   })

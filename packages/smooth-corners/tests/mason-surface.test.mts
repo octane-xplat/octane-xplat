@@ -20,13 +20,21 @@ test('Mason surface owner applies changes once and clears only its own hosts', (
   owner.dispose(surface)
   owner.dispose(detached)
   assert.deepEqual(calls, [
-    [content, null], [surface, corners], [content, corners], [content, null], [surface, null],
+    [content, null],
+    [surface, corners],
+    [content, corners],
+    [content, null],
+    [surface, null],
   ])
 })
 
 test('a rejected update is not cached', () => {
   let attempts = 0
-  const owner = createMasonSurfaceOwner(() => { if (++attempts === 1) throw Error('rejected') })
+  const owner = createMasonSurfaceOwner(() => {
+    if (++attempts === 1) {
+      throw Error('rejected')
+    }
+  })
   const surface = { _view: {} }
   assert.throws(() => owner.update(surface, 8), /rejected/)
   owner.update(surface, 8)

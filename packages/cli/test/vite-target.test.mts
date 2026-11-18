@@ -11,14 +11,20 @@ const original = {
 function invocation(selected, bundler, args = []) {
   delete process.env.XPLAT_TARGET
   delete process.env.NATIVESCRIPT_BUNDLER_ENV
-  if (selected !== undefined) process.env.XPLAT_TARGET = selected
-  if (bundler !== undefined) process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify(bundler)
+  if (selected !== undefined) {
+    process.env.XPLAT_TARGET = selected
+  }
+  if (bundler !== undefined) {
+    process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify(bundler)
+  }
   process.argv = [original.argv[0], original.argv[1], ...args]
 }
 
 afterEach(() => {
   invocation(original.target)
-  if (original.bundler !== undefined) process.env.NATIVESCRIPT_BUNDLER_ENV = original.bundler
+  if (original.bundler !== undefined) {
+    process.env.NATIVESCRIPT_BUNDLER_ENV = original.bundler
+  }
   process.argv = original.argv
 })
 
