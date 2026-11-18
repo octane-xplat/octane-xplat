@@ -13,6 +13,7 @@ export type {
   LogicalNode,
   HostKind,
   PlaceholderKind,
+  PlaceholderPropType,
   StyleRecord,
   LaunchConstraint,
   StartupArtifact,

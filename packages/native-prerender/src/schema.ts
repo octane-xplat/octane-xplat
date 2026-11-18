@@ -1,13 +1,32 @@
 export type Literal = null | boolean | number | string | Literal[] | LiteralObject
 export type LiteralObject = { [key: string]: Literal }
 export type ContainerKind = 'masonview' | 'scrollview'
-export type PlaceholderKind = 'activityindicator'
+export type PlaceholderKind = 'activityindicator' | 'svgview'
 export type HostKind = ContainerKind | 'label' | '#text' | PlaceholderKind
-/** Unsupported leaf hosts mount an empty, authored-size Mason box; hydration replaces it. */
-export const PLACEHOLDER_HOSTS: Readonly<Record<PlaceholderKind, readonly string[]>> =
-  Object.freeze({
-    activityindicator: Object.freeze(['id', 'className', 'style', 'busy']),
-  })
+export type PlaceholderPropType = 'string' | 'boolean' | 'style'
+/**
+ * Unsupported leaf hosts mount an empty, authored-size Mason box; hydration
+ * replaces it. Each entry is the allowed prop table with its value type.
+ */
+export const PLACEHOLDER_HOSTS: Readonly<
+  Record<PlaceholderKind, Readonly<Record<string, PlaceholderPropType>>>
+> = Object.freeze({
+  activityindicator: Object.freeze({
+    id: 'string',
+    className: 'string',
+    style: 'style',
+    busy: 'boolean',
+  }),
+  svgview: Object.freeze({
+    id: 'string',
+    className: 'string',
+    style: 'style',
+    src: 'string',
+    stretch: 'string',
+    accessible: 'boolean',
+    accessibilityLabel: 'string',
+  }),
+})
 export function isPlaceholderKind(value: unknown): value is PlaceholderKind {
   return typeof value === 'string' && Object.hasOwn(PLACEHOLDER_HOSTS, value)
 }
@@ -228,9 +247,11 @@ export function validateNodes(input: unknown): LogicalNode[] {
     } else if (isPlaceholderKind(kind)) {
       const allowed = PLACEHOLDER_HOSTS[kind]
       for (const key of Object.keys(props)) {
-        requireArtifact(allowed.includes(key), 'unsupported host prop ' + key)
-        if (key === 'id' || key === 'className') {string(props[key], 'host prop ' + key)}
-        else if (key === 'busy') {requireArtifact(typeof props[key] === 'boolean', 'boolean host prop')}
+        const type = allowed[key]
+        requireArtifact(type !== undefined, 'unsupported host prop ' + key)
+        if (type === 'string') {string(props[key], 'host prop ' + key)}
+        else if (type === 'boolean')
+          {requireArtifact(typeof props[key] === 'boolean', 'boolean host prop')}
         else {validateStyle(props[key])}
       }
     } else {

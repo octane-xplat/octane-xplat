@@ -18,6 +18,7 @@ const primitives = {
   ScrollableArea: 'layout/ScrollableArea',
   Screen: 'layout/Screen',
   'ActivityIndicator as Spinner': 'feedback/ActivityIndicator',
+  Icon: 'media/Icon',
 }
 
 const data: Record<string, string> = {
@@ -28,7 +29,7 @@ const data: Record<string, string> = {
   'xplat-prerender:mode': 'mode.json',
 }
 
-// Only qualification data and the existing ten-primitive eligibility boundary
+// Only qualification data and the existing eleven-primitive eligibility boundary
 // are special. Compilation, native resolution and CSS use the installed preset.
 export default defineConfig(async ({ mode }) =>
   native(

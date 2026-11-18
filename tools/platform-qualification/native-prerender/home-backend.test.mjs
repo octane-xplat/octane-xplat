@@ -72,69 +72,82 @@ test(`${platform} backend lowers the complete logical artifact to its expected v
       artifact.variants[theme].map(({ node, ...record }, index) => ({ index, ...record })),
     )
 })
-test(`${platform} backend accepts a placeholder leaf and numeric authored width`, () => {
-  const artifact = fixture()
-  artifact.nodes = [
-    { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
-    {
-      index: 1,
-      parent: 0,
-      path: '0/0',
-      kind: 'activityindicator',
-      props: { id: 'spin', style: { width: 16, height: 16 }, busy: true },
-    },
-    { index: 2, parent: 0, path: '0/1', kind: 'label', props: { text: 'Title' } },
-  ]
-  artifact.variants = Object.fromEntries(
-    ['light', 'dark'].map((theme) => [
-      theme,
-      [
-        { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
-        { node: 1, style: { width: 16, height: 16 }, cssKeys: [], inheritedKeys: [] },
-        { node: 2, style: {}, cssKeys: [], inheritedKeys: [] },
-      ],
-    ]),
-  )
-  const result = native(artifact)
-  assert.equal(result.status, 0, result.stderr)
-  const projection = JSON.parse(result.stdout)
-  assert.equal(projection.nodes[1].kind, 'placeholder')
-  assert.equal(projection.nodes[1].hostKind, 'activityindicator')
-  assert.deepEqual(
-    projection.nodes,
-    JSON.parse(
-      JSON.stringify(projectVisualTree(artifact.nodes).map(({ logicalNode, ...node }) => node)),
-    ),
-  )
-})
-test(`${platform} backend rejects unsupported placeholder style values`, () => {
-  for (const width of ['50%', -1, '16px']) {
+test(`${platform} backend accepts each placeholder leaf and numeric authored width`, () => {
+  for (const [kind, props, size] of [
+    ['activityindicator', { id: 'spin', busy: true }, { width: 16, height: 16 }],
+    [
+      'svgview',
+      {
+        id: 'icon',
+        src: '<svg xmlns="http://www.w3.org/2000/svg"/>',
+        stretch: 'aspectFit',
+        accessible: false,
+        accessibilityLabel: 'Done',
+      },
+      { width: 24, height: 24 },
+    ],
+  ]) {
     const artifact = fixture()
     artifact.nodes = [
       { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
-      {
-        index: 1,
-        parent: 0,
-        path: '0/0',
-        kind: 'activityindicator',
-        props: { style: { width: 16, height: 16 }, busy: true },
-      },
+      { index: 1, parent: 0, path: '0/0', kind, props: { ...props, style: size } },
+      { index: 2, parent: 0, path: '0/1', kind: 'label', props: { text: 'Title' } },
     ]
     artifact.variants = Object.fromEntries(
       ['light', 'dark'].map((theme) => [
         theme,
         [
           { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
-          { node: 1, style: { width, height: 16 }, cssKeys: [], inheritedKeys: [] },
+          { node: 1, style: size, cssKeys: [], inheritedKeys: [] },
+          { node: 2, style: {}, cssKeys: [], inheritedKeys: [] },
         ],
       ]),
     )
     const result = native(artifact)
-    assert.equal(result.status, 1, `width=${width}: ${result.stderr}`)
-    assert.match(result.stderr, /Home IR rejected/)
+    assert.equal(result.status, 0, `${kind}: ${result.stderr}`)
+    const projection = JSON.parse(result.stdout)
+    assert.equal(projection.nodes[1].kind, 'placeholder')
+    assert.equal(projection.nodes[1].hostKind, kind)
+    assert.deepEqual(
+      projection.nodes,
+      JSON.parse(
+        JSON.stringify(projectVisualTree(artifact.nodes).map(({ logicalNode, ...node }) => node)),
+      ),
+    )
   }
 })
-test(`${platform} backend schema rejects a placeholder with children and busy on a Mason host`, () => {
+test(`${platform} backend rejects unsupported placeholder style values`, () => {
+  for (const [kind, extra] of [
+    ['activityindicator', { busy: true }],
+    ['svgview', { src: '<svg/>' }],
+  ])
+    for (const width of ['50%', -1, '16px']) {
+      const artifact = fixture()
+      artifact.nodes = [
+        { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
+        {
+          index: 1,
+          parent: 0,
+          path: '0/0',
+          kind,
+          props: { ...extra, style: { width: 16, height: 16 } },
+        },
+      ]
+      artifact.variants = Object.fromEntries(
+        ['light', 'dark'].map((theme) => [
+          theme,
+          [
+            { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
+            { node: 1, style: { width, height: 16 }, cssKeys: [], inheritedKeys: [] },
+          ],
+        ]),
+      )
+      const result = native(artifact)
+      assert.equal(result.status, 1, `${kind} width=${width}: ${result.stderr}`)
+      assert.match(result.stderr, /Home IR rejected/)
+    }
+})
+test(`${platform} backend schema rejects a placeholder with children and unknown props on either host kind`, () => {
   // The XPI1 encoder validates before the native binary can run, so these
   // structural rejections gate at encode. The native validators mirror them
   // for artifacts produced without this schema.
@@ -159,10 +172,47 @@ test(`${platform} backend schema rejects a placeholder with children and busy on
       ],
     },
     {
+      pattern: /child kind/,
+      nodes: [
+        { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
+        {
+          index: 1,
+          parent: 0,
+          path: '0/0',
+          kind: 'svgview',
+          props: { style: { width: 24, height: 24 }, src: '<svg/>' },
+        },
+        { index: 2, parent: 1, path: '0/0/0', kind: 'label', props: {} },
+      ],
+      variants: [
+        { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
+        { node: 1, style: { width: 24, height: 24 }, cssKeys: [], inheritedKeys: [] },
+        { node: 2, style: {}, cssKeys: [], inheritedKeys: [] },
+      ],
+    },
+    {
       pattern: /unsupported host prop busy/,
       nodes: [
         { index: 0, parent: null, path: '0', kind: 'masonview', props: { busy: true } },
         { index: 1, parent: 0, path: '0/0', kind: 'label', props: {} },
+      ],
+      variants: [
+        { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },
+        { node: 1, style: {}, cssKeys: [], inheritedKeys: [] },
+      ],
+    },
+    {
+      // busy is only valid on the activityindicator placeholder.
+      pattern: /unsupported host prop busy/,
+      nodes: [
+        { index: 0, parent: null, path: '0', kind: 'masonview', props: {} },
+        {
+          index: 1,
+          parent: 0,
+          path: '0/0',
+          kind: 'svgview',
+          props: { busy: true },
+        },
       ],
       variants: [
         { node: 0, style: { display: 'flex' }, cssKeys: ['display'], inheritedKeys: [] },

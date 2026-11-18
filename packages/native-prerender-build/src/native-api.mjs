@@ -85,8 +85,8 @@ export const getRootLayout = unavailable('getRootLayout')
 export const attachForeignChild = unavailable('attachForeignChild')
 export const detachForeignChild = unavailable('detachForeignChild')
 
-// The unused Icon dependency registers its client factory at module evaluation.
-// Record the declaration, never call it; the visual projection rejects svgview.
+// Icon's svg.mobile.ts registers its client factory at module evaluation.
+// Record the declaration, never call it; svgview lowers to a sized placeholder.
 export function registerElement(name, factory) {
   if (name !== 'svgview' || typeof factory !== 'function' || registrations.has(name)) {
     throw new Error('Native startup producer: unsupported or duplicate registration ' + name)

@@ -10,3 +10,4 @@ export { SafeArea } from '../../../packages/ui/src/components/layout/SafeArea.ts
 export { Screen } from '../../../packages/ui/src/components/layout/Screen.tsrx'
 export { ScrollableArea } from '../../../packages/ui/src/components/layout/ScrollableArea.tsrx'
 export { ActivityIndicator as Spinner } from '../../../packages/ui/src/components/feedback/ActivityIndicator.tsrx'
+export { Icon } from '../../../packages/ui/src/components/media/Icon.tsrx'

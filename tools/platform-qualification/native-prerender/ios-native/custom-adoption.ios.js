@@ -229,15 +229,27 @@ async function qualify() {
   )
 
   // Each placeholder's slot must now hold the live host's native view at the
-  // cold frame size, with the cold box fully detached.
+  // cold frame size, with the cold box fully detached. The expected class is
+  // keyed on the record's hostKind: activityindicator -> Core's
+  // UIActivityIndicatorView, svgview -> the vendored ui-svg SVGKFastImageView.
+  const replacementClasses = {
+    activityindicator: UIActivityIndicatorView.class(),
+    svgview: SVGKFastImageView.class(),
+  }
+  const replacements = {}
   for (const index of placeholderIndexes) {
     const row = visual[index]
     const parent = row.parent === null ? mount.root : natives[row.parent]
     const slot = Number(row.path.split('/').pop())
     const replacement = parent.subviews.objectAtIndex(slot)
+    replacements[row.hostKind] = String(NSStringFromClass(replacement.class()))
+    const expected = replacementClasses[row.hostKind]
     check(
-      replacement.isKindOfClass(UIActivityIndicatorView.class()),
-      'Placeholder replacement class differs',
+      expected !== undefined && replacement.isKindOfClass(expected),
+      'Placeholder replacement class differs: ' +
+        row.hostKind +
+        ' got ' +
+        replacements[row.hostKind],
     )
     check(
       Math.abs(replacement.frame.size.width - cold[index].frame.width) <= 0.5 &&
@@ -263,6 +275,7 @@ async function qualify() {
     replacedClaims: claims.replacedCount,
     factoryCalls: claims.factoryCalls,
     logicalNodes: startup.nodes.length,
+    replacements,
   })
 
   // Spin the hydration marker now that the live tree owns the screen; the

@@ -51,7 +51,7 @@ const artifact = decodeStartupArtifact(readFileSync(join(result.directory, 'star
 console.log(artifact.nodes.length)
 ```
 
-The render host currently exposes the actual installed `Button`, `Pressable`, `View`, `Text`, `VStack`, `HStack`, `SafeArea`, `Screen`, `ScrollableArea` and `Spinner` implementations through an explicit build-only facade. It depends on their qualified source layout at UI0.20.0. It does not evaluate the full UI barrel or infer arbitrary component eligibility. App Vite configuration and environment files are not loaded. Refs/effects are not committed, native services fail if used, and theme-dependent initial topology is rejected. These boundaries remain separate from normal Vite preset/host installation.
+The render host currently exposes the actual installed `Button`, `Pressable`, `View`, `Text`, `VStack`, `HStack`, `SafeArea`, `Screen`, `ScrollableArea`, `Spinner` and `Icon` implementations through an explicit build-only facade. It depends on their qualified source layout at UI0.20.0. It does not evaluate the full UI barrel or infer arbitrary component eligibility. App Vite configuration and environment files are not loaded. Refs/effects are not committed, native services fail if used, and theme-dependent initial topology is rejected. These boundaries remain separate from normal Vite preset/host installation.
 
 Both light and dark variants use the portable cascade, with mobile media behavior explicitly bounded to the qualified Core9.1.3 inputs. Unsupported queries, values and host kinds fail rather than being silently omitted. See [adoption boundaries](../../.agents/docs/native-prerender-adoption.md) for units, native lifetime and the shared-module requirement.
 

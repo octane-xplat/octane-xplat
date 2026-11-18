@@ -62,7 +62,7 @@ enum XplatStartupArtifact {
             }
             var result: [NSDictionary] = []
             for (index, visual) in records.enumerated() {
-                let placeholder = visual.node.kind == "activityindicator"
+                let placeholder = XplatStartupArtifact.placeholderProps[visual.node.kind] != nil
                 var pairs: [(String, Any)] = [
                     ("index", index), ("logicalNode", visual.node.index), ("path", visual.path),
                     ("parent", visual.parent < 0 ? NSNull() : NSNumber(value: visual.parent)),
@@ -75,6 +75,17 @@ enum XplatStartupArtifact {
             return NSArray(array: result)
         }
     }
+    // Each placeholder kind's allowed props with their value type; cold mounts
+    // an empty box, so only authored geometry reaches the startup tree anyway.
+    private static let placeholderProps: [String: [String: String]] = [
+        "activityindicator": [
+            "id": "string", "className": "string", "style": "style", "busy": "boolean",
+        ],
+        "svgview": [
+            "id": "string", "className": "string", "style": "style", "src": "string",
+            "stretch": "string", "accessible": "boolean", "accessibilityLabel": "string",
+        ],
+    ]
     private static let styleKeys: Set<String> = [
         "alignItems", "alignSelf", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
@@ -164,13 +175,13 @@ enum XplatStartupArtifact {
         var remaining = 100000
         try literalBounds(node.props, 0, &remaining)
         if node.kind == "#text" { try keys(node.props, ["value"]); _ = try text(field(node.props, "value")); return }
-        if node.kind == "activityindicator" {
+        if let propTypes = XplatStartupArtifact.placeholderProps[node.kind] {
             for key in node.props.allKeys {
                 let key = try text(key), value = try field(node.props, key)
                 try check(key.utf8.allSatisfy { $0 < 128 }, "host prop name")
-                switch key {
-                case "id", "className": _ = try text(value)
-                case "busy": _ = try boolean(value)
+                switch propTypes[key] ?? "" {
+                case "string": _ = try text(value)
+                case "boolean": _ = try boolean(value)
                 case "style": try style(value)
                 default: throw Invalid(reason: "unsupported host prop " + key)
                 }
@@ -204,7 +215,7 @@ enum XplatStartupArtifact {
             let row = try object(value)
             try keys(row, ["index", "path", "parent", "kind", "props"])
             try check(integer(field(row, "index"), 0, 1023) == index, "node index")
-            let kind = try text(field(row, "kind")); try check(["masonview", "scrollview", "label", "#text", "activityindicator"].contains(kind), "host kind")
+            let kind = try text(field(row, "kind")); try check(["masonview", "scrollview", "label", "#text"].contains(kind) || placeholderProps.keys.contains(kind), "host kind")
             var parent = -1
             if index == 0 { try check(field(row, "parent") is NSNull && kind != "#text", "root parent or kind") }
             else {

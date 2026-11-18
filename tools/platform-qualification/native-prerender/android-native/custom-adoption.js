@@ -164,15 +164,34 @@ async function qualify(activity) {
   )
 
   // Each placeholder's slot must now hold the live host's native view at the
-  // cold frame size, with the cold box fully detached.
+  // cold frame size, with the cold box fully detached. The expected class is
+  // keyed on the record's hostKind: activityindicator -> Core's ProgressBar;
+  // svgview -> the vendored ui-svg MySVGViewCtor, a runtime-generated
+  // android.view.View.extend subclass. The generated name embeds the extend
+  // call site (android.view.View_<file>_<line>_<col>_, or
+  // com.tns.gen.android.view.View_* on older runtimes); only the prefix is
+  // stable across bundles.
+  const replacementClasses = {
+    activityindicator: (view) => view instanceof android.widget.ProgressBar,
+    svgview: (view) => {
+      const name = String(view.getClass().getName())
+      return name.startsWith('android.view.View_') || name.startsWith('com.tns.gen.android.view.View')
+    },
+  }
+  const replacements = {}
   for (const index of placeholderIndexes) {
     const row = visual[index]
     const parent = row.parent === null ? viewport : natives[row.parent]
     const slot = Number(row.path.split('/').pop())
     const replacement = parent.getChildAt(slot)
+    replacements[row.hostKind] = String(replacement.getClass().getName())
+    const expected = replacementClasses[row.hostKind]
     check(
-      replacement instanceof android.widget.ProgressBar,
-      'Placeholder replacement class differs',
+      expected !== undefined && expected(replacement),
+      'Placeholder replacement class differs: ' +
+        row.hostKind +
+        ' got ' +
+        replacements[row.hostKind],
     )
     check(
       Math.abs(replacement.getWidth() - cold[index].width) <= 1 &&
@@ -199,6 +218,7 @@ async function qualify(activity) {
       replacedClaims: claims.replacedCount,
       factoryCalls: claims.factoryCalls,
       logicalNodes: startup.nodes.length,
+      replacements,
     }),
   )
 

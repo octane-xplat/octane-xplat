@@ -31,15 +31,20 @@ static void Snapshot(UIView *view, NSString *path, NSMutableArray *rows) {
     CGRect frame=view.frame;
     BOOL label=[view isKindOfClass:UILabel.class];
     // A live placeholder replacement is foreign to Mason: do not ask Mason for
-    // a style, which would lazily adopt it into the node tree.
+    // a style, which would lazily adopt it into the node tree. Known
+    // replacements: UIActivityIndicatorView (activityindicator) and the
+    // vendored ui-svg SVGKFastImageView (svgview).
+    Class svgClass=NSClassFromString(@"SVGKFastImageView");
     BOOL indicator=[view isKindOfClass:UIActivityIndicatorView.class];
-    [rows addObject:@{@"paint":indicator ? @{@"alpha":@(view.alpha)} : Paint(view),@"path":path,@"kind":indicator ? @"activityindicator":(label ? @"label":(((MasonUIView *)view).isScrollContainer ? @"scrollview" : @"masonview")),@"text":label ? (((UILabel *)view).text ?: @"") : @"",@"frame":@{@"x":@(frame.origin.x),@"y":@(frame.origin.y),@"width":@(frame.size.width),@"height":@(frame.size.height)}}];
+    BOOL svg=svgClass!=nil&&[view isKindOfClass:svgClass];
+    BOOL foreign=indicator||svg;
+    [rows addObject:@{@"paint":foreign ? @{@"alpha":@(view.alpha)} : Paint(view),@"path":path,@"kind":indicator ? @"activityindicator":(svg ? @"svgview":(label ? @"label":(((MasonUIView *)view).isScrollContainer ? @"scrollview" : @"masonview"))),@"text":label ? (((UILabel *)view).text ?: @"") : @"",@"frame":@{@"x":@(frame.origin.x),@"y":@(frame.origin.y),@"width":@(frame.size.width),@"height":@(frame.size.height)}}];
     // Only artifact kinds: a Screen attaches its overlay RootLayout (a plain
     // UIView) after hydration, outside the startup artifact.
-    if (!label && !indicator) {
+    if (!label && !foreign) {
         NSUInteger slot = 0;
         for (UIView *child in view.subviews) {
-            if (![child isKindOfClass:MasonUIView.class] && ![child isKindOfClass:UILabel.class] && ![child isKindOfClass:UIActivityIndicatorView.class]) continue;
+            if (![child isKindOfClass:MasonUIView.class] && ![child isKindOfClass:UILabel.class] && ![child isKindOfClass:UIActivityIndicatorView.class] && !(svgClass!=nil&&[child isKindOfClass:svgClass])) continue;
             Snapshot(child, [path stringByAppendingFormat:@"/%lu", (unsigned long)slot++], rows);
         }
     }

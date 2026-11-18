@@ -3,6 +3,7 @@ import './screen.css'
 import {
   Button,
   HStack,
+  Icon,
   Pressable,
   SafeArea,
   Screen as ScreenShell,
@@ -24,6 +25,7 @@ export function Screen(props: ScreenProps) @{
       <VStack id="screen" className="screen">
         <View id="screen-header" className="screen-header">
           <Spinner id="screen-spinner" size="sm" />
+          <Icon id="screen-icon" name="xplat-check" />
           <Text id="screen-title" className="screen-copy">
             {props.title}
           </Text>

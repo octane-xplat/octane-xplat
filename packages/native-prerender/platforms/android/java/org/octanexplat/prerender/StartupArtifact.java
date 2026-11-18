@@ -56,7 +56,7 @@ public final class StartupArtifact {
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put("index", visual.index); row.put("logicalNode", visual.node.index); row.put("path", visual.path);
                 row.put("parent", visual.parent < 0 ? null : visual.parent);
-                boolean placeholder = visual.node.kind.equals("activityindicator");
+                boolean placeholder = PLACEHOLDER_PROPS.containsKey(visual.node.kind);
                 row.put("kind", placeholder ? "placeholder" : visual.node.kind);
                 if (placeholder) row.put("hostKind", visual.node.kind);
                 row.put("props", visual.node.props); row.put("text", visual.text);
@@ -102,6 +102,20 @@ public final class StartupArtifact {
             }
             return true;
         }
+    }
+    // Each placeholder kind's allowed props with their value type; cold mounts
+    // an empty box, so only authored geometry reaches the startup tree anyway.
+    private static final Map<String, Map<String, String>> PLACEHOLDER_PROPS = new LinkedHashMap<>();
+    static {
+        Map<String, String> indicator = new LinkedHashMap<>();
+        indicator.put("id", "string"); indicator.put("className", "string");
+        indicator.put("style", "style"); indicator.put("busy", "boolean");
+        PLACEHOLDER_PROPS.put("activityindicator", Collections.unmodifiableMap(indicator));
+        Map<String, String> svg = new LinkedHashMap<>();
+        svg.put("id", "string"); svg.put("className", "string"); svg.put("style", "style");
+        svg.put("src", "string"); svg.put("stretch", "string");
+        svg.put("accessible", "boolean"); svg.put("accessibilityLabel", "string");
+        PLACEHOLDER_PROPS.put("svgview", Collections.unmodifiableMap(svg));
     }
     private static final Set<String> STYLE_KEYS = new HashSet<>(Arrays.asList(
         "alignItems", "alignSelf", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
@@ -166,12 +180,13 @@ public final class StartupArtifact {
             keys(node.props, "value"); text(node.props.get("value"));
             return;
         }
-        if (node.kind.equals("activityindicator")) {
+        Map<String, String> placeholderProps = PLACEHOLDER_PROPS.get(node.kind);
+        if (placeholderProps != null) {
             for (Map.Entry<String, Object> item : node.props.entrySet()) {
                 String key = item.getKey(); Object value = item.getValue();
-                switch (key) {
-                    case "id": case "className": text(value); break;
-                    case "busy": require(value instanceof Boolean, "boolean host prop"); break;
+                switch (placeholderProps.getOrDefault(key, "")) {
+                    case "string": text(value); break;
+                    case "boolean": require(value instanceof Boolean, "boolean host prop"); break;
                     case "style": style(value); break;
                     default: throw new Invalid("unsupported host prop " + key);
                 }
@@ -211,7 +226,7 @@ public final class StartupArtifact {
         for (int index = 0; index < records.size(); index++) {
             Map<String, Object> row = object(records.get(index)); keys(row, "index", "path", "parent", "kind", "props");
             require(integer(row.get("index"), 0, 1023) == index, "node index");
-            String kind = text(row.get("kind")); require(Arrays.asList("masonview", "scrollview", "label", "#text", "activityindicator").contains(kind), "host kind");
+            String kind = text(row.get("kind")); require(Arrays.asList("masonview", "scrollview", "label", "#text").contains(kind) || PLACEHOLDER_PROPS.containsKey(kind), "host kind");
             int parent = -1;
             if (index == 0) require(row.get("parent") == null && !kind.equals("#text"), "root parent or kind");
             else {

@@ -98,62 +98,67 @@ test('wrapper ownership is unique and a Label-only root needs no container claim
 })
 
 test('placeholder indexes take a null slot, count as replaced and still gate the live kind', () => {
-  const batch = [
-    { op: 'create', id: 100, type: 'masonview', props: {} },
-    { op: 'create', id: 101, type: 'activityindicator', props: { busy: true } },
-    { op: 'create', id: 102, type: 'label', props: { text: 'Title' } },
-    { op: 'insert', id: 101, parent: 100, before: null },
-    { op: 'insert', id: 102, parent: 100, before: null },
-    { op: 'insert', id: 100, parent: null, before: null },
-  ]
-  const nodes = projectPreparedTree(batch).nodes
-  const container = {}, label = {}
+  for (const [kind, props] of [
+    ['activityindicator', { busy: true }],
+    ['svgview', { src: '<svg xmlns="http://www.w3.org/2000/svg"/>', stretch: 'aspectFit' }],
+  ]) {
+    const batch = [
+      { op: 'create', id: 100, type: 'masonview', props: {} },
+      { op: 'create', id: 101, type: kind, props },
+      { op: 'create', id: 102, type: 'label', props: { text: 'Title' } },
+      { op: 'insert', id: 101, parent: 100, before: null },
+      { op: 'insert', id: 102, parent: 100, before: null },
+      { op: 'insert', id: 100, parent: null, before: null },
+    ]
+    const nodes = projectPreparedTree(batch).nodes
+    const container = {}, label = {}
 
-  // Slot shape: null exactly at the placeholder index, distinct wrappers elsewhere.
-  assert.throws(
-    () => createNativeClaims(nodes, [container, {}, label]),
-    /distinct wrapper per non-placeholder/,
-  )
-  assert.throws(
-    () => createNativeClaims(nodes, [container, null, null]),
-    /distinct wrapper per non-placeholder/,
-  )
+    // Slot shape: null exactly at the placeholder index, distinct wrappers elsewhere.
+    assert.throws(
+      () => createNativeClaims(nodes, [container, {}, label]),
+      /distinct wrapper per non-placeholder/,
+    )
+    assert.throws(
+      () => createNativeClaims(nodes, [container, null, null]),
+      /distinct wrapper per non-placeholder/,
+    )
 
-  const claims = createNativeClaims(nodes, [container, null, label])
-  claims.match(batch)
-  claims.commit(() => {
-    assert.equal(claims.createView(100, 'masonview'), container)
-    assert.equal(claims.createView(101, 'activityindicator'), undefined)
-    assert.equal(claims.createView(102, 'label'), label)
-  })
-  assert.equal(claims.phase, 'live')
-  assert.equal(claims.claimedCount, 2)
-  assert.equal(claims.replacedCount, 1)
-  assert.equal(claims.factoryCalls, 3)
+    const claims = createNativeClaims(nodes, [container, null, label])
+    claims.match(batch)
+    claims.commit(() => {
+      assert.equal(claims.createView(100, 'masonview'), container)
+      assert.equal(claims.createView(101, kind), undefined)
+      assert.equal(claims.createView(102, 'label'), label)
+    })
+    assert.equal(claims.phase, 'live')
+    assert.equal(claims.claimedCount, 2)
+    assert.equal(claims.replacedCount, 1)
+    assert.equal(claims.factoryCalls, 3)
 
-  // The live host kind must still match the placeholder's logical kind.
-  const wrong = createNativeClaims(nodes, [container, null, label])
-  wrong.match(batch)
-  assert.throws(
-    () =>
-      wrong.commit(() => {
-        wrong.createView(100, 'masonview')
-        wrong.createView(101, 'masonview')
-        wrong.createView(102, 'label')
-      }),
-    /native claim kind differs/,
-  )
-  assert.equal(wrong.phase, 'failed')
+    // The live host kind must still match the placeholder's logical kind.
+    const wrong = createNativeClaims(nodes, [container, null, label])
+    wrong.match(batch)
+    assert.throws(
+      () =>
+        wrong.commit(() => {
+          wrong.createView(100, 'masonview')
+          wrong.createView(101, 'masonview')
+          wrong.createView(102, 'label')
+        }),
+      /native claim kind differs/,
+    )
+    assert.equal(wrong.phase, 'failed')
 
-  // Commit still requires every record consumed, placeholders included.
-  const incomplete = createNativeClaims(nodes, [container, null, label])
-  incomplete.match(batch)
-  assert.throws(
-    () =>
-      incomplete.commit(() => {
-        incomplete.createView(100, 'masonview')
-        incomplete.createView(102, 'label')
-      }),
-    /not fully consumed/,
-  )
+    // Commit still requires every record consumed, placeholders included.
+    const incomplete = createNativeClaims(nodes, [container, null, label])
+    incomplete.match(batch)
+    assert.throws(
+      () =>
+        incomplete.commit(() => {
+          incomplete.createView(100, 'masonview')
+          incomplete.createView(102, 'label')
+        }),
+      /not fully consumed/,
+    )
+  }
 })
