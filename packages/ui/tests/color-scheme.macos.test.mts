@@ -7,6 +7,7 @@ import ts from 'typescript-classic'
 function load(path, context, names) {
   const source = readFileSync(new URL(path, import.meta.url), 'utf8')
     .replace(/^import .*$/gm, '')
+    .replace(/^export type .*$/gm, '')
     .replace(/^export /gm, '')
 
   return runInNewContext(
