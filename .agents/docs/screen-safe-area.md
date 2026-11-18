@@ -1,7 +1,7 @@
 # Native Screen bounds and prepared Pages
 
-`Screen` uses its assigned host rectangle. Its RootLayout and inner Mason root
-ignore native safe-area adjustment; `SafeArea` supplies explicit padding.
+`Screen` uses its assigned host rectangle. Its Mason shell, inner Mason root and
+overlay RootLayout ignore native safe-area adjustment; `SafeArea` supplies explicit padding.
 A Screen inside an inset host stays inside that host. It does not require a
 window-origin parent and does not expand an embedded Frame to window size.
 
@@ -35,11 +35,13 @@ correcting on relayout. It also reports a prepared Page's percentage-height
 app root at y=48, h=778 in an 874pt window. These are separate boundaries:
 
 - NativeScript core 9.1.3's `GridLayout.onLayout` adds `getSafeAreaInsets()`
-  to its child offsets. RootLayout inherits that behavior. MasonKit beta.126
-  also adjusts core-hosted Mason roots through `setRootNativeViewFrame` and
-  defaults `iosOverflowSafeArea` to false. Screen's inner root has explicit 100% width and height so Mason also
-  computes descendants against that frame. Screen disables both implicit
-  adjustments before first layout. This avoids relying on UIKit's initially
+  to its child offsets; RootLayout, now only Screen's overlay host, inherits
+  that behavior. MasonKit beta.126 also adjusts core-hosted Mason roots, such
+  as Screen's shell when it is Page content, through `setRootNativeViewFrame`
+  and defaults `iosOverflowSafeArea` to false. Screen's shell and inner root
+  have explicit 100% width and height so Mason computes descendants against
+  that frame. Screen sets `iosIgnoreSafeArea` on the shell, inner root and
+  overlay host before first layout. This avoids relying on UIKit's initially
   reported insets or on a subsequent state change to settle the position.
 - Core 9.1.3's `IOSHelper.layoutView` measures the Page using
   `safeAreaLayoutGuide.layoutFrame`, regardless of `iosIgnoreSafeArea`.

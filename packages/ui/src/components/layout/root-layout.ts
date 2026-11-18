@@ -21,6 +21,19 @@ export function unregisterRootLayout(rl: RootLayout | undefined | null): void {
   }
 }
 
+// Mobile Screen shells are Mason views; each owns one overlay RootLayout
+// attached outside reconciliation (see Screen.tsrx).
+const screenHosts = new WeakMap<object, RootLayout>()
+
+/** Called by the Screen leaf when its shell attaches or replaces its overlay host. */
+export function registerScreenOverlayHost(shell: object, host: RootLayout): void {
+  screenHosts.set(shell, host)
+}
+
+export function unregisterScreenOverlayHost(shell: object): void {
+  screenHosts.delete(shell)
+}
+
 /** The most recently mounted rootlayout — the top of the push stack. For
  *  imperative services (toast, sheet) there is no invoking component to
  *  walk from; last-mounted is the pushed page when one exists. Caveat: tabs
@@ -29,14 +42,19 @@ export function topRootLayout(): RootLayout | undefined {
   return registry[registry.length - 1] ?? getRootLayout()
 }
 
-/** Resolve the RootLayout enclosing `view` by walking the native parent
- *  chain — the screen shell is a RootLayout (Screen), so the first
- *  RootLayout ancestor IS the current page's overlay host. Falls back to
- *  the top registry entry when the component renders outside any Screen. */
+/** Resolve the overlay host for `view` by walking the parent chain: inside an
+ *  overlay, the enclosing RootLayout; under a Screen, that shell's overlay
+ *  host. Falls back to the top registry entry outside any Screen. */
 export function rootLayoutFor(view: any): RootLayout | undefined {
   for (let v = view?.parent; v; v = v.parent) {
     if (v instanceof RootLayout) {
       return v
+    }
+
+    const host = screenHosts.get(v)
+
+    if (host) {
+      return host
     }
   }
 

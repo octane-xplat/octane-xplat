@@ -73,6 +73,15 @@
 		min-width: 0;
 		min-height: 0;
 	}
+	/* The mobile shell is a Mason view; as Page content it is a Mason root
+	   measured with at-most specs, so it fills the page only by an explicit
+	   size. Nested in a Mason parent it still shrinks (min 0, shrink 1). */
+	@platform ios, android {
+		.vx-screen-shell {
+			width: 100%;
+			height: 100%;
+		}
+	}
 	/* flex-basis has no NS registry entry — NS flex items size from
 	   grow/shrink + content. Mason honors flexBasis, so keep the explicit
 	   zero basis on web and macOS only. */

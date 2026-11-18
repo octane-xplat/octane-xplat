@@ -1,0 +1,3 @@
+### Mobile Screen renders on a Mason view
+
+**Breaking change (iOS and Android):** `Screen`'s outer view is now a Mason view instead of a NativeScript `RootLayout`. This lets a first screen built with `Screen` render natively before JavaScript starts. Dialogs, sheets, popovers, toasts and other overlays still open in a `RootLayout`, which `Screen` now places over its content. Overlay components and services need no changes. If your code reached `Screen`'s view through the `ios`/`android` escape props or the view tree and treated it as a `RootLayout`, find the overlay host with `rootLayoutFor(view)` from `@octane-xplat/ui/nativescript` instead.

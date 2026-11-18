@@ -3,12 +3,13 @@
 Resolution of [#46](https://github.com/octane-xplat/octane-xplat/issues/46):
 `Screen` participates in its parent's layout. Retained screens must use
 explicit same-cell layers, as shown in the [public guide](../../docs/app/primitives.md#layer-a-screen-over-retained-content).
-The native RootLayout hosts presented overlays; it does not make the Screen
-itself an overlay. No automatic reparenting or column-sibling overlay behavior
+The native overlay RootLayout hosts presented overlays; it does not make the
+Screen itself an overlay. No automatic reparenting or column-sibling overlay behavior
 is introduced. This preserves ordinary layout ownership across web and native.
 
-Source evidence: `packages/ui/src/components/layout/Screen.tsrx` renders a RootLayout with one
-Mason content child; `Screen.web.tsrx` renders an ordinary div. ScreenProps
+Source evidence: `packages/ui/src/components/layout/Screen.tsrx` renders a Mason shell with one
+Mason content child and attaches an overlay RootLayout over it from the shell ref
+(decision #163); `Screen.web.tsrx` renders an ordinary div. ScreenProps
 has no row/col placement surface. View wrappers carry placement on the native
 Mason boundary and on web.
 

@@ -3,6 +3,10 @@ export function registerRootLayout(_layout: unknown): void {}
 
 export function unregisterRootLayout(_layout: unknown): void {}
 
+export function registerScreenOverlayHost(_shell: object, _host: unknown): void {}
+
+export function unregisterScreenOverlayHost(_shell: object): void {}
+
 export function topRootLayout(): undefined {
   return undefined
 }

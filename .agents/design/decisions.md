@@ -142,6 +142,14 @@
 
 ## Reversals
 
+- **2026-11-17 — Screen shell (#33, #39 → #163):** the mobile `Screen` shell
+  is no longer a `RootLayout`. It is a Mason view so first screens can be
+  prerendered natively. Overlays keep `RootLayout.open/close` but portal into
+  a per-Screen overlay `RootLayout` attached over the shell from its ref;
+  `rootLayoutFor` resolves a Screen shell ancestor to that host. #39's single
+  inner column stays; its RootLayout bounds rationale now applies only to
+  overlay hosts. Web and desktop Screens are unchanged.
+
 - **2026-11-12 — patch distribution (#63):** retire the `@octane-xplat/patches`
   config package; patch files are local in every consumer. New scaffolds were
   already local for both managers, so the published package only served pnpm
@@ -256,3 +264,4 @@
 | 154 | Native desktop application menus ship as the @octane-xplat/app-menu leaf: one flat appMenu service (supported, isAvailable, install -> handle with update/dispose) over a validated menu tree; AppKit builds NSApp.mainMenu through a renderer __xplatAppKit service, GTK uses the default Gtk.Application GMenu/GAction menubar, WinUI pending feasibility; web and phones report unsupported. | Decided | A menu bar is a process-wide OS resource with its own lifecycle, so it gets a leaf (like shortcuts) rather than ui. Reusing renderer-owned native targets keeps leaves off macos-node-api; GTK's application menubar is the toolkit's native app menu. Single ownership, generation-checked dispatch and deferred native swaps prevent stale callbacks and in-dispatch teardown. | [Application menu host boundaries](../docs/app-menu.md) |
 | 156 | Desktop tray/status-bar icons ship as the @octane-xplat/tray leaf: createTray/getTrayAvailability over a shared TrayMenuItem model; AppKit NSStatusItem+NSMenu via @octane-xplat/platform/macos, GTK StatusNotifierItem+com.canonical.dbusmenu over pure Gio, Windows Shell_NotifyIconW+TrackPopupMenu on a worker-owned message-only window; web and phones report unsupported; window/residency helpers share the leaf. | Decided | A tray item is a process-owned OS resource with its own lifecycle, so it gets a leaf (like app-menu/shortcuts) rather than ui. TrayMenuItem stays field-compatible with ui MenuOption data rows so one menu definition drives the tray and DropdownMenu/ContextMenu — shared shape, not code; app-menu owns NSApp.mainMenu/GTK menubar and never touches NSStatusItem/StatusNotifierItem. The Windows worker uses append-only JSONL files + PostThreadMessageW because packaged-host postMessage drops into a busy worker and never flushes outbound while blocked. | [System tray host boundaries](../docs/tray.md) |
 | 157 | Move the dependency-free Drawer and DrawerProps back into UI and remove the drawer leaf without compatibility exports. | Decided | Mobile Drawer now uses UI gesture ownership and scalar animation with no external plugin or independent runtime lifecycle. Platform-specific presentation belongs in UI under #51/#53/#60. User authorized this hard cutover; behavior and native horizontal-scroll limits remain unchanged. | [Drawer ownership](../docs/native-drawer.md) |
+| 163 | Mobile `Screen` renders a Mason shell (`masonview.vx-screen-shell`) around its single content column; overlays portal into a separate `RootLayout` the shell ref attaches over it through `attachForeignChild`, outside the rendered tree. Revises #33 and #39 (see Reversals 2026-11-17). | Decided | A RootLayout shell made every Screen-rooted first screen ineligible for native prerender (Core layout, JS-driven on iOS). Refs commit before descendant effects, so overlay services still resolve a host synchronously; the prerender producer never commits refs. iOS UIKit hitTest and Android decor dispatch (`examples/probes/screen-overlays.mobile.tsrx`) verify the host covers the shell, passes empty-area touches, renders Overlay content and blocks under a shade. |
