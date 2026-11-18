@@ -543,7 +543,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
       @if (src) {
         <image
           key={src}
-          ref={imgRef}
+          ref={imgRef as never}
           src={src}
           accessibilityLabel={alt}
           style={{ width: '100%', height: '100%' }}

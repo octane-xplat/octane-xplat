@@ -1,4 +1,7 @@
 import { useSyncExternalStore } from 'octane'
+
+export type { ColorScheme } from '../props'
+
 import type { ColorScheme } from '../props'
 
 let unsubscribeAppearance: (() => void) | undefined

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
-import { Page, StackLayout, TextField } from '@nativescript/core'
+import { Page, StackLayout, TextField, type View } from '@nativescript/core'
 import { FocusedInputController } from '../../src/index'
 import type { ProbeContext } from '../../../../tools/probe/context'
 import './focus.css'
@@ -146,7 +146,7 @@ export async function run(ctx: ProbeContext) {
     modalField = new TextField()
 
   modalField.text = 'Modal field'
-  layout.addChild(modalField)
+  layout.addChild(modalField as View)
   modal.content = layout
   root.page.showModal(modal, { fullscreen: false, context: {}, closeCallback() {} })
   ctx.onCleanup(() => {
@@ -164,7 +164,9 @@ export async function run(ctx: ProbeContext) {
 
   const modalNative = modalField.ios ?? modalField.android
 
-  await ctx.waitFor(() => (modalField.ios ? modalNative.isFirstResponder : modalNative.hasFocus()))
+  await ctx.waitFor(() =>
+    modalField.ios ? modalNative.isFirstResponder : (modalNative as any).hasFocus(),
+  )
 
   const modalSamples: any[] = []
   const offModal = FocusedInputController.subscribe(modalField, (state) => modalSamples.push(state))

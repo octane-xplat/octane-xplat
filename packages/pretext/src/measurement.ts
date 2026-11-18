@@ -62,9 +62,11 @@ export function parseFont(font: string): ParsedFont {
 
 /** Install Pretext's documented OffscreenCanvas hook around a native width provider. */
 export function installNativeMeasurement(width: NativeWidth): void {
-	if (typeof OffscreenCanvas !== 'undefined') {
+	// Read the DOM global through globalThis — non-web envs have no OffscreenCanvas type.
+	const OC = (globalThis as Record<string, any>).OffscreenCanvas
+	if (typeof OC !== 'undefined') {
 		try {
-			if (new OffscreenCanvas(1, 1).getContext('2d')) {
+			if (new OC(1, 1).getContext('2d')) {
 				return
 			}
 		} catch {}

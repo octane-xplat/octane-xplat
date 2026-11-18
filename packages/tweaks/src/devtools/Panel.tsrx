@@ -33,6 +33,18 @@ import { usePanelContent } from './use-panel-content'
 import * as heroicons from './icons'
 import './styles'
 
+// Handlers inside web={{}} bags receive raw DOM events; the bare
+// `KeyboardEvent` global is only a stub (or absent) in non-web programs,
+// so the used surface is declared here.
+interface WebKeyEvent {
+  key: string
+  metaKey: boolean
+  ctrlKey: boolean
+  shiftKey: boolean
+  altKey: boolean
+  preventDefault(): void
+}
+
 // Pressable preserves toggle/disclosure accessibility state on both hosts.
 // The shared tooltip supplies AppKit pointer hints as well as web focus hints.
 function Action(props: {
@@ -457,7 +469,7 @@ function PropertyChooser(props: {
           'aria-expanded': true,
           'aria-controls': 'property-options',
           'aria-activedescendant': options[active] ? `property-option-${active}` : undefined,
-          onkeydown: (event: KeyboardEvent) => {
+          onkeydown: (event: WebKeyEvent) => {
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
               event.preventDefault()
               setActive(
@@ -599,7 +611,7 @@ function StylePropRow(props: {
           accessibilityLabel={`${key}${dynamic ? ' (dynamic, read only)' : deleted ? ' (deleted)' : added ? ' (added)' : ''}`}
           onChange={(v: string) => model.styleSet(site.id, props.path, v)}
           web={{
-            onkeydown: (event: KeyboardEvent) => {
+            onkeydown: (event: WebKeyEvent) => {
               if (!editable) {
                 return
               }

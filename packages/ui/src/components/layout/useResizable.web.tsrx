@@ -6,7 +6,7 @@ import type {
 } from '../../props'
 
 import { createResizableRegion, type ResizableMachine } from './resize-state'
-import { webBasisSource as basis } from './resize-basis.web'
+import { nativeBasisSource as basis } from './resize-basis.web'
 
 /**
  * useResizable — resizable-region state for ResizeHandle and host

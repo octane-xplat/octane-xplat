@@ -3,7 +3,7 @@ import { appKitHost } from '../../internal/platform/host-bridge'
 
 /** AppKit basis — the `containerRef` view's frame when supplied, else the
  *  host window's size via the bridge when it reports one. */
-export const macosBasisSource: ResizableBasisSource = {
+export const nativeBasisSource: ResizableBasisSource = {
   storagePrefix: 'astryx-resizable:',
   measure: (containerRef, direction) => {
     const view = containerRef?.current

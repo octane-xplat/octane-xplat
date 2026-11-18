@@ -7,7 +7,7 @@ import type {
 } from '../../props'
 
 import { createResizableRegion, type ResizableMachine } from './resize-state'
-import { macosBasisSource as basis } from './resize-basis.macos'
+import { nativeBasisSource as basis } from './resize-basis.macos'
 
 /**
  * useResizable — resizable-region state for ResizeHandle and host

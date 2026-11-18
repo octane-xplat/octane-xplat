@@ -4,7 +4,7 @@ import type { ResizableBasisSource } from './resize-state'
  *  the viewport. ResizeObserver tracks the container; window resize tracks
  *  the viewport fallback. Storage prefix matches upstream so a migrated app
  *  keeps saved sizes. */
-export const webBasisSource: ResizableBasisSource = {
+export const nativeBasisSource: ResizableBasisSource = {
   storagePrefix: 'astryx-resizable:',
   measure: (containerRef, direction) => {
     const el = containerRef?.current as HTMLElement | null | undefined

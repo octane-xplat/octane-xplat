@@ -7,3 +7,7 @@ export function getStack(_name: string): undefined {
 export function stackEntries(): IterableIterator<[string, never]> {
   return [].values()
 }
+
+export function onStackRegistered(_cb: (name: string, frame: never) => void): () => void {
+  return () => {}
+}

@@ -11,6 +11,10 @@ export function rootLayoutFor(_view: unknown): undefined {
   return undefined
 }
 
+export function currentRootLayoutFor(_view: unknown): undefined {
+  return undefined
+}
+
 export function findInRootLayouts(_id: string): null {
   return null
 }

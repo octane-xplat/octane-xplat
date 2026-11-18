@@ -754,7 +754,7 @@ export function Title(props: LightboxPartProps): unknown @{
 
   return (
     <label
-      ref={ref}
+      ref={ref as never}
       className={['vx-lightbox-title', props.className]}
       style={props.style as never}
       id={id}
@@ -772,7 +772,7 @@ export function Description(props: LightboxPartProps): unknown @{
 
   return (
     <label
-      ref={ref}
+      ref={ref as never}
       className={['vx-lightbox-description', props.className]}
       style={props.style as never}
       id={id}
