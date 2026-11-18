@@ -621,3 +621,39 @@ describe('nativeScriptDriver', () => {
     })
   })
 })
+
+describe('attachForeignChild', () => {
+  it('adds an unreconciled foreign child to a Mason container and binds its CSS layout', async () => {
+    const { Style } = await import('@octane-xplat/nativescript-masonkit/style')
+    const { attachForeignChild, detachForeignChild } = await import('./driver.js')
+    const leaf: Record<string, unknown> = {}
+    const fromView = vi.spyOn(Style, 'fromView').mockReturnValue(leaf as never)
+    const parent = new MockLayoutBase()
+    Reflect.set(parent, '_styleHelper', {})
+    const requestLayout = vi.fn()
+    Reflect.set(parent, 'requestLayout', requestLayout)
+    const child = new MockLayoutBase()
+    Reflect.set(child, 'nativeViewProtected', {})
+    Object.assign(child.style, { position: 'absolute', left: 0, top: 0, width: '100%' })
+
+    attachForeignChild(parent as never, child as never)
+    expect(parent.children).toEqual([child])
+    expect(leaf).toMatchObject({ position: 'absolute', left: 0, top: 0, width: '100%' })
+    expect(requestLayout).toHaveBeenCalled()
+
+    detachForeignChild(child as never)
+    expect(parent.children).toEqual([])
+    child.style.height = '100%'
+    child.notify({ eventName: 'loaded', object: child })
+    expect(leaf.height).toBeUndefined()
+    fromView.mockRestore()
+  })
+
+  it('rejects a non-Mason parent or a Mason child', async () => {
+    const { attachForeignChild } = await import('./driver.js')
+    const mason = new MockLayoutBase()
+    Reflect.set(mason, '_styleHelper', {})
+    expect(() => attachForeignChild(new MockLayoutBase() as never, new MockLayoutBase() as never)).toThrow(TypeError)
+    expect(() => attachForeignChild(mason as never, mason as never)).toThrow(TypeError)
+  })
+})

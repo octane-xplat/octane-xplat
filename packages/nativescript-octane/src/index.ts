@@ -11,7 +11,9 @@
  */
 export * from 'octane/universal/native'
 export {
+  attachForeignChild,
   createNativeScriptRoot,
+  detachForeignChild,
   nativeScriptDriver,
   observeBatches,
   renderNativeScriptApp,

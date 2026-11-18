@@ -691,7 +691,10 @@ function applyMasonContainerProp(node: HostNode, view: ViewBase, name: string, v
  * stylesheet refreshes follow the same path. Rebind on loaded because the
  * native leaf may not exist at insert, or may have been recreated. */
 function applyMasonChildLayout(node: HostNode, parent: HostNode) {
-  const view = node.view
+  bindMasonLeafLayout(node.view, parent.view)
+}
+
+function bindMasonLeafLayout(view: ViewBase | null, parentView: ViewBase | null) {
   if (!view || Reflect.get(view, '_styleHelper') !== undefined) {
     return
   }
@@ -773,7 +776,7 @@ function applyMasonChildLayout(node: HostNode, parent: HostNode) {
       update()
     }
     if (changed) {
-      parent.view?.requestLayout?.()
+      parentView?.requestLayout?.()
     }
   }
   const handlers: [string, () => void][] = MASON_LEAF_STYLE_KEYS.map((key) => {
@@ -792,6 +795,29 @@ function applyMasonChildLayout(node: HostNode, parent: HostNode) {
     },
   })
   sync()
+}
+
+/**
+ * Add a foreign (non-Mason) child to a Mason container outside reconciliation,
+ * e.g. an overlay host. Its CSS layout keys (position, insets, size) bind to
+ * its Mason leaf exactly as for reconciled foreign leaves.
+ */
+export function attachForeignChild(parent: ViewBase, child: ViewBase): void {
+  if (!isMasonContainer('', parent)) {
+    throw new TypeError('attachForeignChild requires a Mason container parent')
+  }
+  if (Reflect.get(child, '_styleHelper') !== undefined) {
+    throw new TypeError('attachForeignChild requires a foreign (non-Mason) child')
+  }
+  ;(parent as unknown as { addChild(view: ViewBase): void }).addChild(child)
+  bindMasonLeafLayout(child, parent)
+}
+
+/** Undo `attachForeignChild`: release the layout binding and remove the child. */
+export function detachForeignChild(child: ViewBase): void {
+  releaseMasonChildLayout(child)
+  const parent = child.parent as unknown as { removeChild?(view: ViewBase): void } | undefined
+  parent?.removeChild?.(child)
 }
 
 function releaseMasonChildLayout(view: ViewBase | null) {
