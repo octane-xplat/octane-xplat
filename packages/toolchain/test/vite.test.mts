@@ -151,6 +151,49 @@ test('config accepts a promise and fails clearly for host-specific desktop targe
   )
 })
 
+test('the web preset pins the transform tsconfig while env program references dangle', async (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'xplat-tsconfig-pin-'))
+  const original = process.env.XPLAT_TARGET
+  t.after(() => {
+    if (original === undefined) delete process.env.XPLAT_TARGET
+    else process.env.XPLAT_TARGET = original
+    rmSync(root, { recursive: true, force: true })
+  })
+  delete process.env.XPLAT_TARGET
+
+  const manifest = join(root, 'tsconfig.envs.json')
+  const generated = join(root, 'node_modules/.cache/xplat-typecheck/web.json')
+
+  writeFileSync(
+    join(root, 'tsconfig.json'),
+    JSON.stringify({ references: [{ path: './node_modules/.cache/xplat-typecheck/web.json' }] }),
+  )
+  writeFileSync(
+    manifest,
+    '{"extends":"./tsconfig.json","environments":{"web":{"include":["src/**/*.ts"]}}}',
+  )
+
+  const app = defineConfig({ root })
+  const env = { command: 'build', mode: 'production' }
+
+  // Ungenerated checkout: pin the committed env manifest so plain-source
+  // transforms never follow the dangling reference.
+  assert.equal((await app(env)).tsconfig, manifest)
+
+  // An explicit app tsconfig always wins over the pin.
+  assert.equal((await defineConfig({ root, tsconfig: 'app.json' })(env)).tsconfig, 'app.json')
+
+  // Generated programs restore ordinary references discovery.
+  mkdirSync(dirname(generated), { recursive: true })
+  writeFileSync(generated, '{}')
+  assert.equal((await app(env)).tsconfig, undefined)
+
+  // No env manifest — nothing safe to pin.
+  rmSync(generated)
+  rmSync(manifest)
+  assert.equal((await app(env)).tsconfig, undefined)
+})
+
 test('the same app config selects matching native compiler, CSS and resolution defaults', async (t) => {
   const root = mkdtempSync(join(tmpdir(), 'xplat-native-app-config-'))
   const previous = {

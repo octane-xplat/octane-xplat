@@ -309,7 +309,11 @@ bun run xplat typecheck
 After installing dependencies, run the app's typecheck once to generate its
 platform configurations. Run it again when you change manifest roots. New
 starters include a root `tsconfig.json` with solution references, which lets the
-language server discover those configurations from source files:
+language server discover those configurations from source files. These
+references exist for editor discovery only — while a generated program is still
+absent, the framework's Vite preset pins the transform to the committed
+`tsconfig.envs.json` instead, so installs, tests, and builds never wait on
+them:
 
 ```sh
 bun run typecheck
