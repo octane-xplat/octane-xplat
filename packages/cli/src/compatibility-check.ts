@@ -187,6 +187,7 @@ export function inspectCompatibility(
     from: dir,
     name,
     required: !pkg.optionalDependencies?.[name],
+    optionalPeer: false,
   }))
 
   const visited = new Set<string>()
@@ -195,7 +196,7 @@ export function inspectCompatibility(
   const masonEngines = new Map<string, string>()
 
   for (let index = 0; index < queue.length; index++) {
-    const { from, name, required } = queue[index]
+    const { from, name, required, optionalPeer } = queue[index]
     const installed = installedPackage(from, name)
 
     if (!installed) {
@@ -221,7 +222,10 @@ export function inspectCompatibility(
     const { dir: location, pkg: dependency } = installed
     const identity = dependency.name ?? name
 
-    if ([masonCorePackage, masonFullPackage, masonLegacyPackage].includes(identity)) {
+    // An engine reached only through an optional peer is the peer-owner's
+    // private install (e.g. a linked checkout's own devDependency), not an
+    // engine the app selected — declared conflicts are caught above.
+    if (!optionalPeer && [masonCorePackage, masonFullPackage, masonLegacyPackage].includes(identity)) {
       masonEngines.set(location, identity)
     }
 
@@ -272,7 +276,16 @@ export function inspectCompatibility(
         (Boolean(dependency.dependencies?.[child]) ||
           !dependency.peerDependenciesMeta?.[child]?.optional)
 
-      queue.push({ from: location, name: child, required })
+      queue.push({
+        from: location,
+        name: child,
+        required,
+        optionalPeer:
+          Boolean(dependency.peerDependencies?.[child]) &&
+          !dependency.dependencies?.[child] &&
+          !dependency.optionalDependencies?.[child] &&
+          Boolean(dependency.peerDependenciesMeta?.[child]?.optional),
+      })
     }
   }
 

@@ -5,7 +5,7 @@ import { workspaceRoot } from './compatibility.ts'
 import { runDoctorTool as check } from './doctor-tool.ts'
 import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, parse, relative, resolve, sep } from 'node:path'
-import { hasLinux, hasMacOS, hasNative, hasWindows } from './targets.ts'
+import { hasLinux, hasMacOS, hasNative, hasWindows, nsPlatforms } from './targets.ts'
 import { inspectPatches, patchStateDetail } from './patches.ts'
 
 import { inspectLinuxPackageConfig } from './linux/config.ts'
@@ -59,7 +59,54 @@ const importSpecifiers = (source) => {
   return specs
 }
 
-const sourceFiles = (root) => {
+/** Platform tags a native bundle can ship — mirrors the bundler's per-target
+ *  allowlist (`boundaryAllowed` in vite.ts). A leaf tagged for a platform this
+ *  app cannot build never joins its graphs, so its imports are not HMR scope. */
+const nativeTagAllowlist = (cwd) => {
+  const perPlatform = {
+    ios: ['ios', 'android', 'mobile'],
+    android: ['ios', 'android', 'mobile'],
+    windows: ['windows'],
+    native: ['ios', 'android', 'mobile', 'windows'],
+  }
+
+  const platforms = nsPlatforms(cwd)
+  const tags = new Set()
+
+  for (const platform of platforms.length ? platforms : ['native']) {
+    for (const tag of perPlatform[platform] ?? []) {
+      tags.add(tag)
+    }
+  }
+
+  return tags
+}
+
+const PLATFORM_TAG = /\.(web|mobile|ios|android|macos|windows|linux|gtk)\.[^./\\]+$/
+
+/** Platform-scoped subtrees inside a source root follow the file-suffix
+ *  convention: `src/web`, `src/macos`, … hold leaves for that platform. */
+const PLATFORM_DIRS = new Set(['web', 'macos', 'windows', 'linux', 'gtk'])
+
+/** Trees that never ship app runtime code; their imports are not bundle edges. */
+const NON_RUNTIME_DIRS = new Set([
+  'node_modules',
+  'test',
+  'tests',
+  'e2e',
+  'fixtures',
+  '__tests__',
+  'dist',
+  'types',
+  'scripts',
+  'template',
+  'templates',
+])
+
+/** Declarations and tests produce no runtime bundle edges. */
+const NON_RUNTIME_FILE = /\.d\.ts$|[.-](?:test|spec)\.[^.]+$/
+
+const sourceFiles = (root, tags) => {
   if (!existsSync(root)) {
     return []
   }
@@ -67,22 +114,37 @@ const sourceFiles = (root) => {
   const out = []
   const visit = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name === 'node_modules' || entry.name.startsWith('.')) {
+      if (entry.name.startsWith('.') || NON_RUNTIME_DIRS.has(entry.name)) {
         continue
       }
 
       const file = join(dir, entry.name)
 
       if (entry.isDirectory()) {
-        visit(file)
-      } else if (/\.(?:m?[jt]sx?|tsrx)$/.test(entry.name)) {
-        out.push(file)
+        // A platform-named subtree is foreign when the app cannot ship it.
+        if (!PLATFORM_DIRS.has(entry.name) || !tags || tags.has(entry.name)) {
+          visit(file)
+        }
+      } else if (/\.(?:m?[jt]sx?|tsrx)$/.test(entry.name) && !NON_RUNTIME_FILE.test(entry.name)) {
+        const tag = PLATFORM_TAG.exec(entry.name)?.[1]
+
+        if (!tag || !tags || tags.has(tag)) {
+          out.push(file)
+        }
       }
     }
   }
 
   visit(root)
   return out
+}
+
+/** Workspace-package runtime source lives under src/ when the package has one —
+ *  config, test and generated trees beside it never reach an app bundle. */
+const packageSourceFiles = (root, tags) => {
+  const src = join(root, 'src')
+
+  return sourceFiles(existsSync(src) ? src : root, tags)
 }
 
 const workspacePackages = (cwd) => {
@@ -152,14 +214,16 @@ export function findMissingPluginDeclarations(cwd) {
   ])
 
   const workspaces = workspacePackages(cwd)
-  const pending = sourceFiles(join(cwd, 'src'))
+  const tags = nativeTagAllowlist(cwd)
+  const pending = sourceFiles(join(cwd, 'src'), tags)
 
   for (const dir of ['app', 'src/app']) {
-    pending.push(...sourceFiles(join(cwd, dir)))
+    pending.push(...sourceFiles(join(cwd, dir), tags))
   }
 
   const visited = new Set()
   const frameworks = new Map()
+  const eligible = new Map()
 
   while (pending.length) {
     const file = pending.pop()
@@ -193,7 +257,11 @@ export function findMissingPluginDeclarations(cwd) {
       const root = packageRoot(cwd, name, workspaces)
 
       if (root && workspaces.has(name)) {
-        pending.push(...sourceFiles(root))
+        if (!eligible.has(name)) {
+          eligible.set(name, packageSourceFiles(root, tags))
+        }
+
+        pending.push(...eligible.get(name))
       }
     }
   }
@@ -221,7 +289,9 @@ export function findMissingPluginDeclarations(cwd) {
  * @nativescript/vite scopes HMR to the app source dir plus the roots named in
  * the app's tsconfig `paths` — a workspace package imported but absent from
  * `paths` still builds and serves, but edits to it never reach `handleHotUpdate`
- * and the save is dropped silently. Warn when that gap exists.
+ * and the save is dropped silently. Warn when that gap exists. Only files that
+ * can join the app's bundles count: tests, declarations, configs and leaves for
+ * platforms the app does not target are not HMR scope.
  */
 export function findHmrScopeGaps(cwd) {
   if (!existsSync(join(cwd, 'nativescript.config.ts'))) {
@@ -247,15 +317,17 @@ export function findHmrScopeGaps(cwd) {
 
   // '@scope/pkg' and '@scope/pkg/*' both cover the package.
   const covered = new Set(Object.keys(paths).map((k) => k.replace(/\/?\*$/, '')))
+  const tags = nativeTagAllowlist(cwd)
 
   const pending = [
-    ...sourceFiles(join(cwd, 'src')),
-    ...sourceFiles(join(cwd, 'app')),
-    ...sourceFiles(join(cwd, 'src/app')),
+    ...sourceFiles(join(cwd, 'src'), tags),
+    ...sourceFiles(join(cwd, 'app'), tags),
+    ...sourceFiles(join(cwd, 'src/app'), tags),
   ]
 
   const visited = new Set()
   const gaps = new Set()
+  const eligible = new Map()
 
   while (pending.length) {
     const file = pending.pop()
@@ -282,11 +354,19 @@ export function findHmrScopeGaps(cwd) {
         continue
       }
 
-      if (!covered.has(name)) {
+      if (!eligible.has(name)) {
+        eligible.set(name, packageSourceFiles(root, tags))
+      }
+
+      const files = eligible.get(name)
+
+      // A package with no shippable source here has no HMR surface — a
+      // type-only facade or a package whose leaves all target other platforms.
+      if (!covered.has(name) && files.length) {
         gaps.add(name)
       }
 
-      pending.push(...sourceFiles(root))
+      pending.push(...files)
     }
   }
 

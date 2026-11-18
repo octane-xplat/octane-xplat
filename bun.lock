@@ -237,6 +237,7 @@
         "@octane-xplat/vite-octane": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
+        "@tsrx/oxc": "catalog:",
         "nativescript": "9.1.1",
         "storybook": "10.6.6",
         "typescript": "catalog:",
