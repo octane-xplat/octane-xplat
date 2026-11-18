@@ -314,19 +314,6 @@ function takeNativeWindowValue<T>(map: Map<NSWindow, T>, nativeWindow: NSWindow)
   return null
 }
 
-// The window platform services read for geometry and presentation anchors:
-// the designated primary window while it is open, else AppKit's live
-// key/main window ordering.
-function currentServiceWindow(): NSWindow | null {
-  return (
-    shared.platformServices.primaryWindow ??
-    app.keyWindow ??
-    app.mainWindow ??
-    app.windows?.firstObject ??
-    null
-  )
-}
-
 class AppDelegate extends NSObject {
   static ObjCProtocols = [NSApplicationDelegate, NSWindowDelegate]
 
@@ -509,6 +496,16 @@ function installPlatformServices() {
   const services = shared.platformServices
   const info = NSBundle.mainBundle.infoDictionary ?? {}
   let windowSizeSnapshot: (MacOSWindowSize & { orientation: 'portrait' | 'landscape' }) | undefined
+
+  // The window platform services read for geometry and presentation anchors:
+  // the designated primary window while it is open, else AppKit's live
+  // key/main window ordering. Declared inside installPlatformServices so the
+  // extracted-function test seam sees the whole fallback chain.
+  function currentServiceWindow(): NSWindow | null {
+    return (
+      services.primaryWindow ?? app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject ?? null
+    )
+  }
 
   // Assigning would evaluate accessors once and freeze these live values.
   Object.defineProperties(
