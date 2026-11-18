@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useEffect, useRef } from 'octane'
+import { useEffect, useRef, useState } from 'octane'
 import type { UISwitchProps } from '../props'
 import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { prepareUIHost, applyUIHostModifiers } from '../internal/platform/ui-host-props'
@@ -19,6 +19,11 @@ export function UISwitch(inputProps: UISwitchProps): unknown @{
   // Last confirmed value for the `isReadOnly` revert — `value` when
   // controlled, the widget's own state otherwise.
   const lastChecked = useRef(props.value ?? props.defaultValue ?? false)
+  // A controlled toggle writes the widget's own checked before the event
+  // fires; when the owner rejects the change the bound `checked` prop is
+  // unchanged and no update is emitted, so the widget stays diverged.
+  // Bumping this version re-runs the write below to restore the owner value.
+  const [editVersion, setEditVersion] = useState(0)
 
   // Uncontrolled widgets own their checked state — seed it once; a bound
   // `value` write would fight the user's next toggle on re-render.
@@ -27,6 +32,12 @@ export function UISwitch(inputProps: UISwitchProps): unknown @{
       el.current.checked = props.defaultValue
     }
   }, [])
+
+  useEffect(() => {
+    if (el.current && props.value !== undefined) {
+      el.current.checked = props.value
+    }
+  }, [props.value, editVersion])
 
   <switch
     ref={(v: any) => {
@@ -60,6 +71,10 @@ export function UISwitch(inputProps: UISwitchProps): unknown @{
       }
 
       lastChecked.current = e.value
+      if (props.value !== undefined) {
+        setEditVersion((version) => version + 1)
+      }
+
       props.onChange?.(e.value)
     }}
   />

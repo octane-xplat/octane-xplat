@@ -4,6 +4,7 @@ import {
   createObjectContainer,
   createObjectDriver,
   createUniversalRoot,
+  flushUniversalAct,
   flushUniversalSync,
 } from 'octane/universal/native'
 
@@ -85,6 +86,71 @@ describe.each([
     )
 
     expect(change).toHaveBeenCalledWith(false)
+    root.unmount()
+  })
+
+  it('restores the native checked state when a controlled change is rejected', () => {
+    const { container, root } = createRoot()
+    const change = vi.fn()
+
+    flushUniversalAct(() => root.render(Switch, { value: false, onChange: change }))
+
+    const host = container.children[0] as any
+
+    // The native widget writes its own checked before firing checkedChange —
+    // the app declining the controlled update must restore the owner value.
+    host.checked = true
+    flushUniversalAct(() =>
+      container.dispatchEvent(host, 'checkedChange', { value: true, object: host }),
+    )
+
+    expect(change).toHaveBeenCalledWith(true)
+    expect(host.checked).toBe(false)
+
+    root.unmount()
+  })
+
+  it('keeps an accepted controlled change on the native widget', () => {
+    const { container, root } = createRoot()
+    let value = false
+    const change = vi.fn((next: boolean) => {
+      value = next
+    })
+    const render = () => root.render(Switch, { value, onChange: change })
+
+    flushUniversalAct(render)
+
+    const host = container.children[0] as any
+
+    host.checked = true
+    flushUniversalAct(() => {
+      container.dispatchEvent(host, 'checkedChange', { value: true, object: host })
+      render()
+    })
+
+    expect(change).toHaveBeenCalledWith(true)
+    expect(host.checked).toBe(true)
+    expect(host.props.checked).toBe(true)
+
+    root.unmount()
+  })
+
+  it('leaves uncontrolled checked state with the widget', () => {
+    const { container, root } = createRoot()
+    const change = vi.fn()
+
+    flushUniversalAct(() => root.render(Switch, { defaultValue: false, onChange: change }))
+
+    const host = container.children[0] as any
+
+    host.checked = true
+    flushUniversalAct(() =>
+      container.dispatchEvent(host, 'checkedChange', { value: true, object: host }),
+    )
+
+    expect(change).toHaveBeenCalledWith(true)
+    expect(host.checked).toBe(true)
+
     root.unmount()
   })
 })
