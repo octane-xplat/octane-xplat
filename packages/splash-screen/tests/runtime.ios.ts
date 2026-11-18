@@ -1,4 +1,4 @@
-import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
+import { Application, File, Page, knownFolders, path } from '@nativescript/core'
 import * as Splash from '../src/index'
 import { diagnostics } from '../src/backend.ios'
 
@@ -71,10 +71,6 @@ try {
 }
 
 const page = new Page()
-const label = new Label()
-
-label.text = 'Splash lifecycle fixture'
-page.content = label
 
 let started = false
 
