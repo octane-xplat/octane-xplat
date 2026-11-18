@@ -179,8 +179,14 @@ describe('nativeScriptDriver', () => {
   it('invalidates the owning label when a nested span text value changes', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(
-      create(1, 'label'), create(2, 'formattedstring'), create(3, 'span'),
-      create(4, '#text', { value: 'Short' }), insert(1), insert(2, 1), insert(3, 2), insert(4, 3),
+      create(1, 'label'),
+      create(2, 'formattedstring'),
+      create(3, 'span'),
+      create(4, '#text', { value: 'Short' }),
+      insert(1),
+      insert(2, 1),
+      insert(3, 2),
+      insert(4, 3),
     )
     const label = view<MockTextBase>(1)
     const request = vi.spyOn(label, 'requestLayout')
@@ -503,6 +509,157 @@ describe('nativeScriptDriver', () => {
     const { apply } = mount(new MockLayoutBase())
     apply(create(1, 'label'), { op: 'destroy', id: 1 })
     expect(() => apply(update(1, {}))).toThrow(/unknown host 1/)
+  })
+
+  it('rejects a batch with an unregistered element before any command applies', () => {
+    const { apply, container, host } = mount(new MockLayoutBase())
+    expect(() =>
+      apply(create(1, 'test-stack'), insert(1), create(2, 'nope'), insert(2, 1)),
+    ).toThrow(/<nope> is not a registered element/)
+    expect(host.children).toEqual([])
+    expect(container.nodes.size).toBe(0)
+  })
+
+  it('rejects commands against unknown hosts before any command applies', () => {
+    const { apply, container, host } = mount(new MockLayoutBase())
+    expect(() => apply(insert(9))).toThrow(/unknown host 9/)
+    expect(() => apply(update(9, {}))).toThrow(/unknown host 9/)
+    expect(() => apply(remove(9))).toThrow(/unknown host 9/)
+    expect(() => apply(event(9, 'tap', listener(1)))).toThrow(/unknown host 9/)
+    expect(() => apply({ op: 'visibility', id: 9, state: 'hidden' })).toThrow(/unknown host 9/)
+    // An insert into an unknown parent fails identically.
+    expect(() => apply(create(1, 'test-stack'), insert(1, 9))).toThrow(/unknown host 9/)
+    // So does a command against an id destroyed earlier in the same batch.
+    expect(() => apply(create(2, 'label'), { op: 'destroy', id: 2 }, update(2, {}))).toThrow(
+      /unknown host 2/,
+    )
+    expect(host.children).toEqual([])
+    expect(container.nodes.size).toBe(0)
+  })
+
+  it('accepts references to ids created earlier in the batch', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'test-stack'),
+      create(2, 'label', { text: 'hi' }),
+      insert(2, 1),
+      insert(1),
+      update(2, { text: 'bye' }),
+    )
+    expect(texts(view<MockLayoutBase>(1))).toEqual(['bye'])
+  })
+
+  it('rejects inserts that close an ownership cycle before applying', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(create(1, 'test-stack'), create(2, 'test-stack'), insert(1), insert(2, 1))
+    const stack = view<MockLayoutBase>(1)
+    expect(() => apply(insert(1, 2))).toThrow(/ownership cycle/)
+    expect(() => apply(insert(1, 1))).toThrow(/ownership cycle/)
+    // The rejected batches never ran: the tree is unchanged.
+    expect(stack.children).toEqual([view<MockLayoutBase>(2)])
+    expect(view<MockLayoutBase>(2).parent).toBe(stack)
+  })
+
+  it('rejects an inactive portal target as an insert parent before applying', () => {
+    const { apply, container } = mount(new MockLayoutBase())
+    const forged = {
+      $$kind: 'octane.universal.portal-target',
+      renderer: 'nativescript',
+      root: 0,
+      id: 'forged',
+    } as const
+    expect(() =>
+      apply(create(1, 'label'), {
+        op: 'insert',
+        id: 1,
+        parent: forged,
+        before: null,
+      } as UniversalHostCommand),
+    ).toThrow(/inactive portal target/)
+    expect(container.nodes.size).toBe(0)
+  })
+
+  it('releases the previous node when a create re-registers its id', () => {
+    const { apply, view, container } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'test-stack'),
+      create(2, 'label', { text: 'first' }),
+      insert(1),
+      insert(2, 1),
+      event(2, 'tap', listener(3)),
+    )
+    const previous = view<MockTextBase>(2)
+    const previousNode = container.nodes.get(2)
+
+    apply(create(2, 'label', { text: 'second' }))
+
+    const replacement = view<MockTextBase>(2)
+    expect(replacement).not.toBe(previous)
+    expect(replacement.text).toBe('second')
+    // The superseded node and view are fully released: unparented, unlistened,
+    // and spliced from the parent's logical and native child lists.
+    expect(container.nodes.get(2)).not.toBe(previousNode)
+    expect(previous.parent).toBeNull()
+    expect(previous.handlers.get('tap')?.size ?? 0).toBe(0)
+    const stack = view<MockLayoutBase>(1)
+    expect(stack.children).toEqual([])
+    expect(container.nodes.get(1)?.children).toEqual([])
+  })
+
+  it('detaches a destroyed view that was never removed', () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'test-stack'),
+      create(2, 'label'),
+      insert(1),
+      insert(2, 1),
+      event(2, 'tap', listener(4)),
+    )
+    const label = view<MockTextBase>(2)
+    const stack = view<MockLayoutBase>(1)
+
+    apply({ op: 'destroy', id: 2 })
+
+    expect(label.parent).toBeNull()
+    expect(stack.children).toEqual([])
+    expect(label.handlers.get('tap')?.size ?? 0).toBe(0)
+    expect(() => apply(update(2, {}))).toThrow(/unknown host 2/)
+  })
+
+  it('converges a retried batch after a mid-apply failure instead of stacking trees', () => {
+    let failures = 1
+    class FlakyLayout extends MockLayoutBase {
+      override insertChild(child: MockView, index: number): void {
+        if (failures > 0) {
+          failures--
+          throw new Error('native insert failed')
+        }
+        super.insertChild(child, index)
+      }
+    }
+    registerElement('flaky-stack', FlakyLayout as unknown as ElementConstructor)
+    const { apply, host, view } = mount(new MockLayoutBase())
+    const commands: Command[] = [
+      create(1, 'flaky-stack'),
+      insert(1),
+      create(2, 'label', { text: 'leaf' }),
+      insert(2, 1),
+    ]
+    // A native failure mid-apply leaves the first attempt's views mounted.
+    expect(() => apply(...commands)).toThrow(/native insert failed/)
+    const orphaned = view<MockLayoutBase>(1)
+    expect(host.children).toEqual([orphaned])
+
+    apply(...commands)
+
+    // The retried batch released the first attempt's tree: exactly one stack
+    // and one label remain, and nothing stays attached to the orphan.
+    const stack = view<MockLayoutBase>(1)
+    expect(stack).not.toBe(orphaned)
+    expect(host.children).toEqual([stack])
+    expect(texts(stack)).toEqual(['leaf'])
+    expect(orphaned.parent).toBeNull()
+    expect(orphaned.children).toEqual([])
   })
 
   it('rejects batches for another renderer and unknown tags', () => {

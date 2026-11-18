@@ -29,6 +29,7 @@ import {
   type UniversalEventListenerDescriptor,
   type UniversalHostCommand,
   type UniversalHostDriver,
+  type UniversalHostParent,
   type UniversalPortalTargetContext,
   type UniversalPortalTargetHandle,
   type UniversalPortalTargetRegistration,
@@ -207,10 +208,14 @@ function createNode(
   return node
 }
 
+function unregisteredElementError(type: string): Error {
+  return new Error(`NativeScript driver: <${type}> is not a registered element.`)
+}
+
 function instantiate(type: string): ViewBase {
   const Element = ELEMENTS.get(type)
   if (Element === undefined) {
-    throw new Error(`NativeScript driver: <${type}> is not a registered element.`)
+    throw unregisteredElementError(type)
   }
   const view = new Element()
   if (isMasonContainer(type, view)) {
@@ -1184,11 +1189,7 @@ function attach(container: NativeScriptContainer, node: HostNode): void {
   addViewChild(parentView, node.view, index)
   // The child's mason leaf node exists only once the parent has attached it;
   // synchronize effective styles after attachment.
-  if (
-    parent !== null &&
-    !isPortalTarget(parent) &&
-    isMasonContainer(parent.type, parent.view)
-  ) {
+  if (parent !== null && !isPortalTarget(parent) && isMasonContainer(parent.type, parent.view)) {
     for (const sibling of childrenOf(container, parent)) {
       applyMasonChildLayout(sibling, parent)
     }
@@ -1304,6 +1305,37 @@ function disposeListeners(node: HostNode): void {
     }
   }
   node.listeners.clear()
+}
+
+/**
+ * Whether the node's subtree is still mounted on a host: its topmost
+ * ancestor is a root child or lives under an active portal target. Once the
+ * subtree's root leaves the host the whole tree stays coherent as one
+ * detached blob — prying a descendant out of a dead parent view would only
+ * corrupt it further.
+ */
+function subtreeAttached(container: NativeScriptContainer, node: HostNode): boolean {
+  let top = node
+  let parent = node.parent
+  while (parent !== null && !isPortalTarget(parent)) {
+    top = parent
+    parent = parent.parent
+  }
+  return parent !== null || container.children.includes(top)
+}
+
+/**
+ * Release a node's native footprint and its logical record. Batches normally
+ * remove before destroy — detach defensively while the subtree is still
+ * mounted so a destroy without a preceding remove cannot leave a parented
+ * view or a stale logical child behind.
+ */
+function destroyNode(container: NativeScriptContainer, node: HostNode): void {
+  disposeListeners(node)
+  if (subtreeAttached(container, node)) {
+    detach(container, node)
+  }
+  container.nodes.delete(node.id)
 }
 
 /**
@@ -1434,6 +1466,116 @@ function resolveParent(container: NativeScriptContainer, parent: unknown): Nativ
 }
 
 /**
+ * Pre-flight a whole batch without mutating, so a deterministic failure —
+ * unregistered elements, unknown ids or parents, inactive portal targets,
+ * ownership cycles — rejects in `prepareBatch` before the core accepts any
+ * of it. A partially applied batch cannot be unwound once the core marks it
+ * accepted; after validation, only unexpected native errors should surface
+ * mid-apply.
+ */
+function validateBatch(
+  container: NativeScriptContainer,
+  commands: readonly UniversalHostCommand[],
+): void {
+  // Ids created by this batch are not in container.nodes yet — track them so
+  // later commands validate against the intended tree.
+  const created = new Set<number>()
+  const destroyed = new Set<number>()
+  // Intended parents for ids whose attachment changes during the batch.
+  const parents = new Map<number, UniversalHostParent>()
+  const known = (id: number): boolean =>
+    created.has(id) || (!destroyed.has(id) && container.nodes.has(id))
+  const parentOf = (id: number): UniversalHostParent | undefined => {
+    if (parents.has(id)) {
+      return parents.get(id)
+    }
+    const node = container.nodes.get(id)
+    return node === undefined
+      ? undefined
+      : node.parent === null
+        ? null
+        : isPortalTarget(node.parent)
+          ? node.parent
+          : node.parent.id
+  }
+  const assertKnown = (id: number): void => {
+    if (!known(id)) {
+      throw new Error(`NativeScript driver: unknown host ${id}.`)
+    }
+  }
+  const assertSupportedType = (type: string): void => {
+    if (type !== TEXT && !ELEMENTS.has(type)) {
+      throw unregisteredElementError(type)
+    }
+  }
+  const validateParent = (parent: UniversalHostParent): void => {
+    if (typeof parent === 'number') {
+      assertKnown(parent)
+      return
+    }
+    // `null` and active portal handles resolve; anything else throws.
+    resolveParent(container, parent)
+  }
+
+  for (const command of commands) {
+    switch (command.op) {
+      case 'create':
+        assertSupportedType(command.type)
+        created.add(command.id)
+        destroyed.delete(command.id)
+        parents.set(command.id, null)
+        continue
+      case 'recreate':
+        assertKnown(command.id)
+        assertSupportedType(command.type)
+        continue
+      case 'update':
+      case 'event':
+      case 'visibility':
+        assertKnown(command.id)
+        continue
+      case 'insert':
+      case 'move': {
+        assertKnown(command.id)
+        validateParent(command.parent)
+        // Reject a logical ownership cycle: walking the intended ancestors
+        // must never return to a visited node.
+        const seen = new Set<UniversalHostParent>([command.id])
+        for (
+          let ancestor = command.parent;
+          typeof ancestor === 'number';
+          ancestor = parentOf(ancestor) ?? null
+        ) {
+          if (seen.has(ancestor)) {
+            throw new Error(
+              `NativeScript driver: logical ownership cycle through host ${ancestor}.`,
+            )
+          }
+          seen.add(ancestor)
+        }
+        parents.set(command.id, command.parent)
+        continue
+      }
+      case 'remove':
+        assertKnown(command.id)
+        if (Object.is(parentOf(command.id), command.parent)) {
+          parents.set(command.id, null)
+        }
+        continue
+      case 'destroy':
+        created.delete(command.id)
+        destroyed.add(command.id)
+        parents.delete(command.id)
+        continue
+      default:
+        // Ops the driver does not apply (templates, lifecycle, runs) warn
+        // inside `apply`, not here.
+        continue
+    }
+  }
+}
+
+/**
  * Register `target` (a `LayoutBase`) as a native host this root's portals can
  * render into. The runtime calls this for every render that contains a portal,
  * so the handle id derives from the target view itself: re-rendering an
@@ -1494,6 +1636,13 @@ function preparePortalTarget(
 function applyCommand(container: NativeScriptContainer, command: UniversalHostCommand): void {
   switch (command.op) {
     case 'create': {
+      // A retried batch can re-create an id an earlier attempt already
+      // registered — release the previous node instead of orphaning its
+      // attached view.
+      const existing = container.nodes.get(command.id)
+      if (existing !== undefined) {
+        destroyNode(container, existing)
+      }
       container.nodes.set(
         command.id,
         createNode(container, command.id, command.type, command.props),
@@ -1505,9 +1654,11 @@ function applyCommand(container: NativeScriptContainer, command: UniversalHostCo
       const parent = previous.parent
       const siblings = childrenOf(container, parent)
       const index = siblings.indexOf(previous)
+      // Build the replacement before mutating: a failed construction leaves
+      // the original attached and intact rather than half-torn-down.
+      const node = createNode(container, command.id, command.type, command.props)
       detach(container, previous)
       disposeListeners(previous)
-      const node = createNode(container, command.id, command.type, command.props)
       container.nodes.set(command.id, node)
       if (index === -1) {
         return
@@ -1540,8 +1691,7 @@ function applyCommand(container: NativeScriptContainer, command: UniversalHostCo
       if (node === undefined) {
         return
       }
-      disposeListeners(node)
-      container.nodes.delete(command.id)
+      destroyNode(container, node)
       return
     }
     case 'event': {
@@ -1579,6 +1729,9 @@ export const nativeScriptDriver: UniversalHostDriver<NativeScriptContainer, View
         `NativeScript driver: batch renderer ${JSON.stringify(batch.renderer)} does not match.`,
       )
     }
+    // Reject deterministic failures before any command mutates — a partially
+    // applied batch cannot be rolled back once the core marks it accepted.
+    validateBatch(container, batch.commands)
     return {
       apply() {
         notifyBatchObservers('willApply', container, batch.commands, applyingDepth)

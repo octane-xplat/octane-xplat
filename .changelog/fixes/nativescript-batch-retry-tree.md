@@ -1,0 +1,3 @@
+### Keep iOS and Android trees consistent when a batch fails halfway
+
+On iOS and Android, a host batch that fails partway through no longer corrupts the native view tree. Batches the driver can recognize as invalid — an unregistered element, an unknown host or parent, an inactive portal target, or an ownership cycle — are rejected before any command applies, so a broken update never leaves a half-mounted tree behind. When an unexpected native error does stop a batch, retrying it releases the earlier attempt's views instead of stacking a second visible tree, and a destroy without a matching remove detaches its view instead of leaving it on screen.
