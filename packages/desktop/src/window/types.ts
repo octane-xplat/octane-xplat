@@ -34,6 +34,14 @@ export interface DesktopWindow {
   close(): void
   /** Force the window closed without emitting a close request. */
   destroy(): void
+  /** Show the window and request keyboard focus. Throws after the window closes. */
+  show(): void
+  /** Hide the window while keeping its content mounted. Throws after the window closes. */
+  hide(): void
+  /** Request keyboard focus for a shown window. Throws after the window closes. */
+  focus(): void
+  /** Whether the host reports the window as shown. Closed windows return false. */
+  isVisible(): boolean
   /** Set the title of a live window. */
   setTitle(title: string): void
   /** Add a listener and return this window. */

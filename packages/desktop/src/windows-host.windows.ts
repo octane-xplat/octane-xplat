@@ -9,11 +9,15 @@ interface ClosingArgs {
 }
 
 interface WindowSurface {
+  Activate(): void
   Close(): void
   Title: string
   Content?: { XamlRoot?: { RasterizationScale: number } | null; Loaded: object | null } | null
   AppWindow: {
     Closing: object
+    IsVisible: boolean
+    Show(): void
+    Hide(): void
     ResizeClient(size: { Width: number; Height: number }): void
   }
 }
@@ -23,11 +27,14 @@ interface WinRtDelegates {
   asDelegate(type: string, callback: () => void): object
 }
 
-interface WindowsCloseRequest {
+interface WindowsWindow {
   requestClose(): void
+  present(): void
+  hide(): void
+  isVisible(): boolean
 }
 
-type WindowController = NativeWindowController<WindowsCloseRequest>
+type WindowController = NativeWindowController<WindowsWindow>
 
 const managed = new Map<NativeWindow, WindowController>()
 const quitGuards = new Set<() => boolean>()
@@ -57,7 +64,7 @@ function supported(): boolean {
   )
 }
 
-export function getWindowsOpener(): NativeWindowOpener<WindowsCloseRequest> | undefined {
+export function getWindowsOpener(): NativeWindowOpener<WindowsWindow> | undefined {
   const rt = projection()
 
   if (!rt || !supported()) {
@@ -118,6 +125,15 @@ export function getWindowsOpener(): NativeWindowOpener<WindowsCloseRequest> | un
               controller.close()
             }
           },
+          present() {
+            if (surface.AppWindow.IsVisible) {
+              surface.Activate()
+            } else {
+              surface.AppWindow.Show()
+            }
+          },
+          hide: () => surface.AppWindow.Hide(),
+          isVisible: () => surface.AppWindow.IsVisible,
         },
         get isClosed() {
           return closed

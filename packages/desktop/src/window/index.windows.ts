@@ -7,5 +7,10 @@ export type * from './types.js'
 /** Open and manage native secondary windows with the NativeScript Windows host. */
 export const windows: DesktopWindowService = createDesktopWindowService(
   getWindowsOpener,
-  (window) => window.requestClose(),
+  {
+    requestClose: (window) => window.requestClose(),
+    present: (window) => window.present(),
+    hide: (window) => window.hide(),
+    isVisible: (window) => window.isVisible(),
+  },
 )

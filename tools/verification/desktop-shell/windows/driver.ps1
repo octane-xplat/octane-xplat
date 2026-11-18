@@ -220,6 +220,13 @@ try {
     if(WaitLog 'INSPECTOR_OPENED id=w1'){ Step 'window: open Inspector from app menu' $cls 'pass' $detail } else { Step 'window: open Inspector from app menu' $cls 'fail' $detail }
   }
   if((Log) -match 'INSPECTOR_OPENED id=w1'){
+    $detail=OpenInspectorFromMenu $win 'INSPECTOR_SHOWN id=w1'
+    $cls=if($detail -like 'uia-invoke*'){ 'uia-pattern' } else { 'os-input-sendinput' }
+    if((WaitLog 'INSPECTOR_SHOWN id=w1') -and (Count 'INSPECTOR_OPENED') -eq 1){
+      Step 'window lifecycle: show the existing Inspector' $cls 'pass' $detail
+    } else {
+      Step 'window lifecycle: show the existing Inspector' $cls 'fail' $detail
+    }
     Start-Sleep -Milliseconds 800
     $close=ById $root 'inspector-close'; if(-not $close){ $close=ContentButton $root 'Close' }
     "UIA inspector-close $(Describe $close)"
@@ -234,7 +241,7 @@ try {
     Start-Sleep -Milliseconds 800
     if((Count 'INSPECTOR_CLOSED') -ge 2){ Step 'window lifecycle: close reopened Inspector' 'os-input-sendinput' 'pass' } else { Step 'window lifecycle: close reopened Inspector' 'os-input-sendinput' 'fail' (Describe $close) }
   } else {
-    foreach($n in 'window lifecycle: close Inspector with its button','window lifecycle: reopen','window lifecycle: close reopened Inspector'){ Step $n 'os-input-sendinput' 'blocked' 'Inspector never opened' }
+    foreach($n in 'window lifecycle: show the existing Inspector','window lifecycle: close Inspector with its button','window lifecycle: reopen','window lifecycle: close reopened Inspector'){ Step $n 'os-input-sendinput' 'blocked' 'Inspector never opened' }
   }
 
   if((Log) -match 'HOTKEY_REGISTERED focus-app'){

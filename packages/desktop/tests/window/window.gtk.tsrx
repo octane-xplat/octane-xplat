@@ -28,7 +28,11 @@ runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop win
           }
           const { window } = observed
 
-          return { requestClose: () => window.close(), title: () => window.get_title() }
+          return {
+            requestClose: () => window.close(),
+            title: () => window.get_title(),
+            visible: () => window.get_visible(),
+          }
         }),
       )
       .then(async () => {

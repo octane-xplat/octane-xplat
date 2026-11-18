@@ -20,9 +20,16 @@ export type NativeWindowOpener<Window> = (
   options: DesktopWindowOptions & { kind: 'regular' },
 ) => NativeWindowController<Window>
 
+interface NativeWindowActions<Window> {
+  requestClose(window: Window): void
+  present(window: Window): void
+  hide(window: Window): void
+  isVisible(window: Window): boolean
+}
+
 export function createDesktopWindowService<Window>(
   getOpener: () => NativeWindowOpener<Window> | undefined,
-  requestNativeClose: (window: Window) => void,
+  actions: NativeWindowActions<Window>,
 ): DesktopWindowService {
   return {
     get supported() {
@@ -49,6 +56,13 @@ export function createDesktopWindowService<Window>(
 
       let dispatchingClose = false
       let destroyQueued = false
+
+      function liveWindow(): Window {
+        if (!native || native.isClosed) {
+          throw new Error('Cannot change the visibility or focus of a closed window')
+        }
+        return native.window
+      }
 
       function requestClose(): boolean {
         if (!native || native.isClosed || dispatchingClose) {
@@ -96,7 +110,7 @@ export function createDesktopWindowService<Window>(
         closed: native.closed,
         close() {
           if (native && !native.isClosed && !dispatchingClose && !destroyQueued) {
-            requestNativeClose(native.window)
+            actions.requestClose(native.window)
           }
         },
         destroy() {
@@ -119,6 +133,21 @@ export function createDesktopWindowService<Window>(
           }
 
           native.close()
+        },
+        show() {
+          actions.present(liveWindow())
+        },
+        hide() {
+          actions.hide(liveWindow())
+        },
+        focus() {
+          const window = liveWindow()
+          if (actions.isVisible(window)) {
+            actions.present(window)
+          }
+        },
+        isVisible() {
+          return native !== null && !native.isClosed && actions.isVisible(native.window)
         },
         setTitle(title) {
           if (!native || native.isClosed) {

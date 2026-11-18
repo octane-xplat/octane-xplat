@@ -5,7 +5,6 @@ import { storage } from '@octane-xplat/platform'
 import {
   app,
   appMenu,
-  windows,
   createTray,
   keepAppResident,
   type Tray,
@@ -23,14 +22,10 @@ import {
   MENU_ITEMS,
   STORAGE_KEY,
   TRAY_MENU,
-  inspectorCount$,
-  inspectorHandle,
-  inspectorOpen$,
-  lastError$,
   marker,
   menuCount$,
   name$,
-  setInspectorHandle,
+  openInspector,
   statusSuffix$,
 } from './journey'
 
@@ -61,35 +56,6 @@ function mountPage(component: unknown, secondary = false): Page {
     page.on('unloaded', unmount)
   }
   return page
-}
-
-function openInspector() {
-  if (inspectorHandle && !inspectorHandle.isClosed) {
-    return
-  }
-
-  if (!windows.supported) {
-    lastError$.set('Native secondary windows are unavailable')
-    marker('INSPECTOR_OPEN_FAIL')
-    return
-  }
-
-  const handle = windows.open({
-    data: { window: 'inspector' },
-    title: 'Inspector',
-    size: { width: 320, height: 160 },
-  })
-
-  setInspectorHandle(handle)
-  inspectorCount$.set(inspectorCount$.getSnapshot() + 1)
-  inspectorOpen$.set(true)
-  marker(`INSPECTOR_OPENED id=w${inspectorCount$.getSnapshot()}`)
-
-  handle.on('closed', () => {
-    inspectorOpen$.set(false)
-    setInspectorHandle(null)
-    marker('INSPECTOR_CLOSED')
-  })
 }
 
 Application.setWindowContentResolver((request: { isPrimary?: boolean; data?: unknown }) => {

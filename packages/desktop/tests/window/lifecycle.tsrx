@@ -3,6 +3,7 @@ import {
   app,
   windows,
   type DesktopBeforeQuitEvent,
+  type DesktopWindow,
   type DesktopWindowCloseEvent,
 } from '@octane-xplat/desktop'
 import { useLayoutEffect } from 'octane'
@@ -30,13 +31,42 @@ function check(condition: unknown, label: string): asserts condition {
 export async function verifyWindowLifecycle(readWindow: () => {
   requestClose(): void
   title(): string
+  visible(): boolean
 }) {
   check(windows.supported, 'secondary windows are supported')
-  const inspector = windows.open({ title: 'Inspector', data: { screen: 'inspector' } })
+  let current: DesktopWindow | undefined
+  const openInspector = () => {
+    if (current && !current.isClosed) {
+      current.show()
+    } else {
+      current = windows.open({ title: 'Inspector', data: { screen: 'inspector' } })
+    }
+    return current
+  }
+
+  const inspector = openInspector()
   const native = readWindow()
 
   check(contentMounts === 1, 'secondary root mounted')
   check(!inspector.isClosed, 'new window is open')
+  check(inspector.isVisible() && native.visible(), 'new window is shown')
+  check(openInspector() === inspector, 'Open Inspector twice returns the same handle')
+
+  let hiddenCloseRequests = 0
+  const onHiddenClose = () => hiddenCloseRequests++
+  inspector.on('close', onHiddenClose)
+  inspector.hide()
+  check(!inspector.isVisible() && !native.visible(), 'hide changed native visibility')
+  inspector.focus()
+  check(!inspector.isVisible() && !native.visible(), 'focus left a hidden window hidden')
+  check(openInspector() === inspector, 'Open Inspector shows the same hidden window')
+  inspector.focus()
+  check(inspector.isVisible() && native.visible(), 'show restored the existing window')
+  check(
+    !inspector.isClosed && contentMounts === 1 && contentUnmounts === 0 && hiddenCloseRequests === 0,
+    'hide and show preserve content and skip close handlers',
+  )
+  inspector.off('close', onHiddenClose)
 
   inspector.setTitle('Updated inspector')
   check(native.title() === 'Updated inspector', 'title reached the native window')
@@ -63,8 +93,20 @@ export async function verifyWindowLifecycle(readWindow: () => {
   await inspector.closed
   check(inspector.isClosed && Number(contentUnmounts) === 1, 'accepted close unmounts once')
   check(closedEvents === 1, 'accepted close publishes closed')
+  check(!inspector.isVisible(), 'closed window is not visible')
 
-  const forced = windows.open({ title: 'Force close' })
+  for (const action of ['show', 'hide', 'focus'] as const) {
+    let refused = false
+    try {
+      inspector[action]()
+    } catch {
+      refused = true
+    }
+    check(refused, `${action} refuses a closed window`)
+  }
+
+  const forced = openInspector()
+  check(forced !== inspector, 'Open Inspector creates a fresh window after close')
   forced.on('close', veto)
   forced.destroy()
   await forced.closed

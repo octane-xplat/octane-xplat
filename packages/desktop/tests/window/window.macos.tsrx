@@ -27,7 +27,11 @@ runMacOSApp({ title: 'Desktop window fixture' }, ({ app }) => {
           }
           const { window } = observed
 
-          return { requestClose: () => window.performClose(null), title: () => window.title }
+          return {
+            requestClose: () => window.performClose(null),
+            title: () => window.title,
+            visible: () => window.isVisible(),
+          }
         }),
       )
       .then(() => verifyAppLifecycle(() => app.terminate(null)))

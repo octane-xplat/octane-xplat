@@ -1,4 +1,5 @@
 import 'octane/signals'
+import { windows, type DesktopWindow } from '@octane-xplat/desktop'
 import { createStore } from '@octane-xplat/ui/data'
 import { storage } from '@octane-xplat/platform'
 
@@ -17,16 +18,39 @@ export const statusSuffix$ = createStore('')
 
 export const STORAGE_KEY = 'desktop-shell.name'
 
-/** The live inspector window handle, set by the platform entry. */
-interface InspectorHandle {
-  readonly isClosed: boolean
-  close(): void
-}
+let inspectorHandle: DesktopWindow | null = null
 
-export let inspectorHandle: InspectorHandle | null = null
+export function openInspector() {
+  if (inspectorHandle && !inspectorHandle.isClosed) {
+    inspectorHandle.show()
+    marker(`INSPECTOR_SHOWN id=w${inspectorCount$.getSnapshot()}`)
+    return
+  }
 
-export function setInspectorHandle(handle: InspectorHandle | null) {
+  if (!windows.supported) {
+    lastError$.set('Native secondary windows are unavailable')
+    marker('INSPECTOR_OPEN_FAIL')
+    return
+  }
+
+  const handle = windows.open({
+    data: { window: 'inspector' },
+    title: 'Inspector',
+    size: { width: 320, height: 160 },
+  })
+
   inspectorHandle = handle
+  inspectorCount$.set(inspectorCount$.getSnapshot() + 1)
+  inspectorOpen$.set(true)
+  marker(`INSPECTOR_OPENED id=w${inspectorCount$.getSnapshot()}`)
+
+  handle.on('closed', () => {
+    if (inspectorHandle === handle) {
+      inspectorOpen$.set(false)
+      inspectorHandle = null
+    }
+    marker('INSPECTOR_CLOSED')
+  })
 }
 
 export function closeInspector() {

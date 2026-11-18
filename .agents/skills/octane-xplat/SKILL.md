@@ -133,6 +133,8 @@ Use `@octane-xplat/desktop` for native application menus, tray icons, global hot
 
 On AppKit, GTK, and the pinned NativeScript Windows host, use [`windows.open`](../../../docs/packages/package-desktop.md#open-a-second-window) after the host mounts and registers a content resolver. A synchronous `close` listener can cancel the request. Use `destroy` for forced teardown. [Use `app.whenReady()` and `app.quit()`](../../../docs/packages/package-desktop.md#wait-for-startup-and-request-quit) for desktop startup and shutdown. A synchronous `before-quit` guard or a secondary window close veto keeps the app open. On Windows, use `windows.open` for all secondary windows so `app.quit()` can check their guards and close them.
 
+Keep one handle per Inspector or tool window. [Call `show()` on a live handle](../../../docs/packages/package-desktop.md#show-an-existing-window) to reuse it, and use `hide()` to preserve its content for later. Call `focus()` for a shown window when you only want to request focus. Create a fresh handle once `isClosed` is true.
+
 ## Canonical documentation and scope
 
 Published-package READMEs link to the website. App-facing package setup and usage

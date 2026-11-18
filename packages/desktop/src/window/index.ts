@@ -1,4 +1,4 @@
-import { createDesktopWindowService } from './service.js'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { DesktopWindowService } from './types.js'
 
 export type * from './types.js'
@@ -17,4 +17,9 @@ export type * from './types.js'
  * }
  * ```
  */
-export const windows: DesktopWindowService = createDesktopWindowService(() => undefined, () => {})
+export const windows: DesktopWindowService = {
+  supported: false,
+  open() {
+    throw new UnavailabilityError('windows.open')
+  },
+}

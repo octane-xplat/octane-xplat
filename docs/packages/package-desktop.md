@@ -94,6 +94,39 @@ export function openInspector(hasUnsavedEdits: () => boolean) {
 }
 ```
 
+### Show an existing window
+
+Keep one Inspector window by saving its handle. When the user selects Open Inspector again, call `show()` on the saved window. Call `hide()` to put it away while keeping its content and state. After the user closes it, the next command creates a fresh window.
+
+```ts
+import { windows, type DesktopWindow } from '@octane-xplat/desktop'
+
+let inspector: DesktopWindow | undefined
+
+export function showInspector() {
+  if (!windows.supported) return
+
+  if (inspector && !inspector.isClosed) {
+    inspector.show()
+    return
+  }
+
+  inspector = windows.open({ title: 'Inspector', data: { screen: 'inspector' } })
+}
+
+export function hideInspector() {
+  if (inspector && !inspector.isClosed) inspector.hide()
+}
+```
+
+`show()` also requests keyboard focus. Use `focus()` when you only want to request focus for a window that is already shown. The desktop environment decides whether to grant focus. `isVisible()` reports whether the host shows the window and returns `false` after close. Calling `show()`, `hide()`, or `focus()` on a closed handle throws.
+
+```ts
+export function focusInspector() {
+  if (inspector?.isVisible()) inspector.focus()
+}
+```
+
 ### Close the window
 
 Calling `close()` requests the same close as the window's close button. Call `preventDefault()` before the listener returns to keep it open. Use `destroy()` for teardown when the window must close regardless of unsaved changes. The `closed` event and promise are delivered after the window's content has unmounted.
