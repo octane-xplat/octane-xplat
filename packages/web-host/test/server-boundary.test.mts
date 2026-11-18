@@ -26,6 +26,10 @@ function config(root, extra = {}) {
     root,
     configFile: false,
     logLevel: 'silent',
+    // Fixture roots carry no tsconfig — the transform falls back to the
+    // package's references-style config, whose env programs exist only
+    // after `xplat typecheck`. Pin the committed env manifest instead.
+    tsconfig: new URL('../tsconfig.envs.json', import.meta.url).pathname,
     plugins: [serverBoundary()],
     resolve: { alias: { '#private': join(root, 'private.server.ts') } },
     build: {

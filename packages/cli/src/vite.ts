@@ -36,11 +36,65 @@ export { css } from './css-platform.ts'
 export { devBridge } from './mcp/dev-bridge.ts'
 export { buildTarget } from './vite-target.ts'
 
+/**
+ * Vite 8's oxc transform resolves each file's governing tsconfig.json and
+ * follows its project references. References-style configs point at the env
+ * programs `xplat typecheck` generates under node_modules/.cache — absent
+ * on a fresh install, so every plain-source transform fails with
+ * TSCONFIG_ERROR. Return the committed env manifest beside the nearest
+ * governing tsconfig.json while a reference dangles; ordinary discovery
+ * resumes once the programs exist.
+ */
+export function transformTsconfig(root) {
+  let dir = resolve(root)
+
+  // The nearest tsconfig.json governs files under `root` the same way the
+  // transform discovers them — keep walking up past nested fixture and
+  // output directories until one is found.
+  for (;;) {
+    if (existsSync(join(dir, 'tsconfig.json'))) {
+      break
+    }
+
+    const parent = dirname(dir)
+    if (parent === dir) {
+      return undefined
+    }
+
+    dir = parent
+  }
+
+  const manifest = join(dir, 'tsconfig.envs.json')
+  if (!existsSync(manifest)) {
+    return undefined
+  }
+
+  const references = readFileSync(join(dir, 'tsconfig.json'), 'utf8').matchAll(
+    /"path"\s*:\s*"([^"]+)"/g,
+  )
+
+  return [...references].some(([, path]) => !existsSync(resolve(dir, path)))
+    ? manifest
+    : undefined
+}
+
 /** Select platform TSRX implementations in custom Vite and Vitest setups. */
 export function tsrx(platform = 'native') {
   return {
     name: 'xplat-tsrx-resolution',
     enforce: 'post',
+    // Programmatic and configless pipelines never reach the app presets —
+    // pin the transform tsconfig here so every composition carrying tsrx
+    // survives an ungenerated checkout. Plugin config merges above user
+    // config in Vite, so yield to an explicit tsconfig outright.
+    config(config) {
+      if (config.tsconfig !== undefined) {
+        return
+      }
+
+      const tsconfig = transformTsconfig(config.root ?? config.test?.root ?? process.cwd())
+      return tsconfig ? { tsconfig } : undefined
+    },
     // Vite 8's Rolldown optimizer has its own extension defaults. Run after
     // normal configResolved hooks (including nativeExtensionOrder), and keep
     // explicitly configured optimizer lists, including [], authoritative.
@@ -586,6 +640,26 @@ function platformTag(id) {
   return m?.[1]
 }
 
+const mergeConfigFragments = (...fragments) => {
+  const out = {}
+
+  for (const fragment of fragments) {
+    for (const [key, value] of Object.entries(fragment ?? {})) {
+      out[key] =
+        typeof out[key] === 'object' &&
+        out[key] !== null &&
+        !Array.isArray(out[key]) &&
+        typeof value === 'object' &&
+        value !== null &&
+        !Array.isArray(value)
+          ? mergeConfigFragments(out[key], value)
+          : value
+    }
+  }
+
+  return out
+}
+
 /** Build-time enforcement of the platform-suffix boundary (invariant #1) —
  *  the lint rules catch direct imports, this catches transitive leakage:
  *  a `foo.web.tsrx` module reachable in a mobile bundle means the resolver
@@ -596,6 +670,7 @@ function platformTag(id) {
  *  'macos' | 'windows' | 'linux' | 'native' (generic: any native tag ok). */
 export function boundary(platform = buildTarget()) {
   const resolver = tsrx(platform)
+  const base = serverBoundary()
   const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
   let command = 'build'
   let root = ''
@@ -626,9 +701,18 @@ export function boundary(platform = buildTarget()) {
   }
 
   return {
-    ...serverBoundary(),
+    ...base,
     ...resolver,
     name: 'xplat-platform-boundary',
+    // Both wrapped plugins contribute `config` fragments — the server
+    // boundary's source-map hardening and tsrx's fresh-checkout tsconfig
+    // pin. A plain spread would keep only the last hook.
+    config(userConfig, env) {
+      return mergeConfigFragments(
+        base.config?.(userConfig, env),
+        resolver.config?.(userConfig, env),
+      )
+    },
     configResolved(config) {
       resolver.configResolved(config)
       command = config.command

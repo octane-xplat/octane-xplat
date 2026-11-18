@@ -4,7 +4,11 @@ import { octane } from '@octanejs/vite-plugin'
 
 // Component tests run through the same octane transform the web app uses —
 // web suffix chain so leaves resolve to their DOM implementations.
+// The suite spans package sources whose references-style tsconfigs point at
+// generated env programs — pin the transform to the app's committed tsconfig
+// so the aggregate run works on a fresh checkout (per-suite vitest pins).
 export default defineConfig({
+  tsconfig: new URL('./tsconfig.json', import.meta.url).pathname,
   plugins: [tsrx('web'), ...octane()],
   ssr: {
     resolve: { conditions: ['web'] },

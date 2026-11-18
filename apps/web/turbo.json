@@ -3,7 +3,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"parity": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"],
 			"cache": false
 		},
 		"test:query-cache-runtime": {
@@ -11,12 +11,12 @@
 			"cache": false
 		},
 		"input:readiness": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"],
 			"env": ["XPLAT_WEB_BROWSER"],
 			"cache": false
 		},
 		"sqlite:readiness": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"],
 			"env": ["XPLAT_WEB_BROWSER"],
 			"cache": false
 		},
@@ -27,7 +27,7 @@
 			"outputs": []
 		},
 		"build": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"],
 			"inputs": [
 				"$TURBO_DEFAULT$",
 				"../tsrx-typegen/src/**",
@@ -36,8 +36,9 @@
 			],
 			"outputs": ["dist/**", "types/**"]
 		},
+		// vitest.config imports @octane-xplat/cli/vite — resolve its dist first.
 		"test": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"],
 			"outputs": []
 		},
 		"smoke": {
@@ -49,17 +50,17 @@
 		"smoke:harness": { "dependsOn": ["build"], "cache": false, "env": ["XPLAT_WEB_BROWSER", "XPLAT_HARNESS_URL", "XPLAT_HARNESS_REPORT"] },
 		"smoke:showcase": { "dependsOn": ["build"], "cache": false, "env": ["XPLAT_WEB_BROWSER", "XPLAT_SHOWCASE_EVIDENCE", "XPLAT_SHOWCASE_URL"] },
 		"bench:vlist": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"],
 			"cache": false,
 			"env": ["XPLAT_WEB_BROWSER"]
 		},
 		"test:id": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"],
 			"cache": false,
 			"env": ["XPLAT_WEB_BROWSER"]
 		},
 		"sheet:readiness": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"],
 			"cache": false,
 			"env": ["XPLAT_WEB_BROWSER"]
 		}

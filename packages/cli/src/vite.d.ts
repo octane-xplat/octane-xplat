@@ -26,6 +26,13 @@ export type NativeCssPlugin = Plugin
 /** @internal Native CSS normalization used by the platform presets. */
 export function pxToDip(options?: { masonSafeAreaEnvironment?: boolean }): NativeCssPlugin
 
+/** The committed env manifest beside the nearest governing tsconfig.json
+ * while one of its generated env-program references dangles (fresh checkout,
+ * before `xplat typecheck` runs) — otherwise undefined. The tsrx plugin and
+ * platform presets pin the Vite transform to it; an explicit config
+ * `tsconfig` always wins. */
+export function transformTsconfig(root: string): string | undefined
+
 /** Select platform implementations for explicit TSRX paths in a custom
  * compiler or test setup. Standard platform presets and boundary include it.
  * Vite 8 dependency optimization defaults to each environment's resolved extension
