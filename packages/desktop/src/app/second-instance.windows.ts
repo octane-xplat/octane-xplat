@@ -1,4 +1,5 @@
 import { lookupGlobal } from '@octane-xplat/lib/capability'
+import { watchSecondInstance, type SingleInstanceSupport } from './second-instance.js'
 
 function invoke(method: 'IsSupported' | 'Acquire' | 'Poll'): string {
   const bridge = lookupGlobal(['NSWinRT', 'dotnet'])
@@ -9,7 +10,7 @@ function invoke(method: 'IsSupported' | 'Acquire' | 'Poll'): string {
   return String(bridge.invoke('', 'OctaneXplat.Desktop.DesktopSingleInstance', method, []))
 }
 
-export function createWindowsSingleInstance(isReady: () => boolean): WindowsSingleInstance {
+export function createWindowsSingleInstance(isReady: () => boolean): SingleInstanceSupport {
   let ownsLock = false
   return {
     supportsSingleInstanceLock() {
@@ -31,34 +32,15 @@ export function createWindowsSingleInstance(isReady: () => boolean): WindowsSing
       return ownsLock
     },
     supportsSecondInstance: () => ownsLock,
-    addSecondInstanceHandler(handler: (argv: readonly string[], workingDirectory: string | undefined) => void) {
-      let active = true
-      const timer = setInterval(() => {
-        if (!isReady()) return
-        try {
-          for (let delivered = 0; active && delivered < 32; delivered++) {
-            const argv: unknown = JSON.parse(invoke('Poll'))
-            if (argv === null) return
-            if (!Array.isArray(argv) || !argv.every((argument) => typeof argument === 'string')) {
-              throw new Error('Invalid launch arguments from the Windows host')
-            }
-            handler(argv, undefined)
-          }
-        } catch (error) {
-          console.error('[desktop] Windows launch delivery failed', error)
+    addSecondInstanceHandler(handler) {
+      return watchSecondInstance(isReady, () => {
+        const argv: unknown = JSON.parse(invoke('Poll'))
+        if (argv === null) return null
+        if (!Array.isArray(argv) || !argv.every((argument) => typeof argument === 'string')) {
+          throw new Error('Invalid launch arguments from the Windows host')
         }
-      }, 100)
-      return () => {
-        active = false
-        clearInterval(timer)
-      }
+        return { argv }
+      }, handler)
     },
   }
-}
-
-interface WindowsSingleInstance {
-  supportsSingleInstanceLock(): boolean
-  requestSingleInstanceLock(): boolean
-  supportsSecondInstance(): boolean
-  addSecondInstanceHandler(handler: (argv: readonly string[], workingDirectory: string | undefined) => void): () => void
 }

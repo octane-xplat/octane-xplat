@@ -1,4 +1,5 @@
 #include <CoreFoundation/CoreFoundation.h>
+#include <CommonCrypto/CommonDigest.h>
 #import <AppKit/AppKit.h>
 #include <dlfcn.h>
 #include <errno.h>
@@ -477,37 +478,158 @@ static void on_input(CFRunLoopTimerRef timer, void *context) {
     CFRunLoopTimerInvalidate(timer);
 }
 
-int main(int argc, char **argv) {
-  if (argc != 1 && (argc < 3 || argc > 5)) {
-    fprintf(stderr, "usage: xplat-macos-host [<framework binary> <script> [metadata.nsmd] [bootstrap.js]]\n");
-    return 2;
+// The bootstrap service name is per login session and additionally scoped to
+// the bundle identity and user. The port is unavailable to sandboxed apps
+// without permission to register a Mach service.
+static CFMessagePortRef instance_port;
+static CFRunLoopSourceRef instance_source;
+static CFMutableArrayRef instance_launches;
+static bool instance_redirected;
+static const CFIndex instance_payload_limit = 1024 * 1024;
+
+static CFDataRef instance_receive(CFMessagePortRef local, SInt32 message, CFDataRef data, void *context) {
+  UInt8 accepted = 0;
+  if (message == 1 && data && CFDataGetLength(data) <= instance_payload_limit &&
+      CFArrayGetCount(instance_launches) < 64) {
+    // Core Foundation owns the incoming Mach buffer only during the callback.
+    const UInt8 *bytes = CFDataGetBytePtr(data);
+    CFIndex length = CFDataGetLength(data);
+    CFStringRef valid = CFStringCreateWithBytes(NULL, bytes, length, kCFStringEncodingUTF8, false);
+    if (valid) {
+      CFRelease(valid);
+      CFDataRef copy = CFDataCreate(NULL, bytes, length);
+      if (copy) {
+        CFArrayAppendValue(instance_launches, copy);
+        CFRelease(copy);
+        accepted = 1;
+      }
+    }
+  }
+  return CFDataCreate(NULL, &accepted, 1);
+}
+
+static CFStringRef instance_name(void) {
+  NSString *bundle = NSBundle.mainBundle.bundleIdentifier;
+  if (!bundle.length) return NULL;
+  const char *bytes = bundle.UTF8String;
+  unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+  CC_SHA256(bytes, (CC_LONG)strlen(bytes), digest);
+  char name[128];
+  size_t prefix = snprintf(name, sizeof name, "org.octanexplat.instance.%u.", getuid());
+  for (size_t i = 0; i < sizeof digest; i++) snprintf(name + prefix + i * 2, 3, "%02x", digest[i]);
+  return CFStringCreateWithCString(NULL, name, kCFStringEncodingUTF8);
+}
+
+static js_value_t *host_claim_instance(js_env_t *env, js_callback_info_t *info) {
+  js_value_t *result = NULL;
+  if (instance_port || instance_redirected) {
+    return js_get_boolean(env, instance_port != NULL, &result) == 0 ? result : NULL;
   }
 
+  size_t argc = 1;
+  js_value_t *argument = NULL;
+  size_t length = 0;
+  if (js_get_callback_info(env, info, &argc, &argument, NULL, NULL) != 0 ||
+      argc != 1 || js_get_value_string_utf8(env, argument, NULL, 0, &length) != 0 ||
+      length > instance_payload_limit) {
+    js_throw_error(env, NULL, "Invalid macOS launch payload");
+    return NULL;
+  }
+
+  CFStringRef name = instance_name();
+  if (!name) {
+    js_throw_error(env, NULL, "Single-instance locking requires a macOS bundle identifier");
+    return NULL;
+  }
+  CFMessagePortRef local = CFMessagePortCreateLocal(NULL, name, instance_receive, NULL, NULL);
+  if (local) {
+    CFRelease(name);
+    instance_launches = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
+    instance_source = CFMessagePortCreateRunLoopSource(NULL, local, 0);
+    if (!instance_source || !instance_launches) {
+      if (instance_source) { CFRelease(instance_source); instance_source = NULL; }
+      if (instance_launches) { CFRelease(instance_launches); instance_launches = NULL; }
+      CFMessagePortInvalidate(local);
+      CFRelease(local);
+      js_throw_error(env, NULL, "Unable to receive macOS launch messages");
+      return NULL;
+    }
+    instance_port = local;
+    CFRunLoopAddSource(CFRunLoopGetMain(), instance_source, kCFRunLoopCommonModes);
+    return js_get_boolean(env, true, &result) == 0 ? result : NULL;
+  }
+
+  CFMessagePortRef remote = CFMessagePortCreateRemote(NULL, name);
+  CFRelease(name);
+  if (!remote) {
+    js_throw_error(env, NULL, "Unable to claim or contact the macOS app instance");
+    return NULL;
+  }
+
+  utf8_t *bytes = malloc(length + 1);
+  CFDataRef data = NULL;
+  CFDataRef reply = NULL;
+  if (bytes && js_get_value_string_utf8(env, argument, bytes, length + 1, &length) == 0)
+    data = CFDataCreate(NULL, (const UInt8 *)bytes, (CFIndex)length);
+  free(bytes);
+  bool delivered = data &&
+      CFMessagePortSendRequest(remote, 1, data, 4, 4, kCFRunLoopDefaultMode, &reply) == kCFMessagePortSuccess &&
+      reply && CFDataGetLength(reply) == 1 && CFDataGetBytePtr(reply)[0] == 1;
+  if (reply) CFRelease(reply);
+  if (data) CFRelease(data);
+  CFRelease(remote);
+  if (!delivered) {
+    js_throw_error(env, NULL, "The running macOS app did not accept this launch");
+    return NULL;
+  }
+  instance_redirected = true;
+  return js_get_boolean(env, false, &result) == 0 ? result : NULL;
+}
+
+static js_value_t *host_poll_instance(js_env_t *env, js_callback_info_t *info) {
+  js_value_t *result = NULL;
+  if (!instance_launches || CFArrayGetCount(instance_launches) == 0)
+    return js_get_null(env, &result) == 0 ? result : NULL;
+  CFDataRef data = CFArrayGetValueAtIndex(instance_launches, 0);
+  if (js_create_string_utf8(env, (const utf8_t *)CFDataGetBytePtr(data), CFDataGetLength(data), &result) != 0)
+    return NULL;
+  CFArrayRemoveValueAtIndex(instance_launches, 0);
+  return result;
+}
+
+int main(int argc, char **argv) {
   char framework_path[PATH_MAX];
   char script_path[PATH_MAX];
   char metadata_path[PATH_MAX];
   char shim_path[PATH_MAX];
-  const char *framework = argc > 1 ? argv[1] : framework_path;
-  const char *script = argc > 1 ? argv[2] : script_path;
-  const char *metadata = argc > 3 ? argv[3] : metadata_path;
-  const char *shim = argc > 4 ? argv[4] : shim_path;
-  bool packaged = argc == 1;
-  if (packaged) {
-    char executable[PATH_MAX];
-    uint32_t size = sizeof executable;
-    if (_NSGetExecutablePath(executable, &size) != 0) return 2;
-    char *last_slash = strrchr(executable, '/');
-    if (!last_slash) return 2;
-    *last_slash = 0;
+  char executable[PATH_MAX];
+  uint32_t size = sizeof executable;
+  if (_NSGetExecutablePath(executable, &size) != 0) return 2;
+  char *last_slash = strrchr(executable, '/');
+  if (!last_slash) return 2;
+  *last_slash = 0;
 #if defined(__x86_64__)
-    const char *metadata_name = "metadata.macos.x86_64.nsmd";
+  const char *metadata_name = "metadata.macos.x86_64.nsmd";
 #else
-    const char *metadata_name = "metadata.macos.arm64.nsmd";
+  const char *metadata_name = "metadata.macos.arm64.nsmd";
 #endif
-    if (snprintf(framework_path, sizeof framework_path, "%s/../Frameworks/NativeScript.framework/Versions/A/NativeScript", executable) >= sizeof framework_path ||
-        snprintf(script_path, sizeof script_path, "%s/../Resources/app/main.cjs", executable) >= sizeof script_path ||
-        snprintf(metadata_path, sizeof metadata_path, "%s/../Resources/%s", executable, metadata_name) >= sizeof metadata_path ||
-        snprintf(shim_path, sizeof shim_path, "%s/../Resources/host-shim.js", executable) >= sizeof shim_path) return 2;
+  if (snprintf(framework_path, sizeof framework_path, "%s/../Frameworks/NativeScript.framework/Versions/A/NativeScript", executable) >= sizeof framework_path ||
+      snprintf(script_path, sizeof script_path, "%s/../Resources/app/main.cjs", executable) >= sizeof script_path ||
+      snprintf(metadata_path, sizeof metadata_path, "%s/../Resources/%s", executable, metadata_name) >= sizeof metadata_path ||
+      snprintf(shim_path, sizeof shim_path, "%s/../Resources/host-shim.js", executable) >= sizeof shim_path) return 2;
+
+  // A production bundle owns its runtime paths. Its argv belongs to the app.
+  // Developer bundles carry an Info.plist but use explicit runtime paths.
+  bool packaged = argc == 1 || access(script_path, F_OK) == 0 || access(framework_path, F_OK) == 0;
+  if (!packaged && (argc < 3 || argc > 5)) {
+    fprintf(stderr, "usage: xplat-macos-host [<framework binary> <script> [metadata.nsmd] [bootstrap.js]]\n");
+    return 2;
+  }
+  const char *framework = packaged ? framework_path : argv[1];
+  const char *script = packaged ? script_path : argv[2];
+  const char *metadata = packaged || argc < 4 ? metadata_path : argv[3];
+  const char *shim = packaged || argc < 5 ? shim_path : argv[4];
+  if (packaged) {
     setenv("OCTANE_MACOS_EXTERNAL_RUNLOOP", "1", 1);
     setenv("NODE_ENV", "production", 1);
   }
@@ -557,6 +679,26 @@ int main(int argc, char **argv) {
   js_get_named_property(env, global, "objc", &objc);
   fprintf(stderr, "objc global: ");
   print_value(env, objc);
+
+  js_value_t *launch_arguments = NULL;
+  size_t launch_count = packaged ? (size_t)(argc - 1) : 0;
+  if (check(env, js_create_array(env, &launch_arguments), "launch arguments")) return 1;
+  for (uint32_t i = 0; i < launch_count; i++) {
+    const char *argument = argv[i + 1];
+    js_value_t *value = NULL;
+    if (check(env, js_create_string_utf8(env, (const utf8_t *)argument, strlen(argument), &value), "launch argument") ||
+        check(env, js_set_element(env, launch_arguments, i, value), "launch argument element")) return 1;
+  }
+  if (check(env, js_set_named_property(env, global, "__xplatLaunchArguments", launch_arguments), "launch arguments global")) return 1;
+
+  if (packaged && NSBundle.mainBundle.bundleIdentifier.length) {
+    js_value_t *claim = NULL;
+    js_value_t *poll = NULL;
+    if (check(env, js_create_function(env, "claimInstance", 13, host_claim_instance, NULL, &claim), "claimInstance") ||
+        check(env, js_create_function(env, "pollInstance", 12, host_poll_instance, NULL, &poll), "pollInstance") ||
+        check(env, js_set_named_property(env, global, "__xplatClaimSingleInstance", claim), "claimInstance global") ||
+        check(env, js_set_named_property(env, global, "__xplatPollSecondInstance", poll), "pollInstance global")) return 1;
+  }
 
   if (argc == 5 || packaged) {
     js_value_t *log = NULL;
@@ -625,11 +767,17 @@ int main(int argc, char **argv) {
                                                xplat_env_idle, &observer_context);
   if (xplat_env_observer)
     CFRunLoopAddObserver(CFRunLoopGetMain(), xplat_env_observer, kCFRunLoopCommonModes);
-  if (argc == 5 || packaged) {
-    install_default_main_menu();
-    [NSApp run];
+  if (!instance_redirected) {
+    if (argc == 5 || packaged) {
+      install_default_main_menu();
+      [NSApp run];
+    } else {
+      CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
+    }
   }
-  else CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
+  if (instance_source) { CFRunLoopSourceInvalidate(instance_source); CFRelease(instance_source); }
+  if (instance_port) { CFMessagePortInvalidate(instance_port); CFRelease(instance_port); }
+  if (instance_launches) CFRelease(instance_launches);
   fprintf(stderr, "host run loop returned\n");
   if (xplat_env_observer) {CFRunLoopObserverInvalidate(xplat_env_observer); CFRelease(xplat_env_observer);}
   if (xplat_env_timer) {CFRunLoopTimerInvalidate(xplat_env_timer); CFRelease(xplat_env_timer);}

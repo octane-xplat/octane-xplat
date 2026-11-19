@@ -1,4 +1,5 @@
 import { lookupGlobal, UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { SingleInstanceSupport } from './second-instance.js'
 import type { DesktopActivateEvent, DesktopApp, DesktopBeforeQuitEvent, DesktopSecondInstanceEvent } from './types.js'
 
 export interface AppLifecycleHost {
@@ -54,7 +55,10 @@ function removeLast<Listener>(listeners: Listener[], listener: Listener) {
 
 
 /** Build the app facade without reading native globals or installing callbacks at import. */
-export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | undefined)): DesktopApp {
+export function createAppLifecycle(
+  bridge?: string | (() => AppLifecycleHost | undefined),
+  singleInstance?: SingleInstanceSupport,
+): DesktopApp {
   const listeners: BeforeQuitListener[] = []
   let unsubscribe: (() => void) | undefined
   const activateListeners: ActivateListener[] = []
@@ -63,7 +67,8 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
   let unsubscribeSecondInstance: (() => void) | undefined
 
   function host() {
-    return typeof bridge === 'function' ? bridge() : bridge ? hostFor(bridge) : undefined
+    const available = typeof bridge === 'function' ? bridge() : bridge ? hostFor(bridge) : undefined
+    return available && singleInstance ? { ...available, ...singleInstance } : available
   }
 
   function requireHost(): AppLifecycleHost {

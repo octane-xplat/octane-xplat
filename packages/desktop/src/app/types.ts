@@ -33,7 +33,7 @@ export interface DesktopApp {
   readonly supportsSecondInstance: boolean
   /** Whether the host supports an explicit startup lock. */
   readonly supportsSingleInstanceLock: boolean
-  /** Claim the Windows startup lock before mounting UI. False means the host redirected this launch. */
+  /** Claim the startup lock before mounting UI. False means the host redirected this launch. */
   requestSingleInstanceLock(): boolean
   /** Whether the host has finished startup and the app can request quit. */
   isReady(): boolean

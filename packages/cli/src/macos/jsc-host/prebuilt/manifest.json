@@ -10,7 +10,7 @@
     "nativescriptRuntimes": "5b697b393152f973dd392851fd72dacf03a7a0c9"
   },
   "sha256": {
-    "macos/host": "447647958ae22f7475961621950ecc9827b1ec71944c03d3a75f770b5f114787",
+    "macos/host": "3dacfda205a4c029cee5797f5789fb5b232074f8ccac8ca0995cdfa556f1b4f0",
     "macos/metadata.macos.arm64.nsmd": "fce9d682149ca2cdb277f4e85c9a17acd798f778e88baf50aad1e8c9a7d1f391",
     "macos/NativeScript.framework/Versions/A/NativeScript": "3191f060f56986324ff79d0774a1efe5bee3fae29d8ed18490de95fe034910a9",
     "macos/objc-metadata-generator": "81fc6bfb958ccf2a99938e5d38a27e18a66945a97abd2158f8da0a842d847a5c",

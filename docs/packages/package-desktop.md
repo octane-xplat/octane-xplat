@@ -424,6 +424,28 @@ export function startWindowsEditor(
 }
 ```
 
+## Redirect a second launch on macOS
+
+On the packaged AppKit host, call `app.requestSingleInstanceLock()` before `runMacOSApp()`. If it returns `false`, skip startup. The later process forwards its arguments and working directory to the running app, then exits. Check `app.supportsSingleInstanceLock` for host availability. The native service uses the app's bundle ID within the current login session and requires permission to register a Mach service. Finder reopening an app that is already running uses the usual `activate` event.
+
+```ts
+import { app, type DesktopSecondInstanceEvent } from '@octane-xplat/desktop'
+
+export function startMacEditor(
+  mount: () => void,
+  openDocuments: (paths: readonly string[], cwd?: string) => void,
+) {
+  if (app.supportsSingleInstanceLock && !app.requestSingleInstanceLock()) return
+
+  const open = (_event: DesktopSecondInstanceEvent, args: readonly string[], cwd?: string) => {
+    if (args.length > 0) openDocuments(args, cwd)
+  }
+  if (app.supportsSecondInstance) app.on('second-instance', open)
+  mount()
+  return () => app.off('second-instance', open)
+}
+```
+
 ## Read the desktop display layout
 
 Call `screen.getAllDisplays()` after startup to read connected displays. Each entry gives the display bounds and scale factor. Coordinates increase rightward and downward. AppKit and GTK use logical units. The Windows bridge uses physical pixels across the virtual desktop, so use `screen.coordinateSpace` before comparing coordinates. Windows apps need a native rebuild for the bridge.

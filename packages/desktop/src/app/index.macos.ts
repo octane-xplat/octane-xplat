@@ -2,6 +2,7 @@ import { NSApp, NSProcessInfo, type NSArray, type NSWindow } from '@octane-xplat
 import { TrayError } from '../tray/errors.js'
 
 import { createAppLifecycle } from './lifecycle.js'
+import { createMacOSSingleInstance } from './second-instance.macos.js'
 import type { AppResidency, DesktopApp } from './types.js'
 
 export type * from './types.js'
@@ -175,4 +176,7 @@ export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): App
 }
 
 /** Native application readiness and quit. */
-export const app: DesktopApp = createAppLifecycle('__xplatAppKitLifecycle')
+export const app: DesktopApp = createAppLifecycle(
+  '__xplatAppKitLifecycle',
+  createMacOSSingleInstance(() => app.isReady()),
+)
