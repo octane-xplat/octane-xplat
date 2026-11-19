@@ -1,4 +1,4 @@
-import { namespaces, beginScope } from './bindings.mjs'
+import { namespaces, beginScope } from '../../../packages/cli/src/linux-gtk/bindings.mjs'
 import { runBench } from './bench.mjs'
 
 beginScope()

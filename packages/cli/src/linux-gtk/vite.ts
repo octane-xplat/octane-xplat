@@ -5,6 +5,7 @@ import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { boundary, nodeEnvDefine, css } from '../vite.ts'
 import { inlineStylesheets } from '../inline-stylesheets.ts'
+import { nativeGiProjection } from './native-gi-projection.ts'
 
 const renderer = '@octane-xplat/linux-gtk'
 
@@ -205,14 +206,23 @@ export async function linuxGtk(env, options = {}) {
   // The universal runtime must be the same module the bundler reaches —
   // resolve through the app's dependency tree, not ours.
   const universalNative = realpathSync(appRequire.resolve('octane/universal/native'))
+  const schemaPath = options.nativeGiSchema && resolve(root, options.nativeGiSchema)
 
   return {
     root,
-    define: nodeEnvDefine(mode),
+    define: {
+      ...nodeEnvDefine(mode),
+      ...(schemaPath && {
+        print: 'console.log',
+        printerr: 'console.error',
+        'imports.system.exit': 'process.exit',
+      }),
+    },
     plugins: [
+      ...(schemaPath ? [nativeGiProjection(schemaPath)] : []),
       gtkLeafResolve(),
       gtkSlotDedupe(),
-      gtkPrebuiltMason(appRequire),
+      ...(schemaPath ? [] : [gtkPrebuiltMason(appRequire)]),
       css('gtk'),
       inlineStylesheets(),
       boundary('gtk'),
@@ -255,12 +265,10 @@ export async function linuxGtk(env, options = {}) {
         fileName: options.fileName ?? 'app',
       },
       rollupOptions: {
-        // The GI imports resolve to the platform libraries at load time;
-        // GJS maps `gi://Gtk?version=4.0` to the installed introspection
-        // data — bundling them is meaningless.
-        external: (id) => id.startsWith('gi://'),
-        // gjs -m executes one file — no code splitting; a second chunk
-        // would be an unloadable import at runtime.
+        // GJS resolves GI imports at runtime. NativeScript builds project
+        // those imports in the bundle against the payload's GI schema.
+        external: (id) => !schemaPath && id.startsWith('gi://'),
+        // Linux GTK launchers execute a single application entry.
         output: { inlineDynamicImports: true },
       },
     },

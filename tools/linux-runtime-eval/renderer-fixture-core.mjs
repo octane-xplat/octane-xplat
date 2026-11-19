@@ -5,7 +5,6 @@ import { tmpdir } from 'node:os'
 import { dirname, isAbsolute, resolve } from 'node:path'
 import { build } from 'vite'
 import { linuxGtk } from '../../packages/cli/src/linux-gtk/vite.ts'
-import { nativeGiProjection } from './port/native-gi-projection.mjs'
 
 const repoRoot = resolve(import.meta.dirname, '../..')
 const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
@@ -81,8 +80,8 @@ export async function runRendererFixture({
       root: fixtureRoot,
       entry: entryFile,
       outDir,
+      nativeGiSchema: projected ? schemaPath : undefined,
     })
-    const projection = projected ? [nativeGiProjection(schemaPath), ...preset.plugins] : preset.plugins
     const tracePlugin = {
       name: 'native-runtime-api-trace',
       enforce: 'pre',
@@ -115,26 +114,9 @@ export async function runRendererFixture({
     await build({
       logLevel: 'error',
       ...preset,
-      plugins: [...(traceBounds || traceApis ? [tracePlugin] : []), ...projection],
-      define: {
-        ...preset.define,
-        ...(projected
-          ? {
-              print: 'console.log',
-              printerr: 'console.error',
-              'imports.system.exit': 'process.exit',
-            }
-          : {}),
-        ...define,
-      },
-      build: {
-        ...preset.build,
-        minify: false,
-        rollupOptions: {
-          ...preset.build.rollupOptions,
-          external: projected ? () => false : preset.build.rollupOptions.external,
-        },
-      },
+      plugins: [...(traceBounds || traceApis ? [tracePlugin] : []), ...preset.plugins],
+      define: { ...preset.define, ...define },
+      build: { ...preset.build, minify: false },
     })
 
     if (!existsSync(resolve(outDir, 'app.js'))) {

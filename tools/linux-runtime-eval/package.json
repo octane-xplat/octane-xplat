@@ -16,6 +16,7 @@
     "test:metadata": "node --test test/prepare-webkit-metadata.test.mjs"
   },
   "devDependencies": {
+    "@octane-xplat/build": "workspace:*",
     "@octane-xplat/cli": "workspace:*",
     "@octane-xplat/jsx": "workspace:*",
     "@octane-xplat/linux-gtk": "workspace:*",

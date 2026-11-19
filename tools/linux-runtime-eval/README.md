@@ -192,7 +192,7 @@ Replace `native` with `gjs` to run the control on the same host.
 
 ## Real renderer port
 
-`port/` runs the shipping renderer (`createGtkRoot` from `@octane-xplat/linux-gtk`) and shared `@octane-xplat/ui` components unchanged on the NativeScript runtime. `port/bindings.mjs` projects a GObject-style API (constructors, methods, properties, signals, `GObject.registerClass`, GLib sources) onto the runtime's generated C symbols — `beginScope`/`releaseScope` group created objects for teardown checks and own only timers and call-scoped callbacks — driven by a GI description exported from the target host: `research/linux-runtime-port/gi.json` by default — override with `LINUX_RUNTIME_EVAL_GI_SCHEMA` when testing a schema from another host (for example an x86_64 GTK 4.14 export) — produced on a Linux host by `port/export-gi.js` under GJS. Re-export after changing the exporter; transform methods require its `instanceTransfer` field so a native call can consume a reference without invalidating its JavaScript wrapper:
+`port/` runs the shipping renderer (`createGtkRoot` from `@octane-xplat/linux-gtk`) and shared `@octane-xplat/ui` components unchanged on the NativeScript runtime. [GTK bindings](../../packages/cli/src/linux-gtk/bindings.mjs) projects a GObject-style API (constructors, methods, properties, signals, `GObject.registerClass`, GLib sources) onto the runtime's generated C symbols — `beginScope`/`releaseScope` group created objects for teardown checks and own only timers and call-scoped callbacks — driven by a GI description exported from the target host: `research/linux-runtime-port/gi.json` by default — override with `LINUX_RUNTIME_EVAL_GI_SCHEMA` when testing a schema from another host (for example an x86_64 GTK 4.14 export) — produced on a Linux host by `port/export-gi.js` under GJS. Re-export after changing the exporter; transform methods require its `instanceTransfer` field so a native call can consume a reference without invalidating its JavaScript wrapper:
 
 ```sh
 gjs tools/linux-runtime-eval/port/export-gi.js research/linux-runtime-port/gi.json
@@ -272,7 +272,7 @@ With `0.1.0-alpha.2`, native C frames in the CPU profile can carry the wrong sym
 
 ## Runtime versions
 
-The v2 projection in `port/bindings.mjs` targets runtimes at or after main `be71019d8` ([triniwiz/linux-runtime#25](https://github.com/triniwiz/linux-runtime/pull/25)): the runtime wraps every GObject it returns and the wrapper holds its own reference, so the projection does not add GObject references. It observes liveness through weak refs and delegates signal connect/disconnect to the wrapper's own methods.
+The v2 projection in [GTK bindings](../../packages/cli/src/linux-gtk/bindings.mjs) targets runtimes at or after main `be71019d8` ([triniwiz/linux-runtime#25](https://github.com/triniwiz/linux-runtime/pull/25)): the runtime wraps every GObject it returns and the wrapper holds its own reference, so the projection does not add GObject references. It observes liveness through weak refs and delegates signal connect/disconnect to the wrapper's own methods.
 
 It does not support `0.1.0-alpha.x` or main up to `0b2fe09a0`, where C-returned GObjects were bare pointers and the projection counted references itself. It throws at load time on those builds because `__nsGObject.object` is missing.
 

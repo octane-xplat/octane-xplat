@@ -2,7 +2,6 @@ import { build } from 'vite'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { linuxGtk } from '../../../packages/cli/src/linux-gtk/vite.ts'
-import { nativeGiProjection } from './native-gi-projection.mjs'
 const root=resolve(import.meta.dirname,'..')
 const schemaPath=process.env.LINUX_RUNTIME_EVAL_GI_SCHEMA??resolve(root,'../../research/linux-runtime-port/gi.json')
 const watch=process.argv.includes('--watch')?{}:undefined
@@ -24,7 +23,8 @@ for(const target of [
   {name:'bench-gjs',entry:'port/bench-gjs.mjs',projection:false},
 ]){
   if(target.projection&&!existsSync(schemaPath))throw Error(`GI schema missing: ${schemaPath} — export it on the Linux host: XPLAT_MASON_TYPELIB=<facade> LD_LIBRARY_PATH=<facade> gjs tools/linux-runtime-eval/port/export-gi.js research/linux-runtime-port/gi.json`)
-  const base=await linuxGtk('production',{root,entry:target.entry,outDir:`dist/${target.name}`})
-  const plugins=target.projection?[nativeGiProjection(schemaPath),...base.plugins]:[gjsStubPlugin,...base.plugins]
-  await build({...base,plugins,build:{...base.build,watch,minify:false,rollupOptions:{...base.build.rollupOptions,external:target.projection?()=>false:(id)=>id.startsWith('gi://')&&!GJS_STUB_NS.has(id.slice(5).split('?')[0])}}})
+  const base=await linuxGtk('production',{root,entry:target.entry,outDir:`dist/${target.name}`,nativeGiSchema:target.projection?schemaPath:undefined})
+  const plugins=target.projection?base.plugins:[gjsStubPlugin,...base.plugins]
+  const rollupOptions=target.projection?base.build.rollupOptions:{...base.build.rollupOptions,external:(id)=>id.startsWith('gi://')&&!GJS_STUB_NS.has(id.slice(5).split('?')[0])}
+  await build({...base,plugins,build:{...base.build,watch,minify:false,rollupOptions}})
 }

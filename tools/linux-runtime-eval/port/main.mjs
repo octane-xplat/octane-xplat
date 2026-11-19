@@ -10,7 +10,7 @@ import {
   pendingFinalizers,
   pendingInScope,
   typeNameOf,
-} from './bindings.mjs'
+} from '../../../packages/cli/src/linux-gtk/bindings.mjs'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { PortScreen, portState } from './screen.gtk.tsx'
 import { getNativeGtkMajorVersion } from './native-sdk-smoke.ts'

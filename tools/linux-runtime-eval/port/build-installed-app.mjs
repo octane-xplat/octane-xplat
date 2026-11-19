@@ -6,8 +6,7 @@ import {
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { basename, dirname, resolve } from 'node:path'
-import { linuxGtk } from '../../../packages/cli/src/linux-gtk/vite.ts'
-import { nativeGiProjection } from './native-gi-projection.mjs'
+import { linuxGtk } from '@octane-xplat/build/linux-gtk/vite'
 
 const [payloadArg, outputArg] = process.argv.slice(2)
 if (!payloadArg || !outputArg || process.argv.length !== 4) {
@@ -49,15 +48,11 @@ const preset = await linuxGtk('production', {
   root: resolve(import.meta.dirname, '..'),
   entry: 'port/installed-app.gtk.tsx',
   outDir: output,
+  nativeGiSchema: resolve(payload, 'gi.json'),
 })
 await build({
   ...preset,
-  plugins: [nativeGiProjection(resolve(payload, 'gi.json')), ...preset.plugins],
-  build: {
-    ...preset.build,
-    minify: false,
-    rollupOptions: { ...preset.build.rollupOptions, external: () => false },
-  },
+  build: { ...preset.build, minify: false },
 })
 
 const runtime = resolve(output, 'runtime')

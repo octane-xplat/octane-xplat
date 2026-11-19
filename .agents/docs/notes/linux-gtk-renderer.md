@@ -113,10 +113,13 @@ suffix:
 - `packages/lint/src/xplat-rules.ts`: `.gtk` in the platform suffixes, `isNativeFile`,
   and the `.gtk.tsrx` pragma rule expecting
   `/** @jsxImportSource @octane-xplat/linux-gtk */`
-- `packages/cli/src/linux-gtk/vite.mjs` (`@octane-xplat/cli/linux-gtk/vite`):
-  `linuxGtk` preset — `gtk` renderer registry, `.gtk` extension chain,
-  `gi://` externals, `octane` → `octane/universal/native` retarget, one
-  resolved universal-native instance for app + renderer
+- `packages/cli/src/linux-gtk/vite.ts` (`@octane-xplat/build/linux-gtk/vite`):
+  `linuxGtk` selects the `gtk` renderer and `.gtk` extension chain and
+  resolves one universal-native Octane instance for app and renderer. Until
+  the runtime cutover, the preset leaves `gi://` external for GJS by default.
+  Qualification builds pass the prepared payload's GI schema to project these
+  imports with `bindings.mjs`. That projection loads inside the Linux app and
+  ships as source beside the preset so the app bundler can resolve its schema.
 
 Repository and consumer lint now share `packages/lint/src/xplat-rules.ts`,
 including GTK suffix and pragma rules. There is no separate published mirror

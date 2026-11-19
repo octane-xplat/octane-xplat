@@ -10,6 +10,8 @@ export interface XplatLinuxGtkOptions {
   outDir?: string
   /** Output file name (without extension); defaults to 'app'. */
   fileName?: string
+  /** GI schema from the NativeScript Linux runtime payload supplied by packaging. */
+  nativeGiSchema?: string
   /** Sources the Octane compiler must not transform. */
   exclude?: string[]
   /** Override renderer rules; defaults to all reachable TSX/TSRX source. */
