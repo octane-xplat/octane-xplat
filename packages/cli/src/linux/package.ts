@@ -14,12 +14,14 @@ import {
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
+import { gtkRuntimeBuildMarker } from '../linux-gtk/native-gi-projection.ts'
 import { inspectLinuxPackageConfig } from './config.ts'
+import { stageGtkRuntime, writeGtkRuntimeLauncher } from './gtk-runtime.ts'
 
 const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
 const desktopString = (value) => value.replaceAll('\\', '\\\\').replaceAll('\t', '\\t')
 
-/** The one ESM file `gjs -m` executes. linuxGtk emits `app.js` by
+/** The application ESM entry. linuxGtk emits `app.js` by
  *  default; accept any single top-level bundle so an app may rename it. */
 const findGtkBundle = (appDir) => {
   if (existsSync(join(appDir, 'app.js'))) {
@@ -111,31 +113,47 @@ printf 'Settings kept under %s\\n' "\${XDG_CONFIG_HOME:-$HOME/.config}/${config.
   chmodSync(join(appDir, 'uninstall.sh'), 0o755)
 }
 
-/** GTK4/GJS runtime: a single-file ESM bundle plus an executable `gjs -m`
- *  launcher. GJS produces no binary, so the relocatable app directory and
- *  tar archive are the distributable artifacts. Ships the shared XDG
- *  desktop entry/installer; URI scheme handling
- *  stays out until the GTK host grows URI services. */
-function buildGtkApp(config, vite, appRoot, appDir) {
+/** Bundle one GTK entry and its launcher in the native-owned staging directory. */
+function buildGtkApp(config, vite, appRoot, appDir, gtkRuntimeRoot) {
+  const payload = join(dirname(appDir), '.gtk-runtime')
+  const architecture = gtkRuntimeRoot ? stageGtkRuntime(gtkRuntimeRoot, payload) : undefined
   execFileSync(
     process.execPath,
     [vite, 'build', '--config', config.viteConfig, '--outDir', appDir],
-    { cwd: appRoot, stdio: 'inherit' },
+    {
+      cwd: appRoot,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        XPLAT_GTK_RUNTIME_SCHEMA: architecture ? join(payload, 'gi.json') : '',
+      },
+    },
   )
 
   const bundle = findGtkBundle(appDir)
 
-  writeFileSync(
-    join(appDir, config.executableName),
-    `#!/bin/sh
+  if (architecture) {
+    const marker = join(appDir, gtkRuntimeBuildMarker)
+    if (!existsSync(marker) || readFileSync(marker, 'utf8') !== '1\n') {
+      throw new Error(
+        'Use the updated linuxGtk Vite preset to build with the NativeScript runtime.',
+      )
+    }
+    rmSync(marker)
+    renameSync(payload, join(appDir, 'runtime'))
+    writeGtkRuntimeLauncher(appDir, config.executableName, bundle)
+  } else {
+    writeFileSync(
+      join(appDir, config.executableName),
+      `#!/bin/sh
 set -eu
 APP_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 command -v gjs >/dev/null 2>&1 || { echo 'Install GJS and GTK4; see README.txt.' >&2; exit 1; }
 exec gjs -m "$APP_DIR/${bundle}" "$@"
 `,
-  )
-
-  chmodSync(join(appDir, config.executableName), 0o755)
+    )
+    chmodSync(join(appDir, config.executableName), 0o755)
+  }
   writeFileSync(
     join(appDir, 'app.json'),
     JSON.stringify(
@@ -151,16 +169,19 @@ exec gjs -m "$APP_DIR/${bundle}" "$@"
 
   writeDesktopInstall(config, appDir, { scheme: null, execArgs: '' })
 
+  const instructions = architecture
+    ? `Run ./${config.executableName} from any directory. The bundled NativeScript runtime is for Linux ${architecture}.\nOn Ubuntu 24.04, install libgtk-4-1 and libjson-glib-1.0-0 and use a graphical session.\nInstall libwebkitgtk-6.0-4 for WebView.\n`
+    : `Run ./${config.executableName} from any directory; it executes the bundled app with gjs -m.\nRequires GJS, GTK4 introspection data, the json-glib runtime, and a graphical session.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 libjson-glib-1.0-0\nThere is no desktop entry or installer yet — copy the directory where you want it.\n`
   writeFileSync(
     join(appDir, 'README.txt'),
-    `${config.productName} ${config.version}\nRun ./${config.executableName} from any directory; it executes the bundled app with gjs -m, or ./install.sh to copy into XDG_DATA_HOME and install the desktop entry.\nRequires Python 3 for installation; GJS and GTK4 introspection data plus a graphical session for execution.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 libjson-glib-1.0-0 python3 desktop-file-utils\n./uninstall.sh removes the installed application directory and desktop entry; settings under XDG_CONFIG_HOME are kept.\n`,
+    `${config.productName} ${config.version}\n${instructions}`,
   )
+  return architecture
 }
 
-/** Build a relocatable native GTK/GJS app and tar archive from a Linux target. */
 export async function packageLinux(
   appRoot: string,
-  { stagingRoot, publish = true }: { stagingRoot?: string; publish?: boolean } = {},
+  { stagingRoot, publish = true, gtkRuntimeRoot }: { stagingRoot?: string; publish?: boolean; gtkRuntimeRoot?: string } = {},
 ) {
   const config = inspectLinuxPackageConfig(appRoot)
 
@@ -189,13 +210,14 @@ export async function packageLinux(
   const archiveName = `${config.executableName}-${config.version}.tar.gz`
 
   try {
+    let gtkRuntimeArchitecture
     mkdirSync(appDir)
-    buildGtkApp(config, vite, appRoot, appDir)
+    gtkRuntimeArchitecture = buildGtkApp(config, vite, appRoot, appDir, gtkRuntimeRoot)
 
     execFileSync(
       'tar',
-      ['-czf', join(staging, archiveName), '-C', staging, config.executableName],
-      { stdio: 'inherit' },
+      ['--no-xattrs', '-czf', join(staging, archiveName), '-C', staging, config.executableName],
+      { stdio: 'inherit', env: { ...process.env, COPYFILE_DISABLE: '1' } },
     )
 
     if (!publish) {
@@ -203,6 +225,7 @@ export async function packageLinux(
       return {
         version: 1,
         runtime: config.runtime,
+        gtkRuntimeArchitecture,
         executableName: config.executableName,
         packageVersion: config.version,
         appDir,

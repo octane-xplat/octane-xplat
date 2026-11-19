@@ -17,6 +17,7 @@ var linuxPackageVersion = regexp.MustCompile(`^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Z
 type linuxPackagePlan struct {
 	Version                                                  int
 	Runtime, ExecutableName, PackageVersion, AppDir, Archive string
+	GtkRuntimeArchitecture                                   string
 }
 
 func runLinuxPackage(ctx context.Context, project, worker string) error {
@@ -39,6 +40,20 @@ func publishLinuxPackage(ctx context.Context, root *os.Root, release, stage stri
 		return nil, errors.New("Linux app must be a staged ordinary directory")
 	}
 	critical := []string{filepath.Join(directory, name), filepath.Join(directory, "app.json"), filepath.Join(directory, "README.txt"), archive}
+	if plan.GtkRuntimeArchitecture != "" {
+		if plan.Runtime != "gtk" || (plan.GtkRuntimeArchitecture != "x86_64" && plan.GtkRuntimeArchitecture != "aarch64") {
+			return nil, errors.New("invalid GTK runtime architecture in Linux package plan")
+		}
+		for _, name := range []string{
+			"ns-linux", "manifest.json", "gi.json",
+			"metadata-" + plan.GtkRuntimeArchitecture + ".bin",
+			"metadata/mason.bin", "metadata/xplatmason.bin", "metadata/webkit.bin",
+			"icu/icudt77l.dat", "lib/libmason_c.so", "lib/libxplatmason-gtk.so",
+		} {
+			critical = append(critical, filepath.Join(directory, "runtime", name))
+		}
+		critical = append(critical, filepath.Join(directory, "package.json"))
+	}
 	for _, path := range critical {
 		info, err = root.Lstat(path)
 		if err != nil || !info.Mode().IsRegular() || info.Size() == 0 {
@@ -52,6 +67,12 @@ func publishLinuxPackage(ctx context.Context, root *os.Root, release, stage stri
 	info, err = root.Stat(filepath.Join(directory, name))
 	if err != nil || info.Mode().Perm()&0111 == 0 {
 		return nil, errors.New("Linux launcher must retain executable permission")
+	}
+	if plan.GtkRuntimeArchitecture != "" {
+		info, err = root.Stat(filepath.Join(directory, "runtime", "ns-linux"))
+		if err != nil || info.Mode().Perm()&0111 == 0 {
+			return nil, errors.New("GTK runtime must retain executable permission")
+		}
 	}
 	if err = publishPackagePair(ctx, root, release, stage, directory, archive, name, archiveName, root.Rename); err != nil {
 		return nil, err

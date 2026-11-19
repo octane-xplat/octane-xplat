@@ -206,7 +206,9 @@ export async function linuxGtk(env, options = {}) {
   // The universal runtime must be the same module the bundler reaches —
   // resolve through the app's dependency tree, not ours.
   const universalNative = realpathSync(appRequire.resolve('octane/universal/native'))
-  const schemaPath = options.nativeGiSchema && resolve(root, options.nativeGiSchema)
+  const packagedSchema = process.env.XPLAT_GTK_RUNTIME_SCHEMA
+  const schema = packagedSchema || options.nativeGiSchema
+  const schemaPath = schema && resolve(root, schema)
 
   return {
     root,
@@ -219,7 +221,7 @@ export async function linuxGtk(env, options = {}) {
       }),
     },
     plugins: [
-      ...(schemaPath ? [nativeGiProjection(schemaPath)] : []),
+      ...(schemaPath ? [nativeGiProjection(schemaPath, Boolean(packagedSchema))] : []),
       gtkLeafResolve(),
       gtkSlotDedupe(),
       ...(schemaPath ? [] : [gtkPrebuiltMason(appRequire)]),

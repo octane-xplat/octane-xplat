@@ -97,14 +97,48 @@ function project(runtime = 'gtk') {
   return dir
 }
 
-function run(dir, args = ['--targets', 'linux']) {
+function run(dir, args = ['--targets', 'linux'], env = process.env) {
   return spawnSync(binary, ['build', ...args], {
     cwd: dir,
+    env,
     encoding: 'utf8',
     timeout: 30000,
     maxBuffer: 8 << 20,
   })
 }
+
+test('NativeScript GTK build rejects a corrupt payload before replacing a release', posix, () => {
+  const dir = project()
+  status(run(dir), 0)
+  const release = join(dir, 'dist/linux')
+  const previous = files(release)
+  const payload = join(dir, 'payload')
+  const names = [
+    'ns-linux',
+    'gi.json',
+    'icu/icudt77l.dat',
+    'metadata-x86_64.bin',
+    'metadata/mason.bin',
+    'metadata/xplatmason.bin',
+    'metadata/webkit.bin',
+    'typings/index.d.ts',
+    'lib/libmason_c.so',
+    'lib/libxplatmason-gtk.so',
+  ]
+  for (const name of names) put(payload, name, 'unverified')
+  put(payload, 'manifest.json', {
+    version: 1,
+    architecture: 'x86_64',
+    files: Object.fromEntries(names.map((name) => [name, '0'.repeat(64)])),
+  })
+  const result = run(dir, ['--targets', 'linux'], {
+    ...process.env,
+    XPLAT_GTK_RUNTIME_PAYLOAD: payload,
+  })
+  assert.notEqual(result.status, 0)
+  assert.match(result.stdout + result.stderr, /GTK runtime payload checksum mismatch/)
+  assert.deepEqual(files(release), previous)
+})
 
 function status(result, code) {
   assert.equal(result.status, code, result.stdout + result.stderr)

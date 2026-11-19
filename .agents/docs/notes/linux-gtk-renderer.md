@@ -120,6 +120,11 @@ suffix:
   Qualification builds pass the prepared payload's GI schema to project these
   imports with `bindings.mjs`. That projection loads inside the Linux app and
   ships as source beside the preset so the app bundler can resolve its schema.
+  To qualify the native CLI package before automatic SDK delivery, set
+  `XPLAT_GTK_RUNTIME_PAYLOAD` to a verified stage directory for one target
+  architecture and run `xplat build --targets linux` in the app. The package
+  worker verifies the manifest and builds with the staged schema. Its published
+  launcher resolves the executable and ICU data inside the archive.
 
 Repository and consumer lint now share `packages/lint/src/xplat-rules.ts`,
 including GTK suffix and pragma rules. There is no separate published mirror

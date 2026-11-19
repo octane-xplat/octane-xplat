@@ -85,6 +85,7 @@ export function nativeInputs(root) {
     'packages/build/package.json',
     'packages/build/vite.package.config.ts',
     'packages/cli/src/linux/package.ts',
+    'packages/cli/src/linux/gtk-runtime.ts',
     'packages/cli/src/linux/config.ts',
     'packages/cli/src/linux-gtk/bindings.mjs',
     'packages/cli/src/linux-gtk/native-gi-projection.ts',
