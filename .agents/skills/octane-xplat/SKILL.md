@@ -135,6 +135,8 @@ On AppKit, GTK, and the pinned NativeScript Windows host, use [`windows.open`](.
 
 Keep one handle per Inspector or tool window. [Call `show()` on a live handle](../../../docs/packages/package-desktop.md#show-an-existing-window) to reuse it, and use `hide()` to preserve its content for later. Call `focus()` for a shown window when you only want to request focus. Create a fresh handle once `isClosed` is true.
 
+Use [`dialog.showOpenDialog`](../../../docs/packages/package-desktop.md#open-a-file-dialog-from-a-window) when a shown desktop window owns a native file picker. Handle normal cancellation through `result.canceled` and catch operational errors. Rebuild the native Windows application when the picker bridge changes.
+
 ## Canonical documentation and scope
 
 Published-package READMEs link to the website. App-facing package setup and usage

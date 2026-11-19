@@ -22,6 +22,7 @@ Reuse an existing Inspector when the user opens it again. Keep its content mount
 
 - AC4: Wait for host readiness. Exercise an app-level quit veto and a secondary window veto, then retry quit and observe all managed roots close before exit.
 - AC5: Open the Inspector twice and reuse the same native window. Hide it, request focus while it is hidden, and show it again. Verify it stays hidden until shown and its content stays mounted until close.
+- AC6: Open a native file picker modal to the shown Inspector. Cancel and keep the window usable. Retry and receive the selected local path. Handle a picker failure separately from cancellation.
 
 ## Documentation
 
@@ -30,3 +31,4 @@ Reuse an existing Inspector when the user opens it again. Keep its content mount
 - AC3: [Close the window](../../../docs/packages/package-desktop.md#close-the-window), [native lifecycle assertions](../../../packages/desktop/tests/window/lifecycle.tsrx).
 - AC4: [Wait for startup and request quit](../../../docs/packages/package-desktop.md#wait-for-startup-and-request-quit), [native lifecycle assertions](../../../packages/desktop/tests/window/lifecycle.tsrx).
 - AC5: [Show an existing window](../../../docs/packages/package-desktop.md#show-an-existing-window), [shared Inspector workflow](../../../tools/verification/desktop-shell/app/journey.ts), [native lifecycle assertions](../../../packages/desktop/tests/window/lifecycle.tsrx).
+- AC6: [Open a file dialog from a window](../../../docs/packages/package-desktop.md#open-a-file-dialog-from-a-window), [AppKit fixture](../../../packages/desktop/tests/window/window.macos.tsrx), [GTK fixture](../../../packages/desktop/tests/window/window.gtk.tsrx).

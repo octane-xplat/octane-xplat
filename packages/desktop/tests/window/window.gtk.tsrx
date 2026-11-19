@@ -1,5 +1,8 @@
 // The GTK preset resolves renderer imports to dist. Load the host from the same build.
-import { appMenu } from '@octane-xplat/desktop'
+import { appMenu, dialog, type DesktopWindow } from '@octane-xplat/desktop'
+import Gtk from 'gi://Gtk?version=4.0'
+import Gio from 'gi://Gio'
+import GLib from 'gi://GLib'
 import { runGtkApp, setWindowContentResolver } from '../../../linux-gtk-renderer/dist/host.js'
 import type { GtkWindowServiceController } from '../../../linux-gtk-renderer/src/window-service.ts'
 import {
@@ -18,6 +21,72 @@ setWindowContentResolver((_data, controller: GtkWindowServiceController) => {
   return Inspector
 })
 
+async function verifyOpenDialog(owner: DesktopWindow) {
+  const native = observed?.window
+  if (!native || !dialog.supported) throw new Error('Missing GTK dialog support')
+
+  // The Xvfb fixture has no desktop portal, so the native chooser uses its GTK dialog.
+  function modalPicker() {
+    const windows = Gtk.Window.get_toplevels()
+    for (let index = 0; index < windows.get_n_items(); index++) {
+      const picker = windows.get_item(index)
+      if (picker?.get_transient_for() === native && picker.get_visible() && picker.get_modal() &&
+        'response' in picker && typeof picker.response === 'function' &&
+        'set_file' in picker && typeof picker.set_file === 'function' &&
+        'get_file' in picker && typeof picker.get_file === 'function') {
+        return picker
+      }
+    }
+    throw new Error('The GTK Open dialog was not modal to the Inspector')
+  }
+
+  const pending = dialog.showOpenDialog(owner, { filters: [{ name: 'Text', extensions: ['txt'] }] })
+  modalPicker().response(Gtk.ResponseType.CANCEL)
+  const canceled = await pending
+  if (!canceled.canceled || canceled.filePaths.length || !owner.isVisible()) {
+    throw new Error('Cancel did not leave the GTK Inspector open')
+  }
+
+  function waitForGtk(milliseconds: number) {
+    return new Promise<void>((resolve) => {
+      GLib.timeout_add(GLib.PRIORITY_DEFAULT, milliseconds, () => {
+        resolve()
+        return GLib.SOURCE_REMOVE
+      })
+    })
+  }
+
+  await waitForGtk(50)
+
+  const path = '/etc/hosts'
+  const selected = dialog.showOpenDialog(owner)
+  const picker = modalPicker()
+  picker.set_file(Gio.File.new_for_path(path))
+  // The chooser sets the selection asynchronously when its folder model loads.
+  let selectedPath: string | null = null
+  for (let attempt = 0; attempt < 8 && selectedPath !== path; attempt++) {
+    await waitForGtk(500)
+    const file: unknown = picker.get_file()
+    if (file instanceof Gio.File) {
+      selectedPath = file.get_path()
+    }
+  }
+  if (selectedPath !== path) {
+    picker.response(Gtk.ResponseType.CANCEL)
+    await selected
+    throw new Error('The GTK picker did not select the requested file')
+  }
+  picker.response(Gtk.ResponseType.ACCEPT)
+  const result = await Promise.race([
+    selected,
+    waitForGtk(4000).then(() => { throw new Error('The GTK picker did not dispatch acceptance') }),
+  ])
+  if (result.canceled || result.filePaths.length !== 1 || result.filePaths[0] !== path) {
+    throw new Error('The GTK picker did not return the selected path')
+  }
+  console.log('DESKTOP_DIALOG_OK')
+}
+
 runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop window fixture' }, ({ app }) => {
   setTimeout(() => {
     void ready
@@ -33,7 +102,7 @@ runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop win
             title: () => window.get_title(),
             visible: () => window.get_visible(),
           }
-        }),
+        }, verifyOpenDialog),
       )
       .then(async () => {
         const previous = new Set<string>(app.list_actions())

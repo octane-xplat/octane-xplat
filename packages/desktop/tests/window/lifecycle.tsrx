@@ -32,7 +32,7 @@ export async function verifyWindowLifecycle(readWindow: () => {
   requestClose(): void
   title(): string
   visible(): boolean
-}) {
+}, verifyDialog?: (owner: DesktopWindow) => Promise<void>) {
   check(windows.supported, 'secondary windows are supported')
   let current: DesktopWindow | undefined
   const openInspector = () => {
@@ -67,6 +67,8 @@ export async function verifyWindowLifecycle(readWindow: () => {
     'hide and show preserve content and skip close handlers',
   )
   inspector.off('close', onHiddenClose)
+
+  await verifyDialog?.(inspector)
 
   inspector.setTitle('Updated inspector')
   check(native.title() === 'Updated inspector', 'title reached the native window')

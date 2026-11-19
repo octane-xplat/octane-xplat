@@ -1,11 +1,10 @@
-import { getWindowsOpener } from '../windows-host.windows.js'
+import { getWindowsOpener, type WindowsWindow } from '../windows-host.windows.js'
 import { createDesktopWindowService } from './service.js'
-import type { DesktopWindowService } from './types.js'
+import type { DesktopWindow, DesktopWindowService } from './types.js'
 
 export type * from './types.js'
 
-/** Open and manage native secondary windows with the NativeScript Windows host. */
-export const windows: DesktopWindowService = createDesktopWindowService(
+const binding = createDesktopWindowService(
   getWindowsOpener,
   {
     requestClose: (window) => window.requestClose(),
@@ -14,3 +13,7 @@ export const windows: DesktopWindowService = createDesktopWindowService(
     isVisible: (window) => window.isVisible(),
   },
 )
+
+/** Open and manage native secondary windows with the NativeScript Windows host. */
+export const windows: DesktopWindowService = binding.windows
+export const getWindowOwner: (parent: DesktopWindow) => WindowsWindow | undefined = binding.getWindowOwner

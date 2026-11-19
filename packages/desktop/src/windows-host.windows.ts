@@ -14,6 +14,7 @@ interface WindowSurface {
   Title: string
   Content?: { XamlRoot?: { RasterizationScale: number } | null; Loaded: object | null } | null
   AppWindow: {
+    Id: { Value: number | bigint }
     Closing: object
     IsVisible: boolean
     Show(): void
@@ -27,7 +28,8 @@ interface WinRtDelegates {
   asDelegate(type: string, callback: () => void): object
 }
 
-interface WindowsWindow {
+export interface WindowsWindow {
+  readonly id: string
   requestClose(): void
   present(): void
   hide(): void
@@ -118,6 +120,9 @@ export function getWindowsOpener(): NativeWindowOpener<WindowsWindow> | undefine
 
       const controller: WindowController = {
         window: {
+          get id() {
+            return String(surface.AppWindow.Id.Value)
+          },
           requestClose() {
             // Window.Close may take a different native route from the title
             // bar. Run the JS guard exactly once before closing either way.

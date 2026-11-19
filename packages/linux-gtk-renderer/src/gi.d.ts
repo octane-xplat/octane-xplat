@@ -430,6 +430,11 @@ declare module 'gi://Gtk?version=4.0' {
 
     class Window extends Widget {
       constructor(props?: Record<string, unknown>)
+      get_visible(): boolean
+      set_visible(visible: boolean): void
+      static get_toplevels(): { get_n_items(): number; get_item(index: number): Window | null }
+      get_transient_for(): Window | null
+      get_modal(): boolean
       set_child(child: Widget | null): void
       present(): void
       close(): void
@@ -445,6 +450,35 @@ declare module 'gi://Gtk?version=4.0' {
         default_width?: number
         default_height?: number
       })
+    }
+
+    enum FileChooserAction {
+      OPEN = 0,
+    }
+
+    const ResponseType: { ACCEPT: number; CANCEL: number; DELETE_EVENT: number }
+
+    class FileFilter {
+      constructor()
+      set_name(name: string): void
+      add_suffix(suffix: string): void
+    }
+
+    class FileChooserNative {
+      static new: (title: string, parent: Window, action: FileChooserAction, acceptLabel: string | null,
+        cancelLabel: string | null) => FileChooserNative
+      set_modal(modal: boolean): void
+      set_select_multiple(multiple: boolean): void
+      add_filter(filter: FileFilter): void
+      set_filter(filter: FileFilter): void
+      get_files(): {
+        get_n_items(): number
+        get_item(index: number): { get_path(): string | null } | null
+      }
+      connect(signal: 'response', handler: (dialog: FileChooserNative, response: number) => void): number
+      disconnect(id: number): void
+      show(): void
+      destroy(): void
     }
 
     class Application {

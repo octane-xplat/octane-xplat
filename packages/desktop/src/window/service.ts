@@ -27,11 +27,17 @@ interface NativeWindowActions<Window> {
   isVisible(window: Window): boolean
 }
 
+interface DesktopWindowBinding<Window> {
+  windows: DesktopWindowService
+  getWindowOwner(parent: DesktopWindow): Window | undefined
+}
+
 export function createDesktopWindowService<Window>(
   getOpener: () => NativeWindowOpener<Window> | undefined,
   actions: NativeWindowActions<Window>,
-): DesktopWindowService {
-  return {
+): DesktopWindowBinding<Window> {
+  const owners = new WeakMap<DesktopWindow, NativeWindowController<Window>>()
+  const windows: DesktopWindowService = {
     get supported() {
       return getOpener() !== undefined
     },
@@ -174,7 +180,9 @@ export function createDesktopWindowService<Window>(
       }
 
       native.onCloseRequested = requestClose
+      owners.set(handle, native)
       void native.closed.then(() => {
+        owners.delete(handle)
         if (native?.onCloseRequested === requestClose) {
           native.onCloseRequested = null
         }
@@ -194,6 +202,14 @@ export function createDesktopWindowService<Window>(
       })
 
       return handle
+    },
+  }
+
+  return {
+    windows,
+    getWindowOwner(parent) {
+      const owner = owners.get(parent)
+      return owner && !owner.isClosed ? owner.window : undefined
     },
   }
 }

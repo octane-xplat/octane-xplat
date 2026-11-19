@@ -1,4 +1,6 @@
 import '@nativescript/macos-node-api'
+import { dialog, type DesktopWindow } from '@octane-xplat/desktop'
+import type { NSOpenPanel } from '@octane-xplat/platform/macos'
 import { runMacOSApp, setWindowContentResolver } from '../../../macos-appkit/src/host.ts'
 import type { AppKitWindowController } from '../../../macos-appkit/src/host.d.ts'
 import {
@@ -17,6 +19,24 @@ setWindowContentResolver((_data, controller) => {
   return Inspector
 })
 
+async function verifyOpenDialog(owner: DesktopWindow) {
+  const native = observed?.window
+  if (!native || !dialog.supported) throw new Error('Missing AppKit dialog support')
+
+  const pending = dialog.showOpenDialog(owner, { filters: [{ name: 'Text', extensions: ['txt'] }] })
+  const sheet = native.attachedSheet as NSOpenPanel | null
+  if (!sheet) {
+    await pending
+    throw new Error('The Open panel was not attached to the Inspector')
+  }
+  sheet.cancel(null)
+  const result = await pending
+  if (!result.canceled || result.filePaths.length || !owner.isVisible()) {
+    throw new Error('Cancel did not leave the Inspector open')
+  }
+  console.log('DESKTOP_DIALOG_OK')
+}
+
 runMacOSApp({ title: 'Desktop window fixture' }, ({ app }) => {
   setTimeout(() => {
     void ready
@@ -32,7 +52,7 @@ runMacOSApp({ title: 'Desktop window fixture' }, ({ app }) => {
             title: () => window.title,
             visible: () => window.isVisible(),
           }
-        }),
+        }, verifyOpenDialog),
       )
       .then(() => verifyAppLifecycle(() => app.terminate(null)))
       .catch((error) => {

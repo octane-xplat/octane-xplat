@@ -144,6 +144,38 @@ export async function disposeInspector(inspector: DesktopWindow) {
 }
 ```
 
+## Open a file dialog from a window
+
+Use `dialog.showOpenDialog(window, options)` from a shown window created with `windows.open()`. The native picker is modal to that window. Check `dialog.supported` before offering the command. The picker accepts file extensions without a leading dot and can return multiple paths.
+
+```ts
+import { dialog, type DesktopWindow } from '@octane-xplat/desktop'
+
+export async function openDocuments(inspector: DesktopWindow) {
+  if (!dialog.supported || !inspector.isVisible()) return
+
+  const result = await dialog.showOpenDialog(inspector, {
+    properties: ['openFile', 'multiSelections'],
+    filters: [{ name: 'Text documents', extensions: ['txt', 'md'] }],
+  })
+
+  if (result.canceled) return
+  for (const path of result.filePaths) console.log(path)
+}
+```
+
+Canceling or closing the owner resolves with `{ canceled: true, filePaths: [] }`. A host failure rejects the promise. On the experimental NativeScript Windows host, rebuild the native app after adding or updating `@octane-xplat/desktop` so the app compiles the picker bridge. The Windows bridge allows one Open dialog at a time.
+
+```ts
+export async function openFromInspector(inspector: DesktopWindow) {
+  try {
+    await openDocuments(inspector)
+  } catch (error) {
+    console.error('Could not open the native file dialog', error)
+  }
+}
+```
+
 ## Wait for startup and request quit
 
 On AppKit, GTK, and the experimental Windows NativeScript host, use `app.whenReady()` to wait until the primary window has mounted. Put setup that needs a running app in the callback. On web and mobile, `app.supported` is false.

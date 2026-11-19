@@ -10,7 +10,8 @@
   },
   "files": [
     "types/generated",
-    "dist"
+    "dist",
+    "platforms"
   ],
   "type": "module",
   "sideEffects": false,
@@ -62,6 +63,9 @@
     "typescript-classic": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
+  },
+  "nativescript": {
+    "platforms": { "windows": "1.0.0-beta.24" }
   },
   "peerDependencies": {
     "@nativescript/core": ">=9.1.4-0 <10"

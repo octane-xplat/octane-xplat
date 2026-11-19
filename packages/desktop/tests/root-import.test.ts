@@ -5,6 +5,7 @@ const native = vi.hoisted(() => ({
   registerHotkey: vi.fn(),
   installMenu: vi.fn(),
   createStatusItem: vi.fn(),
+  openPanel: vi.fn(),
   disableAutomaticTermination: vi.fn(),
 }))
 
@@ -13,6 +14,7 @@ vi.mock('@octane-xplat/platform/macos', () => ({
   NSObject: class {},
   NSApp: {},
   NSMenuItem: {},
+  NSOpenPanel: { openPanel: native.openPanel },
   NSStatusBar: { systemStatusBar: { statusItemWithLength: native.createStatusItem } },
   NSProcessInfo: {
     processInfo: { disableAutomaticTermination: native.disableAutomaticTermination },
@@ -29,6 +31,7 @@ it('loads the macOS root and checks capabilities without acquiring native resour
 
   expect(desktop.appMenu.supported).toBe(true)
   expect(desktop.windows.supported).toBe(false)
+  expect(desktop.dialog.supported).toBe(true)
   expect(desktop.app.supported).toBe(false)
   await expect(desktop.getTrayAvailability()).resolves.toEqual({
     available: true,

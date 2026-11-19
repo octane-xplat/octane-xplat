@@ -1,23 +1,16 @@
 import { lookupGlobal } from '@octane-xplat/lib/capability'
+import type Gtk from 'gi://Gtk?version=4.0'
 import { createDesktopWindowService, type NativeWindowOpener } from './service.js'
-import type { DesktopWindowService } from './types.js'
+import type { DesktopWindow, DesktopWindowService } from './types.js'
 
 export type * from './types.js'
 
-interface GtkWindow {
-  close(): void
-  present(): void
-  set_visible(visible: boolean): void
-  get_visible(): boolean
-}
-
-/** Open and manage native secondary windows with the GTK host. */
-export const windows: DesktopWindowService = createDesktopWindowService(
+const binding = createDesktopWindowService(
   () => {
     const open = lookupGlobal(['__octaneGtkHost', 'openWindow'])
 
     // This bridge is installed by the GTK renderer and returns its window controller.
-    return typeof open === 'function' ? (open as NativeWindowOpener<GtkWindow>) : undefined
+    return typeof open === 'function' ? (open as NativeWindowOpener<Gtk.Window>) : undefined
   },
   {
     requestClose: (window) => window.close(),
@@ -26,3 +19,7 @@ export const windows: DesktopWindowService = createDesktopWindowService(
     isVisible: (window) => window.get_visible(),
   },
 )
+
+/** Open and manage native secondary windows with the GTK host. */
+export const windows: DesktopWindowService = binding.windows
+export const getWindowOwner: (parent: DesktopWindow) => Gtk.Window | undefined = binding.getWindowOwner

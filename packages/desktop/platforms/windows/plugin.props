@@ -1,0 +1,3 @@
+<Project>
+  <!-- NativeScript stages the C# bridge in the generated WinUI project's Compile glob. -->
+</Project>

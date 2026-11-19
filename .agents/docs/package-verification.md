@@ -227,8 +227,8 @@ bun run probe run packages/table/examples/geometry.tsrx --target macos --deps @o
 ## Desktop windows
 
 Consumer guidance: [open a second window](../../docs/packages/package-desktop.md#open-a-second-window).
-The fixtures use the real native close methods and check root disposal and event
-ordering. They do not send OS input.
+The fixtures use native close and file chooser methods, and check root disposal
+and event ordering. They do not send OS input.
 
 ```sh
 bun run turbo run test:window-macos-runtime --filter=@octane-xplat/desktop
