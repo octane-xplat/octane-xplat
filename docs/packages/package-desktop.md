@@ -176,6 +176,20 @@ export async function openFromInspector(inspector: DesktopWindow) {
 }
 ```
 
+## Open a web link in the default browser
+
+Use `shell.openExternal()` for an HTTP or HTTPS link that should open outside your app. Check `shell.supported` before offering the action. The promise resolves when the host accepts the request and rejects if it declines.
+
+```ts
+import { shell } from '@octane-xplat/desktop'
+
+export async function openHelp() {
+  if (shell.supported) {
+    await shell.openExternal('https://example.org/help')
+  }
+}
+```
+
 ## Wait for startup and request quit
 
 On AppKit, GTK, and the experimental Windows NativeScript host, use `app.whenReady()` to wait until the primary window has mounted. Put setup that needs a running app in the callback. On web and mobile, `app.supported` is false.

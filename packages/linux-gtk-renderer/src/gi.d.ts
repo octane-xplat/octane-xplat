@@ -675,6 +675,11 @@ declare module 'gi://GObject' {
 
 declare module 'gi://Gio' {
   namespace Gio {
+    const AppInfo: {
+      launch_default_for_uri_async(uri: string, context: null, cancellable: null,
+        callback: (source: unknown, result: unknown) => void): void
+      launch_default_for_uri_finish(result: unknown): boolean
+    }
     const Cancellable: any
     const ApplicationFlags: {
       FLAGS_NONE: number
