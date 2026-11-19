@@ -168,7 +168,11 @@ export { View, Style }
 
         writeFileSync(
           join(root, 'package.json'),
-          JSON.stringify({ name: 'app', dependencies: { [core]: 'file:./core.tgz' } }),
+          JSON.stringify({
+            name: 'app',
+            dependencies: { [core]: 'file:./core.tgz' },
+            xplat: { targets: { windows: { toolchain: '../../tools/windows-host' } } },
+          }),
         )
 
         assert.throws(

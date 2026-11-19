@@ -1169,10 +1169,11 @@ export async function native(env, opts = {}) {
     pkg.peerDependencies,
   )
 
+  const platform = nativePlatform()
   const engine = masonEngine(
     declared,
-    nativePlatform() === 'windows' ||
-      Boolean(pkg.xplat?.targets?.windows || declared['@nativescript/windows']),
+    platform === 'windows' ||
+      (platform == null && Boolean(pkg.xplat?.targets?.windows || declared['@nativescript/windows'])),
   )
 
   if (engine === masonCorePackage && !declared[masonCorePackage]) {
