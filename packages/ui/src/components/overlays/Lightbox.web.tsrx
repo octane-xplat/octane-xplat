@@ -151,9 +151,10 @@ function LightboxLayer(props: {
       dragBase.current = pan.current
     },
     onUpdate(sample) {
+      // Gesture translation is already in the zoomed image's local coordinates.
       pan.current = {
-        x: dragBase.current.x + sample.translation.x / scale.current,
-        y: dragBase.current.y + sample.translation.y / scale.current,
+        x: dragBase.current.x + sample.translation.x,
+        y: dragBase.current.y + sample.translation.y,
       }
 
       draw()
