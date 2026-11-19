@@ -25,8 +25,7 @@ export interface DevtoolsPanelProps {
   record: DevtoolsServerRecord
   /** Socket factory override — macOS passes nwDevSocket (no host WebSocket). */
   socket?: (url: string) => DevSocket | undefined
-  /** Panel plugins appended after the built-in tabs (desktop only — the
-   *  prebuilt web bundle under /devtools/app/ passes none). */
+  /** Panel plugins appended after the built-in tabs. */
   plugins?: readonly DevtoolsPanelPlugin[]
   /** Tab to show on mount; ignored when it names no known tab. */
   initialTab?: string

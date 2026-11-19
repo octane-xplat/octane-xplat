@@ -41,6 +41,10 @@
 			"types": "./dist/host/desktop.d.ts",
 			"default": "./dist/host/desktop.js"
 		},
+		"./web-build": {
+			"types": "./dist/host/web.d.ts",
+			"default": "./dist/host/web.js"
+		},
 		"./panel": {
 			"types": "./src/panel/index.ts",
 			"default": "./src/panel/index.ts"

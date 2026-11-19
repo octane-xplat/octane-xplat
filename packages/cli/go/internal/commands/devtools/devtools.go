@@ -8,6 +8,7 @@ package devtools
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/dev"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/osfs"
@@ -29,7 +30,11 @@ var runWorker = service.RunWorker
 
 func Command(ctx context.Context, values map[string]any) error {
 	backend, host := values["host-backend"].(string)
-	if !host && hostGOOS != "darwin" {
+	web, _ := values["web"].(bool)
+	if host && web {
+		return errors.New("--web cannot be used with --host-backend")
+	}
+	if !host && !web && hostGOOS != "darwin" {
 		return &cli.Error{
 			Code:    "unsupported_capability",
 			Message: "xplat devtools launches the native macOS devtools app; only a macOS host can run it.",
@@ -52,6 +57,14 @@ func Command(ctx context.Context, values map[string]any) error {
 	}
 	if host {
 		return hostBackend(ctx, projectPath, backend)
+	}
+	if web {
+		url, err := dev.BuildDevtoolsWeb(ctx, projectPath)
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintln(os.Stdout, url)
+		return err
 	}
 	worker, err := project.Worker(projectPath)
 	if err != nil {

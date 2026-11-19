@@ -1,10 +1,9 @@
-// Panel-plugin discovery for the devtools desktop bundle: a package opts in
+// Panel-plugin discovery for the project DevTools bundles: a package opts in
 // with `"octaneXplat": { "devtoolsPanel": "./devtools" }` in its package.json
 // (a subpath or an array of subpaths; each module must
 // default-export a DevtoolsPanelPlugin). `devtoolsPanels` serves the
-// discovered modules as `virtual:octane-devtools-panels` to the desktop app's
-// Shell — the generated `xplat devtools` config and the apps/devtools harness
-// both install it.
+// discovered modules as `virtual:octane-devtools-panels` to the web and desktop
+// shells.
 //
 // Scan scope is one level: the selected project's dependencies +
 // devDependencies, plus octane-xplat's own dependencies when the umbrella is

@@ -3,7 +3,8 @@
 // through the Shell. `plugin.ts` is the panel-plugin contract — a package
 // default-exports a `defineDevtoolsPanel` result from the subpath named by
 // its `octaneXplat.devtoolsPanel` field, and App renders it as a tab after
-// the built-ins. The prebuilt web panel (`/devtools/app/`) passes no plugins.
+// the built-ins. The generic web panel (/devtools/app/) shows the built-ins;
+// the project browser build and macOS launch include discovered plugins.
 
 export { App } from './App.tsrx'
 export type { DevtoolsPanelProps } from './App.tsrx'

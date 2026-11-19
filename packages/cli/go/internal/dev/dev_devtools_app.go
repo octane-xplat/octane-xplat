@@ -25,14 +25,16 @@ import (
 // user-readable record files do.
 
 var devtoolsAppTypes = map[string]string{
-	".html": "text/html; charset=utf-8",
-	".js":   "text/javascript; charset=utf-8",
-	".css":  "text/css; charset=utf-8",
-	".json": "application/json; charset=utf-8",
-	".svg":  "image/svg+xml",
-	".png":  "image/png",
+	".html":  "text/html; charset=utf-8",
+	".js":    "text/javascript; charset=utf-8",
+	".css":   "text/css; charset=utf-8",
+	".json":  "application/json; charset=utf-8",
+	".svg":   "image/svg+xml",
+	".png":   "image/png",
 	".woff2": "font/woff2",
 }
+
+const devtoolsAssetLimit = 8 << 20
 
 type devtoolsListedServer struct {
 	Key           string `json:"key"`
@@ -55,6 +57,8 @@ func (server *devServer) devtoolsApp(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/devtools/app/", http.StatusTemporaryRedirect)
 	case r.URL.Path == "/devtools/servers":
 		server.devtoolsServerList(w)
+	case strings.HasPrefix(r.URL.Path, devtoolsProjectMount):
+		server.devtoolsProjectFile(w, r)
 	case r.URL.Path == "/devtools/app/":
 		server.serveDevtoolsFile(w, r, filepath.Join("dist", "panel"), "index.html")
 	case strings.HasPrefix(r.URL.Path, "/devtools/app/"):
@@ -91,14 +95,6 @@ func (server *devServer) devtoolsPackageRoot() (string, error) {
 }
 
 func (server *devServer) serveDevtoolsFile(w http.ResponseWriter, r *http.Request, section, rest string) {
-	clean := filepath.Clean("/" + rest)
-	rel := strings.TrimPrefix(clean, "/")
-
-	if rel == "" || rel == "." || strings.HasPrefix(rel, "..") {
-		http.NotFound(w, r)
-		return
-	}
-
 	pkg, err := server.devtoolsPackageRoot()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -111,9 +107,17 @@ func (server *devServer) serveDevtoolsFile(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	defer root.Close()
+	serveDevtoolsAsset(w, r, root, rest)
+}
 
+func serveDevtoolsAsset(w http.ResponseWriter, r *http.Request, root *os.Root, rest string) {
+	rel, err := filepath.Localize(rest)
+	if err != nil || rel == "." || strings.Contains(rest, "\\") {
+		http.NotFound(w, r)
+		return
+	}
 	info, err := root.Stat(rel)
-	if err != nil || !info.Mode().IsRegular() || info.Size() > 8<<20 {
+	if err != nil || !info.Mode().IsRegular() || info.Size() > devtoolsAssetLimit {
 		http.NotFound(w, r)
 		return
 	}
@@ -132,7 +136,7 @@ func (server *devServer) serveDevtoolsFile(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", kind)
 	w.Header().Set("Cache-Control", "no-store")
-	_, _ = io.Copy(w, io.LimitReader(file, 8<<20))
+	_, _ = io.Copy(w, io.LimitReader(file, devtoolsAssetLimit))
 }
 
 // devtoolsServerList returns every discovery record whose app binding still

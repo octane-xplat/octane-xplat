@@ -1,6 +1,6 @@
 # `@octane-xplat/devtools`
 
-> Shared devtools hub, client, and macOS host for Octane Xplat apps
+> Shared DevTools hub, client, and browser and macOS hosts for Octane Xplat apps
 
 The devtools platform connects your running app to a separate devtools
 window. `xplat dev` hosts the hub: the app and the Vite dev server each
@@ -21,8 +21,18 @@ On macOS the devtools window is native and can float above other windows
 (the Keep on top toggle in its header). The native host needs the macOS
 development packages — `xplat devtools` prints the exact install command
 when one is missing. A browser build of the panel shell is also served at
-`/devtools/app/` on the dev server; it shows the built-in tabs only, not
-panel plugins.
+`/devtools/app/` on the dev server and shows the built-in tabs.
+
+To load the selected project's tabs in your browser, start its development
+session and run this from the app directory in a second terminal. The app needs
+its Vite toolchain installed. Open the loopback URL printed by the command.
+
+```sh
+bun run xplat devtools --web
+```
+
+Run the command again after editing a panel. Each build has its own URL and
+stays available until the development session ends.
 
 ## Host a backend from another development tool
 
@@ -81,8 +91,8 @@ order. Each module default-exports its own `defineDevtoolsPanel` result:
 ```
 
 Discovered panels are collected from the project's `dependencies` and
-`devDependencies` — and from `octane-xplat`'s own dependencies when the
-project uses the umbrella package — into the `xplat devtools` window as
+`devDependencies` and from `octane-xplat`'s own dependencies when the
+project uses the umbrella package. Both launch commands display these as
 tabs after the built-ins. Entries that cannot be resolved or point outside
 their package are skipped with a warning.
 
