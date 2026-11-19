@@ -99,12 +99,15 @@ function input(file) {
   const snapshot = join(work, 'source-inputs', digest)
 
   mkdirSync(join(work, 'source-inputs'), { recursive: true })
-  cpSync(file, snapshot)
+  cpSync(file, snapshot, { dereference: true, recursive: true })
 }
 
 function copy(from, to) {
   input(from)
-  cpSync(from, to)
+  // Materialize symlinked fixture members (e.g. starter-template's App.tsrx
+  // and style.css point at the real create-template sources) so the installed
+  // app only reads files inside its own directory.
+  cpSync(from, to, { dereference: true, recursive: true })
 }
 
 function json(file, value) {

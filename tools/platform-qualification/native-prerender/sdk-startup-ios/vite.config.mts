@@ -34,7 +34,8 @@ const data: Record<string, string> = {
 const motionComponents = ['MotionView', 'MotionRow', 'MotionPressable']
 
 // Only qualification data and the existing eligibility boundary — twelve
-// primitives plus bounded motion.View/Row/Pressable — are special. Compilation,
+// primitives plus the useColorScheme scheme hook and bounded
+// motion.View/Row/Pressable — are special. Compilation,
 // native resolution and CSS use the installed preset.
 export default defineConfig(async ({ mode }) =>
   native(
@@ -60,12 +61,13 @@ export default defineConfig(async ({ mode }) =>
             },
             load(id) {
               if (id === '\0home-primitives') {
-                return Object.entries(primitives)
-                  .map(
+                return [
+                  ...Object.entries(primitives).map(
                     ([name, path]) =>
                       `export { ${name} } from ${JSON.stringify(join(ui, 'components', path + '.tsrx'))}`,
-                  )
-                  .join('\n')
+                  ),
+                  `export { useColorScheme } from ${JSON.stringify(join(ui, 'theme/colorScheme.ts'))}`,
+                ].join('\n')
               }
 
               if (id === '\0home-motion') {

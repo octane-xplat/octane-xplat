@@ -43,7 +43,8 @@ absent resolution candidates are both inputs: a newly created platform sibling
 invalidates an old artifact even when its previous sources remain unchanged.
 Native packaging verifies both sets before copying and after compilation. The qualification
 command only selects inputs and scratch placement. It keeps a dedicated
-build-host plugin, twelve shared primitive exports from the installed UI source layout and a bounded
+build-host plugin, twelve shared primitive exports plus the `useColorScheme` scheme hook
+from the installed UI source layout and a bounded
 `motion.View`/`motion.Row`/`motion.Pressable` facade from the installed motion source; it does not load the
 app's Vite configuration or establish full UI-barrel eligibility. Top-level
 `className` accepts the driver's clsx-style shapes and is normalized to the
@@ -258,7 +259,7 @@ through NativeSource with `XPLAT_PRERENDER_STOCK_SDK`, emits XPI1 as
 `startup.bin` into the normal Vite app bundle, and calls the same SDK helpers.
 Its producer resolves from the isolated app's installed package tree; the live
 bundle uses the installed native preset and the existing qualification facade —
-twelve primitives plus bounded `motion.View`/`motion.Row`/`motion.Pressable`. The `home` fixture reuses the Home identity, Core
+twelve primitives plus the `useColorScheme` scheme hook and bounded `motion.View`/`motion.Row`/`motion.Pressable`. The `home` fixture reuses the Home identity, Core
 Page/window and style/layout assertions. The `keyed` fixture mounts a
 variable-topology KeyedStartup inside a bounded 320x640-point viewport — a test
 canvas without `Application.run` or a Page — and exercises the exported iOS

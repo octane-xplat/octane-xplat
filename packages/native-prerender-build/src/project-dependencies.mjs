@@ -3,6 +3,9 @@ import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 
 export const primitiveModules = {
+  // The color-scheme hook rides the same facade: its systemAppearance read is
+  // one of the bounded native reads the build host already answers.
+  useColorScheme: 'src/theme/colorScheme.ts',
   Button: 'src/components/actions/Button.tsrx',
   Pressable: 'src/components/actions/Pressable.tsrx',
   View: 'src/components/layout/View.tsrx',
