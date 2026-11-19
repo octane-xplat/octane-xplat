@@ -1334,6 +1334,7 @@
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
+        "vitest": "catalog:",
       },
       "peerDependencies": {
         "@nativescript/core": ">=9.1.0 <10",
