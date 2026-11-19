@@ -353,9 +353,11 @@ manifests retain their flat screen props during migration.
 
 ```ts
 // Inside a platform host's commit(command):
-const { route, content, flow } = command
-if (!route || !content) throw new Error('Expected prepared render content')
-if (!command.beginCommit()) return { status: 'cancelled', reason: 'superseded' }
+function commit(command: any) {
+  const { route, content, flow } = command
+  if (!route || !content) throw new Error('Expected prepared render content')
+  if (!command.beginCommit()) return { status: 'cancelled', reason: 'superseded' }
+}
 ```
 
 `browser-router-host.web.ts` and `ClientRouteOutlet.web.tsrx` provide the internal
@@ -371,7 +373,7 @@ resolved promise from a previous mount.
 const platform = createBrowserRouterHost()
 const navigation = createRouter({ catalog, host: platform.host })
 platform.attach(navigation)
-<ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
+const outlet = <ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
 ```
 
 A modal owns a separate bound flow. Navigating within it keeps that flow;
@@ -441,7 +443,7 @@ claiming to undo work already accepted by NativeScript.
 const platform = createNativeRouterHost({ getFrame: () => frame })
 const navigation = createRouter({ catalog, host: platform.host })
 platform.attach(navigation)
-<ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
+const outlet = <ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
 ```
 
 Owner removal releases routed content and returns the Frame to the declaring
@@ -490,7 +492,7 @@ releases its entries.
 const platform = createRenderRouterHost()
 const navigation = createRouter({ catalog, host: platform.host })
 platform.attach(navigation)
-<RenderRouteOutlet host={platform}><BaseScreen /></RenderRouteOutlet>
+const outlet = <RenderRouteOutlet host={platform}><BaseScreen /></RenderRouteOutlet>
 ```
 
 On 2026-10-19 the maintained iOS release fixture passed 57 assertions, extending
@@ -627,7 +629,7 @@ the default public client has not migrated.
 const platform = createNativeModalRouterHost({ getFrame })
 const navigation = createRouter({ catalog, host: platform.host })
 platform.attach(navigation)
-<ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
+const outlet = <ClientRouteOutlet host={platform}><BaseScreen /></ClientRouteOutlet>
 ```
 
 Back at a modal's first step returns `at-base`; it does not dismiss the surface.

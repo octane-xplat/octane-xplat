@@ -216,9 +216,11 @@ Composition still reports draft changes; submit/clear wait for unmarked text,
 including the NSTextView itself and the NSTextField's current editor.
 
 ```tsx
-<TextInput label="Name" defaultValue="Ada" hasClear onChange={saveDraft}
-  onClear={recordClear} onSubmit={submitName} />
-<TextArea label="Message" defaultValue="Hello" returnKeyType="send" onSubmit={send} />
+<>
+  <TextInput label="Name" defaultValue="Ada" hasClear onChange={saveDraft}
+    onClear={recordClear} onSubmit={submitName} />
+  <TextArea label="Message" defaultValue="Hello" returnKeyType="send" onSubmit={send} />
+</>
 ```
 
 An accepted clear captures its onChange/onClear pair; parent callback replacement

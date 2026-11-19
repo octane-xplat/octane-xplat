@@ -211,7 +211,7 @@ conditions trigger it together:
 
 The same element with a string `className`, or rendered without the `@if`, works. Minimal repro:
 
-```tsx
+```tsrx
 function If(props: { h?: boolean; children?: any }) @{
   const node = <label className={['a']}>N</label>
   @if (props.h) {

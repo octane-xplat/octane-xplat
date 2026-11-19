@@ -73,7 +73,7 @@ the source requests another revision.
 
 ```ts
 // Source edit in the story created by init:
-args: { step: 2 },
+const story = { args: { step: 2 } }
 ```
 
 ## Providers, styles and story collections

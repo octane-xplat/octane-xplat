@@ -105,8 +105,10 @@ axis-emission workarounds. The resolver derives its coordinates internally;
 it does not write inherited CSS variation settings.
 
 ```tsx
-<TextInput className="font-medium" defaultValue="Medium weight" />
-<Text style={{ fontWeight: 700, fontVariationSettings: "'wght' 550" }}>550</Text>
+<>
+  <TextInput className="font-medium" defaultValue="Medium weight" />
+  <Text style={{ fontWeight: 700, fontVariationSettings: "'wght' 550" }}>550</Text>
+</>
 ```
 
 See [font-family tokens](../../../../../docs/app/styling.md#font-family-tokens)

@@ -63,7 +63,7 @@ rules above; actual native layout/painting/removal still needs qualification.
 ```tsx
 // Leaf forwarding: use the standard merge helper without extracting styleRecord.
 const style = mergeStyle({ opacity: disabled ? 0.38 : 1 }, props.style)
-<label style={style} text="Status" />
+const leaf = <label style={style} text="Status" />
 ```
 
 ## Bamboo source scans

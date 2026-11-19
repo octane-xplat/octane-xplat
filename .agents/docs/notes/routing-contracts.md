@@ -528,9 +528,11 @@ internal host callback, avoiding recursive calls into the serialized commit
 queue. These helpers are not public application navigation APIs.
 
 ```ts
-const prepared = await command.prepare(destination, flow)
-if (prepared.status !== 'ready') return prepared
-if (!command.beginCommit()) return { status: 'cancelled', reason: 'superseded' }
+async function beginCommit(command: any, destination: any, flow: any) {
+  const prepared = await command.prepare(destination, flow)
+  if (prepared.status !== 'ready') return prepared
+  if (!command.beginCommit()) return { status: 'cancelled', reason: 'superseded' }
+}
 ```
 
 Browser-triggered denial keeps the current view and corrects owned history to
@@ -625,9 +627,11 @@ does not cancel work in another flow. An explicit redirect stack is retained as
 private metadata so root escapes remain distinguishable from inherited scope.
 
 ```ts
-const prepared = await command.prepare(destination, targetFlow)
-if (prepared.status !== 'ready') return prepared
-return { status: 'handoff', prepared, action: 'replace' }
+async function handoff(command: any, destination: any, targetFlow: any) {
+  const prepared = await command.prepare(destination, targetFlow)
+  if (prepared.status !== 'ready') return prepared
+  return { status: 'handoff', prepared, action: 'replace' }
+}
 ```
 
 Canonical native dismissal prepares the presenter in the original attempt. A
