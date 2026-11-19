@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'octane'
 import { Application, Screen } from '@nativescript/core'
 import type { Insets } from './types'
+import { observeDecorInsets } from './insets-watch'
 import { android } from '@octane-xplat/platform/android'
 
 const zeroInsets = (): Insets => ({ top: 0, bottom: 0, left: 0, right: 0 })
@@ -68,17 +69,7 @@ function watchAndroidInsets(update: (insets: Insets) => void): () => void {
     return () => {}
   }
 
-  const listener = new android.view.View.OnApplyWindowInsetsListener({
-    onApplyWindowInsets(_view: any, insets: any) {
-      update(readAndroidInsets(insets))
-      return insets
-    },
-  })
-
-  decorView.setOnApplyWindowInsetsListener(listener)
-  decorView.requestApplyInsets?.()
-
-  return () => decorView.setOnApplyWindowInsetsListener(null)
+  return observeDecorInsets(decorView, (insets) => update(readAndroidInsets(insets)))
 }
 
 /** Current safe-area insets in DIPs; re-renders on rotation, resume, and

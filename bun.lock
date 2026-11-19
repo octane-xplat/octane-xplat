@@ -935,6 +935,7 @@
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
+        "typescript-classic": "catalog:",
         "vite": "catalog:",
       },
       "peerDependencies": {
