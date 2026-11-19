@@ -12,7 +12,7 @@ it:
 - **iOS:** `.ios.*` → `.mobile.*` → unsuffixed.
 - **Android:** `.android.*` → `.mobile.*` → unsuffixed.
 - **macOS / Windows native:** `.macos.*` / `.windows.*` → unsuffixed.
-- **Linux GTK:** `.gtk.*` → unsuffixed (GTK4/GJS host). Workshop uses the same chain; rename `.stories.linux.*` to `.stories.gtk.*`, keeping `.web` for browser stories.
+- **Linux GTK:** `.gtk.*` → unsuffixed (GTK4 with the NativeScript Linux runtime). Workshop uses the same chain; rename `.stories.linux.*` to `.stories.gtk.*`, keeping `.web` for browser stories.
 
 Use `.web` for browser-specific APIs or markup, `.mobile` when iOS and Android
 share an implementation that differs from the native default, and an OS suffix

@@ -1,4 +1,4 @@
-"""Generate NativeScript metadata for the installed WebKitGTK 6 libraries."""
+"""Generate NativeScript metadata for WebKitGTK 6 and libsoup 3."""
 import argparse
 import hashlib
 import json
@@ -68,8 +68,11 @@ with tempfile.TemporaryDirectory(prefix='webkit-metadata-', dir=output.parent) a
         'module WebKit [system] {\n'
         f'  umbrella header "{webkit / "webkit/webkit.h"}"\n'
         '  export *\n  link "libwebkitgtk-6.0.so.4"\n}\n'
+        'module Soup [system] {\n'
+        f'  umbrella header "{soup / "libsoup/soup.h"}"\n'
+        '  export *\n  link "libsoup-3.0.so.0"\n}\n'
     )
-    umbrella.write_text('#include <jsc/jsc.h>\n#include <webkit/webkit.h>\n')
+    umbrella.write_text('#include <jsc/jsc.h>\n#include <libsoup/soup.h>\n#include <webkit/webkit.h>\n')
     subprocess.run(
         [*generator_command, '-input-umbrella', str(umbrella), '-output-bin', str(generated),
          'Xclang', *compiler_flags, f'-fmodule-map-file={modulemap}', f'-I{webkit}', f'-I{soup}', *gtk_includes],

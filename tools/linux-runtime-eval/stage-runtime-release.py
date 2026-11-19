@@ -5,7 +5,21 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import tarfile
 import tempfile
+
+
+def unpack_payload(source, directory):
+    if source.is_dir():
+        return source
+    directory.mkdir()
+    with tarfile.open(source, 'r:gz') as archive:
+        members = archive.getmembers()
+        if any(not member.isfile() or Path(member.name).is_absolute()
+               or '..' in Path(member.name).parts for member in members):
+            raise ValueError(f'expected only regular payload files in {source}')
+        archive.extractall(directory, members, filter='data')
+    return directory
 
 
 def verified_payload(source, arch, expected):
@@ -34,17 +48,17 @@ def stage(x86, arm, output):
     pins = json.loads(Path(__file__).with_name('runtime-pins.json').read_bytes())
     if pins['version'] != 1:
         raise ValueError('unsupported Linux GTK runtime pin format')
-    sources = {
-        arch: verified_payload(source, arch, pins['manifests'][arch])
-        for arch, source in (('x86_64', x86), ('aarch64', arm))
-    }
-    if sources['x86_64'][1]['gi.json'] != sources['aarch64'][1]['gi.json']:
-        raise ValueError('the pinned runtimes must use the same GI schema')
-
     if output.exists() or output.is_symlink():
         raise ValueError(f'output already exists: {output}')
     with tempfile.TemporaryDirectory(prefix='.linux-runtime-', dir=output.parent) as work:
-        pair = Path(work) / 'runtime'
+        work = Path(work)
+        sources = {
+            arch: verified_payload(unpack_payload(source, work / arch), arch, pins['manifests'][arch])
+            for arch, source in (('x86_64', x86), ('aarch64', arm))
+        }
+        if sources['x86_64'][1]['gi.json'] != sources['aarch64'][1]['gi.json']:
+            raise ValueError('the pinned runtimes must use the same GI schema')
+        pair = work / 'runtime'
         for arch, (source, files) in sources.items():
             for name in ('manifest.json', *files):
                 destination = pair / arch / name
@@ -57,11 +71,12 @@ def stage(x86, arm, output):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--x86-64', type=Path, required=True)
-    parser.add_argument('--aarch64', type=Path, required=True)
+    prebuilts = Path(__file__).resolve().parents[2] / 'packages/linux-gtk-renderer/prebuilt-runtime'
+    parser.add_argument('--x86-64', type=Path, default=prebuilts / 'x86_64.tar.gz')
+    parser.add_argument('--aarch64', type=Path, default=prebuilts / 'aarch64.tar.gz')
     parser.add_argument('--output', type=Path, required=True, help='New renderer platforms/linux/runtime directory')
     args = parser.parse_args()
     try:
         stage(args.x86_64, args.aarch64, args.output)
-    except (OSError, KeyError, ValueError) as error:
+    except (OSError, KeyError, ValueError, tarfile.TarError) as error:
         parser.exit(1, f'{error}\n')

@@ -13,6 +13,7 @@ try { imports.gi.versions.XplatMason = '1.0'; void imports.gi.XplatMason } catch
 for (const ns of ['JavaScriptCore','WebKit']) {
   try { imports.gi.versions[ns] = '6.0'; void imports.gi[ns] } catch {}
 }
+try { imports.gi.versions.Soup = '3.0'; void imports.gi.Soup } catch {}
 const ref = info => info ? { ns: info.get_namespace(), name: info.get_name(), kind: info.get_type() } : null
 function type(info) {
   const tag=GI.type_info_get_tag(info), result={tag,pointer:GI.type_info_is_pointer(info)}
@@ -31,7 +32,7 @@ function callable(info) {
 function methods(info,prefix){const result={};for(let i=0;i<GI[prefix+'_get_n_methods'](info);i++){const m=GI[prefix+'_get_method'](info,i);result[m.get_name()]={...callable(m),symbol:GI.function_info_get_symbol(m),flags:GI.function_info_get_flags(m)}}return result}
 const output={namespaces:{}}
 for(const ns of repo.get_loaded_namespaces()){
-  if(!['Gtk','Gdk','Gsk','Graphene','Pango','GdkPixbuf','Gio','GObject','GLib','cairo','XplatMason','JavaScriptCore','WebKit'].includes(ns))continue
+  if(!['Gtk','Gdk','Gsk','Graphene','Pango','GdkPixbuf','Gio','GObject','GLib','cairo','XplatMason','JavaScriptCore','WebKit','Soup'].includes(ns))continue
   const records={};output.namespaces[ns]=records
   for(let i=0;i<repo.get_n_infos(ns);i++){
     const info=repo.get_info(ns,i),kind=info.get_type(),name=info.get_name()

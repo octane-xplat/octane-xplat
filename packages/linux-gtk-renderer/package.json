@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/linux-gtk",
 	"version": "0.20.0",
-	"description": "Experimental GTK4 renderer for Octane on Linux (GJS universal runtime)",
+	"description": "Experimental GTK4 renderer for Octane on the NativeScript Linux runtime",
 	"license": "MIT",
 	"repository": {
 		"type": "git",

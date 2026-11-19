@@ -52,7 +52,7 @@ their platform's own views. The selection order is:
 | Android                           | `.android` → `.mobile` → unsuffixed |
 | macOS AppKit                      | `.macos` → unsuffixed               |
 | Windows (when configured)         | `.windows` → unsuffixed             |
-| Linux GTK4/GJS native             | `.gtk` → unsuffixed                 |
+| Linux GTK4 native             | `.gtk` → unsuffixed                 |
 
 There is no general `.native` or `.desktop` filename tier. Native code goes in
 the ordinary module; the suffixes identify exceptions to that default. A DOM

@@ -41,6 +41,9 @@ func publishLinuxPackage(ctx context.Context, root *os.Root, release, stage stri
 	}
 	critical := []string{filepath.Join(directory, name), filepath.Join(directory, "app.json"), filepath.Join(directory, "README.txt"), archive}
 	var runtimeExecutables []string
+	if plan.Runtime == "gtk" && plan.GtkRuntimeArchitecture == "" {
+		return nil, errors.New("GTK package plan is missing the NativeScript runtime architecture")
+	}
 	if plan.GtkRuntimeArchitecture != "" {
 		architectures := []string{plan.GtkRuntimeArchitecture}
 		if plan.GtkRuntimeArchitecture == "universal" {
@@ -59,7 +62,7 @@ func publishLinuxPackage(ctx context.Context, root *os.Root, release, stage stri
 			}
 			for _, name := range []string{
 				"ns-linux", "manifest.json", "gi.json", "metadata-" + architecture + ".bin",
-				"metadata/mason.bin", "metadata/xplatmason.bin", "metadata/webkit.bin",
+				"metadata/mason.bin", "metadata/xplatmason.bin", "metadata/gtk-matrix.bin", "metadata/webkit.bin",
 				"icu/icudt77l.dat", "lib/libmason_c.so", "lib/libxplatmason-gtk.so",
 			} {
 				critical = append(critical, filepath.Join(runtime, name))

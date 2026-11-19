@@ -51,7 +51,20 @@ The script verifies all three archives and the Cargo lock before building in a f
 
 ### Stage the runtime payload
 
-After preparing the SDK with the source-built executable and generating the WebKit metadata, assemble the files for one Linux architecture. Supply the SDK's `framework/typings` directory and a directory with `icu.txt`, `mason.txt`, and `v8.txt` license notices.
+After preparing the SDK with the source-built executable and generating the WebKitGTK and libsoup metadata, assemble the files for one Linux architecture. Supply the SDK's `framework/typings` directory and a directory with `icu.txt`, `mason.txt`, `v8.txt`, and `rust-dependencies.txt` license notices. Generate the Rust notices from the pinned checkout's Cargo lock:
+
+```sh
+python3 tools/linux-runtime-eval/collect-runtime-notices.py \
+  --arch x86_64 --source /path/to/pinned-linux-runtime-source \
+  --supplemental /path/to/libffi-notices --v8 /path/to/notices/v8.txt \
+  --output /path/to/notices/rust-dependencies.txt
+```
+
+The libffi crates omit their workspace-root license texts. Use
+`LICENSE-MIT` and `LICENSE-APACHE` from the commit named by each crate's
+`.cargo_vcs_info.json` in the [libffi-rs repository](https://github.com/tov/libffi-rs).
+Prefix those files with the crate and version, for example
+`libffi-5.2.0-LICENSE-MIT`.
 
 ```sh
 python3 tools/linux-runtime-eval/stage-runtime-bundle.py \
@@ -61,7 +74,7 @@ python3 tools/linux-runtime-eval/stage-runtime-bundle.py \
   --licenses /path/to/licenses --output /path/to/new-payload
 ```
 
-The payload includes the executable, its metadata and libraries, the GI schema, ICU data, notices, and TypeScript declarations. `manifest.json` records the architecture and SHA-256 of each file. It is written last. A payload without it is incomplete. Pass the staged `icu/` directory as `ICU_DATA` when launching the staged executable.
+The payload includes the executable, its metadata and libraries, the GI schema, ICU data, notices, and TypeScript declarations. `manifest.json` records the architecture and SHA-256 of each file. Pass the staged `icu/` directory as `ICU_DATA` when running the executable directly. Pass `--archive /path/to/<arch>.tar.gz` to also write a release archive with stable entry order, ownership, permissions, and timestamps.
 
 ### Stage the runtime pair for the renderer package
 
@@ -70,20 +83,20 @@ Stage the two architecture payloads before packing that package:
 
 ```sh
 python3 tools/linux-runtime-eval/stage-runtime-release.py \
-  --x86-64 /path/to/x86_64-payload --aarch64 /path/to/aarch64-payload \
   --output packages/linux-gtk-renderer/platforms/linux/runtime
 ```
 
-The command checks both manifest hashes against `runtime-pins.json`, verifies
-the files, and requires a shared GI schema. The output directory is generated
-and ignored by Git. The renderer's normal tarball includes it under
+The command reads the architecture archives in
+`packages/linux-gtk-renderer/prebuilt-runtime/`. It checks both manifest
+hashes against `runtime-pins.json`, verifies the files, and requires a shared
+GI schema. Stable and nightly publication run this step before packing the
+renderer. The renderer tarball contains the extracted payloads under
 `platforms/linux/runtime`.
 
 When the selected app has that renderer tarball installed, run
 `xplat build --targets linux` in the app with its usual `linuxGtk` Vite config.
 The CLI discovers the installed payload pair and produces a Linux archive with
 both executables. Its launcher selects the payload for the machine it runs on.
-The release pipeline still needs to supply the verified inputs when packing.
 
 ### Launch an archived app
 
@@ -183,7 +196,7 @@ The command inventories the top-level `test/*.test.mjs` files and rejects runtim
 
 ### Prepare WebKitGTK metadata
 
-For the WebView fixture, use WebKitGTK 6.0 and JavaScriptCore headers matching the installed libraries, the libsoup 3 headers, GTK4 development headers, and the Linux metadata generator. Run this on the target Linux architecture after preparing the runtime directory. The output paths must be new:
+WebView needs WebKitGTK 6.0 and JavaScriptCore metadata. HTTP images need libsoup 3 metadata. Use headers matching the installed libraries, the GTK4 development headers, and the Linux metadata generator. Run this on the target Linux architecture after preparing the runtime directory. The output paths must be new:
 
 ```sh
 python3 tools/linux-runtime-eval/prepare-webkit-metadata.py \

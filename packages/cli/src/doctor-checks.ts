@@ -9,6 +9,7 @@ import { hasLinux, hasMacOS, hasNative, hasWindows, nsPlatforms } from './target
 import { inspectPatches, patchStateDetail } from './patches.ts'
 
 import { inspectLinuxPackageConfig } from './linux/config.ts'
+import { installedGtkRuntimeRoot } from './linux/gtk-runtime.ts'
 import { installedPackageRoot } from './package-root.ts'
 
 const frameworkFallbacks = {
@@ -562,13 +563,48 @@ export async function inspectDoctor({
     const tar = check('tar', ['--version'])
 
     row('Linux archive tool', tar.ok, tar.out, 'install tar')
+    const gtk = config.runtime === 'gtk'
+    const gtkPayloads = gtk ? installedGtkRuntimeRoot(cwd) : null
+    const installGtkPayloads =
+      'install matching releases of @octane-xplat/cli and @octane-xplat/linux-gtk'
+    if (gtk) {
+      row(
+        'Linux GTK payloads',
+        !!gtkPayloads,
+        gtkPayloads ?? 'missing NativeScript runtime',
+        installGtkPayloads,
+      )
+    }
     if (process.platform === 'linux') {
-      const runtime = check('gjs', [
-        '-c',
-        `imports.gi.versions.Gtk = '4.0'; const {Gtk} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version());`,
-      ])
+      if (gtk && gtkPayloads) {
+        const architecture =
+          process.arch === 'x64' ? 'x86_64' : process.arch === 'arm64' ? 'aarch64' : null
+        const runtime = architecture ? join(gtkPayloads, architecture) : null
+        const result = runtime
+          ? check(
+              'env',
+              [
+                `ICU_DATA=${join(runtime, 'icu')}`,
+                join(runtime, 'ns-linux'),
+                '-e',
+                `const major = gtk_get_major_version(), minor = gtk_get_minor_version();
+           if (major !== 4 || minor < 14) throw Error('GTK 4.14+ required');
+           const mason = xplat_mason_engine_new();
+           if (!mason) throw Error('Mason could not allocate an engine');
+           xplat_mason_engine_free(mason);
+           console.log('NativeScript with GTK ' + major + '.' + minor);`,
+              ],
+              cwd,
+            )
+          : { ok: false, out: `unsupported architecture: ${process.arch}` }
+        row(
+          'Linux runtime',
+          result.ok,
+          result.out,
+          'install libgtk-4-1 (GTK 4.14+) and libjson-glib-1.0-0',
+        )
+      }
 
-      row('Linux runtime', runtime.ok, runtime.out, 'install gjs gir1.2-gtk-4.0 (GTK 4.10+)')
 
       row(
         'Linux graphical session',
@@ -584,7 +620,7 @@ export async function inspectDoctor({
         'run in a desktop session or dbus-run-session',
       )
     } else {
-      message('info', `Linux archive can be built here; verify the GJS/GTK4 runtime on Linux.`)
+      message('info', 'Linux archive can be built here. Verify the NativeScript/GTK4 runtime on Linux.')
     }
   }
 

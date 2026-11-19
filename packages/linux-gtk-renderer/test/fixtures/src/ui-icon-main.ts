@@ -14,6 +14,8 @@ const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 
 window.set_child(host)
 
+registerStylesheet('icon-fixture-theme', ':root { --color-accent: #2468ac; }')
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error

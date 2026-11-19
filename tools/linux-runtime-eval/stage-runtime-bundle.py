@@ -1,11 +1,13 @@
 """Assemble one architecture of the relocatable Linux GTK runtime payload."""
 
 import argparse
+import gzip
 import hashlib
 import json
 from pathlib import Path
 import re
 import shutil
+import tarfile
 
 
 ARCHITECTURES = {'x86_64': 62, 'aarch64': 183}
@@ -24,6 +26,18 @@ def require_elf(path, arch):
         raise ValueError(f'expected a {arch} Linux ELF file: {path}')
 
 
+def write_archive(path, root, files):
+    with path.open('xb') as output, gzip.GzipFile(filename='', mode='wb', fileobj=output, mtime=0) as compressed:
+        with tarfile.open(fileobj=compressed, mode='w|', format=tarfile.USTAR_FORMAT) as archive:
+            for name in sorted([*files, 'manifest.json']):
+                source = root / name
+                item = tarfile.TarInfo(name)
+                item.mode = 0o755 if name == 'ns-linux' else 0o644
+                item.size = source.stat().st_size
+                with source.open('rb') as stream:
+                    archive.addfile(item, stream)
+
+
 def assembly(args):
     arch = args.arch
     runtime = args.build / 'ns-linux'
@@ -38,7 +52,7 @@ def assembly(args):
         raise ValueError('ICU data must match the pinned V8 build')
 
     schema = json.loads(args.schema.read_text())['namespaces']
-    for namespace in ('Gtk', 'GObject', 'GLib', 'XplatMason', 'JavaScriptCore', 'WebKit'):
+    for namespace in ('Gtk', 'GObject', 'GLib', 'XplatMason', 'JavaScriptCore', 'WebKit', 'Soup'):
         if not schema.get(namespace):
             raise ValueError(f'GI schema is missing {namespace}')
 
@@ -47,6 +61,7 @@ def assembly(args):
         f'metadata-{arch}.bin': args.prepared / f'metadata-{arch}.bin',
         'metadata/mason.bin': args.prepared / 'metadata/mason.bin',
         'metadata/xplatmason.bin': args.prepared / 'metadata/xplatmason.bin',
+        'metadata/gtk-matrix.bin': args.prepared / 'metadata/gtk-matrix.bin',
         'metadata/webkit.bin': args.webkit,
         'lib/libmason_c.so': args.prepared / 'lib/libmason_c.so',
         'lib/libxplatmason-gtk.so': args.prepared / 'lib/libxplatmason-gtk.so',
@@ -54,7 +69,7 @@ def assembly(args):
         'gi.json': args.schema,
         'licenses/linux-runtime.txt': license,
     }
-    for name in ('icu', 'mason', 'v8'):
+    for name in ('icu', 'mason', 'v8', 'rust-dependencies'):
         files[f'licenses/{name}.txt'] = args.licenses / f'{name}.txt'
     for path in sorted(args.typings.glob('*.d.ts')):
         files[f'typings/{path.name}'] = path
@@ -84,6 +99,8 @@ def assembly(args):
         if sha256(target) != manifest['files'][name]:
             raise ValueError(f'payload input changed during staging: {path}')
     (args.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    if args.archive:
+        write_archive(args.archive, args.output, files)
 
 
 if __name__ == '__main__':
@@ -91,6 +108,7 @@ if __name__ == '__main__':
     parser.add_argument('--arch', choices=ARCHITECTURES, required=True)
     for name in ('build', 'prepared', 'webkit', 'icu', 'schema', 'typings', 'licenses', 'output'):
         parser.add_argument(f'--{name}', type=Path, required=True)
+    parser.add_argument('--archive', type=Path, help='Also write a deterministic release archive')
     try:
         assembly(parser.parse_args())
     except (OSError, KeyError, ValueError) as error:

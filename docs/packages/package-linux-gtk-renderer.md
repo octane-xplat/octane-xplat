@@ -1,8 +1,8 @@
 # Experimental GTK4 renderer for Linux
 
-> Experimental GTK4 renderer for Octane on Linux (GJS universal runtime)
+> Experimental GTK4 renderer for Octane on the NativeScript Linux runtime
 
-Build a native GTK4 window with Octane and GJS. This package is experimental;
+Build a native GTK4 window with Octane and NativeScript. This package is experimental;
 the [production feasibility gate](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/design/linux-gtk-feasibility-review.md)
 still fails. Publication does not qualify complete UI parity, Wayland, IME,
 OS input, or production use.
@@ -12,12 +12,12 @@ After the first stable automated release, install matching Xplat releases in you
 ```sh
 bun add @octane-xplat/linux-gtk @octane-xplat/ui octane
 bun add -D @octane-xplat/cli @octanejs/vite-plugin vite
-sudo apt install gjs gir1.2-gtk-4.0
+sudo apt install libgtk-4-1 libjson-glib-1.0-0
 ```
 
-GTK 4.10 or later is required by the CLI runtime check. The package ships
-JavaScript in `dist/` and TypeScript declarations. Bundle your application with
-`linuxGtk`; GJS loads the resulting app, not Node. Follow the
+Doctor checks for GTK 4.14 or later. The package ships JavaScript in `dist/`,
+TypeScript declarations, and the pinned NativeScript payloads for x86_64 and
+ARM64. Set up the `linuxGtk` preset and build your app through Xplat. Follow the
 [Linux GTK app guide](https://octane-xplat.goddardai.org/linux-gtk)
 for an entry point and packaging commands.
 
@@ -550,9 +550,14 @@ GTK host element type. There is no renderer-owned `jsx-runtime` export.
 ## Bundle + run
 
 `@octane-xplat/cli` ships `linuxGtk` (`@octane-xplat/cli/linux-gtk/vite`)
-which wires the Octane compiler's `gtk` renderer, `gi://` externals, the
-`.gtk` extension chain, and the `octane` → `octane/universal/native` retarget.
-The output is one ESM file run with `gjs -m`.
+which wires the Octane compiler's `gtk` renderer, the `.gtk` extension chain,
+and the `octane` → `octane/universal/native` retarget. The Xplat build projects
+`gi://` imports onto the NativeScript bindings and packages one ESM file
+with the two runtime payloads.
+
+```sh
+bun run xplat build --targets linux
+```
 
 ## Portal targets
 

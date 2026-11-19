@@ -20,6 +20,7 @@ import { createHash } from 'node:crypto'
 import { once } from 'node:events'
 import { pathToFileURL } from 'node:url'
 import { projectToolFixture } from './project-fixtures.mjs'
+import { writeFakeGtkRuntime } from '../../packages/cli/test/linux-gtk-runtime-fixture.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
@@ -87,12 +88,14 @@ function project(runtime = 'gtk') {
     process.platform === 'win32' ? 'junction' : 'dir',
   )
 
+  writeFakeGtkRuntime(join(dir, 'payload'))
   put(dir, 'main.js', 'export const value=42\n')
   put(
     dir,
     'vite.linux.config.mjs',
-    `export default{build:{lib:{entry:'main.js',formats:['es'],fileName:()=> 'app.js'}}}`,
+    `export default{build:{lib:{entry:'main.js',formats:['es'],fileName:()=> 'app.js'}},plugins:[{name:'fixture-runtime',generateBundle(){this.emitFile({type:'asset',fileName:'.xplat-gtk-runtime',source:'1\\n'})}}]}`,
   )
+
 
   return dir
 }
@@ -100,7 +103,10 @@ function project(runtime = 'gtk') {
 function run(dir, args = ['--targets', 'linux'], env = process.env) {
   return spawnSync(binary, ['build', ...args], {
     cwd: dir,
-    env,
+    env: {
+      ...(existsSync(join(dir, 'payload')) ? { XPLAT_GTK_RUNTIME_PAYLOAD: join(dir, 'payload') } : {}),
+      ...env,
+    },
     encoding: 'utf8',
     timeout: 30000,
     maxBuffer: 8 << 20,
@@ -121,6 +127,7 @@ test('NativeScript GTK build rejects a corrupt payload before replacing a releas
     'metadata/mason.bin',
     'metadata/xplatmason.bin',
     'metadata/webkit.bin',
+    'metadata/gtk-matrix.bin',
     'typings/index.d.ts',
     'lib/libmason_c.so',
     'lib/libxplatmason-gtk.so',
@@ -188,7 +195,11 @@ for (const runtime of ['gtk']) {
 
       mkdirSync(stage, { recursive: true })
 
-      const canonical = await packageLinux(dir, { stagingRoot: stage, publish: false })
+      const canonical = await packageLinux(dir, {
+        stagingRoot: stage,
+        publish: false,
+        gtkRuntimeRoot: runtime === 'gtk' ? join(dir, 'payload') : undefined,
+      })
       const expected = files(canonical.appDir)
       const r = run(dir)
 

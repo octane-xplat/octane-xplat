@@ -13,11 +13,18 @@ import { installedPackageRoot } from '../package-root.ts'
 const machines = { aarch64: 183, x86_64: 62 } as const
 export type GtkRuntimeArchitecture = keyof typeof machines | 'universal'
 
-export function stageInstalledGtkRuntime(appRoot: string, destination: string) {
+export function installedGtkRuntimeRoot(appRoot: string) {
   const renderer = installedPackageRoot(appRoot, '@octane-xplat/linux-gtk')
-  if (!renderer) return false
+  if (!renderer) return null
   const source = join(renderer, 'platforms/linux/runtime')
-  if (!hasRuntimeDirectory(source)) return false
+  return hasRuntimeDirectory(source) ? source : null
+}
+
+export function stageInstalledGtkRuntime(appRoot: string, destination: string) {
+  const source = installedGtkRuntimeRoot(appRoot)
+  if (!source) {
+    throw new Error('Linux GTK requires the NativeScript runtime payloads. Install a matching release of @octane-xplat/linux-gtk or stage the pinned payloads in a source checkout.')
+  }
 
   mkdirSync(destination)
   for (const architecture of ['x86_64', 'aarch64'] as const) {
@@ -33,7 +40,6 @@ export function stageInstalledGtkRuntime(appRoot: string, destination: string) {
   if (!x86Schema.equals(readFileSync(join(destination, 'aarch64/gi.json')))) {
     throw new Error('Installed GTK runtimes must use the same GI schema')
   }
-  return true
 }
 
 function hasRuntimeDirectory(path: string): boolean {
@@ -70,6 +76,7 @@ export function stageGtkRuntime(sourcePath: string, destination: string): 'aarch
     `metadata-${architecture}.bin`,
     'metadata/mason.bin',
     'metadata/xplatmason.bin',
+    'metadata/gtk-matrix.bin',
     'metadata/webkit.bin',
     'typings/index.d.ts',
     ...libraries,
