@@ -89,11 +89,16 @@ export default defineConfig(async ({ mode }) => {
   // project's moduleSuffixes. Run the same project check with its own config.
   const plugins = config.plugins.flat(Infinity)
   const checkers = plugins.filter((plugin) => plugin?.name === 'ns-typescript-check')
-  if (checkers.length !== 1) throw new Error('Expected one NativeScript TypeScript checker')
+
+  if (checkers.length !== 1) {
+    throw new Error('Expected one NativeScript TypeScript checker')
+  }
+
   const require = createRequire(import.meta.url)
   const typescriptPackage = require.resolve('typescript/package.json')
   const typescriptManifest = JSON.parse(readFileSync(typescriptPackage, 'utf8'))
   const tsc = resolve(dirname(typescriptPackage), typescriptManifest.bin.tsc)
+
   config.plugins = [
     ...plugins.filter((plugin) => plugin?.name !== 'ns-typescript-check'),
     {
@@ -114,5 +119,6 @@ export default defineConfig(async ({ mode }) => {
       },
     },
   ]
+
   return config
 })
