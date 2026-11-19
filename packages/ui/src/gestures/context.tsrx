@@ -65,6 +65,18 @@ export function childInteractionScopes(
   return list
 }
 
+/** Provider for a host's subtree, extending `parent` with `scope`. A plain
+ *  call rather than a component, so the host renders no extra owner.
+ *  Universal (native) renderer only: the DOM renderer does not mount a
+ *  called context, so web and desktop leaves use InteractionScopeProvider. */
+export function interactionScopeOutlet(
+  parent: readonly InteractionScope[],
+  scope: InteractionScope | undefined,
+  children: Renderable,
+): unknown {
+  return ContextProvider({ value: childInteractionScopes(parent, scope), children })
+}
+
 /** Track framework ownership through portals, independently of native physical ancestry. */
 export function useInteractionMembership(): (host: object | null) => void {
   const scopes = useContext(InteractionScopeContext)

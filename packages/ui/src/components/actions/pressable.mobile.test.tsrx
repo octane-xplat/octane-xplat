@@ -210,3 +210,129 @@ it('removes SDK semantic subscriptions on unmount', () => {
   expect(() => env.tap()).toThrow(/unknown event target/)
   expect(onPress).not.toHaveBeenCalled()
 })
+
+import { createScope } from 'octane/signals'
+import { useState } from 'octane'
+import { useInteractionMembership } from '../../gestures/context.tsrx'
+import { createInteractionScope } from '../../gestures/scope'
+import type { InteractionScope } from '../../gestures/types'
+import { View } from '../layout/View.tsrx'
+
+/** Binds `props.host` as an interaction-scope member, like context tests. */
+function ScopeMember(props: { host: object }): unknown @{
+  const bind = useInteractionMembership()
+
+  <masonview ref={(view: object | null) => bind(view ? props.host : null)} />
+}
+
+function ScopedPressable(props: { scope?: InteractionScope; host: object }): unknown @{
+  <Pressable interactionScope={props.scope}>
+    <ScopeMember host={props.host} />
+  </Pressable>
+}
+
+function ScopedView(props: { scope?: InteractionScope; host: object }): unknown @{
+  <View interactionScope={props.scope}>
+    <ScopeMember host={props.host} />
+  </View>
+}
+
+function memberScope() {
+  const signals = createScope({ scopeKey: 'scope-outlet-membership' }),
+    state$ = signals.signal$('suspended', false),
+    scope = createInteractionScope(
+      state$,
+      signals.derived$('read', () => state$.get()),
+    )
+
+  return { signals, scope }
+}
+
+/** Mounts `component` with an interactionScope and asserts that the member
+ *  registered through the scope outlet blocks suspension (the fake host is
+ *  never covered by the scope's native host), then detaches on unmount. */
+async function expectScopeMembership(
+  component: (props: { scope?: InteractionScope; host: object }) => unknown,
+) {
+  const { signals, scope } = memberScope()
+  const container = createNativeGestureContainer()
+  const root = createUniversalRoot(container, createNativeGestureDriver(container))
+
+  roots.push(root)
+
+  try {
+    flushUniversalSync(() => root.render(component, { scope: scope.handle, host: {} }))
+    await Promise.resolve()
+
+    expect(scope.handle.suspend()).toEqual({ ok: false, reason: 'unsupported' })
+
+    flushUniversalSync(() => root.unmount())
+    await Promise.resolve()
+
+    expect(scope.handle.suspend()).toEqual({ ok: false, reason: 'detached' })
+  } finally {
+    root.unmount()
+    scope.dispose()
+    signals.dispose()
+  }
+}
+
+it('registers a descendant interaction host in Pressable interactionScope', async () => {
+  await expectScopeMembership(ScopedPressable)
+})
+
+it('registers a descendant interaction host in View interactionScope', async () => {
+  await expectScopeMembership(ScopedView)
+})
+
+interface StatefulMarker {
+  state: object
+  view: object
+}
+
+function StatefulChild(props: { out: StatefulMarker[] }): unknown @{
+  const [marker] = useState(() => ({ marker: Symbol('stateful') }))
+
+  <masonview
+    ref={(view: object | null) => {
+      if (view) {
+        props.out.push({ state: marker, view })
+      }
+    }}
+  />
+}
+
+function ToggledPressable(props: {
+  scope?: InteractionScope
+  out: StatefulMarker[]
+}): unknown @{
+  <Pressable interactionScope={props.scope}>
+    <StatefulChild out={props.out} />
+  </Pressable>
+}
+
+it('keeps Pressable children mounted and re-scopes them when interactionScope toggles', async () => {
+  const { signals, scope } = memberScope()
+  const out: StatefulMarker[] = []
+  const container = createNativeGestureContainer()
+  const root = createUniversalRoot(container, createNativeGestureDriver(container))
+
+  roots.push(root)
+
+  try {
+    flushUniversalSync(() => root.render(ToggledPressable, { out }))
+    flushUniversalSync(() => root.render(ToggledPressable, { scope: scope.handle, out }))
+    flushUniversalSync(() => root.render(ToggledPressable, { out }))
+    await Promise.resolve()
+
+    // Scoped then unscoped renders never remounted the child.
+    expect(out.length).toBeGreaterThan(0)
+    expect(new Set(out.map((m) => m.view)).size).toBe(1)
+    expect(new Set(out.map((m) => m.state)).size).toBe(1)
+    expect(scope.handle.suspend()).toEqual({ ok: false, reason: 'detached' })
+  } finally {
+    root.unmount()
+    scope.dispose()
+    signals.dispose()
+  }
+})
