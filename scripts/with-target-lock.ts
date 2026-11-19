@@ -23,13 +23,18 @@
 // the name owns the grabbed inode and re-checks its record — never by
 // unlink after read, which could delete a fresh live claim.
 //
-// Removal always renames the dir aside before deleting it: an empty dir
-// accepts a rename on POSIX, so unlinking entries at the lock path opens a
-// window where an acquirer lands a fresh lock under our pending rmdir.
-// Renaming the verified dir to a trash name makes the lock path vanish
-// atomically; the trash is then deleted at leisure. The shared path itself
-// is never deleted recursively — a failed rename means another process
-// already resolved the dir, and whatever now sits there is not ours.
+// Removal binds to the verified dir inode, not the lock path: the inode is
+// recorded when ownership is verified, rechecked right before the rename
+// aside, and the captured trash dir must match it — and still decode to
+// the record we verified — before anything is deleted. POSIX has no
+// rename-if-inode, so a stale reaper's deferred rename can still capture a
+// replacement live dir for a few syscalls; a mismatched capture is renamed
+// back onto the free lock path, or kept under our trash name with a loud
+// warning when a third dir already landed. Deleting a live lock is never a
+// cleanup option: an empty dir accepts a rename on POSIX, so unlinking
+// entries at the lock path also opens a window where an acquirer lands a
+// fresh lock under a pending rmdir — the shared path itself is never
+// deleted recursively.
 import { spawn } from 'node:child_process'
 import {
   existsSync,
@@ -71,6 +76,8 @@ const waitPollMs = Number(process.env.XPLAT_NATIVE_LOCK_POLL_MS) || 5000
 const deadline = Date.now() + timeoutSeconds * 1000
 let ownerLogged = false
 let lastOwner = null
+let lockIno = null
+let preserveTrash = false
 
 function pidAlive(record) {
   if (!record || typeof record.pid !== 'number') {
@@ -97,9 +104,26 @@ function readRecord(path) {
   }
 }
 
+function isOurRecord(record) {
+  return record?.pid === process.pid && (!record.hostname || record.hostname === hostname())
+}
+
 function isOurClaim() {
-  const claim = readRecord(claimFile)
-  return claim?.pid === process.pid && (!claim.hostname || claim.hostname === hostname())
+  return isOurRecord(readRecord(claimFile))
+}
+
+// Post-capture verifiers run against the private trash dir. A reclaim
+// capture must still hold our claim and a dead-or-absent owner; a release
+// capture must hold our own owner record.
+function isOurReapCapture() {
+  return (
+    isOurRecord(readRecord(join(trashDir, '.claim'))) &&
+    !pidAlive(readRecord(join(trashDir, 'owner.json')))
+  )
+}
+
+function isOurOwnerCapture() {
+  return isOurRecord(readRecord(join(trashDir, 'owner.json')))
 }
 
 function sleep(ms) {
@@ -109,35 +133,84 @@ function sleep(ms) {
 function removeTransients() {
   rmSync(stagingDir, { recursive: true, force: true })
   rmSync(claimSource, { force: true })
-  rmSync(trashDir, { recursive: true, force: true })
+  if (!preserveTrash) {
+    rmSync(trashDir, { recursive: true, force: true })
+  }
 }
 
-// Delete the lock dir without exposing an empty dir at the lock path: the
-// dir is renamed to our trash name first (atomic — the path becomes absent
-// at once), so a concurrent acquirer's renameSync can never replace a
-// transiently emptied dir still owned by our pending removal. If the rename
-// fails, the dir was already resolved by someone else — the shared path may
-// now hold a fresh live lock, so nothing is removed there.
-function removeLockDir() {
+// Delete the lock dir without exposing an empty dir at the lock path and
+// only ever delete the inode whose ownership was verified. The rename to
+// our trash name is atomic — the path becomes absent at once — but it
+// captures whatever sits there at that instant, and a destroyed claim or a
+// stolen dir can swap the verified inode for a foreign live lock between
+// verification and the rename. So the inode is recorded at verification
+// time, rechecked just before the rename (mismatch → already resolved,
+// leave it), and required to match the captured dir along with the record
+// we verified. A mismatched capture is a foreign dir: rename it back onto
+// the free lock path, or — if a third dir already landed there — keep it
+// under our trash name and warn; deleting a live lock is never an option.
+// The remaining residue is a foreign dir displaced for a few syscalls,
+// detected rather than silently destroyed.
+function removeLockDir(expectedIno, verifyCaptured) {
   rmSync(trashDir, { recursive: true, force: true })
+
+  try {
+    if (expectedIno != null && statSync(lockDir).ino !== expectedIno) {
+      return // resolved or replaced since verification — nothing of ours here
+    }
+  } catch {
+    return
+  }
+
   try {
     renameSync(lockDir, trashDir)
   } catch {
     return // already resolved — never delete whatever now sits at the path
   }
-  // Racers can still land a claim inside the dir while the rename detaches
-  // it (their parent-dir lookup wins over the detach), so a stray entry may
-  // appear mid-delete; the retries absorb that transient ENOTEMPTY.
-  rmSync(trashDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 25 })
+
+  let capturedIno = null
+  try {
+    capturedIno = statSync(trashDir).ino
+  } catch {
+    return // capture vanished — nothing left to verify or restore
+  }
+
+  if ((expectedIno == null || capturedIno === expectedIno) && verifyCaptured()) {
+    // Racers can still land a claim inside the dir while the rename
+    // detaches it (their parent-dir lookup wins over the detach), so a
+    // stray entry may appear mid-delete; the retries absorb that transient
+    // ENOTEMPTY.
+    rmSync(trashDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 25 })
+    return
+  }
+
+  try {
+    renameSync(trashDir, lockDir) // put the foreign dir back while the path is free
+  } catch {
+    // Another dir already landed: preserve the displaced capture — the
+    // startup sweep skips trash dirs holding a live owner record.
+    preserveTrash = true
+    console.error(
+      `[lock] captured a foreign lock dir while removing ours; preserved at ${trashDir}` +
+        ` — its owner may still believe it holds the lock`,
+    )
+  }
 }
 
 // Drop staging dirs, claim sources, and trash dirs abandoned by dead
-// processes so the lock root stays clean across crashes.
+// processes so the lock root stays clean across crashes. A trash dir may
+// hold a captured live lock preserved after a failed restore — keep it
+// while its owner record names a live process.
 for (const entry of readdirSync(lockRoot)) {
   const match = /^(?:claimsrc-|.*\.(?:staging|reap)-)(\d+)$/.exec(entry)
+  const leftover = join(lockRoot, entry)
 
-  if (match && !pidAlive({ pid: Number(match[1]), hostname: hostname() })) {
-    rmSync(join(lockRoot, entry), { recursive: true, force: true })
+  if (
+    match &&
+    !pidAlive({ pid: Number(match[1]), hostname: hostname() }) &&
+    !pidAlive(readRecord(join(leftover, 'owner.json')))
+  ) {
+    rmSync(leftover, { recursive: true, force: true })
   }
 }
 
@@ -171,6 +244,7 @@ for (;;) {
 
   try {
     renameSync(stagingDir, lockDir)
+    lockIno = statSync(lockDir).ino // the inode release() may remove
     break
   } catch {
     rmSync(stagingDir, { recursive: true, force: true })
@@ -186,6 +260,16 @@ for (;;) {
   }
 
   if (pidAlive(owner)) {
+    if (isOurRecord(owner)) {
+      // Our staged dir landed but the stat bookkeeping threw — this dir is
+      // ours; take it rather than wait on our own lock.
+      try {
+        lockIno = statSync(lockDir).ino
+      } catch {
+        lockIno = null // release() then verifies by owner record alone
+      }
+      break
+    }
     if (!ownerLogged) {
       console.log(`[lock] ${target} held by pid ${owner?.pid} (${owner?.cwd ?? '?'}) — waiting`)
       ownerLogged = true
@@ -219,7 +303,7 @@ for (;;) {
 
     const claim = readRecord(claimFile)
 
-    if (claim?.pid === process.pid) {
+    if (isOurRecord(claim)) {
       claimed = true // left over from our earlier attempt
     } else if (pidAlive(claim)) {
       await sleep(150) // a live reclaimer is resolving the dir
@@ -239,12 +323,17 @@ for (;;) {
 
       if (pidAlive(readRecord(evicted))) {
         // We displaced a live claim. Restore it through linkSync, which
-        // fails rather than clobber a claim another evictor just landed;
-        // either way the displaced copy is spent.
-        try {
-          linkSync(evicted, claimFile)
-        } catch {
-          // another claim already occupies the path
+        // fails rather than clobber a claim another evictor just landed —
+        // but only while the lock dir still holds the file we moved aside:
+        // its presence proves the path is the same dir we evicted from
+        // (an inode number can be recycled by a replacement). Either way
+        // the displaced copy is spent.
+        if (existsSync(evicted)) {
+          try {
+            linkSync(evicted, claimFile)
+          } catch {
+            // another claim already occupies the path
+          }
         }
         rmSync(evicted, { force: true })
         await sleep(150)
@@ -267,11 +356,31 @@ for (;;) {
   }
 
   if (pidAlive(current)) {
+    // Live owner — release only our claim: grab whatever `.claim` names
+    // right now and drop it only when it decodes to our record. A foreign
+    // claim goes back through linkSync while the dir at the lock path
+    // still holds the grabbed file; either way the grabbed copy is spent.
+    const released = join(lockDir, `.claim-evicted-${process.pid}`)
+
     try {
-      rmSync(claimFile, { force: true }) // live owner — release only our claim
+      renameSync(claimFile, released)
     } catch {
-      // the dir vanished with our claim — nothing to release
+      // the dir or claim vanished — nothing to release
     }
+
+    if (existsSync(released)) {
+      if (isOurRecord(readRecord(released))) {
+        rmSync(released, { force: true })
+      } else {
+        try {
+          linkSync(released, claimFile)
+        } catch {
+          // another claim already occupies the path
+        }
+        rmSync(released, { force: true })
+      }
+    }
+
     if (!ownerLogged) {
       console.log(`[lock] ${target} held by pid ${current?.pid} (${current?.cwd ?? '?'}) — waiting`)
       ownerLogged = true
@@ -282,12 +391,20 @@ for (;;) {
   }
 
   // Remove only if our own claim is still the one inside the dir; a
-  // superseded claim means another reclaimer owns this dir now.
+  // superseded claim means another reclaimer owns this dir now. The dir
+  // inode is pinned here so removal is bound to the verified dir even if
+  // our claim is displaced before the rename executes.
   if (isOurClaim()) {
+    let expectedIno
+    try {
+      expectedIno = statSync(lockDir).ino
+    } catch {
+      continue // dir vanished under us — retry
+    }
     console.log(
       `[lock] reclaiming stale ${target} lock (owner pid ${current?.pid ?? 'unknown'} is gone)`,
     )
-    removeLockDir()
+    removeLockDir(expectedIno, isOurReapCapture)
   }
 }
 
@@ -318,6 +435,6 @@ try {
 
   process.exitCode = result.status ?? 1 // signal death or spawn failure
 } finally {
-  removeLockDir()
+  removeLockDir(lockIno, isOurOwnerCapture)
   removeTransients()
 }
