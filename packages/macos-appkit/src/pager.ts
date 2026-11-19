@@ -40,10 +40,6 @@ interface PagerState {
   settleTimer?: ReturnType<typeof setTimeout>
   boundsObserver?: any
   closed: boolean
-  /** Suppresses the settle callback's onSelectedIndexChange for the
-   *  programmatic scroll it accompanies — writes never echo, same as the
-   *  web leaf's tracked-index mute. */
-  mutedTarget?: number
 }
 
 const states = new WeakMap<object, PagerState>()
@@ -98,10 +94,6 @@ function scheduleSettle(state: PagerState) {
     }
 
     state.current = index
-    if (state.mutedTarget === index) {
-      return
-    }
-
     state.props.onSelectedIndexChange?.(
       Object.freeze({ eventName: 'selectedIndexChange', object: state.view, value: index }),
     )
@@ -159,6 +151,7 @@ function unbindPage(state: PagerState, page: PagerPage) {
 
   releasePage(page)
   page.bound = false
+  const index = page.index
   page.index = -1
   page.host.bindingContext = undefined
   page.host.removeFromSuperview()
@@ -166,7 +159,7 @@ function unbindPage(state: PagerState, page: PagerPage) {
     Object.freeze({
       eventName: 'itemDisposing',
       object: state.view,
-      index: page.index,
+      index,
       view: page.host,
     }),
   )
@@ -303,12 +296,10 @@ export function updatePagerView(view: NSView, props: Props) {
   const selected = Number(props.selectedIndex ?? state.current)
 
   if (Number.isFinite(selected) && selected !== state.current) {
-    // Programmatic writes scroll to the page; the settle reports the
-    // arrival but is muted against echoing back through
-    // onSelectedIndexChange — matching the web leaf's tracked-index rule.
-    state.mutedTarget = Math.max(0, Math.min(count - 1, selected))
-    state.current = state.mutedTarget
-    scrollToPage(state, state.mutedTarget)
+    // Writes update current before scrolling, so the settling bounds
+    // notification sees index === current and never echoes the write.
+    state.current = Math.max(0, Math.min(count - 1, selected))
+    scrollToPage(state, state.current)
   }
 }
 
