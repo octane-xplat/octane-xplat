@@ -17,3 +17,12 @@ it('rejects non-web links and a declined launch', async () => {
   expect(launch).not.toHaveBeenCalled()
   await expect(shell.openExternal('https://example.org')).rejects.toThrow('could not open')
 })
+
+it('passes an absolute file path to the host and rejects a relative path', async () => {
+  const reveal = vi.fn(async () => true)
+  const shell = createDesktopShell(() => undefined, () => reveal)
+  expect(shell.canShowItemInFolder).toBe(true)
+  await expect(shell.showItemInFolder('report.pdf')).rejects.toThrow(TypeError)
+  await expect(shell.showItemInFolder('/tmp/April report.pdf')).resolves.toBeUndefined()
+  expect(reveal).toHaveBeenCalledExactlyOnceWith('/tmp/April report.pdf')
+})

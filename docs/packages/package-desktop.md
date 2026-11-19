@@ -190,6 +190,20 @@ export async function openHelp() {
 }
 ```
 
+## Show a file in its folder
+
+Use `shell.showItemInFolder(path)` after saving or exporting a file. Pass its absolute native path. The promise resolves when the host accepts the request. On Linux, this action requires a file manager that implements the FileManager1 interface on the session bus.
+
+```ts
+import { shell } from '@octane-xplat/desktop'
+
+export async function revealExport(path: string) {
+  if (shell.canShowItemInFolder) {
+    await shell.showItemInFolder(path)
+  }
+}
+```
+
 ## Wait for startup and request quit
 
 On AppKit, GTK, and the experimental Windows NativeScript host, use `app.whenReady()` to wait until the primary window has mounted. Put setup that needs a running app in the callback. On web and mobile, `app.supported` is false.
