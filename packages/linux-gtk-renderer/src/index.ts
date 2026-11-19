@@ -4506,7 +4506,7 @@ function bindNodePublicInstance(node: ElementNode): () => void {
     ? bindAccessibilityMapping(node.view, () => node.props)
     : null
 
-  const textView = node.textView
+  let textView = node.textView
   const pressKeys = node.view && node.type === 'masonview' ? bindPressKeys(node) : null
 
   node.pressKeys = pressKeys
@@ -4606,8 +4606,10 @@ function bindNodePublicInstance(node: ElementNode): () => void {
   return () => {
     disposeAccessibility?.()
     textView?.dispose()
+    textView = undefined
     pressKeys?.dispose()
     disposeEntryInput?.()
+    disposeEntryInput = undefined
     if (textNode) {
       cancelSelectionSettle(textNode)
     }
@@ -4880,6 +4882,12 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
         node.cssProviderTargets = undefined
       }
 
+      // Public ref closures can outlive a node. Drop the composite's native
+      // parent references once all detach and CSS cleanup is complete.
+      node.layoutView = undefined
+      node.textView = undefined
+      node.disposePublicInstance = undefined
+      node.cssProvider = null
       container.nodes.delete(command.id)
       return
     }

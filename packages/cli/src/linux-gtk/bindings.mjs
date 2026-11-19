@@ -15,6 +15,7 @@ const pointer = value => value?.__native ?? value
 const key = value => { const p = pointer(value); return p?.toBigInt ? p.toBigInt().toString() : p?.toString() }
 const constructors = new Map(), byTypeName = new Map(), byGType = new Map()
 const nativeMethods = new WeakSet(), classProperties = new Map()
+const GI_SCOPE_NOTIFIED = 3
 const proxies = new WeakMap()
 // ptrKey -> GType name: every GObject proxy we create, until its weak notify.
 export const pendingFinalizers = new Map()
@@ -110,6 +111,9 @@ const weakFinalized = (data, _dead) => {
   pendingFinalizers.delete(key(data))
   bridgeStats.finalized++
 }
+// GWeakNotify observes a dying instance. Its second pointer must stay raw:
+// creating a GObject wrapper here would add a toggle ref during disposal.
+const weakNotification = interop.callback(weakFinalized, {returns:t.void,args:[t.pointer,t.pointer]})
 // The runtime wrapper always holds its own reference (#25), so for a
 // transfer-full GObject return/out the caller's ref must be dropped after
 // wrapping — except initially-unowned types, where the wrapper merely sank
@@ -173,7 +177,7 @@ function wrapObject(p,ref,transfer=0,prototype){
   proxies.set(w,proxy)
   // We own no reference; a weak ref just lets teardown name whatever survives.
   pendingFinalizers.set(key(w),name)
-  g_object_weak_ref(w,weakFinalized,w)
+  g_object_weak_ref(w,weakNotification,w)
   activeScope?.pending.set(key(w),name)
   bridgeStats.objects++;registry.register(proxy,'proxy',proxy);return proxy
 }
@@ -371,8 +375,30 @@ function callbackNative(fn,info,owner){
   owner.push(wrapped);bridgeStats.callbacks++
   return raw
 }
+function notifiedCallbackNative(fn,info){
+  const owned=[]
+  const callback=callbackNative(fn,info,owned)
+  let released=false
+  const destroy=()=>{
+    if(released)return
+    released=true
+    // Native code is still executing the destroy trampoline on this stack.
+    deferRelease(owned[0])
+    deferRelease(destroy)
+  }
+  try{
+    const notify=interop.callback(destroy,{returns:t.void,args:[t.pointer]})
+    bridgeStats.callbacks++
+    return {callback,notify,destroy}
+  }catch(error){
+    interop.release(owned[0]);bridgeStats.callbacks--
+    throw error
+  }
+}
 function invoke(info,values,self){
   const hidden=new Set(),out=[],args=[],cleanup=[],callbacks=[],retain=[]
+  const notified=new Map()
+  let nativeCallStarted=false
   const byteReturn=info.returns.tag===15&&info.returns.element?.tag===3&&info.returns.length>=0
   let byteLength
   try{
@@ -426,7 +452,14 @@ function invoke(info,values,self){
         }
         value=list
       }
-      else if(type.tag===16&&type.interface.kind===2&&typeof value==='function')value=callbackNative(value,data[type.interface.ns][type.interface.name],callbacks)
+      else if(type.tag===16&&type.interface.kind===2&&typeof value==='function'){
+        const callbackInfo=data[type.interface.ns][type.interface.name]
+        if(arg.scope===GI_SCOPE_NOTIFIED&&arg.destroy>=0){
+          const owned=notifiedCallbackNative(value,callbackInfo)
+          notified.set(arg.destroy,owned)
+          value=owned.callback
+        }else value=callbackNative(value,callbackInfo,callbacks)
+      }
       else {
         // A transfer-full parameter consumes a native reference; add one for the
         // callee's consumption — the wrapper's own ref stays ours to release.
@@ -444,6 +477,8 @@ function invoke(info,values,self){
     const error=info.throws?new interop.Reference(t.pointer):null
     if(error)args.push(error)
     for(const ref of retain)ref()
+    for(const [index,owned] of notified)args[index+(self?1:0)]=owned.notify
+    nativeCallStarted=true
     const raw=C[info.symbol](...args)
     if(error?.value){const native=new interop.Reference(_GError,error.value).value;const message=decode(native.message);g_error_free(error.value);throw Error(message)}
     const results=out.map(o=>o.read())
@@ -464,6 +499,7 @@ function invoke(info,values,self){
   }catch(error){throw Error(`${info.symbol}: ${error.message}`,{cause:error})}
   finally{
     for(const fn of cleanup)fn()
+    if(!nativeCallStarted)for(const owned of notified.values())owned.destroy()
     // Only call-scoped callbacks are safe to release immediately. Longer-lived
     // callbacks remain associated with the current explicit ownership scope.
     for(const fn of callbacks)(activeScope??permanent).callbacks?.add(fn)
@@ -583,6 +619,7 @@ export function releaseScope(scope){
   activeScope=null
   for(const id of scope.timers)glibExtras.source_remove(id)
   for(const fn of scope.callbacks){interop.release(fn);bridgeStats.callbacks--}
+  scope.callbacks.clear();scope.timers.clear()
   scopes.delete(scope);scope.clear()
 }
 // GType names of objects created under `scope` that have not finalized yet —

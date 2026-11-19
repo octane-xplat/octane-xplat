@@ -132,6 +132,19 @@ suffix:
   The [evaluation tooling](../../../tools/linux-runtime-eval/README.md#stage-the-runtime-pair-for-the-renderer-package)
   records the release pins and staging command.
 
+NativeScript at `57408ba` can wrap the dying GObject argument of a typed
+`GWeakNotify` callback, adding a toggle reference during disposal. Register
+liveness observations with a raw-pointer trampoline so GTK's own disposal can
+finish. On GTK 4.14.5, wrapping this argument showed up as a second
+`GtkScrollbar` disposal and a critical in `gtk_range_get_adjustment`.
+
+TextView's native scroller owns the editor. Keep editing aliases separate
+from closures that hold the scroller and overlay, and clear composite
+references from the node and its public-ref disposer after teardown. GTK's
+destroy notification releases frame callbacks when they finish or are removed.
+The [remount probe](../../../tools/linux-runtime-eval/README.md#real-renderer-port)
+uses the production root scheduler so its scope cannot cancel passive cleanup.
+
 Repository and consumer lint now share `packages/lint/src/xplat-rules.ts`,
 including GTK suffix and pragma rules. There is no separate published mirror
 to synchronize.

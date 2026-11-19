@@ -14,7 +14,7 @@ import {
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { PortScreen, portState } from './screen.gtk.tsx'
 import { getNativeGtkMajorVersion } from './native-sdk-smoke.ts'
-const { Gtk, GLib } = namespaces
+const { Gtk } = namespaces
 
 const check = (name, ok, detail) => {
   console.log(JSON.stringify({ check: name, pass: !!ok, detail }))
@@ -55,11 +55,6 @@ Gtk.init()
 const nativeGtkMajor = getNativeGtkMajorVersion()
 check('native-sdk-gtk-version', nativeGtkMajor === Gtk.MAJOR_VERSION, nativeGtkMajor)
 const options = {
-  scheduleMicrotask: (callback) =>
-    GLib.idle_add(0, () => {
-      callback()
-      return false
-    }),
   onUncaughtError: (error) => {
     throw error
   },
@@ -114,7 +109,9 @@ const firstMount = async () => {
   ]
   console.log(JSON.stringify({ ready: true, frames, stats: { ...bridgeStats } }))
   // The host runner sends XTest click/keyboard events after the ready record.
-  await wait(() => portState.count === 1 && portState.text === 'ABC' && portState.multiline === 'de')
+  await wait(
+    () => portState.count === 1 && portState.text === 'ABC' && portState.multiline === 'de',
+  )
   check('counter-label-text', counterNode.view.get_label?.() === 'Count: 1', portState)
   check('controlled-entry-uppercase', entry.get_text() === 'ABC', portState)
   check('entry-caret-at-end', entry.get_position() === 3, entry.get_position())
@@ -131,6 +128,24 @@ const firstMount = async () => {
 }
 await firstMount()
 
+// Both completion paths must retire GTK's native callback trampoline even
+// while the widget and the enclosing probe scope are still alive.
+const callbacksBeforeTicks = bridgeStats.callbacks
+let tickRuns = 0
+const cancelledTick = host.add_tick_callback(() => {
+  tickRuns++
+  return false
+})
+host.remove_tick_callback(cancelledTick)
+await wait(() => bridgeStats.callbacks === callbacksBeforeTicks)
+check('removed-tick-callback-released', tickRuns === 0)
+host.add_tick_callback(() => {
+  tickRuns++
+  return false
+})
+await wait(() => tickRuns === 1 && bridgeStats.callbacks === callbacksBeforeTicks)
+check('completed-tick-callback-released', true)
+
 // Remount cycles into the same host; each mount owns one explicit scope.
 let baseline = null
 for (let i = 0; i < 20; i++) {
@@ -140,25 +155,22 @@ for (let i = 0; i < 20; i++) {
     await pause(10)
     instance.root.unmount()
   }
+  // Let the GTK root's Promise scheduler run passive teardown before releasing
+  // the probe's callback scope.
   await runCycle()
   releaseScope(cycle)
   await pause(30) // let deferred interop callback releases drain
-  if (i === 0) {
-    await collect()
-    baseline = { ...bridgeStats }
-    continue
-  }
   // The strict lifecycle invariant: every object created in this scope must
   // finalize — pendingFinalizers names whatever GTK still holds. Raw
   // finalized counts jitter ±1 because wrapObject reuses live wrappers, so
   // the count of newly weak-ref'd objects varies slightly per mount.
   const deadline = Date.now() + 1500
-  let cyclePending = pendingInScope(cycle)
-  while (cyclePending.length > 0 && Date.now() < deadline) {
+  let cyclePending
+  do {
     await collect()
     cyclePending = pendingInScope(cycle)
     console.log(JSON.stringify({ drainCycle: i, pendingN: cyclePending.length }))
-  }
+  } while (cyclePending.length > 0 && Date.now() < deadline)
   const settled = { ...bridgeStats }
   check('cycle-pending-drained', cyclePending.length === 0, {
     cycle: i,
@@ -167,6 +179,10 @@ for (let i = 0; i < 20; i++) {
     liveSignals: describeResidual().signals,
     pending: cyclePending,
   })
+  if (baseline === null) {
+    baseline = settled
+    continue
+  }
   check(
     'cycle-stats-stable',
     settled.objects === baseline.objects &&
@@ -177,16 +193,34 @@ for (let i = 0; i < 20; i++) {
   )
 }
 
-win.destroy()
+const destroyWindow = () => {
+  const surface = win.get_surface()
+  win.destroy()
+  // The X11 display's pointer cache can still own the last surface. Identify
+  // that exact destroyed surface without keeping a JS reference to it.
+  if (surface && typeNameOf(surface) === 'GdkX11Toplevel') {
+    check('window-surface-destroyed', surface.is_destroyed())
+    return surface.__native.toBigInt().toString()
+  }
+  return null
+}
+const pointerSurface = destroyWindow()
 releaseScope(scope)
 win = null
 host = null
-await collect()
-const residual = describeResidual()
+const processGlobals = new Set(['GtkSettings', 'GdkX11Display', 'GdkDisplay'])
+const finalDeadline = Date.now() + 1500
+let residual
+let drained
+do {
+  await collect()
+  residual = describeResidual()
+  drained = [...pendingFinalizers].every(
+    ([address, name]) =>
+      processGlobals.has(name) || (address === pointerSurface && name === 'GdkX11Toplevel'),
+  )
+} while (!drained && Date.now() < finalDeadline)
 residual.pendingFinalizers = [...pendingFinalizers.values()]
-check(
-  'residual-process-global',
-  residual.objects.every((name) => ['GtkSettings', 'GdkX11Display', 'GdkDisplay'].includes(name)),
-  residual,
-)
+residual.retainedPointerSurface = pointerSurface !== null && pendingFinalizers.has(pointerSurface)
+check('residual-process-global', drained, residual)
 console.log(JSON.stringify({ complete: true, stats: { ...bridgeStats }, residual }))

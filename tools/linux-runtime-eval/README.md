@@ -298,11 +298,11 @@ The v2 projection in [GTK bindings](../../packages/cli/src/linux-gtk/bindings.mj
 
 It does not support `0.1.0-alpha.x` or main up to `0b2fe09a0`, where C-returned GObjects were bare pointers and the projection counted references itself. It throws at load time on those builds because `__nsGObject.object` is missing.
 
-Because liveness follows V8 collection of the wrapper, the drain checks need `NS_V8_FLAGS=--expose-gc` (injected by `run.mjs`) and the probes drop their own handles to dead trees before counting finalizations. The pass criteria themselves stay the same.
+Because liveness follows V8 collection of the wrapper, the drain checks need `NS_V8_FLAGS=--expose-gc` (injected by `run.mjs`). The port uses the renderer's Promise scheduler for passive cleanup. Scope release drops its callback references, and GTK destroy notifications retire native-owned callbacks. Each remount drains before the probe compares object, signal, callback and source counts against the first settled cycle. After window destruction, the X11 display's pointer cache can keep the last surface alive. The probe checks that the test window's surface is destroyed, then recognizes a remaining pointer-cache reference only by that surface's exact address.
 
 Upstream PR [#32](https://github.com/triniwiz/linux-runtime/pull/32) (merged at `57408ba`) fixed signal-handler retention when a handler captures the same object that owns it. The slice now finalizes all 132 created widgets on NativeScript, and the GJS control drains cleanly. Its previous three survivors came from the probe retaining the root handle from its last loop iteration; clearing that local handle fixed the measurement. Cross-object captures can still retain objects as expected, so finalization counts remain scoped evidence rather than a process-wide leak proof.
 
-Observe finalization with `g_object_weak_ref` (native) or a `GBinding`'s source (GJS). Don't use `GOBJECT_DEBUG=instance-count`: on the Debian 13 VM, `g_type_get_instance_count` returns 0 for every type, even live ones.
+Observe finalization with `g_object_weak_ref` (native) or a `GBinding`'s source (GJS). The native weak-notify trampoline takes raw pointers to avoid creating a runtime wrapper while the object is being disposed. On the Debian 13 VM, `g_type_get_instance_count` returned 0 for live objects, so it could not verify the drain.
 
 One local workaround hides a known gap; keep it in mind when reading results:
 
