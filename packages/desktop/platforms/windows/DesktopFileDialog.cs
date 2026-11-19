@@ -9,7 +9,7 @@ using Windows.Storage.Pickers;
 
 namespace OctaneXplat.Desktop
 {
-    public static class DesktopFileDialog
+    public static partial class DesktopFileDialog
     {
         private sealed class Request
         {
@@ -166,7 +166,7 @@ namespace OctaneXplat.Desktop
             if (dispatcher == null || !ulong.TryParse(ownerId, out var id) || id == 0)
                 return "invalid owner";
             if (pending != null)
-                return "a Windows file dialog is already open";
+                return "a Windows dialog is already open";
 
             var owner = Win32Interop.GetWindowFromWindowId(new WindowId { Value = id });
             if (owner == IntPtr.Zero)
@@ -192,7 +192,7 @@ namespace OctaneXplat.Desktop
             }))
             {
                 pending = null;
-                return "could not enqueue the Windows file dialog";
+                return "could not enqueue the Windows dialog";
             }
             return "started";
         }
@@ -200,7 +200,7 @@ namespace OctaneXplat.Desktop
         public static string Poll()
         {
             if (pending == null)
-                return JsonSerializer.Serialize(new { error = "No pending file dialog" });
+                return JsonSerializer.Serialize(new { error = "No pending dialog" });
             var result = pending.Result;
             if (result == null)
                 return "pending";

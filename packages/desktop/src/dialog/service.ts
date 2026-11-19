@@ -21,6 +21,7 @@ export type OnOwnerClose = (dismiss: () => void) => void
 
 interface NativeDialogHost<Owner> {
   supported(): boolean
+  supportsMessageBox?(): boolean
   messageBox?(owner: Owner, options: NativeMessageBoxOptions, onOwnerClose: OnOwnerClose): Promise<number | null>
   ownerOf(parent: DesktopWindow): Owner | undefined
   save(owner: Owner, options: NativeSaveOptions, onOwnerClose: OnOwnerClose): Promise<string | null>
@@ -67,7 +68,7 @@ export function createDesktopDialog<Owner>(host: NativeDialogHost<Owner>): Deskt
     method: 'showOpenDialog' | 'showSaveDialog' | 'showMessageBox',
     present: (owner: Owner, onOwnerClose: OnOwnerClose) => Promise<Result>,
   ): Promise<Result | null> {
-    if (method === 'showMessageBox' ? !host.messageBox : !host.supported()) {
+    if (method !== 'showMessageBox' && !host.supported()) {
       throw new UnavailabilityError(`dialog.${method}`)
     }
     const owner = host.ownerOf(parent)
@@ -94,14 +95,20 @@ export function createDesktopDialog<Owner>(host: NativeDialogHost<Owner>): Deskt
     }
   }
 
+  function supportsMessageBox() {
+    return typeof host.messageBox === 'function' && (host.supportsMessageBox?.() ?? true)
+  }
+
   return {
     get supported() {
       return host.supported()
     },
     get supportsMessageBox() {
-      return typeof host.messageBox === 'function'
+      return supportsMessageBox()
     },
     async showMessageBox(parent, options) {
+      const messageBox = host.messageBox?.bind(host)
+      if (!messageBox || !supportsMessageBox()) throw new UnavailabilityError('dialog.showMessageBox')
       const { message, detail, defaultId = 0, cancelId = defaultId } = options
       const buttons = Array.from(options.buttons)
       if (typeof message !== 'string' || !message.trim() || !buttons.length ||
@@ -111,8 +118,6 @@ export function createDesktopDialog<Owner>(host: NativeDialogHost<Owner>): Deskt
       if (![defaultId, cancelId].every((index) => Number.isInteger(index) && index >= 0 && index < buttons.length)) {
         throw new RangeError('Message box button indices must refer to an existing button')
       }
-      const messageBox = host.messageBox?.bind(host)
-      if (!messageBox) throw new UnavailabilityError('dialog.showMessageBox')
       const response = await show(parent, 'showMessageBox', (owner, onClose) =>
         messageBox(owner, { message, detail, buttons, defaultId, cancelId }, onClose))
       if (response === null) return { response: cancelId }

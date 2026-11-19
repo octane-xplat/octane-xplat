@@ -180,7 +180,7 @@ export async function openDocuments(inspector: DesktopWindow) {
 }
 ```
 
-Canceling or closing the owner resolves with `{ canceled: true, filePaths: [] }`. A host failure rejects the promise. On the experimental NativeScript Windows host, rebuild the native app after adding or updating `@octane-xplat/desktop` so the app compiles the picker bridge. On Windows, only one file dialog can be open across the app. On AppKit and GTK, each owner can have one file dialog at a time.
+Canceling or closing the owner resolves with `{ canceled: true, filePaths: [] }`. A host failure rejects the promise. On the experimental NativeScript Windows host, rebuild the native app after adding or updating `@octane-xplat/desktop` so the app compiles the picker bridge. On Windows, only one desktop dialog can be open across the app. On AppKit and GTK, each owner can have one desktop dialog at a time.
 
 ```ts
 export async function openFromInspector(inspector: DesktopWindow) {
@@ -216,7 +216,7 @@ export async function exportNotes(
 
 ## Confirm before discarding changes
 
-Use `dialog.showMessageBox(window, options)` on AppKit or GTK to ask for a choice in a shown window. The result is a zero-based index into `buttons`. Set `defaultId` and `cancelId` to the safe option for destructive actions. Dismissing the dialog or closing its owner returns the cancel index. Use `dialog.supportsMessageBox` to check availability. A native failure rejects the promise.
+Use `dialog.showMessageBox(window, options)` to ask for a choice in a shown window. The result is a zero-based index into `buttons`. Set `defaultId` and `cancelId` to the safe option for destructive actions. Dismissing the dialog or closing its owner returns the cancel index. Use `dialog.supportsMessageBox` to check availability. AppKit and GTK support message boxes. On the experimental Windows host, rebuild the native app to include the bridge and use a host with Windows Common Controls version 6. A native failure rejects the promise.
 
 ```ts
 import { dialog, type DesktopWindow } from '@octane-xplat/desktop'
