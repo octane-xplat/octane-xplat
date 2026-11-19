@@ -7,7 +7,6 @@
 		"tools/routing-eval/grader/",
 		"**/*.gen.*",
 		"packages/**/types/generated/**",
-		"packages/*/types/props.d.ts",
 		"**/vendor/**",
 		"packages/platform/src/types/macos*/**",
 		"packages/macos-appkit/types/**"

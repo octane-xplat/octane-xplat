@@ -295,6 +295,10 @@ export function bestImageSource(
 function ensureWebUnits(value: ImageContentPositionValue): string {
   const text = String(value).trim()
 
+  if (text === 'center') {
+    return '50%'
+  }
+
   return text.endsWith('%') ? text : `${text}px`
 }
 
@@ -302,6 +306,16 @@ function ensureWebUnits(value: ImageContentPositionValue): string {
  *  web's `getObjectPositionFromContentPositionObject`. */
 export function objectPositionCSSValue(position: ImageContentPositionObject): string {
   const resolved: ImageContentPositionObject = { ...position }
+
+  // Match contentAxisOffset's start-edge precedence for typed objects that
+  // supply both edges; emitting both would form an invalid CSS position.
+  if (resolved.top != null) {
+    delete resolved.bottom
+  }
+
+  if (resolved.left != null) {
+    delete resolved.right
+  }
 
   if (resolved.top == null && resolved.bottom == null) {
     resolved.top = '50%'

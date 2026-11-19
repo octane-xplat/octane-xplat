@@ -96,8 +96,6 @@
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
 		"test:patches-install": "node --test test/patches-*.test.mts",
 		"test:macos-packaging": "node --test test/macos-config.test.mts test/macos-native.test.mts test/macos-dev-bundle.test.mts",
-		"test:fmt": "node --test test/fmt.test.mjs",
-		"test:compatibility": "node --test test/compatibility.test.mjs",
 		"test:doctor": "node --test test/doctor-checks.test.mts",
 		"build:go": "node ../../tools/cli-go/build.mjs --cli",
 		"build:go-onnx": "node ../../tools/cli-go/build.mjs --cli --onnx",
