@@ -50,6 +50,11 @@
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"env": ["XPLAT_UI_TEST_TARGET"]
 		},
+		"bench:render": {
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"cache": false,
+			"passThroughEnv": ["XPLAT_UI_BENCH_*"]
+		},
 		"typecheck": {
 			"dependsOn": ["^typegen", "typecheck:scripts"],
 			"outputs": []

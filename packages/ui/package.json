@@ -173,6 +173,7 @@
 		"bench:routing-types": "node scripts/bench-routing-types.ts",
 		"typecheck:scripts": "tsc --runExternalCode -p scripts/tsconfig.json",
 		"test:gestures:native": "vitest run --config vitest.native.config.mts src/gestures",
+		"bench:render": "vitest run --config vitest.bench.config.mts",
 		"test:packed:drawer": "node tests/drawer-packed-consumer.mts",
 		"test:layout:web": "node tests/layout-defaults.mts web",
 		"test:layout:ios": "node tests/layout-defaults.mts ios",
