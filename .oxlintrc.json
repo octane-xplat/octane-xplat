@@ -64,6 +64,9 @@
 					"packages/nativescript-octane/",
 					"packages/vite-octane/",
 					"tools/windows-host/",
+					"tools/macos-verification/webview-proof-host.ts",
+					"tools/macos-verification/webview-packaged-proof-host.ts",
+					"tools/macos-verification/webview-camera-proof-host.ts",
 					"packages/cli/test/fixtures/"
 				]
 			}
@@ -124,7 +127,16 @@
 		"xplat/no-route-augmentation": "error",
 		"xplat/no-destination-cast": "error",
 		"xplat/no-interpolated-route-path": "error",
-		"xplat/require-default-tsrx": "error"
+		"xplat/require-default-tsrx": [
+			"error",
+			{
+				"exclude": [
+					"apps/tweaks-playground/src/main.web.tsrx",
+					"packages/devtools/src/desktop/Shell.macos.tsrx",
+					"packages/devtools/src/panel/main.web.tsrx"
+				]
+			}
+		]
 	},
 	"overrides": [
 		{

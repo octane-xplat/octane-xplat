@@ -32,6 +32,11 @@
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
 			"cache": false
 		},
+		"build:android": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"cache": false,
+			"passThroughEnv": ["JAVA_HOME", "ANDROID_HOME", "ANDROID_SDK_ROOT"]
+		},
 		"test:ios": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
 			"cache": false

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
@@ -8,6 +8,8 @@ import {
   checkNoDomGlobals,
   checkNoNativeDeadStyle,
   checkTsrxDefault,
+  isNativeFile,
+  isWebFile,
 } from '../packages/lint/src/xplat-rules.ts'
 
 function violations(source, filename = 'sample.macos.ts') {
@@ -133,7 +135,12 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
     }
 
     // The native facade pragma on a browser file is rejected.
-    for (const filename of ['App.web.tsrx', 'Panel.linux.tsrx']) {
+    for (const filename of [
+      'App.web.tsrx',
+      'Panel.linux.tsrx',
+      'apps/mobile/web/src/main.tsrx',
+      'apps/mobile/linux/src/main.tsrx',
+    ]) {
       const source = '/** @jsxImportSource @octane-xplat/jsx */\n' + body
       const failures = checkNativePragmaFirstLine(parseModule(source, filename), source, filename)
 
@@ -257,4 +264,43 @@ test('platform TSRX source requires a default contract, including declaration-on
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
+})
+
+test('shared app browser entry directories use browser rules without hiding native leaves', () => {
+  for (const file of [
+    'apps/mobile/web/src/main.tsrx',
+    'apps/mobile/linux/src/main.tsrx',
+    'apps\\mobile\\web\\src\\main.tsrx',
+  ]) {
+    assert.equal(isWebFile(file), true, file)
+    assert.equal(isNativeFile(file), false, file)
+  }
+
+  for (const file of [
+    'apps/mobile/src/index.tsrx',
+    'apps/mobile/web/src/Example.ios.tsrx',
+    'apps/mobile/linux/src/Example.gtk.tsrx',
+  ]) {
+    assert.equal(isWebFile(file), false, file)
+    assert.equal(isNativeFile(file), true, file)
+  }
+})
+
+test('repository exempts selected entrypoints without exempting an unpaired component', () => {
+  const config = JSON.parse(readFileSync(new URL('../.oxlintrc.json', import.meta.url), 'utf8'))
+  const options = config.rules['xplat/require-default-tsrx'][1]
+  const source = 'export declare function Example(): unknown'
+  const entries = [
+    'apps/tweaks-playground/src/main.web.tsrx',
+    'packages/devtools/src/desktop/Shell.macos.tsrx',
+    'packages/devtools/src/panel/main.web.tsrx',
+  ]
+
+  for (const entry of entries) {
+    assert.deepEqual(checkTsrxDefault(parseModule(source, entry), source, entry, options), [])
+  }
+
+  const ordinary = 'packages/devtools/src/panel/Unpaired.web.tsrx'
+
+  assert.equal(checkTsrxDefault(parseModule(source, ordinary), source, ordinary, options).length, 1)
 })

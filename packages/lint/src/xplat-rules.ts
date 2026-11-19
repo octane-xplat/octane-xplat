@@ -5,7 +5,8 @@
 // (oxlint-plugin.ts and tsrx.ts).
 //
 // Rule scope follows the platform-file convention: `.web.*` and `.linux.*`
-// files own DOM code; `.mobile/.ios/.android.*`, `apps/mobile`, and
+// files and the shared app's web/Linux webview sources own DOM code;
+// `.mobile/.ios/.android.*`, the remaining `apps/mobile` sources, and
 // unsuffixed files with a `.web.*` sibling own NativeScript. Other unsuffixed
 // files are shared. The `exclude` option covers trees that break that default.
 
@@ -19,7 +20,15 @@ const norm = (f) => f.split('\\').join('/')
 // `.web.`/`.linux.` anywhere in the name — `foo.web.test.tsrx` and
 // `foo.linux.test.tsrx` are target-specific files too. Linux's system
 // webview renders DOM, so its leaves may use DOM globals and `ui/web` imports.
-export const isWebFile = (f) => /\.(web|linux)\./.test(norm(f))
+export const isWebFile = (f) => {
+  const file = norm(f)
+
+  return (
+    /\.(web|linux)\./.test(file) ||
+    (!/\.(mobile|ios|android|macos|windows|gtk)\./.test(file) &&
+      /(^|\/)apps\/mobile\/(web|linux)\/src\//.test(file))
+  )
+}
 
 const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux|gtk)\./
 const SOURCE_EXTENSIONS = ['.tsrx', '.tsx', '.mts', '.cts', '.ts', '.cjs', '.jsx', '.ts', '.js']

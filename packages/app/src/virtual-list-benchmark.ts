@@ -12,7 +12,7 @@ export type VirtualListBenchItem = {
   height: number
 }
 
-export type VirtualListBenchTarget = 'web' | 'ios' | 'android' | 'macos'
+export type VirtualListBenchTarget = 'web' | 'ios' | 'android' | 'macos' | 'windows'
 
 export type VirtualListBenchRowBox = {
   index: number
