@@ -1,10 +1,23 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
+import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { hostname, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 import { command, ownedProcess } from '../tools/probe/process.ts'
+
+function deadPid() {
+  for (let pid = 99999; pid > 1000; pid--) {
+    try {
+      process.kill(pid, 0)
+    } catch {
+      return pid
+    }
+  }
+
+  throw new Error('no dead pid available')
+}
 
 test('native target lock survives interruption until child cleanup finishes', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
@@ -181,4 +194,212 @@ test('node target lock conflicts, isolates targets, and releases', async () => {
   )
 
   assert.equal(released.code, 0)
+})
+
+test('node target lock keeps stale-lock reclaim exclusive under contention', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const lockRoot = join(root, 'locks')
+  const marks = join(root, 'marks')
+  const wrapper = fileURLToPath(new URL('./with-target-lock.ts', import.meta.url))
+  const env = {
+    ...process.env,
+    XPLAT_NATIVE_LOCK_DIR: lockRoot,
+    XPLAT_NATIVE_LOCK_POLL_MS: '50',
+  }
+  const child = `
+		const fs = require('node:fs');
+		const path = require('node:path');
+		const id = process.argv[1];
+		const marks = process.argv[2];
+		fs.mkdirSync(path.join(marks, 'holding-' + id));
+		const end = Date.now() + 500;
+		const timer = setInterval(() => {
+			const others = fs
+				.readdirSync(marks)
+				.filter((f) => f.startsWith('holding-') && f !== 'holding-' + id);
+			if (others.length) {
+				fs.writeFileSync(path.join(marks, 'violation'), id + ' saw ' + others.join(','));
+			}
+			if (Date.now() > end) {
+				clearInterval(timer);
+				fs.rmdirSync(path.join(marks, 'holding-' + id));
+			}
+		}, 15);
+	`
+
+  try {
+    for (let round = 0; round < 5; round++) {
+      await rm(marks, { recursive: true, force: true })
+      await mkdir(marks, { recursive: true })
+      await rm(join(lockRoot, 'ios.lock'), { recursive: true, force: true })
+      await mkdir(join(lockRoot, 'ios.lock'), { recursive: true })
+      await writeFile(
+        join(lockRoot, 'ios.lock', 'owner.json'),
+        JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+      )
+
+      const waiters = await Promise.all(
+        ['a', 'b', 'c', 'd'].map((id) =>
+          command(
+            process.execPath,
+            [wrapper, 'ios', '--timeout', '90', '--', process.execPath, '-e', child, id, marks],
+            { env, timeout: 120000 },
+          ),
+        ),
+      )
+
+      for (const result of waiters) {
+        assert.equal(result.code, 0, result.stderr)
+      }
+
+      assert.equal(
+        existsSync(join(marks, 'violation')),
+        false,
+        `round ${round}: two waiters held the lock concurrently`,
+      )
+      assert.deepEqual(
+        (await readdir(marks)).filter((name) => name.startsWith('holding-')),
+        [],
+      )
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('node target lock reclaims orphaned and stale-claimed locks', async () => {
+  const lockRoot = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const wrapper = fileURLToPath(new URL('./with-target-lock.ts', import.meta.url))
+  const env = { ...process.env, XPLAT_NATIVE_LOCK_DIR: lockRoot }
+  const lockDir = join(lockRoot, 'ios.lock')
+
+  try {
+    // Lock dir abandoned before its owner record was written.
+    await mkdir(lockDir, { recursive: true })
+
+    const orphaned = await command(
+      process.execPath,
+      [wrapper, 'ios', '--timeout', '30', '--', process.execPath, '-e', ''],
+      { env },
+    )
+
+    assert.equal(orphaned.code, 0, orphaned.stderr)
+
+    // Dead owner plus a claim left by a dead reclaimer: both must be reaped.
+    await mkdir(lockDir, { recursive: true })
+    await writeFile(
+      join(lockDir, 'owner.json'),
+      JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+    )
+    await writeFile(
+      join(lockDir, '.claim'),
+      JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+    )
+
+    const reclaimed = await command(
+      process.execPath,
+      [wrapper, 'ios', '--timeout', '30', '--', process.execPath, '-e', ''],
+      { env },
+    )
+
+    assert.equal(reclaimed.code, 0, reclaimed.stderr)
+    assert.equal(existsSync(lockDir), false)
+  } finally {
+    await rm(lockRoot, { recursive: true, force: true })
+  }
+})
+
+test('node target lock never exposes an emptied lock dir to an acquirer', async () => {
+  // Regression: removing the lock dir in place unlinked its entries before
+  // rmdir, and POSIX rename replaces an empty directory — a concurrent
+  // acquirer's renameSync landed in that window and the remover's pending
+  // rmdir crashed it with ENOENT/ENOTEMPTY (in the release path, masking
+  // the child's real exit code). The --require fixture widens the window
+  // to make the interleaving deterministic; removal now renames the dir
+  // aside first, so the lock path never exists empty.
+  const root = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const lockRoot = join(root, 'locks')
+  const marks = join(root, 'marks')
+  const lockDir = join(lockRoot, 'ios.lock')
+  const hook = fileURLToPath(new URL('./fixtures/delay-lockdir-rm.cjs', import.meta.url))
+  const wrapper = fileURLToPath(new URL('./with-target-lock.ts', import.meta.url))
+  const env = {
+    ...process.env,
+    XPLAT_NATIVE_LOCK_DIR: lockRoot,
+    XPLAT_NATIVE_LOCK_POLL_MS: '50',
+    XPLAT_DELAY_RMDIR: lockDir,
+    XPLAT_DELAY_MS: '400',
+  }
+  const child = `
+		const fs = require('node:fs');
+		const path = require('node:path');
+		const id = process.argv[1];
+		const marks = process.argv[2];
+		fs.mkdirSync(path.join(marks, 'holding-' + id));
+		const end = Date.now() + 500;
+		const timer = setInterval(() => {
+			const others = fs
+				.readdirSync(marks)
+				.filter((f) => f.startsWith('holding-') && f !== 'holding-' + id);
+			if (others.length) {
+				fs.writeFileSync(path.join(marks, 'violation'), id + ' saw ' + others.join(','));
+			}
+			if (Date.now() > end) {
+				clearInterval(timer);
+				fs.rmdirSync(path.join(marks, 'holding-' + id));
+			}
+		}, 15);
+	`
+
+  try {
+    for (let round = 0; round < 4; round++) {
+      await rm(marks, { recursive: true, force: true })
+      await mkdir(marks, { recursive: true })
+      await rm(lockDir, { recursive: true, force: true })
+      await mkdir(lockDir, { recursive: true })
+      await writeFile(
+        join(lockDir, 'owner.json'),
+        JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+      )
+
+      const waiters = await Promise.all(
+        ['a', 'b', 'c'].map((id) =>
+          command(
+            process.execPath,
+            [
+              '--require',
+              hook,
+              wrapper,
+              'ios',
+              '--timeout',
+              '90',
+              '--',
+              process.execPath,
+              '-e',
+              child,
+              id,
+              marks,
+            ],
+            { env, timeout: 120000 },
+          ),
+        ),
+      )
+
+      for (const result of waiters) {
+        assert.equal(result.code, 0, result.stderr)
+      }
+
+      assert.equal(
+        existsSync(join(marks, 'violation')),
+        false,
+        `round ${round}: two waiters held the lock concurrently`,
+      )
+      assert.deepEqual(
+        (await readdir(marks)).filter((name) => name.startsWith('holding-')),
+        [],
+      )
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
