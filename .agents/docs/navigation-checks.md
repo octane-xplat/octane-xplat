@@ -1298,7 +1298,7 @@ measure language-service work, rather than target rendering or a running editor.
 
 ## Qualify owned pane hosts
 
-The [complete pane walkthrough](../app/navigation.md#bind-a-custom-router-to-rendering)
+The [complete pane walkthrough](../../docs/app/navigation.md#bind-a-custom-router-to-rendering)
 uses public imports throughout. Its maintained shared example checks prepared
 screen data, retained view identity/local state, entry-owned matches, live source
 providers, independent histories, explicit modal refusal, and flow cleanup.

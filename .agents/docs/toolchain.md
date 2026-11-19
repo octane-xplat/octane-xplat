@@ -114,7 +114,7 @@ Go 1.27.3 follows the [Go 1.23 Windows symlink behavior](https://go.dev/doc/gode
 directory junctions. Workspace package links use these on Windows. Treating the
 lexical link as a physical package root makes checkout docs discovery walk the
 consumer's `node_modules` instead of the framework repository. The
-[Windows canonical-path adapter](../../packages/cli/go/canonical_windows.go)
+[Windows canonical-path adapter](../../packages/cli/go/internal/osfs/canonical_windows.go)
 opens the target and uses `GetFinalPathNameByHandle`, handling extended DOS and
 UNC names. Keep this local to physical identity instead of changing the process's
 global `GODEBUG` behavior. The [native index gate](../../tools/cli-go/docs-index.test.mts)

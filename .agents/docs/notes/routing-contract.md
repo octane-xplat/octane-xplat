@@ -4,7 +4,7 @@
 > adapter are removed. Compatibility sections below preserve implementation
 > history; they are not supported workflows. Use the
 > [canonical guide](../../../docs/app/navigation.md),
-> [current plan](../../plans/routing-api.md) and
+> the routing plan and
 > [qualification commands](../navigation-checks.md).
 
 Decision #118 implements the routing plan with familiarity and type safety as
@@ -65,9 +65,9 @@ routePatternPath('items/[id]') // '/items/:id'
 
 Presentation and transition are independent. Keep legacy calls as migration
 adapters while the new contract lands; do not mark a design requirement as
-runtime-qualified until its maintained checks have actually run. The full
-[implementation plan](../../plans/routing-api.md) owns feature scope and proof
-criteria, including Windows runtime verification being unavailable in this task.
+runtime-qualified until its maintained checks have actually run. The routing
+implementation plan owns feature scope and proof criteria, including Windows
+runtime verification being unavailable in this task.
 
 The renderer-free `routing/core` entry now exposes programmatic inference and
 preparation. A plain search parser or Standard Schema v1 validator distinguishes

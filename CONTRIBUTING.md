@@ -34,25 +34,31 @@ bun run turbo run test:patches-install --filter=@octane-xplat/cli
 
 Run these from the repository root after `bun install --frozen-lockfile`:
 
-| Task                                                       | Command                                                                                 |
-| ---------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Start a harness target                                     | `bun run dev:web`, `dev:ios`, `dev:android`, `dev:macos`, `dev:linux`, or `dev:windows` |
-| Build a harness target                                     | `bun run build:web`, `build:ios`, `build:macos`, `build:linux`, or `build:windows`      |
-| Work on the docs site                                      | `bun run dev:docs` or `bun run build:docs`                                              |
-| Build workspace packages                                   | `bun run build:packages`                                                                |
-| Run lint and repository checks                             | `bun run check`                                                                         |
-| Generate declarations and typecheck every target           | `bun run typecheck`                                                                     |
-| Run unit, repository-checker, and typegen tests            | `bun run test`                                                                          |
-| Run checks, typechecks, and tests in order                 | `bun run validate`                                                                      |
-| Verify packed UI, GIF, auth, and typegen-fixture consumers | `bun run test:packed`                                                                   |
-| Build and browser-smoke the harness or docs                | `bun run smoke:web` or `bun run smoke:docs`                                             |
+Workspace-scoped commands run through Bun/Turbo filters rather than root
+aliases; see each app's `package.json` for its full task list.
 
-Individual `typecheck:web`, `typecheck:mobile`, `typecheck:macos`,
-`typecheck:linux`, `typecheck:windows`, and `typecheck:docs` commands are also
-available. Aggregates stop on the first failure; `validate` does not run
-native builds, browser smoke, or all packed-consumer checks.
+| Task                                                        | Command                                                                                                                          |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Start the web harness                                       | `bun run --filter @xplat/web dev`                                                                                                 |
+| Start the iOS or Android harness                            | `bun run --filter @xplat/mobile ios` or `bun run --filter @xplat/mobile android`                                                   |
+| Start the macOS or Windows harness                          | `bun run --filter @xplat/macos dev` or `bun run --filter @xplat/windows windows`                                                   |
+| Build a harness target                                      | `bun run turbo run build --filter=@xplat/web`, `bun run --filter @xplat/mobile build:ios`, `bun run --filter @xplat/macos package`, or `bun run --filter @xplat/windows build:windows` |
+| Work on the docs site                                       | `bun run --filter @xplat/docs dev` or `bun run turbo run build --filter=@xplat/docs`                                               |
+| Build workspace packages                                    | `bun run build:packages`                                                                                                          |
+| Run lint and repository checks                              | `bun run check`                                                                                                                   |
+| Generate declarations and typecheck every target            | `bun run typecheck`                                                                                                               |
+| Run unit, repository-checker, and typegen tests             | `bun run test`                                                                                                                    |
+| Run checks, typechecks, and tests in order                  | `bun run validate`                                                                                                                |
+| Verify packed UI, GIF, auth, and typegen-fixture consumers  | `bun run test:packed`                                                                                                             |
+| Build and browser-smoke the harness or docs                 | `bun run --filter @xplat/web smoke` or `bun run --filter @xplat/docs smoke`                                                        |
+
+Per-target typechecks use the same filtered form, for example
+`bun run turbo run typecheck --filter=@xplat/web`, `--filter=@xplat/mobile`,
+`--filter=@xplat/macos`, `--filter=@xplat/windows`, or `--filter=@xplat/docs`.
+Aggregates stop on the first failure; `validate` does not run native builds,
+browser smoke, or all packed-consumer checks.
 
 Native launch and build commands require the target's SDK and host tools.
-`build:macos` packages the experimental AppKit app. Browser smoke commands
-require Playwright's browser installation. These shortcuts retain the
+`@xplat/macos package` builds the experimental AppKit app. Browser smoke
+commands require Playwright's browser installation. These commands retain the
 [existing target limits](docs/start/spec.md#choose-your-targets).

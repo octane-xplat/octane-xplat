@@ -1,6 +1,6 @@
 # AppKit media/graphics and overlay runtime qualification
 
-Runtime evidence for [issue #78](../../../../../github.com/octane-xplat/octane-xplat/issues/78)
+Runtime evidence for [issue #78](https://github.com/octane-xplat/octane-xplat/issues/78)
 section 1 rows: **Media and charts** (Chart hover/drag/click, Image, Video,
 AnimatedImage, Pager, Lightbox zoom/swipe/video) and **Overlays** (Popover +
 typeahead window layer, Tooltip).

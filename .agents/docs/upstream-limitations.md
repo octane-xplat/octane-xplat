@@ -143,7 +143,7 @@ reading:
   `GetTextAsync`/`SetText` through the projection mangles non-BMP code points
   to `?` per UTF-16 unit (`'😀'` reads back `'??'`, `'🇯🇵'` reads back
   `'????'`), maps `U+0301` combining acute to `'`, and truncates the payload
-  at the first `U+0000` (`'before after'` reads back `'before'`). The exact
+  at the first `U+0000` (`'before\u0000after'` reads back `'before'`). The exact
   mojibake varies across launches (e.g. `?` U+003F vs `�` U+FFFD render
   alike; a lone `U+1F600` read back as `??` on some launches and as the real
   emoji on others), so only the invariants are stable: the unicode+NUL
