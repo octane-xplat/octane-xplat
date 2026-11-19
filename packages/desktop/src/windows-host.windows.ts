@@ -2,6 +2,7 @@ import { Application } from '@nativescript/core/application/application.windows'
 import type { NativeWindow } from '@nativescript/core/native-window'
 import { lookupGlobal, UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { DesktopRectangle } from './screen/types.js'
+import { createWindowsSingleInstance } from './app/second-instance.windows.js'
 import type { AppLifecycleHost } from './app/lifecycle.js'
 import type { NativeWindowController, NativeWindowOpener } from './window/service.js'
 
@@ -379,6 +380,7 @@ function quit(): void {
 }
 
 const lifecycle: AppLifecycleHost = {
+  ...createWindowsSingleInstance(isReady),
   isReady,
   whenReady,
   quit,

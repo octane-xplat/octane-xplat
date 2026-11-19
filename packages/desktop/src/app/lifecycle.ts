@@ -6,6 +6,8 @@ export interface AppLifecycleHost {
   whenReady(): Promise<void>
   quit(): void
   addQuitGuard(guard: () => boolean): () => void
+  supportsSingleInstanceLock?(): boolean
+  requestSingleInstanceLock?(): boolean
   supportsSecondInstance?(): boolean
   addSecondInstanceHandler?(handler: (argv: readonly string[], workingDirectory: string | undefined) => void): () => void
   addActivateHandler?(handler: (hasVisibleWindows: boolean) => boolean): () => void
@@ -117,6 +119,19 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
     },
     get supportsActivate() {
       return typeof host()?.addActivateHandler === 'function'
+    },
+    get supportsSingleInstanceLock() {
+      const available = host()
+      return typeof available?.requestSingleInstanceLock === 'function' &&
+        available.supportsSingleInstanceLock?.() === true
+    },
+    requestSingleInstanceLock() {
+      const available = host()
+      if (typeof available?.requestSingleInstanceLock !== 'function' ||
+        available.supportsSingleInstanceLock?.() !== true) {
+        throw new UnavailabilityError('app.requestSingleInstanceLock')
+      }
+      return available.requestSingleInstanceLock()
     },
     get supportsSecondInstance() {
       const available = host()

@@ -402,6 +402,28 @@ export function startGtkEditor(openDocuments: (paths: readonly string[], cwd?: s
 }
 ```
 
+## Redirect a second launch on Windows
+
+On the experimental NativeScript Windows host, rebuild the native app to include the single-instance bridge. In the Windows startup entry, call `app.requestSingleInstanceLock()` before `Application.run()`. When it returns `true`, start the app and subscribe to `second-instance`. When it returns `false`, Windows has redirected the launch and the bridge exits the secondary process. The running app receives the arguments Windows supplied for a launch. Windows does not supply a working directory through this event.
+
+```ts
+import { app, type DesktopSecondInstanceEvent } from '@octane-xplat/desktop'
+
+export function startWindowsEditor(
+  mount: () => void,
+  openDocuments: (paths: readonly string[]) => void,
+) {
+  if (!app.requestSingleInstanceLock()) return
+
+  const open = (_event: DesktopSecondInstanceEvent, args: readonly string[]) => {
+    if (args.length > 0) openDocuments(args)
+  }
+  app.on('second-instance', open)
+  mount()
+  return () => app.off('second-instance', open)
+}
+```
+
 ## Read the desktop display layout
 
 Call `screen.getAllDisplays()` after startup to read connected displays. Each entry gives the display bounds and scale factor. Coordinates increase rightward and downward. AppKit and GTK use logical units. The Windows bridge uses physical pixels across the virtual desktop, so use `screen.coordinateSpace` before comparing coordinates. Windows apps need a native rebuild for the bridge.
