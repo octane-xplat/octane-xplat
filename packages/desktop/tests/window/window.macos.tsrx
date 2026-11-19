@@ -1,6 +1,6 @@
 import '@nativescript/macos-node-api'
 import { app as desktopApp, dialog, type DesktopActivateEvent, type DesktopWindow } from '@octane-xplat/desktop'
-import type { NSApplication, NSOpenPanel, NSSavePanel } from '@octane-xplat/platform/macos'
+import { NSAlertFirstButtonReturn, type NSApplication, type NSOpenPanel, type NSSavePanel } from '@octane-xplat/platform/macos'
 import { runMacOSApp, setWindowContentResolver } from '../../../macos-appkit/src/host.ts'
 import type { AppKitWindowController } from '../../../macos-appkit/src/host.d.ts'
 import {
@@ -47,6 +47,17 @@ async function verifyOpenDialog(owner: DesktopWindow) {
     throw new Error('Canceling Save did not leave the owner open')
   }
   console.log('DESKTOP_SAVE_OK')
+
+  const confirmationBox = dialog.showMessageBox(owner, {
+    message: 'Discard changes?',
+    buttons: ['Keep Editing', 'Discard'],
+    cancelId: 0,
+  })
+  const messageSheet = native.attachedSheet
+  if (!messageSheet) throw new Error('The AppKit message box was not attached')
+  native.endSheetReturnCode(messageSheet, NSAlertFirstButtonReturn + 1)
+  if ((await confirmationBox).response !== 1) throw new Error('Wrong message box response')
+  console.log('DESKTOP_MESSAGE_OK')
 
   async function expectMinimized(expected: boolean) {
     for (let attempt = 0; attempt < 100; attempt++) {

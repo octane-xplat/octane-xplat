@@ -44,6 +44,7 @@ try {
   assert.match(output, /DESKTOP_WINDOW_OK/)
   assert.match(output, /DESKTOP_DIALOG_OK/)
   assert.match(output, /DESKTOP_SAVE_OK/)
+  assert.match(output, /DESKTOP_MESSAGE_OK/)
   assert.match(output, /DESKTOP_ACTIVATE_OK/)
   assert.match(output, /DESKTOP_MINIMIZE_OK/)
   assert.match(output, /DESKTOP_APP_QUIT_OK/)

@@ -453,6 +453,14 @@ declare module 'gi://Gtk?version=4.0' {
       })
     }
 
+    class MessageDialog extends Window {
+      add_button(label: string, response: number): Button
+      set_default_response(response: number): void
+      response(response: number): void
+      connect(signal: 'response', handler: (dialog: MessageDialog, response: number) => void): number
+      destroy(): void
+    }
+
     enum FileChooserAction {
       OPEN = 0,
       SAVE = 1,

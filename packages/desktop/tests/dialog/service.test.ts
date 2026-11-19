@@ -76,7 +76,7 @@ it('rejects a second picker for the same owner and dismisses the first when its 
   })
 
   const pending = dialog.showOpenDialog(parent)
-  await expect(dialog.showSaveDialog(parent)).rejects.toThrow('already has a file dialog open')
+  await expect(dialog.showSaveDialog(parent)).rejects.toThrow('already has a dialog open')
   parent.destroy()
 
   await expect(pending).resolves.toEqual({ canceled: true, filePaths: [] })
@@ -101,4 +101,24 @@ it('returns a save path, rejects a path as suggestedName, and treats cancellatio
   expect(save).toHaveBeenCalledWith(nativeOwner, { suggestedName: 'notes.txt', extensions: ['txt'] }, expect.any(Function))
   await expect(dialog.showSaveDialog(parent)).resolves.toEqual({ canceled: true, filePath: undefined })
   await expect(dialog.showSaveDialog(parent)).rejects.toThrow('did not return a local file path')
+})
+
+it('keeps dialog responses in caller order and maps owner closure to cancelId', async () => {
+  const { parent, ownerOf } = fixture()
+  const show = createDesktopDialog({
+    supported: () => true,
+    ownerOf,
+    open: async () => null,
+    save: async () => null,
+    messageBox: (_owner, options, onOwnerClose) =>
+      options.message === 'Close?' ? new Promise((resolve) => onOwnerClose(() => resolve(null))) : Promise.resolve(1),
+  })
+  const options = { message: 'Discard?', buttons: ['Keep Editing', 'Discard'], cancelId: 0 }
+  await expect(show.showMessageBox(parent, { ...options, defaultId: 2 })).rejects.toThrow(RangeError)
+  await expect(show.showMessageBox(parent, options)).resolves.toEqual({ response: 1 })
+
+  const pending = show.showMessageBox(parent, { ...options, message: 'Close?' })
+  await expect(show.showOpenDialog(parent)).rejects.toThrow('already has a dialog open')
+  parent.destroy()
+  await expect(pending).resolves.toEqual({ response: 0 })
 })

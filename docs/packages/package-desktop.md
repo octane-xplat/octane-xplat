@@ -214,6 +214,53 @@ export async function exportNotes(
 }
 ```
 
+## Confirm before discarding changes
+
+Use `dialog.showMessageBox(window, options)` on AppKit or GTK to ask for a choice in a shown window. The result is a zero-based index into `buttons`. Set `defaultId` and `cancelId` to the safe option for destructive actions. Dismissing the dialog or closing its owner returns the cancel index. Use `dialog.supportsMessageBox` to check availability. A native failure rejects the promise.
+
+```ts
+import { dialog, type DesktopWindow } from '@octane-xplat/desktop'
+
+export async function confirmDiscard(window: DesktopWindow) {
+  if (!dialog.supportsMessageBox) return false
+
+  const { response } = await dialog.showMessageBox(window, {
+    message: 'Discard unsaved changes?',
+    detail: 'Changes since the last save will be lost.',
+    buttons: ['Keep Editing', 'Discard Changes'],
+    defaultId: 0,
+    cancelId: 0,
+  })
+  return response === 1
+}
+```
+
+A close listener must veto the first request before opening the message box. Keep that window open while the user decides, and destroy it only after confirmation.
+
+```ts
+import type { DesktopWindowCloseEvent } from '@octane-xplat/desktop'
+
+export function protectDraft(window: DesktopWindow, isDirty: () => boolean) {
+  let deciding = false
+  const onClose = (event: DesktopWindowCloseEvent) => {
+    if (!isDirty()) return
+    event.preventDefault()
+    if (deciding) return
+
+    deciding = true
+    void confirmDiscard(window)
+      .then((discard) => {
+        if (discard && !window.isClosed) window.destroy()
+      })
+      .catch((error) => console.error('Could not ask about unsaved changes', error))
+      .finally(() => { deciding = false })
+  }
+
+  window.on('close', onClose)
+  return () => window.off('close', onClose)
+}
+```
+
 ## Open a web link in the default browser
 
 Use `shell.openExternal()` for an HTTP or HTTPS link that should open outside your app. Check `shell.supported` before offering the action. The promise resolves when the host accepts the request and rejects if it declines.

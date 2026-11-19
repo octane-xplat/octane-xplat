@@ -76,6 +76,35 @@ function showChooser<Result>(
 export const dialog: DesktopDialog = createDesktopDialog({
   supported: () => typeof Gtk.FileChooserNative?.new === 'function',
   ownerOf: getWindowOwner,
+  messageBox(owner, options, onOwnerClose) {
+    const message = new Gtk.MessageDialog({
+      transient_for: owner,
+      modal: true,
+      text: options.message,
+      secondary_text: options.detail ?? '',
+    })
+    return new Promise<number | null>((resolve, reject) => {
+      try {
+        options.buttons.forEach((label, index) => message.add_button(label, index))
+        message.set_default_response(options.defaultId)
+        let complete = false
+        const finish = (response: number | null) => {
+          if (complete) return
+          complete = true
+          message.destroy()
+          resolve(response)
+        }
+        message.connect('response', (_dialog, response) => {
+          finish(response === Gtk.ResponseType.DELETE_EVENT || response === Gtk.ResponseType.CANCEL ? null : response)
+        })
+        onOwnerClose(() => finish(null))
+        message.present()
+      } catch (error) {
+        message.destroy()
+        reject(error)
+      }
+    })
+  },
   open(owner, options, onOwnerClose) {
     const chooser = Gtk.FileChooserNative.new('Open', owner, Gtk.FileChooserAction.OPEN, null, null)
     return showChooser(chooser, options.extensions, onOwnerClose,

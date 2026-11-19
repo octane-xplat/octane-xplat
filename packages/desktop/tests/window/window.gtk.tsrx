@@ -113,6 +113,25 @@ async function verifyOpenDialog(owner: DesktopWindow) {
   }
   console.log('DESKTOP_SAVE_OK')
 
+  const confirmationBox = dialog.showMessageBox(owner, {
+    message: 'Discard changes?',
+    buttons: ['Keep Editing', 'Discard'],
+    cancelId: 0,
+  })
+  const windows = Gtk.Window.get_toplevels()
+  let answered = false
+  for (let index = 0; index < windows.get_n_items(); index++) {
+    const window = windows.get_item(index)
+    if (window?.get_transient_for() === native && window instanceof Gtk.MessageDialog) {
+      window.response(1)
+      answered = true
+      break
+    }
+  }
+  if (!answered) throw new Error('The GTK message box was not modal to its owner')
+  if ((await confirmationBox).response !== 1) throw new Error('Wrong message box response')
+  console.log('DESKTOP_MESSAGE_OK')
+
   // Xvfb has no window manager. Exercise both GTK calls without assuming they change state.
   owner.minimize()
   owner.restore()
