@@ -7,6 +7,11 @@ go-lockdir-rename. The gate holds the deferred removal rename
 with a foreign live dir before the rename executes — the check-then-act
 window a stale reaper used to turn into a deleted live lock.
 
+With XPLAT_GATE_RESTORE set, renames whose source is this process's own
+trash dir (<target>.reap-<pid>) pause the same way on
+at-lockdir-restore/go-lockdir-restore — holding the restore of a foreign
+capture open so a third dir can land on the freed lock path first.
+
 With XPLAT_MARKS the worker runs marker-child mode: creates
 holding-<XPLAT_ID> inside the marks dir, flags 'violation' if another
 holding-* entry coexists, removes it after XPLAT_HOLD_MS, then releases.
@@ -28,18 +33,29 @@ marks = os.environ.get("XPLAT_MARKS")
 ident = os.environ.get("XPLAT_ID", "worker")
 hold_ms = int(os.environ.get("XPLAT_HOLD_MS") or 2500)
 
+trash_dir = os.path.join(
+    os.path.dirname(lock_dir), "%s.reap-%d" % (target, os.getpid())
+)
+gate_restore = bool(os.environ.get("XPLAT_GATE_RESTORE"))
+
 _orig_rename = os.rename
+
+
+def _gate(name):
+    with open(os.path.join(gate_dir, "at-" + name), "w") as handle:
+        handle.write(str(os.getpid()))
+    deadline = time.monotonic() + 60
+    while not os.path.exists(os.path.join(gate_dir, "go-" + name)):
+        if time.monotonic() > deadline:
+            break
+        time.sleep(0.002)
 
 
 def _rename(src, dst, *args, **kwargs):
     if str(src) == lock_dir:
-        with open(os.path.join(gate_dir, "at-lockdir-rename"), "w") as handle:
-            handle.write(str(os.getpid()))
-        deadline = time.monotonic() + 60
-        while not os.path.exists(os.path.join(gate_dir, "go-lockdir-rename")):
-            if time.monotonic() > deadline:
-                break
-            time.sleep(0.002)
+        _gate("lockdir-rename")
+    elif gate_restore and str(src) == trash_dir:
+        _gate("lockdir-restore")
     return _orig_rename(src, dst, *args, **kwargs)
 
 

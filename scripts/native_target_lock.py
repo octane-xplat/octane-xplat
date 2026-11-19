@@ -32,6 +32,15 @@ dir already landed. Deleting a live lock is never a cleanup option: an
 empty dir accepts a rename on POSIX, so unlinking entries at the lock path
 also opens a window where an acquirer lands a fresh lock under a pending
 rmdir — the shared path itself is never deleted.
+
+A `<target>.reap-<pid>` dir holding a live owner record is a lock in
+exile: a stale capture displaced it and the restore rename lost the freed
+path to a third dir. Its owner still believes it holds the lock, so the
+path is not really free — whoever lands next must vacate and rename the
+exile back before claiming the target. Every contender repeats that check
+right after its staged rename lands, so an exile is always restored before
+any new payload starts; without it the displaced owner and the new holder
+would run concurrently.
 """
 import errno
 import itertools
@@ -169,7 +178,13 @@ class target_lock:
     # live lock is never an option. The remaining residue is a foreign dir
     # displaced for a few syscalls, detected rather than silently destroyed.
     def _remove_lock_dir(self, expected_ino, verify_captured):
-        shutil.rmtree(self.trash_dir, ignore_errors=True)
+        # Clear our trash name only when it does not hold a live exile: a
+        # previously preserved capture still belongs to its owner, and
+        # blindly emptying the name would delete that live lock.
+        if not self._pid_alive(
+            self._read_record(os.path.join(self.trash_dir, "owner.json"))
+        ):
+            shutil.rmtree(self.trash_dir, ignore_errors=True)
         try:
             if expected_ino is not None and os.stat(self.lock_dir).st_ino != expected_ino:
                 return  # resolved or replaced since verification — not ours
@@ -199,15 +214,82 @@ class target_lock:
         try:
             os.rename(self.trash_dir, self.lock_dir)  # foreign dir — put it back
         except OSError:
-            # Another dir already landed: preserve the displaced capture —
-            # the startup sweep skips trash dirs holding a live owner record.
-            self._preserve_trash = True
-            print(
-                "[lock] captured a foreign lock dir while removing ours; "
-                "preserved at %s — its owner may still believe it holds the lock"
-                % self.trash_dir,
-                flush=True,
-            )
+            # Another dir already landed, or a rival restorer beat us to the
+            # exile. Preserve a still-captured foreign dir — the startup
+            # sweep skips trash dirs holding a live owner record and the
+            # next acquirer restores it.
+            if os.path.exists(self.trash_dir):
+                self._preserve_trash = True
+                print(
+                    "[lock] captured a foreign lock dir while removing ours; "
+                    "preserved at %s — its owner may still believe it holds the lock"
+                    % self.trash_dir,
+                    flush=True,
+                )
+
+    def _live_exile_dirs(self):
+        # `<target>.reap-<pid>` dirs whose owner record names a live process
+        # are locks in exile: a stale capture displaced them and the
+        # rename-back lost the freed lock path to a third dir. They still
+        # own the target.
+        exiles = []
+        for entry in os.listdir(self.lock_root):
+            head, _dash, pid_text = entry.rpartition("-")
+            if head != self.target + ".reap" or not pid_text.isdigit():
+                continue
+            exile = os.path.join(self.lock_root, entry)
+            if not os.path.isdir(exile):
+                continue
+            owner = self._read_record(os.path.join(exile, "owner.json"))
+            if self._pid_alive(owner):
+                exiles.append(exile)
+        return exiles
+
+    # Called right after our staged dir lands at the lock path. If a live
+    # exile exists, its owner still holds the lock — our fresh dir landed
+    # only because the path was momentarily free, so vacate it and rename
+    # the exile back before claiming the target. Returns True when the path
+    # was given up and acquisition must re-contend. Rivals racing the same
+    # restore lose their rename and re-check under the new path owner, so
+    # exactly one dir ends up holding the target. The vacating rename can
+    # itself capture a foreign dir if ours was stolen in the same instant;
+    # anything that does not decode to our record goes back to the lock
+    # path or becomes another preserved exile — never deleted.
+    def _restore_live_exiles(self):
+        exiles = self._live_exile_dirs()
+        if not exiles:
+            return False
+        try:
+            os.rename(self.lock_dir, self.staging_dir)  # vacate; our dir survives
+        except OSError:
+            pass  # our dir already vanished — still attempt the restores
+        if os.path.exists(self.staging_dir) and not self._is_our_record(
+            self._read_record(os.path.join(self.staging_dir, "owner.json"))
+        ):
+            try:
+                os.rename(self.staging_dir, self.lock_dir)  # foreign — put it back
+            except OSError:
+                try:
+                    os.rename(self.staging_dir, self.trash_dir)
+                    self._preserve_trash = True
+                    print(
+                        "[lock] displaced a foreign lock dir while yielding "
+                        "to an exile; preserved at %s" % self.trash_dir,
+                        flush=True,
+                    )
+                except OSError:
+                    print(
+                        "[lock] could not place a displaced foreign lock "
+                        "dir; left at %s" % self.staging_dir,
+                        flush=True,
+                    )
+        for exile in exiles:
+            try:
+                os.rename(exile, self.lock_dir)
+                break  # restored one exile; further exiles restore later
+            except OSError:
+                pass  # a rival landed or restored first — it re-checks
+        return True
 
     def _pause(self, seconds):
         if self.fail_fast:
@@ -281,14 +363,26 @@ class target_lock:
                     handle,
                 )
 
+            landed = False
             try:
                 os.rename(self.staging_dir, self.lock_dir)
-                self._dir_ino = os.stat(self.lock_dir).st_ino  # release() may remove only this inode
-                break
+                landed = True
             except OSError:
                 shutil.rmtree(self.staging_dir, ignore_errors=True)
                 if not os.path.exists(self.lock_dir):
                     continue  # reclaimed between our attempts — retry
+
+            if landed:
+                # The path was free, but a displaced live lock may sit
+                # exiled under a reaper's trash name — its owner still owns
+                # the target. Restore it before declaring acquisition.
+                if self._restore_live_exiles():
+                    continue
+                try:
+                    self._dir_ino = os.stat(self.lock_dir).st_ino  # release() may remove only this inode
+                except OSError:
+                    self._dir_ino = None  # release() verifies by owner record alone
+                break
 
             owner = self._read_record(self.owner_file)
             if owner:
@@ -435,6 +529,12 @@ class target_lock:
                     flush=True,
                 )
                 self._remove_lock_dir(expected_ino, self._is_our_reap_capture)
+                if os.path.exists(self.lock_dir):
+                    # Still there: our trash name may be pinned by a
+                    # preserved live exile, blocking the capture rename.
+                    # Wait rather than spin until a lander restores the
+                    # exile or its owner exits.
+                    self._pause(0.15)
         else:
             self._remove_transients()
             raise TargetBusy(self.lock_dir)

@@ -8,25 +8,47 @@
 // executes — the check-then-act window a stale reaper used to turn into a
 // deleted live lock. Removal now re-verifies the captured inode and
 // restores foreign dirs, so the renamed-back dir survives the gate.
+//
+// With XPLAT_GATE_RESTORE set, renames whose source is this process's own
+// trash dir (<target>.reap-<pid>) are gated the same way on
+// at-lockdir-restore/go-lockdir-restore. That second gate holds the
+// restore of a foreign capture open so a third dir can land on the freed
+// lock path first — the interleaving that leaves the displaced live dir
+// preserved under the trash name.
 const fs = require('node:fs')
 const path = require('node:path')
 
 const origRename = fs.renameSync
 const lockDir = process.env.XPLAT_GATE_LOCKDIR
 const gateDir = process.env.XPLAT_GATE_DIR
+const trashDir =
+  process.env.XPLAT_GATE_RESTORE &&
+  lockDir &&
+  path.join(
+    path.dirname(lockDir),
+    path.basename(lockDir, '.lock') + '.reap-' + process.pid,
+  )
+
+function gate(name) {
+  fs.writeFileSync(path.join(gateDir, 'at-' + name), String(process.pid))
+  const deadline = Date.now() + 60000
+  while (!fs.existsSync(path.join(gateDir, 'go-' + name))) {
+    if (Date.now() > deadline) {
+      break
+    }
+    const end = Date.now() + 2
+    while (Date.now() < end) {
+      // busy-wait: hold the rename window open for the test's interleaving
+    }
+  }
+}
 
 fs.renameSync = function (src, dest) {
-  if (src === lockDir && gateDir) {
-    fs.writeFileSync(path.join(gateDir, 'at-lockdir-rename'), String(process.pid))
-    const deadline = Date.now() + 60000
-    while (!fs.existsSync(path.join(gateDir, 'go-lockdir-rename'))) {
-      if (Date.now() > deadline) {
-        break
-      }
-      const end = Date.now() + 2
-      while (Date.now() < end) {
-        // busy-wait: hold the pre-removal window open for the test's swap
-      }
+  if (gateDir) {
+    if (src === lockDir) {
+      gate('lockdir-rename')
+    } else if (src === trashDir) {
+      gate('lockdir-restore')
     }
   }
 

@@ -35,6 +35,15 @@
 // entries at the lock path also opens a window where an acquirer lands a
 // fresh lock under a pending rmdir — the shared path itself is never
 // deleted recursively.
+//
+// A `<target>.reap-<pid>` dir holding a live owner record is a lock in
+// exile: a stale capture displaced it and the restore rename lost the
+// freed path to a third dir. Its owner still believes it holds the lock,
+// so the path is not really free — whoever lands next must vacate and
+// rename the exile back before claiming the target. Every contender
+// repeats that check right after its staged rename lands, so an exile is
+// always restored before any new payload starts; without it the displaced
+// owner and the new holder would run concurrently.
 import { spawn } from 'node:child_process'
 import {
   existsSync,
@@ -152,7 +161,12 @@ function removeTransients() {
 // The remaining residue is a foreign dir displaced for a few syscalls,
 // detected rather than silently destroyed.
 function removeLockDir(expectedIno, verifyCaptured) {
-  rmSync(trashDir, { recursive: true, force: true })
+  // Clear our trash name only when it does not hold a live exile: a
+  // previously preserved capture still belongs to its owner, and blindly
+  // emptying the name would delete that live lock.
+  if (!pidAlive(readRecord(join(trashDir, 'owner.json')))) {
+    rmSync(trashDir, { recursive: true, force: true })
+  }
 
   try {
     if (expectedIno != null && statSync(lockDir).ino !== expectedIno) {
@@ -187,14 +201,109 @@ function removeLockDir(expectedIno, verifyCaptured) {
   try {
     renameSync(trashDir, lockDir) // put the foreign dir back while the path is free
   } catch {
-    // Another dir already landed: preserve the displaced capture — the
-    // startup sweep skips trash dirs holding a live owner record.
-    preserveTrash = true
-    console.error(
-      `[lock] captured a foreign lock dir while removing ours; preserved at ${trashDir}` +
-        ` — its owner may still believe it holds the lock`,
-    )
+    // Another dir already landed, or a rival restorer beat us to the exile.
+    // Preserve a still-captured foreign dir — the startup sweep skips trash
+    // dirs holding a live owner record and the next acquirer restores it.
+    if (existsSync(trashDir)) {
+      preserveTrash = true
+      console.error(
+        `[lock] captured a foreign lock dir while removing ours; preserved at ${trashDir}` +
+          ` — its owner may still believe it holds the lock`,
+      )
+    }
   }
+}
+
+// `<target>.reap-<pid>` dirs whose owner record names a live process are
+// locks in exile: a stale capture displaced them and the rename-back lost
+// the freed lock path to a third dir. They still own the target.
+function liveExileDirs() {
+  const exiles = []
+
+  for (const entry of readdirSync(lockRoot)) {
+    const match = /^(.*)\.reap-\d+$/.exec(entry)
+    if (!match || match[1] !== target) {
+      continue
+    }
+
+    const exile = join(lockRoot, entry)
+
+    try {
+      if (!statSync(exile).isDirectory()) {
+        continue
+      }
+    } catch {
+      continue
+    }
+
+    if (pidAlive(readRecord(join(exile, 'owner.json')))) {
+      exiles.push(exile)
+    }
+  }
+
+  return exiles
+}
+
+// Called right after our staged dir lands at the lock path. If a live
+// exile exists, its owner still holds the lock — our fresh dir landed only
+// because the path was momentarily free, so vacate it and rename the exile
+// back before claiming the target. Returns true when the path was given
+// up and acquisition must re-contend. Rivals racing the same restore lose
+// their rename and re-check under the new path owner, so exactly one dir
+// ends up holding the target. The vacating rename can itself capture a
+// foreign dir if ours was stolen in the same instant; anything that does
+// not decode to our record goes back to the lock path or becomes another
+// preserved exile — never deleted.
+function restoreLiveExiles() {
+  const exiles = liveExileDirs()
+  if (!exiles.length) {
+    return false
+  }
+
+  try {
+    renameSync(lockDir, stagingDir) // vacate; our dir survives at staging
+  } catch {
+    // our dir already vanished — still attempt the restores below
+  }
+
+  try {
+    if (
+      existsSync(stagingDir) &&
+      !isOurRecord(readRecord(join(stagingDir, 'owner.json')))
+    ) {
+      try {
+        renameSync(stagingDir, lockDir) // foreign capture — put it back
+      } catch {
+        try {
+          renameSync(stagingDir, trashDir)
+          preserveTrash = true
+          console.error(
+            `[lock] displaced a foreign lock dir while yielding to an exile;` +
+              ` preserved at ${trashDir}`,
+          )
+        } catch {
+          // even the preserve failed — leave it under the staging name and
+          // warn rather than delete a live dir
+          console.error(
+            `[lock] could not place a displaced foreign lock dir; left at ${stagingDir}`,
+          )
+        }
+      }
+    }
+  } catch {
+    // staging vanished between checks — nothing left to place
+  }
+
+  for (const exile of exiles) {
+    try {
+      renameSync(exile, lockDir)
+      break // restored one exile; further exiles restore on later passes
+    } catch {
+      // a rival landed or restored first — the new path owner re-checks
+    }
+  }
+
+  return true
 }
 
 // Drop staging dirs, claim sources, and trash dirs abandoned by dead
@@ -242,15 +351,33 @@ for (;;) {
     ),
   )
 
+  let landed = false
+
   try {
     renameSync(stagingDir, lockDir)
-    lockIno = statSync(lockDir).ino // the inode release() may remove
-    break
+    landed = true
   } catch {
     rmSync(stagingDir, { recursive: true, force: true })
     if (!existsSync(lockDir)) {
       continue // reclaimed between our attempts — retry
     }
+  }
+
+  if (landed) {
+    // The path was free, but a displaced live lock may sit exiled under a
+    // reaper's trash name — its owner still owns the target. Restore it
+    // before declaring acquisition.
+    if (restoreLiveExiles()) {
+      continue
+    }
+
+    try {
+      lockIno = statSync(lockDir).ino // the inode release() may remove
+    } catch {
+      lockIno = null // release() then verifies by owner record alone
+    }
+
+    break
   }
 
   const owner = readRecord(ownerFile)
@@ -405,6 +532,13 @@ for (;;) {
       `[lock] reclaiming stale ${target} lock (owner pid ${current?.pid ?? 'unknown'} is gone)`,
     )
     removeLockDir(expectedIno, isOurReapCapture)
+
+    if (existsSync(lockDir)) {
+      // Still there: our trash name may be pinned by a preserved live
+      // exile, blocking the capture rename. Wait rather than spin until a
+      // lander restores the exile or its owner exits.
+      await sleep(150)
+    }
   }
 }
 

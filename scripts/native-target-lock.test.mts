@@ -1090,3 +1090,342 @@ test('python target lock release restores a live dir swapped under it', async ()
     await rm(root, { recursive: true, force: true })
   }
 })
+
+// Wait until the displaced victim's record is back at the lock path (the
+// fix: a landing acquirer restores the exiled dir before claiming) or the
+// third acquirer starts holding (the gap: it claimed while the victim was
+// still parked under the reaper's trash name). Which one fires tells the
+// two behaviors apart deterministically.
+async function waitForRestoreOrThird(lockDir, victimPid, marks, timeoutMs = 30000) {
+  const deadline = Date.now() + timeoutMs
+
+  for (;;) {
+    if (readRecord(join(lockDir, 'owner.json'))?.pid === victimPid) {
+      return 'restored'
+    }
+    if (existsSync(join(marks, 'holding-third'))) {
+      return 'claimed'
+    }
+    if (Date.now() > deadline) {
+      throw new Error('third acquirer never landed on the freed lock path')
+    }
+    await sleep(10)
+  }
+}
+
+test('node target lock restores a displaced live dir before a third holder runs', async () => {
+  // Regression: a stale reaper's deferred removal rename captured a live
+  // replacement lock dir, and the restore rename lost the freed lock path
+  // to a third acquisition — the displaced live dir stayed preserved under
+  // the reaper's trash name while its owner kept running, so victim and
+  // third held the lock concurrently. Acquirers now check for exiled live
+  // dirs right after landing and vacate to restore them before claiming
+  // the target. The restore gate fixture parks the capture's rename-back
+  // so the third landing wins deterministically.
+  const root = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const lockRoot = join(root, 'locks')
+  const marks = join(root, 'marks')
+  const ctl = join(root, 'ctl')
+  const lockDir = join(lockRoot, 'ios.lock')
+  const hook = fileURLToPath(new URL('./fixtures/gate-lockdir-rename.cjs', import.meta.url))
+  const wrapper = fileURLToPath(new URL('./with-target-lock.ts', import.meta.url))
+  const env = {
+    ...process.env,
+    XPLAT_NATIVE_LOCK_DIR: lockRoot,
+    XPLAT_NATIVE_LOCK_POLL_MS: '50',
+    XPLAT_GATE_LOCKDIR: lockDir,
+    XPLAT_GATE_DIR: ctl,
+    XPLAT_GATE_RESTORE: '1',
+  }
+
+  let reaper
+  let waiters = []
+
+  try {
+    await mkdir(lockRoot, { recursive: true })
+    await mkdir(marks, { recursive: true })
+    await mkdir(ctl, { recursive: true })
+    await mkdir(lockDir, { recursive: true })
+    await writeFile(
+      join(lockDir, 'owner.json'),
+      JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+    )
+    await writeFile(
+      join(lockDir, '.claim'),
+      JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+    )
+
+    reaper = ownedProcess(
+      process.execPath,
+      [
+        '--require',
+        hook,
+        wrapper,
+        'ios',
+        '--timeout',
+        '90',
+        '--',
+        process.execPath,
+        '-e',
+        markerChild,
+        'reaper',
+        marks,
+      ],
+      { env },
+    )
+
+    // The reaper claims the stale dir and parks before its removal rename.
+    await waitForPath(join(ctl, 'at-lockdir-rename'), 'gated removal rename')
+
+    // Free the path so a waiter lands a real live lock inside the window.
+    const victim = command(
+      process.execPath,
+      [wrapper, 'ios', '--timeout', '90', '--', process.execPath, '-e', markerChild, 'victim', marks],
+      { env, timeout: 120000 },
+    )
+    await rm(lockDir, { recursive: true, force: true })
+
+    const victimPid = await waitForLiveOwner(join(lockDir, 'owner.json'))
+    await waitForHolder(marks)
+
+    // The reaper's rename captures the live dir and parks before the
+    // restore rename — the capture→restore gap a third dir can land in.
+    await writeFile(join(ctl, 'go-lockdir-rename'), '')
+    await waitForPath(join(ctl, 'at-lockdir-restore'), 'gated restore rename')
+
+    const third = command(
+      process.execPath,
+      [wrapper, 'ios', '--timeout', '90', '--', process.execPath, '-e', markerChild, 'third', marks],
+      { env, timeout: 120000 },
+    )
+    waiters = [victim, third]
+
+    const outcome = await waitForRestoreOrThird(lockDir, victimPid, marks)
+    assert.equal(
+      outcome,
+      'restored',
+      'third acquirer held the target while the displaced victim still ran',
+    )
+
+    await writeFile(join(ctl, 'go-lockdir-restore'), '')
+
+    for (const result of await Promise.all(waiters)) {
+      assert.equal(result.code, 0, result.stderr)
+    }
+
+    assert.equal(existsSync(join(marks, 'violation')), false, 'concurrent holders')
+  } finally {
+    await Promise.allSettled(waiters)
+    await reaper?.stop()
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('python target lock restores a displaced live dir before a third holder runs', async () => {
+  // Same regression as the node test, driven through native_target_lock.py
+  // by the gated worker; the victim is a Python claimant and the third
+  // lander a Node wrapper so the restore excludes across implementations.
+  const root = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const lockRoot = join(root, 'locks')
+  const marks = join(root, 'marks')
+  const ctl = join(root, 'ctl')
+  const lockDir = join(lockRoot, 'ios.lock')
+  const pyWorker = fileURLToPath(new URL('./fixtures/gated-lock-worker.py', import.meta.url))
+  const wrapper = fileURLToPath(new URL('./with-target-lock.ts', import.meta.url))
+  const env = {
+    ...process.env,
+    XPLAT_NATIVE_LOCK_DIR: lockRoot,
+    XPLAT_NATIVE_LOCK_POLL_MS: '50',
+    XPLAT_GATE_LOCKDIR: lockDir,
+    XPLAT_GATE_DIR: ctl,
+    XPLAT_GATE_TARGET: 'ios',
+    XPLAT_GATE_RESTORE: '1',
+  }
+
+  let reaper
+  let waiters = []
+
+  try {
+    await mkdir(lockRoot, { recursive: true })
+    await mkdir(marks, { recursive: true })
+    await mkdir(ctl, { recursive: true })
+    await mkdir(lockDir, { recursive: true })
+    await writeFile(
+      join(lockDir, 'owner.json'),
+      JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+    )
+    await writeFile(
+      join(lockDir, '.claim'),
+      JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+    )
+
+    reaper = ownedProcess('python3', [pyWorker], {
+      env: { ...env, XPLAT_MARKS: marks, XPLAT_ID: 'reaper' },
+    })
+
+    await waitForPath(join(ctl, 'at-lockdir-rename'), 'gated removal rename')
+
+    const victim = command('python3', [pyWorker], {
+      env: { ...env, XPLAT_MARKS: marks, XPLAT_ID: 'victim' },
+      timeout: 120000,
+    })
+    await rm(lockDir, { recursive: true, force: true })
+
+    const victimPid = await waitForLiveOwner(join(lockDir, 'owner.json'))
+    await waitForHolder(marks)
+
+    await writeFile(join(ctl, 'go-lockdir-rename'), '')
+    await waitForPath(join(ctl, 'at-lockdir-restore'), 'gated restore rename')
+
+    const third = command(
+      process.execPath,
+      [wrapper, 'ios', '--timeout', '90', '--', process.execPath, '-e', markerChild, 'third', marks],
+      { env, timeout: 120000 },
+    )
+    waiters = [victim, third]
+
+    const outcome = await waitForRestoreOrThird(lockDir, victimPid, marks)
+    assert.equal(
+      outcome,
+      'restored',
+      'third acquirer held the target while the displaced victim still ran',
+    )
+
+    await writeFile(join(ctl, 'go-lockdir-restore'), '')
+
+    for (const result of await Promise.all(waiters)) {
+      assert.equal(result.code, 0, result.stderr)
+    }
+
+    assert.equal(existsSync(join(marks, 'violation')), false, 'concurrent holders')
+  } finally {
+    await Promise.allSettled(waiters)
+    await reaper?.stop()
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('target lock recovers a live exile when the reaper dies mid-capture', async () => {
+  // Same displaced-dir gap, but the stale reaper is killed while parked in
+  // the restore window: its trash dir holds the captured live lock with a
+  // dead reaper pid and a live owner record. The third acquirer still has
+  // to restore it before claiming, and the crash debris — claim source,
+  // staging dir, empty trash name — must not strand later sweeps.
+  const root = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const lockRoot = join(root, 'locks')
+  const marks = join(root, 'marks')
+  const ctl = join(root, 'ctl')
+  const lockDir = join(lockRoot, 'ios.lock')
+  const hook = fileURLToPath(new URL('./fixtures/gate-lockdir-rename.cjs', import.meta.url))
+  const wrapper = fileURLToPath(new URL('./with-target-lock.ts', import.meta.url))
+  const env = {
+    ...process.env,
+    XPLAT_NATIVE_LOCK_DIR: lockRoot,
+    XPLAT_NATIVE_LOCK_POLL_MS: '50',
+    XPLAT_GATE_LOCKDIR: lockDir,
+    XPLAT_GATE_DIR: ctl,
+    XPLAT_GATE_RESTORE: '1',
+  }
+
+  let reaper
+  let waiters = []
+
+  try {
+    await mkdir(lockRoot, { recursive: true })
+    await mkdir(marks, { recursive: true })
+    await mkdir(ctl, { recursive: true })
+    await mkdir(lockDir, { recursive: true })
+    await writeFile(
+      join(lockDir, 'owner.json'),
+      JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+    )
+    await writeFile(
+      join(lockDir, '.claim'),
+      JSON.stringify({ pid: deadPid(), hostname: hostname() }),
+    )
+
+    reaper = ownedProcess(
+      process.execPath,
+      [
+        '--require',
+        hook,
+        wrapper,
+        'ios',
+        '--timeout',
+        '90',
+        '--',
+        process.execPath,
+        '-e',
+        markerChild,
+        'reaper',
+        marks,
+      ],
+      { env },
+    )
+
+    await waitForPath(join(ctl, 'at-lockdir-rename'), 'gated removal rename')
+
+    const victim = command(
+      'python3',
+      [fileURLToPath(new URL('./fixtures/gated-lock-worker.py', import.meta.url))],
+      {
+        env: {
+          ...env,
+          XPLAT_MARKS: marks,
+          XPLAT_ID: 'victim',
+          XPLAT_GATE_TARGET: 'ios',
+        },
+        timeout: 120000,
+      },
+    )
+    await rm(lockDir, { recursive: true, force: true })
+
+    const victimPid = await waitForLiveOwner(join(lockDir, 'owner.json'))
+    await waitForHolder(marks)
+
+    await writeFile(join(ctl, 'go-lockdir-rename'), '')
+    await waitForPath(join(ctl, 'at-lockdir-restore'), 'gated restore rename')
+
+    const third = command(
+      process.execPath,
+      [wrapper, 'ios', '--timeout', '90', '--', process.execPath, '-e', markerChild, 'third', marks],
+      { env, timeout: 120000 },
+    )
+    waiters = [victim, third]
+
+    const outcome = await waitForRestoreOrThird(lockDir, victimPid, marks)
+    assert.equal(
+      outcome,
+      'restored',
+      'third acquirer held the target while the displaced victim still ran',
+    )
+
+    // The reaper dies holding the restored-path bookkeeping: its crash must
+    // not strand the displaced dir or poison later acquisitions.
+    reaper.child.kill('SIGKILL')
+    await writeFile(join(ctl, 'go-lockdir-restore'), '')
+
+    for (const result of await Promise.all(waiters)) {
+      assert.equal(result.code, 0, result.stderr)
+    }
+
+    assert.equal(existsSync(join(marks, 'violation')), false, 'concurrent holders')
+
+    // One more clean acquisition sweeps the dead reaper's debris.
+    const sweep = await command(
+      process.execPath,
+      [wrapper, 'ios', '--timeout', '30', '--', process.execPath, '-e', ''],
+      { env, timeout: 60000 },
+    )
+
+    assert.equal(sweep.code, 0, sweep.stderr)
+    assert.deepEqual(
+      (await readdir(lockRoot)).filter((name) => /reap|staging|claimsrc/.test(name)),
+      [],
+    )
+  } finally {
+    await Promise.allSettled(waiters)
+    await reaper?.stop()
+    await rm(root, { recursive: true, force: true })
+  }
+})
