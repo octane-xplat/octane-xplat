@@ -381,6 +381,27 @@ export function reopenMainWindow(showMainWindow: () => void) {
 }
 ```
 
+## Receive a second launch on GTK
+
+Set `forwardSecondLaunch: true` in `runGtkApp()` to deliver arguments from a later launch to the running app. Both processes need the same application ID and D-Bus session. The later process exits without mounting another window. The original app receives the argument list without the launcher name and, when available, the caller's working directory. It then handles the usual `activate` event.
+
+```ts
+import { app, type DesktopSecondInstanceEvent } from '@octane-xplat/desktop'
+import { runGtkApp } from '@octane-xplat/linux-gtk/host'
+
+export function startGtkEditor(openDocuments: (paths: readonly string[], cwd?: string) => void) {
+  return runGtkApp({ applicationId: 'dev.example.Editor', forwardSecondLaunch: true }, () => {
+    if (!app.supportsSecondInstance) return
+
+    const open = (_event: DesktopSecondInstanceEvent, args: readonly string[], cwd?: string) => {
+      if (args.length > 0) openDocuments(args, cwd)
+    }
+    app.on('second-instance', open)
+    return () => app.off('second-instance', open)
+  })
+}
+```
+
 ## Read the desktop display layout
 
 Call `screen.getAllDisplays()` after startup to read connected displays. Each entry gives the display bounds and scale factor. Coordinates increase rightward and downward. AppKit and GTK use logical units. The Windows bridge uses physical pixels across the virtual desktop, so use `screen.coordinateSpace` before comparing coordinates. Windows apps need a native rebuild for the bridge.

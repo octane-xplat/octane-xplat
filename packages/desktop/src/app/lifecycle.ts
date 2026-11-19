@@ -1,11 +1,13 @@
 import { lookupGlobal, UnavailabilityError } from '@octane-xplat/lib/capability'
-import type { DesktopActivateEvent, DesktopApp, DesktopBeforeQuitEvent } from './types.js'
+import type { DesktopActivateEvent, DesktopApp, DesktopBeforeQuitEvent, DesktopSecondInstanceEvent } from './types.js'
 
 export interface AppLifecycleHost {
   isReady(): boolean
   whenReady(): Promise<void>
   quit(): void
   addQuitGuard(guard: () => boolean): () => void
+  supportsSecondInstance?(): boolean
+  addSecondInstanceHandler?(handler: (argv: readonly string[], workingDirectory: string | undefined) => void): () => void
   addActivateHandler?(handler: (hasVisibleWindows: boolean) => boolean): () => void
 }
 
@@ -27,7 +29,9 @@ function hostFor(bridge: string): AppLifecycleHost | undefined {
 
 type BeforeQuitListener = (event: DesktopBeforeQuitEvent) => void
 type ActivateListener = (event: DesktopActivateEvent, hasVisibleWindows: boolean) => void
-type EventRegistration = ['before-quit', BeforeQuitListener] | ['activate', ActivateListener]
+type SecondInstanceListener = (event: DesktopSecondInstanceEvent, argv: readonly string[], workingDirectory: string | undefined) => void
+type EventRegistration = ['before-quit', BeforeQuitListener] | ['activate', ActivateListener] |
+  ['second-instance', SecondInstanceListener]
 
 function cancelableEvent(): DesktopActivateEvent {
   let prevented = false
@@ -53,6 +57,8 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
   let unsubscribe: (() => void) | undefined
   const activateListeners: ActivateListener[] = []
   let unsubscribeActivate: (() => void) | undefined
+  const secondInstanceListeners: SecondInstanceListener[] = []
+  let unsubscribeSecondInstance: (() => void) | undefined
 
   function host() {
     return typeof bridge === 'function' ? bridge() : bridge ? hostFor(bridge) : undefined
@@ -95,12 +101,27 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
     return !event.defaultPrevented
   }
 
+  function notifySecondInstance(argv: readonly string[], workingDirectory: string | undefined) {
+    for (const listener of secondInstanceListeners.slice()) {
+      try {
+        listener({ type: 'second-instance' }, argv.slice(), workingDirectory)
+      } catch (error) {
+        console.error('[desktop] second-instance listener failed', error)
+      }
+    }
+  }
+
   return {
     get supported() {
       return host() !== undefined
     },
     get supportsActivate() {
       return typeof host()?.addActivateHandler === 'function'
+    },
+    get supportsSecondInstance() {
+      const available = host()
+      return typeof available?.addSecondInstanceHandler === 'function' &&
+        available.supportsSecondInstance?.() === true
     },
     isReady() {
       return host()?.isReady() ?? false
@@ -114,7 +135,7 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
       requireHost().quit()
     },
     on(...[event, listener]: EventRegistration) {
-      if ((event !== 'activate' && event !== 'before-quit') || typeof listener !== 'function') {
+      if ((event !== 'activate' && event !== 'before-quit' && event !== 'second-instance') || typeof listener !== 'function') {
         throw new TypeError('Expected a desktop app event listener')
       }
 
@@ -125,6 +146,14 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
         }
         unsubscribeActivate ??= available.addActivateHandler(requestActivate)
         activateListeners.push(listener)
+      } else if (event === 'second-instance') {
+        const available = host()
+        if (typeof available?.addSecondInstanceHandler !== 'function' ||
+          available.supportsSecondInstance?.() !== true) {
+          throw new UnavailabilityError('app.second-instance')
+        }
+        unsubscribeSecondInstance ??= available.addSecondInstanceHandler(notifySecondInstance)
+        secondInstanceListeners.push(listener)
       } else {
         unsubscribe ??= requireHost().addQuitGuard(requestQuit)
         listeners.push(listener)
@@ -137,6 +166,12 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
         if (activateListeners.length === 0) {
           unsubscribeActivate?.()
           unsubscribeActivate = undefined
+        }
+      } else if (event === 'second-instance') {
+        removeLast(secondInstanceListeners, listener)
+        if (secondInstanceListeners.length === 0) {
+          unsubscribeSecondInstance?.()
+          unsubscribeSecondInstance = undefined
         }
       } else if (event === 'before-quit') {
         removeLast(listeners, listener)

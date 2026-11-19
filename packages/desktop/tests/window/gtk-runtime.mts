@@ -52,7 +52,23 @@ try {
   const path = quote(join(remote, 'app.js'))
 
   run(`cat > ${path}`, readFileSync(join(directory, 'app.js')))
-  const output = run(`timeout 30 xvfb-run -a dbus-run-session -- gjs -m ${path} 2>&1`)
+  const script = [
+    'set -eu',
+    'app="$1/app.js"',
+    'primary_log="$1/primary.log"',
+    'mkdir "$1/second-launch"',
+    'gjs -m "$app" > "$primary_log" 2>&1 &',
+    'primary=$!',
+    `trap 'kill "$primary" 2>/dev/null || true; cat "$primary_log"' EXIT`,
+    'until grep -q DESKTOP_WAITING_FOR_SECOND_INSTANCE "$primary_log"; do',
+    '  kill -0 "$primary" 2>/dev/null || exit 1',
+    '  sleep 0.1',
+    'done',
+    `(cd "$1/second-launch" && timeout 10 gjs -m "$app" 'résumé notes.txt' --integration-flag) > "$1/secondary.log" 2>&1 || { cat "$1/secondary.log"; exit 1; }`,
+    '! grep -q DESKTOP_WAITING_FOR_SECOND_INSTANCE "$1/secondary.log" || exit 1',
+    'wait "$primary"',
+  ].join('\n')
+  const output = run(`timeout 30 xvfb-run -a dbus-run-session -- sh -c ${quote(script)} sh ${quote(remote)} 2>&1`)
 
   assert.doesNotMatch(output, /DESKTOP_WINDOW_FAIL|Gjs-CRITICAL|Gtk-CRITICAL/)
   assert.match(output, /DESKTOP_WINDOW_OK/)
@@ -62,6 +78,7 @@ try {
   assert.match(output, /DESKTOP_SCREEN_OK/)
   assert.match(output, /DESKTOP_BOUNDS_OK/)
   assert.match(output, /DESKTOP_ACTIVATE_OK/)
+  assert.match(output, /DESKTOP_SECOND_INSTANCE_OK/)
   assert.match(output, /DESKTOP_MINIMIZE_OK/)
   assert.match(output, /DESKTOP_APP_QUIT_OK/)
   console.log(output.trim())

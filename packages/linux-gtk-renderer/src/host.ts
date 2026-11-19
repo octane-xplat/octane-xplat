@@ -12,6 +12,8 @@ export { setWindowContentResolver } from './index.js'
 
 const quitGuards = new Set<() => boolean>()
 const activateHandlers = new Set<(hasVisibleWindows: boolean) => boolean>()
+const secondInstanceHandlers = new Set<(argv: readonly string[], workingDirectory: string | undefined) => void>()
+let canForwardSecondLaunch = false
 let didFinish = false
 let quitApplication: (() => void) | undefined
 let resolveReady!: () => void
@@ -32,6 +34,11 @@ const lifecycle = {
   addActivateHandler(handler: (hasVisibleWindows: boolean) => boolean) {
     activateHandlers.add(handler)
     return () => activateHandlers.delete(handler)
+  },
+  supportsSecondInstance: () => canForwardSecondLaunch,
+  addSecondInstanceHandler(handler: (argv: readonly string[], workingDirectory: string | undefined) => void) {
+    secondInstanceHandlers.add(handler)
+    return () => secondInstanceHandlers.delete(handler)
   },
   addQuitGuard(guard: () => boolean) {
     quitGuards.add(guard)
@@ -54,6 +61,8 @@ export interface GtkAppOptions {
   /** Gio.ApplicationFlags — defaults to FLAGS_NONE (primary-instance
    *  semantics; a second launch activates the running window). */
   flags?: number
+  /** Forward arguments and working directory of later launches on the session bus. */
+  forwardSecondLaunch?: boolean
 }
 
 export interface GtkAppMount {
@@ -91,9 +100,13 @@ export function runGtkApp(
   options: GtkAppOptions,
   mount: (target: GtkAppMount) => void | (() => void),
 ): number {
+  const flags = options.flags ?? Gio.ApplicationFlags.FLAGS_NONE
+  if (options.forwardSecondLaunch && (flags & (Gio.ApplicationFlags.NON_UNIQUE | Gio.ApplicationFlags.HANDLES_OPEN))) {
+    throw new Error('forwardSecondLaunch requires a unique GTK application without HANDLES_OPEN')
+  }
   const app = new Gtk.Application({
     application_id: options.applicationId,
-    flags: options.flags ?? Gio.ApplicationFlags.FLAGS_NONE,
+    flags: options.forwardSecondLaunch ? flags | Gio.ApplicationFlags.HANDLES_COMMAND_LINE : flags,
   })
 
   // FLAGS_NONE keeps primary-instance semantics — a second launch re-fires
@@ -149,6 +162,7 @@ export function runGtkApp(
 
     shutdownRan = true
     quitApplication = undefined
+    canForwardSecondLaunch = false
     closeGtkWindows()
     try {
       mountCleanup?.()
@@ -187,6 +201,7 @@ export function runGtkApp(
     const { root, container } = createGtkRoot(content)
 
     mounted = { app, window, content, container, root }
+    canForwardSecondLaunch = !!options.forwardSecondLaunch && app.get_dbus_connection() !== null
     mountCleanup = mount(mounted) ?? undefined
     window.present()
     quitApplication = requestQuit
@@ -194,5 +209,24 @@ export function runGtkApp(
     resolveReady()
   })
 
+  if (options.forwardSecondLaunch) {
+    app.connect('command-line', (_application: Gtk.Application, command: Gio.ApplicationCommandLine) => {
+      if (!command.get_is_remote()) {
+        if (!didFinish) app.activate()
+        return 0
+      }
+
+      const argv = command.get_arguments().slice(1)
+      const directory = command.get_cwd() ?? undefined
+      if (!didFinish) app.activate()
+      void ready.then(() => {
+        if (shutdownRan || quitPending) return
+        for (const handler of Array.from(secondInstanceHandlers)) handler(argv, directory)
+        app.activate()
+      })
+      return 0
+    })
+    return app.run([options.applicationId, ...ARGV])
+  }
   return app.run(null)
 }

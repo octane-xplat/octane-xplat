@@ -1,5 +1,5 @@
 // The GTK preset resolves renderer imports to dist. Load the host from the same build.
-import { app as desktopApp, appMenu, dialog, screen, type DesktopActivateEvent, type DesktopWindow } from '@octane-xplat/desktop'
+import { app as desktopApp, appMenu, dialog, screen, type DesktopActivateEvent, type DesktopSecondInstanceEvent, type DesktopWindow } from '@octane-xplat/desktop'
 import Gtk from 'gi://Gtk?version=4.0'
 import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'
@@ -184,11 +184,31 @@ function verifyScreen() {
   console.log('DESKTOP_SCREEN_OK')
 }
 
-runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop window fixture' }, ({ app, window }) => {
+function verifySecondLaunch() {
+  if (!desktopApp.supportsSecondInstance) throw new Error('GTK did not enable second-launch delivery')
+
+  return new Promise<void>((resolve, reject) => {
+    const listener = (event: DesktopSecondInstanceEvent, argv: readonly string[], directory: string | undefined) => {
+      desktopApp.off('second-instance', listener)
+      if (event.type !== 'second-instance' || JSON.stringify(argv) !== JSON.stringify(['résumé notes.txt', '--integration-flag']) ||
+        !directory?.endsWith('/second-launch')) {
+        reject(new Error(`Unexpected second launch: ${JSON.stringify({ event, argv, directory })}`))
+        return
+      }
+      console.log('DESKTOP_SECOND_INSTANCE_OK')
+      resolve()
+    }
+    desktopApp.on('second-instance', listener)
+    console.log('DESKTOP_WAITING_FOR_SECOND_INSTANCE')
+  })
+}
+
+runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop window fixture', forwardSecondLaunch: true }, ({ app, window }) => {
   setTimeout(() => {
     void ready
       .then(verifyScreen)
       .then(() => verifyActivation(app, window))
+      .then(verifySecondLaunch)
       .then(() =>
         verifyWindowLifecycle(() => {
           if (!observed) {

@@ -508,6 +508,7 @@ declare module 'gi://Gtk?version=4.0' {
       get_menubar(): unknown
       get_active_window(): ApplicationWindow | null
       get_windows(): Window[]
+      get_dbus_connection(): object | null
       activate(): void
     }
   }
@@ -714,7 +715,14 @@ declare module 'gi://Gio' {
       FLAGS_NONE: number
       NON_UNIQUE: number
       HANDLES_OPEN: number
+      HANDLES_COMMAND_LINE: number
       [key: string]: number
+    }
+
+    class ApplicationCommandLine {
+      get_is_remote(): boolean
+      get_arguments(): string[]
+      get_cwd(): string | null
     }
 
     class Application {

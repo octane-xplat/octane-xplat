@@ -19,12 +19,18 @@ export interface DesktopActivateEvent {
   preventDefault(): void
 }
 
+export interface DesktopSecondInstanceEvent {
+  readonly type: 'second-instance'
+}
+
 /** Lifecycle for the native app host. */
 export interface DesktopApp {
   /** Whether the current app host exposes this lifecycle. */
   readonly supported: boolean
   /** Whether this host delivers native reopen requests. */
   readonly supportsActivate: boolean
+  /** Whether this app can receive arguments from a second launch. */
+  readonly supportsSecondInstance: boolean
   /** Whether the host has finished startup and the app can request quit. */
   isReady(): boolean
   /** Wait for startup. Rejects with UnavailabilityError on hosts without app lifecycle. */
@@ -35,7 +41,18 @@ export interface DesktopApp {
   on(event: 'before-quit', listener: (event: DesktopBeforeQuitEvent) => void): this
   /** Listen for requests to reopen an already running app on a supported host. */
   on(event: 'activate', listener: (event: DesktopActivateEvent, hasVisibleWindows: boolean) => void): this
+  /** Receive arguments and working directory from a second launch of the app. */
+  on(event: 'second-instance', listener: (
+    event: DesktopSecondInstanceEvent,
+    argv: readonly string[],
+    workingDirectory: string | undefined,
+  ) => void): this
   /** Remove the most recent registration of this listener. */
   off(event: 'before-quit', listener: (event: DesktopBeforeQuitEvent) => void): this
   off(event: 'activate', listener: (event: DesktopActivateEvent, hasVisibleWindows: boolean) => void): this
+  off(event: 'second-instance', listener: (
+    event: DesktopSecondInstanceEvent,
+    argv: readonly string[],
+    workingDirectory: string | undefined,
+  ) => void): this
 }

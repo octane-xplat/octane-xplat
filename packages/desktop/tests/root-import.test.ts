@@ -73,6 +73,10 @@ it('reports app lifecycle as unavailable without a desktop host', async () => {
   expect(app.supported).toBe(false)
   expect(app.isReady()).toBe(false)
   expect(app.supportsActivate).toBe(false)
+  expect(app.supportsSecondInstance).toBe(false)
+  expect(() => app.on('second-instance', () => {})).toThrowError(
+    expect.objectContaining({ name: 'UnavailabilityError', feature: 'app.second-instance' }),
+  )
   expect(() => app.on('activate', () => {})).toThrowError(
     expect.objectContaining({ name: 'UnavailabilityError', feature: 'app.activate' }),
   )
