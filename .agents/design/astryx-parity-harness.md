@@ -11,7 +11,7 @@ gives `tokens.css`/`chrome.css` fixes a repeatable check.
 ## Location
 
 The harness is a private verification tool in this monorepo, `tools/astryx-parity`
-(`@xplat/astryx-parity`), not a separate repository:
+(`@octane-xplat/astryx-parity`), not a separate repository:
 
 - A fix to `packages/ui` and the check that proves it land in one commit;
   the candidate consumes `@octane-xplat/ui` through `workspace:*` source.

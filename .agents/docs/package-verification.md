@@ -325,7 +325,7 @@ delivery. Android runtime and macOS WebView drag require their own evidence.
 
 ```sh
 bun run turbo run typecheck test build pack:check --filter=@octane-xplat/dnd-kit
-bun run turbo run test --filter=@xplat/web
+bun run turbo run test --filter=@octane-xplat/web
 bun run probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos
 ```
 
@@ -336,6 +336,6 @@ check uses an OS-assigned port and captures no images. It does not establish
 native IME, VoiceOver or TalkBack behavior.
 
 ```sh
-bun run turbo run input:readiness --filter=@xplat/web
+bun run turbo run input:readiness --filter=@octane-xplat/web
 ```
 

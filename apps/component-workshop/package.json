@@ -1,5 +1,5 @@
 {
-  "name": "@xplat/component-workshop",
+  "name": "@octane-xplat/component-workshop",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -36,7 +36,7 @@
     "@octane-xplat/tiptap": "workspace:*",
     "@octane-xplat/ui": "workspace:*",
     "@octane-xplat/video": "workspace:*",
-    "@xplat/demos": "workspace:*",
+    "@octane-xplat/demos": "workspace:*",
     "octane": "catalog:"
   },
   "devDependencies": {
@@ -45,7 +45,7 @@
     "@octane-xplat/workshop": "workspace:*",
     "@octanejs/vite-plugin": "catalog:",
     "@tsrx/content-mapper": "catalog:",
-    "@xplat/astryx-sandbox": "workspace:*",
+    "@octane-xplat/astryx-sandbox": "workspace:*",
     "playwright": "1.63.0",
     "typescript": "catalog:",
     "vite": "catalog:"

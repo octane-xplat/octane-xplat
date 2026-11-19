@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/routing-eval",
+	"name": "@octane-xplat/routing-eval",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",

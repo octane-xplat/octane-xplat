@@ -1,5 +1,5 @@
 // Uses the maintained TabListShowcase example; do not copy its implementation here.
-import { TabListShowcase as Example } from '@xplat/astryx-sandbox/examples/tablist/TabListShowcase.tsrx'
+import { TabListShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/tablist/TabListShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

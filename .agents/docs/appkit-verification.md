@@ -8,7 +8,7 @@ it does not establish OS input, visual parity, or every grid configuration.
 Run the focused check from the repository root:
 
 ```sh
-bun run --filter @xplat/macos test:layout-placement
+bun run --filter @octane-xplat/macos test:layout-placement
 ```
 
 ## Animation scheduling
@@ -184,7 +184,7 @@ nested-JSX probes. The [routing contract notes](notes/routing-contract.md)
 record the related Octane 0.11.0 limitation.
 
 The isolated AppKit overlay fixture passes its overlay assertions
-(`bun run --filter @xplat/macos test:overlays`); that qualifies handler dispatch
+(`bun run --filter @octane-xplat/macos test:overlays`); that qualifies handler dispatch
 and native state, not physical OS input. Its window precondition requires key
 status only when the app can activate: a locked console
 (`CGSSessionScreenIsLocked`, `loginwindow` frontmost) refuses every activation

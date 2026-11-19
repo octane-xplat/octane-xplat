@@ -88,7 +88,7 @@ Choose the narrowest maintained layer that can establish the claim:
 | Package types            | `bun run turbo run typecheck --filter=...@octane-xplat/ui` | Types for the touched package and dependents; no runtime claim           |
 | Shared/native unit tests | `bun run turbo run test:native --filter=@octane-xplat/ui`                 | Node and compiled object-driver regressions; no OS host/input claim      |
 | DOM seam check           | `bun run lint`                                                  | Forbidden DOM usage in native/shared code                                |
-| Web harness smoke        | `bun run turbo run smoke --filter=@xplat/web`                                             | Browser behavior covered by the local smoke script                       |
+| Web harness smoke        | `bun run turbo run smoke --filter=@octane-xplat/web`                                             | Browser behavior covered by the local smoke script                       |
 | Packed starter           | `bun run check:consumer --no-build --quick`                     | Prepared tarballs, isolated install, declarations, and compilation       |
 | Optional adapters        | `bun run check:optional-services --types-only`                  | Adapter types; `--browser` explicitly adds local browser probes          |
 | Native probe/device test | Probe runner or maintained `ns test` suite                   | Only the assertions and target actually executed                         |
@@ -143,8 +143,8 @@ modal cancellation/success and return intents. It does not contact an identity
 provider. Keep browser engines out of PR checks.
 
 ```sh
-bun run --filter @xplat/web smoke:routing
-bun run --filter @xplat/web smoke:routing-auth
+bun run --filter @octane-xplat/web smoke:routing
+bun run --filter @octane-xplat/web smoke:routing-auth
 ```
 
 For separate native Frame/pane/modal commands and measured target limits, use
@@ -205,8 +205,8 @@ self-driving harness timers. Choose a device explicitly and follow the
 [device ownership guidance](../../../docs/testing.md#mobile-end-to-end-tests-with-maestro).
 
 ```sh
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target ios --device DEVICE_UDID
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target android --device DEVICE_SERIAL
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target ios --device DEVICE_UDID
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target android --device DEVICE_SERIAL
 ```
 
 For agent-driven browser/device interaction, use the optional

@@ -34,7 +34,7 @@ export default defineConfig({
     // Bound workers so those compiler subprocesses can finish within their timeouts.
     maxWorkers: 2,
     // Repo-root so package test globs don't traverse pnpm workspace
-    // symlinks (packages/app/node_modules/@xplat/*) and double-run.
+    // symlinks (packages/app/node_modules/@octane-xplat/*) and double-run.
     root: '../..',
     include: ['packages/*/src/**/*.test.{ts,tsx,tsrx}', 'apps/web/test/**/*.test.ts'],
     // Platform-specific tests run from their owning package, where native

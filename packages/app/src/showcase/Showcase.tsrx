@@ -15,7 +15,7 @@ import {
 
 import type { TabSpec, Renderable } from '@octane-xplat/ui'
 import { storage } from '@octane-xplat/platform'
-import { MotionPatterns } from '@xplat/demos'
+import { MotionPatterns } from '@octane-xplat/demos'
 import { DataWorkspace } from './DataWorkspace.tsrx'
 import { DocumentStudio } from './DocumentStudio.tsrx'
 import { Conversation } from './Conversation.tsrx'

@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/macos",
+	"name": "@octane-xplat/macos",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
@@ -33,8 +33,8 @@
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/web-browser": "workspace:*",
-		"@xplat/app": "workspace:*",
-		"@xplat/demos": "workspace:*",
+		"@octane-xplat/app": "workspace:*",
+		"@octane-xplat/demos": "workspace:*",
 		"octane": "catalog:"
 	},
 	"devDependencies": {

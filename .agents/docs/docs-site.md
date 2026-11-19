@@ -33,7 +33,7 @@ web escape props to presentation components to conceal that gap.
 
 ## Verification
 
-Use `turbo run typecheck --filter=...@xplat/docs`, the docs smoke task, and the
+Use `turbo run typecheck --filter=...@octane-xplat/docs`, the docs smoke task, and the
 local responsive/browser checks. Check headings and anchors, modified link
 activation, clipboard failure, menu keyboard dismissal, independent article
 and sidebar scrolling, table overflow, and preview readiness/retry/focus.

@@ -1,5 +1,5 @@
 // Uses the maintained BlockquoteShowcase example; do not copy its implementation here.
-import { BlockquoteShowcase as Example } from '@xplat/astryx-sandbox/examples/blockquote/BlockquoteShowcase.tsrx'
+import { BlockquoteShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/blockquote/BlockquoteShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

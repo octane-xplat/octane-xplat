@@ -8,7 +8,7 @@ import {
   waitUntil,
 } from '@octane-xplat/platform/testing'
 
-import { Counter } from '@xplat/demos/Counter.tsrx'
+import { Counter } from '@octane-xplat/demos/Counter.tsrx'
 
 describe('xplat component in a real runtime', () => {
   it('mounts, reacts to a tap, and unmounts cleanly', async () => {

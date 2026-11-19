@@ -25,13 +25,13 @@ function task(name: string, owner: string) {
 }
 
 if (workflow === 'parity:macos') {
-  run(['--filter', '@xplat/verification', 'parity:coverage'])
-  task('parity', '@xplat/web')
-  task('parity', '@xplat/macos')
+  run(['--filter', '@octane-xplat/verification', 'parity:coverage'])
+  task('parity', '@octane-xplat/web')
+  task('parity', '@octane-xplat/macos')
   run(['node', 'tools/verification/parity-check.ts', '--targets=web,macos'])
 } else if (workflow === 'smoke:macos') {
   for (const name of ['smoke', 'test:animation', 'test:layout-placement']) {
-    task(name, '@xplat/macos')
+    task(name, '@octane-xplat/macos')
   }
 
   for (const file of ['signals.ts', 'counter.tsrx', 'lottie.macos.tsrx']) {

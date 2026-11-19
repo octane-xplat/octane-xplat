@@ -396,7 +396,7 @@ await modalNavigation.push({ to: '/settings' })
 await modalNavigation.dismiss()
 ```
 
-On 2026-10-19, `pnpm --filter @xplat/web smoke:routing` passed 11 assertions in
+On 2026-10-19, `pnpm --filter @octane-xplat/web smoke:routing` passed 11 assertions in
 headless Chromium from production-built CSR output. Assertions inspect the DOM
 immediately after awaited navigation, use browser pointer activation, preserve
 DOM/local state through refresh, replace an entry, traverse Back/Forward, and
@@ -569,7 +569,7 @@ universal type identities. Published peer bounds are unchanged; this evidence
 qualifies the installed 0.11.0 setup.
 
 ```sh
-bun run turbo run test:routing --filter=@xplat/macos
+bun run turbo run test:routing --filter=@octane-xplat/macos
 ```
 
 Qualification used the repository's ObjC Mason facade, shipped prebuilt as

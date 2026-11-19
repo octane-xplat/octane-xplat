@@ -114,7 +114,7 @@ AppKit host; assertions within remain action-dispatch tier.
 ## Not yet run / open
 
 - macos-appkit `test:portals`, `test:overflow`, `test:gestures`;
-  `@xplat/macos` smoke sweep.
+  `@octane-xplat/macos` smoke sweep.
 - IME: marked-text paths proven only through direct `setMarkedText`/
   `unmarkText` calls (T2); a real input-method composition (T3/T4) is
   untested — CGEvent dead-key sequences are the next step.

@@ -4,7 +4,7 @@ The site renders the Markdown files in `docs/`. From the repository root,
 run the preview command:
 
 ```sh
-bun run --filter @xplat/docs dev
+bun run --filter @octane-xplat/docs dev
 ```
 
 Guides live in `docs/start/`, `docs/app/`, `docs/platform/`, and
@@ -74,7 +74,7 @@ The front page (`docs/README.md`, served at `/`) uses highlights for key phrases
 and its first-app link. Build and check the rendered site with:
 
 ```sh
-bun run turbo run smoke --filter=@xplat/docs
+bun run turbo run smoke --filter=@octane-xplat/docs
 ```
 
 ## Shared UI and browser host
@@ -112,8 +112,8 @@ These generated pages join the sidebar, search, and agent-readable exports.
 Update TSDoc beside declarations rather than editing the ignored Markdown.
 
 ```sh
-bun run turbo run api --filter=@xplat/docs
-bun run turbo run build --filter=@xplat/docs
+bun run turbo run api --filter=@octane-xplat/docs
+bun run turbo run build --filter=@octane-xplat/docs
 ```
 
 The docs build depends on this task. Missing declaration targets fail the build;

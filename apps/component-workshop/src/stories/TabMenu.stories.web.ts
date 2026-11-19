@@ -1,5 +1,5 @@
 // Uses the maintained TabMenuShowcase example; do not copy its implementation here.
-import { TabMenuShowcase as Example } from '@xplat/astryx-sandbox/examples/tabmenu/TabMenuShowcase.tsrx'
+import { TabMenuShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/tabmenu/TabMenuShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

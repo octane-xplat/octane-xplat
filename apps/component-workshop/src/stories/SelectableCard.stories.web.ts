@@ -1,5 +1,5 @@
 // Uses the maintained SelectableCardShowcase example; do not copy its implementation here.
-import { SelectableCardShowcase as Example } from '@xplat/astryx-sandbox/examples/card/SelectableCardShowcase.tsrx'
+import { SelectableCardShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/card/SelectableCardShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

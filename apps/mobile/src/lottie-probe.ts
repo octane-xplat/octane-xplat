@@ -17,7 +17,7 @@ import {
 // element so the probe exercises the same copy consumers get.
 import '@octane-xplat/lottie'
 import { ELEMENTS } from '@octane-xplat/nativescript-octane'
-import { router } from '@xplat/app'
+import { router } from '@octane-xplat/app'
 import { getStack } from '@octane-xplat/ui/routing'
 import { java } from '@octane-xplat/platform/android'
 

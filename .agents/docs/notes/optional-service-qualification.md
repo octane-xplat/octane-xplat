@@ -76,7 +76,7 @@ measure playback state, not audible output. They neither capture screenshots
 nor render selected images. They do not mock a successful provider sign-in or
 push delivery. CI uses `--types-only` because its package suites already run
 the Node tests. The three-engine browser probes run locally through
-`bun run turbo run test:e2e --filter=@xplat/verification` or the explicit command below.
+`bun run turbo run test:e2e --filter=@octane-xplat/verification` or the explicit command below.
 
 ```sh
 bun run check:optional-services --browser

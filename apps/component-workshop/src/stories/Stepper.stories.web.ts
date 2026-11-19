@@ -1,5 +1,5 @@
 // Uses the maintained StepperShowcase example; do not copy its implementation here.
-import { StepperShowcase as Example } from '@xplat/astryx-sandbox/examples/stepper/StepperShowcase.tsrx'
+import { StepperShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/stepper/StepperShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

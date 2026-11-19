@@ -2,19 +2,19 @@ import { install as installGestureHandler } from '@nativescript-community/gestur
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
-import { App } from '@xplat/app'
-import { VirtualList as VirtualListDemo } from '@xplat/demos'
-import { installParityDump } from '@xplat/app/parity/measure'
+import { App } from '@octane-xplat/app'
+import { VirtualList as VirtualListDemo } from '@octane-xplat/demos'
+import { installParityDump } from '@octane-xplat/app/parity/measure'
 import {
   VirtualListBenchmark,
   VirtualListBenchmarkFixed,
-} from '@xplat/app/virtual-list-benchmark-host.mobile'
+} from '@octane-xplat/app/virtual-list-benchmark-host.mobile'
 
-import { probeSignal$ } from '@xplat/app/probe-state'
+import { probeSignal$ } from '@octane-xplat/app/probe-state'
 import {
   runVirtualListBenchmark,
   runVirtualListInputBenchmark,
-} from '@xplat/app/platform/virtual-list-benchmark.mobile'
+} from '@octane-xplat/app/platform/virtual-list-benchmark.mobile'
 
 import {
   VIRTUAL_LIST_BENCH_FIXED_MODE,
@@ -22,17 +22,17 @@ import {
   VIRTUAL_LIST_BENCH_MODE,
   VIRTUAL_LIST_INPUT_DURATION_MS,
   VIRTUAL_LIST_INPUT_MODE,
-} from '@xplat/app/platform/virtual-list-benchmark-mode.mobile'
+} from '@octane-xplat/app/platform/virtual-list-benchmark-mode.mobile'
 
-import { bottomSheetHost } from '@xplat/app/platform/sheet'
-import '@xplat/app/platform/filepick.mobile'
+import { bottomSheetHost } from '@octane-xplat/app/platform/sheet'
+import '@octane-xplat/app/platform/filepick.mobile'
 import { getColorScheme, setThemePreference } from '@octane-xplat/ui'
 
 import { registerStack, getStack } from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
-import { storage, router } from '@xplat/app'
+import { storage, router } from '@octane-xplat/app'
 import 'octane/signals'
 import { android } from '@octane-xplat/platform/android'
 import { CGPointMake, UIBezierPath } from '@octane-xplat/platform/ios'
@@ -45,7 +45,7 @@ installGestureHandler()
 
 installParityDump()
 if (!VIRTUAL_LIST_BENCH_MODE) {
-  void import('@xplat/app/platform/paritysweep')
+  void import('@octane-xplat/app/platform/paritysweep')
 }
 
 // Per-file css module imports — same shape as apps/web/src/main.tsrx. Each
@@ -56,8 +56,8 @@ import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import '@octane-xplat/ui/theme/utilities.css'
 import 'virtual:bamboo.css'
-import '@xplat/demos/demo.css'
-import '@xplat/app/app.css'
+import '@octane-xplat/demos/demo.css'
+import '@octane-xplat/app/app.css'
 
 // Trace the nav pipeline end-to-end: NAVIGATE → pushViewController → DID_show.
 Trace.enable()

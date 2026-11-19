@@ -1,5 +1,5 @@
 // Uses the maintained InternationalizationProvider03RtlDirection example; do not copy its implementation here.
-import { InternationalizationProvider03RtlDirection as Example } from '@xplat/astryx-sandbox/examples/internationalization/InternationalizationProvider03RtlDirection.web.tsrx'
+import { InternationalizationProvider03RtlDirection as Example } from '@octane-xplat/astryx-sandbox/examples/internationalization/InternationalizationProvider03RtlDirection.web.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

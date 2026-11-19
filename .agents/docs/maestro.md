@@ -10,8 +10,8 @@ device. Replace `DEVICE_ID` in either command:
 
 ```sh
 bun install
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target ios --device DEVICE_ID
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target android --device DEVICE_ID
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target ios --device DEVICE_ID
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target android --device DEVICE_ID
 ```
 
 The runner builds without HMR, installs the app on the selected device,
@@ -25,15 +25,15 @@ For an existing build, pass an iOS simulator `.app` directory or an Android
 `.apk` file. Relative paths are resolved from the repository root:
 
 ```sh
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target android --device DEVICE_ID --artifact /tmp/counter.apk
-bun run turbo run test:maestro --filter=@xplat/maestro -- --help
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target android --device DEVICE_ID --artifact /tmp/counter.apk
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --help
 ```
 
 For another app, supply its artifact, app ID, and flow together. The runner
 installs or replaces that app, so select an app and device reserved for tests:
 
 ```sh
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target android --device DEVICE_ID \
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target android --device DEVICE_ID \
   --artifact /tmp/myapp.apk --app-id org.example.myapp \
   --flow .maestro/myapp.yaml
 ```
@@ -46,7 +46,7 @@ For CI, provision the device and Maestro first, run the same command, and
 collect the chosen output folder even when a test fails:
 
 ```sh
-bun run turbo run test:maestro --filter=@xplat/maestro -- --target android --device DEVICE_ID --output research/maestro/ci-android
+bun run turbo run test:maestro --filter=@octane-xplat/maestro -- --target android --device DEVICE_ID --output research/maestro/ci-android
 ```
 
 **Qualification status:** the maintained flow and runner are a starting

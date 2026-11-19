@@ -72,7 +72,7 @@ been verified in an arm64 VM),
 
 ```sh
 bun install          # in the repo root
-bun run turbo run gen --filter=@xplat/app
+bun run turbo run gen --filter=@octane-xplat/app
 pnpm -C apps/windows xplat dev windows
 # or: pnpm -C apps/windows windows
 ```
@@ -85,7 +85,7 @@ dependency runs in the same graph, so the sequential limit also covers
 generation; the Windows build script starts NativeScript directly.
 
 ```sh
-bun run turbo run build:windows --filter=@xplat/windows --concurrency=1 -- --release
+bun run turbo run build:windows --filter=@octane-xplat/windows --concurrency=1 -- --release
 ```
 
 
@@ -95,7 +95,7 @@ After adopting the workspace patch set, run the Windows filesystem regressions
 against the installed core package from the repository root:
 
 ```sh
-bun run turbo run test:filesystem --filter=@xplat/windows
+bun run turbo run test:filesystem --filter=@octane-xplat/windows
 ```
 
 These Node/VM tests fake the native file backend. They do not open OS files or
@@ -104,5 +104,5 @@ to the folder containing file-system/file-system-access.windows.js:
 
 ```powershell
 $env:WINDOWS_CORE_ARTIFACT = 'C:\path\to\candidate-core'
-bun run turbo run test:filesystem --filter=@xplat/windows
+bun run turbo run test:filesystem --filter=@octane-xplat/windows
 ```

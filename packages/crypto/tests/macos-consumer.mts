@@ -26,7 +26,7 @@ try {
 await writeFile(
   join(app, 'package.json'),
   JSON.stringify({
-    name: '@xplat/crypto-macos-consumer',
+    name: '@octane-xplat/crypto-macos-consumer',
     private: true,
     version: '1.0.0',
     type: 'module',

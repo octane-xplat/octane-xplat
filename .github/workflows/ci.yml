@@ -69,20 +69,20 @@ jobs:
           bun run check:vendored && bun run check:vite-tsconfigs && bun run check:changelog && bun run check:doc-examples
 
       - name: Typecheck web
-        run: bun run turbo run typecheck --filter=@xplat/web
+        run: bun run turbo run typecheck --filter=@octane-xplat/web
 
       - name: Typecheck mobile
-        run: bun run turbo run typecheck --filter=@xplat/mobile
+        run: bun run turbo run typecheck --filter=@octane-xplat/mobile
 
-      # @xplat/visual runs browser-mode vitest (Playwright) — excluded here;
+      # @octane-xplat/visual runs browser-mode vitest (Playwright) — excluded here;
       # it runs locally via the same `bun run test` script.
       - name: Test
         run: >-
-          bun run turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
+          bun run turbo run test test:native --concurrency=2 --filter='!@octane-xplat/visual' &&
           node --test examples/auth/server-verification.test.mts && bun run test:scripts
 
       - name: Build web app
-        run: bun run turbo run build --filter=@xplat/web
+        run: bun run turbo run build --filter=@octane-xplat/web
 
       # Runtime packages ship source; prepare declarations and required assets.
       - name: Prepare packages

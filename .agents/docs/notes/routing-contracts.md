@@ -946,7 +946,7 @@ dev shells, whose working directories do not own that route catalog.
 ```sh
 bun run xplat routes --watch
 bun run xplat dev web
-bun run turbo run routes:watch --filter=@xplat/app
+bun run turbo run routes:watch --filter=@octane-xplat/app
 ```
 
 The watcher uses containing-directory handles to observe atomic saves and

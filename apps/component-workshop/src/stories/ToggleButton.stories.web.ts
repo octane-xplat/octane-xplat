@@ -1,5 +1,5 @@
 // Uses the maintained ToggleButtonShowcase example; do not copy its implementation here.
-import { ToggleButtonShowcase as Example } from '@xplat/astryx-sandbox/examples/togglebutton/ToggleButtonShowcase.tsrx'
+import { ToggleButtonShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/togglebutton/ToggleButtonShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

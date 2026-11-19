@@ -1,4 +1,4 @@
-# `@xplat/media-probe`
+# `@octane-xplat/media-probe`
 
 A standalone probe package for the media plugin seams — private, not a
 dependency of the harness app. It exercises the underlying NativeScript
@@ -16,7 +16,7 @@ import {
   playUiTone,
   stopUiTones,
   createAudioPlayer,
-} from '@xplat/media-probe'
+} from '@octane-xplat/media-probe'
 ```
 
 The package is plugin-shaped: `platforms/{ios,android}` carries the plugin

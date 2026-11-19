@@ -1,5 +1,5 @@
 // Uses the maintained ResizableShowcase example; do not copy its implementation here.
-import { ResizableShowcase as Example } from '@xplat/astryx-sandbox/examples/resizable/ResizableShowcase.tsrx'
+import { ResizableShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/resizable/ResizableShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

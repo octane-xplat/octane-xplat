@@ -10,8 +10,8 @@ import {
   type TextInputView,
 } from '@octane-xplat/platform/testing'
 
-import { GoalCounter } from '@xplat/demos/GoalCounter.tsrx'
-import { PackingList } from '@xplat/demos/PackingList.tsrx'
+import { GoalCounter } from '@octane-xplat/demos/GoalCounter.tsrx'
+import { PackingList } from '@octane-xplat/demos/PackingList.tsrx'
 
 describe('docs demos in a native runtime', () => {
   it('completes, undoes and resets a goal', async () => {

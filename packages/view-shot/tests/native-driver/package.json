@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/view-shot-native-api",
+	"name": "@octane-xplat/view-shot-native-api",
 	"private": true,
 	"type": "module",
 	"scripts": {

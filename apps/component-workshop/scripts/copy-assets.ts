@@ -39,16 +39,16 @@ function inspect(file: string) {
 }
 
 for (const entry of Object.values(catalog)) {
-  if (entry.module.startsWith('@xplat/astryx-sandbox/examples/')) {
+  if (entry.module.startsWith('@octane-xplat/astryx-sandbox/examples/')) {
     inspect(
       resolve(
         root,
         '../astryx-sandbox/src/examples',
-        entry.module.replace('@xplat/astryx-sandbox/examples/', ''),
+        entry.module.replace('@octane-xplat/astryx-sandbox/examples/', ''),
       ),
     )
-  } else if (entry.module.startsWith('@xplat/demos/')) {
-    inspect(resolve(root, '../../packages/demos/src', entry.module.replace('@xplat/demos/', '')))
+  } else if (entry.module.startsWith('@octane-xplat/demos/')) {
+    inspect(resolve(root, '../../packages/demos/src', entry.module.replace('@octane-xplat/demos/', '')))
   }
 }
 

@@ -14,7 +14,7 @@ drivers, browser input, native callbacks and OS input establish different things
 
    ```sh
    bun install --frozen-lockfile
-   bun run --filter @xplat/web build
+   bun run --filter @octane-xplat/web build
    node apps/web/scripts/navigation.ts
    ```
 
@@ -25,7 +25,7 @@ drivers, browser input, native callbacks and OS input establish different things
 2. Run the isolated CSR contract fixture:
 
    ```sh
-   bun run --filter @xplat/web smoke:routing
+   bun run --filter @octane-xplat/web smoke:routing
    ```
 
    Its generated startup supplies the catalog, context, stacks and incoming-link
@@ -196,7 +196,7 @@ the declaration graph passed. These are not fresh desktop runtime runs;
 Windows still has no VM available.
 
 ```sh
-bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@xplat/mobile --concurrency=2
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@octane-xplat/mobile --concurrency=2
 bun run --filter @octane-xplat/ui pack:check
 ```
 
@@ -223,8 +223,8 @@ packed exports. Desktop evidence for this refinement is source/type checking;
 Windows has no VM. Owned simulators/emulators were shut down afterward.
 
 ```sh
-bun run --filter @xplat/web smoke:routing
-bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@xplat/mobile --filter=...@xplat/web --concurrency=2
+bun run --filter @octane-xplat/web smoke:routing
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/mobile --filter=...@octane-xplat/web --concurrency=2
 ```
 
 ## Scoped search editing
@@ -438,7 +438,7 @@ production JS and runs the
 JavaScriptCore/AppKit host.
 
 ```sh
-bun run --filter @xplat/macos test:routing
+bun run --filter @octane-xplat/macos test:routing
 ```
 
 The current canonical fixture passed **202 checks** with a locally built
@@ -465,7 +465,7 @@ system reduced-motion skips and live preference changes use deterministic tests.
 
 ```sh
 bun run --cwd packages/ui vitest run src/appkit-route-transition.test.ts
-bun run --filter @xplat/macos test:routing
+bun run --filter @octane-xplat/macos test:routing
 ```
 
 The helper uses the existing numeric controller and AppKit writer. These are
@@ -574,7 +574,7 @@ it. Linux and Windows have source/type evidence for this refinement; Windows
 runtime remains unavailable.
 
 ```sh
-bun run --filter @xplat/web build
+bun run --filter @octane-xplat/web build
 node apps/web/scripts/navigation.ts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
@@ -618,7 +618,7 @@ Run the shared controlled sign-in example in unit tests and production Chromium:
 
 ```sh
 bun run --cwd packages/ui vitest run src/authentication-routing.web.test.tsrx
-bun run --filter @xplat/web smoke:routing-auth
+bun run --filter @octane-xplat/web smoke:routing-auth
 ```
 
 The four Octane DOM renderer/jsdom cases and **20 production Chromium checks**
@@ -684,8 +684,8 @@ the native navigation fixture does not qualify every renderer boundary,
 accessibility behavior or unrelated UI component.
 
 ```sh
-bun run turbo run typecheck --filter=@xplat/windows
-bun run turbo run typecheck --filter=@xplat/linux
+bun run turbo run typecheck --filter=@octane-xplat/windows
+bun run turbo run typecheck --filter=@octane-xplat/linux
 ```
 
 
@@ -722,7 +722,7 @@ evidence for this refinement; there is no Windows VM. The earlier Linux
 WebKitGTK runtime result remains historical.
 
 ```sh
-bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@xplat/mobile --filter=...@xplat/macos --concurrency=2
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/mobile --filter=...@octane-xplat/macos --concurrency=2
 bun run --filter @octane-xplat/ui pack:check
 ```
 
@@ -750,7 +750,7 @@ behavior for the programmatic map example. The earlier rendered baked-file
 checks remain separate evidence.
 
 ```sh
-bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@xplat/mobile --concurrency=2
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@octane-xplat/mobile --concurrency=2
 ```
 
 
@@ -935,7 +935,7 @@ rendered through the generated client without restarting the server; removed
 destinations stopped matching. Browser and generation error arrays were empty.
 
 ```sh
-bun run --filter @xplat/web smoke:routing-watch
+bun run --filter @octane-xplat/web smoke:routing-watch
 ```
 
 The fixture uses the real watcher and generator against its own temporary files,
@@ -1105,7 +1105,7 @@ replacement after revalidation. A remaining parent modal supplies the fallback.
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/modal-focus.web.test.tsrx
-bun run --filter @xplat/web smoke:routing
+bun run --filter @octane-xplat/web smoke:routing
 ```
 
 The focused suite passed 49 tests. It covers dialog naming, per-flow focus
@@ -1133,7 +1133,7 @@ its own DOM container, so hidden outlet/staging content does not become the targ
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/modal-focus.web.test.tsrx src/browser-route-effects.web.test.ts
-bun run --filter @xplat/web smoke:routing
+bun run --filter @octane-xplat/web smoke:routing
 ```
 
 The focused suite passed 55 tests. The production Chromium suite passed 108
@@ -1309,7 +1309,7 @@ The creator disposes the instance; removing one pane leaves another usable.
 
 ```sh
 bun run --cwd packages/ui vitest run src/RouterPane.web.test.tsrx src/routing-package.test.ts
-bun run --filter @xplat/web smoke:routing
+bun run --filter @octane-xplat/web smoke:routing
 ```
 
 Qualification on 2026-10-20 passed 244 focused routing tests, 78 native
@@ -1341,7 +1341,7 @@ routing_ui_package='/absolute/path/to/disposable/extracted/package'
 ln -s "$PWD/packages/ui/node_modules" "$routing_ui_package/node_modules"
 XPLAT_ROUTING_UI_PACKAGE="$routing_ui_package" \
   bun run --cwd packages/ui vitest run src/routing-package.test.ts
-bun run --filter @xplat/web smoke:routing-pane-packed "$routing_ui_package"
+bun run --filter @octane-xplat/web smoke:routing-pane-packed "$routing_ui_package"
 ```
 
 The shared fixture uses module-level JSX components. The installed universal
@@ -1361,9 +1361,9 @@ starter, adds the guides as `.xplat-docs/`, runs your agent command, then
 grades the result. The agent never sees the graders.
 
 ```sh
-bun run --filter @xplat/routing-eval eval --mode reference
-bun run --filter @xplat/routing-eval eval --mode baseline
-bun run --filter @xplat/routing-eval eval --mode agent --agent 'my-agent --cwd {dir} --prompt-file {prompt_file}' --trials 3
+bun run --filter @octane-xplat/routing-eval eval --mode reference
+bun run --filter @octane-xplat/routing-eval eval --mode baseline
+bun run --filter @octane-xplat/routing-eval eval --mode agent --agent 'my-agent --cwd {dir} --prompt-file {prompt_file}' --trials 3
 ```
 
 The six tasks are a first typed detail route, validated search with history-

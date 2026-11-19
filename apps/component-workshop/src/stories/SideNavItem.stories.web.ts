@@ -1,5 +1,5 @@
 // Uses the maintained SideNavItemShowcase example; do not copy its implementation here.
-import { SideNavItemShowcase as Example } from '@xplat/astryx-sandbox/examples/sidenavitem/SideNavItemShowcase.tsrx'
+import { SideNavItemShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/sidenavitem/SideNavItemShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

@@ -1,5 +1,5 @@
 // Uses the maintained BaseTypeaheadShowcase example; do not copy its implementation here.
-import { BaseTypeaheadShowcase as Example } from '@xplat/astryx-sandbox/examples/typeahead/BaseTypeaheadShowcase.tsrx'
+import { BaseTypeaheadShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/typeahead/BaseTypeaheadShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

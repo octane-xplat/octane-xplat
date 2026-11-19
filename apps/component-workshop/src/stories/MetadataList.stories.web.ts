@@ -1,5 +1,5 @@
 // Uses the maintained MetadataListShowcase example; do not copy its implementation here.
-import { MetadataListShowcase as Example } from '@xplat/astryx-sandbox/examples/metadatalist/MetadataListShowcase.tsrx'
+import { MetadataListShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/metadatalist/MetadataListShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

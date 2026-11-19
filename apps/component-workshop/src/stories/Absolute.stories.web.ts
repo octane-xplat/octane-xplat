@@ -1,5 +1,5 @@
 // Uses the maintained LayoutDemo example; do not copy its implementation here.
-import { LayoutDemo as Example } from '@xplat/demos/LayoutDemo.tsrx'
+import { LayoutDemo as Example } from '@octane-xplat/demos/LayoutDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

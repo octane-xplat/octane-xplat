@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot } from 'octane'
 import { View, Text, Link, postToHost } from '@octane-xplat/ui'
-import { GoalCounter } from '@xplat/demos/GoalCounter.tsrx'
-import { PackingList } from '@xplat/demos/PackingList.tsrx'
+import { GoalCounter } from '@octane-xplat/demos/GoalCounter.tsrx'
+import { PackingList } from '@octane-xplat/demos/PackingList.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import '@octane-xplat/ui/theme/utilities.css'

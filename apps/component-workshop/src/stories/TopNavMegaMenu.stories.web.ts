@@ -1,5 +1,5 @@
 // Uses the maintained TopNavMegaMenuShowcase example; do not copy its implementation here.
-import { TopNavMegaMenuShowcase as Example } from '@xplat/astryx-sandbox/examples/topnavmegamenu/TopNavMegaMenuShowcase.tsrx'
+import { TopNavMegaMenuShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/topnavmegamenu/TopNavMegaMenuShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

@@ -1,5 +1,5 @@
 // Uses the maintained ContextMenuShowcase example; do not copy its implementation here.
-import { ContextMenuShowcase as Example } from '@xplat/astryx-sandbox/examples/menu/ContextMenuShowcase.tsrx'
+import { ContextMenuShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/menu/ContextMenuShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

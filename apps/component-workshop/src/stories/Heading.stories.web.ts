@@ -1,5 +1,5 @@
 // Uses the maintained HeadingShowcase example; do not copy its implementation here.
-import { HeadingShowcase as Example } from '@xplat/astryx-sandbox/examples/heading/HeadingShowcase.tsrx'
+import { HeadingShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/heading/HeadingShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

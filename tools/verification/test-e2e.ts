@@ -34,7 +34,7 @@ for (const browser of browsers) {
     'sheet:readiness',
     'smoke',
   ]) {
-    run(['turbo', 'run', name, '--filter=@xplat/web'], env)
+    run(['turbo', 'run', name, '--filter=@octane-xplat/web'], env)
   }
 
   run(['turbo', 'run', 'test:e2e', '--filter=@octane-xplat/lightbox'], env)

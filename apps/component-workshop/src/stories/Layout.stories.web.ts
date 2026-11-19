@@ -1,5 +1,5 @@
 // Uses the maintained LayoutShowcase example; do not copy its implementation here.
-import { LayoutShowcase as Example } from '@xplat/astryx-sandbox/examples/layout/LayoutShowcase.tsrx'
+import { LayoutShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/layout/LayoutShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

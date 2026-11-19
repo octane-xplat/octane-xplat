@@ -1,5 +1,5 @@
 // Uses the maintained BreadcrumbItemShowcase example; do not copy its implementation here.
-import { BreadcrumbItemShowcase as Example } from '@xplat/astryx-sandbox/examples/breadcrumbitem/BreadcrumbItemShowcase.tsrx'
+import { BreadcrumbItemShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/breadcrumbitem/BreadcrumbItemShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

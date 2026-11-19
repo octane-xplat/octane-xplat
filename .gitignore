@@ -53,7 +53,7 @@ packages/*/platforms/android/*.aar
 /tools/desktop-support/*.json
 /tools/desktop-support/*.tsv
 
-# Generated from public declarations by @xplat/docs#api.
+# Generated from public declarations by @octane-xplat/docs#api.
 /docs/api/
 
 # Starter patch copies generated from packages/cli/patches by sync-patches.ts.

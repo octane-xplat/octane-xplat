@@ -251,7 +251,7 @@ behavior and layout 3/3 engines, performance 10/10 budgets.
 
 Remaining gates (not waived): **GTK** and **WinUI** — no authorized
 environments; **visual parity** — not authorized; Android evidence is one
-physical device. Pre-existing `@xplat/mobile` typecheck failure reproduces on
+physical device. Pre-existing `@octane-xplat/mobile` typecheck failure reproduces on
 the pristine parent (39 errors outside markdown). Evidence:
 `~/dev/reports/octane-xplat/astryx-markdown-m6-evidence.md`.
 

@@ -207,9 +207,9 @@ emission still uses its fixed unsuffixed-first order; a declaration emit does no
 prove platform isolation or runtime selection.
 
 - **`exports` wildcards don't extension-resolve** (verified): `"./\*":
-"./src/*"` maps `@xplat/app/platform/storage` to a literal extensionless
+"./src/*"` maps `@octane-xplat/app/platform/storage` to a literal extensionless
   path that neither tsc nor vite/rolldown can load. Deep platform imports must
-  go through a barrel (`@xplat/app` re-exporting `./platform/storage`) or a
+  go through a barrel (`@octane-xplat/app` re-exporting `./platform/storage`) or a
   `paths` pattern — the suffix chain runs on the barrel's internal relative
   specifier, not on the exports target.
 - **`moduleSuffixes` only covers `.ts`/`.tsx`** (verified — superseded

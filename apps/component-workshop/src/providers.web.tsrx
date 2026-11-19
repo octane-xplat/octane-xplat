@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
-import '@xplat/astryx-sandbox/icons'
+import '@octane-xplat/astryx-sandbox/icons'
 import '@octane-xplat/ui/theme/chrome.css'
-import exampleStyles from '@xplat/astryx-sandbox/styles.css?inline'
+import exampleStyles from '@octane-xplat/astryx-sandbox/styles.css?inline'
 
 // Example styles belong to preview documents, not the branded gallery page.
 const params = new URLSearchParams(location.search)

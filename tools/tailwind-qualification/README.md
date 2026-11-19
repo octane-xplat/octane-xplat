@@ -8,9 +8,9 @@ Run from the repository root with Bun 1.4.4:
 
 ```sh
 bun install --frozen-lockfile
-bun run turbo run test typecheck --filter=@xplat/tailwind-qualification
-bun run turbo run prepare:browser --filter=@xplat/tailwind-qualification
-bun run turbo run qualify --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-feasibility"
+bun run turbo run test typecheck --filter=@octane-xplat/tailwind-qualification
+bun run turbo run prepare:browser --filter=@octane-xplat/tailwind-qualification
+bun run turbo run qualify --filter=@octane-xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-feasibility"
 ```
 
 The Xplat integration has a separate packed-consumer check, implemented here
@@ -35,7 +35,7 @@ Measure dependency and compilation costs in an isolated consumer with a new
 output directory. This also runs the normal packed-consumer verification:
 
 ```sh
-bun run turbo run measure:cost --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-cost/my-run"
+bun run turbo run measure:cost --filter=@octane-xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-cost/my-run"
 ```
 
 `cost.json` records installed package versions and dependency inventories, three
@@ -68,8 +68,8 @@ inline precedence and synthesized browser hover. Choose a new output directory
 for each run; existing evidence files are never overwritten:
 
 ```sh
-bun run turbo run prepare:browser --filter=@xplat/tailwind-qualification
-bun run turbo run qualify:xplat --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-browser/my-run"
+bun run turbo run prepare:browser --filter=@octane-xplat/tailwind-qualification
+bun run turbo run qualify:xplat --filter=@octane-xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-browser/my-run"
 ```
 
 This writes `compiled-web.css`, `compiled-ios.css`, `compiled-android.css`,
@@ -89,7 +89,7 @@ physical Octane runtime before mounting actual UI components. Run it separately
 with Chromium already installed and a new output directory:
 
 ```sh
-bun run turbo run qualify:app --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-app/my-run"
+bun run turbo run qualify:app --filter=@octane-xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-app/my-run"
 ```
 
 This exercises component class replacement, inline-width removal and precedence,

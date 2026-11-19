@@ -1,5 +1,5 @@
 // Uses the maintained CodeShowcase example; do not copy its implementation here.
-import { CodeShowcase as Example } from '@xplat/astryx-sandbox/examples/code/CodeShowcase.tsrx'
+import { CodeShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/code/CodeShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

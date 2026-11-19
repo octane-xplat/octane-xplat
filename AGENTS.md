@@ -270,7 +270,7 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   familiar words in release notes.
 - PR CI stays lightweight: the `checks` job must not install browser engines
   (Playwright/Chromium) or run device emulation. Browser-driven tests
-  (`@xplat/visual`, workshop's `test:packed`, `verify-consumer` smoke,
+  (`@octane-xplat/visual`, workshop's `test:packed`, `verify-consumer` smoke,
   `optional-services` browsers) are excluded or flagged there — keep them
   out of the PR gate and run them locally.
 

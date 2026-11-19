@@ -17,8 +17,8 @@ own mobile commands in the [testing reference](../../../.agents/docs/testing.md)
 Use Bun 1.4.4 and an absolute output path in your task's disposable scratch folder:
 
 ```sh
-bun run turbo run build:layout-desktop --filter=@xplat/platform-qualification -- gtk /absolute/owned/run/gtk
-bun run turbo run build:layout-desktop --filter=@xplat/platform-qualification -- windows /absolute/owned/run/windows
+bun run turbo run build:layout-desktop --filter=@octane-xplat/platform-qualification -- gtk /absolute/owned/run/gtk
+bun run turbo run build:layout-desktop --filter=@octane-xplat/platform-qualification -- windows /absolute/owned/run/windows
 ```
 
 The builder uses the checkout's installed toolchain and framework packages.

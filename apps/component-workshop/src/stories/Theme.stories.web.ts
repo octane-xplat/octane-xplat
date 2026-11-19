@@ -1,4 +1,4 @@
-import { ThemeShowcase as Example } from '@xplat/astryx-sandbox/examples/theme/ThemeShowcase.tsrx'
+import { ThemeShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/theme/ThemeShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

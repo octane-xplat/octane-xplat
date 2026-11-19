@@ -14,8 +14,8 @@ existing pinned MiniLM model are separate local inputs. Checksums and compiler
 pins are explicit. Caches and artifacts stay in ignored `research/go-cli`.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go CLI feasibility"}' -- bun run turbo run test:go-unit test:go build:go-onnx --filter=@xplat/cli-go-probe
-bun run turbo run test:go-model --filter=@xplat/cli-go-probe --only
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go CLI feasibility"}' -- bun run turbo run test:go-unit test:go build:go-onnx --filter=@octane-xplat/cli-go-probe
+bun run turbo run test:go-model --filter=@octane-xplat/cli-go-probe --only
 ```
 
 The optional model gate currently prepares and compares on macOS arm64. It
@@ -46,7 +46,7 @@ a Go test context; that proves worker/job cleanup, not public console interrupt
 delivery. POSIX fixtures exercise public SIGTERM and its 143 exit.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go route workflow"}' -- bun run turbo run test:go-unit test:go-cli test:go-routes --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go route workflow"}' -- bun run turbo run test:go-unit test:go-cli test:go-routes --filter=@octane-xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
 ```
 
 The typecheck gate installs its own declared TSRX checker/TypeScript pins, compares
@@ -58,7 +58,7 @@ after its worker/library build prerequisites instead of carrying an older worker
 from an unrelated qualification run.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go typecheck workflow"}' -- bun run turbo run test:go-unit test:go-typecheck --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go typecheck workflow"}' -- bun run turbo run test:go-unit test:go-typecheck --filter=@octane-xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Actual project Go typecheck"}' -- bun run turbo run test:go-typecheck-real --filter=@octane-xplat/cli
 ```
 
@@ -124,7 +124,7 @@ inspection. POSIX tests check SIGINT forwarding and broken-stdout cancellation;
 Windows owner termination checks Job cleanup, not console Ctrl-C.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go foreground development"}' -- bun run turbo run test:go-unit test:go-dev --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go foreground development"}' -- bun run turbo run test:go-unit test:go-dev --filter=@octane-xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
 ```
 
 Frozen core snapshots expose `test:go-dev:portable` through root Turbo tasks,
@@ -138,7 +138,7 @@ start workers. The focused race gate exercises discovery and authenticated HTTP
 lifetime handling with the host Go race runtime; ordinary core builds disable CGO.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go foreground dev server"}' -- bun run turbo run test:go-unit test:go-cli test:go-dev test:go-dev-server test:go-dev-server-race --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go foreground dev server"}' -- bun run turbo run test:go-unit test:go-cli test:go-dev test:go-dev-server test:go-dev-server-race --filter=@octane-xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
 ```
 
 Humans or instructed agents can explicitly start `dev`. Ordinary app-control
@@ -186,9 +186,9 @@ The wrapper dynamically loads a separately pinned CPU runtime, so these commands
 compile the Go/cgo wrapper, not ONNX Runtime itself.
 
 ```sh
-GOOS=windows GOARCH=amd64 CC='zig cc -target x86_64-windows-gnu' CXX='zig c++ -target x86_64-windows-gnu' goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go Windows cross-build"}' -- bun run turbo run build:go build:go-onnx --filter=@xplat/cli-go-probe --concurrency=1
-GOOS=linux GOARCH=amd64 CC='zig cc -target x86_64-linux-gnu.2.28' CXX='zig c++ -target x86_64-linux-gnu.2.28' goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go Linux cross-build"}' -- bun run turbo run build:go build:go-onnx --filter=@xplat/cli-go-probe --concurrency=1
-bun run turbo run snapshot:go --filter=@xplat/cli-go-probe
+GOOS=windows GOARCH=amd64 CC='zig cc -target x86_64-windows-gnu' CXX='zig c++ -target x86_64-windows-gnu' goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go Windows cross-build"}' -- bun run turbo run build:go build:go-onnx --filter=@octane-xplat/cli-go-probe --concurrency=1
+GOOS=linux GOARCH=amd64 CC='zig cc -target x86_64-linux-gnu.2.28' CXX='zig c++ -target x86_64-linux-gnu.2.28' goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go Linux cross-build"}' -- bun run turbo run build:go build:go-onnx --filter=@octane-xplat/cli-go-probe --concurrency=1
+bun run turbo run snapshot:go --filter=@octane-xplat/cli-go-probe
 ```
 
 `snapshot.mjs` verifies source/artifact hashes and prepares a disposable runtime
@@ -202,8 +202,8 @@ No compiler or shared-checkout mutation is required on the destination.
 Cross-compilation itself does not qualify execution or distribution.
 
 For a smaller project-command snapshot, cross-build `build:go` for both
-`@octane-xplat/cli` and `@xplat/cli-go-probe`, plus `build:go-tests` for
-`@xplat/cli-go-probe` on both targets, then run
+`@octane-xplat/cli` and `@octane-xplat/cli-go-probe`, plus `build:go-tests` for
+`@octane-xplat/cli-go-probe` on both targets, then run
 `snapshot:go-routes`. The resulting `routes-source.tgz` carries the public core,
 native unit executables and curated project workers without model/runtime assets.
 Run its root Turbo tasks `test:go-unit:portable` and `test:go-routes:portable`
@@ -233,8 +233,8 @@ primitives, including cache ownership/kernel-lock release and HTTP/TLS; it is
 separate from public CLI and full workflow qualification.
 
 ```sh
-GOOS=linux GOARCH=amd64 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Compile Linux Go unit executable"}' -- bun run turbo run build:go-tests --filter=@xplat/cli-go-probe
-GOOS=windows GOARCH=amd64 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Compile Windows Go unit executable"}' -- bun run turbo run build:go-tests --filter=@xplat/cli-go-probe
+GOOS=linux GOARCH=amd64 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Compile Linux Go unit executable"}' -- bun run turbo run build:go-tests --filter=@octane-xplat/cli-go-probe
+GOOS=windows GOARCH=amd64 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Compile Windows Go unit executable"}' -- bun run turbo run build:go-tests --filter=@octane-xplat/cli-go-probe
 ```
 
 Copy `research/go-cli/go-tests-<os>-<arch>` (with `.exe` on Windows) into an owned
@@ -333,7 +333,7 @@ reporting. All cases use disposable projects; never point this gate at a proving
 app with valuable generated outputs or local recovery state.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go cleanup verification"}' -- bun run turbo run test:go-clean test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go cleanup verification"}' -- bun run turbo run test:go-clean test:go-unit --filter=@octane-xplat/cli --filter=@octane-xplat/cli-go-probe --concurrency=1
 ```
 
 The POSIX terminal fixture uses Python's standard-library PTY support to exercise
@@ -360,7 +360,7 @@ not graceful console delivery. The test covers failed installs, both streams,
 resistant descendants, stale/escaping plans and lease recovery.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go upgrade verification"}' -- bun run turbo run test:go-upgrade test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go upgrade verification"}' -- bun run turbo run test:go-upgrade test:go-unit --filter=@octane-xplat/cli --filter=@octane-xplat/cli-go-probe --concurrency=1
 ```
 
 Portable snapshots expose the same fixture as `test:go-upgrade:portable`. Ordinary
@@ -442,7 +442,7 @@ POSIX runs also exercise explicit selection and cancellation in an isolated
 terminal without visual evidence. Creator archives are opt-in fixture payloads.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go platform addition"}' -- bun run turbo run test:go-add test:go-unit test:scaffold --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --filter=create-octane-xplat --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go platform addition"}' -- bun run turbo run test:go-add test:go-unit test:scaffold --filter=@octane-xplat/cli --filter=@octane-xplat/cli-go-probe --filter=create-octane-xplat --concurrency=1
 ```
 
 
@@ -454,7 +454,7 @@ The default gate uses actual project-installed worker files; fake workers cover
 only protocol rejection and blocked-worker cancellation.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go update-hook initialization"}' -- bun run turbo run test:go-updates test:go-unit test:updates --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go update-hook initialization"}' -- bun run turbo run test:go-updates test:go-unit test:updates --filter=@octane-xplat/cli --filter=@octane-xplat/cli-go-probe --concurrency=1
 ```
 
 
@@ -467,7 +467,7 @@ Fonts are parsed and hashed without visual analysis. The converter
 peer is installed only for this fixture; its absence has an actionable diagnostic.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go font registration"}' -- bun run turbo run test:go-fonts test:go-unit test:fonts --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go font registration"}' -- bun run turbo run test:go-fonts test:go-unit test:fonts --filter=@octane-xplat/cli --filter=@octane-xplat/cli-go-probe --concurrency=1
 ```
 
 `test:go-workshop` compares native inspection against the actual workshop Node
@@ -483,7 +483,7 @@ Git object is unavailable. Plan controls cover custom files/scripts, manifest
 preservation, stale observations and read-only planning.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go workshop inspection"}' -- bun run turbo run test:go-workshop test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go workshop inspection"}' -- bun run turbo run test:go-workshop test:go-unit --filter=@octane-xplat/cli --filter=@octane-xplat/cli-go-probe --concurrency=1
 ```
 
 `test:go-workshop-engine` validates the selected-project macOS engine binding
@@ -508,7 +508,7 @@ captured. Native units cover startup deadlines, identity rejection, final receip
 races, engine streams and resistant descendant cleanup.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"Go workshop services"}' -- bun run turbo run test:go-workshop test:go-workshop-macos test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"Go workshop services"}' -- bun run turbo run test:go-workshop test:go-workshop-macos test:go-unit --filter=@octane-xplat/cli --filter=@octane-xplat/cli-go-probe --concurrency=1
 ```
 
 The runtime-only host snapshot includes workshop source payloads and built Node
@@ -575,7 +575,7 @@ scope, CRLF and unavailable formats. An explicit owned-device gate is split into
 preparation (native build reservation) and runtime (resident Android reservation):
 
 ```sh
-bun run turbo run prepare:go-android-reports --filter=@xplat/cli-go-probe
+bun run turbo run prepare:go-android-reports --filter=@octane-xplat/cli-go-probe
 bun run turbo run test:go-android-reports-real --filter=@octane-xplat/cli --only
 ```
 

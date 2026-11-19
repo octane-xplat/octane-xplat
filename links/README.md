@@ -42,7 +42,7 @@ its generated declarations and app files:
 
 ```sh
 bun run typegen
-bun run turbo run gen --filter=@xplat/app
+bun run turbo run gen --filter=@octane-xplat/app
 ```
 
 ## Develop the mobile core package

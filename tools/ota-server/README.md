@@ -1,4 +1,4 @@
-# @xplat/ota-server
+# @octane-xplat/ota-server
 
 Serve phone JavaScript updates from a Cloudflare Worker and R2 bucket. Native
 binaries receive only the channel pointer for their exact native fingerprint.
@@ -85,5 +85,5 @@ Run them through Turbo from the repository root. Device cold-launch testing is
 separate, as described in the phone update guide.
 
 ```sh
-bun run turbo run typecheck test --filter=@xplat/ota-server
+bun run turbo run typecheck test --filter=@octane-xplat/ota-server
 ```

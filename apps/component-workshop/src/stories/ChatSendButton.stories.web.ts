@@ -1,5 +1,5 @@
 // Uses the maintained ChatSendButtonShowcase example; do not copy its implementation here.
-import { ChatSendButtonShowcase as Example } from '@xplat/astryx-sandbox/examples/chatsendbutton/ChatSendButtonShowcase.tsrx'
+import { ChatSendButtonShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/chatsendbutton/ChatSendButtonShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

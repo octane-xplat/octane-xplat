@@ -308,11 +308,11 @@ test('AppKit entry binds in the root effect, forwards props and returns the bind
         }
       }
 
-      if (name === '@xplat/app') {
+      if (name === '@octane-xplat/app') {
         return { App }
       }
 
-      if (name === '@xplat/app/appkit-route-links.macos') {
+      if (name === '@octane-xplat/app/appkit-route-links.macos') {
         return {
           bindAppKitRouteLinks() {
             bound++

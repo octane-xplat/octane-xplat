@@ -1,5 +1,5 @@
 // Uses the maintained TextInputShowcase example; do not copy its implementation here.
-import { TextInputShowcase as Example } from '@xplat/astryx-sandbox/examples/textinput/TextInputShowcase.tsrx'
+import { TextInputShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/textinput/TextInputShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

@@ -1,5 +1,5 @@
 // Uses the maintained DropdownMenuShowcase example; do not copy its implementation here.
-import { DropdownMenuShowcase as Example } from '@xplat/astryx-sandbox/examples/menu/DropdownMenuShowcase.tsrx'
+import { DropdownMenuShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/menu/DropdownMenuShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

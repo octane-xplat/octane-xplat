@@ -1,5 +1,5 @@
 // Uses the maintained ToolbarThreeSlot example; do not copy its implementation here.
-import { ToolbarThreeSlot as Example } from '@xplat/astryx-sandbox/examples/toolbar/ToolbarThreeSlot.tsrx'
+import { ToolbarThreeSlot as Example } from '@octane-xplat/astryx-sandbox/examples/toolbar/ToolbarThreeSlot.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

@@ -96,7 +96,7 @@ bun run check:docs
 bun run check:doc-examples
 bun run check:recipes
 bun run turbo run test:docs --filter=//
-bun run turbo run build test --filter=@xplat/docs
+bun run turbo run build test --filter=@octane-xplat/docs
 ```
 
 `check:docs` covers all public Markdown guides and package READMEs, plus the

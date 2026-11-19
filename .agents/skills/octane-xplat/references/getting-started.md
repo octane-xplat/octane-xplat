@@ -93,9 +93,9 @@ package changes. The leading `...` includes the touched package's dependents.
 Replace the UI filter with each package actually changed.
 
 ```sh
-bun run --filter @xplat/web dev
-bun run turbo run typecheck --filter=@xplat/web
-bun run turbo run typecheck --filter=@xplat/mobile
+bun run --filter @octane-xplat/web dev
+bun run turbo run typecheck --filter=@octane-xplat/web
+bun run turbo run typecheck --filter=@octane-xplat/mobile
 bun run turbo run typecheck --filter=...@octane-xplat/ui
 bun run lint
 ```

@@ -1,5 +1,5 @@
 // Uses the maintained LayoutPanelShowcase example; do not copy its implementation here.
-import { LayoutPanelShowcase as Example } from '@xplat/astryx-sandbox/examples/layoutpanel/LayoutPanelShowcase.tsrx'
+import { LayoutPanelShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/layoutpanel/LayoutPanelShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

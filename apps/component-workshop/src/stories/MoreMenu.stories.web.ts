@@ -1,5 +1,5 @@
 // Uses the maintained MoreMenuShowcase example; do not copy its implementation here.
-import { MoreMenuShowcase as Example } from '@xplat/astryx-sandbox/examples/menu/MoreMenuShowcase.tsrx'
+import { MoreMenuShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/menu/MoreMenuShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

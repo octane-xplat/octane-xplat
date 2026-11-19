@@ -1,4 +1,4 @@
-import { LexicalEditorDemo as Example } from '@xplat/demos/LexicalEditorDemo.tsrx'
+import { LexicalEditorDemo as Example } from '@octane-xplat/demos/LexicalEditorDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

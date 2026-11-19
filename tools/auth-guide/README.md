@@ -25,7 +25,7 @@ physical devices and production. It is not a general application backend.
 From the framework repository root:
 
 ```sh
-bun run turbo run test typecheck --filter=@xplat/auth-guide
+bun run turbo run test typecheck --filter=@octane-xplat/auth-guide
 bun run turbo run test typecheck --filter=@octane-xplat/auth
 ```
 

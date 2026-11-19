@@ -1,5 +1,5 @@
 // Uses the maintained OverlayDemo example; do not copy its implementation here.
-import { OverlayDemo as Example } from '@xplat/demos/OverlayDemo.tsrx'
+import { OverlayDemo as Example } from '@octane-xplat/demos/OverlayDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

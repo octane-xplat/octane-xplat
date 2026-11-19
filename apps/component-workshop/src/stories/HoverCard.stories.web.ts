@@ -1,5 +1,5 @@
 // Uses the maintained HoverCardShowcase example; do not copy its implementation here.
-import { HoverCardShowcase as Example } from '@xplat/astryx-sandbox/examples/hovercard/HoverCardShowcase.tsrx'
+import { HoverCardShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/hovercard/HoverCardShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

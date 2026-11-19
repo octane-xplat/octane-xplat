@@ -6,8 +6,8 @@ focused examples where a suitable one does not exist. The sandbox retains the
 upstream attribution and example implementation; the workshop owns its story metadata.
 
 ```sh
-bun run turbo run build --filter=@xplat/component-workshop
-bun run turbo run test:browser --filter=@xplat/component-workshop
+bun run turbo run build --filter=@octane-xplat/component-workshop
+bun run turbo run test:browser --filter=@octane-xplat/component-workshop
 ```
 
 `catalog.json` maps public component identities to maintained examples. The
@@ -31,7 +31,7 @@ Permission-, credential-, and ad-configuration-dependent entries remain visible
 with prerequisite diagnostics and never activate from scrolling.
 
 ```sh
-bun run turbo run test:coverage --filter=@xplat/component-workshop
+bun run turbo run test:coverage --filter=@octane-xplat/component-workshop
 ```
 
 The docs build depends on this app, then assembles its output after the docs and
@@ -42,5 +42,5 @@ After publishing a preview, verify its source revision, asset routing and live
 preview activation. Pass the deployed URL and its full source commit:
 
 ```sh
-bun run turbo run verify:deployment --filter=@xplat/component-workshop -- https://PREVIEW.pages.dev/workshop/ FULL_GIT_REVISION
+bun run turbo run verify:deployment --filter=@octane-xplat/component-workshop -- https://PREVIEW.pages.dev/workshop/ FULL_GIT_REVISION
 ```

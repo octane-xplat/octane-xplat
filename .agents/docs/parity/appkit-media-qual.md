@@ -7,7 +7,7 @@ typeahead window layer, Tooltip).
 
 **Host unless noted:** local Apple Silicon Mac, macOS 27.2 (Darwin 27.2.0),
 AppKit/JavaScriptCore host via `bun run probe run … --target macos` and the
-`@xplat/macos` verify fixtures. `skymac.local` (arm64 iMac, macOS 26.6.2, ~9 GB
+`@octane-xplat/macos` verify fixtures. `skymac.local` (arm64 iMac, macOS 26.6.2, ~9 GB
 free) was verified reachable but not yet used. `press`/`setText` are
 action-dispatch; NSEvent posting goes through the real event queue; neither is
 physical OS input. No screenshots/visual analysis performed.
@@ -158,6 +158,6 @@ Research probes (gitignored `research/probes-cases/`):
 ```sh
 bun run probe run examples/probes/charts.macos.tsrx --target macos --deps @octane-xplat/charts
 bun run probe run examples/probes/media-runtime… --deps @octane-xplat/video,@octane-xplat/gif,@octane-xplat/pager
-bun run --filter @xplat/macos test:overlays   # currently blocked by the GC crash
+bun run --filter @octane-xplat/macos test:overlays   # currently blocked by the GC crash
 bun run --filter @octane-xplat/ui test:color:macos test:overlay-keyboard:macos
 ```

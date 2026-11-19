@@ -1,4 +1,4 @@
-# @xplat/astryx-parity
+# @octane-xplat/astryx-parity
 
 Renders the same component scenarios — Button, TextInput, CheckboxInput, and Switch — twice — once with
 [`@astryxdesign/core`](https://www.npmjs.com/package/@astryxdesign/core)
@@ -25,7 +25,7 @@ here.
 3. Run the comparison:
 
    ```sh
-   bun run turbo run parity --filter=@xplat/astryx-parity
+   bun run turbo run parity --filter=@octane-xplat/astryx-parity
    ```
 
    This builds and `vite preview`s both sides (reference on 127.0.0.1:4310,

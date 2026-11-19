@@ -1,5 +1,5 @@
 // Uses the maintained OverflowListShowcase example; do not copy its implementation here.
-import { OverflowListShowcase as Example } from '@xplat/astryx-sandbox/examples/overflowlist/OverflowListShowcase.tsrx'
+import { OverflowListShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/overflowlist/OverflowListShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

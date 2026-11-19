@@ -3,7 +3,7 @@ import { getStack } from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
-import { DEMOS, virtualListHandle } from '@xplat/demos'
+import { DEMOS, virtualListHandle } from '@octane-xplat/demos'
 import { router } from '@octane-xplat/ui/routing'
 import { closeBottomSheet, bottomSheetHost } from './sheet'
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'

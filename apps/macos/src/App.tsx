@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import './styles'
 import { useEffect } from 'octane'
-import { App } from '@xplat/app'
-import { bindAppKitRouteLinks } from '@xplat/app/appkit-route-links.macos'
+import { App } from '@octane-xplat/app'
+import { bindAppKitRouteLinks } from '@octane-xplat/app/appkit-route-links.macos'
 
 export default function AppKitApp(props: Parameters<typeof App>[0]) {
   useEffect(() => {

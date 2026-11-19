@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/stripe-native-fixture",
+	"name": "@octane-xplat/stripe-native-fixture",
 	"private": true,
 	"type": "module",
 	"scripts": {

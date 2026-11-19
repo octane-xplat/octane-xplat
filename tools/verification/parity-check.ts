@@ -5,8 +5,8 @@
 // packages/<pkg>/src/**/<Component>.parity.check.ts. Each module exports a
 // CHECKS array of per-target invariants plus cross-target `equal` facets.
 //
-//   bun run --filter @xplat/verification parity → require web, iOS, and Android; evaluate every dump present
-//   (write a dump first:   bun run --filter @xplat/web parity)
+//   bun run --filter @octane-xplat/verification parity → require web, iOS, and Android; evaluate every dump present
+//   (write a dump first:   bun run --filter @octane-xplat/web parity)
 import { existsSync, globSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -75,7 +75,7 @@ if (missingTargets.length) {
 const targets = requestedTargets ?? [...dumps.keys()]
 
 if (targets.length === 0) {
-  console.log('[parity] no dumps — write one first (bun run --filter @xplat/web parity)')
+  console.log('[parity] no dumps — write one first (bun run --filter @octane-xplat/web parity)')
   process.exit(1)
 }
 

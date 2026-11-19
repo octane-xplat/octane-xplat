@@ -2,7 +2,7 @@
 
 ID: docs-demos
 Targets: web, ios, android
-Related APIs: @xplat/demos, GoalCounter, PackingList
+Related APIs: @octane-xplat/demos, GoalCounter, PackingList
 
 ## Starting point
 

@@ -42,7 +42,7 @@
   tsconfig `compilerOptions.paths`. A workspace package that is imported but
   absent from `paths` builds and serves fine, but edits to it never reach
   `handleHotUpdate` — the save is dropped _silently_, no log line. Harness
-  fix: `apps/mobile/tsconfig.json` maps `@xplat/app`, `@xplat/demos`,
+  fix: `apps/mobile/tsconfig.json` maps `@octane-xplat/app`, `@octane-xplat/demos`,
   `@octane-xplat/ui`, and `@octane-xplat/platform`. `xplat doctor` warns when
   an imported workspace package is missing from `paths`.
 - **Patch installs of source-served deps** (pnpm/bun `patchedDependencies`)
@@ -444,8 +444,8 @@ scoped to native). `tsc --runExternalCode --noEmit` per target in CI via
 See module-resolution.md for the suffix-typing strategy.
 
 ```sh
-bun run turbo run typecheck --filter=@xplat/web
-bun run turbo run typecheck --filter=@xplat/mobile
+bun run turbo run typecheck --filter=@octane-xplat/web
+bun run turbo run typecheck --filter=@octane-xplat/mobile
 ```
 
 ## Native app plumbing

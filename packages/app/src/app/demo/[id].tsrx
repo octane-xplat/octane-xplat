@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect } from 'octane'
 import { Screen, View, HStack, Text, Pressable } from '@octane-xplat/ui'
-import { DEMOS, RENDER, setLastDemo } from '@xplat/demos'
+import { DEMOS, RENDER, setLastDemo } from '@octane-xplat/demos'
 import { useRouter } from '@octane-xplat/ui/routing'
 import type { RouteProps } from '../../routes.gen.contracts'
 import { openBottomSheet } from '../../platform/sheet'

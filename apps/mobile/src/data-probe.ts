@@ -6,8 +6,8 @@ import {
 } from '@octane-xplat/nativescript-octane'
 
 import { createUniversalRoot } from 'octane/universal/native'
-import { DataScreen, DataSharedReader, DataRetained, dataShared$ } from '@xplat/app/data-probe.tsrx'
-import { runDataTrace } from '@xplat/app/data-trace'
+import { DataScreen, DataSharedReader, DataRetained, dataShared$ } from '@octane-xplat/app/data-probe.tsrx'
+import { runDataTrace } from '@octane-xplat/app/data-trace'
 import 'octane/signals'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'

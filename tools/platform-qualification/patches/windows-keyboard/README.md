@@ -21,12 +21,12 @@ not enable the public useKeyboard hook. Real WinUI/OS input, handled/routed keys
 IME and modal focus still need qualification. See the
 [Windows progress note](../../../../.agents/docs/parity/windows-support-progress.md).
 
-The maintained `@xplat/windows#test:keyboard` task evaluates the published helper
+The maintained `@octane-xplat/windows#test:keyboard` task evaluates the published helper
 and extracted View/TextField methods against fake native/core objects, plus the
 retained pointer suite. By default it resolves installed patched core. Set
 `WINDOWS_CORE_ARTIFACT` to a private extracted core directory to check a candidate
 without modifying any installed dependency. It is not an app/WinRT test.
 
 ```sh
-bun run turbo run test:keyboard --filter=@xplat/windows
+bun run turbo run test:keyboard --filter=@octane-xplat/windows
 ```

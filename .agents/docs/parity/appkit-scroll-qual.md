@@ -90,7 +90,7 @@ Host: arm64 macOS 27.2, AppKit/JavaScriptCore, `interaction: appkit-action-dispa
   autoGrow/row-cap geometry not exercised. `text-entry-ownership.macos.tsrx` mounts.
 - **Outline snapshots + scroll spy** — `outline-snapshot.macos.tsrx` mounts
   only; discovery/navigation unproven.
-- **Large-list scrolling/virtualization** — `@xplat/macos smoke`: **30/30
+- **Large-list scrolling/virtualization** — `@octane-xplat/macos smoke`: **30/30
   assertions in 2m33s** on the fixed tree, including the VirtualList windowing
   assertions introduced by `8211f9a90` (500-row list windows to 3 mounted rows;
   drop-first mutation; full sweep completes). Action-dispatch evidence.
@@ -119,7 +119,7 @@ Host: arm64 macOS 27.2, AppKit/JavaScriptCore, `interaction: appkit-action-dispa
 
 ## Regression coverage
 
-`XPLAT_MACOS_SMOKE_TIMEOUT_MS=600000 turbo run smoke --filter=@xplat/macos`
+`XPLAT_MACOS_SMOKE_TIMEOUT_MS=600000 turbo run smoke --filter=@octane-xplat/macos`
 after the fixes: 30 assertions, 0 failures — the newly-live delegate methods
 (resize delivery, `applicationShouldTerminateAfterLastWindowClosed`,
 `windowWillClose` close lifecycle) did not disturb the sweep. Note the sweep

@@ -67,7 +67,7 @@
 		"typegen": "tsrx-typegen --target workshop",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run && tsc --runExternalCode --noEmit -p tsconfig.test.json",
-		"test:e2e": "bun run --filter @xplat/workshop-demo test:e2e",
+		"test:e2e": "bun run --filter @octane-xplat/workshop-demo test:e2e",
 		"test:packed": "node tests/packed-consumer.web.mts",
 		"test:packed:linux": "node tests/packed-consumer.linux.mts",
 		"test:packed:macos": "node tests/packed-consumer.macos.mts",

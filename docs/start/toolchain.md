@@ -531,7 +531,7 @@ language boundaries, and verification limits.
 { "dev": { "viteConfig": "vite.dev.config.mjs", "bundleFile": "dist/dev/main.cjs" } }
 ```
 
-The in-repository app runs the shared `@xplat/app` harness through
+The in-repository app runs the shared `@octane-xplat/app` harness through
 `@octane-xplat/ui`'s `macos` package condition; its Vite config does not alias
 the UI package root. An adapted sweep covers the Home shell, Apps gallery,
 nine demos, and Test/probe surface. The AppKit renderer implements a bounded

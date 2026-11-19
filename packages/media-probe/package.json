@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/media-probe",
+	"name": "@octane-xplat/media-probe",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",

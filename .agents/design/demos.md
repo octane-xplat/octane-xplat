@@ -44,7 +44,7 @@ The [component workshop](../../docs/testing/component-workshop.md) owns systemat
 Run the visitor browser workflow through Turbo:
 
 ```sh
-bun run turbo run smoke:showcase --filter=@xplat/web
+bun run turbo run smoke:showcase --filter=@octane-xplat/web
 ```
 
 `XPLAT_WEB_BROWSER` chooses the installed Chromium, Firefox, or WebKit engine. The runner starts its own preview unless `XPLAT_SHOWCASE_URL` identifies an owned running server. Captures are opt-in through `XPLAT_SHOWCASE_EVIDENCE`; do not enable or inspect images without the task's visual authorization. Keep browser tasks outside the lightweight PR gate.

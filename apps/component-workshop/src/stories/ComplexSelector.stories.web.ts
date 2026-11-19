@@ -1,5 +1,5 @@
 // Uses the maintained ComplexSelectorShowcase example; do not copy its implementation here.
-import { ComplexSelectorShowcase as Example } from '@xplat/astryx-sandbox/examples/complexselector/ComplexSelectorShowcase.tsrx'
+import { ComplexSelectorShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/complexselector/ComplexSelectorShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

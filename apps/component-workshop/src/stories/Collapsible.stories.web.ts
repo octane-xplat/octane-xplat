@@ -1,5 +1,5 @@
 // Uses the maintained CollapsibleShowcase example; do not copy its implementation here.
-import { CollapsibleShowcase as Example } from '@xplat/astryx-sandbox/examples/collapsible/CollapsibleShowcase.tsrx'
+import { CollapsibleShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/collapsible/CollapsibleShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

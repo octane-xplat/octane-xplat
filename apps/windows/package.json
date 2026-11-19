@@ -1,11 +1,11 @@
 {
-	"name": "@xplat/windows",
+	"name": "@octane-xplat/windows",
 	"version": "0.0.0",
 	"private": true,
 	"main": "src/index.ts",
 	"scripts": {
 		"xplat": "xplat",
-		"windows": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev windows",
+		"windows": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && xplat dev windows",
 		"build:windows": "ns build windows",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"test:keyboard": "node --test ../../scripts/windows-keyboard-regression.test.mts ../../scripts/windows-pointer-regression.test.mts",
@@ -75,8 +75,8 @@
 		"@octane-xplat/view-shot": "workspace:*",
 		"@octane-xplat/web-browser": "workspace:*",
 		"@valor/nativescript-websockets": "2.0.3",
-		"@xplat/app": "workspace:*",
-		"@xplat/demos": "workspace:*",
+		"@octane-xplat/app": "workspace:*",
+		"@octane-xplat/demos": "workspace:*",
 		"octane": "catalog:"
 	},
 	"devDependencies": {

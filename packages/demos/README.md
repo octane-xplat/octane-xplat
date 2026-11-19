@@ -1,8 +1,8 @@
-# `@xplat/demos`
+# `@octane-xplat/demos`
 
 Seam-by-seam demo screens for the xplat harness — the maintained examples
 that each framework feature points at. Private; never published. The
-[`@xplat/app`](../app/README.md) harness routes to them, and the evidence
+[`@octane-xplat/app`](../app/README.md) harness routes to them, and the evidence
 capture sweep renders them for fixtures.
 
 Two groups:
@@ -25,7 +25,7 @@ standard suffixes (`DeviceDemo.mobile.tsrx`, `EffectsDemo.ios/.android/
 .macos.tsrx`, `index.macos.ts`).
 
 ```tsx
-import { DEMOS, RENDER } from '@xplat/demos'
+import { DEMOS, RENDER } from '@octane-xplat/demos'
 
 const counter = DEMOS.find((demo) => demo.id === 'counter')
 export function CounterPreview() {

@@ -7,8 +7,8 @@
 > rules are writable today · **Decisions:** #3, #4 (the invariants it enforces)
 > · **Validated by:** an intentionally-violating file failing lint/typecheck.
 
-Current checks are `bun run lint`, `bun run turbo run typecheck --filter=@xplat/web`,
-`bun run turbo run typecheck --filter=@xplat/mobile`, and `bun run test` from the repository root. The lint
+Current checks are `bun run lint`, `bun run turbo run typecheck --filter=@octane-xplat/web`,
+`bun run turbo run typecheck --filter=@octane-xplat/mobile`, and `bun run test` from the repository root. The lint
 lane uses Oxlint plus the TSRX companion pass; the ESLint and `packages/core`
 references below describe the original test plan. A fresh run is required
 before treating any historical smoke count as evidence for this checkout.
@@ -136,7 +136,7 @@ Run the component checks with:
 
 ```sh
 bun run turbo run test:native --filter=@octane-xplat/ui
-bun run turbo run test --filter=@xplat/web
+bun run turbo run test --filter=@octane-xplat/web
 ```
 
 For a fresh browser runtime pass, start this worktree's server with

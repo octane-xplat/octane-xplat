@@ -35,10 +35,10 @@ The baseline is a test fixture, not a second visitor gallery or a compatibility 
 Run through Turbo so build and generated-route prerequisites are prepared:
 
 ```sh
-bun run turbo run smoke:harness --filter=@xplat/web
-bun run turbo run smoke --filter=@xplat/web
-bun run turbo run smoke:navigation --filter=@xplat/web
-bun run turbo run test --filter=@xplat/web -- packages/app/src/harness/runner.web.test.ts
+bun run turbo run smoke:harness --filter=@octane-xplat/web
+bun run turbo run smoke --filter=@octane-xplat/web
+bun run turbo run smoke:navigation --filter=@octane-xplat/web
+bun run turbo run test --filter=@octane-xplat/web -- packages/app/src/harness/runner.web.test.ts
 ```
 
 `XPLAT_WEB_BROWSER` selects an installed Chromium, Firefox or WebKit engine for the harness and baseline smoke. `XPLAT_HARNESS_URL` can identify an owned running server; otherwise the harness runner starts its own preview. `XPLAT_HARNESS_REPORT` writes browser-input results as JSON. None of these harness checks capture images. Keep browser tasks outside lightweight PR CI.

@@ -1,5 +1,5 @@
 // Uses the maintained MobileNavShowcase example; do not copy its implementation here.
-import { MobileNavShowcase as Example } from '@xplat/astryx-sandbox/examples/mobilenav/MobileNavShowcase.tsrx'
+import { MobileNavShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/mobilenav/MobileNavShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

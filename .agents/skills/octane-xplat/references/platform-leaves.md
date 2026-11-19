@@ -135,7 +135,7 @@ export function PackedToggle() {
 
 Import from a package's declared entrypoint; a source-tree path is not a
 public API. Conditional exports select the platform implementation. For example,
-router operations live on `/routing` and stores on `/data`; `@xplat/app` is
+router operations live on `/routing` and stores on `/data`; `@octane-xplat/app` is
 repository harness code, not a consumer dependency.
 
 ```ts

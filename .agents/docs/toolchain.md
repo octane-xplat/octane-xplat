@@ -98,7 +98,7 @@ In-repo `xplat` dispatches to the host's Go build at
 `turbo run build:go --filter=@octane-xplat/cli` (Go 1.27.3,
 `GOTOOLCHAIN=local`; artifacts stay in the ignored `research/go-cli`).
 Only `xplat` invocations (dev, `routes:watch`) need that binary — install and
-codegen do not: `@xplat/app#gen` runs `planRoutes` off the CLI sources via
+codegen do not: `@octane-xplat/app#gen` runs `planRoutes` off the CLI sources via
 `scripts/gen-routes.ts`, so `bun install` stays Node + Bun only. CI
 provisions Go solely in the lanes that build or contract-check the native
 executable (`ci.yml` `test:go-cli`, `cli-executables.yml`).
@@ -356,7 +356,7 @@ experience of agents writing Octane-xplat code effectively.
   all package sources directly so path-mapped imports outside the workspace
   dependency edges still invalidate the check (explicit input globs are
   filesystem walks, not git-aware — `node_modules` and `.turbo` logs are
-  negated there). App packages order `@xplat/app#gen` (routes.gen +
+  negated there). App packages order `@octane-xplat/app#gen` (routes.gen +
   styled-system) ahead of `typecheck`/`build`/`test`. `test:packed`,
   `test:macos-runtime` are `cache: false` — their
   side effects land outside declared `outputs`. `lint` stays a single
@@ -973,7 +973,7 @@ Octane transforms still rendered the app, and all seven route edit/add/rename/re
 configured-context and manifest DOM assertions passed without browser errors.
 
 ```sh
-bun run --filter @xplat/web smoke:routing-watch
+bun run --filter @octane-xplat/web smoke:routing-watch
 ```
 
 Evidence is the maintained temporary TSX fixture in

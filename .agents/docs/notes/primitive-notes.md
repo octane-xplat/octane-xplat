@@ -97,7 +97,7 @@ failures.
 
 From the repo root, install with `bun install --frozen-lockfile`, then:
 
-1. Build the harness: `bun run turbo run build --filter=@xplat/web`.
+1. Build the harness: `bun run turbo run build --filter=@octane-xplat/web`.
 2. From `apps/web`, run `node scripts/bench-virtual-list-contract.ts`.
    It fails on anchor drift greater than 2 pixels, lost keyed state, unbounded
    mounts, or failed empty/disposal checks.

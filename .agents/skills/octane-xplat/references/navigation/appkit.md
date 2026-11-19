@@ -69,8 +69,8 @@ replacement/unmount/HMR. This is not a new public router readiness API.
 
 ```tsx
 import { useEffect } from 'octane'
-import { App } from '@xplat/app'
-import { bindAppKitRouteLinks } from '@xplat/app/appkit-route-links.macos'
+import { App } from '@octane-xplat/app'
+import { bindAppKitRouteLinks } from '@octane-xplat/app/appkit-route-links.macos'
 
 // Private proving host only; app authors use the canonical public example.
 export default function AppKitApp(props: Parameters<typeof App>[0]) {

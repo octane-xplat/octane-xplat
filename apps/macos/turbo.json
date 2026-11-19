@@ -3,7 +3,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"typecheck": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
 			"outputs": []
 		},
 		"webview:proof": {
@@ -27,7 +27,7 @@
 				"@octane-xplat/lexical#build:assets",
 				"@octane-xplat/richtext#build:assets",
 				"@octane-xplat/tiptap#build:assets",
-				"@xplat/app#gen"
+				"@octane-xplat/app#gen"
 			],
 			"cache": false
 		},
@@ -42,7 +42,7 @@
 				"@octane-xplat/lexical#build:assets",
 				"@octane-xplat/richtext#build:assets",
 				"@octane-xplat/tiptap#build:assets",
-				"@xplat/app#gen"
+				"@octane-xplat/app#gen"
 			],
 			"passThroughEnv": ["XPLAT_MACOS_SMOKE_TIMEOUT_MS", "XPLAT_MACOS_SDK", "XPLAT_MACOS_SWIFTC"],
 			"cache": false
@@ -54,7 +54,7 @@
 				"@octane-xplat/lexical#build:assets",
 				"@octane-xplat/richtext#build:assets",
 				"@octane-xplat/tiptap#build:assets",
-				"@xplat/app#gen"
+				"@octane-xplat/app#gen"
 			],
 			"cache": false
 		},
@@ -63,7 +63,7 @@
 			"cache": false
 		},
 		"build": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
 			"inputs": [
 				"$TURBO_DEFAULT$",
 				"../tsrx-typegen/src/**",
@@ -79,7 +79,7 @@
 				"@octane-xplat/lexical#build:assets",
 				"@octane-xplat/richtext#build:assets",
 				"@octane-xplat/tiptap#build:assets",
-				"@xplat/app#gen"
+				"@octane-xplat/app#gen"
 			],
 			"cache": false
 		},
@@ -90,7 +90,7 @@
 				"@octane-xplat/lexical#build:assets",
 				"@octane-xplat/richtext#build:assets",
 				"@octane-xplat/tiptap#build:assets",
-				"@xplat/app#gen"
+				"@octane-xplat/app#gen"
 			],
 			"cache": false
 		},
@@ -101,7 +101,7 @@
 				"@octane-xplat/lexical#build:assets",
 				"@octane-xplat/richtext#build:assets",
 				"@octane-xplat/tiptap#build:assets",
-				"@xplat/app#gen"
+				"@octane-xplat/app#gen"
 			],
 			"cache": false
 		}

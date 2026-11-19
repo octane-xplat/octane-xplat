@@ -1,10 +1,10 @@
 {
-	"name": "@xplat/web",
+	"name": "@octane-xplat/web",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev web",
+		"dev": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && xplat dev web",
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
@@ -29,8 +29,8 @@
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
-		"@xplat/app": "workspace:*",
-		"@xplat/demos": "workspace:*",
+		"@octane-xplat/app": "workspace:*",
+		"@octane-xplat/demos": "workspace:*",
 		"octane": "catalog:"
 	},
 	"devDependencies": {

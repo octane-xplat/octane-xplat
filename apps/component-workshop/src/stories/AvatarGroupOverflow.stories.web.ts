@@ -1,5 +1,5 @@
 // Uses the maintained AvatarGroupOverflowShowcase example; do not copy its implementation here.
-import { AvatarGroupOverflowShowcase as Example } from '@xplat/astryx-sandbox/examples/avatargroupoverflow/AvatarGroupOverflowShowcase.tsrx'
+import { AvatarGroupOverflowShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/avatargroupoverflow/AvatarGroupOverflowShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

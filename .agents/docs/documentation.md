@@ -107,8 +107,8 @@ The site generates `docs/api/api-<directory>.md` for every public package using
 commit generated API Markdown; improve TSDoc beside the exported declaration.
 
 ```sh
-bun run turbo run api --filter=@xplat/docs
-bun run turbo run build --filter=@xplat/docs
+bun run turbo run api --filter=@octane-xplat/docs
+bun run turbo run build --filter=@octane-xplat/docs
 ```
 
 ## Declaration comments

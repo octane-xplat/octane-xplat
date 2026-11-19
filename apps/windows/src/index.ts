@@ -1,16 +1,16 @@
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
-import { App } from '@xplat/app'
-import { probeSignal$ } from '@xplat/app/probe-state'
-import { bottomSheetHost as sheetHost } from '@xplat/app/platform/sheet'
-import '@xplat/app/platform/filepick'
+import { App } from '@octane-xplat/app'
+import { probeSignal$ } from '@octane-xplat/app/probe-state'
+import { bottomSheetHost as sheetHost } from '@octane-xplat/app/platform/sheet'
+import '@octane-xplat/app/platform/filepick'
 import { getColorScheme, setThemePreference } from '@octane-xplat/ui'
 
 import { registerStack, getStack } from '@octane-xplat/ui/routing'
 
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
-import { storage, router } from '@xplat/app'
+import { storage, router } from '@octane-xplat/app'
 import 'octane/signals'
 // Per-file css module imports — same shape as apps/web/src/main.tsrx. Each
 // module passes the xplat-native-css transform (px→dip + xplat-web-only
@@ -19,8 +19,8 @@ import 'octane/signals'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import '@octane-xplat/ui/theme/utilities.css'
-import '@xplat/demos/demo.css'
-import '@xplat/app/app.css'
+import '@octane-xplat/demos/demo.css'
+import '@octane-xplat/app/app.css'
 
 // Trace the nav pipeline end-to-end: NAVIGATE → pushViewController → DID_show.
 Trace.enable()

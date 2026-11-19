@@ -1,4 +1,4 @@
-# @xplat/astryx-sandbox
+# @octane-xplat/astryx-sandbox
 
 An Octane Xplat replica of the upstream [Astryx](https://github.com/facebook/astryx)
 sandbox (`apps/sandbox`), pinned at commit
@@ -25,10 +25,10 @@ substitutions, findings, and runtime evidence.
 
 ```sh
 bun install          # from the repo root — links the workspace
-bun run --filter @xplat/astryx-sandbox dev       # vite dev on :5240
-bun run turbo run preview --filter=@xplat/astryx-sandbox  # production build + server
+bun run --filter @octane-xplat/astryx-sandbox dev       # vite dev on :5240
+bun run turbo run preview --filter=@octane-xplat/astryx-sandbox  # production build + server
 # In a second terminal, while preview is running:
-bun run turbo run verify:web --filter=@xplat/astryx-sandbox -- --media-only
+bun run turbo run verify:web --filter=@octane-xplat/astryx-sandbox -- --media-only
 # Omit --media-only to run the whole maintained Chromium smoke.
 ```
 
@@ -42,7 +42,7 @@ rail, nav hover, open theme/mode menus, mobile drawer). With the dev server
 on :5240:
 
 ```sh
-bun run --filter @xplat/astryx-sandbox sameframe   # writes artifacts/sameframe/
+bun run --filter @octane-xplat/astryx-sandbox sameframe   # writes artifacts/sameframe/
 ```
 
 Per-page setup lives in `sameframe.setup.mjs`: theme/mode rides upstream's
@@ -62,7 +62,7 @@ against an upstream checkout pinned at `ebd939b…`:
 
 ```sh
 git -C <astryx-clone> worktree add /tmp/astryx-pin ebd939b665361a078015377c0dfe50cc3c1d70a4
-bun run --filter @xplat/astryx-sandbox coverage -- --astryx /tmp/astryx-pin
+bun run --filter @octane-xplat/astryx-sandbox coverage -- --astryx /tmp/astryx-pin
 ```
 
 The generator fails unless the checkout's HEAD is exactly the pinned commit,
@@ -92,7 +92,7 @@ Chat examples. Run the production preview, then check each browser with text
 and DOM assertions only:
 
 ```sh
-bun run turbo run verify:web --filter=@xplat/astryx-sandbox --concurrency=1 -- --content-chat-only --browser=all
+bun run turbo run verify:web --filter=@octane-xplat/astryx-sandbox --concurrency=1 -- --content-chat-only --browser=all
 ```
 
 The default preview URL is `http://localhost:4173`; `--base=<URL>` selects

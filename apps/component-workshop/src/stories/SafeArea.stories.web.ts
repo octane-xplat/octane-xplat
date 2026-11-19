@@ -1,5 +1,5 @@
 // Uses the maintained DeviceDemo example; do not copy its implementation here.
-import { DeviceDemo as Example } from '@xplat/demos/DeviceDemo.tsrx'
+import { DeviceDemo as Example } from '@octane-xplat/demos/DeviceDemo.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

@@ -1,6 +1,6 @@
 # macOS experiment
 
-This experimental AppKit host runs the shared `@xplat/app` harness: its Home
+This experimental AppKit host runs the shared `@octane-xplat/app` harness: its Home
 shell, Apps gallery, all nine shared demos, and the Test tab with probes and
 services. The adapted sweep drives the Home counter, routes into each demo,
 checks representative state changes, and visits the Test surface.
@@ -29,8 +29,8 @@ links automatically. See [incoming-link ownership](../../docs/app/navigation.md#
 ```tsx
 // apps/macos/src/App.tsx owns the binding for this harness.
 import { useEffect } from 'octane'
-import { App } from '@xplat/app'
-import { bindAppKitRouteLinks } from '@xplat/app/appkit-route-links.macos'
+import { App } from '@octane-xplat/app'
+import { bindAppKitRouteLinks } from '@octane-xplat/app/appkit-route-links.macos'
 
 export default function AppKitApp(props: Parameters<typeof App>[0]) {
   useEffect(() => {
@@ -71,7 +71,7 @@ const root = createMacOSRoot(host.contentView, harnessFontOptions)
 
 ## Native AppKit harness
 
-`apps/macos` imports `App` from `@xplat/app`, and the app imports UI components
+`apps/macos` imports `App` from `@octane-xplat/app`, and the app imports UI components
 from `@octane-xplat/ui` without a Vite alias for the package root. The package's
 `macos` condition selects `src/index.macos.ts` and matching declarations. This
 is an explicit experimental AppKit surface: components without a host
@@ -158,9 +158,9 @@ With `OCTANE_MACOS_AUTOMATION=1`, the dev host runs the adapted macOS harness
 sweep through the AppKit renderer's debug interface. It reports route and
 interaction assertions in the process log, and accepts `tap`, `press`,
 `snapshot`, and `parity` commands on stdin. Run
-`bun run --filter @xplat/macos parity` to write AppKit geometry and selected style
+`bun run --filter @octane-xplat/macos parity` to write AppKit geometry and selected style
 measurements to `parity-report/macos.json`. From the workspace root,
-`bun run turbo run parity:macos --filter=@xplat/verification` rebuilds the web
+`bun run turbo run parity:macos --filter=@octane-xplat/verification` rebuilds the web
 and macOS measurements and compares their
 shared fixtures. The sweep compares geometry and selected style values.
 For a focused HMR check, run `node apps/macos/scripts/verify-hmr.ts` from the
@@ -174,9 +174,9 @@ submodules and install before checking the harness:
 ```sh
 git submodule update --init
 bun install --frozen-lockfile
-bun run turbo run typecheck --filter=@xplat/macos
-bun run --filter @xplat/macos build
-bun run turbo run smoke:macos --filter=@xplat/verification
+bun run turbo run typecheck --filter=@octane-xplat/macos
+bun run --filter @octane-xplat/macos build
+bun run turbo run smoke:macos --filter=@octane-xplat/verification
 ```
 
 `smoke:macos` requires all 30 assertions in the existing shared harness sweep,
@@ -192,7 +192,7 @@ height, repeated solver passes, and window resize without host shrinkage or
 repositioning. Run it independently with:
 
 ```sh
-bun run --filter @xplat/macos test:layout-placement
+bun run --filter @octane-xplat/macos test:layout-placement
 ```
 
 Lottie has an explicit macOS leaf: it displays an unsupported label, calls
@@ -203,8 +203,8 @@ manifest. UI ref animation is checked independently and does not establish
 support for `@octane-xplat/motion`. Home uses the shared Bamboo probe class;
 its generated stylesheet ships in the bundle with the app CSS.
 
-Measured on 2026-10-25 with `bun run --filter @xplat/web parity`,
-`bun run --filter @xplat/macos parity`, and
+Measured on 2026-10-25 with `bun run --filter @octane-xplat/web parity`,
+`bun run --filter @octane-xplat/macos parity`, and
 `node tools/verification/parity-check.ts --targets=web,macos`: loading CSS raised the
 AppKit result from 913 to 963 of 1145 checks, and no check that passed before
 fails. (The pre-CSS build needed the `Screen` export fix to run.) The macOS
@@ -248,7 +248,7 @@ and stack children get per-side margins via a transparent wrapper view
 This CLI target does not add macOS to the `create-octane-xplat` starter or the
 supported web/iOS/Android release contract.
 
-`bun run --filter @xplat/macos bench:virtual-list` compares the all-rows fallback
+`bun run --filter @octane-xplat/macos bench:virtual-list` compares the all-rows fallback
 with an AppKit-only fixed-height windowing prototype at 500, 2,000, and 5,000
 items. The prototype slices the array around the scroll position and inserts
 spacer views. It uses an internal AppKit scroll callback; it does not change the
@@ -260,7 +260,7 @@ or `OCTANE_MACOS_VLIST_MODES=windowed` to run only the windowing probe.
 For example, run just the windowed probe at 500 and 1,000 items:
 
 ```sh
-OCTANE_MACOS_VLIST_SIZES=500,1000 OCTANE_MACOS_VLIST_MODES=windowed bun run --filter @xplat/macos bench:virtual-list
+OCTANE_MACOS_VLIST_SIZES=500,1000 OCTANE_MACOS_VLIST_MODES=windowed bun run --filter @octane-xplat/macos bench:virtual-list
 ```
 
 These figures were collected before the JavaScriptCore dev-host migration and
@@ -291,7 +291,7 @@ or long-session behavior. The results show that bounded AppKit mounting is
 feasible for fixed-height rows, but do not establish production `VirtualList`
 behavior.
 
-`bun run --filter @xplat/macos bench:virtual-list-scroll` adds a 5,000-row
+`bun run --filter @octane-xplat/macos bench:virtual-list-scroll` adds a 5,000-row
 variable-height probe (32/48/64pt rows) with 180 programmatic 8pt offset
 updates at about 16ms intervals, followed by midpoint and end seeks. In the
 latest Apple Silicon run, the document stayed at its expected 309,970pt height,
@@ -328,7 +328,7 @@ API.
 
 ## Packaging proof
 
-`bun run --filter @xplat/macos package` delegates to the CLI to build a universal
+`bun run --filter @octane-xplat/macos package` delegates to the CLI to build a universal
 `.app` and compressed `.dmg` for Apple Silicon and Intel Macs. Every build verifies SHA-256 checksums
 of the pinned host, NativeScript framework, and metadata before running Vite.
 The statically linked host lives in `Contents/MacOS`, loads system
@@ -489,7 +489,7 @@ operation, separate from ordinary PR checks. Swift/class discovery, actual
 navigation/close/AX and clean packaged consumers remain unqualified.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native package"}' -- bun run turbo run package --filter=@xplat/macos
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native package"}' -- bun run turbo run package --filter=@octane-xplat/macos
 ```
 
 The idle dialog page lets a human check website labels, alert/confirm results,

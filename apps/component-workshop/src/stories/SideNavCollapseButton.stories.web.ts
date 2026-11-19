@@ -1,5 +1,5 @@
 // Uses the maintained SideNavCollapseButtonShowcase example; do not copy its implementation here.
-import { SideNavCollapseButtonShowcase as Example } from '@xplat/astryx-sandbox/examples/sidenavcollapsebutton/SideNavCollapseButtonShowcase.tsrx'
+import { SideNavCollapseButtonShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/sidenavcollapsebutton/SideNavCollapseButtonShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

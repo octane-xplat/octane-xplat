@@ -1,5 +1,5 @@
 // Uses the maintained TextShowcase example; do not copy its implementation here.
-import { TextShowcase as Example } from '@xplat/astryx-sandbox/examples/text/TextShowcase.tsrx'
+import { TextShowcase as Example } from '@octane-xplat/astryx-sandbox/examples/text/TextShowcase.tsrx'
 import { defineStory } from '@octane-xplat/workshop'
 
 export const Basic = defineStory({

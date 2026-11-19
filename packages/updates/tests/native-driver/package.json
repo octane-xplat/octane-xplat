@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/updates-native-fixture",
+	"name": "@octane-xplat/updates-native-fixture",
 	"private": true,
 	"type": "module",
 	"scripts": {

@@ -50,7 +50,7 @@ production Vite config that emits one CommonJS host bundle.
   app bundles no Node executable or JavaScript engine binary; it loads system
   JavaScriptCore and rejects unsupported external imports with a diagnostic.
 - AC9: Native macOS leaf libraries and extended metadata participate in packaging and nested signing; the native source workflow and verification limits are documented separately.
-- AC7: `apps/macos` loads the shared `@xplat/app` harness through
+- AC7: `apps/macos` loads the shared `@octane-xplat/app` harness through
   `@octane-xplat/ui`'s macOS package-root condition without a Vite alias; the
   adapted sweep mounts Home, Apps, Test/probes, and all nine app-gallery demos,
   checks representative interactions including the 500-row list update, and
@@ -155,4 +155,4 @@ Maintained coverage: [Native geometry fixture](../../../apps/macos/test/layout-c
 and [renderer reconciliation tests](../../../packages/macos-appkit/test/style-reconcile.test.ts).
 The [panel placement fixture](../../../apps/macos/test/layout-placement-fixture.macos.tsx)
 also checks nested absolute/grid geometry, growing scroll height, repeated
-solver passes, and host size/position after resizing; `bun run turbo run smoke:macos --filter=@xplat/verification` includes it.
+solver passes, and host size/position after resizing; `bun run turbo run smoke:macos --filter=@octane-xplat/verification` includes it.

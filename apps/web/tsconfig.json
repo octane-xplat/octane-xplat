@@ -7,8 +7,8 @@
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"paths": {
 			"styled-system/*": ["../../packages/app/src/styled-system/*"],
-			"@xplat/app": ["../../packages/app/src/index.ts"],
-			"@xplat/app/*": ["../../packages/app/src/*"],
+			"@octane-xplat/app": ["../../packages/app/src/index.ts"],
+			"@octane-xplat/app/*": ["../../packages/app/src/*"],
 			"@octane-xplat/canvas": ["../../packages/canvas/src/index.ts"],
 			"@octane-xplat/canvas/*": ["../../packages/canvas/src/*"],
 			"@octane-xplat/gif": ["../../packages/gif/src/index.ts"],

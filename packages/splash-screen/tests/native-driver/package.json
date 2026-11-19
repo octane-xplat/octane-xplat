@@ -1,5 +1,5 @@
 {
-	"name": "@xplat/splash-screen-native-fixture",
+	"name": "@octane-xplat/splash-screen-native-fixture",
 	"private": true,
 	"type": "module",
 	"scripts": {
