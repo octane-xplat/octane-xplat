@@ -57,8 +57,10 @@ test('scrollview orientation maps to flexDirection', () => {
 test('masonview takes style CSS with no intrinsic defaults or layout props', () => {
   const bare = styleDict(node('masonview'))
 
-  assert.equal(bare.display, undefined)
-  assert.equal(bare.flexDirection, undefined)
+  // Only engine defaults — emitted so removal resets mason-c enum slots —
+  // none of the intrinsic overrides scrollview/label-style elements install.
+  assert.equal(bare.display, 'block')
+  assert.equal(bare.flexDirection, 'row')
 
   // All layout semantics arrive through `style` — the intrinsic has no
   // layout-prop surface.
