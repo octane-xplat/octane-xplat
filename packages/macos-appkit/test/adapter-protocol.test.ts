@@ -58,7 +58,11 @@ function fixture() {
       setButtonType() {
         run('button type')
       },
-      setAccessibilityLabel(value: string) {
+    })
+
+    Object.defineProperty(view, 'accessibilityLabel', {
+      configurable: true,
+      set(value: string) {
         this.label = value
       },
     })

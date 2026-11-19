@@ -50,17 +50,17 @@ function makeFieldView() {
 
   return {
     calls,
-    setAccessibilityLabel(value) {
-      calls.push(['setAccessibilityLabel', value])
+    set accessibilityLabel(value) {
+      calls.push(['accessibilityLabel', value])
     },
-    setAccessibilityHint(value) {
-      calls.push(['setAccessibilityHint', value])
+    set accessibilityHelp(value) {
+      calls.push(['accessibilityHelp', value])
     },
-    setAccessibilityElement(value) {
-      calls.push(['setAccessibilityElement', value])
+    set accessibilityElement(value) {
+      calls.push(['accessibilityElement', value])
     },
-    setAccessibilityEnabled(value) {
-      calls.push(['setAccessibilityEnabled', value])
+    set accessibilityEnabled(value) {
+      calls.push(['accessibilityEnabled', value])
     },
   }
 }
@@ -250,15 +250,15 @@ test('text-control accessibility props reach the native element', () => {
   const node = textNode('textfield')
 
   applyProps(node, { accessibilityLabel: 'Email' })
-  assert.deepEqual(node.view.calls, [['setAccessibilityLabel', 'Email']])
+  assert.deepEqual(node.view.calls, [['accessibilityLabel', 'Email']])
 
   const area = textNode('textview')
 
   applyProps(area, { accessibilityHint: 'Tell us more' })
   applyProps(area, { accessibilityState: { disabled: true } })
   assert.deepEqual(area.view.calls, [
-    ['setAccessibilityHint', 'Tell us more'],
-    ['setAccessibilityEnabled', false],
+    ['accessibilityHelp', 'Tell us more'],
+    ['accessibilityEnabled', false],
   ])
 })
 

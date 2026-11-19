@@ -156,7 +156,7 @@ export function createAccessibility(deps: Dependencies) {
 
     if (['label', 'htmlview', 'scrollview'].includes(node.type)) {
       if (name === 'accessibilityLabel') {
-        node.view!.setAccessibilityLabel?.(String(value ?? ''))
+        node.view!.accessibilityLabel = String(value ?? '')
       } else if (name === 'accessibilityHint') {
         node.view!.accessibilityHelp = (value == null ? null : String(value)) as string
       } else if (name === 'accessibilityValue') {
@@ -170,7 +170,7 @@ export function createAccessibility(deps: Dependencies) {
 
     if (['textfield', 'textview', 'searchbar'].includes(node.type)) {
       if (name === 'accessibilityLabel') {
-        node.view!.setAccessibilityLabel?.(String(value ?? ''))
+        node.view!.accessibilityLabel = String(value ?? '')
       } else if (name === 'accessibilityRole') {
         const view = node.view!
 
@@ -190,7 +190,7 @@ export function createAccessibility(deps: Dependencies) {
         const view = node.view!
 
         if (node.type === 'textview') {
-          view.setAccessibilityEnabled?.(value?.disabled !== true)
+          view.accessibilityEnabled = value?.disabled !== true
         }
 
         if (node.nativeTextExpanded && node.nativeTextExpanded.view !== view) {
@@ -206,9 +206,9 @@ export function createAccessibility(deps: Dependencies) {
           node.nativeTextExpanded = undefined
         }
       } else if (name === 'accessibilityHint') {
-        node.view!.setAccessibilityHint?.(String(value ?? ''))
+        node.view!.accessibilityHelp = (value == null ? null : String(value)) as string
       } else if (name === 'accessible') {
-        node.view!.setAccessibilityElement?.(value !== false)
+        node.view!.accessibilityElement = value !== false
       }
     }
   }

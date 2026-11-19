@@ -28,7 +28,7 @@ test('real scroll prop branch applies and clears native descriptions/visibility 
     accessibilityValue: 'native value',
     accessibilityHelp: null,
     accessibilityValueDescription: null,
-    setAccessibilityLabel(value: string) {
+    set accessibilityLabel(value: string) {
       label = value
     },
     set accessibilityElement(value: boolean) {

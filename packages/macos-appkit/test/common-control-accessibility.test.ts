@@ -376,7 +376,9 @@ test('native expanded state restores its baseline without changing multiline ena
     enabled: boolean[] = [],
     view = {
       accessibilityExpanded: true,
-      setAccessibilityEnabled: (value: boolean) => enabled.push(value),
+      set accessibilityEnabled(value: boolean) {
+        enabled.push(value)
+      },
     },
     node: any = { type: 'textview', view }
 
