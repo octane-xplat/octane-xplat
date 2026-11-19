@@ -1,6 +1,8 @@
 ### Lay out controls directly inside iOS glass
 
-**Breaking change:** `LiquidGlass` and `LiquidGlassContainer` now use Mason layout and default to block. Children that previously overlapped in one native grid cell now flow vertically. Put flex or grid styles on the material itself, and remove layout wrappers or background siblings added only to position its content.
+**Breaking change**
+
+Children of `LiquidGlass` and `LiquidGlassContainer` now stack vertically by default. Put flex or grid styles directly on the glass when you need a different layout. Remove wrappers added just to position the contents.
 
 ```tsx
 import { Image } from '@octane-xplat/ui'
@@ -15,4 +17,4 @@ export function GlassIcon({ icon }: { icon: string }) {
 }
 ```
 
-[LiquidGlass layout guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/liquid-glass.md#lay-out-centered-content)
+[LiquidGlass layout guide](https://octane-xplat.goddardai.org/liquid-glass#lay-out-centered-content)

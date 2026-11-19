@@ -1,6 +1,6 @@
 ### Start large iOS apps with live updates on a cold dev server
 
-On a fresh dev server, large iOS apps could stall at startup while the server prepared big dependency files, and the app gave up after repeated request timeouts. The managed `@nativescript/vite` patch now reads imports with Vite's faster parser, so the first launch finishes. Some requests can still be retried while the server warms up.
+Large iOS apps could time out on the first launch against a freshly started dev server while it processed large dependencies. The server now reads imports faster. It may still retry some requests on the first launch.
 
 ```sh
 bun run xplat dev ios

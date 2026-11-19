@@ -1,6 +1,8 @@
-### Compose measurements and responsive layout with signals
+### Read layout measurements and breakpoints as signals
 
-**Breaking change:** `useMeasure`, `useMediaQuery`, and `useWindowSize` become `useMeasure$`, `useMediaQuery$`, and `useWindowSize$`. Measurement results expose `bounds$` instead of `bounds`; window size, media queries, and `useBreakpoints$` return read-only signal handles. Read `.get()` for the current value or keep the handle for a derived calculation. The hook's component owns its subscriptions and releases them on unmount.
+**Breaking change**
+
+Rename `useMeasure`, `useMediaQuery`, and `useWindowSize` to `useMeasure$`, `useMediaQuery$`, and `useWindowSize$`. Read the measurement result with `bounds$.get()`. Read window size, media queries, and `useBreakpoints$` with `.get()` too, or pass their read-only signals into a derived calculation.
 
 ```tsx
 import { derived$ } from 'octane/signals'
@@ -15,4 +17,6 @@ export function Card() {
 }
 ```
 
-Breakpoints now use the same dimensions as `useWindowSize$`, including native host resize events inside desktop webviews. Mobile dimensions remain main-screen measurements, rather than app-window measurements. See [measuring elements](https://octane-xplat.goddardai.org/primitives) and [platform services](https://octane-xplat.goddardai.org/platform-services).
+Breakpoints now use the same dimensions as `useWindowSize$`. On iOS and Android, those dimensions come from the main screen.
+
+[Measuring elements](https://octane-xplat.goddardai.org/primitives#when-a-screen-needs-more) · [Platform services](https://octane-xplat.goddardai.org/platform-services)

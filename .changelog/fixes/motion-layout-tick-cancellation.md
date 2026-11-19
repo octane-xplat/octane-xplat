@@ -1,3 +1,5 @@
-### Cancel pending layout animation work during a frame
+### Skip cancelled work during a layout animation frame
 
-Motion now honors cancellation of a queued layout animation callback when an earlier callback cancels it during the same frame. Cancelled work no longer runs from a copied delivery batch. Animation timing and public APIs are unchanged.
+If a layout animation cancels another callback scheduled for the same frame, Motion now skips the cancelled callback.
+
+[Layout animations](https://octane-xplat.goddardai.org/animation-gestures#layout-animations)

@@ -1,13 +1,15 @@
-### Dependable smooth-corner inputs and explicit platform behavior
+### Clip SmoothCorners reliably and validate its styles
 
-SmoothCorners now uses Mason-owned path clipping on Android, preserving native backgrounds and scaling the complete border path for the device density. AppKit constructs real Core Graphics mask and shadow paths, and web shadows honor spread.
+On iOS and Android, `SmoothCorners` preserves the native background when `overflow: hidden` clips children to the curve. Android borders scale correctly with screen density. AppKit uses the curve for clipping and shadows, and web shadows honor spread.
 
-**Breaking change:** Android native shadows use `android.elevation`; passing `shadow` on Android throws. Arrange children with an inner shared layout instead of the removed flex-container props. Dynamic `style` must be a property object. Border/shadow colors accept CSS hex, comma-separated `rgb()`/`rgba()`, or `transparent`; invalid numeric inputs fail before drawing. Native Windows and GTK explicitly report unsupported.
+**Breaking change**
+
+On Android, replace `shadow` with `android.elevation`. Lay out children in an inner stack and pass dynamic `style` as an object. Use hex, comma-separated `rgb()` or `rgba()`, or `transparent` for border and shadow colors. Windows and GTK remain unsupported.
 
 ```tsx
 import { SmoothCorners } from '@octane-xplat/smooth-corners'
 
-;<SmoothCorners
+export const example = <SmoothCorners
   corners={24}
   android={{ elevation: 8 }}
   border={{ width: 2, color: '#2563eb80' }}

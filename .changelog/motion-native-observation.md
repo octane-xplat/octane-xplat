@@ -1,5 +1,5 @@
-### Share reduced-motion observation across Motion components
+### Share the reduced-motion setting across animations
 
-Motion components now share one system-preference observer per runtime. Android uses one polling timer and one resume listener while readers are mounted, then releases both when the last reader leaves.
+Mounted Motion components share one watcher for the system’s reduced-motion setting. On Android this replaces polling from each component with one shared timer, which stops when the last reader unmounts.
 
-[Motion lifecycle documentation](https://octane-xplat.goddardai.org/animation-gestures#reduced-motion-and-lifecycle)
+[Reduced motion and lifecycle](https://octane-xplat.goddardai.org/animation-gestures#reduced-motion-and-lifecycle)

@@ -1,6 +1,6 @@
-### Keep combined scales steady when interrupted
+### Keep the current size when a combined scale animation stops
 
-Stopping or replacing a Motion tween that combines uniform and per-axis scale now keeps its current size. These tweens use JavaScript updates on web and native so their separate factors remain available; ordinary eligible tweens still use the platform animator.
+A Motion animation that combines `scale` with `scaleX` or `scaleY` now keeps its current size when stopped or replaced.
 
 ```tsx
 import { motion } from '@octane-xplat/motion'
@@ -8,4 +8,4 @@ import { motion } from '@octane-xplat/motion'
 <motion.View animate={{ scale: 2, scaleX: 2 }} transition={{ duration: 1 }} />
 ```
 
-See [animation and gestures](https://octane-xplat.goddardai.org/app/animation-gestures).
+See [animation and gestures](https://octane-xplat.goddardai.org/animation-gestures).

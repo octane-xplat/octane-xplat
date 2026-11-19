@@ -1,5 +1,9 @@
-### Preserve native paint through layout projection
+### Keep native corners and shadows steady during layout animations
 
-Native layout projection now uses a Mason-owned paint handle to preserve authored radii and shadows through correction and cleanup. This JavaScript API and numeric-radius readback fix ship in Mason core `1.0.0-beta.9` and later; no Swift/Kotlin engine update is needed.
+On iOS and Android, Motion preserves your corner radii and shadows as a view changes size.
 
-[Layout animation documentation](https://octane-xplat.goddardai.org/animation-gestures#keep-corners-steady-while-a-card-expands)
+**Breaking change**
+
+Layout animations on iOS and Android require Mason core `1.0.0-beta.9` or later. Upgrade the framework packages together if your app pins an older Mason version.
+
+[Keep corners steady while a card expands](https://octane-xplat.goddardai.org/animation-gestures#keep-corners-steady-while-a-card-expands)

@@ -1,6 +1,8 @@
-### Use native desktop app hosts
+### Desktop apps now require native hosts
 
-**Breaking change:** Desktop WebView app hosting and the general native-service bridge have been removed. This removes `@octane-xplat/desktop-webview`, `@octane-xplat/platform/host`, `/host/web`, `/host/services`, the macOS `"webview"` renderer, the Linux `"webkitgtk"` runtime, and the former `@octane-xplat/ui/linux` entry point (`LinuxWindowHandle`). Move desktop screens to native AppKit, GTK, or WinUI, or run DOM screens in a browser. There is no compatibility layer.
+**Breaking change**
+
+Desktop WebView app hosting and its native-service bridge are gone. Remove `@octane-xplat/desktop-webview`, `@octane-xplat/platform/host`, `/host/web`, `/host/services`, the macOS `"webview"` renderer, the Linux `"webkitgtk"` runtime, and the former `@octane-xplat/ui/linux` entry point (`LinuxWindowHandle`). Move desktop screens to native AppKit, GTK, or WinUI, or run DOM screens in a browser.
 
 For an AppKit app, keep the native Vite configuration and CommonJS bundle paths and remove `webViteConfig`, `hostViteConfig`, `hostBundleFile`, and `webOutDir`:
 
@@ -18,6 +20,6 @@ For an AppKit app, keep the native Vite configuration and CommonJS bundle paths 
 }
 ```
 
-Browser services now use browser APIs and their permission/storage limits. Existing native-file camera outputs from retired hosts cannot be reopened through the browser camera backend. RichText, Tiptap, and Lexical retain their editor-owned local WebView transport; embedded WebView widgets are separate and remain available.
+If you move a screen to a browser, it uses browser permissions and storage. The browser camera can’t reopen native files captured by the retired hosts. Embedded WebView widgets and the local WebViews used by RichText, Tiptap, and Lexical remain available.
 
-See [macOS setup](https://octane-xplat.goddardai.org/toolchain#experimental-appkit-target), [native Linux setup](https://octane-xplat.goddardai.org/linux-gtk), and [rich text editing](https://octane-xplat.goddardai.org/rich-text#macos-appkit-editing).
+[Native macOS setup](https://octane-xplat.goddardai.org/toolchain#experimental-appkit-target) · [Native Linux setup](https://octane-xplat.goddardai.org/linux-gtk) · [Rich text editing](https://octane-xplat.goddardai.org/rich-text#macos-appkit-editing)

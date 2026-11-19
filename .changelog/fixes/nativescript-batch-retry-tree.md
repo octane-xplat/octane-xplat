@@ -1,3 +1,5 @@
-### Keep iOS and Android trees consistent when a batch fails halfway
+### Recover cleanly from failed view updates on iOS and Android
 
-On iOS and Android, a host batch that fails partway through no longer corrupts the native view tree. Batches the driver can recognize as invalid — an unregistered element, an unknown host or parent, an inactive portal target, or an ownership cycle — are rejected before any command applies, so a broken update never leaves a half-mounted tree behind. When an unexpected native error does stop a batch, retrying it releases the earlier attempt's views instead of stacking a second visible tree, and a destroy without a matching remove detaches its view instead of leaving it on screen.
+Invalid batches of view updates now fail before changing the screen. If an unexpected native error interrupts an update and the renderer retries, it removes views left by the failed attempt. Destroyed views also disappear even if the update omitted a separate remove operation.
+
+[NativeScript renderer](https://octane-xplat.goddardai.org/package-nativescript-octane)

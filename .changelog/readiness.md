@@ -1,14 +1,24 @@
-### Observe screen readiness in every build
+### Show when a screen is ready
 
-Use `ReadinessScope`, `useReadinessTask` and `useReadiness$` to share screen-owned loading and failure state through context. Shared queries register automatically in production and development. Refreshes with usable data keep ordinary UI ready; dev actions wait for background work too and reject failures promptly.
+Use `ReadinessScope`, `useReadinessTask`, and `useReadiness$` to show loading and failed work for a screen in development and production. Shared queries register automatically. A refresh can keep existing content ready while development actions wait for background work too.
 
 ```tsx
-import { ReadinessScope } from '@octane-xplat/platform/readiness'
-import { Checkout } from './Checkout'
+import 'octane/signals'
+import { ReadinessScope, useReadinessTask, useReadiness$ } from '@octane-xplat/platform/readiness'
+import { Text } from '@octane-xplat/ui'
 
-export function CheckoutScreen() {
-  return <ReadinessScope label="Checkout"><Checkout /></ReadinessScope>
+type CheckoutStatus = { loading: boolean; error?: Error }
+
+function Status({ loading, error }: CheckoutStatus) {
+  useReadinessTask({ label: 'Loading checkout', pending: loading, error })
+  const readiness$ = useReadiness$()
+  const message = { pending: 'Loading checkout…', blocked: 'Checkout unavailable', ready: 'Checkout ready' }
+  return <Text>{message[readiness$.get().status]}</Text>
+}
+
+export function Checkout(status: CheckoutStatus) {
+  return <ReadinessScope label="Checkout"><Status {...status} /></ReadinessScope>
 }
 ```
 
-Use `/readiness/controller` for owned services. Snapshot pending/failure entries contain `{ label, blocking }`; raw errors are omitted. Readiness covers registered work and does not certify native frame presentation. See [readiness](https://octane-xplat.goddardai.org/app/readiness) and [development actions](https://octane-xplat.goddardai.org/testing/development-actions).
+[Screen readiness](https://octane-xplat.goddardai.org/readiness) · [Wait in a development action](https://octane-xplat.goddardai.org/development-actions#wait-for-a-screens-registered-work)

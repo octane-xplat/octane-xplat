@@ -1,17 +1,17 @@
-### Keep native pan callbacks stable during state updates
+### Keep native pan gestures active through state updates
 
-Native `onPan` now keeps the same callback bridge when an inline handler or local state changes. It reads the latest committed callback, and removing the handler still removes its listener.
+An inline `onPan` handler can update component state without detaching the active native pan. The gesture keeps calling the latest handler as the component rerenders.
 
 ```tsx
 import { useState } from 'octane'
-import { View } from '@octane-xplat/ui'
+import { Text, View } from '@octane-xplat/ui'
 
 export function DragSurface() {
-  const [dragging, setDragging] = useState(false)
-  return <View onPan={event => setDragging(event.state === 'moved')}>
-    {dragging ? 'Dragging' : 'Ready'}
-  </View>
+  const [distance, setDistance] = useState(0)
+  return <View onPan={(event) => {
+    if (event.phase === 'update') setDistance(event.sample.translation.x)
+  }}><Text>{Math.round(distance)}</Text></View>
 }
 ```
 
-See [gestures](https://octane-xplat.goddardai.org/app/animation-gestures) for pan events and their lifecycle.
+[Pan events](https://octane-xplat.goddardai.org/gestures#migrate-existing-callbacks)

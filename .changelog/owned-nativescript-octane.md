@@ -1,6 +1,8 @@
-### NativeScript Octane source now lives in the framework
+### Install the NativeScript renderer from Octane Xplat
 
-The NativeScript renderer and hot-update integration are maintained directly in this monorepo as `@octane-xplat/nativescript-octane` and `@octane-xplat/vite-octane`. They use our existing build and release toolchain and include the fixes previously shipped as dependency patches.
+**Breaking change**
+
+The NativeScript renderer and its Vite integration now ship as `@octane-xplat/nativescript-octane` and `@octane-xplat/vite-octane`. Both include the fixes previously applied as patches.
 
 Apps with direct renderer imports must use the new package name, including subpaths:
 
@@ -8,4 +10,6 @@ Apps with direct renderer imports must use the new package name, including subpa
 import { registerElement } from '@octane-xplat/nativescript-octane'
 ```
 
-Replace the two upstream dependencies with the matching framework packages and remove their old patch registrations. New starters already use the owned packages. See the [renderer guide](https://octane-xplat.goddardai.org/package-nativescript-octane) and [native build integration](https://octane-xplat.goddardai.org/package-vite-octane).
+Replace `@nativescript-community/octane` and `@nativescript-community/vite-octane` in your dependencies and remove their old patch registrations.
+
+[Renderer setup](https://octane-xplat.goddardai.org/package-nativescript-octane) · [Native build integration](https://octane-xplat.goddardai.org/package-vite-octane)

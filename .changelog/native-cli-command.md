@@ -1,9 +1,9 @@
 ### Run the installed CLI directly
 
-The `xplat` command supplied by `octane-xplat` now starts the native Go executable directly, without a Node launcher. Allow install scripts for both `octane-xplat` and `@octane-xplat/cli`; new starters and framework upgrades include these permissions.
+The installed `xplat` command now starts its native executable directly. Allow install scripts for both `octane-xplat` and `@octane-xplat/cli` so the packages can place the executable. New starters and framework upgrades set these permissions. In Bun, the entries go in `trustedDependencies`.
 
 ```json
 { "trustedDependencies": ["octane-xplat", "@octane-xplat/cli"] }
 ```
 
-[CLI installation and repair](https://octane-xplat.goddardai.org/packages/cli#native-executable)
+[CLI installation and repair](https://octane-xplat.goddardai.org/package-cli#native-executable)

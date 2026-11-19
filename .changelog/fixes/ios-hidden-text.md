@@ -1,9 +1,9 @@
 ### Keep hidden Text hidden after iOS layout
 
-On iOS, `Text` with `visibility: 'hidden'` now keeps its layout space and its native drawing state suppressed after layout and text updates.
+On iOS, `Text` with `visibility: 'hidden'` still takes up space and now stays invisible after layout or text changes.
 
 ```tsx
 <Text style={{ visibility: showFeedback ? 'visible' : 'hidden' }}>+10s</Text>
 ```
 
-See [styling](https://octane-xplat.goddardai.org/app/styling).
+See [styling](https://octane-xplat.goddardai.org/styling).

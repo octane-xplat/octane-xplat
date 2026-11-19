@@ -1,5 +1,5 @@
 ### Handle Windows shortcut startup failures cleanly
 
-Windows global shortcut registration now reports setup failure before starting a worker when Windows returns an invalid pipe handle. The fallback worker-file path also rejects invalid handles before attempting a write.
+Windows global shortcut registration now reports setup failures immediately if Windows can’t create the connection or open the fallback worker file.
 
-See [global shortcuts](https://octane-xplat.goddardai.org/packages/package-global-shortcuts).
+See [global shortcuts](https://octane-xplat.goddardai.org/package-global-shortcuts).

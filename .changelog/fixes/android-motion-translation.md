@@ -1,6 +1,6 @@
-### Keep Android motion in the right place
+### Fix Motion distances on high-density Android screens
 
-Android Motion tweens now travel the requested distance on high-density screens and keep their current position when stopped or replaced. Translation samples and velocities use logical DIPs, including when a tween hands off to a spring. Pass the same values on every screen density:
+Movement now covers the requested distance and keeps its current position when stopped or replaced. Positions and velocities use device-independent units, including when handing off to a spring.
 
 ```tsx
 import { motion } from '@octane-xplat/motion'
@@ -8,4 +8,4 @@ import { motion } from '@octane-xplat/motion'
 <motion.View animate={{ x: 100 }} transition={{ duration: 0.3 }} />
 ```
 
-See [animation and gestures](https://octane-xplat.goddardai.org/app/animation-gestures).
+See [animation and gestures](https://octane-xplat.goddardai.org/animation-gestures).

@@ -1,3 +1,5 @@
-### Keep Android drags from firing a Pressable release
+### Keep Android drags from activating a nested Pressable
 
-Keep Android drags from also activating a moving Pressable on release. A sheet can now follow a finger and return after a small drag without firing its header's press action. Ordinary taps and tiny finger movements still work. See the [gesture guide](https://octane-xplat.goddardai.org/app/animation-gestures).
+Dragging a sheet by its pressable header no longer fires the header action on release. Ordinary taps still activate it.
+
+[Gesture guide](https://octane-xplat.goddardai.org/gestures)

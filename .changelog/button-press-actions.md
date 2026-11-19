@@ -1,6 +1,8 @@
-### Button effects and asynchronous press actions
+### Separate immediate button presses from async actions
 
-Use `onPress` for immediate changes such as opening a panel or updating local state. Use the renamed `pressAction` for Promise-returning work; Button manages its loading state and reports failures through `onActionError`. `IconButton` follows the same contract. `clickAction` is removed without an alias.
+**Breaking change**
+
+Replace `clickAction` with `pressAction` for work that returns a promise, such as saving to a server. `Button` and `IconButton` show a loading state during the action and pass failures to `onActionError`. Use `onPress` for immediate changes such as closing a panel.
 
 ```tsx
 import { Button } from '@octane-xplat/ui'
@@ -13,4 +15,6 @@ export function EditorActions(props: { close(): void; save(): Promise<void> }) {
 }
 ```
 
-When both callbacks are supplied, `onPress` runs first. Its event's `preventDefault()` skips navigation and the asynchronous action. Disabled or blocked buttons run neither callback. Toggle buttons keep `onPressedChange` for immediate changes and require a Promise from `pressedChangeAction` for managed saves. See [button effects and actions](https://octane-xplat.goddardai.org/interactive-actions#button-states-and-actions).
+When both callbacks are supplied, `onPress` runs first. Call `event.preventDefault()` there to skip navigation and the async action. For toggle buttons, use `onPressedChange` for immediate updates and return a promise from `pressedChangeAction` for managed saves.
+
+[Button states and actions](https://octane-xplat.goddardai.org/interactive-actions#button-states-and-actions).

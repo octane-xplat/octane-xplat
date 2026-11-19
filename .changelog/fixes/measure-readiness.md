@@ -1,6 +1,6 @@
 ### Report element bounds only after a usable layout
 
-`useMeasure$` now keeps `bounds$` at `null` until the attached host completes its first layout, instead of publishing a pre-layout `0×0` — `null` is the "not laid out yet" readiness signal. An element that genuinely measures to zero still reports `0×0` once laid out, so work that needs room should check `bounds.width > 0 && bounds.height > 0`, not just non-null. With `observe: false`, the hook keeps listening until the first usable read lands, then releases its listeners.
+`useMeasure$` now reports `null` until the element completes its first layout. A laid-out element can still measure zero. Check both dimensions before starting work that needs space. With `observe: false`, the hook stops listening after the first layout measurement.
 
 ```tsx
 import 'octane/signals'
@@ -8,7 +8,7 @@ import { useEffect } from 'octane'
 import { View, useMeasure$ } from '@octane-xplat/ui'
 
 export function AnimatedSurface() {
-  const { ref, bounds$ } = useMeasure$()
+  const { ref, bounds$ } = useMeasure$({ observe: false })
 
   useEffect(() => {
     const bounds = bounds$.get()
@@ -21,4 +21,4 @@ export function AnimatedSurface() {
 }
 ```
 
-See [measuring elements](https://octane-xplat.goddardai.org/primitives).
+See [measuring elements](https://octane-xplat.goddardai.org/primitives#when-a-screen-needs-more).

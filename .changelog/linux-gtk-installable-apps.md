@@ -2,13 +2,13 @@
 hype: 40
 ---
 
-### Installable GTK apps and persistent settings on Linux
+### Install Linux GTK apps from their build output
 
-The GTK runtime now packages a real per-user install: `xplat build --targets linux` emits a `.desktop` entry, `install.sh`, and `uninstall.sh` alongside the `gjs -m` bundle — the same install surface the WebKitGTK runtime already had. `install.sh` copies the app into `~/.local/share/<applicationId>` (replacing a previous install cleanly) and registers the desktop entry; `uninstall.sh` removes only the install and entry, leaving `~/.config/<applicationId>` user settings untouched.
+A Linux GTK build now includes install and uninstall scripts. After extracting the build archive, run the scripts from the extracted app directory. Installation adds the app to your desktop launcher for your user account and replaces any previous installation. Uninstalling keeps your saved settings.
 
 ```sh
-./my-app/install.sh     # per-user install + desktop entry
-./my-app/uninstall.sh   # removes the install; keeps ~/.config/<applicationId>
+./install.sh
+./uninstall.sh
 ```
 
-`@octane-xplat/platform` `storage` and the UI query-storage seam now persist across launches on GTK: `ApplicationSettings` writes through a `GLib.KeyFile` at `~/.config/<applicationId>/settings.ini` instead of losing state on exit. `@octane-xplat/linux-gtk/host` exports `setWindowContentResolver` for `openWindow` content, and `runGtkApp`'s `mount` may return a cleanup the host runs once on application shutdown.
+[Build and install a Linux GTK app](https://octane-xplat.goddardai.org/linux-gtk#develop-and-build)

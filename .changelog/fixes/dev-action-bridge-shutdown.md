@@ -1,5 +1,5 @@
-### Stop development actions without a late announcement error
+### Avoid dev action errors when stopping the bridge
 
-Stopping a development-action bridge immediately after changing a handler no longer causes a queued registry announcement to fail during cleanup. Queued announcements also stay bound to their original bridge, so they cannot use a replacement connection. Late HTTP responses leave a stopped bridge stopped and do not deliver more work.
+Stopping the development-action bridge after changing a handler no longer raises a late registration error. Pending messages and responses from the stopped bridge can’t reach a new connection.
 
-See [development actions](https://octane-xplat.goddardai.org/testing/development-actions).
+[Development actions](https://octane-xplat.goddardai.org/development-actions)

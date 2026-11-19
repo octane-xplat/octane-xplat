@@ -1,6 +1,8 @@
-### Simpler Vite configuration
+### Let the build command choose the Vite setup
 
-**Breaking change:** `defineConfig` from `octane-xplat/vite` now adds the framework compiler, platform CSS, boundary checks, tweaks, and development bridge automatically. The command selects the target, so starter configs only contain app settings.
+**Breaking change**
+
+In a standard app, use `defineConfig` from `octane-xplat/vite` and keep your app settings in it. The helper adds the framework plugins for the target selected by your command.
 
 ```ts
 import { defineConfig } from 'octane-xplat/vite'
@@ -8,4 +10,6 @@ import { defineConfig } from 'octane-xplat/vite'
 export default defineConfig({ server: { port: 5200 } })
 ```
 
-Remove manually installed framework plugins, the `native()` wrapper, and standard platform resolution settings when using this helper. Custom compiler and experimental desktop configurations keep Vite's own `defineConfig` and explicit presets. Direct Vite defaults to web; direct NativeScript commands use their selected OS. See the [toolchain setup](https://octane-xplat.goddardai.org/package-toolchain#configure-a-web-app).
+Remove manual framework plugin entries, the `native()` wrapper, and standard platform resolution settings from configs using the helper. Keep Vite's own `defineConfig` and explicit presets for custom compiler and experimental desktop setups.
+
+[Vite setup](https://octane-xplat.goddardai.org/package-toolchain#configure-a-web-app).

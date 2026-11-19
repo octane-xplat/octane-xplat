@@ -1,5 +1,11 @@
-### `@octane-xplat/patches` is retired
+### Keep framework patches in your project
 
-Framework patches are local files in every project, so the separate `@octane-xplat/patches` config package is no longer published. `xplat upgrade` migrates pnpm projects that opted into `configDependencies`: `patchedDependencies` entries pointing at `node_modules/.pnpm-config/` rewrite to `patches/` files and the config dependency is removed.
+**Breaking change**
 
-New starters were already local for both package managers, so created projects are unaffected. Custom patch files that differ from the framework's canonical patches are still preserved or reported as conflicts — nothing is silently overwritten.
+The separate `@octane-xplat/patches` package is retired. If your pnpm project used it through `configDependencies`, run the upgrade command. It removes the config dependency and updates `patchedDependencies` to point at files in your local `patches/` directory. The upgrade preserves custom patch files or reports conflicts.
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade
+```
+
+[Upgrade framework packages](https://octane-xplat.goddardai.org/toolchain#upgrade-framework-packages)

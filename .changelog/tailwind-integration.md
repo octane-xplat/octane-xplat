@@ -1,12 +1,12 @@
 ### Compile Tailwind classes through Xplat
 
-`@octane-xplat/tailwind` joins the public lockstep release as an optional build dependency. Add its compiler after the app’s platform CSS preset and import its stylesheet from global CSS. Native generated output is restricted to the documented subset; full native app qualification remains incomplete.
+Install `@octane-xplat/tailwind` as a development dependency to use Tailwind classes. Add its compiler after the platform CSS plugin and import its stylesheet in your global CSS. Native targets accept a smaller set of utilities and values. The build reports unsupported output.
 
 ```ts
-import { css } from '@octane-xplat/build/vite'
+import { defineConfig } from 'octane-xplat/vite'
 import { tailwind } from '@octane-xplat/tailwind/vite'
 
-const stylingPlugins = [css('web'), tailwind()]
+export default defineConfig({ plugins: [tailwind()] })
 ```
 
 ```css

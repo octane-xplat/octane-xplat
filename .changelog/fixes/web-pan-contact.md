@@ -1,15 +1,15 @@
-### Recover web pans when pointer capture changes
+### Recover web pans after a lost pointer capture
 
-Web pan gestures now keep the first primary contact instead of restarting when another finger touches the view. Capture loss and teardown cancel the gesture once, so interrupted interactions can recover.
+A second touch no longer restarts the current pan. If pointer capture is lost or the view is removed, the active pan cancels once, so the next interaction can start cleanly.
 
 ```tsx
 import { View } from '@octane-xplat/ui'
 
-export function DragArea() {
+export function DragArea({ reset }: { reset(): void }) {
   return <View onPan={(event) => {
-    if (event.state === 'cancelled') console.log('Return to the resting position')
+    if (event.phase === 'finish' && event.terminal.outcome === 'cancelled') reset()
   }} />
 }
 ```
 
-[Animation and gestures](https://octane-xplat.goddardai.org/app/animation-gestures)
+[Handle interrupted gestures](https://octane-xplat.goddardai.org/gestures#finish-once-and-handle-interruption)

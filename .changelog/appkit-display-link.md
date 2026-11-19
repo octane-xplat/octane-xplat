@@ -1,3 +1,5 @@
-### Follow the display refresh rate in native macOS animations
+### Match macOS animations to the display refresh rate
 
-Native macOS Motion, imperative UI animations and CSS keyframes now share display-synchronized scheduling instead of 16 ms timers. The scheduler stops when idle and uses monotonic time so system clock changes do not affect animation progress. macOS 13.5 remains supported. Rebuild the native host after upgrading; see [animation guidance](https://octane-xplat.goddardai.org/app/animation-gestures).
+On native macOS, Motion, UI animations started from code, and CSS keyframes now update in sync with the display. Rebuild the native host after upgrading. macOS 13.5 remains supported.
+
+[Motion and gestures](https://octane-xplat.goddardai.org/animation-gestures)

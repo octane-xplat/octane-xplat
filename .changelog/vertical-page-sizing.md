@@ -1,8 +1,10 @@
 ### Keep shared pages within their available space
 
-**Breaking change:** `SafeArea` now uses block layout on every platform, matching its original web behavior. Children are no longer implicitly flex items. `SafeArea` and `ScrollableArea` can shrink inside a bounded flex parent, and scroll viewports default to a maximum height of 100% of their containing block, so ordinary vertical pages wrap paragraphs and control rows within their available width and keep tall content scrollable.
+A vertical page with a fixed amount of space now wraps text within the available width and scrolls when content grows taller than the viewport. `SafeArea` and `ScrollableArea` can shrink inside a flex parent with a height limit.
 
-Explicit content widths and inline/both-axis scrolling remain available. Layouts that relied on native SafeArea's implicit row should use an `HStack` for that row. Use an explicit `display: flex` class or style when SafeArea's children need flex alignment or remaining-height distribution; authored `display`, `flexShrink`, and `maxHeight` styles can override the defaults.
+**Breaking change**
+
+`SafeArea` now uses block layout on native, matching web. Add an `HStack` for children that relied on the old native row, or set `display: flex` when the safe area itself should arrange the children.
 
 ```tsx
 import { SafeArea, ScrollableArea, VStack, Text } from '@octane-xplat/ui'

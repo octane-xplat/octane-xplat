@@ -1,8 +1,10 @@
 ### Drag mobile drawers without activating nested buttons
 
-Mobile Drawer now uses the shared gesture owner for edge opening and drag dismissal. A claimed drag cancels its nested button press, extra fingers cancel the drag until all contacts lift, and new commands or drags can interrupt settling at the current position. Web and desktop keep their explicit controls.
+On iOS and Android, drag from the screen edge to open a drawer or drag the panel to dismiss it. Once the drag starts, releasing your finger won’t activate a nested button. A second finger cancels the drag. You can grab the drawer again while it is settling.
 
-**Breaking change:** the native host is now composed from framework views. Remove ui-drawer-specific settings from `ios` and `android`, such as `gestureHandlerOptions`, `shouldPan`, `translationFunction` and `animationFunction`. Import Drawer and DrawerProps from `@octane-xplat/ui` and remove `@octane-xplat/drawer` from dependencies. Keep the same content and state callbacks. Drawer no longer installs ui-drawer or gesturehandler; other features may still need their own dependencies.
+**Breaking change**
+
+Import `Drawer` and `DrawerProps` from `@octane-xplat/ui` and remove `@octane-xplat/drawer`. Remove old native drawer options such as `shouldPan` and `animationFunction` from `ios` and `android`. Keep your content and open-state callbacks.
 
 ```tsx
 import { Drawer } from '@octane-xplat/ui'
@@ -11,4 +13,6 @@ import { Drawer } from '@octane-xplat/ui'
   main={mainContent} drawer={navigationContent} />
 ```
 
-Keep visible open/close buttons for people who do not drag. See the [Drawer guide](https://octane-xplat.goddardai.org/drawer) for setup and native qualification limits.
+Keep visible open and close controls for web, desktop, and people who don’t use drag gestures.
+
+[Drawer setup](https://octane-xplat.goddardai.org/drawer)

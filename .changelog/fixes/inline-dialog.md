@@ -1,6 +1,6 @@
 ### Inline dialogs honor their open state
 
-`Dialog` now renders `isInline` panels on iOS and Android and respects their open state on web. Closing an inline dialog removes its panel without opening a modal overlay.
+Inline dialogs now appear on iOS and Android. On web, closing one removes its panel. Set `isInline` to show the panel in the page without a modal overlay.
 
 ```tsx
 <Dialog isInline isOpen={open}>

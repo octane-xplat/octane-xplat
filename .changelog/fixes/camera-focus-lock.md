@@ -1,5 +1,5 @@
-### Release the camera after refused focus updates
+### Keep the iOS camera usable after a refused focus update
 
-On iOS, a refused focus or exposure update now releases the camera configuration lock. Tap-to-focus failures remain nonfatal and no longer leave an acquired lock held.
+If iOS refuses a focus or exposure update, the app releases the camera’s configuration lock so later changes can still go through.
 
 [Tap-to-focus](https://octane-xplat.goddardai.org/package-camera#tap-to-focus)

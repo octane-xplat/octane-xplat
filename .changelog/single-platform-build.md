@@ -1,10 +1,10 @@
 ### Build one platform by name
 
-Pass a platform to `xplat build` the same way you do for `xplat dev`. New apps use `xplat` for their web and mobile dev and build scripts. Use `--targets` when you want to build several platforms together.
+Pass one target directly to `xplat build`, just as you would with `xplat dev`. Use `--targets` to build several at once.
 
 ```sh
 xplat build ios
 xplat build --targets web,android
 ```
 
-[CLI guide](https://octane-xplat.goddardai.org/packages/cli)
+[CLI guide](https://octane-xplat.goddardai.org/package-cli)

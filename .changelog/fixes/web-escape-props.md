@@ -1,3 +1,5 @@
 ### Clear web escape attributes consistently
 
-Web escape props now clear attributes when their values become `null` or `undefined` in Camera, AnimatedImage, Image, Lottie, and Video. Dashed attributes also use the same boolean handling across these components. See [platform escape props](https://octane-xplat.goddardai.org/app/components).
+Set a web-only attribute to `null` or `undefined` to remove it from Camera, AnimatedImage, Image, Lottie, or Video. These components now also handle booleans consistently for dashed attributes such as `data-active`.
+
+[Platform escape props](https://octane-xplat.goddardai.org/components)

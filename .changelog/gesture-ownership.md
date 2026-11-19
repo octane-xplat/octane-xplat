@@ -1,20 +1,32 @@
-### Shared gesture ownership, pinch, and input suspension
+### Let drags and buttons share the same surface
 
-Draggable surfaces and nested buttons now share one input owner. Add a stable gesture handle to a View; ordinary callback updates keep the active contact. Gesture hooks expose read-only state signals, explicit positions, translation, nullable velocity, and separate successful release and cancellation.
+Attach a `usePanGesture$` handle to a `View` with `gestures`. A tap still activates a nested button. Once a drag takes over, releasing it won’t activate the button. Gesture hooks expose read-only signals and separate callbacks for release and cancellation.
 
 ```tsx
 import { Button, View, usePanGesture$ } from '@octane-xplat/ui'
 
-export function Panel() {
-  const drag = usePanGesture$({ axis: 'x', onEnd: (sample) => console.log(sample.translation) })
-  return (
-    <View gestures={drag}>
-      <Button onPress={() => {}}>Open</Button>
-    </View>
-  )
+export function Panel({ open }: { open(): void }) {
+  const drag = usePanGesture$({ axis: 'x', onEnd: (sample) => console.log(sample.translation.x) })
+  return <View gestures={drag}><Button label="Open" onPress={open} /></View>
 }
 ```
 
-Compose pan and pinch with `compete`, `simultaneous`, or `prioritize`. Use `useInteractionScope$` for capability-gated, reference-counted suspension without changing overflow. Web, iOS, and Android have shared gesture adapters; experimental macOS, native GTK, and pinned Windows hosts provide a one-mouse-contact subset. Desktop pinch and magnification remain unavailable. Full scroll/input suspension currently supports bounded UIKit/Mason subtrees on iOS; web supports input-only inert subtrees. Other suspension requests return a failure result.
+**Breaking change**
 
-This breaks the previous event contract: `onPan`/`onPinch` now send `start`/`update` samples and `finish` terminal outcomes. Remove `state`, `dx/dy`, `vx/vy`, translation `x/y` aliases, and `onSwipe`; derive swipe actions from successful pans. `onPress` now includes activation source and an optional pointer sample. Motion uses the shared owner and no longer requires its gesturehandler peer or installation step. See [gestures and migration](https://octane-xplat.goddardai.org/gestures) and [Motion](https://octane-xplat.goddardai.org/animation-gestures).
+In `onPan` and `onPinch`, replace `state` with `phase` and read movement from `translation` and nullable `velocity`. Replace `onSwipe` with a distance check on successful pan release. `onPress` now reports the activation source and an optional pointer sample.
+
+```tsx
+import { View } from '@octane-xplat/ui'
+
+export function SwipeArea({ next }: { next(): void }) {
+  return <View onPan={(event) => {
+    if (event.phase !== 'finish' || event.terminal.outcome !== 'ended') return
+    const { x, y } = event.terminal.sample.translation
+    if (x < -80 && Math.abs(x) > Math.abs(y)) next()
+  }} />
+}
+```
+
+Motion uses the shared gesture system. Remove the extra gesturehandler installation if Motion was its only user.
+
+[Gestures and callback migration](https://octane-xplat.goddardai.org/gestures#migrate-existing-callbacks)

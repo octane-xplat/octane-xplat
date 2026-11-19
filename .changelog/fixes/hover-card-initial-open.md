@@ -1,6 +1,6 @@
 ### Hover cards open when their trigger becomes available
 
-On web, an initially open `HoverCard` now appears when its element trigger attaches. Layers observe trigger refs that bind after the initial render.
+On web, a `HoverCard` set to open on its first render now appears as soon as its trigger is available.
 
 ```tsx
 <HoverCard isOpen content={<Text>Account details</Text>}>
