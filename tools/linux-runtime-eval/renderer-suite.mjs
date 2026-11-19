@@ -13,24 +13,25 @@ if (!['native', 'gjs'].includes(engine)) {
 }
 
 const allFiles = readdirSync(testRoot)
-  .filter((name) => name.endsWith('.test.mjs'))
+  .filter((name) => /\.test\.m(?:js|ts)$/.test(name))
+  .filter((name) => name !== 'shared-gestures.test.mts')
   .sort()
 const unrouted = allFiles.filter((name) => !readFixtureTest(join(testRoot, name)))
 if (unrouted.length > 0) {
   throw Error(`GTK test files missing an evaluation runner: ${unrouted.join(', ')}`)
 }
 const requested = args
-const unknown = requested.filter((stem) => !allFiles.includes(`${stem}.test.mjs`))
+const unknown = requested.filter((stem) => !allFiles.some((name) => name === `${stem}.test.mjs` || name === `${stem}.test.mts`))
 if (unknown.length > 0) throw Error(`Unknown GTK fixture test(s): ${unknown.join(', ')}`)
 const selected =
-  requested.length > 0 ? new Set(requested.map((stem) => `${stem}.test.mjs`)) : undefined
+  requested.length > 0 ? new Set(allFiles.filter((name) => requested.some((stem) => name === `${stem}.test.mjs` || name === `${stem}.test.mts`))) : undefined
 const files = allFiles
   .filter((name) => !selected || selected.has(name))
   .map((name) => join(testRoot, name))
 if (files.length === 0) throw Error(`No GTK fixture tests found in ${testRoot}`)
 
 function readFixtureTest(path) {
-  if (['prebuilt-engine.test.mjs', 'style-css.test.mjs'].includes(basename(path))) return true
+  if (['prebuilt-engine.test.mjs', 'style-css.test.mts', 'window-service.test.mts'].includes(basename(path))) return true
   const source = readFileSync(path, 'utf8')
   return source.includes('runGtkUiFixture(') || source.includes('runGtkEvalFixture(')
 }

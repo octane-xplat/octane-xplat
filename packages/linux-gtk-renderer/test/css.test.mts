@@ -1,4 +1,4 @@
-import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 // Runtime-level stylesheet smoke — builds the css-smoke fixture bundle and
 // runs it under real GJS+GTK. Mason is required (the bundle's masonview
 // hosts drive the cascade), so the run needs a resolvable XplatMason
@@ -13,7 +13,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mjs'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const pkg = fileURLToPath(new URL('..', import.meta.url))
 const fixture = join(pkg, 'test', 'fixtures')

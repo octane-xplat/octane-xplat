@@ -192,7 +192,7 @@ goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-o
 
 Pass fixture stems after `--` for a smaller run, for example `-- ui-theme` or `-- a11y ui-accessibility`. Omit them to run the full suite.
 
-The command inventories the top-level `test/*.test.mjs` files and rejects runtime tests without a paired runner. Fixture source files under `test/fixtures/` are counted through their owning tests. Compare matching `*.native.log` and `*.gjs.log` files before classifying runtime failures. The WebView fixture needs WebKitGTK 6.0 and JavaScriptCore metadata in the prepared NativeScript runtime. Generate that metadata and the matching GI schema as described below.
+The command inventories top-level GTK tests and rejects runtime tests without a paired runner. The separately built `shared-gestures.test.mts` GJS fixture is not yet routed through the paired runner. Fixture source files under `test/fixtures/` are counted through their owning tests. Compare matching `*.native.log` and `*.gjs.log` files before classifying runtime failures. The WebView fixture needs WebKitGTK 6.0 and JavaScriptCore metadata in the prepared NativeScript runtime. Generate that metadata and the matching GI schema as described below.
 
 ### Prepare WebKitGTK metadata
 

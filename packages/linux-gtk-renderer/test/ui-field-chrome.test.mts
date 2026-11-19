@@ -1,4 +1,4 @@
-import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'

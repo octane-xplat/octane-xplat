@@ -1128,9 +1128,8 @@ and desktop entry; settings under
 
 ## What this target does not have yet
 
-- URI scheme handling stays on the WebKitGTK runtime — the GTK desktop entry
-  declares no MimeType, and `x-scheme-handler` links do not reach the GTK
-  host. The install scripts themselves are not yet qualified on a real
+- URI scheme handling is unavailable. The GTK desktop entry declares no
+  MimeType, and `x-scheme-handler` links do not reach the GTK host. The install scripts themselves are not yet qualified on a real
   Linux host.
 - Clipboard coverage is text-only writes (`copyText`/`useClipboard`
   claim the display clipboard); reads and other formats are not exposed.

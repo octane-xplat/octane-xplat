@@ -1,4 +1,4 @@
-import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 // Build-level smoke: the linuxGtk helper must produce one ESM bundle
 // that keeps `gi://` imports external and never references DOM APIs. This
 // proves bundling and compilation only. The proxy fixture additionally
@@ -13,7 +13,7 @@ import { build } from 'vite'
 // Source import — the published export is '@octane-xplat/cli/linux-gtk/vite'
 // (built dist); the test must not depend on the cli package's build state.
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mjs'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { statSync } from 'node:fs'

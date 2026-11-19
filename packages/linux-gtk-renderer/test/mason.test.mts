@@ -1,4 +1,4 @@
-import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 // Runtime-level mason smoke — builds the driver fixture bundle and runs it
 // under real GJS+GTK. The linux-gtk preset emits the shipped prebuilt
 // binding beside the bundle (xplatmason/<arch>/), so no env wiring is
@@ -9,7 +9,7 @@ import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { rmSync } from 'node:fs'
 import { execFileSync, execSync } from 'node:child_process'
-import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mjs'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import test from 'node:test'

@@ -73,7 +73,8 @@ function gtkProject(t) {
 
 test('GTK archive ships desktop entry and install/uninstall; install→reinstall→uninstall keeps settings', async (t) => {
   const { root } = gtkProject(t)
-  const { appDir } = await packageLinux(root)
+  const runtime = writeFakeGtkRuntime(join(root, 'payload'))
+  const { appDir } = await packageLinux(root, { gtkRuntimeRoot: runtime })
 
   const relocated = join(root, 'relocated app')
 
@@ -145,12 +146,13 @@ test('Linux packaging rejects invalid identities, injection and config traversal
 })
 
 test('failed frontend build preserves previously packaged app', async (t) => {
-  const { root } = project(t)
-  const result = await packageLinux(root)
+  const { root } = gtkProject(t)
+  const runtime = writeFakeGtkRuntime(join(root, 'payload'))
+  const result = await packageLinux(root, { gtkRuntimeRoot: runtime })
 
   writeFileSync(join(result.appDir, 'keep.txt'), 'previous app')
   writeFileSync(join(root, 'node_modules/vite/build.cjs'), 'process.exit(1)')
-  await assert.rejects(packageLinux(root))
+  await assert.rejects(packageLinux(root, { gtkRuntimeRoot: runtime }))
   assert.equal(readFileSync(join(result.appDir, 'keep.txt'), 'utf8'), 'previous app')
 })
 
