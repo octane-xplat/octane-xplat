@@ -135,7 +135,7 @@ On AppKit, GTK, and the pinned NativeScript Windows host, use [`windows.open`](.
 
 Keep one handle per Inspector or tool window. [Call `show()` on a live handle](../../../docs/packages/package-desktop.md#show-an-existing-window) to reuse it, and use `hide()` to preserve its content for later. Call `focus()` for a shown window when you only want to request focus. Create a fresh handle once `isClosed` is true.
 
-Use [`dialog.showOpenDialog`](../../../docs/packages/package-desktop.md#open-a-file-dialog-from-a-window) when a shown desktop window owns a native file picker. Handle normal cancellation through `result.canceled` and catch operational errors. Rebuild the native Windows application when the picker bridge changes.
+Use [`dialog.showOpenDialog`](../../../docs/packages/package-desktop.md#open-a-file-dialog-from-a-window) or [`dialog.showSaveDialog`](../../../docs/packages/package-desktop.md#choose-where-to-save-a-file) when a shown desktop window owns a native file picker. Save returns a path for the app to write to. Handle normal cancellation through `result.canceled` and catch operational errors. Rebuild the native Windows application when the picker bridge changes.
 
 Use [`shell.openExternal()`](../../../docs/packages/package-desktop.md#open-a-web-link-in-the-default-browser) for absolute HTTP and HTTPS links that belong in the default browser. [Reveal finished exports](../../../docs/packages/package-desktop.md#show-a-file-in-its-folder) with an absolute native path. [Move items to Trash](../../../docs/packages/package-desktop.md#move-an-item-to-trash) where `shell.canTrashItem` is true.
 

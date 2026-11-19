@@ -35,7 +35,7 @@ function fixture() {
 it('uses the supplied window owner and returns real selections', async () => {
   const { parent, ownerOf, nativeOwner } = fixture()
   const open = vi.fn(async () => ['/tmp/one.txt', '/tmp/two.md'])
-  const dialog = createDesktopDialog({ supported: () => true, ownerOf, open })
+  const dialog = createDesktopDialog({ supported: () => true, ownerOf, open, save: async () => null })
 
   await expect(dialog.showOpenDialog(parent, {
     properties: ['openFile', 'multiSelections'],
@@ -47,7 +47,7 @@ it('uses the supplied window owner and returns real selections', async () => {
 it('rejects hidden and foreign owners, and releases an owner after a backend failure', async () => {
   const { parent, ownerOf } = fixture()
   const open = vi.fn().mockRejectedValueOnce(new Error('Host failure')).mockResolvedValueOnce(null)
-  const dialog = createDesktopDialog({ supported: () => true, ownerOf, open })
+  const dialog = createDesktopDialog({ supported: () => true, ownerOf, open, save: async () => null })
 
   parent.hide()
   await expect(dialog.showOpenDialog(parent)).rejects.toThrow('live, shown DesktopWindow')
@@ -65,6 +65,7 @@ it('rejects a second picker for the same owner and dismisses the first when its 
   const dialog = createDesktopDialog({
     supported: () => true,
     ownerOf,
+    save: async () => null,
     open: (_owner, _options, onOwnerClose) =>
       new Promise((resolve) => {
         onOwnerClose(() => {
@@ -75,9 +76,29 @@ it('rejects a second picker for the same owner and dismisses the first when its 
   })
 
   const pending = dialog.showOpenDialog(parent)
-  await expect(dialog.showOpenDialog(parent)).rejects.toThrow('already has a file dialog open')
+  await expect(dialog.showSaveDialog(parent)).rejects.toThrow('already has a file dialog open')
   parent.destroy()
 
   await expect(pending).resolves.toEqual({ canceled: true, filePaths: [] })
   expect(dismiss).toHaveBeenCalledOnce()
+})
+
+it('returns a save path, rejects a path as suggestedName, and treats cancellation separately', async () => {
+  const { parent, ownerOf, nativeOwner } = fixture()
+  const save = vi.fn()
+    .mockResolvedValueOnce('/tmp/notes.txt')
+    .mockResolvedValueOnce(null)
+    .mockResolvedValueOnce('')
+  const dialog = createDesktopDialog({ supported: () => true, ownerOf, open: async () => null, save })
+
+  await expect(dialog.showSaveDialog(parent, { suggestedName: '/tmp/notes.txt' })).rejects.toThrow('must be a filename')
+  expect(save).not.toHaveBeenCalled()
+
+  await expect(dialog.showSaveDialog(parent, {
+    suggestedName: 'notes.txt',
+    filters: [{ name: 'Text', extensions: ['TXT'] }],
+  })).resolves.toEqual({ canceled: false, filePath: '/tmp/notes.txt' })
+  expect(save).toHaveBeenCalledWith(nativeOwner, { suggestedName: 'notes.txt', extensions: ['txt'] }, expect.any(Function))
+  await expect(dialog.showSaveDialog(parent)).resolves.toEqual({ canceled: true, filePath: undefined })
+  await expect(dialog.showSaveDialog(parent)).rejects.toThrow('did not return a local file path')
 })

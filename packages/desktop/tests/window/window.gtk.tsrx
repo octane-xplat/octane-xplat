@@ -86,6 +86,33 @@ async function verifyOpenDialog(owner: DesktopWindow) {
   }
   console.log('DESKTOP_DIALOG_OK')
 
+  const save = dialog.showSaveDialog(owner, { suggestedName: 'notes.txt' })
+  const savePicker = modalPicker()
+  if (!('get_current_name' in savePicker) || typeof savePicker.get_current_name !== 'function' ||
+    savePicker.get_current_name() !== 'notes.txt') {
+    throw new Error('The GTK Save picker did not receive the suggested filename')
+  }
+  savePicker.response(Gtk.ResponseType.CANCEL)
+  const canceledSave = await save
+  if (!canceledSave.canceled || canceledSave.filePath !== undefined || !owner.isVisible()) {
+    throw new Error('Canceling Save did not leave the owner open')
+  }
+  await waitForGtk(50)
+  const saveName = `xplat-save-fixture-${Date.now()}.txt`
+  const saveSelection = dialog.showSaveDialog(owner, { suggestedName: saveName })
+  const confirmation = modalPicker()
+  await waitForGtk(500)
+  confirmation.response(Gtk.ResponseType.ACCEPT)
+  const saved = await Promise.race([
+    saveSelection,
+    waitForGtk(4000).then(() => { throw new Error('The GTK Save picker did not dispatch acceptance') }),
+  ])
+  if (saved.canceled || !saved.filePath.endsWith('/' + saveName) ||
+    Gio.File.new_for_path(saved.filePath).query_exists(null)) {
+    throw new Error('The GTK Save picker did not return a new path without creating a file')
+  }
+  console.log('DESKTOP_SAVE_OK')
+
   // Xvfb has no window manager. Exercise both GTK calls without assuming they change state.
   owner.minimize()
   owner.restore()

@@ -180,7 +180,7 @@ export async function openDocuments(inspector: DesktopWindow) {
 }
 ```
 
-Canceling or closing the owner resolves with `{ canceled: true, filePaths: [] }`. A host failure rejects the promise. On the experimental NativeScript Windows host, rebuild the native app after adding or updating `@octane-xplat/desktop` so the app compiles the picker bridge. The Windows bridge allows one Open dialog at a time.
+Canceling or closing the owner resolves with `{ canceled: true, filePaths: [] }`. A host failure rejects the promise. On the experimental NativeScript Windows host, rebuild the native app after adding or updating `@octane-xplat/desktop` so the app compiles the picker bridge. On Windows, only one file dialog can be open across the app. On AppKit and GTK, each owner can have one file dialog at a time.
 
 ```ts
 export async function openFromInspector(inspector: DesktopWindow) {
@@ -189,6 +189,28 @@ export async function openFromInspector(inspector: DesktopWindow) {
   } catch (error) {
     console.error('Could not open the native file dialog', error)
   }
+}
+```
+
+## Choose where to save a file
+
+Use `dialog.showSaveDialog(window, options)` to ask where to save a file. Pass a filename without a directory as `suggestedName`. The result gives you the selected path. Your app writes the file separately. Canceling or closing the owner returns `{ canceled: true, filePath: undefined }`. A host failure rejects the promise.
+
+```ts
+import { dialog, type DesktopWindow } from '@octane-xplat/desktop'
+
+export async function exportNotes(
+  inspector: DesktopWindow,
+  writeNotes: (path: string) => Promise<void>,
+) {
+  if (!dialog.supported || !inspector.isVisible()) return
+
+  const result = await dialog.showSaveDialog(inspector, {
+    suggestedName: 'notes.txt',
+    filters: [{ name: 'Text', extensions: ['txt'] }],
+  })
+
+  if (!result.canceled) await writeNotes(result.filePath)
 }
 ```
 

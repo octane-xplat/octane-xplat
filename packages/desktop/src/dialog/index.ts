@@ -8,4 +8,7 @@ export const dialog: DesktopDialog = {
   async showOpenDialog() {
     throw new UnavailabilityError('dialog.showOpenDialog')
   },
+  async showSaveDialog() {
+    throw new UnavailabilityError('dialog.showSaveDialog')
+  },
 }

@@ -455,6 +455,7 @@ declare module 'gi://Gtk?version=4.0' {
 
     enum FileChooserAction {
       OPEN = 0,
+      SAVE = 1,
     }
 
     const ResponseType: { ACCEPT: number; CANCEL: number; DELETE_EVENT: number }
@@ -470,6 +471,8 @@ declare module 'gi://Gtk?version=4.0' {
         cancelLabel: string | null) => FileChooserNative
       set_modal(modal: boolean): void
       set_select_multiple(multiple: boolean): void
+      set_current_name(name: string): void
+      get_file(): { get_path(): string | null } | null
       add_filter(filter: FileFilter): void
       set_filter(filter: FileFilter): void
       get_files(): {

@@ -1,6 +1,6 @@
 import '@nativescript/macos-node-api'
 import { dialog, type DesktopWindow } from '@octane-xplat/desktop'
-import type { NSOpenPanel } from '@octane-xplat/platform/macos'
+import type { NSOpenPanel, NSSavePanel } from '@octane-xplat/platform/macos'
 import { runMacOSApp, setWindowContentResolver } from '../../../macos-appkit/src/host.ts'
 import type { AppKitWindowController } from '../../../macos-appkit/src/host.d.ts'
 import {
@@ -35,6 +35,18 @@ async function verifyOpenDialog(owner: DesktopWindow) {
     throw new Error('Cancel did not leave the Inspector open')
   }
   console.log('DESKTOP_DIALOG_OK')
+
+  const save = dialog.showSaveDialog(owner, { suggestedName: 'notes.txt' })
+  const savePanel = native.attachedSheet as NSSavePanel | null
+  if (!savePanel || savePanel.nameFieldStringValue !== 'notes.txt') {
+    throw new Error('The Save panel was not attached with the suggested filename')
+  }
+  savePanel.cancel(null)
+  const canceledSave = await save
+  if (!canceledSave.canceled || canceledSave.filePath !== undefined || !owner.isVisible()) {
+    throw new Error('Canceling Save did not leave the owner open')
+  }
+  console.log('DESKTOP_SAVE_OK')
 
   async function expectMinimized(expected: boolean) {
     for (let attempt = 0; attempt < 100; attempt++) {

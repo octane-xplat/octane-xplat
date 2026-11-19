@@ -6,6 +6,7 @@ const native = vi.hoisted(() => ({
   installMenu: vi.fn(),
   createStatusItem: vi.fn(),
   openPanel: vi.fn(),
+  savePanel: vi.fn(),
   disableAutomaticTermination: vi.fn(),
 }))
 
@@ -15,6 +16,7 @@ vi.mock('@octane-xplat/platform/macos', () => ({
   NSApp: {},
   NSMenuItem: {},
   NSOpenPanel: { openPanel: native.openPanel },
+  NSSavePanel: { savePanel: native.savePanel },
   NSStatusBar: { systemStatusBar: { statusItemWithLength: native.createStatusItem } },
   NSProcessInfo: {
     processInfo: { disableAutomaticTermination: native.disableAutomaticTermination },
