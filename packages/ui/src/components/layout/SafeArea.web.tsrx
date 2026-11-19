@@ -2,6 +2,7 @@
 import type { JSX } from 'octane/jsx-runtime'
 import { useContext } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import type { SafeAreaProps } from '../../props'
 import { useSafeAreaInsets } from './safeAreaInsets.web.tsrx'
 import {
@@ -11,20 +12,6 @@ import {
   resolveSafeAreaEdges,
 } from './inset-consumption'
 
-function applyWebProps(node: any, bag?: Record<string, any>) {
-  if (!node || !bag) {
-    return
-  }
-
-  for (const [key, value] of Object.entries(bag)) {
-    if (key.includes('-')) {
-      node.setAttribute(key, String(value))
-    } else {
-      node[key] = value
-    }
-  }
-}
-
 export function SafeArea(props: SafeAreaProps): JSX.Element @{
   const measured = useSafeAreaInsets()
   const ancestor = useContext(ConsumedInsetsContext)
@@ -33,7 +20,7 @@ export function SafeArea(props: SafeAreaProps): JSX.Element @{
 
   <div
     id={props.id}
-    ref={(node: any) => applyWebProps(node, props.web)}
+    ref={(node: any) => applyEscapeProps(node, props)}
     className={['vx-safe-area', props.className]}
     style={{
       ...styleRecord(props.style),

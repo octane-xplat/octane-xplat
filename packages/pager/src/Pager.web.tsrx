@@ -3,7 +3,7 @@ import './Pager.css'
 import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useRef } from 'octane'
 import type { PagerProps } from './props'
-import { applyWebProps } from './platformProps.web'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 import { layoutChildProps } from './layout-child.web'
 
 /** Paged horizontal container — web leaf: a mandatory scroll-snap row, one
@@ -101,7 +101,7 @@ export function Pager(props: PagerProps): JSX.Element @{
     <div
       ref={(el: any) => {
         host.current = el
-        applyWebProps(el, props.web)
+        applyEscapeProps(el, props)
       }}
       id={props.id}
       className={['vx-pager', props.className]}

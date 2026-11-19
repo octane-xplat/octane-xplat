@@ -3,7 +3,7 @@ import type { JSX } from 'octane/jsx-runtime'
 import type { RollingTextProps } from './props'
 import { useRollingText } from './use-rolling.tsrx'
 import { layoutChildProps } from './layout-child.web'
-import { applyWebProps } from './platformProps.web'
+import { applyEscapeProps } from '@octane-xplat/lib/escape-props'
 
 // One complete current value for the accessibility tree while the visual
 // cells stay aria-hidden — no outgoing/incoming duplicates.
@@ -27,7 +27,7 @@ export function RollingText(props: RollingTextProps): JSX.Element @{
   <span
     id={props.id}
     data-testid={props.testID}
-    ref={(el: any) => applyWebProps(el, props.web)}
+    ref={(el: any) => applyEscapeProps(el, props)}
     className={['vx-rolling-text', props.className]}
     {...layout}
   >
