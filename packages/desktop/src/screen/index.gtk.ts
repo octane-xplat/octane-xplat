@@ -34,4 +34,42 @@ export const screen: DesktopScreen = createDesktopScreen(
     ids = connected
     return result
   },
+  (changed) => {
+    const display = Gdk.Display.get_default()
+    if (!display) throw new Error('The GTK display is no longer connected')
+
+    const monitors = display.get_monitors()
+    const connections = new Map<Gdk.Monitor, number>()
+    function syncMonitors() {
+      const current = new Set<Gdk.Monitor>()
+      for (let index = 0; index < monitors.get_n_items(); index++) {
+        const monitor = monitors.get_item(index)
+        if (!monitor) continue
+        current.add(monitor)
+        if (!connections.has(monitor)) connections.set(monitor, monitor.connect('notify', changed))
+      }
+      for (const [monitor, connection] of connections) {
+        if (current.has(monitor)) continue
+        monitor.disconnect(connection)
+        connections.delete(monitor)
+      }
+    }
+
+    const connection = monitors.connect('items-changed', () => {
+      syncMonitors()
+      changed()
+    })
+    const stop = () => {
+      monitors.disconnect(connection)
+      for (const [monitor, handler] of connections) monitor.disconnect(handler)
+      connections.clear()
+    }
+    try {
+      syncMonitors()
+    } catch (error) {
+      stop()
+      throw error
+    }
+    return stop
+  },
 )

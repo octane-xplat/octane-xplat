@@ -1,4 +1,4 @@
-import { NSScreen } from '@octane-xplat/platform/macos'
+import { NSApplicationDidChangeScreenParametersNotification, NSNotificationCenter, NSScreen } from '@octane-xplat/platform/macos'
 import { fromAppKitFrame } from './geometry.macos.js'
 import { createDesktopScreen } from './service.js'
 import type { DesktopScreen } from './types.js'
@@ -32,5 +32,12 @@ export const screen: DesktopScreen = createDesktopScreen(
       scaleFactor: display.backingScaleFactor,
       isPrimary: index === 0,
     }))
+  },
+  (changed) => {
+    const center = NSNotificationCenter.defaultCenter
+    const token = center.addObserverForNameObjectQueueUsingBlock(
+      NSApplicationDidChangeScreenParametersNotification, null, null, changed,
+    )
+    return () => center.removeObserver(token)
   },
 )

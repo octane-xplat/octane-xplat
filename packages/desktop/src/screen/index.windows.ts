@@ -47,4 +47,9 @@ export const screen: DesktopScreen = createDesktopScreen(
     }
     return displays
   },
+  (changed) => {
+    // The Win32 snapshot bridge has no desktop-wide push notification.
+    const timer = setInterval(changed, 1000)
+    return () => clearInterval(timer)
+  },
 )

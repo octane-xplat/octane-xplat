@@ -412,6 +412,32 @@ export function restoreArea(rect: DesktopRectangle) {
 }
 ```
 
+### Respond when displays change
+
+Subscribe with `screen.on()` after startup, then remove the same listener with `screen.off()` during cleanup. The events report displays added or removed and changed display metrics. A metrics event includes the changed fields from `bounds`, `workArea`, `scaleFactor`, and `isPrimary`. Windows compares a snapshot about once per second while listeners are installed.
+
+```ts
+import { screen, type DesktopScreenEvents } from '@octane-xplat/desktop'
+
+export function watchDisplays(refreshLayout: () => void) {
+  if (!screen.supported) return
+
+  const refresh: DesktopScreenEvents['display-metrics-changed'] = (_event, _display, metrics) => {
+    if (metrics.includes('workArea') || metrics.includes('bounds')) refreshLayout()
+  }
+
+  screen.on('display-added', refreshLayout)
+  screen.on('display-removed', refreshLayout)
+  screen.on('display-metrics-changed', refresh)
+
+  return () => {
+    screen.off('display-added', refreshLayout)
+    screen.off('display-removed', refreshLayout)
+    screen.off('display-metrics-changed', refresh)
+  }
+}
+```
+
 ## Choose your next feature
 
 All features use the package root. Imports do not create a tray icon, register a hotkey, install a menu, or keep the app running. The following imports introduce no owned resources; the feature guides show creation, failure handling, and cleanup.

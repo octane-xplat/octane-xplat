@@ -131,6 +131,9 @@ function verifyScreen() {
     primary.workArea.width > primary.bounds.width || primary.workArea.height > primary.bounds.height) {
     throw new Error('The AppKit primary display work area is invalid')
   }
+  const observe = () => {}
+  screen.on('display-metrics-changed', observe)
+  screen.off('display-metrics-changed', observe)
   console.log('DESKTOP_SCREEN_OK')
 }
 

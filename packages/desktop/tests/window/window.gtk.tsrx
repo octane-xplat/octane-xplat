@@ -178,6 +178,9 @@ function verifyScreen() {
     new Set(displays.map((display) => display.id)).size !== displays.length) {
     throw new Error('The native display snapshot is invalid')
   }
+  const observe = () => {}
+  screen.on('display-metrics-changed', observe)
+  screen.off('display-metrics-changed', observe)
   console.log('DESKTOP_SCREEN_OK')
 }
 
