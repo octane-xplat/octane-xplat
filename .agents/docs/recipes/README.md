@@ -14,6 +14,8 @@ Pure refactors ordinarily need no recipe change.
 
 Workflows:
 
+- [Find AppKit-specific workflow recipes](../appkit-recipe-index.md)
+
 - [Compile Tailwind utilities through Xplat](tailwind-css.md)
 
 - [Lint and format app source](source-quality.md)
@@ -79,6 +81,7 @@ Workflows:
 - [Give a routed modal its own history](route-modals.md)
 - [Retain native route controls](native-navigation-retention.md)
 - [Keep route contracts current while developing](route-generation.md)
+- [Keep page focus and document scroll coherent](navigation-focus.md)
 - [Return after sign-in and replace account-owned screens](authentication-routing.md)
 - [Bake route data into the bundle](baked-routes.md)
 - [Build a responsive navigation shell](navigation-shell.md)
@@ -87,6 +90,7 @@ Workflows:
 - [Play a Lottie animation on web and native](lottie-animation.md)
 - [Render a long vertical collection](virtual-list.md)
 - [Manage an interactive data grid](interactive-data-grid.md)
+- [Add shared action menus and breadcrumb overflow](shared-menus.md)
 - [Build a settings list with reusable rows](settings-list.md)
 - [Open System Settings on AppKit](appkit-settings.md)
 - [Render a bounded content list](content-list.md)
@@ -112,6 +116,7 @@ Workflows:
 - [Add a platform-native single-selection picker](native-picker.md)
 - [Publish a typed component library](typed-component-library.md)
 - [Display formatted content and status](display-content.md)
+- [Render streamed Markdown](stream-markdown.md)
 - [Shape a panel without changing child overflow](smooth-corners.md)
 - [Add portable date and file inputs](date-picker.md)
 - [Switch views with AppKit segments](appkit-segmented-control.md)
@@ -188,6 +193,7 @@ If no recipe is affected, briefly say why. Explicit gaps allow incremental work;
 they never count as complete coverage.
 
 - [Observe and choose the primary window's screen orientation](screen-orientation.md)
+- [Deliver a phone update between binary releases](ota-updates.md)
 - [Capture an app-owned view and release the image](view-shot.md)
 
 - [Request tracking authorization from an app action](tracking-transparency.md)

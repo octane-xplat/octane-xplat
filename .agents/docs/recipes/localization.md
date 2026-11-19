@@ -70,9 +70,8 @@ The reader knows the platform-services pattern and per-target leaf resolution.
   sources and the matching rule.
 - AC6: [Persistence](../../../docs/app/localization.md#switching-and-persisting).
 
-- AC7: [Subtree UI strings](../../../docs/app/localization.md#change-ui-strings-in-one-part-of-a-screen),
-  [maintained locale examples](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider01ShippedLocale.tsrx),
-  [RTL example](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider03RtlDirection.web.tsrx).
+- AC7: [Subtree UI strings and RTL examples](../../../docs/app/localization.md#change-ui-strings-in-one-part-of-a-screen)
+  and the [workshop locale story](../../../apps/component-workshop/src/stories/InternationalizationProvider.stories.web.ts). The story requires execution evidence; the guide examples do not establish target behavior.
 
 - AC8: [Native formatting data](../../../docs/app/localization.md#native-formatting-data),
   [isolated native bundle checks](../../../packages/lingui/tests/intl.mts).

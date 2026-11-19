@@ -32,5 +32,5 @@ and understand target differences and the limits of delivery evidence.
 - AC2: [Announce a status](../../../docs/platform/platform-services.md#announce-a-status).
 - AC3: [Announce a status](../../../docs/platform/platform-services.md#announce-a-status).
 
-- AC4: [UI announcement hook](../../../docs/app/localization.md#change-ui-strings-in-one-part-of-a-screen),
-  [maintained controls](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider02Overrides.tsrx).
+- AC4: [UI announcement hook](../../../docs/app/localization.md#change-ui-strings-in-one-part-of-a-screen)
+  and [visible status example](../../../docs/app/accessibility.md). Runtime delivery requires separate qualification.
