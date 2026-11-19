@@ -20,7 +20,7 @@ function Content({
   events,
 }) {
   return (
-    <stack>
+    <masonview style={{ display: 'flex', flexDirection: 'column' }}>
       <TextInput
         id="input"
         ref={input}
@@ -44,7 +44,7 @@ function Content({
         onBlur={() => events.push('area blur')}
         onSubmit={() => events.push('area submit')}
       />
-    </stack>
+    </masonview>
   )
 }
 

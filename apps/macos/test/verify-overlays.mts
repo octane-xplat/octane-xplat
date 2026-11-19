@@ -13,6 +13,7 @@ import {
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/src/macos/native.ts'
+import './fail-fast.mts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
@@ -9,9 +9,10 @@ import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
   macOSHostArch,
   hostBundle,
-  hostRoot,
   validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import { writeHostBootstrap } from './host-bootstrap.mts'
+import './fail-fast.mts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')
@@ -19,9 +20,7 @@ const scratch = resolve(appRoot, '../../research')
 await mkdir(scratch, { recursive: true })
 
 const directory = await mkdtemp(join(scratch, 'macos-text-controls-'))
-const bootstrap = join(directory, 'bootstrap.js')
-
-await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
+const bootstrap = await writeHostBootstrap(directory)
 
 const config = await createMacOSConfig({
   packaged: true,
@@ -34,6 +33,7 @@ const config = await createMacOSConfig({
   await writeFile(
     entry,
     [
+      `import 'virtual:bamboo.css'`,
       `import { runTextControlsFixture } from ${JSON.stringify(join(appRoot, 'test/text-controls-fixture.macos.tsx'))}`,
       `NSApplication.sharedApplication`,
       `runTextControlsFixture()`,

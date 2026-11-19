@@ -4,7 +4,7 @@ import { NSFont, NSView } from '@octane-xplat/platform/macos'
 
 function Content({ weight = 400 }) {
   return (
-    <stack>
+    <masonview style={{ display: 'flex', flexDirection: 'column' }}>
       <label id="default" text="Default" style={{ fontSize: 22, fontWeight: weight }} />
       <label
         id="system"
@@ -17,7 +17,7 @@ function Content({ weight = 400 }) {
         style={{ fontFamily: 'Xplat Missing Family', fontSize: 18 }}
       />
       <textfield id="input" value="Input" className="vx-input" />
-    </stack>
+    </masonview>
   )
 }
 

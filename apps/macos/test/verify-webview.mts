@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { copyFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { build } from 'vite'
@@ -9,9 +9,10 @@ import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
   macOSHostArch,
   hostBundle,
-  hostRoot,
   validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import { writeHostBootstrap } from './host-bootstrap.mts'
+import './fail-fast.mts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')
@@ -19,9 +20,7 @@ const scratch = resolve(appRoot, '../../research')
 await mkdir(scratch, { recursive: true })
 
 const directory = await mkdtemp(join(scratch, 'macos-webview-'))
-const bootstrap = join(directory, 'bootstrap.js')
-
-await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
+const bootstrap = await writeHostBootstrap(directory)
 
 const config = await createMacOSConfig({
   packaged: true,
@@ -43,6 +42,7 @@ const entry = join(directory, 'main.mjs')
 await writeFile(
   entry,
   [
+    `import 'virtual:bamboo.css'`,
     `import { runWebViewFixture } from ${JSON.stringify(join(appRoot, 'test/webview-fixture.macos.tsx'))}`,
     `NSApplication.sharedApplication`,
     `runWebViewFixture(...${JSON.stringify(urls)})`,

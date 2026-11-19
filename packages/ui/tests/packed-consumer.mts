@@ -710,7 +710,7 @@ if (import.meta.env.DEV) {
 
 try {
   if (macosOnly || overlaysOnly) {
-    run('bun', ['build'], packageRoot)
+    run('bun', ['run', 'build'], packageRoot)
   }
 
   // The isolated macOS gate builds first, then packs without running the

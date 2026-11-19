@@ -12,6 +12,7 @@ import {
   hostBundle,
   validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import './fail-fast.mts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const cliBuild = spawnSync('bun', ['--filter', '@octane-xplat/cli', 'build'], {
@@ -54,7 +55,8 @@ const entry = join(directory, 'main.mjs')
 
 await writeFile(
   entry,
-  `import { runRoutingFixture } from ${JSON.stringify(join(appRoot, 'test/routing-fixture.macos.tsx'))}
+  `import 'virtual:bamboo.css'
+import { runRoutingFixture } from ${JSON.stringify(join(appRoot, 'test/routing-fixture.macos.tsx'))}
 NSApplication.sharedApplication
 runRoutingFixture()`,
 )

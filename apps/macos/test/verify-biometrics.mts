@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
@@ -9,9 +9,10 @@ import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
   macOSHostArch,
   hostBundle,
-  hostRoot,
   validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import { writeHostBootstrap } from './host-bootstrap.mts'
+import './fail-fast.mts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')
@@ -19,12 +20,11 @@ const scratch = resolve(appRoot, '../../research')
 await mkdir(scratch, { recursive: true })
 
 const directory = await mkdtemp(join(scratch, 'macos-biometrics-'))
-const bootstrap = join(directory, 'bootstrap.js')
-
-await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
+const bootstrap = await writeHostBootstrap(directory)
 
 const config = await createMacOSConfig({
   packaged: true,
+  bamboo: false,
   rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
 })({ mode: 'production' })
 
@@ -41,6 +41,14 @@ await build({
     outDir: directory,
     emptyOutDir: false,
     lib: { entry, formats: ['cjs'], fileName: 'fixture' },
+  },
+  resolve: {
+    ...config.resolve,
+    alias: {
+      ...config.resolve?.alias,
+      '@octane-xplat/macos-appkit/host':
+        resolve(appRoot, '../../packages/macos-appkit/src/host.ts'),
+    },
   },
 })
 
