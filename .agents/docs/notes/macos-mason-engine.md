@@ -69,3 +69,13 @@ the block-flow check that replaces short text with a wrapping paragraph and
 then restores the short value without replacing the text host. For AppKit
 text width assertions, compare the allocated alignment rect; NSTextField's
 optical frame extends beyond it.
+
+Size constraints take the same path: `native-style.ts::setSizeConstraint`
+reconciles at `subtree` scope because a spec-driven height (the TextArea
+row cap is the canonical case) changes every auto-sized ancestor's
+allocation. A local `layoutMasonChildren` pass bounds its compute by the
+parent's latest Mason allocation — the placement-pin constants, which an
+earlier ancestor pass in the same drain has already refreshed — rather than
+the live AppKit bounds. Bounding by stale bounds clamps a grown child back
+to the old allocation and deadlocks growth: the `maxRows` textarea stayed at
+its two-row height until both sides of this were fixed.

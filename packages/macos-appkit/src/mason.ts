@@ -597,8 +597,20 @@ export function layoutMasonChildren(
     return
   }
 
-  const width = Number(target.bounds?.size?.width) || 0
-  const height = Number(target.bounds?.size?.height) || 0
+  // Bound the compute by the parent's latest Mason allocation, not its live
+  // AppKit bounds: an ancestor pass in the same reconcile updates the
+  // placement pins before the next AppKit solve, and a stale bound would
+  // flex-shrink grown children back to the old allocation.
+  const pinWidth = Number(parent.placementPins?.width?.constant)
+  const pinHeight = Number(parent.placementPins?.height?.constant)
+  const width =
+    (Number.isFinite(pinWidth) && pinWidth > 0 ? pinWidth : 0) ||
+    Number(target.bounds?.size?.width) ||
+    0
+  const height =
+    (Number.isFinite(pinHeight) && pinHeight > 0 ? pinHeight : 0) ||
+    Number(target.bounds?.size?.height) ||
+    0
   const isScroll = parent.type === 'scrollview'
   const horizontal = parent.props?.orientation === 'horizontal' || parent.props?.horizontal === true
 
