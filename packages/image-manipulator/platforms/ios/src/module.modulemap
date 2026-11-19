@@ -1,0 +1,4 @@
+module XplatImageManipulator {
+  header "XplatWebPEncoder.h"
+  export *
+}
