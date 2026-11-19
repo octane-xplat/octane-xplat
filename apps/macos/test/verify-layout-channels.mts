@@ -11,6 +11,7 @@ import {
   hostBundle,
   validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+
 import { writeHostBootstrap } from './host-bootstrap.mts'
 import './fail-fast.mts'
 
@@ -32,6 +33,7 @@ const entry = join(directory, 'main.mjs')
 await writeFile(
   entry,
   [
+    `import ${JSON.stringify(resolve(appRoot, '../../packages/ui/src/theme/utilities.css'))}`,
     `import 'virtual:bamboo.css'`,
     `import { runLayoutChannelsFixture } from ${JSON.stringify(join(appRoot, 'test/layout-channels-fixture.macos.tsx'))}`,
     `NSApplication.sharedApplication`,

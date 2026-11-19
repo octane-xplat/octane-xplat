@@ -380,6 +380,24 @@ function styleDict(node: NodeLike): Record<string, any> {
     }
   }
 
+  // mason-c treats -1 as "keep the previous value" for concrete enum slots
+  // (display, position, direction, flexDirection, flexWrap, overflow, the
+  // overflow axes, gridAutoFlow, textAlign, boxSizing) — only the Option
+  // alignment fields reset to None on -1. The dict contract is a complete
+  // style, so send the engine defaults explicitly: removing a style key must
+  // restore the default, not leave the last value installed.
+  out.display ??= 'block'
+  out.position ??= 'relative'
+  out.direction ??= 'ltr'
+  out.flexDirection ??= 'row'
+  out.flexWrap ??= 'nowrap'
+  out.overflow ??= 'visible'
+  out.overflowX ??= 'visible'
+  out.overflowY ??= 'visible'
+  out.gridAutoFlow ??= 'row'
+  out.textAlign ??= 'auto'
+  out.boxSizing ??= 'border-box'
+
   return out
 }
 
@@ -607,10 +625,12 @@ export function layoutMasonChildren(
     (Number.isFinite(pinWidth) && pinWidth > 0 ? pinWidth : 0) ||
     Number(target.bounds?.size?.width) ||
     0
+
   const height =
     (Number.isFinite(pinHeight) && pinHeight > 0 ? pinHeight : 0) ||
     Number(target.bounds?.size?.height) ||
     0
+
   const isScroll = parent.type === 'scrollview'
   const horizontal = parent.props?.orientation === 'horizontal' || parent.props?.horizontal === true
 
@@ -836,11 +856,18 @@ function makeMasonLayout(node: any) {
   })
 
   view.translatesAutoresizingMaskIntoConstraints = false
-  // Mason owns compression and wrapping. A max-content intrinsic width
-  // must not become an AppKit window's minimum width.
+  // Mason owns compression and wrapping. A max-content intrinsic size must
+  // not become an AppKit window's minimum size — scrollable content is
+  // bounded, so the default 750 resistance would outrank WindowSizeStayPut
+  // (500) and grow the window to the document's natural height.
   view.setContentCompressionResistancePriorityForOrientation(
     1,
     NSUserInterfaceLayoutOrientation.Horizontal,
+  )
+
+  view.setContentCompressionResistancePriorityForOrientation(
+    1,
+    NSUserInterfaceLayoutOrientation.Vertical,
   )
 
   masonLayoutNodesByView.set(view, node)

@@ -11,6 +11,7 @@ function Panel() {
         { left: 10, top: 12, bottom: 18, position: 'absolute' },
         {
           display: 'flex',
+          flexDirection: 'column',
           width: 268,
         },
       )}
@@ -25,7 +26,7 @@ function Panel() {
         <label text="Panel header" />
       </masonview>
       <scrollview id="scroll" className="flex-1">
-        <masonview style={{ display: 'flex' }}>
+        <masonview style={{ display: 'flex', flexDirection: 'column' }}>
           {Array.from({ length: 30 }, (_, index) => (
             <label key={index} text={'Row ' + index} style={{ height: 32 }} />
           ))}
@@ -56,12 +57,22 @@ function GridPanel() {
   return (
     <masonview
       id="container"
-      style={{ display: 'grid', gridTemplateRows: 'auto', gridTemplateColumns: 'auto' }}
+      style={{
+        display: 'grid',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        gridTemplateRows: '100%',
+        gridTemplateColumns: '1fr 1fr',
+      }}
     >
       <masonview
         style={{
           display: 'flex',
-          gridRow: '2',
+          flexDirection: 'column',
+          gridRow: '1',
           gridColumn: '2',
         }}
         id="panel"
@@ -76,7 +87,7 @@ function GridPanel() {
           <label text="Panel header" />
         </masonview>
         <scrollview id="scroll" className="flex-1">
-          <masonview style={{ display: 'flex' }}>
+          <masonview style={{ display: 'flex', flexDirection: 'column' }}>
             <label text="Scrollable rows" style={{ height: 960 }} />
           </masonview>
         </scrollview>
@@ -128,10 +139,24 @@ export async function runLayoutPlacementFixture(stopHost = true) {
     )
 
   try {
-    for (const Component of [AbsolutePanel, GridPanel]) {
+    // Each panel fills a deterministic region of the host: the absolute panel
+    // honors its authored insets; the grid panel fills the right column of a
+    // 1x2 fr grid (x = half width, bottom-pinned at y 0).
+    const components: [
+      UniversalComponent,
+      (width: number, height: number) => { x: number; y: number; w: number; h: number },
+    ][] = [
+      [
+        AbsolutePanel as unknown as UniversalComponent,
+        (_w, h) => ({ x: 10, y: 18, w: 268, h: h - 30 }),
+      ],
+      [GridPanel as unknown as UniversalComponent, (w, h) => ({ x: w / 2, y: 0, w: w / 2, h })],
+    ]
+
+    for (const [Component, region] of components) {
       const initialOrigin = window.frame.origin
 
-      root.render(Component as unknown as UniversalComponent)
+      root.render(Component)
       await settle()
       near(Number(window.contentView.bounds.size.width), 288, 'initial host width')
       near(Number(window.contentView.bounds.size.height), 803, 'initial host height')
@@ -153,24 +178,25 @@ export async function runLayoutPlacementFixture(stopHost = true) {
           near(Number(window.frame.origin.x), Number(origin.x), 'host x')
           near(Number(window.frame.origin.y), Number(origin.y), 'host y')
 
+          const expected = region(size.width, size.height)
           const panel = view('panel').frame
 
-          near(Number(panel.origin.x), 10, 'panel leading')
-          near(Number(panel.origin.y), 18, 'panel bottom')
-          near(Number(panel.size.width), 268, 'panel width')
-          near(Number(panel.size.height), size.height - 30, 'panel height')
+          near(Number(panel.origin.x), expected.x, 'panel leading')
+          near(Number(panel.origin.y), expected.y, 'panel bottom')
+          near(Number(panel.size.width), expected.w, 'panel width')
+          near(Number(panel.size.height), expected.h, 'panel height')
           for (const id of ['header', 'scroll', 'footer']) {
-            near(Number(view(id).frame.size.width), 268, id + ' assigned width')
+            near(Number(view(id).frame.size.width), expected.w, id + ' assigned width')
           }
 
           near(
             Number(view('header').frame.origin.y) + Number(view('header').frame.size.height),
-            size.height - 30,
+            expected.h,
             'top-packed header',
           )
 
           near(Number(view('footer').frame.origin.y), 0, 'bottom footer')
-          near(Number(view('scroll').frame.size.height), size.height - 110, 'growing scroll height')
+          near(Number(view('scroll').frame.size.height), expected.h - 80, 'growing scroll height')
         }
       }
     }

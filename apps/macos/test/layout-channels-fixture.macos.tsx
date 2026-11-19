@@ -26,12 +26,11 @@ function Content({ phase = 0 }: { phase?: number }) {
         : 'flex-row gap-3 items-center justify-start'
 
   return (
-    <masonview style={{ display: 'flex' }}>
-      {['props', 'style', 'class'].map((channel) => (
+    <masonview style={{ display: 'flex', flexDirection: 'column' }}>
+      {['style', 'class'].map((channel) => (
         <masonview
           key={channel}
           id={channel}
-          {...(channel === 'props' ? layout : {})}
           className={channel === 'class' ? classes : ''}
           style={{
             display: 'flex',
@@ -56,12 +55,14 @@ function Content({ phase = 0 }: { phase?: number }) {
         id="conflict"
         className={phase < 2 ? 'flex-row gap-2 items-center justify-center' : ''}
         style={mergeStyle(
-          {
-            flexDirection: phase < 3 ? 'column' : undefined,
-            gap: phase < 3 ? 4 : undefined,
-            alignItems: phase < 3 ? 'stretch' : undefined,
-            justifyContent: phase < 3 ? 'start' : undefined,
-          },
+          phase === 2
+            ? {
+                flexDirection: 'column',
+                gap: 4,
+                alignItems: 'stretch',
+                justifyContent: 'start',
+              }
+            : {},
           {
             display: 'flex',
             width: '100%',
@@ -144,6 +145,18 @@ export async function runLayoutChannelsFixture() {
   const near = (a: number, b: number, message: string) =>
     check(Math.abs(a - b) < 1, message + ': ' + a + ' vs ' + b)
 
+  const conflictGap = () => {
+    const aView = view('conflict-a')
+    const bView = view('conflict-b')
+    const a = aView.alignmentRectForFrame(aView.frame)
+    const b = bView.alignmentRectForFrame(bView.frame)
+
+    return {
+      row: Number(b.origin.x) - Number(a.origin.x) - Number(a.size.width),
+      column: Number(a.origin.y) - Number(b.origin.y) - Number(b.size.height),
+    }
+  }
+
   const settle = () =>
     new Promise<void>((resolve) =>
       setTimeout(() => {
@@ -153,24 +166,22 @@ export async function runLayoutChannelsFixture() {
     )
 
   const compare = (phase: number) => {
-    for (const channel of ['style', 'class']) {
-      for (const suffix of ['-nested', '-text']) {
-        const actual = view(channel + suffix).frame
-        const expected = view('props' + suffix).frame
+    for (const suffix of ['-nested', '-text']) {
+      const actual = view('class' + suffix).frame
+      const expected = view('style' + suffix).frame
 
-        for (const key of ['x', 'y']) {
-          near(actual.origin[key], expected.origin[key], channel + suffix + '.' + key)
-        }
+      for (const key of ['x', 'y']) {
+        near(actual.origin[key], expected.origin[key], 'class' + suffix + '.' + key)
+      }
 
-        for (const key of ['width', 'height']) {
-          near(actual.size[key], expected.size[key], channel + suffix + '.' + key)
-        }
+      for (const key of ['width', 'height']) {
+        near(actual.size[key], expected.size[key], 'class' + suffix + '.' + key)
       }
     }
 
     const width = Number(window.contentView.bounds.size.width)
 
-    for (const channel of ['props', 'style', 'class']) {
+    for (const channel of ['style', 'class']) {
       near(Number(view(channel).frame.size.width), width, 'assigned frame ' + channel)
       near(
         Number(view(channel + '-nested').frame.size.width),
@@ -212,10 +223,7 @@ export async function runLayoutChannelsFixture() {
     root.render(Content as unknown as UniversalComponent, { phase: 0 })
     await settle()
     compare(0)
-    check(
-      Number(view('conflict').orientation) === 0 && Number(view('conflict').spacing) === 12,
-      'style precedence',
-    )
+    near(conflictGap().row, 12, 'style precedence')
 
     for (const width of [360, 820]) {
       window.setContentSize({ width, height: 480 })
@@ -227,24 +235,15 @@ export async function runLayoutChannelsFixture() {
     root.render(Content as unknown as UniversalComponent, { phase: 1 })
     await settle()
     compare(1)
-    check(
-      Number(view('conflict').orientation) === 0 && Number(view('conflict').spacing) === 8,
-      'style removal restores class',
-    )
+    near(conflictGap().row, 8, 'style removal restores class')
 
     root.render(Content as unknown as UniversalComponent, { phase: 2 })
     await settle()
-    check(
-      Number(view('conflict').orientation) === 1 && Number(view('conflict').spacing) === 4,
-      'class removal restores props',
-    )
+    near(conflictGap().column, 4, 'class removal restores style')
 
     root.render(Content as unknown as UniversalComponent, { phase: 3 })
     await settle()
-    check(
-      Number(view('conflict').orientation) === 1 && Number(view('conflict').spacing) === 0,
-      'prop removal restores defaults',
-    )
+    near(conflictGap().row, 0, 'style removal restores defaults')
 
     root.render(Content as unknown as UniversalComponent, { phase: 4 })
     await settle()

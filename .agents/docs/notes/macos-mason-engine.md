@@ -62,6 +62,44 @@ parents so the new allocations precede document extent updates. The maintained
 block-flow fixture inserts, reorders and removes keyed children and checks both
 the resulting auto height and retained child identity.
 
+## mason-c -1 keeps concrete enum slots
+
+`mason_style_set_with_values` treats `-1` as "keep the previous value" for
+concrete enum slots — `display`, `position`, `direction`, `flexDirection`,
+`flexWrap`, `overflow`/`overflowX`/`overflowY`, `gridAutoFlow`, `textAlign`,
+and `boxSizing` (verified in mason-core `update_from_ffi` at the pinned
+`0cdc3c80`: those fields only write when the enum decodes). Only the `Option`
+alignment fields (`alignItems`, `alignSelf`, `alignContent`, `justifyItems`,
+`justifySelf`, `justifyContent`) reset to `None` on `-1`, and the grid
+string slots keep their last value on `NULL` as well. Since `styleDict`
+omits absent keys, a removed style left the stale value installed — e.g.
+removing `flexDirection: 'column'` kept the column layout.
+
+Local workaround: `mason.ts::styleDict` emits the engine defaults for those
+enum keys when the computed style lacks them, so removal restores the
+default instead of keeping the last value. Grid string removals
+(`gridRow`, `gridColumn`, `gridTemplate*`, `gridArea`, `gridAuto*`) still
+cannot express reset through the dict — a NULL `XStr` keeps the previous
+value upstream. The proper fix belongs in mason-c: `-1`/NULL should mean
+"reset to default" for every slot; this note should be revisited when the
+pin moves.
+
+## Grid row tracks ignore the container's definite height
+
+At the pinned `0cdc3c80`, `fr` and `auto` row tracks size to max-content
+even when the grid container's height is definite — a `gridTemplateRows:
+'1fr'` row lets a cell child overflow the container instead of bounding it
+(verified on AppKit/JSC: a `1fr` row yielded a 1040-tall child inside an
+803-tall pinned grid, while `1fr` columns did honor the container width).
+Percent row tracks do resolve against the container height, and
+`minmax(0, …)`/length tracks can also express bounds. Until the pin moves,
+row-axis `fr`/`auto` sizing cannot bound children to a definite grid height;
+use percent or length tracks where the row axis must constrain.
+
+Related: a static-block child's `height: '100%'` did not resolve against
+the pinned root in the same fixture — absolute insets (top/bottom) are the
+reliable way to give a root-level child a definite height.
+
 Text updates need the same containing-tree reconciliation after invalidating
 the native label's intrinsic size. Both plain and formatted text paths must
 request it; intrinsic invalidation alone does not resize a Mason parent. Keep

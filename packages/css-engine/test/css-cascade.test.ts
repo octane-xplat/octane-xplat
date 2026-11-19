@@ -452,3 +452,18 @@ test('calc keeps resolved percentages and leaves contextual expressions intact',
   assert.equal(target.computedStyle.width, '50%')
   assert.equal(target.computedStyle.height, 'calc(50% - 10px)')
 })
+
+test('inline gap expands to longhands and outranks class row-gap/column-gap', () => {
+  registerStylesheet('gap-tier', '.gap-8 { gap: 8px }')
+
+  const n = node('masonview', { classes: ['gap-8'], style: { gap: 12 } })
+
+  assert.equal(n.computedStyle.gap, 12)
+  assert.equal(n.computedStyle.rowGap, 12)
+  assert.equal(n.computedStyle.columnGap, 12)
+
+  const two = node('masonview', { classes: ['gap-8'], style: { gap: '8dip 16dip' } })
+
+  assert.equal(two.computedStyle.rowGap, '8dip')
+  assert.equal(two.computedStyle.columnGap, '16dip')
+})

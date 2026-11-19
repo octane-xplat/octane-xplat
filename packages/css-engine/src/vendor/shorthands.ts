@@ -325,6 +325,7 @@ function convertToFlex(value: unknown): [string, any][] {
 	if (value === unsetValue) {
 		properties.push(['flex-grow', value]);
 		properties.push(['flex-shrink', value]);
+		properties.push(['flex-basis', value]);
 	} else {
 		const trimmed = typeof value === 'string' && value.trim();
 		if (trimmed) {
@@ -332,28 +333,39 @@ function convertToFlex(value: unknown): [string, any][] {
 			if (values.length === 1) {
 				switch (values[0]) {
 					case 'inital':
+					case 'initial':
 						properties.push(['flex-grow', 0]);
 						properties.push(['flex-shrink', 1]);
+						properties.push(['flex-basis', 'auto']);
 						break;
 					case 'auto':
 						properties.push(['flex-grow', 1]);
 						properties.push(['flex-shrink', 1]);
+						properties.push(['flex-basis', 'auto']);
 						break;
 					case 'none':
 						properties.push(['flex-grow', 0]);
 						properties.push(['flex-shrink', 0]);
+						properties.push(['flex-basis', 'auto']);
 						break;
 					default:
 						if (isNonNegativeNumber(values[0])) {
 							properties.push(['flex-grow', parseFloat(values[0])]);
 							properties.push(['flex-shrink', 1]);
+							properties.push(['flex-basis', '0%']);
 						}
 				}
 			}
 			if (values.length >= 2) {
-				if (isNonNegativeNumber(values[0]) && isNonNegativeNumber(values[1])) {
+				if (isNonNegativeNumber(values[0])) {
 					properties.push(['flex-grow', parseFloat(values[0])]);
-					properties.push(['flex-shrink', parseFloat(values[1])]);
+					if (isNonNegativeNumber(values[1])) {
+						properties.push(['flex-shrink', parseFloat(values[1])]);
+						properties.push(['flex-basis', values[2] ?? '0%']);
+					} else {
+						properties.push(['flex-shrink', 1]);
+						properties.push(['flex-basis', values[1]]);
+					}
 				}
 			}
 		}
