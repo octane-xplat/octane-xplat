@@ -85,6 +85,12 @@ async function verifyOpenDialog(owner: DesktopWindow) {
     throw new Error('The GTK picker did not return the selected path')
   }
   console.log('DESKTOP_DIALOG_OK')
+
+  // Xvfb has no window manager. Exercise both GTK calls without assuming they change state.
+  owner.minimize()
+  owner.restore()
+  if (owner.isClosed) throw new Error('Minimize or restore closed the GTK Inspector')
+  console.log('DESKTOP_MINIMIZE_OK')
 }
 
 runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop window fixture' }, ({ app }) => {

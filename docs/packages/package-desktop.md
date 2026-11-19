@@ -127,6 +127,22 @@ export function focusInspector() {
 }
 ```
 
+### Minimize an open window
+
+Call `minimize()` to ask the desktop to minimize a window and `restore()` to bring it back. Its content stays mounted. On GTK, the window manager decides when to apply these requests. Both methods throw after the window closes. On experimental Windows hosts, they also throw `UnavailabilityError` if the native window presenter does not expose these controls.
+
+```ts
+import type { DesktopWindow } from '@octane-xplat/desktop'
+
+export function minimizeInspector(inspector: DesktopWindow) {
+  inspector.minimize()
+}
+
+export function restoreInspector(inspector: DesktopWindow) {
+  inspector.restore()
+}
+```
+
 ### Close the window
 
 Calling `close()` requests the same close as the window's close button. Call `preventDefault()` before the listener returns to keep it open. Use `destroy()` for teardown when the window must close regardless of unsaved changes. The `closed` event and promise are delivered after the window's content has unmounted.

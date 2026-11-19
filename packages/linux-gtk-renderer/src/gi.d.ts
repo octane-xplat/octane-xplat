@@ -439,6 +439,7 @@ declare module 'gi://Gtk?version=4.0' {
       present(): void
       close(): void
       minimize(): void
+      unminimize(): void
       get_focus(): Widget | null
       title: string
     }

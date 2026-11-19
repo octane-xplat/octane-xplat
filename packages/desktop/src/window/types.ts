@@ -42,6 +42,10 @@ export interface DesktopWindow {
   focus(): void
   /** Whether the host reports the window as shown. Closed windows return false. */
   isVisible(): boolean
+  /** Request that the desktop minimize this window. Throws after close. */
+  minimize(): void
+  /** Request that the desktop bring a minimized window back. Throws after close. */
+  restore(): void
   /** Set the title of a live window. */
   setTitle(title: string): void
   /** Add a listener and return this window. */

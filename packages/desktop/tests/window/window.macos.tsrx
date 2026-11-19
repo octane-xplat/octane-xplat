@@ -35,6 +35,20 @@ async function verifyOpenDialog(owner: DesktopWindow) {
     throw new Error('Cancel did not leave the Inspector open')
   }
   console.log('DESKTOP_DIALOG_OK')
+
+  async function expectMinimized(expected: boolean) {
+    for (let attempt = 0; attempt < 100; attempt++) {
+      if (native?.isMiniaturized() === expected) return
+      await new Promise<void>((resolve) => setTimeout(resolve, 20))
+    }
+    throw new Error(`Expected AppKit minimized state to be ${expected}`)
+  }
+
+  owner.minimize()
+  await expectMinimized(true)
+  owner.restore()
+  await expectMinimized(false)
+  console.log('DESKTOP_MINIMIZE_OK')
 }
 
 runMacOSApp({ title: 'Desktop window fixture' }, ({ app }) => {

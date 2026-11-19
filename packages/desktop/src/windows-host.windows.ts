@@ -1,6 +1,6 @@
 import { Application } from '@nativescript/core/application/application.windows'
 import type { NativeWindow } from '@nativescript/core/native-window'
-import { lookupGlobal } from '@octane-xplat/lib/capability'
+import { lookupGlobal, UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { AppLifecycleHost } from './app/lifecycle.js'
 import type { NativeWindowController, NativeWindowOpener } from './window/service.js'
 
@@ -17,6 +17,7 @@ interface WindowSurface {
     Id: { Value: number | bigint }
     Closing: object
     IsVisible: boolean
+    Presenter?: { State?: number; Minimize?(): void; Restore?(): void }
     Show(): void
     Hide(): void
     ResizeClient(size: { Width: number; Height: number }): void
@@ -34,6 +35,8 @@ export interface WindowsWindow {
   present(): void
   hide(): void
   isVisible(): boolean
+  minimize(): void
+  restore(): void
 }
 
 type WindowController = NativeWindowController<WindowsWindow>
@@ -139,6 +142,23 @@ export function getWindowsOpener(): NativeWindowOpener<WindowsWindow> | undefine
           },
           hide: () => surface.AppWindow.Hide(),
           isVisible: () => surface.AppWindow.IsVisible,
+          minimize() {
+            const presenter = surface.AppWindow.Presenter
+            if (typeof presenter?.Minimize !== 'function') {
+              throw new UnavailabilityError('DesktopWindow.minimize')
+            }
+            presenter.Minimize()
+          },
+          restore() {
+            const presenter = surface.AppWindow.Presenter
+            if (typeof presenter?.State !== 'number' || typeof presenter.Restore !== 'function') {
+              throw new UnavailabilityError('DesktopWindow.restore')
+            }
+            // Microsoft.UI.Windowing.OverlappedPresenterState.Minimized
+            if (presenter.State === 1) {
+              presenter.Restore()
+            }
+          },
         },
         get isClosed() {
           return closed

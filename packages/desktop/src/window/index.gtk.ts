@@ -17,6 +17,8 @@ const binding = createDesktopWindowService(
     present: (window) => window.present(),
     hide: (window) => window.set_visible(false),
     isVisible: (window) => window.get_visible(),
+    minimize: (window) => window.minimize(),
+    restore: (window) => window.unminimize(),
   },
 )
 

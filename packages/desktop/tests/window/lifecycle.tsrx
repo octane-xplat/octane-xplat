@@ -97,7 +97,7 @@ export async function verifyWindowLifecycle(readWindow: () => {
   check(closedEvents === 1, 'accepted close publishes closed')
   check(!inspector.isVisible(), 'closed window is not visible')
 
-  for (const action of ['show', 'hide', 'focus'] as const) {
+  for (const action of ['show', 'hide', 'focus', 'minimize', 'restore'] as const) {
     let refused = false
     try {
       inspector[action]()

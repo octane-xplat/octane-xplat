@@ -20,6 +20,8 @@ const binding = createDesktopWindowService(
     },
     hide: (window) => window.orderOut(null),
     isVisible: (window) => window.isVisible(),
+    minimize: (window) => window.miniaturize(null),
+    restore: (window) => window.deminiaturize(null),
   },
 )
 

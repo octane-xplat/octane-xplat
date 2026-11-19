@@ -25,6 +25,8 @@ interface NativeWindowActions<Window> {
   present(window: Window): void
   hide(window: Window): void
   isVisible(window: Window): boolean
+  minimize(window: Window): void
+  restore(window: Window): void
 }
 
 interface DesktopWindowBinding<Window> {
@@ -154,6 +156,12 @@ export function createDesktopWindowService<Window>(
         },
         isVisible() {
           return native !== null && !native.isClosed && actions.isVisible(native.window)
+        },
+        minimize() {
+          actions.minimize(liveWindow())
+        },
+        restore() {
+          actions.restore(liveWindow())
         },
         setTitle(title) {
           if (!native || native.isClosed) {

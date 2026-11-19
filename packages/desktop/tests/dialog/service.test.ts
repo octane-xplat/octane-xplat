@@ -25,6 +25,8 @@ function fixture() {
       present() { visible = true },
       hide() { visible = false },
       isVisible: () => visible,
+      minimize() {},
+      restore() {},
     },
   )
   return { parent: binding.windows.open(), ownerOf: binding.getWindowOwner, nativeOwner }
