@@ -13,6 +13,7 @@ if (!browserType) {
 
 // A dedicated fixture and OS-assigned port: no screenshots or shared :5200.
 const server = await createServer({
+  configFile: fileURLToPath(new URL('../vite.verification.config.ts', import.meta.url)),
   root: fileURLToPath(new URL('..', import.meta.url)),
   server: { port: 0, host: '127.0.0.1', strictPort: true },
   plugins: [

@@ -10,8 +10,9 @@ the universal-runtime driver over `@nativescript/core`).
 
 The framework exists and is published: `packages/ui` ships as
 `@octane-xplat/ui` on npm, `packages/cli` as `@octane-xplat/cli` (dev/build/
-doctor/typecheck). `packages/app` + `apps/web` + `apps/mobile` host the confidence-focused kitchen sink
-and a separate `/harness` test console (`/harness-baseline` retains the older integration fixture); `packages/demos` contains the retained seam-by-seam demo screens. `docs/` contains
+doctor/typecheck). `packages/app` + `apps/mobile` host the shared web and mobile kitchen sink;
+`tools/web-verification` owns browser verification. The app
+also has a separate `/harness` test console (`/harness-baseline` retains the older integration fixture); `packages/demos` contains the retained seam-by-seam demo screens. `docs/` contains
 app-building guides. Internal implementation guidance and records live in
 [`.agents/docs/`](README.md); design decisions and proposals live in
 [`.agents/design/`](../design/README.md). Follow the
@@ -68,7 +69,7 @@ SDK interop remain separate features.
 | `packages/build` | `@octane-xplat/build` — separately installed Vite presets, CSS/compiler plugins and development middleware; built from the CLI package's TypeScript plugin sources. |
 | `packages/macos-build` | `@octane-xplat/macos-build` — project-installed macOS packaging worker and verified JSC host assets; shares the TypeScript packager, while Go owns lifecycle and publication. |
 | `packages/app`, `packages/demos`                                                           | Visitor experiences, separate sanity harness, and retained seam-by-seam demo screens.                                                                                                                                                    |
-| `apps/web`, `apps/mobile`                                                                  | Entry shells + vite configs for the harness.                                                                                                                                                      |
+| `apps/mobile`, `tools/web-verification`                                                                  | Shared web/mobile app entries and native host in `apps/mobile`; browser verification workspace in `tools/web-verification`.                                                                                    |
 | `packages/create`, `packages/platform`                                                     | Project scaffolder; platform services seam.                                                                                                                                                       |
 | `packages/gif`, `packages/image`, `packages/canvas`, `packages/effects`, `packages/lottie` | Leaf packages — features that need a NativeScript plugin ship here, declaring the plugin as a real `dependency` (decision #51).                                                                   |
 | `packages/tweaks` | `@octane-xplat/tweaks`: `useTweak` live-value runtime, `./dev` style leaves, and the `./vite` plugin — protocol v5 rides the devtools hub's `tweaks` channel; `apps/tweaks-playground` is its web/e2e fixture. See its [AGENTS.md](../../packages/tweaks/AGENTS.md). |

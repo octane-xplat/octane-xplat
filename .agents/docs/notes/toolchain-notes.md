@@ -26,7 +26,7 @@
 
 - `vite dev` (web) + `ns run ios` / `ns run android` run concurrently against
   the same tree — **verified** (lab-experiment, iOS sim): three vite
-  processes coexist — web on `:5200` (pinned in `apps/web/vite.config.ts`)
+  processes coexist — web on `:5200` (pinned in `apps/mobile/vite.web.config.mts`)
   plus, per native target, `vite serve` (the device-facing dev server) and a
   `vite build --watch` bundle emitter. The ns server prefers `:5173` and
   auto-bumps on collision (the device discovers the actual port from synced

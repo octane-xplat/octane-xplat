@@ -849,7 +849,7 @@ try {
         await new Promise((resolve) => setTimeout(resolve, 500))
 
         const { createRequire } = await import('node:module')
-        const require = createRequire(join(repoRoot, 'apps/web/package.json'))
+        const require = createRequire(join(repoRoot, 'tools/web-verification/package.json'))
         const playwright = require('playwright')
 
         browsers = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium')

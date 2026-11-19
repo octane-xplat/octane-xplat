@@ -11,8 +11,9 @@ the packages and documentation. Internal implementation notes live in
 
 Choose a workspace's directory by its primary purpose:
 
-- `apps/` contains runnable UI applications: platform hosts, websites, sandboxes,
-  and demo or test apps that exercise real screens and app flows.
+- `apps/` contains runnable UI applications: websites, sandboxes, and demo or
+  test apps that exercise real screens and app flows. A cross-platform app owns
+  its target entry points and platform configuration in one app workspace.
 - `tools/` contains private repository tooling and supporting services: comparison
   runners, visual regression tooling, feedback collection, and update distribution.
   Embedded UI fixtures do not make a tool an app.
@@ -22,6 +23,8 @@ Choose a workspace's directory by its primary purpose:
 Keep new operational services and verification runners in `tools/`, even when
 they have a development server or deployment command. Keep package names stable
 when moving existing workspaces so package-name filters continue to work.
+The current shared harness still has separate platform host workspaces; consolidate
+those into one cross-platform app while preserving their target-specific checks.
 
 ## Script ownership
 

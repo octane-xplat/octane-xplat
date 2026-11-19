@@ -236,7 +236,7 @@ try {
   const ssrUrl = await startServer({}, 'SSR server')
   const staticUrl = await startServer({ STATIC: '1' }, 'static server')
 
-  const playwright = createRequire(join(repo, 'apps/web/package.json'))('playwright')
+  const playwright = createRequire(join(repo, 'tools/web-verification/package.json'))('playwright')
   const names = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium').split(',').filter(Boolean)
 
   for (const name of names) {

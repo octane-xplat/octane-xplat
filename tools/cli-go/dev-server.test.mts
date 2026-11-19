@@ -702,7 +702,7 @@ test(
     )
 
     if (process.env.XPLAT_GO_BROWSER_LOGS === '1') {
-      const requireWeb = createRequire(join(root, 'apps/web/package.json'))
+      const requireWeb = createRequire(join(root, 'tools/web-verification/package.json'))
       const browser = await requireWeb('playwright').chromium.launch({ headless: true })
 
       try {
@@ -1099,7 +1099,7 @@ test(
       () => owned.stdout + ' ' + owned.stderr,
     )
 
-    const requireWeb = createRequire(join(root, 'apps/web/package.json'))
+    const requireWeb = createRequire(join(root, 'tools/web-verification/package.json'))
     const browser = await requireWeb('playwright').chromium.launch({ headless: true })
     let retainedId
 

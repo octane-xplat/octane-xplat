@@ -26,7 +26,7 @@ const preview = process.env.XPLAT_HARNESS_URL
       process.execPath,
       [
         fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url)),
-        'preview',
+        'preview', '--config', 'vite.verification.config.ts',
         '--host',
         '127.0.0.1',
         '--port',

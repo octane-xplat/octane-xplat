@@ -97,11 +97,11 @@ failures.
 
 From the repo root, install with `bun install --frozen-lockfile`, then:
 
-1. Build the harness: `bun run turbo run build --filter=@octane-xplat/web`.
-2. From `apps/web`, run `node scripts/bench-virtual-list-contract.ts`.
+1. Build the harness: `bun run turbo run build --filter=@xplat/web`.
+2. From `tools/web-verification`, run `node scripts/bench-virtual-list-contract.ts`.
    It fails on anchor drift greater than 2 pixels, lost keyed state, unbounded
    mounts, or failed empty/disposal checks.
-3. From `apps/web`, run `XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts variable`.
+3. From `tools/web-verification`, run `XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts variable`.
    The JSON separates sampled row geometry, rAF callback intervals, live-list
    collected heap, and collected heap after route disposal. rAF alone does not
    prove compositor presentation timing.

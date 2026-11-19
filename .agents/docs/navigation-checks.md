@@ -14,8 +14,8 @@ drivers, browser input, native callbacks and OS input establish different things
 
    ```sh
    bun install --frozen-lockfile
-   bun run --filter @octane-xplat/web build
-   node apps/web/scripts/navigation.ts
+   bun run --filter @xplat/web build
+   node tools/web-verification/scripts/navigation.ts
    ```
 
    The script serves `dist` on an ephemeral loopback port and drives Chromium.
@@ -94,7 +94,7 @@ new owned base if the browser refuses or fails to acknowledge the traversal.
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts src/routing-core.test.ts src/default-router-runtime.test.ts src/routing-package.test.ts src/browser-route-transitions.web.test.ts
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Fresh native release runs passed **184 iOS** and **196 Android assertions**.
@@ -249,7 +249,7 @@ behavior. Linux and Windows have source/type evidence for this refinement;
 Windows has no VM. Owned mobile devices were shut down after qualification.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 node apps/macos/test/verify-routing.mts
 ```
 
@@ -286,7 +286,7 @@ do not establish OS touch/hit-testing. Linux and Windows have source/type
 coverage for this refinement; Windows runtime remains unavailable.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 node apps/macos/test/verify-routing.mts
 ```
 
@@ -317,7 +317,7 @@ and Windows have source/type evidence for this refinement; no Windows VM was
 available. The owned mobile devices were shut down afterward.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 node apps/macos/test/verify-routing.mts
 ```
 
@@ -334,7 +334,7 @@ application-owned stores are preserved.
 
 ```sh
 bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Only browser runtime behavior changed. Native targets retain the preceding
@@ -356,7 +356,7 @@ plus real View Transition completion, custom forward/Back types, animated modal
 retention, overlapping animation, reduced motion and unsupported-browser skips.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Window scroll restoration, decoded fragments, modal scroll preservation, direct
@@ -574,8 +574,8 @@ it. Linux and Windows have source/type evidence for this refinement; Windows
 runtime remains unavailable.
 
 ```sh
-bun run --filter @octane-xplat/web build
-node apps/web/scripts/navigation.ts
+bun run --filter @xplat/web build
+node tools/web-verification/scripts/navigation.ts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
 node apps/macos/test/verify-routing.mts
@@ -698,7 +698,7 @@ a modal redirect without restoring the rejected target.
 
 ```sh
 bun run --cwd packages/ui vitest run src/routing-core.test.ts src/router-instance.test.ts src/browser-router-host.web.test.tsrx src/router-hooks.web.test.tsrx src/default-router-runtime.test.ts src/routing-package.test.ts
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Fresh release runs passed **210 iOS** and **223 Android assertions**. They check
@@ -822,7 +822,7 @@ context once. Browser Back/Forward refusal corrects URL position; a later attemp
 can proceed in its original direction.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 ```
 
 Native release checks use real iOS edge swipes and Android Back key events, then

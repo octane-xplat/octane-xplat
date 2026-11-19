@@ -910,7 +910,7 @@ available for the default client's unfinished migration; this does not make
 legacy params-only callbacks structured automatically.
 
 The following excerpt uses `fileModule` from the maintained
-[browser fixture](../../../apps/web/tests/fixtures/routing-contract/fixture.web.tsrx).
+[browser fixture](../../../tools/web-verification/tests/fixtures/routing-contract/fixture.web.tsrx).
 
 ```ts
 // These named functions are the actual module exports from the route-file glob.

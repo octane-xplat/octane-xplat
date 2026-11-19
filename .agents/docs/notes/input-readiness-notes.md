@@ -29,7 +29,7 @@ Tests are maintained in `packages/ui/src/components/forms/input-readiness.web.te
 `modal-focus.web.test.tsrx`, `text-input.mobile.test.ts`,
 `pressable-accessibility.mobile.test.ts`, `keyboard-inset.mobile.test.ts`,
 `ref-list.web.test.ts`, and the production browser runner
-`apps/web/scripts/smoke.ts`.
+`tools/web-verification/scripts/smoke.ts`.
 Native models reproduce the component/driver seam; they are not OS runtime
 or real-IME tests.
 

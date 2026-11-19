@@ -86,7 +86,7 @@ try {
 
     if (args.includes('--browser')) {
       for (const browser of ['chromium', 'firefox', 'webkit']) {
-        execFileSync(process.execPath, ['apps/web/scripts/optional-services.ts'], {
+        execFileSync(process.execPath, ['tools/web-verification/scripts/optional-services.ts'], {
           cwd: root,
           stdio: 'inherit',
           env: {

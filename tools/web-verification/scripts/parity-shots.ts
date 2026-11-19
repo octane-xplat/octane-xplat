@@ -1,5 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// Parity screenshots (web) — serves apps/web/dist, opens /parity in a
+// Parity screenshots (web) — serves tools/web-verification/dist, opens /parity in a
 // 640x420 viewport at 2x device scale (matching the AppKit host's window
 // on a Retina display), and captures the stage at stepped scroll offsets.
 // Writes parity-report/shots/web/shot-NNN.png plus manifest.json holding
@@ -23,7 +23,7 @@ const VIEWPORT = { width: 640, height: 420 }
 const SCALE = 2
 const STEP = 300
 
-const preview = spawn('bun', ['run', 'vite', 'preview', '--port', String(PORT), '--strictPort'], {
+const preview = spawn('bun', ['run', 'vite', 'preview', '--config', 'vite.verification.config.ts', '--port', String(PORT), '--strictPort'], {
   shell: process.platform === 'win32',
   cwd: webDir,
   stdio: ['ignore', 'pipe', 'pipe'],

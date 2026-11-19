@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { liveSwitchConformance } from './browser-switch.web.mts'
 
-const requireWeb = createRequire(new URL('../../../apps/web/package.json', import.meta.url))
+const requireWeb = createRequire(new URL('../../../tools/web-verification/package.json', import.meta.url))
 const { chromium } = requireWeb('playwright')
 const { createServer } = await import(requireWeb.resolve('vite'))
 const root = fileURLToPath(new URL('..', import.meta.url))

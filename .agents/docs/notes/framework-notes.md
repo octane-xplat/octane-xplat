@@ -88,7 +88,7 @@ export default octaneConfig({
   //   nativescript.validation: { forbiddenGlobals, forbiddenImports, textHosts, hostProps }
   //   resolve.extensions: ['.ios.tsrx','.mobile.tsrx','.tsrx', …full chain…]
 })
-// apps/web/vite.config.ts — @octanejs/vite-plugin + '.web' chain
+// apps/mobile/vite.web.config.mts — @octanejs/vite-plugin + '.web' chain
 ```
 
 Entries: web `createRoot(el)`; native `Application.run({create})` +

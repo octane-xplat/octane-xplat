@@ -484,7 +484,7 @@ test('workflow dependencies keep ci independent and stable bound to the release 
   const packedSuites = stableSteps.findIndex((step) => step.run?.includes('turbo run test:packed'))
 
   assert.ok(browserInstall >= 0 && packedSuites > browserInstall)
-  assert.equal(stableSteps[browserInstall]['working-directory'], 'apps/web')
+  assert.equal(stableSteps[browserInstall]['working-directory'], 'tools/web-verification')
   assert.ok(!stableSteps[packedSuites].run.includes('!@octane-xplat/web-host'))
   assert.ok(!ci.jobs.checks.steps.some((step) => step.run?.includes('playwright install')))
 

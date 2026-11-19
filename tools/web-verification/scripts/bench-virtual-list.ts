@@ -2,7 +2,7 @@
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
 
-const preview = spawn('bun', ['run', 'vite', 'preview', '--port', '5220', '--strictPort'], {
+const preview = spawn('bun', ['run', 'vite', 'preview', '--config', 'vite.verification.config.ts', '--port', '5220', '--strictPort'], {
   shell: process.platform === 'win32',
   cwd: process.cwd(),
   stdio: ['ignore', 'pipe', 'pipe'],

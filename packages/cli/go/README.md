@@ -11,8 +11,8 @@ Go does not bundle, download, or manage a Node installation.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go CLI build and contracts"}' -- bun run turbo run test:go-cli --filter=@octane-xplat/cli
 research/go-cli/xplat-go-darwin-arm64-cli catalog --json
-research/go-cli/xplat-go-darwin-arm64-cli status --project . --app apps/web --json
-research/go-cli/xplat-go-darwin-arm64-cli capabilities --project . --app apps/web --json
+research/go-cli/xplat-go-darwin-arm64-cli status --project . --app apps/mobile --json
+research/go-cli/xplat-go-darwin-arm64-cli capabilities --project . --app apps/mobile --json
 ```
 
 The catalog and schemas report execution coverage for this build. Pending
@@ -48,7 +48,7 @@ assets or prepare documentation snapshots.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go package binding verification"}' -- bun run turbo run test:go-binding --filter=@octane-xplat/cli
-research/go-cli/xplat-go-darwin-arm64-cli guidance --project . --app apps/web --json
+research/go-cli/xplat-go-darwin-arm64-cli guidance --project . --app apps/mobile --json
 ```
 
 Inference remains native. Optional ONNX/model assets and project compiler engines
@@ -89,10 +89,10 @@ client leaves development engines running.
 
 ```sh
 # Explicit start, from the selected app or with workspace selection:
-/absolute/path/to/xplat-go dev --project /work/repo --app apps/web --targets web
+/absolute/path/to/xplat-go dev --project /work/repo --app apps/mobile --targets web
 # Separate terminal; nested cwd and symlink aliases resolve the same app:
-/absolute/path/to/xplat-go targets --project /work/repo --app apps/web --json
-/absolute/path/to/xplat-go session list --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go targets --project /work/repo --app apps/mobile --json
+/absolute/path/to/xplat-go session list --project /work/repo --app apps/mobile --json
 ```
 
 One dev server owns the foreground engines for an app directory. Separate
@@ -117,9 +117,9 @@ agent registration. Select `--instance` when a target contains several apps.
 Session status preserves a disconnected app observation; it does not signal it.
 
 ```sh
-/absolute/path/to/xplat-go actions list --project /work/repo --app apps/web --json
-/absolute/path/to/xplat-go session attach --platform web --instance APP_INSTANCE --project /work/repo --app apps/web --json
-/absolute/path/to/xplat-go session status SESSION_ID --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go actions list --project /work/repo --app apps/mobile --json
+/absolute/path/to/xplat-go session attach --platform web --instance APP_INSTANCE --project /work/repo --app apps/mobile --json
+/absolute/path/to/xplat-go session status SESSION_ID --project /work/repo --app apps/mobile --json
 ```
 
 The selected project's compatible CLI Vite plugin receives a target-scoped app
@@ -193,8 +193,8 @@ unfinished captures disconnected and preserve cleanup uncertainty. Reads create
 no missing cache or dev server.
 
 ```sh
-/absolute/path/to/xplat-go diagnostics --project /work/repo --app apps/web --json
-/absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --cursor 0 --limit 50 --stream stderr --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go diagnostics --project /work/repo --app apps/mobile --json
+/absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --cursor 0 --limit 50 --stream stderr --project /work/repo --app apps/mobile --json
 ```
 
 Logs remain readable after foreground dev exits. Native Apple .ips discovery requires the Mac that ran the app and recorded native identity. The Go development Vite plugin injects
@@ -594,8 +594,8 @@ content and return a continuation offset for larger files. Search results are
 leads to open before changing code.
 
 ```sh
-research/go-cli/xplat-go-darwin-arm64-cli code search Button --project . --app apps/web --mode exact --corpus framework --package @octane-xplat/ui --json
-research/go-cli/xplat-go-darwin-arm64-cli code read --project . --app apps/web --ref xplat-code://framework/@octane-xplat/ui/chat/ChatDictationButton.tsrx --json
+research/go-cli/xplat-go-darwin-arm64-cli code search Button --project . --app apps/mobile --mode exact --corpus framework --package @octane-xplat/ui --json
+research/go-cli/xplat-go-darwin-arm64-cli code read --project . --app apps/mobile --ref xplat-code://framework/@octane-xplat/ui/chat/ChatDictationButton.tsrx --json
 ```
 
 The documentation snapshot service pins exact release tags and package metadata
@@ -609,8 +609,8 @@ Project Markdown guidance is returned separately from release results.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go documentation snapshots"}' -- bun run turbo run test:go-doc-snapshot --filter=@octane-xplat/cli
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go documentation commands"}' -- bun run turbo run test:go-docs --filter=@octane-xplat/cli
-research/go-cli/xplat-go-darwin-arm64-cli docs search dictation --project . --app apps/web --package @octane-xplat/ui --mode exact --json
-research/go-cli/xplat-go-darwin-arm64-cli docs read --project . --app apps/web --package @octane-xplat/ui --path docs/app/components.md --json
+research/go-cli/xplat-go-darwin-arm64-cli docs search dictation --project . --app apps/mobile --package @octane-xplat/ui --mode exact --json
+research/go-cli/xplat-go-darwin-arm64-cli docs read --project . --app apps/mobile --package @octane-xplat/ui --path docs/app/components.md --json
 ```
 
 The inference-enabled entry supports explicit index preparation and native hybrid
@@ -622,8 +622,8 @@ during search; preparing the index explicitly repairs invalid cached vectors.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native documentation index"}' -- bun run turbo run test:go-doc-index --filter=@octane-xplat/cli
-research/go-cli/xplat-go-darwin-arm64-cli-onnx docs index --project . --app apps/web --package @octane-xplat/ui --json
-research/go-cli/xplat-go-darwin-arm64-cli-onnx docs search dictation --project . --app apps/web --package @octane-xplat/ui --mode hybrid --json
+research/go-cli/xplat-go-darwin-arm64-cli-onnx docs index --project . --app apps/mobile --package @octane-xplat/ui --json
+research/go-cli/xplat-go-darwin-arm64-cli-onnx docs search dictation --project . --app apps/mobile --package @octane-xplat/ui --mode hybrid --json
 ```
 
 Completed vector batches survive cancellation. Model, runtime, inference settings

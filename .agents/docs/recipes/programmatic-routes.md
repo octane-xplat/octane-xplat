@@ -119,7 +119,7 @@ database, a content directory, or a host framework's own route model.
   and [edit a rendering entry's search](../../../docs/app/navigation.md#edit-the-current-screens-filters)
   and the [Navigation limits row](../../../docs/testing/known-limits.md#navigation).
 - AC4: [Register routes from data](../../../docs/app/navigation.md#register-routes-from-data);
-  web smoke in `apps/web/scripts/smoke.ts` deep-links `/@test/guides/deploy`.
+  web smoke in `tools/web-verification/scripts/smoke.ts` deep-links `/@test/guides/deploy`.
 
 - AC5: [Parent group preparation](../../../docs/app/navigation.md#prepare-a-group-of-routes), [Flow-owned loading and recovery](../../../docs/app/navigation.md#handle-pending-work-and-failures), [Loader and presentation behavior](../../../docs/app/navigation.md#present-a-route-modally)
   and [guard behavior](../../../docs/app/navigation.md#guard-a-route-and-supply-context).
@@ -142,7 +142,7 @@ database, a content directory, or a host framework's own route model.
   Includes a public host factory, inferred catalog, checked pane names, toolbar
   providers, rendered-commit acknowledgement and app/window cleanup.
   Maintained cross-renderer example: `packages/ui/tests/pane-router-example.tsrx`;
-  packed runtime: `apps/web/scripts/routing-pane-packed.mts`.
+  packed runtime: `tools/web-verification/scripts/routing-pane-packed.mts`.
   [Configured Tabs](../../../docs/app/navigation.md#use-named-panes-with-the-canonical-client)
   covers default-client pane ownership and controlled selection.
   Shared renderer cases: `packages/ui/tests/router-scope-cases.tsrx`, exercised

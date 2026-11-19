@@ -1,5 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// Parity dump (web) — serves apps/web/dist, opens /parity, and writes the
+// Parity dump (web) — serves tools/web-verification/dist, opens /parity, and writes the
 // stage's measured tree to parity-report/web.json for tools/verification/parity-check.ts.
 // Run after `vite build` (the package script chains it).
 import { chromium } from 'playwright'
@@ -15,7 +15,7 @@ const BASE = `http://localhost:${PORT}`
 
 // detached: the preview is pnpm→vite — kill the whole process group or the
 // vite child outlives the script and orphans the port.
-const preview = spawn('bun', ['run', 'vite', 'preview', '--port', String(PORT), '--strictPort'], {
+const preview = spawn('bun', ['run', 'vite', 'preview', '--config', 'vite.verification.config.ts', '--port', String(PORT), '--strictPort'], {
   shell: process.platform === 'win32',
   cwd: webDir,
   stdio: ['ignore', 'pipe', 'pipe'],

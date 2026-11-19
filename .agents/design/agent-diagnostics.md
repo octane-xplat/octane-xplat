@@ -125,7 +125,7 @@ independent gap rather than a prerequisite for reading development output.
 The maintained Chromium qualification starts a real xplat dev process, loads
 its page, retrieves warnings/errors/rejections through the CLI after process
 exit, and checks that release HTML excludes forwarding. Run it locally after
-building the CLI; it uses the existing apps/web Playwright installation and
+building the CLI; it uses the existing tools/web-verification Playwright installation and
 captures no images. It is outside the ordinary test glob and PR checks:
 
 ```sh

@@ -36,7 +36,7 @@ export default defineConfig({
     // Repo-root so package test globs don't traverse pnpm workspace
     // symlinks (packages/app/node_modules/@octane-xplat/*) and double-run.
     root: '../..',
-    include: ['packages/*/src/**/*.test.{ts,tsx,tsrx}', 'apps/web/test/**/*.test.ts'],
+    include: ['packages/*/src/**/*.test.{ts,tsx,tsrx}', 'tools/web-verification/test/**/*.test.ts'],
     // Platform-specific tests run from their owning package, where native
     // resolution and renderer setup are available. In particular, mobile
     // tests need the NativeScript renderer and native aliases.

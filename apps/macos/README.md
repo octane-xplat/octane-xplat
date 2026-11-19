@@ -221,7 +221,7 @@ and harness checks.
 The [AppKit packaging recipe](../../.agents/docs/recipes/macos-appkit-package.md)
 covers the bounded viewport and mounted row count in this sweep.
 
-Screenshot-led comparison also exists: `node apps/web/scripts/parity-shots.ts`
+Screenshot-led comparison also exists: `node tools/web-verification/scripts/parity-shots.ts`
 captures the web parity stage in Playwright (640x420 viewport at 2x, ~300pt
 scroll steps) and `node apps/macos/scripts/parity-shots.ts` drives the AppKit
 host through the same scroll sweep, writing `shot-NNN.png` plus a

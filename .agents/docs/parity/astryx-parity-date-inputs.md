@@ -236,7 +236,7 @@ Audit checks:
 - All Markdown local links resolve, and every linked Astryx raw source exists
   in the fetched revision's source snapshot.
 - `git diff --check` passes for the report.
-- Attempted `bun run --cwd apps/web vitest run
+- Attempted `bun run --cwd tools/web-verification vitest run
 packages/ui/src/components/forms/datetime.test.ts packages/ui/src/date-entry.test.tsx`;
   execution was blocked because `vitest` is unavailable in this worktree.
   Existing test cases were inspected, not executed.

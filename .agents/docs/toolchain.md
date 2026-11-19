@@ -1040,7 +1040,7 @@ bun run --filter @octane-xplat/web smoke:routing-watch
 ```
 
 Evidence is the maintained temporary TSX fixture in
-`apps/web/scripts/routing-watch.mts`, its local run and the public JSX export map
+`tools/web-verification/scripts/routing-watch.mts`, its local run and the public JSX export map
 in `packages/jsx/package.json`. This establishes the narrow warning; it does not
 establish a general failure of web development or attribute a defect to a specific
 upstream implementation. No dependency-discovery disabling, runtime facade shim

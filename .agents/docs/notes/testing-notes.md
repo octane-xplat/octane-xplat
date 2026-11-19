@@ -135,13 +135,13 @@ owner; the canonical Octane and NativeScript patches carry the fixes.
 Run the component checks with:
 
 ```sh
-bun run turbo run test:native --filter=@octane-xplat/ui
-bun run turbo run test --filter=@octane-xplat/web
+pnpm --dir packages/ui test:native
+bun run --cwd tools/web-verification test
 ```
 
 For a fresh browser runtime pass, start this worktree's server with
-`cd apps/web && bunx vite --host 127.0.0.1 --port 4327 --strictPort`, then run
-`node apps/web/scripts/data-smoke.ts http://127.0.0.1:4327`.
+`bun run --cwd apps/mobile web --host 127.0.0.1 --port 4327 --strictPort`, then run
+`pnpm exec node tools/web-verification/scripts/data-smoke.ts http://127.0.0.1:4327`.
 The dedicated HTML entry avoids changing the navigation harness. The intentional
 throw is one expected browser `pageerror`; universal native roots instead
 report it to `onUncaughtError` without a dropped-event warning.
@@ -194,7 +194,7 @@ the data files pass their scoped lint checks.
 ## e2e reality check
 
 - Web: Playwright is straightforward. **Verified:** `pnpm smoke`
-  in `apps/web` — builds dist, serves via `vite preview`, drives headless
+  in `tools/web-verification` — builds dist, serves via `vite preview`, drives headless
   Chromium: App mounts, `onClick`→state, tab switch, chip→real-path
   route write, pane render, popstate restore, deep-link boot, sheet-stub
   call, zero pageerrors — 14/14. Runtime evidence for the web target —

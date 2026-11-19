@@ -2,6 +2,10 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"build:web": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"cache": false
+		},
 		"bench:animation:ios": {
 			"dependsOn": ["@octane-xplat/motion#typegen", "@octane-xplat/sheet#typegen", "@octane-xplat/cli#build"],
 			"cache": false,

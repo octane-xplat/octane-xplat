@@ -54,7 +54,7 @@ test('browser matrix selects each engine and dispatches owning Turbo tasks from 
   assert.deepEqual(commands[0].args, [
     'run',
     '--cwd',
-    'apps/web',
+    'tools/web-verification',
     'playwright',
     'install',
     'chromium',

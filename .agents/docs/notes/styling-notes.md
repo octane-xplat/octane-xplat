@@ -580,7 +580,7 @@ invalid syntax, and existing PostCSS configuration. Sibling existence changes
 restart Vite because its import-resolution cache survives module invalidation;
 ordinary stylesheet edits retain Vite's normal CSS HMR.
 
-`apps/web/scripts/platform-css.mts` verifies actual computed browser styles
+`tools/web-verification/scripts/platform-css.mts` verifies actual computed browser styles
 without image capture. An isolated UI probe also passed on web and the iPhone
 18 Pro simulator: web selected `.web.css` and measured blue text with 11px
 padding; iOS selected the shared sheet and measured the iOS color with 13 DIP

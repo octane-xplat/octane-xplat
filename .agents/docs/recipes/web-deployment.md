@@ -35,6 +35,6 @@ and controls its build, HTTPS, routing and cache settings.
   exercises canonical route/baking, Vite output and cancellation; it does not
   qualify browser preview, deployment or all of AC1. Its catalog still owns
   command availability for the rest of this workflow.
-- AC2: [Host output, HTTPS and navigation](../../../docs/start/toolchain.md#preview-and-publish-web); the [production browser smoke](../../../apps/web/scripts/smoke.ts) exercises direct screen links locally. The app's host configuration needs its own deployment check.
+- AC2: [Host output, HTTPS and navigation](../../../docs/start/toolchain.md#preview-and-publish-web); the [production browser smoke](../../../tools/web-verification/scripts/smoke.ts) exercises direct screen links locally. The app's host configuration needs its own deployment check.
 - AC3: [Cache and deployment updates](../../../docs/start/toolchain.md#preview-and-publish-web). No configured public-host deployment is qualified by the repository's local checks.
 - AC4: [Published-site checks](../../../docs/start/toolchain.md#preview-and-publish-web), [Web support boundary](../../../docs/start/spec.md#choose-your-targets), [input evidence](../notes/input-readiness-notes.md), and [optional service qualification](../notes/optional-service-qualification.md).

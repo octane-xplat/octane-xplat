@@ -1,5 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// Real-browser smoke for the shared app. Serves apps/web/dist via `vite preview`,
+// Real-browser smoke for the shared app. Serves tools/web-verification/dist via `vite preview`,
 // drives a Playwright browser (Chromium by default), and fails on any
 // pageerror/console.error.
 import { chromium, firefox, webkit } from 'playwright'
@@ -21,7 +21,7 @@ const preview = spawn(
   process.execPath,
   [
     path.resolve(webDir, 'node_modules/vite/bin/vite.js'),
-    'preview',
+    'preview', '--config', 'vite.verification.config.ts',
     '--port',
     String(PORT),
     '--strictPort',

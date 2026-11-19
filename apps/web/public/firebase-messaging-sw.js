@@ -1,1 +1,0 @@
-../../../packages/push/web/firebase-messaging-sw.js

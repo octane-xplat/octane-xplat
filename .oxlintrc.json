@@ -21,7 +21,8 @@
 			"error",
 			{
 				"exclude": [
-					"apps/web/",
+					"tools/web-verification/",
+					"apps/mobile/web/",
 					"apps/docs/",
 					"apps/macos/",
 					"apps/astryx-sandbox/",
@@ -34,7 +35,8 @@
 			"error",
 			{
 				"exclude": [
-					"apps/web/",
+					"tools/web-verification/",
+					"apps/mobile/web/",
 					"apps/docs/",
 					"apps/astryx-sandbox/"
 				]
@@ -44,7 +46,8 @@
 			"error",
 			{
 				"exclude": [
-					"apps/web/",
+					"tools/web-verification/",
+					"apps/mobile/web/",
 					"apps/docs/",
 					"apps/mobile/",
 					"apps/windows/",
@@ -78,7 +81,8 @@
 			"error",
 			{
 				"exclude": [
-					"apps/web/",
+					"tools/web-verification/",
+					"apps/mobile/web/",
 					"apps/docs/",
 					"apps/astryx-sandbox/"
 				]

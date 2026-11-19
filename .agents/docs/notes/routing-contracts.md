@@ -808,7 +808,7 @@ The scope itself registers/disconnects blockers; instance or owner lifetime
 cleanup releases their held work. Document unload and OS exit remain separate.
 
 ```sh
-node apps/web/scripts/routing-contract.mts
+node tools/web-verification/scripts/routing-contract.mts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
 node apps/macos/test/verify-routing.mts

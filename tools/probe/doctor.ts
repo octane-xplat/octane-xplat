@@ -25,7 +25,7 @@ export async function doctor() {
 
     if (!existsSync(chromium.executablePath())) {
       targets.web.issues.push(
-        'Chromium is missing; run bun run --cwd apps/web playwright install chromium',
+        'Chromium is missing; run bun run --cwd tools/web-verification playwright install chromium',
       )
     }
   } catch {

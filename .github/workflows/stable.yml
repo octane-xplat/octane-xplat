@@ -63,7 +63,7 @@ jobs:
       # Web Host's packed suite exercises Chromium. Workshop's broader
       # Playwright journey remains local; ordinary PR CI stays browser-free.
       - name: Install Chromium for the packed Web Host suite
-        working-directory: apps/web
+        working-directory: tools/web-verification
         run: bun x --no-install playwright install --with-deps chromium
       - name: Check declared packed consumer suites
         run: bun run turbo run test:packed --filter='./packages/*' --filter='!@octane-xplat/workshop' --concurrency=2

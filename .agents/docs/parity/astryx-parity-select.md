@@ -359,7 +359,7 @@ assets is evidence of coverage intent, not a claim that their tests passed here.
 Attempted focused check:
 
 ```sh
-bun run --cwd apps/web vitest run --config vitest.config.mts packages/ui/src/components/forms/SearchInput.web.test.tsrx packages/ui/src/components/forms/typeahead-source.test.ts packages/ui/src/components/forms/power-search-config.test.ts
+bun run --cwd tools/web-verification vitest run --config vitest.config.mts packages/ui/src/components/forms/SearchInput.web.test.tsrx packages/ui/src/components/forms/typeahead-source.test.ts packages/ui/src/components/forms/power-search-config.test.ts
 ```
 
 It could not run: `Command "vitest" not found` in this workspace’s pnpm environment.

@@ -264,9 +264,9 @@ snapshots, and labels local project guidance separately. Start with lexical sear
 
 ```sh
 # In this repository, select the web app; in another workspace, select its app id.
-xplat docs search navigation --project "$PWD" --app apps/web --mode lexical --json
+xplat docs search navigation --project "$PWD" --app apps/mobile --mode lexical --json
 # Replace DOC_REF with a ref returned by the search.
-xplat docs read --project "$PWD" --app apps/web --ref DOC_REF --json
+xplat docs read --project "$PWD" --app apps/mobile --ref DOC_REF --json
 ```
 
 For semantic search (matching meaning), explicitly prepare the optional native
@@ -276,8 +276,8 @@ your computer. Ordinary search never downloads these assets and reports a lexica
 fallback when embeddings are unavailable; re-index after editing linked docs:
 
 ```sh
-xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
-xplat docs search "remember input between pages" --project "$PWD" --app apps/web --json
+xplat docs index --project "$PWD" --app apps/mobile --package @octane-xplat/ui --json
+xplat docs search "remember input between pages" --project "$PWD" --app apps/mobile --json
 ```
 
 The native docs cache lives in its own `XPLAT_MCP_CACHE` namespace. Optional
@@ -286,7 +286,7 @@ external symlink targets and bound traversal; docs larger than 4 MiB produce
 an explicit error:
 
 ```sh
-xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+xplat docs index --project "$PWD" --app apps/mobile --package @octane-xplat/ui --json
 ```
 
 Native action discovery reads the running app's development bridge without
@@ -295,7 +295,7 @@ instances and declared actions. The listing distinguishes an empty registry
 from an unreachable bridge.
 
 ```sh
-xplat actions list --project "$PWD" --app apps/web --json
+xplat actions list --project "$PWD" --app apps/mobile --json
 ```
 
 Invocation requires Node >=22.22.2 and a compatible `@octane-xplat/cli` worker

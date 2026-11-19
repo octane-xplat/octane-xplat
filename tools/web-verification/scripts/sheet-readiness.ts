@@ -13,6 +13,7 @@ if (!browserType) {
 }
 
 const server = await createServer({
+  configFile: fileURLToPath(new URL('../vite.verification.config.ts', import.meta.url)),
   root: webDir,
   server: { port: 0, host: '127.0.0.1', strictPort: true },
   plugins: [

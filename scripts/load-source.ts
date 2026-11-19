@@ -5,7 +5,7 @@ import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { transformTsconfig } from '../packages/cli/src/tsconfig-pin.ts'
 
-const requireWeb = createRequire(new URL('../apps/web/package.json', import.meta.url))
+const requireWeb = createRequire(new URL('../tools/web-verification/package.json', import.meta.url))
 
 export async function loadSource(url, options = {}) {
   const file = fileURLToPath(url)

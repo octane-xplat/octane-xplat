@@ -23,7 +23,7 @@ function run(args: string[], env: Record<string, string> = {}) {
 
 const browsers = ['chromium', 'firefox', 'webkit']
 
-run(['--cwd', 'apps/web', 'playwright', 'install', ...browsers])
+run(['--cwd', 'tools/web-verification', 'playwright', 'install', ...browsers])
 for (const browser of browsers) {
   const env = { XPLAT_WEB_BROWSER: browser }
 
