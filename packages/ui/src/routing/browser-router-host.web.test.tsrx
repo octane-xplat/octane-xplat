@@ -679,13 +679,15 @@ function deferredTransitions() {
     value: (update: () => Promise<void>) => {
       const index = updates.length
       let complete!: () => void
+      let abandon!: (error: unknown) => void
       let done!: () => void
       const updated = new Promise<void>((resolve) => {
         done = resolve
       })
 
-      const finished = new Promise<void>((resolve) => {
+      const finished = new Promise<void>((resolve, reject) => {
         complete = resolve
+        abandon = reject
       })
 
       updates.push(async () => {
@@ -705,7 +707,8 @@ function deferredTransitions() {
         types: new Set(),
         skipTransition() {
           skipped[index] = true
-          void updated.then(complete)
+          // Browsers reject `finished` for a skipped transition.
+          void updated.then(() => abandon(new DOMException('skipped', 'AbortError')))
         },
       }
     },
@@ -776,6 +779,32 @@ it('prevents a skipped deferred callback from replacing a newer committed route'
   expect(visibleText(container)).toBe('hat:hat2:0')
   expect(location.pathname).toBe('/items/hat')
   expect(router.getSnapshot().route?.to).toBe('/items/:id')
+})
+
+it('reports an interrupted committed animation as skipped, not failed', async () => {
+  const { router, mount } = fixture()
+  mount()
+
+  await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
+  const { updates } = deferredTransitions()
+  const pending = router.push({ to: '/settings', transition: 'fade' })
+
+  await vi.waitFor(() => expect(updates).toHaveLength(1))
+  await updates[0]()
+
+  const result = await pending
+
+  expect(result.status).toBe('committed')
+
+  // A newer navigation interrupts the still-running animation; browsers reject
+  // the transition's `finished` for a routine skip, which is not a failure.
+  expect((await router.push({ to: '/items/:id', params: { id: 'hat' }, transition: 'none' })).status)
+    .toBe('committed')
+  expect(await (result.status === 'committed' && result.finished)).toEqual({
+    status: 'skipped',
+    reason: 'interrupted',
+  })
 })
 
 it('settles disposal before a deferred browser update and prevents its later mutation', async () => {

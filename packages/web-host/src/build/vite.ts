@@ -18,7 +18,11 @@ export function webHost(): Plugin[] {
 			enforce: 'pre',
 			config: () => ({
 				resolve: {
-					conditions: ['web'],
+					// Vite 8 feeds top-level `resolve` only into the client
+					// environment, and user conditions replace the env defaults
+					// rather than append — keep web first, then the client
+					// defaults or browser/dev-prod conditional exports degrade.
+					conditions: ['web', 'module', 'browser', 'development|production'],
 					extensions: [
 						'.web.tsrx',
 						'.web.tsx',

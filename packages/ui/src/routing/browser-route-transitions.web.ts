@@ -155,7 +155,10 @@ export function createBrowserRouteTransitions(browser: Window): {
             skipped || !animated
               ? { status: 'skipped', reason: skipped ?? 'unsupported' }
               : { status: 'completed' },
-          (error): RouteTransitionResult => ({ status: 'failed', error }),
+          // Browsers reject `finished` for a routine skip — skipTransition is
+          // not a failure. A skipped reason outranks the rejection.
+          (error): RouteTransitionResult =>
+            skipped ? { status: 'skipped', reason: skipped } : { status: 'failed', error },
         )
         .finally(() => {
           if (active === handle) {
