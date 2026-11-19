@@ -28,7 +28,7 @@ preview/upload lifetime and the active window presenting native print UI.
 ## Documentation
 
 - AC1: [First PDF](../../../docs/packages/package-print.md#generate-a-receipt-pdf), [installation](../../../docs/packages/package-print.md) and [browser behavior](../../../docs/packages/package-print.md#browser-behavior-and-operation-ownership).
-- AC2: [File ownership](../../../docs/packages/package-print.md#keep-output-files-until-their-consumers-finish) and [maintained upload action](../../../packages/print/examples/upload-pdf.ts).
+- AC2: [File ownership](../../../docs/packages/package-print.md#keep-output-files-until-their-consumers-finish) and [maintained upload action](../../../examples/printing/upload-pdf.ts).
 - AC3: [Print dispatch and outcome](../../../docs/packages/package-print.md#open-a-print-dialog) and [verification record](../notes/print.md).
 - AC4: [Printer selection](../../../docs/packages/package-print.md#open-a-print-dialog) and [platform qualification](../../../docs/packages/package-print.md#platform-scope-and-verification).
 - AC5: [Portable HTML](../../../docs/packages/package-print.md#prepare-portable-html), [operation ownership](../../../docs/packages/package-print.md#browser-behavior-and-operation-ownership) and [limits and qualification](../../../docs/packages/package-print.md#platform-scope-and-verification).

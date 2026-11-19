@@ -1,0 +1,10 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"typecheck": {
+			"dependsOn": ["^typegen", "@octane-xplat/ui#typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "../../examples/visibility/scroll-target.tsrx"]
+		}
+	}
+}

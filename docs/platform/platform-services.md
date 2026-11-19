@@ -670,6 +670,9 @@ import-copy (iOS) refs are session-scoped; copy durable data with
 
 ## Share text and URLs
 
+Follow the [sharing walkthrough](../../examples/sharing/share-content.ts) to
+connect text and link actions to feedback in your app.
+
 Use the shared `share` service to offer text or a link to the system's sharing
 options:
 

@@ -52,7 +52,7 @@ const { clipboardProps, isCopied } = useClipboard({
 For sequencing, await `copy()` or `clipboardProps.onPress()`. Both resolve the
 same boolean as `copyText`; while mounted, `onCopy` runs before that promise resolves. Calls
 are independent attempts, without deduplication. Keep notification callbacks
-free of thrown errors. [CopyTextDemo](../../packages/ui/examples/CopyTextDemo.tsrx)
+free of thrown errors. [CopyTextDemo](../../examples/clipboard/copy-text.tsrx)
 shows a visible status message.
 
 Pass text straight to `copy(text)` when the value comes from somewhere other
@@ -143,6 +143,9 @@ export function KeyButton() {
   )
 }
 ```
+
+The numbered [hardware keyboard walkthrough](../../examples/keyboard/hardware.web.tsrx)
+shows a button that displays the latest key.
 
 Callbacks receive a normalized `KeyboardEvent`: logical `key`, physical `code`
 (empty if unavailable), `altKey`, `ctrlKey`, `metaKey`, `shiftKey`, `repeat`, and

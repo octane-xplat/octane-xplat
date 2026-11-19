@@ -1,4 +1,4 @@
-import Demo from '../examples/sortable.macos'
+import Demo from '../../../examples/drag-and-drop/sortable.macos'
 import { measure } from '../src/geometry.macos'
 
 function emitPan(view: any, state: string, deltaY: number) {

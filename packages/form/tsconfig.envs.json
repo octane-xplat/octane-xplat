@@ -9,14 +9,21 @@
 	],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"jsxImportSource": "@octane-xplat/jsx"
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/form": ["../../../src/index.ts"],
+			"@octane-xplat/ui": ["../../../node_modules/@octane-xplat/ui/types/generated/index.d.ts"],
+			"octane": ["../../../node_modules/octane/dist/index.d.ts"],
+			"octane/jsx-runtime": ["../../../node_modules/octane/dist/jsx-runtime.d.ts"],
+			"octane/tsrx-boundary": ["../../../node_modules/octane/dist/tsrx-boundary.d.ts"]
+		}
 	},
 	"environments": {
 		"web": {
 			"include": [
 				"src/**/*.ts",
 				"src/**/*.tsrx",
-				"examples/**/*.tsrx"
+				"../../examples/forms/trip-form.tsrx"
 			],
 			"exclude": [
 				"src/**/*.test.*"
@@ -30,7 +37,7 @@
 			"include": [
 				"src/**/*.ts",
 				"src/**/*.tsrx",
-				"examples/**/*.tsrx"
+				"../../examples/forms/trip-form.tsrx"
 			],
 			"exclude": [
 				"src/**/*.test.*"
@@ -40,7 +47,7 @@
 			"include": [
 				"src/**/*.ts",
 				"src/**/*.tsrx",
-				"examples/**/*.tsrx"
+				"../../examples/forms/trip-form.tsrx"
 			],
 			"exclude": [
 				"src/**/*.test.*"
@@ -50,7 +57,7 @@
 			"include": [
 				"src/**/*.ts",
 				"src/**/*.tsrx",
-				"examples/**/*.tsrx"
+				"../../examples/forms/trip-form.tsrx"
 			],
 			"exclude": [
 				"src/**/*.test.*"
@@ -60,7 +67,7 @@
 			"include": [
 				"src/**/*.ts",
 				"src/**/*.tsrx",
-				"examples/**/*.tsrx"
+				"../../examples/forms/trip-form.tsrx"
 			],
 			"exclude": [
 				"src/**/*.test.*"

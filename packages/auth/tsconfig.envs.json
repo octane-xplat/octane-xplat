@@ -2,6 +2,7 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"paths": { "@octane-xplat/auth": ["../../../src/index.ts"], "@octane-xplat/platform": ["../../../../platform/src/index.ts"] },
 		"target": "esnext",
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx"
@@ -11,7 +12,7 @@
 			"files": [
 				"src/index.ts",
 				"src/apple-sign-in-button-view.ios.ts",
-				"examples/auth0-flow.ts"
+				"../../examples/auth/auth0-flow.ts"
 			],
 			"compilerOptions": {
 				"types": [
@@ -22,7 +23,7 @@
 		"web": {
 			"files": [
 				"src/index.web.ts",
-				"examples/auth0-flow.ts"
+				"../../examples/auth/auth0-flow.ts"
 			]
 		},
 		"macos": {
@@ -30,7 +31,7 @@
 				"src/*.macos.ts",
 				"src/*.macos.tsrx",
 				"src/types.ts",
-				"examples/auth0-flow.ts"
+				"../../examples/auth/auth0-flow.ts"
 			]
 		}
 	}

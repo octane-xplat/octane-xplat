@@ -89,7 +89,7 @@ export async function tryEncryption(bytes: Uint8Array) {
 }
 ```
 
-The maintained [encrypted-note actions](../../packages/crypto/examples/encrypted-note.ts) accept
+The maintained [encrypted-note actions](../../examples/security/encrypted-note.ts) accept
 `Uint8Array` input. AES also accepts an `ArrayBuffer` or a standard base64 string.
 A string means encoded binary data, not text. Decryption returns bytes by default;
 `output: 'base64'` returns a padded base64 string. Malformed encodings reject.

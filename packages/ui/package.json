@@ -167,7 +167,7 @@
 		"test:overlay-keyboard:macos": "node ../../tools/probe/cli.ts run tests/fixtures/overlay-keyboard.macos.tsrx --deps @octane-xplat/sheet --target macos",
 		"build": "tsc --runExternalCode -p tsconfig.node.json",
 		"test:intl": "node --test tests/intl-bundle.test.mts",
-		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json && tsc --runExternalCode --noEmit -p tsconfig.examples.json",
 		"sync:ui-barrels": "node scripts/sync-ui-barrels.ts",
 		"check:ui-barrels": "node scripts/sync-ui-barrels.ts --check",
 		"bench:routing-types": "node scripts/bench-routing-types.ts",

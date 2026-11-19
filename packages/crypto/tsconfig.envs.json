@@ -2,12 +2,13 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"paths": { "@octane-xplat/crypto": ["../../../src/index.ts"] },
 		"resolveJsonModule": true,
 		"types": ["@nativescript/types"]
 	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"include": ["src/**/*.ts", "../../examples/security/encrypted-note.ts"],
 			"exclude": ["src/**/*.ios.ts", "src/**/*.android.ts", "src/**/*.macos.ts"]
 		},
 		"native": {

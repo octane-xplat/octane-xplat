@@ -154,7 +154,7 @@ bun run turbo run test --filter=@octane-xplat/image-crop
 bun run turbo run typecheck --filter=@octane-xplat/image-crop
 bun run turbo run typegen --filter=@octane-xplat/image-crop
 bun run probe doctor
-bun run probe run packages/image-crop/examples/selection.tsrx --target web --deps @octane-xplat/image-crop
+bun run probe run examples/probes/image-crop-selection.tsrx --target web --deps @octane-xplat/image-crop
 bun run probe run packages/image-crop/tests/selection.macos.tsrx --target macos --deps @octane-xplat/image-crop
 ```
 
@@ -220,9 +220,9 @@ bun run probe run examples/probes/share.macos.tsrx --target macos --watch
 Consumer guidance: [table](../../docs/packages/package-table.md).
 
 ```sh
-bun run probe run packages/table/examples/interactive.tsrx --target web --deps @octane-xplat/table
-bun run probe run packages/table/examples/interactive.tsrx --target ios --device YOUR_BOOTED_SIMULATOR_UDID --deps @octane-xplat/table
-bun run probe run packages/table/examples/geometry.tsrx --target macos --deps @octane-xplat/table
+bun run probe run packages/table/tests/fixtures/probes/interactive.tsrx --target web --deps @octane-xplat/table
+bun run probe run packages/table/tests/fixtures/probes/interactive.tsrx --target ios --device YOUR_BOOTED_SIMULATOR_UDID --deps @octane-xplat/table
+bun run probe run packages/table/tests/fixtures/probes/geometry.tsrx --target macos --deps @octane-xplat/table
 ```
 
 ## tray
@@ -339,5 +339,15 @@ native IME, VoiceOver or TalkBack behavior.
 
 ```sh
 bun run turbo run input:readiness --filter=@octane-xplat/web
+```
+
+## Scroll visibility
+
+The maintained visibility probe exercises root binding, threshold updates,
+imperative observation, and cleanup. A passing dispatch probe does not establish
+OS input or accessibility behavior.
+
+```sh
+bun run probe run examples/probes/intersection-observer.tsrx --target web --deps @octane-xplat/intersection-observer
 ```
 

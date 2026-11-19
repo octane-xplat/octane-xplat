@@ -2,6 +2,7 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"paths": { "@octane-xplat/image-manipulator": ["../../../src/index.ts"] },
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",
@@ -9,7 +10,7 @@
 	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*.ts", "src/**/*.tsx", "examples/**/*.ts", "tests/hook.web.tsx"],
+			"include": ["src/**/*.ts", "src/**/*.tsx", "../../examples/media/crop-image.ts", "../../examples/media/encode-webp.ts", "tests/hook.web.tsx"],
 			"exclude": ["src/**/*.ios.ts", "src/**/*.android.ts", "src/**/*.macos.ts"]
 		},
 		"native": {

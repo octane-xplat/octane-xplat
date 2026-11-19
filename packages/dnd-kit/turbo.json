@@ -1,0 +1,10 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"typecheck": {
+			"dependsOn": ["typegen", "^typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "../../scripts/typecheck.ts", "../../packages/cli/src/tsconfig-envs.ts", "../../examples/drag-and-drop/**"]
+		}
+	}
+}

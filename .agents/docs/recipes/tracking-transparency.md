@@ -29,7 +29,7 @@ and runtime are deferred. No real advertising identifier is needed for checks.
 
 ## Documentation
 
-- AC1: [Setup and action](../../../docs/packages/package-tracking-transparency.md#request-from-an-app-action), [maintained helper](../../../packages/tracking-transparency/examples/tracking-actions.ts) and [native guard fixture](../../../packages/tracking-transparency/tests/runtime.ios.ts).
+- AC1: [Setup and action](../../../docs/packages/package-tracking-transparency.md#request-from-an-app-action), [maintained helper](../../../examples/privacy/tracking-actions.ts) and [native guard fixture](../../../packages/tracking-transparency/tests/runtime.ios.ts).
 - AC2: [Responses and no-gate semantics](../../../docs/packages/package-tracking-transparency.md#platforms-and-qualification) and [service tests](../../../packages/tracking-transparency/tests/service.test.ts).
 - AC3: [Hook](../../../docs/packages/package-tracking-transparency.md#read-permission-in-an-octane-component) and [component tests](../../../packages/tracking-transparency/tests/use-tracking-permissions.web.test.tsx).
 - AC4: [Identifiers](../../../docs/packages/package-tracking-transparency.md#advertising-identifiers), [Android worker](../../../packages/tracking-transparency/platforms/android/java/com/octanexplat/tracking/TrackingBridge.java) and [ads initialization](../../../docs/packages/package-ads.md#show-a-banner).

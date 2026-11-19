@@ -120,7 +120,7 @@ import { motion } from '@octane-xplat/motion'
 />
 ```
 
-[MotionDemo](../../packages/motion/examples/MotionDemo.tsrx) is the maintained
+[MotionDemo](../../examples/motion/component.tsrx) is the maintained
 example for changing destinations and gesture settling. A signal read in the
 component's `animate` expression subscribes that component normally; equal
 destinations do not restart when unrelated state renders. In the demo,
@@ -641,7 +641,7 @@ export function Panel(props: { open: boolean }) {
 Keep `Presence` mounted and change its `present` prop. Render children
 unconditionally inside it; putting the conditional around the child removes it
 before an exit can run. Set `exit` on motion hosts inside the boundary. The
-[PresenceDemo](../../packages/motion/examples/PresenceDemo.tsrx) demonstrates a
+[PresenceDemo](../../examples/motion/presence.tsrx) demonstrates a
 counter that survives a reversed exit.
 
 ```tsx
@@ -1359,7 +1359,7 @@ export function Fade() {
 }
 ```
 
-The [maintained example](../../packages/ui/examples/AnimationDemo.tsrx) demonstrates
+The [maintained example](../../examples/motion/imperative.tsrx) demonstrates
 replacement and stop. [Animation notes](../../.agents/docs/notes/animation-notes.md#appkit-imperative-animation)
 record AppKit verification and scheduling limits.
 
@@ -1428,7 +1428,7 @@ export function DragArea() {
 
 Existing fire-and-forget animation calls still work; change code that expects
 `void` to accept `Promise<AnimationResult>`, or explicitly discard the promise.
-See [AnimationDemo](../../packages/ui/examples/AnimationDemo.tsrx) for visible
+See [AnimationDemo](../../examples/motion/imperative.tsrx) for visible
 completion feedback.
 
 ```ts

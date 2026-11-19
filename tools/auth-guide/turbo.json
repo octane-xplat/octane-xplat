@@ -1,10 +1,13 @@
 {
 	"extends": ["//"],
 	"tasks": {
+		"typecheck": {
+			"inputs": ["$TURBO_DEFAULT$", "../../examples/auth/server/**"]
+		},
 		"test": {
 			"inputs": [
 				"$TURBO_DEFAULT$",
-				"../../packages/demos/src/auth-guide/**",
+				"../../examples/auth/**",
 				"../../packages/ui/src/data/store.ts"
 			]
 		}

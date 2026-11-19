@@ -376,7 +376,7 @@ and stable explicit recheck. The first fixture's assumed static content extent
 did not establish the expected scroll delta; its timeout remains in research.
 
 Maintained journeys live in `packages/keyboard/tests/fixtures/scroll.*.tsrx`;
-`KeyboardFormDemo.tsrx` shows the public form workflow. Nested range allocation,
+[`form.tsrx`](../../examples/keyboard/form.tsrx) shows the public form workflow. Nested range allocation,
 manual pause/resume, restoration after blur, and cleanup have unit coverage.
 OS manual gestures, nested native scroll interaction, and full modal-form journeys
 remain separate qualification work.

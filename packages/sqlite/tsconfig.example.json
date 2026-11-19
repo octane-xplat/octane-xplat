@@ -1,0 +1,7 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"paths": { "@octane-xplat/sqlite": ["./src/index.ts"] }
+	},
+	"include": ["../../examples/storage/packing-list.ts"]
+}

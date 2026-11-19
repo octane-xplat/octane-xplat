@@ -29,7 +29,7 @@ function CartBadge({ count }: { count: number }) {
 
 `value` is an already-formatted string — RollingText never formats for you.
 Mount shows the initial value instantly; equal values do nothing.
-
+For a counter with buttons, follow the [rolling-text walkthrough](../../examples/motion/rolling-text.tsrx).
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-rolling-text).
 

@@ -29,7 +29,7 @@ runtime-qualified; other hosts remain open.
 
 ## Documentation
 
-- AC1: [First card](../../../docs/packages/package-view-shot.md#capture-a-card), [existing hosts](../../../docs/packages/package-view-shot.md#capture-an-existing-host) and [maintained ownership example](../../../packages/view-shot/examples/capture-card.ts).
+- AC1: [First card](../../../docs/packages/package-view-shot.md#capture-a-card), [existing hosts](../../../docs/packages/package-view-shot.md#capture-an-existing-host) and [maintained ownership example](../../../examples/media/capture-card.ts).
 - AC2: [Options](../../../packages/view-shot/src/types.ts), [validation](../../../packages/view-shot/src/options.ts) and [platform subsets](../../../docs/packages/package-view-shot.md#platforms-and-qualification).
 - AC3: [Cleanup](../../../docs/packages/package-view-shot.md#automatic-captures-and-cleanup), [lifecycle tests](../../../packages/view-shot/tests/controller.test.ts) and [service ordering](../../../packages/view-shot/tests/service.test.ts).
 - AC4: [Capabilities](../../../docs/packages/package-view-shot.md#platforms-and-qualification) and [owning note](../notes/view-shot.md#platform-engines).

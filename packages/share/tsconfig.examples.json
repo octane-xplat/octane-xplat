@@ -1,0 +1,10 @@
+{
+	"extends": "./tsconfig.types.json",
+	"compilerOptions": {
+		"rootDir": "../..",
+		"isolatedDeclarations": false,
+		"paths": { "@octane-xplat/share": ["./src/index.ts"] }
+	},
+	"include": ["../../examples/sharing/share-content.ts"],
+	"exclude": []
+}

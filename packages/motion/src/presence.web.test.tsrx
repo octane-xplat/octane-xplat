@@ -150,7 +150,7 @@ describe('retained presence', () => {
   })
 })
 
-import { PresenceDemo } from '../examples/PresenceDemo.tsrx'
+import { PresenceDemo } from '../../../examples/motion/presence.tsrx'
 
 it('mounts the retained-presence example', () => {
   const container = document.createElement('div')

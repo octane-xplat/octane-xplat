@@ -27,9 +27,9 @@ non-drag controls, and keep state ownership and platform verification explicit.
 
 ## Documentation
 
-- AC1: [Enable interaction controls](../../../docs/packages/package-table.md#enable-interaction-controls), [bounded example](../../../packages/table/examples/interactive.tsrx), [row accessibility](../../../docs/packages/package-table.md#row-accessibility), [windowed selection fixture](../../../packages/table/examples/selection.tsrx).
+- AC1: [Enable interaction controls](../../../docs/packages/package-table.md#enable-interaction-controls), [bounded example](../../../examples/tables/interactive.tsrx), [row accessibility](../../../docs/packages/package-table.md#row-accessibility), [windowed selection fixture](../../../packages/table/tests/fixtures/probes/selection.tsrx).
 - AC2: [Control behavior](../../../docs/packages/package-table.md#enable-interaction-controls), [server pages](../../../docs/packages/package-table.md#controlled-state).
-- AC3: [Selection scope](../../../docs/packages/package-table.md#enable-interaction-controls), [example](../../../packages/table/examples/interactive.tsrx).
-- AC4: [Column settings](../../../docs/packages/package-table.md#enable-interaction-controls), [example](../../../packages/table/examples/interactive.tsrx).
-- AC5: [Width and gesture contract](../../../docs/packages/package-table.md#enable-interaction-controls), [example probe](../../../packages/table/examples/interactive.tsrx), [isolated geometry probe](../../../packages/table/examples/geometry.tsrx).
+- AC3: [Selection scope](../../../docs/packages/package-table.md#enable-interaction-controls), [example](../../../examples/tables/interactive.tsrx), [selection probe](../../../packages/table/tests/fixtures/probes/interactive.tsrx).
+- AC4: [Column settings](../../../docs/packages/package-table.md#enable-interaction-controls), [example](../../../examples/tables/interactive.tsrx).
+- AC5: [Width and gesture contract](../../../docs/packages/package-table.md#enable-interaction-controls), [example probe](../../../packages/table/tests/fixtures/probes/interactive.tsrx), [isolated geometry probe](../../../packages/table/tests/fixtures/probes/geometry.tsrx).
 - AC6: [Controlled state](../../../docs/packages/package-table.md#controlled-state), [verification and limits](../../../docs/packages/package-table.md#platform-limits).

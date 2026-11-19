@@ -83,7 +83,7 @@ export function SizedCard() {
 
 `captureRef` accepts a mounted host object, its `{ current }` ref, or a ViewShot
 component ref. The caller owns manual results. Numeric React handles and
-unmounted refs reject. The maintained [ownership example](../../packages/view-shot/examples/capture-card.ts)
+unmounted refs reject. The maintained [ownership example](../../examples/media/capture-card.ts)
 keeps an image alive until its consumer finishes.
 
 ```ts

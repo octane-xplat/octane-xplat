@@ -91,7 +91,7 @@ export function TrackingChoice() {
 Use `{ get: false }` to disable the default read. The returned methods are still
 usable immediately after the component commits. Automatic `{ request: true }`
 is outside the supported subset and rejects; prompts always need an explicit
-action. The [maintained actions](../../packages/tracking-transparency/examples/tracking-actions.ts) show non-UI helpers.
+action. The [maintained actions](../../examples/privacy/tracking-actions.ts) show non-UI helpers.
 
 ```tsx
 const [permission, request, refresh] = useTrackingPermissions({ get: false })

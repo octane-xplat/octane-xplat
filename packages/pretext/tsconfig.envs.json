@@ -1,12 +1,13 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"paths": { "@octane-xplat/pretext": ["../../../src/index.ts"], "@octane-xplat/pretext/rich-inline": ["../../../src/rich-inline.ts"] },
 		"resolveJsonModule": true,
 		"types": ["@nativescript/types"]
 	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"include": ["src/**/*.ts", "../../examples/text/measure.ts"],
 			"exclude": [
 				"src/**/*.ios.ts",
 				"src/**/*.android.ts",
@@ -16,7 +17,7 @@
 			]
 		},
 		"native": {
-			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"include": ["src/**/*.ts", "../../examples/text/measure.ts"],
 			"exclude": [
 				"src/**/*.web.ts",
 				"src/**/*.macos.ts",
@@ -25,7 +26,7 @@
 			]
 		},
 		"macos": {
-			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"include": ["src/**/*.ts", "../../examples/text/measure.ts"],
 			"exclude": [
 				"src/**/*.web.ts",
 				"src/**/*.ios.ts",
@@ -36,7 +37,7 @@
 		},
 		"gtk": {
 			"files": ["../linux-gtk-renderer/src/gi.d.ts"],
-			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"include": ["src/**/*.ts", "../../examples/text/measure.ts"],
 			"exclude": [
 				"src/**/*.web.ts",
 				"src/**/*.ios.ts",
@@ -46,7 +47,7 @@
 			]
 		},
 		"windows": {
-			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"include": ["src/**/*.ts", "../../examples/text/measure.ts"],
 			"exclude": [
 				"src/**/*.web.ts",
 				"src/**/*.ios.ts",

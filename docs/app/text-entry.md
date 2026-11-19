@@ -406,7 +406,7 @@ export function MessageForm() {
 For native motion tracking, use the optional package in
 [Follow the phone keyboard](software-keyboard.md).
 
-The maintained [keyboard-space example](../../packages/ui/examples/KeyboardSpaceDemo.tsrx)
+The maintained [keyboard-space example](../../examples/keyboard/keyboard-space.tsrx)
 includes a tracking toggle. Subscription tests cover window changes and cleanup;
 actual Activity replacement still needs separate device qualification.
 

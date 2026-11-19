@@ -96,7 +96,7 @@ export function readHost(host: object) {
 }
 ```
 
-The [maintained example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/keyboard/examples/KeyboardMotionDemo.tsrx) uses the shared UI API.
+The [maintained example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/keyboard/avoiding.tsrx) uses the shared UI API.
 Native layout and presentation limits are recorded in the framework's
 [software keyboard notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/keyboard.md).
 
@@ -134,7 +134,7 @@ export function LongForm() {
 ```
 
 The [form guide](https://octane-xplat.goddardai.org/software-keyboard#keep-the-editing-field-visible)
-explains scroll policies and the [maintained form example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/keyboard/examples/KeyboardFormDemo.tsrx)
+explains scroll policies and the [maintained form example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/keyboard/form.tsrx)
 shows an explicit recheck.
 
 `KeyboardStickyView` translates a bottom control independently of surrounding
@@ -154,6 +154,6 @@ export function Composer() {
 ```
 
 Place it at the screen's bottom. See the [sticky guide](https://octane-xplat.goddardai.org/software-keyboard#keep-a-composer-beside-the-keyboard)
-and [maintained composer](https://github.com/octane-xplat/octane-xplat/blob/main/packages/keyboard/examples/KeyboardComposerDemo.tsrx).
+and [maintained composer](https://github.com/octane-xplat/octane-xplat/blob/main/examples/keyboard/composer.tsrx).
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-keyboard).

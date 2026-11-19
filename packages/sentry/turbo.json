@@ -1,9 +1,14 @@
 {
 	"extends": ["//"],
 	"tasks": {
-		"test:artifacts": { "dependsOn": ["^typegen"], "outputs": [] },
+		"typecheck": {
+			"dependsOn": ["typegen", "^typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "../../scripts/typecheck.ts", "../../packages/cli/src/tsconfig-envs.ts", "../../examples/observability/**"]
+		},
+		"test": { "inputs": ["$TURBO_DEFAULT$", "../../examples/observability/**"] },
+		"test:artifacts": { "dependsOn": ["^typegen"], "inputs": ["$TURBO_DEFAULT$", "../../examples/observability/**"], "outputs": [] },
 		// The native check builds a fixture app through @octane-xplat/cli's
 		// native preset, so cli's dist must exist first.
-		"test:artifacts:native": { "dependsOn": ["^typegen", "@octane-xplat/cli#build"], "outputs": [] }
+		"test:artifacts:native": { "dependsOn": ["^typegen", "@octane-xplat/cli#build"], "inputs": ["$TURBO_DEFAULT$", "../../examples/observability/**"], "outputs": [] }
 	}
 }

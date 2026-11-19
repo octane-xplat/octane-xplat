@@ -1,0 +1,10 @@
+{
+	"extends": "./tsconfig.types.json",
+	"compilerOptions": {
+		"rootDir": "../..",
+		"isolatedDeclarations": false,
+		"paths": { "@octane-xplat/intersection-observer": ["./src/index.ts"] }
+	},
+	"include": ["../../examples/visibility/scroll-target.tsrx"],
+	"exclude": []
+}

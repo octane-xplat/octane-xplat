@@ -29,5 +29,5 @@ Use the media picker recipe when only attachment selection is required.
 - AC1: [First page](../../../docs/packages/package-media-library.md#show-a-page-of-photos) and [permission setup](../../../docs/packages/package-media-library.md#configure-permission-and-limited-access).
 - AC2: [Paged queries and handles](../../../docs/packages/package-media-library.md#page-through-assets-and-albums).
 - AC3: [Saving, albums and deletion](../../../docs/packages/package-media-library.md#save-an-app-image-and-edit-an-album).
-- AC4: [Export ownership](../../../docs/packages/package-media-library.md#own-exported-files-and-change-listeners) and [maintained attachment helper](../../../packages/media-library/examples/image-attachment.ts).
+- AC4: [Export ownership](../../../docs/packages/package-media-library.md#own-exported-files-and-change-listeners) and [maintained attachment helper](../../../examples/media/image-attachment.ts).
 - AC5: [Permission hook](../../../docs/packages/package-media-library.md#configure-permission-and-limited-access), [subscription cleanup](../../../docs/packages/package-media-library.md#own-exported-files-and-change-listeners), [platform scope](../../../docs/packages/package-media-library.md#platform-scope), and [verification record](../notes/media-library.md).

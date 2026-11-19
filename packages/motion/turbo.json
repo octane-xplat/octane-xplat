@@ -1,0 +1,15 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"typecheck": {
+			"inputs": ["$TURBO_DEFAULT$", "../../scripts/typecheck.ts", "../../packages/cli/src/tsconfig-envs.ts", "../../examples/motion/**"]
+		},
+		"test": {
+			"inputs": ["$TURBO_DEFAULT$", "../../examples/motion/**"]
+		},
+		"test:native": {
+			"inputs": ["$TURBO_DEFAULT$", "../../examples/motion/**"]
+		}
+	}
+}

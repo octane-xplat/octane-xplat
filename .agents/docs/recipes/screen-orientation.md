@@ -28,7 +28,7 @@ interface, not physical device sensors or a desktop window's aspect ratio.
 
 ## Documentation
 
-- AC1: [First use](../../../docs/packages/package-screen-orientation.md#add-orientation-controls-to-an-app), [iOS configuration](../../../docs/packages/package-screen-orientation.md#configure-ios) and [maintained delegate](../../../packages/screen-orientation/examples/orientation-delegate.ios.ts).
+- AC1: [First use](../../../docs/packages/package-screen-orientation.md#add-orientation-controls-to-an-app), [iOS configuration](../../../docs/packages/package-screen-orientation.md#configure-ios) and [maintained delegate](../../../examples/device/orientation-delegate.ios.ts).
 - AC2: [Portable queries and platform boundaries](../../../docs/packages/package-screen-orientation.md#platforms-and-qualification), [public contract](../../../packages/screen-orientation/src/types.ts) and [native fixture](../../../packages/screen-orientation/tests/runtime.ios.ts).
 - AC3: [Restore the default](../../../docs/packages/package-screen-orientation.md#restore-the-default-and-release-listeners), [platform policies](../../../docs/packages/package-screen-orientation.md#use-platform-policies), [browser runtime](../../../packages/screen-orientation/tests/runtime.web.mts) and [native runtime](../../../packages/screen-orientation/tests/runtime.ios.ts).
 - AC4: [Subscription ownership](../../../docs/packages/package-screen-orientation.md#restore-the-default-and-release-listeners), [shared tests](../../../packages/screen-orientation/tests/service.test.ts) and [owning note](../notes/screen-orientation.md#ownership).

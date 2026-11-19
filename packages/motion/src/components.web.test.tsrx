@@ -129,7 +129,7 @@ function DemoFixture() @{
   <MotionDemo />
 }
 
-import { MotionDemo } from '../examples/MotionDemo.tsrx'
+import { MotionDemo } from '../../../examples/motion/component.tsrx'
 import { MotionValue } from './value'
 import { clock } from './clock.web'
 

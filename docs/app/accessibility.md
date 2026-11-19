@@ -15,7 +15,7 @@ separate question on each intended target.
 
 ## Build the first form
 
-Copy [AccessibleTripForm.tsx](../../packages/demos/src/accessibility-guide/AccessibleTripForm.tsx)
+Copy [AccessibleTripForm.tsx](../../examples/accessibility/AccessibleTripForm.tsx)
 into your app as `src/AccessibleTripForm.tsx`, then render it inside the existing
 screen/layout. For the starter, replace the content inside `src/App.tsrx`'s
 existing `SafeArea`; for a routed app, render it from a route:

@@ -15,7 +15,7 @@ try {
 
   await writeFile(
     entry,
-    "export { startReporting, stopReporting, reportDeliveryCheck } from '../examples/reporting.web.ts'\n",
+    "export { startReporting, stopReporting, reportDeliveryCheck } from '../../../examples/observability/reporting.web.ts'\n",
   )
 
   const output = join(fixture, 'dist')

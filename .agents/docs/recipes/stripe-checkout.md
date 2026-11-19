@@ -27,7 +27,7 @@ and webhook fulfilment. Use a test-mode backend before release qualification.
 ## Documentation
 
 - AC1: [First setup](../../../docs/packages/package-stripe.md), [native configuration](../../../docs/packages/package-stripe.md#configure-native-builds-and-return-urls) and [supported subset](../../../docs/packages/package-stripe.md#supported-subset-and-verification).
-- AC2: [Open checkout](../../../docs/packages/package-stripe.md#open-checkout) and [maintained action](../../../packages/stripe/examples/checkout.ts).
+- AC2: [Open checkout](../../../docs/packages/package-stripe.md#open-checkout) and [maintained action](../../../examples/payments/checkout.ts).
 - AC3: [Native and URL setup](../../../docs/packages/package-stripe.md#configure-native-builds-and-return-urls) and [web lifecycle](../../../docs/packages/package-stripe.md#web-setup-and-lifecycle).
 - AC4: [Native wallets](../../../docs/packages/package-stripe.md#use-native-wallets) and [qualification record](../notes/stripe.md).
 - AC5: [App-scoped lifecycle](../../../docs/packages/package-stripe.md#web-setup-and-lifecycle) and [verification limits](../../../docs/packages/package-stripe.md#supported-subset-and-verification).

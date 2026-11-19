@@ -72,7 +72,7 @@ try {
   // Mirror the guide's copy step: the app owns the example modules under src/.
   await mkdir(join(fixture, 'src'), { recursive: true })
   for (const file of ['reporting.mobile.ts', 'reporting-filter.ts']) {
-    await copyFile(join(root, 'examples', file), join(fixture, 'src', file))
+    await copyFile(join(root, '../../examples/observability', file), join(fixture, 'src', file))
   }
 
   await writeFile(

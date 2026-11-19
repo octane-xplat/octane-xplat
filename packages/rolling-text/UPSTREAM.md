@@ -79,6 +79,11 @@ typing, and an object-driver mount. That test supplies no AppKit layout and
 does not establish native presentation. Public prop types stay shared across
 web, native, and macOS; `tsconfig.envs.json` uses the shared environment presets.
 
+The [web](src/RollingText.web.test.tsrx) and [native](src/RollingText.mobile.test.tsrx)
+checks cover cleanup during an active roll. The [segmentation check](tests/intl.mts)
+covers native initialization without app-owned polyfills. These checks do not
+establish device presentation or live OS preference delivery.
+
 Still required for N3 acceptance: toggle the real OS Reduce Motion setting
 while a label has a queued destination, confirm it settles to the latest
 value, restore the user's setting, and confirm the opposite transition and

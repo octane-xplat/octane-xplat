@@ -30,7 +30,7 @@ Start with a running app and install the packages:
 bun add @octane-xplat/background-tasks @octane-xplat/platform
 ```
 
-Copy the maintained [refresh.ts example](../../packages/background-tasks/examples/refresh.ts)
+Copy the maintained [refresh.ts example](../../examples/background-work/refresh.ts)
 into `src/background/refresh.ts`. It defines a tiny timestamp-writing job at
 module load, keeps foreground/background evidence in separate settings keys,
 and checks whether settings could be flushed. No network, account, location

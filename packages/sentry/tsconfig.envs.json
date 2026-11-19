@@ -7,10 +7,10 @@
 	},
 	"environments": {
 		"native": {
-			"files": ["src/index.ts", "examples/reporting.mobile.ts"],
+			"files": ["src/index.ts", "../../examples/observability/reporting.mobile.ts"],
 			"compilerOptions": { "types": ["@nativescript/types"] }
 		},
-		"web": { "files": ["src/index.web.ts", "examples/reporting.web.ts"] },
+		"web": { "files": ["src/index.web.ts", "../../examples/observability/reporting.web.ts"] },
 		"macos": { "files": ["src/index.macos.ts"] }
 	}
 }

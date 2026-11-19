@@ -46,6 +46,9 @@ export async function installQuickEntry() {
 export const disposeQuickEntry = () => globalShortcuts.dispose()
 ```
 
+The numbered [quick-entry walkthrough](../../examples/keyboard-shortcuts/global-quick-entry.ts)
+shows the same task with an app-owned error handler.
+
 `register` never throws for an ordinary refusal. It returns `ok: false` with an
 error you can show, as described in [handle refusals](#handle-refusals). Your
 app only hears the combinations it registered; it does not see other typing.

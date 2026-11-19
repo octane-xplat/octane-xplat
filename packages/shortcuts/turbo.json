@@ -8,7 +8,8 @@
 			"outputs": ["dist/**/*.js"]
 		},
 		"typecheck": {
-			"dependsOn": ["typegen", "^typegen"]
+			"dependsOn": ["typegen", "^typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "../../scripts/typecheck.ts", "../../packages/cli/src/tsconfig-envs.ts", "../../examples/keyboard-shortcuts/workspace.ts"]
 		},
 		"test:docs": {
 			"dependsOn": ["typegen"],

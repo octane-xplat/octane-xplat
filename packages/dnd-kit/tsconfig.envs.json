@@ -28,7 +28,7 @@
 		"macos": {
 			"files": [
 				"src/index.macos.ts",
-				"examples/sortable.macos.tsx"
+				"../../examples/drag-and-drop/sortable.macos.tsx"
 			]
 		}
 	}

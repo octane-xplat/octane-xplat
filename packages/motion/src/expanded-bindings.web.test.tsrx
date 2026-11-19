@@ -5,8 +5,8 @@ import { dispatchPointer } from '../test/geometry.web'
 import { motion, useMotionValue, useTransform } from './index.web'
 import type { MotionValue } from './value'
 import type { MotionTargetError } from './value-codec'
-import { VideoCropSurface } from '../examples/VideoCropSurface.tsrx'
-import type { VideoCropControls } from '../examples/VideoCropSurface.tsrx'
+import { VideoCropSurface } from '../../../examples/motion/video-crop-surface.tsrx'
+import type { VideoCropControls } from '../../../examples/motion/video-crop-surface.tsrx'
 
 type Values = {
   p: MotionValue<number>

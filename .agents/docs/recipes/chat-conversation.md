@@ -29,76 +29,11 @@ storage, network requests, and upload handling.
 ## Compose triggers and tokens
 
 Give each trigger a synchronous or asynchronous search source. Selection can
-insert a token object whose `value` is the stable serialized text saved by the
-app. Reuse that token value when displaying a submitted message.
-
-Use the structured draft API to preserve both text and tokens across saves or
-network round-trips. `serializeChatComposerDraft` turns a draft into JSON;
-`deserializeChatComposerDraft` restores it, optionally recovering custom-token
-renderers from a lookup:
-
-```tsrx
-import { useState } from 'octane'
-import { View } from '@octane-xplat/ui'
-import { ChatComposer, ChatComposerInput, ChatTokenizedText } from '@octane-xplat/ui/chat'
-
-const people = [{ id: 'u1', label: 'Ada Lovelace' }]
-const mention = {
-  character: '@',
-  searchSource: {
-    search: (query: string) =>
-      people
-        .filter((person) => person.label.toLowerCase().includes(query.toLowerCase()))
-        .map((person) => ({ id: person.id, label: person.label })),
-  },
-  onSelect: (person: { id: string; label: string }) => ({
-    value: `@${person.label}:${person.id}`,
-    label: person.label,
-    variant: 'info' as const,
-  }),
-}
-
-export function ChatExample() @{
-  const [message, setMessage] = useState('')
-  const send = (value: string) => setMessage(value)
-  <View>
-    <ChatComposer onSubmit={send} input={<ChatComposerInput triggers={[mention]} />} />
-    <ChatTokenizedText tokens={[{ value: '@Ada Lovelace:u1', label: 'Ada Lovelace' }]}>
-      {message}
-    </ChatTokenizedText>
-  </View>
-}
-```
-
-Save and restore the whole draft, not just the serialized string, so tokens stay
-editable:
-
-```tsx
-import {
-  ChatComposer,
-  ChatComposerInput,
-  serializeChatComposerDraft,
-  deserializeChatComposerDraft,
-  type ChatComposerDraft,
-} from '@octane-xplat/ui/chat'
-import { useState } from 'octane'
-
-export function DraftExample() {
-  const [draft, setDraft] = useState<ChatComposerDraft>({ text: '', tokens: [] })
-  const save = () =>
-    localStorage.setItem('draft', JSON.stringify(serializeChatComposerDraft(draft)))
-  const load = () => {
-    const raw = localStorage.getItem('draft')
-    if (raw) setDraft(deserializeChatComposerDraft(JSON.parse(raw)))
-  }
-
-  return (
-    <ChatComposer draft={draft} onDraftChange={setDraft} onSend={() => save()}>
-      <ChatComposerInput />
-    </ChatComposer>
-  )
-}
-```
+insert a token whose `value` remains stable for submission and display. Use
+structured draft serialization to preserve text and tokens across a save and
+restore, including custom renderer recovery where needed. The numbered
+[draft and mentions walkthrough](../../../examples/chat/draft-with-mentions.tsx)
+shows an in-memory round trip; an app owns persistent storage and validation.
 
 `ChatLayout` owns the stream-scroll and new-message hooks. Use `followLatest`
 to keep the viewport locked to new content (default true), or set it to false
@@ -111,36 +46,8 @@ Separate send/cancel actions from draft state: `ChatComposer` accepts `onSend`
 for submitting and `onCancel` for stopping. The older `onSubmit`/`onStop` names
 remain as migration aliases.
 
-You can also drive the message list with data instead of JSX. Pass `messages`
-as `ChatMessageData[]` and a custom `renderMessage` if you need a different layout:
-
-```tsx
-import { Text } from '@octane-xplat/ui'
-import {
-  ChatLayout,
-  ChatMessageList,
-  ChatComposer,
-  type ChatMessageData,
-} from '@octane-xplat/ui/chat'
-
-const messages: ChatMessageData[] = [
-  { id: 'started', sender: 'system', content: <Text>Conversation started</Text> },
-  { id: 'welcome', sender: 'assistant', content: <Text>Welcome to your trip chat.</Text> },
-]
-
-// loadOlder belongs to your app and updates its message collection.
-export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) {
-  return (
-    <ChatLayout
-      followLatest
-      keyboardFollow="when-at-end"
-      composer={<ChatComposer onSend={(text) => console.log(text)} onCancel={() => {}} />}
-    >
-      <ChatMessageList messages={messages} scrollToTopAction={loadOlder} />
-    </ChatLayout>
-  )
-}
-```
+The numbered [conversation walkthrough](../../../examples/chat/conversation.tsx)
+shows a data-driven list, composer and older-message callback.
 
 ## Keyboard movement and reading anchors
 
@@ -183,9 +90,9 @@ UI chat fixtures qualify native keyboard geometry and retained reading pixels.
 
 - AC9: [Rich Markdown and streamed text](../../../docs/app/content-display.md#markdown-documents), [citations and reduced-motion limits](../../../docs/app/markdown.md#handle-links-and-citations); maintained [sandbox consumers](../../../apps/astryx-sandbox/src/examples/markdown/MarkdownRichContent.tsrx) and [streaming hook example](../../../apps/astryx-sandbox/src/examples/hooks/useStreamingTextHookUsage.tsrx).
 - AC1: [Chat API inventory and portable event/file contract](../../../docs/app/components.md#chat), plus the maintained [ChatDemo](../../../packages/demos/src/ChatDemo.tsrx).
-- AC2: [ChatComposerInput, token, and trigger API](../../../docs/app/components.md#chat), this recipe's [trigger and token example](#compose-triggers-and-tokens), its [draft serialization example](#compose-triggers-and-tokens), and the maintained [ChatDemo](../../../packages/demos/src/ChatDemo.tsrx). Native inline editing remains a documented limitation: native uses a chip row and approximates mid-text token positions.
+- AC2: [ChatComposerInput, token, and trigger API](../../../docs/app/components.md#chat), the [draft and mentions walkthrough](../../../examples/chat/draft-with-mentions.tsx), and the maintained [ChatDemo](../../../packages/demos/src/ChatDemo.tsrx). Native inline editing remains a documented limitation: native uses a chip row and approximates mid-text token positions.
 - AC3: [Chat API inventory](../../../docs/app/components.md#chat) and this recipe's [ChatLayout scroll behavior](#compose-triggers-and-tokens).
-- AC4: [ChatMessageList contract](../../../docs/app/components.md#chat), its `scrollToTopAction` prop documentation, and this recipe's [data-driven example](#compose-triggers-and-tokens).
+- AC4: [ChatMessageList contract](../../../docs/app/components.md#chat), its `scrollToTopAction` prop documentation, and the [conversation walkthrough](../../../examples/chat/conversation.tsx).
 - AC5: [Portable Chat deviations](../../../docs/app/components.md#chat). Native paste/file delivery and speech recognition are unsupported; file paste and dictation therefore have no native verification.
 - AC6: The [chat barrel](../../../packages/ui/src/chat/index.ts) shares the family across targets; [macOS](../../../packages/ui/package.json) resolves the same entry through its `./chat` condition. Linux uses the web entry. The [Windows app TypeScript map](../../../apps/windows/tsconfig.json) resolves the shared entry; Windows runtime checks render explicit message slots and token chips, but deferred text, composer actions, and accessibility remain blocked; see [Windows support boundary](../../design/windows-notes.md#current-support-boundary). Windows is not a supported target of this recipe.
 

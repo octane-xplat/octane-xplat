@@ -5,6 +5,8 @@
     "": {
       "name": "octane-xplat",
       "devDependencies": {
+        "@octane-xplat/auth": "workspace:*",
+        "@octane-xplat/billing": "workspace:*",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/fmt": "0.3.0",
         "@tsrx/content-mapper": "catalog:",

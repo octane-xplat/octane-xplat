@@ -5,7 +5,7 @@
 		"web": {
 			"include": [
 				"src/index.web.ts",
-				"examples/**/*.tsrx"
+				"../../examples/motion/rolling-text.tsrx"
 			],
 			"exclude": [
 				"**/*.test.*"
@@ -14,7 +14,7 @@
 		"native": {
 			"include": [
 				"src/index.ts",
-				"examples/**/*.tsrx"
+				"../../examples/motion/rolling-text.tsrx"
 			],
 			"exclude": [
 				"**/*.test.*"
@@ -23,7 +23,7 @@
 		"macos": {
 			"include": [
 				"src/index.ts",
-				"examples/**/*.tsrx"
+				"../../examples/motion/rolling-text.tsrx"
 			],
 			"exclude": [
 				"**/*.test.*"
@@ -31,6 +31,12 @@
 		}
 	},
 	"compilerOptions": {
-		"jsxImportSource": "@octane-xplat/jsx"
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/rolling-text": ["../../../src/index.ts"],
+			"@octane-xplat/ui": ["../../../node_modules/@octane-xplat/ui/types/generated/index.d.ts"],
+			"octane": ["../../../node_modules/octane/dist/index.d.ts"],
+			"octane/jsx-runtime": ["../../../node_modules/octane/dist/jsx-runtime.d.ts"]
+		}
 	}
 }

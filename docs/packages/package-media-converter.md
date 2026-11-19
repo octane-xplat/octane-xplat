@@ -48,7 +48,7 @@ A successful result contains the video URI, pixel dimensions, duration in
 milliseconds, and MIME type. Keep the result while it is displayed or uploaded;
 release it when its last consumer finishes. Copy it into durable storage if it
 must survive the current page or temporary directory. The maintained
-[attachment helper](../../packages/media-converter/examples/attachment.ts) follows the same ownership pattern.
+[attachment helper](../../examples/media/gif-attachment.ts) follows the same ownership pattern.
 
 ```ts
 import { convertGif, releaseVideo } from '@octane-xplat/media-converter'

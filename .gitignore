@@ -1,5 +1,6 @@
 research/
 node_modules/
+/examples/web-rendering/dist/
 dist/
 dist-app/
 apps/macos/artifacts/

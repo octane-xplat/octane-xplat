@@ -52,7 +52,7 @@ stable and unique within a context. `SortableList` creates its own DndContext
 and commits a new array only on a successful drop over a different list item.
 The caller saves that array. Cancellation, release outside a target, and drops
 onto a disabled target leave the order unchanged. The maintained
-[example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/dnd-kit/examples/sortable.tsx) displays the committed order above the rows
+[example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/drag-and-drop/sortable.tsx) displays the committed order above the rows
 and uses a separate drag handle.
 
 ```tsx
@@ -279,7 +279,7 @@ On native, use a View's `getLocationOnScreen` and `getActualSize` or `useMeasure
 for viewport bounds; on web use the corresponding measured viewport bounds.
 Keep bounds and offsets in the same coordinate units: native DIPs, web CSS pixels,
 and AppKit points. AppKit geometry uses top-left window-content coordinates.
-The [macOS example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/dnd-kit/examples/sortable.macos.tsx) owns an NSScrollView, measures its
+The [macOS example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/drag-and-drop/sortable.macos.tsx) owns an NSScrollView, measures its
 clip view, and converts its document offset into top-down points. It initializes
 at the document top and handles flipped and unflipped document views.
 

@@ -2,5 +2,5 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": { "lib": ["ESNext", "DOM", "DOM.Iterable"], "types": ["node"] },
-	"include": ["src/**/*.ts"]
+	"include": ["src/**/*.ts", "../../examples/auth/server/*.ts"]
 }

@@ -113,7 +113,7 @@ A successful result means the client flow finished, which can include a payment
 awaiting capture or processing. It does not prove that funds settled. Cancellation
 returns `error.code: 'Canceled'`; SDK failures return `Failed`. Keep the same
 server order and verify its status before creating another Intent after a
-network error. The maintained [checkout action](../../packages/stripe/examples/checkout.ts) shows the
+network error. The maintained [checkout action](../../examples/payments/checkout.ts) shows the
 same resource cleanup without UI.
 
 ```ts

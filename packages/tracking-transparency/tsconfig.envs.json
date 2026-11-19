@@ -2,6 +2,7 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"paths": { "@octane-xplat/tracking-transparency": ["../../../src/index.ts"] },
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",
@@ -14,7 +15,7 @@
 			"include": [
 				"src/**/*.ts",
 				"src/**/*.tsx",
-				"examples/**/*.ts"
+				"../../examples/privacy/tracking-actions.ts"
 			],
 			"exclude": [
 				"src/**/*.ios.ts",

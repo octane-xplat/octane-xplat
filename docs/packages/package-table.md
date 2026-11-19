@@ -129,8 +129,8 @@ export function Orders() {
 
 Import `Text` from `@octane-xplat/ui`. Start with your application's `orders`
 array and immutable updates; IDs must remain stable through filtering, sorting,
-pages, and data replacement. The [maintained example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/table/examples/interactive.tsrx)
-includes concrete rows and a nonvisual probe.
+pages, and data replacement. The [maintained example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/tables/interactive.tsrx)
+walks through a bounded grid with concrete rows and controlled selection.
 
 ```ts
 // Replace the data array when an order changes; preserve each ID.
@@ -336,7 +336,7 @@ export function SelectableOrders() {
 
 Click a checkbox and the selected count should update. A `state` snapshot
 without its update callback remains read-only — DataGrid does not silently
-take ownership. The [interactive example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/table/examples/interactive.tsrx) uses
+take ownership. The [interactive example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/tables/interactive.tsrx) uses
 this caller-owned selection.
 
 For server pages, supply already paged `data`, `state.pagination`, and

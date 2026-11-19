@@ -44,6 +44,11 @@ Guidance carries durable conclusions and lookup instructions, not run histories.
 Repository formatters and linters ignore `.agents/`; documentation and recipe
 checks still validate their respective contracts.
 
+For instructional code, start at [examples](examples/README.md). Group walkthroughs
+in category folders and explain their steps with numbered comments. Public guides
+show what readers can build and link to the walkthroughs; API declarations own
+the complete reference.
+
 Maintain agent guidance in the same change that alters the behavior it describes.
 When adding or revising material:
 

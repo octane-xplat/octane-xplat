@@ -28,7 +28,7 @@ bun add @octane-xplat/sentry
 bun add -D @sentry/cli@3.8.2
 ```
 
-Copy [reporting.web.ts](../../packages/sentry/examples/reporting.web.ts) into
+Copy [reporting.web.ts](../../examples/observability/reporting.web.ts) into
 `src/reporting.web.ts`. Keep the Sentry imports in this web file. Add
 `src/reporting-config.ts` and replace the DSN with your test project's value:
 
@@ -243,9 +243,9 @@ phone app and initialize once at native startup, before work you want to report:
 bun add @octane-xplat/sentry
 ```
 
-Copy [reporting.mobile.ts](../../packages/sentry/examples/reporting.mobile.ts)
+Copy [reporting.mobile.ts](../../examples/observability/reporting.mobile.ts)
 into `src/reporting.mobile.ts`, along with its shared
-[reporting-filter.ts](../../packages/sentry/examples/reporting-filter.ts). The
+[reporting-filter.ts](../../examples/observability/reporting-filter.ts). The
 `.mobile` suffix resolves on iOS and Android and is ignored by the web build,
 so the same policy/filter pair as the browser module applies on both native
 targets. Call it at startup with the build's identity:

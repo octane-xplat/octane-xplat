@@ -86,7 +86,7 @@ export function DirtySummary() {
 Mount a field component conditionally to register and release it with the UI.
 Removing the component unregisters that field and cancels its pending validation;
 its value remains in the form. Reset or explicitly clear that value if hiding
-the field should also discard it. The maintained [TripForm example](../../packages/form/examples/TripForm.tsrx)
+the field should also discard it. The maintained [TripForm example](../../examples/forms/trip-form.tsrx)
 shows a checkbox, an optional note, async validation, reset, and rejected saves.
 
 ```tsx

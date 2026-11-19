@@ -80,8 +80,8 @@ bun init
 bun add jose@6
 ```
 
-Copy [api.ts](../../tools/auth-guide/src/api.ts) and
-[serve.ts](../../tools/auth-guide/src/serve.ts) into this project's `src/`
+Copy [api.ts](../../examples/auth/server/api.ts) and
+[serve.ts](../../examples/auth/server/serve.ts) into this project's `src/`
 directory. Use Node.js 22.22.2 or newer, and set `"type": "module"` in its
 `package.json`. Create `.env` in the API directory with your issuer and audience:
 
@@ -184,9 +184,9 @@ Create `src/auth/` in your app and copy these maintained example files into it:
 
 | Source | App filename | Responsibility |
 | --- | --- | --- |
-| [Auth0 flow](../../packages/auth/examples/auth0-flow.ts) | `auth0-flow.ts` | Exact provider endpoints, callback validation, refresh and revocation |
-| [Account session](../../packages/demos/src/auth-guide/session.ts) | `session.ts` | Observable account state and handling late results or failed sign-out |
-| [Account screen](../../packages/demos/src/auth-guide/AccountScreen.tsx) | `AccountScreen.tsx` | Sign-in, retry and sign-out controls subscribed to that state |
+| [Auth0 flow](../../examples/auth/auth0-flow.ts) | `auth0-flow.ts` | Exact provider endpoints, callback validation, refresh and revocation |
+| [Account session](../../examples/auth/session.ts) | `session.ts` | Observable account state and handling late results or failed sign-out |
+| [Account screen](../../examples/auth/AccountScreen.tsx) | `AccountScreen.tsx` | Sign-in, retry and sign-out controls subscribed to that state |
 
 Keep those relative filenames. They are application examples to copy and adapt,
 not imports from the framework's demo package. Add `src/auth/client.ts` below,

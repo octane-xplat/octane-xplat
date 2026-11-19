@@ -117,7 +117,7 @@ export async function openPackingList(name = 'packing.db', allowTransient = fals
 export type PackingList = Awaited<ReturnType<typeof openPackingList>>
 ```
 
-The maintained [database example](../../packages/sqlite/examples/packing-list.ts)
+The maintained [database example](../../examples/storage/packing-list.ts)
 is the source for this file. It refuses transient storage by default, closes a
 failed opening, and rejects a database from a newer app rather than deleting it.
 An SQL/type parameter describes the expected rows; it does not validate arbitrary
@@ -245,7 +245,7 @@ Try **Add item**, **Mark packed**, and **Rename using item name** after changing
 the text field. **Remove item** deletes only that row. The screen reports success
 after the write and read finish. If the read fails after a successful write,
 it reports an uncertain outcome: reopen before retrying an add, which could
-otherwise duplicate it. The maintained [screen](../../packages/demos/src/storage-guide/PackingScreen.tsx)
+otherwise duplicate it. The maintained [screen](../../examples/storage/PackingScreen.tsx)
 uses the same flow.
 
 The screen owns its connection: leaving it closes the connection after queued

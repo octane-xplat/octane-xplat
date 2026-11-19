@@ -1,0 +1,21 @@
+/* 1. Give the rendered page a readable, centered column. */
+main {
+	font-family: system-ui, sans-serif;
+	margin: 0 auto;
+	max-width: 40rem;
+}
+
+/* 2. Use a shared accent for headings and links. */
+h1 {
+	color: rgb(20, 90, 50);
+}
+
+a {
+	color: rgb(20, 90, 50);
+}
+
+/* 3. Make buttons inherit the page font and provide a comfortable target. */
+button {
+	font: inherit;
+	padding: 0.5em 1em;
+}

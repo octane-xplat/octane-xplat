@@ -45,7 +45,7 @@ export function DragPosition() {
 ```
 
 See the [motion guide](https://octane-xplat.goddardai.org/animation-gestures) and the maintained
-[MotionDemo](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/examples/MotionDemo.tsrx); [PresenceDemo](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/examples/PresenceDemo.tsrx)
+[MotionDemo](https://github.com/octane-xplat/octane-xplat/blob/main/examples/motion/component.tsrx); [PresenceDemo](https://github.com/octane-xplat/octane-xplat/blob/main/examples/motion/presence.tsrx)
 covers retained exits. The [compatibility record](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/UPSTREAM.md) defines the
 supported subset and differences from `@octanejs/motion`.
 

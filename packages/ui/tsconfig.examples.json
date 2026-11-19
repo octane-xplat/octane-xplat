@@ -1,0 +1,28 @@
+{
+	"extends": "./tsconfig.types.json",
+	"compilerOptions": {
+		"rootDir": "../..",
+		"paths": { "@octane-xplat/ui": ["./src/index.ts"] }
+	},
+	"include": [
+		"src/references.d.ts",
+		"type-support/*.d.ts",
+		"../linux-gtk-renderer/src/gi.d.ts",
+		"../../examples/accessibility/AccessibleTripForm.tsx",
+		"../../examples/auth/AccountScreen.tsx",
+		"../../examples/chat/conversation.tsx",
+		"../../examples/chat/draft-with-mentions.tsx",
+		"../../examples/overlays/surfaces.tsx",
+		"../../examples/overlays/toasts.tsx",
+		"../../examples/overlays/scrolling.tsx",
+		"../../examples/overlays/media-preview.tsx",
+		"../../examples/payments/PurchaseScreen.tsx",
+		"../../examples/storage/PackingScreen.tsx",
+		"../../examples/search/filter-books.tsx",
+		"../../examples/motion/imperative.tsrx",
+		"../../examples/clipboard/copy-text.tsrx",
+		"../../examples/keyboard/hardware.web.tsrx",
+		"../../examples/keyboard/keyboard-space.tsrx"
+	],
+	"exclude": []
+}

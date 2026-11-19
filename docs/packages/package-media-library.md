@@ -276,7 +276,7 @@ export async function withAssetUri<T>(asset: Asset, consume: (uri: string) => Pr
 ```
 
 For a portable still-image upload file, install image-manipulator too and copy
-the maintained [imageAttachment helper](../../packages/media-library/examples/image-attachment.ts) into your
+the maintained [imageAttachment helper](../../examples/media/image-attachment.ts) into your
 app. It bounds working pixels, exports a JPEG, and releases the library export.
 The caller owns the returned image result until preview/upload finishes.
 

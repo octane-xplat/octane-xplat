@@ -16,7 +16,7 @@ async function compile(path, dependencies) {
 }
 
 const helpers = await compile('../src/hosted.ts', {})
-const { createAuth0Flow } = await compile('../examples/auth0-flow.ts', {
+const { createAuth0Flow } = await compile('../../../examples/auth/auth0-flow.ts', {
   '@octane-xplat/auth': helpers,
   '@octane-xplat/platform': {
     random: { bytes: (n) => Uint8Array.from({ length: n }, (_, i) => i) },

@@ -107,6 +107,9 @@ precedence over a `rootRef`-bound container. `entry` is the latest
 delivered entry (`null` before the first notification); `isIntersecting`
 mirrors `entry.isIntersecting`.
 
+Follow the [scroll-target walkthrough](../../examples/visibility/scroll-target.tsrx)
+for a small component that binds both refs and displays the latest result.
+
 ### Platform support
 
 `supported` is `true` in browsers with the DOM API and on iOS, Android, and

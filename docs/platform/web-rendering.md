@@ -29,11 +29,11 @@ and the “Add to bag” button works after browser startup.
 
 ```sh
 bun run turbo run build:example --filter=@octane-xplat/web-host
-node packages/web-host/example/serve.mjs
+node examples/web-rendering/serve.mjs
 # Open http://localhost:4174/products/coat
 ```
 
-The [example's build script](../../packages/web-host/example/build.mjs) compiles
+The [example's build script](../../examples/web-rendering/build.mjs) compiles
 both entry points with Octane's Vite plugin. The browser build is an ordinary
 Vite app build with `build.manifest: true`, which emits hashed files plus a
 manifest mapping the entry to them. Change `buildId` with every deployment and
@@ -160,7 +160,7 @@ console.log(response.status) // 200
 Use [srvx](https://srvx.h3.dev/guide) for the HTTP server. It owns the listener
 and Request/Response conversion; its static middleware serves browser assets
 before page requests reach `handle`. Install it in your server app, then connect
-the compiled handler as in the [maintained server](../../packages/web-host/example/serve.mjs).
+the compiled handler as in the [maintained server](../../examples/web-rendering/serve.mjs).
 
 ```sh
 bun add srvx
@@ -391,13 +391,13 @@ simply stays on screen.
 ## Generate static pages
 
 Build the maintained example to produce ready-to-serve product pages in
-`packages/web-host/example/dist/static`. Run the same build again: its result
+`examples/web-rendering/dist/static`. Run the same build again: its result
 reports `reused: 2` when the server bundle and content keys are unchanged.
 Use `STATIC=1` to serve those files before falling back to request-time rendering.
 
 ```sh
 bun run turbo run build:example --filter=@octane-xplat/web-host --force
-STATIC=1 node packages/web-host/example/serve.mjs
+STATIC=1 node examples/web-rendering/serve.mjs
 # Open http://localhost:4174/products/coat
 ```
 

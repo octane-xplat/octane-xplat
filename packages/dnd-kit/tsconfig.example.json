@@ -2,7 +2,7 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"rootDir": "."
+		"rootDir": "../.."
 	},
-	"include": ["examples/**/*.tsx"]
+	"include": ["../../examples/drag-and-drop/*.tsx"]
 }
