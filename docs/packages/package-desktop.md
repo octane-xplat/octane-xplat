@@ -143,6 +143,31 @@ export function restoreInspector(inspector: DesktopWindow) {
 }
 ```
 
+### Save and restore a window's bounds
+
+Use `getBounds()` and `setBounds()` to read or request the outer frame, including the title bar. Omitted fields in `setBounds()` keep their current values. Check `window.supportsBounds` first. AppKit uses logical units and Windows uses whole physical pixels, matching `screen.coordinateSpace`. GTK does not expose global window placement through this API. The window manager can constrain the resulting frame.
+
+```ts
+import { screen, type DesktopRectangle, type DesktopWindow } from '@octane-xplat/desktop'
+
+export function restoreWindow(window: DesktopWindow, saved: DesktopRectangle) {
+  if (!window.supportsBounds || !screen.supported) return
+
+  const display = screen.getDisplayMatching(saved)
+  if (!display) return
+
+  const area = display.workArea ?? display.bounds
+  const width = Math.min(saved.width, area.width)
+  const height = Math.min(saved.height, area.height)
+  window.setBounds({
+    x: Math.max(area.x, Math.min(saved.x, area.x + area.width - width)),
+    y: Math.max(area.y, Math.min(saved.y, area.y + area.height - height)),
+    width,
+    height,
+  })
+}
+```
+
 ### Close the window
 
 Calling `close()` requests the same close as the window's close button. Call `preventDefault()` before the listener returns to keep it open. Use `destroy()` for teardown when the window must close regardless of unsaved changes. The `closed` event and promise are delivered after the window's content has unmounted.

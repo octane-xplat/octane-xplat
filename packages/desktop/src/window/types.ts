@@ -1,3 +1,5 @@
+import type { DesktopRectangle } from '../screen/types.js'
+
 /** Options for opening a regular native window. Install the host's window content resolver first. */
 export interface DesktopWindowOptions {
   /** Data passed to the host's window content resolver. */
@@ -26,6 +28,12 @@ export interface DesktopWindowEvents {
 
 /** A secondary native window created by the desktop package. */
 export interface DesktopWindow {
+  /** Whether the live window supports reading and setting its outer frame. */
+  readonly supportsBounds: boolean
+  /** Read the outer frame in the same units and coordinates as the desktop screen. */
+  getBounds(): DesktopRectangle
+  /** Request an outer frame in desktop screen coordinates. Omitted fields keep their current values. */
+  setBounds(bounds: Partial<DesktopRectangle>): void
   /** True once the host has closed the window. */
   readonly isClosed: boolean
   /** Resolves after the host closes the window and unmounts its content. */

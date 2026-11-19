@@ -1,4 +1,5 @@
 import { NSScreen } from '@octane-xplat/platform/macos'
+import { fromAppKitFrame } from './geometry.macos.js'
 import { createDesktopScreen } from './service.js'
 import type { DesktopScreen } from './types.js'
 
@@ -24,17 +25,10 @@ export const screen: DesktopScreen = createDesktopScreen(
     const primary = displays[0]?.frame
     if (!primary) return []
 
-    const top = primary.origin.y + primary.size.height
-    const convert = ({ origin, size }: NSScreen['frame']) => ({
-      x: origin.x - primary.origin.x,
-      y: top - origin.y - size.height,
-      width: size.width,
-      height: size.height,
-    })
     return displays.map((display, index) => ({
       id: displayId(display),
-      bounds: convert(display.frame),
-      workArea: convert(display.visibleFrame),
+      bounds: fromAppKitFrame(display.frame, primary),
+      workArea: fromAppKitFrame(display.visibleFrame, primary),
       scaleFactor: display.backingScaleFactor,
       isPrimary: index === 0,
     }))

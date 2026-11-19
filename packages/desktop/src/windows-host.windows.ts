@@ -1,6 +1,7 @@
 import { Application } from '@nativescript/core/application/application.windows'
 import type { NativeWindow } from '@nativescript/core/native-window'
 import { lookupGlobal, UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { DesktopRectangle } from './screen/types.js'
 import type { AppLifecycleHost } from './app/lifecycle.js'
 import type { NativeWindowController, NativeWindowOpener } from './window/service.js'
 
@@ -20,6 +21,9 @@ interface WindowSurface {
     Presenter?: { State?: number; Minimize?(): void; Restore?(): void }
     Show(): void
     Hide(): void
+    Position?: { X: number; Y: number }
+    Size?: { Width: number; Height: number }
+    MoveAndResize?(bounds: { X: number; Y: number; Width: number; Height: number }): void
     ResizeClient(size: { Width: number; Height: number }): void
   }
 }
@@ -37,6 +41,9 @@ export interface WindowsWindow {
   isVisible(): boolean
   minimize(): void
   restore(): void
+  supportsBounds(): boolean
+  getBounds(): DesktopRectangle
+  setBounds(bounds: DesktopRectangle): void
 }
 
 type WindowController = NativeWindowController<WindowsWindow>
@@ -148,6 +155,24 @@ export function getWindowsOpener(): NativeWindowOpener<WindowsWindow> | undefine
               throw new UnavailabilityError('DesktopWindow.minimize')
             }
             presenter.Minimize()
+          },
+          supportsBounds() {
+            const appWindow = surface.AppWindow
+            return typeof appWindow.MoveAndResize === 'function' && appWindow.Position != null && appWindow.Size != null
+          },
+          getBounds() {
+            const { Position: position, Size: size } = surface.AppWindow
+            if (!position || !size) throw new UnavailabilityError('DesktopWindow.getBounds')
+            return { x: position.X, y: position.Y, width: size.Width, height: size.Height }
+          },
+          setBounds({ x, y, width, height }) {
+            if (![x, y, width, height].every((value) =>
+              Number.isInteger(value) && value >= -2147483648 && value <= 2147483647)) {
+              throw new RangeError('Windows bounds require whole physical pixels in the signed 32-bit range')
+            }
+            const appWindow = surface.AppWindow
+            if (!appWindow.MoveAndResize) throw new UnavailabilityError('DesktopWindow.setBounds')
+            appWindow.MoveAndResize({ X: x, Y: y, Width: width, Height: height })
           },
           restore() {
             const presenter = surface.AppWindow.Presenter

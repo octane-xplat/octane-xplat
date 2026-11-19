@@ -1,4 +1,5 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { DesktopRectangle } from '../screen/types.js'
 import type {
   DesktopWindow,
   DesktopWindowCloseEvent,
@@ -27,6 +28,11 @@ interface NativeWindowActions<Window> {
   isVisible(window: Window): boolean
   minimize(window: Window): void
   restore(window: Window): void
+  bounds?: {
+    supported(window: Window): boolean
+    get(window: Window): DesktopRectangle
+    set(window: Window, bounds: DesktopRectangle): void
+  }
 }
 
 interface DesktopWindowBinding<Window> {
@@ -67,9 +73,15 @@ export function createDesktopWindowService<Window>(
 
       function liveWindow(): Window {
         if (!native || native.isClosed) {
-          throw new Error('Cannot change the visibility or focus of a closed window')
+          throw new Error('Cannot operate on a closed window')
         }
         return native.window
+      }
+
+      function requireBounds(window: Window, method: 'getBounds' | 'setBounds') {
+        const bounds = actions.bounds
+        if (!bounds?.supported(window)) throw new UnavailabilityError(`DesktopWindow.${method}`)
+        return bounds
       }
 
       function requestClose(): boolean {
@@ -162,6 +174,23 @@ export function createDesktopWindowService<Window>(
         },
         restore() {
           actions.restore(liveWindow())
+        },
+        get supportsBounds() {
+          return !!(native && !native.isClosed && actions.bounds?.supported(native.window))
+        },
+        getBounds() {
+          const window = liveWindow()
+          return requireBounds(window, 'getBounds').get(window)
+        },
+        setBounds(bounds) {
+          const window = liveWindow()
+          const placement = requireBounds(window, 'setBounds')
+          const current = placement.get(window)
+          const { x = current.x, y = current.y, width = current.width, height = current.height } = bounds
+          if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {
+            throw new RangeError('Window bounds require finite coordinates and a positive size')
+          }
+          placement.set(window, { x, y, width, height })
         },
         setTitle(title) {
           if (!native || native.isClosed) {

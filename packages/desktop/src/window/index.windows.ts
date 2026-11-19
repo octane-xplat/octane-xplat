@@ -13,6 +13,11 @@ const binding = createDesktopWindowService(
     isVisible: (window) => window.isVisible(),
     minimize: (window) => window.minimize(),
     restore: (window) => window.restore(),
+    bounds: {
+      supported: (window) => window.supportsBounds(),
+      get: (window) => window.getBounds(),
+      set: (window, bounds) => window.setBounds(bounds),
+    },
   },
 )
 

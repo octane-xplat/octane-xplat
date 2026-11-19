@@ -95,6 +95,7 @@ export async function verifyWindowLifecycle(readWindow: () => {
   await inspector.closed
   check(inspector.isClosed && Number(contentUnmounts) === 1, 'accepted close unmounts once')
   check(closedEvents === 1, 'accepted close publishes closed')
+  check(!inspector.supportsBounds, 'closed window has no bounds capability')
   check(!inspector.isVisible(), 'closed window is not visible')
 
   for (const action of ['show', 'hide', 'focus', 'minimize', 'restore'] as const) {

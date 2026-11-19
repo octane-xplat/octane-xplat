@@ -40,6 +40,15 @@ async function verifyOpenDialog(owner: DesktopWindow) {
     throw new Error('The GTK Open dialog was not modal to the Inspector')
   }
 
+  if (owner.supportsBounds) throw new Error('GTK advertised global window placement')
+  try {
+    owner.getBounds()
+    throw new Error('GTK accepted an unsupported window bounds read')
+  } catch (error) {
+    if (!(error instanceof Error) || error.name !== 'UnavailabilityError') throw error
+  }
+  console.log('DESKTOP_BOUNDS_OK')
+
   const pending = dialog.showOpenDialog(owner, { filters: [{ name: 'Text', extensions: ['txt'] }] })
   modalPicker().response(Gtk.ResponseType.CANCEL)
   const canceled = await pending

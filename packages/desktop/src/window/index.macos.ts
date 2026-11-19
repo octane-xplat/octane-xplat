@@ -1,9 +1,16 @@
 import { lookupGlobal } from '@octane-xplat/lib/capability'
 import { NSApp, type NSWindow } from '@octane-xplat/platform/macos'
+import { fromAppKitFrame, readAppKitPrimaryFrame, toAppKitFrame } from '../screen/geometry.macos.js'
 import { createDesktopWindowService, type NativeWindowOpener } from './service.js'
 import type { DesktopWindow, DesktopWindowService } from './types.js'
 
 export type * from './types.js'
+
+function requirePrimaryFrame(): NSWindow['frame'] {
+  const frame = readAppKitPrimaryFrame()
+  if (!frame) throw new Error('Window bounds require a connected primary display')
+  return frame
+}
 
 const binding = createDesktopWindowService(
   () => {
@@ -22,6 +29,11 @@ const binding = createDesktopWindowService(
     isVisible: (window) => window.isVisible(),
     minimize: (window) => window.miniaturize(null),
     restore: (window) => window.deminiaturize(null),
+    bounds: {
+      supported: () => true,
+      get: (window) => fromAppKitFrame(window.frame, requirePrimaryFrame()),
+      set: (window, bounds) => window.setFrameDisplay(toAppKitFrame(bounds, requirePrimaryFrame()), true),
+    },
   },
 )
 

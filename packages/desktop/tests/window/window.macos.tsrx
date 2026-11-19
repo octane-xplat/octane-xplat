@@ -23,6 +23,26 @@ async function verifyOpenDialog(owner: DesktopWindow) {
   const native = observed?.window
   if (!native || !dialog.supported) throw new Error('Missing AppKit dialog support')
 
+  const area = screen.getPrimaryDisplay()?.workArea
+  if (!owner.supportsBounds || !area) throw new Error('Missing AppKit window bounds support')
+  const initial = owner.getBounds()
+  const desired = { x: area.x + 40, y: area.y + 40, width: 420, height: 320 }
+  owner.setBounds(desired)
+  const placed = owner.getBounds()
+  if (placed.x !== desired.x || placed.y !== desired.y ||
+    placed.width !== desired.width || placed.height !== desired.height ||
+    native.frame.size.width !== desired.width || native.frame.size.height !== desired.height) {
+    throw new Error('AppKit window bounds did not round-trip')
+  }
+  owner.setBounds({ width: desired.width + 30 })
+  const resized = owner.getBounds()
+  if (resized.x !== desired.x || resized.y !== desired.y || resized.height !== desired.height ||
+    resized.width !== desired.width + 30) {
+    throw new Error('AppKit changed omitted bounds fields')
+  }
+  owner.setBounds(initial)
+  console.log('DESKTOP_BOUNDS_OK')
+
   const pending = dialog.showOpenDialog(owner, { filters: [{ name: 'Text', extensions: ['txt'] }] })
   const sheet = native.attachedSheet as NSOpenPanel | null
   if (!sheet) {
