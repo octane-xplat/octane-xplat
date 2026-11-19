@@ -9,7 +9,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import { hostBundle, macOSHostArch } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 async function consumer(packed, app, source) {
   const installed = join(app, 'node_modules/@octane-xplat/audio')
@@ -203,7 +203,13 @@ async function main() {
     console.log('MACOS_AUDIO_TARGET_OK (silent fixture; no audible output evidence)')
   } finally { unsubscribe(); player.dispose() }
 }
-main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR', String(error), error.stack ?? ''); __xplatStopHost() })
+main().then(
+  () => setTimeout(function() { globalThis.__xplatStopHost(); }, 0),
+  error => {
+    console.log('MACOS_AUDIO_ERROR', String(error), error.stack ?? '')
+    setTimeout(function() { globalThis.__xplatStopHost(); }, 0)
+  },
+)
 `,
     )
 
@@ -226,7 +232,7 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
         [
           join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
           script,
-          artifact.metadata,
+          artifact.metadata[macOSHostArch()],
           bootstrap,
         ],
         { cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
