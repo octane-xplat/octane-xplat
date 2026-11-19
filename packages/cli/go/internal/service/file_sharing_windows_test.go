@@ -1,6 +1,6 @@
 //go:build windows
 
-package workshop
+package service
 
 import (
 	"encoding/json"
@@ -33,22 +33,22 @@ func TestWindowsSharingServiceObservation(t *testing.T) {
 		root := t.TempDir()
 		path := filepath.Join(root, "service.json")
 		close := exclusiveTestFile(t, path)
-		if ready, err := readServiceStart(path, "request", root, "workshop-dev", "web"); ready || err != nil {
+		if ready, err := ReadStart(path, "request", root, "workshop-dev", "web"); ready || err != nil {
 			t.Fatal("exclusive publication was treated as evidence or failure", ready, err)
 		}
 		close()
-		frame := serviceStart{Protocol: "octane-project-service", Version: 1, ID: "request", Project: root, Operation: "workshop-dev", Target: "web", Kind: "web-listening", URL: "http://localhost:5173/"}
+		frame := Start{Protocol: "octane-project-service", Version: 1, ID: "request", Project: root, Operation: "workshop-dev", Target: "web", Kind: "web-listening", URL: "http://localhost:5173/"}
 		data, _ := json.Marshal(frame)
 		if err := os.WriteFile(path, data, 0600); err != nil {
 			t.Fatal(err)
 		}
-		if ready, err := readServiceStart(path, "request", root, "workshop-dev", "web"); !ready || err != nil {
+		if ready, err := ReadStart(path, "request", root, "workshop-dev", "web"); !ready || err != nil {
 			t.Fatal("published startup evidence was not readable", ready, err)
 		}
 		if err := os.WriteFile(path, []byte("{"), 0600); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := readServiceStart(path, "request", root, "workshop-dev", "web"); err == nil {
+		if _, err := ReadStart(path, "request", root, "workshop-dev", "web"); err == nil {
 			t.Fatal("sharing retry hid malformed JSON")
 		}
 	})
