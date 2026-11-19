@@ -707,8 +707,12 @@ Slow target jobs run in `stable.yml` after fast CI on `main`: `native-ios` (maco
 `scripts/with-target-lock.ts <target>` — a per-target advisory lock under
 `$TMPDIR/octane-xplat-target-locks/` that serializes native builds and
 simulator/device use across concurrent worktrees and sessions on a shared
-host. `XPLAT_NATIVE_LOCK_DIR` redirects the lock root, matching
-`with-native-target-lock.py`. Android has no emulator runtime smoke yet.
+host. `scripts/with-native-target-lock.py` (fail-fast) and
+`apps/mobile/scripts/check-navigation.py` contend on the same
+`<target>.lock` directory protocol through `scripts/native_target_lock.py`,
+so Python and Node callers mutually exclude on a target.
+`XPLAT_NATIVE_LOCK_DIR` redirects the lock root for all of them. Android
+has no emulator runtime smoke yet.
 
 Each workflow's `evidence` job writes `ci-evidence.json` and uploads it as
 `ci-evidence-ci-<sha>` for the `ci` track or `ci-evidence-stable-<tree>` for

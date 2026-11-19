@@ -112,10 +112,12 @@ From the repo root, install with `bun install --frozen-lockfile`, then:
    `demo500` for the actual List ×500 demo, including its slots and row state.
    The swipe sequence moves forward through four viewports, then revisits rows.
 
-Native runners require Python 3 and take an exclusive advisory lock at
-`/tmp/octane-xplat-ios.lock` or `/tmp/octane-xplat-android.lock` for build and
-use. Other native sessions must use the same lock convention; an advisory lock
-cannot protect against a nonparticipating session. The runner fails if busy.
+Native runners require Python 3 and take the exclusive shared advisory lock at
+`$TMPDIR/octane-xplat-target-locks/<target>.lock` (through
+`scripts/with-native-target-lock.py`, the same directory protocol as
+`scripts/with-target-lock.ts`) for build and use. Other native sessions must
+use the same lock convention; an advisory lock cannot protect against a
+nonparticipating session. The runner fails if busy.
 It uses `org.nativescript.xplat.vlistbench` (override with
 `XPLAT_VLIST_APP_ID`) to avoid replacing the normal harness app. iOS builds,
 installs, and launches with `simctl`; it never reboots an already booted simulator.

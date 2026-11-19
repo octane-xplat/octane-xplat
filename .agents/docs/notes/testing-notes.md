@@ -155,8 +155,9 @@ an existing directory. From the repository root, build with
 or the corresponding Android command and directory; set
 `JAVA_HOME=$(/usr/libexec/java_home -v 21)` for Android. Invoking the installed
 NativeScript CLI from outside the workspace avoids the package manager
-treating the isolated probe directory as an unregistered workspace package. Hold the shared advisory
-lock at `/tmp/octane-xplat-ios.lock` or `/tmp/octane-xplat-android.lock` throughout
+treating the isolated probe directory as an unregistered workspace package. Hold the shared advisory lock —
+`scripts/with-native-target-lock.py` or `scripts/with-target-lock.ts`, both of
+which contend on `$TMPDIR/octane-xplat-target-locks/<target>.lock` — throughout
 each build and device session. Install/launch `org.octanexplat.datareadiness`
 with `simctl` on an existing booted iOS simulator or `adb` on Android. Do not
 reset the shared harness or its data.

@@ -1,5 +1,4 @@
 """Build and exercise the isolated release navigation app without screenshots."""
-import fcntl
 import json
 import os
 import shutil
@@ -8,6 +7,9 @@ import subprocess
 import sys
 import tempfile
 import time
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
+from native_target_lock import TargetBusy, target_lock
 
 if len(sys.argv) != 3 or sys.argv[1] not in ('ios', 'android'):
     raise SystemExit('Usage: python3 scripts/check-navigation.py ios|android DEVICE_ID')
@@ -71,14 +73,15 @@ def open_ios_url(url):
     run(['idb', 'ui', 'tap', x, y, '--udid', device, '--reason',
          'Accept the owned routing fixture URL confirmation from its accessibility bounds'], timeout=20)
 
-with open('/tmp/octane-xplat-' + target + '.lock', 'a') as lock:
-    try:
-        wait_for_lock = os.environ.get('XPLAT_NAVIGATION_WAIT_FOR_LOCK') == '1'
-        if wait_for_lock:
-            print('Waiting for the shared native navigation lock', flush=True)
-        fcntl.flock(lock, fcntl.LOCK_EX | (0 if wait_for_lock else fcntl.LOCK_NB))
-    except BlockingIOError:
-        raise SystemExit('BLOCKED: target advisory lock is held; no build or device operation performed')
+try:
+    wait_for_lock = os.environ.get('XPLAT_NAVIGATION_WAIT_FOR_LOCK') == '1'
+    if wait_for_lock:
+        print('Waiting for the shared native navigation lock', flush=True)
+    nav_lock = target_lock(target, timeout_seconds=None if wait_for_lock else 0)
+    nav_lock.acquire()
+except TargetBusy:
+    raise SystemExit('BLOCKED: target advisory lock is held; no build or device operation performed')
+with nav_lock:
     # Fail before installing over an active copy of this isolated app.
     if target == 'android':
         env['JAVA_HOME'] = output(['/usr/libexec/java_home', '-v', '21'])

@@ -189,8 +189,10 @@ available locked target session as well as the feature-specific prerequisites. N
 ## Qualify a configured app
 
 Use a separate app identity and test data. Acquire the shared per-target
-advisory lock (`/tmp/octane-xplat-ios.lock` or
-`/tmp/octane-xplat-android.lock` on this host) for builds and device operations;
+advisory lock (`$TMPDIR/octane-xplat-target-locks/ios.lock` or
+`android.lock` on this host, the protocol shared by
+`scripts/with-target-lock.ts` and `scripts/with-native-target-lock.py`) for
+builds and device operations;
 keep it held for the whole operation. Do not remove lock files, reset another
 app's permissions/data, or reuse an occupied device session. Use Temurin JDK 21
 for Android. Install/launch an iOS build with `simctl` when the simulator is

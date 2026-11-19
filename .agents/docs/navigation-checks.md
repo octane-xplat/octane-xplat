@@ -48,9 +48,12 @@ drivers, browser input, native callbacks and OS input establish different things
    dependencies and excludes optional service plugins. It has its own app ID,
    `org.nativescript.xplat.navigation`, and excludes the ordinary harness timers.
 
-The native runner holds `/tmp/octane-xplat-ios.lock` or
-`/tmp/octane-xplat-android.lock` through generation, build, installation, launch,
-link delivery and collection. An occupied lock stops the run before device work.
+The native runner holds the shared per-target lock
+(`$TMPDIR/octane-xplat-target-locks/ios.lock` or `android.lock`, the same
+directory protocol as `scripts/with-target-lock.ts` and
+`scripts/with-native-target-lock.py`) through generation, build, installation,
+launch, link delivery and collection. An occupied lock stops the run before
+device work.
 To wait for it, use the explicit setting below. `build-only` checks compilation
 and performs no runtime qualification.
 

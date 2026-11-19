@@ -2,6 +2,8 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Shared per-target advisory lock for serializing native builds and
 // simulator/device use across worktrees and agent sessions on this host.
+// with-native-target-lock.py implements the same protocol; every wrapper
+// contends on one lock dir, so Python and Node callers mutually exclude.
 //
 //   node scripts/with-target-lock.ts <target> [--timeout <seconds>] -- <command...>
 //
@@ -17,14 +19,18 @@
 // file linked inside that same dir. The claim serializes concurrent
 // reclaimers; while it stands the dir cannot be replaced, so the owner
 // re-check under claim runs against the exact dir being removed. A `.claim`
-// left by a dead reclaimer is reaped by its recorded pid.
+// left by a dead reclaimer is evicted by renaming it aside — whoever moves
+// the name owns the grabbed inode and re-checks its record — never by
+// unlink after read, which could delete a fresh live claim.
 //
 // Removal always renames the dir aside before deleting it: an empty dir
 // accepts a rename on POSIX, so unlinking entries at the lock path opens a
 // window where an acquirer lands a fresh lock under our pending rmdir.
 // Renaming the verified dir to a trash name makes the lock path vanish
-// atomically; the trash is then deleted at leisure.
-import { spawnSync } from 'node:child_process'
+// atomically; the trash is then deleted at leisure. The shared path itself
+// is never deleted recursively — a failed rename means another process
+// already resolved the dir, and whatever now sits there is not ours.
+import { spawn } from 'node:child_process'
 import {
   existsSync,
   linkSync,
@@ -109,16 +115,20 @@ function removeTransients() {
 // Delete the lock dir without exposing an empty dir at the lock path: the
 // dir is renamed to our trash name first (atomic — the path becomes absent
 // at once), so a concurrent acquirer's renameSync can never replace a
-// transiently emptied dir still owned by our pending removal.
+// transiently emptied dir still owned by our pending removal. If the rename
+// fails, the dir was already resolved by someone else — the shared path may
+// now hold a fresh live lock, so nothing is removed there.
 function removeLockDir() {
   rmSync(trashDir, { recursive: true, force: true })
   try {
     renameSync(lockDir, trashDir)
   } catch {
-    rmSync(lockDir, { recursive: true, force: true }) // already gone
-    return
+    return // already resolved — never delete whatever now sits at the path
   }
-  rmSync(trashDir, { recursive: true, force: true })
+  // Racers can still land a claim inside the dir while the rename detaches
+  // it (their parent-dir lookup wins over the detach), so a stray entry may
+  // appear mid-delete; the retries absorb that transient ENOTEMPTY.
+  rmSync(trashDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 25 })
 }
 
 // Drop staging dirs, claim sources, and trash dirs abandoned by dead
@@ -214,10 +224,32 @@ for (;;) {
     } else if (pidAlive(claim)) {
       await sleep(150) // a live reclaimer is resolving the dir
     } else {
+      // Dead or garbled claim. Evict it by renaming it aside: the rename
+      // atomically gives us whatever inode `.claim` holds right now, so a
+      // claim swapped in after our read is detected instead of deleted.
+      // Reading then unlinking the shared path would be a check-then-act
+      // race that can remove a live claim and produce two claimants.
+      const evicted = join(lockDir, `.claim-evicted-${process.pid}`)
+
       try {
-        rmSync(claimFile, { force: true }) // dead or garbled claim — reap it
+        renameSync(claimFile, evicted)
       } catch {
-        // raced with another process resolving the dir — retry
+        continue // claim vanished under us — retry
+      }
+
+      if (pidAlive(readRecord(evicted))) {
+        // We displaced a live claim. Restore it through linkSync, which
+        // fails rather than clobber a claim another evictor just landed;
+        // either way the displaced copy is spent.
+        try {
+          linkSync(evicted, claimFile)
+        } catch {
+          // another claim already occupies the path
+        }
+        rmSync(evicted, { force: true })
+        await sleep(150)
+      } else {
+        rmSync(evicted, { force: true }) // dead claim — reaped at our private name
       }
     }
   }
@@ -261,12 +293,30 @@ for (;;) {
 
 console.log(`[lock] ${target} acquired (pid ${process.pid})`)
 try {
-  const result = spawnSync(command[0], command.slice(1), { stdio: 'inherit' })
+  const child = spawn(command[0], command.slice(1), { stdio: 'inherit' })
 
-  process.exitCode = result.status ?? (result.error ? 1 : 0)
-  if (result.error) {
-    console.error(result.error.message)
+  // Keep the lock while the child releases its app and device mappings:
+  // forwarding signals instead of dying lets the child finish cleanup
+  // before this wrapper releases the target.
+  for (const sig of ['SIGINT', 'SIGTERM']) {
+    process.on(sig, () => {
+      try {
+        child.kill(sig)
+      } catch {
+        // child already gone — its close event ends the wait
+      }
+    })
   }
+
+  const result = await new Promise((resolve) => {
+    child.once('error', (error) => {
+      console.error(error.message)
+      resolve({ status: 1, signal: null })
+    })
+    child.once('close', (status, signal) => resolve({ status, signal }))
+  })
+
+  process.exitCode = result.status ?? 1 // signal death or spawn failure
 } finally {
   removeLockDir()
   removeTransients()
