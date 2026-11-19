@@ -9,25 +9,43 @@ export interface DesktopShell {
   readonly canShowItemInFolder: boolean
   /** Reveal an absolute native path in its containing folder. */
   showItemInFolder(path: string): Promise<void>
+  /** Whether the host exposes a recoverable Trash operation. */
+  readonly canTrashItem: boolean
+  /** Move an absolute native path to Trash. */
+  trashItem(path: string): Promise<void>
 }
 
-export function createDesktopShell(
-  getLauncher: () => ((url: string) => boolean | Promise<boolean>) | undefined,
-  getRevealer: () => ((path: string) => boolean | Promise<boolean>) | undefined = () => undefined,
-  isAbsolutePath: (path: string) => boolean = (path) => path.startsWith('/'),
-): DesktopShell {
+type GetOperation = () => ((value: string) => boolean | Promise<boolean>) | undefined
+
+interface NativeShell {
+  getLauncher?: GetOperation
+  getRevealer?: GetOperation
+  getTrasher?: GetOperation
+  isAbsolutePath?: (path: string) => boolean
+}
+
+export function createDesktopShell({
+  getLauncher,
+  getRevealer,
+  getTrasher,
+  isAbsolutePath = (path) => path.startsWith('/'),
+}: NativeShell): DesktopShell {
+  function assertNativePath(path: string, feature: string) {
+    if (typeof path !== 'string' || path.includes('\0') || !isAbsolutePath(path)) {
+      throw new TypeError(`${feature} requires an absolute native path`)
+    }
+  }
+
   return {
     get supported() {
-      return getLauncher() !== undefined
+      return getLauncher?.() !== undefined
     },
     get canShowItemInFolder() {
-      return getRevealer() !== undefined
+      return getRevealer?.() !== undefined
     },
     async showItemInFolder(path) {
-      if (typeof path !== 'string' || path.includes('\0') || !isAbsolutePath(path)) {
-        throw new TypeError('shell.showItemInFolder requires an absolute native path')
-      }
-      const reveal = getRevealer()
+      assertNativePath(path, 'shell.showItemInFolder')
+      const reveal = getRevealer?.()
       if (!reveal) {
         throw new UnavailabilityError('shell.showItemInFolder')
       }
@@ -35,13 +53,29 @@ export function createDesktopShell(
         throw new Error('The desktop host could not reveal the item')
       }
     },
+    get canTrashItem() {
+      return getTrasher?.() !== undefined
+    },
+    async trashItem(path) {
+      assertNativePath(path, 'shell.trashItem')
+      const trash = getTrasher?.()
+      if (!trash) {
+        throw new UnavailabilityError('shell.trashItem')
+      }
+      if (!(await trash(path))) {
+        throw new Error('The desktop host could not move the item to Trash')
+      }
+    },
     async openExternal(url) {
-      if (!/^https?:\/\/[^/?#\\\s]+(?:[/?#]|$)/i.test(url) || /[\s\\]/.test(url) ||
-        Array.from(url).some((character) => character.charCodeAt(0) < 32)) {
+      if (
+        !/^https?:\/\/[^/?#\\\s]+(?:[/?#]|$)/i.test(url) ||
+        /[\s\\]/.test(url) ||
+        Array.from(url).some((character) => character.charCodeAt(0) < 32)
+      ) {
         throw new TypeError('shell.openExternal requires an absolute HTTP or HTTPS URL')
       }
 
-      const launch = getLauncher()
+      const launch = getLauncher?.()
       if (!launch) {
         throw new UnavailabilityError('shell.openExternal')
       }

@@ -1,21 +1,35 @@
-import { NSURL, NSWorkspace } from '@octane-xplat/platform/macos'
+import { NSFileManager, NSURL, NSWorkspace } from '@octane-xplat/platform/macos'
 import { createDesktopShell, type DesktopShell } from './service.js'
 
 export type { DesktopShell } from './service.js'
-export const shell: DesktopShell = createDesktopShell(() => {
-  const workspace = NSWorkspace?.sharedWorkspace
-  if (typeof workspace?.openURL !== 'function') {
-    return
-  }
+export const shell: DesktopShell = createDesktopShell({
+  getLauncher: () => {
+    const workspace = NSWorkspace?.sharedWorkspace
+    if (typeof workspace?.openURL !== 'function') {
+      return
+    }
 
-  return (url) => {
-    const target = NSURL.URLWithString(url)
-    return target != null && workspace.openURL(target)
-  }
-}, () => {
-  const workspace = NSWorkspace?.sharedWorkspace
-  if (typeof workspace?.selectFileInFileViewerRootedAtPath !== 'function') {
-    return
-  }
-  return (path) => workspace.selectFileInFileViewerRootedAtPath(path, path.slice(0, path.lastIndexOf('/')) || '/')
+    return (url) => {
+      const target = NSURL.URLWithString(url)
+      return target != null && workspace.openURL(target)
+    }
+  },
+  getRevealer: () => {
+    const workspace = NSWorkspace?.sharedWorkspace
+    if (typeof workspace?.selectFileInFileViewerRootedAtPath !== 'function') {
+      return
+    }
+    return (path) =>
+      workspace.selectFileInFileViewerRootedAtPath(
+        path,
+        path.slice(0, path.lastIndexOf('/')) || '/',
+      )
+  },
+  getTrasher: () => {
+    const manager = NSFileManager?.defaultManager
+    if (typeof manager?.trashItemAtURLResultingItemURLError !== 'function') {
+      return
+    }
+    return (path) => manager.trashItemAtURLResultingItemURLError(NSURL.fileURLWithPath(path), null, null)
+  },
 })

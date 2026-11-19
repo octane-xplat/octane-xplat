@@ -204,6 +204,20 @@ export async function revealExport(path: string) {
 }
 ```
 
+## Move an item to Trash
+
+Use `shell.trashItem(path)` with an absolute native path. Call it after the user chooses Move to Trash. AppKit and GTK provide this action. Check `shell.canTrashItem` before offering it. An unavailable Trash or a failed move rejects the promise, and the service has no permanent-delete fallback.
+
+```ts
+import { shell } from '@octane-xplat/desktop'
+
+export async function moveToTrash(path: string) {
+  if (shell.canTrashItem) {
+    await shell.trashItem(path)
+  }
+}
+```
+
 ## Wait for startup and request quit
 
 On AppKit, GTK, and the experimental Windows NativeScript host, use `app.whenReady()` to wait until the primary window has mounted. Put setup that needs a running app in the callback. On web and mobile, `app.supported` is false.
