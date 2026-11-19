@@ -70,7 +70,8 @@ const toResponse = (status: PermissionResult) => ({
 })
 
 // BarcodeDetector presence is the only check — ensure() never prompts here.
-permissionOwners.camera = {
+// media registers the same 'camera' kind, so claim it only as a fallback.
+permissionOwners.camera ??= {
   getPermissions: async () => toResponse(await barcodeScanner.ensure()),
   requestPermissions: async () => toResponse(await barcodeScanner.ensure()),
 }
