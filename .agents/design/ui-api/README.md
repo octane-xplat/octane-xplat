@@ -19,5 +19,5 @@ Approved changes ship as breaking releases with migration guidance in
 `docs/testing/known-limits.md`, including the `/routing`, `/data`,
 `/markdown`, and `/chat` entrypoints, truthful platform contracts, and
 request-scoped search cancellation. Supported docs, examples, and recipes
-are reconciled as each change lands (`pnpm check:recipes`); decisions D1–D6
+are reconciled as each change lands (`bun run check:recipes`); decisions D1–D6
 remain the standing criteria for the remaining proposals.

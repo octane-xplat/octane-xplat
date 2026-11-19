@@ -34,9 +34,9 @@ cleanup and preview release. Real panel selection, sandbox access,
 HEIC/orientation and visual display remain runtime gates.
 
 ```sh
-pnpm --filter @octane-xplat/media test
-pnpm --filter @octane-xplat/media test:packed
-pnpm --filter @octane-xplat/media test:macos-runtime
+bun run turbo run test --filter=@octane-xplat/media
+bun run turbo run test:packed --filter=@octane-xplat/media
+bun run turbo run test:macos-runtime --filter=@octane-xplat/media
 ```
 
 | Capability           | Web                                                                                                                                                                                                                                                                                                   | iOS                                                                                                                                                                                                                                      | Android                                                                                                                                                                                                  |
@@ -67,7 +67,7 @@ result. The case runner needed two fixes to reach this evidence: platform
 `.js` extension resolution for plugin mains in native case bundles, and a
 `@nativescript/core/utils` entry in the host module map.
 
-`node scripts/check-optional-services.ts` (also `pnpm check:optional-services`)
+`node scripts/check-optional-services.ts` (also `bun run check:optional-services`)
 runs focused web/native adapter typechecks and Node regression tests. Pass
 `--browser` to add probes in Chromium, Firefox, and WebKit. Firefox checks metadata readiness;
 Chromium and WebKit also check playback state. Node tests inject OS/backend APIs
@@ -76,10 +76,10 @@ measure playback state, not audible output. They neither capture screenshots
 nor render selected images. They do not mock a successful provider sign-in or
 push delivery. CI uses `--types-only` because its package suites already run
 the Node tests. The three-engine browser probes run locally through
-`pnpm test:e2e` or the explicit command below.
+`bun run turbo run test:e2e --filter=@xplat/verification` or the explicit command below.
 
 ```sh
-pnpm check:optional-services --browser
+bun run check:optional-services --browser
 ```
 
 The broad mobile typecheck (`pnpm typecheck:mobile`) passes after correcting
@@ -113,8 +113,8 @@ remain unqualified, as do OS camera input, real authorization dialogs,
 busy-device recovery and visual display.
 
 ```sh
-pnpm --filter @octane-xplat/media test
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit photo lifecycle"}' -- pnpm --filter @octane-xplat/camera test:macos-runtime
+bun run turbo run test --filter=@octane-xplat/media
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit photo lifecycle"}' -- bun run turbo run test:macos-runtime --filter=@octane-xplat/camera
 ```
 
 ## macOS UI sounds
@@ -152,9 +152,9 @@ APIs. The existing web/mobile engines pass mock contract tests; this run does
 not add fresh browser, iOS or Android device evidence.
 
 ```sh
-pnpm --filter @octane-xplat/sounds test
-pnpm --filter @octane-xplat/sounds test:packed
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Silent AppKit SoundBank qualification"}' -- pnpm --filter @octane-xplat/sounds test:macos-runtime
+bun run turbo run test --filter=@octane-xplat/sounds
+bun run turbo run test:packed --filter=@octane-xplat/sounds
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Silent AppKit SoundBank qualification"}' -- bun run turbo run test:macos-runtime --filter=@octane-xplat/sounds
 ```
 
 The WAV fixture is silent. Audible overlap, output-route coexistence with
@@ -238,10 +238,10 @@ AVFoundation fixture writes and closes a 16000 Hz stereo WAV; its int16
 samples, RIFF lengths and derived metadata pass validation.
 
 ```sh
-pnpm --filter @octane-xplat/recorder test
-pnpm --filter @octane-xplat/recorder test:packed
+bun run turbo run test --filter=@octane-xplat/recorder
+bun run turbo run test:packed --filter=@octane-xplat/recorder
 # On an Apple Silicon Mac, reserve shared build capacity when a broker is available:
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"recorder native smoke without microphone"}' -- pnpm --filter @octane-xplat/recorder test:macos-runtime
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"recorder native smoke without microphone"}' -- bun run turbo run test:macos-runtime --filter=@octane-xplat/recorder
 ```
 
 Real microphone qualification is queued separately in Silo experiment

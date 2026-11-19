@@ -134,7 +134,7 @@ builds the real leaf and adapter through the production macOS builder. Run it
 from the repository root:
 
 ```sh
-pnpm exec node packages/lottie/tests/appkit-feasibility/run.mts
+node packages/lottie/tests/appkit-feasibility/run.mts
 ```
 
 It creates disposable build artifacts in ignored `research/` and starts the
@@ -163,7 +163,7 @@ was not tested.
 **Component runtime:** the 20-assertion `examples/probes/lottie.macos.tsrx` mounts the public
 component, checks its ref and window-attached view, exercises loaded, seek,
 play/pause/end, speed, loop, error, and unmount cleanup. It runs as part of
-`pnpm smoke:macos`. Neither fixture captures or inspects a screenshot.
+`bun run turbo run smoke:macos --filter=@xplat/verification`. Neither fixture captures or inspects a screenshot.
 
 The original feasibility run showed that a detached host view would not play.
 The passing fixture attaches to a hidden `NSWindow`, without ordering it

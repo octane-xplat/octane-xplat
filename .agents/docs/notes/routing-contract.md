@@ -567,7 +567,7 @@ universal type identities. Published peer bounds are unchanged; this evidence
 qualifies the installed 0.11.0 setup.
 
 ```sh
-pnpm --filter @xplat/macos test:routing
+bun run turbo run test:routing --filter=@xplat/macos
 ```
 
 Qualification used the repository's ObjC Mason facade, shipped prebuilt as

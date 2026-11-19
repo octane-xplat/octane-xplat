@@ -85,7 +85,7 @@ or real-IME tests.
   were fabricated or optional service support removed from the app.
 
 Run the browser qualification with
-`pnpm --filter @xplat/web exec node scripts/input-readiness.mjs`.
+`cd apps/web && node scripts/input-readiness.ts`.
 It defaults to Chromium; set `XPLAT_WEB_BROWSER=firefox` or `webkit` to select
 the other engines. The runner selects an OS-assigned local port and captures no
 images.

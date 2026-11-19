@@ -181,33 +181,33 @@ checks, and the distinction between LSP evidence and actual editor evidence.
 | Pin                                                                    | Constraint                                                                                          |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `octane`                                                               | single copy per app — dedupe via package-manager `resolutions`/overrides                            |
-| `@octanejs/vite-plugin`                                                | declares the `octane` range it compiles for (0.1.52 ↔ octane 0.2.x) — must bracket the app's octane |
-| `@octane-xplat/nativescript-octane`                                       | peer `octane >= 0.1.51`; `@nativescript/core >= 9.1`                                                |
+| `@octanejs/vite-plugin`                                                | declares the `octane` range it compiles for (`@octanejs/vite-plugin@0.6.0` ↔ octane `^0.17.0`) — must bracket the app's octane |
+| `@octane-xplat/nativescript-octane`                                       | peer `octane >=0.16.3 <1`; `@nativescript/core >=9.1.0`; `@octane-xplat/nativescript-masonkit >=1.0.0-beta.126 <2` |
 | `@nativescript/core`, runtimes (`ios`/`android`), `@nativescript/vite` | NS 9.1+ for HTTP ESM dev boot                                                                       |
 | Node                                                                   | `>= 22.22.2` for published Octane packages                                                          |
 
 Expect churn: octane is beta, the NS port is days old. Pin exact versions, bump
-deliberately. The escape hatch is pnpm `patchedDependencies` — the canonical
+deliberately. The escape hatch is `patchedDependencies` — the canonical
 set lives in `packages/cli/patches/` (manifest.json + `.patch` files), the
-workspace yaml references it directly, and `pnpm sync:patches` /
-`pnpm check:patches` keep the generated starter patch copies and create
+root `package.json` registers it directly, and `bun run sync:patches` /
+`bun run check:patches` keep the generated starter patch copies and create
 template yaml in sync. Scaffolds materialize patches from files shipped in the
 creator; existing apps materialize patches with
 `xplat patches apply` and verify with `xplat patches check` / `xplat doctor`.
 
 ```sh
-pnpm sync:patches
-pnpm check:patches
-pnpm exec xplat patches apply
-pnpm exec xplat patches check
+bun run sync:patches
+bun run check:patches
+bun run xplat patches apply
+bun run xplat patches check
 ```
 
 When a workspace package's dependency declarations change, resync with
-`pnpm install --lockfile-only`; do not hand-edit the importer. The
-`packages/lint` importer is the canary for this rule because its `@tsrx/core`
+`bun install --lockfile-only`; do not hand-edit the lockfile entry. The
+`packages/lint` lockfile entry is the canary for this rule because its `@tsrx/core`
 and `oxlint` entries must stay aligned with the published package. The
-workspace installs published `octane@0.6.3` with the canonical patch set;
-fresh clones and worktrees can use `pnpm install --frozen-lockfile` without
+workspace installs published `octane@0.17.0` with the canonical patch set;
+fresh clones and worktrees can use `bun install --frozen-lockfile` without
 the gitignored `research/` directory.
 
 ## Shared packages publish model
@@ -249,8 +249,8 @@ The native preset matches installed Octane sources as well as app and linked
 workspace files, so consumers need no package-specific renderer rules.
 
 ```sh
-pnpm build:packages # declarations, Node tooling, and required assets
-pnpm --filter @octane-xplat/ui pack --pack-destination /tmp/octane-pack-check
+bun run build:packages # declarations, Node tooling, and required assets
+cd packages/ui && bun pm pack --destination /tmp/octane-pack-check
 ```
 
 Node-loaded exports must resolve to JavaScript, including their local import
@@ -273,9 +273,9 @@ The published Bamboo 0.16.0 error was reproduced with Vite 8.3.0 on Node 26.10.0
 its connection to a previously missing native bundle remains unproven.
 
 ```sh
-pnpm --filter @octane-xplat/bamboo test:packed
-pnpm --filter @octane-xplat/lingui test:packed
-pnpm --filter @octane-xplat/ui test:packed
+bun run turbo run test:packed --filter=@octane-xplat/bamboo
+bun run turbo run test:packed --filter=@octane-xplat/lingui
+bun run turbo run test:packed --filter=@octane-xplat/ui
 ```
 
 **Types:** the classic TS 5.9 `tsrx-tsc` path can emit ordinary `.d.ts`
@@ -287,8 +287,8 @@ extensions. Generated declarations live in a dedicated output directory and
 `--check` detects stale output without touching handwritten types.
 
 ```sh
-pnpm --filter @octane-xplat/ui typegen
-pnpm --filter @octane-xplat/ui exec tsrx-typegen --check
+bun run turbo run typegen --filter=@octane-xplat/ui
+cd packages/ui && bunx tsrx-typegen --check
 ```
 
 ### Develop against generated declarations
@@ -298,15 +298,14 @@ and oxfmt. Handwritten entry declarations and explicit overrides remain
 tracked source. The npm packages include the generated files through their
 `files` lists; consumers do not need to run the declaration compiler.
 
-In this repository, a fresh `pnpm install` runs `pnpm typegen` after dependencies are
+In this repository, a fresh `bun install` runs `bun run typegen` after dependencies are
 installed. It generates declarations in workspace dependency order before
 editors or linked apps resolve them. If installation used `--ignore-scripts`,
-run `pnpm typegen` explicitly before checking or developing a consumer. Use
-the same command after cleaning generated files: pnpm can reuse install
-lifecycle state and skip an unchanged setup hook on subsequent installs.
+run `bun run typegen` explicitly before checking or developing a consumer. Use
+the same command after cleaning generated files.
 
 ```sh
-pnpm typegen
+bun run typegen
 ```
 
 A checkout updated from before the ownership manifest may hold ignored
@@ -323,7 +322,7 @@ targets alone. For an editor-only session or an app linked to this checkout,
 keep this command running in the framework repository:
 
 ```sh
-pnpm typegen:watch
+bun run typegen:watch
 ```
 
 A compiler error is reported while the watcher keeps running; generated files
@@ -340,13 +339,13 @@ modes with the create template's per-target `moduleSuffixes`,
 third-party NativeScript ambient declarations carry upstream lib conflicts
 that make `skipLibCheck: false` unsupported for consumers.
 Declaration-producing packages
-run `typegen` from `prepack`, so both `pnpm pack` and publication regenerate
+run `typegen` from `prepack`, so both packing and publication regenerate
 output. To prepare one package's types, run
-`pnpm --filter <package-name> typegen` after workspace setup.
+`bun run turbo run typegen --filter=<package-name>` after workspace setup.
 
 ```sh
-pnpm --filter @octane-xplat/ui typegen
-pnpm --filter @octane-xplat/ui exec tsrx-typegen --pack-check
+bun run turbo run typegen --filter=@octane-xplat/ui
+cd packages/ui && bun run pack:check
 ```
 
 ### Declaration compiler support
@@ -373,14 +372,14 @@ publication gate. It checks every target's generated output, packs a temporary
 tarball with lifecycle scripts disabled, validates both workspace and
 `publishConfig` export paths against the packed files, compares runtime and
 declaration value exports, and checks declaration references and dependencies.
-Put the gate in `prepack` after declaration and asset generation so `pnpm pack` and publish use
+Put the gate in `prepack` after declaration and asset generation so packing and publish use
 the same package contents. `xplat doctor`, when invoked at a configured package
 root, runs that gate and exits nonzero on failure. A plain TypeScript consumer
 fixture remains necessary to check inferred props and module-resolution modes;
 the pack gate validates the declaration graph, not every semantic contract.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec tsrx-typegen --pack-check
+cd packages/ui && bun run pack:check
 ```
 
 Every publishable package that ships declarations runs `--pack-check` in
@@ -427,12 +426,12 @@ checks both workspace and publish export maps in those modes; NativeScript's
 third-party ambient declarations require `skipLibCheck: true` in its temporary
 consumer, while package export paths and declaration closure remain checked by
 `--pack-check`. The component and service leaves carry the same harness in
-`tests/packed-consumer.mts` — `pnpm test:packed` runs every package's packed
-consumer and `pnpm check:pack` runs every pack-check.
+`tests/packed-consumer.mts` — `bun run test:packed` runs every package's packed
+consumer and `bun run check:pack` runs every pack-check.
 
 ```sh
-pnpm test:packed
-pnpm check:pack
+bun run test:packed
+bun run check:pack
 ```
 
 ## TS configs
@@ -445,8 +444,8 @@ scoped to native). `tsc --runExternalCode --noEmit` per target in CI via
 See module-resolution.md for the suffix-typing strategy.
 
 ```sh
-pnpm exec tsrx-tsc --noEmit -p apps/web/tsconfig.json
-pnpm exec tsrx-tsc --noEmit -p apps/mobile/tsconfig.json
+bun run turbo run typecheck --filter=@xplat/web
+bun run turbo run typecheck --filter=@xplat/mobile
 ```
 
 ## Native app plumbing
@@ -622,13 +621,13 @@ the same version; the peer range in `packages/ui` is the contract.
 `undefined` prop writes in the driver's `setProp` — NativeScript native
 setters coerce it (e.g. `editable` → `ios.userInteractionEnabled = NO`),
 leaving dead UI that still has its JS listeners. The root applies it through
-`pnpm-workspace.yaml` `patchedDependencies`; downstream apps can materialize
+the root `package.json` `patchedDependencies`; downstream apps can materialize
 it with `xplat patches apply`. The patch manifest records its scope and drop
 condition.
 
 ```sh
-pnpm exec xplat patches apply
-pnpm exec xplat patches check
+bun run xplat patches apply
+bun run xplat patches check
 ```
 
 ## CI shape
@@ -648,8 +647,8 @@ its declaration graph needs repair before it can join the generic gate.
 This is packed-source evidence, not native runtime qualification.
 
 ```sh
-pnpm check:pack
-pnpm exec turbo run test:packed --filter=@octane-xplat/updates
+bun run check:pack
+bun run turbo run test:packed --filter=@octane-xplat/updates
 ```
 
 ### Release lanes
@@ -661,7 +660,8 @@ typechecks, and the quick packed web starter gate. The CLI tests run once in
 the Turbo package graph. CSS blocks this job; recipe/link hygiene has a separate
 PR-only job. The local Silo decision check stays outside CI.
 
-Browser coverage runs locally through `pnpm test:e2e`; CI excludes the visual
+Browser coverage runs locally through each package's `test:e2e`/`test:browser`
+turbo task (`bun run turbo run test:e2e test:browser`); CI excludes the visual
 browser package, browser downloads, and device emulation from the fast gate.
 Stable CI adds non-browser packed consumers and native qualification. The
 [release guide](../releases.md) owns the current gate list. Repository and
@@ -669,22 +669,24 @@ consumer lint share `packages/lint`; `xplat/no-dom-globals` replaces the retired
 standalone DOM regex sweep.
 
 `scripts/verify-consumer.ts` (`check:consumer`) is the release-path
-verification: it `pnpm pack`s every publishable package, scaffolds a starter
-through the PACKED `create-octane-xplat` bin (`--no-install`), rewrites the
-consumer's `@octane-xplat/*` deps to `file:` tarballs plus a materialized
-`node_modules/.pnpm-config` (pnpm's `configDependencies` requires exact
-registry semver — a local tarball can't substitute), installs outside the
-workspace, and asserts the resolved packages are real packed payloads before
-running the consumer's own lint/typecheck/build/doctor. Flags: `--quick`, `--no-build`,
-`--smoke web`, `--native ios,android`, `--smoke-ios`, `--keep`,
-`VERIFY_CONSUMER_DIR`. A `--native` target additionally runs
-`ns build <platform>` inside the consumer; `--smoke-ios` boots an iPhone sim
-and `simctl install`/`launch`es the debug `.app`, failing on crash or
-JS-error log output. These produce debug/simulator artifacts — build-check
-and runtime-boot evidence, not signed store distribution.
+verification: it `bun pm pack`s every publishable package, scaffolds app and
+library starters through the PACKED `create-octane-xplat` bin, rewrites the
+consumer's `@octane-xplat/*` specifiers (dependencies, devDependencies, and
+root override policy) to `file:` tarballs, `bun install`s outside the
+workspace, and runs the consumer's own lint/typecheck/build/doctor. Flags:
+`--quick`, `--no-build`, `--smoke web`, `--native ios,android`, `--smoke-ios`,
+`--test-ios`, `--test-android`, `--keep`, `--package-manager bun|pnpm`;
+env: `VERIFY_CONSUMER_DIR`, `VERIFY_ANDROID_DEVICE`, `VERIFY_IOS_DEVICE`,
+`XPLAT_WEB_BROWSERS`, `PLAYWRIGHT_REQUIRED`. A `--native` target additionally
+runs `ns build <platform>` inside the consumer; `--smoke-ios` boots an iPhone
+sim and `simctl install`/`launch`es the debug `.app`, failing on crash or
+JS-error log output; `--test-ios`/`--test-android` run the scaffolded
+on-device suite on an explicitly selected booted device. These produce
+debug/simulator artifacts — build-check and runtime-boot evidence, not
+signed store distribution.
 
 ```sh
-pnpm check:consumer --no-build --smoke web
+bun run check:consumer --no-build --smoke web
 ```
 
 The nightly `--quick` path installs a packed web starter, consumes its
@@ -694,10 +696,10 @@ prepared package outputs without rerunning prepack in either mode; run package
 preparation and `check:pack` before it:
 
 ```sh
-pnpm build:packages
-pnpm check:pack
-pnpm exec turbo run test:packed --filter=@octane-xplat/updates
-pnpm check:consumer --no-build --quick
+bun run build:packages
+bun run check:pack
+bun run turbo run test:packed --filter=@octane-xplat/updates
+bun run check:consumer --no-build --quick
 ```
 
 Slow target jobs run in `stable.yml` after fast CI on `main`: `native-ios` (macos-latest) and
@@ -726,7 +728,7 @@ See [release gates](../releases.md) for the coverage boundary and local commands
 The tsrx-typegen sync step skips when
 `TESTED_SHA..origin/main` contains any non-release-bot commit — a moved main
 ships nothing untested, and the newer CI run releases instead.
-`pnpm check:consumer` can run the same packed-consumer path locally before
+`bun run check:consumer` can run the same packed-consumer path locally before
 pushing.
 
 ## Temporary native virtual stylesheet patch (NativeScript #11551)

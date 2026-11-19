@@ -385,8 +385,8 @@ state retention.
 
 ```sh
 node --test packages/linux-gtk-renderer/test/build.test.mts
-pnpm --filter @octane-xplat/linux-gtk typecheck
-pnpm --filter @octane-xplat/linux-gtk exec vite build --config test/fixtures/vite.routing.config.mjs
+bun run turbo run typecheck --filter=@octane-xplat/linux-gtk
+cd packages/linux-gtk-renderer && bunx vite build --config test/fixtures/vite.routing.config.mjs
 ```
 
 Real GJS 1.82.3 / GTK 4.18.6 on Debian 13 arm64 passes 13 programmatic routing

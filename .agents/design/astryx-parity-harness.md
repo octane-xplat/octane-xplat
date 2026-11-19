@@ -49,7 +49,7 @@ observations are diffed.
 | Pixels | Sameframe | Screenshot-change threshold; a review signal, not the lead |
 | Behavior | Playwright probes | Focus order, Enter/Space/click activation, disabled and pending states, ARIA snapshot |
 
-`parity` is not part of `pnpm test` or PR CI; it launches a browser and is
+`parity` is not part of `bun run test` or PR CI; it launches a browser and is
 expected to fail until the reported gaps close.
 
 ## Fixed inputs

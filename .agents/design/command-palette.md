@@ -30,7 +30,7 @@ attachment, field focus, grouped scrolling, selection, text notifications, and
 close/reopen:
 
 ```sh
-pnpm probe run packages/ui/tests/command-palette-host.macos.tsrx --target macos --deps @octane-xplat/ui --timeout 20000
+bun run probe run packages/ui/tests/command-palette-host.macos.tsrx --target macos --deps @octane-xplat/ui --timeout 20000
 ```
 
 It dispatches installed monitor callbacks and native notifications. Record those

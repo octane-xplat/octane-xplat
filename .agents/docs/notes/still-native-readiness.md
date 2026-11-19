@@ -92,7 +92,7 @@ this does not establish that every expression tag fails.
 The CLI formatter pipeline (including `oxfmt` 0.70.0) rewrites `[...Buffer.concat(chunks)]` to
 `Buffer.concat(chunks)` even when the array representation matters for JSON.
 Reproduction: pipe `const bytes = [...Buffer.concat(chunks)]` into
-`pnpm format --stdin-filepath /tmp/still-spread.mjs`. The fixture uses
+`bun run format --n /tmp/still-spread.mjs` on standard input. The fixture uses
 `Array.from(Buffer.concat(chunks))` to preserve JSON number-array semantics.
 Ordinary `[...items]` and object spreads were checked and remained intact.
 The formatter itself is unchanged. The responsible pipeline stage has not
@@ -115,12 +115,12 @@ SDK setup and an owned booted simulator/emulator. The local media/HTTP
 fixtures use virtual-device host addresses. Browser tests remain outside PR CI.
 
 ```sh
-pnpm exec turbo run test --filter=@octane-xplat/audio --filter=@octane-xplat/network --filter=@octane-xplat/auth
-pnpm exec turbo run test:packed --filter=@octane-xplat/audio --filter=@octane-xplat/network
-pnpm exec turbo run test:browser --filter=@octane-xplat/audio
-pnpm exec turbo run test:runtime --filter=@octane-xplat/network -- --target web
-pnpm exec turbo run test:runtime --filter=@octane-xplat/audio -- --target ios --device YOUR_OWNED_SIMULATOR
-pnpm exec turbo run test:runtime --filter=@octane-xplat/network -- --target android --device emulator-YOUR_OWNED_PORT
+bun run turbo run test --filter=@octane-xplat/audio --filter=@octane-xplat/network --filter=@octane-xplat/auth
+bun run turbo run test:packed --filter=@octane-xplat/audio --filter=@octane-xplat/network
+bun run turbo run test:browser --filter=@octane-xplat/audio
+bun run turbo run test:runtime --filter=@octane-xplat/network -- --target web
+bun run turbo run test:runtime --filter=@octane-xplat/audio -- --target ios --device YOUR_OWNED_SIMULATOR
+bun run turbo run test:runtime --filter=@octane-xplat/network -- --target android --device emulator-YOUR_OWNED_PORT
 ```
 
 Implementation commits: `499fdaa40` (host), `f34a64dd3` (Heading),

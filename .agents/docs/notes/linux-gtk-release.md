@@ -63,7 +63,7 @@ bundles through Turbo on the build host, then run the runtime fixtures in the
 Linux guest (an X display and session bus are required):
 
 ```sh
-XPLAT_GTK_KEEP_A11Y=1 pnpm exec turbo run test:a11y --filter=@octane-xplat/linux-gtk
+XPLAT_GTK_KEEP_A11Y=1 bun run turbo run test:a11y --filter=@octane-xplat/linux-gtk
 # In Linux, from the repository root, after building those bundles:
 dbus-run-session -- xvfb-run -a gjs -m packages/linux-gtk-renderer/test/fixtures/dist-a11y/app.js
 GTK_A11Y=atspi dbus-run-session -- xvfb-run -a python3 \

@@ -865,7 +865,7 @@ The renderer's 285 tests and the existing 28 native modal protocol cases pass.
 ```sh
 node apps/macos/test/verify-routing.mts
 node --test packages/macos-appkit/test/*.test.ts
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/native-modal-router-host.mobile.test.tsrx
+cd packages/ui && bunx vitest run --config vitest.native.config.mts src/routing/native-modal-router-host.mobile.test.tsrx
 ```
 
 Attaching the previously unattached routing fixture to an NSWindow exposed
@@ -921,7 +921,7 @@ Typecheck-only generation retains its existing baked-data policy. This does
 not itself install an automatic route watcher.
 
 ```sh
-pnpm --filter @octane-xplat/cli build
+bun run turbo run build --filter=@octane-xplat/cli
 node --test packages/cli/test/route-generation.test.mts packages/cli/test/route-data.test.mts
 ```
 
@@ -940,9 +940,9 @@ The shared repository app exposes `routes:watch`; run it once alongside platform
 dev shells, whose working directories do not own that route catalog.
 
 ```sh
-pnpm exec xplat routes --watch
-pnpm exec xplat dev web
-pnpm --filter @xplat/app routes:watch
+bun run xplat routes --watch
+bun run xplat dev web
+bun run turbo run routes:watch --filter=@xplat/app
 ```
 
 The watcher uses containing-directory handles to observe atomic saves and
@@ -1029,6 +1029,6 @@ fallback, excess catalog fields, the literal repair and preserved required param
 Programmatic guide screens derive props from their preparation builders.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/routing-package.test.ts
-pnpm --filter @octane-xplat/ui test:packed
+cd packages/ui && bunx vitest run src/routing/routing-package.test.ts
+bun run turbo run test:packed --filter=@octane-xplat/ui
 ```

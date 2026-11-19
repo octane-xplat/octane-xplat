@@ -13,8 +13,8 @@ The [public guide](../../docs/testing/diagnostics.md) owns commands,
 configuration, retention limits, and user-facing coverage.
 
 ```sh
-pnpm exec xplat diagnostics --platform ios --json
-pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --limit 50 --json
+bun run xplat diagnostics --platform ios --json
+bun run xplat diagnostics --session SESSION_ID --cursor 0 --limit 50 --json
 ```
 
 Use the existing development launcher as the collection boundary. All six
@@ -83,10 +83,10 @@ all three markers appear. A second CLI read after stopping the development
 process must retain every marker and return `historical: true`.
 
 ```sh
-pnpm exec xplat dev TARGET_ID
+bun run xplat dev TARGET_ID
 # After the startup markers appear, in another terminal:
-pnpm exec xplat diagnostics --json
-pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --json
+bun run xplat diagnostics --json
+bun run xplat diagnostics --session SESSION_ID --cursor 0 --json
 # Stop xplat dev, then repeat the same run read.
 ```
 
@@ -129,7 +129,7 @@ building the CLI; it uses the existing apps/web Playwright installation and
 captures no images. It is outside the ordinary test glob and PR checks:
 
 ```sh
-pnpm exec turbo run build --filter=@octane-xplat/cli
+bun run turbo run build --filter=@octane-xplat/cli
 node packages/cli/test/verify-dev-logs-browser.mjs
 ```
 
@@ -196,6 +196,6 @@ readiness, retained browser diagnostics, owner-control cleanup, host idle exit,
 and reads after owner exit. It launches headless Chromium and captures no images:
 
 ```sh
-pnpm exec turbo run build --filter=@octane-xplat/cli
+bun run turbo run build --filter=@octane-xplat/cli
 node packages/cli/test/verify-session-lifecycle.mjs
 ```

@@ -11,10 +11,10 @@ installed Chromium binary in headless mode. They do not install browsers or
 capture screenshots, and remain outside the lightweight PR test gate.
 
 ```sh
-pnpm exec turbo run test --filter=@octane-xplat/ui --concurrency=1 -- query-cache.test query-inspection.test --maxWorkers=1
-pnpm exec turbo run test --filter=@xplat/web --concurrency=1 -- shared-query-workflow --maxWorkers=1
-pnpm exec turbo run test:query-cache-runtime --filter=@xplat/probe --concurrency=1
-pnpm exec turbo run test:query-cache-runtime --filter=@xplat/web --concurrency=1
+bun run turbo run test --filter=@octane-xplat/ui --concurrency=1 -- query-cache.test query-inspection.test --maxWorkers=1
+bun run turbo run test --filter=@xplat/web --concurrency=1 -- shared-query-workflow --maxWorkers=1
+bun run turbo run test:query-cache-runtime --filter=@xplat/probe --concurrency=1
+bun run turbo run test:query-cache-runtime --filter=@xplat/web --concurrency=1
 ```
 
 | Check | What it establishes | Boundary |

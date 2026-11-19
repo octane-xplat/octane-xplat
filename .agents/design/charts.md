@@ -201,7 +201,7 @@ scrubbing are unavailable in this leaf. The handler accepts view-relative
 Run the maintained nonvisual probe from the repository root:
 
 ```sh
-pnpm probe run examples/probes/charts.macos.tsrx --target macos --deps @octane-xplat/charts
+bun run probe run examples/probes/charts.macos.tsrx --target macos --deps @octane-xplat/charts
 ```
 
 It checks native image decoding, mounting, center-fallback handler dispatch,

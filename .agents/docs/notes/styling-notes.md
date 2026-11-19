@@ -387,7 +387,7 @@ export function Example() {
      NS recovers _per declaration_, so a rule can half-apply. The preset's css
      pass now warns on the confirmed-silent set (margin-auto,
      position fixed/sticky, float, pre-wrap) plus box-shadow's layout-sync
-     limit; a fuller property allowlist is enforced by `pnpm check:css`
+     limit; a fuller property allowlist is enforced by `bun run check:css`
    - no `position` CSS natively → `Absolute`/`Grid` primitives instead
    - no `display:none` → `visibility: collapse` (removes from layout too)
    - **no `transition` property** — animations are `@keyframes`/`animation-*`

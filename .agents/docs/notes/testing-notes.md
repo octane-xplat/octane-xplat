@@ -7,8 +7,8 @@
 > rules are writable today · **Decisions:** #3, #4 (the invariants it enforces)
 > · **Validated by:** an intentionally-violating file failing lint/typecheck.
 
-Current checks are `pnpm lint`, `bun run turbo run typecheck --filter=@xplat/web`,
-`bun run turbo run typecheck --filter=@xplat/mobile`, and `pnpm test` from the repository root. The lint
+Current checks are `bun run lint`, `bun run turbo run typecheck --filter=@xplat/web`,
+`bun run turbo run typecheck --filter=@xplat/mobile`, and `bun run test` from the repository root. The lint
 lane uses Oxlint plus the TSRX companion pass; the ESLint and `packages/core`
 references below describe the original test plan. A fresh run is required
 before treating any historical smoke count as evidence for this checkout.
@@ -76,7 +76,7 @@ expands into the combined `all` program the same way.)
 This is the single most valuable CI signal for "the seams held."
 
 ```sh
-pnpm typecheck
+bun run typecheck
 ```
 
 ## Component test strategy
@@ -135,27 +135,27 @@ owner; the canonical Octane and NativeScript patches carry the fixes.
 Run the component checks with:
 
 ```sh
-pnpm --dir packages/ui test:native
-pnpm --dir apps/web test
+bun run turbo run test:native --filter=@octane-xplat/ui
+bun run turbo run test --filter=@xplat/web
 ```
 
 For a fresh browser runtime pass, start this worktree's server with
-`pnpm --dir apps/web dev --host 127.0.0.1 --port 4327 --strictPort`, then run
-`pnpm exec node apps/web/scripts/data-smoke.ts http://127.0.0.1:4327`.
+`cd apps/web && bunx vite --host 127.0.0.1 --port 4327 --strictPort`, then run
+`node apps/web/scripts/data-smoke.ts http://127.0.0.1:4327`.
 The dedicated HTML entry avoids changing the navigation harness. The intentional
 throw is one expected browser `pageerror`; universal native roots instead
 report it to `onUncaughtError` without a dropped-event warning.
 
 For native builds, prepare a fresh directory for each target with
-`pnpm exec node apps/mobile/scripts/prepare-data-probe.ts research/data-probe-ios`
+`node apps/mobile/scripts/prepare-data-probe.ts research/data-probe-ios`
 (use another directory for Android). It uses this worktree's installed modules
 and app resources, declares only data-probe dependencies, and refuses to overwrite
 an existing directory. From the repository root, build with
-`pnpm -C /tmp exec ns build ios --path "$PWD/research/data-probe-ios" --for-device false --no-hmr`
+`bunx --cwd /tmp ns build ios --path "$PWD/research/data-probe-ios" --for-device false --no-hmr`
 or the corresponding Android command and directory; set
 `JAVA_HOME=$(/usr/libexec/java_home -v 21)` for Android. Invoking the installed
-NativeScript CLI from outside the workspace avoids pnpm treating the isolated
-probe directory as an unregistered workspace package. Hold the shared advisory
+NativeScript CLI from outside the workspace avoids the package manager
+treating the isolated probe directory as an unregistered workspace package. Hold the shared advisory
 lock at `/tmp/octane-xplat-ios.lock` or `/tmp/octane-xplat-android.lock` throughout
 each build and device session. Install/launch `org.octanexplat.datareadiness`
 with `simctl` on an existing booted iOS simulator or `adb` on Android. Do not

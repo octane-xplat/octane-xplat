@@ -77,7 +77,7 @@ check confirmed `NSImage(data:)` accepted SVG through the system API.
 The temporary case and results live under ignored `research/appkit-svg/`:
 
 ```sh
-pnpm probe run research/appkit-svg/probe.macos.tsrx --target macos
+bun run probe run research/appkit-svg/probe.macos.tsrx --target macos
 ```
 
 This evidence establishes native decoding and host updates. No screenshots or
@@ -129,7 +129,7 @@ existing renderer alias. The maintained
 SVG data URIs, registered glyphs, and public leaf registration/prop updates:
 
 ```sh
-pnpm probe run examples/probes/icons.macos.tsrx --target macos --deps @octane-xplat/icons
+bun run probe run examples/probes/icons.macos.tsrx --target macos --deps @octane-xplat/icons
 ```
 
 The maintained source-entry and compiled-entry probes each passed 21 assertions

@@ -691,8 +691,8 @@ model/device. Define acceptable latency and memory budgets after the initial
 fixtures run, before making real-time or low-latency promises. Build success,
 mock callbacks, and queued handler dispatch are not runtime audio evidence.
 
-Use temporary `research/` probes through `pnpm probe doctor` and
-`pnpm probe run <case> --target <target> --watch`. Promote preserved behavior
+Use temporary `research/` probes through `bun run probe doctor` and
+`bun run probe run <case> --target <target> --watch`. Promote preserved behavior
 to maintained package tests. Reserve native-build/device resources and shut
 down owned devices as required by the host broker. Browser/device checks run
 locally; PR `checks` must not install browser engines or launch emulators.
@@ -703,11 +703,11 @@ implementation checks; they do not run against a package that does not yet
 exist.
 
 ```sh
-pnpm exec turbo run typecheck --filter=...@octane-xplat/sherpa-onnx
-pnpm --filter @octane-xplat/sherpa-onnx test
-pnpm --filter @octane-xplat/sherpa-onnx pack:check
-pnpm --filter @octane-xplat/sherpa-onnx test:packed
-pnpm check:recipes
+bun run turbo run typecheck --filter=...@octane-xplat/sherpa-onnx
+bun run turbo run test --filter=@octane-xplat/sherpa-onnx
+bun run turbo run pack:check --filter=@octane-xplat/sherpa-onnx
+bun run turbo run test:packed --filter=@octane-xplat/sherpa-onnx
+bun run check:recipes
 ```
 
 Use one `tsconfig.envs.json` for the package and shared public declarations.
@@ -721,7 +721,7 @@ The implementation needs recipes for offline transcription, model preparation,
 and speech playback, then live transcription when qualified. Revisit
 [`voice-memo`](../docs/recipes/voice-memo.md) if recorder behavior changes.
 Record recipe coverage separately from target verification in Silo and run
-`pnpm check:recipes`. Add a small maintained demo with explicit model download,
+`bun run check:recipes`. Add a small maintained demo with explicit model download,
 progress, transcript, playback, and cleanup, using the qualified fixtures.
 
 Review the [Octane skill](../skills/octane-xplat/SKILL.md) and service/limit

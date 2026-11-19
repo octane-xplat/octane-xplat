@@ -185,7 +185,7 @@ export function Actions() {
 ```
 
 ```sh
-pnpm probe run packages/ui/tests/fixtures/fixed-layer.ios.tsrx --target ios --device SIMULATOR_UDID
+bun run probe run packages/ui/tests/fixtures/fixed-layer.ios.tsrx --target ios --device SIMULATOR_UDID
 ```
 
 ## Raw AppKit controls
