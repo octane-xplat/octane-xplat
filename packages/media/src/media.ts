@@ -154,6 +154,20 @@ async function persistImage(source: ImageSource, name: string): Promise<PickedIm
   }
 }
 
+// @nativescript/imagepicker 5.0.0 present() rejects on cancel — deterministic
+// literals: 'Canceled' on iOS, 'Image picker activity result code N' on
+// Android (any non-RESULT_OK result means no selection). Every other
+// rejection is a genuine failure and keeps propagating.
+function isPickerCancel(reason: unknown): boolean {
+  const message =
+    typeof reason === 'object' && reason !== null && 'message' in reason ? reason.message : undefined
+
+  return (
+    message === 'Canceled' ||
+    (typeof message === 'string' && message.startsWith('Image picker activity result code'))
+  )
+}
+
 async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[]> {
   const picker = createImagePicker({ mode, mediaType: 1 as ImagePickerMediaType })
   const granted: unknown = await picker.authorize()
@@ -170,7 +184,13 @@ async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[
     return []
   }
 
-  const selections = await picker.present()
+  const selections = await picker.present().catch((reason) => {
+    if (isPickerCancel(reason)) {
+      return []
+    }
+
+    return Promise.reject(reason)
+  })
   const refs: PickedImage[] = []
 
   try {

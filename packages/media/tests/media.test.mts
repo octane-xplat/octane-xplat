@@ -110,6 +110,47 @@ test('ios camera ensure maps authorization status and the prompt result', async 
   assert.equal((await prompted.exports.media.requestPermissions('camera')).status, 'denied')
 })
 
+test('picker cancel rejections settle null/[] like the other leaves', async () => {
+  // @nativescript/imagepicker 5.0.0 present() rejects on cancel — the
+  // contract resolves null/[] instead.
+  for (const reason of [
+    new Error('Canceled'), // iOS didCancel
+    new Error('Image picker activity result code 0'), // Android RESULT_CANCELED
+    new Error('Image picker activity result code 5'), // any other non-OK result
+  ]) {
+    const { exports } = await load({
+      imagePicker: {
+        create: () => ({
+          authorize: async () => true,
+          present: async () => {
+            throw reason
+          },
+        }),
+      },
+    })
+
+    assert.equal(await exports.media.pickImage(), null, reason.message)
+    // The leaf resolves its own realm's array — length, not identity.
+    assert.equal((await exports.media.pickImages()).length, 0, reason.message)
+  }
+})
+
+test('non-cancel picker rejections still propagate', async () => {
+  const { exports } = await load({
+    imagePicker: {
+      create: () => ({
+        authorize: async () => true,
+        present: async () => {
+          throw new Error('decode pipeline failed')
+        },
+      }),
+    },
+  })
+
+  await assert.rejects(exports.media.pickImage(), /decode pipeline failed/)
+  await assert.rejects(exports.media.pickImages(), /decode pipeline failed/)
+})
+
 function androidApp(requestPermissions) {
   const listeners = new Map()
 

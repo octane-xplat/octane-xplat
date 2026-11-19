@@ -1960,10 +1960,12 @@
         "@nativescript/types": "catalog:",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
+        "jsdom": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
         "typescript-classic": "catalog:",
+        "vitest": "catalog:",
       },
       "peerDependencies": {
         "@nativescript/core": ">=9.1.0 <10",

@@ -34,7 +34,9 @@ static CLLocation *cachedLocation;
                   @"speed": location.speed >= 0 ? @(location.speed) : NSNull.null,
                   @"timestamp": @(location.timestamp.timeIntervalSince1970 * 1000)};
     }
-    if (self.permission) self.permission(code == 0 ? @"granted" : code == 1 ? @"denied" : @"unsupported");
+    // A timeout is not a denial and not a missing capability — the caller may
+    // simply retry, so it reports undetermined.
+    if (self.permission) self.permission(code == 0 ? @"granted" : code == 1 ? @"denied" : code == 3 ? @"undetermined" : @"unsupported");
     NSString *json = value ? [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:value options:0 error:nil] encoding:NSUTF8StringEncoding] : nil;
     if (self.position) self.position(json, code, message ?: @"");
     self.permission = nil;
@@ -117,6 +119,22 @@ static CLLocation *cachedLocation;
 }
 + (void)ensure:(void (^)(NSString *))completion {
     [self begin:NO timeout:30000 maximumAge:0 permission:completion position:nil];
+}
++ (void)getStatus:(void (^)(NSString *result))completion {
+    // The non-prompting read: authorizationStatus and services state only —
+    // never requestWhenInUseAuthorization.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (![self isAvailable]) { completion(@"unsupported"); return; }
+        CLAuthorizationStatus status = CLLocationManager.new.authorizationStatus;
+        if (status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted ||
+            !CLLocationManager.locationServicesEnabled) {
+            completion(@"denied");
+        } else if (status == kCLAuthorizationStatusAuthorizedAlways) {
+            completion(@"granted");
+        } else {
+            completion(@"undetermined");
+        }
+    });
 }
 + (void)position:(BOOL)highAccuracy timeout:(double)timeout maximumAge:(double)maximumAge
       completion:(void (^)(NSString *, NSInteger, NSString *))completion {

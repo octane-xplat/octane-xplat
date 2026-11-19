@@ -5,7 +5,7 @@ import { cp, mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import { hostBundle, macOSHostArch } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(leaf, '../..')
@@ -111,6 +111,7 @@ content.title = 'Fixture title'; content.body = 'Fixture body';
 const request = UNNotificationRequest.requestWithIdentifierContentTrigger('fixture', content, null);
 if (request.identifier !== 'fixture' || request.content.title !== 'Fixture title' || request.content.body !== 'Fixture body' || request.trigger !== null) throw Error('Immediate request differs');
 console.log('MACOS_LOCAL_NOTIFICATION_REQUEST_OK');
+setTimeout(function() { globalThis.__xplatStopHost(); }, 0);
 `,
 )
 
@@ -119,7 +120,7 @@ const result = spawnSync(
   [
     join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
     script,
-    artifact.metadata,
+    artifact.metadata[macOSHostArch()],
     bootstrap,
   ],
   { encoding: 'utf8', timeout: 10_000 },

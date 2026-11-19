@@ -2,6 +2,7 @@
 
 @interface XplatGeolocation : NSObject
 + (BOOL)isAvailable;
++ (void)getStatus:(void (^)(NSString *result))completion;
 + (void)ensure:(void (^)(NSString *result))completion;
 + (void)position:(BOOL)highAccuracy timeout:(double)timeout maximumAge:(double)maximumAge
       completion:(void (^)(NSString *positionJSON, NSInteger code, NSString *message))completion;

@@ -190,6 +190,16 @@ test('iOS notify drops denied sends without touching the center', async () => {
   assert.equal(added.length, 0)
 })
 
+test('windows matches the shared unsupported contract and notify throws', async () => {
+  const leaf = loadLeaf('notifications.windows', { UnavailabilityError })
+
+  assert.equal(leaf.supported, false)
+  assert.equal(await leaf.isAvailable(), false)
+  assert.equal((await leaf.getPermissions()).status, 'unsupported')
+  assert.equal((await leaf.requestPermissions()).status, 'unsupported')
+  assert.throws(() => leaf.notify('title'), UnavailabilityError)
+})
+
 test('web absence is unsupported and notify throws UnavailabilityError', async () => {
   const leaf = loadLeaf('notifications.web', {
     UnavailabilityError,
