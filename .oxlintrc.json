@@ -7,13 +7,8 @@
 		"tools/routing-eval/grader/",
 		"**/*.gen.*",
 		"packages/**/types/generated/**",
-		"packages/*/types/types.d.ts",
 		"packages/*/types/props.d.ts",
-		"packages/motion/types/clock-types.d.ts",
-		"packages/motion/types/engine.d.ts",
-		"packages/motion/types/value.d.ts",
 		"**/vendor/**",
-		"packages/lingui/types/**",
 		"packages/platform/src/types/macos*/**",
 		"packages/macos-appkit/types/**"
 	],
@@ -28,7 +23,6 @@
 				"exclude": [
 					"apps/web/",
 					"apps/docs/",
-					"apps/linux/",
 					"apps/macos/",
 					"apps/astryx-sandbox/",
 					"packages/cli/test/fixtures/",
@@ -42,7 +36,6 @@
 				"exclude": [
 					"apps/web/",
 					"apps/docs/",
-					"apps/linux/",
 					"apps/astryx-sandbox/"
 				]
 			}
@@ -143,14 +136,6 @@
 						]
 					}
 				]
-			}
-		},
-		{
-			"files": [
-				"packages/ui/tests/fixtures/icon-currentcolor/paint.ios.ts"
-			],
-			"rules": {
-				"typescript/triple-slash-reference": "off"
 			}
 		}
 	]

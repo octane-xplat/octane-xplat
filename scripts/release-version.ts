@@ -10,7 +10,9 @@ export const RELEASES = {
     prefix: 'v',
     paths: [
       'packages/**',
-      ...['app', 'demos', 'media-probe', 'typegen-fixture', 'tsrx-typegen'].map(
+      // Every private package plus tsrx-typegen (own cadence) — changes to
+      // code that never ships must not trigger a version bump or a nightly.
+      ...['app', 'demos', 'lightbox', 'media-probe', 'node', 'typegen-fixture', 'tsrx-typegen'].map(
         (name) => `:(exclude)packages/${name}/**`,
       ),
     ],
@@ -139,7 +141,7 @@ export function resolveRelease(root: string, release: Release, override = '') {
 }
 
 // The GitHub Release is the completion marker: both release jobs create it
-// only after `pnpm publish` succeeds, so a tag without its release means an
+// only after `npm publish` succeeds, so a tag without its release means an
 // unfinished publication, not a shipped one.
 function defaultReleaseExists(tag: string): boolean {
   const repo = process.env.GITHUB_REPOSITORY ?? 'octane-xplat/octane-xplat'
