@@ -184,16 +184,24 @@ for (const scenario of scenarios) {
       gc?.()
 
       const samples: number[] = []
+      const cpuSamples: number[] = []
 
       for (let index = 0; index < SAMPLES; index++) {
+        const cpu = process.cpuUsage()
         const start = performance.now()
 
         update()
         samples.push(((performance.now() - start) * 1000) / scenario.units)
+
+        const used = process.cpuUsage(cpu)
+
+        cpuSamples.push((used.user + used.system) / scenario.units)
       }
 
       samples.sort((a, b) => a - b)
+      cpuSamples.sort((a, b) => a - b)
 
+      // Process CPU time is far less sensitive to a loaded host than wall time.
       const result = {
         scenario: scenario.name,
         unit: scenario.unit,
@@ -201,6 +209,8 @@ for (const scenario of scenarios) {
         samples: SAMPLES,
         p50us: Number(percentile(samples, 50).toFixed(1)),
         p90us: Number(percentile(samples, 90).toFixed(1)),
+        cpuP50us: Number(percentile(cpuSamples, 50).toFixed(1)),
+        cpuP90us: Number(percentile(cpuSamples, 90).toFixed(1)),
       }
 
       console.log(`BENCH ${JSON.stringify(result)}`)
