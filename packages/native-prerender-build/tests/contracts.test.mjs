@@ -204,6 +204,7 @@ test('producer launch inputs validate bounded persisted-string declarations', ()
     [{ ...input, default: undefined }],
     [{ ...input, name: 'has\nnewline' }],
     [{ ...input, name: 'x'.repeat(129) }],
+    [{ ...input, name: 'systemAppearance' }],
     [{ name: 'theme-preference' }],
     [input, input],
     [input, { ...input, name: 'other' }].concat(
@@ -213,6 +214,9 @@ test('producer launch inputs validate bounded persisted-string declarations', ()
     [input, { ...input, name: 'second' }],
     // Three inputs (3x3x2) exceed the product bound as well.
     [input, { ...input, name: 'a' }, { ...input, name: 'b', values: ['x'] }],
+    // 3x2 product also exceeds the four-declared-bind bound (each point is
+    // still crossed with light/dark systemAppearance).
+    [input, { ...input, name: 'a', values: ['x'] }],
   ]) {
     assert.throws(
       () => parse({ launchInputs }),
@@ -220,6 +224,16 @@ test('producer launch inputs validate bounded persisted-string declarations', ()
       'Accepted ' + JSON.stringify(launchInputs),
     )
   }
+  // Four declared bind points (2x2) remain legal: eight scheme trees total.
+  assert.equal(
+    parse({
+      launchInputs: [
+        { ...input, name: 'a', values: ['x'] },
+        { ...input, name: 'b', values: ['y'] },
+      ],
+    }).launchInputs.length,
+    2,
+  )
 })
 
 test('build host ApplicationSettings exposes only the declared launch bind', () => {

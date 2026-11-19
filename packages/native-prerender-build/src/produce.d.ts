@@ -34,7 +34,7 @@ export type NativeStartupManifest = {
   startupFormat: 'XPI1'
   dimensionQueries: string[]
   startupArtifactHash: string
-  /** Total logical nodes across the artifact (all trees when launch inputs exist). */
+  /** Total logical nodes across the artifact (all trees when layered). */
   logicalNodeCount: number
   scope: string
 }

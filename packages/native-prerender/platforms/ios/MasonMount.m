@@ -121,7 +121,7 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     Require(NSThread.isMainThread, @"Native mounting requires the UI thread");
     Require(scale > 0 && isfinite(scale), @"Invalid owning screen scale");
     NSMutableArray<UIView *> *views = [NSMutableArray new];
-    // The native reader validates both themes before this mounting boundary.
+    // The native reader validates every scheme variant before this boundary.
     for (NSUInteger index=0; index<records.count; index++) {
         NSDictionary *record = records[index];
         Require([record[@"index"] unsignedIntegerValue] == index && [styles[index][@"index"] unsignedIntegerValue] == index, @"Noncanonical index");
@@ -130,7 +130,7 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
         // Decoding validated property semantics. Check owning-scale conversion
         // for every record before allocating the first native view.
         if (index > 0) Require([@[@"masonview",@"scrollview"] containsObject:records[[record[@"parent"] unsignedIntegerValue]][@"kind"]], @"Only containers can own visual children");
-        for (NSString *variant in @[@"light", @"dark"]) {
+        for (NSString *variant in artifact[@"variants"]) {
             NSArray *rows = artifact[@"variants"][variant];
             Require(rows.count == records.count, @"Style projection differs");
             NSDictionary *values = rows[index][@"style"];

@@ -227,30 +227,54 @@ test('launch-input artifacts round-trip with a set header flag while flat artifa
   assert.throws(() => decodeStartupArtifact(resign(flipped), expected), /flags|version/)
 })
 
-test('launch tree selection is exact: declared values, defaults, and never a guess', () => {
+test('launch tree selection is exact: declared values, appearance, defaults, and never a guess', () => {
   const artifact = validateArtifact(treesFixture())
   const binds = artifact.trees.map((tree) => ({ ...tree.bind }))
   assert.deepEqual(binds, [
-    { 'theme-preference': 'dark' },
-    { 'theme-preference': 'light' },
-    { 'theme-preference': null },
+    { 'theme-preference': 'dark', systemAppearance: 'light' },
+    { 'theme-preference': 'dark', systemAppearance: 'dark' },
+    { 'theme-preference': 'light', systemAppearance: 'light' },
+    { 'theme-preference': 'light', systemAppearance: 'dark' },
+    { 'theme-preference': null, systemAppearance: 'light' },
+    { 'theme-preference': null, systemAppearance: 'dark' },
   ])
-  for (const [value, index] of [
-    ['dark', 0],
-    ['light', 1],
-    [null, 2],
-    [undefined, 2],
+  // systemAppearance resolves through the same resolver, answered from the
+  // OS appearance read; it has no declared default.
+  for (const [preference, appearance, index] of [
+    ['dark', 'light', 0],
+    ['dark', 'dark', 1],
+    ['light', 'light', 2],
+    ['light', 'dark', 3],
+    [null, 'light', 4],
+    [undefined, 'dark', 5],
   ]) {
     const selected = selectLaunchTree(artifact, (name) =>
-      name === 'theme-preference' ? value : null,
+      name === 'theme-preference'
+        ? preference
+        : name === 'systemAppearance'
+          ? appearance
+          : null,
     )
     assert.equal(selected, artifact.trees[index])
+  }
+  // An absent or out-of-domain appearance matches no bind — fallback, never
+  // a guessed scheme.
+  for (const appearance of [null, undefined, 'sepia', 'DARK']) {
+    assert.equal(
+      selectLaunchTree(artifact, (name) =>
+        name === 'theme-preference' ? 'dark' : name === 'systemAppearance' ? appearance : null,
+      ),
+      null,
+      'Appearance ' + JSON.stringify(appearance) + ' selected a tree',
+    )
   }
   // A persisted value outside the declared domain selects nothing; the
   // resolver must not substitute the declaration default for a present key.
   for (const value of ['sepia', '', 'DARK']) {
     assert.equal(
-      selectLaunchTree(artifact, () => value),
+      selectLaunchTree(artifact, (name) =>
+        name === 'systemAppearance' ? 'light' : value,
+      ),
       null,
       'Out-of-domain value ' + JSON.stringify(value) + ' selected a tree',
     )
@@ -267,6 +291,25 @@ test('launch tree selection is exact: declared values, defaults, and never a gue
   assert.deepEqual({ ...selected.bind }, {})
   assert.equal(selected.nodes, flat.nodes)
   assert.equal(selected.variants, flat.variants)
+})
+
+test('appearance-only artifacts declare no inputs and bind systemAppearance alone', () => {
+  const layered = structuredClone(treesFixture())
+  layered.launchInputs = []
+  layered.trees = layered.trees
+    .filter((tree) => tree.bind['theme-preference'] === 'dark')
+    .map((tree) => ({ ...tree, bind: { systemAppearance: tree.bind.systemAppearance } }))
+  const artifact = validateArtifact(layered)
+  assert.equal(artifact.trees.length, 2)
+  assert.equal(
+    selectLaunchTree(artifact, (name) => (name === 'systemAppearance' ? 'dark' : null)),
+    artifact.trees[1],
+  )
+  assert.equal(
+    selectLaunchTree(artifact, () => null),
+    null,
+    'Absent appearance selected a tree',
+  )
 })
 
 test('launch-input schema rejects malformed declarations and binds', () => {
@@ -300,7 +343,23 @@ test('launch-input schema rejects malformed declarations and binds', () => {
       x.trees[0].bind.extra = 'dark'
     },
     (x) => {
-      x.trees[1].bind['theme-preference'] = 'dark'
+      x.trees[2].bind['theme-preference'] = 'dark'
+    },
+    (x) => {
+      x.trees[1].bind.systemAppearance = 'light'
+    },
+    (x) => {
+      x.trees[0].bind.systemAppearance = 'sepia'
+    },
+    (x) => {
+      delete x.trees[0].bind.systemAppearance
+    },
+    (x) => {
+      x.launchInputs[0].name = 'systemAppearance'
+    },
+    (x) => {
+      x.trees[0].variants = x.trees[0].variant
+      delete x.trees[0].variant
     },
     (x) => {
       x.trees.pop()
@@ -312,7 +371,7 @@ test('launch-input schema rejects malformed declarations and binds', () => {
       delete x.trees
     },
     (x) => {
-      x.trees[0].variants.light[0].node = 9
+      x.trees[0].variant[0].node = 9
     },
   ]
   for (const mutate of cases) {
@@ -320,11 +379,12 @@ test('launch-input schema rejects malformed declarations and binds', () => {
     mutate(value)
     assert.throws(() => validateArtifact(value))
   }
-  // Each input's null point exists only when its default is null.
+  // Each input's null point exists only when its default is null; every
+  // declared point still crosses light/dark.
   const nonNull = layered()
   nonNull.launchInputs[0].default = 'light'
   nonNull.trees = nonNull.trees.filter((tree) => tree.bind['theme-preference'] !== null)
-  assert.equal(validateArtifact(nonNull).trees.length, 2)
+  assert.equal(validateArtifact(nonNull).trees.length, 4)
   const missing = layered()
   missing.launchInputs[0].default = 'dark'
   assert.throws(() => validateArtifact(missing), /tree count|outside declared domain/)

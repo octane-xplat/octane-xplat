@@ -1,5 +1,11 @@
-import { requireArtifact } from './schema.ts'
-import type { LiteralObject, SafeAreaInsetInput, StartupArtifact, StartupTree } from './schema.ts'
+import { requireArtifact, SYSTEM_APPEARANCE_INPUT } from './schema.ts'
+import type {
+  LiteralObject,
+  SafeAreaInsetInput,
+  StartupArtifact,
+  StartupTree,
+  StartupVariants,
+} from './schema.ts'
 
 export type SafeAreaInsets = { top: number; right: number; bottom: number; left: number }
 export type LaunchEnvironment = {
@@ -54,18 +60,26 @@ export function checkLaunchEnvironment(
   return { supported: true }
 }
 
+/** A selected launch tree: per-scheme `variant` on tree artifacts, both `variants` on flat ones. */
+export type SelectedLaunchTree =
+  | StartupTree
+  | { bind: LiteralObject; nodes: StartupTree['nodes']; variants: StartupVariants }
 /**
  * Resolve declared launch inputs and pick the matching prerendered tree.
  * `resolve` returns the persisted value for a declared input name, or
  * `null`/`undefined` when the key is absent; an absent key resolves to the
- * declaration's `default`. Returns `null` when the effective values match no
- * bind — callers must fall back to JavaScript boot, never pick another tree.
- * For flat artifacts (no launch inputs) the resolver is never invoked.
+ * declaration's `default`. It is also consulted for the implicit
+ * `systemAppearance` bind — callers answer it from the OS appearance read
+ * (`'light'`/`'dark'`); it has no declared default, so an absent or
+ * out-of-domain answer matches no tree. Returns `null` when the effective
+ * values match no bind — callers must fall back to JavaScript boot, never
+ * pick another tree. For flat artifacts (a single tree) the resolver is
+ * never invoked.
  */
 export function selectLaunchTree(
   artifact: StartupArtifact,
   resolve: (name: string) => string | null | undefined,
-): StartupTree | null {
+): SelectedLaunchTree | null {
   if (!artifact.trees) {
     return {
       bind: Object.create(null) as LiteralObject,
@@ -74,7 +88,7 @@ export function selectLaunchTree(
     }
   }
   const launchInputs = artifact.launchInputs
-  const effective = Object.create(null) as Record<string, string | null>
+  const effective = Object.create(null) as Record<string, string | null | undefined>
   for (const input of launchInputs) {
     const stored = resolve(input.name)
     requireArtifact(
@@ -83,9 +97,17 @@ export function selectLaunchTree(
     )
     effective[input.name] = stored ?? input.default
   }
+  const appearance = resolve(SYSTEM_APPEARANCE_INPUT)
+  requireArtifact(
+    appearance === null || appearance === undefined || typeof appearance === 'string',
+    'launch input resolution must return a string or null',
+  )
+  effective[SYSTEM_APPEARANCE_INPUT] = appearance
   return (
     artifact.trees.find((tree) =>
-      launchInputs.every((input) => tree.bind[input.name] === effective[input.name]),
+      [...launchInputs.map((input) => input.name), SYSTEM_APPEARANCE_INPUT].every(
+        (name) => tree.bind[name] === effective[name],
+      ),
     ) ?? null
   )
 }

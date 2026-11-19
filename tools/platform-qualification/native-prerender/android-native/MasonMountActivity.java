@@ -108,15 +108,18 @@ public final class MasonMountActivity extends androidx.appcompat.app.AppCompatAc
                 bars.top / density, bars.right / density, bars.bottom / density, bars.left / density),
                 "Test canvas does not satisfy launch constraints");
             // Resolve declared launch inputs from the same SharedPreferences
-            // store NativeScript ApplicationSettings reads; no matching bind
-            // means JavaScript boot, never a guessed tree.
+            // store NativeScript ApplicationSettings reads, plus the implicit
+            // systemAppearance bind from the same uiMode read that chooses the
+            // mount theme; no matching bind means JavaScript boot, never a
+            // guessed tree.
+            theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+                android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
             android.content.SharedPreferences settings = getApplicationContext().getSharedPreferences("prefs.db", 0);
-            Integer treeIndex = artifact.snapshot.selectIndex(name -> settings.contains(name) ? settings.getString(name, null) : null);
+            final String appearance = theme;
+            Integer treeIndex = artifact.snapshot.selectIndex(name -> name.equals("systemAppearance") ? appearance : (settings.contains(name) ? settings.getString(name, null) : null));
             check(treeIndex != null, "Launch inputs outside declared domain");
             artifact = artifact.trees().get(treeIndex);
             logicalNodes = artifact.snapshot.trees.get(treeIndex).nodes.size();
-            theme = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
-                android.content.res.Configuration.UI_MODE_NIGHT_YES ? "dark" : "light";
             MasonMount.Prepared prepared = MasonMount.prepare(this, artifact, theme);
             record("mount-preflight", new JSONObject().put("visualNodes", artifact.nodes.size())
                 .put("logicalNodes", logicalNodes).put("bind", new JSONObject(artifact.bind)).put("theme", theme)

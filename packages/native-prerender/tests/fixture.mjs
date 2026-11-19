@@ -75,15 +75,19 @@ export function treesFixture(texts) {
       default: null,
     },
   ]
-  const trees = ['dark', 'light', null].map((value) => ({
-    bind: { 'theme-preference': value },
-    nodes: nodes.map((node) =>
-      node.index === 0
-        ? { ...node, props: { ...node.props, className: value == null ? 'app' : 'app ' + value } }
-        : node,
-    ),
-    variants,
-  }))
+  // Declared bind points crossed with the implicit systemAppearance input;
+  // each tree owns one style variant for its bound scheme.
+  const trees = ['dark', 'light', null].flatMap((value) =>
+    ['light', 'dark'].map((systemAppearance) => ({
+      bind: { 'theme-preference': value, systemAppearance },
+      nodes: nodes.map((node) =>
+        node.index === 0
+          ? { ...node, props: { ...node.props, className: value == null ? 'app' : 'app ' + value } }
+          : node,
+      ),
+      variant: variants[systemAppearance],
+    })),
+  )
   return { ...rest, launchInputs, trees }
 }
 export function resign(data) {

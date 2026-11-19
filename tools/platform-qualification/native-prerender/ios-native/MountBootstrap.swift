@@ -123,9 +123,13 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
                 )
             ) else { throw XplatMasonArtifact.Invalid(reason: "launch constraints differ") }
             // Resolve declared launch inputs from the same persisted store the
-            // app's ApplicationSettings reads; no matching bind means JS boot.
+            // app's ApplicationSettings reads, plus the implicit
+            // systemAppearance bind from the same trait read that chooses the
+            // mount theme; no matching bind means JS boot.
             let defaults = UserDefaults.standard
-            guard let selected = decoded.select({ defaults.string(forKey: $0) }) else {
+            guard let selected = decoded.select({ name in
+                name == "systemAppearance" ? theme : defaults.string(forKey: name)
+            }) else {
                 throw XplatMasonArtifact.Invalid(reason: "launch inputs outside declared domain")
             }
             selectedBind = selected.tree.bind
@@ -137,7 +141,7 @@ final class MountScene: UIResponder, UIWindowSceneDelegate {
             placeholderIndexes = Set(nodes.indices.filter { nodes[$0]["kind"] as? String == "placeholder" })
         } catch {
             let reason = (error as? XplatMasonArtifact.Invalid)?.reason ?? "artifact read failed"
-            try! JSONSerialization.data(withJSONObject: ["artifactRejected": true, "reason": reason, "theme": theme, "scale": scale, "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left], "rows": []]).write(to: documents("native-mount.json"), options: .atomic)
+            try! JSONSerialization.data(withJSONObject: ["artifactRejected": true, "reason": reason, "theme": theme, "scale": scale, "resolved": ["theme-preference": UserDefaults.standard.string(forKey: "theme-preference") ?? "<absent>", "systemAppearance": theme], "safeAreaInsets": ["top": windowInsets.top, "right": windowInsets.right, "bottom": windowInsets.bottom, "left": windowInsets.left], "rows": []]).write(to: documents("native-mount.json"), options: .atomic)
             record("failed", ["reason": reason, "beforeEngineInit": true])
             return
         }

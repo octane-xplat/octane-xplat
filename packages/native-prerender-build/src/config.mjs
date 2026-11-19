@@ -86,11 +86,14 @@ export function parseProducerConfig(text, file) {
 }
 
 /**
- * Declared persisted inputs the producer renders a launch tree for. The first
+ * Declared persisted inputs the producer renders launch trees for. The first
  * cut is bounded: enum-string reads from the ApplicationSettings store only,
  * at most four declared values per input, and the Cartesian product across
  * inputs (including each null default's absent-key point) must stay at or
- * below eight rendered trees.
+ * below four declared bind points — every point is then crossed with the
+ * implicit systemAppearance input (light/dark), for at most eight trees.
+ * `systemAppearance` is a reserved bind name: it has no persisted store, so
+ * a declared launch input may not use it.
  */
 function parseLaunchInputs(input) {
   if (input === undefined) {
@@ -115,6 +118,11 @@ function parseLaunchInputs(input) {
     const name = candidate.name
     if (typeof name !== 'string' || !/^[\x20-\x7e]{1,128}$/.test(name) || names.has(name)) {
       throw new Error('Producer launch input names must be unique printable ASCII strings')
+    }
+    if (name === 'systemAppearance') {
+      throw new Error(
+        'Producer launch input name systemAppearance is reserved for the implicit appearance bind',
+      )
     }
     names.add(name)
 
@@ -145,8 +153,11 @@ function parseLaunchInputs(input) {
     (count, item) => count * (item.values.length + (item.default === null ? 1 : 0)),
     1,
   )
-  if (product > 8) {
-    throw new Error('Producer launch input Cartesian product exceeds eight trees')
+  if (product > 4) {
+    throw new Error(
+      'Producer launch input Cartesian product exceeds four declared binds ' +
+        '(each crossed with light/dark systemAppearance, eight trees maximum)',
+    )
   }
 
   return launchInputs

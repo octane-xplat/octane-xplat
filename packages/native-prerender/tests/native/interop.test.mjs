@@ -193,13 +193,35 @@ for (const reader of readers) {
       const result = invoke(reader, encoded)
       assert.equal(result.status, 0, result.stderr)
       assert.deepEqual(JSON.parse(result.stdout), plain(artifact))
+      // The implicit systemAppearance bind resolves through the same pair
+      // resolver: an absent or out-of-domain answer matches no tree.
       const cases = [
-        [['theme-preference=dark'], { 'theme-preference': 'dark' }],
-        [['theme-preference=light'], { 'theme-preference': 'light' }],
+        [
+          ['theme-preference=dark', 'systemAppearance=light'],
+          { 'theme-preference': 'dark', systemAppearance: 'light' },
+        ],
+        [
+          ['theme-preference=light', 'systemAppearance=dark'],
+          { 'theme-preference': 'light', systemAppearance: 'dark' },
+        ],
+        [['systemAppearance=light'], { systemAppearance: 'light' }],
         [[], {}],
-        [['theme-preference=sepia'], { 'theme-preference': 'sepia' }],
-        [['theme-preference='], { 'theme-preference': '' }],
-        [['unrelated=ignored'], { unrelated: 'ignored' }],
+        [
+          ['theme-preference=sepia', 'systemAppearance=light'],
+          { 'theme-preference': 'sepia', systemAppearance: 'light' },
+        ],
+        [
+          ['theme-preference=dark', 'systemAppearance=sepia'],
+          { 'theme-preference': 'dark', systemAppearance: 'sepia' },
+        ],
+        [
+          ['theme-preference=', 'systemAppearance=dark'],
+          { 'theme-preference': '', systemAppearance: 'dark' },
+        ],
+        [
+          ['unrelated=ignored', 'systemAppearance=light'],
+          { unrelated: 'ignored', systemAppearance: 'light' },
+        ],
       ]
       for (const [pairs, stored] of cases) {
         const selected = selectLaunchTree(artifact, (name) => stored[name] ?? null)

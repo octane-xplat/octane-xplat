@@ -48,6 +48,7 @@ function run(t, visualNodes, css) {
       seed: {},
       sheets: [{ id: 'test.css', css }],
       environment: { width: 320, height: 640 },
+      colorScheme: 'light',
       output,
     }),
   )
@@ -71,11 +72,9 @@ test('a sized placeholder keeps box geometry and reports dropped styles', (t) =>
   )
   assert.equal(result.status, 0, result.stderr)
   const resolved = JSON.parse(readFileSync(output, 'utf8'))
-  for (const theme of ['light', 'dark']) {
-    assert.deepEqual(resolved.variants[theme][1].style, { width: 16, height: 16 })
-    assert.deepEqual(resolved.variants[theme][1].cssKeys, [])
-    assert.deepEqual(resolved.variants[theme][1].inheritedKeys, [])
-  }
+  assert.deepEqual(resolved.variant[1].style, { width: 16, height: 16 })
+  assert.deepEqual(resolved.variant[1].cssKeys, [])
+  assert.deepEqual(resolved.variant[1].inheritedKeys, [])
   assert.deepEqual(resolved.placeholders, [
     {
       path: '0/0',
@@ -93,11 +92,9 @@ test('a sized svgview placeholder keeps box geometry and reports dropped styles'
   )
   assert.equal(result.status, 0, result.stderr)
   const resolved = JSON.parse(readFileSync(output, 'utf8'))
-  for (const theme of ['light', 'dark']) {
-    assert.deepEqual(resolved.variants[theme][1].style, { width: 24, height: 24 })
-    assert.deepEqual(resolved.variants[theme][1].cssKeys, [])
-    assert.deepEqual(resolved.variants[theme][1].inheritedKeys, [])
-  }
+  assert.deepEqual(resolved.variant[1].style, { width: 24, height: 24 })
+  assert.deepEqual(resolved.variant[1].cssKeys, [])
+  assert.deepEqual(resolved.variant[1].inheritedKeys, [])
   assert.deepEqual(resolved.placeholders, [
     {
       path: '0/0',
@@ -115,11 +112,9 @@ test('a sized image placeholder keeps box geometry and reports dropped styles', 
   )
   assert.equal(result.status, 0, result.stderr)
   const resolved = JSON.parse(readFileSync(output, 'utf8'))
-  for (const theme of ['light', 'dark']) {
-    assert.deepEqual(resolved.variants[theme][1].style, { width: 40, height: 40 })
-    assert.deepEqual(resolved.variants[theme][1].cssKeys, [])
-    assert.deepEqual(resolved.variants[theme][1].inheritedKeys, [])
-  }
+  assert.deepEqual(resolved.variant[1].style, { width: 40, height: 40 })
+  assert.deepEqual(resolved.variant[1].cssKeys, [])
+  assert.deepEqual(resolved.variant[1].inheritedKeys, [])
   assert.deepEqual(resolved.placeholders, [
     {
       path: '0/0',

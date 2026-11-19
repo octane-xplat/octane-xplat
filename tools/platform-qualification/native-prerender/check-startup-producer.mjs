@@ -27,20 +27,24 @@ const canonical = (records) =>
     cssKeys: [...record.cssKeys].sort(),
     inheritedKeys: [...record.inheritedKeys].sort(),
   }))
-// Flat artifacts have one implicit tree; launch-input artifacts check every
-// bind's prepared tree pair and resolved cascade independently.
+// Flat artifacts have one implicit tree; layered artifacts check every
+// scheme-bound tree's prepared render and resolved cascade independently.
+// Points emit bind-major (bind then light/dark), so a declared tree's render
+// pair is index >> 1.
 const trees = artifact.trees ?? [{ bind: null, nodes: artifact.nodes, variants: artifact.variants }]
 const resolvedTrees = previous.trees ?? [previous]
 assert.equal(trees.length, resolvedTrees.length)
+const declared = Boolean(artifact.launchInputs?.length)
 let logicalTotal = 0
 let visualTotal = 0
 for (const [index, tree] of trees.entries()) {
   logicalTotal += tree.nodes.length
   if (artifact.trees) {
-    assert.deepEqual(plain(tree.nodes), json('tree-' + index + '-light.json').logicalNodes)
+    const scheme = tree.bind.systemAppearance
     assert.deepEqual(
-      json('tree-' + index + '-light.json').logicalNodes,
-      json('tree-' + index + '-dark.json').logicalNodes,
+      plain(tree.nodes),
+      json(declared ? 'tree-' + (index >> 1) + '-' + scheme + '.json' : scheme + '-tree.json')
+        .logicalNodes,
     )
     assert.deepEqual(plain(tree.bind), resolvedTrees[index].bind)
   } else {
@@ -53,15 +57,22 @@ for (const [index, tree] of trees.entries()) {
     plain(visual.map(({ logicalNode, ...node }) => node)),
     resolvedTrees[index].nodes,
   )
-  for (const theme of ['light', 'dark']) {
+  // Layered trees carry one variant keyed by bind.systemAppearance; flat
+  // trees carry both schemes.
+  const variants = artifact.trees
+    ? [[tree.bind.systemAppearance, tree.variant]]
+    : Object.entries(tree.variants)
+  for (const [theme, records] of variants) {
     assert.deepEqual(
       canonical(
-        tree.variants[theme].map(({ node, ...record }, row) => {
+        records.map(({ node, ...record }, row) => {
           assert.equal(node, visual[row].logicalNode)
           return { index: row, ...record }
         }),
       ),
-      canonical(resolvedTrees[index].variants[theme]),
+      canonical(
+        artifact.trees ? resolvedTrees[index].variant : resolvedTrees[index].variants[theme],
+      ),
     )
   }
 }

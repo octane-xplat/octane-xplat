@@ -83,23 +83,37 @@ export type LaunchInput = {
   values: string[]
   default: string | null
 }
+export type StartupVariants = { light: StyleRecord[]; dark: StyleRecord[] }
+/**
+ * The implicit launch input every layered tree binds: `systemAppearance`
+ * resolves at launch from the OS appearance read (`'light'` or `'dark'`),
+ * the same read the mount uses for the style variant. It is a reserved
+ * bind name — a user-declared `LaunchInput` may not collide with it, it
+ * has no persisted store and no declared default, and an unresolved or
+ * out-of-domain read selects no tree.
+ */
+export const SYSTEM_APPEARANCE_INPUT = 'systemAppearance'
+export const SYSTEM_APPEARANCE_VALUES = ['light', 'dark'] as const
+export type SystemAppearance = (typeof SYSTEM_APPEARANCE_VALUES)[number]
 /**
  * One prerendered tree for a launch-input bind. `bind` carries every declared
  * input name with either one of its declared values or `null` (only declared
- * when the input's `default` is `null`). Each tree owns its logical nodes and
- * both system-appearance style variants, so binds may differ in topology.
+ * when the input's `default` is `null`) plus the `systemAppearance` scheme
+ * this tree renders. Each tree owns its logical nodes and a single style
+ * variant for its bound scheme, so binds may differ in topology.
  */
 export type StartupTree = {
   bind: LiteralObject
   nodes: LogicalNode[]
-  variants: { light: StyleRecord[]; dark: StyleRecord[] }
+  variant: StyleRecord[]
 }
 /**
- * Artifacts without `launchInputs` keep the flat `nodes` + `variants` form
- * (byte-for-byte compatible). Artifacts with launch inputs carry the
- * declaration plus one `StartupTree` per point of the declared input product;
- * launch resolves each input and must fall back to JavaScript boot when the
- * resolved values match no bind.
+ * Artifacts without `trees` keep the flat `nodes` + `variants` form
+ * (byte-for-byte compatible). Tree artifacts carry the declared inputs
+ * (`launchInputs` may be empty when only `systemAppearance` diverges) plus
+ * one `StartupTree` per point of the declared product crossed with
+ * light/dark; launch resolves each input and must fall back to JavaScript
+ * boot when the resolved values match no bind.
  */
 export type StartupArtifact = {
   version: 1
@@ -111,7 +125,7 @@ export type StartupArtifact = {
 } & (
   | {
       nodes: LogicalNode[]
-      variants: { light: StyleRecord[]; dark: StyleRecord[] }
+      variants: StartupVariants
       launchInputs?: never
       trees?: never
     }
@@ -130,6 +144,9 @@ export const ARTIFACT_LIMITS = Object.freeze({
   debugBytes: 8388608,
   launchInputs: 8,
   launchValues: 4,
+  // Declared-input bind product cap; the implicit systemAppearance factor
+  // doubles it into the total tree bound.
+  launchBinds: 4,
   trees: 8,
 })
 /** Total logical nodes across the artifact; also the header node count. */
@@ -403,32 +420,32 @@ function provenance(value: unknown, style: Record<string, string | number>): str
   )
   return result.sort()
 }
-function validateVariants(
-  input: unknown,
-  visual: LogicalNode[],
-): { light: StyleRecord[]; dark: StyleRecord[] } {
+function validateStyleRecords(value: unknown, visual: LogicalNode[]): StyleRecord[] {
+  requireArtifact(Array.isArray(value) && value.length === visual.length, 'variant node count')
+  return value.map((value, index) => {
+    const item = record(value, 'style record')
+    keys(item, ['node', 'style', 'cssKeys', 'inheritedKeys'], 'style record')
+    requireArtifact(item.node === visual[index].index, 'style node identity')
+    const style = validateStyle(item.style)
+    return {
+      node: visual[index].index,
+      style,
+      cssKeys: provenance(item.cssKeys, style),
+      inheritedKeys: provenance(item.inheritedKeys, style),
+    }
+  })
+}
+function validateVariants(input: unknown, visual: LogicalNode[]): StartupVariants {
   const variants = record(input, 'variants')
   keys(variants, ['light', 'dark'], 'variants')
-  function variant(value: unknown): StyleRecord[] {
-    requireArtifact(Array.isArray(value) && value.length === visual.length, 'variant node count')
-    return value.map((value, index) => {
-      const item = record(value, 'style record')
-      keys(item, ['node', 'style', 'cssKeys', 'inheritedKeys'], 'style record')
-      requireArtifact(item.node === visual[index].index, 'style node identity')
-      const style = validateStyle(item.style)
-      return {
-        node: visual[index].index,
-        style,
-        cssKeys: provenance(item.cssKeys, style),
-        inheritedKeys: provenance(item.inheritedKeys, style),
-      }
-    })
+  return {
+    light: validateStyleRecords(variants.light, visual),
+    dark: validateStyleRecords(variants.dark, visual),
   }
-  return { light: variant(variants.light), dark: variant(variants.dark) }
 }
 function validateLaunchInputs(input: unknown): LaunchInput[] {
   requireArtifact(
-    Array.isArray(input) && input.length >= 1 && input.length <= ARTIFACT_LIMITS.launchInputs,
+    Array.isArray(input) && input.length <= ARTIFACT_LIMITS.launchInputs,
     'launch inputs',
   )
   const seen = new Set<string>()
@@ -439,6 +456,10 @@ function validateLaunchInputs(input: unknown): LaunchInput[] {
     requireArtifact(
       name.length <= 128 && /^[\x20-\x7e]+$/.test(name),
       'launch input name must be printable ASCII',
+    )
+    requireArtifact(
+      name !== SYSTEM_APPEARANCE_INPUT,
+      'launch input name collides with the implicit appearance input',
     )
     requireArtifact(!seen.has(name), 'duplicate launch input')
     seen.add(name)
@@ -461,20 +482,24 @@ function validateLaunchInputs(input: unknown): LaunchInput[] {
     (count, item) => count * (item.values.length + (item.default === null ? 1 : 0)),
     1,
   )
-  requireArtifact(product <= ARTIFACT_LIMITS.trees, 'launch input product')
+  requireArtifact(product <= ARTIFACT_LIMITS.launchBinds, 'launch input product')
   return launchInputs
 }
 function validateTrees(input: unknown, launchInputs: LaunchInput[]): StartupTree[] {
   const domains = launchInputs.map((item) =>
     new Set<Literal>(item.default === null ? [...item.values, null] : item.values),
   )
+  // Every declared bind point crossed with the implicit appearance input.
   const product = domains.reduce((count, domain) => count * domain.size, 1)
-  requireArtifact(Array.isArray(input) && input.length === product, 'tree count')
+  requireArtifact(
+    Array.isArray(input) && input.length === product * SYSTEM_APPEARANCE_VALUES.length,
+    'tree count',
+  )
   let total = 0
   const seen = new Set<string>()
   const trees = input.map((value) => {
     const tree = record(value, 'tree')
-    keys(tree, ['bind', 'nodes', 'variants'], 'tree')
+    keys(tree, ['bind', 'nodes', 'variant'], 'tree')
     const input = record(tree.bind, 'tree bind')
     const bind: LiteralObject = Object.create(null)
     for (const [index, item] of launchInputs.entries()) {
@@ -485,18 +510,27 @@ function validateTrees(input: unknown, launchInputs: LaunchInput[]): StartupTree
       )
       bind[item.name] = value as Literal
     }
-    requireArtifact(Object.keys(input).length === launchInputs.length, 'tree bind inputs differ')
+    const appearance = input[SYSTEM_APPEARANCE_INPUT]
+    requireArtifact(
+      SYSTEM_APPEARANCE_VALUES.includes(appearance as SystemAppearance),
+      'tree bind appearance outside declared domain',
+    )
+    bind[SYSTEM_APPEARANCE_INPUT] = appearance as SystemAppearance
+    requireArtifact(
+      Object.keys(input).length === launchInputs.length + 1,
+      'tree bind inputs differ',
+    )
     const nodes = validateNodes(tree.nodes)
     total += nodes.length
     requireArtifact(total <= ARTIFACT_LIMITS.nodes, 'tree node count')
     const visual = nodes.filter((node) => node.kind !== '#text')
-    const variants = validateVariants(tree.variants, visual)
-    const canonical = launchInputs
-      .map((item) => item.name + '=' + JSON.stringify(bind[item.name]))
+    const variant = validateStyleRecords(tree.variant, visual)
+    const canonical = [...launchInputs.map((item) => item.name), SYSTEM_APPEARANCE_INPUT]
+      .map((name) => name + '=' + JSON.stringify(bind[name]))
       .join('&')
     requireArtifact(!seen.has(canonical), 'duplicate tree bind')
     seen.add(canonical)
-    return { bind, nodes, variants }
+    return { bind, nodes, variant }
   })
   return trees
 }

@@ -113,6 +113,68 @@ test(`${platform} backend lowers the complete logical artifact to its expected v
       artifact.variants[theme].map(({ node, ...record }, index) => ({ index, ...record })),
     )
 })
+test(`${platform} backend matches binds on declared inputs plus the implicit appearance`, () => {
+  const flat = fixture()
+  // Scheme-aware layered artifact: declared product crossed with
+  // systemAppearance; each tree carries only its bound scheme's variant.
+  const layered = {
+    ...flat,
+    launchInputs: [
+      {
+        name: 'theme-preference',
+        source: 'appSettings.string',
+        values: ['dark', 'light'],
+        default: null,
+      },
+    ],
+    trees: ['dark', 'light', null].flatMap((value) =>
+      ['light', 'dark'].map((systemAppearance) => ({
+        bind: { 'theme-preference': value, systemAppearance },
+        nodes: flat.nodes,
+        variant: flat.variants[systemAppearance],
+      })),
+    ),
+  }
+  delete layered.nodes
+  delete layered.variants
+  const path = join(work, 'backend-layered.bin')
+  writeFileSync(path, encodeStartupArtifact(layered))
+  const invoke = (pairs) =>
+    spawnSync(binary, [path, build, ...pairs], { encoding: 'utf8', timeout: 15000 })
+  for (const [index, pairs] of [
+    [0, ['theme-preference=dark', 'systemAppearance=light']],
+    [1, ['theme-preference=dark', 'systemAppearance=dark']],
+    [3, ['theme-preference=light', 'systemAppearance=dark']],
+    [4, ['systemAppearance=light']],
+  ]) {
+    const result = invoke(pairs)
+    assert.equal(result.status, 0, pairs.join(' ') + ': ' + result.stderr)
+    const projection = JSON.parse(result.stdout)
+    const scheme = pairs
+      .find((pair) => pair.startsWith('systemAppearance='))
+      .split('=')[1]
+    assert.deepEqual(Object.keys(projection.variants), [scheme])
+    assert.deepEqual(
+      projection.variants[scheme],
+      layered.trees[index].variant.map(({ node, ...record }, row) => ({
+        index: row,
+        ...record,
+      })),
+    )
+  }
+  // Absent or out-of-domain resolution — declared or appearance — selects
+  // nothing: the mount falls back to JavaScript boot, never a guessed tree.
+  for (const pairs of [
+    [],
+    ['theme-preference=dark'],
+    ['systemAppearance=dark', 'theme-preference=sepia'],
+    ['theme-preference=dark', 'systemAppearance=sepia'],
+  ]) {
+    const result = invoke(pairs)
+    assert.equal(result.status, 1, JSON.stringify(pairs))
+    assert.match(result.stderr, /outside declared domain|rejected/)
+  }
+})
 test(`${platform} backend accepts each placeholder leaf and numeric authored width`, () => {
   for (const [kind, props, size] of [
     ['activityindicator', { id: 'spin', busy: true }, { width: 16, height: 16 }],

@@ -57,13 +57,19 @@ const nativeSnapshot = JSON.parse(
   ),
 )
 
-// The Swift mount resolves the same persisted inputs before engine init;
-// re-selecting here must land on the identical bind or the cold mount and the
-// live prepared tree would compare different topologies. Absent keys resolve
-// to each declaration's default; hasKey keeps an absent key distinct from a
-// stored empty string.
+// The Swift mount resolves the same persisted inputs before engine init plus
+// the implicit systemAppearance bind from the OS appearance read;
+// re-selecting here must land on the identical bind or the cold mount and
+// the live prepared tree would compare different topologies. Absent keys
+// resolve to each declaration's default; hasKey keeps an absent key distinct
+// from a stored empty string.
+const scheme = Application.systemAppearance?.() === 'dark' ? 'dark' : 'light'
 const tree = selectLaunchTree(startup, (name) =>
-  ApplicationSettings.hasKey(name) ? ApplicationSettings.getString(name) : null,
+  name === 'systemAppearance'
+    ? scheme
+    : ApplicationSettings.hasKey(name)
+      ? ApplicationSettings.getString(name)
+      : null,
 )
 check(tree, 'Persisted launch inputs selected no startup tree')
 const canonicalBind = (bind) =>
@@ -131,8 +137,6 @@ function rowsEquivalent(before, after, skipped = new Set(), alphaExempt = new Se
 }
 
 async function qualify() {
-  const scheme = Application.systemAppearance?.() === 'dark' ? 'dark' : 'light'
-
   check(scheme === nativeSnapshot.theme, 'Native/live configured theme differs')
 
   const visual = projectVisualTree(tree.nodes)

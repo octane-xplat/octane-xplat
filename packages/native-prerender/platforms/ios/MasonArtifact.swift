@@ -70,10 +70,12 @@ enum XplatMasonArtifact {
         // Flat artifacts' single projection — the unchanged pre-layer contract.
         // Launch-input artifacts must go through select() instead.
         var value: [String: Any] { trees[0].value }
-        // Resolve declared launch inputs and return the matching projection.
-        // nil means the resolved values match no bind — callers must fall back
-        // to JavaScript boot, never pick another tree. Flat artifacts return
-        // their single projection without invoking the resolver.
+        // Resolve declared launch inputs plus the implicit systemAppearance
+        // bind (answered from the OS appearance read) and return the matching
+        // projection. nil means the resolved values match no bind — callers
+        // must fall back to JavaScript boot, never pick another tree. Flat
+        // artifacts return their single projection without invoking the
+        // resolver.
         func select(_ resolve: (String) -> String?) -> Projected? {
             guard let index = snapshot.selectIndex(resolve) else { return nil }
             return trees[index]
@@ -95,8 +97,10 @@ enum XplatMasonArtifact {
             nodes.append(projected)
         }
         var variants: [String: Any] = [:]
-        for theme in ["light", "dark"] {
-            guard let input = tree.variants[theme] as? [NSDictionary] else { throw Invalid(reason: "style records") }
+        // The validator keyed each layered tree's single variant by its bound
+        // scheme; flat artifacts carry both. Project whatever schemes exist.
+        for (theme, rows) in tree.variants {
+            guard let theme = theme as? String, let input = rows as? [NSDictionary] else { throw Invalid(reason: "style records") }
             var records: [[String: Any]] = []
             for row in input {
                 guard let style = row["style"] as? [String: Any],

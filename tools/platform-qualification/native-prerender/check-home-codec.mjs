@@ -62,8 +62,9 @@ if (producer) {
     return projection
   }
   if (expected.trees) {
-    // Each bind's resolver arguments are its non-null launch-input values; a
-    // null bind resolves through the absent-key declaration default.
+    // Each bind's resolver arguments are its non-null launch-input values
+    // plus the implicit systemAppearance scheme; a null bind resolves
+    // through the absent-key declaration default.
     for (const tree of expected.trees) {
       const pairs = Object.entries(tree.bind)
         .filter(([, value]) => value !== null)
@@ -74,25 +75,32 @@ if (producer) {
         process.env,
         false,
       )
-      const { bind, placeholders, ...projection } = tree
+      const { bind, placeholders, variant, nodes } = tree
       assert.deepEqual(
         JSON.parse(decoded),
-        sortRows({ seed: expected.seed, ...projection }),
+        sortRows({
+          seed: expected.seed,
+          nodes,
+          variants: { [bind.systemAppearance]: variant },
+        }),
         'Bind ' + JSON.stringify(bind),
       )
     }
-    // A persisted value outside the declared domain must select nothing.
-    const outside = spawnSync(
-      binary,
-      [
-        join(producer, 'startup.bin'),
-        build.buildHash,
-        build.configuration.launchInputs[0].name + '=__outside_domain__',
-      ],
-      { encoding: 'utf8', timeout: 15000 },
-    )
-    assert.equal(outside.status, 1, 'Out-of-domain value selected a tree')
-    assert.match(outside.stderr, /outside declared domain/)
+    if (build.configuration.launchInputs?.length) {
+      // A persisted value outside the declared domain must select nothing.
+      const outside = spawnSync(
+        binary,
+        [
+          join(producer, 'startup.bin'),
+          build.buildHash,
+          build.configuration.launchInputs[0].name + '=__outside_domain__',
+          'systemAppearance=dark',
+        ],
+        { encoding: 'utf8', timeout: 15000 },
+      )
+      assert.equal(outside.status, 1, 'Out-of-domain value selected a tree')
+      assert.match(outside.stderr, /outside declared domain/)
+    }
     console.log('Actual iOS producer binary matches every bind projection')
   } else {
     const decoded = run(binary, [join(producer, 'startup.bin'), build.buildHash], process.env, false)

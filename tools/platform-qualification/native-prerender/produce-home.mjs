@@ -21,7 +21,9 @@ console.log(JSON.stringify({
   binds: trees.map((tree) => tree.bind),
   visualNodes: trees.map((tree) => tree.nodes.filter((node) => node.kind !== '#text').length),
   logicalNodes: artifactNodeCount(result.artifact),
-  themes: Object.keys(trees[0].variants),
+  themes: trees[0].variants
+    ? Object.keys(trees[0].variants)
+    : trees.map((tree) => tree.bind.systemAppearance),
   bytes: readFileSync(join(outputDir, 'startup.bin')).length,
   buildHash: result.manifest.buildHash,
 }))

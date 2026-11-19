@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { isDeepStrictEqual } from 'node:util'
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
@@ -444,7 +445,8 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
   const launchInputs = configuration.launchInputs
 
   // One render point per declared launch-input bind crossed with light/dark.
-  // Without launchInputs a single unbound bind keeps the flat artifact path.
+  // Without declared inputs a single unbound bind keeps the flat artifact
+  // path unless its trees diverge by appearance.
   const binds = launchInputs ? bindPoints(launchInputs) : [undefined]
   const renders = []
 
@@ -465,18 +467,24 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
       )
     }
 
-    assert.deepEqual(
-      pair.light.nodes,
-      pair.dark.nodes,
-      'Theme-dependent initial host props/topology unsupported',
-    )
-    assert.deepEqual(
-      pair.light.logicalNodes,
-      pair.dark.logicalNodes,
-      'Theme-dependent logical ownership unsupported',
-    )
-    renders.push({ bind, pair })
+    // Appearance-dependent props or topology are supported: the artifact
+    // emits one scheme-bound tree per render instead of collapsing them.
+    renders.push({
+      bind,
+      pair,
+      divergent:
+        !isDeepStrictEqual(pair.light.nodes, pair.dark.nodes) ||
+        !isDeepStrictEqual(pair.light.logicalNodes, pair.dark.logicalNodes),
+    })
   }
+
+  // Every declared bind point crossed with the implicit systemAppearance
+  // input. Declared launch inputs always produce a layered artifact; without
+  // them, appearance divergence upgrades the flat pair into scheme trees.
+  const layered = Boolean(launchInputs) || renders.some((render) => render.divergent)
+  const points = renders.flatMap(({ bind }, bindIndex) =>
+    ['light', 'dark'].map((theme) => ({ bindIndex, bind, theme })),
+  )
 
   const warnings = []
   const sheets = [
@@ -519,18 +527,24 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     ['light', 'dark'].some((theme) => pair[theme].reads.includes('Application.safeAreaInsets')),
   )
 
-  // Cascade resolution is per tree: each bind owns its logical nodes and both
-  // system-appearance style variants.
+  // Cascade resolution is per rendered tree: each bind+scheme point owns its
+  // logical nodes and one style variant for its scheme.
   const resolved = []
-  for (const [bindIndex, { bind }] of renders.entries()) {
-    const suffix = bind ? '-' + bindIndex : ''
+  for (const point of points) {
+    const stem = point.bind
+      ? 'tree-' + point.bindIndex + '-' + point.theme
+      : point.theme + '-tree'
+    const suffix = point.bind
+      ? '-' + point.bindIndex + '-' + point.theme
+      : '-' + point.theme
     const output = join(work, 'resolved' + suffix + '.json')
     const cascadeInput = join(work, 'cascade-input' + suffix + '.json')
     json(cascadeInput, {
-      tree: join(work, (bind ? 'tree-' + bindIndex + '-light' : 'light-tree') + '.json'),
+      tree: join(work, stem + '.json'),
       seed,
       sheets,
       environment,
+      colorScheme: point.theme,
       consumesSafeAreaInsets,
       output,
     })
@@ -547,16 +561,32 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     assert.deepEqual(item.launch, launch, 'Launch constraints differ across launch-input binds')
   }
 
-  if (launchInputs) {
+  // Resolved evidence is keyed by the same bind the artifact emits.
+  const pointBind = (point) => ({
+    ...(point.bind ?? {}),
+    systemAppearance: point.theme,
+  })
+  if (layered) {
     json(join(work, 'resolved.json'), {
       scope: resolved[0].cascaded.scope,
       seed,
-      trees: renders.map(({ bind }, index) => ({
-        bind,
+      trees: points.map((point, index) => ({
+        bind: pointBind(point),
         nodes: resolved[index].cascaded.nodes,
-        variants: resolved[index].cascaded.variants,
+        variant: resolved[index].cascaded.variant,
         placeholders: resolved[index].cascaded.placeholders,
       })),
+    })
+  } else {
+    json(join(work, 'resolved.json'), {
+      scope: resolved[0].cascaded.scope,
+      seed,
+      nodes: resolved[0].cascaded.nodes,
+      variants: {
+        light: resolved[0].cascaded.variant,
+        dark: resolved[1].cascaded.variant,
+      },
+      placeholders: resolved[0].cascaded.placeholders,
     })
   }
 
@@ -580,21 +610,14 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
 
   const buildHash = createHash('sha256').update(JSON.stringify(binding)).digest('hex')
 
-  function treePart(pair, cascaded) {
-    const logicalNodes = pair.light.logicalNodes
-    const visualNodes = logicalNodes.filter((node) => node.kind !== '#text')
-    return {
-      nodes: logicalNodes,
-      variants: Object.fromEntries(
-        ['light', 'dark'].map((theme) => [
-          theme,
-          cascaded.variants[theme].map(({ index, ...record }) => ({
-            node: visualNodes[index].index,
-            ...record,
-          })),
-        ]),
-      ),
-    }
+  // One render point's style variant, translated from cascade visual indices
+  // to logical node identities.
+  function variantRecords(render, cascaded) {
+    const visualNodes = render.logicalNodes.filter((node) => node.kind !== '#text')
+    return cascaded.variant.map(({ index, ...record }) => ({
+      node: visualNodes[index].index,
+      ...record,
+    }))
   }
 
   const startup = validateArtifact({
@@ -606,20 +629,32 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     // Unsupported mobile media inputs were rejected during cascade preparation.
     // Mason lays out flow and supported percentages in the actual native viewport.
     constraints: launch.constraints,
-    ...(launchInputs
+    ...(layered
       ? {
-          launchInputs: launchInputs.map((input) => ({
+          // An empty declaration is legal: the trees then bind only
+          // systemAppearance.
+          launchInputs: (launchInputs ?? []).map((input) => ({
             name: input.name,
             source: input.source,
             values: [...input.values],
             default: input.default,
           })),
-          trees: renders.map(({ bind, pair }, index) => ({
-            bind,
-            ...treePart(pair, resolved[index].cascaded),
+          trees: points.map((point, index) => ({
+            bind: pointBind(point),
+            nodes: renders[point.bindIndex].pair[point.theme].logicalNodes,
+            variant: variantRecords(
+              renders[point.bindIndex].pair[point.theme],
+              resolved[index].cascaded,
+            ),
           })),
         }
-      : treePart(renders[0].pair, resolved[0].cascaded)),
+      : {
+          nodes: renders[0].pair.light.logicalNodes,
+          variants: {
+            light: variantRecords(renders[0].pair.light, resolved[0].cascaded),
+            dark: variantRecords(renders[0].pair.dark, resolved[1].cascaded),
+          },
+        }),
   })
 
   writeFileSync(join(work, 'startup.bin'), encodeStartupArtifact(startup))
@@ -636,9 +671,9 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     }
   }
 
-  // Per render point: `light`/`dark` keys on the flat path (unchanged shape),
-  // `name=value&.../theme` keys for launch-input trees.
-  const readPoints = renders.flatMap(({ bind, pair }, bindIndex) =>
+  // Per render point: `light`/`dark` keys without declared inputs (unchanged
+  // shape), `name=value&.../theme` keys for declared launch-input trees.
+  const readPoints = renders.flatMap(({ bind, pair }) =>
     ['light', 'dark'].map((theme) => [
       bind
         ? launchInputs.map((input) => input.name + '=' + JSON.stringify(bind[input.name])).join('&') +
@@ -654,7 +689,7 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
     warnings,
     nativeImports,
     nativeReads: Object.fromEntries(readPoints),
-    registrations: launchInputs
+    registrations: layered
       ? [
           ...new Set(
             renders.flatMap(({ pair }) =>
@@ -669,9 +704,9 @@ export async function produceNativeStartup({ projectDir, configurationFile, outp
       .update(readFileSync(join(work, 'startup.bin')))
       .digest('hex'),
     logicalNodeCount: artifactNodeCount(startup),
-    placeholders: launchInputs
-      ? renders.map(({ bind }, index) => ({
-          bind,
+    placeholders: layered
+      ? points.map((point, index) => ({
+          bind: pointBind(point),
           placeholders: resolved[index].cascaded.placeholders ?? [],
         }))
       : (resolved[0].cascaded.placeholders ?? []),

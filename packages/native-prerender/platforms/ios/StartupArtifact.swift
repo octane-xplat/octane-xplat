@@ -18,7 +18,8 @@ enum XplatStartupArtifact {
         let name: String, values: [String], `default`: String?
     }
     // One prerendered tree for a launch-input bind; owns its logical nodes and
-    // both system-appearance style variants, so binds may differ in topology.
+    // the style variants keyed by scheme. Layered trees carry exactly their
+    // bound systemAppearance key; flat artifacts carry both schemes.
     struct Tree {
         let bind: NSDictionary
         let nodes: [Node]
@@ -39,13 +40,17 @@ enum XplatStartupArtifact {
             self.value = value; self.launchInputs = launchInputs; self.trees = trees
             self.nodes = trees.first?.nodes ?? []
         }
-        // Resolve declared launch inputs and pick the matching prerendered
-        // tree. A nil resolver result means the key is absent; the declared
-        // default then applies. Returns nil when the effective values match no
-        // bind — callers must fall back to JavaScript boot, never pick another
-        // tree. Flat artifacts return their single tree without resolving.
+        // Resolve declared launch inputs plus the implicit systemAppearance
+        // bind and pick the matching prerendered tree. A nil resolver result
+        // means the key is absent; the declared default then applies.
+        // systemAppearance has no persisted store or declared default: the
+        // caller answers it from the OS appearance read, and an absent or
+        // out-of-domain answer selects nothing. Returns nil when the
+        // effective values match no bind — callers must fall back to
+        // JavaScript boot, never pick another tree. Flat artifacts return
+        // their single tree without resolving.
         func selectIndex(_ resolve: (String) -> String?) -> Int? {
-            guard !launchInputs.isEmpty else { return trees.isEmpty ? nil : 0 }
+            guard trees.count > 1 else { return trees.isEmpty ? nil : 0 }
             var effective: [String: String?] = [:]
             // An absent key (nil resolver result) resolves to the declared
             // default; a present key keeps its stored value.
@@ -53,12 +58,13 @@ enum XplatStartupArtifact {
                 let stored = resolve(input.name)
                 effective[input.name] = stored != nil ? stored : input.default
             }
+            effective["systemAppearance"] = resolve("systemAppearance")
             return trees.firstIndex { tree in
                 launchInputs.allSatisfy { input in
                     let bound = tree.bind.object(forKey: input.name as NSString)
                     if let value = effective[input.name]! { return (bound as? String) == value }
                     return bound is NSNull
-                }
+                } && (tree.bind.object(forKey: "systemAppearance" as NSString) as? String) == effective["systemAppearance"]!
             }
         }
         func select(_ resolve: (String) -> String?) -> Tree? {
@@ -87,7 +93,7 @@ enum XplatStartupArtifact {
             return true
         }
         func visualNodes() throws -> NSArray {
-            try check(launchInputs.isEmpty, "visual projection requires tree selection")
+            try check(trees.count == 1, "visual projection requires tree selection")
             return try trees[0].visualNodes()
         }
     }
@@ -291,33 +297,36 @@ enum XplatStartupArtifact {
         try check(visit(0, 0) == nodes.count, "unreachable node")
         return (nodes, visual)
     }
+    private static func variant(_ value: Any, _ visual: [Int], _ count: Int) throws -> NSArray {
+        let rows = try array(value); try check(rows.count == visual.count, "variant node count")
+        var output: [NSDictionary] = []
+        for (index, value) in rows.enumerated() {
+            let row = try object(value); try keys(row, ["node", "style", "cssKeys", "inheritedKeys"])
+            try check(integer(field(row, "node"), 0, count - 1) == visual[index], "style node identity")
+            let data = try object(field(row, "style")); try style(data)
+            output.append(try dictionary([
+                ("node", visual[index]), ("style", data),
+                ("cssKeys", provenance(field(row, "cssKeys"), data)),
+                ("inheritedKeys", provenance(field(row, "inheritedKeys"), data)),
+            ]))
+        }
+        return NSArray(array: output)
+    }
     private static func variants(_ value: Any, _ visual: [Int], _ count: Int) throws -> NSDictionary {
         let variants = try object(value); try keys(variants, ["light", "dark"])
-        var normalized: [(String, Any)] = []
-        for theme in ["light", "dark"] {
-            let rows = try array(field(variants, theme)); try check(rows.count == visual.count, "variant node count")
-            var output: [NSDictionary] = []
-            for (index, value) in rows.enumerated() {
-                let row = try object(value); try keys(row, ["node", "style", "cssKeys", "inheritedKeys"])
-                try check(integer(field(row, "node"), 0, count - 1) == visual[index], "style node identity")
-                let data = try object(field(row, "style")); try style(data)
-                output.append(try dictionary([
-                    ("node", visual[index]), ("style", data),
-                    ("cssKeys", provenance(field(row, "cssKeys"), data)),
-                    ("inheritedKeys", provenance(field(row, "inheritedKeys"), data)),
-                ]))
-            }
-            normalized.append((theme, NSArray(array: output)))
-        }
-        return try dictionary(normalized)
+        return try dictionary([
+            ("light", variant(field(variants, "light"), visual, count)),
+            ("dark", variant(field(variants, "dark"), visual, count)),
+        ])
     }
     private static func launchInputs(_ value: Any) throws -> [LaunchInput] {
-        let input = try array(value); try check(input.count >= 1 && input.count <= 8, "launch inputs")
+        let input = try array(value); try check(input.count <= 8, "launch inputs")
         var seen: Set<String> = [], result: [LaunchInput] = []
         for item in input {
             let row = try object(item); try keys(row, ["name", "source", "values", "default"])
             let name = try text(field(row, "name"))
             try check(name.utf8.count <= 128 && name.utf8.allSatisfy { $0 >= 0x20 && $0 <= 0x7e } && seen.insert(name).inserted, "launch input name")
+            try check(name != "systemAppearance", "launch input name collides with the implicit appearance input")
             try check(try text(field(row, "source")) == "appSettings.string", "launch input source")
             let values = try array(field(row, "values")); try check(values.count >= 1 && values.count <= 4, "launch input values")
             var domain: [String] = []
@@ -373,12 +382,15 @@ enum XplatStartupArtifact {
             launchInputs = try self.launchInputs(field(root, "launchInputs"))
             var product = 1
             for input in launchInputs { product *= input.values.count + (input.default == nil ? 1 : 0) }
-            let input = try array(field(root, "trees")); try check(input.count == product, "tree count")
+            try check(product <= 4, "launch input product")
+            // Every declared bind point crossed with the implicit
+            // systemAppearance input.
+            let input = try array(field(root, "trees")); try check(input.count == product * 2, "tree count")
             var binds: Set<String> = [], total = 0
             for item in input {
-                let row = try object(item); try keys(row, ["bind", "nodes", "variants"])
+                let row = try object(item); try keys(row, ["bind", "nodes", "variant"])
                 let bind = try object(field(row, "bind"))
-                try keys(bind, launchInputs.map { $0.name })
+                try keys(bind, launchInputs.map { $0.name } + ["systemAppearance"])
                 var canonical = ""
                 for declared in launchInputs {
                     let bound = try field(bind, declared.name)
@@ -390,12 +402,16 @@ enum XplatStartupArtifact {
                         canonical += declared.name + "=null;"
                     }
                 }
+                let appearance = try field(bind, "systemAppearance") as? String
+                try check(appearance == "light" || appearance == "dark", "tree bind appearance outside declared domain")
+                canonical += "systemAppearance=\"" + appearance! + "\";"
                 try check(binds.insert(canonical).inserted, "duplicate tree bind")
                 let (nodes, visual) = try self.nodes(field(row, "nodes"))
                 total += nodes.count
                 try check(total <= count, "tree node count")
-                let variants = try self.variants(field(row, "variants"), visual, nodes.count)
-                normalizedTrees.append(try dictionary([("bind", bind), ("nodes", field(row, "nodes")), ("variants", variants)]))
+                let variant = try self.variant(field(row, "variant"), visual, nodes.count)
+                let variants = try dictionary([(appearance!, variant)])
+                normalizedTrees.append(try dictionary([("bind", bind), ("nodes", field(row, "nodes")), ("variant", variant)]))
                 trees.append(Tree(bind: bind, nodes: nodes, variants: variants, value: normalizedTrees.last!))
             }
             try check(total == count, "header node count")

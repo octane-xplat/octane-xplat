@@ -35,13 +35,18 @@ async function qualify(activity) {
 
   check(scheme === activity.getMountTheme(), 'Native/live configured theme differs')
 
-  // The Java mount resolved the same persisted inputs before engine init;
+  // The Java mount resolved the same persisted inputs before engine init
+  // plus the implicit systemAppearance bind from the same uiMode read;
   // re-selecting here must land on the identical bind or the cold mount and
   // the live prepared tree would compare different topologies. Absent keys
   // resolve to each declaration's default; hasKey keeps an absent key
   // distinct from a stored empty string.
   const tree = selectLaunchTree(startup, (name) =>
-    ApplicationSettings.hasKey(name) ? ApplicationSettings.getString(name) : null,
+    name === 'systemAppearance'
+      ? scheme
+      : ApplicationSettings.hasKey(name)
+        ? ApplicationSettings.getString(name)
+        : null,
   )
   check(tree, 'Persisted launch inputs selected no startup tree')
   const canonicalBind = (bind) =>

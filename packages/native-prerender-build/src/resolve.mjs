@@ -72,12 +72,18 @@ const PLACEHOLDER_BOX_KEYS = new Set([
 ])
 const droppedPlaceholderStyles = new Map()
 
-const variants = {}
 const launch = compileLaunchConstraints(stylesheetMediaQueries(), input.environment, {
   consumesSafeAreaInsets: input.consumesSafeAreaInsets === true,
 })
 
-for (const colorScheme of ['light', 'dark']) {
+// One rendered tree resolves exactly one scheme variant: the producer runs
+// this worker once per bind+scheme point so trees may diverge in topology.
+const colorScheme = input.colorScheme
+if (colorScheme !== 'light' && colorScheme !== 'dark') {
+  throw new Error('Native startup cascade requires colorScheme light|dark')
+}
+let variant
+{
   setStyleEnvironment(() => ({ ...input.environment, colorScheme }))
   refreshMediaQueries()
 
@@ -99,7 +105,7 @@ for (const colorScheme of ['light', 'dark']) {
     cssNodes[index].parent.children.push(cssNodes[index])
   })
 
-  variants[colorScheme] = cssNodes.map((node, index) => {
+  variant = cssNodes.map((node, index) => {
     const result = computeCascade(node)
 
     node.computedStyle = result.style
@@ -121,6 +127,17 @@ for (const colorScheme of ['light', 'dark']) {
     }
     let cssKeys = [...result.cssKeys]
     let inheritedKeys = [...result.inheritedKeys]
+
+    // `text-decoration: none` is the property's initial value; the startup
+    // mounts never paint a decoration, so the declaration is a no-op. Drop it
+    // (and its provenance) instead of widening the style subset for a reset
+    // rule. Any painted value still fails backend validation loudly.
+    if (style.textDecoration === 'none') {
+      const { textDecoration: _dropped, ...kept } = style
+      style = kept
+      cssKeys = cssKeys.filter((key) => key !== 'textDecoration')
+      inheritedKeys = inheritedKeys.filter((key) => key !== 'textDecoration')
+    }
 
     if (nodes[index].kind === 'placeholder') {
       if (typeof style.width !== 'number' || typeof style.height !== 'number') {
@@ -153,7 +170,7 @@ writeFileSync(
         'Configured startup visual tree and portable AOT cascade; experimental only; no native parity claim',
       seed: input.seed,
       nodes,
-      variants,
+      variant,
       launch,
       placeholders: nodes.flatMap((node, index) =>
         node.kind === 'placeholder'

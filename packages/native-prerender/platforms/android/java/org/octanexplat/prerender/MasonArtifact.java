@@ -152,9 +152,12 @@ public final class MasonArtifact {
                 (String) row.get("hostKind")));
         }
         Map<String, List<StyleRecord>> variants = new LinkedHashMap<>();
-        for (String theme : new String[]{"light", "dark"}) {
+        // The validator keyed each layered tree's single variant by its bound
+        // scheme; flat artifacts carry both. Project whatever schemes exist.
+        for (Map.Entry<String, Object> schemeEntry : tree.variants.entrySet()) {
+            String theme = schemeEntry.getKey();
             List<StyleRecord> rows = new ArrayList<>();
-            for (Object item : (List<?>) tree.variants.get(theme)) {
+            for (Object item : (List<?>) schemeEntry.getValue()) {
                 Map<String, Object> row = (Map<String, Object>) item;
                 Map<String, Object> style = (Map<String, Object>) row.get("style");
                 for (Map.Entry<String, Object> entry : style.entrySet()) validateStyle(entry.getKey(), entry.getValue());
