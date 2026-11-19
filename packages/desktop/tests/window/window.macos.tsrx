@@ -1,5 +1,5 @@
 import '@nativescript/macos-node-api'
-import { app as desktopApp, dialog, type DesktopActivateEvent, type DesktopWindow } from '@octane-xplat/desktop'
+import { app as desktopApp, dialog, screen, type DesktopActivateEvent, type DesktopWindow } from '@octane-xplat/desktop'
 import { NSAlertFirstButtonReturn, type NSApplication, type NSOpenPanel, type NSSavePanel } from '@octane-xplat/platform/macos'
 import { runMacOSApp, setWindowContentResolver } from '../../../macos-appkit/src/host.ts'
 import type { AppKitWindowController } from '../../../macos-appkit/src/host.d.ts'
@@ -97,9 +97,27 @@ function verifyReopen(nativeApp: NSApplication) {
   console.log('DESKTOP_ACTIVATE_OK')
 }
 
+function verifyScreen() {
+  const displays = screen.getAllDisplays()
+  const first = displays[0]
+  if (!screen.supported || screen.coordinateSpace !== 'logical' || !first ||
+    first.bounds.width <= 0 || first.bounds.height <= 0 || first.scaleFactor <= 0 ||
+    screen.getDisplayMatching(first.bounds)?.id !== first.id ||
+    new Set(displays.map((display) => display.id)).size !== displays.length) {
+    throw new Error('The native display snapshot is invalid')
+  }
+  const primary = screen.getPrimaryDisplay()
+  if (!primary?.workArea || primary.bounds.x !== 0 || primary.bounds.y !== 0 ||
+    primary.workArea.width > primary.bounds.width || primary.workArea.height > primary.bounds.height) {
+    throw new Error('The AppKit primary display work area is invalid')
+  }
+  console.log('DESKTOP_SCREEN_OK')
+}
+
 runMacOSApp({ title: 'Desktop window fixture' }, ({ app }) => {
   setTimeout(() => {
     void ready
+      .then(verifyScreen)
       .then(() => verifyReopen(app))
       .then(() =>
         verifyWindowLifecycle(() => {

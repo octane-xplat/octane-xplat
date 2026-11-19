@@ -664,9 +664,17 @@ declare module 'gi://Gdk?version=4.0' {
       get_capabilities(): number
     }
 
+    class Monitor {
+      get_geometry(): { x: number; y: number; width: number; height: number }
+      get_scale?(): number
+      get_scale_factor(): number
+    }
+
     class Display {
       static get_default(): Display | null
       list_seats(): Seat[]
+      get_monitors(): { get_n_items(): number; get_item(index: number): Monitor | null }
+      get_primary_monitor?(): Monitor | null
     }
   }
 

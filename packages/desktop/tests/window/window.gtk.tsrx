@@ -1,5 +1,5 @@
 // The GTK preset resolves renderer imports to dist. Load the host from the same build.
-import { app as desktopApp, appMenu, dialog, type DesktopActivateEvent, type DesktopWindow } from '@octane-xplat/desktop'
+import { app as desktopApp, appMenu, dialog, screen, type DesktopActivateEvent, type DesktopWindow } from '@octane-xplat/desktop'
 import Gtk from 'gi://Gtk?version=4.0'
 import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'
@@ -160,9 +160,22 @@ function verifyActivation(app: Gtk.Application, primary: Gtk.Window) {
   console.log('DESKTOP_ACTIVATE_OK')
 }
 
+function verifyScreen() {
+  const displays = screen.getAllDisplays()
+  const first = displays[0]
+  if (!screen.supported || screen.coordinateSpace !== 'logical' || !first ||
+    first.bounds.width <= 0 || first.bounds.height <= 0 || first.scaleFactor <= 0 ||
+    screen.getDisplayMatching(first.bounds)?.id !== first.id ||
+    new Set(displays.map((display) => display.id)).size !== displays.length) {
+    throw new Error('The native display snapshot is invalid')
+  }
+  console.log('DESKTOP_SCREEN_OK')
+}
+
 runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop window fixture' }, ({ app, window }) => {
   setTimeout(() => {
     void ready
+      .then(verifyScreen)
       .then(() => verifyActivation(app, window))
       .then(() =>
         verifyWindowLifecycle(() => {

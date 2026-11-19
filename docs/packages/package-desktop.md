@@ -356,6 +356,37 @@ export function reopenMainWindow(showMainWindow: () => void) {
 }
 ```
 
+## Read the desktop display layout
+
+Call `screen.getAllDisplays()` after startup to read connected displays. Each entry gives the display bounds and scale factor. Coordinates increase rightward and downward. AppKit and GTK use logical units. The Windows bridge uses physical pixels across the virtual desktop, so use `screen.coordinateSpace` before comparing coordinates. Windows apps need a native rebuild for the bridge.
+
+```ts
+import { app, screen } from '@octane-xplat/desktop'
+
+export async function logDesktopDisplays() {
+  if (!app.supported) return
+  await app.whenReady()
+  if (!screen.supported) return
+
+  for (const display of screen.getAllDisplays()) {
+    console.log(screen.coordinateSpace, display.bounds, display.scaleFactor)
+  }
+}
+```
+
+Use `screen.getDisplayMatching(rect)` with a rectangle in the same coordinate space. It selects the display with the greatest overlap, or the nearest display when the rectangle is off-screen. Use `workArea` when present to avoid reserved space like a taskbar. GTK omits the work area and may have no primary display.
+
+```ts
+import { screen, type DesktopRectangle } from '@octane-xplat/desktop'
+
+export function restoreArea(rect: DesktopRectangle) {
+  if (!screen.supported) return undefined
+
+  const display = screen.getDisplayMatching(rect) ?? screen.getPrimaryDisplay()
+  return display?.workArea ?? display?.bounds
+}
+```
+
 ## Choose your next feature
 
 All features use the package root. Imports do not create a tray icon, register a hotkey, install a menu, or keep the app running. The following imports introduce no owned resources; the feature guides show creation, failure handling, and cleanup.
