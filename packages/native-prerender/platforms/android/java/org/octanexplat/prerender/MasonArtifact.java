@@ -107,7 +107,8 @@ public final class MasonArtifact {
             case "whiteSpace": valid = "normal".equals(value) || "nowrap".equals(value); break;
             case "textOverflow": valid = "clip".equals(value) || "ellipsis".equals(value); break;
             case "userSelect": valid = "none".equals(value); break;
-            case "borderWidth": valid = n == 0; break;
+            case "borderWidth": valid = nonnegative; break;
+            case "textAlign": valid = "center".equals(value) || "left".equals(value) || "right".equals(value); break;
             case "opacity": valid = n >= 0 && n <= 1; break;
             case "fontWeight": valid = n >= 100 && n <= 900 && n % 100 == 0; break;
             case "fontSize": valid = nonnegative && n > 0; break;
@@ -116,7 +117,7 @@ public final class MasonArtifact {
                 if (valid) for (String family : ((String) value).split(",", -1))
                     if (family.replaceAll("^[ \\t\"']+|[ \\t\"']+$", "").isEmpty()) valid = false;
                 break;
-            case "color": case "backgroundColor": valid = value instanceof String && validColor((String) value); break;
+            case "color": case "backgroundColor": case "borderColor": valid = value instanceof String && validColor((String) value); break;
             case "flexGrow": case "flexShrink": case "paddingTop": case "paddingRight": case "paddingBottom":
             case "paddingLeft": case "rowGap": case "columnGap": case "minWidth": case "minHeight":
             case "lineHeight": case "borderRadius": valid = nonnegative; break;

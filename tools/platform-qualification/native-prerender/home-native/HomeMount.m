@@ -1,11 +1,23 @@
 #import "HomeMount.h"
+#import <TNSWidgets/TNSWidgets.h>
 
 static void Require(BOOL condition, NSString *message) {
     if (!condition) [NSException raise:NSInvalidArgumentException format:@"%@", message];
 }
+static NSArray<NSNumber *> *Rgba(UIColor *color) {
+    if (!color) return nil;
+    CGFloat r, g, b, a;
+    if (![color getRed:&r green:&g blue:&b alpha:&a]) return nil;
+    return @[@(r),@(g),@(b),@(a)];
+}
+static NSArray<NSNumber *> *Insets(UIEdgeInsets insets) {
+    return @[@(insets.left),@(insets.top),@(insets.right),@(insets.bottom)];
+}
 static NSDictionary *Paint(UIView *view) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
     NSMutableDictionary *result = [@{@"backgroundColor":@(style.backgroundColor),@"borderRadius":style.borderRadius,@"cornerShape":style.cornerShape,@"alpha":@(view.alpha),@"overflowX":@(style.overflowX),@"overflowY":@(style.overflowY)} mutableCopy];
+    MasonLengthPercentageRectCompat *border = style.borderWidthCompat;
+    result[@"borderWidths"] = @[border.top.cssValue, border.right.cssValue, border.bottom.cssValue, border.left.cssValue];
     if ([view isKindOfClass:MasonUIView.class]) {
         MasonUIView *mason = (MasonUIView *)view;
         result[@"scrollContainer"] = @(mason.isScrollContainer);
@@ -15,9 +27,21 @@ static NSDictionary *Paint(UIView *view) {
     result[@"effectiveRadii"] = [view valueForKey:@"prerenderEffectiveRadii"];
     if ([view isKindOfClass:UILabel.class]) {
         UILabel *label = (UILabel *)view;
-        CGFloat r, g, b, a;
-        Require([label.textColor getRed:&r green:&g blue:&b alpha:&a], @"Expected a resolved text color");
-        result[@"textColor"] = @[@(r),@(g),@(b),@(a)];
+        NSArray<NSNumber *> *textColor = Rgba(label.textColor);
+        Require(textColor != nil, @"Expected a resolved text color");
+        result[@"textColor"] = textColor;
+        result[@"textAlignment"] = @(label.textAlignment);
+        if ([view isKindOfClass:TNSLabel.class]) {
+            TNSLabel *tns = (TNSLabel *)view;
+            result[@"labelPadding"] = Insets(tns.padding);
+            result[@"borderThickness"] = Insets(tns.borderThickness);
+        }
+        CALayer *layer = view.layer;
+        result[@"layer"] = @{@"backgroundColor":layer.backgroundColor ? (Rgba([UIColor colorWithCGColor:layer.backgroundColor]) ?: [NSNull null]) : [NSNull null],
+            @"borderColor":layer.borderColor ? (Rgba([UIColor colorWithCGColor:layer.borderColor]) ?: [NSNull null]) : [NSNull null],
+            @"borderWidth":@(layer.borderWidth),@"cornerRadius":@(layer.cornerRadius),
+            @"cornerCurve":layer.cornerCurve,@"masksToBounds":@(layer.masksToBounds)};
+        result[@"viewBackground"] = Rgba(view.backgroundColor) ?: [NSNull null];
         UIFont *font = label.font;
         if (label.attributedText.length > 0) {
             id attributedFont = [label.attributedText attribute:NSFontAttributeName atIndex:0 effectiveRange:NULL];

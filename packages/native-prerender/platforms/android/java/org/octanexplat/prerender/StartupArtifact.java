@@ -185,10 +185,10 @@ public final class StartupArtifact {
         PLACEHOLDER_PROPS.put("image", Collections.unmodifiableMap(image));
     }
     private static final Set<String> STYLE_KEYS = new HashSet<>(Arrays.asList(
-        "alignItems", "alignSelf", "backgroundColor", "borderRadius", "borderWidth", "color", "columnGap",
+        "alignItems", "alignSelf", "backgroundColor", "borderColor", "borderRadius", "borderWidth", "color", "columnGap",
         "cornerShape", "display", "flexDirection", "flexGrow", "flexShrink", "fontFamily", "fontSize",
         "fontWeight", "gridColumn", "gridRow", "gridTemplateColumns", "gridTemplateRows", "height", "justifyContent", "justifySelf", "lineHeight", "maxHeight", "maxWidth", "minWidth", "minHeight", "opacity", "overflowX", "overflowY", "paddingBottom",
-        "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textOverflow", "userSelect", "whiteSpace", "width"));
+        "paddingLeft", "paddingRight", "paddingTop", "rowGap", "textAlign", "textOverflow", "userSelect", "whiteSpace", "width"));
     private static void require(boolean condition, String reason) { if (!condition) throw new Invalid(reason); }
     private static boolean finite(double value) { return !Double.isNaN(value) && !Double.isInfinite(value); }
     private static String text(Object value) {

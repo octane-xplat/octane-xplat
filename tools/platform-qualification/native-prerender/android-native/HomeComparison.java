@@ -121,7 +121,8 @@ final class HomeComparison {
                 .put("styleWidth", style.getSize().getWidth().getCssValue()).put("styleHeight", style.getSize().getHeight().getCssValue())
                 .put("minWidth", style.getMinWidth().getCssValue()).put("maxWidth", style.getMaxWidth().getCssValue())
                 .put("borderTop", style.getBorderTopWidth().getCssValue()).put("borderRight", style.getBorderRightWidth().getCssValue())
-                .put("borderBottom", style.getBorderBottomWidth().getCssValue()).put("borderLeft", style.getBorderLeftWidth().getCssValue());
+                .put("borderBottom", style.getBorderBottomWidth().getCssValue()).put("borderLeft", style.getBorderLeftWidth().getCssValue())
+                .put("borderStyle", style.getBorderTopStyle().toString()).put("borderColor", style.getBorderColor().getTop());
             // The shorthand getter is only the last assigned string. Live CSS
             // writes corners directly, so compare the actual corner values.
             radius(item, "radiusTopLeft", style.getBorderTopLeftRadius());
@@ -140,11 +141,17 @@ final class HomeComparison {
             }
             if (view instanceof StyleableTextView) {
                 StyleableTextView text = (StyleableTextView) view;
+                android.graphics.drawable.Drawable background = text.getBackground();
                 item.put("text", text.getText().toString()).put("fontPixels", text.getTextSize()).put("fontWeight", text.getTypeface().getWeight())
                     .put("fontStyle", text.getTypeface().getStyle()).put("fakeBold", text.getPaint().isFakeBoldText()).put("color", text.getCurrentTextColor())
                     .put("fontPadding", text.getIncludeFontPadding()).put("maxLines", text.getMaxLines())
                     .put("lineExtra", text.getLineSpacingExtra()).put("lineMultiplier", text.getLineSpacingMultiplier())
-                    .put("ellipsis", text.getEllipsize() == null ? "none" : text.getEllipsize().toString());
+                    .put("ellipsis", text.getEllipsize() == null ? "none" : text.getEllipsize().toString())
+                    .put("gravity", text.getGravity())
+                    // A string, not JSONArray: the cold/live compare uses ===.
+                    .put("labelPadding", text.getPaddingLeft() + "," + text.getPaddingTop() + ","
+                        + text.getPaddingRight() + "," + text.getPaddingBottom())
+                    .put("viewBackground", background == null ? JSONObject.NULL : background.getClass().getName());
             }
             result.put(item);
         }

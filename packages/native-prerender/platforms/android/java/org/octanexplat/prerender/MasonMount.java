@@ -11,11 +11,13 @@ import org.nativescript.mason.masonkit.LengthPercentage;
 import org.nativescript.mason.masonkit.View;
 import org.nativescript.mason.masonkit.enums.AlignItems;
 import org.nativescript.mason.masonkit.enums.AlignSelf;
+import org.nativescript.mason.masonkit.enums.BorderStyle;
 import org.nativescript.mason.masonkit.enums.Display;
 import org.nativescript.mason.masonkit.enums.FlexDirection;
 import org.nativescript.mason.masonkit.enums.JustifyContent;
 import org.nativescript.mason.masonkit.enums.JustifySelf;
 import org.nativescript.mason.masonkit.enums.Overflow;
+import org.nativescript.mason.masonkit.enums.TextAlign;
 import org.nativescript.widgets.StyleableTextView;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,12 @@ public final class MasonMount {
     private final List<String> defaultRadii = new ArrayList<>();
     private final List<Float> defaultAlphas = new ArrayList<>();
     private final List<List<Point<LengthPercentage>>> defaultCorners = new ArrayList<>();
+    private final List<Integer> defaultGravity = new ArrayList<>();
+    private final List<int[]> defaultPadding = new ArrayList<>();
+    private final List<android.graphics.drawable.Drawable> defaultBackgrounds = new ArrayList<>();
+    private final List<LengthPercentage[]> defaultBorderWidths = new ArrayList<>();
+    private final List<BorderStyle> defaultBorderStyles = new ArrayList<>();
+    private final List<Integer> defaultBorderColors = new ArrayList<>();
     private boolean defaultsRestored;
     private static void check(boolean value, String reason) {
         if (!value) throw new IllegalStateException(reason);
@@ -131,12 +139,25 @@ public final class MasonMount {
             defaultFonts.add(label == null ? null : label.getTypeface());
             defaultColors.add(label == null ? null : label.getTextColors());
             defaultFontSizes.add(label == null ? 0 : label.getTextSize());
+            defaultGravity.add(label == null ? 0 : label.getGravity());
+            defaultPadding.add(label == null ? null : new int[] {
+                label.getPaddingLeft(), label.getPaddingTop(), label.getPaddingRight(), label.getPaddingBottom()});
+            defaultBackgrounds.add(label == null ? null : label.getBackground());
+            defaultBorderWidths.add(new LengthPercentage[] {
+                style.getBorderTopWidth(), style.getBorderRightWidth(),
+                style.getBorderBottomWidth(), style.getBorderLeftWidth()});
+            defaultBorderStyles.add(style.getBorderTopStyle());
+            defaultBorderColors.add(style.getBorderColor().getTop());
             apply(view, style, styles.get(row.index).style);
             if (row.parent < 0) viewport.addView(view);
             else ((android.view.ViewGroup) views.get(row.parent)).addView(view);
         }
     }
     private void apply(android.view.View view, Style style, Map<String, Object> values) {
+        // The driver's foreign-leaf sync (MASON_LEAF_STYLE_KEYS) only forwards
+        // the layout subset into a foreign view's Mason buffer; a label's
+        // padding, border, background and text paint live on the native view.
+        boolean label = view instanceof StyleableTextView;
         style.setInBatch(true);
         if (values.containsKey("display")) {
             supported("flex".equals(values.get("display")) || "block".equals(values.get("display")) || "grid".equals(values.get("display")), "Unsupported display");
@@ -144,45 +165,63 @@ public final class MasonMount {
         }
         if (values.containsKey("gridRow")) style.setGridRow((String) values.get("gridRow"));
         if (values.containsKey("gridColumn")) style.setGridColumn((String) values.get("gridColumn"));
-        if (values.containsKey("gridTemplateRows")) style.setGridTemplateRows((String) values.get("gridTemplateRows"));
-        if (values.containsKey("gridTemplateColumns")) style.setGridTemplateColumns((String) values.get("gridTemplateColumns"));
-        if (values.containsKey("flexDirection")) style.setFlexDirection(values.get("flexDirection").equals("column") ? FlexDirection.Column : FlexDirection.Row);
+        if (!label && values.containsKey("gridTemplateRows")) style.setGridTemplateRows((String) values.get("gridTemplateRows"));
+        if (!label && values.containsKey("gridTemplateColumns")) style.setGridTemplateColumns((String) values.get("gridTemplateColumns"));
+        if (!label && values.containsKey("flexDirection")) style.setFlexDirection(values.get("flexDirection").equals("column") ? FlexDirection.Column : FlexDirection.Row);
         if (values.containsKey("flexGrow")) style.setFlexGrow(number(values, "flexGrow", 0));
         if (values.containsKey("flexShrink")) style.setFlexShrink(number(values, "flexShrink", 0));
-        if (values.containsKey("paddingTop")) style.setPaddingTop(number(values, "paddingTop", 0) * density, (byte) 0);
-        if (values.containsKey("paddingRight")) style.setPaddingRight(number(values, "paddingRight", 0) * density, (byte) 0);
-        if (values.containsKey("paddingBottom")) style.setPaddingBottom(number(values, "paddingBottom", 0) * density, (byte) 0);
-        if (values.containsKey("paddingLeft")) style.setPaddingLeft(number(values, "paddingLeft", 0) * density, (byte) 0);
-        if (values.containsKey("rowGap")) style.setGapRow(number(values, "rowGap", 0) * density, (byte) 0);
-        if (values.containsKey("columnGap")) style.setGapColumn(number(values, "columnGap", 0) * density, (byte) 0);
+        if (!label) {
+            if (values.containsKey("paddingTop")) style.setPaddingTop(number(values, "paddingTop", 0) * density, (byte) 0);
+            if (values.containsKey("paddingRight")) style.setPaddingRight(number(values, "paddingRight", 0) * density, (byte) 0);
+            if (values.containsKey("paddingBottom")) style.setPaddingBottom(number(values, "paddingBottom", 0) * density, (byte) 0);
+            if (values.containsKey("paddingLeft")) style.setPaddingLeft(number(values, "paddingLeft", 0) * density, (byte) 0);
+        }
+        if (!label && values.containsKey("rowGap")) style.setGapRow(number(values, "rowGap", 0) * density, (byte) 0);
+        if (!label && values.containsKey("columnGap")) style.setGapColumn(number(values, "columnGap", 0) * density, (byte) 0);
         if (values.containsKey("minWidth")) style.setMinSizeWidth(number(values, "minWidth", 0) * density, (byte) 1);
         if (values.containsKey("minHeight")) style.setMinSizeHeight(number(values, "minHeight", 0) * density, (byte) 1);
         if (values.containsKey("maxWidth")) style.setMaxSizeWidth(1, (byte) 2);
         if (values.containsKey("maxHeight")) style.setMaxSizeHeight(1, (byte) 2);
-        if (values.containsKey("overflowX")) style.setOverflowX("scroll".equals(values.get("overflowX")) ? Overflow.Scroll : Overflow.Hidden);
-        if (values.containsKey("overflowY")) style.setOverflowY("scroll".equals(values.get("overflowY")) ? Overflow.Scroll : Overflow.Hidden);
+        if (!label && values.containsKey("overflowX")) style.setOverflowX("scroll".equals(values.get("overflowX")) ? Overflow.Scroll : Overflow.Hidden);
+        if (!label && values.containsKey("overflowY")) style.setOverflowY("scroll".equals(values.get("overflowY")) ? Overflow.Scroll : Overflow.Hidden);
         if ("100%".equals(values.get("height"))) style.setSizeHeight(1, (byte) 2);
         else if (values.containsKey("height")) style.setSizeHeight(number(values, "height", 0) * density, (byte) 1);
         if ("100%".equals(values.get("width"))) style.setSizeWidth(1, (byte) 2);
         else if (values.containsKey("width")) style.setSizeWidth(number(values, "width", 0) * density, (byte) 1);
         if (values.containsKey("alignSelf")) style.setAlignSelf("center".equals(values.get("alignSelf")) ? AlignSelf.Center : AlignSelf.Stretch);
         if (values.containsKey("justifySelf")) style.setJustifySelf("center".equals(values.get("justifySelf")) ? JustifySelf.Center : JustifySelf.Stretch);
-        if (values.containsKey("alignItems")) style.setAlignItems(AlignItems.Center);
-        if (values.containsKey("justifyContent")) style.setJustifyContent(values.get("justifyContent").equals("center") ? JustifyContent.Center : JustifyContent.SpaceBetween);
-        if (values.containsKey("backgroundColor")) style.setBackgroundColor(color((String) values.get("backgroundColor")));
-        if (values.containsKey("borderRadius")) style.setBorderRadius(Float.toString(number(values, "borderRadius", 0)) + "px");
-        if (values.containsKey("cornerShape")) style.setCornerShape((String) values.get("cornerShape"));
+        if (!label && values.containsKey("alignItems")) style.setAlignItems(AlignItems.Center);
+        if (!label && values.containsKey("justifyContent")) style.setJustifyContent(values.get("justifyContent").equals("center") ? JustifyContent.Center : JustifyContent.SpaceBetween);
+        if (!label && values.containsKey("backgroundColor")) style.setBackgroundColor(color((String) values.get("backgroundColor")));
+        if (!label && values.containsKey("borderRadius")) style.setBorderRadius(Float.toString(number(values, "borderRadius", 0)) + "px");
+        if (!label && values.containsKey("cornerShape")) style.setCornerShape((String) values.get("cornerShape"));
+        if (!label && values.containsKey("textAlign")) {
+            supported("center".equals(values.get("textAlign")) || "left".equals(values.get("textAlign")) || "right".equals(values.get("textAlign")), "Unsupported text alignment");
+            style.setTextAlign("center".equals(values.get("textAlign")) ? TextAlign.Center : "left".equals(values.get("textAlign")) ? TextAlign.Left : TextAlign.Right);
+        }
+        // Live forwards the border-width/border-color longhands into the
+        // buffer exactly; the IR carries no border-style, so write the
+        // longhands without inventing one — a side only paints where live's
+        // buffer also has a non-none style.
+        if (!label && values.containsKey("borderWidth")) {
+            float width = number(values, "borderWidth", 0) * density;
+            style.setBorderLeftWidth(width, (byte) 0); style.setBorderRightWidth(width, (byte) 0);
+            style.setBorderTopWidth(width, (byte) 0); style.setBorderBottomWidth(width, (byte) 0);
+        }
+        if (!label && values.containsKey("borderColor")) style.setBorderColor(color((String) values.get("borderColor")));
         // Core 9.1.3 opacity calls View.setAlpha.
         if (values.containsKey("opacity")) view.setAlpha((float) number(values, "opacity", 1));
-        if (values.containsKey("borderWidth")) {
-            style.setBorderLeftWidth(0, (byte) 0); style.setBorderRightWidth(0, (byte) 0);
-            style.setBorderTopWidth(0, (byte) 0); style.setBorderBottomWidth(0, (byte) 0);
-        }
         style.setInBatch(false);
         if (view instanceof StyleableTextView) {
             StyleableTextView text = (StyleableTextView) view;
             text.setTypeface(Typeface.create(Typeface.SANS_SERIF, (int) number(values, "fontWeight", 400), false));
-            text.setTextSize(TypedValue.COMPLEX_UNIT_SP, number(values, "fontSize", 14));
+            if (values.containsKey("fontSize")) {
+                // Explicit fontSize: Core setTextSize(value) — unrounded SP→px.
+                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, number(values, "fontSize", 14));
+            } else {
+                // Core's default text size is the rounded device-pixel default.
+                text.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.round(14 * density));
+            }
             if (values.containsKey("color")) text.setTextColor(color((String) values.get("color")));
             boolean nowrap = "nowrap".equals(values.get("whiteSpace"));
             text.setSingleLine(nowrap);
@@ -191,6 +230,46 @@ public final class MasonMount {
             // Core9.1.3 defines lineHeight as extra Android line spacing.
             text.setLineSpacing(number(values, "lineHeight", 0) * density, 1);
             text.setTextIsSelectable(false);
+            // Core folds border thickness into the text view's padding, in
+            // device pixels (effective* are already rounded to px).
+            float border = number(values, "borderWidth", 0);
+            if (border > 0 || values.containsKey("paddingTop") || values.containsKey("paddingRight")
+                || values.containsKey("paddingBottom") || values.containsKey("paddingLeft")) {
+                int borderPx = Math.round(border * density);
+                text.setPadding(
+                    borderPx + Math.round(number(values, "paddingLeft", 0) * density),
+                    borderPx + Math.round(number(values, "paddingTop", 0) * density),
+                    borderPx + Math.round(number(values, "paddingRight", 0) * density),
+                    borderPx + Math.round(number(values, "paddingBottom", 0) * density));
+            }
+            if (values.containsKey("textAlign")) {
+                supported("center".equals(values.get("textAlign")) || "left".equals(values.get("textAlign")) || "right".equals(values.get("textAlign")), "Unsupported text alignment");
+                int vertical = text.getGravity() & android.view.Gravity.VERTICAL_GRAVITY_MASK;
+                int horizontal = "center".equals(values.get("textAlign")) ? android.view.Gravity.CENTER_HORIZONTAL
+                    : "left".equals(values.get("textAlign")) ? android.view.Gravity.LEFT : android.view.Gravity.RIGHT;
+                text.setGravity(horizontal | vertical);
+            }
+            // Live Core paints a plain color with setBackgroundColor and only
+            // builds a BorderDrawable once a border or radius exists.
+            Object background = values.get("backgroundColor");
+            float radius = number(values, "borderRadius", 0);
+            if (border > 0 || radius > 0) {
+                int borderColor = values.containsKey("borderColor")
+                    ? color((String) values.get("borderColor")) : 0xff000000; // live's unset-color fallback
+                float widthPx = border * density;
+                float radiusPx = radius * density;
+                org.nativescript.widgets.BorderDrawable drawable =
+                    new org.nativescript.widgets.BorderDrawable(density);
+                drawable.refresh(borderColor, borderColor, borderColor, borderColor,
+                    widthPx, widthPx, widthPx, widthPx,
+                    radiusPx, radiusPx, radiusPx, radiusPx,
+                    null, background != null ? color((String) background) : 0,
+                    null, null, null, text.getContext(),
+                    null, null, null, null, null);
+                text.setBackground(drawable);
+            } else if (background != null) {
+                text.setBackgroundColor(color((String) background));
+            }
         }
     }
     // Restore before the live wrappers capture native defaults. This bounded
@@ -209,6 +288,11 @@ public final class MasonMount {
             style.setBorderTopRightRadius(copyRadius(corners.get(1)));
             style.setBorderBottomRightRadius(copyRadius(corners.get(2)));
             style.setBorderBottomLeftRadius(copyRadius(corners.get(3)));
+            LengthPercentage[] widths = defaultBorderWidths.get(index);
+            style.setBorderTopWidth(widths[0]); style.setBorderRightWidth(widths[1]);
+            style.setBorderBottomWidth(widths[2]); style.setBorderLeftWidth(widths[3]);
+            style.setBorderStyle(defaultBorderStyles.get(index));
+            style.setBorderColor(defaultBorderColors.get(index));
             style.setInBatch(false);
             if (view instanceof StyleableTextView) {
                 StyleableTextView text = (StyleableTextView) view;
@@ -218,6 +302,10 @@ public final class MasonMount {
                 text.setLineSpacing(0, 1);
                 text.setSingleLine(true); text.setMaxLines(1);
                 text.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                text.setGravity(defaultGravity.get(index));
+                int[] padding = defaultPadding.get(index);
+                if (padding != null) text.setPadding(padding[0], padding[1], padding[2], padding[3]);
+                text.setBackground(defaultBackgrounds.get(index));
             }
         }
     }

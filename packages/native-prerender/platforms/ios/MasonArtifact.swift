@@ -29,14 +29,15 @@ enum XplatMasonArtifact {
         case "whiteSpace": valid = text == "normal" || text == "nowrap"
         case "textOverflow": valid = text == "clip" || text == "ellipsis"
         case "userSelect": valid = text == "none"
-        case "borderWidth": valid = numeric && scalar == 0
+        case "borderWidth": valid = nonnegativeFloat
+        case "textAlign": valid = text == "center" || text == "left" || text == "right"
         case "opacity": valid = numeric && scalar >= 0 && scalar <= 1
         case "fontWeight": valid = numeric && (100...900).contains(scalar) && scalar.truncatingRemainder(dividingBy: 100) == 0
         case "fontSize": valid = nonnegativeFloat && scalar > 0
         case "fontFamily":
             let trim = CharacterSet(charactersIn: " \t\"'")
             valid = text.map { !$0.components(separatedBy: ",").contains { $0.trimmingCharacters(in: trim).isEmpty } } ?? false
-        case "backgroundColor", "color": valid = text.map(validColor) ?? false
+        case "backgroundColor", "borderColor", "color": valid = text.map(validColor) ?? false
         case "flexGrow", "flexShrink", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "rowGap", "columnGap", "minWidth", "minHeight", "lineHeight", "borderRadius":
             valid = nonnegativeFloat
         case "width", "height": valid = nonnegativeFloat || text == "100%"

@@ -95,6 +95,21 @@ const GRID_STYLE = {
   justifySelf: 'stretch',
   alignSelf: 'center',
 }
+test(`${platform} backend accepts the bounded textAlign, border and corner values`, () => {
+  for (const [key, values] of [
+    ['textAlign', ['left', 'center', 'right']],
+    ['borderWidth', [0, 0.5, 1, 12]],
+    ['borderRadius', [0, 12]],
+    ['borderColor', ['#172033', 'rgba(255, 255, 255, 0.7)', 'rgba(0, 0, 0, 0)']],
+    ['cornerShape', ['squircle']],
+  ])
+    for (const value of values) {
+      const artifact = fixture()
+      artifact.variants.light[1].style[key] = value
+      const result = native(artifact)
+      assert.equal(result.status, 0, `${key}=${value}: ${result.stderr}`)
+    }
+})
 test(`${platform} backend lowers the complete logical artifact to its expected visual records`, () => {
   const artifact = fixture(),
     result = native(artifact)
@@ -398,7 +413,15 @@ test(`${platform} backend rejects structurally valid unsupported native setter v
       ['fontSize', '15px'],
       ['fontWeight', 550],
       ['fontWeight', '600'],
-      ['borderWidth', 1],
+      ['borderWidth', -1],
+      ['borderWidth', '2px'],
+      ['borderWidth', '50%'],
+      ['borderColor', '#fff'],
+      ['borderColor', '#12zz34'],
+      ['borderColor', 'rgba(1, 2, 300, 1)'],
+      ['borderColor', 'rgba(1, 2, 3, 2)'],
+      ['borderColor', 'notacolor'],
+      ['borderColor', 12],
       ['borderRadius', -1],
       ['paddingTop', '24px'],
       ['height', -1],
@@ -496,6 +519,24 @@ test(`${platform} backend accepts the loading Button grid subset and rejects oth
       Object.assign(artifact.variants[theme][0].style, GRID_STYLE)
       const rejected = nativeBytes(forged(artifact, key, from, to))
       assert.equal(rejected.status, 1, `${theme} ${key}=${to}: ${rejected.stderr}`)
+      assert.match(rejected.stderr, /Home IR rejected/)
+    }
+})
+test(`${platform} backend rejects out-of-bounds textAlign values through forged binaries`, () => {
+  // textAlign bounds gate at the schema during encode; forge checksum-valid
+  // binaries so the native validators see each broader alignment anyway.
+  for (const theme of ['light', 'dark'])
+    for (const [from, to] of [
+      ['left', 'justify'],
+      ['left', 'start'],
+      ['left', 'end'],
+      ['center', 'auto'],
+      ['right', 'match-parent'],
+    ]) {
+      const artifact = fixture()
+      artifact.variants[theme][1].style.textAlign = from
+      const rejected = nativeBytes(forged(artifact, 'textAlign', from, to))
+      assert.equal(rejected.status, 1, `${theme} textAlign=${to}: ${rejected.stderr}`)
       assert.match(rejected.stderr, /Home IR rejected/)
     }
 })

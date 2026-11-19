@@ -82,6 +82,30 @@ is eligible through that placeholder path plus a bounded grid subset —
 `stretch`/`center` self-alignment — whose schema and backend bounds reject
 every other grid value.
 
+The real create-template starter adds the bounded subset its resolved CSS
+requires and nothing more: `textAlign` accepts only `left`/`center`/`right`
+(`justify`, `start`, `end`, `auto`, `match-parent` still reject, proven by
+forged checksum-valid binaries), `borderWidth` accepts any nonnegative finite
+number, and `borderColor` joins the existing `#rrggbb`/`rgba(r, g, b, a)`
+color contract. The producer folds live Core's conversions instead of
+widening the IR: `font-weight: normal|bold` emit `400`/`700`, translucent
+`#rrggbbaa` emits `rgba()`, `transparent` emits `rgba(0, 0, 0, 0)`, and a
+residual unit string such as `100vh` emits its leading scalar (Core's
+`Length.parse`/`parseFloat` behavior — viewport units have no NS meaning).
+The IR carries no `border-style`: live forwards only the width/color
+longhands into the Mason buffer, so a nonzero width on a container still
+paints only where live's buffer happens to hold a non-none style — the
+mount writes the same longhands and invents nothing. Foreign leaves are
+different: the driver's `MASON_LEAF_STYLE_KEYS` forwards only layout
+longhands into a label's buffer, so a label's padding, border, background
+and text alignment paint on the native view itself — iOS
+`TNSLabel.padding`/`borderThickness` plus `CALayer` border/background fields
+(and `cornerCurve` for `corner-shape: squircle`), Android `setPadding`
+(padding + border px, matching `effectivePadding`+`effectiveBorder` summing)
+plus `BorderDrawable.refresh` and `setGravity`. Android live ignores
+`cornerShape` on labels, so the cold label path likewise keeps plain
+radii; containers still carry `cornerShape` through the buffer.
+
 The motion facade emits real `masonview` hosts, never placeholders. Refs and
 effects never run under `root.prepare`, so the mount effect's first-frame
 seed is instead baked into emitted `style`: while

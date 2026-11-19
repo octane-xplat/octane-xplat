@@ -72,6 +72,34 @@ const PLACEHOLDER_BOX_KEYS = new Set([
 ])
 const droppedPlaceholderStyles = new Map()
 
+// Keys whose live valueConverter (Length.parse or parseFloat) folds a residual
+// unit string to its leading scalar in dips. Percent strings and enum/color/
+// font keys are excluded on purpose.
+const LENGTH_FOLD_KEYS = new Set([
+  'borderRadius',
+  'borderWidth',
+  'columnGap',
+  'flexGrow',
+  'flexShrink',
+  'fontSize',
+  'fontWeight',
+  'height',
+  'lineHeight',
+  'maxHeight',
+  'maxWidth',
+  'minHeight',
+  'minWidth',
+  'opacity',
+  'paddingBottom',
+  'paddingLeft',
+  'paddingRight',
+  'paddingTop',
+  'rowGap',
+  'width',
+])
+// Core FontWeight enum keywords, folded to their numeric weights.
+const FONT_WEIGHT_KEYWORDS = { normal: 400, bold: 700 }
+
 const launch = compileLaunchConstraints(stylesheetMediaQueries(), input.environment, {
   consumesSafeAreaInsets: input.consumesSafeAreaInsets === true,
 })
@@ -120,10 +148,38 @@ let variant
       nodes[index].kind === 'scrollview'
         ? scrollviewStyle(nodes[index].props, result.style)
         : result.style
-    // The IR only carries #hex and rgba() colors. CSS `transparent` is the
-    // driver's rgba(0,0,0,0), so fold the keyword before backend validation.
-    for (const key of ['color', 'backgroundColor']) {
-      if (style[key] === 'transparent') {style = { ...style, [key]: 'rgba(0, 0, 0, 0)' }}
+    // The IR only carries #rrggbb and rgba() colors. CSS `transparent` is the
+    // driver's rgba(0,0,0,0), and the css engine renders translucent hex as
+    // #rrggbbaa, so fold both into the rgba() form the backends accept.
+    for (const key of ['color', 'backgroundColor', 'borderColor']) {
+      const value = style[key]
+      if (value === 'transparent') {
+        style = { ...style, [key]: 'rgba(0, 0, 0, 0)' }
+      } else if (typeof value === 'string' && /^#[0-9a-fA-F]{8}$/.test(value)) {
+        const hex = value.slice(1)
+        const rgb = [0, 2, 4].map((at) => parseInt(hex.slice(at, at + 2), 16)).join(', ')
+        style = { ...style, [key]: `rgba(${rgb}, ${parseInt(hex.slice(6, 8), 16) / 255})` }
+      }
+    }
+    // The native font contract carries numeric weights only. Core's FontWeight
+    // enum accepts the CSS keywords 'normal'/'bold' (plus numeric strings the
+    // engine already numberizes); fold the keywords to their weights.
+    if (typeof style.fontWeight === 'string' && FONT_WEIGHT_KEYWORDS[style.fontWeight]) {
+      style = { ...style, fontWeight: FONT_WEIGHT_KEYWORDS[style.fontWeight] }
+    }
+    // Core's Length.parse/parseFloat converters read the leading scalar out of
+    // any residual unit string, so `min-height:100vh` lowers live as 100 dip —
+    // viewport units have no NS meaning. The engine already numberizes px,
+    // dip, pt and unitless values; fold the same leading scalar for the rest
+    // (em/rem/vh/vw/calc(...) leftovers still reject loudly when no leading
+    // number exists). Percent strings keep their live meaning and are left
+    // for the backend bounds.
+    for (const key of LENGTH_FOLD_KEYS) {
+      const value = style[key]
+      if (typeof value === 'string' && !value.endsWith('%')) {
+        const folded = parseFloat(value)
+        if (Number.isFinite(folded)) {style = { ...style, [key]: folded }}
+      }
     }
     let cssKeys = [...result.cssKeys]
     let inheritedKeys = [...result.inheritedKeys]

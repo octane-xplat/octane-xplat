@@ -159,6 +159,7 @@ export const STYLE_KEYS: readonly string[] = Object.freeze([
   'alignItems',
   'alignSelf',
   'backgroundColor',
+  'borderColor',
   'borderRadius',
   'borderWidth',
   'color',
@@ -191,6 +192,7 @@ export const STYLE_KEYS: readonly string[] = Object.freeze([
   'paddingRight',
   'paddingTop',
   'rowGap',
+  'textAlign',
   'textOverflow',
   'userSelect',
   'whiteSpace',
@@ -210,6 +212,9 @@ export const STYLE_VALUE_BOUNDS: Readonly<Record<string, readonly string[]>> = O
   gridTemplateColumns: Object.freeze(['1fr']),
   gridTemplateRows: Object.freeze(['1fr']),
   justifySelf: Object.freeze(['center', 'stretch']),
+  // Live Core accepts 'justify' too; the mounts only lower the three
+  // unambiguous horizontal alignments, so justify stays rejected.
+  textAlign: Object.freeze(['center', 'left', 'right']),
 })
 export class ArtifactError extends Error {
   constructor(message: string) {

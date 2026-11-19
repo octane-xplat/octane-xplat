@@ -6,11 +6,26 @@
 
 static NSDictionary *CaptureDefaults(UIView *view) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
-    NSMutableDictionary *defaults = [@{@"borderRadius":style.borderRadius.length ? style.borderRadius : @"0", @"alpha":@(view.alpha)} mutableCopy];
+    NSMutableDictionary *defaults = [@{@"borderRadius":style.borderRadius.length ? style.borderRadius : @"0", @"alpha":@(view.alpha),
+        // The per-side shorthand resets a side to width0/none/clear on "".
+        @"borderSide":style.borderTop ?: @""} mutableCopy];
     if ([view isKindOfClass:UILabel.class]) {
         UILabel *label = (UILabel *)view;
         defaults[@"font"] = label.font;
         defaults[@"textColor"] = label.textColor;
+        defaults[@"textAlignment"] = @(label.textAlignment);
+        if (label.backgroundColor) defaults[@"viewBackgroundColor"] = label.backgroundColor;
+        if ([view isKindOfClass:TNSLabel.class]) {
+            TNSLabel *tns = (TNSLabel *)view;
+            defaults[@"padding"] = [NSValue valueWithUIEdgeInsets:tns.padding];
+            defaults[@"borderThickness"] = [NSValue valueWithUIEdgeInsets:tns.borderThickness];
+        }
+        CALayer *layer = view.layer;
+        defaults[@"layerBorderWidth"] = @(layer.borderWidth);
+        if (layer.borderColor) defaults[@"layerBorderColor"] = (__bridge id)layer.borderColor;
+        if (layer.backgroundColor) defaults[@"layerBackgroundColor"] = (__bridge id)layer.backgroundColor;
+        defaults[@"layerCornerRadius"] = @(layer.cornerRadius);
+        defaults[@"layerCornerCurve"] = layer.cornerCurve;
     }
     return defaults;
 }
@@ -35,34 +50,40 @@ static uint32_t ARGB(UIColor *color) {
 }
 static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     MasonStyle *style = [NSCMason.shared styleForView:view];
-    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"justifySelf", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect", @"opacity", @"maxHeight", @"overflowX", @"overflowY", @"alignSelf", @"width", @"gridRow", @"gridColumn", @"gridTemplateRows", @"gridTemplateColumns"]];
+    NSSet *known = [NSSet setWithArray:@[@"display", @"flexDirection", @"flexGrow", @"flexShrink", @"paddingTop", @"paddingRight", @"paddingBottom", @"paddingLeft", @"rowGap", @"columnGap", @"backgroundColor", @"borderColor", @"color", @"fontSize", @"fontWeight", @"fontFamily", @"justifyContent", @"justifySelf", @"alignItems", @"borderRadius", @"borderWidth", @"cornerShape", @"whiteSpace", @"textOverflow", @"minWidth", @"minHeight", @"maxWidth", @"height", @"lineHeight", @"userSelect", @"opacity", @"maxHeight", @"overflowX", @"overflowY", @"alignSelf", @"width", @"gridRow", @"gridColumn", @"gridTemplateRows", @"gridTemplateColumns", @"textAlign"]];
     for (NSString *key in values) Require([known containsObject:key], [@"Unsupported property: " stringByAppendingString:key]);
+    // The driver's foreign-leaf sync (MASON_LEAF_STYLE_KEYS) only forwards the
+    // layout subset into a foreign view's Mason buffer; a label's padding,
+    // border, background and text paint live on the native view instead.
+    BOOL label = [view isKindOfClass:UILabel.class];
     if (values[@"display"]) {
         Require([values[@"display"] isEqual:@"flex"] || [values[@"display"] isEqual:@"block"] || [values[@"display"] isEqual:@"grid"], @"Unsupported display");
         style.display = [values[@"display"] isEqual:@"flex"] ? MasonDisplayFlex : [values[@"display"] isEqual:@"grid"] ? MasonDisplayGrid : MasonDisplayBlock;
     }
     if (values[@"gridRow"]) { Require([values[@"gridRow"] isEqual:@"1"], @"Unsupported grid row"); style.gridRow = values[@"gridRow"]; }
     if (values[@"gridColumn"]) { Require([values[@"gridColumn"] isEqual:@"1"], @"Unsupported grid column"); style.gridColumn = values[@"gridColumn"]; }
-    if (values[@"gridTemplateRows"]) { Require([values[@"gridTemplateRows"] isEqual:@"1fr"], @"Unsupported grid template rows"); style.gridTemplateRows = values[@"gridTemplateRows"]; }
-    if (values[@"gridTemplateColumns"]) { Require([values[@"gridTemplateColumns"] isEqual:@"1fr"], @"Unsupported grid template columns"); style.gridTemplateColumns = values[@"gridTemplateColumns"]; }
-    if (values[@"flexDirection"]) {
+    if (!label && values[@"gridTemplateRows"]) { Require([values[@"gridTemplateRows"] isEqual:@"1fr"], @"Unsupported grid template rows"); style.gridTemplateRows = values[@"gridTemplateRows"]; }
+    if (!label && values[@"gridTemplateColumns"]) { Require([values[@"gridTemplateColumns"] isEqual:@"1fr"], @"Unsupported grid template columns"); style.gridTemplateColumns = values[@"gridTemplateColumns"]; }
+    if (!label && values[@"flexDirection"]) {
         Require([@[@"row",@"column"] containsObject:values[@"flexDirection"]], @"Unsupported flex direction");
         style.flexDirection = [values[@"flexDirection"] isEqual:@"column"] ? MasonFlexDirectionColumn : MasonFlexDirectionRow;
     }
     if (values[@"flexGrow"]) style.flexGrow = [values[@"flexGrow"] floatValue];
     if (values[@"flexShrink"]) style.flexShrink = [values[@"flexShrink"] floatValue];
-    if (values[@"paddingTop"]) [style setPaddingTop:[values[@"paddingTop"] floatValue]*scale :0];
-    if (values[@"paddingRight"]) [style setPaddingRight:[values[@"paddingRight"] floatValue]*scale :0];
-    if (values[@"paddingBottom"]) [style setPaddingBottom:[values[@"paddingBottom"] floatValue]*scale :0];
-    if (values[@"paddingLeft"]) [style setPaddingLeft:[values[@"paddingLeft"] floatValue]*scale :0];
-    if (values[@"rowGap"]) [style setRowGap:[values[@"rowGap"] floatValue]*scale :0];
-    if (values[@"columnGap"]) [style setColumnGap:[values[@"columnGap"] floatValue]*scale :0];
+    if (!label) {
+        if (values[@"paddingTop"]) [style setPaddingTop:[values[@"paddingTop"] floatValue]*scale :0];
+        if (values[@"paddingRight"]) [style setPaddingRight:[values[@"paddingRight"] floatValue]*scale :0];
+        if (values[@"paddingBottom"]) [style setPaddingBottom:[values[@"paddingBottom"] floatValue]*scale :0];
+        if (values[@"paddingLeft"]) [style setPaddingLeft:[values[@"paddingLeft"] floatValue]*scale :0];
+    }
+    if (!label && values[@"rowGap"]) [style setRowGap:[values[@"rowGap"] floatValue]*scale :0];
+    if (!label && values[@"columnGap"]) [style setColumnGap:[values[@"columnGap"] floatValue]*scale :0];
     if (values[@"minWidth"]) [style setMinSizeWidth:[values[@"minWidth"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if (values[@"minHeight"]) [style setMinSizeHeight:[values[@"minHeight"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if (values[@"maxWidth"]) { Require([values[@"maxWidth"] isEqual:@"100%"], @"Unsupported maximum width"); [style setMaxSizeWidth:1 :MasonDimensionCompatTypePercent]; }
     if (values[@"maxHeight"]) { Require([values[@"maxHeight"] isEqual:@"100%"], @"Unsupported maximum height"); [style setMaxSizeHeight:1 :MasonDimensionCompatTypePercent]; }
-    if (values[@"overflowX"]) style.overflowX = [values[@"overflowX"] isEqual:@"scroll"] ? MasonOverflowScroll : MasonOverflowHidden;
-    if (values[@"overflowY"]) style.overflowY = [values[@"overflowY"] isEqual:@"scroll"] ? MasonOverflowScroll : MasonOverflowHidden;
+    if (!label && values[@"overflowX"]) style.overflowX = [values[@"overflowX"] isEqual:@"scroll"] ? MasonOverflowScroll : MasonOverflowHidden;
+    if (!label && values[@"overflowY"]) style.overflowY = [values[@"overflowY"] isEqual:@"scroll"] ? MasonOverflowScroll : MasonOverflowHidden;
     if ([values[@"height"] isKindOfClass:NSString.class]) { Require([values[@"height"] isEqual:@"100%"], @"Unsupported height"); [style setSizeHeight:1 :MasonDimensionCompatTypePercent]; }
     else if (values[@"height"]) [style setSizeHeight:[values[@"height"] floatValue]*scale :MasonDimensionCompatTypePoints];
     if ([values[@"width"] isKindOfClass:NSString.class]) { Require([values[@"width"] isEqual:@"100%"], @"Unsupported width"); [style setSizeWidth:1 :MasonDimensionCompatTypePercent]; }
@@ -75,27 +96,39 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
         Require([values[@"justifySelf"] isEqual:@"stretch"] || [values[@"justifySelf"] isEqual:@"center"], @"Unsupported self justification");
         style.justifySelf = [values[@"justifySelf"] isEqual:@"center"] ? MasonJustifySelfCenter : MasonJustifySelfStretch;
     }
-    // The examined SDK bulk border-width setter writes padding. Use its edge setters.
-    if (values[@"borderWidth"]) {
-        Require([values[@"borderWidth"] doubleValue] == 0, @"Unsupported border width");
-        [style setBorderLeftWidth:0 :MasonLengthPercentageCompatTypePoints];
-        [style setBorderRightWidth:0 :MasonLengthPercentageCompatTypePoints];
-        [style setBorderTopWidth:0 :MasonLengthPercentageCompatTypePoints];
-        [style setBorderBottomWidth:0 :MasonLengthPercentageCompatTypePoints];
+    if (!label) {
+        // Live forwards the border-width/border-color longhands into the
+        // buffer exactly; the IR carries no border-style, so write the
+        // longhands without inventing one — a side only paints where live's
+        // buffer also has a non-none style. The bulk setBorderWidth setter
+        // assigns padding in this SDK; use the individual edge setters.
+        if (values[@"borderWidth"]) {
+            float width = [values[@"borderWidth"] doubleValue]*scale;
+            [style setBorderTopWidth:width :0];
+            [style setBorderRightWidth:width :0];
+            [style setBorderBottomWidth:width :0];
+            [style setBorderLeftWidth:width :0];
+        }
+        if (values[@"borderColor"]) [style setBorderColor:values[@"borderColor"]];
     }
-    if (values[@"alignItems"]) { Require([values[@"alignItems"] isEqual:@"center"], @"Unsupported alignment"); style.alignItems = MasonAlignItemsCenter; }
-    if (values[@"justifyContent"]) {
+    if (!label && values[@"alignItems"]) { Require([values[@"alignItems"] isEqual:@"center"], @"Unsupported alignment"); style.alignItems = MasonAlignItemsCenter; }
+    if (!label && values[@"justifyContent"]) {
         Require([@[@"center",@"space-between"] containsObject:values[@"justifyContent"]], @"Unsupported justification");
         style.justifyContent = [values[@"justifyContent"] isEqual:@"center"] ? MasonJustifyContentCenter : MasonJustifyContentSpaceBetween;
     }
-    if (values[@"backgroundColor"]) style.backgroundColor = ARGB(Color(values[@"backgroundColor"]));
-    if (values[@"borderRadius"]) style.borderRadius = [NSString stringWithFormat:@"%gpx", [values[@"borderRadius"] doubleValue]];
-    if (values[@"cornerShape"]) style.cornerShape = values[@"cornerShape"];
+    if (!label && values[@"backgroundColor"]) style.backgroundColor = ARGB(Color(values[@"backgroundColor"]));
+    if (!label && values[@"borderRadius"]) style.borderRadius = [NSString stringWithFormat:@"%gpx", [values[@"borderRadius"] doubleValue]];
+    if (!label && values[@"cornerShape"]) style.cornerShape = values[@"cornerShape"];
+    if (!label && values[@"textAlign"]) {
+        Require([@[@"left",@"center",@"right"] containsObject:values[@"textAlign"]], @"Unsupported text alignment");
+        style.textAlign = [values[@"textAlign"] isEqual:@"center"] ? MasonTextAlignCenter : [values[@"textAlign"] isEqual:@"left"] ? MasonTextAlignLeft : MasonTextAlignRight;
+    }
     // Core 9.1.3 opacity writes UIView.alpha; its getDefault reads it back.
     if (values[@"opacity"]) view.alpha = [values[@"opacity"] doubleValue];
     // Font/color inheritance was resolved by the producer. Container values do not paint text.
     if ([view isKindOfClass:UILabel.class]) {
         UILabel *label = (UILabel *)view;
+        TNSLabel *tns = [view isKindOfClass:TNSLabel.class] ? (TNSLabel *)view : nil;
         NSArray *families = values[@"fontFamily"] ? [values[@"fontFamily"] componentsSeparatedByString:@","] : @[];
         NSMutableArray *names = [NSMutableArray new];
         NSCharacterSet *trim = [NSCharacterSet characterSetWithCharactersInString:@" \t\"'"];
@@ -106,6 +139,36 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
         label.numberOfLines = nowrap ? 1 : 0;
         label.lineBreakMode = [values[@"textOverflow"] isEqual:@"ellipsis"] ? NSLineBreakByTruncatingTail : NSLineBreakByWordWrapping;
         [label nativeScriptSetTextDecorationAndTransform:label.text textDecoration:@"" letterSpacing:0 lineHeight:[values[@"lineHeight"] doubleValue]];
+        // Core Label carries padding and border thickness as TNSLabel insets
+        // (dips), inside the measured box the foreign leaf reports.
+        if (tns && (values[@"paddingTop"] || values[@"paddingRight"] || values[@"paddingBottom"] || values[@"paddingLeft"])) {
+            tns.padding = UIEdgeInsetsMake(
+                [values[@"paddingTop"] doubleValue], [values[@"paddingLeft"] doubleValue],
+                [values[@"paddingBottom"] doubleValue], [values[@"paddingRight"] doubleValue]);
+        }
+        double borderWidth = [values[@"borderWidth"] doubleValue];
+        if (tns && values[@"borderWidth"]) {
+            tns.borderThickness = UIEdgeInsetsMake(borderWidth, borderWidth, borderWidth, borderWidth);
+        }
+        // Core's uniform-border branch paints the border on the layer; the
+        // contract's single side values are always uniform.
+        if (values[@"borderWidth"] || values[@"borderColor"] || values[@"borderRadius"] || values[@"cornerShape"]) {
+            view.layer.borderWidth = borderWidth;
+            view.layer.borderColor = values[@"borderColor"] ? Color(values[@"borderColor"]).CGColor : nil;
+            view.layer.cornerRadius = [values[@"borderRadius"] doubleValue];
+            view.layer.cornerCurve = [values[@"cornerShape"] isEqual:@"squircle"] ? kCACornerCurveContinuous : kCACornerCurveCircular;
+        }
+        // Label._redrawNativeBackground paints the label background on the
+        // layer, leaving the view's own backgroundColor at its default.
+        if (values[@"backgroundColor"]) view.layer.backgroundColor = Color(values[@"backgroundColor"]).CGColor;
+        // A live label's leaf buffer carries borderRadius "0" once its
+        // backgroundInternal border-radius was applied; the painted corner
+        // lives on the layer only.
+        if (values[@"borderRadius"]) style.borderRadius = @"0";
+        if (values[@"textAlign"]) {
+            Require([@[@"left",@"center",@"right"] containsObject:values[@"textAlign"]], @"Unsupported text alignment");
+            label.textAlignment = [values[@"textAlign"] isEqual:@"center"] ? NSTextAlignmentCenter : [values[@"textAlign"] isEqual:@"left"] ? NSTextAlignmentLeft : NSTextAlignmentRight;
+        }
     }
     // userSelect is not a native Style paint property in the live reference.
     [style updateNativeStyle];
@@ -173,12 +236,30 @@ static void Apply(UIView *view, NSDictionary *values, CGFloat scale) {
     for (NSDictionary *journal in _journals) {
         UIView *view = journal[@"view"];
         NSDictionary *defaults = journal[@"defaults"];
-        [NSCMason.shared styleForView:view].borderRadius = defaults[@"borderRadius"];
+        MasonStyle *style = [NSCMason.shared styleForView:view];
+        style.borderRadius = defaults[@"borderRadius"];
         view.alpha = [defaults[@"alpha"] doubleValue];
+        NSString *border = defaults[@"borderSide"];
+        style.borderTop = border;
+        style.borderRight = border;
+        style.borderBottom = border;
+        style.borderLeft = border;
         if ([view isKindOfClass:UILabel.class]) {
             UILabel *label = (UILabel *)view;
             label.font = defaults[@"font"];
             label.textColor = defaults[@"textColor"];
+            label.textAlignment = [defaults[@"textAlignment"] integerValue];
+            label.backgroundColor = defaults[@"viewBackgroundColor"];
+            if ([view isKindOfClass:TNSLabel.class]) {
+                TNSLabel *tns = (TNSLabel *)view;
+                tns.padding = [defaults[@"padding"] UIEdgeInsetsValue];
+                tns.borderThickness = [defaults[@"borderThickness"] UIEdgeInsetsValue];
+            }
+            view.layer.borderWidth = [defaults[@"layerBorderWidth"] doubleValue];
+            view.layer.borderColor = (__bridge CGColorRef)defaults[@"layerBorderColor"];
+            view.layer.backgroundColor = (__bridge CGColorRef)defaults[@"layerBackgroundColor"];
+            view.layer.cornerRadius = [defaults[@"layerCornerRadius"] doubleValue];
+            view.layer.cornerCurve = defaults[@"layerCornerCurve"];
         }
     }
 }
