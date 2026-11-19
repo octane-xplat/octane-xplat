@@ -1,2 +1,0 @@
-// Type contract only. The target build must select a platform implementation.
-export declare const CodeBlockPerfPage: typeof import('./CodeBlockPerfPage.web.tsrx').CodeBlockPerfPage

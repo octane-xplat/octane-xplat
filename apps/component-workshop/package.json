@@ -8,6 +8,7 @@
     "build": "node scripts/build.ts",
     "typecheck": "node ../../scripts/typecheck.ts",
     "test:coverage": "node scripts/coverage.ts",
+    "test": "node scripts/packed-sandbox.mts",
     "test:browser": "node scripts/browser.ts",
     "verify:deployment": "node scripts/verify-deployment.ts"
   },
@@ -45,7 +46,7 @@
     "@octane-xplat/workshop": "workspace:*",
     "@octanejs/vite-plugin": "catalog:",
     "@tsrx/content-mapper": "catalog:",
-    "@octane-xplat/astryx-sandbox": "workspace:*",
+    "@octane-xplat/astryx-sandbox": "git+https://github.com/octane-xplat/astryx-sandbox.git#160f0052cf5b64167135937c04ff9a23cf5fc38d",
     "playwright": "1.63.0",
     "typescript": "catalog:",
     "vite": "catalog:"

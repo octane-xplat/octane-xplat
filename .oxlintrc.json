@@ -24,8 +24,8 @@
 					"tools/web-verification/",
 					"apps/mobile/web/",
 					"apps/docs/",
-					"apps/macos/",
-					"apps/astryx-sandbox/",
+					"apps/mobile/linux/",
+					"tools/macos-verification/",
 					"packages/cli/test/fixtures/",
 					"scripts/"
 				]
@@ -38,7 +38,7 @@
 					"tools/web-verification/",
 					"apps/mobile/web/",
 					"apps/docs/",
-					"apps/astryx-sandbox/"
+					"apps/mobile/linux/"
 				]
 			}
 		],
@@ -51,7 +51,6 @@
 					"apps/docs/",
 					"apps/mobile/",
 					"tools/windows-host/",
-					"apps/astryx-sandbox/",
 					"packages/typegen-fixture/"
 				]
 			}
@@ -86,8 +85,7 @@
 				"exclude": [
 					"tools/web-verification/",
 					"apps/mobile/web/",
-					"apps/docs/",
-					"apps/astryx-sandbox/"
+					"apps/docs/"
 				]
 			}
 		],

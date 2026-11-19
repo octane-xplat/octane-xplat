@@ -1,8 +1,10 @@
 import { readFileSync, existsSync, mkdirSync, cpSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
+const require = createRequire(import.meta.url)
 const catalog: Record<string, { module: string }> = JSON.parse(
   readFileSync(resolve(root, 'catalog.json'), 'utf8'),
 )
@@ -40,15 +42,9 @@ function inspect(file: string) {
 
 for (const entry of Object.values(catalog)) {
   if (entry.module.startsWith('@octane-xplat/astryx-sandbox/examples/')) {
-    inspect(
-      resolve(
-        root,
-        '../astryx-sandbox/src/examples',
-        entry.module.replace('@octane-xplat/astryx-sandbox/examples/', ''),
-      ),
-    )
-  } else if (entry.module.startsWith('@octane-xplat/demos/')) {
-    inspect(resolve(root, '../../packages/demos/src', entry.module.replace('@octane-xplat/demos/', '')))
+    inspect(require.resolve(entry.module))
+  } else if (entry.module.startsWith('@xplat/demos/')) {
+    inspect(resolve(root, '../../packages/demos/src', entry.module.replace('@xplat/demos/', '')))
   }
 }
 
@@ -57,7 +53,7 @@ for (const asset of assets) {
     throw new Error(`Invalid showcase asset ${asset}`)
   }
 
-  const source = resolve(root, '../astryx-sandbox/public/template-assets', asset)
+  const source = require.resolve(`@octane-xplat/astryx-sandbox/template-assets/${asset}`)
   const destination = resolve(root, 'dist/template-assets', asset)
 
   if (!existsSync(source)) {

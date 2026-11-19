@@ -5,10 +5,24 @@ It reuses maintained Astryx sandbox examples through explicit imports and adds
 focused examples where a suitable one does not exist. The sandbox retains the
 upstream attribution and example implementation; the workshop owns its story metadata.
 
+The workshop pins an exact commit from the [Astryx sandbox repository](https://github.com/octane-xplat/astryx-sandbox)
+in `package.json`. To update the pin, select the commit for a sandbox tag,
+regenerate `bun.lock`, and run the build, typecheck, and packaging check below.
+The sandbox stories use this workspace's framework packages.
+
 ```sh
-bun run turbo run build --filter=@octane-xplat/component-workshop
-bun run turbo run test:browser --filter=@octane-xplat/component-workshop
+bun run turbo run build --filter=@xplat/component-workshop
+bun run turbo run typecheck --filter=@xplat/component-workshop
+bun run turbo run test:browser --filter=@xplat/component-workshop
+bun run turbo run test --filter=@xplat/component-workshop
 ```
+
+The packed-sandbox check packages the installed sandbox, resolves the catalog's
+sandbox example imports from the archive, and copies their referenced assets into an
+isolated workshop directory. It checks package contents and exports; run the
+build and browser test separately to check compilation and browser behavior.
+The typecheck also follows the imported sandbox examples and runs in the PR
+checks, catching type incompatibilities in those examples without a browser.
 
 `catalog.json` maps public component identities to maintained examples. The
 coverage check compares UI root, Chat, Markdown, and publishable visual leaf

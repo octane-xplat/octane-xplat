@@ -68,8 +68,10 @@ jobs:
           bun run check:compatibility && bun run check:patches && bun run turbo run check:ui-barrels --filter=@octane-xplat/ui && bun run check:css &&
           bun run check:vendored && bun run check:vite-tsconfigs && bun run check:envs && bun run check:changelog && bun run check:doc-examples
 
-      - name: Typecheck web
-        run: bun run turbo run typecheck --filter=@octane-xplat/web
+      # Workshop stories import the sandbox through its package exports. Keep
+      # their framework API compatibility checked without launching a browser.
+      - name: Typecheck web and workshop
+        run: bun run turbo run typecheck --filter=@xplat/web --filter=@xplat/component-workshop
 
       - name: Typecheck mobile
         run: bun run turbo run typecheck --filter=@octane-xplat/mobile

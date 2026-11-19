@@ -397,7 +397,7 @@ this bounded task. iOS/Android runtime accessibility remains unverified.
 The bounded UI Table now has grouped rows, detail expansion, tree data/state,
 row numbers/status, and web sticky columns. The sandbox targets exactly
 `ebd939b665361a078015377c0dfe50cc3c1d70a4`, independently of the separate
-0.7.1 parity harness. See [sandbox coverage](../../../apps/astryx-sandbox/docs/coverage.md#unit-7--hierarchical-and-rich-tables)
+0.7.1 parity harness. See [sandbox coverage](https://github.com/octane-xplat/astryx-sandbox/blob/v0.1.0/docs/coverage.md#unit-7--hierarchical-and-rich-tables)
 for route adaptations and open completion gates, and [table usage](../../../docs/app/tables.md)
 for public examples.
 

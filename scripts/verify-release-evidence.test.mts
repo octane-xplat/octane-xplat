@@ -489,6 +489,16 @@ test('workflow dependencies keep ci independent and stable bound to the release 
   assert.ok(!ci.jobs.checks.steps.some((step) => step.run?.includes('playwright install')))
 
   const commands = ci.jobs.checks.steps.map((step) => step.run ?? '')
+
+  assert.ok(
+    commands.some(
+      (command) =>
+        command.includes('turbo run typecheck') &&
+        command.includes('--filter=@xplat/component-workshop'),
+    ),
+    'CI must typecheck workshop stories against their sandbox dependency',
+  )
+
   const prepared = commands.indexOf('bun run build:packages')
   const checked = commands.indexOf('bun run check:pack')
   const smoke = commands.indexOf('bun run check:consumer --no-build --quick')
