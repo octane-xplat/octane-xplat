@@ -152,7 +152,7 @@ goddard-agent resource run --json '{"resources":{"exclusive":["device:andromeda"
 Windows has no downstream app workflow yet, so this lane cannot install packed
 tarballs into an external consumer. It follows the packaged-runtime route of
 the package runtime tests instead. The build phase stages `app/` under
-`apps/windows/src/.desktop-shell-journey/` (ignored) and bundles v1 (0.1.0) and
+`tools/windows-host/src/.desktop-shell-journey/` (ignored) and bundles v1 (0.1.0) and
 v2 (0.2.0) with the harness Vite config (`XPLAT_WINDOWS_ENTRY` selects the
 entry). The journey phase copies the packaged NativeScript Windows runtime on
 `windy` into `%USERPROFILE%\agent-scratch\octane-xplat\hushed-dew\windows-<id>\`,

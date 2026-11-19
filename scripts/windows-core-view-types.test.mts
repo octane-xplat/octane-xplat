@@ -6,7 +6,7 @@ import test from 'node:test'
 import ts from 'typescript-classic'
 
 const root = path.resolve(import.meta.dirname, '..')
-const appRequire = createRequire(path.join(root, 'apps/windows/package.json'))
+const appRequire = createRequire(path.join(root, 'tools/windows-host/package.json'))
 const core = path.dirname(appRequire.resolve('@nativescript/core'))
 const viewDeclaration = path.join(core, 'ui/core/view/index.windows.d.ts')
 

@@ -6,7 +6,7 @@ import test from 'node:test'
 import { pathToFileURL } from 'node:url'
 
 const root = path.resolve(import.meta.dirname, '..')
-const appRequire = createRequire(path.join(root, 'apps/windows/package.json'))
+const appRequire = createRequire(path.join(root, 'tools/windows-host/package.json'))
 const viteRoot = path.dirname(appRequire.resolve('@nativescript/vite'))
 const { typescriptCheckPlugin } = await import(
   pathToFileURL(path.join(viteRoot, 'helpers/typescript-check.js')).href

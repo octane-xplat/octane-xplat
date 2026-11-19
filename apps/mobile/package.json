@@ -8,6 +8,8 @@
 		"build:web": "vite build",
 		"ios": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev ios",
 		"android": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev android",
+		"windows": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev windows --app .",
+		"build:windows": "xplat build --targets windows",
 		"debug:ios": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && ns debug ios",
 		"build:ios": "ns build ios",
 		"bench:animation:ios": "node scripts/build-animation-quality.mjs",
@@ -96,6 +98,22 @@
 	},
 	"xplat": {
 		"targets": {
+			"windows": {
+				"toolchain": "../../tools/windows-host"
+			},
+			"linux": {
+				"runtime": "webkitgtk",
+				"host": {
+					"scheme": "xplat"
+				},
+				"package": {
+					"applicationId": "org.octane.xplat",
+					"productName": "Octane xplat",
+					"executableName": "octane-xplat",
+					"version": "0.0.0",
+					"viteConfig": "linux/vite.linux.config.mts"
+				}
+			},
 			"macos": {
 				"runtime": "appkit-node-api",
 				"dev": {

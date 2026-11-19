@@ -23,8 +23,8 @@ Choose a workspace's directory by its primary purpose:
 Keep new operational services and verification runners in `tools/`, even when
 they have a development server or deployment command. Keep package names stable
 when moving existing workspaces so package-name filters continue to work.
-The current shared harness still has separate platform host workspaces; consolidate
-those into one cross-platform app while preserving their target-specific checks.
+The shared harness owns its platform entries in one app; isolated toolchains may
+live under `tools/` when a target needs incompatible dependencies.
 
 ## Script ownership
 

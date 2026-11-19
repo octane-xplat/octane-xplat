@@ -10,7 +10,7 @@ if (!['gtk', 'windows'].includes(target) || !destination)
   throw new Error('Expected gtk|windows and an output directory')
 const root = fileURLToPath(
   new URL(
-    target === 'gtk' ? '../../../packages/linux-gtk-renderer/' : '../../../apps/windows/',
+    target === 'gtk' ? '../../../packages/linux-gtk-renderer/' : '../../../tools/windows-host/',
     import.meta.url,
   ),
 )

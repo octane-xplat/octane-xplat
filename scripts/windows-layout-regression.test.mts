@@ -2,9 +2,9 @@ import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
-import { verifyWindowsLayoutRepair } from '../apps/windows/scripts/verify-layout-repair.ts'
+import { verifyWindowsLayoutRepair } from '../tools/windows-host/scripts/verify-layout-repair.ts'
 
-const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))
+const appRequire = createRequire(new URL('../tools/windows-host/package.json', import.meta.url))
 
 test('installed Core and selected native pair contain the matching fixed-size repair', () => {
   verifyWindowsLayoutRepair()

@@ -89,7 +89,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=10 -J andromeda.local \
 2. Back up the guest's actual dependency files and smoke sources, including
    hashes. Install the exact local candidate JS/declarations; verify package
    pins and hashes before prepare. No native compilation is needed by this fix.
-3. Copy the public case into `apps/windows/src/windows-ui-case.tsrx` and use the
+3. Copy the public case into `tools/windows-host/src/windows-ui-case.tsrx` and use the
    existing isolated lab entry/prepare helper. Launch via OctaneWindowsUILab;
    run the OS script in interactive session1, under the same lease.
 4. Require UIA states **and** UTF8 console callbacks: public focus/isolated blur,

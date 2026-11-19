@@ -281,14 +281,17 @@ bun run xplat build web
 bun run xplat build --targets web,android
 ```
 
-Use `--emulator` to select one available iOS simulator or running Android
-emulator. When several match, Xplat selects the sole running match or reports
-ambiguity with the matching IDs. If none match, check the installed iOS
-simulators or start an Android emulator. For an exact device, use
-`--device` with the target ID from `xplat targets`. An optional positional
-platform restricts either selection. Use only one of `--emulator`, `--device`,
-and `--targets` per command. Xplat prepares iOS simulators through `simctl`.
-Physical-device launch remains NativeScript's responsibility.
+An experimental Windows target may set `xplat.targets.windows.toolchain` to a
+relative NativeScript project directory. Dev and build resolve the Windows
+engine there; app identity and route ownership remain with the selected app.
+The directory must declare `@nativescript/windows` and contain
+`nativescript.config.ts`. Check [Windows support](../../../../docs/platform/windows-setup.md)
+before promising runtime behavior.
+
+For an exact development device, use `--device` with the returned target ID.
+An optional positional platform restricts that selection. Xplat prepares iOS
+simulators through `simctl`; it does not need Simulator.app. Physical-device
+launch remains NativeScript's responsibility.
 
 ```sh
 bun run xplat dev ios --emulator

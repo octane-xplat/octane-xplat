@@ -6,7 +6,7 @@ import vm from 'node:vm'
 import { test } from 'node:test'
 import ts from 'typescript-classic'
 
-const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))
+const appRequire = createRequire(new URL('../tools/windows-host/package.json', import.meta.url))
 const sourceRoot = process.env.WINDOWS_CORE_SOURCE
 function load(path, context, exports) {
   const file = sourceRoot

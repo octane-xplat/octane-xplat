@@ -405,7 +405,7 @@ experience of agents writing Octane-xplat code effectively.
   orders dependency declaration emit first and folds each dep's file hash into
   the dependent — the edge covers even script-less deps because turbo still
   hashes their files through the no-op task node. `apps/mobile` includes
-  `../../packages/**/*` as roots; `apps/windows` checks app roots and their
+  `../../packages/**/*` as roots; `tools/windows-host` checks app roots and their
   imported Windows/native package graph. Both apps' `turbo.json` files hash
   all package sources directly so path-mapped imports outside the workspace
   dependency edges still invalidate the check (explicit input globs are
@@ -503,6 +503,16 @@ experience of agents writing Octane-xplat code effectively.
   take the classic path (same as before the retarget). The generated check
   config's `tsrx.platform` key is a Volar-plugin option and is inert under
   native tsc.
+- **The Windows harness runs its project typecheck during bundling.** The
+  shared Octane Vite integration currently resolves `@nativescript/vite`
+  8.0.20, whose platform detector does not recognize Windows and whose build
+  checker replaces the project's `.windows` module suffix with `.native`.
+  Source and build diagnostics show that this misses Windows-only modules.
+  `tools/windows-host/vite.config.mts` replaces that checker with the same
+  `tsc --runExternalCode` project check used by the Windows typecheck task;
+  failures still stop the bundle. Revisit this local workaround when the
+  integration resolves a Windows-aware upstream checker. This is build
+  evidence, not Windows runtime qualification.
 - **`@nativescript/vite` 8.0.20/8.0.21 parse top-level import records via Oxc
   (`parseAst`) instead of Babel.** Babel 7.29.9 `skipBlockComment` rescans to
   the next line break for every block comment — ~1.5 s per parse on the ~1.9 MB
@@ -705,7 +715,7 @@ experience of agents writing Octane-xplat code effectively.
   for the importer. Packages found only in the package managers' hidden
   hoists (`node_modules/.pnpm/node_modules/`, bun's
   `node_modules/.bun/node_modules/`) do not count as installed. Without that
-  exclusion, `apps/windows`' full MasonKit disabled the mobile
+  exclusion, `tools/windows-host`' full MasonKit disabled the mobile
   MasonKit-to-core alias, and iOS dev boot threw
   `MasonListDelegate is not defined`. The regressions live in
   `packages/cli/test/vite-deps-alias.test.mts`. Remove this hunk when upstream

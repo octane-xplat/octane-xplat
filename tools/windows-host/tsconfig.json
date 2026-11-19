@@ -46,7 +46,7 @@
 			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
 		}
 	},
-	"include": ["src/**/*"],
+	"include": ["src/**/*", "../../apps/mobile/windows/**/*"],
 	"files": [
 		"../../packages/macos-appkit/src/host-globals.d.ts",
 		"../../packages/ui/type-support/driver-props.d.ts",

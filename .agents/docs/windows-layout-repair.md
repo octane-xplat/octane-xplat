@@ -8,7 +8,7 @@ remain required; component support has not been upgraded.
 
 ## Repository Windows host
 
-The x64 host in `apps/windows` carries a pinned layout DLL/WinMD pair in
+The x64 host in `tools/windows-host` carries a pinned layout DLL/WinMD pair in
 `App_Resources/Windows/Widgets`. Its manifest identifies NativeScript commit
 `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`, the canonical native patch,
 checksums, toolchain and MIT license. The native repair is app-local; Core's
@@ -133,7 +133,7 @@ Run helper checks with either source or patched package JS:
 
 ```sh
 node tools/platform-qualification/windows-layout/percent-sizing.test.mts research/windows-layout-upstream/packages/core/ui/core/view/index.windows.ts
-node tools/platform-qualification/windows-layout/percent-sizing.test.mts apps/windows/node_modules/@nativescript/core/ui/core/view/index.windows.js
+node tools/platform-qualification/windows-layout/percent-sizing.test.mts tools/windows-host/node_modules/@nativescript/core/ui/core/view/index.windows.js
 ```
 
 For native checks, copy the geometry entry into the isolated Windows lab app,

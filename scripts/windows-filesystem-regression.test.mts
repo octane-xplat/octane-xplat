@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import test from 'node:test'
 import vm from 'node:vm'
 
-const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))
+const appRequire = createRequire(new URL('../tools/windows-host/package.json', import.meta.url))
 const artifact = process.env.WINDOWS_CORE_ARTIFACT
 const path = artifact
   ? resolve(artifact, 'file-system/file-system-access.windows.js')

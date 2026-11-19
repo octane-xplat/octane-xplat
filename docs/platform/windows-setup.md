@@ -3,7 +3,7 @@
 > Check the Windows boundary before choosing it for an app.
 
 Windows is an experimental target. The current verified setup is the
-framework repository's private `apps/windows` harness; it depends on workspace
+framework repository's private `tools/windows-host` harness; it depends on workspace
 packages and preview NativeScript versions. It is a framework development
 workflow, not a downstream app setup guide.
 

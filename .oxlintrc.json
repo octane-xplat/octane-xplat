@@ -50,7 +50,7 @@
 					"apps/mobile/web/",
 					"apps/docs/",
 					"apps/mobile/",
-					"apps/windows/",
+					"tools/windows-host/",
 					"apps/astryx-sandbox/",
 					"packages/typegen-fixture/"
 				]
@@ -63,7 +63,7 @@
 					"apps/mobile/",
 					"packages/nativescript-octane/",
 					"packages/vite-octane/",
-					"apps/windows/",
+					"tools/windows-host/",
 					"packages/cli/test/fixtures/"
 				]
 			}

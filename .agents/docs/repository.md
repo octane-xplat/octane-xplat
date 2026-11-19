@@ -11,8 +11,11 @@ the universal-runtime driver over `@nativescript/core`).
 The framework exists and is published: `packages/ui` ships as
 `@octane-xplat/ui` on npm, `packages/cli` as `@octane-xplat/cli` (dev/build/
 doctor/typecheck). `packages/app` + `apps/mobile` host the shared web and mobile kitchen sink;
-`tools/web-verification` owns browser verification. The app
-also has a separate `/harness` test console (`/harness-baseline` retains the older integration fixture); `packages/demos` contains the retained seam-by-seam demo screens. `docs/` contains
+`apps/mobile/linux` holds the Linux webview target, `apps/mobile/windows` holds the Windows entry and qualification screens, and `tools/windows-host` isolates its preview toolchain; `apps/mobile/macos` holds its AppKit target and entry while `tools/macos-verification` still owns
+macOS verification tooling; `tools/web-verification` owns browser verification. The app
+launches Windows through its `windows` script; CLI discovery lists Windows on
+`apps/mobile` and selects the isolated toolchain for Windows commands.
+The app also has a separate `/harness` test console (`/harness-baseline` retains the older integration fixture); `packages/demos` contains the retained seam-by-seam demo screens. `docs/` contains
 app-building guides. Internal implementation guidance and records live in
 [`.agents/docs/`](README.md); design decisions and proposals live in
 [`.agents/design/`](../design/README.md). Follow the

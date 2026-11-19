@@ -7,9 +7,10 @@
 		"xplat": "xplat",
 		"windows": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && xplat dev windows",
 		"build:windows": "ns build windows",
-		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.typecheck.json",
 		"test:keyboard": "node --test ../../scripts/windows-keyboard-regression.test.mts ../../scripts/windows-pointer-regression.test.mts",
-		"test:filesystem": "node --test ../../scripts/windows-filesystem-regression.test.mts"
+		"test:filesystem": "node --test ../../scripts/windows-filesystem-regression.test.mts",
+		"build:bundle": "vite build --config vite.config.mts"
 	},
 	"dependencies": {
 		"@nativescript-community/observable": "2.0.11",

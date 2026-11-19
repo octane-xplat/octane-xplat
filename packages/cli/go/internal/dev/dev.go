@@ -50,10 +50,16 @@ func prepareDevEngines(ctx context.Context, projectRoot string, targets []devTar
 			if target.Kind == "ios" && runtime.GOOS != "darwin" {
 				return nil, errors.New("iOS development requires a Mac")
 			}
-			if target.Kind == "windows" && runtime.GOOS != "windows" {
-				return nil, errors.New("Windows NativeScript development requires Windows")
+			if target.Kind == "windows" {
+				engine.Directory, err = project.WindowsToolchainRoot(projectRoot, manifest)
+				if err != nil {
+					return nil, err
+				}
+				if runtime.GOOS != "windows" {
+					return nil, errors.New("Windows NativeScript development requires Windows")
+				}
 			}
-			entry, err := project.InstalledProjectEntry(projectRoot, "nativescript", "bin", "ns")
+			entry, err := project.InstalledProjectEntry(engine.Directory, "nativescript", "bin", "ns")
 			if err != nil {
 				return nil, err
 			}

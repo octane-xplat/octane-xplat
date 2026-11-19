@@ -7,7 +7,7 @@
 //
 // Env: TRAY_WINDOWS_HOST (ssh host with an interactive session) and
 // TRAY_WINDOWS_RUNTIME (remote dir containing a copy of the packaged runtime,
-// e.g. apps/windows/platforms/windows/windows/bin). The test keeps a staged
+// e.g. tools/windows-host/platforms/windows/windows/bin). The test keeps a staged
 // runtime + registered package on the box; re-runs reuse it.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'

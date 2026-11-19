@@ -84,7 +84,7 @@ derisks how much of A we could self-host if upstream stalls.
 These are the parts landed and verified on the macOS host before the Windows
 run below:
 
-- `apps/windows` scaffold: nativescript.config, `native` vite config with
+- `tools/windows-host` scaffold: nativescript.config, `native` vite config with
   `resolve.dedupe` on `@nativescript/core` (workspace packages' 9.1.2 devDeps
   otherwise resolve a second core copy from inside `packages/*`), tsconfig
   `paths` pinning the app core for the same reason, the harness entry from

@@ -21,11 +21,11 @@ if (existsSync(target)) {
 	throw new Error('Choose a new output directory; existing work will not be overwritten.')
 }
 
-const req = createRequire(join(repo, 'apps/windows/package.json'))
+const req = createRequire(join(repo, 'tools/windows-host/package.json'))
 const sourceTarget = join(target, 'packages/octane')
 mkdirSync(sourceTarget, { recursive: true })
 cpSync(source, sourceTarget, { recursive: true })
-symlinkSync(join(repo, 'apps/windows/node_modules'), join(target, 'node_modules'))
+symlinkSync(join(repo, 'tools/windows-host/node_modules'), join(target, 'node_modules'))
 function run(command, args, cwd = repo) {
 	const result = spawnSync(command, args, {
 		cwd,

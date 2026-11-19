@@ -50,15 +50,16 @@ From the repository root, the intended checks are:
 
 ```powershell
 bun install --frozen-lockfile
-bun run --cwd apps/windows xplat doctor
+bun run --cwd tools/windows-host xplat doctor
 $env:NODE_OPTIONS = '--max-old-space-size=4096'
-bun run turbo run build:windows typecheck --filter=@octane-xplat/windows --concurrency=1 --continue=dependencies-successful
+bun run turbo run build:windows typecheck --filter=@xplat/mobile --concurrency=1 --continue=dependencies-successful
 ```
 
-Turbo generates the app before building. The 4 GB Node heap and sequential
-tasks let the standalone Windows typecheck complete on the 8 GB test host;
-the default heap exhausted memory. The native build is uncached and passes
-the Windows program-directory variables needed by NativeScript startup checks.
+Turbo generates the app and typechecks the isolated Windows toolchain before
+the shared app's Windows build. The 4 GB Node heap and sequential tasks let the
+Windows typecheck complete on the 8 GB test host; the default heap exhausted
+memory. The native build is uncached and passes the Windows program-directory
+variables needed by NativeScript startup checks.
 
 The workspace pins the matching NativeScript Windows packages. Do not upgrade
 `@nativescript/windows`, core, or Vite independently while testing this
@@ -204,7 +205,7 @@ The bridge now passes WinRT objects to .NET as projected objects. The Mason
 before they are kept or removed.
 
 When switching runtimes for a qualification build, delete the generated
-`apps/windows/platforms/` tree first. During the alpha.144 control build,
+`tools/windows-host/platforms/` tree first. During the alpha.144 control build,
 `ns build windows` left a platform tree with no `windows.csproj` and failed with
 `MSB1009: Project file does not exist`. The rebuild after deleting that tree
 logged `Copying template files...` and succeeded.

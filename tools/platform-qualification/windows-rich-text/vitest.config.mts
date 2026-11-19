@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-const req = createRequire(new URL('../../../apps/windows/package.json', import.meta.url))
+const req = createRequire(new URL('../../../tools/windows-host/package.json', import.meta.url))
 const { octane } = await import(pathToFileURL(req.resolve('octane/compiler/vite')).href)
 const { nativeScriptRenderer } = await import(
 	pathToFileURL(req.resolve('@octane-xplat/nativescript-octane/config')).href
