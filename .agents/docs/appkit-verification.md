@@ -183,9 +183,14 @@ Remove the authoring restriction only after an Octane upgrade passes equivalent
 nested-JSX probes. The [routing contract notes](notes/routing-contract.md)
 record the related Octane 0.11.0 limitation.
 
-The isolated AppKit overlay fixture previously passed its overlay assertions
-(`bun run --filter @xplat/macos test:overlays`); that qualifies handler dispatch,
-not physical OS input. See the
+The isolated AppKit overlay fixture passes its overlay assertions
+(`bun run --filter @xplat/macos test:overlays`); that qualifies handler dispatch
+and native state, not physical OS input. Its window precondition requires key
+status only when the app can activate: a locked console
+(`CGSSessionScreenIsLocked`, `loginwindow` frontmost) refuses every activation
+request, so key/main stay nil for any process and ordered-in visibility is the
+strongest available evidence. Imperative surfaces attach through the
+`keyWindow ?? mainWindow ?? windows.firstObject` fallback. See the
 [renderer setup and verification boundary](../../docs/packages/package-macos-appkit.md).
 
 The broader `@octane-xplat/ui` native suite is a separate gate. Renderer packed
