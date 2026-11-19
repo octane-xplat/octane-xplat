@@ -24,6 +24,21 @@ when one is missing. A browser build of the panel shell is also served at
 `/devtools/app/` on the dev server; it shows the built-in tabs only, not
 panel plugins.
 
+## Host a backend from another development tool
+
+A tool that already starts the app can spawn
+`xplat devtools --project <app-directory> --host-backend <entry.mjs>`
+with a private pipe connected to stdin. Octane starts a discoverable loopback
+hub for the selected app and runs the entry with Node from the app directory.
+The entry receives `XPLAT_DEV_BACKEND` and can use `connectDevBackend` from
+`@octane-xplat/devtools/backend`. Keep the grant in the backend process.
+
+The parent tool keeps the pipe open while the session is active. Closing the
+pipe stops the backend and retires the discovery record. A backend exit ends
+the hub too. An ordinary `xplat devtools` invocation can open the session on
+macOS. The parent tool remains responsible for starting the app and Vite.
+Only one hub can own discovery for the same app directory at a time.
+
 ## Add a panel plugin
 
 A package contributes a devtools tab by pointing its manifest at a module

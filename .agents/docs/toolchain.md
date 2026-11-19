@@ -29,7 +29,10 @@ package reads stay native.
 
 The Go migration uses explicitly started foreground `dev` ownership. Humans or
 instructed agents may start it; app-control clients normally attach to an existing
-server and never implicitly launch a server/app/browser. Private discovery is
+server and never implicitly launch a server/app/browser. A development tool can
+explicitly own a backend-only hub with the stdin lease described in the
+[DevTools guide](../../docs/packages/package-devtools.md#host-a-backend-from-another-development-tool).
+Private discovery is
 keyed by canonical app directory, outside tracked project files, with per-start
 instance credentials and authenticated loopback requests. Client disconnect does
 not stop apps. Target-scoped app WebSockets register actual action metadata;
