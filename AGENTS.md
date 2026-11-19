@@ -67,11 +67,12 @@ Consult the relevant study before researching an external system. Update the
 canonical study when new evidence changes its findings; keep our decisions,
 implementation contracts, and upstream limitations in this framework repository.
 
-Use an existing local clone, by default `~/dev/prior-art`, outside framework
-worktrees. If it is absent and you have private-repository access, clone it:
+Use the separate local clone at `research/prior-art/` in the framework worktree.
+The `research/` directory is ignored by the framework repository. If the clone
+is absent and you have private-repository access, clone it:
 
 ```sh
-gh repo clone octane-xplat/prior-art ~/dev/prior-art
+gh repo clone octane-xplat/prior-art research/prior-art
 ```
 
 Read that repository's `AGENTS.md` before editing. Commit research independently
