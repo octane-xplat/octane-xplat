@@ -56,6 +56,10 @@ const readPermission = (session: AVAudioSession): RecorderPermissionState => {
       : 'undetermined'
 }
 
+export function microphonePermissionState(): RecorderPermissionState {
+  return readPermission(AVAudioSession.sharedInstance())
+}
+
 export async function requestMicrophonePermission(): Promise<RecorderPermissionState> {
   const session = AVAudioSession.sharedInstance()
   const status = readPermission(session)

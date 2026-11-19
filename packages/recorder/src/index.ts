@@ -1,15 +1,17 @@
 import { Application } from '@nativescript/core'
 import {
   createAudioRecorder as createAndroidRecorder,
+  microphonePermissionState as androidPermissionState,
   requestMicrophonePermission as requestAndroidPermission,
 } from './recorder.android'
 
 import {
   createAudioRecorder as createIOSRecorder,
+  microphonePermissionState as iosPermissionState,
   requestMicrophonePermission as requestIOSPermission,
 } from './recorder.ios'
 
-import type { AudioRecorder } from './types'
+import type { AudioRecorder, RecorderPermissionState } from './types'
 
 export * from './types'
 
@@ -35,12 +37,27 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 // because the shared PermissionResponse union has no device-absence value.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.microphone = async () => {
-  const state = Application.android
-    ? await requestAndroidPermission()
-    : Application.ios
-      ? await requestIOSPermission()
-      : 'unsupported'
+const toResponse = (state: RecorderPermissionState) => ({
+  status: state === 'unavailable' ? ('denied' as const) : state,
+  granted: state === 'granted',
+  canAskAgain: state === 'granted' || state === 'undetermined',
+})
 
-  return state === 'granted' ? 'granted' : state === 'unsupported' ? 'unsupported' : 'denied'
+permissionOwners.microphone = {
+  getPermissions: async () =>
+    toResponse(
+      Application.android
+        ? androidPermissionState()
+        : Application.ios
+          ? iosPermissionState()
+          : 'unsupported',
+    ),
+  requestPermissions: async () =>
+    toResponse(
+      Application.android
+        ? await requestAndroidPermission()
+        : Application.ios
+          ? await requestIOSPermission()
+          : 'unsupported',
+    ),
 }

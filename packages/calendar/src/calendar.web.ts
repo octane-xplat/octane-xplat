@@ -19,4 +19,13 @@ export const calendar: Calendar = {
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.calendar = () => calendar.ensure()
+const toResponse = (status: PermissionResult) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted',
+})
+
+permissionOwners.calendar = {
+  getPermissions: async () => toResponse(await calendar.ensure()),
+  requestPermissions: async () => toResponse(await calendar.ensure()),
+}

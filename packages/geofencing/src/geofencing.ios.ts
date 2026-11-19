@@ -4,6 +4,7 @@
 // OS relaunches the app, which must re-register a listener to drain buffered
 // events.
 import { attachRegionListener, emitRegionEvent, flushRegionEvents } from './geofencing.mobile'
+import type { PermissionStatus } from '@octane-xplat/platform'
 import type { GeofenceRegion, Geofencing, PermissionResult, RegionEventListener } from './types'
 
 declare const CLLocationManager: any
@@ -67,13 +68,16 @@ function iosEnsure(): Promise<PermissionResult> {
   m.requestWhenInUseAuthorization()
   return new Promise((resolve) => {
     // iOS delivers the decision to the delegate — poll lightweightly rather
-    // than build a second delegate surface for auth callbacks.
+    // than build a second delegate surface for auth callbacks, bounded so a
+    // prompt the system dismissed (e.g. app backgrounded) resolves 'denied'
+    // instead of hanging the caller.
+    let polls = 0
     const check = () => {
       const s = CLLocationManager.authorizationStatus?.() ?? 0
 
       if (s === 3 || s === 4) {
         resolve('granted')
-      } else if (s === 1 || s === 2) {
+      } else if (s === 1 || s === 2 || ++polls > 240) {
         resolve('denied')
       } else {
         setTimeout(check, 250)
@@ -101,12 +105,35 @@ export const geofencing: Geofencing = {
 
     const status = CLLocationManager.authorizationStatus?.() ?? 0
 
+    // CLAuthorizationStatus: 3 authorizedAlways, 4 authorizedWhenInUse,
+    // 1 restricted, 2 denied — only 0/4 can still be prompted for Always.
     if (status === 3) {
       return Promise.resolve('granted')
     }
 
+    if (status === 1 || status === 2) {
+      return Promise.resolve('denied')
+    }
+
     m.requestAlwaysAuthorization()
-    return Promise.resolve(status === 3 ? 'granted' : 'denied')
+
+    // The prompt's decision lands in authorizationStatus — poll for the
+    // transition like iosEnsure, bounded so a dismissed prompt resolves
+    // 'denied' instead of hanging the caller.
+    return new Promise((resolve) => {
+      let polls = 0
+      const check = () => {
+        const s = CLLocationManager.authorizationStatus?.() ?? 0
+
+        if (s !== status || ++polls > 240) {
+          resolve(s === 3 ? 'granted' : 'denied')
+        } else {
+          setTimeout(check, 250)
+        }
+      }
+
+      setTimeout(check, 250)
+    })
   },
 
   async startMonitoring(regions: GeofenceRegion[]): Promise<void> {
@@ -173,6 +200,30 @@ export const geofencing: Geofencing = {
   },
 }
 
+// Non-prompting authorization read for the dispatcher's getPermissions.
+// 'location-always' is undetermined while the user holds whenInUse (4) —
+// the upgrade can still be prompted from there.
+function iosAlwaysStatus(): PermissionStatus {
+  if (typeof CLLocationManager === 'undefined') {
+    return 'unsupported'
+  }
+
+  // CLAuthorizationStatus: 0 notDetermined, 1 restricted, 2 denied,
+  // 3 authorizedAlways, 4 authorizedWhenInUse
+  const status = CLLocationManager.authorizationStatus?.() ?? 0
+
+  return status === 3 ? 'granted' : status === 0 || status === 4 ? 'undetermined' : 'denied'
+}
+
+const toResponse = (status: PermissionStatus) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners['location-always'] = () => geofencing.ensureBackground()
+permissionOwners['location-always'] = {
+  getPermissions: async () => toResponse(iosAlwaysStatus()),
+  requestPermissions: async () => toResponse(await geofencing.ensureBackground()),
+}

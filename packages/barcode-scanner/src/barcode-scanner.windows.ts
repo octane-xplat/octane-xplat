@@ -11,4 +11,13 @@ export const barcodeScanner: BarcodeScannerService = {
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.camera = () => barcodeScanner.ensure()
+const toResponse = (status: PermissionResult) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted',
+})
+
+permissionOwners.camera = {
+  getPermissions: async () => toResponse(await barcodeScanner.ensure()),
+  requestPermissions: async () => toResponse(await barcodeScanner.ensure()),
+}

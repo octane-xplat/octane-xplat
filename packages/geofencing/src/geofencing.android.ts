@@ -4,6 +4,7 @@
 // the OS relaunches the app, which must re-register a listener to drain
 // buffered events.
 import { Application, Utils } from '@nativescript/core'
+import type { PermissionStatus } from '@octane-xplat/platform'
 import { android, java } from '@octane-xplat/platform/android'
 import { attachRegionListener, emitRegionEvent, flushRegionEvents } from './geofencing.mobile'
 import type { GeofenceRegion, Geofencing, PermissionResult, RegionEventListener } from './types'
@@ -161,6 +162,27 @@ export const geofencing: Geofencing = {
   },
 }
 
+// Non-prompting authorization read for the dispatcher's getPermissions.
+// Android can't distinguish never-asked from denied without the rationale
+// hook — report undetermined and let request resolve it.
+function androidAlwaysStatus(): PermissionStatus {
+  const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
+  return activity?.checkSelfPermission?.('android.permission.ACCESS_BACKGROUND_LOCATION') ===
+    android.content.pm.PackageManager.PERMISSION_GRANTED
+    ? 'granted'
+    : 'undetermined'
+}
+
+const toResponse = (status: PermissionStatus) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners['location-always'] = () => geofencing.ensureBackground()
+permissionOwners['location-always'] = {
+  getPermissions: async () => toResponse(androidAlwaysStatus()),
+  requestPermissions: async () => toResponse(await geofencing.ensureBackground()),
+}

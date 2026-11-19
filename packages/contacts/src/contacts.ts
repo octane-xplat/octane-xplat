@@ -4,12 +4,14 @@
 // plugin-side request helpers can't drift). Plugin surfaces differ per
 // platform, so every plugin call lives in the contacts-store leaves.
 import {
+  contactsPermissionStatus,
   createNativeContact,
   ensureContactsPermission,
   fetchContactById,
   fetchContacts,
   fetchContactsByName,
 } from './contacts-store'
+import type { PermissionStatus } from '@octane-xplat/platform'
 import type {
   Contact,
   ContactAddress,
@@ -203,4 +205,13 @@ export const contacts: Contacts = {
 // Register the permission kind this leaf owns for the platform dispatcher.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.contacts = () => contacts.ensure()
+const toResponse = (status: PermissionStatus) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
+permissionOwners.contacts = {
+  getPermissions: async () => toResponse(contactsPermissionStatus()),
+  requestPermissions: async () => toResponse(await contacts.ensure()),
+}

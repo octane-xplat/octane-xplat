@@ -4,7 +4,8 @@
 import { ImageSource } from '@nativescript/core'
 import { DetectionType, detectWithStillImage } from '@nativescript/mlkit-core'
 import type { BarcodeFormat, BarcodeScannerService, ScannedCode } from './types'
-import { ensureCameraPermission } from './barcode-permission'
+import { cameraPermissionStatus, ensureCameraPermission } from './barcode-permission'
+import type { PermissionStatus } from '@octane-xplat/platform'
 import { fromNativeFormat, toNativeFormats } from './format-map'
 
 async function toImageSource(image: unknown): Promise<any> {
@@ -66,4 +67,13 @@ export const barcodeScanner: BarcodeScannerService = {
 // run identical ensure logic, and the leaf must work with media absent).
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.camera = () => barcodeScanner.ensure()
+const toResponse = (status: PermissionStatus) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
+permissionOwners.camera = {
+  getPermissions: async () => toResponse(cameraPermissionStatus()),
+  requestPermissions: async () => toResponse(await barcodeScanner.ensure()),
+}

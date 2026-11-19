@@ -1,10 +1,22 @@
 import { Contact as NativeContact, Contacts as NativeContacts } from '@nativescript/contacts'
+import type { PermissionStatus } from '@octane-xplat/platform'
 import type { ContactFetchResult, NativeContactHandle } from './contacts-store.mobile'
 import type { PermissionResult } from './types'
 
 // iOS CNContactStore — outside the @nativescript/types default subset.
 declare const CNContactStore: any
 declare const CNEntityTypeContacts: number | undefined
+
+export function contactsPermissionStatus(): PermissionStatus {
+  if (typeof CNContactStore === 'undefined' || typeof CNEntityTypeContacts === 'undefined') {
+    return 'unsupported'
+  }
+
+  // CNAuthorizationStatus: 0 notDetermined, 1 restricted, 2 denied, 3 authorized
+  const status = CNContactStore.authorizationStatusForEntityType(CNEntityTypeContacts)
+
+  return status === 3 ? 'granted' : status === 0 ? 'undetermined' : 'denied'
+}
 
 export function ensureContactsPermission(): Promise<PermissionResult> {
   const store = typeof CNContactStore === 'undefined' ? null : CNContactStore.new?.()

@@ -19,4 +19,13 @@ export const contacts: Contacts = {
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.contacts = () => contacts.ensure()
+const toResponse = (status: PermissionResult) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted',
+})
+
+permissionOwners.contacts = {
+  getPermissions: async () => toResponse(await contacts.ensure()),
+  requestPermissions: async () => toResponse(await contacts.ensure()),
+}

@@ -1,10 +1,22 @@
 import { Application } from '@nativescript/core'
 import { Contact as NativeContact, Contacts as NativeContacts } from '@nativescript/contacts'
+import type { PermissionStatus } from '@octane-xplat/platform'
 import { android } from '@octane-xplat/platform/android'
 import type { ContactFetchResult, NativeContactHandle } from './contacts-store.mobile'
 import type { PermissionResult } from './types'
 
 let contactRequestCode = 7719
+
+export function contactsPermissionStatus(): PermissionStatus {
+  const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
+  // Android can't distinguish never-asked from denied without the rationale
+  // hook — report undetermined and let request resolve it.
+  return activity?.checkSelfPermission?.('android.permission.READ_CONTACTS') ===
+    android.content.pm.PackageManager.PERMISSION_GRANTED
+    ? 'granted'
+    : 'undetermined'
+}
 
 export function ensureContactsPermission(): Promise<PermissionResult> {
   const perm = 'android.permission.READ_CONTACTS'

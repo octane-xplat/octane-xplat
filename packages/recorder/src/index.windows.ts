@@ -13,4 +13,9 @@ export const createAudioRecorder = (): AudioRecorder => {
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.microphone = async () => 'unsupported'
+const UNSUPPORTED = { status: 'unsupported' as const, granted: false, canAskAgain: false }
+
+permissionOwners.microphone = {
+  getPermissions: async () => UNSUPPORTED,
+  requestPermissions: async () => UNSUPPORTED,
+}

@@ -1,8 +1,21 @@
 import { Application } from '@nativescript/core'
+import type { PermissionStatus } from '@octane-xplat/platform'
 import { android } from '@octane-xplat/platform/android'
 import type { PermissionResult } from './types'
 
 let scanRequestCode = 7723
+
+// Non-prompting authorization read for the dispatcher's getPermissions.
+// Android can't distinguish never-asked from denied without the rationale
+// hook — report undetermined and let request resolve it.
+export function cameraPermissionStatus(): PermissionStatus {
+  const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
+  return activity?.checkSelfPermission?.('android.permission.CAMERA') ===
+    android.content.pm.PackageManager.PERMISSION_GRANTED
+    ? 'granted'
+    : 'undetermined'
+}
 
 export async function ensureCameraPermission(): Promise<PermissionResult> {
   try {

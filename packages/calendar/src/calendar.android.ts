@@ -1,6 +1,7 @@
 // Calendar — Android leaf, custom bridge (nativescript-calendar is stale).
 // CalendarContract through the content provider.
 import { Application, Utils } from '@nativescript/core'
+import type { PermissionStatus } from '@octane-xplat/platform'
 import { android, java } from '@octane-xplat/platform/android'
 import type { Calendar, CalendarEvent, CalendarInfo, NewEvent, PermissionResult } from './types'
 
@@ -247,6 +248,27 @@ export const calendar: Calendar = {
   },
 }
 
+// Non-prompting authorization read for the dispatcher's getPermissions.
+// Android can't distinguish never-asked from denied without the rationale
+// hook — report undetermined and let request resolve it.
+function androidStatus(): PermissionStatus {
+  const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
+  return activity?.checkSelfPermission?.('android.permission.READ_CALENDAR') ===
+    android.content.pm.PackageManager.PERMISSION_GRANTED
+    ? 'granted'
+    : 'undetermined'
+}
+
+const toResponse = (status: PermissionStatus) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.calendar = () => calendar.ensure()
+permissionOwners.calendar = {
+  getPermissions: async () => toResponse(androidStatus()),
+  requestPermissions: async () => toResponse(await calendar.ensure()),
+}

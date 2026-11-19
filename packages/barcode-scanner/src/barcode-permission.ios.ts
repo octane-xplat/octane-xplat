@@ -1,4 +1,19 @@
+import type { PermissionStatus } from '@octane-xplat/platform'
 import type { PermissionResult } from './types'
+
+// Non-prompting authorization read for the dispatcher's getPermissions.
+export function cameraPermissionStatus(): PermissionStatus {
+  const av = (globalThis as any).AVCaptureDevice
+
+  if (typeof av?.authorizationStatusForMediaType !== 'function') {
+    return 'unsupported'
+  }
+
+  // AVCaptureDevice authorization: 0=notDetermined 1=restricted 2=denied 3=authorized
+  const status = av.authorizationStatusForMediaType((globalThis as any).AVMediaTypeVideo)
+
+  return status === 3 ? 'granted' : status === 0 ? 'undetermined' : 'denied'
+}
 
 export async function ensureCameraPermission(): Promise<PermissionResult> {
   try {

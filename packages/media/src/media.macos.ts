@@ -150,3 +150,17 @@ export const media: Service<MediaImpl> = {
   },
   capturePhoto,
 }
+
+// See media.ts — registers the kinds this leaf owns for the platform
+// permissions dispatcher.
+const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
+permissionOwners.camera = {
+  getPermissions: () => media.getPermissions('camera'),
+  requestPermissions: () => media.requestPermissions('camera'),
+}
+
+permissionOwners.photos = {
+  getPermissions: () => media.getPermissions('photos'),
+  requestPermissions: () => media.requestPermissions('photos'),
+}

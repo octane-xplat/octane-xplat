@@ -63,4 +63,14 @@ export const barcodeScanner: BarcodeScannerService = {
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.camera = () => barcodeScanner.ensure()
+const toResponse = (status: PermissionResult) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted',
+})
+
+// BarcodeDetector presence is the only check — ensure() never prompts here.
+permissionOwners.camera = {
+  getPermissions: async () => toResponse(await barcodeScanner.ensure()),
+  requestPermissions: async () => toResponse(await barcodeScanner.ensure()),
+}

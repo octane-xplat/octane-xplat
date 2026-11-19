@@ -510,8 +510,35 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 // because the shared PermissionResponse union has no device-absence value.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.microphone = async () => {
-  const state = await requestMicrophonePermission()
+const toResponse = (state: RecorderPermissionState) => ({
+  status: state === 'unavailable' ? ('denied' as const) : state,
+  granted: state === 'granted',
+  canAskAgain: state === 'granted' || state === 'undetermined',
+})
 
-  return state === 'granted' ? 'granted' : state === 'unsupported' ? 'unsupported' : 'denied'
+// Non-prompting read — the Permissions API answers 'microphone' without
+// getUserMedia's dialog; absent support reports undetermined.
+async function microphoneStatus(): Promise<RecorderPermissionState> {
+  if (!supported()) {
+    return 'unsupported'
+  }
+
+  try {
+    const result = await navigator.permissions.query({
+      name: 'microphone' as PermissionName,
+    })
+
+    return result.state === 'granted'
+      ? 'granted'
+      : result.state === 'denied'
+        ? 'denied'
+        : 'undetermined'
+  } catch {
+    return 'undetermined'
+  }
+}
+
+permissionOwners.microphone = {
+  getPermissions: () => microphoneStatus().then(toResponse),
+  requestPermissions: async () => toResponse(await requestMicrophonePermission()),
 }

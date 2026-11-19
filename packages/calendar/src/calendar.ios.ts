@@ -1,5 +1,6 @@
 // Calendar — iOS leaf, custom bridge (nativescript-calendar is stale).
 // EventKit EKEventStore via declare-const bridging (auth-session pattern).
+import type { PermissionStatus } from '@octane-xplat/platform'
 import type { Calendar, CalendarEvent, CalendarInfo, NewEvent, PermissionResult } from './types'
 
 declare const EKEventStore: any
@@ -203,6 +204,30 @@ export const calendar: Calendar = {
   },
 }
 
+// Non-prompting authorization read for the dispatcher's getPermissions.
+function iosStatus(): PermissionStatus {
+  const s = eventStore()
+
+  if (!s || typeof EKEntityTypeEvent === 'undefined') {
+    return 'unsupported'
+  }
+
+  // EKAuthorizationStatus: 0 notDetermined, 1 restricted, 2 denied,
+  // 3 fullAccess/authorized, 4 writeOnly
+  const status = EKEventStore.authorizationStatusForEntityType(EKEntityTypeEvent)
+
+  return status === 3 || status === 4 ? 'granted' : status === 0 ? 'undetermined' : 'denied'
+}
+
+const toResponse = (status: PermissionStatus) => ({
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 
-permissionOwners.calendar = () => calendar.ensure()
+permissionOwners.calendar = {
+  getPermissions: async () => toResponse(iosStatus()),
+  requestPermissions: async () => toResponse(await calendar.ensure()),
+}
