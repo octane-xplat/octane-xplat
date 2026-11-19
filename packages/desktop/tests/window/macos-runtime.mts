@@ -44,9 +44,10 @@ try {
   assert.match(output, /DESKTOP_WINDOW_OK/)
   assert.match(output, /DESKTOP_DIALOG_OK/)
   assert.match(output, /DESKTOP_SAVE_OK/)
+  assert.match(output, /DESKTOP_ACTIVATE_OK/)
   assert.match(output, /DESKTOP_MINIMIZE_OK/)
   assert.match(output, /DESKTOP_APP_QUIT_OK/)
-  console.log('DESKTOP_WINDOW_OK, DESKTOP_DIALOG_OK, DESKTOP_SAVE_OK, DESKTOP_MINIMIZE_OK and DESKTOP_APP_QUIT_OK (AppKit)')
+  console.log('DESKTOP_WINDOW_OK, DESKTOP_DIALOG_OK, DESKTOP_SAVE_OK, DESKTOP_ACTIVATE_OK, DESKTOP_MINIMIZE_OK and DESKTOP_APP_QUIT_OK (AppKit)')
 } finally {
   await rm(directory, { recursive: true, force: true })
 }

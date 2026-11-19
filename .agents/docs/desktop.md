@@ -5,6 +5,7 @@
 ## Internal boundaries
 
 - `src/app/` owns app readiness, quit, residency, and app-wide window visibility. The AppKit delegate and GTK host check app and window vetoes before closing managed windows. AppKit restarts the approved native termination after closing windows, so closed notifications can run before the process exits. GTK routes the framework menu role through the same quit path. These operations do not require a tray item. Their existing `TrayError` failure contract is retained.
+- AppKit and GTK deliver `app.on('activate', ...)` through the native reopen delegate or a subsequent GApplication activation. Leave initial setup with `whenReady()` and check `app.supportsActivate` before subscribing. A synchronous veto suppresses the native default window action.
 - `src/window/` owns regular secondary window handles and close events. AppKit uses `performClose` and GTK uses `Gtk.Window.close` so calls reach the same veto as native close controls. The host controller owns content and forced teardown.
 - Minimize and restore use native window requests. GTK window managers can apply those requests asynchronously or ignore them. Both operations require a live window.
 - Per-window visibility reads the native shown state. `show()` presents the existing window and requests focus. `focus()` only requests focus for a shown window, leaving keyboard focus policy to the desktop environment. Hiding never dispatches close or retires the content root.

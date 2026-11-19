@@ -288,6 +288,27 @@ export async function quitFromSettings() {
 }
 ```
 
+## Reopen a running desktop app
+
+On AppKit and GTK, `app.on('activate', listener)` handles requests to reopen a running app. On macOS, a Dock click can send this request. On GTK, a second launch can send it through the running application's session bus connection. The listener receives whether the host sees a visible window. If your listener opens or reveals a window, call `event.preventDefault()` synchronously to suppress the host's default reopen action. Use `app.whenReady()` for initial setup. Check `app.supportsActivate` before subscribing.
+
+```ts
+import { app, type DesktopActivateEvent } from '@octane-xplat/desktop'
+
+export function reopenMainWindow(showMainWindow: () => void) {
+  if (!app.supportsActivate) return
+
+  const reopen = (event: DesktopActivateEvent, hasVisibleWindows: boolean) => {
+    if (hasVisibleWindows) return
+    showMainWindow()
+    event.preventDefault()
+  }
+
+  app.on('activate', reopen)
+  return () => app.off('activate', reopen)
+}
+```
+
 ## Choose your next feature
 
 All features use the package root. Imports do not create a tray icon, register a hotkey, install a menu, or keep the app running. The following imports introduce no owned resources; the feature guides show creation, failure handling, and cleanup.

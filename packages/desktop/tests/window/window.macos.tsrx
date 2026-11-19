@@ -1,6 +1,6 @@
 import '@nativescript/macos-node-api'
-import { dialog, type DesktopWindow } from '@octane-xplat/desktop'
-import type { NSOpenPanel, NSSavePanel } from '@octane-xplat/platform/macos'
+import { app as desktopApp, dialog, type DesktopActivateEvent, type DesktopWindow } from '@octane-xplat/desktop'
+import type { NSApplication, NSOpenPanel, NSSavePanel } from '@octane-xplat/platform/macos'
 import { runMacOSApp, setWindowContentResolver } from '../../../macos-appkit/src/host.ts'
 import type { AppKitWindowController } from '../../../macos-appkit/src/host.d.ts'
 import {
@@ -63,9 +63,33 @@ async function verifyOpenDialog(owner: DesktopWindow) {
   console.log('DESKTOP_MINIMIZE_OK')
 }
 
+function verifyReopen(nativeApp: NSApplication) {
+  const delegate = nativeApp.delegate
+  if (!desktopApp.supportsActivate ||
+    !delegate?.respondsToSelector('applicationShouldHandleReopen:hasVisibleWindows:') ||
+    !delegate.applicationShouldHandleReopenHasVisibleWindows) {
+    throw new Error('The AppKit host does not expose the reopen selector')
+  }
+  const requests: boolean[] = []
+  const listen = (event: DesktopActivateEvent, hasVisibleWindows: boolean) => {
+    requests.push(hasVisibleWindows)
+    if (!hasVisibleWindows) event.preventDefault()
+  }
+  desktopApp.on('activate', listen)
+  const vetoed = delegate.applicationShouldHandleReopenHasVisibleWindows(nativeApp, false)
+  const allowed = delegate.applicationShouldHandleReopenHasVisibleWindows(nativeApp, true)
+  desktopApp.off('activate', listen)
+  const detached = delegate.applicationShouldHandleReopenHasVisibleWindows(nativeApp, false)
+  if (vetoed || !allowed || !detached || requests.join(',') !== 'false,true') {
+    throw new Error('The activate listener did not receive and handle the native reopen requests')
+  }
+  console.log('DESKTOP_ACTIVATE_OK')
+}
+
 runMacOSApp({ title: 'Desktop window fixture' }, ({ app }) => {
   setTimeout(() => {
     void ready
+      .then(() => verifyReopen(app))
       .then(() =>
         verifyWindowLifecycle(() => {
           if (!observed) {

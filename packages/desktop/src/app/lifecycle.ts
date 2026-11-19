@@ -1,11 +1,12 @@
 import { lookupGlobal, UnavailabilityError } from '@octane-xplat/lib/capability'
-import type { DesktopApp, DesktopBeforeQuitEvent } from './types.js'
+import type { DesktopActivateEvent, DesktopApp, DesktopBeforeQuitEvent } from './types.js'
 
 export interface AppLifecycleHost {
   isReady(): boolean
   whenReady(): Promise<void>
   quit(): void
   addQuitGuard(guard: () => boolean): () => void
+  addActivateHandler?(handler: (hasVisibleWindows: boolean) => boolean): () => void
 }
 
 function hostFor(bridge: string): AppLifecycleHost | undefined {
@@ -25,11 +26,33 @@ function hostFor(bridge: string): AppLifecycleHost | undefined {
 }
 
 type BeforeQuitListener = (event: DesktopBeforeQuitEvent) => void
+type ActivateListener = (event: DesktopActivateEvent, hasVisibleWindows: boolean) => void
+type EventRegistration = ['before-quit', BeforeQuitListener] | ['activate', ActivateListener]
+
+function cancelableEvent(): DesktopActivateEvent {
+  let prevented = false
+  return {
+    get defaultPrevented() {
+      return prevented
+    },
+    preventDefault() {
+      prevented = true
+    },
+  }
+}
+
+function removeLast<Listener>(listeners: Listener[], listener: Listener) {
+  const index = listeners.lastIndexOf(listener)
+  if (index >= 0) listeners.splice(index, 1)
+}
+
 
 /** Build the app facade without reading native globals or installing callbacks at import. */
 export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | undefined)): DesktopApp {
   const listeners: BeforeQuitListener[] = []
   let unsubscribe: (() => void) | undefined
+  const activateListeners: ActivateListener[] = []
+  let unsubscribeActivate: (() => void) | undefined
 
   function host() {
     return typeof bridge === 'function' ? bridge() : bridge ? hostFor(bridge) : undefined
@@ -46,15 +69,7 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
   }
 
   function requestQuit() {
-    let prevented = false
-    const event: DesktopBeforeQuitEvent = {
-      get defaultPrevented() {
-        return prevented
-      },
-      preventDefault() {
-        prevented = true
-      },
-    }
+    const event = cancelableEvent()
 
     for (const listener of listeners.slice()) {
       try {
@@ -65,12 +80,27 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
       }
     }
 
-    return !prevented
+    return !event.defaultPrevented
+  }
+
+  function requestActivate(hasVisibleWindows: boolean) {
+    const event = cancelableEvent()
+    for (const listener of activateListeners.slice()) {
+      try {
+        listener(event, hasVisibleWindows)
+      } catch (error) {
+        console.error('[desktop] activate listener failed', error)
+      }
+    }
+    return !event.defaultPrevented
   }
 
   return {
     get supported() {
       return host() !== undefined
+    },
+    get supportsActivate() {
+      return typeof host()?.addActivateHandler === 'function'
     },
     isReady() {
       return host()?.isReady() ?? false
@@ -83,33 +113,40 @@ export function createAppLifecycle(bridge?: string | (() => AppLifecycleHost | u
     quit() {
       requireHost().quit()
     },
-    on(event, listener) {
-      if (event !== 'before-quit' || typeof listener !== 'function') {
-        throw new TypeError('Expected a before-quit listener')
+    on(...[event, listener]: EventRegistration) {
+      if ((event !== 'activate' && event !== 'before-quit') || typeof listener !== 'function') {
+        throw new TypeError('Expected a desktop app event listener')
       }
 
-      const available = requireHost()
-
-      unsubscribe ??= available.addQuitGuard(requestQuit)
-      listeners.push(listener)
+      if (event === 'activate') {
+        const available = host()
+        if (typeof available?.addActivateHandler !== 'function') {
+          throw new UnavailabilityError('app.activate')
+        }
+        unsubscribeActivate ??= available.addActivateHandler(requestActivate)
+        activateListeners.push(listener)
+      } else {
+        unsubscribe ??= requireHost().addQuitGuard(requestQuit)
+        listeners.push(listener)
+      }
       return this
     },
-    off(event, listener) {
-      if (event !== 'before-quit') {
-        throw new TypeError('Expected before-quit')
+    off(...[event, listener]: EventRegistration) {
+      if (event === 'activate') {
+        removeLast(activateListeners, listener)
+        if (activateListeners.length === 0) {
+          unsubscribeActivate?.()
+          unsubscribeActivate = undefined
+        }
+      } else if (event === 'before-quit') {
+        removeLast(listeners, listener)
+        if (listeners.length === 0) {
+          unsubscribe?.()
+          unsubscribe = undefined
+        }
+      } else {
+        throw new TypeError('Unknown desktop app event')
       }
-
-      const index = listeners.lastIndexOf(listener)
-
-      if (index >= 0) {
-        listeners.splice(index, 1)
-      }
-
-      if (listeners.length === 0) {
-        unsubscribe?.()
-        unsubscribe = undefined
-      }
-
       return this
     },
   }

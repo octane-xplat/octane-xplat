@@ -12,10 +12,19 @@ export interface DesktopBeforeQuitEvent {
   preventDefault(): void
 }
 
+/** A synchronous request to reopen a running application. */
+export interface DesktopActivateEvent {
+  readonly defaultPrevented: boolean
+  /** Suppress the host's default window handling for this request. */
+  preventDefault(): void
+}
+
 /** Lifecycle for the native app host. */
 export interface DesktopApp {
   /** Whether the current app host exposes this lifecycle. */
   readonly supported: boolean
+  /** Whether this host delivers native reopen requests. */
+  readonly supportsActivate: boolean
   /** Whether the host has finished startup and the app can request quit. */
   isReady(): boolean
   /** Wait for startup. Rejects with UnavailabilityError on hosts without app lifecycle. */
@@ -24,6 +33,9 @@ export interface DesktopApp {
   quit(): void
   /** Register a synchronous guard that runs before managed windows receive close requests. */
   on(event: 'before-quit', listener: (event: DesktopBeforeQuitEvent) => void): this
+  /** Listen for requests to reopen an already running app on a supported host. */
+  on(event: 'activate', listener: (event: DesktopActivateEvent, hasVisibleWindows: boolean) => void): this
   /** Remove the most recent registration of this listener. */
   off(event: 'before-quit', listener: (event: DesktopBeforeQuitEvent) => void): this
+  off(event: 'activate', listener: (event: DesktopActivateEvent, hasVisibleWindows: boolean) => void): this
 }

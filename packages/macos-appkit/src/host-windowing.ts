@@ -179,6 +179,8 @@ interface AppKitLifecycle {
   quit(): void
   addQuitGuard(guard: () => boolean): () => void
   didFinishLaunching(): void
+  addActivateHandler(handler: (hasVisibleWindows: boolean) => boolean): () => void
+  shouldHandleReopen(hasVisibleWindows: boolean): boolean
   shouldTerminate(): 0 | 1
 }
 
@@ -244,6 +246,7 @@ const applicationClosed = shared.applicationClosed
 
 function createAppKitLifecycle(): AppKitLifecycle {
   const quitGuards = new Set<() => boolean>()
+  const activateHandlers = new Set<(hasVisibleWindows: boolean) => boolean>()
   let resolveReady!: () => void
   const ready = new Promise<void>((resolve) => {
     resolveReady = resolve
@@ -262,6 +265,19 @@ function createAppKitLifecycle(): AppKitLifecycle {
     addQuitGuard(guard) {
       quitGuards.add(guard)
       return () => quitGuards.delete(guard)
+    },
+    addActivateHandler(handler) {
+      activateHandlers.add(handler)
+      return () => activateHandlers.delete(handler)
+    },
+    shouldHandleReopen(hasVisibleWindows) {
+      if (!didFinish || !shared.running) return true
+
+      let allowDefault = true
+      for (const handler of Array.from(activateHandlers)) {
+        if (!handler(hasVisibleWindows)) allowDefault = false
+      }
+      return allowDefault
     },
     quit() {
       if (!didFinish) {
@@ -453,6 +469,10 @@ class AppDelegate extends NSObject {
 
   applicationShouldTerminateAfterLastWindowClosed() {
     return shared.terminateAfterLastWindowClosed
+  }
+
+  applicationShouldHandleReopenHasVisibleWindows(_sender: unknown, hasVisibleWindows: boolean): boolean {
+    return lifecycle.shouldHandleReopen(hasVisibleWindows)
   }
 
   applicationDidBecomeActive() {

@@ -1,5 +1,5 @@
 // The GTK preset resolves renderer imports to dist. Load the host from the same build.
-import { appMenu, dialog, type DesktopWindow } from '@octane-xplat/desktop'
+import { app as desktopApp, appMenu, dialog, type DesktopActivateEvent, type DesktopWindow } from '@octane-xplat/desktop'
 import Gtk from 'gi://Gtk?version=4.0'
 import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'
@@ -120,9 +120,31 @@ async function verifyOpenDialog(owner: DesktopWindow) {
   console.log('DESKTOP_MINIMIZE_OK')
 }
 
-runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop window fixture' }, ({ app }) => {
+function verifyActivation(app: Gtk.Application, primary: Gtk.Window) {
+  if (!desktopApp.supportsActivate) throw new Error('Missing GTK activation support')
+
+  const requests: boolean[] = []
+  const listen = (event: DesktopActivateEvent, hasVisibleWindows: boolean) => {
+    requests.push(hasVisibleWindows)
+    if (!hasVisibleWindows) event.preventDefault()
+  }
+  desktopApp.on('activate', listen)
+  app.activate()
+  primary.set_visible(false)
+  app.activate()
+  if (primary.get_visible()) throw new Error('GTK activation ignored the reopen veto')
+  desktopApp.off('activate', listen)
+  app.activate()
+  if (!primary.get_visible() || requests.join(',') !== 'true,false') {
+    throw new Error('GTK activation did not deliver the visible-window state and default handling')
+  }
+  console.log('DESKTOP_ACTIVATE_OK')
+}
+
+runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop window fixture' }, ({ app, window }) => {
   setTimeout(() => {
     void ready
+      .then(() => verifyActivation(app, window))
       .then(() =>
         verifyWindowLifecycle(() => {
           if (!observed) {

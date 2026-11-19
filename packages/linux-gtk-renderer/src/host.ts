@@ -11,6 +11,7 @@ import type { GtkContainer, GtkRoot, GtkView } from './index.js'
 export { setWindowContentResolver } from './index.js'
 
 const quitGuards = new Set<() => boolean>()
+const activateHandlers = new Set<(hasVisibleWindows: boolean) => boolean>()
 let didFinish = false
 let quitApplication: (() => void) | undefined
 let resolveReady!: () => void
@@ -27,6 +28,10 @@ const lifecycle = {
     }
 
     quitApplication?.()
+  },
+  addActivateHandler(handler: (hasVisibleWindows: boolean) => boolean) {
+    activateHandlers.add(handler)
+    return () => activateHandlers.delete(handler)
   },
   addQuitGuard(guard: () => boolean) {
     quitGuards.add(guard)
@@ -92,7 +97,7 @@ export function runGtkApp(
   })
 
   // FLAGS_NONE keeps primary-instance semantics — a second launch re-fires
-  // `activate` on the running app. Only mount once; later activations just
+  // `activate` on the running app. Only mount once; later activations can
   // re-present the existing window.
   let mounted: GtkAppMount | null = null
   let shutdownRan = false
@@ -154,7 +159,12 @@ export function runGtkApp(
 
   app.connect('activate', () => {
     if (mounted !== null) {
-      mounted.window.present()
+      const hasVisibleWindows = app.get_windows().some((window) => window.get_visible())
+      let allowDefault = true
+      for (const handler of Array.from(activateHandlers)) {
+        if (!handler(hasVisibleWindows)) allowDefault = false
+      }
+      if (allowDefault) mounted.window.present()
       return
     }
 

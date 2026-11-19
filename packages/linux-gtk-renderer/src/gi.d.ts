@@ -499,6 +499,8 @@ declare module 'gi://Gtk?version=4.0' {
       set_menubar(menubar: unknown): void
       get_menubar(): unknown
       get_active_window(): ApplicationWindow | null
+      get_windows(): Window[]
+      activate(): void
     }
   }
 
