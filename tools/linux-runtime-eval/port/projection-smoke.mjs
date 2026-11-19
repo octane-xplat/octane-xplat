@@ -29,6 +29,13 @@ for(let i=0;i<100;i++){
 check('repeated byte array conversion',true)
 const entry=new Gtk.Entry()
 const button=new Gtk.Button()
+entry.placeholder_text=''
+check('empty string property is distinct from null',entry.placeholder_text==='')
+check('class property lookup finds the declared property',Gtk.TextView.find_property('wrap-mode')!=null)
+check('class property lookup returns null for an absent property',Gtk.TextView.find_property('visibility')==null)
+entry.set_text('AB')
+check('editable inout position is returned',entry.insert_text('é',-1,1)===2&&entry.get_text()==='AéB')
+check('native GType includes its name',Gtk.Entry.$gtype.name==='GtkEntry')
 check('Entry implements Editable',entry instanceof Gtk.Editable)
 check('Entry implements Accessible',entry instanceof Gtk.Accessible)
 check('Button implements Accessible',button instanceof Gtk.Accessible)

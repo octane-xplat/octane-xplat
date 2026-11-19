@@ -40,7 +40,7 @@ const scopes = new Set(), permanent = { callbacks: new Set(), timers: new Set() 
 let activeScope = null
 export const bridgeStats = { objects: 0, finalized: 0, signals: 0, callbacks: 0, sources: 0 }
 const fatal = error => { console.error('GTK_BINDING_ERROR', error.stack ?? String(error)); throw error }
-const decode = p => p ? interop.stringFromCString(p) : null
+const decode = p => typeof p==='string'?p:p?interop.stringFromCString(p):null
 const snake = name => name.replace(/([a-z0-9])([A-Z])/g,'$1_$2').toLowerCase()
 const fundamental = type => Number(g_type_fundamental(type))
 const nativeType = p => new interop.Reference(t.ulong, new interop.Reference(t.pointer,p).value).value
@@ -278,6 +278,13 @@ function allMethods(ns,name,result=new Map()){
   for(const [key,value]of Object.entries(info.methods??{}))result.set(key,value)
   return result
 }
+function installGType(klass,gtype){
+  Object.defineProperties(klass,{
+    __gtype:{value:gtype},
+    $gtype:{value:{name:decode(g_type_name(gtype))}},
+  })
+  byGType.set(Number(gtype),klass)
+}
 function getClass(ns,name){
   const id=ns+'.'+name;if(constructors.has(id))return constructors.get(id)
   const record=data[ns]?.[name];if(!record)throw Error(`Unexported GI type ${id}`)
@@ -294,12 +301,14 @@ function getClass(ns,name){
   }
   constructors.set(id,klass);klass.__ref={ns,name,kind:record.kind}
   if(record.typeName)byTypeName.set(record.typeName,klass)
-  if(record.typeInit&&typeof C[record.typeInit]==='function'){klass.__gtype=C[record.typeInit]();byGType.set(Number(klass.__gtype),klass)}
+  if(record.typeInit&&typeof C[record.typeInit]==='function')installGType(klass,C[record.typeInit]())
   // GObject interfaces are implemented through GType, outside JS's prototype chain.
   if(record.kind===8&&klass.__gtype)Object.defineProperty(klass,Symbol.hasInstance,{value:value=>
     value?.__gobject===true&&!!g_type_is_a(nativeType(pointer(value)),klass.__gtype)})
   if(record.parent)Object.setPrototypeOf(klass.prototype,getClass(record.parent.ns,record.parent.name).prototype)
   for(const [methodName,method]of allMethods(ns,name)){
+    // Projected matrices own their aligned allocation through interop.adopt.
+    if(method.symbol==='graphene_matrix_alloc'||method.symbol==='graphene_matrix_free')continue
     if(typeof C[method.symbol]!=='function')continue
     if(method.flags&1){
       const projected=function(...args){return invoke(method,args,this)}
@@ -317,6 +326,15 @@ function getClass(ns,name){
       get_property(name){const spec=g_object_class_find_property(new interop.Reference(t.pointer,this.__native).value,name);return propertyGet(this,name,spec)},
       set_property(name,value){const spec=g_object_class_find_property(new interop.Reference(t.pointer,this.__native).value,name);propertySet(this,name,value,spec)},
     })
+  }
+  if(record.kind===7&&klass.__gtype&&!Object.hasOwn(klass,'find_property')){
+    Object.defineProperty(klass,'find_property',{value:name=>{
+      const nativeClass=g_type_class_ref(klass.__gtype)
+      try{
+        const spec=g_object_class_find_property(nativeClass,name)
+        return spec?interop.adopt(g_param_spec_ref(spec),g_param_spec_unref):null
+      }finally{g_type_class_unref(nativeClass)}
+    }})
   }
   return klass
 }
@@ -430,12 +448,26 @@ function invoke(info,values,self){
         let memory,read
         if(type.tag===16&&[3,4].includes(type.interface.kind)){
           const ref=type.interface
-          try{memory=new (rawCtor(ref.ns,ref.name))();read=()=>wrapStruct(memory,ref)}
-          catch{const flat=outStructFallback(ref);memory=flat.alloc();read=()=>flat.read(memory);cleanup.push(()=>interop.free(memory))}
+          if(ref.ns==='Graphene'&&ref.name==='Matrix'){
+            // Graphene owns the SIMD layout and alignment on each architecture.
+            memory=interop.adopt(C.graphene_matrix_alloc(),C.graphene_matrix_free)
+            if(!memory)throw Error('Graphene could not allocate a matrix')
+            read=()=>wrapStruct(memory,ref)
+          }else{
+            try{memory=new (rawCtor(ref.ns,ref.name))();read=()=>wrapStruct(memory,ref)}
+            catch{const flat=outStructFallback(ref);memory=flat.alloc();read=()=>flat.read(memory);cleanup.push(()=>interop.free(memory))}
+          }
         }else{memory=new interop.Reference(typeForRef(type));read=()=>fromNative(memory.value,type,arg.transfer)}
         args.push(memory);out.push({type,read});continue
       }
       let value=values[index++]
+      if(arg.direction===2&&!type.pointer&&type.tag>=1&&type.tag<=12){
+        const memory=new interop.Reference(typeForRef(type))
+        memory.value=value
+        args.push(memory)
+        out.push({type,read:()=>fromNative(memory.value,type,arg.transfer)})
+        continue
+      }
       if(type.tag===15&&value!=null){if(type.length>=0)lengths.set(type.length,typeof value==='string'?new TextEncoder().encode(value).length:value.length);const properties=data.Gtk.AccessibleProperty.values
         const stringProperties=['DESCRIPTION','KEY_SHORTCUTS','LABEL','ROLE_DESCRIPTION','VALUE_TEXT','PLACEHOLDER'].map(k=>properties[k])
         const doubleProperties=['VALUE_MIN','VALUE_MAX','VALUE_NOW'].map(k=>properties[k])
@@ -459,6 +491,12 @@ function invoke(info,values,self){
           notified.set(arg.destroy,owned)
           value=owned.callback
         }else value=callbackNative(value,callbackInfo,callbacks)
+      }
+      else if(type.tag===16&&type.interface.ns==='GObject'&&type.interface.name==='Value'&&arg.transfer===0&&typeof value==='string'){
+        const boxed=new _GValue()
+        fillValue(boxed,value)
+        cleanup.push(()=>g_value_unset(boxed))
+        value=boxed
       }
       else {
         // A transfer-full parameter consumes a native reference; add one for the
@@ -557,8 +595,8 @@ function registerClass(options,klass){
     }
   }
   const gtype=g_type_register_static_simple(parent.__gtype,options.GTypeName??klass.name,query.class_size,init,query.instance_size,null,0)
-  Object.defineProperty(klass,'__gtype',{value:gtype});Object.defineProperty(klass,'__ref',{value:ref})
-  byGType.set(Number(gtype),klass);permanent.callbacks.add(init);owned.forEach(f=>permanent.callbacks.add(f))
+  installGType(klass,gtype);Object.defineProperty(klass,'__ref',{value:ref})
+  permanent.callbacks.add(init);owned.forEach(f=>permanent.callbacks.add(f))
   // super.vfunc_focus must call the actual parent's slot rather than recurse.
   if(record.classStruct){const parentPointer=g_type_class_ref(parent.__gtype);const native=new interop.Reference(rawCtor(record.classStruct.ns,record.classStruct.name),parentPointer).value
     for(const [name,info]of Object.entries(record.vfuncs??{}))if(!parent.prototype['vfunc_'+name])parent.prototype['vfunc_'+name]=function(...args){return fromNative(native[name](this.__native,...args.map(pointer)),info.returns)}

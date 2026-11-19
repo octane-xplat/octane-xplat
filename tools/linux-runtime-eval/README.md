@@ -32,7 +32,7 @@ python3 tools/linux-runtime-eval/prepare-metadata.py \
   --output /path/to/task-scratch/prepared
 ```
 
-The helper copies the executable, SDK metadata, and Mason library; generates additional metadata under `metadata/`; and records input hashes. The runtime finds extra metadata and `lib/` beside its executable. The generated module uses a library name rather than an absolute library path, so the prepared directory can move. This is a probe bundle, not an installer or complete application package.
+The helper copies the executable, SDK metadata, and Mason library. It generates additional metadata for Mason and GTK matrix calls under `metadata/` and records input hashes. The runtime finds extra metadata and `lib/` beside its executable. The generated modules link by library name so the prepared directory can move.
 
 To prepare ARM64 metadata inside the Andromeda x86_64 VM, pass `--arch aarch64 --generator-runner /path/to/arm64-runner` and supply ARM64 runtime and library files. The runner receives the ARM64 generator path and its arguments. It should invoke the generator through QEMU user emulation with the extracted ARM64 library sysroot. The WebKit helper accepts the same runner and a `--sysroot` for Clang. Set `PKG_CONFIG_SYSROOT_DIR` and `PKG_CONFIG_LIBDIR` to select the ARM64 GTK headers for that run.
 

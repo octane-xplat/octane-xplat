@@ -76,7 +76,16 @@ for i,(headerPath,libraryPath) in enumerate(zip(args.facade_header,args.facade_l
     (out/f'{stem}-umbrella.h').write_text(f'#include "{stem}.h"\n')
     subprocess.run([*generator_command,'-input-umbrella',str(out/f'{stem}-umbrella.h'),'-output-bin',str(out/f'metadata/{stem}.bin'),'Xclang',f'-fmodule-map-file={out}/{stem}.modulemap',f'-I{out}'],check=True,cwd=generator.parent)
     facadeInputs += [(f'facadeHeader{i}',headerPath),(f'facadeLibrary{i}',libraryPath)]
+matrix = Path(__file__).resolve().parent / 'metadata/gtk-matrix'
+subprocess.run(
+    [*generator_command, '-input-umbrella', str(matrix / 'umbrella.h'),
+     '-output-bin', str(out / 'metadata/gtk-matrix.bin'),
+     'Xclang', f'-fmodule-map-file={matrix / "modules.modulemap"}'],
+    check=True,
+    cwd=generator.parent,
+)
 inputs = {'header':args.header,'library':args.library,'runtime':executable,'sdkMetadata':sdk_metadata,'generator':generator}
+inputs.update({f'gtkMatrix/{path.name}': path for path in sorted(matrix.iterdir()) if path.is_file()})
 if runner:
     inputs['generatorRunner'] = runner
 inputs.update(facadeInputs)

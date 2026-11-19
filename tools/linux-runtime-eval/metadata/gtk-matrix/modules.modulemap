@@ -1,0 +1,11 @@
+module GtkMatrix [system] {
+  header "gtk.h"
+  export *
+  link "libgtk-4.so.1"
+}
+
+module GrapheneMatrix [system] {
+  header "graphene.h"
+  export *
+  link "libgraphene-1.0.so.0"
+}
