@@ -1,7 +1,7 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Parity screenshot compare — pairs per-cell crops from
 // parity-report/shots/web and parity-report/shots/macos (produced by
-// tools/web-verification/scripts/parity-shots.ts and apps/macos/scripts/parity-shots.ts
+// tools/web-verification/scripts/parity-shots.ts and tools/macos-verification/scripts/parity-shots.ts
 // plus a window capturer), then ranks fixtures by pixel difference.
 // Dependency-free: PNG decode/encode over node:zlib.
 //

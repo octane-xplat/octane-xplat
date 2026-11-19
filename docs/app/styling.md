@@ -12,7 +12,7 @@ on a phone, with space between the buttons and a larger title.” The same
 shared styles can serve web, iOS, and Android. Use
 [platform files](../platform/module-resolution.md) when a layout needs to differ.
 The experimental macOS AppKit renderer supports a smaller set of named
-styles; see its [current limits](../../apps/macos/README.md).
+styles; see its [current limits](../../tools/macos-verification/README.md).
 
 ## The everyday rule
 
@@ -760,7 +760,7 @@ export function registerAppFont(regularDescriptor: NSFontDescriptor) {
 }
 ```
 
-The macOS harness's [font setup](../../apps/macos/src/fonts.ts) loads its own
+The macOS harness's [font setup](../../apps/mobile/macos/src/fonts.ts) loads its own
 Geist assets and license, registers weighted descriptors, and explicitly sets
 `fontFamily: 'Geist'` on its roots. Renderer-hosted popups and sheets inherit
 the owning root's default family. Custom assets must also be included in a

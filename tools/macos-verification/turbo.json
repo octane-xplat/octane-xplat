@@ -1,0 +1,121 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"build:webview": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"], "cache": false },
+		"typecheck": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"inputs": ["$TURBO_DEFAULT$", "../../apps/mobile/macos/src/**"],
+			"outputs": []
+		},
+		"webview:proof": {
+			"dependsOn": ["^typegen", "^build"],
+			"cache": false
+		},
+		"test:shortcuts-runtime": {
+			"dependsOn": ["@octane-xplat/shortcuts#build"],
+			"cache": false,
+			"env": ["SHORTCUTS_MACOS_HOST"]
+		},
+		"test:app-menu-runtime": {
+			"dependsOn": ["@octane-xplat/lib#typegen"],
+			"cache": false,
+			"env": ["APP_MENU_MACOS_HOST"]
+		},
+		"test:text-controls": {
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@octane-xplat/app#gen"
+			],
+			"cache": false
+		},
+		"smoke": {
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@octane-xplat/app#gen"
+			],
+			"passThroughEnv": ["XPLAT_MACOS_SMOKE_TIMEOUT_MS", "XPLAT_MACOS_SDK", "XPLAT_MACOS_SWIFTC"],
+			"cache": false
+		},
+		"verify-hmr": {
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@octane-xplat/app#gen"
+			],
+			"cache": false
+		},
+		"build": {
+			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../../apps/mobile/macos/src/**",
+				"../../apps/mobile/macos/vite.shared.mjs",
+				"../../packages/tsrx-typegen/src/**",
+				"../../scripts/check-native-dist.mjs",
+				"../../packages/ui/scripts/sync-ui-barrels.ts"
+			],
+			"outputs": ["dist/**", "types/**"]
+		},
+		"test:animation": {
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@octane-xplat/app#gen"
+			],
+			"cache": false
+		},
+		"test:layout-placement": {
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@octane-xplat/app#gen"
+			],
+			"cache": false
+		},
+		"test:layout-channels": {
+			"dependsOn": ["^typegen", "^build", "@octane-xplat/app#gen"],
+			"cache": false
+		},
+		"test:overlays": {
+			"dependsOn": ["^typegen", "^build", "@octane-xplat/app#gen"],
+			"cache": false
+		},
+		"test:routing": {
+			"dependsOn": ["^typegen", "^build", "@octane-xplat/app#gen"],
+			"cache": false
+		},
+		"test:announce": {
+			"dependsOn": ["^typegen", "^build", "@octane-xplat/app#gen"],
+			"cache": false
+		},
+		"parity": {
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@octane-xplat/app#gen"
+			],
+			"cache": false
+		}
+	}
+}

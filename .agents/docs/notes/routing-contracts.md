@@ -811,7 +811,7 @@ cleanup releases their held work. Document unload and OS exit remain separate.
 node tools/web-verification/scripts/routing-contract.mts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 Executed runtime checks passed 88 production Chromium assertions, 238 iOS and
@@ -867,7 +867,7 @@ OS keyboard/pointer input and assistive-technology behavior remain unqualified.
 The renderer's 285 tests and the existing 28 native modal protocol cases pass.
 
 ```sh
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 node --test packages/macos-appkit/test/*.test.ts
 cd packages/ui && bunx vitest run --config vitest.native.config.mts src/routing/native-modal-router-host.mobile.test.tsrx
 ```
@@ -1006,7 +1006,7 @@ The mobile fixtures also run this protocol in a named pane.
 Control refs are released when their entry leaves history.
 
 ```sh
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 The shared protocol uses public text/scroll primitives and explicit native focus

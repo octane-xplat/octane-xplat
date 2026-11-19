@@ -16,7 +16,7 @@ Your application still owns menus, custom font assets, and the components each
 window renders. The renderer owns views, layout, events, accessibility, and its
 hosted popups and sheets. It applies your stylesheets with the same selector
 engine iOS and Android use, but does not implement every NativeScript widget or
-CSS property. See the [macOS harness](../../apps/macos/README.md) for the
+CSS property. See the [macOS harness](../../tools/macos-verification/README.md) for the
 current component and service limits.
 
 See [macOS support limits](../testing/known-limits.md#experimental-appkit-renderer)
@@ -364,7 +364,7 @@ Registration does not change the renderer default. Registered weights resolve
 to the first face at or above the requested weight, or the heaviest face.
 Invalid names, empty face lists, and missing descriptors or invalid weights are
 rejected. The renderer does not read assets, register Geist automatically, or
-write a font cache. The [harness font setup](../../apps/macos/src/fonts.ts)
+write a font cache. The [harness font setup](../../apps/mobile/macos/src/fonts.ts)
 demonstrates app-owned descriptors and packaged font bytes.
 
 ```js

@@ -1,0 +1,83 @@
+import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { build } from 'vite'
+import { createMacOSConfig } from '../../../apps/mobile/macos/vite.shared.mjs'
+import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
+import {
+  macOSHostArch,
+  hostBundle,
+  validateHostBundle,
+} from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+
+import { writeHostBootstrap } from './host-bootstrap.mts'
+import './fail-fast.mts'
+
+const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const scratch = resolve(appRoot, '../../research')
+
+await mkdir(scratch, { recursive: true })
+
+const directory = await mkdtemp(join(scratch, 'macos-layout-placement-'))
+const bootstrap = await writeHostBootstrap(directory)
+
+const config = await createMacOSConfig({
+  packaged: true,
+  rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
+})({ mode: 'production' })
+
+const entry = join(directory, 'main.mjs')
+
+await writeFile(
+  entry,
+  [
+    `import ${JSON.stringify(resolve(appRoot, '../../packages/ui/src/theme/utilities.css'))}`,
+    `import 'virtual:bamboo.css'`,
+    `import { runLayoutPlacementFixture } from ${JSON.stringify(join(appRoot, 'test/layout-placement-fixture.macos.tsx'))}`,
+    `NSApplication.sharedApplication`,
+    `runLayoutPlacementFixture()`,
+  ].join('\n'),
+)
+
+await build({
+  ...config,
+  configFile: false,
+  logLevel: 'error',
+  build: {
+    ...config.build,
+    outDir: directory,
+    emptyOutDir: false,
+    lib: { entry, formats: ['cjs'], fileName: 'fixture' },
+  },
+})
+
+const bundle = join(directory, 'fixture.cjs')
+
+await validateHostBundle(bundle, appRoot)
+
+const result = spawnSync(
+  await macOSExecutable(appRoot, 'macos/host'),
+  [
+    join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+    bundle,
+    join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+    bootstrap,
+  ],
+  {
+    cwd: directory,
+    env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
+    encoding: 'utf8',
+    timeout: 10_000,
+  },
+)
+
+const output = result.stdout + result.stderr
+
+assert.equal(result.status, 0, output)
+assert.doesNotMatch(output, /LAYOUT_PLACEMENT_FAIL|uncaught render error/)
+assert.match(output, /LAYOUT_PLACEMENT_OK/)
+console.log(
+  'AppKit absolute/grid placement: nested panel, growing scroll view, repeated solves and host resize pass',
+)

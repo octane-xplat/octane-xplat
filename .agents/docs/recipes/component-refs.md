@@ -28,7 +28,7 @@ hooks, and release ref ownership correctly. Migrate existing Xplat bind usage.
 - AC2: [TabView content-root lifecycle](../../../packages/macos-appkit/test/fixtures/tab-lifecycle.ts), [Ref lifecycle](../../../docs/app/primitives.md#refs), maintained [web ref tests](../../../packages/ui/src/internal/accessibility/refs.web.test.tsrx), and [universal ref tests](../../../packages/ui/src/internal/accessibility/refs.mobile.test.tsrx).
 - AC3: [Refs](../../../docs/app/primitives.md#refs), [migration](../../../docs/app/primitives.md#migrate-from-bind), [intersection example](../../../examples/probes/intersection-observer.tsrx), and [drag and drop composition](../../../docs/packages/package-dnd-kit.md#compose-drag-and-drop).
 
-The [AppKit text fixture](../../../apps/macos/test/text-controls-fixture.macos.tsx)
+The [AppKit text fixture](../../../tools/macos-verification/test/text-controls-fixture.macos.tsx)
 checks TextInput/TextArea object handles, native focus/blur, stable native identity
 when secure mode changes, and ref clearing on unmount. Other ref forms and
 replacement are covered by the shared ref suites above.

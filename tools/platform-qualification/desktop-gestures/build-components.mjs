@@ -48,7 +48,7 @@ if (mode === '--fixture-only') {
   // The libraries under qualification are extracted tarballs, never links to
   // their source. This is a packed-content gate, not a frozen fresh-install gate.
   for (const modules of [
-    join(repo, target === 'windows' ? 'apps/windows/node_modules' : 'apps/macos/node_modules'),
+    join(repo, target === 'windows' ? 'apps/windows/node_modules' : 'tools/macos-verification/node_modules'),
     join(repo, 'node_modules'),
     ...[
       'motion',

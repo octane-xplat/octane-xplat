@@ -98,7 +98,7 @@ Research probes (gitignored `research/probes-cases/`):
    unqualified in `docs/app/primitives.md`.
 
 6. **Deterministic GC-finalization crash blocks overlay-surface
-   qualification.** `apps/macos/test/verify-overlays.mts` (repaired launch
+   qualification.** `tools/macos-verification/test/verify-overlays.mts` (repaired launch
    path, below) and a research overlay probe both die with `EXC_BREAKPOINT`
    (reported as SIGKILL) 4/4 identical stacks: during a JSC sweep,
    `IsoHeapCellType::finishSweep` → JS finalizer →
@@ -121,7 +121,7 @@ Research probes (gitignored `research/probes-cases/`):
      map as one arg → `metadata.nsmd not found`; now selects host arch.
    - `examples/probes/charts.macos.tsrx`: asserted `image` before the
      deferred local decode ran (race); now waits for it.
-   - `apps/macos/test/verify-overlays.mts`: shim-only bootstrap predated
+   - `tools/macos-verification/test/verify-overlays.mts`: shim-only bootstrap predated
      the native-leaf loader (`libxplatmason.dylib is not loaded`) and the
      generated entry missed `import 'virtual:bamboo.css'`; now builds the
      native artifact and writes the real bootstrap.

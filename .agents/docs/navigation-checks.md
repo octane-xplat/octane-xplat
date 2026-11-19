@@ -130,7 +130,7 @@ exports, lint and recipe-link checks also pass.
 
 ```sh
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/render-router-host.mobile.test.tsrx src/native-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/router-hooks.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 Frame/OS Back, native modal-dismissal preparation and cross-stack pane redirects
@@ -170,7 +170,7 @@ source/types for this increment, and Windows has no VM.
 
 ```sh
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 ## Declared and runtime contract checks
@@ -250,7 +250,7 @@ Windows has no VM. Owned mobile devices were shut down after qualification.
 
 ```sh
 node tools/web-verification/scripts/routing-contract.mts
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 The AppKit fixture also migrated its synthetic file catalog to generated-style
@@ -287,7 +287,7 @@ coverage for this refinement; Windows runtime remains unavailable.
 
 ```sh
 node tools/web-verification/scripts/routing-contract.mts
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 ## Loading and recovery feedback
@@ -318,7 +318,7 @@ available. The owned mobile devices were shut down afterward.
 
 ```sh
 node tools/web-verification/scripts/routing-contract.mts
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 ## Browser root-owner teardown
@@ -550,7 +550,7 @@ animation snapshots or establish OS hit-testing.
 ```sh
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 
@@ -578,7 +578,7 @@ bun run --filter @xplat/web build
 node tools/web-verification/scripts/navigation.ts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 ## Callable Standard Schema search validation
@@ -836,7 +836,7 @@ predictive animation, interactive modal dismissal, document unload or process ex
 ```sh
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 ```
 
 Focused controller/protocol tests cover multiple registrations, reset, removal,
@@ -865,8 +865,8 @@ closure and whole-owner cleanup. AppKit modal effects report skipped separately
 from successful navigation. No screenshots were captured or inspected.
 
 ```sh
-node apps/macos/test/verify-routing.mts
-node apps/macos/test/verify-overlays.mts
+node tools/macos-verification/test/verify-routing.mts
+node tools/macos-verification/test/verify-overlays.mts
 ```
 
 The renderer's **285 tests**, including per-view native-layout reentry and hidden
@@ -1187,7 +1187,7 @@ released refs. The shared protocol is
 ```sh
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_UDID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
-node apps/macos/test/verify-routing.mts
+node tools/macos-verification/test/verify-routing.mts
 bun run --cwd packages/ui vitest run src/scrollable-area-offset.test.ts
 bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx
 ```

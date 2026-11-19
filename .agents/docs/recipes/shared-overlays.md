@@ -74,7 +74,7 @@ with meaningful descriptions.
 
   [Nested dismissal](../../../docs/app/primitives.md#close-nested-layers-one-at-a-time), the nested dialog/menu/card in [OverlayDemo](../../../packages/demos/src/OverlayDemo.tsrx), and maintained [web regressions](../../../packages/ui/src/components/overlays/layer-dismissal.web.test.tsrx) and [cross-root object-driver tests](../../../packages/ui/src/components/overlays/layer-dismissal.macos.mobile.test.tsrx). Object-driver evidence does not establish OS keyboard input or native focus traversal.
 
-- AC8: [macOS shared presentations](../../../docs/app/primitives.md#macos-shared-presentations), [maintained example](../../../examples/probes/shared-presentations.tsrx), [isolated AppKit verification](../../../apps/macos/test/verify-overlays.mts), and [bridge lifecycle tests](../../../packages/macos-appkit/test/presentation.test.ts).
+- AC8: [macOS shared presentations](../../../docs/app/primitives.md#macos-shared-presentations), [maintained example](../../../examples/probes/shared-presentations.tsrx), [isolated AppKit verification](../../../tools/macos-verification/test/verify-overlays.mts), and [bridge lifecycle tests](../../../packages/macos-appkit/test/presentation.test.ts).
 
 Windows remains experimental: native mounting and cleanup have bounded runtime
 evidence, while gesture, dismissal, focus, and accessibility gaps remain. See

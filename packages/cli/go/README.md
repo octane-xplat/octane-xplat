@@ -216,7 +216,7 @@ encoding overhead; hashes are checked on reads. This differs from the retained
 TypeScript store layout and does not migrate that store.
 
 ```sh
-/absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --report REPORT_ID --project /work/repo --app apps/macos --json
+/absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --report REPORT_ID --project /work/repo --app apps/mobile --json
 ```
 
 NativeScript captures record package identity only from bounded, non-truncated

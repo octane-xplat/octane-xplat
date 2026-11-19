@@ -14,7 +14,9 @@ import {
 export const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 export const directory = dirname(fileURLToPath(import.meta.url))
 export const appFor = (target) =>
-  join(repo, 'apps', ['ios', 'android'].includes(target) ? 'mobile' : target)
+  target === 'web' || target === 'macos'
+    ? join(repo, 'tools', target === 'web' ? 'web-verification' : 'macos-verification')
+    : join(repo, 'apps', ['ios', 'android', 'linux'].includes(target) ? 'mobile' : target)
 
 export const hash = (value) => createHash('sha256').update(value).digest('hex').slice(0, 16)
 export const caseIdentity = (target, caseFile) => hash(repo + '\n' + caseFile + '\n' + target)

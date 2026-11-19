@@ -479,7 +479,7 @@ The `.app` uses system JavaScriptCore and bundles no Node executable or JS
 engine binary; `xplat dev` runs the Vite watcher in Node while the AppKit app
 and Octane HMR run in the JavaScriptCore host. See
 the [macOS experiment
-notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
+notes](https://github.com/aleclarson/octane-xplat/blob/main/tools/macos-verification/README.md)
 for signing, notarization, and icon setup.
 
 ```json
@@ -562,7 +562,7 @@ the UI package root. An adapted sweep covers the Home shell, Apps gallery,
 nine demos, and Test/probe surface. The AppKit renderer implements a bounded
 set of components and style tokens, while missing host services report
 `unsupported` or `unavailable`. This verifies the in-repository harness, not
-general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
+general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/tools/macos-verification/README.md)
 for the measured boundary.
 
 ### Desktop hosting boundary

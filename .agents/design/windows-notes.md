@@ -75,7 +75,7 @@ derisks how much of A we could self-host if upstream stalls.
   multi-window OS; safe-area/status-bar services mostly reduce to no-ops;
   `KeyboardAvoiding` stays in the common root API and uses a neutral column
   wrapper without keyboard adjustment.
-- **Verification surface.** The parity sweep (`apps/macos/scripts/parity.ts`
+- **Verification surface.** The parity sweep (`tools/macos-verification/scripts/parity.ts`
   pattern) needs a Windows driver-side twin; geometry baselines will differ
   from both web and mobile.
 

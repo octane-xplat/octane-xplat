@@ -43,7 +43,7 @@ state selectors and window-resize media queries have source support that has
 not been checked on a running Mac, media queries use one viewport for every
 window, and keyframe playback is limited to a source path. See the
 [Lottie integration record](../../.agents/docs/notes/lottie-appkit-investigation.md) and
-[non-visual macOS checks](../../apps/macos/README.md#non-visual-smoke-checks) for
+[non-visual macOS checks](../../tools/macos-verification/README.md#non-visual-smoke-checks) for
 the runtime evidence and its boundaries.
 
 A **seam** is a part where shared code meets platform behavior, such as

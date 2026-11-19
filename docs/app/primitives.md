@@ -2504,7 +2504,7 @@ export function Gallery({ open, setOpen, first, second }: {
 
 Try the maintained [shared presentation example](../../examples/probes/shared-presentations.tsrx).
 Supply your own image source before using its lightbox buttons. The
-[isolated AppKit fixture](../../apps/macos/test/verify-overlays.mts) checks native
+[isolated AppKit fixture](../../tools/macos-verification/test/verify-overlays.mts) checks native
 views, geometry, updates, focus, imperative results, timers, and teardown
 without screenshots. These are native-state and handler/API checks, not proof
 of physical mouse hit-testing, OS keyboard delivery, or VoiceOver navigation.

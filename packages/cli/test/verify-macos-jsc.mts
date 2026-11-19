@@ -15,7 +15,7 @@ const appRoot = await mkdtemp(join(scratchRoot, 'macos-jsc-fixture-'))
 
 await cp(join(repoRoot, 'packages/cli/test/fixtures/macos-jsc-app'), appRoot, { recursive: true })
 
-const installed = join(repoRoot, 'apps/macos/node_modules')
+const installed = join(repoRoot, 'tools/macos-verification/node_modules')
 
 await mkdir(join(appRoot, 'node_modules/@nativescript'), { recursive: true })
 for (const name of ['vite', 'octane', '@nativescript/macos-node-api']) {

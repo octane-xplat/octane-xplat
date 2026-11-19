@@ -50,7 +50,7 @@ The named Vite config must emit the CommonJS bundle at `bundleFile`. Packaging
 continues to use the existing `xplat.targets.macos.package` contract. Paths are
 relative to the app root. The two optional fields `shellViteConfig` and
 `shellBundleFile` must be supplied together when a persistent AppKit shell owns
-Octane HMR, as in `apps/macos`. Without a shell, a successful JS rebuild restarts
+Octane HMR, as in `tools/macos-verification`. Without a shell, a successful JS rebuild restarts
 the host. An existing custom `scripts.dev` remains usable for apps with no
 native leaves; native leaves require the CLI-owned `dev` configuration.
 

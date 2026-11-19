@@ -1,0 +1,22 @@
+{
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"allowJs": true,
+		"checkJs": false,
+		"paths": {
+			"styled-system/*": ["../../packages/app/src/styled-system/*"],
+			"@octane-xplat/app": ["../../packages/app/src/index.ts"],
+			"@octane-xplat/app/*": ["../../packages/app/src/*"],
+			"@octane-xplat/demos": ["../../packages/demos/src/index.ts"],
+			"@octane-xplat/demos/*": ["../../packages/demos/src/*"],
+			"@octane-xplat/platform": ["../../packages/platform/src/index.ts"],
+			"@octane-xplat/platform/*": ["../../packages/platform/src/*"]
+		}
+	},
+	"include": ["../../apps/mobile/macos/src/**/*", "../../packages/*/src/**/*.d.ts"],
+	"exclude": ["node_modules", "dist", "artifacts"],
+	"files": ["../../packages/macos-appkit/src/host-globals.d.ts"]
+}

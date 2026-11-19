@@ -683,7 +683,7 @@ test(
     symlinkSync(sdk, join(dir, 'node_modules/@octane-xplat/macos-build'), 'dir')
     mkdirSync(join(dir, 'node_modules/@nativescript'), { recursive: true })
     symlinkSync(
-      realpathSync(join(root, 'apps/macos/node_modules/@nativescript/macos-node-api')),
+      realpathSync(join(root, 'tools/macos-verification/node_modules/@nativescript/macos-node-api')),
       join(dir, 'node_modules/@nativescript/macos-node-api'),
       'dir',
     )

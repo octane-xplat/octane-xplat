@@ -97,7 +97,7 @@ async function caseConfig(project, target, options, utilities = true) {
   }
 
   if (target === 'macos') {
-    const { createMacOSConfig } = await import(join(appFor(target), 'vite.shared.mjs'))
+    const { createMacOSConfig } = await import(join(repo, 'apps/mobile/macos/vite.shared.mjs'))
     const configFactory = createMacOSConfig({
       rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
     })
@@ -307,7 +307,7 @@ export async function runTarget(target, args, onResult, signal) {
         { verbose: args.verbose },
       )
     } else if (target === 'macos') {
-      const { createMacOSConfig } = await import(join(appFor(target), 'vite.shared.mjs'))
+      const { createMacOSConfig } = await import(join(repo, 'apps/mobile/macos/vite.shared.mjs'))
       const shellConfigFactory = createMacOSConfig({ packaged: true })
       const shellConfig =
         typeof shellConfigFactory === 'function'

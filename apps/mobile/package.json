@@ -20,7 +20,14 @@
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"demos:ios": "XPLAT_DOCS_DEMOS=1 ns run ios --no-hmr",
 		"demos:android": "XPLAT_DOCS_DEMOS=1 ns run android --no-hmr",
-		"demos:build:ios": "XPLAT_DOCS_DEMOS=1 ns build ios"
+		"demos:build:ios": "XPLAT_DOCS_DEMOS=1 ns build ios",
+		"linux": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev linux",
+		"macos": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && bun run --cwd ../.. turbo run build --filter=@octane-xplat/macos-build && xplat dev macos",
+		"build:macos": "xplat build --targets macos",
+		"build:macos:bundle": "vite build --config macos/vite.package.config.mjs",
+		"typecheck:macos": "tsc --runExternalCode --noEmit -p ../../tools/macos-verification/tsconfig.json",
+		"build:macos:dev": "vite build --config macos/vite.dev.config.mjs --mode development && vite build --config macos/vite.dev-shell.config.mjs --mode development",
+		"webview:macos": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && bun run --cwd ../.. turbo run build --filter=@octane-xplat/macos-build && node macos/webview-dev.mjs"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.1.0",
@@ -30,12 +37,14 @@
 		"@nativescript/canvas": "3.0.1",
 		"@nativescript/core": "catalog:",
 		"@nativescript/font-manager": "1.0.20",
+		"@nativescript/macos-node-api": "catalog:",
 		"@octane-xplat/auth": "workspace:*",
 		"@octane-xplat/biometrics": "workspace:*",
 		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/canvas": "workspace:*",
 		"@octane-xplat/context-menu": "workspace:*",
 		"@octane-xplat/date-picker": "workspace:*",
+		"@octane-xplat/desktop-webview": "workspace:*",
 		"@octane-xplat/effects": "workspace:*",
 		"@octane-xplat/files": "workspace:*",
 		"@octane-xplat/geolocation": "workspace:*",
@@ -44,7 +53,8 @@
 		"@octane-xplat/image": "workspace:*",
 		"@octane-xplat/lottie": "workspace:*",
 		"@octane-xplat/media": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.10",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/notifications": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/picker": "workspace:*",
@@ -57,6 +67,7 @@
 		"@octane-xplat/smooth-corners": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
+		"@octane-xplat/web-browser": "workspace:*",
 		"@valor/nativescript-websockets": "2.0.3",
 		"@octane-xplat/app": "workspace:*",
 		"@octane-xplat/demos": "workspace:*",
@@ -72,7 +83,7 @@
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
-		"@octane-xplat/macos-appkit": "workspace:*",
+		"@octane-xplat/macos-build": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:",
 		"@tsrx/oxc": "catalog:",
@@ -82,5 +93,39 @@
 		"typescript-classic": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:"
+	},
+	"xplat": {
+		"targets": {
+			"macos": {
+				"runtime": "appkit-node-api",
+				"dev": {
+					"viteConfig": "macos/vite.dev.config.mjs",
+					"bundleFile": "dist/macos-dev/app.cjs",
+					"shellViteConfig": "macos/vite.dev-shell.config.mjs",
+					"shellBundleFile": "dist/macos-dev/shell.cjs",
+					"webViteConfig": "macos/vite.webview-app.config.mjs",
+					"hostViteConfig": "macos/vite.webview-app-host.config.mjs",
+					"hostBundleFile": "dist/macos-webview-app-host/host.cjs"
+				},
+				"package": {
+					"productName": "Octane macOS spike",
+					"bundleIdentifier": "org.octane.xplat.macos-spike",
+					"executableName": "Octane",
+					"version": "0.1.0",
+					"minimumSystemVersion": "13.5",
+					"viteConfig": "macos/vite.package.config.mjs",
+					"bundleFile": "dist/macos-package/main.cjs",
+					"entitlements": "macos/entitlements.plist",
+					"infoPlist": {
+						"NSCameraUsageDescription": "This app records video with the camera.",
+						"NSMicrophoneUsageDescription": "This app records audio with your video."
+					},
+					"webViteConfig": "macos/vite.webview-app.config.mjs",
+					"hostViteConfig": "macos/vite.webview-app-host.config.mjs",
+					"hostBundleFile": "dist/macos-webview-app-host/host.cjs",
+					"webOutDir": "dist/macos-webview-app"
+				}
+			}
+		}
 	}
 }

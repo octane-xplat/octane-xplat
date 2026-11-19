@@ -2,6 +2,17 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"typecheck:macos:webview": { "dependsOn": ["^typegen", "@xplat/app#gen"], "inputs": ["$TURBO_DEFAULT$", "../../tools/macos-verification/tsconfig*.json"], "outputs": [] },
+		"build:macos:webview-host": { "dependsOn": ["^typegen", "@octane-xplat/cli#build"], "cache": false },
+		"build:macos:webview": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"], "cache": false },
+		"build:macos:dev": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/lexical#build:assets", "@octane-xplat/richtext#build:assets", "@octane-xplat/tiptap#build:assets"], "cache": false },
+		"build:macos:bundle": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/lexical#build:assets", "@octane-xplat/richtext#build:assets", "@octane-xplat/tiptap#build:assets"], "cache": false },
+		"build:macos": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/lexical#build:assets", "@octane-xplat/richtext#build:assets", "@octane-xplat/tiptap#build:assets", "@octane-xplat/cli#build", "@octane-xplat/macos-build#build"], "cache": false },
+		"typecheck:macos": { "dependsOn": ["^typegen", "@xplat/app#gen"], "inputs": ["$TURBO_DEFAULT$", "../../tools/macos-verification/tsconfig.json"], "outputs": [] },
+		"build:linux:web": { "dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"], "cache": false },
+		"build:linux": { "dependsOn": ["^typegen", "@xplat/app#gen"], "cache": false },
+		"typecheck:linux": { "dependsOn": ["^typegen", "@xplat/app#gen"], "outputs": [] },
+		"smoke:linux": { "cache": false },
 		"build:web": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
 			"cache": false

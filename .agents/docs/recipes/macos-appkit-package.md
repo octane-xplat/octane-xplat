@@ -90,24 +90,24 @@ CommonJS host bundle.
   and [prebuilt native libraries](../../../docs/platform/macos-native.md).
 
 - AC1: [Experimental AppKit target](../../../docs/start/toolchain.md#experimental-appkit-target)
-  and [macOS experiment notes](../../../apps/macos/README.md).
+  and [macOS experiment notes](../../../tools/macos-verification/README.md).
 - AC2: [Experimental AppKit target](../../../docs/start/toolchain.md#experimental-appkit-target)
-  and [macOS experiment notes](../../../apps/macos/README.md).
-- AC3: [macOS signing and notarization notes](../../../apps/macos/README.md#packaging-proof).
-- AC5: [App icon packaging](../../../apps/macos/README.md#packaging-proof) and
+  and [macOS experiment notes](../../../tools/macos-verification/README.md).
+- AC3: [macOS signing and notarization notes](../../../tools/macos-verification/README.md#packaging-proof).
+- AC5: [App icon packaging](../../../tools/macos-verification/README.md#packaging-proof) and
   [experimental AppKit target](../../../docs/start/toolchain.md#experimental-appkit-target).
-- AC6: [macOS packaging proof](../../../apps/macos/README.md#packaging-proof).
-- AC7: [macOS package-root boundary](../../../apps/macos/README.md#macos-experiment).
-  Maintained [non-visual smoke checks](../../../apps/macos/README.md#non-visual-smoke-checks)
+- AC6: [macOS packaging proof](../../../tools/macos-verification/README.md#packaging-proof).
+- AC7: [macOS package-root boundary](../../../tools/macos-verification/README.md#macos-experiment).
+  Maintained [non-visual smoke checks](../../../tools/macos-verification/README.md#non-visual-smoke-checks)
   require the complete shared sweep and document unsupported leaf boundaries.
-- AC8: [Packaged host API](../../../apps/macos/README.md#packaging-proof) and the
+- AC8: [Packaged host API](../../../tools/macos-verification/README.md#packaging-proof) and the
   [independent fixture check](../../../packages/cli/test/verify-macos-jsc.mts).
 
 - AC9: [macOS native leaf guide](../../../docs/platform/macos-native.md) and the
   [native source recipe](macos-native-code.md).
 
 - AC10: [AppKit fonts](../../../docs/app/styling.md#appkit-fonts) and the
-  [maintained harness font setup](../../../apps/macos/src/fonts.ts).
+  [maintained harness font setup](../../../apps/mobile/macos/src/fonts.ts).
 
 - AC11: [Renderer setup](../../../docs/packages/package-macos-appkit.md) and the
   [packed renderer consumer](../../../packages/macos-appkit/test/packed-consumer.ts).
@@ -151,8 +151,8 @@ changes and app-theme preference transitions.
   child-flex semantics and attached-placement boundaries are explicit.
 
 Documentation: [Container layout channels](../../../docs/packages/package-macos-appkit.md#container-layout-channels).
-Maintained coverage: [Native geometry fixture](../../../apps/macos/test/layout-channels-fixture.macos.tsx)
+Maintained coverage: [Native geometry fixture](../../../tools/macos-verification/test/layout-channels-fixture.macos.tsx)
 and [renderer reconciliation tests](../../../packages/macos-appkit/test/style-reconcile.test.ts).
-The [panel placement fixture](../../../apps/macos/test/layout-placement-fixture.macos.tsx)
+The [panel placement fixture](../../../tools/macos-verification/test/layout-placement-fixture.macos.tsx)
 also checks nested absolute/grid geometry, growing scroll height, repeated
 solver passes, and host size/position after resizing; `bun run turbo run smoke:macos --filter=@octane-xplat/verification` includes it.
