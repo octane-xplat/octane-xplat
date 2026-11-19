@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 // Build-level smoke: the linuxGtk helper must produce one ESM bundle
 // that keeps `gi://` imports external and never references DOM APIs. This
 // proves bundling and compilation only. The proxy fixture additionally
@@ -114,64 +115,77 @@ test('canonical routing selects GTK panes without NativeScript Frame or modal ho
 }, 120000)
 
 test('the proxy ordering fixture builds and exercises real GTK when available', async (t) => {
-  const proxyOut = join(fixture, 'dist', 'proxy-order')
-
-  await build({
-    logLevel: 'error',
-    ...(await linuxGtk('production', {
-      root: fixture,
+  let result
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    const evaluated = await runGtkEvalFixture(t, {
+      stem: 'proxy-order',
       entry: 'src/proxy-order.ts',
-      outDir: proxyOut,
-    })),
-  })
+      marker: 'GTK_PROXY_ORDER',
+      minChecks: 0,
+    })
+    result = evaluated.fixture
+  } else {
+    const proxyOut = join(fixture, 'dist', 'proxy-order')
 
-  const bundle = join(proxyOut, 'app.js')
+    await build({
+      logLevel: 'error',
+      ...(await linuxGtk('production', {
+        root: fixture,
+        entry: 'src/proxy-order.ts',
+        outDir: proxyOut,
+      })),
+    })
 
-  assert.ok(existsSync(bundle), 'the real driver fixture was bundled')
+    const bundle = join(proxyOut, 'app.js')
 
-  let gjsVersion
+    assert.ok(existsSync(bundle), 'the real driver fixture was bundled')
 
-  try {
-    gjsVersion = execFileSync('gjs', ['--version'], { encoding: 'utf8' }).trim()
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error
+    let gjsVersion
+
+    try {
+      gjsVersion = execFileSync('gjs', ['--version'], { encoding: 'utf8' }).trim()
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error
+      }
+
+      t.diagnostic(
+        'Build evidence only: gjs is unavailable; native proxy ordering was not exercised',
+      )
+      return
     }
 
-    t.diagnostic('Build evidence only: gjs is unavailable; native proxy ordering was not exercised')
-    return
+    if (!gtkRuntimeReady()) {
+      t.diagnostic(
+        `Build evidence only: ${gtkRuntimeUnavailableReason()}; native proxy ordering was not exercised`,
+      )
+      return
+    }
+
+    const env = { ...process.env }
+
+    if (process.platform === 'darwin') {
+      const prefix = execFileSync('brew', ['--prefix'], { encoding: 'utf8' }).trim()
+
+      env.DYLD_FALLBACK_LIBRARY_PATH = [join(prefix, 'lib'), env.DYLD_FALLBACK_LIBRARY_PATH]
+        .filter(Boolean)
+        .join(':')
+    }
+
+    const output = execFileSync('gjs', ['-m', bundle], {
+      env,
+      encoding: 'utf8',
+      timeout: 15000,
+    })
+
+    const marker = output.split('\n').find((line) => line.startsWith('GTK_PROXY_ORDER '))
+
+    assert.ok(marker, `native fixture result missing: ${output}`)
+
+    result = JSON.parse(marker.slice('GTK_PROXY_ORDER '.length))
+
+    t.diagnostic(`${process.platform}; ${gjsVersion}; GTK ${result.gtk}; no window or input`)
   }
-
-  if (!gtkRuntimeReady()) {
-    t.diagnostic(
-      `Build evidence only: ${gtkRuntimeUnavailableReason()}; native proxy ordering was not exercised`,
-    )
-    return
-  }
-
-  const env = { ...process.env }
-
-  if (process.platform === 'darwin') {
-    const prefix = execFileSync('brew', ['--prefix'], { encoding: 'utf8' }).trim()
-
-    env.DYLD_FALLBACK_LIBRARY_PATH = [join(prefix, 'lib'), env.DYLD_FALLBACK_LIBRARY_PATH]
-      .filter(Boolean)
-      .join(':')
-  }
-
-  const output = execFileSync('gjs', ['-m', bundle], {
-    env,
-    encoding: 'utf8',
-    timeout: 15000,
-  })
-
-  const marker = output.split('\n').find((line) => line.startsWith('GTK_PROXY_ORDER '))
-
-  assert.ok(marker, `native fixture result missing: ${output}`)
-
-  const result = JSON.parse(marker.slice('GTK_PROXY_ORDER '.length))
-
-  t.diagnostic(`${process.platform}; ${gjsVersion}; GTK ${result.gtk}; no window or input`)
   assert.deepEqual(result.initial, ['A', 'C'], 'setup mounted the surrounding native siblings')
   assert.deepEqual(result.proxyChild, ['B'], 'the logical proxy owns the inserted child')
   await t.test('inserting into a mounted proxy preserves surrounding native sibling order', () => {
@@ -218,6 +232,16 @@ test('the preset emits the prebuilt Mason binding for both architectures', async
 }, 120000)
 
 test('a bundle without the Mason binding fails at startup', async (t) => {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'missing-mason',
+      entry: 'src/root-teardown-main.ts',
+      marker: 'GTK_ROOT_TEARDOWN',
+      minChecks: 2,
+      missingMason: true,
+    })
+  }
+
   // Needs a working GTK runtime; the stripped env removes the bundled
   // binding, so readiness here means the baseline environment works.
   if (!gtkRuntimeReady()) {
@@ -253,8 +277,12 @@ test('a bundle without the Mason binding fails at startup', async (t) => {
     timeout: 30000,
   })
 
-  assert.notEqual(result.status, 0, `expected startup failure:
-${result.stdout}`)
+  assert.notEqual(
+    result.status,
+    0,
+    `expected startup failure:
+${result.stdout}`,
+  )
   assert.match(
     result.stderr,
     /XplatMason layout engine is required/,

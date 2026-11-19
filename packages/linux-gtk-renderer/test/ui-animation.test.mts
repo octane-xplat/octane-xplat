@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
@@ -11,6 +12,15 @@ import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('numeric animation and translation update real GTK geometry and settle on cleanup', async (t) => {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'ui-animation',
+      entry: 'src/ui-animation-main.ts',
+      marker: 'GTK_UI_ANIMATION',
+      minChecks: 24,
+    })
+  }
+
   const outDir = join(fixture, 'dist-ui-animation')
 
   if (!gtkRuntimeReady()) {

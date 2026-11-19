@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -12,6 +13,16 @@ test(
   'GTK text fields retain width, chrome flags and focusable status affordances',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-field-chrome',
+        title: 'Octane GTK field chrome test',
+        marker: 'GTK_FIELD_CHROME',
+        minChecks: { os: 61, properties: 44 },
+        input: true,
+      })
+    }
+
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-field-chrome')
 

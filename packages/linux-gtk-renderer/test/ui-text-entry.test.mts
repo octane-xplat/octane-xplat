@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -15,6 +16,18 @@ test(
   'native text refs preserve Unicode selection, focus, readonly state and real keyboard edits on GTK',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-text-entry',
+        title: 'Octane GTK text entry test',
+        marker: 'GTK_TEXT_ENTRY',
+        minChecks: { os: 92, properties: 75 },
+        input: true,
+        inputFlag: 'GTK_TEXT_OS',
+        inputResult: 'osKeyboard',
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-text-entry')
 
     if (!gtkRuntimeReady()) {

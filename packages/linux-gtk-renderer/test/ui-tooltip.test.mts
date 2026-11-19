@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -12,6 +13,16 @@ test(
   'GTK tooltip preserves context, delayed intent, focus, dismissal and native popup lifetime',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-tooltip',
+        title: 'Octane GTK tooltip test',
+        marker: 'GTK_TOOLTIP',
+        minChecks: { os: 50, properties: 42 },
+        input: true,
+      })
+    }
+
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-tooltip')
 

@@ -11,22 +11,41 @@ import { gtkRuntimeReady, gtkOsInputReady } from './gjs-availability.mts'
 /** Run a GTK fixture on the explicitly selected Andromeda evaluation runtime. */
 export async function runGtkEvalFixture(
   t,
-  { stem, entry, title, marker, minChecks, input = false, define },
+  {
+    stem,
+    entry,
+    title = stem,
+    marker,
+    readyMarker,
+    minChecks,
+    input = false,
+    inputFlag,
+    inputResult,
+    define,
+    diagnostics,
+    missingMason,
+  },
 ) {
   const engine = process.env.LINUX_RUNTIME_EVAL_ENGINE
   if (!engine) throw Error('Set LINUX_RUNTIME_EVAL_ENGINE to native or gjs')
 
-  const { runRendererFixture } = await import('../../../tools/linux-runtime-eval/renderer-fixture-core.mjs')
+  const { runRendererFixture } =
+    await import('../../../tools/linux-runtime-eval/renderer-fixture-core.mjs')
   const logDir = process.env.LINUX_RUNTIME_EVAL_LOG_DIR
   const result = await runRendererFixture({
     stem,
     entry,
     title,
     marker,
+    readyMarker,
     input,
+    inputFlag,
+    inputResult,
     checks: minChecks,
     engine,
     define,
+    diagnostics,
+    missingMason,
     logPath: logDir ? resolve(logDir, `${stem}.${engine}.log`) : undefined,
   })
   t.diagnostic(

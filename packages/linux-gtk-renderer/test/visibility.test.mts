@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -14,6 +15,15 @@ test(
   'GTK display and visibility preserve layout, native ownership and prop precedence',
   { timeout: 90000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'visibility',
+        entry: 'src/visibility-smoke.ts',
+        marker: 'GTK_VISIBILITY',
+        minChecks: 25,
+      })
+    }
+
     const outDir = join(fixture, 'dist-visibility')
 
     if (!gtkRuntimeReady()) {

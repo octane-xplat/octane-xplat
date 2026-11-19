@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -14,6 +15,15 @@ test(
   'GTK decorative indicators and subscribed registry retain states, geometry and ownership',
   { timeout: 90000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-indicators',
+        entry: 'src/ui-indicators-main.ts',
+        marker: 'GTK_INDICATORS',
+        minChecks: 35,
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-indicators')
 
     if (!gtkRuntimeReady()) {

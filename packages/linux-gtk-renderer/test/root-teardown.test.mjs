@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -10,6 +11,15 @@ import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('unmounted roots detach their window wiring (#229)', async (t) => {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'root-teardown',
+      entry: 'src/root-teardown-main.ts',
+      marker: 'GTK_ROOT_TEARDOWN',
+      minChecks: 44,
+    })
+  }
+
   const outDir = join(fixture, 'dist-root-teardown')
 
   if (!gtkRuntimeReady()) {

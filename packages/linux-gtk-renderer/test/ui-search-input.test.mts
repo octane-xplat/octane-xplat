@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -15,6 +16,18 @@ test(
   'GTK SearchInput retains native editing, field context and accessible OS clear/submit actions',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-search-input',
+        title: 'Octane GTK search input test',
+        marker: 'GTK_SEARCH_INPUT',
+        readyMarker: 'GTK_SEARCH_READY',
+        inputFlag: 'GTK_SEARCH_OS',
+        minChecks: { os: 76, properties: 59 },
+        input: true,
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-search-input')
 
     if (!gtkRuntimeReady()) {

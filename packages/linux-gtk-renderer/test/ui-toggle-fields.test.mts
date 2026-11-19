@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -12,6 +13,16 @@ test(
   'GTK checkbox and switch preserve field defaults, labels and label actions',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-toggle-fields',
+        title: 'Octane GTK toggle fields test',
+        marker: 'GTK_TOGGLE_FIELDS',
+        minChecks: { os: 80, properties: 35 },
+        input: true,
+      })
+    }
+
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-toggle-fields')
 

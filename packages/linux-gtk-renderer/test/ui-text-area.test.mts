@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -15,6 +16,17 @@ test(
   'GTK TextArea sizes native rows, overlays hints and scrolls capped content with actual OS input',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-text-area',
+        title: 'Octane GTK text area test',
+        marker: 'GTK_TEXT_AREA',
+        minChecks: { os: 260, properties: 209 },
+        input: true,
+        inputFlag: 'GTK_TEXT_OS',
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-text-area')
 
     if (!gtkRuntimeReady()) {

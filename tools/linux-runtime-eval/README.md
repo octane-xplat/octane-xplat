@@ -160,7 +160,7 @@ goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-o
 
 Replace `ui-theme` with a supported fixture name. `LINUX_RUNTIME_EVAL_HOST` and `LINUX_RUNTIME_EVAL_VM` default to `andromeda.local` and `octane-linux`; executable and Mason paths are on the Linux VM. `LINUX_RUNTIME_EVAL_LOG_PATH` stores stdout and stderr locally, including on failure. UI fixtures require real OS input, a completion summary, and the fixture's minimum check count. An assertion failure is kept in the log and returns a non-zero exit.
 
-Run all 37 maintained real GTK fixtures in series with either runtime. The 35 renderer fixtures build the same bundle and stage it on the VM; fixtures that declare input send actual keyboard or pointer events. Two accessibility fixtures also compare GTK's accessible states and labels. The runner writes one local log per fixture in a unique engine-specific directory under `LINUX_RUNTIME_EVAL_LOG_DIR`. Run both engines against the same VM to compare NativeScript failures with the GJS baseline:
+Run the maintained GTK test suite in series with either runtime. The runtime tests build the same fixture source and stage it on the VM. Fixtures that declare input send actual keyboard or pointer events, and the runner requires a delivered phase as well as the fixture's own acknowledgment. Build and package assertions run on the host. The runner writes one local log per remote fixture in a unique engine-specific directory under `LINUX_RUNTIME_EVAL_LOG_DIR`. Run both engines against the same VM to compare NativeScript failures with the GJS baseline:
 
 ```sh
 goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-octane-linux"],"resident_devices":1},"purpose":"NativeScript GTK renderer suite","wait_seconds":1}' -- \
@@ -177,9 +177,9 @@ goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-o
     bun run turbo run test:renderer-suite --filter=@xplat/linux-runtime-eval
 ```
 
-Pass fixture stems after `--` for a smaller run, for example `-- ui-theme` or `-- a11y ui-accessibility`; omit them to run all 37.
+Pass fixture stems after `--` for a smaller run, for example `-- ui-theme` or `-- a11y ui-accessibility`. Omit them to run the full suite.
 
-This command discovers only top-level `test/*.test.mjs` files that call `runGtkUiFixture` or `runGtkEvalFixture`; fixture source files under `test/fixtures/` are not counted separately. Missing typelibs or test failures remain failures in that engine's log; compare matching `*.native.log` and `*.gjs.log` files before classifying them as projection regressions. The WebView fixture needs WebKitGTK 6.0 and JavaScriptCore metadata in the prepared NativeScript runtime; generate that metadata and the matching GI schema as described below.
+The command inventories the top-level `test/*.test.mjs` files and rejects runtime tests without a paired runner. Fixture source files under `test/fixtures/` are counted through their owning tests. Compare matching `*.native.log` and `*.gjs.log` files before classifying runtime failures. The WebView fixture needs WebKitGTK 6.0 and JavaScriptCore metadata in the prepared NativeScript runtime. Generate that metadata and the matching GI schema as described below.
 
 ### Prepare WebKitGTK metadata
 

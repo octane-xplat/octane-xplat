@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -14,6 +15,15 @@ test(
   'GTK form layouts update native grid tracks and preserve editors across direction changes',
   { timeout: 90000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-form-layout',
+        entry: 'src/ui-form-layout-main.ts',
+        marker: 'GTK_FORM_LAYOUT',
+        minChecks: 25,
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-form-layout')
 
     if (!gtkRuntimeReady()) {

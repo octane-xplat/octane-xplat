@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -12,6 +13,18 @@ import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('ScrollableArea handles and refresh lifecycle work on real GTK with native Spinner', async (t) => {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'ui-area',
+      title: 'Octane GTK area test',
+      marker: 'GTK_UI_AREA',
+      minChecks: { os: 31, properties: 30 },
+      input: true,
+      inputFlag: 'GTK_TEST_PULL',
+      inputResult: 'osPull',
+    })
+  }
+
   const outDir = join(fixture, 'dist-ui-area')
 
   if (!gtkRuntimeReady()) {

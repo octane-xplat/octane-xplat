@@ -14,10 +14,15 @@ export async function runRendererFixture({
   entry,
   title,
   marker,
+  readyMarker = marker + '_READY',
   input = true,
+  inputFlag = marker + '_OS',
+  inputResult = 'osInput',
   checks,
   engine,
   define,
+  diagnostics = false,
+  missingMason = false,
   logPath = process.env.LINUX_RUNTIME_EVAL_LOG_PATH,
 }) {
   if (!['native', 'gjs'].includes(engine)) {
@@ -42,8 +47,7 @@ export async function runRendererFixture({
     throw Error(`GI schema not found: ${schemaPath}`)
   }
 
-  const minChecks =
-    typeof checks === 'number' ? checks : input ? checks?.os : checks?.properties
+  const minChecks = typeof checks === 'number' ? checks : input ? checks?.os : checks?.properties
   if (!Number.isInteger(minChecks)) {
     throw Error(`Fixture ${stem} needs a numeric minimum check count`)
   }
@@ -87,7 +91,8 @@ export async function runRendererFixture({
       enforce: 'pre',
       transform(code, id) {
         if (traceBounds && id.includes('popup-bounds')) {
-          const expression = /const source\s*=\s*surfaceOrigin\(native\),\s*target\s*=\s*surfaceOrigin\(hostNative\)/
+          const expression =
+            /const source\s*=\s*surfaceOrigin\(native\),\s*target\s*=\s*surfaceOrigin\(hostNative\)/
           if (!expression.test(code)) throw Error(`Could not install popup bounds trace in ${id}`)
           return code.replace(
             expression,
@@ -122,7 +127,11 @@ export async function runRendererFixture({
     if (!existsSync(resolve(outDir, 'app.js'))) {
       throw Error(`GTK fixture ${stem} build did not produce app.js`)
     }
-    assert.doesNotMatch(readFileSync(resolve(outDir, 'app.js'), 'utf8'), /document\.createElement|window\.document/)
+    if (missingMason) rmSync(resolve(outDir, 'xplatmason'), { recursive: true, force: true })
+    assert.doesNotMatch(
+      readFileSync(resolve(outDir, 'app.js'), 'utf8'),
+      /document\.createElement|window\.document/,
+    )
     writeFileSync(resolve(outDir, 'package.json'), '{"type":"module"}\n')
     writeFileSync(
       resolve(outDir, 'renderer-fixture-runner.py'),
@@ -142,17 +151,30 @@ export async function runRendererFixture({
       })
       ssh(`tar -C ${quote(remote)} -xf -`, { input: archive })
 
-      const runtime = engine === 'gjs' ? ['gjs', '-m'] : [executable]
+      let runtime = engine === 'gjs' ? ['gjs', '-m'] : [executable]
+      if (projected && missingMason) {
+        const isolated = remote + '/runtime'
+        ssh(
+          `mkdir ${quote(isolated)} && cp ${quote(executable)} ${quote(dirname(executable))}/metadata-*.bin ${quote(isolated)}/`,
+        )
+        runtime = [isolated + '/ns-linux']
+      }
       const environment = {
         LINUX_RUNTIME_EVAL_COMMAND: JSON.stringify(runtime),
         LINUX_RUNTIME_EVAL_ENGINE: engine,
         LINUX_RUNTIME_EVAL_TITLE: title,
         LINUX_RUNTIME_EVAL_MARKER: marker,
+        LINUX_RUNTIME_EVAL_READY_MARKER: readyMarker,
         LINUX_RUNTIME_EVAL_MIN_CHECKS: String(minChecks),
         LINUX_RUNTIME_EVAL_EXPECT_OS_INPUT: input ? '1' : '0',
+        LINUX_RUNTIME_EVAL_INPUT_FLAG: inputFlag,
+        LINUX_RUNTIME_EVAL_INPUT_RESULT: inputResult,
+        LINUX_RUNTIME_EVAL_DIAGNOSTICS: diagnostics ? '1' : '0',
+        LINUX_RUNTIME_EVAL_MISSING_MASON: missingMason ? '1' : '0',
         GTK_A11Y: 'test',
-        XPLAT_MASON_TYPELIB: masonDir,
-        LD_LIBRARY_PATH: masonDir,
+        XPLAT_MASON_TYPELIB: missingMason ? '' : masonDir,
+        LD_LIBRARY_PATH: missingMason ? '' : masonDir,
+        ...(missingMason ? { GI_TYPELIB_PATH: '' } : {}),
       }
       if (projected) {
         environment.NS_V8_FLAGS = '--expose-gc'
@@ -178,7 +200,8 @@ export async function runRendererFixture({
     } catch (error) {
       const stdout = error.stdout ?? error.output?.[1] ?? ''
       const stderr = error.stderr ?? error.output?.[2] ?? ''
-      const outputText = (value) => (Buffer.isBuffer(value) ? value.toString('utf8') : String(value))
+      const outputText = (value) =>
+        Buffer.isBuffer(value) ? value.toString('utf8') : String(value)
       const captured = `${outputText(stdout)}${outputText(stderr)}`
       saveLog(captured)
       process.stdout.write(captured)

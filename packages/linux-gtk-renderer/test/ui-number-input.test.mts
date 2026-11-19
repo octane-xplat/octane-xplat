@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -15,6 +16,16 @@ test(
   'GTK NumberInput retains numeric editing, field ownership and accessible actions',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-number-input',
+        title: 'Octane GTK number input test',
+        marker: 'GTK_NUMBER',
+        minChecks: { os: 102, properties: 50 },
+        input: true,
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-number-input')
 
     if (!gtkRuntimeReady()) {

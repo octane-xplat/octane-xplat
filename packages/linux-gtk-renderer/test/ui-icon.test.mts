@@ -8,6 +8,7 @@ import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
@@ -15,6 +16,13 @@ test(
   'GTK icons decode SVG sources and preserve scoped registries, tint and async ownership',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-icon',
+        marker: 'GTK_UI_ICON',
+        minChecks: 44,
+      })
+    }
     const outDir = join(fixture, 'dist-ui-icon')
 
     if (!gtkRuntimeReady()) {

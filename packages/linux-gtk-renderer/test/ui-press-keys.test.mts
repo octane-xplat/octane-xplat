@@ -7,11 +7,21 @@ import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 
 test(
   'semantic GTK pressables activate and cancel through native keyboard ownership',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-press-keys',
+        title: 'Octane GTK press keys test',
+        marker: 'GTK_PRESS_KEYS',
+        minChecks: { os: 51, properties: 39 },
+        input: true,
+      })
+    }
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-press-keys')
 

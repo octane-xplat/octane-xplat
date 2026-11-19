@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 // Runtime-level stylesheet smoke — builds the css-smoke fixture bundle and
 // runs it under real GJS+GTK. Mason is required (the bundle's masonview
 // hosts drive the cascade), so the run needs a resolvable XplatMason
@@ -18,56 +19,73 @@ const pkg = fileURLToPath(new URL('..', import.meta.url))
 const fixture = join(pkg, 'test', 'fixtures')
 const outDir = join(fixture, 'dist-css')
 
-test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) => {
-  if (!gtkRuntimeReady()) {
-    t.skip(gtkRuntimeUnavailableReason())
-    return
-  }
-
-  rmSync(outDir, { recursive: true, force: true })
-  await build({
-    logLevel: 'error',
-    ...(await linuxGtk('production', {
-      root: fixture,
+test('stylesheets cascade through the driver on real GTK', async (t) => {
+  let r
+  let stderr
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    const evaluated = await runGtkEvalFixture(t, {
+      stem: 'css',
       entry: 'src/css-smoke.ts',
-      outDir,
-    })),
-  })
+      marker: 'CSS_SMOKE',
+      minChecks: 0,
+      diagnostics: true,
+    })
+    r = evaluated.fixture
+    stderr = evaluated.stderr
+  } else {
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
+      return
+    }
 
-  // Homebrew gjs needs its lib dir on the dyld fallback path; on Linux the
-  // system GI paths are enough.
-  const dyld =
-    process.platform === 'darwin' ? `${execSync('brew --prefix').toString().trim()}/lib` : undefined
+    rmSync(outDir, { recursive: true, force: true })
+    await build({
+      logLevel: 'error',
+      ...(await linuxGtk('production', {
+        root: fixture,
+        entry: 'src/css-smoke.ts',
+        outDir,
+      })),
+    })
 
-  const env = { ...process.env }
+    // Homebrew gjs needs its lib dir on the dyld fallback path; on Linux the
+    // system GI paths are enough.
+    const dyld =
+      process.platform === 'darwin'
+        ? `${execSync('brew --prefix').toString().trim()}/lib`
+        : undefined
 
-  if (dyld) {
-    env.DYLD_FALLBACK_LIBRARY_PATH = [dyld, process.env.DYLD_FALLBACK_LIBRARY_PATH]
-      .filter(Boolean)
-      .join(':')
+    const env = { ...process.env }
+
+    if (dyld) {
+      env.DYLD_FALLBACK_LIBRARY_PATH = [dyld, process.env.DYLD_FALLBACK_LIBRARY_PATH]
+        .filter(Boolean)
+        .join(':')
+    }
+
+    // stderr carries console.warn — the warn-once evidence lives there.
+    const {
+      stdout: output,
+      stderr: localStderr,
+      status,
+    } = spawnSync('gjs', ['-m', join(outDir, 'app.js')], {
+      env,
+      encoding: 'utf8',
+    })
+
+    assert.equal(status, 0, `gjs failed:\n${localStderr}`)
+
+    const line = output.split('\n').find((l) => l.startsWith('CSS_SMOKE '))
+
+    assert.ok(line, `smoke marker missing — gjs output:\n${output}\n${localStderr}`)
+
+    stderr = localStderr
+    r = JSON.parse(line.slice('CSS_SMOKE '.length))
   }
-
-  // stderr carries console.warn — the warn-once evidence lives there.
-  const {
-    stdout: output,
-    stderr,
-    status,
-  } = spawnSync('gjs', ['-m', join(outDir, 'app.js')], {
-    env,
-    encoding: 'utf8',
-  })
-
-  assert.equal(status, 0, `gjs failed:\n${stderr}`)
-
-  const line = output.split('\n').find((l) => l.startsWith('CSS_SMOKE '))
-
-  assert.ok(line, `smoke marker missing — gjs output:\n${output}\n${stderr}`)
-
-  const r = JSON.parse(line.slice('CSS_SMOKE '.length))
 
   // The .css import rode the bundle's __xplatStylesheets push — a class
   // selector landed on the computed bag AND on the real widget.
-  assert.equal(r.classColor, 'red')
+  assert.equal(r.classColor, '#ff0000')
   assert.ok(r.widgetColor, 'widget.get_color() returned a color')
   assert.ok(r.widgetColor.r > 0.9 && r.widgetColor.g < 0.1 && r.widgetColor.b < 0.1)
 
@@ -90,17 +108,17 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
   assert.equal(r.inlineWins, '#0000ff')
 
   // :disabled matches and un-matches.
-  assert.equal(r.disabledColor, '#123')
+  assert.equal(r.disabledColor, '#112233')
   // Re-enabled, the rule un-matches — the inherited host color returns.
-  assert.equal(r.enabledColor, '#0f0')
+  assert.equal(r.enabledColor, '#00ff00')
 
   // Unsupported CSS property warns exactly once across both .w1 nodes.
   assert.equal(stderr.split('ignored unsupported property cursor').length - 1, 1, stderr)
 
   // Adjacent-sibling rule re-matches after an insert (before: only the
   // inherited host color applies).
-  assert.equal(r.siblingBefore, '#0f0')
-  assert.equal(r.siblingAfter, '#0ff')
+  assert.equal(r.siblingBefore, '#00ff00')
+  assert.equal(r.siblingAfter, '#00ffff')
 
   // className feeds the cascade only — never the widget's GTK css classes.
   assert.equal(r.widgetHasAccent, false)
@@ -154,28 +172,28 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
   // ---- B2: pseudo-classes, media-on-resize, root classes ----------------
 
   // :hover toggles through PRELIGHT state flags.
-  assert.equal(r.hoverColorBefore, '#0f0') // inherited host color
-  assert.equal(r.hoverColor, '#f0f')
-  assert.equal(r.hoverColorOff, '#0f0')
+  assert.equal(r.hoverColorBefore, '#00ff00') // inherited host color
+  assert.equal(r.hoverColor, '#ff00ff')
+  assert.equal(r.hoverColorOff, '#00ff00')
 
   // :focus on the textfield via FOCUS_WITHIN.
-  assert.equal(r.focusColorBefore, '#0f0')
-  assert.equal(r.focusColor, '#f80')
+  assert.equal(r.focusColorBefore, '#00ff00')
+  assert.equal(r.focusColor, '#ff8800')
 
   // :highlighted plus its :active/:pressed aliases from ACTIVE.
-  assert.equal(r.highlightedColor, '#123')
+  assert.equal(r.highlightedColor, '#112233')
   for (const p of ['highlighted', 'active', 'pressed']) {
     assert.ok(r.hlPseudos.includes(p), `missing ${p} in ${r.hlPseudos}`)
   }
 
   // :normal holds only while no visual state is active.
-  assert.equal(r.normalBefore, '#0f0')
-  assert.equal(r.normalDuringHighlight, 'red')
+  assert.equal(r.normalBefore, '#00ff00')
+  assert.equal(r.normalDuringHighlight, '#ff0000')
   assert.ok(!r.normalPseudos.includes('normal'), `still normal: ${r.normalPseudos}`)
-  assert.equal(r.normalRestored, '#0f0')
+  assert.equal(r.normalRestored, '#00ff00')
 
   // Descendant `.card:hover .title`.
-  assert.equal(r.descendantHoverColor, '#f0f')
+  assert.equal(r.descendantHoverColor, '#ff00ff')
 
   // :normal survives hover — hover must not cancel it.
   assert.equal(r.normalUnderHover, true)
@@ -189,7 +207,7 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
   assert.equal(r.untrackedSignatureSame, true)
 
   // @media (min-width: 300px) flips after window.set_default_size.
-  assert.equal(r.mediaAfter, 'red')
+  assert.equal(r.mediaAfter, '#ff0000')
 
   // Root classes gained orientation + direction.
   assert.ok(r.rootClassesB2.includes('ns-ltr'))

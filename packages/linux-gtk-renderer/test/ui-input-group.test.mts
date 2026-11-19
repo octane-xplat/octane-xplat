@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -14,6 +15,15 @@ test(
   'GTK input groups share field state and name without duplicate control IDs',
   { timeout: 90000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-input-group',
+        entry: 'src/ui-input-group-main.ts',
+        marker: 'GTK_INPUT_GROUP',
+        minChecks: 40,
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-input-group')
 
     if (!gtkRuntimeReady()) {

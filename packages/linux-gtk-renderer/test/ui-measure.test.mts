@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
@@ -11,6 +12,15 @@ import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('measurement and aspect ratio follow real GTK allocation and scrolling', async (t) => {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'ui-measure',
+      entry: 'src/ui-measure-main.ts',
+      marker: 'GTK_UI_MEASURE',
+      minChecks: 19,
+    })
+  }
+
   const outDir = join(fixture, 'dist-ui-measure')
 
   if (!gtkRuntimeReady()) {

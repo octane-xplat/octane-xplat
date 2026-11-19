@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -15,6 +16,18 @@ test(
   'GTK multiline buffers preserve Unicode selection, editability, focus, Return behavior and retired listeners',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-text-view',
+        title: 'Octane GTK multiline test',
+        marker: 'GTK_TEXT_VIEW',
+        minChecks: { os: 83, properties: 45 },
+        input: true,
+        inputFlag: 'GTK_TEXT_OS',
+        inputResult: 'osKeyboard',
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-text-view')
 
     if (!gtkRuntimeReady()) {

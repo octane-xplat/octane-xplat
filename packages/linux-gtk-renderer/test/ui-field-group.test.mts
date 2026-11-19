@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -14,6 +15,15 @@ test(
   'GTK related-field groups and custom field hooks retain native ownership and defaults',
   { timeout: 90000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-field-group',
+        entry: 'src/ui-field-group-main.ts',
+        marker: 'GTK_FIELD_GROUP',
+        minChecks: 25,
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-field-group')
 
     if (!gtkRuntimeReady()) {

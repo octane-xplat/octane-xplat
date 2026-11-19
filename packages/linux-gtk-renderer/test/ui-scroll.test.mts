@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -12,6 +13,18 @@ import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('headless scrolling observes real GTK ranges, animation, content resize and OS wheel input', async (t) => {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'ui-scroll',
+      title: 'Octane GTK scroll test',
+      marker: 'GTK_UI_SCROLL',
+      minChecks: 20,
+      input: true,
+      inputFlag: 'GTK_TEST_WHEEL',
+      inputResult: 'osWheel',
+    })
+  }
+
   const outDir = join(fixture, 'dist-ui-scroll')
 
   if (!gtkRuntimeReady()) {
