@@ -16,7 +16,11 @@ import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 import { gtkRuntimeBuildMarker } from '../linux-gtk/native-gi-projection.ts'
 import { inspectLinuxPackageConfig } from './config.ts'
-import { stageGtkRuntime, writeGtkRuntimeLauncher } from './gtk-runtime.ts'
+import {
+  stageGtkRuntime,
+  stageInstalledGtkRuntime,
+  writeGtkRuntimeLauncher,
+} from './gtk-runtime.ts'
 
 const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
 const desktopString = (value) => value.replaceAll('\\', '\\\\').replaceAll('\t', '\\t')
@@ -116,7 +120,15 @@ printf 'Settings kept under %s\\n' "\${XDG_CONFIG_HOME:-$HOME/.config}/${config.
 /** Bundle one GTK entry and its launcher in the native-owned staging directory. */
 function buildGtkApp(config, vite, appRoot, appDir, gtkRuntimeRoot) {
   const payload = join(dirname(appDir), '.gtk-runtime')
-  const architecture = gtkRuntimeRoot ? stageGtkRuntime(gtkRuntimeRoot, payload) : undefined
+  let architecture
+  let schemaPath = ''
+  if (gtkRuntimeRoot) {
+    architecture = stageGtkRuntime(gtkRuntimeRoot, payload)
+    schemaPath = join(payload, 'gi.json')
+  } else if (stageInstalledGtkRuntime(appRoot, payload)) {
+    architecture = 'universal'
+    schemaPath = join(payload, 'x86_64/gi.json')
+  }
   execFileSync(
     process.execPath,
     [vite, 'build', '--config', config.viteConfig, '--outDir', appDir],
@@ -125,7 +137,7 @@ function buildGtkApp(config, vite, appRoot, appDir, gtkRuntimeRoot) {
       stdio: 'inherit',
       env: {
         ...process.env,
-        XPLAT_GTK_RUNTIME_SCHEMA: architecture ? join(payload, 'gi.json') : '',
+        XPLAT_GTK_RUNTIME_SCHEMA: schemaPath,
       },
     },
   )
@@ -141,7 +153,7 @@ function buildGtkApp(config, vite, appRoot, appDir, gtkRuntimeRoot) {
     }
     rmSync(marker)
     renameSync(payload, join(appDir, 'runtime'))
-    writeGtkRuntimeLauncher(appDir, config.executableName, bundle)
+    writeGtkRuntimeLauncher(appDir, config.executableName, bundle, architecture)
   } else {
     writeFileSync(
       join(appDir, config.executableName),
@@ -170,7 +182,7 @@ exec gjs -m "$APP_DIR/${bundle}" "$@"
   writeDesktopInstall(config, appDir, { scheme: null, execArgs: '' })
 
   const instructions = architecture
-    ? `Run ./${config.executableName} from any directory. The bundled NativeScript runtime is for Linux ${architecture}.\nOn Ubuntu 24.04, install libgtk-4-1 and libjson-glib-1.0-0 and use a graphical session.\nInstall libwebkitgtk-6.0-4 for WebView.\n`
+    ? `Run ./${config.executableName} from any directory. The bundled NativeScript runtime supports Linux ${architecture === 'universal' ? 'x86_64 and aarch64' : architecture}.\nOn Ubuntu 24.04, install libgtk-4-1 and libjson-glib-1.0-0 and use a graphical session.\nInstall libwebkitgtk-6.0-4 for WebView.\n`
     : `Run ./${config.executableName} from any directory; it executes the bundled app with gjs -m.\nRequires GJS, GTK4 introspection data, the json-glib runtime, and a graphical session.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 libjson-glib-1.0-0\nThere is no desktop entry or installer yet — copy the directory where you want it.\n`
   writeFileSync(
     join(appDir, 'README.txt'),

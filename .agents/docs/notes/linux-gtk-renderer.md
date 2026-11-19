@@ -125,6 +125,12 @@ suffix:
   architecture and run `xplat build --targets linux` in the app. The package
   worker verifies the manifest and builds with the staged schema. Its published
   launcher resolves the executable and ICU data inside the archive.
+  When the selected `@octane-xplat/linux-gtk` package contains the staged
+  `platforms/linux/runtime` pair, the same build discovers it without an
+  override. The worker requires both architectures and matching GI schemas.
+  The published launcher selects its executable and ICU data using `uname -m`.
+  The [evaluation tooling](../../../tools/linux-runtime-eval/README.md#stage-the-runtime-pair-for-the-renderer-package)
+  records the release pins and staging command.
 
 Repository and consumer lint now share `packages/lint/src/xplat-rules.ts`,
 including GTK suffix and pragma rules. There is no separate published mirror

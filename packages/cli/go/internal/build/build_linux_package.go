@@ -40,17 +40,31 @@ func publishLinuxPackage(ctx context.Context, root *os.Root, release, stage stri
 		return nil, errors.New("Linux app must be a staged ordinary directory")
 	}
 	critical := []string{filepath.Join(directory, name), filepath.Join(directory, "app.json"), filepath.Join(directory, "README.txt"), archive}
+	var runtimeExecutables []string
 	if plan.GtkRuntimeArchitecture != "" {
-		if plan.Runtime != "gtk" || (plan.GtkRuntimeArchitecture != "x86_64" && plan.GtkRuntimeArchitecture != "aarch64") {
+		architectures := []string{plan.GtkRuntimeArchitecture}
+		if plan.GtkRuntimeArchitecture == "universal" {
+			architectures = []string{"x86_64", "aarch64"}
+		}
+		if plan.Runtime != "gtk" {
 			return nil, errors.New("invalid GTK runtime architecture in Linux package plan")
 		}
-		for _, name := range []string{
-			"ns-linux", "manifest.json", "gi.json",
-			"metadata-" + plan.GtkRuntimeArchitecture + ".bin",
-			"metadata/mason.bin", "metadata/xplatmason.bin", "metadata/webkit.bin",
-			"icu/icudt77l.dat", "lib/libmason_c.so", "lib/libxplatmason-gtk.so",
-		} {
-			critical = append(critical, filepath.Join(directory, "runtime", name))
+		for _, architecture := range architectures {
+			if architecture != "x86_64" && architecture != "aarch64" {
+				return nil, errors.New("invalid GTK runtime architecture in Linux package plan")
+			}
+			runtime := filepath.Join(directory, "runtime")
+			if plan.GtkRuntimeArchitecture == "universal" {
+				runtime = filepath.Join(runtime, architecture)
+			}
+			for _, name := range []string{
+				"ns-linux", "manifest.json", "gi.json", "metadata-" + architecture + ".bin",
+				"metadata/mason.bin", "metadata/xplatmason.bin", "metadata/webkit.bin",
+				"icu/icudt77l.dat", "lib/libmason_c.so", "lib/libxplatmason-gtk.so",
+			} {
+				critical = append(critical, filepath.Join(runtime, name))
+			}
+			runtimeExecutables = append(runtimeExecutables, filepath.Join(runtime, "ns-linux"))
 		}
 		critical = append(critical, filepath.Join(directory, "package.json"))
 	}
@@ -68,8 +82,8 @@ func publishLinuxPackage(ctx context.Context, root *os.Root, release, stage stri
 	if err != nil || info.Mode().Perm()&0111 == 0 {
 		return nil, errors.New("Linux launcher must retain executable permission")
 	}
-	if plan.GtkRuntimeArchitecture != "" {
-		info, err = root.Stat(filepath.Join(directory, "runtime", "ns-linux"))
+	for _, runtime := range runtimeExecutables {
+		info, err = root.Stat(runtime)
 		if err != nil || info.Mode().Perm()&0111 == 0 {
 			return nil, errors.New("GTK runtime must retain executable permission")
 		}

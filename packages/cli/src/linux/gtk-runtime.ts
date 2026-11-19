@@ -1,8 +1,49 @@
 import { createHash } from 'node:crypto'
-import { chmodSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import {
+  chmodSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from 'node:fs'
 import { dirname, join } from 'node:path'
+import { installedPackageRoot } from '../package-root.ts'
 
 const machines = { aarch64: 183, x86_64: 62 } as const
+export type GtkRuntimeArchitecture = keyof typeof machines | 'universal'
+
+export function stageInstalledGtkRuntime(appRoot: string, destination: string) {
+  const renderer = installedPackageRoot(appRoot, '@octane-xplat/linux-gtk')
+  if (!renderer) return false
+  const source = join(renderer, 'platforms/linux/runtime')
+  if (!hasRuntimeDirectory(source)) return false
+
+  mkdirSync(destination)
+  for (const architecture of ['x86_64', 'aarch64'] as const) {
+    const input = join(source, architecture)
+    if (
+      !hasRuntimeDirectory(input) ||
+      stageGtkRuntime(input, join(destination, architecture)) !== architecture
+    ) {
+      throw new Error(`Installed GTK runtime is missing the ${architecture} payload`)
+    }
+  }
+  const x86Schema = readFileSync(join(destination, 'x86_64/gi.json'))
+  if (!x86Schema.equals(readFileSync(join(destination, 'aarch64/gi.json')))) {
+    throw new Error('Installed GTK runtimes must use the same GI schema')
+  }
+  return true
+}
+
+function hasRuntimeDirectory(path: string): boolean {
+  const info = lstatSync(path, { throwIfNoEntry: false })
+  if (!info) return false
+  if (!info.isDirectory() || realpathSync(path) !== path) {
+    throw new Error(`GTK runtime payload must be an ordinary directory: ${path}`)
+  }
+  return true
+}
 
 export function stageGtkRuntime(sourcePath: string, destination: string): 'aarch64' | 'x86_64' {
   const source = realpathSync(sourcePath)
@@ -75,7 +116,12 @@ export function stageGtkRuntime(sourcePath: string, destination: string): 'aarch
   return architecture
 }
 
-export function writeGtkRuntimeLauncher(appDir: string, launcher: string, bundle: string) {
+export function writeGtkRuntimeLauncher(
+  appDir: string,
+  launcher: string,
+  bundle: string,
+  architecture: GtkRuntimeArchitecture = 'x86_64',
+) {
   const bundleArg = "'" + bundle.replaceAll("'", "'\\''") + "'"
   const launcherPath = join(appDir, launcher)
   writeFileSync(join(appDir, 'package.json'), '{"type":"module"}\n', { flag: 'wx' })
@@ -84,8 +130,18 @@ export function writeGtkRuntimeLauncher(appDir: string, launcher: string, bundle
     `#!/bin/sh
 set -eu
 APP_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-export ICU_DATA="$APP_DIR/runtime/icu"
-exec "$APP_DIR/runtime/ns-linux" "$APP_DIR"/${bundleArg} "$@"
+RUNTIME="$APP_DIR/runtime"
+${
+  architecture === 'universal'
+    ? `case "$(uname -m)" in
+  x86_64) RUNTIME="$RUNTIME/x86_64" ;;
+  aarch64) RUNTIME="$RUNTIME/aarch64" ;;
+  *) echo "This app supports x86_64 and aarch64 Linux." >&2; exit 1 ;;
+esac
+`
+    : ''
+}export ICU_DATA="$RUNTIME/icu"
+exec "$RUNTIME/ns-linux" "$APP_DIR"/${bundleArg} "$@"
 `,
     { flag: 'wx' },
   )

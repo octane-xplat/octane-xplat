@@ -63,6 +63,28 @@ python3 tools/linux-runtime-eval/stage-runtime-bundle.py \
 
 The payload includes the executable, its metadata and libraries, the GI schema, ICU data, notices, and TypeScript declarations. `manifest.json` records the architecture and SHA-256 of each file. It is written last. A payload without it is incomplete. Pass the staged `icu/` directory as `ICU_DATA` when launching the staged executable.
 
+### Stage the runtime pair for the renderer package
+
+The GTK renderer package is the distribution boundary for the runtime files.
+Stage the two architecture payloads before packing that package:
+
+```sh
+python3 tools/linux-runtime-eval/stage-runtime-release.py \
+  --x86-64 /path/to/x86_64-payload --aarch64 /path/to/aarch64-payload \
+  --output packages/linux-gtk-renderer/platforms/linux/runtime
+```
+
+The command checks both manifest hashes against `runtime-pins.json`, verifies
+the files, and requires a shared GI schema. The output directory is generated
+and ignored by Git. The renderer's normal tarball includes it under
+`platforms/linux/runtime`.
+
+When the selected app has that renderer tarball installed, run
+`xplat build --targets linux` in the app with its usual `linuxGtk` Vite config.
+The CLI discovers the installed payload pair and produces a Linux archive with
+both executables. Its launcher selects the payload for the machine it runs on.
+The release pipeline still needs to supply the verified inputs when packing.
+
 ### Launch an archived app
 
 From the repository root, typecheck the consumer with the staged SDK and build its app archive:
