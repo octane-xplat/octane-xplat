@@ -430,11 +430,11 @@ unsupported property; use scroll view APIs for scrolling. Six source-slice cases
 and the manual fixture are authored, unrun. Native drawing/hit-testing/AX/shadows
 and packaging remain unqualified. This renderer prerequisite does not itself fix
 Tokenizer's legacy geometry, duplicate layer row refs or counter layout.
-See [the renderer subset](../../../../docs/packages/package-macos-appkit.md#clip-appkit-container-overflow).
+See [the renderer subset](../../../docs/recipes/appkit-overflow-clipping.md).
 
 ## Windows media-query boundary
 
-The experimental [Windows media-query leaf](../../../../docs/platform/windows-setup.md#media-query-candidate)
+The experimental [Windows media-query leaf](../../../../docs/platform/windows-setup.md#media-query)
 uses DIP window metrics and sampled input/animation capabilities. Use queries
 for conditional behavior in a compiled component or custom hook. Primary input
 prefers mouse, then pen, then touch; `any-pointer` preserves hybrid input.

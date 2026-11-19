@@ -7,7 +7,8 @@
 //
 // <target> is a lock name such as `ios` or `android`. The lock is an atomic
 // mkdir under os.tmpdir() shared by every worktree; a dead owner's lock is
-// reclaimed after checking its recorded pid is gone.
+// reclaimed after checking its recorded pid is gone. XPLAT_NATIVE_LOCK_DIR
+// redirects the lock root (same contract as with-native-target-lock.py).
 import { spawnSync } from 'node:child_process'
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { hostname, tmpdir } from 'node:os'
@@ -21,11 +22,11 @@ const timeoutSeconds = timeoutFlag > 0 ? Number(args[timeoutFlag + 1]) : 30 * 60
 const command = separator > 0 ? args.slice(separator + 1) : null
 
 if (!target || target.startsWith('--') || !command?.length) {
-  console.error('usage: with-target-lock.mjs <target> [--timeout <seconds>] -- <command...>')
+  console.error('usage: with-target-lock.ts <target> [--timeout <seconds>] -- <command...>')
   process.exit(2)
 }
 
-const lockRoot = join(tmpdir(), 'octane-xplat-target-locks')
+const lockRoot = process.env.XPLAT_NATIVE_LOCK_DIR ?? join(tmpdir(), 'octane-xplat-target-locks')
 
 mkdirSync(lockRoot, { recursive: true })
 

@@ -76,3 +76,109 @@ test('native target lock survives interruption until child cleanup finishes', as
     await rm(directory, { recursive: true, force: true })
   }
 })
+
+test('python target lock conflicts, isolates targets, and releases', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const wrapper = fileURLToPath(new URL('./with-native-target-lock.py', import.meta.url))
+  const env = { ...process.env, XPLAT_NATIVE_LOCK_DIR: directory }
+  const sleep = 'import time; time.sleep(30)'
+
+  const holder = ownedProcess('python3', [wrapper, 'ios', 'python3', '-c', sleep], { env })
+
+  try {
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Missing lock banner')), 5000)
+      const unsubscribe = holder.onLine((value) => {
+        if (value.includes('Holding native target lock:')) {
+          clearTimeout(timeout)
+          unsubscribe()
+          resolve()
+        }
+      })
+    })
+
+    const conflict = await command(
+      'python3',
+      [wrapper, 'ios', 'python3', '-c', 'pass'],
+      { env, allowFailure: true },
+    )
+
+    assert.notEqual(conflict.code, 0)
+    assert.match(conflict.stderr, /Native target is busy/)
+
+    const independent = await command('python3', [wrapper, 'android', 'python3', '-c', 'pass'], {
+      env,
+    })
+
+    assert.equal(independent.code, 0)
+    await holder.stop()
+
+    const released = await command('python3', [wrapper, 'ios', 'python3', '-c', 'pass'], { env })
+
+    assert.equal(released.code, 0)
+  } finally {
+    await holder.stop()
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('node target lock conflicts, isolates targets, and releases', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const marker = join(directory, 'release')
+  const wrapper = fileURLToPath(new URL('./with-target-lock.ts', import.meta.url))
+  const env = { ...process.env, XPLAT_NATIVE_LOCK_DIR: directory }
+  const child = `
+		const fs = require('node:fs');
+		console.log('ready');
+		setInterval(() => {
+			if (fs.existsSync(${JSON.stringify(marker)})) process.exit(0);
+		}, 10);
+	`
+
+  const holder = ownedProcess(process.execPath, [wrapper, 'ios', '--', process.execPath, '-e', child], {
+    env,
+  })
+
+  try {
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Missing lock acquisition')), 5000)
+      const unsubscribe = holder.onLine((value) => {
+        if (value.includes('acquired')) {
+          clearTimeout(timeout)
+          unsubscribe()
+          resolve()
+        }
+      })
+    })
+
+    const conflict = await command(
+      process.execPath,
+      [wrapper, 'ios', '--timeout', '1', '--', process.execPath, '-e', ''],
+      { env, allowFailure: true, timeout: 20000 },
+    )
+
+    assert.notEqual(conflict.code, 0)
+    assert.match(conflict.stderr, /timed out waiting for ios lock/)
+
+    const independent = await command(
+      process.execPath,
+      [wrapper, 'android', '--', process.execPath, '-e', ''],
+      { env },
+    )
+
+    assert.equal(independent.code, 0)
+  } finally {
+    await writeFile(marker, '')
+    await Promise.race([holder.closed, new Promise((r) => setTimeout(r, 10000))])
+    await holder.stop()
+    await rm(directory, { recursive: true, force: true })
+  }
+
+  const released = await command(
+    process.execPath,
+    [wrapper, 'ios', '--', process.execPath, '-e', ''],
+    { env },
+  )
+
+  assert.equal(released.code, 0)
+})

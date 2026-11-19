@@ -260,7 +260,7 @@ export function Person({ src, name }: { src: string; name: string }) {
 Keep the workaround until the pinned core provides a working synchronous
 decoder and names its actual Image peer. Review the source resolver and name
 binding together when upgrading; preserve SVG's separate host path. See the
-[Windows image example](../../docs/platform/windows-setup.md#avatars-and-raster-images-candidate)
+[Windows image example](../../docs/platform/windows-setup.md#avatars-and-raster-images)
 for the bounded consumer surface.
 
 ## Measurement ref lifecycle
@@ -316,6 +316,8 @@ The former UI register, lab report, and later qualification report are indexed
 in `local_artifacts`. Use [operational evidence lookup](exploration.md#operational-evidence)
 to retrieve their file paths and provenance. Historical parked/implemented
 counts do not describe current source or close current qualification gates.
+The [Intl repair lab](windows-intl-repair.md) records the classic-runtime ICU
+repair candidate and its verification.
 
 ## Single-selection controller candidate
 

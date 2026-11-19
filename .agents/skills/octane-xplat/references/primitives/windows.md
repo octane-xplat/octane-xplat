@@ -46,7 +46,7 @@ from an unattached supplied host to the primary window. It installs no Escape
 listener or focus trap. Source resolution and mocked focus-return contracts are
 checked; actual WinUI geometry, context, dismissal, focus and Tab/IME behavior
 are unqualified. Mobile and AppKit implementations remain separately owned. See
-the [Windows layer boundary](../../../../../docs/platform/windows-setup.md#floating-layer-candidate).
+the [Windows layer boundary](../../../../../docs/platform/windows-setup.md#floating-layer).
 
 ```tsx
 import { Button, Text, useLayer } from '@octane-xplat/ui'
@@ -285,7 +285,7 @@ reject a foreign returned element, and recheck activation/target ownership at
 restoration. Missing snapshots must not discard an explicit target. Windows
 modal background guards and focus return wait for actual native close completion;
 removed portal content alone does not mean the exiting backdrop has left. See the
-[modal example and current gates](../../../../../docs/platform/windows-setup.md#modal-candidate)
+[modal example and current gates](../../../../../docs/platform/windows-setup.md#modal)
 and [Windows evidence](../../../../docs/parity/windows-support-progress.md).
 
 ## Experimental Windows scroll observation
@@ -320,7 +320,7 @@ mutation, unsubscribe/remount, horizontal/RTL and broader compiler/lifecycle
 behavior require separate target qualification. The initial run logged a loaded-event transaction
 warning; a later run passed after load publication was deferred, without that
 warning. Keep the wider Windows gate pending; use the
-[complete example and boundary](../../../../../docs/platform/windows-setup.md#custom-scroll-viewport-candidate).
+[complete example and boundary](../../../../../docs/platform/windows-setup.md#custom-scroll-viewport).
 
 ## Experimental Windows RadioList
 
@@ -400,7 +400,7 @@ export function SavedNotice() {
 }
 ```
 
-The [Windows Banner guide](../../../../../docs/platform/windows-setup.md#banner-candidate)
+The [Windows Banner guide](../../../../../docs/platform/windows-setup.md#banner)
 separates compiled content/lifecycle coverage from pending packaged input,
 geometry, Narrator and visual qualification. The core-20 gate qualified the
 Banner dismiss and action controls plus structure on 1.0.0.196 (display 352 +
