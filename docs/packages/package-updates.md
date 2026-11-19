@@ -6,9 +6,7 @@ Optional OTA JavaScript and asset updates for iOS and Android **release builds**
 Updates activate at the next cold launch. Native startup restores the backup
 on the following launch if the app never confirms successful startup.
 
-See the [setup and recovery guide](https://octane-xplat.goddardai.org/updates). This package is
-new in the repository; npm publication and the first trusted-publisher setup
-remain release prerequisites.
+See the [setup and recovery guide](https://octane-xplat.goddardai.org/updates).
 
 Install the runtime and its Node build tool in your app, then generate the
 native prepare hook. Commit that hook and rebuild the binary before sending

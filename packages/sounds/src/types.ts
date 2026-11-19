@@ -8,7 +8,8 @@ export type SoundCapabilities = {
   supported: boolean
   /** The first play() must be inside a user gesture (web autoplay policy). */
   userGestureRequired: boolean
-  /** Max simultaneous voices this host mixes; extra play() calls are dropped. */
+  /** Max simultaneous voices this host mixes; the oldest active voice is
+   *  stopped before a new play() begins. */
   maxVoices: number
   /** Why supported is false, when known. */
   reason?: string
@@ -32,8 +33,9 @@ export interface SoundBank {
   capabilities(): SoundCapabilities
   /** Prepares a named clip for playback; browsers may defer buffering until `play()`. */
   load(name: string, source: SoundSource): Promise<void>
-  /** Play a loaded clip. Resolves false when the name is unknown, the voice
-   *  cap is reached, or the host refuses (autoplay policy). */
+  /** Play a loaded clip, stopping the oldest active voice first when the
+   *  voice cap is reached. Resolves false when the name is unknown or the
+   *  host refuses (autoplay policy). */
   play(name: string, options?: PlaySoundOptions): Promise<boolean>
   /** Stop one clip, or every clip when `name` is omitted. */
   stop(name?: string): void

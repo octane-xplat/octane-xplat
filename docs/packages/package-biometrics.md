@@ -22,8 +22,9 @@ if ((await biometrics.requestPermissions()).granted) {
 
 The shared service contract: `supported` reports whether an
 implementation exists on this target — branch on it rather than catching —
-`getPermissions()`/`requestPermissions()` resolve
-`{status: 'granted' | 'denied' | 'unsupported', granted, canAskAgain}`.
+`getPermissions()`/`requestPermissions()` resolve a
+`PermissionResponse` — `{status, granted, canAskAgain}` where `status` is
+`'granted' | 'denied' | 'undetermined' | 'unsupported'`.
 `verify(reason)` resolves `false` for a declined
 or failed prompt rather than throwing.
 

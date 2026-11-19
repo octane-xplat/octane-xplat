@@ -27,8 +27,8 @@ for platform prerequisites. For web, initialize before mounting the map:
 // bootstrap.web.ts — call with your project's browser API key.
 import { maps } from '@octane-xplat/maps'
 
-export async function initializeMaps(apiKey: string) {
-  await maps.init({ apiKey })
+export function initializeMaps(apiKey: string) {
+  maps.init({ apiKey })
 }
 ```
 
