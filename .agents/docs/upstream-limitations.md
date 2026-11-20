@@ -830,8 +830,8 @@ a production workaround. The candidate 30-second source repair has not been
 rebuilt or release-qualified. Upstream should reconcile request/retry,
 server-transform and total graph deadlines, and preserve the original
 fetch-failure reason in fallback diagnostics. Raising only the async session
-timeout is insufficient. No upstream issue or repair has been submitted for
-this finding.
+timeout is insufficient. The runtime deadline and diagnostics are tracked in
+[NativeScript iOS #583](https://github.com/NativeScript/ios/issues/583).
 
 Xplat mitigates server-side rather than patching the runtime: the canonical
 @nativescript/vite 8.0.20 patch adds a boot graph crawl that walks the same
@@ -844,6 +844,14 @@ transform runner's priority lanes; the dev link-check's nested target
 transforms share that runner (deduped, still checked) and each target's
 default-export verdict is cached by served code. The runtime's budget,
 request/retry and graph deadlines remain upstream's to reconcile.
+
+The Octane flavor disables Vite's speculative client pre-transforms so the
+NativeScript crawl can warm the actual `/ns/m` response path without a second
+graph walk competing for transform time. A linked-source cold-start host
+probe still returned valid modules outside the five-second iOS budget with
+that change. Node-only Vite transforms and missing optional Angular or Solid
+tools can appear in pre-transform logs, but the probe also reproduced slow
+HTTP 200 responses without those errors.
 
 ## Android 35 RuntimeShader missing-uniform error can abort
 
