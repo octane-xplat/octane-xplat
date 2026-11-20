@@ -34,7 +34,7 @@ func TestLinuxPlanRequiresExactPathsAndExecutableLauncher(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	plan := linuxPackagePlan{1, "gtk", "previous", "0.1.0", filepath.Join(release, directory), filepath.Join(release, archive)}
+	plan := linuxPackagePlan{Version: 1, Runtime: "gtk", ExecutableName: "previous", PackageVersion: "0.1.0", AppDir: filepath.Join(release, directory), Archive: filepath.Join(release, archive)}
 	data, _ := json.Marshal(plan)
 	if _, err = publishLinuxPackage(context.Background(), root, release, stage, data); err == nil {
 		t.Fatal("nonexecutable launcher was accepted")
@@ -53,6 +53,12 @@ func TestLinuxPlanRequiresExactPathsAndExecutableLauncher(t *testing.T) {
 	data, _ = json.Marshal(retired)
 	if _, err = publishLinuxPackage(context.Background(), root, release, stage, data); err == nil {
 		t.Fatal("retired WebView package plan was accepted")
+	}
+	bad = plan
+	bad.GtkRuntimeArchitecture = "x86_64"
+	data, _ = json.Marshal(bad)
+	if _, err = publishLinuxPackage(context.Background(), root, release, stage, data); err == nil {
+		t.Fatal("NativeScript GTK plan accepted without its runtime")
 	}
 	data, _ = json.Marshal(plan)
 	paths, err := publishLinuxPackage(context.Background(), root, release, stage, data)

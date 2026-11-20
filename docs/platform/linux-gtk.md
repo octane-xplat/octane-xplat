@@ -1,17 +1,17 @@
-# Package a Linux GTK4/GJS app
+# Package a Linux GTK4 app
 
 > Package your screens as an experimental Linux app that draws real GTK4
 > widgets — no WebView.
 
 This is an advanced setup guide for an existing Octane app.
 Start with [the browser app](../start/toolchain.md#create-and-run) first.
-The **GTK runtime**, selected with `xplat.targets.linux.runtime: "gtk"`, renders native GTK4 widgets through the GJS JavaScript engine.
+The **GTK runtime**, selected with `xplat.targets.linux.runtime: "gtk"`, renders native GTK4 widgets through the bundled NativeScript Linux runtime.
 
 ```json
 { "xplat": { "targets": { "linux": { "runtime": "gtk" } } } }
 ```
 
-The runtime remains experimental. A counter and retained route panes have run in a real GJS/GTK session with programmatic event dispatch. Packaging is build evidence; those checks do not qualify OS input, visual parity, or the complete shared UI. The former WebView app host and its service bridge have been removed.
+The runtime remains experimental. The target has been exercised on Ubuntu with X11 keyboard and pointer input. Wayland, visual parity, and screen-reader behavior need separate qualification. The former WebView app host and its service bridge have been removed.
 
 ## Install the renderer
 
@@ -24,11 +24,10 @@ bun add @octane-xplat/linux-gtk @octane-xplat/ui octane
 bun add -D @octane-xplat/cli @octanejs/vite-plugin vite
 ```
 
-The npm package includes JavaScript and declarations. GJS and GTK4 come from
-your Linux distribution. The default `Gtk.Box` layout needs no native build;
-it approximates flex layout and does not implement grid, reverse directions,
-or full alignment. For optional Mason layout, see the
-[renderer setup](../packages/package-linux-gtk-renderer.md#optional-native-layout).
+The npm package includes the NativeScript runtime, its TypeScript declarations,
+and the Mason layout engine for `x86_64` and `aarch64`. Your Linux distribution
+provides GTK4. Ubuntu 24.04 with GTK 4.14 is the tested baseline. See
+[Native layout](../packages/package-linux-gtk-renderer.md#native-layout--mason-ships-in-the-package).
 
 ## Configure the app
 
@@ -68,12 +67,10 @@ import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
 export default async (env: { mode: string }) => linuxGtk(env)
 ```
 
-The preset registers the `gtk` renderer, resolves `.gtk` files before
-shared ones, keeps `gi://` imports external (the system GTK libraries
-provide them at load time), and emits one ESM file, because `gjs -m`
-executes a single file — code splitting would produce an unloadable
-import. GTK screens use the shared JSX contract; put platform-specific
-variants in `.gtk.tsrx`/`.gtk.tsx` files.
+The preset registers the `gtk` renderer and resolves `.gtk` files before
+shared ones. When you build through Xplat, it maps `gi://` imports to the
+bundled runtime’s native bindings and emits a single ESM file. Put
+platform-specific screens in `.gtk.tsrx` or `.gtk.tsx` files.
 
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
@@ -157,8 +154,8 @@ export function FavoriteIcon() {
 
 Custom icon files can use a path beside the emitted bundle (`~/brand.svg`),
 a registered GResource (`res://icons/brand.svg`), or an HTTP(S) URL.
-Linux hosts need the GdkPixbuf SVG loader for SVG icons and Soup 3 introspection
-for HTTP sources; on Ubuntu these are `librsvg2-common` and `gir1.2-soup-3.0`.
+Linux hosts need the GdkPixbuf SVG loader for SVG icons and libsoup 3
+for HTTP sources. On Ubuntu, install `librsvg2-common` and `libsoup-3.0-0`.
 
 ```tsx
 icons.registerIcon('brand', { src: '~/brand.svg' })
@@ -775,8 +772,9 @@ export function FeedViewport() {
 }
 ```
 
-Layout needs the repository-only [XplatMason binding](https://github.com/octane-xplat/octane-xplat/tree/main/packages/linux-gtk-renderer/native/xplatmason);
-the Gtk.Box fallback cannot provide Grid or full flex layout. Maintained GJS checks cover
+Layout uses the [XplatMason binding](https://github.com/octane-xplat/octane-xplat/tree/main/packages/linux-gtk-renderer/native/xplatmason),
+which ships prebuilt in the package for `x86_64` and `aarch64` and travels
+with the bundle the CLI produces. Maintained GJS checks cover
 mounting, direction/spacing updates, size inheritance, gesture callbacks and
 cleanup. This subset does not qualify the complete UI, accessibility or visual
 parity. Other root UI imports remain unavailable until their GTK implementation
@@ -784,11 +782,6 @@ is qualified. The primitive fixture has passed 42 assertions with the real
 Mason engine on Ubuntu 24.04 / GTK 4.14.5; a separate X11 pointer check exercises
 real clicks and drags. These checks do not qualify Wayland, assistive technology
 or visual parity.
-
-The binding consumes a prebuilt MasonCore archive. The published Mason fork
-currently has no desktop archive producer, so a fresh packaged consumer setup
-is still unqualified. The repository's [build record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/linux-gtk-ui-parity.md#mason-test-artifact-prerequisite)
-describes the pinned, locally prepared artifact used by these tests.
 
 The entry point mounts the app through the renderer's host helper. Import
 your stylesheets from the same module — the preset compiles and injects
@@ -1065,61 +1058,59 @@ This experimental subset has explicit limits: pane modals are rejected,
 transitions report skipped, and OS Back and window-close integration belong to
 the enclosing host. Generated GTK startup, incoming links, physical input and
 native Mason geometry need separate qualification. The maintained check passed
-13 assertions in GJS 1.82.3 / GTK 4.18.6 using Gtk.Box emulation; it does not
-establish the optional Mason typelib's layout behavior. See
+13 assertions in GJS 1.82.3 / GTK 4.18.6; it does not
+establish the full layout behavior. See
 [native GTK routing checks](../../.agents/docs/navigation-checks.md#native-gtk-retained-panes).
 
 ## Check the runtime
 
-On Ubuntu 24.04, install GJS and the GTK4 introspection data:
+On Ubuntu 24.04, install the system libraries and run Doctor from your app:
 
 ```sh
-sudo apt install gjs gir1.2-gtk-4.0
+sudo apt install libgtk-4-1 libjson-glib-1.0-0
 bun run xplat doctor
 ```
 
-`xplat doctor` validates the target configuration and, on a Linux host,
-checks that GJS can load GTK 4.10 or later. A successful build on macOS
-does not prove the Linux runtime works — treat every artifact below as
-unverified until it runs on a real Linux desktop.
+Doctor checks that the renderer package provides the NativeScript payloads.
+On Linux, it starts the payload for your architecture and checks GTK and Mason.
+Install `libwebkitgtk-6.0-4` on Ubuntu if your app uses the WebView component.
 
 ## Develop and build
 
-`xplat dev linux` runs the app's own `dev` script, so point it at whatever
-loop you maintain — for example, a Vite build followed by `gjs -m`:
-
-```json
-{ "scripts": { "dev": "vite build -c vite.gtk.config.ts && gjs -m dist/app.js" } }
-```
-
-Build the distributable app with the CLI:
+Build and run your app in your Linux desktop session:
 
 ```sh
 bun run xplat build --targets linux
+./dist/linux/my-app/my-app
 ```
 
-For the example above, output is:
+`xplat dev linux` runs your app's `dev` script. You can use the same two commands
+in that script for a local build-and-run loop:
+
+```json
+{ "scripts": { "dev": "xplat build --targets linux && ./dist/linux/my-app/my-app" } }
+```
+
+The build creates a directory and a tar archive.
 
 ```text
-dist/linux/my-app/                 relocatable app directory
-  app.js                          single-file ESM bundle (gi:// imports stay external)
-  app.json                        app identity
-  my-app                          executable launcher (gjs -m)
-  README.txt                      runtime requirements
-dist/linux/my-app-1.0.0.tar.gz     distribution archive
+dist/linux/my-app/               relocatable app directory
+  app.js                        single ESM bundle
+  app.json                      app identity
+  my-app                        executable launcher
+  runtime/aarch64/              ARM64 runtime and native bindings
+  runtime/x86_64/               x86_64 runtime and native bindings
+  README.txt                    Linux dependencies
+dist/linux/my-app-1.0.0.tar.gz    distribution archive
 ```
 
-GJS produces no compiled binary, so the bundle plus launcher is the honest
-minimum: transfer the archive to a Linux machine, extract it, and run the
-launcher:
+Transfer the archive to a Linux machine that has the system libraries installed.
+The launcher chooses the runtime for that machine and can run from any directory.
 
 ```sh
 tar -xzf my-app-1.0.0.tar.gz
 ./my-app/my-app
 ```
-
-The launcher checks that `gjs` is installed and execs the bundled app, so
-it works from any directory without a source checkout, Node, or pnpm.
 
 The app directory also ships a `.desktop` entry, `install.sh` and
 `uninstall.sh`. `./install.sh` copies the app into
@@ -1137,9 +1128,8 @@ and desktop entry; settings under
 
 ## What this target does not have yet
 
-- URI scheme handling stays on the WebKitGTK runtime — the GTK desktop entry
-  declares no MimeType, and `x-scheme-handler` links do not reach the GTK
-  host. The install scripts themselves are not yet qualified on a real
+- URI scheme handling is unavailable. The GTK desktop entry declares no
+  MimeType, and `x-scheme-handler` links do not reach the GTK host. The install scripts themselves are not yet qualified on a real
   Linux host.
 - Clipboard coverage is text-only writes (`copyText`/`useClipboard`
   claim the display clipboard); reads and other formats are not exposed.

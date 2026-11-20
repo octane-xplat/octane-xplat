@@ -9,6 +9,9 @@
 				"build",
 				"^build",
 				"^typegen"
+			],
+			"passThroughEnv": [
+				"XPLAT_MASON_TYPELIB"
 			]
 		},
 		"typecheck": {
@@ -40,27 +43,6 @@
 				"^build"
 			],
 			"cache": false
-		},
-		"build:gestures": {
-			"dependsOn": [
-				"build",
-				"^build",
-				"^typegen"
-			],
-			"outputs": [
-				"test/fixtures/dist-shared-gestures/**"
-			]
-		},
-		"test:gestures": {
-			"dependsOn": [
-				"build:gestures"
-			],
-			"cache": false,
-			"passThroughEnv": [
-				"DISPLAY",
-				"XPLAT_MASON_TYPELIB",
-				"XPLAT_GTK_GESTURE_BUNDLE"
-			]
 		}
 	}
 }

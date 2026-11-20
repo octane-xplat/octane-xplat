@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -6,12 +7,60 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, gtkOsInputReady } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkOsInputReady } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
-test('GTK native widget transport receives X11 press and pan through OS hit-testing', async (t) => {
-  if (!gtkOsInputReady() || !gjsAvailable()) {
+function assertPointerEvents(size, events) {
+  assert.ok(size.width >= 100 && size.height >= 80)
+  assert.ok(
+    events.some((e) => e.kind === 'in'),
+    'pointer down reaches the Pressable',
+  )
+
+  assert.ok(
+    events.some((e) => e.kind === 'out'),
+    'pointer up/cancel releases the Pressable',
+  )
+
+  assert.ok(
+    events.some((e) => e.kind === 'press'),
+    'OS click reaches onPress',
+  )
+
+  assert.equal(
+    events.filter((e) => e.kind === 'in').length,
+    events.filter((e) => e.kind === 'out').length,
+    'every pointer press is released after click or drag',
+  )
+
+  const pans = events.filter((e) => e.kind === 'pan')
+
+  assert.equal(pans[0]?.state, 'began')
+  assert.equal(pans.at(-1)?.state, 'ended')
+  assert.ok(
+    pans.some((e) => e.state === 'moved' && e.x >= 40 && e.y >= 20),
+    JSON.stringify(events),
+  )
+
+  assert.ok(pans.every((e) => Number.isFinite(e.vx) && Number.isFinite(e.vy)))
+}
+
+test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', async (t) => {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    const { fixture } = await runGtkEvalFixture(t, {
+      stem: 'ui-input',
+      title: 'Octane GTK input test',
+      marker: 'GTK_UI_INPUT_RESULT',
+      readyMarker: 'GTK_UI_INPUT_READY',
+      minChecks: 0,
+      input: true,
+    })
+    assertPointerEvents(fixture.size, fixture.events)
+    return
+  }
+
+  if (!gtkOsInputReady() || !gtkRuntimeReady()) {
     t.skip('Requires Linux, X11 DISPLAY, GJS and xdotool')
     return
   }
@@ -27,13 +76,7 @@ test('GTK native widget transport receives X11 press and pan through OS hit-test
     })),
   })
 
-  const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-  const env = {
-    ...process.env,
-    ...(existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
-      ? { XPLAT_MASON_TYPELIB: nativeDir }
-      : {}),
-  }
+  const env = { ...process.env }
 
   const child = spawn('gjs', ['-m', join(outDir, 'app.js')], {
     env,
@@ -91,8 +134,6 @@ test('GTK native widget transport receives X11 press and pan through OS hit-test
 
   const size = await ready
 
-  assert.ok(size.width >= 100 && size.height >= 80)
-
   const id = execFileSync(
     'xdotool',
     ['search', '--onlyvisible', '--name', '^Octane GTK input test$'],
@@ -139,36 +180,7 @@ test('GTK native widget transport receives X11 press and pan through OS hit-test
   )
 
   assert.equal(await closed, 0, stderr)
-  assert.ok(
-    events.some((e) => e.kind === 'in'),
-    'pointer down reaches the native widget',
-  )
-
-  assert.ok(
-    events.some((e) => e.kind === 'out'),
-    'pointer up/cancel releases the native widget',
-  )
-
-  assert.ok(
-    events.some((e) => e.kind === 'press'),
-    'OS click reaches the native tap action',
-  )
-
-  assert.equal(
-    events.filter((e) => e.kind === 'in').length,
-    events.filter((e) => e.kind === 'out').length,
-    'every pointer press is released after click or drag',
-  )
-
-  const pans = events.filter((e) => e.kind === 'pan')
-
-  assert.equal(pans[0]?.state, 'began')
-  assert.equal(pans.at(-1)?.state, 'ended')
-  assert.ok(
-    pans.some((e) => e.state === 'moved' && e.x >= 40 && e.y >= 20),
-    JSON.stringify(events),
-  )
-
+  assertPointerEvents(size, events)
   t.diagnostic(
     'Linux Xvfb/X11; xdotool native widget transport. Shared gestures/onPan/onPinch remain unsupported on GTK; this is not public gesture API qualification. No images',
   )

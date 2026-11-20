@@ -218,12 +218,21 @@ async function run() {
   check('desktop is not mobile at 1100w', state.mobile?.isMobile === false)
 
   // Nav item activation: real click on the Docs TopNavItem.
-  const docsItem = findView('tn-docs')
+  let docsItem = findView('tn-docs')
+  const hasAllocation = (widget: any) =>
+    widget?.get_mapped() && widget.get_width() > 0 && widget.get_height() > 0
 
-  if (docsItem) {
-    await clickAt(docsItem, 'tn-docs')
-    check('TopNavItem press fires onClick', state.navPick === 'docs')
+  // The responsive shell can mount the item before GTK allocates it.
+  // Refresh the lookup in case the shell replaces the widget during layout.
+  for (let i = 0; i < 80 && !hasAllocation(docsItem); i++) {
+    await pump(25)
+    docsItem = findView('tn-docs')
   }
+
+  if (hasAllocation(docsItem)) {
+    await clickAt(docsItem, 'tn-docs')
+  }
+  check('TopNavItem press fires onClick', state.navPick === 'docs')
 
   // SideNav item press.
   // SideNavItem's id lands on the outer row wrapper — click the label text's

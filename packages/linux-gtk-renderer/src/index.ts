@@ -21,8 +21,7 @@ import {
   isMasonHostView,
   isMasonView,
   makeMasonView,
-  makeMasonFallbackView,
-  masonAvailable,
+  masonEngine,
   queueMasonLayout,
   releaseMasonNodes,
   MASON_STYLE_KEYS,
@@ -372,12 +371,11 @@ let applyingDepth = 0
 
 function instantiate(type: string): GtkView {
   switch (type) {
-    // The real layout engine when the XplatMason typelib is loadable —
-    // a Gtk.Widget + custom Gtk.LayoutManager driven by mason-c. The
-    // Gtk.Box fallback keeps the shim's emulation for builds without
-    // the native artifact (see src/mason.ts module note).
+    // mason-c drives every masonview — a Gtk.Widget + custom
+    // Gtk.LayoutManager. The binding is required and already verified at
+    // createGtkRoot (see src/mason.ts module note).
     case 'masonview':
-      return masonAvailable() ? makeMasonView() : makeMasonFallbackView()
+      return makeMasonView()
     case 'label':
       return new Gtk.Label({ label: '', xalign: 0 })
     case 'button':
@@ -4508,7 +4506,7 @@ function bindNodePublicInstance(node: ElementNode): () => void {
     ? bindAccessibilityMapping(node.view, () => node.props)
     : null
 
-  const textView = node.textView
+  let textView = node.textView
   const pressKeys = node.view && node.type === 'masonview' ? bindPressKeys(node) : null
 
   node.pressKeys = pressKeys
@@ -4608,8 +4606,10 @@ function bindNodePublicInstance(node: ElementNode): () => void {
   return () => {
     disposeAccessibility?.()
     textView?.dispose()
+    textView = undefined
     pressKeys?.dispose()
     disposeEntryInput?.()
+    disposeEntryInput = undefined
     if (textNode) {
       cancelSelectionSettle(textNode)
     }
@@ -4882,6 +4882,12 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
         node.cssProviderTargets = undefined
       }
 
+      // Public ref closures can outlive a node. Drop the composite's native
+      // parent references once all detach and CSS cleanup is complete.
+      node.layoutView = undefined
+      node.textView = undefined
+      node.disposePublicInstance = undefined
+      node.cssProvider = null
       container.nodes.delete(command.id)
       return
     }
@@ -5123,6 +5129,10 @@ export function createGtkContainer(
   host: GtkView,
   options: { service?: boolean } = {},
 ): GtkContainer {
+  // Mason is the layout engine for every container — a missing or
+  // unloadable binding throws here at startup, not at the first masonview.
+  masonEngine()
+
   // A renderer-owned Gtk.Overlay inside the host — the RootLayout
   // equivalent. The root content mounts into its main child; overlay layers
   // (dialogs, sheets, toasts) stack above it via `add_overlay`.
@@ -5454,6 +5464,10 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
     }
   }
 
+  // Mason is the layout engine for every root — a missing or unloadable
+  // binding throws here at startup, not at the first masonview.
+  masonEngine()
+
   const container = createGtkContainer(host, { service: options.service === true })
   const root = createUniversalRoot(container, gtkDriver, {
     // GJS has no queueMicrotask — the universal runtime requires a
@@ -5507,6 +5521,10 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
       }
     }
 
+    // A retained root handle may outlive the tree. Release its references
+    // to the detached renderer-owned widgets as part of unmount.
+    container.overlay = undefined
+    container.contentHost = undefined
     liveGtkContainers.delete(container)
     if (liveGtkContainers.size === 0) {
       delete (globalThis as any).__octaneGtkHost

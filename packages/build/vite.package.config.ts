@@ -48,6 +48,10 @@ export default defineConfig({
 					resolve(root, '../create/compatibility.json'),
 					resolve(root, 'dist/compatibility-data/compatibility.json'),
 				)
+				cpSync(
+					resolve(source, 'linux-gtk/bindings.mjs'),
+					resolve(root, 'dist/linux-gtk/bindings.mjs'),
+				)
 				for (const name of ['native', 'macos']) {
 					const output = resolve(root, 'dist/typecheck-globals', `${name}.d.ts`)
 					mkdirSync(dirname(output), { recursive: true })

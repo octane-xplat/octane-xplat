@@ -1,0 +1,205 @@
+import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { dirname, isAbsolute, resolve } from 'node:path'
+import { build } from 'vite'
+import { linuxGtk } from '../../packages/cli/src/linux-gtk/vite.ts'
+
+const repoRoot = resolve(import.meta.dirname, '../..')
+const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
+
+export async function runRendererFixture({
+  stem,
+  entry,
+  root = resolve(repoRoot, 'packages/linux-gtk-renderer/test/fixtures'),
+  title,
+  marker,
+  readyMarker = marker + '_READY',
+  input = true,
+  inputFlag = marker + '_OS',
+  inputResult = 'osInput',
+  checks,
+  engine,
+  define,
+  diagnostics = false,
+  missingMason = false,
+  packageArchive,
+  logPath = process.env.LINUX_RUNTIME_EVAL_LOG_PATH ??
+    (process.env.LINUX_RUNTIME_EVAL_LOG_DIR &&
+      resolve(process.env.LINUX_RUNTIME_EVAL_LOG_DIR, `${stem}.${engine}.log`)),
+}) {
+  if (!['native', 'gjs'].includes(engine)) {
+    throw Error('Engine must be native or gjs')
+  }
+
+  const schemaInput =
+    process.env.LINUX_RUNTIME_EVAL_GI_SCHEMA ?? 'research/linux-runtime-port/gi-x86_64-gtk414.json'
+  const schemaPath = isAbsolute(schemaInput) ? schemaInput : resolve(repoRoot, schemaInput)
+  const host = process.env.LINUX_RUNTIME_EVAL_HOST ?? 'andromeda.local'
+  const vm = process.env.LINUX_RUNTIME_EVAL_VM ?? 'octane-linux'
+  const executable = process.env.LINUX_RUNTIME_EVAL_EXECUTABLE
+  const masonDir = process.env.LINUX_RUNTIME_EVAL_MASON_DIR
+
+  if (engine === 'native' && !packageArchive && !executable) {
+    throw Error('Set LINUX_RUNTIME_EVAL_EXECUTABLE to the remote ns-linux binary')
+  }
+  if (!packageArchive && !masonDir) {
+    throw Error('Set LINUX_RUNTIME_EVAL_MASON_DIR to the remote Mason build directory')
+  }
+  if (engine === 'native' && !packageArchive && !existsSync(schemaPath)) {
+    throw Error(`GI schema not found: ${schemaPath}`)
+  }
+
+  const minChecks = typeof checks === 'number' ? checks : input ? checks?.os : checks?.properties
+  if (!Number.isInteger(minChecks)) {
+    throw Error(`Fixture ${stem} needs a numeric minimum check count`)
+  }
+
+  const entryFile = entry ?? `src/${stem}-main.ts`
+  const projected = engine === 'native'
+  const outDir = mkdtempSync(resolve(tmpdir(), `octane-linux-${stem}-`))
+
+  const ssh = (script, options = {}) =>
+    execFileSync(
+      'ssh',
+      [
+        '-o',
+        'BatchMode=yes',
+        '-o',
+        'ConnectTimeout=10',
+        host,
+        `PATH=/usr/local/bin:$PATH orb -m ${quote(vm)} -w /tmp sh -c ${quote(script)}`,
+      ],
+      options,
+    )
+
+  const saveLog = (contents) => {
+    if (!logPath) {
+      return
+    }
+    mkdirSync(dirname(logPath), { recursive: true })
+    writeFileSync(logPath, contents)
+  }
+
+  async function buildFixture() {
+    if (packageArchive) {
+      writeFileSync(resolve(outDir, 'app.tar.gz'), readFileSync(packageArchive))
+    } else {
+      const preset = await linuxGtk('production', {
+        root,
+        entry: entryFile,
+        outDir,
+        nativeGiSchema: projected ? schemaPath : undefined,
+      })
+      await build({
+        logLevel: 'error',
+        ...preset,
+        define: { ...preset.define, ...define },
+        build: { ...preset.build, minify: false },
+      })
+
+      if (!existsSync(resolve(outDir, 'app.js'))) {
+        throw Error(`GTK fixture ${stem} build did not produce app.js`)
+      }
+      if (missingMason) {
+        rmSync(resolve(outDir, 'xplatmason'), { recursive: true, force: true })
+      }
+      assert.doesNotMatch(
+        readFileSync(resolve(outDir, 'app.js'), 'utf8'),
+        /document\.createElement|window\.document/,
+      )
+    }
+    writeFileSync(resolve(outDir, 'package.json'), '{"type":"module"}\n')
+    writeFileSync(
+      resolve(outDir, 'renderer-fixture-runner.py'),
+      readFileSync(resolve(import.meta.dirname, 'renderer-fixture-runner.py')),
+    )
+  }
+
+  async function runRemote() {
+    const remote = ssh('mktemp -d /tmp/xplat-lre-XXXXXX', { encoding: 'utf8' }).trim()
+    if (!/^\/tmp\/xplat-lre-[A-Za-z0-9]+$/.test(remote)) {
+      throw Error(`Unexpected remote temporary directory: ${remote}`)
+    }
+
+    try {
+      const archive = execFileSync('tar', ['-C', outDir, '-cf', '-', '.'], {
+        maxBuffer: 64 * 1024 * 1024,
+        env: { ...process.env, COPYFILE_DISABLE: '1' },
+      })
+      ssh(`tar -C ${quote(remote)} -xf -`, { input: archive })
+
+      let runtime = engine === 'gjs' ? ['gjs', '-m'] : [executable]
+      if (packageArchive) {
+        ssh(`tar -C ${quote(remote)} -xzf ${quote(remote + '/app.tar.gz')}`)
+        runtime = ['./gtk-runtime-consumer/gtk-runtime-consumer']
+      }
+      if (projected && missingMason) {
+        const isolated = remote + '/runtime'
+        ssh(
+          `mkdir ${quote(isolated)} && cp ${quote(executable)} ${quote(dirname(executable))}/metadata-*.bin ${quote(isolated)}/`,
+        )
+        runtime = [isolated + '/ns-linux']
+      }
+      const environment = {
+        LINUX_RUNTIME_EVAL_COMMAND: JSON.stringify(runtime),
+        LINUX_RUNTIME_EVAL_ENGINE: engine,
+        LINUX_RUNTIME_EVAL_TITLE: title,
+        LINUX_RUNTIME_EVAL_MARKER: marker,
+        LINUX_RUNTIME_EVAL_READY_MARKER: readyMarker,
+        LINUX_RUNTIME_EVAL_MIN_CHECKS: String(minChecks),
+        LINUX_RUNTIME_EVAL_EXPECT_OS_INPUT: input ? '1' : '0',
+        LINUX_RUNTIME_EVAL_INPUT_FLAG: inputFlag,
+        LINUX_RUNTIME_EVAL_INPUT_RESULT: inputResult,
+        LINUX_RUNTIME_EVAL_DIAGNOSTICS: diagnostics ? '1' : '0',
+        LINUX_RUNTIME_EVAL_MISSING_MASON: missingMason ? '1' : '0',
+        GTK_A11Y: 'test',
+        XPLAT_MASON_TYPELIB: missingMason || packageArchive ? '' : masonDir,
+        LD_LIBRARY_PATH: missingMason || packageArchive ? '' : masonDir,
+        ...(missingMason ? { GI_TYPELIB_PATH: '' } : {}),
+      }
+      if (projected && !packageArchive) {
+        environment.NS_V8_FLAGS = '--expose-gc'
+        if (process.env.LINUX_RUNTIME_EVAL_ICU_DATA) {
+          environment.ICU_DATA = process.env.LINUX_RUNTIME_EVAL_ICU_DATA
+        }
+      }
+      const assignments = Object.entries(environment)
+        .map(([name, value]) => `${name}=${quote(value)}`)
+        .join(' ')
+      const command = [
+        'cd',
+        quote(remote),
+        '&& timeout 120s dbus-run-session -- xvfb-run -a env',
+        assignments,
+        packageArchive
+          ? 'python3 renderer-fixture-runner.py'
+          : 'python3 renderer-fixture-runner.py app.js',
+      ].join(' ')
+      const output = ssh(command, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+      process.stdout.write(output)
+      saveLog(output)
+      const summary = output.trim().split('\n').at(-1)
+      return JSON.parse(summary)
+    } catch (error) {
+      const stdout = error.stdout ?? error.output?.[1] ?? ''
+      const stderr = error.stderr ?? error.output?.[2] ?? ''
+      const outputText = (value) =>
+        Buffer.isBuffer(value) ? value.toString('utf8') : String(value)
+      const captured = `${outputText(stdout)}${outputText(stderr)}`
+      saveLog(captured)
+      process.stdout.write(captured)
+      throw error
+    } finally {
+      ssh(`rm -rf ${quote(remote)}`)
+    }
+  }
+
+  try {
+    await buildFixture()
+    return await runRemote()
+  } finally {
+    rmSync(outDir, { recursive: true, force: true })
+  }
+}

@@ -25,17 +25,8 @@ export function takeTextViewControl(view: GtkView | null): TextViewControl | und
   return control
 }
 
-/** Keep the public ref on the native TextView. These private editable aliases
- * let single- and multiline editors share the driver's controlled-write path;
- * offsets are Unicode characters, as required by both GTK buffer APIs. */
-export function makeTextView(): GtkView {
-  const view = new Gtk.TextView({
-    wrap_mode: Gtk.WrapMode.WORD_CHAR,
-    accepts_tab: false,
-  }) as GtkView
-
-  const buffer = view.get_buffer()
-
+// Keep editing aliases in a context that cannot retain the composite parent.
+function bindTextBuffer(view: GtkView, buffer: any) {
   view.get_text = () => buffer.get_text(...buffer.get_bounds(), true)
 
   let writing = false
@@ -98,6 +89,32 @@ export function makeTextView(): GtkView {
 
   view.select_region = (anchor: number, cursor: number) =>
     buffer.select_range(buffer.get_iter_at_offset(cursor), buffer.get_iter_at_offset(anchor))
+
+  return {
+    setMaxLength(value: unknown) {
+      maximum =
+        typeof value === 'number' && Number.isFinite(value) && value >= 0
+          ? Math.trunc(value)
+          : Infinity
+    },
+    dispose() {
+      buffer.disconnect(insertion)
+    },
+  }
+}
+
+/** Keep the public ref on the native TextView. These private editable aliases
+ * let single- and multiline editors share the driver's controlled-write path;
+ * offsets are Unicode characters, as required by both GTK buffer APIs. */
+export function makeTextView(): GtkView {
+  const view = new Gtk.TextView({
+    wrap_mode: Gtk.WrapMode.WORD_CHAR,
+    accepts_tab: false,
+  }) as GtkView
+
+  const buffer = view.get_buffer()
+
+  const editing = bindTextBuffer(view, buffer)
 
   const viewport = new Gtk.ScrolledWindow({
     hscrollbar_policy: Gtk.PolicyType.NEVER,
@@ -178,10 +195,7 @@ export function makeTextView(): GtkView {
         return
       }
 
-      maximum =
-        typeof value === 'number' && Number.isFinite(value) && value >= 0
-          ? Math.trunc(value)
-          : Infinity
+      editing.setMaxLength(value)
     },
     dispose() {
       if (disposed) {
@@ -190,7 +204,7 @@ export function makeTextView(): GtkView {
 
       disposed = true
       buffer.disconnect(changed)
-      buffer.disconnect(insertion)
+      editing.dispose()
       overlay.disconnect(position)
     },
   })

@@ -1,4 +1,5 @@
 research/
+packages/linux-gtk-renderer/platforms/linux/runtime/
 node_modules/
 dist/
 dist-app/

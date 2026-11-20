@@ -105,6 +105,7 @@ test('native presets reject .server imports and erase named re-exports', async (
       {
         exports: {
           '.': './index.js',
+          './package.json': './package.json',
           './compat/escape-props': './compat/escape-props.js',
           './compat/native-core': './compat/native-core.js',
         },
@@ -113,6 +114,10 @@ test('native presets reject .server imports and erase named re-exports', async (
         'index.js': 'export {}',
         'compat/escape-props.js': 'export const applyEscapeProps = () => "HOST_ESCAPE_SENTINEL"',
         'compat/native-core.js': 'export {}',
+        'platforms/linux/prebuilt/x86_64/XplatMason-1.0.typelib': 'fixture',
+        'platforms/linux/prebuilt/x86_64/libxplatmason-gtk.so': 'fixture',
+        'platforms/linux/prebuilt/aarch64/XplatMason-1.0.typelib': 'fixture',
+        'platforms/linux/prebuilt/aarch64/libxplatmason-gtk.so': 'fixture',
       },
     )
 

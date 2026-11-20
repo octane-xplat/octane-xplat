@@ -5,12 +5,11 @@
 // build.sh) on the GI search path.
 import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
-import GObject from 'gi://GObject'
 import Graphene from 'gi://Graphene'
-import GLib from 'gi://GLib'
 import { createGtkContainer, gtkDriver, registerStylesheet } from '@octane-xplat/linux-gtk'
 import type { GtkContainer } from '@octane-xplat/linux-gtk'
 import type { UniversalHostCommand } from 'octane/universal/native'
+import { sleep } from './fixture-timer'
 
 function apply(container: GtkContainer, commands: UniversalHostCommand[]) {
   gtkDriver.prepareBatch(container, { renderer: 'gtk', commands }).apply()
@@ -59,12 +58,13 @@ const view2 = container.nodes.get(2)?.view
 const view3 = container.nodes.get(3)?.view
 
 out.typelib = typeof (globalThis as any).imports?.gi?.XplatMason?.engine_new === 'function'
-out.masonHost = view1 != null && (GObject as any).type_name?.(view1) === 'XplatMasonView'
+out.masonHost =
+  view1 != null && Object.getPrototypeOf(view1).constructor.$gtype?.name === 'XplatMasonView'
 out.childrenOf1 = (() => {
   const names: string[] = []
 
   for (let c = view1?.get_first_child?.(); c; c = c.get_next_sibling()) {
-    names.push((GObject as any).type_name?.(c) ?? '?')
+    names.push(Object.getPrototypeOf(c).constructor.$gtype?.name ?? '?')
   }
 
   return names
@@ -266,9 +266,7 @@ registerStylesheet(
 	.grow { animation: grow 400ms linear forwards; }`,
 )
 
-await new Promise<void>((resolve) =>
-  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => (resolve(), false)),
-)
+await sleep(0)
 
 apply(container, [
   {
@@ -294,14 +292,10 @@ const growBox = () => {
 }
 
 out.growStart = growBox()
-await new Promise<void>((resolve) =>
-  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => (resolve(), false)),
-)
+await sleep(200)
 
 out.growMid = growBox()
-await new Promise<void>((resolve) =>
-  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 350, () => (resolve(), false)),
-)
+await sleep(350)
 
 out.growEnd = growBox()
 

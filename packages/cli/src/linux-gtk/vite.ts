@@ -1,10 +1,11 @@
 // @ts-nocheck — .mjs-style module; annotations pending (transitional)
 import { createRequire } from 'node:module'
-import { existsSync, realpathSync } from 'node:fs'
+import { chmodSync, existsSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { boundary, nodeEnvDefine, css } from '../vite.ts'
 import { inlineStylesheets } from '../inline-stylesheets.ts'
+import { nativeGiProjection } from './native-gi-projection.ts'
 
 const renderer = '@octane-xplat/linux-gtk'
 
@@ -137,6 +138,61 @@ export function gtkLeafResolve() {
   }
 }
 
+const masonArches = ['x86_64', 'aarch64']
+const masonFiles = ['libxplatmason-gtk.so', 'XplatMason-1.0.typelib']
+
+/** Emits the installed renderer package's prebuilt Mason binding into the
+ *  bundle — both architectures at xplatmason/<arch>/, where the renderer's
+ *  bundled-typelib lookup expects them beside app.js. A missing package or
+ *  prebuilt file fails the build rather than shipping a bundle that can
+ *  only throw at startup. */
+function gtkPrebuiltMason(appRequire) {
+  return {
+    name: 'xplat-gtk-prebuilt-mason',
+    buildStart() {
+      let prebuilt
+
+      try {
+        prebuilt = join(
+          dirname(realpathSync(appRequire.resolve(`${renderer}/package.json`))),
+          'platforms/linux/prebuilt',
+        )
+      } catch (error) {
+        throw new Error(
+          `xplat-gtk-prebuilt-mason: could not resolve ${renderer} from this app — ` +
+            `it must be installed as a dependency (${error.message})`,
+        )
+      }
+
+      for (const arch of masonArches) {
+        for (const name of masonFiles) {
+          const source = join(prebuilt, arch, name)
+
+          if (!existsSync(source)) {
+            throw new Error(
+              `xplat-gtk-prebuilt-mason: ${renderer} has no prebuilt file ${source} — ` +
+                `reinstall the package or build native/xplatmason via build-prebuilt.sh`,
+            )
+          }
+
+          this.emitFile({
+            type: 'asset',
+            fileName: `xplatmason/${arch}/${name}`,
+            source: readFileSync(source),
+          })
+        }
+      }
+    },
+    writeBundle(options) {
+      // Vite writes assets mode 0644; the shared library keeps 0755 so the
+      // emitted bundle preserves the shipped permissions.
+      for (const arch of masonArches) {
+        chmodSync(join(options.dir ?? 'dist', 'xplatmason', arch, 'libxplatmason-gtk.so'), 0o755)
+      }
+    },
+  }
+}
+
 export async function linuxGtk(env, options = {}) {
   const mode = typeof env === 'string' ? env : env.mode
   const root = resolve(options.root ?? process.cwd())
@@ -150,13 +206,25 @@ export async function linuxGtk(env, options = {}) {
   // The universal runtime must be the same module the bundler reaches —
   // resolve through the app's dependency tree, not ours.
   const universalNative = realpathSync(appRequire.resolve('octane/universal/native'))
+  const packagedSchema = process.env.XPLAT_GTK_RUNTIME_SCHEMA
+  const schema = packagedSchema || options.nativeGiSchema
+  const schemaPath = schema && resolve(root, schema)
 
   return {
     root,
-    define: nodeEnvDefine(mode),
+    define: {
+      ...nodeEnvDefine(mode),
+      ...(schemaPath && {
+        print: 'console.log',
+        printerr: 'console.error',
+        'imports.system.exit': 'process.exit',
+      }),
+    },
     plugins: [
+      ...(schemaPath ? [nativeGiProjection(schemaPath, Boolean(packagedSchema))] : []),
       gtkLeafResolve(),
       gtkSlotDedupe(),
+      ...(schemaPath ? [] : [gtkPrebuiltMason(appRequire)]),
       css('gtk'),
       inlineStylesheets(),
       boundary('gtk'),
@@ -199,12 +267,10 @@ export async function linuxGtk(env, options = {}) {
         fileName: options.fileName ?? 'app',
       },
       rollupOptions: {
-        // The GI imports resolve to the platform libraries at load time;
-        // GJS maps `gi://Gtk?version=4.0` to the installed introspection
-        // data — bundling them is meaningless.
-        external: (id) => id.startsWith('gi://'),
-        // gjs -m executes one file — no code splitting; a second chunk
-        // would be an unloadable import at runtime.
+        // GJS resolves GI imports at runtime. NativeScript builds project
+        // those imports in the bundle against the payload's GI schema.
+        external: (id) => !schemaPath && id.startsWith('gi://'),
+        // Linux GTK launchers execute a single application entry.
         output: { inlineDynamicImports: true },
       },
     },

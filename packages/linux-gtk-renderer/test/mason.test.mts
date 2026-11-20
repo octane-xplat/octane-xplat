@@ -1,12 +1,15 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 // Runtime-level mason smoke — builds the driver fixture bundle and runs it
-// under real GJS+GTK against the XplatMason typelib. Skipped unless the
-// toolchain exists: gjs on PATH and native/xplatmason/build.sh artifacts
-// present (they are gitignored build outputs, not committed). This IS
+// under real GJS+GTK. The linux-gtk preset emits the shipped prebuilt
+// binding beside the bundle (xplatmason/<arch>/), so no env wiring is
+// needed on supported hosts. Skipped when gjs or a resolvable binding is
+// missing (XPLAT_MASON_TYPELIB overrides for development builds). This IS
 // runtime evidence — the engine computes real flexbox geometry and GTK
 // allocates real widgets.
 import assert from 'node:assert/strict'
-import { existsSync, rmSync } from 'node:fs'
+import { rmSync } from 'node:fs'
 import { execFileSync, execSync } from 'node:child_process'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import test from 'node:test'
@@ -15,67 +18,62 @@ import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 
 const pkg = fileURLToPath(new URL('..', import.meta.url))
 const fixture = join(pkg, 'test', 'fixtures')
-const nativeDir = join(pkg, 'native', 'xplatmason')
 const outDir = join(fixture, 'dist-mason')
 
-const LIB = process.platform === 'darwin' ? 'libxplatmason-gtk.dylib' : 'libxplatmason-gtk.so'
-const typelib = join(nativeDir, 'XplatMason-1.0.typelib')
-const sharedLib = join(nativeDir, LIB)
-
-function gjsAvailable() {
-  try {
-    execFileSync('gjs', ['--version'], { stdio: 'pipe' })
-    return true
-  } catch {
-    return false
-  }
-}
-
-const ready = gjsAvailable() && existsSync(typelib) && existsSync(sharedLib)
-
-test('mason-c engine drives masonview layout under real GJS+GTK', async (t) => {
-  if (!ready) {
-    t.skip('XplatMason artifacts or gjs missing — run native/xplatmason/build.sh')
-    return
-  }
-
-  rmSync(outDir, { recursive: true, force: true })
-  await build({
-    logLevel: 'error',
-    ...(await linuxGtk('production', {
-      root: fixture,
+test('mason-c drives Mason layout and snapshot clipping on real GTK', async (t) => {
+  let result
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    const evaluated = await runGtkEvalFixture(t, {
+      stem: 'mason',
       entry: 'src/mason-smoke.ts',
-      outDir,
-    })),
-  })
+      marker: 'MASON_SMOKE',
+      minChecks: 0,
+    })
+    result = evaluated.fixture
+  } else {
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
+      return
+    }
 
-  // Homebrew gjs needs its lib dir on the dyld fallback path; on Linux the
-  // typelib's recorded .so path is enough.
-  const dyld =
-    process.platform === 'darwin' ? `${execSync('brew --prefix').toString().trim()}/lib` : undefined
+    rmSync(outDir, { recursive: true, force: true })
+    await build({
+      logLevel: 'error',
+      ...(await linuxGtk('production', {
+        root: fixture,
+        entry: 'src/mason-smoke.ts',
+        outDir,
+      })),
+    })
 
-  // XPLAT_MASON_TYPELIB drives both prepends — typelib search path and the
-  // repository library path the soname resolves through.
-  const env = { ...process.env, GI_TYPELIB_PATH: nativeDir, XPLAT_MASON_TYPELIB: nativeDir }
+    // Homebrew gjs needs its lib dir on the dyld fallback path; on Linux the
+    // typelib's recorded .so path is enough.
+    const dyld =
+      process.platform === 'darwin'
+        ? `${execSync('brew --prefix').toString().trim()}/lib`
+        : undefined
 
-  if (dyld) {
-    env.DYLD_FALLBACK_LIBRARY_PATH = [dyld, process.env.DYLD_FALLBACK_LIBRARY_PATH]
-      .filter(Boolean)
-      .join(':')
+    const env = { ...process.env }
+
+    if (dyld) {
+      env.DYLD_FALLBACK_LIBRARY_PATH = [dyld, process.env.DYLD_FALLBACK_LIBRARY_PATH]
+        .filter(Boolean)
+        .join(':')
+    }
+
+    const output = execFileSync('gjs', ['-m', join(outDir, 'app.js')], {
+      env,
+      encoding: 'utf8',
+    })
+
+    const line = output.split('\n').find((l) => l.startsWith('MASON_SMOKE '))
+
+    assert.ok(line, `smoke marker missing — gjs output:\n${output}`)
+
+    result = JSON.parse(line.slice('MASON_SMOKE '.length))
   }
 
-  const output = execFileSync('gjs', ['-m', join(outDir, 'app.js')], {
-    env,
-    encoding: 'utf8',
-  })
-
-  const line = output.split('\n').find((l) => l.startsWith('MASON_SMOKE '))
-
-  assert.ok(line, `smoke marker missing — gjs output:\n${output}`)
-
-  const result = JSON.parse(line.slice('MASON_SMOKE '.length))
-
-  // The real engine backed the view (not the Gtk.Box fallback).
+  // The real XplatMason engine backed the view.
   assert.equal(result.masonHost, true)
 
   // flexDirection:row + gap:4 — 'alpha' measured naturally (leaf callback

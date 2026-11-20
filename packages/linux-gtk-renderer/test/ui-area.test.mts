@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -7,20 +8,27 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('ScrollableArea handles and refresh lifecycle work on real GTK with native Spinner', async (t) => {
-  const outDir = join(fixture, 'dist-ui-area')
-
-  if (!gjsAvailable()) {
-    t.skip('gjs is not installed')
-    return
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'ui-area',
+      title: 'Octane GTK area test',
+      marker: 'GTK_UI_AREA',
+      minChecks: { os: 31, properties: 30 },
+      input: true,
+      inputFlag: 'GTK_TEST_PULL',
+      inputResult: 'osPull',
+    })
   }
 
-  if (!masonTypelibPresent()) {
-    t.skip('XplatMason typelib required for runtime')
+  const outDir = join(fixture, 'dist-ui-area')
+
+  if (!gtkRuntimeReady()) {
+    t.skip(gtkRuntimeUnavailableReason())
     return
   }
 
@@ -37,7 +45,6 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
 
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 
-  const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
   const osPull =
     process.platform === 'linux' &&
     !!process.env.DISPLAY &&
@@ -45,7 +52,6 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
 
   const env = {
     ...process.env,
-    XPLAT_MASON_TYPELIB: nativeDir,
     GTK_A11Y: 'test',
     GTK_TEST_PULL: osPull ? '1' : '0',
   }

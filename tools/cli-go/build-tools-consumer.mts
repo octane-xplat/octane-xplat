@@ -73,6 +73,7 @@ try {
     'dist/macos/vite.d.ts',
     'dist/linux-gtk/vite.js',
     'dist/linux-gtk/vite.d.ts',
+    'dist/linux-gtk/bindings.mjs',
     'dist/css-platform.types.d.ts',
     'dist/build-worker.js',
     'dist/typecheck-globals/native.d.ts',

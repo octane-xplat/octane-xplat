@@ -219,16 +219,9 @@ async function run() {
   window.present()
   await pump(400)
 
-  // createGtkRoot prepends XPLAT_MASON_TYPELIB to the repository search
-  // path — the namespace is only loadable after that, not at module top.
-  // Null under the Gtk.Box emulation path (installed apps don't ship the
-  // typelib yet) — the two native-engine-only checks below skip then.
-  let native = null
-
-  try {
-    native = (globalThis as any).imports.gi.XplatMason
-  } catch {}
-
+  // createGtkRoot resolves the bundled XplatMason binding — the namespace
+  // is only loadable after that, not at module top.
+  const native = (globalThis as any).imports.gi.XplatMason
   const osInput = GLib.getenv('GTK_FOCUS_OS') === '1'
 
   const tfKeys = findView('tf-keys')

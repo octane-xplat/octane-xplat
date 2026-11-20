@@ -1,0 +1,18 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "dependsOn": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tools/linux-runtime-release/prepare-webkit-metadata.py"
+      ]
+    },
+    "test:gtk": {
+      "dependsOn": ["^typegen", "^build"],
+      "cache": false,
+      "outputs": [],
+      "passThroughEnv": ["GODDARD_*", "LINUX_RUNTIME_EVAL_*"]
+    }
+  }
+}

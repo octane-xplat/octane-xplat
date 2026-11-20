@@ -28,6 +28,8 @@ const { root, container } = createGtkRoot(host, {
 const loop = GLib.MainLoop.new(null, false)
 let pressed = false
 let complete = false
+const events: Record<string, unknown>[] = []
+let size: { width: number; height: number } | undefined
 const timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 15000, () => {
   console.error('OS input timeout')
   loop.quit()
@@ -36,7 +38,9 @@ const timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 15000, () => {
 
 root.render(Input, {
   report(kind: string, detail?: any) {
-    print('GTK_UI_INPUT ' + JSON.stringify({ kind, ...detail }))
+    const event = { kind, ...detail }
+    events.push(event)
+    print('GTK_UI_INPUT ' + JSON.stringify(event))
     if (kind === 'press') {
       pressed = true
     }
@@ -66,10 +70,8 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 10, () => {
     return true
   }
 
-  print(
-    'GTK_UI_INPUT_READY ' +
-      JSON.stringify({ width: target.get_width(), height: target.get_height() }),
-  )
+  size = { width: target.get_width(), height: target.get_height() }
+  print('GTK_UI_INPUT_READY ' + JSON.stringify(size))
 
   return false
 })
@@ -82,3 +84,4 @@ if (complete) {
 if (!complete) {
   throw new Error('Real pointer click and drag were not received')
 }
+print('GTK_UI_INPUT_RESULT ' + JSON.stringify({ size, events, osInput: true }))

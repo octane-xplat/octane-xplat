@@ -500,6 +500,10 @@ declare module 'gi://GLib' {
     function build_filenamev(parts: string[]): string
     function path_get_dirname(path: string): string
     function file_test(path: string, test: number): boolean
+    function filename_from_uri(uri: string): [string, string | null]
+    function spawn_command_line_sync(
+      command_line: string,
+    ): [boolean, Uint8Array, Uint8Array, number]
     const FileTest: { EXISTS: number; IS_DIR: number }
   }
 

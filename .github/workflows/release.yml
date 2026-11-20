@@ -520,6 +520,12 @@ jobs:
         if: steps.unpublished.outputs.exists != 'true'
         run: bun run turbo run pack:check --filter=@octane-xplat/patches
 
+      - name: Stage pinned Linux GTK runtimes
+        if: steps.unpublished.outputs.exists != 'true'
+        run: >-
+          python3 tools/linux-runtime-release/stage-runtime-release.py
+          --output packages/linux-gtk-renderer/platforms/linux/runtime
+
       - uses: actions/setup-go@v6
         if: steps.unpublished.outputs.exists != 'true'
         with:
@@ -715,6 +721,11 @@ jobs:
 
       - name: Check nightly patch artifact
         run: bun run turbo run pack:check --filter=@octane-xplat/patches
+
+      - name: Stage pinned Linux GTK runtimes
+        run: >-
+          python3 tools/linux-runtime-release/stage-runtime-release.py
+          --output packages/linux-gtk-renderer/platforms/linux/runtime
 
       - uses: actions/setup-go@v6
         with:

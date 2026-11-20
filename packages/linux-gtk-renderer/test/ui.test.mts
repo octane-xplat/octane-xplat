@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
@@ -6,15 +7,24 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('curated UI primitives compile and dispatch through real GTK controllers', async (t) => {
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'ui',
+      entry: 'src/ui-primitives-main.ts',
+      marker: 'GTK_UI_PRIMITIVES',
+      minChecks: 42,
+    })
+  }
+
   const outDir = join(fixture, 'dist-ui-primitives')
 
-  if (!gjsAvailable()) {
-    t.skip('gjs is not installed')
+  if (!gtkRuntimeReady()) {
+    t.skip(gtkRuntimeUnavailableReason())
     return
   }
 
@@ -31,9 +41,7 @@ test('curated UI primitives compile and dispatch through real GTK controllers', 
 
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 
-  const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-  const hasMason = existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
-  const env = { ...process.env, ...(hasMason ? { XPLAT_MASON_TYPELIB: nativeDir } : {}) }
+  const env = { ...process.env }
 
   if (process.platform === 'darwin') {
     env.DYLD_FALLBACK_LIBRARY_PATH = [
@@ -55,7 +63,7 @@ test('curated UI primitives compile and dispatch through real GTK controllers', 
   const { checks, gtk, engine } = JSON.parse(line.slice('GTK_UI_PRIMITIVES '.length))
 
   assert.ok(
-    checks >= (hasMason ? 42 : 37),
+    checks >= 42,
     `Expected primitive, update, event and disposal assertions, got ${checks}`,
   )
 

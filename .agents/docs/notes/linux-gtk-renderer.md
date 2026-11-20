@@ -40,8 +40,12 @@ A first native slice of the GTK4/GJS renderer:
   `Gtk.LayoutManager` runs the engine inside GTK's measure/allocate
   passes; leaf children measure their widgets live via mason's
   `mason_node_new_node_with_context` callback (the GTK mirror of the
-  macOS `XPLViewMeasure` intrinsic-size read). Without the typelib,
-  `masonview` warns once and falls back to the `Gtk.Box` emulation.
+  macOS `XPLViewMeasure` intrinsic-size read). The binding is required —
+  `createGtkRoot` throws when `XplatMason` cannot load, resolving in order:
+  `XPLAT_MASON_TYPELIB` (developer override), the bundle's emitted
+  `xplatmason/<arch>/` directory, GI's own search paths. The package ships
+  the binding prebuilt for `x86_64`/`aarch64` under `platforms/linux/prebuilt/`
+  (Ubuntu 24.04 / GTK 4.14 / glibc 2.39 baseline).
   The style dict matches macOS except `margin`/`padding`, which GTK's
   measure/allocate channel already folds into leaf measures and child
   allocations (px-only there — percentage/auto is a gap).
@@ -109,10 +113,37 @@ suffix:
 - `packages/lint/src/xplat-rules.ts`: `.gtk` in the platform suffixes, `isNativeFile`,
   and the `.gtk.tsrx` pragma rule expecting
   `/** @jsxImportSource @octane-xplat/linux-gtk */`
-- `packages/cli/src/linux-gtk/vite.mjs` (`@octane-xplat/cli/linux-gtk/vite`):
-  `linuxGtk` preset — `gtk` renderer registry, `.gtk` extension chain,
-  `gi://` externals, `octane` → `octane/universal/native` retarget, one
-  resolved universal-native instance for app + renderer
+- `packages/cli/src/linux-gtk/vite.ts` (`@octane-xplat/build/linux-gtk/vite`):
+  `linuxGtk` selects the `gtk` renderer and `.gtk` extension chain and
+  resolves one universal-native Octane instance for app and renderer. Until
+  the runtime cutover, the preset leaves `gi://` external for GJS by default.
+  Qualification builds pass the prepared payload's GI schema to project these
+  imports with `bindings.mjs`. That projection loads inside the Linux app and
+  ships as source beside the preset so the app bundler can resolve its schema.
+  To qualify the native CLI package before automatic SDK delivery, set
+  `XPLAT_GTK_RUNTIME_PAYLOAD` to a verified stage directory for one target
+  architecture and run `xplat build --targets linux` in the app. The package
+  worker verifies the manifest and builds with the staged schema. Its published
+  launcher resolves the executable and ICU data inside the archive.
+  When the selected `@octane-xplat/linux-gtk` package contains the staged
+  `platforms/linux/runtime` pair, the same build discovers it without an
+  override. The worker requires both architectures and matching GI schemas.
+  The published launcher selects its executable and ICU data using `uname -m`.
+  The [release tooling](../../../tools/linux-runtime-release/README.md#stage-the-runtime-pair-for-the-renderer-package)
+  records the release pins and staging command.
+
+NativeScript at `57408ba` can wrap the dying GObject argument of a typed
+`GWeakNotify` callback, adding a toggle reference during disposal. Register
+liveness observations with a raw-pointer trampoline so GTK's own disposal can
+finish. On GTK 4.14.5, wrapping this argument showed up as a second
+`GtkScrollbar` disposal and a critical in `gtk_range_get_adjustment`.
+
+TextView's native scroller owns the editor. Keep editing aliases separate
+from closures that hold the scroller and overlay, and clear composite
+references from the node and its public-ref disposer after teardown. GTK's
+destroy notification releases frame callbacks when they finish or are removed.
+The [lifecycle regression test](../../../tools/linux-gtk-tests/test/lifetime.runtime.mts)
+uses the production root scheduler so its scope cannot cancel passive cleanup.
 
 Repository and consumer lint now share `packages/lint/src/xplat-rules.ts`,
 including GTK suffix and pragma rules. There is no separate published mirror
@@ -153,8 +184,9 @@ labels computes `alpha` at its measured text width and `beta` flex-grown,
 `flexDirection:column` restacks, and `destroy` frees engine nodes. The ABI
 itself was exercised function-by-function in GJS before the driver pass
 (handle marshalling, `guint64[]` children, JSON styles, `GBytes` records,
-the leaf `gtk_widget_measure` callback). The Gtk.Box fallback is
-deliberately retained for typelib-absent builds.
+the leaf `gtk_widget_measure` callback). A Gtk.Box fallback existed for
+typelib-absent builds at the time; it was removed when Mason became
+required and shipped prebuilt.
 
 **NOT proven:** driver event wiring, widget mounting, and the interactive
 smoke path below remain unverified — the headless pass exercised layout,
@@ -336,10 +368,9 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
 - `accessibilityLabel` uses the non-varargs property-array binding; the
   [release audit](linux-gtk-release.md#accessibility-mechanism-and-evidence) records
   AT-SPI evidence and the button mnemonic relation handling.
-- `flexDirection` `*-reverse` renders unreversed under the Box fallback
-  (warns); under Mason the engine handles it. The fallback collapses
-  asymmetric `rowGap`/`columnGap` to `spacing` and cannot express
-  `justifyContent`/`alignItems` — the engine owns all four when present.
+- `flexDirection` `*-reverse` is handled by Mason (the engine owns
+  direction, gaps and alignment; the former Gtk.Box fallback rendered it
+  unreversed before the binding became required).
 - Mason leaf nodes measure `gtk_widget_measure` once per axis per pass and
   ignore the engine's `known`/`avail` constraint args — wrapped text and
   for-size-dependent natural sizes are approximate (documented gap, v1).
@@ -360,11 +391,11 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
   templates/mount-template ops are unadvertised and unhandled.
 - The `native` boundary set does not include `gtk` — `.gtk` leaves are
   foreign in generic native (NativeScript) bundles. Deliberate.
-- The Mason binding needs the gitignored build artifacts
-  (`native/xplatmason/build.sh` output) plus `GI_TYPELIB_PATH` or
-  `XPLAT_MASON_TYPELIB` at run time; without them `masonview` runs the
-  `Gtk.Box` emulation with a once warn. `build.sh` binds the facade by soname; supply both the typelib and library
-  search paths. Native consumer relocation remains unqualified.
+- Mason is required: the package ships `platforms/linux/prebuilt/<arch>/`
+  and the CLI preset emits it beside the bundle; `createGtkRoot` throws
+  when the binding cannot load. `XPLAT_MASON_TYPELIB` overrides for
+  `native/xplatmason/build.sh` development output — supply both the typelib
+  and library search paths there (the facade binds by soname).
 
 ## Canonical retained-pane routing
 
@@ -2138,8 +2169,8 @@ keeping each option imperatively focusable and using the selected/first enabled
 option when entering the group. Arrow handling uses logical group ownership,
 skips disabled/hidden rows and nested groups, and reverses horizontal arrows
 under RTL. The [WAI radio-group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/)
-is the fallback behavior reference. Both Mason and Gtk.Box fallback hosts have
-the focus override. Pointer focus is independent of selection, so read-only
+is the fallback behavior reference. The Mason host has
+the focus override (the former Gtk.Box fallback host did too). Pointer focus is independent of selection, so read-only
 rows focus without editing and respect native focus-on-click opt-out.
 
 The expanded case first found a pointer-focus failure on Gtk.Box (55 checks,
@@ -3309,10 +3340,12 @@ previously wedged the harness with `Gjs-CRITICAL` callbacks from finalized
 `map`/`unmap`/`layout`/`key-pressed`/`TickCallback` sources. The public-instance
 disposer also finally calls `disposeOverlayHost()` (bound but never invoked),
 and window wiring records `[emitter, id]` pairs (`windowConnections`) because
-the `layout` watch lives on the GdkSurface, not the window. Shared window
-controllers (layer-key, modality) are window-scoped and persist across
-unmount; fixture `window.destroy()` performs the final teardown while the JS
-context is alive.
+the `layout` watch lives on the GdkSurface, not the window. `root.unmount()`
+undoes all of `wireContainerWindow` (#229): it disconnects every
+`windowConnections` pair and the pre-window `notify::root` watch on the
+host, removes the layer-key and modality controllers from their widget, and
+clears those fields, so a remount into the same window starts clean
+(`test/root-teardown.test.mjs`).
 
 ## Viewless span runs -> Pango markup (slice I)
 
