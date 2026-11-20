@@ -162,6 +162,7 @@
         "@nativescript-community/observable": "2.0.11",
         "@nativescript/core": "catalog:",
         "@octane-xplat/lightbox": "workspace:*",
+        "@octane-xplat/media": "workspace:*",
         "@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
         "@octane-xplat/nativescript-octane": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
