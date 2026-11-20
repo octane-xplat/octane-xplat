@@ -41,7 +41,14 @@ function makeController(id: string): FakeController {
   return controller
 }
 
-function fixture(options: { bounds?: boolean; minimized?: boolean; primary?: boolean } = {}) {
+function fixture(
+  options: {
+    bounds?: boolean
+    minimized?: boolean
+    primary?: boolean
+    supportsMinimizedState?: () => boolean
+  } = {},
+) {
   const state = { maximized: false, minimized: false, focused: 'main' }
   const observers = new Map<FakeWindow, ChangeSink>()
   const primary = makeController('main')
@@ -64,6 +71,7 @@ function fixture(options: { bounds?: boolean; minimized?: boolean; primary?: boo
       state.maximized = false
     }),
     isMaximized: () => state.maximized,
+    supportsMinimizedState: options.supportsMinimizedState,
     isMinimized: options.minimized ? () => state.minimized : undefined,
     isFocused: (window: FakeWindow) => state.focused === window.id,
     observe: vi.fn((window: FakeWindow, onChange: ChangeSink) => {
@@ -216,15 +224,32 @@ it('throws UnavailabilityError for isMinimized on hosts without a minimized quer
   const { binding } = fixture()
   const main = binding.windows.getAllWindows()[0]
 
+  expect(main.supportsMinimizedState).toBe(false)
   expect(() => main.isMinimized()).toThrowError(
     expect.objectContaining({ name: 'UnavailabilityError', feature: 'DesktopWindow.isMinimized' }),
   )
+})
+
+it('checks the live minimized-state capability and clears it on close', () => {
+  let supported = false
+  const { binding, primary } = fixture({
+    minimized: true,
+    supportsMinimizedState: () => supported,
+  })
+  const main = binding.windows.getAllWindows()[0]
+
+  expect(main.supportsMinimizedState).toBe(false)
+  supported = true
+  expect(main.supportsMinimizedState).toBe(true)
+  primary.markClosed()
+  expect(main.supportsMinimizedState).toBe(false)
 })
 
 it('tracks maximize and minimize state through the actions', () => {
   const { actions, binding, state } = fixture({ minimized: true })
   const main = binding.windows.getAllWindows()[0]
 
+  expect(main.supportsMinimizedState).toBe(true)
   expect(main.isMaximized()).toBe(false)
   main.maximize()
   expect(actions.maximize).toHaveBeenCalled()

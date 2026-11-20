@@ -69,6 +69,8 @@ export interface DesktopWindow {
   unmaximize(): void
   /** Whether the host reports the window as maximized. Throws after close. */
   isMaximized(): boolean
+  /** Whether the live window can report its minimized state. */
+  readonly supportsMinimizedState: boolean
   /** Whether the host reports the window as minimized. Throws after close;
    *  throws UnavailabilityError on hosts that cannot report minimized state (GTK). */
   isMinimized(): boolean

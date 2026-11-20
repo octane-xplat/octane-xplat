@@ -143,21 +143,17 @@ export function restoreInspector(inspector: DesktopWindow) {
 }
 ```
 
-`isMinimized()` reports whether the host currently shows the window as minimized. GTK cannot report minimized state — Wayland's xdg-shell does not expose it — so the call throws `UnavailabilityError` there.
+Check `supportsMinimizedState` before calling `isMinimized()`. The check returns `false` for closed windows, GTK windows, and Windows presenters that cannot report minimized state. Use `undefined` to represent an unknown state.
 
 ```ts
-export function inspectorIsMinimized(inspector: DesktopWindow) {
-  try {
-    return inspector.isMinimized()
-  } catch {
-    return false // GTK cannot report minimized state
-  }
+export function inspectorIsMinimized(inspector: DesktopWindow): boolean | undefined {
+  return inspector.supportsMinimizedState ? inspector.isMinimized() : undefined
 }
 ```
 
 ### Maximize a window
 
-Call `maximize()` and `unmaximize()` to control the window's maximized state and `isMaximized()` to read it. On macOS, maximize maps to the window's zoom state rather than full screen. On GTK, the window manager applies the request asynchronously and may ignore it. On experimental Windows hosts, the calls throw `UnavailabilityError` when the window presenter lacks the controls. All three throw after the window closes.
+Call `maximize()` and `unmaximize()` to control the window's maximized state and `isMaximized()` to read it. On macOS, maximize uses AppKit zoom. The desktop window API currently provides no fullscreen command. On GTK, the window manager applies the request asynchronously and may ignore it. On experimental Windows hosts, the calls throw `UnavailabilityError` when the window presenter lacks the controls. All three throw after the window closes.
 
 ```ts
 export function toggleInspectorMaximized(inspector: DesktopWindow) {
@@ -213,9 +209,9 @@ export function trackWindowState(window: DesktopWindow, state: SavedWindowState)
   if (!window.supportsBounds) return
 
   const rememberNormalBounds = () => {
-    if (!window.isMaximized() && !window.isMinimized()) {
-      state.bounds = window.getBounds()
-    }
+    if (!window.supportsMinimizedState || window.isMaximized() || window.isMinimized()) return
+
+    state.bounds = window.getBounds()
   }
 
   window.on('move', rememberNormalBounds)
@@ -286,7 +282,7 @@ export function focusMainWindow() {
 }
 ```
 
-`windows.getFocusedWindow()` returns the listed window that currently holds keyboard focus, or `null` when no app window is focused.
+`windows.getFocusedWindow()` returns the listed window that currently holds keyboard focus, or `null` when no app window is focused. On Windows hosts without the WinUI input activation APIs, it throws `UnavailabilityError` when checking a live window.
 
 ```ts
 export function anyAppWindowFocused() {

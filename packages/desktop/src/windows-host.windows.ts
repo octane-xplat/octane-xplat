@@ -65,6 +65,7 @@ export interface WindowsWindow {
   maximize(): void
   unmaximize(): void
   isMaximized(): boolean
+  supportsMinimizedState(): boolean
   isMinimized(): boolean
   isFocused(): boolean
   observe(onChange: (change: { moved: boolean; resized: boolean }) => void): () => void
@@ -181,6 +182,9 @@ function adoptController(
         }
         // Microsoft.UI.Windowing.OverlappedPresenterState.Maximized
         return presenter.State === 0
+      },
+      supportsMinimizedState() {
+        return typeof surface.AppWindow.Presenter?.State === 'number'
       },
       isMinimized() {
         const presenter = surface.AppWindow.Presenter

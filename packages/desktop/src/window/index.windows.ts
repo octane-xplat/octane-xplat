@@ -16,6 +16,7 @@ const binding = createDesktopWindowService(
     maximize: (window) => window.maximize(),
     unmaximize: (window) => window.unmaximize(),
     isMaximized: (window) => window.isMaximized(),
+    supportsMinimizedState: (window) => window.supportsMinimizedState(),
     isMinimized: (window) => window.isMinimized(),
     isFocused: (window) => window.isFocused(),
     observe: (window, onChange) => window.observe(onChange),

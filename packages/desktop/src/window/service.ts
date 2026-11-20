@@ -31,6 +31,7 @@ interface NativeWindowActions<Window> {
   maximize(window: Window): void
   unmaximize(window: Window): void
   isMaximized(window: Window): boolean
+  supportsMinimizedState?(window: Window): boolean
   isMinimized?(window: Window): boolean
   isFocused(window: Window): boolean
   observe(window: Window, onChange: (change: { moved: boolean; resized: boolean }) => void): () => void
@@ -245,6 +246,14 @@ export function createDesktopWindowService<Window>(
       },
       isMaximized() {
         return actions.isMaximized(liveWindow())
+      },
+      get supportsMinimizedState() {
+        return !!(
+          native &&
+          !native.isClosed &&
+          actions.isMinimized &&
+          (actions.supportsMinimizedState?.(native.window) ?? true)
+        )
       },
       isMinimized() {
         if (!actions.isMinimized) {
