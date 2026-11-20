@@ -21,12 +21,16 @@
 		"./android/mason-binding": {
 			"types": "./platforms/android/mason-binding.android.d.ts",
 			"default": "./platforms/android/mason-binding.android.js"
+		},
+		"./startup": {
+			"types": "./platforms/startup/startup.d.ts",
+			"default": "./platforms/startup/index.js"
 		}
 	},
 	"scripts": {
 		"build": "tsc --runExternalCode -p tsconfig.build.json --declaration false",
 		"typegen": "tsc --runExternalCode -p tsconfig.build.json --emitDeclarationOnly",
-		"typecheck": "tsc --runExternalCode -p tsconfig.json && node --check platforms/mason-binding-core.js && node --check platforms/android/mason-binding.android.js && node --check platforms/ios/mason-binding.ios.js",
+		"typecheck": "tsc --runExternalCode -p tsconfig.json && node --check platforms/mason-binding-core.js && node --check platforms/android/mason-binding.android.js && node --check platforms/ios/mason-binding.ios.js && node --check platforms/startup/index.js && node --check platforms/startup/shared.js && node --check platforms/startup/render.js && node --check platforms/startup/render.ios.js && node --check platforms/startup/render.android.js",
 		"test": "node --test tests/*.test.mjs",
 		"test:codec:native": "node tests/native-codec.mjs"
 	},
@@ -37,13 +41,17 @@
 	},
 	"peerDependencies": {
 		"@nativescript/core": "9.1.3",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.10"
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.10",
+		"@octane-xplat/nativescript-octane": "0.20.0"
 	},
 	"peerDependenciesMeta": {
 		"@nativescript/core": {
 			"optional": true
 		},
 		"@octane-xplat/nativescript-mason-core": {
+			"optional": true
+		},
+		"@octane-xplat/nativescript-octane": {
 			"optional": true
 		}
 	},

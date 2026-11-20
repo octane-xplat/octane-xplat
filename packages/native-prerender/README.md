@@ -1,6 +1,6 @@
 # Native pre-render implementation
 
-This private workspace owns the reusable startup artifact contract, independent Swift/Java readers and native binding. The Node/Vite compiler belongs to the separate private [build worker](../native-prerender-build/README.md), keeping compiler dependencies out of this runtime package. Normal apps do not yet install or use it. The startup hosts and build preset must be connected and qualified before making it public.
+This private workspace owns the reusable startup artifact contract, independent Swift/Java readers and native binding. The Node/Vite compiler belongs to the separate private [build worker](../native-prerender-build/README.md), keeping compiler dependencies out of this runtime package. An opted-in app calls the `renderWithStartup` entry below and installs the platform mount units from `platforms/`; the wiring remains pre-productization — no public API promise, no CLI hook and no published install path yet.
 
 Prepare supported Octane commands into a logical tree, including each text slot. Derive the native visual tree separately; native Labels flatten text while Octane retains its logical ownership. Command IDs exist only in the returned maps and never enter artifact nodes.
 
@@ -114,6 +114,27 @@ binding.commit(() => { prepared.commit() })
 iOS Mason defers each native insert until the child loads and consumes the child's attached-native expectation at that deferred insert point: the pre-attached native object is verified against the parent's `subviews` order, `addViewAt` is skipped, and Mason's foreign-child adoption and measurement still run. Commit requires the host to be set up and loaded first, otherwise inserts stay queued and commit fails loudly. `releaseIOSMasonOwners` and `releaseIOSMasonTree` own the same teardown boundary as Android; the tree release also discards queued pending adds through `discardPendingNativeAdds` after a failed insertion. Expectation cleanup, failure handling and retire semantics match the Android contract.
 
 The adapter depends on the same local-fork Mason adoption API as Android. The maintained iOS controls supply Core9.1.3 and the local beta.10 Mason package; an npm version alone does not establish compatibility. Window/lifecycle ownership, launch checks, the mount default journal and failure recovery remain with the host.
+
+## App startup entry
+
+`@octane-xplat/native-prerender/startup` exports `renderWithStartup(host, component, props?, startup?)`, the opt-in replacement for `renderNativeScriptApp` in a real app entry. `host` is the entry `Page` (a `ContentView`); `startup` carries the decoded `startup.json` artifact, the producer's stylesheet texts and an `onOutcome` sink. Platform file resolution picks `render.ios.js`/`render.android.js`; the shared transaction lives in `platforms/startup/shared.js`.
+
+```ts
+renderWithStartup(page, Screen, {}, {
+  artifact: startup,   // parsed startup.json; revalidated at the entry
+  sheets,              // producer-emitted stylesheet texts
+  onOutcome: writeReceipt,
+})
+```
+
+The entry owns preflight → one ownership transfer → fallback. When the installed mount unit already mounted a cold tree and every check passes — artifact schema and build identity, launch constraints, `selectLaunchTree` against the same persisted inputs and appearance read, a canonical sorted-key bind that must equal the native mount's published bind byte-for-byte, `bindIOSMasonTree`/`bindAndroidMasonTree` preflight, `prepareFirstFrame` + `claims.match` and the loaded-host commit — the live tree claims the mounted natives and `outcome` resolves `adopted: true` with the claims, wrappers, natives and selected tree. ANY rejection — absent artifact, native rejection, theme or bind divergence, unreadable handoff, prepared-tree mismatch or commit failure — detaches the cold mount and renders ordinarily through `renderNativeScriptApp`; `outcome` resolves `adopted: false` with a `reason`. The mount is claimed at most once per process, and calling without `startup` (or without a mount) is ordinary rendering at zero startup cost.
+
+The installable mount units live under `platforms/` and are copied into the opting app's native sources; they are not a CocoaPods/Gradle dependency yet:
+
+- iOS: copy `StartupBootstrap.swift` into `ios.NativeSource` as `main.swift`, plus `StartupArtifact.swift`, `MasonArtifact.swift`, `FontLowering.{h,m}`, `MasonMount.{h,m}` and `MountHost.{h,m}` with a modulemap; set `NS_SWIFTUI_BOOT = 1`, the `SWIFT_OBJC_BRIDGING_HEADER`, and the producer build hash as `XplatStartupBuildHash` in Info.plist. The scene mounts before `NativeScriptStart.setup()` and publishes window, theme, bind, mount, viewport and any rejection through `PrerenderMountHost`.
+- Android: place `StartupArtifact.java`, `MasonArtifact.java`, `MasonMount.java`, `StartupApplication.java` and `StartupMountActivity.java` under `App_Resources/Android/src/main/java/org/octanexplat/prerender`, declare `StartupApplication` as `android:name` and `StartupMountActivity` as the launcher activity, and emit the producer build hash as the `xplat_startup_build` string resource. The activity defers `NativeScriptApplication.onCreate` until the cold mount draws, then the entry's bridge replays the Core lifecycle onto it.
+
+The qualification [normal-app control](../../tools/platform-qualification/native-prerender/README.md#normal-app-startup-control) exercises this exact entry and these units in a real CLI-built app. A `startup.config.json` in the app directory is the producer opt-in; `produceNativeStartup` writes `startup.bin`/`startup.json`/`sheets.json` the app ships beside its bundle. No packaged artifact means the stock entry costs nothing and renders ordinarily.
 
 ## Candidate artifact contract
 
