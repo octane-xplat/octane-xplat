@@ -558,22 +558,33 @@ export function watchDisplays(refreshLayout: () => void) {
 
 ## Choose your next feature
 
-All features use the package root. Imports do not create a tray icon, register a hotkey, install a menu, or keep the app running. The following imports introduce no owned resources; the feature guides show creation, failure handling, and cleanup.
+All features use the package root. Imports do not create a tray icon, register a hotkey, install a menu, open a window, or keep the app running. The following imports introduce no owned resources; the feature guides show creation, failure handling, and cleanup.
 
 ```ts
 import {
+  app,
   appMenu,
   createTray,
   getTrayAvailability,
   createGlobalShortcuts,
   getGlobalShortcutSupport,
+  windows,
+  dialog,
+  shell,
+  screen,
   keepAppResident,
+  showAppWindows,
 } from '@octane-xplat/desktop'
 ```
 
 - [Application menu](package-app-menu.md): menu trees, native commands, shortcuts, and menu ownership.
-- [System tray](package-tray.md): icons, tray menus, app residency, and showing or hiding windows.
+- [System tray](package-tray.md): icons, tray menus, and primary-click actions.
 - [Global shortcuts](package-global-shortcuts.md): key assignments, conflicts, permissions, and cleanup.
+- [Secondary windows](#open-a-second-window): `windows.open`, window handles, and close events.
+- [App lifecycle](#wait-for-startup-and-request-quit): `app.whenReady`, `app.quit`, [reopen](#reopen-a-running-desktop-app) and second-launch events, and [app residency](#keep-the-app-resident-and-control-app-windows).
+- [Native dialogs](#open-a-file-dialog-from-a-window): file pickers, [save dialogs](#choose-where-to-save-a-file), and [message boxes](#confirm-before-discarding-changes).
+- [Shell actions](#open-a-web-link-in-the-default-browser): open links, [reveal files](#show-a-file-in-its-folder), and [move items to Trash](#move-an-item-to-trash).
+- [Displays](#read-the-desktop-display-layout): `screen` display bounds, work areas, and [change events](#respond-when-displays-change).
 - [Generated API reference](https://octane-xplat.goddardai.org/api-desktop): exported functions and types.
 
 ## Move an existing app
@@ -590,4 +601,4 @@ import {
 } from '@octane-xplat/desktop'
 ```
 
-Portable file access, clipboard, appearance, and notifications retain their existing packages. This package does not yet provide single-instance lifecycle, a display catalog, a shell service, or native dialogs.
+Portable file access, clipboard, appearance, and notifications retain their existing packages.

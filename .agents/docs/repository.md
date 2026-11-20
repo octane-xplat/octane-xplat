@@ -47,8 +47,9 @@ toolchain and lockstep release; see [native renderer ownership](toolchain.md#nat
 ## Layout
 
 `packages/desktop` owns native application menus, tray icons, system-wide hotkeys,
-and app residency/window visibility. Consumers use only `@octane-xplat/desktop`;
-see [desktop package ownership](desktop.md).
+secondary windows, app lifecycle/residency and app-wide window visibility, native
+dialogs, shell actions, and display info. Consumers use only
+`@octane-xplat/desktop`; see [desktop package ownership](desktop.md).
 
 | Path                                                                                       | What it is                                                                                                                                                                                        |
 | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
