@@ -58,6 +58,11 @@ Session ACs on the five non-web targets remain MCP-covered; the agent lane
 asserts honest `unsupported_capability`/prerequisite errors rather than a
 full-device qualification.
 
+The [web dev-server action fixture](../../../tools/cli-go/dev-server.test.mts)
+exercises the CLI action portion of AC4 through `actions run`, including
+waiting for the result and recovering the same job after a wait ends. It uses
+the live framework action registry and Vite bridge in a headless fixture.
+
 Read diagnostic log pages from `data.logs` (`logs.nextCursor` for continuation).
 The `xplat_diagnostics` tool and CLI command also expose retained
 session reports; build-job selectors explicitly disclose native lookup as

@@ -65,6 +65,7 @@ func init() {
 		"session attach": dev.AppCommand("session attach"),
 		"actions list":   dev.AppCommand("actions list"),
 		"actions invoke": dev.AppCommand("actions invoke"),
+		"actions run":    dev.RunAction,
 		"actions status": dev.AppCommand("actions status"),
 
 		"evidence list":   dev.EvidenceCommand("evidence list"),
@@ -326,7 +327,10 @@ func runCLI(argv []string) int {
 	if workspace != nil {
 		envelopeContext = workspace.EnvelopeContext(name, parsed.Values)
 	}
-	failure = cli.ContextualFailure(ctx, failure)
+	// The action waiter reports cancellation with the accepted job's identity.
+	if name != "actions run" {
+		failure = cli.ContextualFailure(ctx, failure)
+	}
 	return finishCLI(name, envelopeContext, data, failure, jsonOutput)
 }
 func executeCommand(ctx context.Context, name string, workspace *project.WorkspaceContext, values map[string]any) (any, *cli.Error) {

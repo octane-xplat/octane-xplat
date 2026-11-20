@@ -164,17 +164,18 @@ coverage must not be inferred from their shared registry or host protocol tests.
 Declaring an action's platforms does not establish transport support.
 
 Use the [CLI action workflow](cli.md#inspect-and-assert-supported-behavior) to
-discover the exact instance, contract, and revision, invoke within the task's
-authorization, and follow the job through completion. Invocation requires
+discover the action contract, invoke within the task's authorization, and
+follow the job through completion. Invocation requires
 `runtime-actions`; declared external effects also require `external-effects`.
-Actions serialize by default. Request keys recover live jobs, not arbitrary
-later reruns; inspect an uncertain outcome before retrying. Independently assert
+Actions serialize by default. Request keys recover retained jobs matching the
+instance, revision, action, and normalized input. Inspect an uncertain outcome
+before retrying. Independently assert
 the resulting screen state using supported inspection or app tests.
 
 ```sh
 bun run xplat actions list --json
-# Use identities and contracts from the listing; replace all placeholders.
-bun run xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
+# Use the contract from the listing and select an explicit instance if needed.
+bun run xplat actions run --action ACTION_ID --target web --input '{}' --request-key fixture-setup-1 --json
 bun run xplat actions status JOB_ID --json
 ```
 
@@ -190,5 +191,5 @@ AppKit/NativeScript fetch or OS UI behavior.
 ```sh
 xplat actions list --json
 xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
-xplat job status JOB_ID --json
+xplat actions status JOB_ID --json
 ```
