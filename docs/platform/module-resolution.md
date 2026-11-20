@@ -119,8 +119,10 @@ import './card.web.css'
 - Use `.macos` or `.windows` for native frontend implementations. Keep
   existing `.linux` overrides compatible; do not add new ones for behavior a
   `.web` frontend can provide.
-- Keep the exported props and return values compatible. Callers should not
-  need to know which file the resolver selected.
+- Every implementation exposes identical exported names and public types.
+  Define the props once in a shared file such as `props.ts` and import the
+  same type in the default implementation and every leaf. Keep host-specific
+  globals out of code that runs on several platforms.
 
 For example, a share action can use the browser share API on web, the native
 default elsewhere, and a shared mobile sheet on iOS and Android:
@@ -169,14 +171,24 @@ Shared files are checked in every applicable program. A passing check does not
 prove that the app runs on a device.
 For TSRX modules, include `.tsrx` but leave out the platform name. TypeScript
 and the platform build select the matching leaf when one exists.
+The starter includes matching leaves as starting files in each platform program,
+so the web checker also checks `Card.web.tsrx` directly. If you customize
+`tsconfig.envs.json`, make sure the web entry's `include` or `files` covers it.
 Every platform family needs an unsuffixed module; lint checks this for source
 files. If no default implementation
 exists, use a declaration-only contract and provide implementations for the
 targets that import it. The build rejects a contract without an implementation.
 
+```ts
+// props.ts — import this type from every Card implementation.
+export type CardProps = { title: string }
+```
+
 ```tsrx
 // Card.tsrx — contract for a module implemented only by platform leaves.
-export declare function Card(props: { title: string }): unknown
+import type { CardProps } from './props'
+
+export declare function Card(props: CardProps): unknown
 ```
 
 New apps directly depend on `@octane-xplat/jsx` and select its shared native
@@ -419,7 +431,9 @@ for native compiler and editor limitations.
 
 ```ts
 import { Card } from './Card.tsrx'
-// The web build selects Card.web.tsrx; the checker reads Card.tsrx.
+// TypeScript resolves this import to Card.tsrx.
+// The web program can also check Card.web.tsrx as a starting file.
+// The web build selects Card.web.tsrx.
 ```
 
 NativeScript build helpers still use TypeScript's classic compiler API for

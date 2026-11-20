@@ -45,8 +45,10 @@ export function UnlockTrip() {
 
 ## Write a platform file when behavior differs
 
-Split the file when a feature needs browser or OS APIs. Import the component
-without a suffix; the bundler selects the matching implementation.
+Split the file when a feature needs browser or OS APIs. Use the unsuffixed
+name with the `.tsrx` extension so the bundler can select the implementation.
+The default can use native APIs if it only runs on native. Keep host-specific
+globals out of code that runs on several platforms.
 
 ```text
 src/parts/Scanner.web.tsrx      browser implementation
@@ -56,10 +58,15 @@ src/parts/Scanner.tsrx          native default
 ```
 
 ```tsrx
-import { Scanner } from './parts/Scanner'
+import { Scanner } from './parts/Scanner.tsrx'
 
 export function ScanScreen() { return <Scanner /> }
 ```
+
+Expose the same names and public types from every implementation. Define
+props once in a shared file and import that type in the default and all leaves.
+Keep the leaves covered by their platform entries in `tsconfig.envs.json` so
+typecheck checks each implementation directly.
 
 Native `.tsx` files inherit the shared types from the app config. Keep the
 first-line shared pragma on `.tsrx` files that use native host elements. Import

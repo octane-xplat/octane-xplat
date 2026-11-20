@@ -47,6 +47,10 @@ WebView widgets are a separate UI feature. Platform divergence belongs at file b
   implementations. Import unsuffixed module names with explicit `.tsrx` extensions for TSRX; the build selects the leaf.
   The unsuffixed file is the native default; `.web`, `.mobile`, and OS suffixes
   provide overrides. See [platform leaves](references/platform-leaves.md).
+- Keep the exported names and public types identical across platform leaves.
+  Define props and public types once in a shared module and import them in
+  the default implementation and every leaf. Code that runs on several
+  platforms must avoid relying on a host-specific global.
 - Native `.tsx` inherits the app's shared `@octane-xplat/jsx` setting. For
   native host elements in `.tsrx`, put `@jsxImportSource @octane-xplat/jsx`
   on the first line because Octane's type transform defaults to browser

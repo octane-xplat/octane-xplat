@@ -5,10 +5,9 @@ description: Build and review code in an Octane Xplat app — one TypeScript cod
 
 # Octane Xplat app
 
-Every `src/*.tsrx` file compiles twice: once to the DOM renderer, once to
-NativeScript views. The common failure mode is **silent divergence** — code
-that compiles and works on web but no-ops or crashes on native. The rules
-below prevent that; `bun run lint` enforces most of them.
+Shared TSRX can run on web and NativeScript. Each build selects the matching
+implementation when a component has platform leaves. Run `bun run lint` and
+`bun run typecheck` to check the source.
 
 ## Non-negotiables
 
@@ -20,6 +19,9 @@ platform inside JSX (`Platform.OS`, conditional imports, checks for browser glob
 `@octane-xplat/ui/ios`, `/android`, and `/web` — importing a subpath
 outside a matching suffix file fails the other platform's build (the
 `xplat/platform-subpath-import` lint enforces it).
+**One public contract for platform leaves.** Keep exported names and public
+types identical. Define props once and import that type from every
+implementation. See [platform files](references/platform.md#write-a-platform-file-when-behavior-differs).
 **No DOM globals in shared code.** `document`, `window`, `localStorage`,
 DOM events — all web-only. Device capabilities (clipboard, storage,
 permissions, connectivity) come from

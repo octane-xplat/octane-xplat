@@ -20,9 +20,10 @@ when only that OS differs. There is no generic `.native` or `.desktop`
 filename tier. If an unsuffixed module uses NativeScript APIs and web imports
 it, add a `.web` sibling so the browser build selects that implementation.
 
-Vite selects the active platform at build time. A scaffold's TypeScript program
-checks all variants together with a fixed, extensionless-first suffix order;
-that order does not change the runtime resolver.
+Vite selects the active platform at build time. A scaffold checks each
+platform in a separate TypeScript program. The unsuffixed default can use
+native APIs when it runs only on native. Keep host-specific globals out of
+code that runs on several platforms.
 
 Choose the actual renderer before adding a desktop variant. Desktop hosts are
 experimental; desktop WebView app hosting has been removed. Read
@@ -64,8 +65,9 @@ when changing or upgrading that harness.
 3. **Hooks only in `.tsx`/`.tsrx`.** Plain `.ts` files: no hook calls
    (universal hooks get slotted by the compiler only in component files).
    `.ts` platform files are for stores/services — they just can't call hooks.
-4. Keep exported props and return values compatible across variants. A caller
-   should not need to know which file the resolver selected.
+4. Expose identical exported names and public types in every variant. Define
+   props and public types once beside the family, such as in `props.ts`, and
+   import them in the default implementation and every leaf.
 5. `.ios` and `.android` override `.mobile`; `.mobile` overrides the
    unsuffixed native default on both mobile OSes.
 
@@ -160,8 +162,10 @@ native host elements in `.tsrx`, keep the first-line shared pragma because
 Octane's type transform defaults to browser JSX. Keep the `/dom` pragma
 on browser leaves in mixed projects.
 Target conditions bind concrete host handles; annotate concrete ref types at
-ownership boundaries. Explicit `.tsrx` imports select the matching platform leaf through
-`moduleSuffixes` with the pinned TypeScript build.
+ownership boundaries. Explicit `.tsrx` imports select the matching platform
+leaf through `moduleSuffixes` with the pinned TypeScript build. Include
+matching leaves in the environment manifest so they are checked as starting
+files in their platform programs.
 
 Use the actual TypeScript 7 language server and TSRX content mapper for semantic
 editor operations. The OXC server supplies lint/parser findings. Platform leaves
