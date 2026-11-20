@@ -177,11 +177,13 @@ export async function probe(): Promise<TrayAvailability> {
     '--input-type=module',
     '-e',
     `
-import {createTray,getTrayAvailability,TrayError} from '@octane-xplat/desktop'
+import {createTray,getTrayAvailability,showAppWindows,TrayError} from '@octane-xplat/desktop'
 const availability = await getTrayAvailability()
 if (availability.available) throw Error('default consumer must be unsupported')
 try { await createTray({id:'x',icon:{type:'named',name:'star'}}); throw Error('unexpected support') }
 catch(error) { if (!(error instanceof TrayError) || error.code !== 'unsupported-platform') throw error }
+try { showAppWindows(); throw Error('unexpected window helper support') }
+catch(error) { if (error?.name !== 'UnavailabilityError' || error.feature !== 'showAppWindows') throw error }
 `,
   ])
 

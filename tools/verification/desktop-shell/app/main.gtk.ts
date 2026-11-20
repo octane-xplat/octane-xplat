@@ -232,9 +232,7 @@ runGtkApp(
     try {
       residency = keepAppResident({ hideWindowsOnClose: false })
     } catch (error) {
-      marker(
-        `RESIDENT_ERROR ${error instanceof Error && 'code' in error ? String((error as { code: string }).code) : String(error)}`,
-      )
+      marker(`RESIDENT_ERROR ${error instanceof Error ? error.message : String(error)}`)
     }
 
     let menuDisposed = false

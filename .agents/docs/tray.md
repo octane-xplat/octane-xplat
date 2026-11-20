@@ -10,8 +10,10 @@ menu model (`buildMenuModel`) that assigns stable command ids per row.
 definition drives the tray and in-app menus — keep it a data shape, never a
 component. Unsupported leaves (web, iOS, Android) report
 `unsupported-platform` from `getTrayAvailability` and reject `createTray`;
-window helpers throw there; platform leaves also require their
-own runtime (Windows throws `unsupported-runtime` via `requireWin32`).
+platform leaves also require their own runtime (the Windows tray reports
+`unsupported-runtime` without the Win32 FFI). The app residency and window
+helpers in `src/app/` throw `UnavailabilityError` on those hosts instead —
+see [desktop ownership](desktop.md).
 
 ## AppKit host
 
@@ -22,7 +24,7 @@ tooltip, a bound action target for primary activation, and `NSMenu` for the
 secondary surface. Checkbox/radio state is controlled — native state moves
 only on `update`. `src/app/index.macos.ts` holds automatic termination and `hideWindowsOnClose`
 retains the current windows after close; a delegate that already ends the app on last-window-close makes it throw
-`resident-conflict`. macOS file icons accept `isTemplate`.
+a plain `Error` (a host configuration bug, not a `TrayError` code). macOS file icons accept `isTemplate`.
 
 ## GTK host
 

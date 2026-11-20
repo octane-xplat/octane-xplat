@@ -1,5 +1,5 @@
 import { projection, call, u32, i32, ptr, bufferAddress } from '../windows-interop.js'
-import { TrayError } from '../tray/errors.js'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import { getWindowsLifecycle } from '../windows-host.windows.js'
 
 import { createAppLifecycle } from './lifecycle.js'
@@ -32,20 +32,17 @@ function appWindows(): number[] {
 const anyAppWindowVisible = () =>
   appWindows().some((hwnd) => call('user32.dll', 'IsWindowVisible', 'bool', ptr(hwnd)))
 
-function requireWin32() {
+function requireWin32(feature: string) {
   const { NSWinRT: nsrt } = projection()
 
   if (!nsrt?.win32?.call || !nsrt.interop?.pointerFromBuffer) {
-    throw new TrayError(
-      'unsupported-runtime',
-      'the Windows host does not expose the Win32 FFI needed for tray and window helpers',
-    )
+    throw new UnavailabilityError(feature)
   }
 }
 
 /** Reveal and focus the app's windows; `false` when no app window exists to show. */
 export function showAppWindows(): boolean {
-  requireWin32()
+  requireWin32('showAppWindows')
 
   const hwnds = appWindows()
 
@@ -62,7 +59,7 @@ export function showAppWindows(): boolean {
 
 /** Hide the app's visible windows. */
 export function hideAppWindows(): void {
-  requireWin32()
+  requireWin32('hideAppWindows')
   for (const hwnd of appWindows()) {
     call('user32.dll', 'ShowWindow', 'bool', ptr(hwnd), i32(0)) // SW_HIDE
   }
@@ -70,6 +67,7 @@ export function hideAppWindows(): void {
 
 /** Toggle window visibility; returns the visibility after toggling. */
 export function toggleAppWindows(): boolean {
+  requireWin32('toggleAppWindows')
   if (areAppWindowsVisible()) {
     hideAppWindows()
     return false
@@ -80,13 +78,13 @@ export function toggleAppWindows(): boolean {
 
 /** Whether any app window is currently visible. */
 export function areAppWindowsVisible(): boolean {
-  requireWin32()
+  requireWin32('areAppWindowsVisible')
   return anyAppWindowVisible()
 }
 
 /** Keep the app running without visible windows until the returned residency releases. */
 export function keepAppResident(_options?: { hideWindowsOnClose?: boolean }): AppResidency {
-  requireWin32()
+  requireWin32('keepAppResident')
   // The packaged Windows host keeps the process alive while JS runs; there is
   // no last-window-close lifetime to intercept from JS. The returned handle is
   // an inert hold so callers can keep uniform resident semantics.

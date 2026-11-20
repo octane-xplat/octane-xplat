@@ -381,6 +381,59 @@ export function reopenMainWindow(showMainWindow: () => void) {
 }
 ```
 
+## Keep the app resident and control app windows
+
+Tray apps and background helpers usually stay alive without visible windows. `keepAppResident` holds the app running after its last window closes until you call `release()` on the returned handle. Pass `hideWindowsOnClose: true` to retain the current windows so they can be shown again. Release the handle when its owner ends.
+
+```ts
+import { keepAppResident } from '@octane-xplat/desktop'
+
+export function startResidency(): () => void {
+  const residency = keepAppResident({ hideWindowsOnClose: true })
+  return () => residency.release()
+}
+```
+
+The window helpers control the app's top-level windows: `showAppWindows` reveals and focuses them and returns `false` when none exist, `hideAppWindows` hides the visible ones, `toggleAppWindows` switches visibility and returns the new state, and `areAppWindowsVisible` reports whether any app window is visible. They belong to the desktop app lifetime and work without creating a tray icon.
+
+```ts
+import {
+  showAppWindows,
+  hideAppWindows,
+  toggleAppWindows,
+  areAppWindowsVisible,
+} from '@octane-xplat/desktop'
+
+export const windowActions = {
+  show: showAppWindows,
+  hide: hideAppWindows,
+  toggle: toggleAppWindows,
+  isVisible: areAppWindowsVisible,
+}
+```
+
+On macOS, `keepAppResident` disables automatic termination for the hold's lifetime, and `hideWindowsOnClose` retains the current windows by setting `releasedWhenClosed` to false; activation policy remains the host's responsibility. If the application delegate still returns true from `applicationShouldTerminateAfterLastWindowClosed`, `keepAppResident` throws — return false while the app stays resident. On Linux the hold uses `Gio.Application.hold`, and `hideWindowsOnClose` sets the current windows' hide-on-close flag; every helper needs a running `Gtk.Application`. On Windows the host keeps the process alive while JavaScript runs, so the hold is inert and `hideWindowsOnClose` is unimplemented.
+
+```ts
+import { app, keepAppResident } from '@octane-xplat/desktop'
+
+export function holdOpenUntilQuit() {
+  if (!app.supported) return () => {}
+  const residency = keepAppResident()
+  return () => residency.release()
+}
+```
+
+On web and mobile these helpers throw `UnavailabilityError` whose `feature` names the called function. A Windows host without the packaged runtime's Win32 projection throws the same error. Check `app.supported` before wiring a shared action so unsupported hosts skip the call instead of throwing.
+
+```ts
+import { app, showAppWindows } from '@octane-xplat/desktop'
+
+export function revealWindows(): boolean {
+  return app.supported ? showAppWindows() : false
+}
+```
+
 ## Receive a second launch on GTK
 
 Set `forwardSecondLaunch: true` in `runGtkApp()` to deliver arguments from a later launch to the running app. Both processes need the same application ID and D-Bus session. The later process exits without mounting another window. The original app receives the argument list without the launcher name and, when available, the caller's working directory. It then handles the usual `activate` event.

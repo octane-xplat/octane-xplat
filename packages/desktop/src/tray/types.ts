@@ -200,5 +200,3 @@ export type TrayErrorCode =
   | 'destroyed'
   /** The platform rejected the item's registration (D-Bus name or watcher call failed). */
   | 'registration-failed'
-  /** The app conflicts with residency — its delegate still ends the app when the last window closes. */
-  | 'resident-conflict'

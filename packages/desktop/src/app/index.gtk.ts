@@ -1,5 +1,4 @@
 import Gio from 'gi://Gio'
-import { TrayError } from '../tray/errors.js'
 
 import { createAppLifecycle } from './lifecycle.js'
 import type { AppResidency, DesktopApp } from './types.js'
@@ -31,8 +30,7 @@ function requireGtkApplication(hint: string): GtkApplicationLike {
   const app: GtkApplicationLike | null = gio.Application.get_default()
 
   if (!app || typeof app.get_windows !== 'function') {
-    throw new TrayError(
-      'invalid-options',
+    throw new Error(
       `${hint} needs a running Gtk.Application (gio.Application.get_default() returned none)`,
     )
   }

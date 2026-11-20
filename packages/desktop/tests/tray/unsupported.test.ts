@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { TrayError } from '../../src/tray/errors'
 import * as native from '../../src/index'
 import * as web from '../../src/index.web'
 import * as windowsTray from '../../src/tray/index.windows'
@@ -34,17 +33,18 @@ describe('unsupported variants', () => {
       ).rejects.toMatchObject({ name: 'TrayError', code: reason })
     })
 
-    it(`${name} throws TrayError(${reason}) from window and residency helpers`, () => {
-      for (const call of [
-        () => api.showAppWindows(),
-        () => api.hideAppWindows(),
-        () => api.toggleAppWindows(),
-        () => api.areAppWindowsVisible(),
-        () => api.keepAppResident(),
-        () => api.keepAppResident({ hideWindowsOnClose: true }),
-      ]) {
-        expect(call).toThrowError(TrayError)
-        expect(call).toThrowError(expect.objectContaining({ code: reason }))
+    it(`${name} throws UnavailabilityError from window and residency helpers`, () => {
+      for (const [call, feature] of [
+        [() => api.showAppWindows(), 'showAppWindows'],
+        [() => api.hideAppWindows(), 'hideAppWindows'],
+        [() => api.toggleAppWindows(), 'toggleAppWindows'],
+        [() => api.areAppWindowsVisible(), 'areAppWindowsVisible'],
+        [() => api.keepAppResident(), 'keepAppResident'],
+        [() => api.keepAppResident({ hideWindowsOnClose: true }), 'keepAppResident'],
+      ] as const) {
+        expect(call).toThrowError(
+          expect.objectContaining({ name: 'UnavailabilityError', feature }),
+        )
       }
     })
   }
@@ -89,16 +89,17 @@ describe('windows leaf without the Win32 projection', () => {
     ).rejects.toMatchObject({ name: 'TrayError', code: 'unsupported-runtime' })
   })
 
-  it('throws TrayError(unsupported-runtime) from window and residency helpers', () => {
-    for (const call of [
-      () => windows.showAppWindows(),
-      () => windows.hideAppWindows(),
-      () => windows.toggleAppWindows(),
-      () => windows.areAppWindowsVisible(),
-      () => windows.keepAppResident(),
-    ]) {
-      expect(call).toThrowError(TrayError)
-      expect(call).toThrowError(expect.objectContaining({ code: 'unsupported-runtime' }))
+  it('throws UnavailabilityError from window and residency helpers', () => {
+    for (const [call, feature] of [
+      [() => windows.showAppWindows(), 'showAppWindows'],
+      [() => windows.hideAppWindows(), 'hideAppWindows'],
+      [() => windows.toggleAppWindows(), 'toggleAppWindows'],
+      [() => windows.areAppWindowsVisible(), 'areAppWindowsVisible'],
+      [() => windows.keepAppResident(), 'keepAppResident'],
+    ] as const) {
+      expect(call).toThrowError(
+        expect.objectContaining({ name: 'UnavailabilityError', feature }),
+      )
     }
   })
 })

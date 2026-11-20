@@ -191,63 +191,7 @@ console.log(tray.isDestroyed) // true
 
 ## Keep the app resident
 
-Tray apps usually stay alive without visible windows. The window helpers
-control the app's top-level windows, and `keepAppResident` keeps the app
-running after the last window closes.
-
-```ts
-import { hideAppWindows, keepAppResident, showAppWindows } from '@octane-xplat/desktop'
-
-const residency = keepAppResident({ hideWindowsOnClose: true })
-// Later: showAppWindows() / residency.release()
-```
-
-`showAppWindows` reveals and focuses app windows, `hideAppWindows` hides visible windows, `toggleAppWindows` switches visibility, and `areAppWindowsVisible` reports whether any app window is visible. These helpers belong to the desktop app lifetime and work without creating a tray icon.
-
-```ts
-import {
-  showAppWindows,
-  hideAppWindows,
-  toggleAppWindows,
-  areAppWindowsVisible,
-} from '@octane-xplat/desktop'
-
-export const windowActions = {
-  show: showAppWindows,
-  hide: hideAppWindows,
-  toggle: toggleAppWindows,
-  isVisible: areAppWindowsVisible,
-}
-```
-
-On macOS, `keepAppResident` disables automatic termination for the hold's lifetime. `hideWindowsOnClose` retains the current windows by setting `releasedWhenClosed` to false so they can be shown again; activation policy remains the host's responsibility. A delegate that explicitly ends the app on last-window-close causes `resident-conflict`. On Linux the hold uses `Gio.Application.hold`, and `hideWindowsOnClose` sets the current windows' hide-on-close flag. On Windows the host keeps the process alive while JavaScript runs, so the hold is inert and `hideWindowsOnClose` is unimplemented. Release the handle when its owner ends.
-
-```ts
-import { keepAppResident } from '@octane-xplat/desktop'
-
-export function startResidency(): () => void {
-  const residency = keepAppResident({ hideWindowsOnClose: true })
-  return () => residency.release()
-}
-```
-
-On web and mobile, window and residency helpers throw `TrayError` with code `unsupported-platform`. A Windows host without the Win32 projection throws `unsupported-runtime`. Handle the error when a shared action can reach an unsupported host.
-
-```ts
-import { showAppWindows, TrayError } from '@octane-xplat/desktop'
-
-export function revealWindows(): boolean {
-  try {
-    return showAppWindows()
-  } catch (error) {
-    if (error instanceof TrayError) {
-      console.log(error.code, error.message)
-      return false
-    }
-    throw error
-  }
-}
-```
+Tray apps usually stay alive without visible windows — the desktop guide covers `keepAppResident` and the `showAppWindows`, `hideAppWindows`, `toggleAppWindows`, and `areAppWindowsVisible` helpers in [Keep the app resident and control app windows](package-desktop.md#keep-the-app-resident-and-control-app-windows).
 
 ## Platform support and limits
 

@@ -1,4 +1,4 @@
-import { TrayError } from '../tray/errors.js'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { AppResidency } from './types.js'
 
 export interface UnsupportedApp {
@@ -10,18 +10,21 @@ export interface UnsupportedApp {
 }
 
 export function unsupportedApp(): UnsupportedApp {
-  const fail = (): never => {
-    throw new TrayError(
-      'unsupported-platform',
-      'App residency and window visibility need a native desktop runtime; browser and desktop WebView frontends cannot control app windows.',
-    )
-  }
-
   return {
-    showAppWindows: fail,
-    hideAppWindows: fail,
-    toggleAppWindows: fail,
-    areAppWindowsVisible: fail,
-    keepAppResident: fail,
+    showAppWindows() {
+      throw new UnavailabilityError('showAppWindows')
+    },
+    hideAppWindows() {
+      throw new UnavailabilityError('hideAppWindows')
+    },
+    toggleAppWindows() {
+      throw new UnavailabilityError('toggleAppWindows')
+    },
+    areAppWindowsVisible() {
+      throw new UnavailabilityError('areAppWindowsVisible')
+    },
+    keepAppResident() {
+      throw new UnavailabilityError('keepAppResident')
+    },
   }
 }

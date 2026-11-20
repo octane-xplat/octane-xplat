@@ -41,7 +41,7 @@ try {
     caseFile,
     `
 import { NSApp, NSWindow, NSMenuItem } from '@octane-xplat/platform/macos'
-import { createTray, getTrayAvailability, showAppWindows, hideAppWindows, toggleAppWindows, areAppWindowsVisible, keepAppResident, TrayError } from ${JSON.stringify(join(repo, 'packages/desktop/src/index.macos.ts'))}
+import { createTray, getTrayAvailability, showAppWindows, hideAppWindows, toggleAppWindows, areAppWindowsVisible, keepAppResident } from ${JSON.stringify(join(repo, 'packages/desktop/src/index.macos.ts'))}
 
 const settled = (ms) => new Promise((r) => setTimeout(r, ms))
 let assertions = 0

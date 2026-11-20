@@ -1,5 +1,4 @@
 import { NSApp, NSProcessInfo, type NSArray, type NSWindow } from '@octane-xplat/platform/macos'
-import { TrayError } from '../tray/errors.js'
 
 import { createAppLifecycle } from './lifecycle.js'
 import { createMacOSSingleInstance } from './second-instance.macos.js'
@@ -109,26 +108,26 @@ export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): App
   const delegate = NSApp.delegate
 
   if (delegate) {
+    let endsOnLastWindowClose = false
+
     try {
-      if (
+      endsOnLastWindowClose = Boolean(
         typeof delegate.respondsToSelector === 'function' &&
-        delegate.respondsToSelector('applicationShouldTerminateAfterLastWindowClosed:') &&
-        delegate.applicationShouldTerminateAfterLastWindowClosed?.(NSApp)
-      ) {
-        throw new TrayError(
-          'resident-conflict',
-          'keepAppResident cannot hold the app open: the application delegate still returns true from applicationShouldTerminateAfterLastWindowClosed. Return false while the app stays resident in the tray.',
-        )
-      }
-    } catch (error) {
-      if (error instanceof TrayError) {
-        throw error
-      }
+          delegate.respondsToSelector('applicationShouldTerminateAfterLastWindowClosed:') &&
+          delegate.applicationShouldTerminateAfterLastWindowClosed?.(NSApp),
+      )
+    } catch {
       // A delegate without the optional method leaves residency allowed.
+    }
+
+    if (endsOnLastWindowClose) {
+      throw new Error(
+        'keepAppResident cannot hold the app open: the application delegate still returns true from applicationShouldTerminateAfterLastWindowClosed. Return false while the app stays resident.',
+      )
     }
   }
 
-  const reason = 'octane-xplat tray residency'
+  const reason = 'octane-xplat app residency'
   const processInfo = NSProcessInfo.processInfo
 
   processInfo.disableAutomaticTermination(reason)

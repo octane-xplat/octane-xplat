@@ -2,7 +2,7 @@
 
 ID: tray
 Targets: macos, linux, windows
-Related APIs: @octane-xplat/desktop, createTray, getTrayAvailability, Tray, TrayMenuItem, TrayIcon, keepAppResident, showAppWindows, hideAppWindows, toggleAppWindows, areAppWindowsVisible
+Related APIs: @octane-xplat/desktop, createTray, getTrayAvailability, Tray, TrayError, TrayMenuItem, TrayIcon, keepAppResident, showAppWindows, hideAppWindows, toggleAppWindows, areAppWindowsVisible, UnavailabilityError
 
 ## Starting point
 
@@ -22,7 +22,7 @@ visible windows when intended.
 - AC1: Call `getTrayAvailability()` before `createTray`, catch `TrayError` codes (`unsupported-platform`, `unsupported-runtime`, `no-session-bus`, `no-status-notifier-host`, `invalid-icon`, `invalid-menu`, `registration-failed`), and never create a second icon while one is live without an update/destroy path.
 - AC2: Use per-platform `icon` overrides where formats differ (`isTemplate` file icon on macOS, `.ico` file icon on Windows, named/freedesktop icon on Linux) — a single named icon works only when the name resolves on the current host.
 - AC3: Treat checkboxes and radio groups as controlled (the mark moves only through `update`), use `onActivate` for primary click and the menu for secondary click; on Windows use `&`-mnemonic labels where keyboard menu navigation matters.
-- AC4: Use `showAppWindows`/`hideAppWindows`/`toggleAppWindows`/`areAppWindowsVisible` for resident-app window control and `keepAppResident` for the no-visible-window lifetime — on Windows the hold is inert and `hideWindowsOnClose` is unimplemented; on macOS a delegate that still ends the app on last-window-close makes it throw `resident-conflict`.
+- AC4: Use `showAppWindows`/`hideAppWindows`/`toggleAppWindows`/`areAppWindowsVisible` for resident-app window control and `keepAppResident` for the no-visible-window lifetime — on Windows the hold is inert and `hideWindowsOnClose` is unimplemented; on macOS a delegate that still ends the app on last-window-close makes `keepAppResident` throw; unsupported hosts throw `UnavailabilityError` naming the function, not `TrayError`.
 - AC5: Runtime evidence distinguishes real icon presence from handler dispatch — prove the notification-area/status-bar item out of process (`Shell_NotifyIconGetRect` rect, System Events, D-Bus watcher registration), not just that `createTray` resolved.
 
 ## Documentation
@@ -30,5 +30,5 @@ visible windows when intended.
 - AC1: [Check support first](../../../docs/packages/package-tray.md#check-support-first), [shared unsupported tests](../../../packages/desktop/tests/tray/unsupported.test.ts).
 - AC2: [Pick the icon](../../../docs/packages/package-tray.md#pick-the-icon), [platform table](../../../docs/packages/package-tray.md#platform-support-and-limits).
 - AC3: [Build the menu](../../../docs/packages/package-tray.md#build-the-menu), [react to clicks](../../../docs/packages/package-tray.md#react-to-clicks), [update and clean up](../../../docs/packages/package-tray.md#update-and-clean-up), [menu normalization tests](../../../packages/desktop/tests/tray/shared.test.ts).
-- AC4: [Keep the app resident](../../../docs/packages/package-tray.md#keep-the-app-resident), [macOS runtime driver](../../../packages/desktop/tests/tray/appkit-runtime.mts), [GTK residency fixture](../../../packages/desktop/tests/tray/fixtures/tray-window.gtk.js), [Windows host note](../../../docs/packages/package-tray.md#platform-support-and-limits).
+- AC4: [Keep the app resident and control app windows](../../../docs/packages/package-desktop.md#keep-the-app-resident-and-control-app-windows), [macOS runtime driver](../../../packages/desktop/tests/tray/appkit-runtime.mts), [GTK residency fixture](../../../packages/desktop/tests/tray/fixtures/tray-window.gtk.js), [Windows host note](../../../docs/packages/package-tray.md#platform-support-and-limits).
 - AC5: [What has been tested](../../../docs/packages/package-tray.md#interaction-limits), [packaged macOS driver](../../../packages/desktop/tests/tray/macos-packaged.mts), [GTK runtime driver](../../../packages/desktop/tests/tray/gtk-runtime.mts), [Windows runtime driver](../../../packages/desktop/tests/tray/windows-runtime.mts).
