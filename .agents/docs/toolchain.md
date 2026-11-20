@@ -95,8 +95,9 @@ Vite/MCP subpath exports retain per-module ESM for Node consumers.
 
 In-repo `xplat` dispatches to the host's Go build at
 `research/go-cli/xplat-go-<platform>-<arch>-cli`; build it with
-`turbo run build:go --filter=@octane-xplat/cli` (Go 1.27.3,
-`GOTOOLCHAIN=local`; artifacts stay in the ignored `research/go-cli`).
+`turbo run build:go --filter=@octane-xplat/cli` (`GOTOOLCHAIN=local`;
+artifacts stay in the ignored `research/go-cli`). Local builds accept stable
+Go 1.27 patch releases starting at 1.27.3. CI and release builds pin Go 1.27.3.
 Only `xplat` invocations (dev, `routes:watch`) need that binary — install and
 codegen do not: `@octane-xplat/app#gen` runs `planRoutes` off the CLI sources via
 `scripts/gen-routes.ts`, so `bun install` stays Node + Bun only. CI

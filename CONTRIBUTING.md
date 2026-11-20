@@ -45,12 +45,18 @@ aliases; see each app's `package.json` for its full task list.
 | Build a harness target                                      | `bun run turbo run build --filter=@octane-xplat/web`, `bun run --filter @octane-xplat/mobile build:ios`, `bun run --filter @octane-xplat/macos package`, or `bun run --filter @octane-xplat/windows build:windows` |
 | Work on the docs site                                       | `bun run --filter @octane-xplat/docs dev` or `bun run turbo run build --filter=@octane-xplat/docs`                                               |
 | Build workspace packages                                    | `bun run build:packages`                                                                                                          |
+| Build the local `xplat` executable                          | `bun run turbo run build:go --filter=@octane-xplat/cli`                                                                            |
 | Run lint and repository checks                              | `bun run check`                                                                                                                   |
 | Generate declarations and typecheck every target            | `bun run typecheck`                                                                                                               |
 | Run unit, repository-checker, and typegen tests             | `bun run test`                                                                                                                    |
 | Run checks, typechecks, and tests in order                  | `bun run validate`                                                                                                                |
 | Verify packed UI, GIF, auth, and typegen-fixture consumers  | `bun run test:packed`                                                                                                             |
 | Build and browser-smoke the harness or docs                 | `bun run --filter @octane-xplat/web smoke` or `bun run --filter @octane-xplat/docs smoke`                                                        |
+
+`bun install` and `bun run build:packages` skip Go compilation. Use the CLI build
+command above to refresh both checkout copies of `bin/xplat.exe`. Local builds
+accept stable Go 1.27 patch releases starting at 1.27.3. CI and release builds
+use Go 1.27.3.
 
 Per-target typechecks use the same filtered form, for example
 `bun run turbo run typecheck --filter=@octane-xplat/web`, `--filter=@octane-xplat/mobile`,

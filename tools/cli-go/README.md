@@ -7,7 +7,8 @@ metadata comes from the checked-in `packages/cli/go/internal/assets/catalog.json
 probe catalog describes reference contracts, not the probe's implemented command
 coverage; `--help` lists the bounded probe operations.
 
-Use Go **1.27.3**, Bun **1.4.4**, and Node with TypeScript stripping. The core
+Use Bun **1.4.4** and Node with TypeScript stripping. Local builds accept stable
+Go 1.27 patch releases starting at 1.27.3. CI and release builds pin Go **1.27.3**. The core
 build disables cgo. The optional `onnx` build uses
 `github.com/yalue/onnxruntime_go@v1.38.0`; native ONNX Runtime **1.31.1** and the
 existing pinned MiniLM model are separate local inputs. Checksums and compiler
