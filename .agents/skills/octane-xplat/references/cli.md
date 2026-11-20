@@ -111,6 +111,7 @@ XPLAT_PERMISSIONS=evidence-retain /absolute/path/to/xplat-go evidence retain EVI
 ```
 
 ```sh
+/absolute/path/to/xplat-go actions run --action ACTION_ID --target web --input '{}' --json
 /absolute/path/to/xplat-go actions invoke --action ACTION_ID --instance APP_INSTANCE --revision REVISION --input '{}' --request-key REQUEST_KEY --json
 /absolute/path/to/xplat-go actions status JOB_ID --json
 ```
@@ -473,11 +474,12 @@ focused help and the reported capability before selecting it. Follow
 [test identifiers](../../../../docs/testing/test-identifiers.md) for stable targets
 and [testing](testing.md) for evidence boundaries.
 
-For app-declared development actions, first inspect the live registry, the exact
-instance, availability, input contract, declared effects, and revision. Invoke
-only an action within the task's authorization, follow its returned job, and
-assert state independently. Do not invent action IDs or treat an empty registry
-as a broken CLI. Actions supplement UI checks; they do not prove user input.
+For app-declared development actions, inspect the live registry for the action
+ID, input contract, availability, and declared effects. Run within the task's
+authorization and assert state independently. `actions run` binds the current
+revision for the unique ready instance. Pass `--instance` to resolve ambiguity.
+Use `actions status` with `error.context.jobId` after a timed-out or interrupted
+wait. Actions supplement UI checks; they do not prove user input.
 To add actions or diagnose missing registration, read
 [authoring development actions](development-actions.md), including bridge setup
 and platform qualification limits.
@@ -485,7 +487,7 @@ and platform qualification limits.
 ```sh
 bun run xplat actions list --json
 # Replace the input JSON with the selected action's declared payload.
-bun run xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key packing-action --json
+bun run xplat actions run --action ACTION_ID --target web --input '{}' --request-key packing-action --json
 bun run xplat actions status JOB_ID --json
 ```
 

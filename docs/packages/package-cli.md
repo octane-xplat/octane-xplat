@@ -288,8 +288,8 @@ xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --js
 
 Native action discovery reads the running app's development bridge without
 starting Node itself. Start the app with its existing development workflow, then list its
-instances and declared actions. An empty registry is different from an unreachable
-bridge; use the returned instance and revision when invoking:
+instances and declared actions. The listing distinguishes an empty registry
+from an unreachable bridge.
 
 ```sh
 xplat actions list --project "$PWD" --app apps/web --json
@@ -300,25 +300,28 @@ installed in the selected project. Use the matching
 release build package; an older worker reports an update requirement.
 The worker checks JavaScript field contracts, including regexes and defaults.
 Go owns permission checks, HTTP, bounded queues, jobs and cancellation. Follow
-the returned job through completion and inspect reported effects before retrying:
+the job through completion with `actions run`. The command uses the current
+registry revision for the selected instance. The
+[action guide](../testing/development-actions.md#invoke-and-assert-through-the-cli)
+shows how to select an instance and recover an interrupted wait.
+
+```sh
+xplat actions run --action ACTION_ID --target web --input '{}' --project "$PWD" --app apps/web --json
+```
+
+Use `actions invoke` for asynchronous submission. Inspect the job's reported
+effects before retrying.
 
 ```sh
 # Replace these values with exact identities from the live listing.
 xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/web --json
-xplat actions status JOB_ID --project "$PWD" --json
-xplat job cancel JOB_ID --project "$PWD" --json
+xplat actions status JOB_ID --project "$PWD" --app apps/web --json
 ```
 
-Request keys recover live jobs within their app instance/action. Reusing a key
+Request keys recover retained jobs for the same app instance and action. Reusing a key
 with different input or a changed revision fails explicitly. Outcome history is
-bounded, so keys do not promise indefinite protection against reruns. Queued
-cancellation prevents dispatch; cancellation after dispatch is best-effort and
-does not undo changes. A result-contract failure also leaves completed effects
-in place. Read the job's structured result or failure:
-
-```sh
-xplat job status JOB_ID --project "$PWD" --json
-```
+bounded, so keys do not promise indefinite protection against reruns. A
+result-contract failure leaves completed effects in place.
 
 Native `typecheck` runs the selected project's installed TypeScript compiler
 as `tsc --runExternalCode`. The project must already contain compatible
@@ -802,6 +805,7 @@ xplat inspect <sess_…> --testid <name> --json   # bounded named hosts, redacte
 xplat interact <sess_…> --document <id> --testid <name> --mechanism dom-event --json
 xplat capture <sess_…> --json               # needs XPLAT_PERMISSIONS=visual-capture
 xplat actions list --json                   # the dev app's declared action registry
+xplat actions run --action <id> --json      # selects a ready instance and waits
 xplat actions invoke --action <id> --json   # returns a job; --revision guards staleness
 xplat actions status <job_…> --json
 xplat evidence list --json                  # job/inspection/capture artifacts; retain/delete by id

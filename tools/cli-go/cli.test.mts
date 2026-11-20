@@ -87,6 +87,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
       'session attach',
       'actions list',
       'actions invoke',
+      'actions run',
       'actions status',
       'diagnostics',
       'interact',
@@ -119,10 +120,10 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 
   assert.equal(
     catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-    23,
+    24,
   )
 
-  assert.equal(catalog.value.data.commands.length, 24)
+  assert.equal(catalog.value.data.commands.length, 25)
 
   assert.ok(
     !catalog.value.data.commands.some((command) => command.command === 'session detach'),

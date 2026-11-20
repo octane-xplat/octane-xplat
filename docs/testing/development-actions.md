@@ -411,78 +411,66 @@ if (import.meta.env.DEV) {
 
 ## Invoke and assert through the CLI
 
-Run these commands from the intended app directory. If several apps are
-available, select one with `--app`. For built-in browser inspection, start an
-owned web session. Starting a session and invoking actions require the
-`runtime-actions` permission within your task's existing authorization.
-Replace `LAUNCH_JOB_ID` with the returned `data.job.jobId` and poll until it
-succeeds; keep the returned session ID for inspection and
-cleanup. A launch request alone does not establish app readiness.
+From your app directory, start the web dev server and open the URL it prints.
+Keep it running while you use a second terminal in the same directory. If
+your workspace has several apps, select yours with `--app`.
 
 ```sh
-bun run xplat session start --platform web --json
-bun run xplat job status LAUNCH_JOB_ID --json
+xplat dev --targets web
 ```
 
-With the dev app running, inspect the live registry before invoking: it reports
-each instance's `appInstanceId`, `revision`, actions,
-input contracts, effects, and availability. An empty registry differs from a
-disconnected app. Installed help and schemas describe the exact command contract.
+List actions to see what the app declares, including each action's inputs,
+effects, and availability. Use `runtime-actions` to invoke an action within
+your task's authorization. An action with declared effects outside the app also
+requires `external-effects`.
 
 ```sh
-bun run xplat actions list --json
-bun run xplat actions invoke --schema
+xplat actions list --json
 ```
 
-Replace `INSTANCE_ID` and `REVISION` below with values from that listing.
-Actions declaring effects outside the app also need `external-effects`.
-Grants must fit your task's existing authorization. A stale revision is rejected;
-list again before retrying.
-The response's `data.job.jobId` identifies the accepted job, not a completed action.
+Run the counter action and check that
+`data.job.result.outcome.result.count` equals `3`. The command selects a ready
+instance and binds its current registry revision. Omit `--target` when only
+one app instance is ready. If several match, copy the intended `appInstanceId`
+from the listing and pass it with `--instance`.
 
 ```sh
-bun run xplat actions invoke \
-  --action fixtures.set-counter \
-  --instance INSTANCE_ID \
-  --revision REVISION \
-  --input '{"count":3}' \
-  --request-key counter-setup-1 \
-  --json
-bun run xplat actions status JOB_ID --json
+xplat actions run --action fixtures.set-counter --target web --input '{"count":3}' --json
 ```
 
-Replace `JOB_ID` with the returned job ID and poll until terminal. Require
-`data.job.state` to be `succeeded` and check that
-`data.job.result.outcome.result.count` equals `3`. Request keys recover live
-jobs; they do not deduplicate arbitrary later runs. For an uncertain outcome,
-inspect the existing job before submitting another invocation.
-
-Treat the registry as a live view, not a stable snapshot. Apps announce every
-five seconds by default. After 15 seconds without an announcement, the bridge
-removes that instance from live listings and refuses new work for it. An
-outstanding action then fails with `disconnected_runtime`; its outcome may be
-unknown, so inspect app state before retrying. A stopped or suspended app can
-still appear live during that 15-second window. Run `actions list` immediately
-before invoking, using its instance and revision:
+The CLI waits up to 30 seconds after the job is accepted. Change that limit
+with `--timeout-ms`. If the wait times out or you press Ctrl-C, the action can
+still finish. Copy `error.context.jobId` and check the existing job before
+submitting another invocation. A failed or cancelled job is returned in
+`error.context.job`.
 
 ```sh
-bun run xplat actions list --json
+xplat actions status JOB_ID --json
 ```
 
-An ordinary heartbeat keeps the revision unchanged. Registry changes can make
-a previously selected revision stale; rediscover it when an invocation reports
-`stale_identity`.
-
-A successful action proves its handler completed. Check the resulting screen
-separately. For a supported owned Chromium session, replace `SESSION_ID` with
-its CLI session ID and inspect the mounted counter until its text is `3`; fail
-the check if it does not reach that state within your test's deadline. Use your
-app's tests when CLI inspection is unavailable. End the session you started
-after checking; this releases its owned browser and dev server.
+Use `actions invoke` when your script needs the job ID as soon as the action
+is accepted. For that workflow, copy the instance and revision from a fresh
+listing. If the registry changes before invocation, the CLI reports
+`stale_identity`. An optional `--request-key` on either command lets the same
+instance, revision, action, and input recover a retained job.
 
 ```sh
-bun run xplat inspect SESSION_ID --testid counter.value --json
-bun run xplat session end SESSION_ID --json
+xplat actions invoke --action fixtures.set-counter --instance INSTANCE_ID --revision REVISION --input '{"count":3}' --request-key counter-setup-1 --json
+```
+
+A dev app that stops announcing itself can still appear ready until its
+connection expires. If it disconnects during a run, the job can report
+`disconnected_runtime` and an unknown outcome. Use the job status and check app
+state before retrying.
+
+Check the resulting screen after the handler finishes. For a web app that
+supports CLI inspection, use the instance's `sessionId` from the action listing
+to check that the mounted counter's text is `3`. Use your app's tests when CLI
+inspection is unavailable. Press Ctrl-C in the first terminal when you're done
+with the dev server you started.
+
+```sh
+xplat inspect SESSION_ID --testid counter.value --json
 ```
 
 ## Choose what your actions cover

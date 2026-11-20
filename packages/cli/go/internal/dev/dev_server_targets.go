@@ -2,6 +2,7 @@ package dev
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
@@ -166,6 +167,14 @@ func (view *devTargetView) dispatch(ctx context.Context, command string, values 
 }
 
 func devAppRequest(ctx context.Context, workspace *project.WorkspaceContext, command string, values map[string]any) (any, *cli.Error) {
+	client, failure := devAppClient(ctx, workspace)
+	if failure != nil {
+		return nil, failure
+	}
+	return client.appRequest(ctx, command, values)
+}
+
+func devAppClient(ctx context.Context, workspace *project.WorkspaceContext) (*devServerClient, *cli.Error) {
 	selection := workspace.Selection()
 	if selection.State != "bound" {
 		code := "invalid_selection"
@@ -178,10 +187,10 @@ func devAppRequest(ctx context.Context, workspace *project.WorkspaceContext, com
 	if err != nil {
 		return nil, cli.ExecutionFailure(err)
 	}
-	client, failure := lookupDevServer(ctx, cache, selection.App.Root)
-	if failure != nil {
-		return nil, failure
-	}
+	return lookupDevServer(ctx, cache, selection.App.Root)
+}
+
+func (client *devServerClient) appRequest(ctx context.Context, command string, values map[string]any) (json.RawMessage, *cli.Error) {
 	arguments := map[string]any{}
 	for key, value := range values {
 		switch key {
