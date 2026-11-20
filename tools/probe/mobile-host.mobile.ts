@@ -20,6 +20,7 @@ import * as uiImage from '@nativescript/core/ui/image'
 import * as coreView from '@nativescript/core/ui/core/view'
 import * as mason from '@octane-xplat/nativescript-mason-core'
 import * as cssParser from '@nativescript/core/css/parser'
+import * as http from '@nativescript/core/http'
 import * as editableTextBase from '@nativescript/core/ui/editable-text-base'
 import * as flexboxLayout from '@nativescript/core/ui/layouts/flexbox-layout'
 import * as cssShadow from '@nativescript/core/ui/styling/css-shadow'
@@ -46,6 +47,9 @@ const modules = {
   // deep core subpaths through the load shim — a bare require would search a
   // tns_modules dir that bundled apps don't ship.
   '@nativescript/core/platform': platform,
+  // Plugin code inlined into the case bundle (e.g. @nativescript-community/perms
+  // through media's camera dep) requires this deep core subpath at eval time.
+  '@nativescript/core/http': http,
   '@nativescript/core/ui/image': uiImage,
   '@nativescript/core/ui/core/view': coreView,
   // Reuse the host engine: bundling another copy re-registers Core CSS properties.
