@@ -15,7 +15,7 @@ export const nativeBasisSource: ResizableBasisSource = {
       return v != null && v > 0 ? v : null
     }
 
-    const host = appKitHost()?.getWindowSize?.()
+    const host = appKitHost()?.windowSize
 
     if (host) {
       return direction === 'horizontal' ? host.width : host.height
