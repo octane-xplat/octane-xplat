@@ -132,6 +132,10 @@ must match an observed target dev origin; ordinary CLI HTTP still rejects Origin
 `actions invoke` validates the live declaration/input through the selected
 project's canonical Node worker, checks revision and declared effects, and submits
 one bounded app request. `actions status` reads its asynchronous result natively.
+The CLI implements `actions run` by discovering a ready instance, invoking with
+its observed revision, and polling on the same authenticated server connection.
+The wait deadline starts at acceptance. If waiting ends before the job does,
+the reply includes the job ID for `actions status` and the job keeps its own lifecycle.
 The real app registry still owns handler execution, serialization and validation.
 Native diagnostics reads retained foreground engine logs; scoped native Apple report discovery and retained originals are available for macOS captures with recorded identity. Read-only browser inspection is available through an announced app inspector; explicit programmatic interaction is available on announced browser hosts; CDP/OS input and visual capture remain unsupported. The development Vite plugin forwards bounded browser warnings/errors into native history.
 
@@ -148,6 +152,7 @@ full 256-frame receiver queue closes just that consumer with 1013 rather than
 blocking the hub. The Vite fallback bridge has no channels.
 
 ```sh
+/absolute/path/to/xplat-go actions run --action fixture.read --target web --input '{}' --project /work/repo --app apps/web --json
 /absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
 /absolute/path/to/xplat-go actions status JOB_ID --project /work/repo --app apps/web --json
 ```

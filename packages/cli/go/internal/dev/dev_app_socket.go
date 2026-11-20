@@ -426,6 +426,9 @@ func (hub *devAppHub) dispatch(command string, values map[string]any) (any, *cli
 	case "actions list":
 		live, disconnected := []any{}, []any{}
 		for _, peer := range hub.peers {
+			if !peer.ready && peer.disconnectedAt == "" {
+				continue // Wait until the app's registration is acknowledged.
+			}
 			entry := devPeerSnapshot(peer)
 			if peer.disconnectedAt != "" {
 				disconnected = append(disconnected, entry)
