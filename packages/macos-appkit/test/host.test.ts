@@ -84,7 +84,10 @@ NSWindow.prototype.addChildWindowOrdered = function() {}
 
 NSView.prototype.initWithFrame = function() {
   this.bounds = { origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } }
-  this.widthAnchor = { constraintEqualToConstant: (constant) => ({ active: false, constant }) }
+  this.widthAnchor = {
+    constraintEqualToConstant: (constant) => ({ active: false, constant }),
+    constraintGreaterThanOrEqualToConstant: (constant) => ({ active: false, constant }),
+  }
   this.heightAnchor = this.widthAnchor
   return this
 }

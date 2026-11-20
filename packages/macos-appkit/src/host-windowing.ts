@@ -34,7 +34,7 @@ import {
   NativeClass,
 } from '@octane-xplat/platform/macos'
 
-import type { NSClass } from '@octane-xplat/platform/macos'
+import type { NSClass, NSLayoutConstraint } from '@octane-xplat/platform/macos'
 
 const app = NSApplication.sharedApplication
 
@@ -184,10 +184,32 @@ interface AppKitLifecycle {
   shouldTerminate(): 0 | 1
 }
 
+/** Required constraints flooring a window's contentView at its last applied
+ *  size. Kept active so fitting-size solver passes cannot shrink the window;
+ *  suspended while a live-resize drag is in flight, where the floor would
+ *  otherwise clamp an intentional move below the current size. A floor cannot
+ *  clamp a zoom: zooming grows the window, and unzoom lands exactly at the
+ *  recorded user frame the floor already equals. */
+interface WindowSizePins {
+  width: NSLayoutConstraint
+  height: NSLayoutConstraint
+  /** True while a live resize is in flight: the constants sit at 0 so they
+   *  cannot clamp the drag, and tracking stays off until it ends. */
+  suspended: boolean
+}
+
 interface MacosWindowingShared {
   resolver: WindowContentResolver | null
   appDelegate: AppDelegate | null
   byNative: Map<NSWindow, WindowControllerBase>
+  windowSizePins: Map<NSWindow, WindowSizePins>
+  /** Window frame recorded before each zoom — AppKit restores this "user
+   *  frame" on unzoom, but in this runtime the restore lands at the zoomed
+   *  size with a clamped origin, so the delegate restores it explicitly. */
+  zoomUserFrames: Map<
+    NSWindow,
+    { origin: { x: number; y: number }; size: { width: number; height: number } }
+  >
   terminateAfterLastWindowClosed: boolean
   windowCloseHandlers: Map<NSWindow, () => void>
   parentWindows: Map<NSWindow, NSWindow>
@@ -227,6 +249,8 @@ shared.terminateAfterLastWindowClosed ??= false
 
 shared.windowCloseHandlers ??= new Map()
 shared.parentWindows ??= new Map()
+shared.windowSizePins ??= new Map()
+shared.zoomUserFrames ??= new Map()
 shared.running ??= true
 shared.eventPumpErrorReported ??= false
 shared.applicationClosed ??= new Promise((resolve) => {
@@ -243,6 +267,35 @@ shared.platformServices ??= {
 }
 
 const applicationClosed = shared.applicationClosed
+
+// A floored contentView reports the floor as the window's minimum content
+// size, so a live drag cannot shrink the window past its pre-drag size while
+// the floor stands. Zero the constants for the drag's duration and restore
+// them at the result — the window keeps its real size limits between drags.
+function suspendWindowSizePins(nativeWindow: NSWindow) {
+  const pins = shared.windowSizePins.get(nativeWindow)
+
+  if (!pins || pins.suspended) {
+    return
+  }
+
+  pins.width.constant = 0
+  pins.height.constant = 0
+  pins.suspended = true
+}
+
+function resumeWindowSizePins(nativeWindow: NSWindow) {
+  const pins = shared.windowSizePins.get(nativeWindow)
+  const bounds = nativeWindow?.contentView?.bounds?.size
+
+  if (!pins || !bounds) {
+    return
+  }
+
+  pins.width.constant = Number(bounds.width)
+  pins.height.constant = Number(bounds.height)
+  pins.suspended = false
+}
 
 function createAppKitLifecycle(): AppKitLifecycle {
   const quitGuards = new Set<() => boolean>()
@@ -487,10 +540,61 @@ class AppDelegate extends NSObject {
 
   windowDidResize(notification: any) {
     const nativeWindow = notification.object
+    const pins = shared.windowSizePins.get(nativeWindow)
+
+    // The floor follows the last applied size — except mid-drag, where it
+    // stays zeroed until windowDidEndLiveResize so one step cannot clamp
+    // the next step downward.
+    if (pins && !pins.suspended) {
+      const bounds = nativeWindow.contentView?.bounds?.size
+
+      if (bounds) {
+        pins.width.constant = Number(bounds.width)
+        pins.height.constant = Number(bounds.height)
+      }
+    }
 
     notifyAppKitListeners(shared.platformServices.windowResizeListeners, (listener) =>
       listener(nativeWindow),
     )
+  }
+
+  // zoom: toggles between the standard frame and the pre-zoom "user frame".
+  // Record that frame on the way in: on this host the built-in unzoom
+  // restore lands at the zoomed size with a clamped origin instead of the
+  // recorded frame, so on the way out we cancel zoom: and apply the recorded
+  // frame ourselves (isZoomed recomputes against the standard frame once it
+  // lands). A window AppKit reports zoomed without a recorded frame falls
+  // back to the built-in restore.
+  windowShouldZoomToFrame(nativeWindow: NSWindow, _frame: unknown) {
+    if (!nativeWindow.isZoomed()) {
+      const frame = nativeWindow.frame
+
+      shared.zoomUserFrames.set(nativeWindow, {
+        origin: { x: Number(frame.origin.x), y: Number(frame.origin.y) },
+        size: { width: Number(frame.size.width), height: Number(frame.size.height) },
+      })
+
+      return true
+    }
+
+    const restore = shared.zoomUserFrames.get(nativeWindow)
+
+    if (!restore) {
+      return true
+    }
+
+    shared.zoomUserFrames.delete(nativeWindow)
+    setTimeout(() => nativeWindow.setFrameDisplay(restore, true), 0)
+    return false
+  }
+
+  windowWillStartLiveResize(notification: any) {
+    suspendWindowSizePins(notification.object)
+  }
+
+  windowDidEndLiveResize(notification: any) {
+    resumeWindowSizePins(notification.object)
   }
 
   applicationOpenURLs(_application: any, urls: any) {
@@ -529,6 +633,9 @@ class AppDelegate extends NSObject {
   windowWillClose(notification: any) {
     const nativeWindow = notification.object as NSWindow
     const controller = controllerFor(nativeWindow)
+
+    shared.windowSizePins.delete(nativeWindow)
+    shared.zoomUserFrames.delete(nativeWindow)
 
     if (controller) {
       controller.__didClose()
@@ -968,31 +1075,26 @@ export function createAppKitWindow(options: CreateAppKitWindowOptions = {}): App
   shared.platformServices.primaryWindow ??= nativeWindow
 
   const contentView = makeContentView(size)
-  // Pin the content size as a required constraint. Without it, every
+  // Floor the content size with required constraints. Without them, every
   // required child-pin chain hands the solver a path where a nested
   // view's hugging priority (750) outranks the window↔content constraint
   // (WindowSizeStayPut, 500) — and AppKit resizes the window to the
-  // content's fitting size. The pins track the last applied size so
-  // explicit/user resizes still take: a fixed constant would lock the
-  // window at its initial size forever.
-  const widthPin = contentView.widthAnchor.constraintEqualToConstant(size.width)
-  const heightPin = contentView.heightAnchor.constraintEqualToConstant(size.height)
+  // content's fitting size. The pins track the last applied size so the
+  // floor follows resizes; they must be floors, not equalities: an
+  // equality pin caps the window's max size at its current frame, which
+  // makes AppKit's standard frame equal to the current frame — isZoomed
+  // reports true at every size and zoom: can never grow the window.
+  // The shared delegate tracks the constants, and zeroes the floor during
+  // live resizes so it cannot hold a mid-drag shrink.
+  const widthPin = contentView.widthAnchor.constraintGreaterThanOrEqualToConstant(size.width)
+  const heightPin = contentView.heightAnchor.constraintGreaterThanOrEqualToConstant(size.height)
 
   widthPin.active = true
   heightPin.active = true
-  subscribeAppKitEvent(shared.platformServices.windowResizeListeners, (resized) => {
-    if (resized !== nativeWindow) {
-      return
-    }
-
-    const bounds = nativeWindow.contentView?.bounds?.size
-
-    if (!bounds) {
-      return
-    }
-
-    widthPin.constant = Number(bounds.width)
-    heightPin.constant = Number(bounds.height)
+  shared.windowSizePins.set(nativeWindow, {
+    width: widthPin,
+    height: heightPin,
+    suspended: false,
   })
 
   nativeWindow.contentView = contentView
