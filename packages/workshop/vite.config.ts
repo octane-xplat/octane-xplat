@@ -1,4 +1,5 @@
 import { globSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
 // Vite loads workshop.config in Node, where installed TypeScript is not executable.
@@ -13,7 +14,7 @@ import { defineConfig } from 'vite'
 // run — so every transform fails on an ungenerated checkout. Pin the build
 // transform to the package's committed env manifest.
 export default defineConfig({
-  tsconfig: new URL('./tsconfig.envs.json', import.meta.url).pathname,
+  tsconfig: fileURLToPath(new URL('./tsconfig.envs.json', import.meta.url)),
   build: {
     lib: {
       entry: [

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
 // Node runs the font CLI without the application's Octane compiler.
@@ -10,7 +11,7 @@ import { defineConfig } from 'vite'
 // run — so every transform fails on an ungenerated checkout. Pin the build
 // transform to the package's committed env manifest.
 export default defineConfig({
-  tsconfig: new URL('./tsconfig.envs.json', import.meta.url).pathname,
+  tsconfig: fileURLToPath(new URL('./tsconfig.envs.json', import.meta.url)),
   build: {
     lib: {
       entry: ['src/build/index.ts', 'src/build/cli.ts'],
