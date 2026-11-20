@@ -26,7 +26,7 @@ retention gaps; process output is not a complete OS diagnostic stream.
 - AC6: Discover existing app/session-scoped native reports with explicit availability and candidate/confirmed association; preserve complete originals separately from log rotation, with bounded retention and no OS report deletion.
 - AC7: Use diagnostics across CLI/MCP session/job selection; remove the former logs command/tool, and keep log cursors separate from report reads.
 
-- AC8: Use one durable session ID across dev, agent launch, status, diagnostics and post-owner history; start by optional exact target/platform positional or dev --device, expose progress/failure without launch jobs, reject ambiguous/unknown selectors, and cancel/end only owned resources across transports.
+- AC8: Use one durable session ID across dev, agent launch, status, diagnostics and post-owner history. Start by optional exact target/platform positional or dev `--device`. Use dev `--emulator` to select one virtual mobile target without an ID, with clear recovery when no target matches or the choice is ambiguous. Expose progress and failure without launch jobs, reject conflicting and unknown selectors, and cancel or end only owned resources across transports.
 
 ## Documentation
 

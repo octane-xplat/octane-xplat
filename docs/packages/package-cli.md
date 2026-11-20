@@ -28,6 +28,8 @@ bun add -D @octane-xplat/cli
 ```sh
 bun run xplat dev          # pick available targets
 bun run xplat dev macos    # single-target shorthand (kind or device id)
+bun run xplat dev ios --emulator # select an available iOS simulator
+bun run xplat dev android --emulator # select a running Android emulator
 bun run xplat add ios      # enable a platform skipped at create time
 bun run xplat build        # production builds
 bun run xplat build -t macos # experimental AppKit .app + .dmg (universal: Apple Silicon and Intel)
@@ -57,7 +59,8 @@ bun run xplat fonts add ./Inter.ttf
 
 The starter's dev and build scripts call `xplat` for the selected platform.
 For example, `bun run dev:ios` runs `xplat dev ios`, and `bun run build:ios`
-runs `xplat build ios`.
+runs `xplat build ios`. See [Run on iOS and Android](../start/toolchain.md#run-on-ios-and-android)
+for how Xplat chooses a virtual device and how to resolve an ambiguous match.
 
 ```sh
 bun run dev

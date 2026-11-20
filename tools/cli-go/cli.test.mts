@@ -1,7 +1,15 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, symlinkSync } from 'node:fs'
+import {
+  chmodSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  rmSync,
+  existsSync,
+  symlinkSync,
+} from 'node:fs'
 import { join, resolve, dirname } from 'node:path'
 import {
   discoverWorkspace,
@@ -141,6 +149,147 @@ test('all descriptors expose truthful native schemas outside a project', () => {
     assert.equal(actual.value.error.code, code)
   }
 })
+
+test('dev exposes --emulator and rejects incompatible selectors before discovery', () => {
+  const schema = cli(['dev', '--schema'])
+
+  assert.equal(schema.status, 0)
+  const emulator = schema.value.data.input.flags.find((flag) => flag.flag === 'emulator')
+
+  assert.equal(emulator?.type, 'boolean')
+  assert.match(emulator.desc, /Cannot combine with --device or --targets/)
+
+  const run = (args) =>
+    spawnSync(binary, ['dev', ...args], { cwd: scratch, encoding: 'utf8', timeout: 10000 })
+  const help = run(['--help'])
+
+  assert.equal(help.status, 0, help.stderr)
+  assert.match(help.stdout, /--emulator.*iOS simulator or running Android emulator/)
+  for (const [args, message] of [
+    [['--device', 'phone'], '--emulator cannot be combined with --device'],
+    [['--targets', 'ios'], '--emulator cannot be combined with --targets'],
+    [['web'], '--emulator accepts only ios or android as a target'],
+  ]) {
+    const result = run(['--emulator', ...args])
+
+    assert.equal(result.status, 1, result.stdout + result.stderr)
+    assert.ok(result.stderr.includes(message), result.stderr)
+  }
+})
+
+test(
+  'dev --emulator selects virtual devices through SDK discovery',
+  { skip: process.platform === 'win32' },
+  () => {
+    const app = join(scratch, 'virtual-dev')
+    const tools = join(app, 'tools')
+    const home = join(scratch, 'virtual-dev-home')
+    const simulators = [
+      { udid: 'cold-sim', name: 'Cold', state: 'Shutdown', isAvailable: true },
+      { udid: 'booted-sim', name: 'Booted', state: 'Booted', isAvailable: true },
+    ]
+
+    mkdirSync(home)
+    put(join(app, 'package.json'), {
+      name: 'virtual-dev',
+      dependencies: { '@nativescript/ios': '1', '@nativescript/android': '1' },
+      xplat: { targets: { ios: {}, android: {} } },
+    })
+    put(join(app, 'nativescript.config.ts'), 'export default {}')
+    put(join(app, 'node_modules/nativescript/package.json'), {
+      name: 'nativescript',
+      bin: { ns: './ns.cjs' },
+    })
+    put(
+      join(app, 'node_modules/nativescript/ns.cjs'),
+      'console.log("NATIVESCRIPT_ARGS " + JSON.stringify(process.argv.slice(2)))',
+    )
+    chmodSync(
+      put(
+        join(tools, 'xcrun'),
+        `#!/bin/sh
+case "$1 $2" in
+  'simctl list') printf '%s' "$TEST_SIMULATORS" ;;
+  'simctl bootstatus') [ "$3" = booted-sim ] ;;
+  'devicectl list') printf '%s' '{"result":{"devices":[{"identifier":"iphone","hardwareProperties":{"reality":"physical","platform":"iOS","udid":"iphone-id"},"deviceProperties":{"name":"Phone","bootState":"booted"},"connectionProperties":{"pairingState":"paired"}}]}}' ;;
+  'devicectl device') printf '%s' '{"result":{"passcodeRequired":false}}' ;;
+  *) exit 1 ;;
+esac
+`,
+      ),
+      0o700,
+    )
+    chmodSync(
+      put(
+        join(tools, 'adb'),
+        '#!/bin/sh\n[ "$1" = devices ] && printf "%s\\n" "$TEST_ADB_DEVICES"\n',
+      ),
+      0o700,
+    )
+
+    const run = (args, { ios = simulators, android = 'emulator-5554\tdevice' } = {}) =>
+      spawnSync(binary, ['dev', ...args], {
+        cwd: app,
+        encoding: 'utf8',
+        timeout: 15000,
+        env: {
+          ...process.env,
+          PATH: [tools, dirname(process.execPath)].join(':'),
+          HOME: home,
+          NODE_OPTIONS: '',
+          NODE_PATH: '',
+          XPLAT_DEV_CACHE: join(home, 'dev-cache'),
+          XDG_CACHE_HOME: join(home, 'cache'),
+          TEST_SIMULATORS: JSON.stringify({ devices: { runtime: ios } }),
+          TEST_ADB_DEVICES: `List of devices attached\nandroid-phone\tdevice\n${android}`,
+        },
+      })
+
+    for (const [args, platform, id] of [
+      [['android', '--emulator'], 'android', 'emulator-5554'],
+      [['android', '--device', 'android-phone'], 'android', 'android-phone'],
+      ...(process.platform === 'darwin' ? [[['ios', '--emulator'], 'ios', 'booted-sim']] : []),
+    ]) {
+      const result = run(args)
+
+      assert.equal(result.status, 0, result.stdout + result.stderr)
+      const launches = [...result.stdout.matchAll(/NATIVESCRIPT_ARGS (.+)/g)]
+
+      assert.deepEqual(
+        launches.map((match) => JSON.parse(match[1])),
+        [['run', platform, '--device', id]],
+      )
+    }
+
+    for (const [platform, devices] of [
+      ['android', { android: 'emulator-5554\toffline' }],
+      ['ios', { ios: [] }],
+    ]) {
+      const missing = run([platform, '--emulator'], devices)
+
+      assert.equal(missing.status, 1, missing.stdout + missing.stderr)
+      assert.match(missing.stderr, /no available virtual development targets/)
+      assert.doesNotMatch(missing.stdout, /NATIVESCRIPT_ARGS/)
+    }
+
+    const ambiguous = run(['android', '--emulator'], {
+      android: 'emulator-5554\tdevice\nemulator-5556\tdevice',
+    })
+
+    assert.equal(ambiguous.status, 1, ambiguous.stdout + ambiguous.stderr)
+    assert.match(ambiguous.stderr, /ambiguous virtual development target.*--device ID/)
+    assert.match(ambiguous.stderr, /emulator-5554.*emulator-5556/)
+    assert.doesNotMatch(ambiguous.stderr, /android-phone/)
+    assert.doesNotMatch(ambiguous.stdout, /NATIVESCRIPT_ARGS/)
+
+    const bothPlatforms = run(['--emulator'])
+
+    assert.equal(bothPlatforms.status, 1, bothPlatforms.stdout + bothPlatforms.stderr)
+    assert.match(bothPlatforms.stderr, /ambiguous virtual development target/)
+    assert.match(bothPlatforms.stderr, /booted-sim.*emulator-5554/)
+    assert.doesNotMatch(bothPlatforms.stdout, /NATIVESCRIPT_ARGS/)
+  },
+)
 
 test('status preserves identity, guidance and actual package bindings without claiming pending providers', () => {
   const project = join(scratch, 'status')

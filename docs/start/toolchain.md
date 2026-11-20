@@ -181,13 +181,35 @@ The `dev:*` scripts exist for every platform enabled at create time —
 on a simulator, emulator, or connected device. Once it
 opens, try the same checklist actions you tried in the browser.
 
-To launch multiple platforms together instead, stop the existing development
-commands with Ctrl+C and run `bun run xplat dev`. It offers a choice of available
-targets. Choose one device with `--device` and its identifier from
-`bun run xplat targets --json`. For iOS simulators, Xplat waits for the simulator to
-boot through `simctl`, so the Simulator desktop app is optional.
+Use `--emulator` to run on one virtual device without looking up its ID.
+Xplat can boot an available iOS simulator, even with the Simulator desktop app
+closed. On Android, start the emulator first so Xplat can discover it through
+`adb`. Physical phones and tablets are excluded from this selection.
 
 ```sh
+bun run xplat dev ios --emulator
+bun run xplat dev android --emulator
+```
+
+With no platform argument, `--emulator` considers both configured mobile
+platforms. Xplat uses the only available match or, when several match, the
+only one already running. If the choice is still ambiguous, Xplat lists the
+matching IDs and stops. If no virtual device matches, check the simulators
+installed in Xcode or start an Android emulator for the platform you chose.
+
+```sh
+bun run xplat dev --emulator
+bun run xplat targets --json
+```
+
+Stop the current development command with Ctrl+C before switching targets.
+Use `--device` to select an exact ID from `xplat targets` or the ambiguity
+error. To choose multiple platforms, use `--targets` (short form `-t`) or run
+`xplat dev` in a terminal to choose from a list. Use only one of
+`--emulator`, `--device`, and `--targets` in each command.
+
+```sh
+bun run xplat dev
 bun run xplat dev macos
 bun run xplat dev ios --device DEVICE_UDID
 bun run xplat dev android --device DEVICE_SERIAL
@@ -195,7 +217,6 @@ bun run xplat dev -t web,ios
 ```
 
 Replace `DEVICE_UDID` or `DEVICE_SERIAL` with the exact device identifier.
-Use either a single selection (with optional `--device`) or `--targets`.
 
 ## See a shared edit in running targets
 

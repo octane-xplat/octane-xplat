@@ -233,7 +233,22 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	ctx = context.WithValue(ctx, proc.ProcessGraceKey{}, 3*time.Second)
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	choice := devSelection{Target: routes.OptionalString(values, "target"), Device: routes.OptionalString(values, "device"), Targets: routes.OptionalString(values, "targets")}
+	choice := devSelection{
+		Target:   routes.OptionalString(values, "target"),
+		Device:   routes.OptionalString(values, "device"),
+		Targets:  routes.OptionalString(values, "targets"),
+		Emulator: values["emulator"] == true,
+	}
+	if choice.Emulator {
+		switch {
+		case choice.Device != nil:
+			return errors.New("--emulator cannot be combined with --device")
+		case choice.Targets != nil:
+			return errors.New("--emulator cannot be combined with --targets")
+		case choice.Target != nil && *choice.Target != "ios" && *choice.Target != "android":
+			return errors.New("--emulator accepts only ios or android as a target")
+		}
+	}
 	if choice.Device != nil && strings.TrimSpace(*choice.Device) == "" {
 		return errors.New("--device requires an exact device target id")
 	}
@@ -255,7 +270,7 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 		return err
 	}
 	var chosen []devTarget
-	if choice.Target == nil && choice.Device == nil && choice.Targets == nil && proc.ForegroundInput(ctx) != nil && proc.BuildTerminal(proc.ForegroundInput(ctx)) && proc.BuildTerminal(os.Stdout) {
+	if choice.Target == nil && choice.Device == nil && choice.Targets == nil && !choice.Emulator && proc.ForegroundInput(ctx) != nil && proc.BuildTerminal(proc.ForegroundInput(ctx)) && proc.BuildTerminal(os.Stdout) {
 		chosen, err = promptDevTargets(ctx, all, proc.ForegroundInput(ctx))
 	} else {
 		chosen, err = selectDevTargets(all, choice)

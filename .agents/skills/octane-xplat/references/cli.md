@@ -281,12 +281,18 @@ bun run xplat build web
 bun run xplat build --targets web,android
 ```
 
-For an exact development device, use `--device` with the returned target ID.
-An optional positional platform restricts that selection. Xplat prepares iOS
-simulators through `simctl`; it does not need Simulator.app. Physical-device
-launch remains NativeScript's responsibility.
+Use `--emulator` to select one available iOS simulator or running Android
+emulator. When several match, Xplat selects the sole running match or reports
+ambiguity with the matching IDs. If none match, check the installed iOS
+simulators or start an Android emulator. For an exact device, use
+`--device` with the target ID from `xplat targets`. An optional positional
+platform restricts either selection. Use only one of `--emulator`, `--device`,
+and `--targets` per command. Xplat prepares iOS simulators through `simctl`.
+Physical-device launch remains NativeScript's responsibility.
 
 ```sh
+bun run xplat dev ios --emulator
+bun run xplat dev android --emulator
 bun run xplat dev ios --device DEVICE_UDID
 bun run xplat dev android --device DEVICE_SERIAL
 ```
