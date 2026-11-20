@@ -56,6 +56,9 @@ export const octaneConfig = (
     ...options.octane,
   }
   return mergeConfig(baseConfig({ mode, flavor: 'octane' }), {
+    // NativeScript warms the device graph through /ns/m. Vite's speculative
+    // client transforms compete with those requests and bypass that cache.
+    server: { preTransformRequests: false },
     plugins: [...getTypeCheckPlugins('typescript', options.typeCheck), ...octane(octaneOptions)],
   })
 }
