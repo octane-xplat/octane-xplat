@@ -139,7 +139,7 @@ Use [`dialog.showOpenDialog`](../../../docs/packages/package-desktop.md#open-a-f
 
 [Read desktop displays](../../../docs/packages/package-desktop.md#read-the-desktop-display-layout) for window placement. Match coordinates using `screen.coordinateSpace` and check whether the host reports a work area. [Listen for display changes](../../../docs/packages/package-desktop.md#respond-when-displays-change) when an open window needs to adapt to monitor changes. [Save and restore window bounds](../../../docs/packages/package-desktop.md#save-and-restore-a-windows-bounds) only on a handle that supports them.
 
-Use [`shell.openExternal()`](../../../docs/packages/package-desktop.md#open-a-web-link-in-the-default-browser) for absolute HTTP and HTTPS links that belong in the default browser. [Reveal finished exports](../../../docs/packages/package-desktop.md#show-a-file-in-its-folder) with an absolute native path. [Move items to Trash](../../../docs/packages/package-desktop.md#move-an-item-to-trash) where `shell.canTrashItem` is true.
+Use [`shell.openExternal()`](../../../docs/packages/package-desktop.md#open-a-web-link-in-the-default-browser) for absolute HTTP and HTTPS links that belong in the default browser. [Reveal finished exports](../../../docs/packages/package-desktop.md#show-a-file-in-its-folder) with an absolute native path. [Move items to Trash](../../../docs/packages/package-desktop.md#move-an-item-to-trash) where `shell.canTrashItem` is true. Rebuild the NativeScript Windows app to include the Recycle Bin bridge.
 
 ## Canonical documentation and scope
 

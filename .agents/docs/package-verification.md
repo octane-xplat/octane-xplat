@@ -88,6 +88,23 @@ APP_MENU_WINDOWS_RUNTIME='C:\path\to\windows\bin' \
 bun run turbo run test:menu-windows-runtime --filter=@octane-xplat/desktop
 ```
 
+## Windows Recycle Bin
+
+From an interactive Windows session with the .NET 10 SDK, run the desktop
+probe. It creates its own file, checks that the Recycle Bin holds it, attempts
+to recycle the already-recycled path, and restores the original contents.
+
+```powershell
+bun run turbo run test:trash-windows-runtime --filter=@octane-xplat/desktop
+```
+
+If the default `dotnet` is an older SDK, run the script directly and pass a
+.NET 10 SDK with `-Dotnet`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File packages/desktop/tests/shell/windows-runtime.ps1 -Dotnet "$env:LOCALAPPDATA\Microsoft\dotnet\dotnet.exe"
+```
+
 ## audio
 
 Consumer guidance: [audio](../../docs/packages/package-audio.md).

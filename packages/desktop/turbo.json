@@ -28,6 +28,9 @@
       "cache": false,
       "env": ["APP_MENU_WINDOWS_HOST", "APP_MENU_WINDOWS_RUNTIME"]
     },
+    "test:trash-windows-runtime": {
+      "cache": false
+    },
     "test:window-gtk-runtime": {
       "dependsOn": ["build", "@octane-xplat/linux-gtk#build"],
       "cache": false,

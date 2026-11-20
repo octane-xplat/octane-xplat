@@ -316,7 +316,7 @@ export async function revealExport(path: string) {
 
 ## Move an item to Trash
 
-Use `shell.trashItem(path)` with an absolute native path. Call it after the user chooses Move to Trash. AppKit and GTK provide this action. Check `shell.canTrashItem` before offering it. An unavailable Trash or a failed move rejects the promise, and the service has no permanent-delete fallback.
+Use `shell.trashItem(path)` with an absolute native path. Call it after the user chooses Move to Trash. AppKit, GTK, and supported Windows hosts provide this action. On Windows, rebuild the native app to include the Recycle Bin bridge. Check `shell.canTrashItem` before offering it. An unavailable Trash or a failed move rejects the promise, and the service has no permanent-delete fallback.
 
 ```ts
 import { shell } from '@octane-xplat/desktop'

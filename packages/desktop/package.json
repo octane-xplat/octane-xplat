@@ -38,6 +38,7 @@
     "pack:check": "tsrx-typegen --pack-check",
     "prepack": "bun run build && tsrx-typegen --pack-check",
     "test:packed": "node tests/menu/packed-consumer.mts && node tests/tray/packed-consumer.mts && node tests/shortcuts/packed-consumer.mts",
+    "test:trash-windows-runtime": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/shell/windows-runtime.ps1",
     "test:window-gtk-runtime": "node tests/window/gtk-runtime.mts",
     "test:window-macos-runtime": "node tests/window/macos-runtime.mts",
     "test:tray-macos-runtime": "node tests/tray/appkit-runtime.mts",

@@ -10,6 +10,15 @@ interface WindowsLaunchHost {
   NSWinRT?: { toPromise(operation: object): Promise<boolean> }
 }
 
+function invokeTrash(method: 'IsSupported' | 'Start' | 'Poll', ...args: string[]): string {
+  const bridge = lookupGlobal(['NSWinRT', 'dotnet'])
+  if (typeof bridge !== 'object' || bridge === null ||
+    !('invoke' in bridge) || typeof bridge.invoke !== 'function') {
+    throw new Error('This Windows host has no managed Trash bridge')
+  }
+  return String(bridge.invoke('', 'OctaneXplat.Desktop.DesktopTrash', method, args))
+}
+
 export type { DesktopShell } from './service.js'
 export const shell: DesktopShell = createDesktopShell({
   getLauncher: () => {
@@ -68,6 +77,23 @@ export const shell: DesktopShell = createDesktopShell({
       } finally {
         call('ole32.dll', 'CoUninitialize', 'void')
       }
+    }
+  },
+  getTrasher() {
+    try {
+      if (invokeTrash('IsSupported') !== 'yes') return
+    } catch {
+      return
+    }
+
+    return async (path) => {
+      const id = invokeTrash('Start', path)
+      let result = invokeTrash('Poll', id)
+      while (result === 'pending') {
+        await new Promise<void>((resolve) => setTimeout(resolve, 100))
+        result = invokeTrash('Poll', id)
+      }
+      return result === 'recycled'
     }
   },
   isAbsolutePath: (path) => /^[a-z]:[\\/]/i.test(path) || /^\\\\[^\\?.][^\\]*\\[^\\]+/.test(path),
