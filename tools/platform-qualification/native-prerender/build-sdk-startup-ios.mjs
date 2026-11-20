@@ -276,16 +276,14 @@ for (const name of [
   'FontLowering.m',
   'MasonMount.h',
   'MasonMount.m',
+  'MountHost.h',
+  'MountHost.m',
 ]) {
   copy(join(backend, name), join(app, 'native', name))
 }
 
 for (const name of ['HomeMount.h', 'HomeMount.m', 'HomeStyleSnapshot.swift']) {
   copy(join(source, 'home-native', name), join(app, 'native', name))
-}
-
-for (const name of ['MountHost.h', 'MountHost.m']) {
-  copy(join(source, 'ios-native', name), join(app, 'native', name))
 }
 
 // The metadata generator only scans header search paths that carry a Clang

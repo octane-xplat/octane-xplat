@@ -29,7 +29,7 @@ const inputs = [
   import.meta.filename,
   ...['FontLowering.h', 'FontLowering.m', 'MasonMount.h', 'MasonMount.m'].map((name) => join(backend, name)),
   ...['HomeMount.h', 'HomeMount.m', 'HomeStyleSnapshot.swift'].map((name) => join(source, name)),
-  ...['MountHost.h', 'MountHost.m'].map((name) => join(iosNative, name)),
+  ...['MountHost.h', 'MountHost.m'].map((name) => join(backend, name)),
   ...['StartupArtifact.swift', 'MasonArtifact.swift'].map((name) => join(backend, name)),
   join(source, 'HomeBootstrap.swift'),
   join(import.meta.dirname, 'Runtime.h'),
@@ -55,7 +55,7 @@ const inputs = [
 ]
 const inputHashes = Object.fromEntries(inputs.map((file) => [file, hash(file)]))
 const objects = []
-for (const [name, directory] of [['FontLowering', backend], ['MasonMount', backend], ['HomeMount', source], ['MountHost', iosNative]]) {
+for (const [name, directory] of [['FontLowering', backend], ['MasonMount', backend], ['HomeMount', source], ['MountHost', backend]]) {
   const object = join(work, name + '.o')
   const args = [
     'clang',
