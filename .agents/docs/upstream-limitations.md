@@ -845,13 +845,13 @@ repair is established; do not remove intentional dynamic entry imports based
 on these warnings.
 
 The [test-only native override](../../tools/platform-qualification/ios-module-graph/timeout-override.m)
-changes the effective request deadline in the same runtime binary; it is not
-a production workaround. The candidate 30-second source repair has not been
-rebuilt or release-qualified. Upstream should reconcile request/retry,
-server-transform and total graph deadlines, and preserve the original
-fetch-failure reason in fallback diagnostics. Raising only the async session
-timeout is insufficient. The runtime deadline and diagnostics are tracked in
-[NativeScript iOS #583](https://github.com/NativeScript/ios/issues/583).
+isolates the request deadline in the same 9.1.0 binary.
+[NativeScript iOS PR #552](https://github.com/NativeScript/ios/pull/552)
+merged a 30-second debug budget for both fetch paths, with async retries
+bounded by the graph deadline. Release requests retain the five-second
+budget and the graph-miss diagnostic is unchanged. [NativeScript iOS #583](https://github.com/NativeScript/ios/issues/583)
+closed citing that fix. The Opals startup runs here use the pinned 9.1.0
+runtime. They leave the newer runtime's startup behavior unverified.
 
 Xplat mitigates server-side rather than patching the runtime: the canonical
 @nativescript/vite 8.0.20 patch adds a boot graph crawl that walks the same
@@ -862,8 +862,17 @@ outlast its 5-second request budget. Crawl traffic marks
 `x-ns-vite-boot-crawl` and queues behind live device demand in the shared
 transform runner's priority lanes; the dev link-check's nested target
 transforms share that runner (deduped, still checked) and each target's
-default-export verdict is cached by served code. The runtime's budget,
-request/retry and graph deadlines remain upstream's to reconcile.
+default-export verdict is cached by served code. The crawl skips the import
+map, which lists resolution targets including unused host tooling. It queues
+each discovered module URL once and keeps idle workers available while parent
+responses can add more work. [Xplat #311](https://github.com/octane-xplat/octane-xplat/issues/311)
+tracks those crawl issues.
+
+NativeScript CLI 9.1.1 waits for the bootstrap build and the Vite TCP listener.
+The crawl runs independently, so a fast native rebuild can reach live module
+requests while the server still has cold transforms. The crawl reduces that
+work during startup. On 9.1.0, uncached requests still use the five-second
+module fetch budget and can fall back to blocking fetches.
 
 The Octane flavor disables Vite's speculative client pre-transforms so the
 NativeScript crawl can warm the actual `/ns/m` response path without a second
