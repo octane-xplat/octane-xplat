@@ -44,7 +44,8 @@ import { releaseListView, setRenderItem, type RenderItem } from './list-view.js'
 
 interface HostNode {
   readonly id: number
-  readonly type: string
+  /** Swapped when a `recreate` command retargets the record to another tag. */
+  type: string
   /** Replaced in place when the tag's class is re-registered; `null` for `#text`. */
   view: ViewBase | null
   text: string
@@ -827,6 +828,26 @@ function requestTextLayout(parent: NativeScriptParent): void {
   }
 }
 
+/**
+ * Write a view property without echoing its `<name>Change` back into the
+ * app — the same mute `setProp` applies to driven props, for the text and
+ * `formattedText` writes the driver makes itself while folding children.
+ */
+function setSilently(node: HostNode, view: ViewBase, name: string, value: unknown): void {
+  const echo = `${name}Change`
+  const listening = node.listeners.has(echo)
+  if (listening) {
+    node.muted.add(echo)
+  }
+  try {
+    Reflect.set(view, name, value)
+  } finally {
+    if (listening) {
+      node.muted.delete(echo)
+    }
+  }
+}
+
 /** Recompute a text host's `text` from its `#text` children. */
 function syncText(parent: NativeScriptParent): void {
   if (parent === null || isPortalTarget(parent)) {
@@ -842,7 +863,7 @@ function syncText(parent: NativeScriptParent): void {
       }
     }
     if (view.text !== text) {
-      view.text = text
+      setSilently(parent, view, 'text', text)
       requestTextLayout(parent)
     }
     return
@@ -851,6 +872,27 @@ function syncText(parent: NativeScriptParent): void {
     // Span children splice through add/removeViewChild; `#text` children
     // fold into minted spans interleaved in child order.
     if (!parent.children.some((child) => child.view === null)) {
+      // A removed `#text` child leaves its minted span behind — prune any
+      // span whose owner is gone so the detached text stops rendering.
+      const minted = parent.textSpans
+      if (minted === undefined) {
+        return
+      }
+      let removed = false
+      for (const [child, span] of minted) {
+        if (parent.children.includes(child)) {
+          continue
+        }
+        const index = view.spans.indexOf(span)
+        if (index !== -1) {
+          view.spans.splice(index, 1)
+          removed = true
+        }
+        minted.delete(child)
+      }
+      if (removed) {
+        requestTextLayout(parent)
+      }
       return
     }
     const runs: Span[] = []
@@ -880,18 +922,18 @@ function syncText(parent: NativeScriptParent): void {
     }
     replaceSpans(folded.fs, runs)
     if (view.formattedText !== folded.fs) {
-      view.formattedText = folded.fs
+      setSilently(parent, view, 'formattedText', folded.fs)
     }
     if (parent.textApplied || view.text !== '') {
       parent.textApplied = false
-      view.text = ''
+      setSilently(parent, view, 'text', '')
     }
     requestTextLayout(parent)
     return
   }
   if (parent.foldedText != null) {
     if (view.formattedText === parent.foldedText.fs) {
-      view.formattedText = CLEARED
+      setSilently(parent, view, 'formattedText', CLEARED)
     }
     parent.foldedText = null
   }
@@ -909,7 +951,7 @@ function syncText(parent: NativeScriptParent): void {
   }
   parent.textApplied = found
   if (view.text !== text) {
-    view.text = text
+    setSilently(parent, view, 'text', text)
     requestTextLayout(parent)
   }
 }
@@ -976,7 +1018,12 @@ function addViewChild(parentView: ViewBase, view: ViewBase, index: number): void
     return
   }
   if (parentView instanceof TextBase && view instanceof FormattedString) {
-    parentView.formattedText = view
+    const owner = viewOwners.get(parentView)?.node
+    if (owner !== undefined) {
+      setSilently(owner, parentView, 'formattedText', view)
+    } else {
+      parentView.formattedText = view
+    }
     return
   }
   if (parentView instanceof ActionBar) {
@@ -1055,7 +1102,12 @@ function removeViewChild(parentView: ViewBase | null, view: ViewBase): void {
     return
   }
   if (parentView instanceof TextBase && parentView.formattedText === view) {
-    parentView.formattedText = CLEARED
+    const owner = viewOwners.get(parentView)?.node
+    if (owner !== undefined) {
+      setSilently(owner, parentView, 'formattedText', CLEARED)
+    } else {
+      parentView.formattedText = CLEARED
+    }
     return
   }
   if (parentView instanceof ActionBar && parentView.titleView === view) {
@@ -1341,8 +1393,15 @@ function destroyNode(container: NativeScriptContainer, node: HostNode): void {
 /**
  * Swap a node's native view for a fresh instance of its (re-registered) class:
  * the new view takes over the node's props, listeners, children and position.
+ * A `recreate` command supplies the new tag and snapshot; an element
+ * re-registration keeps the node's own.
  */
-function recreateView(container: NativeScriptContainer, node: HostNode): void {
+function recreateView(
+  container: NativeScriptContainer,
+  node: HostNode,
+  nextType: string = node.type,
+  nextProps: Readonly<Record<string, unknown>> = node.props,
+): void {
   const previous = node.view
   if (previous === null) {
     return
@@ -1355,13 +1414,13 @@ function recreateView(container: NativeScriptContainer, node: HostNode): void {
       portalTarget = entry
     }
   }
-  const view = instantiate(node.type)
+  const view = instantiate(nextType)
   if (portalTarget !== undefined && !(view instanceof LayoutBase)) {
     // Fail before anything detaches: the previous view keeps the registration
     // and its portal children rather than stranding them on a view that can
     // no longer host them.
     throw new Error(
-      `NativeScript driver: re-registered <${node.type}> is a <${view.typeName}>, which cannot host portal children; the registration stays on the previous view.`,
+      `NativeScript driver: re-registered <${nextType}> is a <${view.typeName}>, which cannot host portal children; the registration stays on the previous view.`,
     )
   }
   releaseMasonChildLayout(previous)
@@ -1388,12 +1447,14 @@ function recreateView(container: NativeScriptContainer, node: HostNode): void {
     releaseListView(previous)
   }
   viewOwners.set(view, { container, node })
+  node.type = nextType
+  node.props = nextProps
   node.view = view
   node.textApplied = false
   node.propDefaults.clear()
   node.styleDefaults.clear()
   node.styleKeys.clear()
-  applyProps(node, node.props)
+  applyProps(node, nextProps)
   for (const [type, handler] of node.listeners) {
     view.on(type, handler)
   }
@@ -1428,7 +1489,12 @@ function recreateView(container: NativeScriptContainer, node: HostNode): void {
   }
   syncText(node)
   markTabView(node)
-  attach(container, node)
+  // Re-attach only a node still seated in a parent's child list. A detached
+  // node (removed but not destroyed, or never inserted) has null parent and
+  // no slot anywhere — `attach` would park its new view on the root host.
+  if (node.parent !== null || container.children.includes(node)) {
+    attach(container, node)
+  }
 }
 
 const containers = new Set<NativeScriptContainer>()
@@ -1650,22 +1716,31 @@ function applyCommand(container: NativeScriptContainer, command: UniversalHostCo
       return
     }
     case 'recreate': {
-      const previous = expect(container, command.id)
-      const parent = previous.parent
+      const node = expect(container, command.id)
+      if (node.view !== null && command.type !== TEXT) {
+        // Element-to-element keeps the record: the runtime preserves its
+        // children across a recreate, so the swap happens in place — same
+        // node, same listeners, and any portal registration on the view
+        // survives (the runtime re-sends its event commands after).
+        recreateView(container, node, command.type, command.props)
+        return
+      }
+      const parent = node.parent
       const siblings = childrenOf(container, parent)
-      const index = siblings.indexOf(previous)
-      // Build the replacement before mutating: a failed construction leaves
-      // the original attached and intact rather than half-torn-down.
-      const node = createNode(container, command.id, command.type, command.props)
-      detach(container, previous)
-      disposeListeners(previous)
-      container.nodes.set(command.id, node)
+      const index = siblings.indexOf(node)
+      // Anything touching `#text` re-seats a fresh node instead: a text
+      // node has no view to swap, and a text-kind replacement cannot host
+      // children, so nothing is preserved under the old record.
+      const replacement = createNode(container, command.id, command.type, command.props)
+      detach(container, node)
+      disposeListeners(node)
+      container.nodes.set(command.id, replacement)
       if (index === -1) {
         return
       }
-      siblings.splice(index, 0, node)
-      node.parent = parent
-      attach(container, node)
+      siblings.splice(index, 0, replacement)
+      replacement.parent = parent
+      attach(container, replacement)
       return
     }
     case 'update': {

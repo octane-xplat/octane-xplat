@@ -469,6 +469,97 @@ describe('nativeScriptDriver', () => {
     expect(previous.parent).toBeNull()
   })
 
+  it('recreate keeps the record: children, position and listeners survive', () => {
+    const { apply, container, view, dispatched } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'test-stack'),
+      create(2, 'label', { text: 'kept' }),
+      create(3, 'label', { text: 'last' }),
+      insert(1),
+      insert(2, 1),
+      insert(3, 1),
+      event(2, 'tap', listener(7)),
+    )
+    const node = container.nodes.get(1)
+
+    apply({ op: 'recreate', id: 1, type: 'test-grid', props: {} })
+
+    const grid = view<MockLayoutBase>(1)
+    expect(grid).toBeInstanceOf(core.GridLayout)
+    expect(grid.children).toEqual([view(2), view(3)])
+    // The record is the same object, and its children still point at it —
+    // commands addressed to them keep flowing to the live tree.
+    expect(container.nodes.get(1)).toBe(node)
+    expect(node?.children.map((child) => child.id)).toEqual([2, 3])
+    apply(update(2, { text: 'still here' }))
+    expect(view<MockTextBase>(2).text).toBe('still here')
+    view<MockView>(2).notify({ eventName: 'tap', object: view(2) })
+    expect(dispatched.map((entry) => entry.listener)).toEqual([7])
+  })
+
+  it("does not park a detached node's view on the host when its tag is re-registered", () => {
+    const { apply, host, view } = mount(new MockLayoutBase())
+    apply(create(1, 'label'), insert(1), remove(1))
+    // The record survives a remove: still registered, logically detached.
+    class LabelNext extends MockTextBase {}
+    try {
+      registerElement('label', LabelNext as unknown as ElementConstructor)
+      const next = view<MockTextBase>(1)
+      expect(next).toBeInstanceOf(LabelNext)
+      expect(host.children).toEqual([])
+      expect(next.parent).toBeNull()
+    } finally {
+      registerElement('label', core.Label as unknown as ElementConstructor)
+    }
+  })
+
+  it('mutes the change echo a folded text write raises', () => {
+    const { apply, view, dispatched } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'textfield'),
+      create(2, '#text', { value: 'a' }),
+      insert(1),
+      insert(2, 1),
+      event(1, 'textChange', listener(9)),
+    )
+    const field = view<MockTextBase>(1)
+    apply(update(2, { value: 'b' }))
+    expect(field.text).toBe('b')
+    expect(dispatched).toEqual([])
+
+    field.text = 'c'
+    expect(dispatched).toEqual([
+      {
+        listener: 9,
+        data: expect.objectContaining({ eventName: 'textChange', value: 'c' }),
+      },
+    ])
+  })
+
+  it("drops a folded span when a formattedstring's last #text child leaves", () => {
+    const { apply, view } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'label'),
+      create(2, 'formattedstring'),
+      create(3, '#text', { value: 'minted' }),
+      create(4, 'span', { text: 'kept' }),
+      insert(1),
+      insert(2, 1),
+      insert(3, 2),
+      insert(4, 2),
+    )
+    const formatted = view<MockFormattedString>(2)
+    const kept = view(4)
+    expect(formatted.spans).toEqual([expect.anything(), kept])
+
+    apply(remove(3, 2))
+    // The minted span left with its owner — the detached text no longer renders.
+    expect(formatted.spans).toEqual([kept])
+
+    apply(insert(3, 2))
+    expect(formatted.spans).toEqual([kept, expect.objectContaining({ text: 'minted' })])
+  })
+
   it('recreates live views when a tag is re-registered', () => {
     const { apply, view, dispatched } = mount(new MockLayoutBase())
     apply(

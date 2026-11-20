@@ -223,6 +223,26 @@ source, rather than restoring a dependency patch. Nested styled Span trees
 still require flattening by the text-owner layer; source ownership does not
 establish additional device qualification.
 
+## @nativescript/core: TabViewItem.view is single-assignment (9.1.3)
+
+Source evidence in `@nativescript/core` 9.1.3
+(`ui/tab-view/tab-view-common.js`): the `TabViewItem.view` setter throws
+`Changing the view of an already loaded TabViewItem is not currently
+supported.` on any assignment once `_view` is set, and detaching the child
+via `_removeView` never clears the backing `_view`. A tab item's content
+view therefore cannot be swapped for the lifetime of the item — including
+after the child is removed from the hierarchy — on iOS and Android alike.
+
+Xplat leaves this unsupported: the
+[NativeScript driver](../../packages/nativescript-octane/src/driver.ts)
+assigns `item.view` directly in `addViewChild` and detaches via
+`_removeView`, so re-inserting or recreating a previously removed content
+child of an item hits the upstream throw. The driver does not hide the
+limitation behind an implicit item swap; apps that need swappable tab
+content must wrap it in an element the item owns (its `view` is set once).
+This is source evidence, not a device-run result; a recheck is warranted
+if upstream makes `view` re-assignable or clears `_view` on removal.
+
 ## octane universal `useMediaQuery`: prefers-reduced-motion unsupported on native leaves
 
 `evaluateNativeMediaQuery` (packages/ui/src/internal/platform) implements a
