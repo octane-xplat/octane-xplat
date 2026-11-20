@@ -268,6 +268,46 @@ try {
   $hk=((Log) -split "`n" | Select-String 'HOTKEY_(REGISTERED|ERROR)') -join ' '
   if($hk -match 'HOTKEY_ERROR conflict-probe' -and $hk -match 'HOTKEY_ERROR reserved-probe'){ Step 'hotkey conflict + reserved outcomes' 'in-process' 'pass' $hk } else { Step 'hotkey conflict + reserved outcomes' 'in-process' 'fail' $hk }
 
+  # The app ran its window-state self-test during setup (public API, in-
+  # process): getAllWindows ordering, focused-window reporting, move/resize
+  # events on setBounds, maximize/minimize state, and the main-window close
+  # veto on close() and app.quit().
+  if((Log) -match 'JOURNEY WINDOW_STATE_OK'){
+    Step 'window state: lookup, events, maximize, minimize, quit veto' 'in-process' 'pass'
+  } else {
+    Step 'window state: lookup, events, maximize, minimize, quit veto' 'in-process' 'fail' (((Log) -split "`n" | Select-String 'WINDOW_STATE') -join ' ')
+  }
+
+  # Native close veto on the main window: arm a 'close' listener through the
+  # Journey menu, then send a real Alt+F4 at the front window.
+  Front $win
+  $menu=ByName $win 'Journey'
+  if($menu){
+    ClickEl $menu; Start-Sleep -Milliseconds 700
+    $item=ByName $root 'Arm Main Veto'
+    if($item){ ClickEl $item }
+    if(WaitLog 'MAIN_VETO_ARMED' 3000){
+      Front $win
+      $v0=Count 'MAIN_CLOSE_VETOED'
+      [J]::Chord(62,$false,$false,$true); Start-Sleep -Milliseconds 1200
+      $alive=[bool](AppProcess 'v1')
+      if((Count 'MAIN_CLOSE_VETOED') -gt $v0 -and $alive){
+        Step 'window: Alt+F4 on main honors close veto' 'os-input-sendinput' 'pass'
+      } else {
+        Step 'window: Alt+F4 on main honors close veto' 'os-input-sendinput' 'fail' "vetoed=$(Count 'MAIN_CLOSE_VETOED')>$v0 alive=$alive"
+      }
+      $menu=ByName $win 'Journey'
+      if($menu){ ClickEl $menu; Start-Sleep -Milliseconds 700 }
+      $item=ByName $root 'Disarm Main Veto'
+      if($item){ ClickEl $item }
+      WaitLog 'MAIN_VETO_DISARMED' 3000 | Out-Null
+    } else {
+      Step 'window: Alt+F4 on main honors close veto' 'os-input-sendinput' 'fail' 'Arm Main Veto produced no marker'
+    }
+  } else {
+    Step 'window: Alt+F4 on main honors close veto' 'os-input-sendinput' 'blocked' 'Journey menu not in UIA'
+  }
+
   Front $win
   if($status){ ClickEl $status }
   "PROCESS-BEFORE-QUIT $((AppProcess 'v1' | ForEach-Object { $_.Id }) -join ',')"

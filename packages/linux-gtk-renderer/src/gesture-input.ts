@@ -270,10 +270,7 @@ function observeWindow(root: Gtk.NativeWidget, window: Gtk.Window, observer: Obs
     root.add_controller(controller)
 
     const activeId = window.connect('notify::is-active', () => {
-      const value = window.is_active
-      const active = typeof value === 'function' ? value.call(window) : value
-
-      if (!active) {
+      if (!window.is_active) {
         cancel()
       }
     })

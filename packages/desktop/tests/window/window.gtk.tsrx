@@ -9,6 +9,7 @@ import {
   Inspector,
   beforeAppStarts,
   verifyAppLifecycle,
+  verifyAppWindowState,
   verifyWindowLifecycle,
 } from './lifecycle.tsrx'
 
@@ -20,6 +21,15 @@ setWindowContentResolver((_data, controller: GtkWindowServiceController) => {
   observed = controller
   return Inspector
 })
+
+function waitForGtk(milliseconds: number) {
+  return new Promise<void>((resolve) => {
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, milliseconds, () => {
+      resolve()
+      return GLib.SOURCE_REMOVE
+    })
+  })
+}
 
 async function verifyOpenDialog(owner: DesktopWindow) {
   const native = observed?.window
@@ -54,15 +64,6 @@ async function verifyOpenDialog(owner: DesktopWindow) {
   const canceled = await pending
   if (!canceled.canceled || canceled.filePaths.length || !owner.isVisible()) {
     throw new Error('Cancel did not leave the GTK Inspector open')
-  }
-
-  function waitForGtk(milliseconds: number) {
-    return new Promise<void>((resolve) => {
-      GLib.timeout_add(GLib.PRIORITY_DEFAULT, milliseconds, () => {
-        resolve()
-        return GLib.SOURCE_REMOVE
-      })
-    })
   }
 
   await waitForGtk(50)
@@ -222,6 +223,24 @@ runGtkApp({ applicationId: 'org.octane.xplat.WindowFixture', title: 'Desktop win
             visible: () => window.get_visible(),
           }
         }, verifyOpenDialog),
+      )
+      .then(() =>
+        verifyAppWindowState({
+          wait: waitForGtk,
+          // Gtk.Window.close() emits close-request — the user-close path.
+          requestNativeClose: () => window.close(),
+          supportsBounds: false,
+          // Xvfb has no window manager to honor the maximize request; the
+          // harness exercises the calls and notify wiring without asserting.
+          maximizes: false,
+          // Wayland's xdg-shell does not expose minimized state.
+          reportsMinimized: false,
+          // Xvfb has no window manager to mark a toplevel active.
+          canFocus: () => {
+            const active = window.is_active
+            return typeof active === 'function' ? Boolean(active.call(window)) : Boolean(active)
+          },
+        }),
       )
       .then(async () => {
         const previous = new Set<string>(app.list_actions())

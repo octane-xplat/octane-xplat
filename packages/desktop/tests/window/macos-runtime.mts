@@ -16,19 +16,17 @@ const scratch = join(homedir(), 'agent-scratch/octane-xplat/desktop-window-lifec
 await mkdir(scratch, { recursive: true })
 const directory = await mkdtemp(join(scratch, 'macos-'))
 
-async function verifyPackagedSingleInstance() {
-  const contents = join(directory, 'SecondLaunch.app/Contents')
+async function packageApp(name: string, entry: string) {
+  const contents = join(directory, `${name}.app/Contents`)
   const resources = join(contents, 'Resources')
   const app = join(resources, 'app')
-  const executable = join(contents, 'MacOS/SecondLaunch')
-  const secondDirectory = join(directory, 'second-launch')
+  const executable = join(contents, `MacOS/${name}`)
   await Promise.all([
     mkdir(app, { recursive: true }),
     mkdir(join(contents, 'MacOS'), { recursive: true }),
     mkdir(join(contents, 'Frameworks'), { recursive: true }),
-    mkdir(secondDirectory),
   ])
-  const identifier = `org.octane.xplat.secondlaunch.${randomUUID().replaceAll('-', '')}`
+  const identifier = `org.octane.xplat.${name.toLowerCase()}.${randomUUID().replaceAll('-', '')}`
   await Promise.all([
     cp(join(hostBundle, 'host'), executable),
     cp(join(hostBundle, 'NativeScript.framework'), join(contents, 'Frameworks/NativeScript.framework'), { recursive: true, verbatimSymlinks: true }),
@@ -37,17 +35,24 @@ async function verifyPackagedSingleInstance() {
     writeFile(join(contents, 'Info.plist'), `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0"><dict>
 <key>CFBundleIdentifier</key><string>${identifier}</string>
-<key>CFBundleExecutable</key><string>SecondLaunch</string>
+<key>CFBundleExecutable</key><string>${name}</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 </dict></plist>`),
   ])
 
   const config = await macos('production', {
     root: appRoot,
-    entry: join(here, 'single-instance.macos.ts'),
+    entry,
     outDir: app,
   })
   await build({ ...config, configFile: false, logLevel: 'error' })
+  return { bundle: join(directory, `${name}.app`), executable }
+}
+
+async function verifyPackagedSingleInstance() {
+  const { bundle, executable } = await packageApp('SecondLaunch', join(here, 'single-instance.macos.ts'))
+  const secondDirectory = join(directory, 'second-launch')
+  await mkdir(secondDirectory, { recursive: true })
 
   const env = { ...process.env, OCTANE_MACOS_AUTOMATION: '1' }
   const primary = spawn(executable, [], { env })
@@ -127,6 +132,7 @@ try {
   assert.match(output, /DESKTOP_BOUNDS_OK/)
   assert.match(output, /DESKTOP_ACTIVATE_OK/)
   assert.match(output, /DESKTOP_MINIMIZE_OK/)
+  assert.match(output, /DESKTOP_STATE_OK/)
   assert.match(output, /DESKTOP_APP_QUIT_OK/)
   console.log('DESKTOP_WINDOW_OK, DESKTOP_DIALOG_OK, DESKTOP_SAVE_OK, DESKTOP_ACTIVATE_OK, DESKTOP_MINIMIZE_OK and DESKTOP_APP_QUIT_OK (AppKit)')
   await verifyPackagedSingleInstance()

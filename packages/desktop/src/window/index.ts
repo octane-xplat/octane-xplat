@@ -22,4 +22,10 @@ export const windows: DesktopWindowService = {
   open() {
     throw new UnavailabilityError('windows.open')
   },
+  getAllWindows() {
+    return []
+  },
+  getFocusedWindow() {
+    return null
+  },
 }

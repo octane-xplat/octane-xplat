@@ -80,6 +80,7 @@ try {
   assert.match(output, /DESKTOP_ACTIVATE_OK/)
   assert.match(output, /DESKTOP_SECOND_INSTANCE_OK/)
   assert.match(output, /DESKTOP_MINIMIZE_OK/)
+  assert.match(output, /DESKTOP_STATE_OK/)
   assert.match(output, /DESKTOP_APP_QUIT_OK/)
   console.log(output.trim())
 } finally {

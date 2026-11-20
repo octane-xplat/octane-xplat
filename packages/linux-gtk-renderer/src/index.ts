@@ -51,7 +51,11 @@ import { popoverChromeUsers } from './popover-instance.js'
 import { bindOverlayHost } from './overlay-host.js'
 import { bindPublicInstance } from './public-instance.js'
 import { normalizeKeyEvent } from './key-event.js'
-import { createGtkWindowService, type GtkWindowService } from './window-service.js'
+import {
+  createGtkWindowService,
+  primaryGtkWindow,
+  type GtkWindowService,
+} from './window-service.js'
 import { disposeWebView, makeWebView, updateWebView } from './webview-instance.js'
 
 import {
@@ -5337,6 +5341,9 @@ export function createGtkContainer(
     // __xplatAppKitOpenWindow + setWindowContentResolver seam.
     openWindow: (options: any) => windowService().openWindow(options ?? {}),
     setWindowContentResolver: (resolve: any) => windowService().setWindowContentResolver(resolve),
+    // The main-window controller for @octane-xplat/desktop's windows
+    // service (window/index.gtk.ts) — same controller shape as openWindow.
+    primaryWindow: () => primaryGtkWindow(),
     // External-URL open seam for ui's nav-href.gtk — Gtk.show_uri_full on
     // the app's main window (GTK >= 4.10). Returns false when the request
     // cannot be made so callers surface the failure instead of assuming

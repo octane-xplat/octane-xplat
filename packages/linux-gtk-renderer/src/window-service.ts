@@ -25,6 +25,7 @@ export interface GtkWindowService {
 /** Window roots owned by this renderer instance, including the unparented ones. */
 const ownedWindows = new Set<GtkWindowServiceController>()
 let windowsClosing = false
+let primaryController: GtkWindowServiceController | null = null
 
 export function liveGtkWindows(): ReadonlySet<GtkWindowServiceController> {
   return ownedWindows
@@ -35,6 +36,81 @@ export function closeGtkWindows(): void {
   for (const controller of Array.from(ownedWindows)) {
     controller.close()
   }
+}
+
+/** Controller for the app's main window, adopted by runGtkApp — same
+ *  close-request veto and `closed` contract as openWindow controllers, and
+ *  included in the quit veto/close sweep through `liveGtkWindows()`. */
+export function primaryGtkWindow(): GtkWindowServiceController | null {
+  return primaryController && !primaryController.isClosed ? primaryController : null
+}
+
+export function adoptGtkPrimaryWindow(win: Gtk.Window): GtkWindowServiceController {
+  if (primaryController && !primaryController.isClosed) {
+    return primaryController
+  }
+
+  let resolveClosed!: () => void
+  const closed = new Promise<void>((resolve) => {
+    resolveClosed = resolve
+  })
+
+  const finish = () => {
+    if (controller.isClosed) {
+      return
+    }
+
+    controller.isClosed = true
+    ownedWindows.delete(controller)
+    if (primaryController === controller) {
+      primaryController = null
+    }
+
+    resolveClosed()
+  }
+
+  const controller: GtkWindowServiceController = {
+    window: win,
+    closed,
+    isClosed: false,
+    onCloseRequested: null,
+    // Explicit close is a command — skips the close-request veto like
+    // the secondary controllers.
+    close() {
+      if (controller.isClosed) {
+        return
+      }
+
+      finish()
+      try {
+        win.destroy()
+      } catch {}
+    },
+    setTitle(title: string) {
+      win.set_title(String(title))
+    },
+    setSize(next: { width: number; height: number }) {
+      const n = normalizeWindowSize(next, 'setSize')
+
+      win.set_default_size(n.width, n.height)
+    },
+  }
+
+  // User-initiated close requests route through the veto before GTK's
+  // default destroys the window — the same close-request path openWindow
+  // windows use.
+  win.connect('close-request', () => {
+    if (controller.onCloseRequested?.() === false) {
+      return true
+    }
+
+    finish()
+    return false
+  })
+
+  ownedWindows.add(controller)
+  primaryController = controller
+  return controller
 }
 
 const KINDS = new Set(['regular', 'dialog', 'popup'])

@@ -143,15 +143,104 @@ export function restoreInspector(inspector: DesktopWindow) {
 }
 ```
 
-### Save and restore a window's bounds
-
-Use `getBounds()` and `setBounds()` to read or request the outer frame, including the title bar. Omitted fields in `setBounds()` keep their current values. Check `window.supportsBounds` first. AppKit uses logical units and Windows uses whole physical pixels, matching `screen.coordinateSpace`. GTK does not expose global window placement through this API. The window manager can constrain the resulting frame.
+`isMinimized()` reports whether the host currently shows the window as minimized. GTK cannot report minimized state — Wayland's xdg-shell does not expose it — so the call throws `UnavailabilityError` there.
 
 ```ts
-import { screen, type DesktopRectangle, type DesktopWindow } from '@octane-xplat/desktop'
+export function inspectorIsMinimized(inspector: DesktopWindow) {
+  try {
+    return inspector.isMinimized()
+  } catch {
+    return false // GTK cannot report minimized state
+  }
+}
+```
 
-export function restoreWindow(window: DesktopWindow, saved: DesktopRectangle) {
-  if (!window.supportsBounds || !screen.supported) return
+### Maximize a window
+
+Call `maximize()` and `unmaximize()` to control the window's maximized state and `isMaximized()` to read it. On macOS, maximize maps to the window's zoom state rather than full screen. On GTK, the window manager applies the request asynchronously and may ignore it. On experimental Windows hosts, the calls throw `UnavailabilityError` when the window presenter lacks the controls. All three throw after the window closes.
+
+```ts
+export function toggleInspectorMaximized(inspector: DesktopWindow) {
+  if (inspector.isMaximized()) {
+    inspector.unmaximize()
+  } else {
+    inspector.maximize()
+  }
+}
+```
+
+The `maximize` and `unmaximize` events fire when the host reports a change in the maximized state, including changes the user makes from the title bar. Listeners receive no arguments; read `isMaximized()` for the new state.
+
+```ts
+inspector.on('maximize', () => console.log('Inspector maximized'))
+inspector.on('unmaximize', () => console.log('Inspector back to normal'))
+```
+
+### Watch a window's geometry
+
+The `move` and `resize` events fire when the window's outer frame changes — from the user dragging it and from `setBounds()`. They can fire many times during one drag, so debounce before saving. Listeners receive no arguments; read `getBounds()` for the new frame. Registering `move` or `resize` throws `UnavailabilityError` when `supportsBounds` is false — GTK does not report global window placement.
+
+```ts
+import type { DesktopWindow } from '@octane-xplat/desktop'
+
+export function watchBounds(window: DesktopWindow, save: () => void) {
+  if (!window.supportsBounds) return
+
+  let pending: ReturnType<typeof setTimeout> | undefined
+  const queueSave = () => {
+    clearTimeout(pending)
+    pending = setTimeout(save, 300)
+  }
+
+  window.on('move', queueSave)
+  window.on('resize', queueSave)
+}
+```
+
+### Save and restore a window's bounds
+
+Use `getBounds()` and `setBounds()` to read or request the outer frame, including the title bar. Omitted fields in `setBounds()` keep their current values. Check `window.supportsBounds` first. AppKit uses logical units and Windows uses whole physical pixels, matching `screen.coordinateSpace`. The window manager can constrain the resulting frame. To restore Electron-style window state, save the normal bounds whenever `move` or `resize` fires while the window is neither maximized nor minimized, save the maximized flag separately, then restore the bounds first and re-maximize.
+
+```ts
+import { type DesktopRectangle, type DesktopWindow } from '@octane-xplat/desktop'
+
+export interface SavedWindowState {
+  bounds: DesktopRectangle
+  maximized: boolean
+}
+
+export function trackWindowState(window: DesktopWindow, state: SavedWindowState) {
+  if (!window.supportsBounds) return
+
+  const rememberNormalBounds = () => {
+    if (!window.isMaximized() && !window.isMinimized()) {
+      state.bounds = window.getBounds()
+    }
+  }
+
+  window.on('move', rememberNormalBounds)
+  window.on('resize', rememberNormalBounds)
+}
+
+export function saveWindowState(window: DesktopWindow, state: SavedWindowState) {
+  state.maximized = window.isMaximized()
+}
+
+export function restoreWindowState(window: DesktopWindow, state: SavedWindowState) {
+  if (!window.supportsBounds) return
+
+  window.setBounds(state.bounds)
+  if (state.maximized) window.maximize()
+}
+```
+
+When the saved display is gone, clamp the frame into a display's work area before setting it.
+
+```ts
+import { screen, type DesktopRectangle } from '@octane-xplat/desktop'
+
+export function clampToWorkArea(saved: DesktopRectangle): DesktopRectangle | undefined {
+  if (!screen.supported) return
 
   const display = screen.getDisplayMatching(saved)
   if (!display) return
@@ -159,12 +248,12 @@ export function restoreWindow(window: DesktopWindow, saved: DesktopRectangle) {
   const area = display.workArea ?? display.bounds
   const width = Math.min(saved.width, area.width)
   const height = Math.min(saved.height, area.height)
-  window.setBounds({
+  return {
     x: Math.max(area.x, Math.min(saved.x, area.x + area.width - width)),
     y: Math.max(area.y, Math.min(saved.y, area.y + area.height - height)),
     width,
     height,
-  })
+  }
 }
 ```
 
@@ -185,9 +274,39 @@ export async function disposeInspector(inspector: DesktopWindow) {
 }
 ```
 
+## Find the app's windows
+
+`windows.getAllWindows()` returns a handle for the app's main window first — on hosts that have one — followed by the windows `windows.open()` created, in creation order. Each handle is stable: the same native window always produces the same `DesktopWindow`, and closed windows drop out of the list. Windows opened through `@octane-xplat/ui`'s `openWindow` and dialog or popup windows are not included.
+
+```ts
+import { windows } from '@octane-xplat/desktop'
+
+export function focusMainWindow() {
+  windows.getAllWindows()[0]?.focus()
+}
+```
+
+`windows.getFocusedWindow()` returns the listed window that currently holds keyboard focus, or `null` when no app window is focused.
+
+```ts
+export function anyAppWindowFocused() {
+  return windows.getFocusedWindow() !== null
+}
+```
+
+The main-window handle is a full `DesktopWindow`. A `close` listener on it cancels the title-bar close button, `close()`, and `app.quit()` the same way as on secondary windows. On hosts without a main window the list contains only windows opened through `windows.open()`.
+
+```ts
+export function confirmMainWindowClose(hasUnsavedEdits: () => boolean) {
+  windows.getAllWindows()[0]?.on('close', (event) => {
+    if (hasUnsavedEdits()) event.preventDefault()
+  })
+}
+```
+
 ## Open a file dialog from a window
 
-Use `dialog.showOpenDialog(window, options)` from a shown window created with `windows.open()`. The native picker is modal to that window. Check `dialog.supported` before offering the command. The picker accepts file extensions without a leading dot and can return multiple paths.
+Use `dialog.showOpenDialog(window, options)` from a shown app window — either the main window from `windows.getAllWindows()` or one created with `windows.open()`. The native picker is modal to that window. Check `dialog.supported` before offering the command. The picker accepts file extensions without a leading dot and can return multiple paths.
 
 ```ts
 import { dialog, type DesktopWindow } from '@octane-xplat/desktop'

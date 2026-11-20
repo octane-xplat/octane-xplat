@@ -168,6 +168,7 @@ interface PlatformServices {
   appState: 'active' | 'inactive' | string
   appStateListeners: Set<() => void>
   windowResizeListeners: Set<(window?: NSWindow) => void>
+  windowMoveListeners: Set<(window?: NSWindow) => void>
   deepLinkListeners: Set<(url: string) => void>
   pendingUrls: string[]
   primaryWindow: NSWindow | null
@@ -210,6 +211,9 @@ interface MacosWindowingShared {
     NSWindow,
     { origin: { x: number; y: number }; size: { width: number; height: number } }
   >
+  /** Controller for the main window createAppKitWindow built — published
+   *  through `__xplatAppKitPrimaryWindow` so the desktop package can wrap it. */
+  primaryController?: WindowControllerBase
   terminateAfterLastWindowClosed: boolean
   windowCloseHandlers: Map<NSWindow, () => void>
   parentWindows: Map<NSWindow, NSWindow>
@@ -236,6 +240,8 @@ declare global {
         options?: MacOSOpenWindowOptions,
       ) => AppKitWindowController)
     | undefined
+
+  var __xplatAppKitPrimaryWindow: (() => WindowControllerBase | undefined) | undefined
 }
 
 const shared = (globalThis.__xplatMacosWindowing ??= {
@@ -261,10 +267,12 @@ shared.platformServices ??= {
   appState: 'active',
   appStateListeners: new Set(),
   windowResizeListeners: new Set(),
+  windowMoveListeners: new Set(),
   deepLinkListeners: new Set(),
   pendingUrls: [],
   primaryWindow: null,
 }
+shared.platformServices.windowMoveListeners ??= new Set()
 
 const applicationClosed = shared.applicationClosed
 
@@ -555,6 +563,14 @@ class AppDelegate extends NSObject {
     }
 
     notifyAppKitListeners(shared.platformServices.windowResizeListeners, (listener) =>
+      listener(nativeWindow),
+    )
+  }
+
+  windowDidMove(notification: any) {
+    const nativeWindow = notification.object
+
+    notifyAppKitListeners(shared.platformServices.windowMoveListeners, (listener) =>
       listener(nativeWindow),
     )
   }
@@ -865,6 +881,9 @@ function installPlatformServices() {
       onWindowResize(listener: (window?: NSWindow) => void) {
         return subscribeAppKitEvent(services.windowResizeListeners, listener).dispose
       },
+      onWindowMove(listener: (window?: NSWindow) => void) {
+        return subscribeAppKitEvent(services.windowMoveListeners, listener).dispose
+      },
       onDeepLink(listener: (url: string) => void) {
         const registration = subscribeAppKitEvent(services.deepLinkListeners, listener)
         const pending = services.pendingUrls.splice(0)
@@ -901,6 +920,10 @@ try {
 // `openWindow` from @octane-xplat/ui reaches the host through this global
 // (windows.macos.ts). Function declaration hoisting covers the call order.
 globalThis.__xplatAppKitOpenWindow ??= (options) => openWindow(options)
+
+// The desktop package's windows service resolves the main-window controller
+// through this bridge (window/index.macos.ts).
+globalThis.__xplatAppKitPrimaryWindow ??= () => shared.primaryController
 
 // Imperative sheets (sheet-service.macos) mount an arbitrary component in a
 // dialog window; the controller's `closed` promise settles on dismissal.
@@ -1105,6 +1128,55 @@ export function createAppKitWindow(options: CreateAppKitWindowOptions = {}): App
   })
 
   shared.windowCloseHandlers.set(nativeWindow, resolveWindowClosed)
+
+  // Register the main window like secondary controllers: windowShouldClose
+  // and the app quit path consult `onCloseRequested`, and the desktop
+  // package wraps it through __xplatAppKitPrimaryWindow. Root teardown stays
+  // with runMacOSApp — it resolves `windowClosed`, not this controller.
+  let primaryClosed = false
+  const primaryController: WindowControllerBase = {
+    window: nativeWindow,
+    get isClosed() {
+      return primaryClosed
+    },
+    closed: windowClosed,
+    onCloseRequested: null,
+    setTitle(title: string) {
+      nativeWindow.title = String(title)
+    },
+    // Explicit close is a command; NSWindow.close() skips windowShouldClose,
+    // which is reserved for user/performClose requests and their veto callback.
+    close() {
+      if (primaryClosed) {
+        return
+      }
+
+      closeOwnedWindows(nativeWindow)
+      nativeWindow.close()
+      primaryController.__didClose()
+    },
+    __didClose() {
+      if (primaryClosed) {
+        return
+      }
+
+      primaryClosed = true
+      try {
+        closeOwnedWindows(nativeWindow)
+      } catch (error) {
+        console.error('[macos] failed to close owned windows while closing the main window', error)
+      }
+
+      shared.byNative.delete(nativeWindow)
+      shared.parentWindows.delete(nativeWindow)
+      if (shared.primaryController === primaryController) {
+        shared.primaryController = undefined
+      }
+    },
+  }
+
+  shared.byNative.set(nativeWindow, primaryController)
+  shared.primaryController ??= primaryController
   nativeWindow.makeKeyAndOrderFront(app)
 
   return {

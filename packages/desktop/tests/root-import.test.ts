@@ -64,6 +64,8 @@ it('reports secondary desktop windows as unavailable on the default and web root
     expect(() => windows.open()).toThrowError(
       expect.objectContaining({ name: 'UnavailabilityError', feature: 'windows.open' }),
     )
+    expect(windows.getAllWindows()).toEqual([])
+    expect(windows.getFocusedWindow()).toBeNull()
   }
 })
 

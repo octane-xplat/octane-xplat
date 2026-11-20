@@ -440,6 +440,10 @@ declare module 'gi://Gtk?version=4.0' {
       close(): void
       minimize(): void
       unminimize(): void
+      maximize(): void
+      unmaximize(): void
+      is_maximized(): boolean
+      is_active: boolean
       get_focus(): Widget | null
       title: string
     }

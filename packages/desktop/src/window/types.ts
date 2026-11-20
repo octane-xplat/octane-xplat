@@ -24,9 +24,18 @@ export interface DesktopWindowEvents {
   close: (event: DesktopWindowCloseEvent) => void
   /** The window has closed and its content has been unmounted. */
   closed: () => void
+  /** The outer frame position changed (native or programmatic). Requires supportsBounds. */
+  move: () => void
+  /** The outer frame size changed (native or programmatic). Requires supportsBounds. */
+  resize: () => void
+  /** The host now reports the window as maximized. */
+  maximize: () => void
+  /** The host no longer reports the window as maximized. */
+  unmaximize: () => void
 }
 
-/** A secondary native window created by the desktop package. */
+/** A native window of the running desktop app — the host's main window or a
+ *  secondary window created through `windows.open()`. */
 export interface DesktopWindow {
   /** Whether the live window supports reading and setting its outer frame. */
   readonly supportsBounds: boolean
@@ -54,6 +63,15 @@ export interface DesktopWindow {
   minimize(): void
   /** Request that the desktop bring a minimized window back. Throws after close. */
   restore(): void
+  /** Request that the host maximize this window. Throws after close. */
+  maximize(): void
+  /** Request that the host restore a maximized window. Throws after close. */
+  unmaximize(): void
+  /** Whether the host reports the window as maximized. Throws after close. */
+  isMaximized(): boolean
+  /** Whether the host reports the window as minimized. Throws after close;
+   *  throws UnavailabilityError on hosts that cannot report minimized state (GTK). */
+  isMinimized(): boolean
   /** Set the title of a live window. */
   setTitle(title: string): void
   /** Add a listener and return this window. */
@@ -68,10 +86,15 @@ export interface DesktopWindow {
   ): this
 }
 
-/** Native secondary windows for the running desktop host. */
+/** Native windows for the running desktop host. */
 export interface DesktopWindowService {
-  /** Whether the current host exposes native secondary windows. */
+  /** Whether the current host exposes native windows. */
   readonly supported: boolean
   /** Open a regular native window. Throws UnavailabilityError on unsupported hosts. */
   open(options?: DesktopWindowOptions): DesktopWindow
+  /** The main window (when the host has one open) followed by windows from
+   *  `open()` in creation order. Closed windows drop out; `[]` on unsupported hosts. */
+  getAllWindows(): DesktopWindow[]
+  /** The `getAllWindows()` handle that holds keyboard focus, or `null`. */
+  getFocusedWindow(): DesktopWindow | null
 }

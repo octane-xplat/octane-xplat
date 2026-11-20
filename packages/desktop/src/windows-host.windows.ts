@@ -10,6 +10,12 @@ interface ClosingArgs {
   Cancel: boolean
 }
 
+interface AppWindowChangedArgs {
+  DidPositionChange?: boolean
+  DidSizeChange?: boolean
+  DidPresenterChange?: boolean
+}
+
 interface WindowSurface {
   Activate(): void
   Close(): void
@@ -17,9 +23,15 @@ interface WindowSurface {
   Content?: { XamlRoot?: { RasterizationScale: number } | null; Loaded: object | null } | null
   AppWindow: {
     Id: { Value: number | bigint }
-    Closing: object
+    Closing: object | null
+    Changed?: object | null
     IsVisible: boolean
-    Presenter?: { State?: number; Minimize?(): void; Restore?(): void }
+    Presenter?: {
+      State?: number
+      Minimize?(): void
+      Maximize?(): void
+      Restore?(): void
+    }
     Show(): void
     Hide(): void
     Position?: { X: number; Y: number }
@@ -31,7 +43,15 @@ interface WindowSurface {
 
 interface WinRtDelegates {
   asDelegate(callback: (sender: unknown, args: ClosingArgs) => void): object
+  asDelegate(callback: (sender: unknown, args: AppWindowChangedArgs) => void): object
   asDelegate(type: string, callback: () => void): object
+}
+
+interface WindowsInput {
+  InputActivationState?: { Activated?: unknown }
+  InputActivationListener?: {
+    GetForWindowId?(windowId: unknown): { State?: unknown } | null
+  }
 }
 
 export interface WindowsWindow {
@@ -42,16 +62,26 @@ export interface WindowsWindow {
   isVisible(): boolean
   minimize(): void
   restore(): void
+  maximize(): void
+  unmaximize(): void
+  isMaximized(): boolean
+  isMinimized(): boolean
+  isFocused(): boolean
+  observe(onChange: (change: { moved: boolean; resized: boolean }) => void): () => void
   supportsBounds(): boolean
   getBounds(): DesktopRectangle
   setBounds(bounds: DesktopRectangle): void
 }
 
-type WindowController = NativeWindowController<WindowsWindow>
+type WindowController = NativeWindowController<WindowsWindow> & {
+  /** Internal teardown hooks the native close event drains once. */
+  __cleanups: Set<() => void>
+}
 
 const managed = new Map<NativeWindow, WindowController>()
 const quitGuards = new Set<() => boolean>()
 let quitPhase: 'idle' | 'checking' | 'approved' = 'idle'
+let primaryController: WindowController | undefined
 
 function projection(): WinRtDelegates | undefined {
   const rt = lookupGlobal(['NSWinRT'])
@@ -59,6 +89,15 @@ function projection(): WinRtDelegates | undefined {
   if (typeof rt === 'object' && rt !== null && 'asDelegate' in rt && typeof rt.asDelegate === 'function') {
     // The Windows runtime projects JS callbacks as native WinRT delegates.
     return rt as WinRtDelegates
+  }
+}
+
+function windowsInput(): WindowsInput | undefined {
+  const input = lookupGlobal(['Microsoft', 'UI', 'Input'])
+
+  if (typeof input === 'object' && input !== null) {
+    // The Windows runtime projects WinRT namespaces as plain host objects.
+    return input as WindowsInput
   }
 }
 
@@ -75,6 +114,192 @@ function supported(): boolean {
     typeof Application.getWindows === 'function' &&
     typeof Application.getWindowContentResolver === 'function'
   )
+}
+
+function adoptController(
+  native: NativeWindow,
+  surface: WindowSurface,
+  rt: WinRtDelegates,
+): WindowController {
+  let closed = false
+  let bypass = false
+  let finish!: () => void
+  const closedPromise = new Promise<void>((resolveClosed) => {
+    finish = resolveClosed
+  })
+
+  const controller: WindowController = {
+    __cleanups: new Set(),
+    window: {
+      get id() {
+        return String(surface.AppWindow.Id.Value)
+      },
+      requestClose() {
+        // Window.Close may take a different native route from the title
+        // bar. Run the JS guard exactly once before closing either way.
+        if (!closed && controller.onCloseRequested?.() !== false) {
+          controller.close()
+        }
+      },
+      present() {
+        if (surface.AppWindow.IsVisible) {
+          surface.Activate()
+        } else {
+          surface.AppWindow.Show()
+        }
+      },
+      hide: () => surface.AppWindow.Hide(),
+      isVisible: () => surface.AppWindow.IsVisible,
+      minimize() {
+        const presenter = surface.AppWindow.Presenter
+        if (typeof presenter?.Minimize !== 'function') {
+          throw new UnavailabilityError('DesktopWindow.minimize')
+        }
+        presenter.Minimize()
+      },
+      maximize() {
+        const presenter = surface.AppWindow.Presenter
+        if (typeof presenter?.Maximize !== 'function') {
+          throw new UnavailabilityError('DesktopWindow.maximize')
+        }
+        presenter.Maximize()
+      },
+      unmaximize() {
+        const presenter = surface.AppWindow.Presenter
+        if (typeof presenter?.State !== 'number' || typeof presenter.Restore !== 'function') {
+          throw new UnavailabilityError('DesktopWindow.unmaximize')
+        }
+        // Microsoft.UI.Windowing.OverlappedPresenterState.Maximized
+        if (presenter.State === 0) {
+          presenter.Restore()
+        }
+      },
+      isMaximized() {
+        const presenter = surface.AppWindow.Presenter
+        if (typeof presenter?.State !== 'number') {
+          throw new UnavailabilityError('DesktopWindow.isMaximized')
+        }
+        // Microsoft.UI.Windowing.OverlappedPresenterState.Maximized
+        return presenter.State === 0
+      },
+      isMinimized() {
+        const presenter = surface.AppWindow.Presenter
+        if (typeof presenter?.State !== 'number') {
+          throw new UnavailabilityError('DesktopWindow.isMinimized')
+        }
+        // Microsoft.UI.Windowing.OverlappedPresenterState.Minimized
+        return presenter.State === 1
+      },
+      isFocused() {
+        const input = windowsInput()
+        const activated = input?.InputActivationState?.Activated
+        const getListener = input?.InputActivationListener?.GetForWindowId
+
+        if (activated === undefined || typeof getListener !== 'function') {
+          throw new UnavailabilityError('windows.getFocusedWindow')
+        }
+
+        return (
+          getListener.call(input?.InputActivationListener, surface.AppWindow.Id)?.State ===
+          activated
+        )
+      },
+      observe(onChange) {
+        let active = true
+        const delegate = rt.asDelegate((_sender, event: AppWindowChangedArgs) => {
+          if (!active) {
+            return
+          }
+
+          // DidPresenterChange carries maximize/minimize/restore transitions —
+          // the service re-reads the presenter state on every notification.
+          if (event?.DidPositionChange || event?.DidSizeChange || event?.DidPresenterChange) {
+            onChange({
+              moved: event.DidPositionChange === true,
+              resized: event.DidSizeChange === true,
+            })
+          }
+        })
+
+        surface.AppWindow.Changed = delegate
+
+        return () => {
+          active = false
+          try {
+            surface.AppWindow.Changed = null
+          } catch {
+            // Removing a projected event handler is best effort.
+          }
+        }
+      },
+      supportsBounds() {
+        const appWindow = surface.AppWindow
+        return typeof appWindow.MoveAndResize === 'function' && appWindow.Position != null && appWindow.Size != null
+      },
+      getBounds() {
+        const { Position: position, Size: size } = surface.AppWindow
+        if (!position || !size) throw new UnavailabilityError('DesktopWindow.getBounds')
+        return { x: position.X, y: position.Y, width: size.Width, height: size.Height }
+      },
+      setBounds({ x, y, width, height }) {
+        if (![x, y, width, height].every((value) =>
+          Number.isInteger(value) && value >= -2147483648 && value <= 2147483647)) {
+          throw new RangeError('Windows bounds require whole physical pixels in the signed 32-bit range')
+        }
+        const appWindow = surface.AppWindow
+        if (!appWindow.MoveAndResize) throw new UnavailabilityError('DesktopWindow.setBounds')
+        appWindow.MoveAndResize({ X: x, Y: y, Width: width, Height: height })
+      },
+      restore() {
+        const presenter = surface.AppWindow.Presenter
+        if (typeof presenter?.State !== 'number' || typeof presenter.Restore !== 'function') {
+          throw new UnavailabilityError('DesktopWindow.restore')
+        }
+        // Microsoft.UI.Windowing.OverlappedPresenterState.Minimized
+        if (presenter.State === 1) {
+          presenter.Restore()
+        }
+      },
+    },
+    get isClosed() {
+      return closed
+    },
+    closed: closedPromise,
+    onCloseRequested: null,
+    close() {
+      if (!closed && !bypass) {
+        bypass = true
+        try {
+          surface.Close()
+        } finally {
+          bypass = false
+        }
+      }
+    },
+    setTitle(title) {
+      surface.Title = title
+    },
+  }
+
+  surface.AppWindow.Closing = rt.asDelegate((_sender, event) => {
+    if (!bypass && controller.onCloseRequested?.() === false) {
+      event.Cancel = true
+    }
+  })
+  native.on('close', () => {
+    closed = true
+    managed.delete(native)
+    for (const cleanup of Array.from(controller.__cleanups)) {
+      try {
+        cleanup()
+      } catch (error) {
+        console.error('[desktop] failed to clean up a closing Windows window', error)
+      }
+    }
+    // Core unregisters and unloads the root before the promise reactions run.
+    finish()
+  })
+  return controller
 }
 
 export function getWindowsOpener(): NativeWindowOpener<WindowsWindow> | undefined {
@@ -121,107 +346,7 @@ export function getWindowsOpener(): NativeWindowOpener<WindowsWindow> | undefine
       }
 
       const native = created
-      let closed = false
-      let bypass = false
-      let clearPendingResize: (() => void) | undefined
-      let finish!: () => void
-      const closedPromise = new Promise<void>((resolveClosed) => {
-        finish = resolveClosed
-      })
-
-      const controller: WindowController = {
-        window: {
-          get id() {
-            return String(surface.AppWindow.Id.Value)
-          },
-          requestClose() {
-            // Window.Close may take a different native route from the title
-            // bar. Run the JS guard exactly once before closing either way.
-            if (!closed && controller.onCloseRequested?.() !== false) {
-              controller.close()
-            }
-          },
-          present() {
-            if (surface.AppWindow.IsVisible) {
-              surface.Activate()
-            } else {
-              surface.AppWindow.Show()
-            }
-          },
-          hide: () => surface.AppWindow.Hide(),
-          isVisible: () => surface.AppWindow.IsVisible,
-          minimize() {
-            const presenter = surface.AppWindow.Presenter
-            if (typeof presenter?.Minimize !== 'function') {
-              throw new UnavailabilityError('DesktopWindow.minimize')
-            }
-            presenter.Minimize()
-          },
-          supportsBounds() {
-            const appWindow = surface.AppWindow
-            return typeof appWindow.MoveAndResize === 'function' && appWindow.Position != null && appWindow.Size != null
-          },
-          getBounds() {
-            const { Position: position, Size: size } = surface.AppWindow
-            if (!position || !size) throw new UnavailabilityError('DesktopWindow.getBounds')
-            return { x: position.X, y: position.Y, width: size.Width, height: size.Height }
-          },
-          setBounds({ x, y, width, height }) {
-            if (![x, y, width, height].every((value) =>
-              Number.isInteger(value) && value >= -2147483648 && value <= 2147483647)) {
-              throw new RangeError('Windows bounds require whole physical pixels in the signed 32-bit range')
-            }
-            const appWindow = surface.AppWindow
-            if (!appWindow.MoveAndResize) throw new UnavailabilityError('DesktopWindow.setBounds')
-            appWindow.MoveAndResize({ X: x, Y: y, Width: width, Height: height })
-          },
-          restore() {
-            const presenter = surface.AppWindow.Presenter
-            if (typeof presenter?.State !== 'number' || typeof presenter.Restore !== 'function') {
-              throw new UnavailabilityError('DesktopWindow.restore')
-            }
-            // Microsoft.UI.Windowing.OverlappedPresenterState.Minimized
-            if (presenter.State === 1) {
-              presenter.Restore()
-            }
-          },
-        },
-        get isClosed() {
-          return closed
-        },
-        closed: closedPromise,
-        onCloseRequested: null,
-        close() {
-          if (!closed && !bypass) {
-            bypass = true
-            try {
-              surface.Close()
-            } finally {
-              bypass = false
-            }
-          }
-        },
-        setTitle(title) {
-          surface.Title = title
-        },
-      }
-
-      surface.AppWindow.Closing = rt.asDelegate((_sender, event) => {
-        if (!bypass && controller.onCloseRequested?.() === false) {
-          event.Cancel = true
-        }
-      })
-      native.on('close', () => {
-        closed = true
-        managed.delete(native)
-        try {
-          clearPendingResize?.()
-        } catch (error) {
-          console.error('[desktop] failed to remove the Windows window size listener', error)
-        }
-        // Core unregisters and unloads the root before the promise reactions run.
-        finish()
-      })
+      const controller = adoptController(native, surface, rt)
       managed.set(native, controller)
 
       if (options.title !== undefined) {
@@ -239,14 +364,15 @@ export function getWindowsOpener(): NativeWindowOpener<WindowsWindow> | undefine
 
         if (content && !content.XamlRoot) {
           // Core can return before WinUI loads the content and provides its monitor scale.
-          clearPendingResize = () => {
-            clearPendingResize = undefined
+          const clearPendingResize = () => {
             content.Loaded = null
           }
+          controller.__cleanups.add(clearPendingResize)
           content.Loaded = rt.asDelegate('Microsoft.UI.Xaml.RoutedEventHandler', () => {
             try {
-              clearPendingResize?.()
-              if (!closed) {
+              controller.__cleanups.delete(clearPendingResize)
+              clearPendingResize()
+              if (!controller.isClosed) {
                 resize()
               }
             } catch (error) {
@@ -274,6 +400,31 @@ export function getWindowsOpener(): NativeWindowOpener<WindowsWindow> | undefine
       }
     }
   }
+}
+
+/** Controller for `Application.primaryWindow`, adopted lazily so importing
+ *  this module never touches WinUI before the host app exists. Not in
+ *  `managed` — the quit path keeps the primary alive until secondary closes
+ *  drain, since the packaged host exits on the last WinUI window. */
+export function getWindowsPrimary(): WindowController | undefined {
+  if (primaryController && !primaryController.isClosed) {
+    return primaryController
+  }
+
+  const rt = projection()
+  if (!rt || !supported() || !isReady()) {
+    return undefined
+  }
+
+  const native = Application.primaryWindow
+  const surface = nativeSurface(native)
+
+  if (!native || native.state === 'closed' || !surface?.AppWindow) {
+    return undefined
+  }
+
+  primaryController = adoptController(native, surface, rt)
+  return primaryController
 }
 
 function isReady(): boolean {
@@ -334,8 +485,8 @@ function quit(): void {
         return
       }
     }
-    for (const controller of managed.values()) {
-      if (controller.onCloseRequested?.() === false) {
+    for (const controller of [getWindowsPrimary(), ...managed.values()]) {
+      if (controller && controller.onCloseRequested?.() === false) {
         return
       }
     }

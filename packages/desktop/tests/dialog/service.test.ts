@@ -27,6 +27,13 @@ function fixture() {
       isVisible: () => visible,
       minimize() {},
       restore() {},
+      maximize() {},
+      unmaximize() {},
+      isMaximized: () => false,
+      isFocused: () => false,
+      observe() {
+        return () => {}
+      },
     },
   )
   return { parent: binding.windows.open(), ownerOf: binding.getWindowOwner, nativeOwner }

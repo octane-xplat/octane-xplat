@@ -4,7 +4,7 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'
-import { closeGtkWindows, liveGtkWindows } from './window-service.js'
+import { adoptGtkPrimaryWindow, closeGtkWindows, liveGtkWindows } from './window-service.js'
 import { createGtkRoot } from './index.js'
 import type { GtkContainer, GtkRoot, GtkView } from './index.js'
 
@@ -202,6 +202,9 @@ export function runGtkApp(
 
     mounted = { app, window, content, container, root }
     canForwardSecondLaunch = !!options.forwardSecondLaunch && app.get_dbus_connection() !== null
+    // Adopt the main window so close-request vetoes, the quit sweep, and the
+    // __octaneGtkHost.primaryWindow bridge see it like an openWindow window.
+    adoptGtkPrimaryWindow(window)
     mountCleanup = mount(mounted) ?? undefined
     window.present()
     quitApplication = requestQuit

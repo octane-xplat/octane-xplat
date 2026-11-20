@@ -7,6 +7,7 @@ import {
   Inspector,
   beforeAppStarts,
   verifyAppLifecycle,
+  verifyAppWindowState,
   verifyWindowLifecycle,
 } from './lifecycle.tsrx'
 
@@ -137,7 +138,7 @@ function verifyScreen() {
   console.log('DESKTOP_SCREEN_OK')
 }
 
-runMacOSApp({ title: 'Desktop window fixture' }, ({ app }) => {
+runMacOSApp({ title: 'Desktop window fixture' }, ({ app, window: mainWindow }) => {
   setTimeout(() => {
     void ready
       .then(verifyScreen)
@@ -155,6 +156,33 @@ runMacOSApp({ title: 'Desktop window fixture' }, ({ app }) => {
             visible: () => window.isVisible(),
           }
         }, verifyOpenDialog),
+      )
+      .then(() =>
+        verifyAppWindowState({
+          wait: (milliseconds) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds)),
+          // performClose drives windowShouldClose — the same veto path a
+          // titlebar close takes.
+          requestNativeClose: () => mainWindow.performClose(null),
+          supportsBounds: true,
+          boundsTolerance: 1,
+          maximizes: true,
+          reportsMinimized: true,
+          // Agent-run sessions cannot activate a spawned app: no window goes
+          // key, so focus assertions only run where activation is possible.
+          canFocus: () => NSApp.isActive(),
+          focusDetails: () => {
+            const read = (target: unknown, member: string) => {
+              const value = Reflect.get(target ?? {}, member)
+              return typeof value === 'function' ? value.call(target) : value
+            }
+            const primaryOf = Reflect.get(globalThis, '__xplatAppKitPrimaryWindow')
+            const native = typeof primaryOf === 'function' ? primaryOf()?.window : undefined
+            return `active=${NSApp.isActive()} key=${read(observed?.window, 'isKeyWindow')} zoomed=${read(
+              native,
+              'isZoomed',
+            )} miniaturized=${read(native, 'isMiniaturized')}`
+          },
+        }),
       )
       .then(() => verifyAppLifecycle(() => app.terminate(null)))
       .catch((error) => {
