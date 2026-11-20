@@ -1,0 +1,52 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/catalog.ts",
+		"../src/contract.ts",
+		"../src/controls.ts",
+		"../src/errors.ts",
+		"../src/fixture.ts",
+		"../src/gallery.ts",
+		"../src/index.ts",
+		"../src/native/chrome.tsrx",
+		"../src/native/controller.ts",
+		"../src/native/story-tree.tsrx",
+		"../src/session.ts",
+		"../src/web/boot.web.ts",
+		"../src/web/entry.web.ts",
+		"../src/web/gallery.web.ts",
+		"../src/web/index.web.ts",
+		"../src/web/mount.web.ts",
+		"../src/web/shell.web.tsrx",
+		"../tests/controls.test.ts",
+		"../tests/gallery.test.ts",
+		"../tests/mobile-mount.test.ts",
+		"../tests/native-controller.test.ts",
+		"../tests/session.test.ts",
+		"../tests/typing.contract.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"allowImportingTsExtensions": true,
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

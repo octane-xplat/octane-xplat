@@ -1,0 +1,30 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/AnimatedImage.web.tsrx",
+		"../src/index.web.ts",
+		"../src/prefetch-batch.ts",
+		"../src/prefetch.web.ts",
+		"../src/props.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

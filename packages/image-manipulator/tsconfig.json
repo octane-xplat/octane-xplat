@@ -2,22 +2,22 @@
 	"files": [],
 	"references": [
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/web.json"
+			"path": "./xplat-typecheck/web.json"
 		},
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/ios.json"
+			"path": "./xplat-typecheck/ios.json"
 		},
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/android.json"
+			"path": "./xplat-typecheck/android.json"
 		},
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/macos.json"
+			"path": "./xplat-typecheck/macos.json"
 		},
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/windows.json"
+			"path": "./xplat-typecheck/windows.json"
 		},
 		{
-			"path": "./node_modules/.cache/xplat-typecheck/gtk.json"
+			"path": "./xplat-typecheck/gtk.json"
 		}
 	]
 }

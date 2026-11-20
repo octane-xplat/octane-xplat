@@ -1,0 +1,31 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../examples/TripForm.tsrx",
+		"../src/index.ts",
+		"../src/use-field.tsrx",
+		"../src/use-form-store.tsrx",
+		"../src/use-form.tsrx",
+		"../tests/fixtures/lifecycle.tsrx",
+		"../tests/types.tsrx",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

@@ -24,9 +24,11 @@ roots. Builds retain their existing TSRX runtime selection.
 `lib` and `types` are set explicitly per program, overriding inherited mixed
 settings and disabling automatic `@types` discovery. An existing
 `@nativescript/types` request selects `globals.d.ts` and the matching phone SDK;
-it does not load the umbrella index, which references both SDKs. Resolve those
-files from the declared umbrella dependency so Bun's isolated linker does not
-require consumers to add undeclared direct dependencies. Preserve existing
+it does not load the umbrella index, which references both SDKs. A bare
+`@nativescript/types-ios`/`@nativescript/types-android` entry selects the same
+pair for its matching program. Resolve those files from the declared umbrella
+dependency so Bun's isolated linker does not require consumers to add
+undeclared direct dependencies. Preserve existing
 module-scoped SDK APIs on main. macOS uses its existing AppKit/Node host declarations;
 Windows keeps the existing module-scoped WinRT surface and narrow JS globals.
 This work does not strengthen the WinRT surface's existing `any` types. GTK
@@ -53,10 +55,13 @@ contracts and do not qualify isolated checking.
 ## Discoverable editor projects
 
 A source file's nearest `tsconfig.json` must reference the generated programs.
-The generated cache files alone are not discoverable editor configuration.
-Repository environment workspaces and new starters carry solution references;
-run their typecheck to prepare those referenced files after installation and
-whenever manifest roots change. `xplat typecheck` retains the root config check and also checks the manifest
+Programs emit into the tracked `xplat-typecheck/` directory at the project root
+— committed, project-relative output that resolves on a clean checkout, so the
+language server discovers platform projects right after dependency
+installation. Every typecheck run regenerates it; `bun run sync:envs` rewrites
+all manifests' programs and `bun run check:envs` fails on stale, missing, or
+unreferenced output. Repository environment workspaces and new starters carry
+solution references. `xplat typecheck` retains the root config check and also checks the manifest
 programs independently. A solution root contains no source files of its own;
 a mixed legacy root is an additional check and does not qualify isolation. Existing apps need to
 replace broad root `include`/`files` with solution references, retaining shared

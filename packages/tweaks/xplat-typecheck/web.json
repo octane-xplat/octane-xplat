@@ -1,0 +1,51 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/client.ts",
+		"../src/dev.web.ts",
+		"../src/devtools/Panel.tsrx",
+		"../src/devtools/icons.ts",
+		"../src/devtools/index.ts",
+		"../src/devtools/model.ts",
+		"../src/devtools/styles-panel.ts",
+		"../src/devtools/styles.ts",
+		"../src/devtools/use-panel-content.web.ts",
+		"../src/globals.d.ts",
+		"../src/index.ts",
+		"../src/pick.web.ts",
+		"../src/protocol.ts",
+		"../src/useTweak.tsx",
+		"../src/useTweakStyles.tsx",
+		"../src/vite/bamboo.ts",
+		"../src/vite/diff.ts",
+		"../src/vite/extract.ts",
+		"../src/vite/index.ts",
+		"../src/vite/preview.ts",
+		"../src/vite/save.ts",
+		"../src/vite/serialize.ts",
+		"../src/vite/server.ts",
+		"../src/vite/styles.ts",
+		"../src/vite/stylewrite.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"types": [
+			"node"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

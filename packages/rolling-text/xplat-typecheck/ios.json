@@ -1,0 +1,28 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../examples/RollingTextDemo.tsrx",
+		"../src/index.ts",
+		"./isolation-ios.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".ios",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"ios",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

@@ -1,0 +1,30 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../examples/TripForm.tsrx",
+		"../src/index.ts",
+		"../src/use-field.tsrx",
+		"../src/use-form-store.tsrx",
+		"../src/use-form.tsrx",
+		"./isolation-windows.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".windows",
+			".native",
+			""
+		],
+		"customConditions": [
+			"windows",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

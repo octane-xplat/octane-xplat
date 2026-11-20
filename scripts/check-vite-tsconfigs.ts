@@ -3,9 +3,9 @@
 // when the package's root tsconfig.json is a references-style solution: Vite
 // 8 resolves each transformed file's governing tsconfig and follows its
 // project references — which point at env programs `xplat typecheck`
-// generates under node_modules/.cache/xplat-typecheck. Those programs are
-// absent on a fresh checkout, so an unpinned `vite build` or `vitest run`
-// fails every transform (`build:packages`, `turbo run test`). Affected
+// generates under the tracked xplat-typecheck/ directory. Those programs are
+// committed, but a stale or missing one still dangles, so an unpinned
+// `vite build` or `vitest run` can fail every transform. Affected
 // configs pin the committed env manifest (tsconfig.envs.json), or the
 // declaration config (tsconfig.types.json) where no env manifest exists.
 import { existsSync, globSync, readFileSync } from 'node:fs'
@@ -14,10 +14,12 @@ import ts from 'typescript-classic'
 
 const root = resolve(process.cwd(), process.argv[2] ?? '.')
 
-// References-style root tsconfig pointing at generated programs (under
-// node_modules/.cache) — they dangle until a typecheck run, so vite
-// transforms must not follow them. References to committed configs resolve
-// on every checkout and need no pin.
+// References-style root tsconfig pointing at env programs that can dangle:
+// legacy node_modules/.cache programs are disposable (untracked), and a
+// tracked xplat-typecheck/ program goes missing when a target retires or
+// the directory was never regenerated — vite transforms must not follow
+// either. References to existing committed programs resolve on every
+// checkout and need no pin.
 const hasGeneratedReferences = (dir: string) => {
   const file = join(dir, 'tsconfig.json')
   if (!existsSync(file)) {
@@ -27,9 +29,15 @@ const hasGeneratedReferences = (dir: string) => {
   const { config } = ts.readConfigFile(file, ts.sys.readFile)
   const references = Array.isArray(config?.references) ? config.references : []
 
-  return references.some(
-    (ref) => typeof ref?.path === 'string' && ref.path.includes('node_modules'),
-  )
+  return references.some((ref) => {
+    const path = ref?.path
+
+    return (
+      typeof path === 'string' &&
+      (path.includes('node_modules') ||
+        (/(?:^|\/)xplat-typecheck\//.test(path) && !existsSync(resolve(dir, path))))
+    )
+  })
 }
 
 const CONFIG_OPERAND = /(?:^|\s)(?:--config|-c)[=\s]+['"]?(\S+?)['"]?(?=\s|$)/

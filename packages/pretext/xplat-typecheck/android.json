@@ -1,0 +1,36 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../examples/measure.ts",
+		"../src/index.ts",
+		"../src/install.android.ts",
+		"../src/intl.ts",
+		"../src/measurement.ts",
+		"../src/rich-inline.ts",
+		"./isolation-android.ts"
+	],
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"types": [
+			"../node_modules/@nativescript/types/globals.d.ts",
+			"../../../node_modules/.bun/@nativescript+types-android@9.1.1/node_modules/@nativescript/types-android/index.d.ts"
+		],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".android",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"android",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

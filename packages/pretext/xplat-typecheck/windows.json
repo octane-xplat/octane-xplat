@@ -1,0 +1,32 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../examples/measure.ts",
+		"../src/index.windows.ts",
+		"../src/install.windows.ts",
+		"../src/intl.ts",
+		"../src/measurement.ts",
+		"../src/rich-inline.windows.ts",
+		"./isolation-windows.ts"
+	],
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"types": [],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".windows",
+			".native",
+			""
+		],
+		"customConditions": [
+			"windows",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

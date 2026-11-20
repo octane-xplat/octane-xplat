@@ -1,0 +1,35 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts",
+		"../examples/auth0-flow.ts",
+		"../src/AppleSignInButton.macos.tsrx",
+		"../src/GoogleSignInButton.macos.tsrx",
+		"../src/apple-button.macos.ts",
+		"../src/apple.macos.ts",
+		"../src/google.macos.ts",
+		"../src/index.macos.ts",
+		"../src/sign-in-button-action.macos.ts",
+		"../src/types.ts",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

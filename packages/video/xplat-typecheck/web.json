@@ -1,0 +1,35 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/Video.parity.check.ts",
+		"../src/Video.parity.tsrx",
+		"../src/Video.web.tsrx",
+		"../src/accessibility.ts",
+		"../src/index.web.ts",
+		"../src/layout-child.web.ts",
+		"../src/props.ts",
+		"../src/seek-time.ts",
+		"../src/style-merge.ts",
+		"../src/video-chrome.web.tsrx",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

@@ -1,0 +1,42 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../examples/selection.tsrx",
+		"../src/Gesture.web.tsrx",
+		"../src/Guide.web.tsrx",
+		"../src/ImageCrop.tsrx",
+		"../src/Source.web.tsrx",
+		"../src/geometry.ts",
+		"../src/index.web.ts",
+		"../src/props.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

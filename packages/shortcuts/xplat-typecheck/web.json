@@ -1,0 +1,55 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../examples/workspace.ts",
+		"../src/engine/bindings/canonicalizeStep.ts",
+		"../src/engine/bindings/compileBinding.ts",
+		"../src/engine/bindings/parseCombo.ts",
+		"../src/engine/bindings/parseSequence.ts",
+		"../src/engine/blocklists/compileBlocklist.ts",
+		"../src/engine/events/normalizeKeyboardEvent.ts",
+		"../src/engine/presets/blocklistEntry.ts",
+		"../src/engine/presets/browser/chrome.ts",
+		"../src/engine/presets/browser/common.ts",
+		"../src/engine/presets/browser/edge.ts",
+		"../src/engine/presets/browser/firefox.ts",
+		"../src/engine/presets/browser/safari.ts",
+		"../src/engine/presets/os/linux.ts",
+		"../src/engine/presets/os/mac.ts",
+		"../src/engine/presets/os/windows.ts",
+		"../src/engine/runtime/createRuntime.ts",
+		"../src/engine/runtime/dispatch.ts",
+		"../src/engine/runtime/pauseState.ts",
+		"../src/engine/runtime/recordState.ts",
+		"../src/engine/scopes/resolveActiveScopes.ts",
+		"../src/engine/sequences/SequenceMachine.ts",
+		"../src/engine/types/internal.ts",
+		"../src/engine/types/public.ts",
+		"../src/engine/when/buildWhenContext.ts",
+		"../src/engine/when/compileWhenClause.ts",
+		"../src/host-types.ts",
+		"../src/host.web.ts",
+		"../src/index.web.ts",
+		"../src/physical-codes.ts",
+		"../src/shared.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

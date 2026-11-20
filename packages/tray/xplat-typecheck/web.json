@@ -1,0 +1,30 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/errors.ts",
+		"../src/index.web.ts",
+		"../src/menu.ts",
+		"../src/types.ts",
+		"../src/unsupported.ts",
+		"../tests/menu-compat.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

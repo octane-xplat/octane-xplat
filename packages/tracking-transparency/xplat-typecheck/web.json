@@ -1,0 +1,35 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../examples/tracking-actions.ts",
+		"../src/backend-types.ts",
+		"../src/backend.web.ts",
+		"../src/index.web.ts",
+		"../src/no-gate.ts",
+		"../src/permission.ts",
+		"../src/service.ts",
+		"../src/types.ts",
+		"../src/use-tracking-permissions.tsx",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

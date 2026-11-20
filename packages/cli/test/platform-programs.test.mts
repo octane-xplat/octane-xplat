@@ -95,7 +95,14 @@ function fixture(t) {
         'src/Shared.tsrx',
       ],
       ...(['ios', 'android'].includes(env)
-        ? { compilerOptions: { types: ['@nativescript/types'] } }
+        ? {
+            compilerOptions: {
+              // The iOS leaf declares its SDK bare: only the umbrella is
+              // linked, so this entry must resolve transitively like the
+              // umbrella request Android keeps below.
+              types: [env === 'ios' ? '@nativescript/types-ios' : '@nativescript/types'],
+            },
+          }
         : {}),
     }
   }

@@ -306,16 +306,19 @@ bun run xplat typecheck
 
 ### Editor project context
 
-After installing dependencies, run the app's typecheck once to generate its
-platform configurations. Run it again when you change manifest roots. New
-starters include a root `tsconfig.json` with solution references, which lets the
-language server discover those configurations from source files. These
-references exist for editor discovery. While an app's generated program is
-absent, the framework's Vite preset uses its committed `tsconfig.envs.json`.
-When Vite discovers TypeScript configs for individual files, the preset also
-uses a linked package's own manifest if its generated program is missing.
-Run the typecheck when you want to check types and populate the editor's
-platform projects:
+The typecheck writes each platform configuration into the tracked
+`xplat-typecheck/` directory beside the manifest. Commit that directory: the
+programs are generated but project-relative, so the language server discovers
+them right after dependency installation without a first typecheck run.
+Run the typecheck again to regenerate them when you change the manifest, its
+roots, or the dependency layout it resolves through. New starters include a
+root `tsconfig.json` with solution references, which lets the language server
+discover those configurations from source files. These references exist for
+editor discovery. While an app's generated program is absent, the framework's
+Vite preset uses its committed `tsconfig.envs.json`. When Vite discovers
+TypeScript configs for individual files, the preset also uses a linked
+package's own manifest if its generated program is missing. Run the typecheck
+when you want to check types and refresh the editor's platform projects:
 
 ```sh
 bun run typecheck
@@ -342,9 +345,9 @@ manifest above. The cache files by themselves do not establish editor support:
   },
   "files": [],
   "references": [
-    { "path": "./node_modules/.cache/xplat-typecheck/web.json" },
-    { "path": "./node_modules/.cache/xplat-typecheck/ios.json" },
-    { "path": "./node_modules/.cache/xplat-typecheck/android.json" }
+    { "path": "./xplat-typecheck/web.json" },
+    { "path": "./xplat-typecheck/ios.json" },
+    { "path": "./xplat-typecheck/android.json" }
   ]
 }
 ```
@@ -356,7 +359,7 @@ any old `all.json` or `linux.json` reference:
 {
   "files": [],
   "references": [
-    { "path": "./node_modules/.cache/xplat-typecheck/gtk.json" }
+    { "path": "./xplat-typecheck/gtk.json" }
   ]
 }
 ```
@@ -404,7 +407,7 @@ the manifest. This fragment replaces only that field:
 
 ```json
 {
-  "references": [{ "path": "./node_modules/.cache/xplat-typecheck/ios.json" }]
+  "references": [{ "path": "./xplat-typecheck/ios.json" }]
 }
 ```
 

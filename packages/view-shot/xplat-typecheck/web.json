@@ -1,0 +1,42 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../examples/capture-card.ts",
+		"../src/ViewShot.web.tsx",
+		"../src/backend-types.ts",
+		"../src/backend.apple.ts",
+		"../src/backend.web.ts",
+		"../src/controller.ts",
+		"../src/index.web.ts",
+		"../src/options.ts",
+		"../src/props.ts",
+		"../src/service.ts",
+		"../src/targets.ts",
+		"../src/types.ts",
+		"../src/unsupported.ts",
+		"../src/use-view-shot.tsx",
+		"../tests/component-backend.ts",
+		"../tests/component-harness.web.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": [],
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

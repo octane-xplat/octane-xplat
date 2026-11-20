@@ -11,7 +11,12 @@ import {
 } from 'node:fs'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
-import { expandEnvPrograms, loadEnvManifest, envSolution } from '../src/tsconfig-envs.ts'
+import {
+  checkEnvPrograms,
+  expandEnvPrograms,
+  loadEnvManifest,
+  envSolution,
+} from '../src/tsconfig-envs.ts'
 
 const tmp = []
 function fixture(environments, options = {}) {
@@ -61,7 +66,7 @@ test('separate phone SDKs, platform resolution and shared roots in all five prog
 
     const c = config(p)
 
-    assert.equal(c.extends, '../../../tsconfig.envs.json')
+    assert.equal(c.extends, '../tsconfig.envs.json')
     assert.equal(c.compilerOptions.moduleSuffixes[0], `.${p.env}`)
     assert.deepEqual(c.compilerOptions.types, [])
     assert.equal(c.compilerOptions.lib.includes('DOM'), p.env === 'web')
@@ -173,6 +178,116 @@ test('generated configs stay valid after the checkout moves', () => {
       )
     }
   }
+})
+
+test('a bare platform SDK entry resolves transitively through the umbrella package', () => {
+  const dir = fixture({
+    web: entries.web,
+    ios: {
+      files: ['src/index.ts', 'src/index.ios.ts', 'src/shared.ts'],
+      compilerOptions: { types: ['@nativescript/types-ios'] },
+    },
+    android: {
+      files: ['src/index.ts', 'src/index.android.ts', 'src/shared.ts'],
+      compilerOptions: { types: ['@nativescript/types-android'] },
+    },
+    macos: entries.macos,
+    windows: entries.windows,
+  })
+
+  // Isolated layouts keep the per-SDK packages nested under the umbrella —
+  // they are never direct dependencies of the project.
+  const umbrella = join(dir, 'node_modules/@nativescript/types')
+  mkdirSync(join(umbrella, 'node_modules/@nativescript/types-ios'), { recursive: true })
+  mkdirSync(join(umbrella, 'node_modules/@nativescript/types-android'), { recursive: true })
+  writeFileSync(
+    join(umbrella, 'package.json'),
+    JSON.stringify({ name: '@nativescript/types', types: 'index.d.ts' }),
+  )
+  writeFileSync(join(umbrella, 'globals.d.ts'), '')
+  for (const sdk of ['ios', 'android']) {
+    writeFileSync(
+      join(umbrella, `node_modules/@nativescript/types-${sdk}/package.json`),
+      JSON.stringify({ name: `@nativescript/types-${sdk}`, types: 'index.d.ts' }),
+    )
+    writeFileSync(join(umbrella, `node_modules/@nativescript/types-${sdk}/index.d.ts`), '')
+  }
+
+  for (const program of expand(dir).filter((p) => p.env === 'ios' || p.env === 'android')) {
+    const types = config(program).compilerOptions.types
+
+    assert.equal(types.length, 2)
+    assert.ok(
+      types.every((entry) => entry.endsWith('.d.ts')),
+      `${program.env} emits resolvable declaration paths, not bare package names`,
+    )
+    assert.ok(types.some((entry) => entry.endsWith('@nativescript/types/globals.d.ts')))
+    assert.ok(types.some((entry) => entry.endsWith(`types-${program.env}/index.d.ts`)))
+  }
+})
+
+test('a project-installed host package wins the ambient declaration reference', () => {
+  const dir = fixture(entries)
+  const ambient = join(dir, 'node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts')
+
+  mkdirSync(dirname(ambient), { recursive: true })
+  writeFileSync(ambient, '')
+
+  const macos = expand(dir).find((p) => p.env === 'macos')
+
+  assert.ok(
+    macos.files.includes(ambient),
+    'the stable package path replaces the workspace fallback',
+  )
+})
+
+test('check mode reports stale, missing, retired, and unreferenced programs', () => {
+  const dir = fixture(entries)
+  const programs = expand(dir)
+  const loaded = () => loadEnvManifest(dir)
+
+  checkEnvPrograms(dir, loaded())
+  writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify(envSolution(programs, dir)))
+  checkEnvPrograms(dir, loaded())
+
+  writeFileSync(programs[0].configPath, '{}\n')
+  assert.throws(() => checkEnvPrograms(dir, loaded()), /does not match the manifest expansion/)
+  expand(dir)
+  checkEnvPrograms(dir, loaded())
+
+  writeFileSync(join(dir, 'xplat-typecheck/linux.json'), '{}\n')
+  assert.throws(() => checkEnvPrograms(dir, loaded()), /belongs to a retired target/)
+  expand(dir)
+  assert.equal(existsSync(join(dir, 'xplat-typecheck/linux.json')), false)
+
+  rmSync(programs[1].configPath)
+  assert.throws(() => checkEnvPrograms(dir, loaded()), /is missing/)
+  expand(dir)
+
+  const solution = envSolution(programs, dir)
+  solution.references.pop()
+  writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify(solution))
+  assert.throws(() => checkEnvPrograms(dir, loaded()), /does not reference/)
+
+  solution.references.push({ path: './xplat-typecheck/linux.json' })
+  writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify(solution))
+  assert.throws(() => checkEnvPrograms(dir, loaded()), /retired program/)
+})
+
+test('removing an environment prunes its tracked programs', () => {
+  const dir = fixture(entries)
+  expand(dir)
+  assert.ok(existsSync(join(dir, 'xplat-typecheck/windows.json')))
+
+  rmSync(join(dir, 'src/index.windows.ts'))
+  const loaded = loadEnvManifest(dir)
+  delete loaded.manifest.environments.windows
+  expandEnvPrograms(dir, loaded)
+  writeFileSync(join(dir, 'tsconfig.envs.json'), JSON.stringify(loaded.manifest))
+
+  assert.equal(existsSync(join(dir, 'xplat-typecheck/windows.json')), false)
+  assert.equal(existsSync(join(dir, 'xplat-typecheck/isolation-windows.ts')), false)
+  checkEnvPrograms(dir, loadEnvManifest(dir))
 })
 
 test('native Linux uses GTK declarations and no browser suffix fallback', () => {

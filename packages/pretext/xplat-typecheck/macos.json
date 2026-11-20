@@ -1,0 +1,31 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts",
+		"../examples/measure.ts",
+		"../src/index.macos.ts",
+		"../src/install.macos.ts",
+		"../src/intl.ts",
+		"../src/measurement.ts",
+		"../src/rich-inline.macos.ts",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"types": [],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		],
+		"lib": [
+			"ESNext"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

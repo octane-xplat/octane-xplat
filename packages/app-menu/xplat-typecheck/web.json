@@ -1,0 +1,31 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/accelerator.ts",
+		"../src/controller.ts",
+		"../src/host-types.ts",
+		"../src/host.web.ts",
+		"../src/index.web.ts",
+		"../src/model.ts",
+		"../src/shared.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

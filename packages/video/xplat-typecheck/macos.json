@@ -1,0 +1,30 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts",
+		"../src/Video.macos.tsrx",
+		"../src/index.macos.ts",
+		"../src/video-chrome.macos.tsrx",
+		"../src/video-owner.macos.ts",
+		"../src/video-view.macos.ts",
+		"./isolation-macos.ts"
+	],
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"customConditions": [
+			"macos"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

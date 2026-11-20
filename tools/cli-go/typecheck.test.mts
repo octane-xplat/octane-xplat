@@ -253,7 +253,7 @@ test('canonical JSONC environment expansion replaces the legacy program and incl
 
   assert.equal(result.status, 0, result.stderr)
 
-  const file = join(directory, 'node_modules/.cache/xplat-typecheck/ios.json')
+  const file = join(directory, 'xplat-typecheck/ios.json')
   const generated = readFileSync(file, 'utf8')
   const expected = reference(directory)
 
@@ -267,7 +267,8 @@ test('canonical JSONC environment expansion replaces the legacy program and incl
 
   assert.equal(program.compilerOptions.jsxImportSource, '@octane-xplat/jsx')
   assert.ok(program.files.some((path) => /typecheck-globals[/\\]native\.d\.ts$/.test(path)))
-  assert.ok(program.files.includes(join(directory, 'src/main.native.ts')))
+  // Generated files resolve relative to the tracked program directory.
+  assert.ok(program.files.some((path) => /[/\\]src[/\\]main\.native\.ts$/.test(path)))
   assert.equal(expected.configs.includes(join(directory, 'tsconfig.native.json')), false)
 })
 

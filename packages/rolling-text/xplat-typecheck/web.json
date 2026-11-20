@@ -1,0 +1,26 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../examples/RollingTextDemo.tsrx",
+		"../src/index.web.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

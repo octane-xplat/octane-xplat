@@ -1,0 +1,31 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../src/backend-types.ts",
+		"../src/backend.web.ts",
+		"../src/index.web.ts",
+		"../src/service.ts",
+		"../src/types.ts",
+		"../src/unsupported.ts",
+		"./isolation-web.ts"
+	],
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"types": [],
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".web",
+			""
+		],
+		"customConditions": [
+			"web"
+		],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		]
+	},
+	"include": [],
+	"exclude": []
+}

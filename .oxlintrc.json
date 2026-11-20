@@ -6,6 +6,7 @@
 		"tools/routing-eval/tasks/",
 		"tools/routing-eval/grader/",
 		"**/*.gen.*",
+		"**/xplat-typecheck/**",
 		"packages/**/types/generated/**",
 		"**/vendor/**",
 		"packages/platform/src/types/macos*/**",

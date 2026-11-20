@@ -9,9 +9,8 @@ import { defineConfig } from 'vite'
 //
 // Vite 8's oxc transform resolves each file's governing tsconfig.json and
 // follows its project references. This package's root tsconfig is a
-// references-only solution pointing at generated env programs under
-// node_modules/.cache/xplat-typecheck — which exist only after a typecheck
-// run — so every transform fails on an ungenerated checkout. Pin the build
+// references-only solution points at the tracked xplat-typecheck/ programs;
+// a stale or missing program still dangles and fails every transform. Pin the build
 // transform to the package's committed env manifest.
 export default defineConfig({
   tsconfig: fileURLToPath(new URL('./tsconfig.envs.json', import.meta.url)),

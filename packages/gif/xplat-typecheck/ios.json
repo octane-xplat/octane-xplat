@@ -1,0 +1,32 @@
+{
+	"extends": "../tsconfig.envs.json",
+	"files": [
+		"../../cli/src/typecheck-globals/native.d.ts",
+		"../src/AnimatedImage.tsrx",
+		"../src/index.ts",
+		"../src/prefetch-batch.ts",
+		"../src/prefetch.ts",
+		"../src/props.ts",
+		"./isolation-ios.ts"
+	],
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"moduleSuffixes": [
+			".ios",
+			".mobile",
+			".native",
+			""
+		],
+		"customConditions": [
+			"ios",
+			"native"
+		],
+		"lib": [
+			"ESNext"
+		],
+		"types": []
+	},
+	"include": [],
+	"exclude": []
+}

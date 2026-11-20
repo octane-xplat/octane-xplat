@@ -173,11 +173,11 @@ test('the web preset pins the transform tsconfig while env program references da
   delete process.env.XPLAT_TARGET
 
   const manifest = join(root, 'tsconfig.envs.json')
-  const generated = join(root, 'node_modules/.cache/xplat-typecheck/web.json')
+  const generated = join(root, 'xplat-typecheck/web.json')
 
   writeFileSync(
     join(root, 'tsconfig.json'),
-    JSON.stringify({ references: [{ path: './node_modules/.cache/xplat-typecheck/web.json' }] }),
+    JSON.stringify({ references: [{ path: './xplat-typecheck/web.json' }] }),
   )
   writeFileSync(
     manifest,

@@ -32,10 +32,10 @@ afterEach(() =>
   temporary.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })),
 )
 
-const generated = 'node_modules/.cache/xplat-typecheck/web.json'
-const dangling = (envs = '{"compilerOptions":{"strict":true}}') => ({
+const generated = 'xplat-typecheck/web.json'
+const dangling = (envs = '{"compilerOptions":{"strict":true}}', path = './xplat-typecheck/web.json') => ({
   'tsconfig.json': JSON.stringify({
-    references: [{ path: './node_modules/.cache/xplat-typecheck/web.json' }],
+    references: [{ path }],
   }),
   'tsconfig.envs.json': envs,
   'entry.ts': 'export const answer: number = 42',
@@ -135,6 +135,12 @@ test('an explicit tsconfig wins and generated programs resume discovery', async 
   } finally {
     await probe.server.close()
   }
+})
+
+test('a legacy node_modules cache reference still pins while dangling', () => {
+  const root = fixture(dangling(undefined, './node_modules/.cache/xplat-typecheck/web.json'))
+
+  assert.equal(transformTsconfig(root), join(root, 'tsconfig.envs.json'))
 })
 
 test('transformTsconfig resolves only beside a manifest', () => {
