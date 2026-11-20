@@ -342,10 +342,10 @@ index 77f5533..5c1d57f 100644
                  return null;
 diff --git a/hmr/server/boot-graph-crawl.js b/hmr/server/boot-graph-crawl.js
 new file mode 100644
-index 0000000..ceb5a30
+index 0000000..29ef967
 --- /dev/null
 +++ b/hmr/server/boot-graph-crawl.js
-@@ -0,0 +1,187 @@
+@@ -0,0 +1,206 @@
 +import { resolveProjectMainEntryPath } from './vite-plugin.js';
 +// Boot graph crawl — server-side pre-warm of the device module graph.
 +//
@@ -368,7 +368,9 @@ index 0000000..ceb5a30
 +const BOOT_CRAWL_HEADER_VALUE = '1';
 +// The session descriptor mints recording sessions and is fetched exactly
 +// once per device boot — the crawl is warm-up traffic, not a boot signal.
-+const CRAWL_SKIP_PATHS = new Set(['/__ns_dev__/session', '/ns-hmr']);
++// The import map is a package-resolution table. Walking its values would
++// queue every mapped package, including host tooling the app never imports.
++const CRAWL_SKIP_PATHS = new Set(['/__ns_dev__/session', '/ns-hmr', '/ns/import-map.json']);
 +// `?t=169…` cache-busters are freshly minted per request (same policy as the
 +// boot recorder) — crawling them only mints dead variants.
 +const VOLATILE_T_PARAM_RE = /[?&]t=\d+(?:&|$)/;
@@ -413,7 +415,6 @@ index 0000000..ceb5a30
 +export function bootCrawlSeedPaths(projectRoot) {
 +    return [
 +        '/__ns_dev__/client',
-+        '/ns/import-map.json',
 +        '/@nativescript/vendor.mjs',
 +        '/ns/deps-bundle.mjs',
 +        '/ns/core-bundle.mjs',
@@ -435,11 +436,15 @@ index 0000000..ceb5a30
 +    const fetchImpl = options.fetchImpl ?? ((path) => fetch(`${origin}${path}`, { headers: { [BOOT_CRAWL_HEADER]: BOOT_CRAWL_HEADER_VALUE }, signal: options.signal }));
 +    const visited = new Set();
 +    const pending = [];
++    const discovered = new Set();
++    const idleWorkers = new Set();
++    let inFlight = 0;
 +    const enqueue = (path) => {
-+        if (!path || visited.has(path))
++        if (!path || discovered.has(path))
 +            return;
-+        if (visited.size + pending.length >= maxUrls)
++        if (discovered.size >= maxUrls)
 +            return;
++        discovered.add(path);
 +        pending.push(path);
 +    };
 +    for (const seed of options.seeds || []) {
@@ -463,23 +468,37 @@ index 0000000..ceb5a30
 +                continue;
 +            }
 +            const path = pending.shift();
-+            if (!path)
-+                return;
++            if (!path) {
++                // An outstanding parent may still produce work. Keep idle
++                // workers available for those children.
++                if (inFlight === 0)
++                    return;
++                await new Promise((resolve) => idleWorkers.add(resolve));
++                continue;
++            }
++            inFlight += 1;
 +            visited.add(path);
-+            let body;
 +            try {
 +                const response = await fetchImpl(path);
 +                if (!response || response.status < 200 || response.status >= 300) {
 +                    response?.body?.cancel?.().catch(() => { });
 +                    continue;
 +                }
-+                body = await response.text();
++                const body = await response.text();
++                for (const child of extractBootCrawlUrls(body)) {
++                    enqueue(child);
++                }
 +            }
 +            catch {
 +                continue;
 +            }
-+            for (const child of extractBootCrawlUrls(body)) {
-+                enqueue(child);
++            finally {
++                inFlight -= 1;
++                if (pending.length || inFlight === 0) {
++                    for (const wake of idleWorkers)
++                        wake();
++                    idleWorkers.clear();
++                }
 +            }
 +        }
 +    };

@@ -13,7 +13,7 @@ const { createSharedTransformRequestRunner } = await import(
   new URL('./hmr/server/shared-transform-request.js', ns)
 )
 
-const { extractBootCrawlUrls, runBootGraphCrawl } = await import(
+const { bootCrawlSeedPaths, extractBootCrawlUrls, runBootGraphCrawl } = await import(
   new URL('./hmr/server/boot-graph-crawl.js', ns)
 )
 
@@ -59,7 +59,8 @@ it('extracts device-fetchable URLs from served code', () => {
      export * from "/ns/core/ui/image";
      const c = "/ns/m/src/t.ts?t=1700000000";
      const d = "/__ns_dev__/session";
-     const e = "wss://host/ns-hmr";`,
+     const e = "wss://host/ns-hmr";
+     const f = "/ns/import-map.json";`,
   )
 
   assert.ok(urls.has('/ns/m/src/a.ts'))
@@ -72,6 +73,36 @@ it('extracts device-fetchable URLs from served code', () => {
   )
 
   assert.ok(![...urls].some((u) => u.includes('ns-hmr')))
+  assert.ok(!urls.has('/ns/import-map.json'))
+  assert.ok(!bootCrawlSeedPaths(process.cwd()).includes('/ns/import-map.json'))
+})
+
+it('keeps crawl workers available for children and queues shared dependencies once', async () => {
+  const root = '/ns/m/entry.mjs'
+  const shared = '/ns/m/shared.mjs'
+  const children = ['/ns/m/a.mjs', '/ns/m/b.mjs', '/ns/m/c.mjs']
+  const requests: string[] = []
+  let activeChildren = 0
+  let peakChildren = 0
+
+  await runBootGraphCrawl({
+    seeds: [root],
+    concurrency: children.length,
+    fetchImpl: async (path: string) => {
+      requests.push(path)
+      if (children.includes(path)) {
+        activeChildren += 1
+        peakChildren = Math.max(peakChildren, activeChildren)
+        await new Promise((resolve) => setImmediate(resolve))
+        activeChildren -= 1
+      }
+      const imports = path === root ? children : path === shared ? [] : [shared]
+      return { status: 200, text: async () => imports.map((url) => `import '${url}'`).join('\n') }
+    },
+  })
+
+  assert.equal(peakChildren, children.length)
+  assert.deepEqual(requests, [root, ...children, shared])
 })
 
 // The crawl walks the same served-code graph the device's runtime walk
