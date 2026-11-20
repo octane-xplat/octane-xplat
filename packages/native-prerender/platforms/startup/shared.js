@@ -1,5 +1,4 @@
 import {
-  ArtifactError,
   prepareFirstFrame,
   selectLaunchTree,
   validateArtifact,
@@ -103,11 +102,12 @@ export function renderWithStartupCore(host, component, props, startup, platform)
     // From here the mount is consumed: failures below still render
     // ordinarily, but never through a second adoption attempt.
     platform.claimMount()
-    const binding = platform.bindTree(tree.nodes, mount)
 
+    let binding
     let root
     let prepared
     try {
+      binding = platform.bindTree(tree.nodes, mount)
       platform.styleHost(binding.host, mount, startup?.sheets)
       root = createNativeScriptRoot(binding.host, {
         createView: binding.claims.createView,
@@ -122,7 +122,7 @@ export function renderWithStartupCore(host, component, props, startup, platform)
         root?.unmount()
       } catch {}
       try {
-        binding.retire()
+        binding?.retire()
       } catch {}
       return ordinary(
         'prepared tree rejected: ' + (error instanceof Error ? error.message : String(error)),
@@ -167,9 +167,9 @@ export function renderWithStartupCore(host, component, props, startup, platform)
 
     return { root, outcome }
   } catch (error) {
-    if (error instanceof ArtifactError) {
-      return ordinary(error.message)
-    }
-    throw error
+    // Every failure — artifact, handoff, resolution or an unexpected throw —
+    // ends in ordinary rendering. Only a failure inside ordinary() itself
+    // (which throws again here) reaches the caller.
+    return ordinary(error instanceof Error ? error.message : String(error))
   }
 }
