@@ -132,7 +132,7 @@ test('NativeScript GTK build rejects a corrupt payload before replacing a releas
     'lib/libmason_c.so',
     'lib/libxplatmason-gtk.so',
   ]
-  for (const name of names) put(payload, name, 'unverified')
+  for (const name of names) {put(payload, name, 'unverified')}
   put(payload, 'manifest.json', {
     version: 1,
     architecture: 'x86_64',

@@ -15,7 +15,7 @@ export type GtkRuntimeArchitecture = keyof typeof machines | 'universal'
 
 export function installedGtkRuntimeRoot(appRoot: string) {
   const renderer = installedPackageRoot(appRoot, '@octane-xplat/linux-gtk')
-  if (!renderer) return null
+  if (!renderer) {return null}
   const source = join(renderer, 'platforms/linux/runtime')
   return hasRuntimeDirectory(source) ? source : null
 }
@@ -44,7 +44,7 @@ export function stageInstalledGtkRuntime(appRoot: string, destination: string) {
 
 function hasRuntimeDirectory(path: string): boolean {
   const info = lstatSync(path, { throwIfNoEntry: false })
-  if (!info) return false
+  if (!info) {return false}
   if (!info.isDirectory() || realpathSync(path) !== path) {
     throw new Error(`GTK runtime payload must be an ordinary directory: ${path}`)
   }
@@ -55,7 +55,7 @@ export function stageGtkRuntime(sourcePath: string, destination: string): 'aarch
   const source = realpathSync(sourcePath)
   const manifestPath = join(source, 'manifest.json')
   if (!lstatSync(manifestPath).isFile())
-    throw new Error('GTK runtime manifest must be a regular file')
+    {throw new Error('GTK runtime manifest must be a regular file')}
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
   const { architecture, files } = manifest ?? {}
   if (
@@ -81,7 +81,7 @@ export function stageGtkRuntime(sourcePath: string, destination: string): 'aarch
     'typings/index.d.ts',
     ...libraries,
   ]) {
-    if (!Object.hasOwn(files, name)) throw new Error(`GTK runtime payload is missing ${name}`)
+    if (!Object.hasOwn(files, name)) {throw new Error(`GTK runtime payload is missing ${name}`)}
   }
 
   mkdirSync(destination)
@@ -115,7 +115,7 @@ export function stageGtkRuntime(sourcePath: string, destination: string): 'aarch
     const output = join(destination, name)
     mkdirSync(dirname(output), { recursive: true })
     writeFileSync(output, bytes, { flag: 'wx' })
-    if (name === 'ns-linux') chmodSync(output, 0o755)
+    if (name === 'ns-linux') {chmodSync(output, 0o755)}
   }
   writeFileSync(join(destination, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', {
     flag: 'wx',

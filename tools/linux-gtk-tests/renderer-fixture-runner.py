@@ -70,6 +70,35 @@ def deliver(title, marker, record):
     if not windows:
         raise RuntimeError("GTK fixture window was not found")
     window = windows[0]
+    if marker == "SHARED_GESTURE_RESULT":
+        other = subprocess.check_output(
+            ["xdotool", "search", "--onlyvisible", "--name", "^solid-birch-gesture-interruption$"],
+            text=True, timeout=7,
+        ).splitlines()[0]
+        x, y = record["x"], record["y"]
+
+        def move(offset):
+            return ["mousemove", "--window", window, str(round(x + offset)), str(round(y))]
+
+        send("windowraise", window, "windowfocus", window, *move(0), "click", "1",
+             *move(0), "mousedown", "1", *move(100), "sleep", "0.2", "mouseup", "1",
+             "sleep", "0.2", *move(100), "click", "1", "windowfocus", window, "key", "space",
+             *move(100), "mousedown", "1", *move(200), "sleep", "0.2", "windowfocus", other,
+             "sleep", "0.2", "mouseup", "1", "windowraise", window, "windowfocus", window,
+             *move(100), "click", "1")
+        return
+    if marker == "GTK_LIFETIME":
+        send("windowfocus", window)
+        layout = record["frames"][0]
+        for frame in record["frames"]:
+            name = frame["id"]
+            if name not in ("increment", "entry", "multiline"):
+                continue
+            send("mousemove", "--window", window, str(layout["x"] + frame["x"] + frame["width"] // 2),
+                 str(layout["y"] + frame["y"] + frame["height"] // 2), "click", "1")
+            if name != "increment":
+                send("type", "--delay", "40", "abc" if name == "entry" else "de")
+        return
     if marker == "GTK_UI_INPUT_RESULT":
         send(
             "mousemove", "--sync", "--window", window, "20", "20", "click", "1",
@@ -205,8 +234,8 @@ def run_fixture(bundle, marker, settings):
     input_result = os.environ["LINUX_RUNTIME_EVAL_INPUT_RESULT"]
 
     child = subprocess.Popen(
-        [*command, bundle],
-        cwd=os.path.dirname(os.path.abspath(bundle)),
+        [*command, *([bundle] if bundle else [])],
+        cwd=os.path.dirname(os.path.abspath(bundle)) if bundle else None,
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -321,7 +350,7 @@ def run_fixture(bundle, marker, settings):
 
 if __name__ == "__main__":
     try:
-        main(sys.argv[1])
+        main(sys.argv[1] if len(sys.argv) > 1 else None)
     except Exception as error:
         print(str(error), file=sys.stderr, flush=True)
         raise SystemExit(1)

@@ -1,0 +1,21 @@
+{
+  "name": "@xplat/linux-gtk-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/prepare-webkit-metadata.test.mjs",
+    "test:gtk": "node renderer-suite.mjs",
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@octane-xplat/build": "workspace:*",
+    "@octane-xplat/cli": "workspace:*",
+    "@octane-xplat/jsx": "workspace:*",
+    "@octane-xplat/linux-gtk": "workspace:*",
+    "@octane-xplat/ui": "workspace:*",
+    "@octanejs/vite-plugin": "catalog:",
+    "octane": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

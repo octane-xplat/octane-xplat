@@ -20,7 +20,9 @@ const result = runGtkApp(
   ({ app, window, root, container }) => {
     root.render(App, {})
     window.connect('map', () => {
-      const label = [...container.nodes.values()].find((node) => node.props.id === 'installed-app-label')
+      const label = [...container.nodes.values()].find(
+        (node) => node.props.id === 'installed-app-label',
+      )
       verified = label?.view?.get_label() === title
       app.quit()
     })
@@ -30,4 +32,11 @@ const result = runGtkApp(
 if (result !== 0 || !verified) {
   throw new Error(`GTK consumer failed to map its rendered label (exit ${result})`)
 }
-console.log(JSON.stringify({ installedGtkApp: true, gtkMajor: version }))
+const formatted = new Intl.DateTimeFormat('fr-FR', {
+  timeZone: 'UTC',
+  month: 'long',
+}).format(new Date(Date.UTC(2026, 0, 1)))
+if (formatted !== 'janvier') {
+  throw new Error('Bundled ICU did not format the French month')
+}
+console.log('GTK_PACKAGED_APP ' + JSON.stringify({ checks: 3, osInput: false, gtkMajor: version }))

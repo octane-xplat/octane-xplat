@@ -1,13 +1,24 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 
-const script = resolve(dirname(fileURLToPath(import.meta.url)), '../prepare-webkit-metadata.py')
+const script = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../linux-runtime-release/prepare-webkit-metadata.py',
+)
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'xplat webkit metadata '))
@@ -18,26 +29,51 @@ function fixture(t) {
   for (const dir of [bin, join(webkit, 'webkit'), join(webkit, 'jsc'), join(soup, 'libsoup')]) {
     mkdirSync(dir, { recursive: true })
   }
-  for (const path of [join(webkit, 'webkit/webkit.h'), join(webkit, 'jsc/jsc.h'), join(soup, 'libsoup/soup.h')]) {
+  for (const path of [
+    join(webkit, 'webkit/webkit.h'),
+    join(webkit, 'jsc/jsc.h'),
+    join(soup, 'libsoup/soup.h'),
+  ]) {
     writeFileSync(path, '/* fixture header */\n')
   }
   const generator = join(bin, 'metadata-generator')
-  writeFileSync(generator, `#!/usr/bin/env python3
+  writeFileSync(
+    generator,
+    `#!/usr/bin/env python3
 import os, pathlib, sys
 out = pathlib.Path(sys.argv[sys.argv.index('-output-bin') + 1])
 out.write_bytes(b'fixture metadata')
 if os.environ.get('XPLAT_TEST_GENERATOR_FAIL') == '1': sys.exit(7)
-`)
+`,
+  )
   chmodSync(generator, 0o755)
   const pkgConfig = join(bin, 'pkg-config')
-  writeFileSync(pkgConfig, '#!/bin/sh\ncase "$1" in --modversion) echo 4.14.5 ;; *) echo -I/fake/gtk ;; esac\n')
+  writeFileSync(
+    pkgConfig,
+    '#!/bin/sh\ncase "$1" in --modversion) echo 4.14.5 ;; *) echo -I/fake/gtk ;; esac\n',
+  )
   chmodSync(pkgConfig, 0o755)
   const output = join(root, 'webkit.bin')
   const manifest = join(root, 'manifest.json')
   const env = { ...process.env, PATH: `${bin}:${process.env.PATH}` }
-  const run = (extra = {}) => spawnSync('python3', [script, '--generator', generator,
-    '--webkit-include', webkit, '--soup-include', soup, '--output', output, '--manifest', manifest],
-  { encoding: 'utf8', env: { ...env, ...extra } })
+  const run = (extra = {}) =>
+    spawnSync(
+      'python3',
+      [
+        script,
+        '--generator',
+        generator,
+        '--webkit-include',
+        webkit,
+        '--soup-include',
+        soup,
+        '--output',
+        output,
+        '--manifest',
+        manifest,
+      ],
+      { encoding: 'utf8', env: { ...env, ...extra } },
+    )
   return { run, output, manifest }
 }
 

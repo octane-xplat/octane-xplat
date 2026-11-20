@@ -129,7 +129,7 @@ suffix:
   `platforms/linux/runtime` pair, the same build discovers it without an
   override. The worker requires both architectures and matching GI schemas.
   The published launcher selects its executable and ICU data using `uname -m`.
-  The [evaluation tooling](../../../tools/linux-runtime-eval/README.md#stage-the-runtime-pair-for-the-renderer-package)
+  The [release tooling](../../../tools/linux-runtime-release/README.md#stage-the-runtime-pair-for-the-renderer-package)
   records the release pins and staging command.
 
 NativeScript at `57408ba` can wrap the dying GObject argument of a typed
@@ -142,7 +142,7 @@ TextView's native scroller owns the editor. Keep editing aliases separate
 from closures that hold the scroller and overlay, and clear composite
 references from the node and its public-ref disposer after teardown. GTK's
 destroy notification releases frame callbacks when they finish or are removed.
-The [remount probe](../../../tools/linux-runtime-eval/README.md#real-renderer-port)
+The [lifecycle regression test](../../../tools/linux-gtk-tests/test/lifetime.runtime.mts)
 uses the production root scheduler so its scope cannot cancel passive cleanup.
 
 Repository and consumer lint now share `packages/lint/src/xplat-rules.ts`,

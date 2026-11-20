@@ -13,8 +13,8 @@ export function nativeGiProjection(schemaPath: string, verifyPackaging: boolean)
     name: 'xplat-gtk-native-gi',
     enforce: 'pre',
     resolveId(id) {
-      if (id === 'virtual:gtk-schema') return schemaId
-      if (id.startsWith('gi://')) return namespacePrefix + id.slice(5).split('?')[0]
+      if (id === 'virtual:gtk-schema') {return schemaId}
+      if (id.startsWith('gi://')) {return namespacePrefix + id.slice(5).split('?')[0]}
     },
     load(id) {
       if (id === schemaId) {

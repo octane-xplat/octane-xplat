@@ -1,6 +1,3 @@
-// Self-checking port probe: real createGtkRoot + shared @octane-xplat/ui on the
-// NativeScript runtime through the GI projection. Follows the slice's ready/
-// input/complete protocol so input.py drives real XTest events.
 import {
   namespaces,
   beginScope,
@@ -14,9 +11,11 @@ import {
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { PortScreen, portState } from './screen.gtk.tsx'
 import { getNativeGtkMajorVersion } from './native-sdk-smoke.ts'
-const { Gtk } = namespaces
+const { Gdk, Gtk } = namespaces
 
+let checks = 0
 const check = (name, ok, detail) => {
+  checks++
   console.log(JSON.stringify({ check: name, pass: !!ok, detail }))
   if (!ok) {
     throw Error(name)
@@ -76,7 +75,7 @@ const collect = async () => {
 
 const scope = beginScope()
 let win = new Gtk.Window({
-  title: 'Octane runtime evaluation',
+  title: 'GTK runtime lifetime',
   default_width: 480,
   default_height: 320,
   decorated: false,
@@ -107,7 +106,7 @@ const firstMount = async () => {
     { id: 'entry', ...frame(entry, layout) },
     { id: 'multiline', ...frame(widgetOf(nodeById(mounted.container, 'multiline')), layout) },
   ]
-  console.log(JSON.stringify({ ready: true, frames, stats: { ...bridgeStats } }))
+  print('GTK_LIFETIME_READY ' + JSON.stringify({ frames }))
   // The host runner sends XTest click/keyboard events after the ready record.
   await wait(
     () => portState.count === 1 && portState.text === 'ABC' && portState.multiline === 'de',
@@ -208,7 +207,18 @@ const pointerSurface = destroyWindow()
 releaseScope(scope)
 win = null
 host = null
-const processGlobals = new Set(['GtkSettings', 'GdkX11Display', 'GdkDisplay'])
+// The display owns the default seat's devices beyond window destruction.
+const displayObjects = () => {
+  const display = Gdk.Display.get_default()
+  const seat = display.get_default_seat()
+  return new Set(
+    [display, seat, seat.get_pointer(), seat.get_keyboard()].map((object) =>
+      object.__native.toBigInt().toString(),
+    ),
+  )
+}
+const displayAddresses = displayObjects()
+
 const finalDeadline = Date.now() + 1500
 let residual
 let drained
@@ -217,10 +227,12 @@ do {
   residual = describeResidual()
   drained = [...pendingFinalizers].every(
     ([address, name]) =>
-      processGlobals.has(name) || (address === pointerSurface && name === 'GdkX11Toplevel'),
+      name === 'GtkSettings' ||
+      displayAddresses.has(address) ||
+      (address === pointerSurface && name === 'GdkX11Toplevel'),
   )
 } while (!drained && Date.now() < finalDeadline)
 residual.pendingFinalizers = [...pendingFinalizers.values()]
 residual.retainedPointerSurface = pointerSurface !== null && pendingFinalizers.has(pointerSurface)
 check('residual-process-global', drained, residual)
-console.log(JSON.stringify({ complete: true, stats: { ...bridgeStats }, residual }))
+print('GTK_LIFETIME ' + JSON.stringify({ checks, osInput: true, residual }))

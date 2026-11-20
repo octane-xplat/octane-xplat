@@ -10,5 +10,5 @@
     "allowJs": true,
     "customConditions": ["gtk", "native"]
   },
-  "include": ["screen.gtk.tsx"]
+  "include": ["fixtures/screen.gtk.tsx"]
 }

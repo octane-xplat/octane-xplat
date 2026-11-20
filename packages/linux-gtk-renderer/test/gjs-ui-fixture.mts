@@ -27,10 +27,10 @@ export async function runGtkEvalFixture(
   },
 ) {
   const engine = process.env.LINUX_RUNTIME_EVAL_ENGINE
-  if (!engine) throw Error('Set LINUX_RUNTIME_EVAL_ENGINE to native or gjs')
+  if (!engine) {throw Error('Set LINUX_RUNTIME_EVAL_ENGINE to native or gjs')}
 
   const { runRendererFixture } =
-    await import('../../../tools/linux-runtime-eval/renderer-fixture-core.mjs')
+    await import('../../../tools/linux-gtk-tests/renderer-fixture-core.mjs')
   const logDir = process.env.LINUX_RUNTIME_EVAL_LOG_DIR
   const result = await runRendererFixture({
     stem,

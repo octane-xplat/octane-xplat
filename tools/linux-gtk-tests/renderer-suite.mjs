@@ -7,37 +7,63 @@ const repoRoot = resolve(import.meta.dirname, '../..')
 const testRoot = resolve(repoRoot, 'packages/linux-gtk-renderer/test')
 const args = process.argv.slice(2)
 const requestedEngine = ['native', 'gjs'].includes(args[0]) ? args.shift() : undefined
-const engine = requestedEngine ?? process.env.LINUX_RUNTIME_EVAL_ENGINE
+const engine = requestedEngine ?? process.env.LINUX_RUNTIME_EVAL_ENGINE ?? 'native'
 if (!['native', 'gjs'].includes(engine)) {
   throw Error('Pass native or gjs, or set LINUX_RUNTIME_EVAL_ENGINE')
 }
 
 const allFiles = readdirSync(testRoot)
   .filter((name) => /\.test\.m(?:js|ts)$/.test(name))
-  .filter((name) => name !== 'shared-gestures.test.mts')
   .sort()
 const unrouted = allFiles.filter((name) => !readFixtureTest(join(testRoot, name)))
 if (unrouted.length > 0) {
-  throw Error(`GTK test files missing an evaluation runner: ${unrouted.join(', ')}`)
+  throw Error(`GTK test files missing an integration runner: ${unrouted.join(', ')}`)
 }
 const requested = args
-const unknown = requested.filter((stem) => !allFiles.some((name) => name === `${stem}.test.mjs` || name === `${stem}.test.mts`))
-if (unknown.length > 0) throw Error(`Unknown GTK fixture test(s): ${unknown.join(', ')}`)
+const contractTests = ['lifetime', 'projection', 'packaged-app']
+const unknown = requested.filter(
+  (stem) =>
+    !contractTests.includes(stem) &&
+    !allFiles.some((name) => name === `${stem}.test.mjs` || name === `${stem}.test.mts`),
+)
+if (unknown.length > 0) {
+  throw Error(`Unknown GTK fixture test(s): ${unknown.join(', ')}`)
+}
 const selected =
-  requested.length > 0 ? new Set(allFiles.filter((name) => requested.some((stem) => name === `${stem}.test.mjs` || name === `${stem}.test.mts`))) : undefined
-const files = allFiles
+  requested.length > 0
+    ? new Set(
+        allFiles.filter((name) =>
+          requested.some((stem) => name === `${stem}.test.mjs` || name === `${stem}.test.mts`),
+        ),
+      )
+    : undefined
+const rendererFiles = allFiles
   .filter((name) => !selected || selected.has(name))
   .map((name) => join(testRoot, name))
-if (files.length === 0) throw Error(`No GTK fixture tests found in ${testRoot}`)
+const files = [
+  ...rendererFiles,
+  ...contractTests
+    .filter((stem) => engine === 'native' && (!requested.length || requested.includes(stem)))
+    .map((stem) => resolve(import.meta.dirname, 'test', stem + '.runtime.mts')),
+]
+if (files.length === 0) {
+  throw Error(`No GTK fixture tests found in ${testRoot}`)
+}
 
 function readFixtureTest(path) {
-  if (['prebuilt-engine.test.mjs', 'style-css.test.mts', 'window-service.test.mts'].includes(basename(path))) return true
+  if (
+    ['prebuilt-engine.test.mjs', 'style-css.test.mts', 'window-service.test.mts'].includes(
+      basename(path),
+    )
+  ) {
+    return true
+  }
   const source = readFileSync(path, 'utf8')
   return source.includes('runGtkUiFixture(') || source.includes('runGtkEvalFixture(')
 }
 
 const logBaseInput =
-  process.env.LINUX_RUNTIME_EVAL_LOG_DIR ?? join(tmpdir(), 'octane-linux-runtime-eval')
+  process.env.LINUX_RUNTIME_EVAL_LOG_DIR ?? join(tmpdir(), 'octane-linux-gtk-tests')
 const logBase = isAbsolute(logBaseInput) ? logBaseInput : resolve(repoRoot, logBaseInput)
 mkdirSync(logBase, { recursive: true })
 const logDir = mkdtempSync(join(logBase, `${engine}-`))
@@ -52,5 +78,7 @@ const child = spawnSync(process.execPath, ['--test', '--test-concurrency=1', ...
   },
   stdio: 'inherit',
 })
-if (child.error) throw child.error
+if (child.error) {
+  throw child.error
+}
 process.exitCode = child.status ?? 1

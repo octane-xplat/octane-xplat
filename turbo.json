@@ -11,42 +11,6 @@
 		"build:desktop-components": { "dependsOn": ["^typegen", "^build"], "cache": false, "outputs": [] },
 		"qualify:macos-components": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
 		"@octane-xplat/haptics#test:ios-build": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
-		"@xplat/linux-runtime-eval#test:renderer-fixture": {
-			"dependsOn": ["^typegen", "^build"],
-			"cache": false,
-			"outputs": [],
-			"passThroughEnv": [
-				"GODDARD_*",
-				"LINUX_RUNTIME_EVAL_ENGINE",
-				"LINUX_RUNTIME_EVAL_GI_SCHEMA",
-				"LINUX_RUNTIME_EVAL_EXECUTABLE",
-				"LINUX_RUNTIME_EVAL_ICU_DATA",
-				"LINUX_RUNTIME_EVAL_MASON_DIR",
-				"LINUX_RUNTIME_EVAL_HOST",
-				"LINUX_RUNTIME_EVAL_VM",
-				"LINUX_RUNTIME_EVAL_LOG_PATH",
-				"LINUX_RUNTIME_EVAL_TRACE_BOUNDS",
-				"LINUX_RUNTIME_EVAL_TRACE_APIS"
-			]
-		},
-		"@xplat/linux-runtime-eval#test:renderer-suite": {
-			"dependsOn": ["^typegen", "^build"],
-			"cache": false,
-			"outputs": [],
-			"passThroughEnv": [
-				"GODDARD_*",
-				"LINUX_RUNTIME_EVAL_ENGINE",
-				"LINUX_RUNTIME_EVAL_GI_SCHEMA",
-				"LINUX_RUNTIME_EVAL_EXECUTABLE",
-				"LINUX_RUNTIME_EVAL_ICU_DATA",
-				"LINUX_RUNTIME_EVAL_MASON_DIR",
-				"LINUX_RUNTIME_EVAL_HOST",
-				"LINUX_RUNTIME_EVAL_VM",
-				"LINUX_RUNTIME_EVAL_LOG_DIR",
-				"LINUX_RUNTIME_EVAL_TRACE_BOUNDS",
-				"LINUX_RUNTIME_EVAL_TRACE_APIS"
-			]
-		},
 		"test:dev-bridge": { "dependsOn": ["^typegen"], "outputs": [] },
 		"test:accessibility": { "dependsOn": ["^typegen"], "outputs": [] },
 		"test:typescript": { "dependsOn": ["build", "^typegen"], "outputs": [] },

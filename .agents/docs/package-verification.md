@@ -160,9 +160,8 @@ bun run probe run packages/image-crop/tests/selection.macos.tsrx --target macos 
 
 Consumer guidance: [linux-gtk-renderer](../../docs/packages/package-linux-gtk-renderer.md).
 
-```sh
-xvfb-run -a bun run turbo run test:runtime --filter=@octane-xplat/linux-gtk -- test/ui-icon.test.mts
-```
+Use the [Linux GTK integration suite](../../tools/linux-gtk-tests/README.md) on
+Andromeda. Select `ui-icon` to cover the icon fixture.
 
 ## nano-icons
 

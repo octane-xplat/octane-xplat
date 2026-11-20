@@ -3414,8 +3414,8 @@
         "wrangler": "4.136.3",
       },
     },
-    "tools/linux-runtime-eval": {
-      "name": "@xplat/linux-runtime-eval",
+    "tools/linux-gtk-tests": {
+      "name": "@xplat/linux-gtk-tests",
       "devDependencies": {
         "@octane-xplat/build": "workspace:*",
         "@octane-xplat/cli": "workspace:*",
@@ -5478,7 +5478,7 @@
 
     "@xplat/feedback-worker": ["@xplat/feedback-worker@workspace:tools/feedback-worker"],
 
-    "@xplat/linux-runtime-eval": ["@xplat/linux-runtime-eval@workspace:tools/linux-runtime-eval"],
+    "@xplat/linux-gtk-tests": ["@xplat/linux-gtk-tests@workspace:tools/linux-gtk-tests"],
 
     "@xplat/macos": ["@xplat/macos@workspace:apps/macos"],
 

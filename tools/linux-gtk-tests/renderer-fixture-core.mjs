@@ -12,6 +12,7 @@ const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
 export async function runRendererFixture({
   stem,
   entry,
+  root = resolve(repoRoot, 'packages/linux-gtk-renderer/test/fixtures'),
   title,
   marker,
   readyMarker = marker + '_READY',
@@ -23,7 +24,10 @@ export async function runRendererFixture({
   define,
   diagnostics = false,
   missingMason = false,
-  logPath = process.env.LINUX_RUNTIME_EVAL_LOG_PATH,
+  packageArchive,
+  logPath = process.env.LINUX_RUNTIME_EVAL_LOG_PATH ??
+    (process.env.LINUX_RUNTIME_EVAL_LOG_DIR &&
+      resolve(process.env.LINUX_RUNTIME_EVAL_LOG_DIR, `${stem}.${engine}.log`)),
 }) {
   if (!['native', 'gjs'].includes(engine)) {
     throw Error('Engine must be native or gjs')
@@ -37,13 +41,13 @@ export async function runRendererFixture({
   const executable = process.env.LINUX_RUNTIME_EVAL_EXECUTABLE
   const masonDir = process.env.LINUX_RUNTIME_EVAL_MASON_DIR
 
-  if (engine === 'native' && !executable) {
+  if (engine === 'native' && !packageArchive && !executable) {
     throw Error('Set LINUX_RUNTIME_EVAL_EXECUTABLE to the remote ns-linux binary')
   }
-  if (!masonDir) {
+  if (!packageArchive && !masonDir) {
     throw Error('Set LINUX_RUNTIME_EVAL_MASON_DIR to the remote Mason build directory')
   }
-  if (engine === 'native' && !existsSync(schemaPath)) {
+  if (engine === 'native' && !packageArchive && !existsSync(schemaPath)) {
     throw Error(`GI schema not found: ${schemaPath}`)
   }
 
@@ -52,11 +56,8 @@ export async function runRendererFixture({
     throw Error(`Fixture ${stem} needs a numeric minimum check count`)
   }
 
-  const fixtureRoot = resolve(repoRoot, 'packages/linux-gtk-renderer/test/fixtures')
   const entryFile = entry ?? `src/${stem}-main.ts`
   const projected = engine === 'native'
-  const traceBounds = process.env.LINUX_RUNTIME_EVAL_TRACE_BOUNDS === '1'
-  const traceApis = process.env.LINUX_RUNTIME_EVAL_TRACE_APIS === '1'
   const outDir = mkdtempSync(resolve(tmpdir(), `octane-linux-${stem}-`))
 
   const ssh = (script, options = {}) =>
@@ -74,64 +75,41 @@ export async function runRendererFixture({
     )
 
   const saveLog = (contents) => {
-    if (!logPath) return
+    if (!logPath) {
+      return
+    }
     mkdirSync(dirname(logPath), { recursive: true })
     writeFileSync(logPath, contents)
   }
 
   async function buildFixture() {
-    const preset = await linuxGtk('production', {
-      root: fixtureRoot,
-      entry: entryFile,
-      outDir,
-      nativeGiSchema: projected ? schemaPath : undefined,
-    })
-    const tracePlugin = {
-      name: 'native-runtime-api-trace',
-      enforce: 'pre',
-      transform(code, id) {
-        if (traceBounds && id.includes('popup-bounds')) {
-          const expression =
-            /const source\s*=\s*surfaceOrigin\(native\),\s*target\s*=\s*surfaceOrigin\(hostNative\)/
-          if (!expression.test(code)) throw Error(`Could not install popup bounds trace in ${id}`)
-          return code.replace(
-            expression,
-            "$&;console.log('[lre] popup surfaces',{source:!!source,target:!!target,same:source?.surface===target?.surface})",
-          )
-        }
-        if (traceApis && id.includes('clipboard-write.gtk')) {
-          const lookup = 'const clipboard = Gdk4.Display.get_default?.()?.get_clipboard?.()'
-          if (!code.includes(lookup)) throw Error(`Could not install clipboard API trace in ${id}`)
-          return code
-            .replace(
-              lookup,
-              lookup +
-                ";console.log('[lre] clipboard API',{clipboard:!!clipboard,setContent:typeof clipboard?.set_content,newForBytes:typeof Gdk4.ContentProvider?.new_for_bytes,bytes:typeof GLib.Bytes})",
-            )
-            .replace(
-              '  } catch {\n    return false\n  }\n}',
-              "  } catch (error) {\n    console.log('[lre] clipboard error',String(error))\n    return false\n  }\n}",
-            )
-        }
-      },
-    }
+    if (packageArchive) {
+      writeFileSync(resolve(outDir, 'app.tar.gz'), readFileSync(packageArchive))
+    } else {
+      const preset = await linuxGtk('production', {
+        root,
+        entry: entryFile,
+        outDir,
+        nativeGiSchema: projected ? schemaPath : undefined,
+      })
+      await build({
+        logLevel: 'error',
+        ...preset,
+        define: { ...preset.define, ...define },
+        build: { ...preset.build, minify: false },
+      })
 
-    await build({
-      logLevel: 'error',
-      ...preset,
-      plugins: [...(traceBounds || traceApis ? [tracePlugin] : []), ...preset.plugins],
-      define: { ...preset.define, ...define },
-      build: { ...preset.build, minify: false },
-    })
-
-    if (!existsSync(resolve(outDir, 'app.js'))) {
-      throw Error(`GTK fixture ${stem} build did not produce app.js`)
+      if (!existsSync(resolve(outDir, 'app.js'))) {
+        throw Error(`GTK fixture ${stem} build did not produce app.js`)
+      }
+      if (missingMason) {
+        rmSync(resolve(outDir, 'xplatmason'), { recursive: true, force: true })
+      }
+      assert.doesNotMatch(
+        readFileSync(resolve(outDir, 'app.js'), 'utf8'),
+        /document\.createElement|window\.document/,
+      )
     }
-    if (missingMason) rmSync(resolve(outDir, 'xplatmason'), { recursive: true, force: true })
-    assert.doesNotMatch(
-      readFileSync(resolve(outDir, 'app.js'), 'utf8'),
-      /document\.createElement|window\.document/,
-    )
     writeFileSync(resolve(outDir, 'package.json'), '{"type":"module"}\n')
     writeFileSync(
       resolve(outDir, 'renderer-fixture-runner.py'),
@@ -148,10 +126,15 @@ export async function runRendererFixture({
     try {
       const archive = execFileSync('tar', ['-C', outDir, '-cf', '-', '.'], {
         maxBuffer: 64 * 1024 * 1024,
+        env: { ...process.env, COPYFILE_DISABLE: '1' },
       })
       ssh(`tar -C ${quote(remote)} -xf -`, { input: archive })
 
       let runtime = engine === 'gjs' ? ['gjs', '-m'] : [executable]
+      if (packageArchive) {
+        ssh(`tar -C ${quote(remote)} -xzf ${quote(remote + '/app.tar.gz')}`)
+        runtime = ['./gtk-runtime-consumer/gtk-runtime-consumer']
+      }
       if (projected && missingMason) {
         const isolated = remote + '/runtime'
         ssh(
@@ -172,11 +155,11 @@ export async function runRendererFixture({
         LINUX_RUNTIME_EVAL_DIAGNOSTICS: diagnostics ? '1' : '0',
         LINUX_RUNTIME_EVAL_MISSING_MASON: missingMason ? '1' : '0',
         GTK_A11Y: 'test',
-        XPLAT_MASON_TYPELIB: missingMason ? '' : masonDir,
-        LD_LIBRARY_PATH: missingMason ? '' : masonDir,
+        XPLAT_MASON_TYPELIB: missingMason || packageArchive ? '' : masonDir,
+        LD_LIBRARY_PATH: missingMason || packageArchive ? '' : masonDir,
         ...(missingMason ? { GI_TYPELIB_PATH: '' } : {}),
       }
-      if (projected) {
+      if (projected && !packageArchive) {
         environment.NS_V8_FLAGS = '--expose-gc'
         if (process.env.LINUX_RUNTIME_EVAL_ICU_DATA) {
           environment.ICU_DATA = process.env.LINUX_RUNTIME_EVAL_ICU_DATA
@@ -190,7 +173,9 @@ export async function runRendererFixture({
         quote(remote),
         '&& timeout 120s dbus-run-session -- xvfb-run -a env',
         assignments,
-        'python3 renderer-fixture-runner.py app.js',
+        packageArchive
+          ? 'python3 renderer-fixture-runner.py'
+          : 'python3 renderer-fixture-runner.py app.js',
       ].join(' ')
       const output = ssh(command, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
       process.stdout.write(output)

@@ -523,7 +523,7 @@ jobs:
       - name: Stage pinned Linux GTK runtimes
         if: steps.unpublished.outputs.exists != 'true'
         run: >-
-          python3 tools/linux-runtime-eval/stage-runtime-release.py
+          python3 tools/linux-runtime-release/stage-runtime-release.py
           --output packages/linux-gtk-renderer/platforms/linux/runtime
 
       - uses: actions/setup-go@v6
@@ -724,7 +724,7 @@ jobs:
 
       - name: Stage pinned Linux GTK runtimes
         run: >-
-          python3 tools/linux-runtime-eval/stage-runtime-release.py
+          python3 tools/linux-runtime-release/stage-runtime-release.py
           --output packages/linux-gtk-renderer/platforms/linux/runtime
 
       - uses: actions/setup-go@v6
