@@ -136,7 +136,7 @@ function run(program, args, cwd = app) {
 input(import.meta.filename)
 input(join(source, 'check-producer-inputs.mjs'))
 cpSync(import.meta.filename, join(work, 'builder.mjs'))
-assert.equal(run('bun', ['--version']), '1.4.4')
+assert.equal(run('bun', ['--version']), '1.4.5')
 
 const overrides = {}
 const packed = {}
