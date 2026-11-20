@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import './smooth-corners-overflow.css'
 import { expect, it } from 'vitest'
-import { isAndroid, isIOS, type View as NativeView } from '@nativescript/core'
+import { isAndroid, isIOS, Utils, type View as NativeView } from '@nativescript/core'
 import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { CGPointMake, UIBezierPath } from '@octane-xplat/platform/ios'
 import { mountXplat, nextRenderPass, waitUntil } from '@octane-xplat/platform/testing'
@@ -15,7 +15,9 @@ import { mountXplat, nextRenderPass, waitUntil } from '@octane-xplat/platform/te
 // classes: a layered rule (the Bamboo shape) and a plain authored rule must
 // both resolve to hidden, install the squircle clip, and produce the
 // platform clip object on a real native view.
-type ClipStyle = NativeView['style'] & { overflowX?: string; overflowY?: string; clipPath?: string }
+declare const android: any
+
+type ClipStyle = NativeView['style'] & { overflowX?: string; overflowY?: string }
 
 function OverflowFixture(props: { className: string; childId: string; hostId: string }) @{
   <rootlayout>
@@ -49,10 +51,10 @@ async function mountCase(className: string, tag: string) {
   return { host: host!, child: child! }
 }
 
-function overflowOf(host: NativeView): { x?: string; y?: string; clip?: string } {
+function overflowOf(host: NativeView): { x?: string; y?: string } {
   const style = host.style as ClipStyle
 
-  return { x: style?.overflowX, y: style?.overflowY, clip: style?.clipPath }
+  return { x: style?.overflowX, y: style?.overflowY }
 }
 
 it('authored overflow classes resolve hidden and install the squircle content clip', async () => {
@@ -64,18 +66,13 @@ it('authored overflow classes resolve hidden and install the squircle content cl
     const overflow = overflowOf(host)
 
     console.log(
-      `[probe204] ${tag} overflow=${overflow.x}/${overflow.y} clip=${overflow.clip ?? 'none'} host=${host.getActualSize().width}x${host.getActualSize().height} child=${child.getActualSize().width}x${child.getActualSize().height}`,
+      `[probe204] ${tag} overflow=${overflow.x}/${overflow.y} host=${host.getActualSize().width}x${host.getActualSize().height} child=${child.getActualSize().width}x${child.getActualSize().height}`,
     )
 
     // The authored class must win the cascade on both axes — this is the
     // exact seam #204 lost to the framework's unlayered declaration.
     expect(overflow.x, `${tag} resolved overflowX`).toBe('hidden')
     expect(overflow.y, `${tag} resolved overflowY`).toBe('hidden')
-
-    // The clip request must reach the component's clip hook — a `path()`
-    // value proves clipsChildren() saw hidden overflow, which is the state
-    // the broken cascade never produced.
-    expect(overflow.clip, `${tag} clipPath`).toMatch(/^path\("/)
 
     // The overflowing child keeps an oversized frame — the clip, not
     // layout, is what constrains its visible region.
@@ -112,13 +109,52 @@ it('authored overflow classes resolve hidden and install the squircle content cl
     if (isAndroid) {
       const v = (host as any).android
 
+      let touches = 0
+      const listener = new android.view.View.OnTouchListener({
+        onTouch() {
+          touches++
+          return true
+        },
+      })
+
+      v?.setOnTouchListener(listener)
+
+      const dispatch = (x: number, y: number) => {
+        const now = android.os.SystemClock.uptimeMillis()
+        const event = android.view.MotionEvent.obtain(
+          now,
+          now,
+          android.view.MotionEvent.ACTION_DOWN,
+          x,
+          y,
+          0,
+        )
+
+        try {
+          v.dispatchTouchEvent(event)
+        } finally {
+          event.recycle()
+        }
+      }
+
       console.log(
         `[probe204] ${tag} android clipToOutline=${v?.getClipToOutline?.()} clipChildren=${v?.getClipChildren?.()} outline=${v?.getOutlineProvider?.() ? 'set' : 'none'}`,
       )
 
-      // Mason owns the exact CSS path; outline clipping cannot represent
-      // arbitrary curves on every supported Android API level.
-      expect(v?.getStyle().getClipPath(), `${tag} native clipPath`).toBe(overflow.clip)
+      try {
+        // Mason's squircle clip shapes native hit-testing: a down inside the
+        // r24 corner dead zone is rejected while a down at the center lands.
+        dispatch(1, 1)
+        expect(touches, `${tag} corner down rejected`).toBe(0)
+
+        dispatch(Utils.layout.toDevicePixels(60), Utils.layout.toDevicePixels(60))
+        expect(touches, `${tag} center down accepted`).toBe(1)
+      } finally {
+        v?.setOnTouchListener(null)
+      }
+
+      // Outline clipping cannot represent arbitrary curves on every
+      // supported Android API level.
       expect(v?.getClipToOutline?.(), `${tag} clipToOutline`).toBe(false)
     }
   }
@@ -164,13 +200,10 @@ it('an authored visible class leaves content unclipped', async () => {
   const { host } = await mountCase('sc-204-visible', 'visible')
   const overflow = overflowOf(host)
 
-  console.log(
-    `[probe204] visible overflow=${overflow.x}/${overflow.y} clip=${overflow.clip ?? 'none'}`,
-  )
+  console.log(`[probe204] visible overflow=${overflow.x}/${overflow.y}`)
 
   expect(overflow.x, 'visible resolved overflowX').toBe('visible')
   expect(overflow.y, 'visible resolved overflowY').toBe('visible')
-  expect(String(overflow.clip ?? ''), 'visible clipPath').not.toMatch(/^path\("/)
 
   if (isIOS) {
     const layer = (host as any).ios?.layer

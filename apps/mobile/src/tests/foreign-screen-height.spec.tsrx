@@ -6,7 +6,7 @@ import { mountXplat, waitUntil } from '@octane-xplat/platform/testing'
 
 function ForeignScreen() @{
   <Screen>
-    <View id="box" style={{ width: 107, height: 200 }}>
+    <View id="box" style={{ width: 107, height: 200, display: 'flex', flexDirection: 'column' }}>
       <Screen id="foreign" style={{ flexGrow: 1 }}>
         <Grid id="stage" rows="*" columns="*" style={{ flexGrow: 1 }}>
           <Text id="leaf" style={{ height: 80 }}>
@@ -20,12 +20,12 @@ function ForeignScreen() @{
 
 function LayeredScreen() @{
   <Screen>
-    <View id="bounds" style={{ width: 107, height: 400 }}>
+    <View id="bounds" style={{ width: 107, height: 400, display: 'flex', flexDirection: 'column' }}>
       <Grid rows="*" columns="*" style={{ flexGrow: 1 }}>
         <View row={0} col={0}>
           <Text>Library</Text>
         </View>
-        <View id="layer" row={0} col={0}>
+        <View id="layer" row={0} col={0} style={{ display: 'flex', flexDirection: 'column' }}>
           <Screen id="layered-screen" style={{ flexGrow: 1 }}>
             <Grid
               id="layered-stage"

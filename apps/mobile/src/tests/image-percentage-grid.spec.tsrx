@@ -85,7 +85,12 @@ function NestedTiles() @{
   <rootlayout style={{ width: 402, height: 480 }}>
     <Screen>
       <Grid id="grid" columns="*,*" style={{ width: 402 }}>
-        <View id="tile-0" row={0} col={0} style={{ height: 402 }}>
+        <View
+          id="tile-0"
+          row={0}
+          col={0}
+          style={{ height: 402, display: 'flex', flexDirection: 'column' }}
+        >
           <View style={{ flexGrow: 1 }}>
             <Image
               id="img-0"
@@ -96,7 +101,12 @@ function NestedTiles() @{
             />
           </View>
         </View>
-        <View id="tile-1" row={0} col={1} style={{ height: 402 }}>
+        <View
+          id="tile-1"
+          row={0}
+          col={1}
+          style={{ height: 402, display: 'flex', flexDirection: 'column' }}
+        >
           <View style={{ flexGrow: 1 }}>
             <Image
               id="img-1"
