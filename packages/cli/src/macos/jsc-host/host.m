@@ -211,9 +211,16 @@ static int check(js_env_t *env, int status, const char *step) {
 }
 
 static js_value_t *host_log(js_env_t *env, js_callback_info_t *info) {
-  size_t argc = 8;
-  js_value_t *argv[8];
-  if (js_get_callback_info(env, info, &argc, argv, NULL, NULL) != 0) return NULL;
+  size_t argc = 0;
+  if (js_get_callback_info(env, info, &argc, NULL, NULL, NULL) != 0) return NULL;
+  js_value_t **argv = malloc(argc * sizeof(js_value_t *));
+  if (argc > 0 && !argv) return NULL;
+  size_t copied = argc;
+  if (js_get_callback_info(env, info, &copied, argv, NULL, NULL) != 0) {
+    free(argv);
+    return NULL;
+  }
+  if (copied < argc) argc = copied;
   for (size_t i = 0; i < argc; i++) {
     if (i) fputc(' ', stderr);
     js_value_t *string = NULL;
@@ -229,6 +236,7 @@ static js_value_t *host_log(js_env_t *env, js_callback_info_t *info) {
     } else fputs("[unprintable]", stderr);
   }
   fputc('\n', stderr);
+  free(argv);
   return NULL;
 }
 
