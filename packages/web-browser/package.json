@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/web-browser",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "In-app browser for Octane xplat \u2014 Safari on iOS, Custom Tabs on Android, experimental WebKit window on macOS",
 	"keywords": [
 		"android",

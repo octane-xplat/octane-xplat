@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/devtools",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Devtools channel clients for Octane Xplat — app channels, per-target Node backends, and devtools panel connections over the xplat dev hub",
 	"license": "MIT",
 	"repository": {

@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/tray",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "System tray status items, menus and app residency for native desktop apps",
 	"license": "MIT",
 	"repository": {

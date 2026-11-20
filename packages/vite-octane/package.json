@@ -1,6 +1,6 @@
 {
   "name": "@octane-xplat/vite-octane",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "Octane for @nativescript/vite",
   "keywords": [
     "hmr",
