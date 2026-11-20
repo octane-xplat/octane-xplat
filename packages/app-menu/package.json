@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/app-menu",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Native desktop application menu bar for macOS, Windows and GTK apps",
 	"license": "MIT",
 	"repository": {

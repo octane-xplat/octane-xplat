@@ -1,6 +1,6 @@
 {
 	"name": "octane-xplat",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "The supported Octane Xplat development toolchain",
 	"license": "MIT",
 	"type": "module",

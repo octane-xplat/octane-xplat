@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/pretext",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Cross-platform text measurement and layout adapter for Pretext",
 	"keywords": [
 		"cross-platform",
