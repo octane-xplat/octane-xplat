@@ -136,7 +136,12 @@ function run(program, args, cwd = app) {
 input(import.meta.filename)
 input(join(source, 'check-producer-inputs.mjs'))
 cpSync(import.meta.filename, join(work, 'builder.mjs'))
-assert.equal(run('bun', ['--version']), '1.4.5')
+const bunVersion = run('bun', ['--version'])
+const [bunMajor, bunMinor, bunPatch] = bunVersion.split('.').map(Number)
+assert.ok(
+  bunMajor > 1 || (bunMajor === 1 && (bunMinor > 4 || (bunMinor === 4 && bunPatch >= 4))),
+  'Bun >=1.4.4 required, found ' + bunVersion,
+)
 
 const overrides = {}
 const packed = {}

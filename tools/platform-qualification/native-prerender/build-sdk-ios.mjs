@@ -112,7 +112,10 @@ writeFileSync(
 </dict></plist>\n`,
 )
 console.log('SDK startup build: ' + root)
-if (run('bun', ['--version']) !== '1.4.5') throw new Error('Bun 1.4.5 required')
+const bunVersion = run('bun', ['--version'])
+const [bunMajor, bunMinor, bunPatch] = bunVersion.split('.').map(Number)
+if (!(bunMajor > 1 || (bunMajor === 1 && (bunMinor > 4 || (bunMinor === 4 && bunPatch >= 4)))))
+  throw new Error('Bun >=1.4.4 required, found ' + bunVersion)
 run('bun', ['install', '--ignore-scripts', '--omit', 'peer'])
 const ns = process.env.XPLAT_PRERENDER_NS_CLI ?? '/opt/homebrew/bin/ns'
 // The CLI appends its update notice to version output.
