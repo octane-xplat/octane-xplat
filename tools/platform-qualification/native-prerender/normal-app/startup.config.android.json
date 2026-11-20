@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "entry": "./Screen.tsrx",
+  "exportName": "Screen",
+  "seed": {},
+  "environment": {
+    "width": 411.42857142857144,
+    "height": 914.2857142857143,
+    "reducedMotion": false,
+    "safeAreaInsets": {
+      "top": 48.76190476190476,
+      "right": 0,
+      "bottom": 24,
+      "left": 0
+    }
+  },
+  "launchInputs": [
+    {
+      "name": "theme-preference",
+      "source": "appSettings.string",
+      "values": ["dark", "light"],
+      "default": null
+    }
+  ]
+}

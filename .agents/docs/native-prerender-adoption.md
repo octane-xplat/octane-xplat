@@ -479,3 +479,39 @@ to `getApplicationContext()` or Core supplies the Application directly. Remove
 it only after the retired-object control passes without it. Inspect strong
 retaining paths before diagnosing failed weak collection as a Mason engine
 leak; optional heap capture is documented with the fixture.
+
+## Normal-app startup entry
+
+`@octane-xplat/native-prerender/startup` exports `renderWithStartup`, the
+opt-in replacement for `renderNativeScriptApp` inside a real app entry. The
+shared transaction (`platforms/startup/shared.js`) validates the packaged
+artifact, reads the installable mount's published handoff, re-resolves launch
+inputs with `selectLaunchTree`, requires byte-equal canonical binds (sorted
+keys, flat string dictionary — the same projection Swift `selectIndex` and
+Java `MasonArtifact.selectIndex` use), then binds, prepares, matches and
+commits through the existing claims seam. Every rejection — absent artifact,
+native rejection, unreadable handoff, theme/bind divergence, prepared mismatch
+or commit failure — falls back to `renderNativeScriptApp` completely; the
+mount is consumed at most once per process. Do not add a second adoption
+attempt after claim consumption: a failed accepted scope is not retry-safe.
+
+The mount units ship as installable sources under
+`packages/native-prerender/platforms/`, not as a plugin leaf yet. iOS copies
+`StartupBootstrap.swift` into `ios.NativeSource` as `main.swift` (the only
+file where top-level expressions are legal), keeps `NS_SWIFTUI_BOOT = 1`, and
+carries the producer build hash in `XplatStartupBuildHash`; the scene creates
+the window itself and publishes it through `PrerenderMountHost`, so the JS
+handoff must `setiOSWindow` that window before `Application.run` — otherwise
+Core creates a second window. Android installs `StartupApplication` (which
+defers `NativeScriptApplication.onCreate`, so `Fetcher.getInstance` binds the
+Application context before any Activity exists — see the image-cache section)
+and `StartupMountActivity` (which mounts, waits for one drawn frame, then
+starts the runtime; the entry's bridge replays Core's already-fired lifecycle
+callbacks because Java `onCreate`/`onStart`/`onPostResume` ran before
+JavaScript attached). Keep the Java-side receipt files bounded and atomic;
+JavaScript writes its own startup outcome separately.
+
+The [normal-app control](../../tools/platform-qualification/native-prerender/README.md#normal-app-startup-control)
+proves mount→adopt→hydrate through the stock CLI build and the app's real
+`main.ts`. It is a mechanism proof, not a release path: no `ns` CLI hook,
+plugin manifest or public packaging exists yet (productization step 5).

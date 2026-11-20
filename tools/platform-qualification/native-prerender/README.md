@@ -239,6 +239,56 @@ goddard-agent resource run --json '{"resources":{"exclusive":["ios:91D40099-A056
 
 Results are retained below `~/dev/reports/octane-xplat/native-prerender-sdk-startup-ios`; the runner terminates its fixture and leaves the simulator running so a rerun skips the boot (`XPLAT_PRERENDER_KEEP_DEVICE=0` restores shutdown). The facade of twelve primitives plus the useColorScheme scheme hook and bounded motion, and the fixed Home host, remain qualification boundaries. This does not provide app opt-in installation, OS input, visual/pixel presentation, complete CSS coverage, repeated-cycle memory stability or performance qualification. Handler-driven Button updates are separate from OS taps.
 
+## Normal-app startup control
+
+The [normal-app fixture](normal-app/) proves the packaged integration seam, not
+the harness drivers: a stock create-template app layout, real installed
+packages, the package's own installable mount units from
+`packages/native-prerender/platforms/`, and a real `main.ts` that calls
+`renderWithStartup` (the `@octane-xplat/native-prerender/startup` export)
+instead of `renderNativeScriptApp` through the ordinary `Application.run`/Page
+path. The builder packs the workspace tarballs, installs them in a fresh
+scratch app, runs that app's own `produceNativeStartup` against
+`startup.config.<platform>.json` (the `theme-preference` launch input), ships
+`startup.bin` inside the app bundle/assets, and drives a stock `ns build`.
+
+```sh
+export XPLAT_PRERENDER_MASON_PACKAGE=/absolute/path/to/prepared/core-package
+export XPLAT_PRERENDER_PLATFORM=ios        # or android
+# Android also needs: export XPLAT_PRERENDER_JAVA_HOME=/absolute/path/to/jdk-17
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Build normal-app startup control"}' -- \
+node tools/platform-qualification/native-prerender/build-normal-app.mjs
+```
+
+The build prints `XPLAT_PRERENDER_NORMAL_BUILD=<dir>`. The runner installs the
+product on the pinned device, optionally seeds `theme-preference` into the
+persisted `ApplicationSettings` store (`simctl launch -theme-preference` on
+iOS; the `prefs.db` shared-prefs file on Android), and reads two bounded
+receipts: the native mount receipt written before the JS engine initializes
+(`native-mount.json` / `startup-mount.json`) and the JavaScript outcome the
+entry's `onOutcome` writes (`startup-outcome.json`). Scenarios via
+`XPLAT_PRERENDER_SCENARIO`: `adopt-dark`, `adopt-light`, `adopt-absent`
+(unset key), `reject-domain` (out-of-domain `neon`), `reject-corrupt`
+(bit-flipped `startup.bin`), `no-artifact` (artifact removed). Adopt scenarios
+require mount-before-engine-init plus `adopted: true` with live claims;
+reject/no-artifact scenarios require a complete ordinary-render fallback.
+
+```sh
+export XPLAT_PRERENDER_NORMAL_BUILD=/absolute/path/printed/by/the/builder
+export XPLAT_PRERENDER_SCENARIO=adopt-dark
+goddard-agent resource run --json '{"resources":{"exclusive":["ios:91D40099-A056-497D-A572-ADDDFD6A8F23"],"resident_devices":1},"purpose":"Run normal-app startup control"}' -- \
+node tools/platform-qualification/native-prerender/run-normal-app.mjs
+```
+
+For Android, reserve `android:elegant-fir-probe` and `resident_devices:1`
+instead and boot the AVD first (`emulator -avd elegant-fir-probe -port 5566
+-no-window -no-audio -no-snapshot-load -no-snapshot-save -no-boot-anim -gpu
+swiftshader_indirect`); the runner never boots or stops devices itself.
+Reports land under `~/dev/reports/octane-xplat/native-prerender-normal-app-<platform>`;
+each records `osInputQualified`, `presentationQualified` and
+`performanceQualified` as false — the control proves the mount→adopt→hydrate
+mechanism and total fallback only.
+
 ## One-command control runner
 
 `test-prerender.sh` wraps the producer, build, device run and report phases for the maintained controls. It resolves the Mason adoption dist (`PRERENDER_MASON_DIST`, defaulting to the maintained `adopt-attached` fork worktree — the published beta.10 package lacks the seam; `ScrollableArea` adoption also needs the fork's Scroll seam from `359b083c`), the owned driver, the NativeScript runtime and Core roots, the Android SDK and a JDK17 toolchain from this checkout, with per-path environment overrides.
