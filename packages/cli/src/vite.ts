@@ -20,7 +20,7 @@ import { serverBoundary } from '@octane-xplat/lib/server-boundary'
 import { installedPackageDir, installedPackageRoot } from './package-root.ts'
 import { createRequire } from 'node:module'
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
-import { dirname, extname, join, relative, resolve } from 'node:path'
+import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import postcss from 'postcss'
 import valueParser from 'postcss-value-parser'
@@ -538,6 +538,51 @@ export function nativeRelativeResolution() {
         }
 
         return null
+      },
+    },
+  }
+}
+
+/** `native()` sets `preserveSymlinks: false`, so Vite and our own resolvers
+ *  speak a package's realpath — but @nativescript/vite 8.0.20's pre-enforced
+ *  bare-package resolvers (`nativescript-package-resolver`,
+ *  `ns-package-platform-resolver`) locate packages with
+ *  `findPackageInNodeModules(name, projectRoot)` and never realpath the
+ *  result. For an extensionless `main` ("index"), its platform-variant rewrite
+ *  emits `<app>/node_modules/<pkg>/index.ios.js` — the symlink spelling under
+ *  an isolated linker — while subpath imports of the same package resolve to
+ *  the real store path. Rolldown keys modules by id, so one package evaluates
+ *  twice; mason-core's `properties.js` registering `maskSize` on core's shared
+ *  `Style` twice throws `Cannot redefine property` at app launch.
+ *  Canonicalize every bare-specifier resolution to its realpath so all
+ *  spellings agree. */
+export function nativeCanonicalPackageIds() {
+  return {
+    name: 'xplat-native-canonical-package-ids',
+    resolveId: {
+      order: 'pre',
+      async handler(source, importer, options) {
+        if (/^[./\0]/.test(source) || source.includes(':')) {
+          return null
+        }
+        const resolved = await this.resolve(source, importer, {
+          ...options,
+          skipSelf: true,
+        })
+        if (!resolved || resolved.external || !isAbsolute(resolved.id)) {
+          return resolved
+        }
+        const suffixStart = resolved.id.search(/[?#]/)
+        const file = suffixStart < 0 ? resolved.id : resolved.id.slice(0, suffixStart)
+        const suffix = suffixStart < 0 ? '' : resolved.id.slice(suffixStart)
+        let real
+        try {
+          real = realpathSync(file)
+        } catch {
+          return resolved
+        }
+        real = real.replaceAll('\\', '/')
+        return real === file ? resolved : { ...resolved, id: real + suffix }
       },
     },
   }
@@ -1213,6 +1258,7 @@ export async function native(env, opts = {}) {
         boundary(nativePlatform() ?? 'native'),
         nativeExtensionOrder(),
         nativeRelativeResolution(),
+        nativeCanonicalPackageIds(),
         // Dev-action registry bridge (MCP package G): dev-server-only —
         // apply:'serve' keeps it and the token define out of builds.
         nativeDevSocketPlugin({ deviceRelay: true }) ?? devBridge(),

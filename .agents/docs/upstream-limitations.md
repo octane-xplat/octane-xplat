@@ -539,6 +539,42 @@ its npm and pkg.pr.new tarballs diverge in these files, so a single shared
 patch cannot target both safely. Regression coverage:
 `packages/cli/test/vite-ns-m-dep-freshness.test.mts`. Tracking:
 [#161](https://github.com/octane-xplat/octane-xplat/issues/161).
+
+## @nativescript/vite: bare package resolvers keep symlink spellings (8.0.20)
+
+Two `enforce: 'pre'` resolvers — `nativescript-package-resolver`
+(helpers/nativescript-package-resolver.js) and
+`ns-package-platform-resolver` (helpers/package-platform-aliases.js) — locate
+packages with `findPackageInNodeModules(name, projectRoot)`
+(helpers/module-resolution.js), which returns `<app>/node_modules/<pkg>`
+without realpathing. When `main` is extensionless (`"main": "index"`),
+`resolveMainFieldPlatformVariant` rewrites the bare root import to
+`<app>/node_modules/<pkg>/index.ios.js` — the symlink spelling under an
+isolated linker — while `native()`'s `preserveSymlinks: false` resolves
+subpath imports of the same package to the real store path. Rolldown keys
+modules by id, so the package is bundled and evaluated twice.
+
+Observed symptom: the iOS app crashes at launch with
+`TypeError: Cannot redefine property: default:maskSize` —
+`@octane-xplat/nativescript-mason-core`'s `properties.js` registers CSS
+animation properties on `@nativescript/core`'s shared `Style`, and the second
+module copy's registration throws before the Vitest worker can connect (zero
+tests run, 1800 s worker timeout). `@nativescript/font-manager` (also
+`main: "index"`) is duplicated under both spellings the same way, currently
+without a visible symptom.
+
+Local workaround: `nativeCanonicalPackageIds` in
+`packages/cli/src/vite.ts` — a `resolveId` `order: 'pre'` plugin scoped to
+`native()` that delegates bare specifiers to the downstream resolution and
+then replaces the returned id with its realpath, preserving any `?query`/
+`#hash` suffix, so every spelling of a package lands on one canonical id.
+Bounds: only bare specifiers are canonicalized — absolute ids produced by an
+earlier `resolve.alias` replacement are passed through as-is; the dev-server
+`/ns/m` serving path is not separately qualified. Regression coverage:
+`packages/cli/test/vite-platform-resolution.test.mts`. Remove when upstream's
+resolvers realpath under `preserveSymlinks: false` or its
+`normalizeModuleId` helper canonicalizes symlinks.
+
 ## NativeScript 9.1.3: iOS variable-font computed weights
 
 Upstream `ui/styling/font.ios.ts` creates a UIFont from family/weight traits,
