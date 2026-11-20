@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream SegmentedControlItem/SegmentedControlItemShowcase.tsx (Astryx 0.6.4, MIT).
 import { SegmentedControl, SegmentedControlItem, Icon } from '@octane-xplat/ui'
 import { useState } from 'octane'

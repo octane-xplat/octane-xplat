@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream InputGroup/InputGroupBasic.tsx (Astryx 0.6.4, MIT).
 import { InputGroup, InputGroupText, TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'

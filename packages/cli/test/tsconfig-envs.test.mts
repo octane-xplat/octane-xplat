@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { tmpdir } from 'node:os'
 import {
-  expandEnvPrograms,
-  loadEnvManifest,
-  envSolution,
-} from '../src/tsconfig-envs.ts'
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+  readFileSync,
+} from 'node:fs'
+import { dirname, isAbsolute, join, resolve } from 'node:path'
+import { tmpdir } from 'node:os'
+import { expandEnvPrograms, loadEnvManifest, envSolution } from '../src/tsconfig-envs.ts'
 
 const tmp = []
 function fixture(environments, options = {}) {
@@ -57,7 +61,7 @@ test('separate phone SDKs, platform resolution and shared roots in all five prog
 
     const c = config(p)
 
-    assert.equal(c.extends, join(dir, 'tsconfig.envs.json'))
+    assert.equal(c.extends, '../../../tsconfig.envs.json')
     assert.equal(c.compilerOptions.moduleSuffixes[0], `.${p.env}`)
     assert.deepEqual(c.compilerOptions.types, [])
     assert.equal(c.compilerOptions.lib.includes('DOM'), p.env === 'web')
@@ -80,8 +84,19 @@ test('explicitly empty types prevent inherited automatic @types discovery', () =
 
 test('reject conflicting SDKs, DOM, resolution overrides, overlap, malformed and empty entries', () => {
   const cases = [
-    [{ ...entries, gtk: { files: ['src/shared.ts'], compilerOptions: { lib: ['DOM'] } } }, {}, /DOM libraries/],
-    [{ ...entries, gtk: { files: ['src/shared.ts'], compilerOptions: { types: ['@nativescript/types-ios'] } } }, {}, /ios SDK/],
+    [
+      { ...entries, gtk: { files: ['src/shared.ts'], compilerOptions: { lib: ['DOM'] } } },
+      {},
+      /DOM libraries/,
+    ],
+    [
+      {
+        ...entries,
+        gtk: { files: ['src/shared.ts'], compilerOptions: { types: ['@nativescript/types-ios'] } },
+      },
+      {},
+      /ios SDK/,
+    ],
     [{ ...entries, linux: { files: ['src/shared.ts'] } }, {}, /linux.*retired/],
     [{ ...entries, ios: entries.native }, {}, /overlaps/],
     [
@@ -139,6 +154,27 @@ test('JSONC comments and trailing commas preserve string values and reject synta
   }
 })
 
+test('generated configs stay valid after the checkout moves', () => {
+  const dir = fixture(entries)
+  const programs = expand(dir)
+  const moved = dir + '-moved'
+  tmp.push(moved)
+  renameSync(dir, moved)
+
+  for (const p of programs) {
+    const configPath = p.configPath.replace(dir, moved)
+    const c = config({ configPath })
+
+    for (const file of [c.extends, ...c.files]) {
+      assert.equal(isAbsolute(file), false, `${configPath} emits absolute path ${file}`)
+      assert.ok(
+        existsSync(resolve(dirname(configPath), file)),
+        `${configPath}: ${file} does not resolve after move`,
+      )
+    }
+  }
+})
+
 test('native Linux uses GTK declarations and no browser suffix fallback', () => {
   const dir = fixture(entries)
   for (const name of ['widget.web', 'widget.gtk', 'index.linux']) {
@@ -147,13 +183,19 @@ test('native Linux uses GTK declarations and no browser suffix fallback', () => 
   const loaded = loadEnvManifest(dir)
   loaded.manifest.environments.gtk = { include: ['src/*.ts'] }
   const programs = expandEnvPrograms(dir, loaded)
-  assert.equal(programs.some((p) => p.env === 'all' || p.env === 'linux'), false)
+  assert.equal(
+    programs.some((p) => p.env === 'all' || p.env === 'linux'),
+    false,
+  )
   const gtk = programs.find((p) => p.env === 'gtk')
   assert.deepEqual(config(gtk).compilerOptions.moduleSuffixes, ['.gtk', ''])
   assert.deepEqual(config(gtk).compilerOptions.customConditions, ['gtk', 'native'])
   assert.ok(!config(gtk).compilerOptions.lib.includes('DOM'))
   assert.ok(gtk.files.includes(join(dir, 'src/widget.gtk.ts')))
-  assert.ok(gtk.files.includes(join(dir, 'src/index.linux.ts')), 'retain explicit native service barrel coverage')
+  assert.ok(
+    gtk.files.includes(join(dir, 'src/index.linux.ts')),
+    'retain explicit native service barrel coverage',
+  )
   assert.ok(!gtk.files.some((f) => /\.(web|ios|android)\.ts$/.test(f)))
   assert.ok(gtk.files.some((f) => f.endsWith('linux-gtk-renderer/src/host-globals.d.ts')))
   assert.deepEqual(config(gtk).compilerOptions.types, [])

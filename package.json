@@ -166,7 +166,9 @@
 		"@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch",
 		"@nativescript-community/sqlite-bridge@4.1.1": "packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch",
 		"@nstudio/nativescript-exoplayer@6.2.0": "packages/cli/patches/@nstudio__nativescript-exoplayer@6.2.0.patch",
-		"@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21-pkgprnew.patch"
+		"@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21-pkgprnew.patch",
+		"@octanejs/lexical@0.2.13": "packages/cli/patches/@octanejs__lexical@0.2.13.patch",
+		"@tsrx/content-mapper@0.1.2": "packages/cli/patches/@tsrx__content-mapper@0.1.2.patch"
 	},
 	"engines": {
 		"bun": ">=1.4.4"

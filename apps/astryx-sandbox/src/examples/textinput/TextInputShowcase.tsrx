@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream TextInput/TextInputShowcase.tsx (Astryx 0.6.4, MIT).
 import { TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'

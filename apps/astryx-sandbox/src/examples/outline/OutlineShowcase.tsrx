@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream Outline/OutlineShowcase.tsx (Astryx 0.6.4, MIT).
 import { Outline } from '@octane-xplat/ui'
 

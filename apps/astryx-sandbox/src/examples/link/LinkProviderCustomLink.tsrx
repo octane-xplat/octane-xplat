@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream templates/blocks/components/LinkProvider/
 // LinkProviderCustomLink.tsx — LinkProvider routes every link-capable
 // component in the subtree through the injected component; the custom link

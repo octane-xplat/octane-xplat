@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream ComplexSelector/ComplexSelectorShowcase.tsx (Astryx 0.6.4, MIT).
 // The 3x3 option grid uses useGridFocus for arrow-key navigation.
 import { ComplexSelector, Icon, useGridFocus } from '@octane-xplat/ui'

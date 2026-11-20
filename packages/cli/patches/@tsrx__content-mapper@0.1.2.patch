@@ -1,0 +1,44 @@
+diff --git a/dist/mapper-B4f--1ac.js b/dist/mapper-B4f--1ac.js
+index 9c9eac84e37b84b649eb70703cc8e9ebb06802a8..41d61198c203b7189a20bdc080dba74f45b5b985 100644
+--- a/dist/mapper-B4f--1ac.js
++++ b/dist/mapper-B4f--1ac.js
+@@ -1678,0 +1679,1 @@
++* @property {string} [defaultIntrinsics] JSX type namespace for files without an authored pragma, from the project's effective `jsxImportSource`. Unlike a compiler's `intrinsics` it never overrides authored comments.
+@@ -1725,1 +1726,2 @@
+-			platform: options.platform
++			platform: options.platform,
++			defaultIntrinsics: options.defaultIntrinsics
+@@ -3013,0 +3016,1 @@
++* @property {string | undefined} defaultIntrinsics The program's effective `jsxImportSource`, forwarded to compilers for files without an authored pragma.
+@@ -3060,1 +3063,1 @@
+-		const state = create_project_state(params.configFileName || void 0, options);
++		const state = create_project_state(params.configFileName || void 0, options, default_intrinsics(params));
+@@ -3117,1 +3120,4 @@
+-		const result = transform_tsrx(compiler, file_name, content, { platform });
++		const result = transform_tsrx(compiler, file_name, content, {
++			platform,
++			defaultIntrinsics: state.defaultIntrinsics
++		});
+@@ -3134,0 +3141,1 @@
++	* @param {string | undefined} defaultIntrinsics
+@@ -3137,1 +3144,1 @@
+-	function create_project_state(config_file_name, options) {
++	function create_project_state(config_file_name, options, defaultIntrinsics) {
+@@ -3140,0 +3148,1 @@
++			defaultIntrinsics,
+@@ -3145,0 +3154,12 @@
++	* The effective `jsxImportSource` TypeScript reports in the open-project
++	* compiler options, or `undefined`. Kept weak by design: a compiler's
++	* `intrinsics` option can rewrite authored pragmas, while this default only
++	* fills the pragma it generates for unmarked files.
++	* @param {OpenProjectParams} params
++	* @returns {string | undefined}
++	*/
++	function default_intrinsics(params) {
++		const value = params.compilerOptions?.jsxImportSource;
++		return typeof value === "string" && value !== "" ? value : void 0;
++	}
++	/**
+@@ -3202,0 +3223,2 @@
++		hash.update(state.defaultIntrinsics ?? "");
++		hash.update("\0");

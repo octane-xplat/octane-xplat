@@ -3,7 +3,7 @@
 // Each target gets its own program and ambient SDK. Native manifest entries
 // expand to iOS and Android; native Linux uses the GTK host program.
 import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { isAbsolute, join, relative, resolve } from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { parse, printParseErrorCode } from 'jsonc-parser'
@@ -381,10 +381,7 @@ export function expandEnvPrograms(
       const options = TYPECHECK_ENVIRONMENTS[target]
       const libs = entry.compilerOptions?.lib ?? options.compilerOptions.lib
 
-      if (
-        target !== 'web' &&
-        [...(top.lib ?? []), ...libs].some((v) => /^dom(?:\.|$)/i.test(v))
-      ) {
+      if (target !== 'web' && [...(top.lib ?? []), ...libs].some((v) => /^dom(?:\.|$)/i.test(v))) {
         errors.push(
           `${ENV_MANIFEST}: DOM libraries are not allowed in "${target}"; put browser libraries in the web environment`,
         )
@@ -477,6 +474,19 @@ export function expandEnvPrograms(
 
   const outDir = join(dir, 'node_modules', '.cache', 'xplat-typecheck')
 
+  // The generated configs resolve `extends`, `files`, and path `types` entries
+  // against the cache directory; emit them relative so the whole checkout can
+  // move (absolute paths only survive on the same filesystem root).
+  const generatedPath = (file) => {
+    const rel = relative(outDir, file)
+
+    if (!rel || isAbsolute(rel)) {
+      return file
+    }
+
+    return rel.startsWith('.') ? rel : './' + rel
+  }
+
   mkdirSync(outDir, { recursive: true })
   return [...groups]
     .sort(
@@ -507,7 +517,23 @@ export function expandEnvPrograms(
 
       group.files = [...group.files, canary]
 
-      const config = { extends: manifestPath, ...group, include: [], exclude: [] }
+      const config = {
+        extends: generatedPath(manifestPath),
+        ...group,
+        files: group.files.map(generatedPath),
+        compilerOptions: {
+          ...group.compilerOptions,
+          types: group.compilerOptions.types.map((entry) =>
+            isAbsolute(entry)
+              ? generatedPath(entry)
+              : entry.startsWith('.')
+                ? generatedPath(resolve(dir, entry))
+                : entry,
+          ),
+        },
+        include: [],
+        exclude: [],
+      }
 
       writeFileSync(configPath, JSON.stringify(config, null, '\t') + '\n')
       return { env, configPath, files: group.files }

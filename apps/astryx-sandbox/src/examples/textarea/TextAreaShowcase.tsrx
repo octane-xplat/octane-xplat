@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream TextArea/TextAreaShowcase.tsx (Astryx 0.6.4, MIT).
 import { TextArea } from '@octane-xplat/ui'
 import { useState } from 'octane'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream templates/pages/shell-nav/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/shell-nav/.
 // GAPS: upstream TreeList items carry `startContent` icons and per-node

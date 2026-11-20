@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream DateRangeInput/DateRangeInputShowcase.tsx (Astryx 0.6.4, MIT).
 import { DateRangeInput } from '@octane-xplat/ui'
 import { useState } from 'octane'

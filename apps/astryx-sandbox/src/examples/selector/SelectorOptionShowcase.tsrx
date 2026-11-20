@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream SelectorOption/SelectorOptionShowcase.tsx (Astryx 0.6.4, MIT).
 import { Selector, SelectorOption, Icon } from '@octane-xplat/ui'
 import { useState } from 'octane'

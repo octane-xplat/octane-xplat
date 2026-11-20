@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream Tokenizer/TokenizerShowcase.tsx (Astryx 0.6.4, MIT).
 import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
 import { useState } from 'octane'

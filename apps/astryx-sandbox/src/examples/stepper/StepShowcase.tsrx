@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream Step/StepShowcase.tsx (Astryx 0.6.4, MIT).
 import { Stepper, Step, Text } from '@octane-xplat/ui'
 

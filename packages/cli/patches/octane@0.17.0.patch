@@ -311,6 +311,17 @@ index f30c8af0c4d6f30936764b897f41b7a8a027ccf0..7d4eaf1b2e390da496e382aee6362707
  			const isServerUse = name === 'use' && ctx.mode === 'server';
  			if (isBuiltin || isServerUse) {
  				if (isBuiltin) {
+diff --git a/dist/compiler/index.d.ts b/dist/compiler/index.d.ts
+index d501e128776885d1c38e55b575567a34f071f9e8..96ad575e6ce7e913d8efb501ee31b6bed6f267ce 100644
+--- a/dist/compiler/index.d.ts
++++ b/dist/compiler/index.d.ts
+@@ -327,1 +327,3 @@
+- * renderer and any authored pragma.
++ * renderer and any authored pragma. `defaultIntrinsics` only fills the pragma
++ * the compiler generates for files without an authored `@jsxImportSource`,
++ * never overriding authored comments.
+@@ -335,0 +338 @@
++		defaultIntrinsics?: string;
 diff --git a/dist/compiler/native-read-diagnostics.js b/dist/compiler/native-read-diagnostics.js
 index 91e31e812dc0bf1f4e92222edb8a0889f5422f1f..90f1a6b6759d718da31fca07d5c35e220e7ecb86 100644
 --- a/dist/compiler/native-read-diagnostics.js
@@ -395,8 +406,14 @@ index 6f9fd821b142f8418ce33040f99668800492c864..7c35d4779eb4aa87ebae0497e8ef927f
  					: '__enableSignalDocument';
  		const local = allocSlotName(st, `_$${imported}`);
  		let specifiers = signalHelperImports.get(request);
+diff --git a/dist/compiler/volar.d.ts b/dist/compiler/volar.d.ts
+index 3f0e61c66a1d10e9c6cb339f297d0a8471457af9..779313319688b9db64e19c35f91422d381f696f6 100644
+--- a/dist/compiler/volar.d.ts
++++ b/dist/compiler/volar.d.ts
+@@ -9,0 +10 @@
++		defaultIntrinsics?: string;
 diff --git a/dist/compiler/volar.js b/dist/compiler/volar.js
-index 9ee327ffe0dd5c9ae724e9f5caba2bcc24ce09c5..b3307c43ac29c42987cfb46df1872851a93b7757 100644
+index 9ee327ffe0dd5c9ae724e9f5caba2bcc24ce09c5..99daf555f8c95d266fcec317504bdd99c1356c92 100644
 --- a/dist/compiler/volar.js
 +++ b/dist/compiler/volar.js
 @@ -9657,7 +9657,9 @@ function tsPlugin(options) {
@@ -418,6 +435,15 @@ index 9ee327ffe0dd5c9ae724e9f5caba2bcc24ce09c5..b3307c43ac29c42987cfb46df1872851
            return this.finishNode(node, "ExportNamedDeclaration");
          }
        }
+@@ -40146,7 +40149,7 @@ function compileToVolarMappings(source, filename, options) {
+   diagnostics.push(...nativeReadDiagnostics);
+   const authoredPragma = authoredLeadingPragma(ast, comments);
+   const strongDOM = strongAnalysis?.enabled === true && renderer.target === "dom";
+-  const rendererPragma = authoredPragma ? null : createRendererTypePragma(renderer, ast, strongDOM, options?.intrinsics);
++  const rendererPragma = authoredPragma ? null : createRendererTypePragma(renderer, ast, strongDOM, options?.intrinsics ?? options?.defaultIntrinsics);
+   const replacePragma = authoredPragma && (options?.intrinsics !== void 0 || strongDOM && jsxImportSourcePragmaModule(authoredPragma.value) === DOM_RENDERER_MODULE);
+   const typePragma = replacePragma ? {
+     ...authoredPragma,
 diff --git a/dist/node/runtime/drivers.js b/dist/node/runtime/drivers.js
 index c0075b80a865caa9656f0ff86d91d3bda5b76228..5f91670824a3ab2f60cc510f3f51c777e0a07e21 100644
 --- a/dist/node/runtime/drivers.js

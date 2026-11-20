@@ -177,7 +177,9 @@
 		"@nativescript/doctor@2.0.18": "patches/@nativescript__doctor@2.0.18.patch",
 		"@sveltejs/acorn-typescript@1.0.13": "patches/@sveltejs__acorn-typescript@1.0.13.patch",
 		"@nativescript-community/sqlite-bridge@4.1.1": "patches/@nativescript-community__sqlite-bridge@4.1.1.patch",
-		"@nstudio/nativescript-exoplayer@6.2.0": "patches/@nstudio__nativescript-exoplayer@6.2.0.patch"
+		"@nstudio/nativescript-exoplayer@6.2.0": "patches/@nstudio__nativescript-exoplayer@6.2.0.patch",
+		"@octanejs/lexical@0.2.13": "patches/@octanejs__lexical@0.2.13.patch",
+		"@tsrx/content-mapper@0.1.2": "patches/@tsrx__content-mapper@0.1.2.patch"
 	},
 	"trustedDependencies": [
 		"octane-xplat",

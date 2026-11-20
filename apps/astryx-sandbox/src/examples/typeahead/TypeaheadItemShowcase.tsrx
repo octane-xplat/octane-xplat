@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream TypeaheadItem/TypeaheadItemShowcase.tsx (Astryx 0.6.4, MIT).
 import { Typeahead, TypeaheadItem, createStaticSource, Icon } from '@octane-xplat/ui'
 import { useState } from 'octane'
