@@ -1,7 +1,11 @@
 // Borrowed from NativeScript/NativeScript PR #11089: packages/core/utils/layout-helper/index.macos.ts
 import * as layoutCommon from '@nativescript/core/utils/layout-helper/layout-helper-common';
+let screenClass;
 function getMainScreenScale() {
-    return (NSScreen.mainScreen && NSScreen.mainScreen.backingScaleFactor) || 1;
+    // Global class reads enter the bridge on every lookup. Keep the class
+    // handle and read the current screen and scale for each conversion.
+    screenClass ??= NSScreen;
+    return screenClass.mainScreen?.backingScaleFactor || 1;
 }
 export const layout = {
     MODE_SHIFT: 30,

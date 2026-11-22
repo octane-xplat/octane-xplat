@@ -34,6 +34,9 @@ the pinned Core runtime contract. Core supplies its public declarations.
 `nativescript-provider.macos.ts` wires the patched Vite resolver to a single
 Core installation. Provider imports can reach Core internals because they
 implement those modules. The runtime fixture verifies the resolved Core paths.
+The Node-API bridge resolves global class handles on each lookup. Core's
+layout helper retains the `NSScreen` class handle and reads the current
+screen for each conversion, so display-scale changes still take effect.
 
 The candidate uses the AppKit menu action store, keyboard dispatcher and
 secondary-window lifecycle. Retire a Core view's keyboard leases before
