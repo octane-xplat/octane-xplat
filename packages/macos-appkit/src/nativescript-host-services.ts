@@ -3,6 +3,7 @@ import { createActionStore } from './action-store'
 import { createAppMenu } from './app-menu'
 import { announceAppKit } from './host-announce'
 import { createHostBridge } from './host-bridge'
+import { appKitGestureSurface } from './gesture-input'
 import { createAppKitKeyboardDispatcher } from './keyboard'
 
 const keyboard = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
@@ -23,6 +24,7 @@ export function installNativeScriptHostServices() {
   }
 
   appKitBridge.announce ??= (text) => announceAppKit(text, NSApplication.sharedApplication)
+  appKitBridge.gestureSurface ??= appKitGestureSurface
   if (!appKitBridge.observeViewKeys) {
     Object.defineProperty(appKitBridge, 'keyboardEventsSupported', {
       configurable: true,

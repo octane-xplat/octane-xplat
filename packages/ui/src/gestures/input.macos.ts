@@ -26,4 +26,5 @@ export const attachAppKitGesture = adapter.gesture
 // AppKit scroll/momentum suspension remains unsupported.
 export const attachAppKitScope = adapter.scope
 export const attachAppKitPress = adapter.press
+export const appKitMouseSurface = adapter.surface
 export type AppKitPressBinding = HostPressBinding

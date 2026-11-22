@@ -42,6 +42,9 @@ The candidate uses the AppKit menu action store, keyboard dispatcher and
 secondary-window lifecycle. Retire a Core view's keyboard leases before
 detaching its native view. Each host installs the window root factory when it
 starts. Window sizing and close behavior stay in `host-windowing.ts`.
+When compiling Core-backed components, select `host-core.macos.tsx` for
+the UI interaction host. It waits for the Core view to load and uses AppKit's
+mouse contact stream. AppKit retains its normal wheel scrolling.
 
 ```sh
 bun run turbo run test:nativescript --filter=@octane-xplat/macos-appkit
