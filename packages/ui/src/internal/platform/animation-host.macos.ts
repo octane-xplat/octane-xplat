@@ -14,17 +14,27 @@ export function readReducedMotion(): boolean {
   return Boolean(typeof value === 'function' ? value.call(workspace) : value)
 }
 
-/** Refs are NSViews, not NativeScript views. Keep the renderer's y-down convention. */
-export function writeAnimatedProperty(view: any, property: string, value: number): void {
-  if (property === 'opacity') {
-    view.alphaValue = value
+/** Keep AppKit animations in the renderer's y-down coordinate system. */
+export function writeAnimatedProperty(host: any, property: string, value: number): void {
+  const path = transformPaths[property]
+  if (host.nativeViewProtected && (path || property === 'opacity')) {
+    // Core owns the transform state used when AppKit repaints after layout.
+    if (property === 'scale') {
+      host.scaleX = value
+      host.scaleY = value
+    } else {
+      host[property] = value
+    }
     return
   }
 
-  const path = transformPaths[property]
+  if (property === 'opacity') {
+    host.alphaValue = value
+    return
+  }
 
   if (path) {
-    view.wantsLayer = true
+    host.wantsLayer = true
 
     // Explicit per-frame samples must not acquire implicit CA interpolation.
     const transaction = (globalThis as Record<string, any>).CATransaction
@@ -32,7 +42,7 @@ export function writeAnimatedProperty(view: any, property: string, value: number
     transaction.begin()
     try {
       transaction.setDisableActions(true)
-      view.layer.setValueForKeyPath(
+      host.layer.setValueForKeyPath(
         property === 'rotate'
           ? (value * Math.PI) / 180
           : property === 'translateY'
