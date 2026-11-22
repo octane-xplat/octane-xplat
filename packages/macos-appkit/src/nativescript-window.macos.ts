@@ -9,6 +9,7 @@ import {
 import type { UniversalRoot } from 'octane/universal/native'
 import { FailureCollector } from './failures'
 import { installWindowRootFactory } from './host-windowing'
+import { installNativeScriptAutomation } from './nativescript-automation.macos'
 import { installNativeScriptStylesheetDelivery } from './nativescript-css.macos'
 import {
   installNativeScriptHostServices,
@@ -46,6 +47,7 @@ export function createNativeScriptWindowRoot(
     content.addSubview(native)
     host.callLoaded()
     root = createNativeScriptRoot(host)
+    installNativeScriptAutomation(root)
   } catch (error) {
     const failures = new FailureCollector()
     failures.run('window content setup', () => {

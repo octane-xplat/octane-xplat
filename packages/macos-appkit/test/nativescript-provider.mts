@@ -85,6 +85,7 @@ try {
       timeout: 30000,
       env: {
         ...process.env,
+        OCTANE_MACOS_AUTOMATION: '1',
         OCTANE_MACOS_EXTERNAL_RUNLOOP: '1',
         OCTANE_MACOS_DEV_BUNDLE: join(output, 'before.cjs'),
         XPLAT_CORE_DEV_AFTER: join(output, 'after.cjs'),

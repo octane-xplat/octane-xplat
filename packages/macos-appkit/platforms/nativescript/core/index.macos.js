@@ -5,7 +5,7 @@
 // element registry and instanceof guards remain complete and safe; anything
 // that tries to instantiate one throws through the normal create path.
 export { Observable } from '@nativescript/core/data/observable';
-export { ViewBase } from '@nativescript/core/ui/core/view-base';
+export { ViewBase, eachDescendant } from '@nativescript/core/ui/core/view-base';
 export { View } from '@nativescript/core/ui/core/view';
 export { ContentView } from '@nativescript/core/ui/content-view';
 export { LayoutBase } from '@nativescript/core/ui/layouts/layout-base';

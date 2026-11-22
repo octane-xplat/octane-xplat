@@ -9,6 +9,10 @@ import {
 
 const roots = new Map<View, { hostView: NSView }>()
 
+export function trackedNativeScriptRoots(): Iterable<View> {
+  return roots.keys()
+}
+
 /** Track the Core root for the lifetime of its AppKit content view. */
 export function trackNativeScriptRoot(root: View, hostView: NSView) {
   const member = { hostView }

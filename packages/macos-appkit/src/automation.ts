@@ -1,4 +1,5 @@
 import { nodeClasses } from './style-values.ts'
+import { appKitAutomationEnabled, publishAppKitAutomation } from './automation-root.ts'
 import type { RootDirectoryReader } from './root-directory'
 import type { Measurements } from './measurements'
 import type { CssCascade } from './css-cascade'
@@ -23,10 +24,8 @@ interface Dependencies {
 export type Automation = ReturnType<typeof createAutomation>
 
 export function createAutomation(deps: Dependencies) {
-  const debugRoots = new Map<UniversalRoot, unknown>()
-
   function installAutomation(root: UniversalRoot, container: RootContainer) {
-    if ((process.env as { [key: string]: string | undefined }).OCTANE_MACOS_AUTOMATION === '1') {
+    if (appKitAutomationEnabled()) {
       // Ids resolve across every live container snapshot.
       const allNodes = () =>
         [...deps.directory.containers()].flatMap((entry) => [...entry.nodes.values()])
@@ -572,37 +571,7 @@ export function createAutomation(deps: Dependencies) {
         },
       }
 
-      try {
-        Object.defineProperty(root, '__macosDebug', { value: debug, configurable: true })
-        Object.defineProperty(globalThis, '__xplatMacOSDebug', { value: debug, configurable: true })
-        debugRoots.set(root, debug)
-      } catch (error) {
-        if (Reflect.get(root, '__macosDebug') === debug) {
-          Reflect.deleteProperty(root, '__macosDebug')
-        }
-
-        throw error
-      }
-
-      return () => {
-        debugRoots.delete(root)
-        if (Reflect.get(root, '__macosDebug') === debug) {
-          Reflect.deleteProperty(root, '__macosDebug')
-        }
-
-        if (Reflect.get(globalThis, '__xplatMacOSDebug') === debug) {
-          const latest = [...debugRoots.values()].at(-1)
-
-          if (latest) {
-            Object.defineProperty(globalThis, '__xplatMacOSDebug', {
-              value: latest,
-              configurable: true,
-            })
-          } else {
-            Reflect.deleteProperty(globalThis, '__xplatMacOSDebug')
-          }
-        }
-      }
+      return publishAppKitAutomation(root, debug)
     }
   }
 

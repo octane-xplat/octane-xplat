@@ -20,6 +20,8 @@ import { postToPid } from '../../../../tools/probe/appkit-input'
 import { useInteractionHost } from '../../../ui/src/gestures/host-core.macos'
 import './nativescript-provider.css'
 
+let automationButtonPresses = 0
+
 function Screen() {
   return (
     <masonview style={{ width: 320, height: 220, flexDirection: 'column' }}>
@@ -31,6 +33,8 @@ function Screen() {
         className="provider-title"
       />
       <textfield id="editor" />
+      <textview id="notes" hint="Notes" style={{ width: 160, height: 40 }} />
+      <button text="Core automation" onTap={() => automationButtonPresses++} />
       <liquidglass id="glass" style={{ width: 160, height: 48 }}>
         <label id="glass-content" text="Glass content" />
       </liquidglass>
@@ -145,6 +149,7 @@ function OverlayContent() {
 }
 
 let pointerPresses = 0
+let virtualPresses = 0
 
 function PointerTarget() {
   const bind = useInteractionHost({
@@ -153,14 +158,17 @@ function PointerTarget() {
       onPress(event) {
         if (event.source === 'pointer') {
           pointerPresses++
+        } else if (event.source === 'virtual') {
+          virtualPresses++
         }
       },
     },
   })
-  return <masonview ref={bind} style={{ width: 180, height: 120 }} />
+  return <masonview id="pointer-target" ref={bind} style={{ width: 180, height: 120 }} />
 }
 
 async function checkPointerInput() {
+  const primaryDebug = Reflect.get(globalThis, '__xplatMacOSDebug')
   const handle = openWindow({
     title: 'Core pointer input',
     size: { width: 320, height: 220 },
@@ -212,9 +220,20 @@ async function checkPointerInput() {
     if (events !== 2 || pointerPresses !== 1) {
       throw new Error(`The AppKit event queue did not dispatch one Core press: ${pointerPresses} from ${events} window events`)
     }
+    const debug = Reflect.get(globalThis, '__xplatMacOSDebug')
+    if (debug === primaryDebug || debug.findId('pointer-target') !== target) {
+      throw new Error('Core automation did not find the secondary window target')
+    }
+    debug.pressId('pointer-target')
+    if (virtualPresses !== 1) {
+      throw new Error('Core automation did not dispatch one virtual press')
+    }
   } finally {
     handle.close()
     await handle.closed
+  }
+  if (Reflect.get(globalThis, '__xplatMacOSDebug') !== primaryDebug) {
+    throw new Error('Secondary window teardown did not restore the primary automation root')
   }
 }
 
@@ -692,6 +711,23 @@ setTimeout(async () => {
     }
     registerStylesheet('app-rule', '#editor { font-size: 24; }')
     const editor = host.getViewById('editor').nativeViewProtected
+    const debug = Reflect.get(root, '__macosDebug')
+    if (debug.findId('editor') !== editor || !debug.snapshot().labels.includes('NativeScript Core on AppKit')) {
+      throw new Error('Core automation did not expose the primary AppKit view tree')
+    }
+    debug.setText('editor', 'Typed by automation')
+    if (editor.stringValue !== 'Typed by automation' || host.getViewById('editor').text !== 'Typed by automation') {
+      throw new Error('Core automation did not update the native editor and its Core model')
+    }
+    debug.setText('Notes', 'Automated notes')
+    const notes = host.getViewById('notes')
+    if (notes.nativeViewProtected.documentView.string !== 'Automated notes' || notes.text !== 'Automated notes') {
+      throw new Error('Core automation did not update the multiline editor by placeholder')
+    }
+    debug.pressButton('Core automation')
+    if (automationButtonPresses !== 1) {
+      throw new Error('Core automation did not dispatch the native button action')
+    }
     await new Promise((resolve) => setTimeout(resolve, 30))
     if (editor.font.pointSize !== 24) {
       throw new Error('The registered stylesheet did not reach the mounted editor')
@@ -747,6 +783,9 @@ setTimeout(async () => {
     const backdrop = checkLiquidGlass()
     const bar = checkActionBar()
     root.unmount()
+    if (Reflect.has(root, '__macosDebug') || Reflect.has(globalThis, '__xplatMacOSDebug')) {
+      throw new Error('Core automation remained installed after the primary root unmounted')
+    }
     if (native.superview || backdrop.superview || bar.subviews.count || host.getViewById('title')) {
       throw new Error('Unmount left a native view attached')
     }
