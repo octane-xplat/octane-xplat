@@ -417,7 +417,9 @@ function applyStyle(node: HostNode, view: ViewBase, value: unknown): void {
       if (entry == null || entry === unsetValue) {
         unsetStyleKey(node, view, key)
       } else {
-        Reflect.set(style, key, entry)
+        // The Core flex shorthand's converter expects CSS text.
+        const normalized = key === 'flex' && typeof entry === 'number' ? String(entry) : entry
+        Reflect.set(style, key, normalized)
       }
     }
   }

@@ -36,6 +36,7 @@ function Screen() {
         <label id="bar-child" text="Custom title" style={{ width: 120, height: 20 }} />
       </actionbar>
       <masonview id="paint" style={{ width: 40, height: 30 }} />
+      <masonview id="flex-shorthand" style={{ flex: 1 }} />
       <scrollview id="viewport" style={{ width: 250, height: 80 }}>
         <masonview style={{ width: 200, height: 380 }}>
           <label text="Scrollable content" />
@@ -463,6 +464,9 @@ function checkMainWindowRootReplacement() {
 
 setTimeout(async () => {
   try {
+    if (host.getViewById('flex-shorthand').style.flexGrow !== 1) {
+      throw new Error('Core did not apply the numeric flex shorthand')
+    }
     const title = host.getViewById('title')
     if (!(title instanceof Label)) {
       throw new Error('The NativeScript render did not mount the label')
