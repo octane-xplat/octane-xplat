@@ -7,9 +7,10 @@ import type { ResolvedTarget } from './types'
 import { attachPan } from './pan.macos'
 import { measureNativeBox } from './projection/measure.macos'
 
-// AppKit refs are NSViews, not NativeScript Views. Keep public y-down units
-// and degrees at this boundary; explicit JS samples own interpolation.
-export function attachHost(node: any): HostAdapter {
+// The AppKit adapter writes native layer channels. Core-backed refs expose the
+// same AppKit view through nativeViewProtected.
+export function attachHost(host: any): HostAdapter {
+  const node = host.nativeViewProtected ?? host
   const layer = node.layer
   const read = (path: string, fallback: number) => Number(layer?.valueForKeyPath(path) ?? fallback)
   const original = {
