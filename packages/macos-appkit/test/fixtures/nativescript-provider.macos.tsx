@@ -16,6 +16,8 @@ import {
   registerStylesheet,
   setLayoutProjectionScale,
 } from '@octane-xplat/macos-appkit'
+import { postToPid } from '../../../../tools/probe/appkit-input'
+import { useInteractionHost } from '../../../ui/src/gestures/host-core.macos'
 import './nativescript-provider.css'
 
 function Screen() {
@@ -140,6 +142,80 @@ function checkDesktopDatePicker() {
 
 function OverlayContent() {
   return <label text="Core overlay" style={{ width: 160, height: 22 }} />
+}
+
+let pointerPresses = 0
+
+function PointerTarget() {
+  const bind = useInteractionHost({
+    press: {
+      slop: 8,
+      onPress(event) {
+        if (event.source === 'pointer') {
+          pointerPresses++
+        }
+      },
+    },
+  })
+  return <masonview ref={bind} style={{ width: 180, height: 120 }} />
+}
+
+async function checkPointerInput() {
+  const handle = openWindow({
+    title: 'Core pointer input',
+    size: { width: 320, height: 220 },
+    component: PointerTarget,
+  })
+  try {
+    const nativeRoot = handle.window.contentView.subviews.objectAtIndex(0)
+    const target = nativeRoot.subviews.objectAtIndex(0)
+    if (target.window !== handle.window || target.bounds.size.width < 100) {
+      throw new Error('The Core pointer target did not lay out before dispatch')
+    }
+    handle.window.makeKeyAndOrderFront(null)
+    NSApplication.sharedApplication.activateIgnoringOtherApps(true)
+    await new Promise((resolve) => setTimeout(resolve, 80))
+    const center = target.convertPointToView(
+      { x: target.bounds.size.width / 2, y: target.bounds.size.height / 2 },
+      null,
+    )
+    let events = 0
+    const monitor = NSEvent.addLocalMonitorForEventsMatchingMaskHandler(
+      (1 << 1) | (1 << 2),
+      (event) => {
+        if (event.window === handle.window) {
+          events++
+        }
+        return event
+      },
+    )
+    try {
+      for (const type of [1, 2]) {
+        const event =
+          NSEvent.mouseEventWithTypeLocationModifierFlagsTimestampWindowNumberContextEventNumberClickCountPressure(
+            type,
+            center,
+            0,
+            NSProcessInfo.processInfo.systemUptime,
+            handle.window.windowNumber,
+            null,
+            type,
+            1,
+            1,
+          )
+        postToPid(event.CGEvent)
+        await new Promise((resolve) => setTimeout(resolve, 40))
+      }
+    } finally {
+      NSEvent.removeMonitor(monitor)
+    }
+    if (events !== 2 || pointerPresses !== 1) {
+      throw new Error(`The AppKit event queue did not dispatch one Core press: ${pointerPresses} from ${events} window events`)
+    }
+  } finally {
+    handle.close()
+    await handle.closed
+  }
 }
 
 function checkDesktopSurfaces() {
@@ -650,6 +726,7 @@ setTimeout(async () => {
     checkShortcuts()
     checkDesktopDatePicker()
     checkDesktopSurfaces()
+    await checkPointerInput()
     checkCorePaint()
     await checkLayoutNotifications()
     await checkEmbeddedCoreRoot()
