@@ -17,10 +17,13 @@ import type {
 import {
   createAppKitWindow,
   externalRunLoopMode,
+  installWindowRootFactory,
   onApplicationTerminating,
   type AppKitWindow,
   type MacOSWindowSize,
 } from './host-windowing'
+
+installWindowRootFactory(createMacOSRoot)
 
 export { createAppKitWindow } from './host-windowing'
 export type { AppKitHostDelegate, AppKitWindow, CreateAppKitWindowOptions } from './host-windowing'

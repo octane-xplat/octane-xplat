@@ -58,6 +58,7 @@
 		"test:overflow": "node ../../tools/probe/cli.ts run test/fixtures/text-overflow.macos.tsrx --target macos",
 		"test:animation-runtime": "node test/animation-runtime.mts",
 		"test:packed": "node --experimental-strip-types test/packed-consumer.ts",
+		"test:nativescript": "node test/nativescript-provider.mts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
@@ -70,6 +71,9 @@
 		"saxes": "6.0.0"
 	},
 	"devDependencies": {
+		"@nativescript/core": "catalog:",
+		"@nativescript/vite": "8.0.20",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"vite": "catalog:",
 		"octane": "catalog:",
 		"typescript": "catalog:",

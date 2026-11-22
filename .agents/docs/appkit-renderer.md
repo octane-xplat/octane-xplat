@@ -26,6 +26,30 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | Native surfaces | `popover.ts`, `context-menu.ts`, `picker-bridge.ts`, `sheet-bridge.ts`; existing `presentation.ts` and `layer.ts` own their surface engines |
 | Inspection and measurement | `automation.ts`, `measurements.ts`, `parity.ts` |
 
+## NativeScript Core provider
+
+`packages/macos-appkit/platforms/nativescript/` owns the Core 9.1.3 platform
+modules and the adapter to the existing Mason library. These modules implement
+the pinned Core runtime contract. Core supplies its public declarations.
+`nativescript-provider.macos.ts` wires the patched Vite resolver to a single
+Core installation. Provider imports can reach Core internals because they
+implement those modules. The runtime fixture verifies the resolved Core paths.
+
+The candidate uses the AppKit menu action store, keyboard dispatcher and
+secondary-window lifecycle. Retire a Core view's keyboard leases before
+detaching its native view. Each host installs the window root factory when it
+starts. Window sizing and close behavior stay in `host-windowing.ts`.
+
+```sh
+bun run turbo run test:nativescript --filter=@octane-xplat/macos-appkit
+```
+
+The fixture checks Core layout, teardown, native accessibility names, menu
+actions, tray lifecycle, shortcut dispatch and secondary windows. It drives
+AppKit objects directly. Native input and assistive-technology behavior need
+their own checks. The shipping macOS preset continues to use the AppKit
+renderer until the desktop app and its feature contracts qualify.
+
 ## Keep lifecycle and initialization explicit
 
 Each feature owner retains and releases its own resources. Canonical adapters

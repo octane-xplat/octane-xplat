@@ -1875,6 +1875,9 @@
         "saxes": "6.0.0",
       },
       "devDependencies": {
+        "@nativescript/core": "catalog:",
+        "@nativescript/vite": "8.0.20",
+        "@octane-xplat/nativescript-octane": "workspace:*",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "typescript": "catalog:",
