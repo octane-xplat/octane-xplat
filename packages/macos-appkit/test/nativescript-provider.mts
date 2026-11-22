@@ -2,13 +2,14 @@ import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
 import { mkdtemp, mkdir, rm } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { build } from 'vite'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle, macOSHostArch, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 import { createCoreMacOSConfig } from '../../cli/src/macos/core-vite.ts'
+import { coreMacOSUI } from '../../cli/src/macos/core-ui.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/macos-core-provider')
@@ -45,15 +46,19 @@ try {
     entry: join(root, 'test/fixtures/nativescript-provider.macos.tsx'),
     outDir: output,
   })
+  // The fixture imports UI source from the adjacent Mac app's UI dependency.
+  const ui = coreMacOSUI(resolve(root, '../../apps/macos'))
   await build({
     ...shell,
     configFile: false,
     plugins: [
+      ...ui.plugins,
       ...(shell.plugins ?? []),
       {
         name: 'verify-single-nativescript-core',
         generateBundle() {
           const ids = [...this.getModuleIds()]
+          assert.ok(ids.some((id) => id.endsWith('/components/forms/text-area-fit.macos.ts')))
           assert.ok(
             !ids.some((id) => id.endsWith('/macos-appkit/src/runtime.ts')),
             'Core must be the only macOS renderer in the bundle',

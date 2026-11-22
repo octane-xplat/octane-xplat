@@ -11,6 +11,32 @@ import { View, CSSType, isEnabledProperty } from '@nativescript/core/ui/core/vie
 import { layout } from '@nativescript/core/utils';
 import { registerGestureClass } from '../../../../../src/gestures';
 export * from '@nativescript/core/ui/text-view/text-view-common';
+
+function sizeEditor(editor, width, minHeight = 0) {
+    editor.setFrameSize(NSMakeSize(Math.max(width, 1), Math.max(editor.frame.size.height, 1)));
+    editor.sizeToFit();
+    return NSMakeSize(editor.frame.size.width, Math.max(minHeight, editor.frame.size.height));
+}
+
+class CoreTextScrollView extends NSScrollView {
+    // Mason measures foreign views through AppKit. Report the editor's size,
+    // so the current viewport height doesn't become the next intrinsic size.
+    get intrinsicContentSize() {
+        const editor = this.documentView;
+        if (!editor) {
+            return NSMakeSize(0, 0);
+        }
+        const previous = editor.frame.size;
+        const width = this.contentView.bounds.size.width || previous.width || 320;
+        try {
+            return sizeEditor(editor, width);
+        } finally {
+            editor.setFrameSize(previous);
+        }
+    }
+}
+registerGestureClass(CoreTextScrollView);
+
 class NSTextViewDelegateImpl extends NSObject {
     static ObjCProtocols = [NSTextViewDelegate];
     _owner;
@@ -71,8 +97,9 @@ export class TextView extends TextViewBase {
         return this.nativeViewProtected ? this.nativeViewProtected.documentView : null;
     }
     createNativeView() {
-        const scrollView = NSScrollView.alloc().init();
+        const scrollView = CoreTextScrollView.alloc().init();
         const textView = NSTextView.alloc().init();
+        textView.verticallyResizable = true;
         if (!textView.font) {
             textView.font = NSFont.systemFontOfSize(12);
         }
@@ -240,10 +267,12 @@ export class TextView extends TextViewBase {
         // + sizeToFit is the forcing path that works here (verified in the
         // widget-text-view case); restore the frame afterwards.
         const savedSize = textView.frame.size;
-        textView.setFrameSize(NSMakeSize(Math.max(proposed, 1), Math.max(savedSize.height, 1)));
-        textView.sizeToFit();
-        const used = textView.frame.size;
-        textView.setFrameSize(savedSize);
+        let used;
+        try {
+            used = sizeEditor(textView, proposed);
+        } finally {
+            textView.setFrameSize(savedSize);
+        }
         const contentW = used.width + inset.width * 2 + container.lineFragmentPadding * 2;
         const contentH = used.height + inset.height * 2;
         const nativeWidth = widthMode === layout.EXACTLY ? width : layout.round(layout.toDevicePixels(contentW));
@@ -251,6 +280,20 @@ export class TextView extends TextViewBase {
         const widthAndState = View.resolveSizeAndState(nativeWidth, width, widthMode, 0);
         const heightAndState = View.resolveSizeAndState(nativeHeight, height, heightMode, 0);
         this.setMeasuredDimension(widthAndState, heightAndState);
+    }
+    onLayout(left, top, right, bottom) {
+        super.onLayout(left, top, right, bottom);
+        const editor = this.nativeTextViewProtected;
+        const viewport = this.nativeViewProtected?.contentView.bounds.size;
+        if (!editor || !viewport?.width) {
+            return;
+        }
+        const previousWidth = editor.frame.size.width;
+        const size = sizeEditor(editor, viewport.width, viewport.height);
+        editor.setFrameSize(NSMakeSize(viewport.width, size.height));
+        if (previousWidth !== viewport.width) {
+            this.requestLayout();
+        }
     }
 }
 CSSType('TextView')(TextView);

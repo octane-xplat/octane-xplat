@@ -18,6 +18,7 @@ import {
 } from '@octane-xplat/macos-appkit'
 import { postToPid } from '../../../../tools/probe/appkit-input'
 import { useInteractionHost } from '../../../ui/src/gestures/host-core.macos'
+import { TextArea } from '../../../ui/src/components/forms/TextArea.tsrx'
 import './nativescript-provider.css'
 
 let automationButtonPresses = 0
@@ -125,6 +126,56 @@ async function checkEmbeddedCoreRoot() {
     if (content.subviews.count !== 0) {
       throw new Error('The embedded Core root remained attached after unmount')
     }
+  }
+}
+
+function SizingArea({ value, maxRows, control }) {
+  return (
+    <masonview style={{ width: 200, height: 240, flexDirection: 'column' }}>
+      <TextArea
+        id="sizing-area"
+        rows={2}
+        autoGrow
+        maxRows={maxRows}
+        value={value}
+        ref={control}
+        style={{ width: 160 }}
+      />
+    </masonview>
+  )
+}
+
+async function checkSharedTextAreaSizing() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 250, 250), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  const control = { current: null }
+  try {
+    root.render(SizingArea, { control, value: 'short', maxRows: 3 })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const viewport = Reflect.get(root, '__macosDebug').findId('sizing-area')
+    const initial = viewport.frame.size.height
+    if (initial <= 0 || control.current?.native !== viewport.documentView) {
+      throw new Error(`The shared TextArea did not mount a sized AppKit editor: height ${initial}`)
+    }
+
+    const value = 'first\nsecond\nthird\nfourth\nfifth\nsixth'
+    root.render(SizingArea, { control, value, maxRows: 3 })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const capped = viewport.frame.size.height
+    if (capped <= initial || capped > initial * 1.5 + 1 || viewport.documentView.frame.size.height <= capped) {
+      throw new Error(`The shared TextArea did not grow to a scrollable cap: ${initial} → ${capped}, document ${viewport.documentView.frame.size.height}`)
+    }
+
+    root.render(SizingArea, { control, value })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (viewport.frame.size.height <= capped) {
+      throw new Error(`Removing the shared TextArea cap did not grow its viewport: ${capped} → ${viewport.frame.size.height}`)
+    }
+  } finally {
+    root.unmount()
+    window.close()
   }
 }
 
@@ -793,6 +844,11 @@ setTimeout(async () => {
     if (notesEvents.join(',') !== 'focus,submit,blur') {
       throw new Error('Unexpected multiline field lifecycle: ' + notesEvents.join(','))
     }
+    notes.text = 'first\nsecond\nthird\nfourth\nfifth\nsixth'
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (notesEditor.frame.size.height <= notes.nativeViewProtected.contentView.bounds.size.height) {
+      throw new Error('The Core multiline document did not extend beyond its capped viewport')
+    }
     debug.pressButton('Core automation')
     if (automationButtonPresses !== 1) {
       throw new Error('Core automation did not dispatch the native button action')
@@ -835,6 +891,7 @@ setTimeout(async () => {
     checkCorePaint()
     await checkLayoutNotifications()
     await checkEmbeddedCoreRoot()
+    await checkSharedTextAreaSizing()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

@@ -5,6 +5,7 @@ vi.mock('../../gestures/host.tsrx', () => import('../../../tests/interaction-hos
 vi.mock('../../gestures/host.macos.tsrx', () => import('../../../tests/interaction-host-mock.tsrx'))
 
 import { dispatchTestInput } from '../../../tests/interaction-host-mock.tsrx'
+import { unsetValue } from '@nativescript/core'
 import { describe, expect, it, vi } from 'vitest'
 import {
   createObjectDriver,
@@ -14,6 +15,7 @@ import {
 
 vi.mock('@nativescript/core', async () => ({
   View: (await import('../../../tests/native-gesture-object-driver')).NativeGestureView,
+  unsetValue: Symbol('unset'),
   isIOS: false,
   isAndroid: true,
   Utils: { layout: { toDeviceIndependentPixels: (value: number) => value } },
@@ -188,10 +190,10 @@ describe('native TextArea row sizing', () => {
     expect(view.style).toMatchObject({ minHeight: 40, maxHeight: 80 })
     fitTextArea(view, { autoGrow: true, rows: 2 })
     expect(view.style.minHeight).toBe(40)
-    expect(view.style.maxHeight).toBeUndefined()
+    expect(view.style.maxHeight).toBe(unsetValue)
     fitTextArea(view, { style: { height: 30 } })
-    expect(view.style.minHeight).toBeUndefined()
-    expect(view.style.maxHeight).toBeUndefined()
+    expect(view.style.minHeight).toBe(unsetValue)
+    expect(view.style.maxHeight).toBe(unsetValue)
   })
 
   it('preserves authored constraints and recomputes native font metrics', () => {
