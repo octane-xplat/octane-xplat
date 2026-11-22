@@ -5,6 +5,18 @@
 import { EditableTextBase as EditableTextBaseCommon } from '@nativescript/core/ui/editable-text-base/editable-text-base-common';
 export * from '@nativescript/core/ui/editable-text-base/editable-text-base-common';
 export class EditableTextBase extends EditableTextBaseCommon {
+    get value() {
+        return this.text;
+    }
+    set value(value) {
+        this.text = value ?? '';
+    }
+    get placeholder() {
+        return this.hint;
+    }
+    set placeholder(value) {
+        this.hint = value ?? '';
+    }
     get nativeTextViewProtected() {
         return this.nativeViewProtected;
     }
