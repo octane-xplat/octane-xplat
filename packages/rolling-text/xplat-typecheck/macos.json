@@ -2,7 +2,6 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/macos.d.ts",
-		"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts",
 		"../examples/RollingTextDemo.tsrx",
 		"../src/index.ts",
 		"./isolation-macos.ts"
@@ -19,7 +18,9 @@
 		"lib": [
 			"ESNext"
 		],
-		"types": []
+		"types": [
+			"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts"
+		]
 	},
 	"include": [],
 	"exclude": []

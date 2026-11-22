@@ -236,7 +236,9 @@ test('a project-installed host package wins the ambient declaration reference', 
   const macos = expand(dir).find((p) => p.env === 'macos')
 
   assert.ok(
-    macos.files.includes(ambient),
+    config(macos).compilerOptions.types.includes(
+      '../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts',
+    ),
     'the stable package path replaces the workspace fallback',
   )
 })

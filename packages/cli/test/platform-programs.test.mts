@@ -107,6 +107,14 @@ function fixture(t) {
     }
   }
 
+  put('src/Card.tsrx', "export const platform = 'fallback' as const\n")
+  put('src/Card.web.tsrx', "export const platform = 'web' as const\n")
+  put(
+    'src/card-entry.web.ts',
+    "import { platform } from './Card.tsrx'\nexport const checkedPlatform: 'web' = platform\n",
+  )
+  environments.web.files.push('src/Card.tsrx', 'src/Card.web.tsrx', 'src/card-entry.web.ts')
+
   put('src/shared.ts', 'export const sharedContext = platformContext\n')
   put(
     'src/Shared.tsrx',

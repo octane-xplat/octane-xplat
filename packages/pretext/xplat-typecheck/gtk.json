@@ -1,7 +1,6 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../node_modules/@octane-xplat/linux-gtk/dist/host-globals.d.ts",
 		"../../linux-gtk-renderer/src/host-globals.d.ts",
 		"../../linux-gtk-renderer/src/gi.d.ts",
 		"../examples/measure.ts",
@@ -17,7 +16,9 @@
 	],
 	"compilerOptions": {
 		"resolveJsonModule": true,
-		"types": [],
+		"types": [
+			"../node_modules/@octane-xplat/linux-gtk/dist/host-globals.d.ts"
+		],
 		"jsxImportSource": "@octane-xplat/jsx",
 		"moduleSuffixes": [
 			".gtk",

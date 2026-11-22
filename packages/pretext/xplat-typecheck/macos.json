@@ -2,7 +2,6 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/macos.d.ts",
-		"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts",
 		"../examples/measure.ts",
 		"../src/index.macos.ts",
 		"../src/install.macos.ts",
@@ -13,7 +12,9 @@
 	],
 	"compilerOptions": {
 		"resolveJsonModule": true,
-		"types": [],
+		"types": [
+			"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts"
+		],
 		"jsxImportSource": "@octane-xplat/jsx",
 		"moduleSuffixes": [
 			".macos",

@@ -74,7 +74,7 @@
 			"@nativescript/types-ios": "9.1.3",
 			"@nativescript/macos-node-api": "0.5.0-beta.0",
 			"@nativescript/unit-test-runner": "5.0.0",
-			"typescript": "7.1.0-beta",
+			"typescript": "7.1.0-dev.20261121.1",
 			"vite": "8.3.6",
 			"@octanejs/vite-plugin": "0.6.0",
 			"vitest": "4.1.11",

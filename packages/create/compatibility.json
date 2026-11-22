@@ -120,7 +120,7 @@
 			"singleton": true
 		},
 		"typescript": {
-			"version": "7.1.0-beta",
+			"version": "7.1.0-dev.20261121.1",
 			"group": "compiler"
 		},
 		"@tsrx/oxc": {

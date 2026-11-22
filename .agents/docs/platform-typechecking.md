@@ -16,10 +16,11 @@ Each isolated program uses its target's module suffixes and export conditions.
 Shared files included by the manifest or reached through imports are checked in
 every applicable program. Foreign tagged roots and defaults shadowed by an active
 leaf are omitted; explicit imports still enter the transitive graph. Do not use
-root filtering to claim that an imported file was excluded. TypeScript 7.1's
-registered-extension suffix limitation still applies to `.tsrx`: explicit
-`./Card.tsrx` imports bind the unsuffixed contract, and leaf files are checked as
-roots. Builds retain their existing TSRX runtime selection.
+root filtering to claim that an imported file was excluded. The pinned TypeScript build applies module suffixes before mapped extensions.
+An explicit `./Card.tsrx` import in the web program resolves `Card.web.tsrx`
+when present. The earlier 7.1 beta resolved the unsuffixed file instead.
+[TypeScript PR #65417](https://github.com/microsoft/TypeScript/pull/65417) fixes
+this lookup; use the pinned version or a release containing the fix.
 
 `lib` and `types` are set explicitly per program, overriding inherited mixed
 settings and disabling automatic `@types` discovery. An existing
@@ -29,7 +30,11 @@ it does not load the umbrella index, which references both SDKs. A bare
 pair for its matching program. Resolve those files from the declared umbrella
 dependency so Bun's isolated linker does not require consumers to add
 undeclared direct dependencies. Preserve existing
-module-scoped SDK APIs on main. macOS uses its existing AppKit/Node host declarations;
+module-scoped SDK APIs on main. Installed desktop host declarations enter through
+relative `types` references. TypeScript follows those references to the package's
+real path and can find its dependencies under pnpm's isolated linker. The
+generated config keeps the stable path through the project's `node_modules`.
+macOS uses its existing AppKit/Node host declarations;
 Windows keeps the existing module-scoped WinRT surface and narrow JS globals.
 This work does not strengthen the WinRT surface's existing `any` types. GTK
 introspection declarations remain module-scoped; include the existing
@@ -87,7 +92,7 @@ single-reference context selection for TS and TSRX.
 LSP tests establish language-service behavior, not VS Code extension activation,
 editor settings, displayed diagnostics, device behavior, or platform rendering.
 Use the [TSRX editor setup](https://github.com/tsrx-org/tsrx/blob/main/packages/vscode-plugin/README.md#native-backend-setup)
-for the installed editor integration; the repository pins TypeScript 7.1.0-beta
+for the installed editor integration; the repository pins TypeScript 7.1.0-dev.20261121.1
 and content mapper 0.1.2. Starters declare TypeScript directly for editor
 discovery under Bun's isolated linker. Recheck project discovery and mapper diagnostics on
 compiler upgrades. No runtime import adapters or import-erasure transform are

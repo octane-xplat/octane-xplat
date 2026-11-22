@@ -47,7 +47,7 @@
 		"@octane-xplat/tweaks": "workspace:*",
 		"@octanejs/vite-plugin": "0.6.0",
 		"@tsrx/oxc": "0.23.0",
-		"typescript": "7.1.0-beta",
+		"typescript": "7.1.0-dev.20261121.1",
 		"vite": "8.3.6"
 	},
 	"devDependencies": {

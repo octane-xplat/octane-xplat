@@ -2,7 +2,6 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/macos.d.ts",
-		"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts",
 		"../src/Gesture.macos.tsrx",
 		"../src/Guide.macos.tsrx",
 		"../src/ImageCrop.tsrx",
@@ -33,7 +32,9 @@
 		"lib": [
 			"ESNext"
 		],
-		"types": []
+		"types": [
+			"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts"
+		]
 	},
 	"include": [],
 	"exclude": []

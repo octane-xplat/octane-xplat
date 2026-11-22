@@ -444,22 +444,15 @@ export function expandEnvPrograms(
       // linkers. Relative entries resolve against the CLI's declarations
       // root; a package's repo fallback can duplicate its pkg: hit, so the
       // list dedupes by real path.
+      const packageAmbient = (options.ambient ?? [])
+        .filter((entry) => entry.startsWith('pkg:'))
+        .map((entry) => join(dir, 'node_modules', entry.slice(4)))
+        .filter(existsSync)
+      const packageAmbientRealPaths = new Set(packageAmbient.map((entry) => realpathSync(entry)))
       const ambient = (options.ambient ?? [])
-        .map((entry) => {
-          if (entry.startsWith('pkg:')) {
-            const local = join(dir, 'node_modules', entry.slice(4))
-
-            return existsSync(local) ? local : null
-          }
-
-          return resolve(ambientRoot, entry)
-        })
-        .filter((entry) => entry !== null && existsSync(entry))
-        .filter((entry, index, resolved) => {
-          const real = realpathSync(entry)
-
-          return resolved.findIndex((other) => realpathSync(other) === real) === index
-        })
+        .filter((entry) => !entry.startsWith('pkg:'))
+        .map((entry) => resolve(ambientRoot, entry))
+        .filter((entry) => existsSync(entry) && !packageAmbientRealPaths.has(realpathSync(entry)))
 
       // A default implementation shadowed by a leaf is not an active root.
       // Explicit imports can still reach it and are checked transitively.
@@ -491,7 +484,9 @@ export function expandEnvPrograms(
           ...options.compilerOptions,
           // Keep JSX vocabulary explicit and independent of runtime resolution.
           jsxImportSource: top.jsxImportSource ?? '@octane-xplat/jsx',
-          types: [...new Set(types)],
+          // Type references resolve symlinks before checking transitive imports.
+          // A root in files keeps its lexical path and misses isolated dependencies.
+          types: [...new Set([...types, ...packageAmbient])],
           lib: [...new Set([...(top.lib ?? []), ...libs])],
         },
       })

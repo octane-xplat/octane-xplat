@@ -158,8 +158,8 @@ matching leaves; do not introduce runtime import adapters to isolate checking.
 
 Keep `jsxImportSource: "@octane-xplat/jsx"` and browser-file `/dom` pragmas.
 Target conditions bind concrete host handles; annotate concrete ref types at
-ownership boundaries. Explicit TSRX imports still check the unsuffixed contract
-because TypeScript 7.1 cannot select `.web.tsrx` through `moduleSuffixes`.
+ownership boundaries. Explicit `.tsrx` imports select the matching platform leaf through
+`moduleSuffixes` with the pinned TypeScript build.
 
 Use the actual TypeScript 7 language server and TSRX content mapper for semantic
 editor operations. The OXC server supplies lint/parser findings. Platform leaves

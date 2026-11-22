@@ -168,7 +168,7 @@ uses that platform's standard TypeScript resolution and SDK declarations.
 Shared files are checked in every applicable program. A passing check does not
 prove that the app runs on a device.
 For TSRX modules, include `.tsrx` but leave out the platform name. TypeScript
-checks the unsuffixed contract; the platform preset selects the runtime leaf.
+and the platform build select the matching leaf when one exists.
 Every platform family needs an unsuffixed module; lint checks this for source
 files. If no default implementation
 exists, use a declaration-only contract and provide implementations for the
@@ -386,7 +386,7 @@ isolated linker. For an older app, add the same supported compiler version, then
 select it in the editor settings:
 
 ```sh
-bun add --dev typescript@7.1.0-beta
+bun add --dev typescript@7.1.0-dev.20261121.1
 ```
 
 ```json

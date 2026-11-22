@@ -2,14 +2,15 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/macos.d.ts",
-		"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts",
 		"../src/index.macos.ts",
 		"./isolation-macos.ts"
 	],
 	"compilerOptions": {
 		"target": "ES2022",
 		"jsx": "react-jsx",
-		"types": [],
+		"types": [
+			"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts"
+		],
 		"paths": {
 			"@octane-xplat/ui": [
 				"../ui/types/generated/index.d.ts"

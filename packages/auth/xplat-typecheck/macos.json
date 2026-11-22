@@ -2,7 +2,6 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/macos.d.ts",
-		"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts",
 		"../examples/auth0-flow.ts",
 		"../src/AppleSignInButton.macos.tsrx",
 		"../src/GoogleSignInButton.macos.tsrx",
@@ -28,7 +27,9 @@
 		"lib": [
 			"ESNext"
 		],
-		"types": []
+		"types": [
+			"../node_modules/@octane-xplat/macos-appkit/src/host-globals.d.ts"
+		]
 	},
 	"include": [],
 	"exclude": []
