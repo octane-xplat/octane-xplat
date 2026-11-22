@@ -31,8 +31,8 @@ Paths below are relative to `packages/macos-appkit/src/`.
 `packages/macos-appkit/platforms/nativescript/` owns the Core 9.1.3 platform
 modules and the adapter to the existing Mason library. These modules implement
 the pinned Core runtime contract. Core supplies its public declarations.
-`nativescript-provider.macos.ts` wires the patched Vite resolver to a single
-Core installation. Provider imports can reach Core internals because they
+`@octane-xplat/macos-appkit/core-provider` wires the app's patched Vite
+resolver to a single Core installation. Provider imports can reach Core internals because they
 implement those modules. The runtime fixture verifies the resolved Core paths.
 The Node-API bridge resolves global class handles on each lookup. Core's
 layout helper retains the `NSScreen` class handle and reads the current

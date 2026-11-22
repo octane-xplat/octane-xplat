@@ -8,7 +8,7 @@ import { promisify } from 'node:util'
 import { build, type InlineConfig } from 'vite'
 import { octane } from 'octane/compiler/vite'
 import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
-import { createNativeScriptProvider } from '../src/nativescript-provider.macos.ts'
+import { createNativeScriptProvider } from '@octane-xplat/macos-appkit/core-provider'
 import { nativeScriptDevImports } from '../src/nativescript-dev-imports.ts'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle, macOSHostArch, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
@@ -26,7 +26,7 @@ await mkdir(scratch, { recursive: true })
 const output = await mkdtemp(join(scratch, 'run-'))
 
 try {
-  const { config, coreRoot } = createNativeScriptProvider(root)
+  const { config, coreRoot } = await createNativeScriptProvider(root)
   function bundleConfig(hmr = false) {
     return {
       ...config,

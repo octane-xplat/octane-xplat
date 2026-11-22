@@ -1,14 +1,12 @@
 import { existsSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { getPlatformBundleDefines, platformProviderPlugin } from '@nativescript/vite/platforms'
-import type { NativeScriptPlatform } from '@nativescript/vite/platforms'
-import type { Plugin, UserConfig } from 'vite'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const runtime = fileURLToPath(new URL('../platforms/nativescript/', import.meta.url))
 const coreSpecifier = '@nativescript/core'
 
+/** @satisfies {import('@nativescript/vite/platforms').NativeScriptPlatform} */
 const platform = {
   name: 'macos',
   family: 'apple',
@@ -30,19 +28,24 @@ const platform = {
     propertyChangesRequestLayout: true,
     textChangeAffectsLayout: true,
   },
-} satisfies NativeScriptPlatform
+}
 
-export type NativeScriptProvider = ReturnType<typeof createNativeScriptProvider>
-
-/** A package-owned Core provider for builds hosted by the macOS Node-API runtime. */
-export function createNativeScriptProvider(project: string) {
+/**
+ * Create a Core provider using the consuming app's patched NativeScript toolchain.
+ * @param {string} project The consuming app's absolute path.
+ */
+export async function createNativeScriptProvider(project) {
   const manifest = join(project, 'package.json')
   const require = createRequire(manifest)
   const coreRoot = dirname(realpathSync(require.resolve(`${coreSpecifier}/package.json`)))
+  const { getPlatformBundleDefines, platformProviderPlugin } = await import(
+    pathToFileURL(require.resolve('@nativescript/vite/platforms')).href
+  )
 
   // The upstream plugin leaves shared modules to normal resolution. Pin
   // their package root too so provider and application imports share classes.
-  const sharedCore: Plugin = {
+  /** @type {import('vite').Plugin} */
+  const sharedCore = {
     name: 'xplat:macos-shared-core',
     enforce: 'pre',
     resolveId(source) {
@@ -62,6 +65,7 @@ export function createNativeScriptProvider(project: string) {
     },
   }
 
+  /** @satisfies {import('vite').UserConfig} */
   const config = {
     build: {
       rollupOptions: {
@@ -103,7 +107,7 @@ export function createNativeScriptProvider(project: string) {
         },
       ],
     },
-  } satisfies UserConfig
+  }
 
   return { config, coreRoot }
 }

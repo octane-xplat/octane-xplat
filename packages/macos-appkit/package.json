@@ -41,6 +41,10 @@
 		"./types/*": {
 			"types": "./types/*.d.ts"
 		},
+		"./core-provider": {
+			"types": "./src/nativescript-provider.macos.d.mts",
+			"default": "./src/nativescript-provider.macos.mjs"
+		},
 		"./compat/native-core": "./src/native-core-shim.ts",
 		"./compat/escape-props": "./src/native-escape-props.ts",
 		"./compat/ns-core": "./src/ns-compat.ts"
