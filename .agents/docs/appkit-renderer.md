@@ -32,16 +32,22 @@ Paths below are relative to `packages/macos-appkit/src/`.
 modules and the adapter to the existing Mason library. These modules implement
 the pinned Core runtime contract. Core supplies its public declarations.
 `@octane-xplat/macos-appkit/core-provider` wires the app's patched Vite
-resolver to a single Core installation. Provider imports can reach Core internals because they
-implement those modules. The runtime fixture uses the CLI Core bundle configuration to verify the
-resolved Core paths. The macOS build boundary permits iOS-suffixed files
-only for the exact Core modules named in the provider’s reuse map.
+resolver to a single Core installation. Provider imports can reach Core
+internals because they implement those modules. The runtime fixture uses
+the CLI Core bundle configuration to verify the resolved Core paths and
+rejects the old renderer in its bundle. The macOS build boundary permits
+iOS-suffixed files only for paths in the Core provider's explicit reuse map.
+The Core CLI resolves shared UI, routes and gestures through the same
+renderer. Its UI entry keeps the desktop keyboard wrapper.
 The Node-API bridge resolves global class handles on each lookup. Core's
 layout helper retains the `NSScreen` class handle and reads the current
 screen for each conversion, so display-scale changes still take effect.
 
 The candidate uses the AppKit menu action store, keyboard dispatcher and
-secondary-window lifecycle. Retire a Core view's keyboard leases before
+secondary-window lifecycle. Native pickers and context menus unwrap Core
+references before attaching the same AppKit controls used by the existing
+renderer. Anchored layers, popovers, dialogs and sheets can mount Core roots
+and measure their content in AppKit points. Retire a Core view's keyboard leases before
 detaching its native view. Each host installs the window root factory when it
 starts. Window sizing and close behavior stay in `host-windowing.ts`.
 Core mounts its main root inside the AppKit host's pinned content view.
@@ -63,9 +69,11 @@ replacement. Core font changes use the shared AppKit font resolver.
 Text controls support logical start/end alignment and update it when the
 inherited direction changes. The Core view maps its resolved background
 into the AppKit painter for colors, borders, gradients, images and shadows.
-The painter owns its frame observers and layer disposal. Keep CSS parser
-coverage separate from paint coverage. Core CSS still needs an explicit
-`border-width` and `border-color` and interprets `px` as device pixels.
+Core transform and opacity properties update the same AppKit layers. The
+painter owns its frame observers and layer disposal. Keep CSS parser
+coverage separate from paint coverage. Core CSS still needs explicit
+`border-width` and `border-color`. Bundled CSS uses the CLI's `px` to
+`dip` rewrite. Runtime stylesheet registration passes lengths through to Core.
 The Core stylesheet destination preserves the authored min/max media
 syntax because Core 9.1.3 cannot parse the minifier's range syntax.
 Core 9.1.3 normally evaluates selector and keyframe media queries against
@@ -74,8 +82,7 @@ match. The AppKit provider evaluates against that view's window and refreshes
 its stylesheet matches on resize. The Core root map gives layout observers
 the AppKit content view after Core commits its geometry. The native fixture
 runs through the shared AppKit application launcher and checks one cleanup.
-Other Core platforms keep their existing
-media matcher. The native provider fixture verifies different rules in two
+Other Core platforms keep their existing media matcher. The native provider fixture verifies different rules in two
 windows and independent updates when either window resizes.
 The development shell owns Core, the driver, and the Octane runtime. Mark
 the modules in `nativescript-dev-imports.ts` external in app rebuilds and

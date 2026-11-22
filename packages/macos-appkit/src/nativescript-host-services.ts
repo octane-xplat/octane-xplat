@@ -18,6 +18,8 @@ import { buildPopUpControl } from './picker-control'
 import { createContextMenu } from './context-menu'
 import { createPopover } from './popover'
 import { createSheetBridge } from './sheet-bridge'
+import { showWindowLayer, type WindowLayerOptions } from './layer'
+import { installPresentationBridge, type SurfaceOptions } from './presentation'
 
 const keyboard = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
 
@@ -109,5 +111,20 @@ export function installNativeScriptWindowServices(dependencies: Parameters<typeo
   appKitBridge.presentSheet = (host, options) => {
     const view = appKitView(host)
     return view ? sheet.presentSheet(view, options) : null
+  }
+  const { roots, directory } = dependencies
+  appKitBridge.showLayer = (options: WindowLayerOptions) => {
+    const anchor = appKitView(options.anchor)
+    return anchor ? showWindowLayer({ ...options, anchor }, {
+      createRoot: (view, anchor) =>
+        roots.createMacOSRoot(view, { fontFamily: directory.fontFamilyForView(anchor) }),
+      fittingSize: popover.popupFittingSize,
+    }) : null
+  }
+  installPresentationBridge(appKitBridge, roots.createMacOSRoot, directory.fontFamilyForView)
+  const presentSurface = appKitBridge.presentSurface
+  if (presentSurface) {
+    appKitBridge.presentSurface = (options: SurfaceOptions) =>
+      presentSurface({ ...options, owner: appKitView(options.owner) ?? options.owner })
   }
 }

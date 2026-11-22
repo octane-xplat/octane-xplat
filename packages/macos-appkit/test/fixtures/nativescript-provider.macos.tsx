@@ -183,6 +183,32 @@ function checkDesktopSurfaces() {
     popup.close()
   }
 
+  const layer = bridge.showLayer({
+    anchor: target,
+    component: OverlayContent,
+    position: (anchor) => ({ left: anchor.left, top: anchor.top + anchor.height }),
+    lightDismiss: false,
+  })
+  if (!layer) {
+    throw new Error('AppKit could not open an anchored Core overlay')
+  }
+  try {
+    if (layer.contentView.frame.size.width < 100 || layer.closed) {
+      throw new Error('The anchored AppKit overlay did not lay out the Core content')
+    }
+  } finally {
+    layer.close()
+  }
+
+  const surface = bridge.presentSurface({ owner: target, kind: 'dialog', component: OverlayContent })
+  try {
+    if (!surface.panel.superview || surface.closed) {
+      throw new Error('The AppKit dialog did not mount inside the Core window')
+    }
+  } finally {
+    surface.close()
+  }
+
   const sheet = bridge.presentSheet(target, {})
   if (!sheet) {
     throw new Error('AppKit could not prepare a sheet from the Core view')
