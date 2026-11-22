@@ -29,6 +29,7 @@ export function coreMacOSUI(appRoot: string): CoreMacOSUI {
     [join(src, 'components/navigation/nav-href'), join(src, 'components/navigation/nav-href.ts')],
     [join(src, 'gestures/host'), gestures],
     [join(src, 'gestures/host.macos'), gestures],
+    [join(src, 'internal/layout/styled'), join(src, 'internal/layout/styled.tsrx')],
   ])
 
   return {
