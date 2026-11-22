@@ -29,7 +29,7 @@ MASON="${1:-$HERE/../../../../research/nativescript-mason}"
 MODE="${XPLAT_MASON_CORE_MODE:-desktop}"
 TARGET="${XPLAT_MASON_CORE_TARGET:-}"
 if [ -z "$TARGET" ]; then
-	TARGET="$(rustc -vV 2>/dev/null | sed -n 's/^host: //p')"
+	TARGET="$(rustc -vV 2>/dev/null | sed -n 's/^host: //p' || true)"
 	TARGET="${TARGET:-x86_64-unknown-linux-gnu}"
 fi
 CORE="$MASON/dist/native/mason-core/$MODE/$TARGET"
