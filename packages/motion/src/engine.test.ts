@@ -14,8 +14,9 @@ function fakeClock() {
   const clock: Clock = {
     now: () => time,
     request: (fn) => {
-      callbacks.set(++id, fn)
-      return id
+      const handle = id++
+      callbacks.set(handle, fn)
+      return handle
     },
     cancel: (key) => {
       callbacks.delete(key)
@@ -37,6 +38,16 @@ function fakeClock() {
 }
 
 describe('portable playback', () => {
+  it('keeps another run scheduled when an immediate run finishes', async () => {
+    const time = fakeClock()
+    const pending = runAnimation(time.clock, 0, 1, { duration: 1 }, () => {})
+    const immediate = runAnimation(time.clock, 0, 1, { duration: 0 }, () => {})
+    expect(await immediate.finished).toBe('finished')
+    expect(time.count()).toBe(1)
+    time.advance(1000)
+    expect(await pending.finished).toBe('finished')
+  })
+
   it('uses elapsed time and reaches the exact tween endpoint after suspension', async () => {
     const time = fakeClock()
     let value = 0
