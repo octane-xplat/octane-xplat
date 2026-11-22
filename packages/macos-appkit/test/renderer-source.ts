@@ -111,6 +111,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['controls', 'makeActivityIndicator'],
   ['controls', 'syncActivityIndicator'],
   ['controls', 'makeSlider'],
+  ['glass-backdrop', 'mountGlassBackdrop'],
   ['container-elements', 'makeLiquidGlass'],
   ['layout', 'layoutLength'],
   ['layout', 'pinLayoutChild'],

@@ -74,8 +74,9 @@ export { FadeTransition, FlexboxLayout };
 export * as Connectivity from '@nativescript/core/connectivity';
 export { getRootLayout, getRootLayoutById } from '@nativescript/core/ui/layouts/root-layout/root-layout-common';
 export { ListView } from '@nativescript/core/ui/list-view';
+export { LiquidGlass } from '@nativescript/core/ui/layouts/liquid-glass';
 // Unimplemented widgets — placeholders for the driver's instanceof/registry
 // surface (ListView/TabView/…). They are never instantiated in the slice.
 class UnimplementedElement {
 }
-export { ImageSource, ActivityIndicator, Switch, Slider, Progress, SearchBar, SegmentedBar, SegmentedBarItem, TabView, TabViewItem, DatePicker, TimePicker, ListPicker, HtmlView, WebView, ImageAsset, UnimplementedElement as ActionBar, UnimplementedElement as ActionItem, UnimplementedElement as NavigationButton, UnimplementedElement as LiquidGlass, };
+export { ImageSource, ActivityIndicator, Switch, Slider, Progress, SearchBar, SegmentedBar, SegmentedBarItem, TabView, TabViewItem, DatePicker, TimePicker, ListPicker, HtmlView, WebView, ImageAsset, UnimplementedElement as ActionBar, UnimplementedElement as ActionItem, UnimplementedElement as NavigationButton, };

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@nativescript/macos-node-api'
-import { Application, GridLayout, Label, TextField } from '@nativescript/core'
+import { Application, GridLayout, Label, LiquidGlass, TextField } from '@nativescript/core'
 import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { appMenu } from '../../../app-menu/src/index.macos.ts'
 import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.ts'
@@ -19,6 +19,9 @@ function Screen() {
         style={{ fontSize: 20 }}
       />
       <textfield id="editor" />
+      <liquidglass id="glass" style={{ width: 160, height: 48 }}>
+        <label id="glass-content" text="Glass content" />
+      </liquidglass>
     </masonview>
   )
 }
@@ -133,6 +136,24 @@ async function checkDesktopServices() {
   }
 }
 
+function checkLiquidGlass() {
+  const glass = host.getViewById('glass')
+  const child = host.getViewById('glass-content')
+  if (!(glass instanceof LiquidGlass) || !(child instanceof Label)) {
+    throw new Error('The NativeScript render did not mount Liquid Glass with its child')
+  }
+  const native = glass.nativeViewProtected
+  const backdrop = native.subviews.objectAtIndex(0)
+  if (
+    !(backdrop instanceof NSVisualEffectView) ||
+    native.subviews.objectAtIndex(1) !== child.nativeViewProtected ||
+    child.nativeViewProtected.frame.size.height <= 0
+  ) {
+    throw new Error('AppKit did not lay out the Liquid Glass child above its backdrop')
+  }
+  return backdrop
+}
+
 setTimeout(async () => {
   try {
     const title = host.getViewById('title')
@@ -152,8 +173,9 @@ setTimeout(async () => {
     await checkDesktopServices()
     checkShortcuts()
     await checkWindowLifecycle()
+    const backdrop = checkLiquidGlass()
     root.unmount()
-    if (native.superview || host.getViewById('title')) {
+    if (native.superview || backdrop.superview || host.getViewById('title')) {
       throw new Error('Unmount left a native view attached')
     }
     console.log('CORE_PROVIDER_OK')
