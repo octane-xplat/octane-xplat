@@ -180,7 +180,10 @@ export class View extends ViewCommon {
         if (setFrame) {
             this.layoutNativeView(left, top, right, bottom);
         }
-        const needsLayout = boundsChanged || this.isLayoutRequired;
+        // Mason assigns nested measurements directly. A requested layout
+        // still has work when Core measure() did not set its layout flag and
+        // the container's own frame remained unchanged.
+        const needsLayout = boundsChanged || this.isLayoutRequired || this.isLayoutRequested;
         if (needsLayout) {
             this.onLayout(left, top, right, bottom);
             this._privateFlags &= ~PFLAG_LAYOUT_REQUIRED;
