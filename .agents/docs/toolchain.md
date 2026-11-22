@@ -3,6 +3,35 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
+## Shared-host native target locks
+
+The Node and Python wrappers and the mobile navigation checker coordinate
+through the same per-target directory, `<tmpdir>/octane-xplat-target-locks/<target>.lock`.
+Use the same temporary directory across sessions, or set
+`XPLAT_NATIVE_LOCK_DIR` to the same absolute path for every participant.
+Use `ios` and `android` as the target names across worktrees. Keep the
+host resource reservation for builds, devices and desktop input described in
+[package verification](package-verification.md).
+
+Before using a shared device after the cutover, let active native runs finish
+and update every participating checkout. Older Python wrappers use a flat
+`flock` file, so they can start work while a directory lock is held.
+
+From the repository root, choose the wrapper based on how you want it to
+handle a busy target. This inspection example makes no device changes.
+
+```sh
+node scripts/with-target-lock.ts ios --timeout 120 -- xcrun simctl list devices booted
+python3 scripts/with-native-target-lock.py ios xcrun simctl list devices booted
+```
+
+Node waits up to the supplied timeout and waits indefinitely without one.
+Python exits immediately if the target is busy. Both forward interrupts and
+termination to the child and hold the lock until it exits. Wait for the owner
+to finish when the target is busy. Leave lock directories and recovery files
+in place so the next acquirer can recover dead owners and restore displaced
+live locks before starting a command.
+
 ## CLI runtime and executable packaging
 
 The [Go implementation](../../packages/cli/go/README.md) is the sole CLI.

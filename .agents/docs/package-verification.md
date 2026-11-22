@@ -7,7 +7,9 @@ source of task names and supported arguments; check it before running a lane.
 
 Reserve native-build, device and shared desktop resources for the complete
 phase. Use the configured existing devices; never create or clone a device to
-run a fixture. Capture and inspect images only when authorized for the task.
+run a fixture. Before running iOS or Android checks across worktrees, follow
+the [shared-host native target lock setup](toolchain.md#shared-host-native-target-locks).
+Capture and inspect images only when authorized for the task.
 A successful source, packed or programmatic-dispatch check does not establish
 OS input, visual parity, accessibility or physical hardware behavior. Store run
 results and gaps in Silo, and raw evidence in local storage.
