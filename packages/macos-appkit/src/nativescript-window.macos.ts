@@ -25,8 +25,13 @@ import {
 } from './nativescript-roots.macos'
 import type { MacOSRootOptions } from './runtime'
 
+const mountedContents = new WeakSet<NSView>()
+
 /** Host Core layout in an AppKit view, including independently sized portal content. */
 function mountNativeScriptContent(content: NSView, fontFamily?: string) {
+  if (mountedContents.has(content)) {
+    throw new Error('AppKit content view already hosts a Core root')
+  }
   const host = new GridLayout()
   if (fontFamily) {
     host.style.fontFamily = fontFamily
@@ -38,23 +43,6 @@ function mountNativeScriptContent(content: NSView, fontFamily?: string) {
     throw new Error('NativeScript could not create an AppKit window content view')
   }
 
-  const releaseHost = (failures: FailureCollector) => {
-    failures.run('window content unload', () => host.callUnloaded())
-    failures.run('window content teardown', () => host._tearDownUI(true))
-    failures.run('window content detach', () => native.removeFromSuperview())
-  }
-  try {
-    content.addSubview(native)
-    host.callLoaded()
-  } catch (error) {
-    const failures = new FailureCollector()
-    failures.run('window content setup', () => {
-      throw error
-    })
-    releaseHost(failures)
-    failures.throwIfFailed()
-    throw error
-  }
   const layout = () => {
     const width = Utils.layout.toDevicePixels(content.bounds.size.width)
     const height = Utils.layout.toDevicePixels(content.bounds.size.height)
@@ -80,25 +68,61 @@ function mountNativeScriptContent(content: NSView, fontFamily?: string) {
       }
     })
   }
-  const center = NSNotificationCenter.defaultCenter
-  content.postsFrameChangedNotifications = true
-  const frameObserver = center.addObserverForNameObjectQueueUsingBlock(
-    NSViewFrameDidChangeNotification,
-    content,
-    null,
-    resized,
-  )
-  const windowObserver = center.addObserverForNameObjectQueueUsingBlock(
-    NSWindowDidResizeNotification,
-    null,
-    null,
-    ({ object }) => {
-      if (object === content.window) {
-        resized()
-      }
-    },
-  )
-  const untrackRoot = trackNativeScriptRoot(host, content)
+  const releaseObservers: { name: string; release: () => void }[] = []
+  const releaseHost = (failures: FailureCollector) => {
+    mounted = false
+    for (const { name, release } of releaseObservers) {
+      failures.run(name, release)
+    }
+    failures.run('window content unload', () => host.callUnloaded())
+    failures.run('window content teardown', () => host._tearDownUI(true))
+    failures.run('window content detach', () => native.removeFromSuperview())
+    mountedContents.delete(content)
+  }
+
+  mountedContents.add(content)
+  try {
+    content.addSubview(native)
+    host.callLoaded()
+    const center = NSNotificationCenter.defaultCenter
+    content.postsFrameChangedNotifications = true
+    const frameObserver = center.addObserverForNameObjectQueueUsingBlock(
+      NSViewFrameDidChangeNotification,
+      content,
+      null,
+      resized,
+    )
+    releaseObservers.push({
+      name: 'content frame observation',
+      release: () => center.removeObserver(frameObserver),
+    })
+    const windowObserver = center.addObserverForNameObjectQueueUsingBlock(
+      NSWindowDidResizeNotification,
+      null,
+      null,
+      ({ object }) => {
+        if (object === content.window) {
+          resized()
+        }
+      },
+    )
+    releaseObservers.push({
+      name: 'window resize observation',
+      release: () => center.removeObserver(windowObserver),
+    })
+    releaseObservers.push({
+      name: 'window root tracking unsubscribe',
+      release: trackNativeScriptRoot(host, content),
+    })
+  } catch (error) {
+    const failures = new FailureCollector()
+    failures.run('window content setup', () => {
+      throw error
+    })
+    releaseHost(failures)
+    failures.throwIfFailed()
+    throw error
+  }
   return {
     host,
     layout,
@@ -106,41 +130,27 @@ function mountNativeScriptContent(content: NSView, fontFamily?: string) {
       if (!mounted) {
         return
       }
-      mounted = false
       const failures = new FailureCollector()
-      failures.run('content frame observation', () => center.removeObserver(frameObserver))
-      failures.run('window resize observation', () => center.removeObserver(windowObserver))
-      failures.run('window root tracking unsubscribe', untrackRoot)
       releaseHost(failures)
       failures.throwIfFailed()
     },
   }
 }
 
-const portalHosts = new WeakSet<NSView>()
-
 function resolveAppKitPortalHost(target: object): NativeScriptPortalHost | undefined {
   if (!(target instanceof NSView)) {
     return
   }
-  if (portalHosts.has(target)) {
-    throw new Error('AppKit portal target already belongs to another Core root')
-  }
   const mounted = mountNativeScriptContent(target, nativeScriptFontFamilyForView(target))
-  portalHosts.add(target)
   try {
     mounted.layout()
   } catch (error) {
-    portalHosts.delete(target)
     mounted.dispose()
     throw error
   }
   return {
     view: mounted.host,
-    release() {
-      portalHosts.delete(target)
-      mounted.dispose()
-    },
+    release: mounted.dispose,
   }
 }
 
