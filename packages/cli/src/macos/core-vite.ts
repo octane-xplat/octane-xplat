@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 import type { UserConfig } from 'vite'
 import { inlineStylesheets } from '../inline-stylesheets.ts'
 import { boundary, css, nodeEnvDefine } from '../vite.ts'
+import { coreMacOSUI } from './core-ui.ts'
 
 interface CoreMacOSOptions {
   root: string
@@ -38,6 +39,7 @@ export async function createCoreMacOSConfig(
   ])
   const { config: provider, coreRoot, reusedCoreFiles } = await createNativeScriptProvider(root)
   const appKitSource = dirname(require.resolve('@octane-xplat/macos-appkit/host'))
+  const ui = coreMacOSUI(root)
 
   const config: UserConfig = {
     root,
@@ -49,9 +51,10 @@ export async function createCoreMacOSConfig(
     },
     plugins: [
       ...provider.plugins,
+      ...ui.plugins,
       css('macos'),
       inlineStylesheets('nativescript'),
-      boundary('macos', new Set<string>(reusedCoreFiles)),
+      boundary('macos', new Set<string>([...reusedCoreFiles, ...ui.reusedFiles])),
       octane({
         hmr: options.hmr ?? false,
         exclude: ['types/macos'],
@@ -66,6 +69,7 @@ export async function createCoreMacOSConfig(
       dedupe: ['octane'],
       alias: [
         ...provider.resolve.alias,
+        ...ui.aliases,
         {
           find: /^@octane-xplat\/macos-appkit$/,
           replacement: join(appKitSource, 'nativescript-renderer.macos.ts'),
