@@ -1,12 +1,4 @@
-export const frame: {
-  now: () => number
-  request: (callback: () => void) => any
-  cancel: (id: number) => void
-} = {
-  now: () => performance.now(),
-  request: (callback: () => void) => requestAnimationFrame(callback) as any,
-  cancel: (id: number) => cancelAnimationFrame(id),
-}
+export { motionClock as frame } from '@octane-xplat/platform/motion-clock'
 
 /** Web clips with CSS overflow on the row element — nothing to apply. */
 export function clipRow(_el: any): void {}

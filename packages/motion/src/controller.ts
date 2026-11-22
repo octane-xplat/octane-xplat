@@ -416,6 +416,7 @@ export class Controller {
 
     if (
       !channelsOnly &&
+      (this.clock.getRate?.() ?? 1) === 1 &&
       Object.keys(input).every(
         (key) => isMotionChannel(key) && typeof input[key as keyof Target] === 'number',
       ) &&

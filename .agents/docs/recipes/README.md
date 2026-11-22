@@ -37,6 +37,7 @@ Workflows:
 - [Check stable controls with an optional coding-agent tool](agent-ui-checks.md)
 - [Qualify a consumer app through development MCP](mcp-consumer-workflow.md)
 - [Edit running-app values and styles from devtools](live-tweaks.md)
+- [Slow down motion in a running app](motion-speed.md)
 - [Read development diagnostics](development-logs.md)
 - [Diagnose a production error](production-errors.md)
 

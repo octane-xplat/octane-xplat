@@ -261,6 +261,22 @@ describe('web WAAPI delegation', () => {
     )
   })
 
+  it('runs new tweens on the shared clock at a reduced playback rate', async () => {
+    const { el, animations } = fakeWebElement()
+    const time = fakeClock()
+    const controller = new Controller({ ...time.clock, getRate: () => 0.25 })
+
+    controller.attach(attachHost(el))
+    controller.seed({ x: 0 })
+    const done = controller.animate({ x: 100 }, { duration: 0.5, ease: 'linear' }, false)
+
+    expect(animations).toHaveLength(0)
+    time.advance(250)
+    expect(controller.values.get('x')?.get()).toBeCloseTo(50)
+    time.advance(250)
+    expect(await done).toBe('finished')
+  })
+
   it('hands combined scale JS state to an eligible tween without changing either axis (#207)', async () => {
     const { el, animations } = fakeWebElement()
     const time = fakeClock()

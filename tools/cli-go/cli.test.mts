@@ -93,6 +93,8 @@ test('all descriptors expose truthful native schemas outside a project', () => {
       'session list',
       'session status',
       'session attach',
+      'motion get-rate',
+      'motion set-rate',
       'actions list',
       'actions invoke',
       'actions run',
@@ -128,10 +130,10 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 
   assert.equal(
     catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-    24,
+    26,
   )
 
-  assert.equal(catalog.value.data.commands.length, 25)
+  assert.equal(catalog.value.data.commands.length, 27)
 
   assert.ok(
     !catalog.value.data.commands.some((command) => command.command === 'session detach'),
@@ -142,6 +144,9 @@ test('all descriptors expose truthful native schemas outside a project', () => {
     [['docs', '--json'], 'invalid_selection'],
     [['docs', 'unknown', '--json'], 'invalid_selection'],
     [['actions', 'status', '--json'], 'invalid_selection'],
+    [['motion', 'set-rate', '--json'], 'invalid_selection'],
+    [['motion', 'set-rate', '--rate', '0', '--json'], 'invalid_selection'],
+    [['motion', 'set-rate', '--rate', '1.01', '--json'], 'invalid_selection'],
   ]) {
     const actual = cli(args)
 

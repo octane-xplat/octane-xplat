@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { motionClock } from '@octane-xplat/platform/motion-clock'
 import './drawer.css'
 import { Application, isAndroid, isIOS, type View } from '@nativescript/core'
-import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/animation-frame'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'octane'
 import { useSignal$ } from 'octane/signals/client'
 import { attachOwnedPan, useInputCallbackGuard } from '../../../gestures/external'
@@ -81,9 +81,7 @@ export function Drawer(props: DrawerProps): unknown @{
       // Reuse UI's cancellable scalar engine; a single eased sample writes both
       // panel and shade. No second platform tween can overwrite a new drag.
       const animation = createAnimatedValue(0, {
-        now: Date.now,
-        request: requestAnimationFrame,
-        cancel: cancelAnimationFrame,
+        ...motionClock,
         write: (_view, t) => {
           const eased = t * t * (3 - 2 * t)
 

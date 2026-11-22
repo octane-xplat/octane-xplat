@@ -1,7 +1,1 @@
-import type { Clock } from './clock-types'
-
-export const clock: Clock = {
-  now: () => performance.now(),
-  request: (callback) => requestAnimationFrame(callback),
-  cancel: (id) => cancelAnimationFrame(id),
-}
+export { motionClock as clock } from '@octane-xplat/platform/motion-clock'

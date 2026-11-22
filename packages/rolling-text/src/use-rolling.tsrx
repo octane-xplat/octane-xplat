@@ -1,3 +1,4 @@
+import { scheduleMotionTimer } from '@octane-xplat/platform/motion-clock'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import type { RollingTextProps } from './props'
 import { segmentUnits } from './segment'
@@ -75,7 +76,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
   const committedRef = useRef(props.value)
   const pendingRef = useRef<string | null>(null)
   const runningRef = useRef(false)
-  const runTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const runTimerRef = useRef<(() => void) | null>(null)
   const rowRef = useRef<any>(null)
   const distanceRef = useRef(0)
   const viewsRef = useRef(new Map<number, any>())
@@ -118,7 +119,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
    *  effect writes the resting transform on the next commit. */
   function settleNow() {
     if (runTimerRef.current !== null) {
-      clearTimeout(runTimerRef.current)
+      runTimerRef.current()
       runTimerRef.current = null
     }
 
@@ -130,7 +131,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
   /** Reduced-motion commit — the new value appears whole, no roll. */
   function commitNow(next: string) {
     if (runTimerRef.current !== null) {
-      clearTimeout(runTimerRef.current)
+      runTimerRef.current()
       runTimerRef.current = null
     }
 
@@ -149,10 +150,10 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
     setCellsSync(planCells(cellsRef.current, unitsFor(next), alloc))
     runningRef.current = true
     if (runTimerRef.current !== null) {
-      clearTimeout(runTimerRef.current)
+      runTimerRef.current()
     }
 
-    runTimerRef.current = setTimeout(
+    runTimerRef.current = scheduleMotionTimer(
       finishRun,
       latest.current.delayMs + latest.current.durationMs + RUN_BUFFER_MS,
     )
@@ -315,7 +316,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
   useEffect(
     () => () => {
       if (runTimerRef.current !== null) {
-        clearTimeout(runTimerRef.current)
+        runTimerRef.current()
       }
 
       for (const tween of tweens.current.values()) {

@@ -49,3 +49,12 @@ Use physical presentation hitch metrics, not JS frame callback cadence or
 simulator results. Follow its Release, real-input, resource, no-screenshot and
 per-device baseline requirements. The scheduler audit is canonical in
 [Motion compatibility](../../../packages/motion/UPSTREAM.md#ios-scheduling-and-quality).
+
+## Debug motion speed
+
+Use **Session settings** in DevTools or `xplat motion get-rate` and
+`xplat motion set-rate --rate 0.25`. Pass `--instance` when several app
+instances are connected. Motion speed scales participating animation time and
+opt-in deadlines. Ordinary timers still measure real time. Use the
+ [DevTools guide](../../../docs/packages/package-devtools.md#slow-down-motion-in-a-running-app)
+for startup configuration, the development API, and playback limits.

@@ -9,9 +9,11 @@ import {
   Button,
   HStack,
   Pressable,
+  Popover,
   ScrollableArea,
   Text,
   VStack,
+  View,
   type ScrollableAreaHandle,
 } from '@octane-xplat/ui'
 
@@ -39,8 +41,21 @@ const TABS = [
 
 const LOG_DISPLAY = 300
 
-function SessionRow(props: { session: SessionSnapshot }) @{
+function SessionRow(props: { session: SessionSnapshot; model: PanelModel }) @{
   const session = props.session
+  const anchor = useRef<object | null>(null)
+  const [open, setOpen] = useState(false)
+  const rates = useStore(props.model.motionRates$)
+  const rate = rates.get(session.sessionId)
+  const supported =
+    session.state === 'ready' &&
+    session.channels.some((channel) => channel.id === 'xplat-motion' && channel.version === 1)
+
+  useEffect(() => {
+    if (open && supported) {
+      props.model.requestMotionRate(session)
+    }
+  }, [open, supported, session.sessionId])
 
   <HStack className="dt-row">
     <Text className="dt-name">{session.sessionId.slice(0, 8)}</Text>
@@ -50,7 +65,41 @@ function SessionRow(props: { session: SessionSnapshot }) @{
       @for (const channel of session.channels ?? []; key channel.id) {
         <Text className="dt-chip">{`${channel.id}@${channel.version}`}</Text>
       }
+      <View ref={anchor}>
+        <Button label="⚙" accessibilityLabel="Session settings" onPress={() => setOpen(!open)} />
+      </View>
     </HStack>
+    <Popover
+      anchor={anchor}
+      open={open}
+      onDismiss={() => setOpen(false)}
+      placement="bottom"
+      alignment="end"
+    >
+      <VStack className="dt-session-settings">
+        <Text className="dt-name">Motion speed</Text>
+        @if (supported) {
+          <>
+            <Text className="dt-meta">
+              {rate === undefined ? 'Reading speed…' : `${rate}×`}
+            </Text>
+            <HStack className="dt-right">
+              <Button
+                label="Normal (1×)"
+                onPress={() => props.model.requestMotionRate(session, 1)}
+              />
+              <Button
+                label="Slow (0.25×)"
+                onPress={() => props.model.requestMotionRate(session, 0.25)}
+              />
+            </HStack>
+            <Text className="dt-meta">Also slows delays tied to animations.</Text>
+          </>
+        } @else {
+          <Text className="dt-meta">Unavailable for this session.</Text>
+        }
+      </VStack>
+    </Popover>
   </HStack>
 }
 
@@ -176,7 +225,7 @@ export function App(props: DevtoolsPanelProps) @{
                 <Text className="dt-empty">No app sessions connected.</Text>
               }
               @for (const session of sessions; key session.sessionId) {
-                <SessionRow session={session} />
+                <SessionRow session={session} model={model.current} />
               }
               <Text className="dt-heading">{`Backends (${backends.length})`}</Text>
               @if (!backends.length) {

@@ -14,15 +14,17 @@ import (
 )
 
 type flagDescriptor struct {
-	Flag    string          `json:"flag"`
-	Short   string          `json:"short"`
-	Key     string          `json:"key"`
-	Type    string          `json:"type"`
-	Desc    string          `json:"desc"`
-	Values  []string        `json:"values"`
-	Default json.RawMessage `json:"default"`
-	Min     *float64        `json:"min"`
-	Max     *float64        `json:"max"`
+	Flag             string          `json:"flag"`
+	Short            string          `json:"short"`
+	Key              string          `json:"key"`
+	Type             string          `json:"type"`
+	Desc             string          `json:"desc"`
+	Values           []string        `json:"values"`
+	Default          json.RawMessage `json:"default"`
+	Min              *float64        `json:"min"`
+	Max              *float64        `json:"max"`
+	ExclusiveMinimum *float64        `json:"exclusiveMinimum"`
+	Required         bool            `json:"required"`
 }
 type PositionalDescriptor struct {
 	Name     string `json:"name"`
@@ -201,10 +203,13 @@ func ParseCommand(command CommandDescriptor, argv []string) ParsedCommand {
 				return fail(Invalid("--" + def.Flag + " takes no value"))
 			}
 			values[key] = true
-		case "integer":
+		case "integer", "number":
 			n, ok := numericArgument(raw)
-			if !ok || math.Trunc(n) != n {
-				return fail(Invalid(fmt.Sprintf("--%s expects an integer, got %q", def.Flag, raw)))
+			if !ok || (def.Type == "integer" && math.Trunc(n) != n) {
+				return fail(Invalid(fmt.Sprintf("--%s expects a valid %s, got %q", def.Flag, def.Type, raw)))
+			}
+			if def.ExclusiveMinimum != nil && n <= *def.ExclusiveMinimum {
+				return fail(Invalid(fmt.Sprintf("--%s must be > %s, got %s", def.Flag, numericText(*def.ExclusiveMinimum), numericText(n))))
 			}
 			if def.Min != nil && n < *def.Min {
 				return fail(Invalid(fmt.Sprintf("--%s must be >= %s, got %s", def.Flag, numericText(*def.Min), numericText(n))))
@@ -236,6 +241,9 @@ func ParseCommand(command CommandDescriptor, argv []string) ParsedCommand {
 		key := def.Key
 		if key == "" {
 			key = def.Flag
+		}
+		if _, ok := values[key]; !ok && def.Required {
+			return fail(Invalid(fmt.Sprintf("--%s is required.", def.Flag)))
 		}
 		if _, ok := values[key]; !ok && def.Default != nil {
 			var value any

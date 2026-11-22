@@ -1,3 +1,4 @@
+import { motionClock } from '@octane-xplat/platform/motion-clock'
 import { createAnimatedValue } from '../internal/platform/animated-value'
 import { isThenable } from './thenable'
 import { readReducedMotion, writeAnimatedProperty } from '../internal/platform/animation-host.macos'
@@ -157,9 +158,7 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
             restore.push(() => writeAnimatedProperty(view, property, target))
 
             const controller = createAnimatedValue(initial, {
-              now: () => Date.now(),
-              request: (callback) => setTimeout(callback, 16) as unknown as number,
-              cancel: (id) => clearTimeout(id),
+              ...motionClock,
               write: (targetView, value) => writeAnimatedProperty(targetView, property, value),
               reducedMotion: options.reducedMotion === 'allow' ? undefined : readReducedMotion,
             })

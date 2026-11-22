@@ -182,3 +182,8 @@ body {
 }
 .dt-pick-name { font-weight: 600; font-size: 13px; }
 .dt-pick-path { color: #999999; font-size: 11px; }
+
+.dt-session-settings {
+  padding: 12px;
+  gap: 8px;
+}

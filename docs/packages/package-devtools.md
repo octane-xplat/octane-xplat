@@ -34,6 +34,60 @@ bun run xplat devtools --web
 Run the command again after editing a panel. Each build has its own URL and
 stays available until the development session ends.
 
+## Slow down motion in a running app
+
+Open **Sessions**, choose the gear beside your app, and set **Motion speed** to **Slow (0.25×)**. A 300 ms transition takes about 1.2 seconds, and delays tied to the animation slow down with it. Choose **Normal (1×)** to restore full speed.
+
+From the app directory, use the CLI to read or change the rate while `xplat dev` is running. If more than one app is connected, use `xplat session list --json` to find the `appInstanceId` and pass it as `--instance`. The set command returns the effective rate after the app confirms it.
+
+```sh
+xplat motion set-rate --rate 0.5 --json
+xplat motion get-rate --json
+xplat motion set-rate --rate 1 --json
+```
+
+To start each new development instance at half speed, add the following to your app's `package.json`. Restart `xplat dev` after changing this setting.
+
+```json
+{
+  "xplat": {
+    "dev": {
+      "motionRate": 0.5
+    }
+  }
+}
+```
+
+App code can set the rate during `xplat dev`. All three controls update the same clock. Rates can be any number greater than `0` and at most `1`.
+
+```ts
+import { getMotionRate, setMotionRate } from '@octane-xplat/platform/motion/dev'
+
+if (import.meta.env.DEV && !import.meta.env.SSR) {
+  setMotionRate(0.5)
+  console.log(getMotionRate())
+}
+```
+
+Use a motion timer when app code needs to wait for visual work and the
+animation has no completion callback. This example schedules a cancellable
+300 ms delay in motion time.
+
+```ts
+import { scheduleMotionTimer } from '@octane-xplat/platform/motion-clock'
+
+const cancel = scheduleMotionTimer(() => console.log('Visual delay elapsed'), 300)
+// Call cancel() if the visual work is replaced or disposed before the delay.
+```
+
+Motion playback, UI scalar animations, and RollingText use motion time. The
+control appears after the app loads a participating animation module or imports
+the development API. Already-running host-delegated tweens finish at their
+original speed. New Motion tweens use the shared clock at slow rates. Ordinary
+timers, standalone CSS animations, OS navigation animations, and reduced-motion
+settings keep their usual behavior. Windows uses the experimental WinUI host.
+Linux is outside this feature's scope.
+
 ## Host a backend from another development tool
 
 A tool that already starts the app can spawn
