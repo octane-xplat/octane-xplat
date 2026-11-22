@@ -154,9 +154,10 @@ async function checkSharedTextAreaSizing() {
   try {
     root.render(SizingArea, { control, value: 'short', maxRows: 3 })
     await new Promise((resolve) => setTimeout(resolve, 30))
-    const viewport = Reflect.get(root, '__macosDebug').findId('sizing-area')
+    const editor = Reflect.get(root, '__macosDebug').findId('sizing-area')
+    const viewport = editor.enclosingScrollView
     const initial = viewport.frame.size.height
-    if (initial <= 0 || control.current?.native !== viewport.documentView) {
+    if (initial <= 0 || control.current?.native !== editor) {
       throw new Error(`The shared TextArea did not mount a sized AppKit editor: height ${initial}`)
     }
 

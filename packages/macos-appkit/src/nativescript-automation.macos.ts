@@ -78,7 +78,11 @@ export function installNativeScriptAutomation(root: UniversalRoot): void {
   const find = (id: string) => views().find((view) => view.id === id)
   const unpublish = publishAppKitAutomation(root, {
     findId(id: string) {
-      return find(id)?.nativeViewProtected ?? null
+      const view = find(id)
+      if (view instanceof TextView && view.nativeViewProtected instanceof NSScrollView) {
+        return view.nativeViewProtected.documentView
+      }
+      return view?.nativeViewProtected ?? null
     },
     pressId(id: string) {
       const view = find(id)
