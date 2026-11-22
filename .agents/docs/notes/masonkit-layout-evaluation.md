@@ -2,7 +2,7 @@
 
 Mason owns native CSS layout; web keeps DOM CSS. Native container intrinsics use
 `masonview`; scroll and Liquid Glass hosts retain their platform chrome. Use the
-[styling reference](../../skills/octane-xplat/references/styling.md) for authored
+[styling reference](../guides/styling.md) for authored
 styles and the [core extraction design](../../design/mason-core-extraction.md)
 for package boundaries. This note owns integration constraints and upstream
 workaround removal conditions, not the current qualification queue.

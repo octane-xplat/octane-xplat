@@ -211,8 +211,9 @@ export function Card() {
 
 Native `.tsx` files inherit the shared vocabulary from the app config. In a
 `.tsrx` file that uses native host elements such as `masonview` and `label`,
-put the shared JSX comment on the first line. Octane's TSRX type transform
-defaults to Octane's browser JSX types when the file has no comment.
+put the shared JSX comment on the first line. The TSRX mapper honors the
+program's JSX source, and Xplat lint requires the explicit comment for raw
+native elements.
 
 ```tsrx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -339,7 +340,8 @@ bun run typecheck
 For an existing manifest-based app, keep common compiler options and the mapper
 entry in the root config, replace its broad `include`/`files` with an empty root
 list, and reference each generated program. This example matches the web/native
-manifest above. The cache files by themselves do not establish editor support:
+manifest above. The solution references let the editor discover the generated
+projects.
 
 ```json
 {

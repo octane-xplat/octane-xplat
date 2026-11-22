@@ -238,16 +238,21 @@ project depends on directly: `@octane-xplat/cli` depends on
 workspace tsconfigs keep `@tsrx/content-mapper` (the root declares it).
 Apps must not be told to install `@tsrx/content-mapper` themselves.
 
-Octane 0.17.0's type-only transform supplies an `octane` JSX pragma for
-unmarked `.tsrx` files. With `@tsrx/content-mapper` 0.1.2 and TypeScript
-7.1.0-beta, a generated program set to `@octane-xplat/jsx` still rejects
-`<masonview>` in an unmarked TSRX leaf. A first-line
-`/** @jsxImportSource @octane-xplat/jsx */` selects the native vocabulary.
-Plain `.tsx` inherits the program setting directly. A web program set to
-`/dom` still needs the native override when an explicit `.tsrx` import
-reaches an unsuffixed native implementation. Recheck both cases when
-upgrading the compiler or mapper. The upstream source investigation is in
-the prior-art repository at `d0fd4a6`.
+### JSX source selection
+
+The patched TSRX mapper honors the program's `jsxImportSource` and preserves
+an explicit file pragma. Plain `.tsx` reads the setting through TypeScript.
+Platform programs default to `@octane-xplat/jsx` unless their manifest
+overrides it. Keep the first-line
+`/** @jsxImportSource @octane-xplat/jsx */` in TSRX files that use raw native
+host elements because Xplat lint requires it. Use a first-line
+`/** @jsxImportSource @octane-xplat/jsx/dom */` on browser leaves that inherit
+the shared JSX source. Vite's host preset selects the runtime renderer.
+
+Recheck project defaults and file overrides when upgrading the compiler,
+mapper, or patch. See the [platform program reference](platform-typechecking.md)
+for editor coverage and the [public JSX guide](../../docs/packages/package-jsx.md)
+for examples.
 
 The workspace uses Octane 0.17.0 with `@tsrx/oxc` 0.23.0 and
 `@octanejs/vite-plugin` 0.6.0. The parser pin is explicit at the root so a

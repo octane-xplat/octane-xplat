@@ -1,7 +1,7 @@
 # Animation implementation constraints
 
 The [motion guide](../../../docs/app/animation-gestures.md) owns usage and support
-limits; the [service reference](../../skills/octane-xplat/references/services.md)
+limits; the [service reference](../guides/services.md)
 owns agent implementation choices. This note records driver ownership and
 upstream seams. Historical validation lives in Silo/local artifacts.
 

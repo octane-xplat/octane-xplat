@@ -26,8 +26,9 @@ Native `.tsx` files inherit `@octane-xplat/jsx` from the app or package config.
 { "compilerOptions": { "jsx": "preserve", "jsxImportSource": "@octane-xplat/jsx" } }
 ```
 
-Native `.tsrx` files that use host elements need a first-line comment.
-Octane's type transform otherwise selects its browser vocabulary.
+The TSRX mapper honors the program's JSX source and preserves file-level
+overrides. Xplat lint requires a first-line comment on native `.tsrx` files
+that use raw host elements.
 
 ```tsrx
 /** @jsxImportSource @octane-xplat/jsx */

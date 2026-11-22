@@ -16,12 +16,19 @@ carried on the package (#62).
    unsuffixed files as the native default; OS suffixes such as `.ios`,
    `.android`, and `.macos` override for one platform.
 2. Hook-calling code only in `.tsx`/`.tsrx` inside the renderer include glob.
-3. One copy of `octane` per app.
-4. No DOM globals in shared code.
+3. One copy of `octane` per app. Import the runtime from `octane` so the
+   native preset can retarget the import.
+4. Keep code that runs on multiple hosts free of host-specific globals. An
+   unsuffixed default can use native APIs when every other host that imports
+   the module has its own implementation.
 5. Universal-runtime APIs only in shared code (allowlist produced by Phase 1).
 6. Static styles = CSS/`className`; dynamic = `style` objects.
 7. Module-level `signal$`/`query$` `.get()` reads subscribe and re-render on
-   native too (universal signal reads from the canonical octane patch).
+   native too (universal signal reads from the canonical Octane patch).
+   Any module that calls `.get()` during render needs a runtime import from
+   `octane/signals`, `octane/signals/client`, or `octane/signals/server`.
+   A bare import works when the module only receives a handle elsewhere.
+   Type-only imports and `$` names do not enable tracking.
    Non-signal module state still needs `useStore` per reader — the universal
    renderer retains unchanged-prop children on parent re-render, so bare
    reads go stale on native (web re-invokes them; decision #27). Host `on*`
@@ -60,10 +67,12 @@ carried on the package (#62).
    (decisions #44–46, #50)
 9. A platform-suffixed file is an implementation redirect for the same
    module. The default and `.web`, `.mobile`, `.ios`, `.android`, `.macos`,
-   `.windows`, and `.linux` variants must expose the same names and public
-   types. Keep shared prop types in `props.ts`; platform differences belong
-   in the implementation, not in the exported contract. TSRX imports use an
-   explicit `.tsrx` extension without a platform tag. Every TSRX family needs
+   `.windows`, and `.gtk` variants must expose the same names and public
+   types. Define shared props and public types once (in `props.ts` for UI)
+   and import them in the default and every leaf. Import implementations by
+   the unsuffixed name, keeping the explicit `.tsrx` extension for TSRX.
+   Put shared helpers under a different basename so a leaf importing the
+   helper cannot resolve to itself. Every TSRX family needs
    an unsuffixed module; a declaration-only contract may stand in for a missing
    default implementation. Builds must select a real implementation for the
    requested platform. For intentional

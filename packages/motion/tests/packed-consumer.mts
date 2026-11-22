@@ -159,7 +159,7 @@ for (const [file, names] of [
       'MovableCard',
     ],
   ],
-  ['.agents/skills/octane-xplat/references/services/motion.md', ['SharedCard']],
+  ['.agents/docs/guides/services/motion.md', ['SharedCard']],
   ['docs/packages/package-motion.md', ['LayoutCard']],
   ['docs/testing/known-limits.md', ['LayoutSelection']],
   ['packages/motion/UPSTREAM.md', ['GroupNamespace', 'SharedPresence']],

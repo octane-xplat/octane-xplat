@@ -92,6 +92,8 @@ working agreements and detail moved out of this entry point.
 | Locate packages, harnesses, or design records            | [Repository orientation](.agents/docs/repository.md)                                                                                         |
 | Find source, callers, or change impact                   | [Source context](.agents/docs/source-context.md)                                                                                             |
 | Implement components or platform variants                | [Implementation invariants](.agents/docs/architecture.md)                                                                                    |
+| Check or resolve platform files                          | [Platform typechecking](.agents/docs/platform-typechecking.md)                                                                                |
+| Find guidance for a specific API or platform task        | [Contributor guides](.agents/docs/README.md#contributor-guides)                                                                               |
 | Build, install dependencies, patch upstream, or lint     | [Toolchain](.agents/docs/toolchain.md)                                                                                                       |
 | Use shared hosts or create temporary host artifacts      | [Temporary host files](.agents/docs/host-artifacts.md)                                                                                       |
 | Investigate one case or add lasting test coverage        | [Probes and tests](.agents/docs/testing.md)                                                                                                  |
@@ -236,12 +238,9 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   the reader's path, reconcile canonical guidance, and run `bun run check:docs`
   and `bun run check:doc-examples`. Mechanical checks do not replace reviewing
   setup, API correctness, lifecycle, platform claims, and observable results.
-- When public APIs or documented behavior change, review the affected guidance
-  in [the Octane skill](.agents/skills/octane-xplat/SKILL.md), including its
-  references, examples, limitations, and links. Update stale information in the
-  same change. Add guidance when it changes an agent's decisions or prevents a
-  consequential mistake; preserve task-based progressive disclosure using the
-  [skill maintenance guidance](.agents/docs/documentation.md#octane-skill-maintenance).
+- When public APIs or documented behavior change, review the affected
+  contributor notes, public guides, and starter skill. Update stale guidance
+  in the same change using [guidance maintenance](.agents/docs/documentation.md#guidance-maintenance).
 - Log meaningful expectation mismatches in Silo's `feedback_observations` when
   they happen; keep reports local and preserve the original expectation. See
   [local feedback](.agents/docs/exploration.md#local-framework-feedback).

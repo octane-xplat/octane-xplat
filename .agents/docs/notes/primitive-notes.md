@@ -1,14 +1,14 @@
 # Primitive implementation constraints
 
 Use the [component guide](../../../docs/app/components.md) and
-[primitive skill reference](../../skills/octane-xplat/references/primitives.md)
+[primitive contributor guide](../guides/primitives.md)
 for supported APIs. This note carries implementation constraints that are easy
 to lose when changing the native driver. It does not duplicate the API inventory
 or retain superseded prop sketches.
 
 ## Driver semantics
 
-Read [driver semantics](../../skills/octane-xplat/references/primitives/driver-semantics.md)
+Read [driver semantics](../guides/primitives/driver-semantics.md)
 before changing parenting, slots, event aliases, or native prop writes. Text
 children require a text host; arbitrary layouts do not render bare text. Native
 props assign view properties, not DOM attributes. A prop write can echo an event;

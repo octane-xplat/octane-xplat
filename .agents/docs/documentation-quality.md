@@ -72,7 +72,7 @@ the wording diff. A docs-only correction has the same obligations for the
 claims and examples it changes.
 
 1. **Find the affected path.** Check the owning README, public guide, recipe,
-   maintained example, and relevant Octane skill reference. Inspect declarations,
+   maintained example, and relevant contributor or starter skill guidance. Inspect declarations,
    CLI help, configuration, and tests before changing technical claims.
 2. **Repair the canonical explanation.** Replace stale guidance in place.
    Update introductions and links that depend on it; avoid appending another

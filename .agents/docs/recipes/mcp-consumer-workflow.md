@@ -35,7 +35,7 @@ cleanup restricted to owned resources.
 - AC1: [Bound documentation](../../../docs/packages/package-mcp.md#retrieve-the-apps-documentation), [consumer lane](../mcp-verification.md#run-the-consumer-acceptance-lane)
 - AC2: [Runtime lifecycle](../../../docs/packages/package-mcp.md#build-run-and-stop-an-app), [bounded inspection](../../../docs/packages/package-mcp.md#inspect-and-interact-with-chromium)
 - AC3: [Input mechanisms](../../../docs/packages/package-mcp.md#inspect-and-interact-with-chromium), [OS journey](../mcp-verification.md#run-the-consumer-acceptance-lane)
-- AC4: [Declare, invoke, and assert an action](../../../docs/testing/development-actions.md), [agent authoring guidance](../../skills/octane-xplat/references/development-actions.md), [app action declaration](../../../docs/packages/package-mcp.md#declare-an-app-action), [consumer acceptance](../mcp-verification.md#run-the-consumer-acceptance-lane), [shared readiness](../../../docs/app/readiness.md), [maintained readiness example](../../../examples/dev-actions/readiness.tsrx), [maintained runners](../../../packages/mcp/tests/consumer-workflow.mts)
+- AC4: [Declare, invoke, and assert an action](../../../docs/testing/development-actions.md), [agent authoring guidance](../guides/development-actions.md), [app action declaration](../../../docs/packages/package-mcp.md#declare-an-app-action), [consumer acceptance](../mcp-verification.md#run-the-consumer-acceptance-lane), [shared readiness](../../../docs/app/readiness.md), [maintained readiness example](../../../examples/dev-actions/readiness.tsrx), [maintained runners](../../../packages/mcp/tests/consumer-workflow.mts)
 - AC5: [Capture gate](../../../docs/packages/package-mcp.md#inspect-and-interact-with-chromium), [cleanup](../../../docs/packages/package-mcp.md#build-run-and-stop-an-app)
 - AC6: [Platform support](../../../docs/packages/package-mcp.md#platform-support)
 - AC7: [Local search setup](../../../docs/packages/package-cli.md#local-documentation-search), [MCP documentation tools](../../../docs/packages/package-mcp.md#retrieve-the-apps-documentation), [deterministic retrieval tests](../../../packages/docs-search/tests/search.test.mts), [real-model smoke](../../../packages/docs-search/tests/model-smoke.mts), and [version-binding tests](../../../packages/cli/test/mcp-docs.test.mts). The model smoke is a separate local task, outside the PR gate.
@@ -48,7 +48,7 @@ the discovery/retrieval subset plus the web session journey — build, launch,
 session readiness/build-job polling, diagnostics, inspect, dom-event and os-input interaction,
 capture gating, dev-action discovery/invocation, and ownership-safe cleanup —
 through the installed `xplat` bin and its per-workspace runtime host.
-The [agent CLI skill guide](../../skills/octane-xplat/references/cli.md) teaches
+The [CLI workflow](../guides/cli-workflow.md) teaches
 that path using installed help/schema for command details: selection and
 version-bound retrieval (AC1), jobs/readiness/logs (AC2), inspection and state
 assertions (AC3), declared actions (AC4), and evidence/ownership-safe cleanup

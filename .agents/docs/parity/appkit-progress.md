@@ -16,8 +16,8 @@ a tracked run history.
 | Verify geometry, overlays, or packaged consumers | [AppKit verification](../appkit-verification.md) |
 | Change the JSC host or bridge | [Host constraints](../notes/macos-jsc-host.md), [native intrinsics](../notes/appkit-native-intrinsics.md) |
 | Change layout or foreign native leaves | [Mason evaluation and upstream limits](../notes/masonkit-layout-evaluation.md) |
-| Change component ownership or input | [Driver semantics](../../skills/octane-xplat/references/primitives/driver-semantics.md), [component guidance](../../skills/octane-xplat/references/primitives.md) |
-| Change platform service lifetime | [Service guidance](../../skills/octane-xplat/references/services.md) |
+| Change component ownership or input | [Driver semantics](../guides/primitives/driver-semantics.md), [component guidance](../guides/primitives.md) |
+| Change platform service lifetime | [Service guidance](../guides/services.md) |
 | Change routed panes or modal ownership | [Routing contracts](../notes/routing-contracts.md), [navigation checks](../navigation-checks.md) |
 | Assess export presence | [Dated desktop source audit](native-desktop-support.md) |
 | Assess test-harness failures | [Test-debt findings](appkit-test-debt.md) |
