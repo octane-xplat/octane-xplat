@@ -36,6 +36,7 @@ function Screen() {
       <actionbar id="child-bar" style={{ width: 220 }}>
         <label id="bar-child" text="Custom title" style={{ width: 120, height: 20 }} />
       </actionbar>
+      <masonview id="date-control-host" style={{ width: 150, height: 26 }} />
       <masonview id="paint" style={{ width: 40, height: 30 }} />
       <masonview id="flex-shorthand" style={{ flex: 1 }} />
       <scrollview id="viewport" style={{ width: 250, height: 80 }}>
@@ -102,6 +103,37 @@ async function checkEmbeddedCoreRoot() {
     root.unmount()
     if (content.subviews.count !== 0) {
       throw new Error('The embedded Core root remained attached after unmount')
+    }
+  }
+}
+
+function checkDesktopDatePicker() {
+  const target = host.getViewById('date-control-host')
+  const nativeHost = target.nativeViewProtected
+  const initial = Date.UTC(2026, 10, 20, 12)
+  const updated = Date.UTC(2026, 10, 25, 12)
+  let selection
+  const bridge = Reflect.get(globalThis, '__xplatAppKit')
+  const control = bridge.attachDatePicker(target, { selectionMillis: initial }, (date) => {
+    selection = date
+  })
+  if (!control) {
+    throw new Error('AppKit could not attach a date picker to a Core view')
+  }
+  const picker = nativeHost.subviews.objectAtIndex(0)
+  try {
+    if (!(picker instanceof NSDatePicker) || picker.dateValue.timeIntervalSince1970 * 1000 !== initial) {
+      throw new Error('The AppKit date control did not receive its initial value')
+    }
+    picker.dateValue = NSDate.dateWithTimeIntervalSince1970(updated / 1000)
+    NSApplication.sharedApplication.sendActionToFrom(picker.action, picker.target, picker)
+    if (selection !== updated) {
+      throw new Error('The Core-backed date picker did not dispatch its native action')
+    }
+  } finally {
+    control.detach()
+    if (picker.superview || picker.target) {
+      throw new Error('The native date picker stayed attached to the Core host')
     }
   }
 }
@@ -525,6 +557,7 @@ setTimeout(async () => {
     }
     await checkDesktopServices()
     checkShortcuts()
+    checkDesktopDatePicker()
     checkCorePaint()
     await checkLayoutNotifications()
     await checkEmbeddedCoreRoot()

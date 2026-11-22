@@ -91,6 +91,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['input-elements', 'notifySearchTextChange'],
   ['input-elements', 'syncSearchBar'],
   ['controls', 'makeSwitch'],
+  ['picker-control', 'buildPopUpControl'],
   ['picker-elements', 'makePopUpControl'],
   ['picker-elements', 'makeListPicker'],
   ['picker-elements', 'notifyListPickerChange'],
@@ -633,7 +634,7 @@ export function rendererSource(): string {
         )
       }
 
-      if (/^(?:(apply|dispose)Builtin|initializeTextViewport$|validateActionBarProps$)/.test(key)) {
+      if (/^(?:(apply|dispose)Builtin|initializeTextViewport$|validateActionBarProps$|buildPopUpControl$)/.test(key)) {
         builtinHelpers.set(key, text)
       }
 
