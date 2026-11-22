@@ -15,18 +15,21 @@ import {
     scaleYProperty,
     translateXProperty,
     translateYProperty,
+    visibilityProperty,
 } from '@nativescript/core/ui/styling/style-properties';
 import { layout, getWindow } from '@nativescript/core/utils';
 import { MacOSHelper } from '@nativescript/core/ui/core/view/view-helper';
 import { retireNativeScriptHostView } from '../../../../../../src/nativescript-host-services';
 import { paintNativeScriptBackground, paintNativeScriptTransform, disposeNativeScriptPaint } from '../../../../../../src/nativescript-paint.macos';
 import { notifyNativeScriptLayout } from '../../../../../../src/nativescript-roots.macos';
+import { createNativeScriptActionView, releaseNativeScriptActionView, setNativeScriptActionRole } from '../../../../../../src/nativescript-actions.macos';
 import { evalMediaQuery } from '@octane-xplat/css-engine';
 import { NSWorkspace } from '@octane-xplat/platform/macos';
 import {
     accessibilityHintProperty,
     accessibilityIdentifierProperty,
     accessibilityLabelProperty,
+    accessibilityRoleProperty,
 } from '@nativescript/core/accessibility/accessibility-properties';
 export * from '@nativescript/core/ui/core/view/view-common';
 export * from '@nativescript/core/ui/core/view/view-helper';
@@ -34,13 +37,6 @@ export * from '@nativescript/core/ui/core/properties';
 const PFLAG_FORCE_LAYOUT = 1;
 const PFLAG_MEASURED_DIMENSION_SET = 1 << 1;
 const PFLAG_LAYOUT_REQUIRED = 1 << 2;
-// Plain NSViews only — no JS method overrides: a JS isFlipped is an ffi
-// callback AppKit can reach from teardown paths running inside JSC's GC
-// sweep, where the marshal's allocation crashes. Core's top-down layout math
-// lands via manual Y inversion in _modifyNativeViewFrame instead.
-function flippedViewClass() {
-    return NSView;
-}
 // Bridge finalizers dealloc collected wrappers inside JSC's GC sweep; a
 // still-linked NSView's dealloc then cascades through removeFromSuperview →
 // visibleRect → a JS isFlipped override, which must allocate and crashes
@@ -105,6 +101,19 @@ export class View extends ViewCommon {
     [accessibilityIdentifierProperty.setNative](identifier) {
         this.nativeViewProtected.accessibilityIdentifier = identifier ?? null;
     }
+    [accessibilityRoleProperty.getDefault]() {
+        return this.nativeViewProtected.accessibilityRole;
+    }
+    [accessibilityRoleProperty.setNative](role) {
+        setNativeScriptActionRole(this.nativeViewProtected, role);
+    }
+    [visibilityProperty.getDefault]() {
+        return this.nativeViewProtected.hidden ? 'hidden' : 'visible';
+    }
+    [visibilityProperty.setNative](visibility) {
+        this.nativeViewProtected.hidden = visibility !== 'visible';
+        this.requestLayout();
+    }
     get ios() {
         return undefined;
     }
@@ -114,6 +123,7 @@ export class View extends ViewCommon {
     disposeNativeView() {
         const nativeView = this.nativeViewProtected;
         if (nativeView) {
+            releaseNativeScriptActionView(nativeView);
             retireNativeScriptHostView(nativeView);
             disposeNativeScriptPaint(nativeView);
             detachNativeViewTree(nativeView);
@@ -228,8 +238,7 @@ export class View extends ViewCommon {
     }
     onLayout(left, top, right, bottom) { }
     createNativeView() {
-        const Cls = flippedViewClass();
-        return Cls.alloc().initWithFrame(CGRectMake(0, 0, 0, 0));
+        return createNativeScriptActionView(this, CGRectMake(0, 0, 0, 0));
     }
     _modifyNativeViewFrame(nativeView, frame) {
         // Core gives the frame with top-left origin; unflipped NSViews expect
@@ -440,10 +449,9 @@ export class ContainerView extends View {
 }
 export class CustomLayoutView extends ContainerView {
     createNativeView() {
-        const Cls = flippedViewClass();
         const window = getWindow && getWindow();
         const frame = window ? window.contentView.frame : CGRectMake(0, 0, 0, 0);
-        return Cls.alloc().initWithFrame(frame);
+        return createNativeScriptActionView(this, frame);
     }
     get ios() {
         return undefined;

@@ -325,7 +325,7 @@ function masonOnLayout(view) {
             if (child.__masonHidden) {
                 child.__masonHidden = false;
                 if (nv) {
-                    nv.hidden = false;
+                    nv.hidden = child.style?.visibility === 'hidden';
                 }
             }
             // The mason box is the alignment rect — controls whose NSView frame

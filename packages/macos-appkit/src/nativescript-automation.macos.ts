@@ -1,14 +1,5 @@
+import { Button, eachDescendant, Label, TextField, TextView, View } from '@nativescript/core'
 import {
-  Button,
-  eachDescendant,
-  GestureTypes,
-  Label,
-  TextField,
-  TextView,
-  View,
-} from '@nativescript/core'
-import {
-  NSButton,
   NSControlTextDidChangeNotification,
   NSNotification,
   NSScrollView,
@@ -17,45 +8,9 @@ import {
   NSTextView,
 } from '@octane-xplat/platform/macos'
 import type { UniversalRoot } from 'octane/universal/native'
+import { activateNativeScriptView } from './nativescript-actions.macos'
 import { appKitAutomationEnabled, publishAppKitAutomation } from './automation-root'
 import { trackedNativeScriptRoots } from './nativescript-roots.macos'
-
-function activate(view: View): boolean {
-  if (!view.isEnabled || !view.isUserInteractionEnabled) {
-    return false
-  }
-
-  const native = view.nativeViewProtected
-  if (native instanceof NSButton) {
-    native.performClick(null)
-    return true
-  }
-
-  const observers = view.getGestureObservers(GestureTypes.tap) ?? []
-  const observesEvent = view.hasListeners('tap')
-  if (!observers.length && !observesEvent) {
-    return false
-  }
-
-  const event = {
-    type: GestureTypes.tap,
-    eventName: 'tap',
-    object: view,
-    view,
-    ios: undefined,
-    android: undefined,
-    getPointerCount: () => 0,
-    getX: () => 0,
-    getY: () => 0,
-  }
-  if (observesEvent) {
-    view.notify(event)
-  }
-  for (const observer of [...observers]) {
-    observer.callback?.call(observer.context, event)
-  }
-  return true
-}
 
 /** Core-backed view lookup and control dispatch for the Mac probe runner. */
 export function installNativeScriptAutomation(root: UniversalRoot): void {
@@ -86,7 +41,7 @@ export function installNativeScriptAutomation(root: UniversalRoot): void {
     },
     pressId(id: string) {
       const view = find(id)
-      if (!view || !activate(view)) {
+      if (!view || !activateNativeScriptView(view)) {
         throw new Error('No AppKit pressable with id ' + id)
       }
     },
@@ -94,7 +49,7 @@ export function installNativeScriptAutomation(root: UniversalRoot): void {
       const view = views().find(
         (candidate) => candidate instanceof Button && candidate.text === title,
       )
-      if (!view || !activate(view)) {
+      if (!view || !activateNativeScriptView(view)) {
         throw new Error('No AppKit button titled ' + title)
       }
     },
