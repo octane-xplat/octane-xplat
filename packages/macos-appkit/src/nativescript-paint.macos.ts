@@ -1,4 +1,4 @@
-import type { Color } from '@nativescript/core'
+import type { Color, Style } from '@nativescript/core'
 import type { Background } from '@nativescript/core/ui/styling/background-common'
 import { layout } from '@nativescript/core/utils'
 import { CATransaction, type CALayer } from '@octane-xplat/platform/macos'
@@ -11,7 +11,9 @@ import { setProjectionScale, type ProjectionScale } from './projection-paint'
 interface CoreBoxPaint {
   node: BoxPaintNode
   style: PropBag
-  background: Background | undefined
+  backgroundStyle: PropBag
+  transformStyle: PropBag
+  background?: Background
   solid?: {
     layer: CALayer
     original: CALayer['backgroundColor']
@@ -68,27 +70,40 @@ function boxStyle(background: Background): PropBag {
   return style
 }
 
+function acquirePaint(view: AppKitView): CoreBoxPaint {
+  const existing = views.get(view)
+  if (existing) {
+    return existing
+  }
+  const state = { node: { view, props: {} }, style: {}, backgroundStyle: {}, transformStyle: {} }
+  views.set(view, state)
+  return state
+}
+
+function applyStyle(state: CoreBoxPaint) {
+  const style = { ...state.backgroundStyle, ...state.transformStyle }
+  state.node.appliedStyle = style
+  state.node.computedStyle = style
+  paint.applyBoxStyle(state.node, state.style, style)
+  state.style = style
+}
+
 /** Apply resolved Core box properties through the AppKit paint coordinator. */
 export function paintNativeScriptBackground(view: AppKitView | null, background: Background) {
   if (!view) {
     return
   }
-  let state = views.get(view)
-  if (state?.background === background) {
+  const existing = views.get(view)
+  if (existing?.background === background) {
     return
   }
   const style = boxStyle(background)
-  if (!state) {
-    if (!background.color && !Object.keys(style).length) {
-      return
-    }
-    state = { node: { view, props: {} }, style: {}, background: undefined }
-    views.set(view, state)
+  if (!existing && !background.color && !Object.keys(style).length) {
+    return
   }
-  const previous = state.style
-  state.node.appliedStyle = style
-  state.node.computedStyle = style
-  paint.applyBoxStyle(state.node, previous, style)
+  const state = acquirePaint(view)
+  state.backgroundStyle = style
+  applyStyle(state)
 
   if (background.color) {
     view.wantsLayer = true
@@ -102,8 +117,40 @@ export function paintNativeScriptBackground(view: AppKitView | null, background:
     state.solid = undefined
     layer.backgroundColor = original
   }
-  state.style = style
   state.background = background
+}
+
+function translateInPoints(value: Style['translateX']) {
+  if (typeof value !== 'object' || value.unit === '%') {
+    return value
+  }
+  return value.unit === 'px' ? layout.toDeviceIndependentPixels(value.value) : value.value
+}
+
+/** Share the AppKit painter's transform order and coordinate conversion. */
+export function paintNativeScriptTransform(view: AppKitView | null, style: Style) {
+  if (!view) {
+    return
+  }
+  const { rotate, rotateX, rotateY, translateX, translateY, scaleX, scaleY } = style
+  const next: PropBag = {}
+  if (rotate || rotateX || rotateY || translateX || translateY || scaleX !== 1 || scaleY !== 1) {
+    Object.assign(next, {
+      rotate, rotateX, rotateY, scaleX, scaleY, perspective: style.perspective,
+      translateX: translateInPoints(translateX), translateY: translateInPoints(translateY),
+    })
+  } else if (!views.has(view)) {
+    return
+  }
+  const state = acquirePaint(view)
+  state.transformStyle = next
+  CATransaction.begin()
+  try {
+    CATransaction.setDisableActions(true)
+    applyStyle(state)
+  } finally {
+    CATransaction.commit()
+  }
 }
 
 export function syncNativeScriptProjection(view: AppKitView, scale: ProjectionScale | null) {

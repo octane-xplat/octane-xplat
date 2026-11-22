@@ -103,7 +103,8 @@ function checkEmbeddedCoreRoot() {
 }
 
 function checkCorePaint() {
-  const view = host.getViewById('paint').nativeViewProtected
+  const coreView = host.getViewById('paint')
+  const view = coreView.nativeViewProtected
   registerStylesheet('paint', '#paint { background-color: #ff0000; border-width: 2; border-color: #0000ff; border-radius: 8; }')
   const color = NSColor.colorWithCGColor(view.layer.backgroundColor)
   if (color.redComponent < 0.9 || view.layer.cornerRadius !== 8 || view.layer.borderWidth !== 2) {
@@ -124,6 +125,18 @@ function checkCorePaint() {
   const gradient = backgroundLayer?.sublayers?.objectAtIndex(0)
   if (!(gradient instanceof CAGradientLayer) || gradient.colors.count !== 2) {
     throw new Error('The Core gradient did not reach the shared AppKit background painter')
+  }
+  coreView.translateX = 12
+  coreView.translateY = 7
+  coreView.opacity = 0.5
+  if (view.layer.transform.m41 !== 12 || view.layer.transform.m42 !== -7 || view.alphaValue !== 0.5) {
+    throw new Error('Core transform and opacity did not reach the AppKit layer')
+  }
+  coreView.translateX = 0
+  coreView.translateY = 0
+  coreView.opacity = 1
+  if (view.layer.transform.m41 || view.layer.transform.m42 || view.alphaValue !== 1) {
+    throw new Error('Resetting Core transform and opacity did not clear the AppKit layer')
   }
   registerStylesheet('paint', '')
   if (view.layer.backgroundColor || view.layer.cornerRadius || view.layer.borderWidth || backgroundLayer.superlayer) {

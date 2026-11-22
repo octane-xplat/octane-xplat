@@ -4,11 +4,22 @@
 // accessibility notifications) removed for the spike.
 import { ViewCommon } from '@nativescript/core/ui/core/view/view-common';
 import { Trace } from '@nativescript/core/trace';
-import { backgroundInternalProperty } from '@nativescript/core/ui/styling/style-properties';
+import {
+    backgroundInternalProperty,
+    opacityProperty,
+    perspectiveProperty,
+    rotateProperty,
+    rotateXProperty,
+    rotateYProperty,
+    scaleXProperty,
+    scaleYProperty,
+    translateXProperty,
+    translateYProperty,
+} from '@nativescript/core/ui/styling/style-properties';
 import { layout, getWindow } from '@nativescript/core/utils';
 import { MacOSHelper } from '@nativescript/core/ui/core/view/view-helper';
 import { retireNativeScriptHostView } from '../../../../../../src/nativescript-host-services';
-import { paintNativeScriptBackground, disposeNativeScriptPaint } from '../../../../../../src/nativescript-paint.macos';
+import { paintNativeScriptBackground, paintNativeScriptTransform, disposeNativeScriptPaint } from '../../../../../../src/nativescript-paint.macos';
 import { notifyNativeScriptLayout } from '../../../../../../src/nativescript-roots.macos';
 import { evalMediaQuery } from '@octane-xplat/css-engine';
 import { NSWorkspace } from '@octane-xplat/platform/macos';
@@ -391,6 +402,23 @@ export class View extends ViewCommon {
                 {view.layer.masksToBounds = true;}
         }
     }
+    [opacityProperty.getDefault]() {
+        return this.nativeViewProtected.alphaValue;
+    }
+    [opacityProperty.setNative](opacity) {
+        this.nativeViewProtected.alphaValue = opacity;
+    }
+    _applyNativeTransform() {
+        paintNativeScriptTransform(this.nativeViewProtected, this.style);
+    }
+    [rotateProperty.setNative]() { this._applyNativeTransform(); }
+    [rotateXProperty.setNative]() { this._applyNativeTransform(); }
+    [rotateYProperty.setNative]() { this._applyNativeTransform(); }
+    [scaleXProperty.setNative]() { this._applyNativeTransform(); }
+    [scaleYProperty.setNative]() { this._applyNativeTransform(); }
+    [translateXProperty.setNative]() { this._applyNativeTransform(); }
+    [translateYProperty.setNative]() { this._applyNativeTransform(); }
+    [perspectiveProperty.setNative]() { this._applyNativeTransform(); }
     [backgroundInternalProperty.setNative](background) {
         this._redrawNativeBackground(background);
     }
