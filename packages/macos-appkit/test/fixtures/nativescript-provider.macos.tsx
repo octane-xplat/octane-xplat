@@ -21,6 +21,7 @@ import { useInteractionHost } from '../../../ui/src/gestures/host-core.macos'
 import './nativescript-provider.css'
 
 let automationButtonPresses = 0
+const editorEvents: string[] = []
 
 function Screen() {
   return (
@@ -32,7 +33,13 @@ function Screen() {
         accessibilityHint="Core provider fixture"
         className="provider-title"
       />
-      <textfield id="editor" hint="Provider editor" />
+      <textfield
+        id="editor"
+        hint="Provider editor"
+        onFocus={() => editorEvents.push('focus')}
+        onBlur={() => editorEvents.push('blur')}
+        onReturnPress={() => editorEvents.push('submit')}
+      />
       <textview id="notes" hint="Notes" style={{ width: 160, height: 40 }} />
       <button text="Core automation" onTap={() => automationButtonPresses++} />
       <liquidglass id="glass" style={{ width: 160, height: 48 }}>
@@ -723,6 +730,33 @@ setTimeout(async () => {
       throw new Error('Core automation did not update the native editor and its Core model')
     }
     const field = host.getViewById('editor')
+    if (!field.focus() || !editor.currentEditor()) {
+      throw new Error('The Core field did not begin native editing')
+    }
+    editor.currentEditor().selectedRange = { location: 2, length: 3 }
+    field.secure = true
+    if (
+      field.nativeViewProtected !== editor ||
+      !(editor.cell instanceof NSSecureTextFieldCell) ||
+      editor.placeholderString !== 'Provider editor' ||
+      editor.stringValue !== 'Typed by automation' ||
+      editor.currentEditor()?.selectedRange.location !== 2 ||
+      editor.currentEditor()?.selectedRange.length !== 3
+    ) {
+      throw new Error('Secure entry changed the Core field, value, hint, focus, or selection')
+    }
+    field.secure = false
+    if (editor.cell instanceof NSSecureTextFieldCell || !editor.currentEditor()) {
+      throw new Error('Disabling secure entry did not restore an ordinary editing cell')
+    }
+    if (!editor.target.respondsToSelector(editor.action)) {
+      throw new Error('The native Core field submit selector was not installed')
+    }
+    NSApplication.sharedApplication.sendActionToFrom(editor.action, editor.target, editor)
+    field.dismissSoftInput()
+    if (editorEvents.join(',') !== 'focus,submit,blur') {
+      throw new Error('Unexpected native field lifecycle: ' + editorEvents.join(','))
+    }
     field.editable = false
     field.isEnabled = false
     if (editor.enabled || editor.editable || field.focus()) {

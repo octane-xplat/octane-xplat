@@ -1,4 +1,5 @@
 import { rendererSource } from './renderer-source.ts'
+import { swapTextFieldCell } from '../src/text-field-cell.ts'
 import {
   disposeTextValue,
   isWritingTextValue,
@@ -44,6 +45,7 @@ function load() {
     isWritingTextValue,
     notifyTextValueCommit,
     setTextValue,
+    swapTextFieldCell,
     textNodesByView: nodes,
     actionIdsByView: new WeakMap(),
     actionHandlers: new Map(),
