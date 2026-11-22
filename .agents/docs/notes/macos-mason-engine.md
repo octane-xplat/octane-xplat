@@ -117,3 +117,18 @@ earlier ancestor pass in the same drain has already refreshed — rather than
 the live AppKit bounds. Bounding by stale bounds clamps a grown child back
 to the old allocation and deadlocks growth: the `maxRows` textarea stayed at
 its two-row height until both sides of this were fixed.
+
+## NativeScript Core flex shorthand
+
+NativeScript Core 9.1.3 expands `flex` into grow and shrink only. Its
+`flexbox-layout-common.js` leaves the basis handling commented out. In
+the Core-backed AppKit layout fixture, `flex: 1 1 0%` sized the scroll
+viewport from its 960-point content and shrank the panel's header and
+footer. The scroll viewport used 713.54 points of an expected 693.
+
+The pinned Core patch lets a provider opt in to expanding the basis
+into its registered `flexBasis` style property. macOS enables it for
+Mason. The maintained layout-placement fixture passes for both absolute
+and grid panel layouts, including repeated solves after window resize.
+Keep the opt-in until Core can forward the basis to external layout
+engines.

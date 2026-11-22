@@ -433,12 +433,12 @@ export function ensureMasonStyleProperties() {
         if (existing.has(name)) {
             continue;
         }
-        // No defaultValue: an unset key must read as unset (auto) so the
-        // engine's own default applies, and `display:block`-style writes still
-        // register (mason-core makes the same choice for `display`).
+        // Keep the engine's defaults. A cleared flex basis forwards an
+        // explicit reset to foreign leaves that previously had a basis.
         new CssProperty({
             name,
             cssName,
+            defaultValue: name === 'flexBasis' ? 'auto' : undefined,
             affectsLayout: globalThis.__NS_CAP__?.propertyChangesRequestLayout === true,
         }).register(CoreStyle);
     }

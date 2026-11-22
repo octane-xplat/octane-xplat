@@ -30,6 +30,7 @@ const platform = {
   capabilities: {
     propertyChangesRequestLayout: true,
     textChangeAffectsLayout: true,
+    flexBasisShorthand: true,
   },
 }
 

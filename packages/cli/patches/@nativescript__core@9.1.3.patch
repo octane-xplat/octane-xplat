@@ -387,10 +387,18 @@ index ef5209d97b83fadf0da672fc2677faa1d56199b6..b2eac9a30234e05ca859c0f664b77ca4
  export { Builder } from './builder';
  export type { LoadOptions } from './builder';
 diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
-index 54a037138b909446c71da47eb1cd682d5286fb18..d656547115618fa20eaafbd07e8c9f87835066ae 100644
+index 54a037138b909446c71da47eb1cd682d5286fb18..1749104aceddf3cb43ad238b1d7eb4945eaa3bec 100644
 --- a/ui/layouts/flexbox-layout/flexbox-layout-common.js
 +++ b/ui/layouts/flexbox-layout/flexbox-layout-common.js
-@@ -193,7 +193,21 @@ let FlexboxLayoutBase = class FlexboxLayoutBase extends LayoutBase {
+@@ -1,6 +1,6 @@
+ import { LayoutBase } from '../layout-base';
+ import { View, CSSType } from '../../core/view';
+-import { CssProperty, ShorthandProperty, makeParser, makeValidator } from '../../core/properties';
++import { CssProperty, ShorthandProperty, _getStyleProperties, makeParser, makeValidator } from '../../core/properties';
+ import { unsetValue } from '../../core/properties/property-shared';
+ import { Style } from '../../styling/style';
+ export const ORDER_DEFAULT = 1;
+@@ -193,7 +193,21 @@
          validateArgs(view).style.alignSelf = align;
      }
      static getAlignSelf(view) {
@@ -413,7 +421,7 @@ index 54a037138b909446c71da47eb1cd682d5286fb18..d656547115618fa20eaafbd07e8c9f87
      }
      static setFlexWrapBefore(view, wrap) {
          validateArgs(view).style.flexWrapBefore = wrap;
-@@ -211,7 +225,7 @@ export const flexDirectionProperty = new CssProperty({
+@@ -211,7 +225,7 @@
      name: 'flexDirection',
      cssName: 'flex-direction',
      defaultValue: FlexDirection.ROW,
@@ -422,7 +430,7 @@ index 54a037138b909446c71da47eb1cd682d5286fb18..d656547115618fa20eaafbd07e8c9f87
      valueConverter: FlexDirection.parse,
  });
  flexDirectionProperty.register(Style);
-@@ -219,7 +233,7 @@ export const flexWrapProperty = new CssProperty({
+@@ -219,7 +233,7 @@
      name: 'flexWrap',
      cssName: 'flex-wrap',
      defaultValue: 'nowrap',
@@ -431,7 +439,7 @@ index 54a037138b909446c71da47eb1cd682d5286fb18..d656547115618fa20eaafbd07e8c9f87
      valueConverter: FlexWrap.parse,
  });
  flexWrapProperty.register(Style);
-@@ -227,7 +241,7 @@ export const justifyContentProperty = new CssProperty({
+@@ -227,7 +241,7 @@
      name: 'justifyContent',
      cssName: 'justify-content',
      defaultValue: JustifyContent.FLEX_START,
@@ -440,7 +448,7 @@ index 54a037138b909446c71da47eb1cd682d5286fb18..d656547115618fa20eaafbd07e8c9f87
      valueConverter: JustifyContent.parse,
  });
  justifyContentProperty.register(Style);
-@@ -235,7 +249,7 @@ export const alignItemsProperty = new CssProperty({
+@@ -235,7 +249,7 @@
      name: 'alignItems',
      cssName: 'align-items',
      defaultValue: AlignItems.STRETCH,
@@ -449,7 +457,7 @@ index 54a037138b909446c71da47eb1cd682d5286fb18..d656547115618fa20eaafbd07e8c9f87
      valueConverter: AlignItems.parse,
  });
  alignItemsProperty.register(Style);
-@@ -243,7 +257,7 @@ export const alignContentProperty = new CssProperty({
+@@ -243,7 +257,7 @@
      name: 'alignContent',
      cssName: 'align-content',
      defaultValue: AlignContent.STRETCH,
@@ -458,6 +466,58 @@ index 54a037138b909446c71da47eb1cd682d5286fb18..d656547115618fa20eaafbd07e8c9f87
      valueConverter: AlignContent.parse,
  });
  alignContentProperty.register(Style);
+@@ -361,6 +375,38 @@
+     },
+ });
+ flexFlowProperty.register(Style);
++// A provider can register flex-basis for its layout engine. Resolve it when
++// converting values so the provider can register it after loading Core.
++function expandFlexWithBasis(value, basisProperty) {
++    if (value === unsetValue) {
++        return [[flexGrowProperty, value], [flexShrinkProperty, value], [basisProperty, value]];
++    }
++    const text = value?.trim().toLowerCase();
++    if (text === 'none') {
++        return [[flexGrowProperty, 0], [flexShrinkProperty, 0], [basisProperty, 'auto']];
++    }
++    if (text === 'auto') {
++        return [[flexGrowProperty, 1], [flexShrinkProperty, 1], [basisProperty, 'auto']];
++    }
++    if (!text) {
++        return [];
++    }
++    const values = text.split(/\s+/);
++    const factors = [];
++    let basis;
++    for (const part of values) {
++        if (/^\+?(?:\d+(?:\.\d*)?|\.\d+)$/.test(part) && factors.length < 2) {
++            factors.push(Number(part));
++        }
++        else if (basis === undefined && (part === 'auto' || /^(?:\d+(?:\.\d*)?|\.\d+)(?:%|px|dip)$/.test(part) || part === '0')) {
++            basis = part;
++        }
++        else {
++            return [];
++        }
++    }
++    return [[flexGrowProperty, factors[0] ?? 1], [flexShrinkProperty, factors[1] ?? 1], [basisProperty, basis ?? '0%']];
++}
+ // flex: inital | auto | none | <flex-grow> <flex-shrink> || <flex-basis>
+ const flexProperty = new ShorthandProperty({
+     name: 'flex',
+@@ -369,6 +415,12 @@
+         return `${this.flexGrow} ${this.flexShrink}`;
+     },
+     converter: function (value) {
++        if (typeof __NS_CAP__ !== 'undefined' && __NS_CAP__.flexBasisShorthand) {
++            const basisProperty = _getStyleProperties().find((property) => property.name === 'flexBasis');
++            if (basisProperty) {
++                return expandFlexWithBasis(value, basisProperty);
++            }
++        }
+         const properties = [];
+         if (value === unsetValue) {
+             properties.push([flexGrowProperty, value]);
 diff --git a/ui/layouts/flexbox-layout/index.android.js b/ui/layouts/flexbox-layout/index.android.js
 index ed354fddfe1caf982e73b603798cb8f5bf0d3501..7191092e40ba07c3dc3e6555059dbda028418d9c 100644
 --- a/ui/layouts/flexbox-layout/index.android.js
