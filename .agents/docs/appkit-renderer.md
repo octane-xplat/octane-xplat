@@ -42,6 +42,8 @@ The candidate uses the AppKit menu action store, keyboard dispatcher and
 secondary-window lifecycle. Retire a Core view's keyboard leases before
 detaching its native view. Each host installs the window root factory when it
 starts. Window sizing and close behavior stay in `host-windowing.ts`.
+Core mounts its main root inside the AppKit host's pinned content view.
+Replacing the root keeps the existing window, delegate, and size pins.
 When compiling Core-backed components, select `host-core.macos.tsx` for
 the UI interaction host. It waits for the Core view to load and uses AppKit's
 mouse contact stream. AppKit retains its normal wheel scrolling.
@@ -52,6 +54,8 @@ Core bundles load CSS through its tagged stylesheet registry. The CLI's
 NativeScript stylesheet destination replaces the previous bundle's rules,
 including when the new bundle contains no styles. Core font changes use
 the shared AppKit font resolver.
+The Core stylesheet destination preserves the authored min/max media
+syntax because Core 9.1.3 cannot parse the minifier's range syntax.
 The development shell owns Core, the driver, and the Octane runtime. Mark
 the modules in `nativescript-dev-imports.ts` external in app rebuilds and
 install the shell's module table before evaluating the first app bundle.

@@ -1,3 +1,9 @@
 .provider-title {
-  font-size: 23px;
+  font-size: 16px;
+}
+
+@media (max-width: 100000px) {
+  .provider-title {
+    font-size: 23px;
+  }
 }

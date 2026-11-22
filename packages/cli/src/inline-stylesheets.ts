@@ -20,6 +20,13 @@ export function inlineStylesheets(destination: 'css-engine' | 'nativescript' = '
 
   return {
     name: 'xplat-inline-stylesheets',
+    config() {
+      if (destination === 'nativescript') {
+        // The Vite CSS minifier rewrites min/max-width into range syntax.
+        // Core 9.1.3's media-query parser only accepts the older form.
+        return { build: { cssMinify: false } }
+      }
+    },
     // Per-file processing — identical to mobile: xplat-web-only strip,
     // cascade layers retained, px→dip, letter-spacing em strip, divergence warns.
     transform: {
