@@ -145,6 +145,66 @@ function SizingArea({ value, maxRows, control }) {
   )
 }
 
+function BuilderControls() {
+  return (
+    <masonview style={{ width: 240, height: 200, display: 'flex', flexDirection: 'column' }}>
+      <listview
+        id="xml-list"
+        items={['Native row']}
+        itemTemplate={'<MasonView><Label text="{{ $value }}"/></MasonView>'}
+        style={{ width: 160, height: 80 }}
+      />
+      <timepicker id="string-time" time="09:35:10" />
+      <segmentedbar id="array-segments" items={[{ title: 'First' }, { title: 'Second' }]} />
+      <segmentedbar id="child-segments">
+        <segmentedbaritem title="One" />
+        <segmentedbaritem title="Two" />
+      </segmentedbar>
+    </masonview>
+  )
+}
+
+async function checkBuilderControls() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    let rejected = false
+    try {
+      createMacOSRoot(window.contentView)
+    } catch (error) {
+      rejected = /already hosts a Core root/.test(String(error))
+    }
+    if (!rejected) {
+      throw new Error('Core admitted a duplicate AppKit layout host')
+    }
+    root.render(BuilderControls, {})
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const debug = Reflect.get(root, '__macosDebug')
+    const table = debug.findId('xml-list').documentView
+    const row = table.viewAtColumnRowMakeIfNecessary(0, 0, true)
+    const label = row?.subviews.firstObject?.subviews.firstObject
+    if (label?.stringValue !== 'Native row') {
+      throw new Error('The ListView XML template did not bind its Mason row: ' + label?.stringValue)
+    }
+    const dateValue = debug.findId('string-time').dateValue
+    const time = new Date(dateValue.timeIntervalSince1970 * 1000)
+    if (time.getHours() !== 9 || time.getMinutes() !== 35) {
+      throw new Error('The AppKit time picker did not display the authored time')
+    }
+    const array = debug.findId('array-segments')
+    const children = debug.findId('child-segments')
+    if (array.segmentCount !== 2 || array.labelForSegment(1) !== 'Second' ||
+      children.segmentCount !== 2 || children.labelForSegment(1) !== 'Two') {
+      throw new Error('The AppKit segmented controls lost their item order')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 async function checkSharedTextAreaSizing() {
   const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
     NSMakeRect(0, 0, 250, 250), 1, 2, false,
@@ -634,7 +694,11 @@ function checkActionBar() {
   }
   const box = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 80, 24))
   bar.titleView = box
-  if (box.superview !== native || bar.getMasonIntrinsicSize().width !== 80) {
+  if (
+    box.superview !== native ||
+    native.intrinsicContentSize.width !== 80 ||
+    native.intrinsicContentSize.height !== 44
+  ) {
     throw new Error('ActionBar did not measure an AppKit title with an explicit frame')
   }
   let rejected = false
@@ -893,6 +957,7 @@ setTimeout(async () => {
     await checkLayoutNotifications()
     await checkEmbeddedCoreRoot()
     await checkSharedTextAreaSizing()
+    await checkBuilderControls()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

@@ -9,16 +9,29 @@
 // subclasses anywhere in this file.
 import { ListViewBase, itemsProperty, itemTemplatesProperty, rowHeightProperty, separatorColorProperty, } from '@nativescript/core/ui/list-view/list-view-common';
 import { View } from '@nativescript/core/ui/core/view';
+import { Builder } from '@nativescript/core/ui/builder';
+import * as coreUI from '@nativescript/core';
 import { ProxyViewContainer, StackLayout } from '@nativescript/core';
 import { layout } from '@nativescript/core/utils';
 import { Color } from '@nativescript/core/color';
 import { isFunction } from '@nativescript/core/utils/types';
+import { View as MasonView } from '../../../mason/index';
 export * from '@nativescript/core/ui/list-view/list-view-common';
 const ITEMLOADING = ListViewBase.itemLoadingEvent;
 const ITEMTAP = ListViewBase.itemTapEvent;
 const LOADMORE = ListViewBase.loadMoreItemsEvent;
 const CELL_ID = 'ListViewCell';
 const DEFAULT_ROW_HEIGHT = 44;
+let builderRegistered = false;
+
+function registerBuilderElements() {
+    if (!builderRegistered) {
+        // The standalone JSC bundle has no NativeScript Vite module table.
+        // Keep XML templates on the same Core classes as the JSX driver.
+        globalThis.registerModule('@nativescript/core/ui', () => ({ ...coreUI, MasonView }));
+        builderRegistered = true;
+    }
+}
 // NSObject.extend (not class + NativeClass): the bridge's ClassBuilder
 // registers verbatim selectors from `exposedMethods`, and `protocols` is
 // required — AppKit validates the data source's protocol conformance before
@@ -91,17 +104,46 @@ export class ListView extends ListViewBase {
     _heightCache = new Map();
     _measureCells = new Map();
     _widthMeasureSpec = 0;
+    _preparedTemplate;
     constructor() {
         super();
-        // Upstream's template gate keys on __UI_USE_EXTERNAL_RENDERER__; the
-        // host defines it false, while the driver's renderItem path passes a
-        // function itemTemplate — call it directly.
-        const upstream = this._defaultTemplate.createView;
+        // The JSX driver supplies a function, while Core Builder uses XML.
         this._defaultTemplate = {
             key: 'default',
-            createView: () => (isFunction(this.itemTemplate) ? this.itemTemplate() : upstream.call(this)),
+            createView: () => {
+                const template = this.itemTemplate;
+                if (isFunction(template)) {
+                    return template();
+                }
+                if (template) {
+                    const prepared = this._preparedTemplate;
+                    this._preparedTemplate = undefined;
+                    return prepared ?? Builder.parse(template, this);
+                }
+            },
         };
         this._itemTemplatesInternal = [this._defaultTemplate];
+    }
+    get itemTemplate() {
+        return super.itemTemplate;
+    }
+    set itemTemplate(template) {
+        if (template === super.itemTemplate) {
+            return;
+        }
+        let prepared;
+        if (typeof template === 'string' && template) {
+            registerBuilderElements();
+            try {
+                // Reject malformed templates while setting the property,
+                // before AppKit can call into JS to ask for a row's height.
+                prepared = Builder.parse(template, this);
+            } catch (error) {
+                throw new TypeError('Invalid AppKit ListView itemTemplate', { cause: error });
+            }
+        }
+        this._preparedTemplate = prepared;
+        super.itemTemplate = template;
     }
     get ios() {
         return undefined;

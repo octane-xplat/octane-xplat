@@ -2,6 +2,15 @@ export * from '@nativescript/core/ui/action-bar/action-bar-common';
 import { ActionBarBase, ActionItemBase, flatProperty } from '@nativescript/core/ui/action-bar/action-bar-common';
 import { View } from '@nativescript/core/ui/core/view';
 import { layout } from '@nativescript/core/utils';
+import { registerGestureClass } from '../../../../../src/gestures';
+
+class ActionBarHost extends NSView {
+    get intrinsicContentSize() {
+        const size = this._owner?.deref()?.getMasonIntrinsicSize();
+        return size ? NSMakeSize(size.width, size.height) : super.intrinsicContentSize;
+    }
+}
+registerGestureClass(ActionBarHost);
 
 class NativeTitleView extends View {
     constructor(view) {
@@ -52,8 +61,13 @@ export class ActionBar extends ActionBarBase {
         super.titleView = value;
     }
 
+    createNativeView() {
+        return ActionBarHost.alloc().initWithFrame(CGRectMake(0, 0, 0, 0));
+    }
+
     initNativeView() {
         super.initNativeView();
+        this.nativeViewProtected._owner = new WeakRef(this);
         this._label = NSTextField.labelWithString('');
         this._label.alignment = 2; // NSTextAlignmentCenter
         this[flatProperty.setNative](this.flat);
@@ -66,6 +80,7 @@ export class ActionBar extends ActionBarBase {
         }
         finally {
             this._label = undefined;
+            this.nativeViewProtected._owner = undefined;
             super.disposeNativeView();
         }
     }
@@ -95,6 +110,7 @@ export class ActionBar extends ActionBarBase {
                 this.nativeViewProtected.addSubview(label);
             }
         }
+        this.nativeViewProtected.invalidateIntrinsicContentSize();
         this.requestLayout();
     }
 

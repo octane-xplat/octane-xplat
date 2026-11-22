@@ -28,6 +28,34 @@ export class SegmentedBarItem extends SegmentedBarItemBase {
 export class SegmentedBar extends SegmentedBarBase {
     nativeViewProtected;
     _target;
+    get items() {
+        return super.items;
+    }
+    set items(items) {
+        super.items = Array.isArray(items) ? items.map((item) => {
+            if (item instanceof SegmentedBarItemBase) {
+                return item;
+            }
+            const segment = new SegmentedBarItem();
+            segment.title = item?.title;
+            return segment;
+        }) : items;
+        selectedIndexProperty.coerce(this);
+    }
+    getChildrenCount() {
+        return this.items?.length ?? 0;
+    }
+    insertChild(item, index) {
+        if (!(item instanceof SegmentedBarItemBase)) {
+            throw new TypeError('AppKit segmentedbar can only host segmentedbaritem children');
+        }
+        const items = [...(this.items ?? [])];
+        items.splice(index, 0, item);
+        this.items = items;
+    }
+    removeChild(item) {
+        this.items = (this.items ?? []).filter((child) => child !== item);
+    }
     createNativeView() {
         const control = NSSegmentedControl.segmentedControlWithLabelsTrackingModeTargetAction([], 0 /* NSSegmentSwitchTrackingSelectOne */, null, null);
         return control;
@@ -67,6 +95,7 @@ export class SegmentedBar extends SegmentedBarBase {
         if (this.selectedIndex >= 0 && this.selectedIndex < count) {
             nv.selectedSegment = this.selectedIndex;
         }
+        this.requestLayout();
     }
     [itemsProperty.getDefault]() {
         return null;
@@ -86,9 +115,10 @@ export class SegmentedBar extends SegmentedBarBase {
     onMeasure(widthMeasureSpec, heightMeasureSpec) {
         const nv = this.nativeViewProtected;
         if (nv) {
-            const width = layout.getMeasureSpecSize(widthMeasureSpec);
             const fit = nv.fittingSize;
-            this.setMeasuredDimension(width, Math.max(fit.height || 22, 22));
+            const width = View.resolveSizeAndState(layout.toDevicePixels(fit.width), layout.getMeasureSpecSize(widthMeasureSpec), layout.getMeasureSpecMode(widthMeasureSpec), 0);
+            const height = View.resolveSizeAndState(layout.toDevicePixels(Math.max(fit.height || 22, 22)), layout.getMeasureSpecSize(heightMeasureSpec), layout.getMeasureSpecMode(heightMeasureSpec), 0);
+            this.setMeasuredDimension(width, height);
         }
     }
 }

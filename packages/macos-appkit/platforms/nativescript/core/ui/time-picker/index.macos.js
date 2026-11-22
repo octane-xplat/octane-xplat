@@ -2,6 +2,7 @@
 // (textFieldAndStepper, time mode) with target-action timeChange.
 import { TimePickerBase, timeProperty, hourProperty, minuteProperty, minuteIntervalProperty, getValidTime } from '@nativescript/core/ui/time-picker/time-picker-common';
 import { layout } from '@nativescript/core/utils';
+import { timeOfDay } from '../../../../../src/picker-time';
 export * from '@nativescript/core/ui/time-picker/time-picker-common';
 const TimePickerTargetImpl = NSObject.extend({
     ['changed:'](sender) {
@@ -39,6 +40,13 @@ function toNSDate(date) {
 export class TimePicker extends TimePickerBase {
     nativeViewProtected;
     _target;
+    get time() {
+        return super.time;
+    }
+    set time(value) {
+        // Core's shared property setter reads Date methods immediately.
+        super.time = typeof value === 'string' ? timeOfDay(value) : value;
+    }
     createNativeView() {
         const picker = NSDatePicker.alloc().initWithFrame(CGRectMake(0, 0, 0, 0));
         picker.datePickerStyle = 1 /* NSDatePickerStyleTextFieldAndStepper */;
