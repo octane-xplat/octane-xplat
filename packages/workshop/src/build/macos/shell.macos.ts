@@ -174,8 +174,9 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 			stage = view?.nativeViewProtected ?? view
 		},
 		focus(view) {
-			if (view) {
-				window.makeFirstResponder(view.nativeViewProtected ?? view)
+			const target = view?.native ?? view?.nativeViewProtected ?? view
+			if (target instanceof NSView && target.window === window) {
+				window.makeFirstResponder(target)
 			}
 		},
 	})
@@ -351,51 +352,47 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 		return false
 	}
 
-	// Dispatches through the view's real recognizer/control action. This is
-	// gesture-action dispatch for qualification, not OS-synthesized input.
+	// Dispatch the AppKit action of the rendered control selected by its label.
 	const pressLabel = (label, scope = stage) => {
-		let target = null
-		eachSubview(scope, (view) => {
+		const pressed = eachSubview(scope, (target) => {
 			let name = ''
 			try {
 				name = String(
-					typeof view.accessibilityLabel === 'function'
-						? view.accessibilityLabel()
-						: (view.accessibilityLabel ?? ''),
+					typeof target.accessibilityLabel === 'function'
+						? target.accessibilityLabel()
+						: (target.accessibilityLabel ?? ''),
 				)
 			} catch {}
+			if (name !== label) {
+				return false
+			}
 
-			if (name === label) {
-				target = view
+			if (typeof target.accessibilityPerformPress === 'function' && target.accessibilityPerformPress()) {
+				return true
+			}
+
+			const recs = target.gestureRecognizers
+			const count = typeof recs?.count === 'function' ? recs.count() : (recs?.count ?? 0)
+			for (let i = 0; i < count; i++) {
+				const rec = recs.objectAtIndex(i)
+				const receiver = rec.target
+				const invoke = receiver?.['viewPressed:'] ?? receiver?.viewPressed
+				if (typeof invoke === 'function') {
+					invoke.call(receiver, rec)
+					return true
+				}
+			}
+
+			if (typeof target.performClick === 'function') {
+				target.performClick(target)
 				return true
 			}
 
 			return false
 		})
-
-		if (!target) {
+		if (!pressed) {
 			console.log(`WORKSHOP_PRESS_MISS "${label}"`)
-			return
 		}
-
-		const recs = target.gestureRecognizers
-		const count = typeof recs?.count === 'function' ? recs.count() : (recs?.count ?? 0)
-		for (let i = 0; i < count; i++) {
-			const rec = recs.objectAtIndex(i)
-			const receiver = rec.target
-			const invoke = receiver?.['viewPressed:'] ?? receiver?.viewPressed
-			if (typeof invoke === 'function') {
-				invoke.call(receiver, rec)
-				return
-			}
-		}
-
-		if (typeof target.performClick === 'function') {
-			target.performClick(target)
-			return
-		}
-
-		console.log(`WORKSHOP_PRESS_MISS "${label}"`)
 	}
 
 	const run = async (command) => {
