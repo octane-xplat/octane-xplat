@@ -21,6 +21,14 @@ function refreshRoots() {
   }
 }
 
+/** Register or replace a stylesheet owned by the application. */
+export function registerNativeScriptStylesheet(id: string, css: string): void {
+  const tag = 'octane-macos:registered:' + id
+  removeTaggedAdditionalCSS(tag)
+  addTaggedAdditionalCSS(css, tag)
+  refreshRoots()
+}
+
 function replaceBundle(stylesheets: readonly Stylesheet[]) {
   for (const tag of bundleTags) {
     removeTaggedAdditionalCSS(tag)

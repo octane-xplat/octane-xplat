@@ -12,6 +12,7 @@ import {
   installNativeScriptWindowRoots,
 } from '../../src/nativescript-window.macos'
 import { installNativeScriptDevModules } from '../../src/nativescript-dev.macos'
+import { registerNativeScriptStylesheet } from '../../src/nativescript-css.macos'
 import './nativescript-provider.css'
 
 function Screen() {
@@ -357,8 +358,23 @@ setTimeout(async () => {
     if (native.font.pointSize !== 19) {
       throw new Error(`Replacing bundled styles left an obsolete rule on the NativeScript title (Core ${title.style.fontSize}, native ${native.font.pointSize})`)
     }
+    registerNativeScriptStylesheet('app-rule', '#editor { font-size: 24; }')
+    const editor = host.getViewById('editor').nativeViewProtected
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (editor.font.pointSize !== 24) {
+      throw new Error('The registered stylesheet did not reach the mounted editor')
+    }
+    registerNativeScriptStylesheet('app-rule', '#editor { color: red; }')
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (editor.font.pointSize === 24) {
+      throw new Error('Replacing a registered stylesheet left the previous rules active')
+    }
+    registerNativeScriptStylesheet('app-rule', '#editor { font-size: 25; }')
     replaceStylesheets([])
     await new Promise((resolve) => setTimeout(resolve, 30))
+    if (editor.font.pointSize !== 25) {
+      throw new Error('The registered stylesheet was lost when the bundle reloaded')
+    }
     if (native.font.pointSize === 19 || native.font.pointSize === 23) {
       throw new Error('Removing bundled styles left their rules on the NativeScript title')
     }
