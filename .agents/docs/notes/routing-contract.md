@@ -438,9 +438,10 @@ queuing navigation does not count as commitment. Refresh keeps the Page and
 component state. Missing callbacks fail within a bounded timeout, without
 claiming to undo work already accepted by NativeScript.
 
-Native `RouteOutlet` renders one layout when mounted directly into a `Page`.
-The routed content and the zero-size view used to find the declaring Page
-share that layout. A NativeScript `ContentView` accepts one renderer child.
+Native `RouteOutlet` uses a single NativeScript grid host. It measures
+the routed content, including a `Screen` with its own `RootLayout`, and
+holds the zero-size view used to find the declaring Page. A NativeScript
+`ContentView` accepts one renderer child.
 The driver rejects a competing child before detaching it from its current
 parent. App code mounting siblings into a `ContentView` must wrap them in a
 layout.
