@@ -61,13 +61,20 @@ including when the new bundle contains no styles. Application-registered
 sheets live under separate tags and keep their relative cascade order on
 replacement. Core font changes use the shared AppKit font resolver.
 Text controls support logical start/end alignment and update it when the
-inherited direction changes.
+inherited direction changes. The Core view maps its resolved background
+into the AppKit painter for colors, borders, gradients, images and shadows.
+The painter owns its frame observers and layer disposal. Keep CSS parser
+coverage separate from paint coverage. Core CSS still needs an explicit
+`border-width` and `border-color` and interprets `px` as device pixels.
 The Core stylesheet destination preserves the authored min/max media
 syntax because Core 9.1.3 cannot parse the minifier's range syntax.
 Core 9.1.3 normally evaluates selector and keyframe media queries against
 the physical display. The Core patch lets the styled view provide its own
 match. The AppKit provider evaluates against that view's window and refreshes
-its stylesheet matches on resize. Other Core platforms keep their existing
+its stylesheet matches on resize. The Core root map gives layout observers
+the AppKit content view after Core commits its geometry. The native fixture
+runs through the shared AppKit application launcher and checks one cleanup.
+Other Core platforms keep their existing
 media matcher. The native provider fixture verifies different rules in two
 windows and independent updates when either window resizes.
 The development shell owns Core, the driver, and the Octane runtime. Mark

@@ -11,6 +11,7 @@ import { runNativeScriptMacOSApp } from '../../src/nativescript-host.macos'
 import { createNativeScriptWindowRoot } from '../../src/nativescript-window.macos'
 import { installNativeScriptDevModules } from '../../src/nativescript-dev.macos'
 import { registerNativeScriptStylesheet } from '../../src/nativescript-css.macos'
+import { syncNativeScriptProjection } from '../../src/nativescript-paint.macos'
 import { observeNativeScriptLayoutCommits } from '../../src/nativescript-roots.macos'
 import './nativescript-provider.css'
 
@@ -32,6 +33,7 @@ function Screen() {
       <actionbar id="child-bar" style={{ width: 220 }}>
         <label id="bar-child" text="Custom title" style={{ width: 120, height: 20 }} />
       </actionbar>
+      <masonview id="paint" style={{ width: 40, height: 30 }} />
       <scrollview id="viewport" style={{ width: 250, height: 80 }}>
         <masonview style={{ width: 200, height: 380 }}>
           <label text="Scrollable content" />
@@ -95,6 +97,35 @@ function checkEmbeddedCoreRoot() {
       throw new Error('The embedded Core root remained attached after unmount')
     }
     content.removeFromSuperview()
+  }
+}
+
+function checkCorePaint() {
+  const view = host.getViewById('paint').nativeViewProtected
+  registerNativeScriptStylesheet('paint', '#paint { background-color: #ff0000; border-width: 2; border-color: #0000ff; border-radius: 8; }')
+  const color = NSColor.colorWithCGColor(view.layer.backgroundColor)
+  if (color.redComponent < 0.9 || view.layer.cornerRadius !== 8 || view.layer.borderWidth !== 2) {
+    throw new Error(`Core styles did not paint the AppKit layer: ${view.layer.cornerRadius}, ${view.layer.borderWidth}`)
+  }
+  syncNativeScriptProjection(view, { x: 2, y: 2 })
+  if (view.layer.cornerRadius !== 4) {
+    throw new Error('AppKit did not compensate the Core view radius during projection')
+  }
+  syncNativeScriptProjection(view, null)
+  if (view.layer.cornerRadius !== 8) {
+    throw new Error('AppKit did not restore the Core view radius after projection')
+  }
+  registerNativeScriptStylesheet('paint',
+    '#paint { background-image: linear-gradient(90deg, #ff0000 25%, #0000ff 75%); }',
+  )
+  const backgroundLayer = view.layer.sublayers?.objectAtIndex(0)
+  const gradient = backgroundLayer?.sublayers?.objectAtIndex(0)
+  if (!(gradient instanceof CAGradientLayer) || gradient.colors.count !== 2) {
+    throw new Error('The Core gradient did not reach the shared AppKit background painter')
+  }
+  registerNativeScriptStylesheet('paint', '')
+  if (view.layer.backgroundColor || view.layer.cornerRadius || view.layer.borderWidth || backgroundLayer.superlayer) {
+    throw new Error('Removing CSS left old Core paint on the AppKit view')
   }
 }
 
@@ -468,6 +499,7 @@ setTimeout(async () => {
     }
     await checkDesktopServices()
     checkShortcuts()
+    checkCorePaint()
     await checkLayoutNotifications()
     checkEmbeddedCoreRoot()
     await checkWindowLifecycle()

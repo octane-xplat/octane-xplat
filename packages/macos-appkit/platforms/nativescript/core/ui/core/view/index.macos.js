@@ -4,9 +4,11 @@
 // accessibility notifications) removed for the spike.
 import { ViewCommon } from '@nativescript/core/ui/core/view/view-common';
 import { Trace } from '@nativescript/core/trace';
+import { backgroundInternalProperty } from '@nativescript/core/ui/styling/style-properties';
 import { layout, getWindow } from '@nativescript/core/utils';
 import { MacOSHelper } from '@nativescript/core/ui/core/view/view-helper';
 import { retireNativeScriptHostView } from '../../../../../../src/nativescript-host-services';
+import { paintNativeScriptBackground, disposeNativeScriptPaint } from '../../../../../../src/nativescript-paint.macos';
 import { notifyNativeScriptLayout } from '../../../../../../src/nativescript-roots.macos';
 import { evalMediaQuery } from '@octane-xplat/css-engine';
 import { NSWorkspace } from '@octane-xplat/platform/macos';
@@ -102,6 +104,7 @@ export class View extends ViewCommon {
         const nativeView = this.nativeViewProtected;
         if (nativeView) {
             retireNativeScriptHostView(nativeView);
+            disposeNativeScriptPaint(nativeView);
             detachNativeViewTree(nativeView);
         }
         super.disposeNativeView();
@@ -388,7 +391,12 @@ export class View extends ViewCommon {
                 {view.layer.masksToBounds = true;}
         }
     }
-    _redrawNativeBackground(_value) { }
+    [backgroundInternalProperty.setNative](background) {
+        this._redrawNativeBackground(background);
+    }
+    _redrawNativeBackground(background) {
+        paintNativeScriptBackground(this.nativeViewProtected, background);
+    }
     _childIndexToNativeChildIndex(index) {
         return index;
     }
