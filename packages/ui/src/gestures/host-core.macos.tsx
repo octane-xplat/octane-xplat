@@ -9,7 +9,6 @@ import {
 } from './input.macos'
 import { attachNativePress, type NativeGestureView } from './input.native'
 import { observeNativePress } from './native-press'
-import { nativeInputReady } from './native-ready'
 
 function nativeView(host: NativeGestureView): NSView {
   const view = host.nativeViewProtected
@@ -34,5 +33,9 @@ const adapter: InteractionAdapter<NativeGestureView> = {
 export type { InteractionHostOptions } from './host-options'
 
 export function useInteractionHost(options: InteractionHostOptions): (host: object | null) => void {
-  return useNativeInteractionHost(options, adapter, nativeInputReady)
+  return useNativeInteractionHost(options, adapter, (host) => {
+    const view = host.nativeViewProtected
+    // AppKit bridge handles expose native properties through getters.
+    return host.isLoaded !== false && view instanceof NSView && Boolean(view.window?.contentView)
+  })
 }
