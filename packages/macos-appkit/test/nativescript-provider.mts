@@ -5,14 +5,11 @@ import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
-import { build, type InlineConfig } from 'vite'
-import { octane } from 'octane/compiler/vite'
-import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
-import { createNativeScriptProvider } from '@octane-xplat/macos-appkit/core-provider'
+import { build } from 'vite'
 import { nativeScriptDevImports } from '../src/nativescript-dev-imports.ts'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle, macOSHostArch, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
-import { inlineStylesheets } from '../../cli/src/inline-stylesheets.ts'
+import { createCoreMacOSConfig } from '../../cli/src/macos/core-vite.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/macos-core-provider')
@@ -26,72 +23,34 @@ await mkdir(scratch, { recursive: true })
 const output = await mkdtemp(join(scratch, 'run-'))
 
 try {
-  const { config, coreRoot } = await createNativeScriptProvider(root)
-  function bundleConfig(hmr = false) {
-    return {
+  const devEntry = join(root, 'test/fixtures/nativescript-dev-app.macos.tsx')
+  for (const revision of ['before', 'after']) {
+    const { config } = await createCoreMacOSConfig('production', {
+      root,
+      entry: devEntry,
+      outDir: output,
+      hmr: true,
+      fileName: revision + '.cjs',
+      external: nativeScriptDevImports,
+    })
+    await build({
       ...config,
       configFile: false,
-      root,
-      define: {
-        ...config.define,
-        __DEV__: 'false',
-        'process.env.NODE_ENV': '"production"',
-      },
-      resolve: {
-        conditions: ['macos', 'native'],
-        dedupe: ['octane'],
-        alias: [
-          ...config.resolve.alias,
-          { find: /^octane$/, replacement: 'octane/universal/native' },
-        ],
-      },
-      plugins: [
-        ...config.plugins,
-        octane({
-          hmr,
-          renderers: {
-            registry: { nativescript: { ...nativeScriptRenderer, intrinsics: '@octane-xplat/jsx' } },
-            rules: [{ include: '**/*.tsx', renderer: 'nativescript' }],
-          },
-        }),
-      ],
-      build: {
-        minify: false,
-        outDir: output,
-        emptyOutDir: false,
-        rollupOptions: {
-          external: ['@nativescript/macos-node-api', /^node:/],
-          output: { ...config.build.rollupOptions.output, codeSplitting: false },
-        },
-      },
-    } satisfies InlineConfig
-  }
-
-  const shell = bundleConfig()
-  for (const revision of ['before', 'after']) {
-    const app = bundleConfig(true)
-    await build({
-      ...app,
-      define: { ...app.define, __PROVIDER_DEV_REVISION__: JSON.stringify(revision) },
-      build: {
-        ...app.build,
-        lib: {
-          entry: join(root, 'test/fixtures/nativescript-dev-app.macos.tsx'),
-          formats: ['cjs'],
-          fileName: () => revision + '.cjs',
-        },
-        rollupOptions: {
-          ...app.build.rollupOptions,
-          external: [...app.build.rollupOptions.external, ...nativeScriptDevImports],
-        },
-      },
+      define: { ...config.define, __PROVIDER_DEV_REVISION__: JSON.stringify(revision) },
+      build: { ...config.build, emptyOutDir: false },
     })
   }
+
+  const { config: shell, coreRoot } = await createCoreMacOSConfig('production', {
+    root,
+    entry: join(root, 'test/fixtures/nativescript-provider.macos.tsx'),
+    outDir: output,
+  })
   await build({
     ...shell,
+    configFile: false,
     plugins: [
-      ...shell.plugins,
-      inlineStylesheets('nativescript'),
+      ...(shell.plugins ?? []),
       {
         name: 'verify-single-nativescript-core',
         generateBundle() {
@@ -101,15 +60,7 @@ try {
         },
       },
     ],
-    build: {
-      ...shell.build,
-      cssCodeSplit: true,
-      lib: {
-        entry: join(root, 'test/fixtures/nativescript-provider.macos.tsx'),
-        formats: ['cjs'],
-        fileName: () => 'main.cjs',
-      },
-    },
+    build: { ...shell.build, emptyOutDir: false },
   })
 
   const bundle = join(output, 'main.cjs')

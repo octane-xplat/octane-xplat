@@ -33,7 +33,9 @@ modules and the adapter to the existing Mason library. These modules implement
 the pinned Core runtime contract. Core supplies its public declarations.
 `@octane-xplat/macos-appkit/core-provider` wires the app's patched Vite
 resolver to a single Core installation. Provider imports can reach Core internals because they
-implement those modules. The runtime fixture verifies the resolved Core paths.
+implement those modules. The runtime fixture uses the CLI Core bundle configuration to verify the
+resolved Core paths. The macOS build boundary permits iOS-suffixed files
+only for the exact Core modules named in the provider’s reuse map.
 The Node-API bridge resolves global class handles on each lookup. Core's
 layout helper retains the `NSScreen` class handle and reads the current
 screen for each conversion, so display-scale changes still take effect.

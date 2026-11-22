@@ -24,4 +24,4 @@ justifyContentProperty.overrideHandlers({ valueConverter: tolerant(JustifyConten
 alignItemsProperty.overrideHandlers({ valueConverter: tolerant(AlignItems.isValid, AlignItems.STRETCH) });
 alignContentProperty.overrideHandlers({ valueConverter: tolerant(AlignContent.isValid, AlignContent.STRETCH) });
 alignSelfProperty.overrideHandlers({ valueConverter: tolerant(AlignSelf.isValid, AlignSelf.FLEX_START) });
-export * from '@nativescript/core/ui/layouts/flexbox-layout/index.ios';
+export * from '@nativescript/core/ui/layouts/flexbox-layout/index';

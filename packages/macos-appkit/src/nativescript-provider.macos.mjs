@@ -22,7 +22,10 @@ const platform = {
     'ui/core/control-state-change/index': '.ios',
     'ui/layouts/layout-base': '.ios',
     'ui/layouts/grid-layout/index': '.ios',
+    // Flexbox uses the iOS JavaScript engine with macOS value converters.
+    'ui/layouts/flexbox-layout/index': '.ios',
     'ui/layouts/stack-layout/index': '.ios',
+    'ui/transition/index': '.ios',
   },
   capabilities: {
     propertyChangesRequestLayout: true,
@@ -109,5 +112,9 @@ export async function createNativeScriptProvider(project) {
     },
   }
 
-  return { config, coreRoot }
+  const reusedCoreFiles = Object.entries(platform.reuse).map(
+    ([module, suffix]) => join(coreRoot, module + suffix + '.js'),
+  )
+
+  return { config, coreRoot, reusedCoreFiles }
 }
