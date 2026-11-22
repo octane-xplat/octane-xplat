@@ -430,6 +430,18 @@ setTimeout(async () => {
     checkShortcuts()
     checkEmbeddedCoreRoot()
     await checkWindowLifecycle()
+    registerNativeScriptStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
+    if (native.alignment !== 1) {
+      throw new Error('RTL start alignment did not resolve to the right edge')
+    }
+    registerNativeScriptStylesheet('logical-align', '#title { direction: ltr; text-align: start; }')
+    if (native.alignment !== 0) {
+      throw new Error('Changing text direction did not update start alignment')
+    }
+    registerNativeScriptStylesheet('logical-align', '#title { direction: ltr; text-align: end; }')
+    if (native.alignment !== 1) {
+      throw new Error('LTR end alignment did not resolve to the right edge')
+    }
     await checkMasonScroll()
     const backdrop = checkLiquidGlass()
     const bar = checkActionBar()

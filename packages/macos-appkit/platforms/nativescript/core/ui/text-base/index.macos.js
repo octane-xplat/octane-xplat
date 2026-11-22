@@ -4,14 +4,18 @@
 // with NSMutableAttributedString; iOS-only features dropped).
 import { getClosestPropertyValue, TextBaseCommon, textProperty, formattedTextProperty, textAlignmentProperty, textTransformProperty, resetSymbol } from '@nativescript/core/ui/text-base/text-base-common';
 import { Color } from '@nativescript/core/color';
+import { makeParser, makeValidator } from '@nativescript/core/ui/core/properties';
 import { Font } from '@nativescript/core/ui/styling/font';
-import { colorProperty, fontInternalProperty } from '@nativescript/core/ui/styling/style-properties';
+import { colorProperty, directionProperty, fontInternalProperty } from '@nativescript/core/ui/styling/style-properties';
 import { isString, isNullOrUndefined } from '@nativescript/core/utils/types';
 export * from '@nativescript/core/ui/text-base/text-base-common';
 const NS_LEFT = 0;
 const NS_RIGHT = 1;
 const NS_CENTER = 2;
 const NS_JUSTIFIED = 3;
+textAlignmentProperty.overrideHandlers({
+    valueConverter: makeParser(makeValidator('left', 'center', 'right', 'justify', 'start', 'end')),
+});
 export class TextBase extends TextBaseCommon {
     // Native default captured at view init — prop removal must restore the
     // field's own default (labelWithString uses labelColor; an editable field
@@ -68,12 +72,27 @@ export class TextBase extends TextBaseCommon {
         view.font = value instanceof Font ? value.getUIFont(view.font) : value;
     }
     [textAlignmentProperty.setNative](value) {
+        this._applyTextAlignment(value);
+    }
+    [directionProperty.setNative]() {
+        const alignment = this.style.textAlignment;
+        if (alignment === 'start' || alignment === 'end' || alignment === 'initial') {
+            this._applyTextAlignment(alignment);
+        }
+    }
+    _applyTextAlignment(value) {
         const view = this.nativeTextViewProtected;
         if (!view)
             {return;}
         switch (value) {
-            case 'left':
+            case 'start':
             case 'initial':
+                view.alignment = this.style.direction === 'rtl' ? NS_RIGHT : NS_LEFT;
+                break;
+            case 'end':
+                view.alignment = this.style.direction === 'rtl' ? NS_LEFT : NS_RIGHT;
+                break;
+            case 'left':
                 view.alignment = NS_LEFT;
                 break;
             case 'center':
