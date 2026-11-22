@@ -376,6 +376,7 @@ export class Scroll extends ScrollView {
     _childBoxes = new Map();
     _ownBox = null;
     __masonOrder = [];
+    _boundsObserver;
     constructor() {
         super();
         this._styleHelper = new Style(this, masonHost() ? newMasonNode() : null);
@@ -383,6 +384,64 @@ export class Scroll extends ScrollView {
     }
     get __isMasonHorizontal() {
         return this.orientation === 'horizontal' || this.horizontal === true;
+    }
+    initNativeView() {
+        super.initNativeView();
+        const clip = this.nativeViewProtected.contentView;
+        clip.postsBoundsChangedNotifications = true;
+        let scrollX = this.scrollLeft;
+        let scrollY = this.scrollTop;
+        this._boundsObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+            'NSViewBoundsDidChangeNotification',
+            clip,
+            null,
+            () => {
+                const nextX = this.scrollLeft;
+                const nextY = this.scrollTop;
+                if (nextX === scrollX && nextY === scrollY) {
+                    return;
+                }
+                scrollX = nextX;
+                scrollY = nextY;
+                this.notify({ eventName: 'scroll', object: this, scrollX, scrollY });
+            },
+        );
+    }
+    get clientWidth() {
+        return this.nativeViewProtected?.contentView.bounds.size.width ?? 0;
+    }
+    get clientHeight() {
+        return this.nativeViewProtected?.contentView.bounds.size.height ?? 0;
+    }
+    get scrollWidth() {
+        return this.nativeViewProtected?.documentView?.frame.size.width ?? 0;
+    }
+    get scrollHeight() {
+        return this.nativeViewProtected?.documentView?.frame.size.height ?? 0;
+    }
+    get scrollLeft() {
+        return this.horizontalOffset;
+    }
+    get scrollTop() {
+        return this.verticalOffset;
+    }
+    scrollTo(options, top) {
+        const scroll = this.nativeViewProtected;
+        const clip = scroll?.contentView;
+        if (!clip || !scroll.documentView) {
+            return;
+        }
+        const { left, top: targetTop, behavior } = typeof options === 'number'
+            ? { left: options, top }
+            : options ?? {};
+        const maxX = Math.max(0, this.scrollWidth - this.clientWidth);
+        const maxY = Math.max(0, this.scrollHeight - this.clientHeight);
+        const clamp = (value, max) => Math.max(0, Math.min(value, max));
+        const x = Number.isFinite(left) ? clamp(left, maxX) : clip.bounds.origin.x;
+        const y = Number.isFinite(targetTop) ? maxY - clamp(targetTop, maxY) : clip.bounds.origin.y;
+        const proxy = behavior === 'smooth' ? clip.animator?.() : undefined;
+        (proxy ?? clip).scrollToPoint(CGPointMake(x, y));
+        scroll.reflectScrolledClipView(clip);
     }
     // The driver capability-checks insertChild/removeChild (isMasonContainer);
     // ScrollViewBase's single-child model adapts them to `content`.
@@ -411,6 +470,11 @@ export class Scroll extends ScrollView {
         }
     }
     disposeNativeView() {
+        const observer = this._boundsObserver;
+        this._boundsObserver = undefined;
+        if (observer) {
+            NSNotificationCenter.defaultCenter.removeObserver(observer);
+        }
         this._styleHelper?.free();
         super.disposeNativeView();
     }

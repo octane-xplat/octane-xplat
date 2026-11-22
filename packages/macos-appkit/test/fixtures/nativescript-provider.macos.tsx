@@ -33,6 +33,11 @@ function Screen() {
       <actionbar id="child-bar" style={{ width: 220 }}>
         <label id="bar-child" text="Custom title" style={{ width: 120, height: 20 }} />
       </actionbar>
+      <scrollview id="viewport" style={{ width: 250, height: 80 }}>
+        <masonview style={{ width: 200, height: 380 }}>
+          <label text="Scrollable content" />
+        </masonview>
+      </scrollview>
     </masonview>
   )
 }
@@ -277,6 +282,37 @@ function checkActionBar() {
   return native
 }
 
+interface MasonScrollMetrics {
+  readonly clientHeight: number
+  readonly scrollHeight: number
+  readonly scrollTop: number
+  scrollTo(options: { top: number; behavior?: 'instant' | 'smooth' }): void
+  on(event: 'scroll', callback: (data: { scrollX: number; scrollY: number }) => void): void
+}
+
+async function checkMasonScroll() {
+  const scroll: MasonScrollMetrics = host.getViewById('viewport')
+  if (scroll.clientHeight === 0 || scroll.scrollHeight <= scroll.clientHeight) {
+    throw new Error(`Mason viewport has no scroll range: ${scroll.scrollHeight} / ${scroll.clientHeight}`)
+  }
+  let reported = Number.NaN
+  scroll.on('scroll', (data) => {
+    reported = data.scrollY
+  })
+  scroll.scrollTo({ top: 90, behavior: 'instant' })
+  await new Promise((resolve) => setTimeout(resolve, 30))
+  if (Math.abs(scroll.scrollTop - 90) > 1) {
+    throw new Error(`Mason scrollTo did not move the AppKit viewport: ${scroll.scrollTop}`)
+  }
+  if (!Number.isFinite(reported) || Math.abs(reported - 90) > 1) {
+    throw new Error(`Mason scroll did not report the AppKit viewport offset: ${reported}`)
+  }
+  scroll.scrollTo({ top: Number.MAX_SAFE_INTEGER })
+  if (Math.abs(scroll.scrollTop - (scroll.scrollHeight - scroll.clientHeight)) > 1) {
+    throw new Error('Mason scrollTo did not clamp to the scroll range')
+  }
+}
+
 async function checkDevelopmentReload() {
   installNativeScriptDevModules()
   const load = Reflect.get(globalThis, '__hostRunFile')
@@ -394,6 +430,7 @@ setTimeout(async () => {
     checkShortcuts()
     checkEmbeddedCoreRoot()
     await checkWindowLifecycle()
+    await checkMasonScroll()
     const backdrop = checkLiquidGlass()
     const bar = checkActionBar()
     root.unmount()
