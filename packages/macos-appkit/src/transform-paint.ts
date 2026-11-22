@@ -1,5 +1,4 @@
-import type { BoxPaintState } from './box-paint-state'
-import type { ElementNode } from './model'
+import type { BoxPaintNode, BoxPaintState } from './box-paint-state'
 import {
   CATransform3DIdentity,
   CATransform3DRotate,
@@ -119,7 +118,7 @@ export function createTransformPaint() {
   // order (translate → rotate z → rotate x/y with perspective → scale) around
   // the layer's centre anchor. Y-down CSS semantics map to y-up layer space by
   // negating every y translate and every angle.
-  function syncTransform(node: ElementNode, state: BoxPaintState) {
+  function syncTransform(node: BoxPaintNode, state: BoxPaintState) {
     const view = node.view
 
     if (!view || typeof CATransform3DTranslate !== 'function') {
@@ -218,7 +217,7 @@ export function createTransformPaint() {
     state.transformApplied = true
   }
 
-  function hasPercentTranslate(node: ElementNode, state: BoxPaintState): boolean {
+  function hasPercentTranslate(node: BoxPaintNode, state: BoxPaintState): boolean {
     const spec = state.transformSpec
 
     return (

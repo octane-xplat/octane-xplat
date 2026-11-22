@@ -1,5 +1,5 @@
-import { effectiveStyle } from './style-values.ts'
-import type { PropBag, ElementNode } from './model'
+import { effectiveStyle, type StyleSource } from './style-values.ts'
+import type { PropBag } from './model'
 import {
   CGPathAddArcToPoint,
   CGPathAddLineToPoint,
@@ -194,7 +194,7 @@ export function borderBandCGPath(points: [number, number][]): any {
 
 // Unparseable colors (color-mix, unknown functions) read as no color rather
 // than throwing mid-apply — nativeColor is strict by design elsewhere.
-export function borderNSColor(node: ElementNode, value: any): NSColor | null {
+export function borderNSColor(node: StyleSource, value: any): NSColor | null {
   const raw = value ?? effectiveStyle(node).color ?? '#000'
 
   try {

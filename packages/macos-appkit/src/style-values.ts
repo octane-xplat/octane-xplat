@@ -63,8 +63,13 @@ export function normalizeClass(value: any): string {
   return str
 }
 
+export interface StyleSource {
+  props: PropBag
+  computedStyle?: PropBag
+}
+
 /** Read computed CSS when available, falling back to authored inline style. */
-export function effectiveStyle(node: ElementNode | null | undefined): PropBag {
+export function effectiveStyle(node: StyleSource | null | undefined): PropBag {
   return node?.computedStyle ?? node?.props?.style ?? {}
 }
 
