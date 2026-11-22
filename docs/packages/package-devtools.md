@@ -14,14 +14,13 @@ bun run xplat devtools    # native devtools window, in a second terminal
 
 `xplat devtools` discovers running `xplat dev` servers, opens your own
 project automatically when it can, and shows a picker when several are
-running. Built-in tabs cover sessions, actions, and logs; packages can
-add their own tabs — [tweaks](package-tweaks.md) supplies the Tweaks and Styles editors.
+running. Built-in tabs cover sessions, actions, and logs. The native download
+also includes the [Tweaks and Styles editors](package-tweaks.md).
 
-On macOS the devtools window is native and can float above other windows
-(the Keep on top toggle in its header). The native host needs the macOS
-development packages — `xplat devtools` prints the exact install command
-when one is missing. A browser build of the panel shell is also served at
-`/devtools/app/` on the dev server and shows the built-in tabs.
+On macOS the first launch downloads the DevTools app from GitHub Releases.
+Later launches of the same Xplat version reuse the download and can open offline.
+The command works from a web-only project. Use **Keep on top** to keep the window
+above other windows while you work.
 
 To load the selected project's tabs in your browser, start its development
 session and run this from the app directory in a second terminal. The app needs
@@ -32,7 +31,8 @@ bun run xplat devtools --web
 ```
 
 Run the command again after editing a panel. Each build has its own URL and
-stays available until the development session ends.
+stays available until the development session ends. For the built-in browser
+tabs, open `/devtools/app/` on the running dev server.
 
 ## Slow down motion in a running app
 
@@ -146,8 +146,17 @@ order. Each module default-exports its own `defineDevtoolsPanel` result:
 
 Discovered panels are collected from the project's `dependencies` and
 `devDependencies` and from `octane-xplat`'s own dependencies when the
-project uses the umbrella package. Both launch commands display these as
-tabs after the built-ins. Entries that cannot be resolved or point outside
-their package are skipped with a warning.
+project uses the umbrella package. Use `--web` to open the selected project's
+contributed tabs in the browser.
+On a Mac with the project's Vite and macOS development packages installed,
+use `--build-panels` to build the native window with those tabs.
+
+```sh
+bun run xplat devtools --web
+bun run xplat devtools --build-panels
+```
+
+Entries that cannot be resolved or point outside their package are skipped
+with a warning.
 
 [API reference](https://octane-xplat.goddardai.org/api-devtools)

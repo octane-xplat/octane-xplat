@@ -34,6 +34,14 @@ publishes nothing. Nightlies do not commit to `main` or change `latest`, and
 Recipe structure and documentation links run in the PR-only `repo-hygiene`
 job; they do not determine release eligibility.
 
+Stable releases stage the universal DevTools ZIP on the draft framework
+release before building the macOS CLI payloads. The CLI pins the archive
+SHA-256 and downloads it on the first native DevTools launch. The published
+release remains the completion marker. On a retry, reuse the already uploaded
+asset so published CLI binaries keep their original digest. Nightly DevTools
+assets use a permanent `devtools-v<version>` prerelease per build. The moving
+`nightly` release remains the channel entry point.
+
 Release Git operations and PR writes require the `RELEASE_TOKEN` repository
 secret. Create a fine-grained personal access token limited to
 `octane-xplat/octane-xplat`, with **Contents: read/write**, **Pull requests:

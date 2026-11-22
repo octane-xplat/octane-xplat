@@ -110,8 +110,18 @@ if (process.env.CI === 'true' || process.env.XPLAT_GO_VERSION !== undefined) {
   assert.match(goVersion, /^go version go1\.27\.3 /, 'CI and release builds require Go 1.27.3')
 } else {
   const patch = /^go version go1\.27\.(\d+) /.exec(goVersion)?.[1]
-  assert.ok(patch !== undefined && Number(patch) >= 3, 'Install stable Go 1.27.3 or a newer 1.27 patch')
+  assert.ok(
+    patch !== undefined && Number(patch) >= 3,
+    'Install stable Go 1.27.3 or a newer 1.27 patch',
+  )
 }
+
+const devtoolsDigest = process.env.XPLAT_GO_DEVTOOLS_SHA256 ?? ''
+assert.match(devtoolsDigest, /^(?:[a-f0-9]{64})?$/, 'Expected a DevTools archive SHA-256')
+const devtoolsPin =
+  cli && devtoolsDigest && (env.GOOS ?? process.platform) === 'darwin'
+    ? ` -X github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/devtools.releaseArchiveSHA256=${devtoolsDigest}`
+    : ''
 
 const releaseWorker = cli ? buildReleaseWorker(root, join(work, 'release-worker'), version) : null
 
@@ -168,7 +178,7 @@ if (flags.includes('--test') || devServerRace) {
       '-mod=readonly',
       '-trimpath',
       '-buildvcs=false',
-      '-ldflags=-s -w',
+      `-ldflags=-s -w${devtoolsPin}`,
       ...(tags.length ? ['-tags=' + tags.join(',')] : []),
       '-o',
       testBinary ? binary + '/' : binary,

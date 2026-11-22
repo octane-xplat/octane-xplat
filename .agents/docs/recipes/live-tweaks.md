@@ -15,8 +15,9 @@ Octane plugins in the generated Vite config and can import the runtime from
 
 Live editing applies only under `xplat dev`; `ns run` sessions and
 production builds keep the source literals. The native devtools window is
-macOS-only and requires the project's macOS host packages; the browser
-`/devtools/app/` panel exposes no panel plugins. Save rewrites app source
+macOS-only and downloads the release app on first use. The app includes
+Tweaks and Styles. Project-contributed panels use `--web` or the native
+`--build-panels` path, which needs the project's macOS development packages. Save rewrites app source
 files, so readers need an explicit write-back story and a revert path.
 Bamboo style drafts preview on web only.
 
@@ -36,7 +37,7 @@ Bamboo style drafts preview on web only.
   discards only that editor's drafts. Property/pick filters do not narrow Save.
   Production bundles contain no tweaks client or instrumentation.
 - AC5: A package ships a devtools panel via `octaneXplat.devtoolsPanel`
-  plus a `defineDevtoolsPanel` module (or several subpaths for several tabs); the desktop bundle discovers it from
+  plus a `defineDevtoolsPanel` module (or several subpaths for several tabs); the selected project build discovers it from
   project or umbrella dependencies and skips invalid entries with a
   warning.
 
