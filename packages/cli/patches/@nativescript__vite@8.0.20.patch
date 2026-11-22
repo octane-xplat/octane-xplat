@@ -1,8 +1,237 @@
+diff --git a/configuration/base.d.ts b/configuration/base.d.ts
+index 8abe64e8a5afd513b19918ff252e0264fb72248a..586f31b43c95bfa56debfb5bb36125299ebd0ae8 100644
+--- a/configuration/base.d.ts
++++ b/configuration/base.d.ts
+@@ -1,5 +1,7 @@
+ import { type UserConfig } from 'vite';
+-export declare const baseConfig: ({ mode, flavor }: {
++import { type NativeScriptPlatform } from '../helpers/platforms.js';
++export declare const baseConfig: ({ mode, flavor, platforms }: {
+     mode: string;
+     flavor?: string;
++    platforms?: NativeScriptPlatform[];
+ }) => UserConfig;
+diff --git a/configuration/base.js b/configuration/base.js
+index d7aee4f231207469b89097b24c0c9b7bb9a5920f..e59953b26937eea31c7677b60518e44225380da7 100644
+--- a/configuration/base.js
++++ b/configuration/base.js
+@@ -31,6 +31,7 @@ import { vendorManifestPlugin } from '../hmr/shared/vendor/manifest.js';
+ import { resolveVerboseFlag, createFilteredViteLogger } from '../helpers/logging.js';
+ import { externalConfigsPlugin } from '../helpers/external-configs.js';
+ import { getHMRPlugins } from '../hmr/server/index.js';
++import { builtinPlatforms, getPlatform, getPlatformExtensions, platformProviderPlugin } from '../helpers/platforms.js';
+ import { packagePlatformResolverPlugin } from '../helpers/package-platform-aliases.js';
+ import { findPackageInNodeModules } from '../helpers/module-resolution.js';
+ import { createPlatformCssPlugin } from '../helpers/css-platform-plugin.js';
+@@ -82,7 +83,7 @@ const themePkgDir = findPackageInNodeModules('nativescript-theme-core', projectR
+ if (themePkgDir && existsSync(themePkgDir)) {
+     THEME_CORE_ROOT = normalizeModuleId(themePkgDir);
+ }
+-export const baseConfig = ({ mode, flavor }) => {
++export const baseConfig = ({ mode, flavor, platforms }) => {
+     const targetMode = mode === 'development' ? 'development' : 'production';
+     const cliFlags = getCliFlags();
+     const verbose = resolveVerboseFlag({ env: process.env, cliFlags });
+@@ -100,6 +101,16 @@ export const baseConfig = ({ mode, flavor }) => {
+     else if (cliFlags.visionos) {
+         platform = 'visionos';
+     }
++    // Resolve the platform descriptor: built-ins describe themselves, external
++    // platforms come from the `platforms` config option.
++    const activePlatform = getPlatform(platform, platforms);
++    if (platform && !activePlatform) {
++        const known = [...Object.keys(builtinPlatforms), ...(platforms ?? []).map((registered) => registered.name)];
++        throw new Error(`@nativescript/vite: unknown platform "${platform}" (known: ${known.join(', ')})`);
++    }
++    if (hmrActive && activePlatform && !builtinPlatforms[activePlatform.name]) {
++        throw new Error(`@nativescript/vite: external platform "${activePlatform.name}" is not supported under HMR — build without --env.hmr (or --no-hmr) instead.`);
++    }
+     if (verbose) {
+         console.log('--------------');
+         // console.log("Vite config mode:", mode);
+@@ -129,24 +140,7 @@ export const baseConfig = ({ mode, flavor }) => {
+     });
+     // Common resolve configuration for both main and worker builds
+     // Build platform-aware extension preference order and exclude the opposite platform
+-    const platformExtensions = (() => {
+-        const base = ['.tsx', '.jsx', '.ts', '.js'];
+-        const exts = [];
+-        if (platform === 'android') {
+-            exts.push('.android.tsx', '.tsx', '.android.jsx', '.jsx', '.android.ts', '.ts', '.android.js', '.js');
+-        }
+-        else if (platform === 'ios' || platform === 'visionos') {
+-            // Treat visionOS like iOS for file resolution
+-            exts.push('.ios.tsx', '.tsx', '.ios.jsx', '.jsx', '.ios.ts', '.ts', '.ios.js', '.js');
+-        }
+-        else {
+-            // Fallback: no platform-specific preference
+-            exts.push(...base);
+-        }
+-        // Always allow these last
+-        exts.push('.mjs', '.json');
+-        return exts;
+-    })();
++    const platformExtensions = getPlatformExtensions(activePlatform);
+     // Dynamic aliases for nativescript-theme-core generic theme filenames
+     // TODO: move to per-project basis based on usage
+     const themeGenericAliases = getThemeCoreGenericAliases(THEME_CORE_ROOT, platform);
+@@ -207,6 +201,7 @@ export const baseConfig = ({ mode, flavor }) => {
+     // Common define configuration for both main and worker builds
+     const defineConfig = getGlobalDefines({
+         platform,
++        platforms,
+         targetMode,
+         verbose,
+         flavor,
+@@ -362,7 +357,9 @@ export const baseConfig = ({ mode, flavor }) => {
+                 : undefined,
+             // Vue HMR plugins for development mode
+             // HMR plugins (source streaming replaces prior exploded source plugin when enabled)
+-            ...(hmrActive ? [...getHMRPlugins({ platform, flavor, verbose })] : []),
++            // External platforms are rejected under HMR above, so `platform` is a
++            // built-in whenever this branch runs.
++            ...(hmrActive ? [...getHMRPlugins({ platform: platform, flavor, verbose })] : []),
+             // TODO: make flavor plugins dynamic
+             // ...flavorPlugins,
+             ...commonjsPlugins,
+@@ -374,6 +371,10 @@ export const baseConfig = ({ mode, flavor }) => {
+             // fail static resolution under Rolldown (see helper for full rationale).
+             nativescriptWorkerLoaderStubPlugin(),
+             nsConfigAsJsonPlugin(),
++            // External platform implementations of core modules (provider dir /
++            // reuse map). No-ops for platforms without either — built-ins
++            // resolve through the suffix extensions and alias as before.
++            platformProviderPlugin({ platform: activePlatform, coreRoot: NS_CORE_ROOT, verbose }),
+             NativeScriptPlugin({ platform }),
+             // XML-driven flavors: provide the virtual UI-registration module the
+             // entry imports (see main-entry.ts). Registered HERE, from the same
+@@ -383,7 +384,7 @@ export const baseConfig = ({ mode, flavor }) => {
+             // the framework package (hoisted to the workspace root).
+             ...(flavor === 'typescript' || flavor === 'javascript' ? [createUiRegistrationPlugin(flavor)] : []),
+             // Ensure globals and Android activity are included early via virtual entry
+-            mainEntryPlugin({ platform, isDevMode, verbose, hmrActive, useHttps, flavor }),
++            mainEntryPlugin({ platform, platforms, isDevMode, verbose, hmrActive, useHttps, flavor }),
+             // Handle custom Android Activity/Application components (auto-detected or configured)
+             appComponentsPlugin({ platform, verbose }),
+             dynamicImportPlugin(),
+diff --git a/helpers/cli-flags.js b/helpers/cli-flags.js
+index dd8de95e6312959e4854beb3190b7cb3d921aabe..d4a9dc8dc29c33eab67734625792fad8a0b0b64f 100644
+--- a/helpers/cli-flags.js
++++ b/helpers/cli-flags.js
+@@ -26,6 +26,10 @@ function pickPlatform(src) {
+         return 'visionos';
+     if (src.ios)
+         return 'ios';
++    // `--env.platform=<name>` selects a built-in or an externally registered
++    // platform (baseConfig's `platforms` option resolves the descriptor).
++    if (typeof src.platform === 'string' && src.platform)
++        return src.platform;
+     return undefined;
+ }
+ /**
+diff --git a/helpers/global-defines.d.ts b/helpers/global-defines.d.ts
+index ac054cbe505b94d570a261d559e617737af6aaf2..bd095fdea59f1a0ab06c4f0d2808bf154dfbf0da 100644
+--- a/helpers/global-defines.d.ts
++++ b/helpers/global-defines.d.ts
+@@ -1,3 +1,4 @@
++import { type NativeScriptPlatform } from './platforms.js';
+ /**
+  * Opt-out flag for the HMR-applying progress overlay.
+  *
+@@ -28,6 +29,7 @@ export interface RuntimeDefineValues {
+     __IOS__: boolean;
+     __VISIONOS__: boolean;
+     __APPLE__: boolean;
++    __NS_CAP__: Record<string, boolean>;
+     __COMMONJS__: boolean;
+     __NS_WEBPACK__: boolean;
+     __NS_ENV_VERBOSE__: boolean;
+@@ -38,6 +40,7 @@ export interface RuntimeDefineValues {
+ }
+ export declare function getRuntimeDefineValues(opts: {
+     platform?: string;
++    platforms?: NativeScriptPlatform[];
+     isDevMode: boolean;
+     verbose: boolean;
+ }): RuntimeDefineValues;
+@@ -55,6 +58,7 @@ export declare function getRuntimeDefineValues(opts: {
+  */
+ export declare function getRuntimeSeedValues(opts: {
+     platform?: string;
++    platforms?: NativeScriptPlatform[];
+     isDevMode: boolean;
+     verbose: boolean;
+     flavor: string;
+@@ -115,6 +119,7 @@ export declare function getUserProcessEnvDefineEntries(): Record<string, string>
+ export declare function buildUserDefineShimStatements(excludeKeys?: Iterable<string>): string[];
+ export declare function getGlobalDefines(opts: {
+     platform: string;
++    platforms?: NativeScriptPlatform[];
+     targetMode: string;
+     verbose: boolean;
+     flavor: string;
+@@ -124,6 +129,7 @@ export declare function getGlobalDefines(opts: {
+     __IOS__: string;
+     __VISIONOS__: string;
+     __APPLE__: string;
++    __NS_CAP__: string;
+     'global.isAndroid': string;
+     'global.isIOS': string;
+     __DEV__: string;
 diff --git a/helpers/global-defines.js b/helpers/global-defines.js
-index e7390cb..4e0e337 100644
+index e7390cb182cafe3b7307a25585280655d6ad5fad..289e6b7440d6a4f7e7afc1dac227acc6c5951647 100644
 --- a/helpers/global-defines.js
 +++ b/helpers/global-defines.js
-@@ -179,6 +179,51 @@ export function setUserDefineEntries(define) {
+@@ -1,5 +1,6 @@
+ import { getProjectAppPath, getProjectAppVirtualPath } from './utils.js';
+ import { getClientStrategyDevicePath } from '../hmr/framework-flavors.js';
++import { getPlatform, getPlatformBundleDefines, getPlatformDefineValues } from './platforms.js';
+ const APP_ROOT_DIR = getProjectAppPath();
+ const APP_ROOT_VIRTUAL = getProjectAppVirtualPath();
+ /**
+@@ -19,13 +20,14 @@ export function isHmrProgressOverlayEnabled(env = process.env) {
+     return !['0', 'false', 'off', 'no'].includes(raw);
+ }
+ export function getRuntimeDefineValues(opts) {
+-    const platform = opts.platform || '';
++    const defines = getPlatformDefineValues(getPlatform(opts.platform, opts.platforms));
+     return {
+         __DEV__: !!opts.isDevMode,
+-        __ANDROID__: platform === 'android',
+-        __IOS__: platform === 'ios',
+-        __VISIONOS__: platform === 'visionos',
+-        __APPLE__: platform === 'ios' || platform === 'visionos',
++        __ANDROID__: defines.__ANDROID__,
++        __IOS__: defines.__IOS__,
++        __VISIONOS__: defines.__VISIONOS__,
++        __APPLE__: defines.__APPLE__,
++        __NS_CAP__: defines.capabilities,
+         __COMMONJS__: false,
+         __NS_WEBPACK__: false,
+         __NS_ENV_VERBOSE__: !!opts.verbose,
+@@ -59,8 +61,11 @@ export function getRuntimeSeedValues(opts) {
+         // behave identically under HMR. globalThis-only on purpose: these MUST
+         // NOT become per-module `const` shims (buildDefineShimStatements), or
+         // they'd collide with `import { isIOS } from '@nativescript/core'`.
++        // isIOS mirrors core/platform/common.ts (`__IOS__ || __VISIONOS__`) —
++        // NOT `__APPLE__`, which a non-iOS Apple platform (e.g. an external
++        // family:'apple' platform) sets without being iOS.
+         isAndroid: values.__ANDROID__,
+-        isIOS: values.__APPLE__,
++        isIOS: values.__IOS__ || values.__VISIONOS__,
+         // Runtime flavor for the raw-served HMR client's TARGET_FLAVOR resolution.
+         __NS_TARGET_FLAVOR__: opts.flavor,
+         // Device path of a registered (non built-in) flavor's client strategy;
+@@ -102,7 +107,7 @@ export function buildGuardedDefineSeedStatement(values) {
+     // text substitution, so the real globals must exist for member-access reads.
+     // Guarded separately from `__IOS__` because a bundle seed may already have
+     // planted one set but not the other.
+-    return `if (globalThis.__IOS__ === undefined && globalThis.__ANDROID__ === undefined) { globalThis.__ANDROID__ = ${values.__ANDROID__}; globalThis.__IOS__ = ${values.__IOS__}; globalThis.__VISIONOS__ = ${values.__VISIONOS__}; globalThis.__APPLE__ = ${values.__APPLE__}; }\nif (globalThis.isIOS === undefined && globalThis.isAndroid === undefined) { globalThis.isAndroid = ${values.__ANDROID__}; globalThis.isIOS = ${values.__APPLE__}; }\nif (globalThis.__DEV__ === undefined) { globalThis.__DEV__ = ${values.__DEV__}; }`;
++    return `if (globalThis.__IOS__ === undefined && globalThis.__ANDROID__ === undefined) { globalThis.__ANDROID__ = ${values.__ANDROID__}; globalThis.__IOS__ = ${values.__IOS__}; globalThis.__VISIONOS__ = ${values.__VISIONOS__}; globalThis.__APPLE__ = ${values.__APPLE__}; }\nif (globalThis.isIOS === undefined && globalThis.isAndroid === undefined) { globalThis.isAndroid = ${values.__ANDROID__}; globalThis.isIOS = ${values.__IOS__ || values.__VISIONOS__}; }\nif (globalThis.__DEV__ === undefined) { globalThis.__DEV__ = ${values.__DEV__}; }\nif (globalThis.__NS_CAP__ === undefined) { globalThis.__NS_CAP__ = ${JSON.stringify(values.__NS_CAP__)}; }`;
+ }
+ /**
+  * `const <key> = globalThis.<key> !== undefined ? globalThis.<key> : <canonical>;`
+@@ -179,6 +184,51 @@ export function setUserDefineEntries(define) {
      userDefineEntries = entries;
      userProcessEnvDefineEntries = envEntries;
  }
@@ -54,6 +283,505 @@ index e7390cb..4e0e337 100644
  /** The captured `__FOO__` define entries as `[key, expression]` pairs (see setUserDefineEntries). */
  export function getUserDefineEntries() {
      return userDefineEntries;
+@@ -197,15 +247,12 @@ export function buildUserDefineShimStatements(excludeKeys = []) {
+     return userDefineEntries.filter(([key]) => !exclude.has(key)).map(([key, expr]) => `const ${key} = globalThis.${key} !== undefined ? globalThis.${key} : (${expr});`);
+ }
+ export function getGlobalDefines(opts) {
+-    const values = getRuntimeDefineValues({ platform: opts.platform, isDevMode: opts.targetMode === 'development', verbose: opts.verbose });
++    const values = getRuntimeDefineValues({ platform: opts.platform, platforms: opts.platforms, isDevMode: opts.targetMode === 'development', verbose: opts.verbose });
+     return {
+-        // Define platform flags for runtime checks
+-        __ANDROID__: JSON.stringify(values.__ANDROID__),
+-        __IOS__: JSON.stringify(values.__IOS__),
+-        __VISIONOS__: JSON.stringify(values.__VISIONOS__),
+-        __APPLE__: JSON.stringify(values.__APPLE__),
+-        'global.isAndroid': JSON.stringify(values.__ANDROID__),
+-        'global.isIOS': JSON.stringify(values.__APPLE__),
++        // Platform flags, per-capability `__NS_CAP__.<cap>` defines, the bare
++        // `__NS_CAP__` object, and the legacy `global.is*` members — the same
++        // entries getPlatformBundleDefines emits for standalone configs.
++        ...getPlatformBundleDefines(getPlatform(opts.platform, opts.platforms)),
+         __DEV__: JSON.stringify(values.__DEV__),
+         __COMMONJS__: values.__COMMONJS__,
+         __NS_WEBPACK__: values.__NS_WEBPACK__,
+diff --git a/helpers/main-entry.d.ts b/helpers/main-entry.d.ts
+index 90973f318afd0fdd4258187ea960e02e78e64f96..3ce5a76da82486580b9b4230ac8da2f2a99bd3e6 100644
+--- a/helpers/main-entry.d.ts
++++ b/helpers/main-entry.d.ts
+@@ -1,6 +1,9 @@
+ import { type ResolvedConfig, type ViteDevServer } from 'vite';
++import type { Platform } from './platform-types.js';
++import type { NativeScriptPlatform } from './platforms.js';
+ export declare function mainEntryPlugin(opts: {
+-    platform: 'ios' | 'android' | 'visionos';
++    platform: Platform;
++    platforms?: NativeScriptPlatform[];
+     isDevMode: boolean;
+     verbose: boolean;
+     hmrActive: boolean;
+diff --git a/helpers/main-entry.js b/helpers/main-entry.js
+index 05d97b1d2258e95434f4e49f30ca42477a6d26f7..d0167eb91376529abb9415d9073feff26a945067 100644
+--- a/helpers/main-entry.js
++++ b/helpers/main-entry.js
+@@ -394,7 +394,7 @@ export function mainEntryPlugin(opts) {
+                 // app-root paths, overlay knobs). Vite's define substitution
+                 // never reaches those raw-served files, so anything they read must be
+                 // planted on globalThis here — see getRuntimeSeedValues for the rule.
+-                const seedLines = buildGlobalSeedStatements(getRuntimeSeedValues({ platform: opts.platform, isDevMode: opts.isDevMode, verbose: opts.verbose, flavor: effectiveFlavor, isCI: !!process.env.CI }));
++                const seedLines = buildGlobalSeedStatements(getRuntimeSeedValues({ platform: opts.platform, platforms: opts.platforms, isDevMode: opts.isDevMode, verbose: opts.verbose, flavor: effectiveFlavor, isCI: !!process.env.CI }));
+                 return {
+                     code: seedLines.join('\n') + '\n',
+                     moduleType: 'js',
+diff --git a/helpers/platform-types.d.ts b/helpers/platform-types.d.ts
+index a79af3871005dca1fe476fe7160156b5762c756b..156a9053b55e3d9faa1255bfc707338a219ff4fa 100644
+--- a/helpers/platform-types.d.ts
++++ b/helpers/platform-types.d.ts
+@@ -1,2 +1,6 @@
+-/** The platforms NativeScript builds for. Single source of truth for the build pipeline. */
+-export type Platform = 'android' | 'ios' | 'visionos';
++/**
++ * The platforms NativeScript builds for. Single source of truth for the build
++ * pipeline. The built-in names keep literal types for narrowing; the widened
++ * union admits externally registered platforms (see helpers/platforms.ts).
++ */
++export type Platform = 'android' | 'ios' | 'visionos' | (string & {});
+diff --git a/helpers/platforms.d.ts b/helpers/platforms.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3f8fe090ebeb862e7000501afc706c23383c09f3
+--- /dev/null
++++ b/helpers/platforms.d.ts
+@@ -0,0 +1,118 @@
++import type { Plugin } from 'vite';
++/**
++ * A platform NativeScript builds for.
++ *
++ * Built-in platforms (ios/android/visionos) ship inside @nativescript/core.
++ * External platforms are supplied by an outside package and registered through
++ * the `platforms` option of `baseConfig`; they select implementations from a
++ * provider directory (a tree mirroring @nativescript/core module paths) and/or
++ * reuse existing core platform files per module.
++ */
++export interface NativeScriptPlatform {
++    /**
++     * Platform name as passed via `--env.platform=<name>`
++     * (e.g. 'ios', 'android', 'visionos', or an external name like 'testos').
++     */
++    name: string;
++    /**
++     * Optional platform family. The only supported value today is 'apple',
++     * which sets `__APPLE__`. It never sets `__IOS__` for external platforms;
++     * `__IOS__` remains true only for the literal 'ios' platform.
++     */
++    family?: 'apple';
++    /**
++     * File-suffix preference for this platform's own files, in priority order
++     * (e.g. ['.ios'] or ['.testos']). visionos keeps ['.ios'] — today's
++     * behavior of resolving visionOS through the iOS file set.
++     */
++    suffixes: string[];
++    /**
++     * Absolute path to a directory whose tree mirrors @nativescript/core
++     * module paths. `<root>/<module id><suffix>.{ts,js}` shadows the core
++     * module for this platform.
++     */
++    provider?: {
++        root: string;
++    };
++    /**
++     * Map of core module id → suffix of an existing core file, for modules an
++     * external platform deliberately reuses (e.g. `{ 'timer/index': '.ios' }`).
++     */
++    reuse?: Record<string, string>;
++    /**
++     * Behavior capabilities shared core code branches on via `__NS_CAP__.*`.
++     * Built-in platforms declare values equal to the platform expressions the
++     * code used previously, so built-in output is unchanged.
++     */
++    capabilities: Record<string, boolean>;
++}
++export type BuiltinPlatformName = 'ios' | 'android' | 'visionos';
++/** The platforms that ship inside @nativescript/core. */
++export declare const builtinPlatforms: Record<BuiltinPlatformName, NativeScriptPlatform>;
++/**
++ * Resolve a platform descriptor by name: built-ins first, then the externally
++ * registered list. Unknown names return undefined so callers keep the
++ * platform-agnostic fallback behavior they have today.
++ */
++export declare function getPlatform(name: string | undefined, external?: NativeScriptPlatform[]): NativeScriptPlatform | undefined;
++/**
++ * Vite `resolve.extensions` list for a platform: each platform suffix
++ * interleaved before its plain extension (`.testos.tsx`, `.tsx`, …), then the
++ * universal tail. `undefined` yields the historical no-platform fallback.
++ */
++export declare function getPlatformExtensions(platform: NativeScriptPlatform | undefined): string[];
++/**
++ * Values for the platform defines every emitter produces (bundle `define`,
++ * runtime seeds, per-module shims). `family: 'apple'` maps to `__APPLE__` for
++ * external platforms; `__IOS__`/`__VISIONOS__`/`__ANDROID__` stay keyed to the
++ * built-in names so an external platform cannot silently inherit them.
++ */
++export declare function getPlatformDefineValues(platform: NativeScriptPlatform | undefined): {
++    __ANDROID__: boolean;
++    __IOS__: boolean;
++    __VISIONOS__: boolean;
++    __APPLE__: boolean;
++    capabilities: Record<string, boolean>;
++};
++/**
++ * The platform subset of the Vite `define` map, as string values ready for
++ * `config.define`: the four platform flags, one dotted `__NS_CAP__.<cap>`
++ * entry per capability, the bare `__NS_CAP__` object, and the legacy
++ * `global.isAndroid` / `global.isIOS` members (`isIOS` is
++ * `__IOS__ || __VISIONOS__`, matching core/platform/common.ts).
++ *
++ * Vite configs that do not use `baseConfig` (external-platform apps with
++ * their own pipeline) call this instead of re-deriving the map.
++ */
++export declare function getPlatformBundleDefines(platform: NativeScriptPlatform | undefined): Record<string, string>;
++/**
++ * Resolver for external platform implementations of @nativescript/core
++ * modules. `enforce: 'pre'` so it runs before the alias that maps
++ * `@nativescript/core/*` to the core root and before the suffix resolver.
++ *
++ * For an import whose target lies inside `coreRoot` — a relative import from
++ * a core (or provider) file, a bare `@nativescript/core/<path>` specifier, or
++ * an already-aliased absolute path — the core module id is the path relative
++ * to coreRoot without extension (`ui/label`, directories becoming
++ * `<dir>/index`). Two kinds of specifier pass through untouched before any
++ * resolution runs: non-script imports (`.json`, `.css`, `.xml`, assets) and
++ * imports that explicitly name a platform file (`./dep.ios`, `foo.testos.ts`)
++ * — a suffix in the specifier is part of the name, not a resolution hint.
++ * Resolution order per module id:
++ *   1. `<provider.root>/<id><suffix>.{ts,js}` for each platform suffix —
++ *      skipped when the importer IS the provider file for that id, so a
++ *      provider module can extend the core module it shadows;
++ *   2. `<coreRoot>/<id><reuse[id] suffix>.{ts,js}` — the reuse map picks an
++ *      existing core implementation (no silent `.ios` fallback);
++ *   3. normal resolution — the core shared file `<coreRoot>/<id>.{ts,js}`
++ *      (plus the platform's own suffixes inside coreRoot);
++ *   4. otherwise throws listing everything checked — never silently falls
++ *      back to another platform's file.
++ * Results are cached per importer+source. For platforms with neither
++ * `provider` nor `reuse` the plugin resolves nothing.
++ */
++export declare function platformProviderPlugin(opts: {
++    platform: NativeScriptPlatform | undefined;
++    coreRoot: string;
++    verbose?: boolean;
++}): Plugin;
+diff --git a/helpers/platforms.js b/helpers/platforms.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..37d1d815154f73ee873f4ce5e3b47bd2e84198d0
+--- /dev/null
++++ b/helpers/platforms.js
+@@ -0,0 +1,307 @@
++import fs from 'node:fs';
++import path from 'node:path';
++import { normalizeModuleId } from './normalize-id.js';
++/**
++ * Shared-code behavior flags converted from platform-name checks to
++ * `__NS_CAP__.*` capability reads. Values per platform must equal the
++ * expression they replace:
++ *  - `propertyChangesRequestLayout` replaces `affectsLayout: __APPLE__` (and
++ *    the matching `if (__APPLE__) view.requestLayout()` guards) in property
++ *    metadata — "Core drives native layout in JS, so a change must request a
++ *    layout pass".
++ *  - `textChangeAffectsLayout` replaces `affectsLayout: __ANDROID__` in the
++ *    `text` property metadata.
++ */
++const appleCapabilities = {
++    propertyChangesRequestLayout: true,
++    textChangeAffectsLayout: false,
++};
++const androidCapabilities = {
++    propertyChangesRequestLayout: false,
++    textChangeAffectsLayout: true,
++};
++/** The platforms that ship inside @nativescript/core. */
++export const builtinPlatforms = {
++    ios: {
++        name: 'ios',
++        family: 'apple',
++        suffixes: ['.ios'],
++        capabilities: { ...appleCapabilities },
++    },
++    android: {
++        name: 'android',
++        suffixes: ['.android'],
++        capabilities: { ...androidCapabilities },
++    },
++    visionos: {
++        name: 'visionos',
++        family: 'apple',
++        suffixes: ['.ios'],
++        capabilities: { ...appleCapabilities },
++    },
++};
++/**
++ * Resolve a platform descriptor by name: built-ins first, then the externally
++ * registered list. Unknown names return undefined so callers keep the
++ * platform-agnostic fallback behavior they have today.
++ */
++export function getPlatform(name, external) {
++    if (!name) {
++        return undefined;
++    }
++    const builtin = builtinPlatforms[name];
++    if (builtin) {
++        return builtin;
++    }
++    return external?.find((platform) => platform.name === name);
++}
++const BASE_EXTENSIONS = ['.tsx', '.jsx', '.ts', '.js'];
++const TRAILING_EXTENSIONS = ['.mjs', '.json'];
++/**
++ * Vite `resolve.extensions` list for a platform: each platform suffix
++ * interleaved before its plain extension (`.testos.tsx`, `.tsx`, …), then the
++ * universal tail. `undefined` yields the historical no-platform fallback.
++ */
++export function getPlatformExtensions(platform) {
++    const extensions = [];
++    if (platform && platform.suffixes.length) {
++        for (const ext of BASE_EXTENSIONS) {
++            for (const suffix of platform.suffixes) {
++                extensions.push(`${suffix}${ext}`);
++            }
++            extensions.push(ext);
++        }
++    }
++    else {
++        extensions.push(...BASE_EXTENSIONS);
++    }
++    extensions.push(...TRAILING_EXTENSIONS);
++    return extensions;
++}
++/**
++ * Values for the platform defines every emitter produces (bundle `define`,
++ * runtime seeds, per-module shims). `family: 'apple'` maps to `__APPLE__` for
++ * external platforms; `__IOS__`/`__VISIONOS__`/`__ANDROID__` stay keyed to the
++ * built-in names so an external platform cannot silently inherit them.
++ */
++export function getPlatformDefineValues(platform) {
++    return {
++        __ANDROID__: platform?.name === 'android',
++        __IOS__: platform?.name === 'ios',
++        __VISIONOS__: platform?.name === 'visionos',
++        __APPLE__: platform?.family === 'apple',
++        capabilities: platform?.capabilities ?? {},
++    };
++}
++/**
++ * The platform subset of the Vite `define` map, as string values ready for
++ * `config.define`: the four platform flags, one dotted `__NS_CAP__.<cap>`
++ * entry per capability, the bare `__NS_CAP__` object, and the legacy
++ * `global.isAndroid` / `global.isIOS` members (`isIOS` is
++ * `__IOS__ || __VISIONOS__`, matching core/platform/common.ts).
++ *
++ * Vite configs that do not use `baseConfig` (external-platform apps with
++ * their own pipeline) call this instead of re-deriving the map.
++ */
++export function getPlatformBundleDefines(platform) {
++    const values = getPlatformDefineValues(platform);
++    return {
++        __ANDROID__: JSON.stringify(values.__ANDROID__),
++        __IOS__: JSON.stringify(values.__IOS__),
++        __VISIONOS__: JSON.stringify(values.__VISIONOS__),
++        __APPLE__: JSON.stringify(values.__APPLE__),
++        ...Object.fromEntries(Object.entries(values.capabilities).map(([cap, value]) => [`__NS_CAP__.${cap}`, JSON.stringify(value)])),
++        __NS_CAP__: JSON.stringify(values.capabilities),
++        'global.isAndroid': JSON.stringify(values.__ANDROID__),
++        'global.isIOS': JSON.stringify(values.__IOS__ || values.__VISIONOS__),
++    };
++}
++const CORE_PACKAGE_ID = '@nativescript/core';
++const PROVIDER_EXTENSIONS = ['.ts', '.js'];
++// Core also ships plain shared modules as .mjs (e.g. fetch/index.mjs); step 3
++// must see them so they pass through instead of hitting the step-4 error.
++const NORMAL_EXTENSIONS = [...PROVIDER_EXTENSIONS, '.mjs'];
++const SCRIPT_EXTENSIONS = ['.tsx', '.jsx', '.ts', '.js', '.mjs'];
++// Suffixes that mean "an existing platform implementation file" when they end
++// an import specifier — derived from the registered platforms (built-ins
++// plus the active platform's own suffixes), never a hard-coded list.
++const BUILTIN_SUFFIXES = [...new Set(Object.values(builtinPlatforms).flatMap((platform) => platform.suffixes))];
++function isFile(file) {
++    try {
++        return fs.statSync(file).isFile();
++    }
++    catch {
++        return false;
++    }
++}
++function isDirectory(dir) {
++    try {
++        return fs.statSync(dir).isDirectory();
++    }
++    catch {
++        return false;
++    }
++}
++/**
++ * Resolver for external platform implementations of @nativescript/core
++ * modules. `enforce: 'pre'` so it runs before the alias that maps
++ * `@nativescript/core/*` to the core root and before the suffix resolver.
++ *
++ * For an import whose target lies inside `coreRoot` — a relative import from
++ * a core (or provider) file, a bare `@nativescript/core/<path>` specifier, or
++ * an already-aliased absolute path — the core module id is the path relative
++ * to coreRoot without extension (`ui/label`, directories becoming
++ * `<dir>/index`). Two kinds of specifier pass through untouched before any
++ * resolution runs: non-script imports (`.json`, `.css`, `.xml`, assets) and
++ * imports that explicitly name a platform file (`./dep.ios`, `foo.testos.ts`)
++ * — a suffix in the specifier is part of the name, not a resolution hint.
++ * Resolution order per module id:
++ *   1. `<provider.root>/<id><suffix>.{ts,js}` for each platform suffix —
++ *      skipped when the importer IS the provider file for that id, so a
++ *      provider module can extend the core module it shadows;
++ *   2. `<coreRoot>/<id><reuse[id] suffix>.{ts,js}` — the reuse map picks an
++ *      existing core implementation (no silent `.ios` fallback);
++ *   3. normal resolution — the core shared file `<coreRoot>/<id>.{ts,js}`
++ *      (plus the platform's own suffixes inside coreRoot);
++ *   4. otherwise throws listing everything checked — never silently falls
++ *      back to another platform's file.
++ * Results are cached per importer+source. For platforms with neither
++ * `provider` nor `reuse` the plugin resolves nothing.
++ */
++export function platformProviderPlugin(opts) {
++    const { platform, verbose } = opts;
++    // Canonicalize roots to the forward-slash form ids take elsewhere (see
++    // normalize-id.ts) so prefix and importer comparisons match on every OS.
++    const coreRoot = normalizeModuleId(path.resolve(opts.coreRoot));
++    const providerRoot = platform?.provider ? normalizeModuleId(path.resolve(platform.provider.root)) : undefined;
++    const reuse = platform?.reuse ?? {};
++    const suffixes = platform?.suffixes ?? [];
++    // Suffixes that mark an explicit platform-file import for this build:
++    // every built-in plus this platform's own.
++    const platformSuffixes = [...new Set([...BUILTIN_SUFFIXES, ...suffixes])];
++    const enabled = !!providerRoot || Object.keys(reuse).length > 0;
++    const cache = new Map();
++    const log = (...args) => {
++        if (verbose) {
++            console.log(`[platform-provider:${platform?.name ?? 'unknown'}]`, ...args);
++        }
++    };
++    /** Files the provider supplies for a module id, in suffix order. */
++    const providerCandidates = (id) => (providerRoot ? suffixes.flatMap((suffix) => PROVIDER_EXTENSIONS.map((ext) => `${providerRoot}/${id}${suffix}${ext}`)) : []);
++    /** The core files a module id resolves to without provider/reuse. */
++    const normalCandidates = (id) => [...suffixes.flatMap((suffix) => PROVIDER_EXTENSIONS.map((ext) => `${coreRoot}/${id}${suffix}${ext}`)), ...NORMAL_EXTENSIONS.map((ext) => `${coreRoot}/${id}${ext}`)];
++    /**
++     * Core module-id candidates for an import: `<rel>` and, when `<rel>` is a
++     * directory anywhere it could resolve, `<rel>/index`.
++     */
++    const moduleIdCandidates = (rel) => {
++        const ids = [rel];
++        if (isDirectory(`${coreRoot}/${rel}`) || (providerRoot && isDirectory(`${providerRoot}/${rel}`))) {
++            ids.push(`${rel}/index`);
++        }
++        return ids;
++    };
++    const findFirst = (files) => files.find(isFile);
++    return {
++        name: 'nativescript:platform-provider',
++        enforce: 'pre',
++        resolveId(source, importer) {
++            if (!enabled) {
++                return null;
++            }
++            // '\0' separates importer and source — it cannot appear in either,
++            // so keys for ("a","bc") and ("ab","c") can never collide.
++            const cacheKey = `${importer ?? ''}\0${source}`;
++            if (cache.has(cacheKey)) {
++                return cache.get(cacheKey) ?? null;
++            }
++            const done = (result) => {
++                cache.set(cacheKey, result);
++                return result;
++            };
++            const cleanSource = source.split('?', 1)[0];
++            // Anything that is not a script file (`.json`, `.css`, `.scss`,
++            // `.xml`, assets, …) is outside this resolver's scope — pass through
++            // silently, never error.
++            const sourceExt = path.posix.extname(normalizeModuleId(cleanSource));
++            if (sourceExt && !SCRIPT_EXTENSIONS.includes(sourceExt)) {
++                return done(null);
++            }
++            // Locate the import target relative to coreRoot.
++            let rel;
++            if (cleanSource === CORE_PACKAGE_ID) {
++                rel = 'index';
++            }
++            else if (cleanSource.startsWith(`${CORE_PACKAGE_ID}/`)) {
++                rel = cleanSource.slice(CORE_PACKAGE_ID.length + 1);
++            }
++            else if (cleanSource.startsWith('.')) {
++                if (!importer) {
++                    return done(null);
++                }
++                const importerFile = importer.split('?', 1)[0];
++                const importerDir = importerFile.startsWith('/@fs/') ? path.dirname(importerFile.slice('/@fs'.length)) : path.dirname(importerFile);
++                const target = normalizeModuleId(path.resolve(importerDir, cleanSource));
++                if (!target.startsWith(`${coreRoot}/`)) {
++                    return done(null);
++                }
++                rel = target.slice(coreRoot.length + 1);
++            }
++            else if (path.isAbsolute(cleanSource)) {
++                const normalized = normalizeModuleId(cleanSource);
++                if (!normalized.startsWith(`${coreRoot}/`)) {
++                    return done(null);
++                }
++                rel = normalized.slice(coreRoot.length + 1);
++            }
++            else {
++                return done(null);
++            }
++            // Normalize to the core module id: strip the script extension.
++            rel = rel.replace(/\\/g, '/');
++            rel = rel.replace(/\.(tsx|jsx|ts|js|mjs)$/, '');
++            // An import that explicitly names a platform file — a built-in
++            // suffix or one of the active platform's — already knows which file
++            // it wants. Never rewrite it; normal resolution picks the file up.
++            if (platformSuffixes.some((suffix) => rel.endsWith(suffix))) {
++                return done(null);
++            }
++            if (!rel) {
++                return done(null);
++            }
++            const importerFile = importer ? normalizeModuleId(importer.split('?', 1)[0]) : '';
++            for (const id of moduleIdCandidates(rel)) {
++                // 1. provider — skipped when the importer IS the provider file for
++                //    this id, so provider modules can extend the core module they
++                //    shadow instead of resolving to themselves.
++                const candidates = providerCandidates(id);
++                if (!candidates.includes(importerFile)) {
++                    const provided = findFirst(candidates);
++                    if (provided) {
++                        return done(normalizeModuleId(provided));
++                    }
++                }
++                // 2. reuse — an explicit mapping to an existing core platform file.
++                const reuseSuffix = reuse[id];
++                if (reuseSuffix) {
++                    const reused = findFirst(PROVIDER_EXTENSIONS.map((ext) => `${coreRoot}/${id}${reuseSuffix}${ext}`));
++                    if (reused) {
++                        return done(normalizeModuleId(reused));
++                    }
++                }
++                // 3. normal resolution — the core shared file (the platform's own
++                //    suffixes inside coreRoot are still honored, matching
++                //    resolve.extensions).
++                const normal = findFirst(normalCandidates(id));
++                if (normal) {
++                    return done(null);
++                }
++            }
++            // 4. nothing resolved — say exactly what was checked.
++            const checked = moduleIdCandidates(rel).flatMap((id) => [...providerCandidates(id), ...(reuse[id] ? PROVIDER_EXTENSIONS.map((ext) => `${coreRoot}/${id}${reuse[id]}${ext}`) : []), ...normalCandidates(id)]);
++            const message = `@nativescript/core module "${rel}" has no implementation for platform "${platform?.name}". Checked:\n${checked.map((file) => `  - ${file}`).join('\n')}`;
++            log(message);
++            return done(this.error(message));
++        },
++    };
++}
 diff --git a/helpers/project.js b/helpers/project.js
 index f6777fa..fdc1f97 100644
 --- a/helpers/project.js
@@ -87,6 +815,17 @@ index f6777fa..fdc1f97 100644
              if (existsSync(join(current, marker)))
                  return current;
          }
+diff --git a/helpers/resolver.d.ts b/helpers/resolver.d.ts
+index fdabc8d74e61eb0779b8d620132d2bbe813f0156..55c666548019eaabe98ac4ca9fa1932067e76b9b 100644
+--- a/helpers/resolver.d.ts
++++ b/helpers/resolver.d.ts
+@@ -1,4 +1,5 @@
+ import type { Plugin } from 'vite';
++import type { Platform } from './platform-types.js';
+ export default function NativeScriptPlugin(options: {
+-    platform: 'ios' | 'android' | 'visionos';
++    platform: Platform;
+ }): Plugin;
 diff --git a/helpers/ts-config-paths.js b/helpers/ts-config-paths.js
 index 27013b5..53a2e7d 100644
 --- a/helpers/ts-config-paths.js
@@ -2775,3 +3514,19 @@ index 4855a85..cd3c60f 100644
  export function createOptionalDependencyStubEsbuildPlugin(projectRoot) {
      const requireFromProject = createRequire(path.join(projectRoot, 'package.json'));
      // `@scope/name/sub` → `@scope/name`; `pkg/sub` → `pkg`; `.prisma/client/…` → `.prisma`.
+diff --git a/package.json b/package.json
+index 6d272635271153f074e108183e091945e91e54d5..ffa2cab1f121c1f07ad953371a32ea9efff658a5 100644
+--- a/package.json
++++ b/package.json
+@@ -59,6 +59,11 @@
+       "import": "./configuration/base.js",
+       "default": "./configuration/base.js"
+     },
++    "./platforms": {
++      "types": "./helpers/platforms.d.ts",
++      "import": "./helpers/platforms.js",
++      "default": "./helpers/platforms.js"
++    },
+     "./framework": {
+       "types": "./framework.d.ts",
+       "import": "./framework.js",

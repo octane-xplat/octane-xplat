@@ -387,7 +387,7 @@ index ef5209d97b83fadf0da672fc2677faa1d56199b6..b2eac9a30234e05ca859c0f664b77ca4
  export { Builder } from './builder';
  export type { LoadOptions } from './builder';
 diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
-index 54a037138b909446c71da47eb1cd682d5286fb18..64fa8712dae8260998f88eb26b053f5f48002c9e 100644
+index 54a037138b909446c71da47eb1cd682d5286fb18..d656547115618fa20eaafbd07e8c9f87835066ae 100644
 --- a/ui/layouts/flexbox-layout/flexbox-layout-common.js
 +++ b/ui/layouts/flexbox-layout/flexbox-layout-common.js
 @@ -193,7 +193,21 @@ let FlexboxLayoutBase = class FlexboxLayoutBase extends LayoutBase {
@@ -413,6 +413,51 @@ index 54a037138b909446c71da47eb1cd682d5286fb18..64fa8712dae8260998f88eb26b053f5f
      }
      static setFlexWrapBefore(view, wrap) {
          validateArgs(view).style.flexWrapBefore = wrap;
+@@ -211,7 +225,7 @@ export const flexDirectionProperty = new CssProperty({
+     name: 'flexDirection',
+     cssName: 'flex-direction',
+     defaultValue: FlexDirection.ROW,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: FlexDirection.parse,
+ });
+ flexDirectionProperty.register(Style);
+@@ -219,7 +233,7 @@ export const flexWrapProperty = new CssProperty({
+     name: 'flexWrap',
+     cssName: 'flex-wrap',
+     defaultValue: 'nowrap',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: FlexWrap.parse,
+ });
+ flexWrapProperty.register(Style);
+@@ -227,7 +241,7 @@ export const justifyContentProperty = new CssProperty({
+     name: 'justifyContent',
+     cssName: 'justify-content',
+     defaultValue: JustifyContent.FLEX_START,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: JustifyContent.parse,
+ });
+ justifyContentProperty.register(Style);
+@@ -235,7 +249,7 @@ export const alignItemsProperty = new CssProperty({
+     name: 'alignItems',
+     cssName: 'align-items',
+     defaultValue: AlignItems.STRETCH,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: AlignItems.parse,
+ });
+ alignItemsProperty.register(Style);
+@@ -243,7 +257,7 @@ export const alignContentProperty = new CssProperty({
+     name: 'alignContent',
+     cssName: 'align-content',
+     defaultValue: AlignContent.STRETCH,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: AlignContent.parse,
+ });
+ alignContentProperty.register(Style);
 diff --git a/ui/layouts/flexbox-layout/index.android.js b/ui/layouts/flexbox-layout/index.android.js
 index ed354fddfe1caf982e73b603798cb8f5bf0d3501..7191092e40ba07c3dc3e6555059dbda028418d9c 100644
 --- a/ui/layouts/flexbox-layout/index.android.js
@@ -1001,7 +1046,7 @@ index 4d4b15f1397bca6403029acb6615a40f872419b9..6c930a1de6e3f4d28371f94e9eb7fcb5
  export declare const backgroundImageProperty: CssProperty<Style, string | LinearGradient>;
  export declare const backgroundColorProperty: CssAnimationProperty<Style, Color>;
 diff --git a/ui/styling/style-properties.js b/ui/styling/style-properties.js
-index 0f34471ac6f2fa146dafdd23e3c4290864c11c1b..95214a3c4ff5a40eff8af44e61888db02e78d448 100644
+index 0f34471ac6f2fa146dafdd23e3c4290864c11c1b..8e15acb3296919f9276ecbfe1dd1b78b154d6c66 100644
 --- a/ui/styling/style-properties.js
 +++ b/ui/styling/style-properties.js
 @@ -6,7 +6,7 @@ import { Font, parseFont, FontStyle, FontWeight, FontVariationSettings } from '.
@@ -1013,6 +1058,132 @@ index 0f34471ac6f2fa146dafdd23e3c4290864c11c1b..95214a3c4ff5a40eff8af44e61888db0
  import { parseBackground } from '../../css/parser';
  import { LinearGradient } from './linear-gradient';
  import { parseCSSShadow } from './css-shadow';
+@@ -221,7 +221,7 @@ export const minWidthProperty = new CssProperty({
+     name: 'minWidth',
+     cssName: 'min-width',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const view = target.viewRef.get();
+@@ -239,7 +239,7 @@ export const minHeightProperty = new CssProperty({
+     name: 'minHeight',
+     cssName: 'min-height',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const view = target.viewRef.get();
+@@ -261,7 +261,7 @@ export const widthProperty = new CssAnimationProperty({
+     // TODO: CSSAnimationProperty was needed for keyframe (copying other impls), but `affectsLayout` does not exist
+     //       on the animation property, so fake it here. x_x
+     valueChanged: (target, oldValue, newValue) => {
+-        if (__APPLE__) {
++        if ((typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout)) {
+             const view = target.viewRef.get();
+             if (view) {
+                 view.requestLayout();
+@@ -279,7 +279,7 @@ export const heightProperty = new CssAnimationProperty({
+     // TODO: CSSAnimationProperty was needed for keyframe (copying other impls), but `affectsLayout` does not exist
+     //       on the animation property, so fake it here. -_-
+     valueChanged: (target, oldValue, newValue) => {
+-        if (__APPLE__) {
++        if ((typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout)) {
+             const view = target.viewRef.get();
+             if (view) {
+                 view.requestLayout();
+@@ -329,7 +329,7 @@ export const marginLeftProperty = new CssProperty({
+     name: 'marginLeft',
+     cssName: 'margin-left',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueConverter: PercentLength.parse,
+ });
+@@ -338,7 +338,7 @@ export const marginRightProperty = new CssProperty({
+     name: 'marginRight',
+     cssName: 'margin-right',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueConverter: PercentLength.parse,
+ });
+@@ -347,7 +347,7 @@ export const marginTopProperty = new CssProperty({
+     name: 'marginTop',
+     cssName: 'margin-top',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueConverter: PercentLength.parse,
+ });
+@@ -356,7 +356,7 @@ export const marginBottomProperty = new CssProperty({
+     name: 'marginBottom',
+     cssName: 'margin-bottom',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueConverter: PercentLength.parse,
+ });
+@@ -382,7 +382,7 @@ export const paddingLeftProperty = new CssProperty({
+     name: 'paddingLeft',
+     cssName: 'padding-left',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const view = target.viewRef.get();
+@@ -401,7 +401,7 @@ export const paddingRightProperty = new CssProperty({
+     name: 'paddingRight',
+     cssName: 'padding-right',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const view = target.viewRef.get();
+@@ -420,7 +420,7 @@ export const paddingTopProperty = new CssProperty({
+     name: 'paddingTop',
+     cssName: 'padding-top',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const view = target.viewRef.get();
+@@ -439,7 +439,7 @@ export const paddingBottomProperty = new CssProperty({
+     name: 'paddingBottom',
+     cssName: 'padding-bottom',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const view = target.viewRef.get();
+@@ -506,7 +506,7 @@ export const horizontalAlignmentProperty = new CssProperty({
+     name: 'horizontalAlignment',
+     cssName: 'horizontal-align',
+     defaultValue: CoreTypes.HorizontalAlignment.stretch,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: CoreTypes.HorizontalAlignment.parse,
+ });
+ horizontalAlignmentProperty.register(Style);
+@@ -514,7 +514,7 @@ export const verticalAlignmentProperty = new CssProperty({
+     name: 'verticalAlignment',
+     cssName: 'vertical-align',
+     defaultValue: CoreTypes.VerticalAlignmentText.stretch,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: CoreTypes.VerticalAlignmentText.parse,
+ });
+ verticalAlignmentProperty.register(Style);
 @@ -564,16 +564,16 @@ export const translateXProperty = new CssAnimationProperty({
      name: 'translateX',
      cssName: 'translateX',
@@ -1043,6 +1214,141 @@ index 0f34471ac6f2fa146dafdd23e3c4290864c11c1b..95214a3c4ff5a40eff8af44e61888db0
          }
          if (scaleX !== 1 || scaleY !== 1) {
              result += `scale(${scaleX}, ${scaleY}) `;
+@@ -789,7 +789,7 @@ export const borderTopWidthProperty = new CssProperty({
+     name: 'borderTopWidth',
+     cssName: 'border-top-width',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const value = Length.toDevicePixels(newValue, 0);
+@@ -812,7 +812,7 @@ export const borderRightWidthProperty = new CssProperty({
+     name: 'borderRightWidth',
+     cssName: 'border-right-width',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const value = Length.toDevicePixels(newValue, 0);
+@@ -835,7 +835,7 @@ export const borderBottomWidthProperty = new CssProperty({
+     name: 'borderBottomWidth',
+     cssName: 'border-bottom-width',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const value = Length.toDevicePixels(newValue, 0);
+@@ -858,7 +858,7 @@ export const borderLeftWidthProperty = new CssProperty({
+     name: 'borderLeftWidth',
+     cssName: 'border-left-width',
+     defaultValue: CoreTypes.zeroLength,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueChanged: (target, oldValue, newValue) => {
+         const value = Length.toDevicePixels(newValue, 0);
+@@ -912,7 +912,7 @@ export const borderTopLeftRadiusProperty = new CssProperty({
+     name: 'borderTopLeftRadius',
+     cssName: 'border-top-left-radius',
+     defaultValue: 0,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueChanged: (target, oldValue, newValue) => {
+         const value = Length.toDevicePixels(newValue, 0);
+         if (!isNonNegativeFiniteNumber(value)) {
+@@ -928,7 +928,7 @@ export const borderTopRightRadiusProperty = new CssProperty({
+     name: 'borderTopRightRadius',
+     cssName: 'border-top-right-radius',
+     defaultValue: 0,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueChanged: (target, oldValue, newValue) => {
+         const value = Length.toDevicePixels(newValue, 0);
+         if (!isNonNegativeFiniteNumber(value)) {
+@@ -944,7 +944,7 @@ export const borderBottomRightRadiusProperty = new CssProperty({
+     name: 'borderBottomRightRadius',
+     cssName: 'border-bottom-right-radius',
+     defaultValue: 0,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueChanged: (target, oldValue, newValue) => {
+         const value = Length.toDevicePixels(newValue, 0);
+         if (!isNonNegativeFiniteNumber(value)) {
+@@ -960,7 +960,7 @@ export const borderBottomLeftRadiusProperty = new CssProperty({
+     name: 'borderBottomLeftRadius',
+     cssName: 'border-bottom-left-radius',
+     defaultValue: 0,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueChanged: (target, oldValue, newValue) => {
+         const value = Length.toDevicePixels(newValue, 0);
+         if (!isNonNegativeFiniteNumber(value)) {
+@@ -1037,7 +1037,7 @@ export const directionProperty = new InheritedCssProperty({
+     defaultValue: null,
+     name: 'direction',
+     cssName: 'direction',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+ });
+ directionProperty.register(Style);
+ export const zIndexProperty = new CssProperty({
+@@ -1080,7 +1080,7 @@ fontInternalProperty.register(Style);
+ export const fontFamilyProperty = new InheritedCssProperty({
+     name: 'fontFamily',
+     cssName: 'font-family',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueChanged: (target, oldValue, newValue) => {
+         const currentFont = target.fontInternal || Font.default;
+         if (currentFont.fontFamily !== newValue) {
+@@ -1100,7 +1100,7 @@ fontScaleInternalProperty.register(Style);
+ export const fontSizeProperty = new InheritedCssProperty({
+     name: 'fontSize',
+     cssName: 'font-size',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueChanged: (target, oldValue, newValue) => {
+         if (target.viewRef['handleFontSize'] === true) {
+             return;
+@@ -1117,7 +1117,7 @@ fontSizeProperty.register(Style);
+ export const fontStyleProperty = new InheritedCssProperty({
+     name: 'fontStyle',
+     cssName: 'font-style',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     defaultValue: FontStyle.NORMAL,
+     valueConverter: FontStyle.parse,
+     valueChanged: (target, oldValue, newValue) => {
+@@ -1132,7 +1132,7 @@ fontStyleProperty.register(Style);
+ export const fontWeightProperty = new InheritedCssProperty({
+     name: 'fontWeight',
+     cssName: 'font-weight',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     defaultValue: FontWeight.NORMAL,
+     valueConverter: FontWeight.parse,
+     valueChanged: (target, oldValue, newValue) => {
+@@ -1175,7 +1175,7 @@ fontProperty.register(Style);
+ export const fontVariationSettingsProperty = new InheritedCssProperty({
+     name: 'fontVariationSettings',
+     cssName: 'font-variation-settings',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueChanged: (target, oldValue, newValue) => {
+         const currentFont = target.fontInternal || Font.default;
+         if (currentFont.fontVariationSettings !== newValue) {
+@@ -1192,7 +1192,7 @@ export const visibilityProperty = new CssProperty({
+     name: 'visibility',
+     cssName: 'visibility',
+     defaultValue: CoreTypes.Visibility.visible,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: CoreTypes.Visibility.parse,
+     valueChanged: (target, oldValue, newValue) => {
+         const view = target.viewRef.get();
 diff --git a/ui/styling/style-scope.d.ts b/ui/styling/style-scope.d.ts
 index d6f026616cc33cf02f312a5e4f3b6effd71b5dda..321217d036b2fc726c88bf2076d82dcc62e6917e 100644
 --- a/ui/styling/style-scope.d.ts
@@ -1457,3 +1763,302 @@ index 2c0c5cfdc87be6aaa5762f79d63882bd95575c8f..c2272a6cc73b9d083a1de97d17ce2562
  }
  export function _evaluateCssCalcExpression(value) {
      if (typeof value !== 'string') {
+diff --git a/global-types.d.ts b/global-types.d.ts
+index f97ee4bd241d851f7fec33e3ff49fd1ed3f70706..02b89d1222fd877be1797ae3f4ba370c36bacc29 100644
+--- a/global-types.d.ts
++++ b/global-types.d.ts
+@@ -141,3 +141,17 @@ declare const __ANDROID__: boolean;
+ declare const __IOS__: boolean;
+ declare const __VISIONOS__: boolean;
+ declare const __APPLE__: boolean;
++/**
++ * Behavior capabilities declared by the active platform (see
++ * `@nativescript/vite/platforms`). Shared code branches on these where the
++ * intent is a behavior, not a platform identity — e.g. `__APPLE__` in
++ * `affectsLayout` metadata meant "this property's changes need a layout
++ * pass", which a new platform can answer without inheriting UIKit
++ * assumptions.
++ */
++declare const __NS_CAP__: {
++	/** A property/style change must request a layout pass — Core drives native layout in JS (was `affectsLayout: __APPLE__`). */
++	propertyChangesRequestLayout: boolean;
++	/** `text`/`formattedText` content changes request a layout pass (was `__ANDROID__`). */
++	textChangeAffectsLayout: boolean;
++} & Record<string, boolean>;
+diff --git a/ui/core/view-base/index.js b/ui/core/view-base/index.js
+index 524dfd7892bae5d8484dd86ae7153a95b8d1a6e3..b19bba08312be9e762c002de2a4bff22d229b92d 100644
+--- a/ui/core/view-base/index.js
++++ b/ui/core/view-base/index.js
+@@ -1141,7 +1141,7 @@ bindingContextProperty.register(ViewBase);
+ export const hiddenProperty = new Property({
+     name: 'hidden',
+     defaultValue: false,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: booleanConverter,
+     valueChanged: (target, oldValue, newValue) => {
+         if (target) {
+diff --git a/ui/frame/frame-common.js b/ui/frame/frame-common.js
+index c06da239d58b6174652b120e024f853f58d2c13f..02fd0120247751cdc6556b846a640ef925ad5cfe 100644
+--- a/ui/frame/frame-common.js
++++ b/ui/frame/frame-common.js
+@@ -710,6 +710,6 @@ export const defaultPageProperty = new Property({
+     },
+ });
+ defaultPageProperty.register(FrameBase);
+-export const actionBarVisibilityProperty = new Property({ name: 'actionBarVisibility', defaultValue: 'auto', affectsLayout: __APPLE__ });
++export const actionBarVisibilityProperty = new Property({ name: 'actionBarVisibility', defaultValue: 'auto', affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout) });
+ actionBarVisibilityProperty.register(FrameBase);
+ //# sourceMappingURL=frame-common.js.map
+\ No newline at end of file
+diff --git a/ui/image/image-common.js b/ui/image/image-common.js
+index f461a3bdf6543fa2ec95039295062ab885f0d4ca..4afed0685368e0819c7d7837b3b764400128c011 100644
+--- a/ui/image/image-common.js
++++ b/ui/image/image-common.js
+@@ -153,7 +153,7 @@ isLoadingProperty.register(ImageBase);
+ export const stretchProperty = new Property({
+     name: 'stretch',
+     defaultValue: 'aspectFit',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+ });
+ stretchProperty.register(ImageBase);
+ export const tintColorProperty = new InheritedCssProperty({
+diff --git a/ui/layouts/dock-layout/dock-layout-common.js b/ui/layouts/dock-layout/dock-layout-common.js
+index 45a0174ed2f6fdbeb3bed68892660b46b6dedee0..4d1d98c5555475be3ebb8e715de19345be8bca98 100644
+--- a/ui/layouts/dock-layout/dock-layout-common.js
++++ b/ui/layouts/dock-layout/dock-layout-common.js
+@@ -44,7 +44,7 @@ dockProperty.register(View);
+ export const stretchLastChildProperty = new Property({
+     name: 'stretchLastChild',
+     defaultValue: true,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: booleanConverter,
+ });
+ stretchLastChildProperty.register(DockLayoutBase);
+diff --git a/ui/layouts/stack-layout/stack-layout-common.js b/ui/layouts/stack-layout/stack-layout-common.js
+index f6cb6d63660950eeb713529cb1c6840f031be601..628d9336027d77c4eb243a6ec4765ffd981d02a8 100644
+--- a/ui/layouts/stack-layout/stack-layout-common.js
++++ b/ui/layouts/stack-layout/stack-layout-common.js
+@@ -12,7 +12,7 @@ const converter = makeParser(makeValidator('horizontal', 'vertical'));
+ export const orientationProperty = new Property({
+     name: 'orientation',
+     defaultValue: 'vertical',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: converter,
+ });
+ orientationProperty.register(StackLayoutBase);
+diff --git a/ui/layouts/wrap-layout/wrap-layout-common.js b/ui/layouts/wrap-layout/wrap-layout-common.js
+index a3616039312f55329b544dccea892537f299a07a..771bfbe6407651ae028b9d429b6c7e0a67628968 100644
+--- a/ui/layouts/wrap-layout/wrap-layout-common.js
++++ b/ui/layouts/wrap-layout/wrap-layout-common.js
+@@ -14,7 +14,7 @@ WrapLayoutBase.prototype.recycleNativeView = 'auto';
+ export const itemWidthProperty = new Property({
+     name: 'itemWidth',
+     defaultValue: 'auto',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueConverter: Length.parse,
+     valueChanged: (target, oldValue, newValue) => (target.effectiveItemWidth = Length.toDevicePixels(newValue, -1)),
+@@ -23,7 +23,7 @@ itemWidthProperty.register(WrapLayoutBase);
+ export const itemHeightProperty = new Property({
+     name: 'itemHeight',
+     defaultValue: 'auto',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     equalityComparer: Length.equals,
+     valueConverter: Length.parse,
+     valueChanged: (target, oldValue, newValue) => (target.effectiveItemHeight = Length.toDevicePixels(newValue, -1)),
+@@ -33,7 +33,7 @@ const converter = makeParser(makeValidator(CoreTypes.Orientation.horizontal, Cor
+ export const orientationProperty = new Property({
+     name: 'orientation',
+     defaultValue: CoreTypes.Orientation.horizontal,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: converter,
+ });
+ orientationProperty.register(WrapLayoutBase);
+diff --git a/ui/page/page-common.js b/ui/page/page-common.js
+index 5e2e4c9427f3648a601c984d4fe976009359d196..1659ab5383795bb51b50df698f4ed107516738a0 100644
+--- a/ui/page/page-common.js
++++ b/ui/page/page-common.js
+@@ -154,7 +154,7 @@ PageBase.prototype.recycleNativeView = 'never';
+  */
+ export const actionBarHiddenProperty = new Property({
+     name: 'actionBarHidden',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: booleanConverter,
+ });
+ actionBarHiddenProperty.register(PageBase);
+@@ -164,7 +164,7 @@ actionBarHiddenProperty.register(PageBase);
+ export const backgroundSpanUnderStatusBarProperty = new Property({
+     name: 'backgroundSpanUnderStatusBar',
+     defaultValue: false,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: booleanConverter,
+ });
+ backgroundSpanUnderStatusBarProperty.register(PageBase);
+diff --git a/ui/scroll-view/scroll-view-common.js b/ui/scroll-view/scroll-view-common.js
+index 0c12acc0fc6b212335a3019d8719d4c9bf16f29f..acebbb24ecfe94fc81b1f78e4ebb3041ac7d2af5 100644
+--- a/ui/scroll-view/scroll-view-common.js
++++ b/ui/scroll-view/scroll-view-common.js
+@@ -100,7 +100,7 @@ const insetAdjustmentConverter = makeParser(makeValidator('never', 'automatic',
+ export const iosContentInsetAdjustmentBehaviorProperty = new Property({
+     name: 'iosContentInsetAdjustmentBehavior',
+     defaultValue: 'never',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: insetAdjustmentConverter,
+ });
+ iosContentInsetAdjustmentBehaviorProperty.register(ScrollViewBase);
+diff --git a/ui/search-bar/search-bar-common.js b/ui/search-bar/search-bar-common.js
+index 5badc2766e33f38c4538bbbe921e438a21cfccda..40da90dbf4bf4a333628ca10604091c5a14296d8 100644
+--- a/ui/search-bar/search-bar-common.js
++++ b/ui/search-bar/search-bar-common.js
+@@ -13,7 +13,7 @@ SearchBarBase.prototype.recycleNativeView = 'auto';
+ export const textProperty = new Property({
+     name: 'text',
+     defaultValue: '',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+ });
+ textProperty.register(SearchBarBase);
+ export const hintProperty = new Property({
+diff --git a/ui/split-view/split-view-common.js b/ui/split-view/split-view-common.js
+index bdf8545cb5cac2e9537a3747a47a6ab9549612d6..fce067936d0a7aa2fd76cca82a3b00b479378225 100644
+--- a/ui/split-view/split-view-common.js
++++ b/ui/split-view/split-view-common.js
+@@ -86,35 +86,35 @@ splitRoleProperty.register(View);
+ export const displayModeProperty = new Property({
+     name: 'displayMode',
+     defaultValue: 'automatic',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: splitDisplayModeConverter,
+ });
+ displayModeProperty.register(SplitViewBase);
+ export const splitBehaviorProperty = new Property({
+     name: 'splitBehavior',
+     defaultValue: 'automatic',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: splitBehaviorConverter,
+ });
+ splitBehaviorProperty.register(SplitViewBase);
+ export const preferredPrimaryColumnWidthFractionProperty = new Property({
+     name: 'preferredPrimaryColumnWidthFraction',
+     defaultValue: 0,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: (v) => Math.max(0, Math.min(1, parseFloat(v))),
+ });
+ preferredPrimaryColumnWidthFractionProperty.register(SplitViewBase);
+ export const preferredSupplementaryColumnWidthFractionProperty = new Property({
+     name: 'preferredSupplementaryColumnWidthFraction',
+     defaultValue: 0,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: (v) => Math.max(0, Math.min(1, parseFloat(v))),
+ });
+ preferredSupplementaryColumnWidthFractionProperty.register(SplitViewBase);
+ export const preferredInspectorColumnWidthFractionProperty = new Property({
+     name: 'preferredInspectorColumnWidthFraction',
+     defaultValue: 0,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: (v) => Math.max(0, Math.min(1, parseFloat(v))),
+ });
+ preferredInspectorColumnWidthFractionProperty.register(SplitViewBase);
+diff --git a/ui/tab-view/tab-view-common.js b/ui/tab-view/tab-view-common.js
+index 1eb3676f0346d7ee21ab7ff1c1b78292da641463..72a372917ba9d08a96a154bd45d727adccbc38b6 100644
+--- a/ui/tab-view/tab-view-common.js
++++ b/ui/tab-view/tab-view-common.js
+@@ -192,7 +192,7 @@ export function traceMissingIcon(icon) {
+ export const selectedIndexProperty = new CoercibleProperty({
+     name: 'selectedIndex',
+     defaultValue: -1,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueChanged: (target, oldValue, newValue) => {
+         target.onSelectedIndexChanged(oldValue, newValue);
+     },
+@@ -235,7 +235,7 @@ androidIconRenderingModeProperty.register(TabViewBase);
+ export const androidOffscreenTabLimitProperty = new Property({
+     name: 'androidOffscreenTabLimit',
+     defaultValue: 1,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: (v) => parseInt(v),
+ });
+ androidOffscreenTabLimitProperty.register(TabViewBase);
+diff --git a/ui/text-base/text-base-common.js b/ui/text-base/text-base-common.js
+index 5258ee53698cada139d585b98035aef269104ad4..0e4ae79fea146c2dc2fe4ab1a9e1bd3a62992a88 100644
+--- a/ui/text-base/text-base-common.js
++++ b/ui/text-base/text-base-common.js
+@@ -188,7 +188,7 @@ TextBaseCommon.prototype._isManualRtlTextStyleNeeded = false;
+ export const textProperty = new Property({
+     name: 'text',
+     defaultValue: '',
+-    affectsLayout: __ANDROID__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __ANDROID__ : __NS_CAP__.textChangeAffectsLayout),
+ });
+ textProperty.register(TextBaseCommon);
+ export const formattedTextProperty = new Property({
+@@ -258,7 +258,7 @@ textTransformProperty.register(Style);
+ export const textShadowProperty = new InheritedCssProperty({
+     name: 'textShadow',
+     cssName: 'text-shadow',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: (value) => {
+         return parseCSSShadow(value);
+     },
+@@ -267,7 +267,7 @@ textShadowProperty.register(Style);
+ export const textStrokeProperty = new InheritedCssProperty({
+     name: 'textStroke',
+     cssName: 'text-stroke',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: (value) => {
+         return parseCSSStroke(value);
+     },
+@@ -278,7 +278,7 @@ export const whiteSpaceProperty = new InheritedCssProperty({
+     name: 'whiteSpace',
+     cssName: 'white-space',
+     defaultValue: 'initial',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: whiteSpaceConverter,
+ });
+ whiteSpaceProperty.register(Style);
+@@ -287,7 +287,7 @@ export const textOverflowProperty = new CssProperty({
+     name: 'textOverflow',
+     cssName: 'text-overflow',
+     defaultValue: 'initial',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: textOverflowConverter,
+ });
+ textOverflowProperty.register(Style);
+@@ -303,14 +303,14 @@ export const letterSpacingProperty = new InheritedCssProperty({
+     name: 'letterSpacing',
+     cssName: 'letter-spacing',
+     defaultValue: 0,
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: (v) => parseFloat(v),
+ });
+ letterSpacingProperty.register(Style);
+ export const lineHeightProperty = new InheritedCssProperty({
+     name: 'lineHeight',
+     cssName: 'line-height',
+-    affectsLayout: __APPLE__,
++    affectsLayout: (typeof __NS_CAP__ === "undefined" ? __APPLE__ : __NS_CAP__.propertyChangesRequestLayout),
+     valueConverter: (v) => parseFloat(v),
+ });
+ lineHeightProperty.register(Style);
