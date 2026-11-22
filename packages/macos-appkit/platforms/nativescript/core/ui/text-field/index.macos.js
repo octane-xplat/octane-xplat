@@ -3,7 +3,8 @@
 // controlTextDidChange: callback (the notification NSControl forwards to
 // its delegate), mirroring ui/text-field/index.ios.js's delegate contract.
 import { TextFieldBase } from '@nativescript/core/ui/text-field/text-field-common';
-import { View, CSSType } from '@nativescript/core/ui/core/view';
+import { View, CSSType, isEnabledProperty } from '@nativescript/core/ui/core/view';
+import { editableProperty, hintProperty } from '@nativescript/core/ui/editable-text-base';
 import { textProperty } from '@nativescript/core/ui/text-base';
 import { layout } from '@nativescript/core/utils';
 export * from '@nativescript/core/ui/text-field/text-field-common';
@@ -50,6 +51,28 @@ export class TextField extends TextFieldBase {
     }
     get macos() {
         return this.nativeViewProtected;
+    }
+    focus() {
+        const field = this.nativeViewProtected;
+        return Boolean(field?.enabled && field.window?.makeFirstResponder(field));
+    }
+    [isEnabledProperty.getDefault]() {
+        return this.nativeViewProtected.enabled;
+    }
+    [isEnabledProperty.setNative](enabled) {
+        this.nativeViewProtected.enabled = enabled;
+    }
+    [editableProperty.getDefault]() {
+        return this.nativeViewProtected.editable;
+    }
+    [editableProperty.setNative](editable) {
+        this.nativeViewProtected.editable = editable;
+    }
+    [hintProperty.getDefault]() {
+        return this.nativeViewProtected.placeholderString;
+    }
+    [hintProperty.setNative](hint) {
+        this.nativeViewProtected.placeholderString = hint ?? null;
     }
     onMeasure(widthMeasureSpec, heightMeasureSpec) {
         const nativeView = this.nativeViewProtected;

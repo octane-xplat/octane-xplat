@@ -32,7 +32,7 @@ function Screen() {
         accessibilityHint="Core provider fixture"
         className="provider-title"
       />
-      <textfield id="editor" />
+      <textfield id="editor" hint="Provider editor" />
       <textview id="notes" hint="Notes" style={{ width: 160, height: 40 }} />
       <button text="Core automation" onTap={() => automationButtonPresses++} />
       <liquidglass id="glass" style={{ width: 160, height: 48 }}>
@@ -715,10 +715,21 @@ setTimeout(async () => {
     if (debug.findId('editor') !== editor || !debug.snapshot().labels.includes('NativeScript Core on AppKit')) {
       throw new Error('Core automation did not expose the primary AppKit view tree')
     }
-    debug.setText('editor', 'Typed by automation')
+    if (editor.placeholderString !== 'Provider editor') {
+      throw new Error('Core did not deliver the text field hint to AppKit')
+    }
+    debug.setText('Provider editor', 'Typed by automation')
     if (editor.stringValue !== 'Typed by automation' || host.getViewById('editor').text !== 'Typed by automation') {
       throw new Error('Core automation did not update the native editor and its Core model')
     }
+    const field = host.getViewById('editor')
+    field.editable = false
+    field.isEnabled = false
+    if (editor.enabled || editor.editable || field.focus()) {
+      throw new Error('The Core field stayed editable or focusable after being disabled')
+    }
+    field.isEnabled = true
+    field.editable = true
     debug.setText('Notes', 'Automated notes')
     const notes = host.getViewById('notes')
     if (notes.nativeViewProtected.documentView.string !== 'Automated notes' || notes.text !== 'Automated notes') {

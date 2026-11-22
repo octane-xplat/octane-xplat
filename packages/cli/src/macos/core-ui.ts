@@ -27,6 +27,7 @@ export function coreMacOSUI(appRoot: string): CoreMacOSUI {
     [join(src, 'components/layout/full-screen-page'), fullScreenPage],
     [join(src, 'internal/keyboard/keyboard-overlay-host'), keyboardOverlay],
     [join(src, 'components/navigation/nav-href'), join(src, 'components/navigation/nav-href.ts')],
+    [join(src, 'components/forms/TextInput'), join(src, 'components/forms/TextInput.tsrx')],
     [join(src, 'gestures/host'), gestures],
     [join(src, 'gestures/host.macos'), gestures],
     [join(src, 'internal/layout/styled'), join(src, 'internal/layout/styled.tsrx')],
