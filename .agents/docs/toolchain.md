@@ -109,6 +109,10 @@ host assets in the selected project. Keep that platform cost out of the CLI
 tarball and web-only build installations. Go owns staging and final
 publication after the worker finishes.
 
+The macOS JavaScriptCore host forwards `console.info` through its native log
+channel. Keep the host shim and bundle validator aligned. NativeScript Core
+uses this method for informational trace messages.
+
 The published tarball preserves the Vite exports and the bounded `./worker`
 operation through the curated plugin closure; heavy engines are optional peers.
 Native-only installs fetch none of those peers. Native worker/declaration lookup uses the selected project's compatible

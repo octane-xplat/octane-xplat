@@ -32,7 +32,7 @@ const supportedMembers = new Map([
   ['node:path', new Set(['join', 'resolve'])],
   ['process', new Set(['env', 'cwd'])],
   ['Buffer', new Set(['from'])],
-  ['console', new Set(['log', 'warn', 'error'])],
+  ['console', new Set(['log', 'info', 'warn', 'error'])],
 ])
 
 function isFile(path) {
