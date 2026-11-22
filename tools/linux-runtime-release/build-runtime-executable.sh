@@ -11,13 +11,13 @@ arch=$1
 case "$arch" in
   x86_64)
     v8_hash=09ddef6c51192afff0541131a0ef9c00f83185d2391daab180382a3abf36ac95
-    sysroot_hash=b0c4ec444a204e1cad5562ee1f718cef66a2619523b3b9b3479a74cc9be9f63f
+    sysroot_hash=c67edda30eb1f94a7bcb1b13e330b6f06a7178da9d7202198ba337fd147da6c8
     rust_lib_hash=ef9962591ef8456ff4d97f52bc348d62fd01f07249ff19101ebe7a9477929ad0
     machine='Advanced Micro Devices X86-64'
     ;;
   aarch64)
     v8_hash=94c3f0fde0051404fca1b691f28a496d78db830e7cfb499a044cb1a5e3a59455
-    sysroot_hash=4d14f512028772a84babe51c9683e0571c2e02b489633ed9c7c41a7273ac9f93
+    sysroot_hash=7d905d5f2fcb61a522513c6c402b6d960c23fbd0bcbda239369170496246065e
     rust_lib_hash=17eea9828a06f2530c6932f5e2267bfd5080794f940e1097346fb747a3fea4d3
     machine=AArch64
     ;;
@@ -27,8 +27,8 @@ case "$arch" in
     ;;
 esac
 
-source_commit=57408ba5e9cfe4a48bc68223c9d53a869d2cee5f
-source_hash=8e3afd86880714d99910ec1667052546ef47788c578c663f3e6ff4ad9c0e5263
+source_commit=158da846adc6d123817ff9a172b26bb8a183e12f
+source_hash=e82340ad584a4d9cc6831c4f91ad29dd1a3532df472b2c28b6de6a4b144f79e2
 lock_hash=b2e8e6e1d1925b09eb28a97837b5e0b79626e3c32868f51114f5b2485d998167
 target="$arch-unknown-linux-gnu"
 toolchain=${LINUX_RUNTIME_RUST_TOOLCHAIN:-1.99.1}
@@ -42,8 +42,8 @@ case "$rust_version" in
   *) echo 'This build requires Rust 1.99.1 (58cf8f9c3)' >&2; exit 2 ;;
 esac
 case "$strip_version" in
-  *23.1.5*) ;;
-  *) echo 'This build requires llvm-strip 23.1.5' >&2; exit 2 ;;
+  *23.1.6*) ;;
+  *) echo 'This build requires llvm-strip 23.1.6' >&2; exit 2 ;;
 esac
 if [ "$zig_version" != 0.17.1 ]; then
   echo 'This build requires Zig 0.17.1' >&2
@@ -136,7 +136,7 @@ export "PKG_CONFIG_SYSROOT_DIR_$target_env=$work/sysroot"
 export "PKG_CONFIG_LIBDIR_$target_env=$lib_dir/pkgconfig"
 export XPLAT_LINUX_ARCH="$arch" CARGO_HOME="$work/cargo" ZIG_GLOBAL_CACHE_DIR="$work/zig-cache"
 export XPLAT_ARM64_LLD="$lld"
-export RUSTY_V8_ARCHIVE="$v8_archive" SOURCE_DATE_EPOCH=1794693591
+export RUSTY_V8_ARCHIVE="$v8_archive" SOURCE_DATE_EPOCH=1795266021
 
 # Link the target system libffi explicitly. The cross-build's vendored
 # libffi lacks the required symbols, and system GObject already uses this ABI.

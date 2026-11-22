@@ -18,11 +18,13 @@ To prepare ARM64 metadata inside the Andromeda x86_64 VM, pass `--arch aarch64 -
 
 ### Build the pinned executable
 
-On a macOS build host, reserve a native build slot. Use Rust 1.99.1 with the target's Linux standard library, Zig 0.17.1, LLVM 23.1.5, Python 3 and pkg-config. ARM64 also requires LLD 22.1.8 for the final link so Rust's Cortex-A53 workaround is applied. Set `LINUX_RUNTIME_LLVM_BIN` or `LINUX_RUNTIME_ARM64_LLD` when those tools are outside Homebrew's default paths. The optional `LINUX_RUNTIME_RUST_TOOLCHAIN` selects a local rustup name for the same pinned compiler.
+On a macOS build host, reserve a native build slot. Use Rust 1.99.1 with the target's Linux standard library, Zig 0.17.1, LLVM 23.1.6, Python 3 and pkg-config. ARM64 also requires LLD 22.1.8 for the final link so Rust's Cortex-A53 workaround is applied. Set `LINUX_RUNTIME_LLVM_BIN` or `LINUX_RUNTIME_ARM64_LLD` when those tools are outside Homebrew's default paths. The optional `LINUX_RUNTIME_RUST_TOOLCHAIN` selects a local rustup name for the same pinned compiler.
 
-Put the [pinned linux-runtime source archive](https://codeload.github.com/triniwiz/linux-runtime/tar.gz/57408ba5e9cfe4a48bc68223c9d53a869d2cee5f) in the input directory as `source.tar.gz`. From the [rusty_v8 147.4.0 release](https://github.com/denoland/rusty_v8/releases/tag/v147.4.0), save `librusty_v8_release_<arch>-unknown-linux-gnu.a.gz` as `v8-147.4.0-<arch>.a.gz`. Supply the frozen target GLib build inputs as `glib-sysroot-<arch>.tar.gz`. This archive contains the target headers, pkg-config files and shared libraries for GLib, GObject and libffi. Use `x86_64` or `aarch64` for `<arch>`.
+Put the [pinned linux-runtime source archive](https://codeload.github.com/triniwiz/linux-runtime/tar.gz/158da846adc6d123817ff9a172b26bb8a183e12f) in the input directory as `source.tar.gz`. From the [rusty_v8 147.4.0 release](https://github.com/denoland/rusty_v8/releases/tag/v147.4.0), save `librusty_v8_release_<arch>-unknown-linux-gnu.a.gz` as `v8-147.4.0-<arch>.a.gz`. Generate `glib-sysroot-<arch>.tar.gz` from checksummed Ubuntu 24.04 snapshot packages. This archive contains the target headers, pkg-config files, and libraries for GLib, GObject, libffi, and PCRE2. Use `x86_64` or `aarch64` for `<arch>`. Ensure the Rustup shims precede other Rust installations on `PATH`.
 
 ```sh
+python3 tools/linux-runtime-release/prepare-runtime-sysroot.py \
+  x86_64 /path/to/inputs/glib-sysroot-x86_64.tar.gz
 sh tools/linux-runtime-release/build-runtime-executable.sh \
   x86_64 /path/to/inputs /path/to/new-build
 ```
@@ -31,7 +33,7 @@ The script verifies all three archives and the Cargo lock before building in a f
 
 ### Stage the runtime payload
 
-After preparing the SDK with the source-built executable and generating the WebKitGTK and libsoup metadata, assemble the files for one Linux architecture. Supply the SDK's `framework/typings` directory and a directory with `icu.txt`, `mason.txt`, `v8.txt`, and `rust-dependencies.txt` license notices. Generate the Rust notices from the pinned checkout's Cargo lock:
+After preparing the SDK with the source-built executable and generating the WebKitGTK and libsoup metadata, assemble the files for one Linux architecture. When only the runtime implementation changes, verify that the SDK, metadata, and dependency inputs are unchanged upstream. You can then stage the previous payload pair into scratch and replace its executable with the matching source build before assembling the new archives. Supply the SDK's `framework/typings` directory and a directory with `icu.txt`, `mason.txt`, `v8.txt`, and `rust-dependencies.txt` license notices. Generate the Rust notices from the pinned checkout's Cargo lock:
 
 ```sh
 python3 tools/linux-runtime-release/collect-runtime-notices.py \

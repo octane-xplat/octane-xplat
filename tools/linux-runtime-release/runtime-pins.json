@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "runtimeCommit": "57408ba5e9cfe4a48bc68223c9d53a869d2cee5f",
+  "runtimeCommit": "158da846adc6d123817ff9a172b26bb8a183e12f",
   "manifests": {
-    "x86_64": "ef2478f79b1d06d264bddce54b13423c7853523bacb9abc45c497a113a3284c7",
-    "aarch64": "ab5f9a36cdfb0cee7c5d49ffda7da212bac3b1725c5ab9b503200a5f3fa9a344"
+    "x86_64": "e4d874a89df6ac7829f9fc45638bb0658cda2189d5cdd5805957a7d7c02a2a52",
+    "aarch64": "9023aa320df67e41a90897e8d9cc1fad9567cd2d6362fd1357d85555443e99dd"
   }
 }
