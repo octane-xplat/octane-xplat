@@ -304,7 +304,7 @@ function checkDesktopSurfaces() {
 function checkCorePaint() {
   const coreView = host.getViewById('paint')
   const view = coreView.nativeViewProtected
-  registerStylesheet('paint', '#paint { background-color: #ff0000; border-width: 2; border-color: #0000ff; border-radius: 8; }')
+  registerStylesheet('paint', '#paint { background-color: #ff0000; border-width: 2px; border-color: #0000ff; border-radius: 8px; }')
   const color = NSColor.colorWithCGColor(view.layer.backgroundColor)
   if (color.redComponent < 0.9 || view.layer.cornerRadius !== 8 || view.layer.borderWidth !== 2) {
     throw new Error(`Core styles did not paint the AppKit layer: ${view.layer.cornerRadius}, ${view.layer.borderWidth}`)

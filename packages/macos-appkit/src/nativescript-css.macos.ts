@@ -2,6 +2,7 @@ import {
   addTaggedAdditionalCSS,
   removeTaggedAdditionalCSS,
 } from '@nativescript/core'
+import { normalizeStylesheetPixels } from '@octane-xplat/css-engine'
 import { restyleNativeScriptRoots } from './nativescript-roots.macos'
 
 type Stylesheet = readonly [name: string, css: string]
@@ -11,7 +12,7 @@ const registeredStylesheets = new Map<string, string>()
 /** Register or replace a stylesheet owned by the application. */
 export function registerNativeScriptStylesheet(id: string, css: string): void {
   const tag = 'octane-macos:registered:' + id
-  registeredStylesheets.set(tag, css)
+  registeredStylesheets.set(tag, normalizeStylesheetPixels(css))
 
   // Core appends tagged rules. Reapply this sheet and its successors so a
   // replacement keeps its place in the application's stylesheet order.
