@@ -4,8 +4,10 @@ import { startNativeScriptApplication } from '../platforms/nativescript/core/app
 import { runWindowedApp, type MacOSAppMount, type MacOSAppOptions } from './host-runner'
 import { installNativeScriptWindowRoots } from './nativescript-window.macos'
 
+export * from './host-window-exports'
+
 /** Start the AppKit host with a NativeScript Core root. */
-export function runNativeScriptMacOSApp(
+export function runMacOSApp(
   options: MacOSAppOptions,
   mount: (target: MacOSAppMount) => void | (() => void),
 ): void {

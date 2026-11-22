@@ -54,7 +54,12 @@ try {
       {
         name: 'verify-single-nativescript-core',
         generateBundle() {
-          const core = [...this.getModuleIds()].filter((id) => id.includes('/@nativescript/core/'))
+          const ids = [...this.getModuleIds()]
+          assert.ok(
+            !ids.some((id) => id.endsWith('/macos-appkit/src/runtime.ts')),
+            'Core must be the only macOS renderer in the bundle',
+          )
+          const core = ids.filter((id) => id.includes('/@nativescript/core/'))
           assert.ok(core.length > 0)
           assert.ok(core.every((id) => id.startsWith(coreRoot + '/')), 'Core must load once')
         },

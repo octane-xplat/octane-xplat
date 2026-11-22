@@ -6,6 +6,8 @@ import test from 'node:test'
 // src/host.ts. The facade is hand-maintained, so drift is possible — compare
 // the export names of both module entry points.
 const runtime = readFileSync(new URL('../src/host.ts', import.meta.url), 'utf8')
+const coreRuntime = readFileSync(new URL('../src/nativescript-host.macos.ts', import.meta.url), 'utf8')
+const shared = readFileSync(new URL('../src/host-window-exports.ts', import.meta.url), 'utf8')
 const facade = readFileSync(new URL('../src/host.d.ts', import.meta.url), 'utf8')
 
 function exportedNames(code: string): string[] {
@@ -36,5 +38,8 @@ function exportedNames(code: string): string[] {
 }
 
 test('host type facade mirrors the host module export surface', () => {
-  assert.deepEqual(exportedNames(runtime), exportedNames(facade))
+  for (const entry of [runtime, coreRuntime]) {
+    assert.match(entry, /export \* from '\.\/host-window-exports'/)
+    assert.deepEqual(exportedNames(entry + '\n' + shared), exportedNames(facade))
+  }
 })

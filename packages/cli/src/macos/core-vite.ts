@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { UserConfig } from 'vite'
 import { inlineStylesheets } from '../inline-stylesheets.ts'
@@ -37,6 +37,7 @@ export async function createCoreMacOSConfig(
     fromApp('octane/compiler/vite'),
   ])
   const { config: provider, coreRoot, reusedCoreFiles } = await createNativeScriptProvider(root)
+  const appKitSource = dirname(require.resolve('@octane-xplat/macos-appkit/host'))
 
   const config: UserConfig = {
     root,
@@ -65,6 +66,14 @@ export async function createCoreMacOSConfig(
       dedupe: ['octane'],
       alias: [
         ...provider.resolve.alias,
+        {
+          find: /^@octane-xplat\/macos-appkit$/,
+          replacement: join(appKitSource, 'nativescript-renderer.macos.ts'),
+        },
+        {
+          find: /^@octane-xplat\/macos-appkit\/host$/,
+          replacement: join(appKitSource, 'nativescript-host.macos.ts'),
+        },
         { find: /^octane$/, replacement: 'octane/universal/native' },
       ],
     },

@@ -7,12 +7,14 @@ import { appMenu } from '../../../app-menu/src/index.macos.ts'
 import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.ts'
 import { createShortcuts } from '../../../shortcuts/src/index.macos.ts'
 import { openWindow } from '../../src/host-windowing'
-import { runNativeScriptMacOSApp } from '../../src/nativescript-host.macos'
-import { createNativeScriptWindowRoot } from '../../src/nativescript-window.macos'
+import { runMacOSApp } from '@octane-xplat/macos-appkit/host'
+import {
+  createMacOSRoot,
+  observeLayoutCommits,
+  registerStylesheet,
+  setLayoutProjectionScale,
+} from '@octane-xplat/macos-appkit'
 import { installNativeScriptDevModules } from '../../src/nativescript-dev.macos'
-import { registerNativeScriptStylesheet } from '../../src/nativescript-css.macos'
-import { syncNativeScriptProjection } from '../../src/nativescript-paint.macos'
-import { observeNativeScriptLayoutCommits } from '../../src/nativescript-roots.macos'
 import './nativescript-provider.css'
 
 function Screen() {
@@ -57,7 +59,7 @@ let applicationReady = false
 Application.once(Application.readyEvent, () => {
   applicationReady = !Application.macos.window
 })
-runNativeScriptMacOSApp({
+runMacOSApp({
   title: 'Core provider fixture',
   size: { width: 1024, height: 700 },
 }, (target) => {
@@ -82,7 +84,7 @@ function checkEmbeddedCoreRoot() {
   const window = Application.macos.window
   const content = NSView.alloc().initWithFrame(NSMakeRect(10, 10, 290, 180))
   window.contentView.addSubview(content)
-  const root = createNativeScriptWindowRoot(content, { fontFamily: 'Menlo' })
+  const root = createMacOSRoot(content, { fontFamily: 'Menlo' })
   try {
     root.render(SecondaryWindow, {})
     const host = content.subviews.objectAtIndex(0)
@@ -102,20 +104,20 @@ function checkEmbeddedCoreRoot() {
 
 function checkCorePaint() {
   const view = host.getViewById('paint').nativeViewProtected
-  registerNativeScriptStylesheet('paint', '#paint { background-color: #ff0000; border-width: 2; border-color: #0000ff; border-radius: 8; }')
+  registerStylesheet('paint', '#paint { background-color: #ff0000; border-width: 2; border-color: #0000ff; border-radius: 8; }')
   const color = NSColor.colorWithCGColor(view.layer.backgroundColor)
   if (color.redComponent < 0.9 || view.layer.cornerRadius !== 8 || view.layer.borderWidth !== 2) {
     throw new Error(`Core styles did not paint the AppKit layer: ${view.layer.cornerRadius}, ${view.layer.borderWidth}`)
   }
-  syncNativeScriptProjection(view, { x: 2, y: 2 })
+  setLayoutProjectionScale(view, { x: 2, y: 2 })
   if (view.layer.cornerRadius !== 4) {
     throw new Error('AppKit did not compensate the Core view radius during projection')
   }
-  syncNativeScriptProjection(view, null)
+  setLayoutProjectionScale(view, null)
   if (view.layer.cornerRadius !== 8) {
     throw new Error('AppKit did not restore the Core view radius after projection')
   }
-  registerNativeScriptStylesheet('paint',
+  registerStylesheet('paint',
     '#paint { background-image: linear-gradient(90deg, #ff0000 25%, #0000ff 75%); }',
   )
   const backgroundLayer = view.layer.sublayers?.objectAtIndex(0)
@@ -123,7 +125,7 @@ function checkCorePaint() {
   if (!(gradient instanceof CAGradientLayer) || gradient.colors.count !== 2) {
     throw new Error('The Core gradient did not reach the shared AppKit background painter')
   }
-  registerNativeScriptStylesheet('paint', '')
+  registerStylesheet('paint', '')
   if (view.layer.backgroundColor || view.layer.cornerRadius || view.layer.borderWidth || backgroundLayer.superlayer) {
     throw new Error('Removing CSS left old Core paint on the AppKit view')
   }
@@ -133,7 +135,7 @@ async function checkLayoutNotifications() {
   const target = host.getViewById('title')
   const contentView = Application.macos.window.contentView
   const widths: number[] = []
-  const unobserve = observeNativeScriptLayoutCommits(({ hostView }) => {
+  const unobserve = observeLayoutCommits(({ hostView }) => {
     if (hostView === contentView) {
       widths.push(target.nativeViewProtected.frame.size.width)
     }
@@ -465,25 +467,25 @@ setTimeout(async () => {
     if (native.font.pointSize !== 19) {
       throw new Error(`Replacing bundled styles left an obsolete rule on the NativeScript title (Core ${title.style.fontSize}, native ${native.font.pointSize})`)
     }
-    registerNativeScriptStylesheet('app-rule', '#editor { font-size: 24; }')
+    registerStylesheet('app-rule', '#editor { font-size: 24; }')
     const editor = host.getViewById('editor').nativeViewProtected
     await new Promise((resolve) => setTimeout(resolve, 30))
     if (editor.font.pointSize !== 24) {
       throw new Error('The registered stylesheet did not reach the mounted editor')
     }
-    registerNativeScriptStylesheet('app-rule', '#editor { color: red; }')
+    registerStylesheet('app-rule', '#editor { color: red; }')
     await new Promise((resolve) => setTimeout(resolve, 30))
     if (editor.font.pointSize === 24) {
       throw new Error('Replacing a registered stylesheet left the previous rules active')
     }
-    registerNativeScriptStylesheet('app-rule', '#editor { font-size: 25; }')
+    registerStylesheet('app-rule', '#editor { font-size: 25; }')
     replaceStylesheets([])
     await new Promise((resolve) => setTimeout(resolve, 30))
     if (editor.font.pointSize !== 25) {
       throw new Error('The registered stylesheet was lost when the bundle reloaded')
     }
-    registerNativeScriptStylesheet('later-app-rule', '#editor { font-size: 27; }')
-    registerNativeScriptStylesheet('app-rule', '#editor { font-size: 29; }')
+    registerStylesheet('later-app-rule', '#editor { font-size: 27; }')
+    registerStylesheet('app-rule', '#editor { font-size: 29; }')
     await new Promise((resolve) => setTimeout(resolve, 30))
     if (editor.font.pointSize !== 27) {
       throw new Error('Replacing a registered stylesheet changed its cascade order')
@@ -503,15 +505,15 @@ setTimeout(async () => {
     await checkLayoutNotifications()
     checkEmbeddedCoreRoot()
     await checkWindowLifecycle()
-    registerNativeScriptStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
+    registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {
       throw new Error('RTL start alignment did not resolve to the right edge')
     }
-    registerNativeScriptStylesheet('logical-align', '#title { direction: ltr; text-align: start; }')
+    registerStylesheet('logical-align', '#title { direction: ltr; text-align: start; }')
     if (native.alignment !== 0) {
       throw new Error('Changing text direction did not update start alignment')
     }
-    registerNativeScriptStylesheet('logical-align', '#title { direction: ltr; text-align: end; }')
+    registerStylesheet('logical-align', '#title { direction: ltr; text-align: end; }')
     if (native.alignment !== 1) {
       throw new Error('LTR end alignment did not resolve to the right edge')
     }
