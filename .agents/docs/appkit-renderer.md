@@ -48,14 +48,20 @@ Core mounts its main root inside the AppKit host's pinned content view.
 Replacing the root keeps the existing window, delegate, and size pins.
 When compiling Core-backed components, select `host-core.macos.tsx` for
 the UI interaction host. It waits for the Core view to load and uses AppKit's
-mouse contact stream. AppKit retains its normal wheel scrolling.
+mouse contact stream. Wait for the underlying AppKit view's window
+getter before binding gestures. AppKit retains its normal wheel scrolling.
+Core's Mason scroll view exposes the shared MasonKit scroll metrics,
+top-relative point offsets, and scroll events through its AppKit clip view.
 The Core ActionBar supplies its natural title size to Mason. AppKit keeps a
 plain native host view, so measuring the title does not require a native
 getter that calls back into JavaScript.
 Core bundles load CSS through its tagged stylesheet registry. The CLI's
 NativeScript stylesheet destination replaces the previous bundle's rules,
-including when the new bundle contains no styles. Core font changes use
-the shared AppKit font resolver.
+including when the new bundle contains no styles. Application-registered
+sheets live under separate tags and keep their relative cascade order on
+replacement. Core font changes use the shared AppKit font resolver.
+Text controls support logical start/end alignment and update it when the
+inherited direction changes.
 The Core stylesheet destination preserves the authored min/max media
 syntax because Core 9.1.3 cannot parse the minifier's range syntax.
 Core 9.1.3 normally evaluates selector and keyframe media queries against
