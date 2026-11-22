@@ -16,12 +16,16 @@ export function coreMacOSUI(appRoot: string): CoreMacOSUI {
   }
 
   const src = join(uiRoot, 'src')
-  const index = join(src, 'index.mobile.ts')
+  const index = join(src, 'index-core.macos.ts')
   const pane = join(src, 'routing/RoutePane.mobile.tsrx')
   const gestures = join(src, 'gestures/host-core.macos.tsx')
+  const fullScreenPage = join(src, 'components/layout/full-screen-page.mobile.ts')
+  const keyboardOverlay = join(src, 'internal/keyboard/keyboard-overlay-host.mobile.ts')
   const leaves = new Map([
     [join(src, 'routing/RouteOutlet'), join(src, 'routing/RouteOutlet.tsrx')],
     [join(src, 'routing/RoutePane'), pane],
+    [join(src, 'components/layout/full-screen-page'), fullScreenPage],
+    [join(src, 'internal/keyboard/keyboard-overlay-host'), keyboardOverlay],
     [join(src, 'components/navigation/nav-href'), join(src, 'components/navigation/nav-href.ts')],
     [join(src, 'gestures/host'), gestures],
     [join(src, 'gestures/host.macos'), gestures],
@@ -32,7 +36,7 @@ export function coreMacOSUI(appRoot: string): CoreMacOSUI {
       { find: /^@octane-xplat\/ui$/, replacement: index },
       { find: /^@octane-xplat\/ui\/routing$/, replacement: join(src, 'routing/index.ts') },
     ],
-    reusedFiles: [index, pane],
+    reusedFiles: [pane, fullScreenPage, keyboardOverlay],
     plugins: [{
       name: 'xplat:macos-core-ui',
       enforce: 'pre',
