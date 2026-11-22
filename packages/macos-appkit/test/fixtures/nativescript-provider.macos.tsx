@@ -7,7 +7,10 @@ import { appMenu } from '../../../app-menu/src/index.macos.ts'
 import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.ts'
 import { createShortcuts } from '../../../shortcuts/src/index.macos.ts'
 import { openWindow } from '../../src/host-windowing'
-import { installNativeScriptWindowRoots } from '../../src/nativescript-window.macos'
+import {
+  createNativeScriptWindowRoot,
+  installNativeScriptWindowRoots,
+} from '../../src/nativescript-window.macos'
 import { installNativeScriptDevModules } from '../../src/nativescript-dev.macos'
 import './nativescript-provider.css'
 
@@ -48,6 +51,28 @@ Application.run({ create: () => host })
 
 function SecondaryWindow() {
   return <label className="provider-viewport" text="Secondary Core window" />
+}
+
+function checkEmbeddedCoreRoot() {
+  const window = Application.macos.window
+  const content = NSView.alloc().initWithFrame(NSMakeRect(10, 10, 290, 180))
+  window.contentView.addSubview(content)
+  const root = createNativeScriptWindowRoot(content, { fontFamily: 'Menlo' })
+  try {
+    root.render(SecondaryWindow, {})
+    const host = content.subviews.objectAtIndex(0)
+    const label = host.subviews.objectAtIndex(0)
+    if (host.frame.size.width !== 290 || label.font.familyName !== 'Menlo') {
+      throw new Error(`The embedded Core root lost its size or font: ${host.frame.size.width}, ${label.font.familyName}`)
+    }
+  } finally {
+    root.unmount()
+    root.unmount()
+    if (content.subviews.count !== 0) {
+      throw new Error('The embedded Core root remained attached after unmount')
+    }
+    content.removeFromSuperview()
+  }
 }
 
 async function checkWindowLifecycle() {
@@ -345,6 +370,7 @@ setTimeout(async () => {
     }
     await checkDesktopServices()
     checkShortcuts()
+    checkEmbeddedCoreRoot()
     await checkWindowLifecycle()
     const backdrop = checkLiquidGlass()
     const bar = checkActionBar()
