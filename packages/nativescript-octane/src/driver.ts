@@ -956,6 +956,13 @@ function syncText(parent: NativeScriptParent): void {
   }
 }
 
+function hasCustomChildOperations(view: ViewBase): boolean {
+  return (
+    typeof Reflect.get(view, 'insertChild') === 'function' &&
+    typeof Reflect.get(view, 'removeChild') === 'function'
+  )
+}
+
 function addViewChild(parentView: ViewBase, view: ViewBase, index: number): void {
   // Slot-hosted children (e.g. ui-drawer's mainContent/leftDrawer): the host
   // wires the view up through a property setter, and its addChild is a no-op
@@ -973,10 +980,7 @@ function addViewChild(parentView: ViewBase, view: ViewBase, index: number): void
   // LayoutBase (e.g. MasonKit ViewBase — CustomLayoutView → ContainerView).
   // Plain View/ContainerView lacks insertChild, so this stays a capability
   // check rather than a catch-all.
-  if (
-    typeof Reflect.get(parentView, 'insertChild') === 'function' &&
-    typeof Reflect.get(parentView, 'removeChild') === 'function'
-  ) {
+  if (hasCustomChildOperations(parentView)) {
     const count =
       typeof Reflect.get(parentView, 'getChildrenCount') === 'function'
         ? Reflect.get(parentView, 'getChildrenCount').call(parentView)
@@ -1057,10 +1061,7 @@ function removeViewChild(parentView: ViewBase | null, view: ViewBase): void {
   }
   // Same capability check as addViewChild: custom-layout containers that
   // aren't LayoutBase subclasses remove children through removeChild.
-  if (
-    typeof Reflect.get(parentView, 'removeChild') === 'function' &&
-    typeof Reflect.get(parentView, 'insertChild') === 'function'
-  ) {
+  if (hasCustomChildOperations(parentView)) {
     if (view.parent === parentView) {
       Reflect.get(parentView, 'removeChild').call(parentView, view as View)
     }
@@ -1255,6 +1256,16 @@ function insert(
   node: HostNode,
   before: number | null,
 ): void {
+  const host = hostViewOf(container, parent)
+  const view = node.view
+  if (host instanceof ContentView && view !== null && host.content != null && host.content !== view) {
+    const slot: unknown = Reflect.get(view, 'hostSlot')
+    if (!(typeof slot === 'string' && slot in host) && !hasCustomChildOperations(host)) {
+      throw new Error(
+        `NativeScript driver: <${host.typeName}> accepts one content child. Wrap siblings in a layout.`,
+      )
+    }
+  }
   detach(container, node)
   const siblings = childrenOf(container, parent)
   const index = before === null ? -1 : siblings.findIndex((sibling) => sibling.id === before)

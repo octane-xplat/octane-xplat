@@ -288,6 +288,21 @@ describe('nativeScriptDriver', () => {
     expect(scroll.content).toBeNull()
   })
 
+  it('rejects a second content child without detaching it from its current parent', () => {
+    const { apply, host, view } = mount(new MockContentView())
+    apply(create(1, 'test-grid'), create(2, 'label'), insert(1), insert(2, 1))
+    const grid = view<MockLayoutBase>(1)
+    const label = view<MockView>(2)
+
+    expect(() => apply(move(2))).toThrow('accepts one content child')
+    expect(host.content).toBe(grid)
+    expect(grid.children).toEqual([label])
+
+    apply(remove(1), move(2))
+    expect(host.content).toBe(label)
+    expect(grid.children).toEqual([])
+  })
+
   it('hosts tab view items, each taking its child as the item view', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(
