@@ -4,6 +4,7 @@ import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'o
 import type { RichTextEditorProps } from './types'
 import { createEditorSession } from './host-session.macos'
 import { createEditorHost } from './editor-host.macos'
+import type { NSView } from '@octane-xplat/platform/macos'
 
 type HostProps = RichTextEditorProps & {
   /** Bundled browser page URL loaded into the WKWebView bridge. */
@@ -16,6 +17,8 @@ type HostProps = RichTextEditorProps & {
   onJSONChange?: (doc: any) => void
 }
 
+type EditorParent = NSView | { nativeView: NSView | null }
+
 /** Internal shared AppKit/WKWebView surface, owned by the editor leaf. */
 export function NativeEditor(props: HostProps): unknown {
   const latest = useRef(props)
@@ -27,9 +30,10 @@ export function NativeEditor(props: HostProps): unknown {
 
   useImperativeHandle(props.ref, () => handle, [handle])
 
-  const attach = useCallback((parent: any) => {
+  const attach = useCallback((ref: EditorParent | null) => {
     session.current?.dispose()
     session.current = null
+    const parent = ref && ('nativeView' in ref ? ref.nativeView : ref)
     if (!parent) {
       setHandle(null)
       return
