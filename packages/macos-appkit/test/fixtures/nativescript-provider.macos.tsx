@@ -80,10 +80,8 @@ function SecondaryWindow() {
   return <label className="provider-viewport" text="Secondary Core window" />
 }
 
-function checkEmbeddedCoreRoot() {
-  const window = Application.macos.window
+async function checkEmbeddedCoreRoot() {
   const content = NSView.alloc().initWithFrame(NSMakeRect(10, 10, 290, 180))
-  window.contentView.addSubview(content)
   const root = createMacOSRoot(content, { fontFamily: 'Menlo' })
   try {
     root.render(SecondaryWindow, {})
@@ -92,13 +90,17 @@ function checkEmbeddedCoreRoot() {
     if (host.frame.size.width !== 290 || label.font.familyName !== 'Menlo') {
       throw new Error(`The embedded Core root lost its size or font: ${host.frame.size.width}, ${label.font.familyName}`)
     }
+    content.setFrameSize(NSMakeSize(340, 190))
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (host.frame.size.width !== 340 || host.frame.size.height !== 190) {
+      throw new Error('The embedded Core root did not follow its AppKit content frame')
+    }
   } finally {
     root.unmount()
     root.unmount()
     if (content.subviews.count !== 0) {
       throw new Error('The embedded Core root remained attached after unmount')
     }
-    content.removeFromSuperview()
   }
 }
 
@@ -516,7 +518,7 @@ setTimeout(async () => {
     checkShortcuts()
     checkCorePaint()
     await checkLayoutNotifications()
-    checkEmbeddedCoreRoot()
+    await checkEmbeddedCoreRoot()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

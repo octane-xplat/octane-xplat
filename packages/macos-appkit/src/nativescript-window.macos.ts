@@ -1,9 +1,16 @@
 import { GridLayout, Utils } from '@nativescript/core'
 import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
-import { NSView } from '@octane-xplat/platform/macos'
+import {
+  NSNotificationCenter,
+  NSView,
+  NSViewFrameDidChangeNotification,
+  NSWindowDidResizeNotification,
+} from '@octane-xplat/platform/macos'
 import type { UniversalRoot } from 'octane/universal/native'
 import { FailureCollector } from './failures'
-import { installWindowRootFactory, observeWindowResize } from './host-windowing'
+import { installWindowRootFactory } from './host-windowing'
+import { installNativeScriptStylesheetDelivery } from './nativescript-css.macos'
+import { installNativeScriptHostServices } from './nativescript-host-services'
 import { trackNativeScriptRoot } from './nativescript-roots.macos'
 import type { MacOSRootOptions } from './runtime'
 
@@ -12,10 +19,8 @@ export function createNativeScriptWindowRoot(
   content: NSView,
   options?: MacOSRootOptions,
 ): UniversalRoot {
-  const window = content.window
-  if (!window) {
-    throw new Error('NativeScript window content is not attached to an AppKit window')
-  }
+  installNativeScriptHostServices()
+  installNativeScriptStylesheetDelivery()
   const host = new GridLayout()
   if (options?.fontFamily) {
     host.style.fontFamily = options.fontFamily
@@ -56,10 +61,33 @@ export function createNativeScriptWindowRoot(
     )
     host.layout(0, 0, width, height)
   }
-  const unobserve = observeWindowResize(window, () => {
-    host._onCssStateChange()
-    layout()
-  })
+  let mounted = true
+  let resizePending = false
+  const resized = () => {
+    if (resizePending) {
+      return
+    }
+    resizePending = true
+    queueMicrotask(() => {
+      resizePending = false
+      if (mounted) {
+        host._onCssStateChange()
+        layout()
+      }
+    })
+  }
+  const center = NSNotificationCenter.defaultCenter
+  content.postsFrameChangedNotifications = true
+  const frameObserver = center.addObserverForNameObjectQueueUsingBlock(
+    NSViewFrameDidChangeNotification, content, null, resized,
+  )
+  const windowObserver = center.addObserverForNameObjectQueueUsingBlock(
+    NSWindowDidResizeNotification, null, null, ({ object }) => {
+      if (object === content.window) {
+        resized()
+      }
+    },
+  )
   const untrackRoot = trackNativeScriptRoot(host, content)
   const render = root.render.bind(root)
   root.render = (...args) => {
@@ -68,14 +96,14 @@ export function createNativeScriptWindowRoot(
     return result
   }
   const unmount = root.unmount.bind(root)
-  let mounted = true
   root.unmount = () => {
     if (!mounted) {
       return
     }
     mounted = false
     const failures = new FailureCollector()
-    failures.run('window resize unsubscribe', unobserve)
+    failures.run('content frame observation', () => center.removeObserver(frameObserver))
+    failures.run('window resize observation', () => center.removeObserver(windowObserver))
     failures.run('window root tracking unsubscribe', untrackRoot)
     failures.run('window root unmount', unmount)
     releaseHost(failures)
