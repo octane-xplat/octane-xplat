@@ -83,8 +83,16 @@ interface PortalTarget {
   /** Swapped in place when the target's element class is re-registered. */
   view: LayoutBase
   readonly children: HostNode[]
+  readonly releaseHost?: () => void
   refs: number
 }
+
+export type NativeScriptPortalHost = {
+  view: LayoutBase
+  release(): void
+}
+
+type ResolvePortalHost = (target: object) => NativeScriptPortalHost | undefined
 
 export interface NativeScriptContainer {
   readonly host: ViewBase
@@ -92,6 +100,7 @@ export interface NativeScriptContainer {
   readonly children: HostNode[]
   /** Active portal targets by handle id, emptied as registrations release. */
   readonly portalTargets: Map<string | number, PortalTarget>
+  readonly resolvePortalHost?: ResolvePortalHost
   root: UniversalRoot | null
 }
 
@@ -130,7 +139,7 @@ const viewOwners = new WeakMap<
 >()
 
 /** Stable per-view ids, so re-rendering a portal mints the same target handle. */
-const portalTargetIds = new WeakMap<ViewBase, number>()
+const portalTargetIds = new WeakMap<object, number>()
 
 let nextPortalTargetId = 0
 
@@ -1665,28 +1674,35 @@ function preparePortalTarget(
   context: UniversalPortalTargetContext<NativeScriptContainer>,
 ): UniversalPortalTargetRegistration {
   const { container, target: suppliedTarget } = context
-  if (!(suppliedTarget instanceof View)) {
+  if (!suppliedTarget || typeof suppliedTarget !== 'object') {
     throw new TypeError('NativeScript driver: a portal target must be a NativeScript view.')
   }
-  const owner = viewOwners.get(suppliedTarget)
+  const nativeTarget = suppliedTarget instanceof View ? suppliedTarget : undefined
+  const owner = nativeTarget && viewOwners.get(nativeTarget)
   if (owner !== undefined && owner.container !== container) {
     throw new Error('NativeScript driver: a portal target must not belong to another Octane root.')
   }
-  const target = owner?.node.view ?? suppliedTarget
-  if (!(target instanceof LayoutBase)) {
+  const target = owner?.node.view ?? nativeTarget
+  if (target && !(target instanceof LayoutBase)) {
     throw new TypeError(
       `NativeScript driver: a <${target.typeName}> view cannot host portal children; target a layout (e.g. rootlayout, masonview).`,
     )
   }
-  let id = portalTargetIds.get(target)
+  const identity = target ?? suppliedTarget
+  let id = portalTargetIds.get(identity)
   if (id === undefined) {
     id = ++nextPortalTargetId
-    portalTargetIds.set(target, id)
+    portalTargetIds.set(identity, id)
   }
   const handle = context.createPortalTargetHandle(`nativescript-view-${id}`)
   let entry = container.portalTargets.get(handle.id)
   if (entry === undefined) {
-    entry = { handle, view: target, children: [], refs: 0 }
+    const external = target ? undefined : container.resolvePortalHost?.(suppliedTarget)
+    const view = target ?? external?.view
+    if (!view) {
+      throw new TypeError('NativeScript driver: a portal target must be a NativeScript view.')
+    }
+    entry = { handle, view, children: [], releaseHost: external?.release, refs: 0 }
     container.portalTargets.set(handle.id, entry)
   }
   entry.refs++
@@ -1704,10 +1720,14 @@ function preparePortalTarget(
       // The runtime removes a portal's children before releasing its
       // registration; any still attached (a batch aborted mid-apply) are
       // detached here so no view is orphaned on the target.
-      for (const child of [...entry.children]) {
-        detach(container, child)
+      try {
+        for (const child of [...entry.children]) {
+          detach(container, child)
+        }
+      } finally {
+        container.portalTargets.delete(handle.id)
+        entry.releaseHost?.()
       }
-      container.portalTargets.delete(handle.id)
     },
   }
 }
@@ -1865,12 +1885,16 @@ export function renderNativeScriptApp<P extends object>(
 }
 
 /** A live container: element re-registration recreates its views until `releaseNativeScriptContainer`. */
-export function createNativeScriptContainer(host: ViewBase): NativeScriptContainer {
+export function createNativeScriptContainer(
+  host: ViewBase,
+  resolvePortalHost?: ResolvePortalHost,
+): NativeScriptContainer {
   const container: NativeScriptContainer = {
     host,
     nodes: new Map(),
     children: [],
     portalTargets: new Map(),
+    resolvePortalHost,
     root: null,
   }
   containers.add(container)
@@ -1882,8 +1906,11 @@ export function releaseNativeScriptContainer(container: NativeScriptContainer): 
 }
 
 /** Mount an Octane tree into an existing NativeScript view. */
-export function createNativeScriptRoot(host: ViewBase): UniversalRoot {
-  const container = createNativeScriptContainer(host)
+export function createNativeScriptRoot(
+  host: ViewBase,
+  resolvePortalHost?: ResolvePortalHost,
+): UniversalRoot {
+  const container = createNativeScriptContainer(host, resolvePortalHost)
   const root = createUniversalRoot(container, nativeScriptDriver, {
     scheduleMicrotask: (callback) => {
       Promise.resolve().then(callback)

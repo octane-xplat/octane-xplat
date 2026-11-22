@@ -1,5 +1,8 @@
 import { GridLayout, Utils } from '@nativescript/core'
-import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
+import {
+  createNativeScriptRoot,
+  type NativeScriptPortalHost,
+} from '@octane-xplat/nativescript-octane'
 import {
   NSNotificationCenter,
   NSView,
@@ -15,20 +18,18 @@ import {
   installNativeScriptHostServices,
   installNativeScriptWindowServices,
 } from './nativescript-host-services'
-import { measureNativeScriptContent, nativeScriptFontFamilyForView, trackNativeScriptRoot } from './nativescript-roots.macos'
+import {
+  measureNativeScriptContent,
+  nativeScriptFontFamilyForView,
+  trackNativeScriptRoot,
+} from './nativescript-roots.macos'
 import type { MacOSRootOptions } from './runtime'
 
-/** Mount a Core root in the AppKit content view that owns its size and lifetime. */
-export function createNativeScriptWindowRoot(
-  content: NSView,
-  options?: MacOSRootOptions,
-): UniversalRoot {
-  installNativeScriptHostServices()
-  installNativeScriptWindowRoots()
-  installNativeScriptStylesheetDelivery()
+/** Host Core layout in an AppKit view, including independently sized portal content. */
+function mountNativeScriptContent(content: NSView, fontFamily?: string) {
   const host = new GridLayout()
-  if (options?.fontFamily) {
-    host.style.fontFamily = options.fontFamily
+  if (fontFamily) {
+    host.style.fontFamily = fontFamily
   }
   host._setupAsRootView({})
   const native = host.nativeViewProtected
@@ -42,12 +43,9 @@ export function createNativeScriptWindowRoot(
     failures.run('window content teardown', () => host._tearDownUI(true))
     failures.run('window content detach', () => native.removeFromSuperview())
   }
-  let root: UniversalRoot
   try {
     content.addSubview(native)
     host.callLoaded()
-    root = createNativeScriptRoot(host)
-    installNativeScriptAutomation(root)
   } catch (error) {
     const failures = new FailureCollector()
     failures.run('window content setup', () => {
@@ -85,34 +83,105 @@ export function createNativeScriptWindowRoot(
   const center = NSNotificationCenter.defaultCenter
   content.postsFrameChangedNotifications = true
   const frameObserver = center.addObserverForNameObjectQueueUsingBlock(
-    NSViewFrameDidChangeNotification, content, null, resized,
+    NSViewFrameDidChangeNotification,
+    content,
+    null,
+    resized,
   )
   const windowObserver = center.addObserverForNameObjectQueueUsingBlock(
-    NSWindowDidResizeNotification, null, null, ({ object }) => {
+    NSWindowDidResizeNotification,
+    null,
+    null,
+    ({ object }) => {
       if (object === content.window) {
         resized()
       }
     },
   )
   const untrackRoot = trackNativeScriptRoot(host, content)
+  return {
+    host,
+    layout,
+    dispose() {
+      if (!mounted) {
+        return
+      }
+      mounted = false
+      const failures = new FailureCollector()
+      failures.run('content frame observation', () => center.removeObserver(frameObserver))
+      failures.run('window resize observation', () => center.removeObserver(windowObserver))
+      failures.run('window root tracking unsubscribe', untrackRoot)
+      releaseHost(failures)
+      failures.throwIfFailed()
+    },
+  }
+}
+
+const portalHosts = new WeakSet<NSView>()
+
+function resolveAppKitPortalHost(target: object): NativeScriptPortalHost | undefined {
+  if (!(target instanceof NSView)) {
+    return
+  }
+  if (portalHosts.has(target)) {
+    throw new Error('AppKit portal target already belongs to another Core root')
+  }
+  const mounted = mountNativeScriptContent(target, nativeScriptFontFamilyForView(target))
+  portalHosts.add(target)
+  try {
+    mounted.layout()
+  } catch (error) {
+    portalHosts.delete(target)
+    mounted.dispose()
+    throw error
+  }
+  return {
+    view: mounted.host,
+    release() {
+      portalHosts.delete(target)
+      mounted.dispose()
+    },
+  }
+}
+
+/** Mount a Core root in the AppKit content view that owns its size and lifetime. */
+export function createNativeScriptWindowRoot(
+  content: NSView,
+  options?: MacOSRootOptions,
+): UniversalRoot {
+  installNativeScriptHostServices()
+  installNativeScriptWindowRoots()
+  installNativeScriptStylesheetDelivery()
+  const mounted = mountNativeScriptContent(content, options?.fontFamily)
+  let root: UniversalRoot
+  try {
+    root = createNativeScriptRoot(mounted.host, resolveAppKitPortalHost)
+    installNativeScriptAutomation(root)
+  } catch (error) {
+    const failures = new FailureCollector()
+    failures.run('Core root setup', () => {
+      throw error
+    })
+    failures.run('window content release', mounted.dispose)
+    failures.throwIfFailed()
+    throw error
+  }
   const render = root.render.bind(root)
   root.render = (...args) => {
     const result = render(...args)
-    layout()
+    mounted.layout()
     return result
   }
   const unmount = root.unmount.bind(root)
+  let unmounted = false
   root.unmount = () => {
-    if (!mounted) {
+    if (unmounted) {
       return
     }
-    mounted = false
+    unmounted = true
     const failures = new FailureCollector()
-    failures.run('content frame observation', () => center.removeObserver(frameObserver))
-    failures.run('window resize observation', () => center.removeObserver(windowObserver))
-    failures.run('window root tracking unsubscribe', untrackRoot)
     failures.run('window root unmount', unmount)
-    releaseHost(failures)
+    failures.run('window content release', mounted.dispose)
     failures.throwIfFailed()
   }
   return root
