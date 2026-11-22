@@ -2,6 +2,10 @@ import '@nativescript/macos-node-api'
 import { NSFontDescriptor, NSView } from '@octane-xplat/platform/macos'
 
 export * from 'octane/universal/native'
+/** @internal Renderer tag for the AppKit development shell. */
+export declare const __rendererId: 'macos' | 'nativescript'
+/** @internal Install the modules shared by the shell and rebuilt bundles. */
+export declare function __installDevelopmentModules(modules: Record<string, object>): void
 export type { AppKitView, ElementNode } from './model'
 export interface MacOSRootOptions {
   /** Default font family for this root and its renderer-hosted overlays. */

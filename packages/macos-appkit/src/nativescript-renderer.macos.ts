@@ -4,4 +4,6 @@ export { observeNativeScriptLayoutCommits as observeLayoutCommits } from './nati
 export { syncNativeScriptProjection as setLayoutProjectionScale } from './nativescript-paint.macos'
 export { registerNativeScriptStylesheet as registerStylesheet } from './nativescript-css.macos'
 export { registerFontFamily } from './fonts'
+export { installNativeScriptDevModules as __installDevelopmentModules } from './nativescript-dev.macos'
+export const __rendererId = 'nativescript'
 export * from 'octane/universal/native'

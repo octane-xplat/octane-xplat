@@ -9,12 +9,13 @@ import { createShortcuts } from '../../../shortcuts/src/index.macos.ts'
 import { openWindow } from '../../src/host-windowing'
 import { runMacOSApp } from '@octane-xplat/macos-appkit/host'
 import {
+  __installDevelopmentModules,
+  __rendererId,
   createMacOSRoot,
   observeLayoutCommits,
   registerStylesheet,
   setLayoutProjectionScale,
 } from '@octane-xplat/macos-appkit'
-import { installNativeScriptDevModules } from '../../src/nativescript-dev.macos'
 import './nativescript-provider.css'
 
 function Screen() {
@@ -403,10 +404,14 @@ async function checkMasonScroll() {
 }
 
 async function checkDevelopmentReload() {
-  installNativeScriptDevModules()
+  const shellImport = { stored: true }
+  __installDevelopmentModules({ 'provider-fixture-shell': shellImport })
+  if (Reflect.get(globalThis, '__xplatDevModules')['provider-fixture-shell'] !== shellImport) {
+    throw new Error('Core did not retain the shared shell modules')
+  }
   const load = Reflect.get(globalThis, '__hostRunFile')
   const before = load(process.env.OCTANE_MACOS_DEV_BUNDLE)
-  const component = hmrUniversalComponent('nativescript', before.default)
+  const component = hmrUniversalComponent(__rendererId, before.default)
   const devRoot = createNativeScriptRoot(host)
   const label = () => host.getViewById('provider-dev-count')
   const settle = () => new Promise((resolve) => setTimeout(resolve, 30))

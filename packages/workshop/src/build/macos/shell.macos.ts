@@ -133,7 +133,7 @@ function installWindowService({ parent, offscreen }) {
 /** AppKit shell; all chrome lives in one Octane component, the story in a
  *  separate persistent root mounted on the stage slot's view. */
 export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscreen = false } = {}) {
-	globalThis.__xplatDevModules = modules
+	renderer.__installDevelopmentModules(modules)
 	const app = NSApplication.sharedApplication
 	const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 		rect(0, 0, 1100, 720),
@@ -171,11 +171,11 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 		controller,
 		target: 'macos',
 		onStage(view) {
-			stage = view
+			stage = view?.nativeViewProtected ?? view
 		},
 		focus(view) {
 			if (view) {
-				window.makeFirstResponder(view)
+				window.makeFirstResponder(view.nativeViewProtected ?? view)
 			}
 		},
 	})
