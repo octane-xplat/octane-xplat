@@ -107,6 +107,16 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
 
       const controllers: ReturnType<typeof createAnimatedValue>[] = []
       const restore: (() => void)[] = []
+      const coreView = typeof view === 'object' && 'nativeViewProtected' in view ? view : undefined
+      const nativeView = coreView?.nativeViewProtected
+      // Core can dispose its peer before the outlet interrupts a transition.
+      // Retain AppKit's view so teardown can still restore its appearance.
+      const write = (property: string, value: number) =>
+        writeAnimatedProperty(
+          coreView?.nativeViewProtected || !nativeView ? view : nativeView,
+          property,
+          value,
+        )
 
       return new Promise<RouteTransitionResult>((resolve) => {
         let settled = false
@@ -155,11 +165,11 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
           const tasks = Object.entries(values).map(([property, initial]) => {
             const target = neutral[property as keyof AppKitTransitionValues]
 
-            restore.push(() => writeAnimatedProperty(view, property, target))
+            restore.push(() => write(property, target))
 
             const controller = createAnimatedValue(initial, {
               ...motionClock,
-              write: (targetView, value) => writeAnimatedProperty(targetView, property, value),
+              write: (_, value) => write(property, value),
               reducedMotion: options.reducedMotion === 'allow' ? undefined : readReducedMotion,
             })
 
