@@ -1,5 +1,7 @@
 // Borrowed from NativeScript/NativeScript PR #11089: packages/core/ui/styling/font.macos.ts
 import { Font as FontBase, FontStyle, FontVariationSettings, FontWeight, parseFont } from '@nativescript/core/ui/styling/font-common';
+import { NSFont, NSFontManager, NSFontTraitMask } from '@octane-xplat/platform/macos';
+import { resolveFont } from '../../../../../src/fonts';
 export { FontStyle, FontVariationSettings, FontWeight, parseFont };
 export class Font extends FontBase {
     static default = new Font(undefined, undefined);
@@ -25,7 +27,14 @@ export class Font extends FontBase {
         return new Font(this.fontFamily, this.fontSize, this.fontStyle, this.fontWeight, this.fontScale, variationSettings);
     }
     getUIFont(defaultFont) {
-        return defaultFont;
+        if (defaultFont && Font.equals(this, Font.default)) {
+            return defaultFont;
+        }
+        const size = (this.fontSize ?? defaultFont?.pointSize ?? NSFont.systemFontSize) * this.fontScale;
+        const font = resolveFont(size, this.fontWeight, this.fontFamily);
+        return this.isItalic
+            ? NSFontManager.sharedFontManager.convertFontToHaveTrait(font, NSFontTraitMask.Italic) ?? font
+            : font;
     }
     getAndroidTypeface() {
         return undefined;

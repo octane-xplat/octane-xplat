@@ -11,6 +11,7 @@ import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
 import { createNativeScriptProvider } from '../src/nativescript-provider.macos.ts'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle, macOSHostArch, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import { inlineStylesheets } from '../../cli/src/inline-stylesheets.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/macos-core-provider')
@@ -44,6 +45,7 @@ try {
     },
     plugins: [
       ...config.plugins,
+      inlineStylesheets('nativescript'),
       octane({
         renderers: {
           registry: { nativescript: { ...nativeScriptRenderer, intrinsics: '@octane-xplat/jsx' } },
@@ -60,6 +62,7 @@ try {
       },
     ],
     build: {
+      cssCodeSplit: true,
       minify: false,
       outDir: output,
       lib: {

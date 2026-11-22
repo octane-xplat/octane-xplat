@@ -7,6 +7,7 @@ import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.t
 import { createShortcuts } from '../../../shortcuts/src/index.macos.ts'
 import { openWindow } from '../../src/host-windowing'
 import { installNativeScriptWindowRoots } from '../../src/nativescript-window.macos'
+import './nativescript-provider.css'
 
 function Screen() {
   return (
@@ -16,7 +17,7 @@ function Screen() {
         text="NativeScript Core on AppKit"
         accessibilityLabel="Provider status"
         accessibilityHint="Core provider fixture"
-        style={{ fontSize: 20 }}
+        className="provider-title"
       />
       <textfield id="editor" />
       <liquidglass id="glass" style={{ width: 160, height: 48 }}>
@@ -227,6 +228,20 @@ setTimeout(async () => {
     const native = title.nativeViewProtected
     if (native.stringValue !== 'NativeScript Core on AppKit' || native.frame.size.width < 100) {
       throw new Error('The AppKit label did not receive text and a measured width')
+    }
+    if (native.font.pointSize !== 23) {
+      throw new Error(`The bundled stylesheet did not reach the NativeScript title (class ${title.className}, Core font size ${title.style.fontSize}, native ${native.font.pointSize})`)
+    }
+    const replaceStylesheets = Reflect.get(globalThis, '__xplatReplaceCoreStylesheets')
+    replaceStylesheets([
+      ['replacement.css', '.provider-title { font-size: 19; }'],
+    ])
+    if (native.font.pointSize !== 19) {
+      throw new Error('Replacing bundled styles left an obsolete rule on the NativeScript title')
+    }
+    replaceStylesheets([])
+    if (native.font.pointSize === 19 || native.font.pointSize === 23) {
+      throw new Error('Removing bundled styles left their rules on the NativeScript title')
     }
     if (
       native.accessibilityLabel !== 'Provider status' ||

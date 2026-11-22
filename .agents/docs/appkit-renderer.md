@@ -48,6 +48,10 @@ mouse contact stream. AppKit retains its normal wheel scrolling.
 The Core ActionBar supplies its natural title size to Mason. AppKit keeps a
 plain native host view, so measuring the title does not require a native
 getter that calls back into JavaScript.
+Core bundles load CSS through its tagged stylesheet registry. The CLI's
+NativeScript stylesheet destination replaces the previous bundle's rules,
+including when the new bundle contains no styles. Core font changes use
+the shared AppKit font resolver.
 
 ```sh
 bun run turbo run test:nativescript --filter=@octane-xplat/macos-appkit

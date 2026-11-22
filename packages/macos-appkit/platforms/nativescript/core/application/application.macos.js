@@ -7,10 +7,33 @@ import { ApplicationCommon } from '@nativescript/core/application/application-co
 import { setAppMainEntry } from '@nativescript/core/application/helpers-common';
 import { Trace } from '@nativescript/core/trace';
 import { layout } from '@nativescript/core/utils';
+import { addTaggedAdditionalCSS, removeTaggedAdditionalCSS } from '@nativescript/core/ui/styling/style-scope';
 import { installNativeScriptHostServices } from '../../../../src/nativescript-host-services';
 export * from '@nativescript/core/application/application-common';
 export * from '@nativescript/core/application/application-interfaces';
 const WINDOW_STYLE_MASK = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3); // titled|closable|miniaturizable|resizable
+
+function installStylesheetDelivery(application) {
+    const tags = [];
+    const replace = (stylesheets) => {
+        for (const tag of tags) {
+            removeTaggedAdditionalCSS(tag);
+        }
+        tags.length = 0;
+        for (const [name, css] of stylesheets) {
+            const tag = 'octane-macos:' + name;
+            addTaggedAdditionalCSS(css, tag);
+            tags.push(tag);
+        }
+        application.getRootView()?._onCssStateChange();
+    };
+    globalThis.__xplatReplaceCoreStylesheets = replace;
+    if (globalThis.__xplatCoreStylesheets) {
+        const queued = globalThis.__xplatCoreStylesheets;
+        delete globalThis.__xplatCoreStylesheets;
+        replace(queued);
+    }
+}
 class NSWindowEventObserverImpl extends NSObject {
     _owner;
     _selectorMap;
@@ -179,6 +202,9 @@ class MacOSApplication extends ApplicationCommon {
     }
     run(entry) {
         installNativeScriptHostServices();
+        if (!this.started) {
+            installStylesheetDelivery(this);
+        }
         this.started = true;
         if (entry) {
             setAppMainEntry(typeof entry === 'string' ? { moduleName: entry } : entry);
