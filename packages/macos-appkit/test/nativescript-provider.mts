@@ -90,6 +90,7 @@ try {
   const log = stdout + stderr
   assert.doesNotMatch(log, /CORE_PROVIDER_FAIL/)
   assert.match(log, /CORE_PROVIDER_OK/)
+  assert.equal(log.match(/CORE_PROVIDER_CLEANUP/g)?.length, 1)
   console.log('NativeScript Core mounted and laid out an Octane root on AppKit.')
 } finally {
   await rm(output, { recursive: true, force: true })

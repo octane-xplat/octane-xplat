@@ -225,7 +225,15 @@ export const AndroidApplication = undefined;
 
 /** Start Core using the same AppKit window factory as a desktop host. */
 export function startNativeScriptApplication(createRoot, createWindow) {
-    Application._start({ create: createRoot }, createWindow);
+    let appKit;
+    Application._start({ create: createRoot }, () => {
+        appKit = createWindow();
+        return appKit;
+    });
+    if (!appKit) {
+        throw new Error('NativeScript could not start the AppKit application');
+    }
+    return appKit;
 }
 export { Trace };
 // ── Accessibility surface parity with application.ios.js (stubs) ─────────

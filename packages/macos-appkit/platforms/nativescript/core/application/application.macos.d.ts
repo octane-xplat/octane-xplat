@@ -5,4 +5,4 @@ import type { AppKitWindow } from '../../../../src/host-windowing'
 export function startNativeScriptApplication(
   createRoot: () => View,
   createWindow: () => AppKitWindow,
-): void
+): AppKitWindow

@@ -1,17 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@nativescript/macos-node-api'
 import { ActionBar, Application, GridLayout, Label, LiquidGlass, TextField } from '@nativescript/core'
-import { createNativeScriptRoot, renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
-import { hmrUniversalComponent, UNIVERSAL_HMR } from 'octane/universal/native'
+import { createNativeScriptRoot } from '@octane-xplat/nativescript-octane'
+import { hmrUniversalComponent, UNIVERSAL_HMR, type UniversalRoot } from 'octane/universal/native'
 import { appMenu } from '../../../app-menu/src/index.macos.ts'
 import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.ts'
 import { createShortcuts } from '../../../shortcuts/src/index.macos.ts'
-import { startNativeScriptApplication } from '../../platforms/nativescript/core/application/application.macos.js'
-import { createAppKitWindow, openWindow } from '../../src/host-windowing'
-import {
-  createNativeScriptWindowRoot,
-  installNativeScriptWindowRoots,
-} from '../../src/nativescript-window.macos'
+import { openWindow } from '../../src/host-windowing'
+import { runNativeScriptMacOSApp } from '../../src/nativescript-host.macos'
+import { createNativeScriptWindowRoot } from '../../src/nativescript-window.macos'
 import { installNativeScriptDevModules } from '../../src/nativescript-dev.macos'
 import { registerNativeScriptStylesheet } from '../../src/nativescript-css.macos'
 import './nativescript-provider.css'
@@ -51,26 +48,28 @@ function stop() {
   NSApplication.sharedApplication.postEventAtStart(event)
 }
 
-const host = new GridLayout()
-const root = renderNativeScriptApp(host, Screen)
-installNativeScriptWindowRoots()
+let host: GridLayout
+let root: UniversalRoot
 let applicationReady = false
 Application.once(Application.readyEvent, () => {
-  applicationReady = true
+  applicationReady = !Application.macos.window
 })
-startNativeScriptApplication(() => host, () => {
-  if (!applicationReady) {
-    throw new Error('Core ready must fire before creating the host window')
+runNativeScriptMacOSApp({
+  title: 'Core provider fixture',
+  size: { width: 1024, height: 700 },
+}, (target) => {
+  const applicationRoot = Application.getRootView()
+  if (!applicationReady || !(applicationRoot instanceof GridLayout)) {
+    throw new Error('Core did not publish its root after the ready event')
   }
-  return createAppKitWindow({
-    title: 'Core provider fixture',
-    size: { width: 1024, height: 700 },
-    terminateAfterLastWindowClosed: true,
-  })
+  if (target.window !== Application.macos.window || target.window.title !== 'Core provider fixture') {
+    throw new Error('Core did not use the desktop host window and root')
+  }
+  host = applicationRoot
+  root = target.root
+  root.render(Screen, {})
+  return () => console.log('CORE_PROVIDER_CLEANUP')
 })
-if (Application.macos.window.title !== 'Core provider fixture' || Application.getRootView() !== host) {
-  throw new Error('Core did not use the desktop host window and root')
-}
 
 function SecondaryWindow() {
   return <label className="provider-viewport" text="Secondary Core window" />
