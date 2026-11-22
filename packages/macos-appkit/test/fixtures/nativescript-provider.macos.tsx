@@ -375,6 +375,12 @@ setTimeout(async () => {
     if (editor.font.pointSize !== 25) {
       throw new Error('The registered stylesheet was lost when the bundle reloaded')
     }
+    registerNativeScriptStylesheet('later-app-rule', '#editor { font-size: 27; }')
+    registerNativeScriptStylesheet('app-rule', '#editor { font-size: 29; }')
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (editor.font.pointSize !== 27) {
+      throw new Error('Replacing a registered stylesheet changed its cascade order')
+    }
     if (native.font.pointSize === 19 || native.font.pointSize === 23) {
       throw new Error('Removing bundled styles left their rules on the NativeScript title')
     }
