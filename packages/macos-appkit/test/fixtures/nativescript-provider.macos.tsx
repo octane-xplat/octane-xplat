@@ -1,12 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@nativescript/macos-node-api'
 import { ActionBar, Application, GridLayout, Label, LiquidGlass, TextField } from '@nativescript/core'
-import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
+import { createNativeScriptRoot, renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
+import { hmrUniversalComponent, UNIVERSAL_HMR } from 'octane/universal/native'
 import { appMenu } from '../../../app-menu/src/index.macos.ts'
 import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.ts'
 import { createShortcuts } from '../../../shortcuts/src/index.macos.ts'
 import { openWindow } from '../../src/host-windowing'
 import { installNativeScriptWindowRoots } from '../../src/nativescript-window.macos'
+import { installNativeScriptDevModules } from '../../src/nativescript-dev.macos'
 import './nativescript-provider.css'
 
 function Screen() {
@@ -219,6 +221,46 @@ function checkActionBar() {
   return native
 }
 
+async function checkDevelopmentReload() {
+  installNativeScriptDevModules()
+  const load = Reflect.get(globalThis, '__hostRunFile')
+  const before = load(process.env.OCTANE_MACOS_DEV_BUNDLE)
+  const component = hmrUniversalComponent('nativescript', before.default)
+  const devRoot = createNativeScriptRoot(host)
+  const label = () => host.getViewById('provider-dev-count')
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 30))
+
+  try {
+    devRoot.render(component, {})
+    const first = label()
+    if (
+      before.Label !== Label ||
+      !(first instanceof Label) ||
+      first.nativeViewProtected.stringValue !== 'before:0'
+    ) {
+      throw new Error('The development bundle did not use the shell’s Core instance')
+    }
+    before.increment()
+    await settle()
+    if (first.nativeViewProtected.stringValue !== 'before:1') {
+      throw new Error('The development bundle did not update the native counter')
+    }
+
+    const after = load(process.env.XPLAT_CORE_DEV_AFTER)
+    component[UNIVERSAL_HMR].update(after.default)
+    await settle()
+    if (
+      after.Label !== Label ||
+      label() !== first ||
+      first.nativeViewProtected.stringValue !== 'after:1'
+    ) {
+      throw new Error('The development rebuild lost Core identity, the native view, or signal state')
+    }
+  } finally {
+    devRoot.unmount()
+  }
+}
+
 setTimeout(async () => {
   try {
     const title = host.getViewById('title')
@@ -258,6 +300,7 @@ setTimeout(async () => {
     if (native.superview || backdrop.superview || bar.subviews.count || host.getViewById('title')) {
       throw new Error('Unmount left a native view attached')
     }
+    await checkDevelopmentReload()
     console.log('CORE_PROVIDER_OK')
   } catch (error) {
     console.error('CORE_PROVIDER_FAIL', String(error), error)

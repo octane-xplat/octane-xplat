@@ -5,10 +5,11 @@ import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
-import { build } from 'vite'
+import { build, type InlineConfig } from 'vite'
 import { octane } from 'octane/compiler/vite'
 import { nativeScriptRenderer } from '@octane-xplat/nativescript-octane/config'
 import { createNativeScriptProvider } from '../src/nativescript-provider.macos.ts'
+import { nativeScriptDevImports } from '../src/nativescript-dev-imports.ts'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle, macOSHostArch, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 import { inlineStylesheets } from '../../cli/src/inline-stylesheets.ts'
@@ -26,32 +27,71 @@ const output = await mkdtemp(join(scratch, 'run-'))
 
 try {
   const { config, coreRoot } = createNativeScriptProvider(root)
-  await build({
-    ...config,
-    configFile: false,
-    root,
-    define: {
-      ...config.define,
-      __DEV__: 'false',
-      'process.env.NODE_ENV': '"production"',
-    },
-    resolve: {
-      conditions: ['macos', 'native'],
-      dedupe: ['octane'],
-      alias: [
-        ...config.resolve.alias,
-        { find: /^octane$/, replacement: 'octane/universal/native' },
+  function bundleConfig(hmr = false) {
+    return {
+      ...config,
+      configFile: false,
+      root,
+      define: {
+        ...config.define,
+        __DEV__: 'false',
+        'process.env.NODE_ENV': '"production"',
+      },
+      resolve: {
+        conditions: ['macos', 'native'],
+        dedupe: ['octane'],
+        alias: [
+          ...config.resolve.alias,
+          { find: /^octane$/, replacement: 'octane/universal/native' },
+        ],
+      },
+      plugins: [
+        ...config.plugins,
+        octane({
+          hmr,
+          renderers: {
+            registry: { nativescript: { ...nativeScriptRenderer, intrinsics: '@octane-xplat/jsx' } },
+            rules: [{ include: '**/*.tsx', renderer: 'nativescript' }],
+          },
+        }),
       ],
-    },
-    plugins: [
-      ...config.plugins,
-      inlineStylesheets('nativescript'),
-      octane({
-        renderers: {
-          registry: { nativescript: { ...nativeScriptRenderer, intrinsics: '@octane-xplat/jsx' } },
-          rules: [{ include: '**/*.tsx', renderer: 'nativescript' }],
+      build: {
+        minify: false,
+        outDir: output,
+        emptyOutDir: false,
+        rollupOptions: {
+          external: ['@nativescript/macos-node-api', /^node:/],
+          output: { ...config.build.rollupOptions.output, codeSplitting: false },
         },
-      }),
+      },
+    } satisfies InlineConfig
+  }
+
+  const shell = bundleConfig()
+  for (const revision of ['before', 'after']) {
+    const app = bundleConfig(true)
+    await build({
+      ...app,
+      define: { ...app.define, __PROVIDER_DEV_REVISION__: JSON.stringify(revision) },
+      build: {
+        ...app.build,
+        lib: {
+          entry: join(root, 'test/fixtures/nativescript-dev-app.macos.tsx'),
+          formats: ['cjs'],
+          fileName: () => revision + '.cjs',
+        },
+        rollupOptions: {
+          ...app.build.rollupOptions,
+          external: [...app.build.rollupOptions.external, ...nativeScriptDevImports],
+        },
+      },
+    })
+  }
+  await build({
+    ...shell,
+    plugins: [
+      ...shell.plugins,
+      inlineStylesheets('nativescript'),
       {
         name: 'verify-single-nativescript-core',
         generateBundle() {
@@ -62,17 +102,12 @@ try {
       },
     ],
     build: {
+      ...shell.build,
       cssCodeSplit: true,
-      minify: false,
-      outDir: output,
       lib: {
         entry: join(root, 'test/fixtures/nativescript-provider.macos.tsx'),
         formats: ['cjs'],
         fileName: () => 'main.cjs',
-      },
-      rollupOptions: {
-        external: ['@nativescript/macos-node-api', /^node:/],
-        output: { ...config.build.rollupOptions.output, codeSplitting: false },
       },
     },
   })
@@ -90,7 +125,16 @@ try {
       artifact.metadata[macOSHostArch()],
       bootstrap,
     ],
-    { cwd: output, timeout: 30000, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
+    {
+      cwd: output,
+      timeout: 30000,
+      env: {
+        ...process.env,
+        OCTANE_MACOS_EXTERNAL_RUNLOOP: '1',
+        OCTANE_MACOS_DEV_BUNDLE: join(output, 'before.cjs'),
+        XPLAT_CORE_DEV_AFTER: join(output, 'after.cjs'),
+      },
+    },
   )
   const log = stdout + stderr
   assert.doesNotMatch(log, /CORE_PROVIDER_FAIL/)

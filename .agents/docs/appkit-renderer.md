@@ -52,6 +52,9 @@ Core bundles load CSS through its tagged stylesheet registry. The CLI's
 NativeScript stylesheet destination replaces the previous bundle's rules,
 including when the new bundle contains no styles. Core font changes use
 the shared AppKit font resolver.
+The development shell owns Core, the driver, and the Octane runtime. Mark
+the modules in `nativescript-dev-imports.ts` external in app rebuilds and
+install the shell's module table before evaluating the first app bundle.
 
 ```sh
 bun run turbo run test:nativescript --filter=@octane-xplat/macos-appkit
