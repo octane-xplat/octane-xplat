@@ -7,7 +7,7 @@
 		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/ui": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.12",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
 		"octane": "catalog:",
 		"@octane-xplat/lightbox": "workspace:*",
 		"@octane-xplat/media": "workspace:*",

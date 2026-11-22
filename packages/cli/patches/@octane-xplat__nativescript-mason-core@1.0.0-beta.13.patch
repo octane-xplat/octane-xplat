@@ -1,7 +1,7 @@
 diff --git a/common.js b/common.js
 --- a/common.js
 +++ b/common.js
-@@ -1020,6 +1020,39 @@
+@@ -1167,6 +1167,39 @@
      get _masonPlacedNatively() {
          return __APPLE__ && !!this[isMasonView_] && !!this.parent?.[isMasonView_];
      }
@@ -55,7 +55,7 @@ diff --git a/scroll/index.ios.js b/scroll/index.ios.js
 diff --git a/view/index.ios.js b/view/index.ios.js
 --- a/view/index.ios.js
 +++ b/view/index.ios.js
-@@ -56,6 +56,7 @@
+@@ -66,6 +66,7 @@
              const root = !this.parent?.[isMasonView_];
              if (root && pendingAddHosts > 0)
                  flushNativeAddsDeep(this);

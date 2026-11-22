@@ -1,5 +1,5 @@
 {
-	"generatedFrom": "@nativescript/core@9.1.3 + @octane-xplat/nativescript-mason-core@1.0.0-beta.12",
+	"generatedFrom": "@nativescript/core@9.1.3 + @octane-xplat/nativescript-mason-core@1.0.0-beta.13",
 	"properties": [
 		"-mason-transform-declaration",
 		"-webkit-background-clip",
@@ -185,6 +185,7 @@
 		"place-items",
 		"place-self",
 		"placeholder-color",
+		"pointer-events",
 		"position",
 		"right",
 		"rotate",
