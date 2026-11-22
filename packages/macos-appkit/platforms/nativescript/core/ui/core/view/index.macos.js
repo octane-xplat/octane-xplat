@@ -7,6 +7,8 @@ import { Trace } from '@nativescript/core/trace';
 import { layout, getWindow } from '@nativescript/core/utils';
 import { MacOSHelper } from '@nativescript/core/ui/core/view/view-helper';
 import { retireNativeScriptHostView } from '../../../../../../src/nativescript-host-services';
+import { evalMediaQuery } from '@octane-xplat/css-engine';
+import { NSWorkspace } from '@octane-xplat/platform/macos';
 import {
     accessibilityHintProperty,
     accessibilityIdentifierProperty,
@@ -53,6 +55,24 @@ function detachNativeViewTree(native) {
     native.removeFromSuperview();
 }
 export class View extends ViewCommon {
+    _matchesMediaQuery(query) {
+        let window;
+        for (let view = this; view && !window; view = view.parent) {
+            window = view.nativeViewProtected?.window;
+        }
+        const size = window?.contentView?.bounds.size;
+        if (!size) {
+            return undefined;
+        }
+        const appearance = String(window.effectiveAppearance?.name ?? '').toLowerCase();
+        return evalMediaQuery(query, {
+            width: size.width,
+            height: size.height,
+            colorScheme: appearance.includes('dark') ? 'dark' : 'light',
+            reducedMotion: NSWorkspace.sharedWorkspace.accessibilityDisplayShouldReduceMotion,
+        });
+    }
+
     [accessibilityLabelProperty.getDefault]() {
         return this.nativeViewProtected.accessibilityLabel;
     }

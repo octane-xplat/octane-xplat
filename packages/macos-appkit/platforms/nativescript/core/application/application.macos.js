@@ -7,33 +7,12 @@ import { ApplicationCommon } from '@nativescript/core/application/application-co
 import { setAppMainEntry } from '@nativescript/core/application/helpers-common';
 import { Trace } from '@nativescript/core/trace';
 import { layout } from '@nativescript/core/utils';
-import { addTaggedAdditionalCSS, removeTaggedAdditionalCSS } from '@nativescript/core/ui/styling/style-scope';
 import { installNativeScriptHostServices } from '../../../../src/nativescript-host-services';
+import { installNativeScriptStylesheetDelivery, trackNativeScriptStyleRoot } from '../../../../src/nativescript-css.macos';
 import { createAppKitWindow } from '../../../../src/host-windowing';
 export * from '@nativescript/core/application/application-common';
 export * from '@nativescript/core/application/application-interfaces';
 
-function installStylesheetDelivery(application) {
-    const tags = [];
-    const replace = (stylesheets) => {
-        for (const tag of tags) {
-            removeTaggedAdditionalCSS(tag);
-        }
-        tags.length = 0;
-        for (const [name, css] of stylesheets) {
-            const tag = 'octane-macos:' + name;
-            addTaggedAdditionalCSS(css, tag);
-            tags.push(tag);
-        }
-        application.getRootView()?._onCssStateChange();
-    };
-    globalThis.__xplatReplaceCoreStylesheets = replace;
-    if (globalThis.__xplatCoreStylesheets) {
-        const queued = globalThis.__xplatCoreStylesheets;
-        delete globalThis.__xplatCoreStylesheets;
-        replace(queued);
-    }
-}
 class NSWindowEventObserverImpl extends NSObject {
     _owner;
     _selectorMap;
@@ -128,6 +107,8 @@ class MacOSApplication extends ApplicationCommon {
         rootView._nativeWindow = window;
         window?.contentView.addSubview(rootView.nativeViewProtected);
         rootView.callLoaded();
+        this._untrackStyleRoot?.();
+        this._untrackStyleRoot = trackNativeScriptStyleRoot(rootView);
         this._layoutRoot();
     }
     _createEntryRootView(entry) {
@@ -161,7 +142,10 @@ class MacOSApplication extends ApplicationCommon {
     }
     _installObservers(window) {
         this._windowObserver = NSWindowEventObserverImpl.initWithOwner(new WeakRef(this), {});
-        this._observeNotification('NSWindowDidResizeNotification', window, () => this._layoutRoot());
+        this._observeNotification('NSWindowDidResizeNotification', window, () => {
+            this._rootView?._onCssStateChange();
+            this._layoutRoot();
+        });
         this._observeNotification('NSApplicationDidBecomeActiveNotification', null, () => {
             if (this.suspended) {
                 this.setSuspended(false, { macos: this._macosHandle });
@@ -205,7 +189,7 @@ class MacOSApplication extends ApplicationCommon {
     run(entry) {
         installNativeScriptHostServices();
         if (!this.started) {
-            installStylesheetDelivery(this);
+            installNativeScriptStylesheetDelivery();
         }
         this.started = true;
         if (entry) {
@@ -224,6 +208,10 @@ class MacOSApplication extends ApplicationCommon {
         const { window, app } = appKit;
         this._macosHandle.window = window;
         this._mountRootView(rootView);
+        void appKit.windowClosed.then(() => {
+            this._untrackStyleRoot?.();
+            this._untrackStyleRoot = undefined;
+        });
         this._installObservers(window);
         app.activateIgnoringOtherApps(true);
         return rootView;

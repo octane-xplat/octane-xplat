@@ -56,6 +56,12 @@ including when the new bundle contains no styles. Core font changes use
 the shared AppKit font resolver.
 The Core stylesheet destination preserves the authored min/max media
 syntax because Core 9.1.3 cannot parse the minifier's range syntax.
+Core 9.1.3 normally evaluates selector and keyframe media queries against
+the physical display. The Core patch lets the styled view provide its own
+match. The AppKit provider evaluates against that view's window and refreshes
+its stylesheet matches on resize. Other Core platforms keep their existing
+media matcher. The native provider fixture verifies different rules in two
+windows and independent updates when either window resizes.
 The development shell owns Core, the driver, and the Octane runtime. Mark
 the modules in `nativescript-dev-imports.ts` external in app rebuilds and
 install the shell's module table before evaluating the first app bundle.

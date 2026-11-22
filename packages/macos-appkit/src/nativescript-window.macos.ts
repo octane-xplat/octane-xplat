@@ -4,6 +4,7 @@ import { NSView } from '@octane-xplat/platform/macos'
 import type { UniversalRoot } from 'octane/universal/native'
 import { FailureCollector } from './failures'
 import { installWindowRootFactory, observeWindowResize } from './host-windowing'
+import { trackNativeScriptStyleRoot } from './nativescript-css.macos'
 
 /** Give Core-hosted apps the existing AppKit secondary-window lifecycle. */
 export function installNativeScriptWindowRoots() {
@@ -49,7 +50,11 @@ export function installNativeScriptWindowRoots() {
       )
       host.layout(0, 0, width, height)
     }
-    const unobserve = observeWindowResize(window, layout)
+    const unobserve = observeWindowResize(window, () => {
+      host._onCssStateChange()
+      layout()
+    })
+    const untrackStyleRoot = trackNativeScriptStyleRoot(host)
     const render = root.render.bind(root)
     root.render = (...args) => {
       const result = render(...args)
@@ -65,6 +70,7 @@ export function installNativeScriptWindowRoots() {
       mounted = false
       const failures = new FailureCollector()
       failures.run('window resize unsubscribe', unobserve)
+      failures.run('window stylesheet unsubscribe', untrackStyleRoot)
       failures.run('window root unmount', unmount)
       releaseHost(failures)
       failures.throwIfFailed()

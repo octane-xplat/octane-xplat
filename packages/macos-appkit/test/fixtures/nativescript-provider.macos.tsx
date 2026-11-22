@@ -47,23 +47,53 @@ installNativeScriptWindowRoots()
 Application.run({ create: () => host })
 
 function SecondaryWindow() {
-  return <label text="Secondary Core window" />
+  return <label className="provider-viewport" text="Secondary Core window" />
 }
 
 async function checkWindowLifecycle() {
-  const handle = openWindow({ title: 'Core window', component: SecondaryWindow })
+  const main = Application.macos.window
+  const title = host.getViewById('title').nativeViewProtected
+  const replaceStylesheets = Reflect.get(globalThis, '__xplatReplaceCoreStylesheets')
+  const setStyles = (wide: number, narrow: number) =>
+    replaceStylesheets([[
+      'viewport.css',
+      `.provider-title, .provider-viewport { font-size: ${wide}px; }
+       @media (max-width: 600px) {
+         .provider-title, .provider-viewport { font-size: ${narrow}px; }
+       }`,
+    ]])
+  setStyles(22, 17)
+  const handle = openWindow({
+    title: 'Core window',
+    size: { width: 480, height: 300 },
+    component: SecondaryWindow,
+  })
   const content = handle.window.contentView.subviews.objectAtIndex(0)
   try {
     const label = content.subviews.objectAtIndex(0)
     if (label.stringValue !== 'Secondary Core window' || label.frame.size.width < 100) {
       throw new Error('The secondary window did not lay out its NativeScript root')
     }
-    handle.setSize({ width: 520, height: 300 })
+    if (title.font.pointSize !== 22 || label.font.pointSize !== 17) {
+      throw new Error(`Core did not use each window's width for CSS: main ${title.font.pointSize}, secondary ${label.font.pointSize}`)
+    }
+    handle.setSize({ width: 660, height: 300 })
     await new Promise((resolve) => setTimeout(resolve, 30))
-    if (Math.abs(content.frame.size.width - 520) > 1) {
+    if (Math.abs(content.frame.size.width - 660) > 1 || label.font.pointSize !== 22) {
       throw new Error('The NativeScript window content did not follow the AppKit resize')
     }
+    main.setContentSize(NSMakeSize(500, 300))
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (title.font.pointSize !== 17 || label.font.pointSize !== 22) {
+      throw new Error('Main window resize applied CSS at the wrong window width')
+    }
+    setStyles(26, 19)
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (title.font.pointSize !== 19 || label.font.pointSize !== 26) {
+      throw new Error('Replacing CSS left an open Core window using stale rules')
+    }
   } finally {
+    main.setContentSize(NSMakeSize(1024, 700))
     handle.close()
     await handle.closed
   }
@@ -298,10 +328,12 @@ setTimeout(async () => {
     replaceStylesheets([
       ['replacement.css', '.provider-title { font-size: 19; }'],
     ])
+    await new Promise((resolve) => setTimeout(resolve, 30))
     if (native.font.pointSize !== 19) {
-      throw new Error('Replacing bundled styles left an obsolete rule on the NativeScript title')
+      throw new Error(`Replacing bundled styles left an obsolete rule on the NativeScript title (Core ${title.style.fontSize}, native ${native.font.pointSize})`)
     }
     replaceStylesheets([])
+    await new Promise((resolve) => setTimeout(resolve, 30))
     if (native.font.pointSize === 19 || native.font.pointSize === 23) {
       throw new Error('Removing bundled styles left their rules on the NativeScript title')
     }

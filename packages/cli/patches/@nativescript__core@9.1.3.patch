@@ -761,10 +761,47 @@ index 734d886877b867e69b36fd75785b0a4372008f0f..d90f0e4fcf0f136bf4e9b10f9b08cc14
      toString(): string;
      lookupSort(sorter: LookupSorter): void;
 diff --git a/ui/styling/css-selector.js b/ui/styling/css-selector.js
-index 702ca508f27ace527938860dfe4b13dbcbb93c2f..b6fa55a9570d4ed0714f053301bbe69efbd6900c 100644
+index 702ca508f27ace527938860dfe4b13dbcbb93c2f..7bcf84b9004e05cef6526a87bc08781509494d30 100644
 --- a/ui/styling/css-selector.js
 +++ b/ui/styling/css-selector.js
-@@ -1081,9 +1081,27 @@ export class StyleSheetSelectorScope extends SelectorScope {
+@@ -886,7 +886,8 @@ export function createSelector(sel) {
+ function isDeclaration(node) {
+     return node.type === 'declaration';
+ }
+-export function matchMediaQueryString(mediaQueryString, cachedQueries) {
++export function matchMediaQueryString(mediaQueryString, cachedQueries, view) {
++    const matches = (query) => view?._matchesMediaQuery?.(query) ?? checkIfMediaQueryMatches(query);
+     if (!mediaQueryString) {
+         return false;
+     }
+@@ -895,7 +896,7 @@ export function matchMediaQueryString(mediaQueryString, cachedQueries) {
+         if (cachedQueries.includes(mediaQueryString)) {
+             return true;
+         }
+-        const result = checkIfMediaQueryMatches(mediaQueryString);
++        const result = matches(mediaQueryString);
+         if (result) {
+             cachedQueries.push(mediaQueryString);
+             return result;
+@@ -908,7 +909,7 @@ export function matchMediaQueryString(mediaQueryString, cachedQueries) {
+         if (cachedQueries.includes(mq)) {
+             continue;
+         }
+-        if (!checkIfMediaQueryMatches(mq)) {
++        if (!matches(mq)) {
+             return false;
+         }
+         cachedQueries.push(mq);
+@@ -1069,7 +1070,7 @@ export class StyleSheetSelectorScope extends SelectorScope {
+             const validatedMediaQueries = [];
+             for (let i = 0, length = this.mediaQuerySelectorScopes.length; i < length; i++) {
+                 const selectorScope = this.mediaQuerySelectorScopes[i];
+-                const isMatchingAllQueries = matchMediaQueryString(selectorScope.mediaQueryString, validatedMediaQueries);
++                const isMatchingAllQueries = matchMediaQueryString(selectorScope.mediaQueryString, validatedMediaQueries, node);
+                 if (isMatchingAllQueries) {
+                     selectorScope.getSelectorCandidates(node, candidates);
+                 }
+@@ -1081,9 +1082,27 @@ export class StyleSheetSelectorScope extends SelectorScope {
          return matchSelectorCandidates(node, this.collectCandidates(node));
      }
  }
@@ -1363,7 +1400,7 @@ index d6f026616cc33cf02f312a5e4f3b6effd71b5dda..321217d036b2fc726c88bf2076d82dcc
  export declare function addTaggedAdditionalCSS(cssText: string, tag?: string | number): boolean;
  export declare const loadAppCSS: any;
 diff --git a/ui/styling/style-scope.js b/ui/styling/style-scope.js
-index e75c7c8010e23917a7138c7351243aab0bad1f49..a747e46cabc76bc987a282952d19ad83d5b53ba5 100644
+index e75c7c8010e23917a7138c7351243aab0bad1f49..6d163be3138943506f53ab2d36eead29a62a8e64 100644
 --- a/ui/styling/style-scope.js
 +++ b/ui/styling/style-scope.js
 @@ -94,6 +94,55 @@ function evaluateCssExpressions(view, property, value) {
@@ -1588,6 +1625,65 @@ index e75c7c8010e23917a7138c7351243aab0bad1f49..a747e46cabc76bc987a282952d19ad83
              }
          }
          this._appliedPropertyValues = newPropertyValues;
+@@ -1001,11 +1126,11 @@ export class StyleScope {
+         this._localCssSelectorVersion++;
+         this.ensureSelectors();
+     }
+-    getKeyframeAnimationWithName(animationName) {
++    getKeyframeAnimationWithName(animationName, view) {
+         if (!this._mergedCssKeyframes) {
+             return null;
+         }
+-        const keyframeRule = this.findKeyframeRule(animationName);
++        const keyframeRule = this.findKeyframeRule(animationName, view);
+         const animation = new KeyframeAnimationInfo();
+         animation.keyframes = keyframeRule ? CssAnimationParser.keyframesArrayFromCSS(keyframeRule.keyframes) : null;
+         return animation;
+@@ -1079,7 +1204,7 @@ export class StyleScope {
+         this._localSelectorScope?.collectCandidates(view, candidates);
+         const match = matchSelectorCandidates(view, candidates, applicationSelectorsHaveScopedTags ? this._cssFiles : undefined);
+         // Make sure to re-apply keyframes to matching selectors as a media query keyframe might be applicable at this point
+-        this._applyKeyframesToSelectors(match.selectors);
++        this._applyKeyframesToSelectors(match.selectors, view);
+         return match;
+     }
+     query(node) {
+@@ -1092,7 +1217,7 @@ export class StyleScope {
+         // The 100000 * appVersion is just for easier debugging
+         return 100000 * this._applicationCssSelectorsAppliedVersion + this._localCssSelectorsAppliedVersion;
+     }
+-    _applyKeyframesToSelectors(selectors) {
++    _applyKeyframesToSelectors(selectors, view) {
+         if (!selectors?.length) {
+             return;
+         }
+@@ -1101,7 +1226,7 @@ export class StyleScope {
+             const animations = ruleset[animationsSymbol];
+             if (animations != null && animations.length) {
+                 for (const animation of animations) {
+-                    const keyframeRule = this.findKeyframeRule(animation.name);
++                    const keyframeRule = this.findKeyframeRule(animation.name, view);
+                     animation.keyframes = keyframeRule ? CssAnimationParser.keyframesArrayFromCSS(keyframeRule.keyframes) : null;
+                 }
+             }
+@@ -1110,7 +1235,7 @@ export class StyleScope {
+     getAnimations(ruleset) {
+         return ruleset[animationsSymbol];
+     }
+-    findKeyframeRule(animationName) {
++    findKeyframeRule(animationName, view) {
+         if (!this._mergedCssKeyframes) {
+             return null;
+         }
+@@ -1128,7 +1253,7 @@ export class StyleScope {
+             if (!validatedMediaQueries) {
+                 validatedMediaQueries = [];
+             }
+-            const isMatchingAllQueries = matchMediaQueryString(rule.mediaQueryString, validatedMediaQueries);
++            const isMatchingAllQueries = matchMediaQueryString(rule.mediaQueryString, validatedMediaQueries, view);
+             if (isMatchingAllQueries) {
+                 return rule;
+             }
 @@ -1263,6 +1388,9 @@ function isMedia(node) {
  function isKeyframe(node) {
      return node.type === 'keyframes';
@@ -1882,9 +1978,18 @@ index a3616039312f55329b544dccea892537f299a07a..771bfbe6407651ae028b9d429b6c7e0a
  });
  orientationProperty.register(WrapLayoutBase);
 diff --git a/ui/page/page-common.js b/ui/page/page-common.js
-index 5e2e4c9427f3648a601c984d4fe976009359d196..1659ab5383795bb51b50df698f4ed107516738a0 100644
+index 5e2e4c9427f3648a601c984d4fe976009359d196..925cd893d618353a3a7a6d5474c89b4865b1c6dd 100644
 --- a/ui/page/page-common.js
 +++ b/ui/page/page-common.js
+@@ -63,7 +63,7 @@ let PageBase = PageBase_1 = class PageBase extends ContentView {
+         }
+     }
+     getKeyframeAnimationWithName(animationName) {
+-        return this._styleScope.getKeyframeAnimationWithName(animationName);
++        return this._styleScope.getKeyframeAnimationWithName(animationName, this);
+     }
+     get frame() {
+         return this.parent;
 @@ -154,7 +154,7 @@ PageBase.prototype.recycleNativeView = 'never';
   */
  export const actionBarHiddenProperty = new Property({

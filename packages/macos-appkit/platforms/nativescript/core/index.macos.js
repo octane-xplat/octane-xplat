@@ -57,6 +57,7 @@ export { File, Folder, FileSystemEntity, knownFolders, path } from '@nativescrip
 export * as CoreTypes from '@nativescript/core/ui/enums';
 export { Property, CoercibleProperty, makeParser, makeValidator } from '@nativescript/core/ui/core/properties';
 export { CSSType, isUserInteractionEnabledProperty } from '@nativescript/core/ui/core/view';
+export { addTaggedAdditionalCSS, removeTaggedAdditionalCSS } from '@nativescript/core/ui/styling/style-scope';
 export { visibilityProperty, widthProperty, heightProperty } from '@nativescript/core/ui/styling/style-properties';
 export { fromObject } from '@nativescript/core/data/observable';
 export { ObservableArray, ChangeType } from '@nativescript/core/data/observable-array';
