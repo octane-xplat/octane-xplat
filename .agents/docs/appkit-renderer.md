@@ -339,6 +339,17 @@ This deliberately retains native objects while releasing their JS feature
 closures; it is not whole-process leak freedom. Remove this workaround only
 after an upstream bridge change passes a native finalization regression.
 
+The Core macOS provider probe reproduced a related teardown crash on
+`@nativescript/macos-node-api` 0.5.0-beta.0. JavaScriptCore sweeps a collected
+wrapper and the bridge releases its native object. AppKit can then call back
+into a JavaScript override such as `NSView.isFlipped` while the sweep is
+active. The callback needs a JavaScript allocation and traps. A closed window
+with a scroll-view subtree reproduced the crash. Plain `NSView` containers
+with explicit coordinate conversion avoid that callback. Detach views and
+clear delegates during disposal before dropping their wrappers. Requalify
+finalization before adding JavaScript overrides that AppKit can call during
+teardown.
+
 ## Verify a change
 
 The Node suite includes direct factory tests and older VM fixtures. The legacy
