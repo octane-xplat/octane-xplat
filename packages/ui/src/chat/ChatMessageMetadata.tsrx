@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
-import type { ChatMessageMetadataProps, ChatMessageStatus } from '../props'
+import type { ChatMessageMetadataProps, ChatMessageStatus, Renderable } from '../props'
 import { Icon } from '../components/media/Icon.tsrx'
 import { useChatMessageContext } from './chat-context.tsrx'
 
@@ -21,6 +21,17 @@ const STATUS_LABEL: Record<ChatMessageStatus, string> = {
 }
 
 const renderable = (v: any) => v != null && v !== false && v !== true
+
+function MetadataPart(props: { children: Renderable }): unknown @{
+  const value = props.children
+  @if (typeof value === 'string' || typeof value === 'number') {
+    <label className="vx-chatmeta-part" text={String(value)} />
+  } @else {
+    <masonview className="vx-chatmeta-part" style={{ display: 'flex' }}>
+      {value}
+    </masonview>
+  }
+}
 
 /** Composable metadata row for chat messages — timestamp · footer · status.
  *  Renders nothing when all three are absent. User-sender rows right-align
@@ -47,23 +58,19 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps): unknown @{
       mergeStyle({ display: 'flex' }, props.style),
     )}
   >
-    {hasTimestamp ? (
-      <masonview className="vx-chatmeta-part" style={{ display: 'flex' }}>
-        {props.timestamp}
-      </masonview>
-    ) : null}
-    {hasTimestamp && (hasFooter || hasStatus) ? (
+    @if (hasTimestamp) {
+      <MetadataPart>{props.timestamp}</MetadataPart>
+    }
+    @if (hasTimestamp && (hasFooter || hasStatus)) {
       <label className="vx-chatmeta-sep" text="·" />
-    ) : null}
-    {hasFooter ? (
-      <masonview className="vx-chatmeta-part" style={{ display: 'flex' }}>
-        {props.footer}
-      </masonview>
-    ) : null}
+    }
+    @if (hasFooter) {
+      <MetadataPart>{props.footer}</MetadataPart>
+    }
     @if (hasFooter && hasStatus) {
       <label className="vx-chatmeta-sep" text="·" />
     }
-    {hasStatus ? (
+    @if (hasStatus) {
       <masonview
         className={['vx-chatmeta-status', `vx-chatmeta-status--${status}`]}
         accessibilityLabel={`Message ${STATUS_LABEL[status].toLowerCase()}`}
@@ -72,6 +79,6 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps): unknown @{
         <Icon name={STATUS_ICON[status]} size={12} />
         <label className="vx-chatmeta-status-text" text={STATUS_LABEL[status]} />
       </masonview>
-    ) : null}
+    }
   </masonview>
 }
