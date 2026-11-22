@@ -27,12 +27,20 @@ hoisted packages. Accidentally loading full Mason's JavaScript can report
 
 ## Foreign leaf style synchronization
 
-Mason beta.110 issue #31: ordinary NativeScript views have no `_styleHelper`,
-so their resolved layout styles need a bridge. Read `Style.fromView` after
-attachment, effective-style changes, and native-view replacement. Batch writes,
-request parent layout, convert physical pixels to DIP, and release observers on
-detach/disposal. Include reset, percentage sizing, and reattachment behavior.
-Drop the bridge only when upstream supplies that complete contract.
+Ordinary NativeScript views have no `_styleHelper`. Mason now owns most of
+their layout-style forwarding through [Mason #130](https://github.com/triniwiz/nativescript-mason/pull/130)
+and [#131](https://github.com/triniwiz/nativescript-mason/pull/131). Core beta.12
+ships that forwarding. Keep the renderer bridge until the selected engine
+passes the complete contract, including reset, percentage sizing, and native
+view replacement.
+
+On Android API 35 with Core beta.12, both a renderer-managed Label with its
+bridge disabled and a Label mounted directly into Mason stopped drawing on
+collapse but kept a 62-DIP slot. The renderer bridge moved the sibling to
+0 DIP. Check both direct and class-authored collapse, and verify that
+restoring visibility returns the slot. A Mason candidate that forwards
+visibility and effective display passed this comparison on Android. Qualify
+the shipping package on each affected target before removing the fallback.
 
 Native `visibility: collapse` must become Mason `display: none`; observe
 visibility changes and deduplicate layout requests. For core 9.1.3 with Mason
