@@ -7,8 +7,9 @@
 import { textProperty } from '@nativescript/core/ui/text-base';
 import { TextViewBase } from '@nativescript/core/ui/text-view/text-view-common';
 import { editableProperty, hintProperty, maxLengthProperty, autocorrectProperty } from '@nativescript/core/ui/editable-text-base';
-import { View, CSSType } from '@nativescript/core/ui/core/view';
+import { View, CSSType, isEnabledProperty } from '@nativescript/core/ui/core/view';
 import { layout } from '@nativescript/core/utils';
+import { registerGestureClass } from '../../../../../src/gestures';
 export * from '@nativescript/core/ui/text-view/text-view-common';
 class NSTextViewDelegateImpl extends NSObject {
     static ObjCProtocols = [NSTextViewDelegate];
@@ -43,8 +44,24 @@ class NSTextViewDelegateImpl extends NSObject {
         }
         return true;
     }
+    textViewDoCommandBySelector(textView, selector) {
+        const owner = this._owner?.deref();
+        if (
+            !owner?.isEnabled || !owner.editable ||
+            String(selector) !== 'insertNewline:' ||
+            !['done', 'send'].includes(owner.returnKeyType)
+        ) {
+            return false;
+        }
+        const marked = textView.hasMarkedText;
+        if (typeof marked === 'function' ? marked.call(textView) : marked) {
+            return false;
+        }
+        owner.notify({ eventName: TextViewBase.returnPressEvent, object: owner });
+        return true;
+    }
 }
-NativeClass(NSTextViewDelegateImpl);
+registerGestureClass(NSTextViewDelegateImpl);
 export class TextView extends TextViewBase {
     nativeViewProtected; // NSScrollView
     _delegate;
@@ -87,17 +104,30 @@ export class TextView extends TextViewBase {
     get macos() {
         return this.nativeViewProtected;
     }
+    focus() {
+        const editor = this.nativeTextViewProtected;
+        if (!this.isEnabled || !editor?.window?.makeFirstResponder(editor)) {
+            return false;
+        }
+        this.textViewDidBeginEditing(editor);
+        return true;
+    }
     textViewDidBeginEditing(_textView) {
+        if (this._isEditing) {
+            return;
+        }
         this._isEditing = true;
         this._refreshHintState();
         this.notify({ eventName: TextViewBase.focusEvent, object: this });
     }
     textViewDidEndEditing(textView) {
+        if (!this._isEditing) {
+            return;
+        }
+        this._isEditing = false;
         if (this.updateTextTrigger === 'focusLost') {
             textProperty.nativeValueChange(this, String(textView.string));
         }
-        this._isEditing = false;
-        this.dismissSoftInput();
         this._refreshHintState();
         this.notify({ eventName: TextViewBase.blurEvent, object: this });
     }
@@ -116,7 +146,7 @@ export class TextView extends TextViewBase {
                 return false;
             }
         }
-        if (replacementString === '\n') {
+        if (replacementString === '\n' && !['done', 'send'].includes(this.returnKeyType)) {
             this.notify({ eventName: TextViewBase.returnPressEvent, object: this });
         }
         return true;
@@ -158,6 +188,7 @@ export class TextView extends TextViewBase {
             textView.string = value == null ? '' : String(value);
         }
         this._refreshHintState();
+        this.requestLayout();
     }
     [hintProperty.getDefault]() {
         return '';
@@ -170,7 +201,17 @@ export class TextView extends TextViewBase {
     }
     [editableProperty.setNative](value) {
         if (this.nativeTextViewProtected) {
-            this.nativeTextViewProtected.editable = value;
+            this.nativeTextViewProtected.editable = this.isEnabled && value;
+        }
+    }
+    [isEnabledProperty.getDefault]() {
+        return true;
+    }
+    [isEnabledProperty.setNative](enabled) {
+        const editor = this.nativeTextViewProtected;
+        if (editor) {
+            editor.editable = enabled && this.editable;
+            editor.selectable = enabled;
         }
     }
     [autocorrectProperty.setNative](value) {

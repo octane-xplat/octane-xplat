@@ -22,6 +22,7 @@ import './nativescript-provider.css'
 
 let automationButtonPresses = 0
 const editorEvents: string[] = []
+const notesEvents: string[] = []
 
 function Screen() {
   return (
@@ -40,7 +41,14 @@ function Screen() {
         onBlur={() => editorEvents.push('blur')}
         onReturnPress={() => editorEvents.push('submit')}
       />
-      <textview id="notes" hint="Notes" style={{ width: 160, height: 40 }} />
+      <textview
+        id="notes"
+        hint="Notes"
+        style={{ width: 160, height: 40 }}
+        onFocus={() => notesEvents.push('focus')}
+        onBlur={() => notesEvents.push('blur')}
+        onReturnPress={() => notesEvents.push('submit')}
+      />
       <button text="Core automation" onTap={() => automationButtonPresses++} />
       <liquidglass id="glass" style={{ width: 160, height: 48 }}>
         <label id="glass-content" text="Glass content" />
@@ -768,6 +776,22 @@ setTimeout(async () => {
     const notes = host.getViewById('notes')
     if (notes.nativeViewProtected.documentView.string !== 'Automated notes' || notes.text !== 'Automated notes') {
       throw new Error('Core automation did not update the multiline editor by placeholder')
+    }
+    const notesEditor = notes.nativeViewProtected.documentView
+    if (!notes.focus() || notesEditor.window.firstResponder !== notesEditor) {
+      throw new Error('The Core multiline field did not focus its AppKit editor')
+    }
+    notes.returnKeyType = 'done'
+    if (!notesEditor.delegate.textViewDoCommandBySelector(notesEditor, 'insertNewline:')) {
+      throw new Error('Done did not consume the native multiline Return command')
+    }
+    notes.returnKeyType = 'next'
+    if (notesEditor.delegate.textViewDoCommandBySelector(notesEditor, 'insertNewline:')) {
+      throw new Error('The ordinary multiline Return command was consumed')
+    }
+    notes.dismissSoftInput()
+    if (notesEvents.join(',') !== 'focus,submit,blur') {
+      throw new Error('Unexpected multiline field lifecycle: ' + notesEvents.join(','))
     }
     debug.pressButton('Core automation')
     if (automationButtonPresses !== 1) {
