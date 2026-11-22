@@ -261,6 +261,26 @@ async function checkDevelopmentReload() {
   }
 }
 
+function checkMainWindowRootReplacement() {
+  const window = Application.macos.window
+  const content = window.contentView
+  const previous = host.nativeViewProtected
+  if (previous.superview !== content) {
+    throw new Error('Core did not mount inside the AppKit main window content view')
+  }
+
+  const replacement = new GridLayout()
+  Application.resetRootView({ create: () => replacement })
+  if (
+    previous.superview ||
+    window.contentView !== content ||
+    replacement.nativeViewProtected.superview !== content ||
+    replacement.nativeViewProtected.frame.size.width !== content.bounds.size.width
+  ) {
+    throw new Error('Replacing the Core root changed the AppKit window or left the old root attached')
+  }
+}
+
 setTimeout(async () => {
   try {
     const title = host.getViewById('title')
@@ -301,6 +321,7 @@ setTimeout(async () => {
       throw new Error('Unmount left a native view attached')
     }
     await checkDevelopmentReload()
+    checkMainWindowRootReplacement()
     console.log('CORE_PROVIDER_OK')
   } catch (error) {
     console.error('CORE_PROVIDER_FAIL', String(error), error)

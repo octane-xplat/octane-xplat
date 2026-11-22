@@ -1,5 +1,5 @@
 // macOS Core provider: Application for AppKit. Creates a real
-// NSWindow in run(), installs the root view's native view as contentView,
+// NSWindow in run(), mounts the root in the AppKit host's content view,
 // and drives Core's measure/layout + lifecycle. Structure follows
 // application.ios.js (ready/launch flow, notification observers,
 // setSuspended/setSystemAppearance) minus scenes/view controllers.
@@ -9,9 +9,9 @@ import { Trace } from '@nativescript/core/trace';
 import { layout } from '@nativescript/core/utils';
 import { addTaggedAdditionalCSS, removeTaggedAdditionalCSS } from '@nativescript/core/ui/styling/style-scope';
 import { installNativeScriptHostServices } from '../../../../src/nativescript-host-services';
+import { createAppKitWindow } from '../../../../src/host-windowing';
 export * from '@nativescript/core/application/application-common';
 export * from '@nativescript/core/application/application-interfaces';
-const WINDOW_STYLE_MASK = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3); // titled|closable|miniaturizable|resizable
 
 function installStylesheetDelivery(application) {
     const tags = [];
@@ -109,24 +109,26 @@ class MacOSApplication extends ApplicationCommon {
     resetRootView(entry) {
         super.resetRootView(entry);
         const oldRoot = this._rootView;
-        const window = this._macosHandle.window;
         const rootView = this._createEntryRootView(entry);
-        this._rootView = rootView;
-        if (!rootView) {
-            return null;
+        if (!rootView || rootView === oldRoot) {
+            return rootView;
         }
-        this.initRootView(rootView, null);
-        rootView._setupAsRootView({});
-        rootView._nativeWindow = window || undefined;
-        if (window) {
-            window.contentView = rootView.nativeViewProtected;
-        }
+        this._mountRootView(rootView);
         if (oldRoot) {
+            oldRoot.callUnloaded();
             oldRoot._tearDownUI(true);
         }
+        return rootView;
+    }
+    _mountRootView(rootView) {
+        const window = this._macosHandle.window;
+        this._rootView = rootView;
+        this.initRootView(rootView, null);
+        rootView._setupAsRootView({});
+        rootView._nativeWindow = window;
+        window?.contentView.addSubview(rootView.nativeViewProtected);
         rootView.callLoaded();
         this._layoutRoot();
-        return rootView;
     }
     _createEntryRootView(entry) {
         if (entry && typeof entry.create === 'function') {
@@ -142,7 +144,7 @@ class MacOSApplication extends ApplicationCommon {
         if (!rootView || !window || !window.contentView) {
             return;
         }
-        const size = window.contentView.frame.size;
+        const size = window.contentView.bounds.size;
         const w = layout.round(layout.toDevicePixels(size.width));
         const h = layout.round(layout.toDevicePixels(size.height));
         rootView.measure(layout.makeMeasureSpec(w, layout.EXACTLY), layout.makeMeasureSpec(h, layout.EXACTLY));
@@ -212,29 +214,18 @@ class MacOSApplication extends ApplicationCommon {
         // 'ready' fires once per JS context before any window/content work.
         this.notify({ eventName: this.readyEvent, object: this, ios: this.ios, android: this.android, macos: this._macosHandle });
         const rootView = this._createEntryRootView(entry);
-        this._rootView = rootView;
         if (!rootView) {
             return null;
         }
-        this.initRootView(rootView, null);
-        const size = this._macosHandle.defaultWindowSize;
-        const app = NSApplication.sharedApplication;
-        if (app && app.setActivationPolicy) {
-            app.setActivationPolicy(0); // NSApplicationActivationPolicyRegular
-        }
-        const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(NSMakeRect(0, 0, size.width, size.height), WINDOW_STYLE_MASK, 2, // NSBackingStoreBuffered
-        false);
+        const appKit = createAppKitWindow({
+            size: this._macosHandle.defaultWindowSize,
+            terminateAfterLastWindowClosed: true,
+        });
+        const { window, app } = appKit;
         this._macosHandle.window = window;
-        rootView._setupAsRootView({});
-        rootView._nativeWindow = window;
-        window.contentView = rootView.nativeViewProtected;
-        rootView.callLoaded();
-        this._layoutRoot();
+        this._mountRootView(rootView);
         this._installObservers(window);
-        window.makeKeyAndOrderFront(null);
-        if (app && app.activateIgnoringOtherApps) {
-            app.activateIgnoringOtherApps(true);
-        }
+        app.activateIgnoringOtherApps(true);
         return rootView;
     }
 }
