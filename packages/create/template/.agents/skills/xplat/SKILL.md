@@ -5,34 +5,34 @@ description: Build and review code in an Octane Xplat app — one TypeScript cod
 
 # Octane Xplat app
 
-Shared TSRX can run on web and NativeScript. Each build selects the matching
-implementation when a component has platform leaves. Run `bun run lint` and
-`bun run typecheck` to check the source.
+Shared TSRX can run on web and NativeScript. Run `bun run lint` and
+`bun run typecheck` before handing back changes. Check behavior on the
+platforms the change affects.
 
 ## Non-negotiables
 
 **One element vocabulary per file.** Shared code renders only
-`@octane-xplat/ui` components. Platform divergence lives in whole files
-— `.web` for browser code, `.mobile` for shared iOS/Android variants, OS-specific suffixes, and the unsuffixed native default —
-chosen by the bundler when something imports `./Foo`. Never branch on
-platform inside JSX (`Platform.OS`, conditional imports, checks for browser globals). Platform-authentic widgets live behind
-`@octane-xplat/ui/ios`, `/android`, and `/web` — importing a subpath
-outside a matching suffix file fails the other platform's build (the
-`xplat/platform-subpath-import` lint enforces it).
+`@octane-xplat/ui` components. Put browser elements in a `.web` file and
+native elements in the native default or a matching platform leaf. Keep
+platform-authentic imports such as `@octane-xplat/ui/ios` in the matching
+platform files.
+
 **One public contract for platform leaves.** Keep exported names and public
-types identical. Define props once and import that type from every
-implementation. See [platform files](references/platform.md#write-a-platform-file-when-behavior-differs).
-**No DOM globals in shared code.** `document`, `window`, `localStorage`,
-DOM events — all web-only. Device capabilities (clipboard, storage,
-permissions, connectivity) come from
-`@octane-xplat/platform`; plugin-backed features use their leaf packages.
+types identical. Define props once and import that type in each implementation.
+Import `./Card.tsrx` using the basename and explicit extension. The platform
+checker and build select the matching leaf. See
+[platform files](references/platform.md#write-a-platform-file-when-behavior-differs).
+
+**Keep host-specific globals in host-specific code.** An unsuffixed file can
+be a native default. Code that runs on several platforms should use shared
+APIs such as `@octane-xplat/platform` for device capabilities.
+
 **Styles:** `className` for anything static; `style` objects only for
 values that change while the app runs. Shared CSS must use the portable
 subset — the native build warns on declarations it drops
 (`position: fixed`, `margin: auto`, `box-shadow`, …).
-**Hooks and JSX live in `.tsrx` (or `.tsx`).** Plain `.ts` is for
-non-component code and may not import `.tsrx`. Import `.tsrx` files with
-the explicit extension: `import { App } from './App.tsrx'`.
+**Hooks and JSX live in `.tsrx` (or `.tsx`).** Keep plain `.ts` modules
+for non-component code. Keep component imports in component files.
 **Keep signal names suffixed with `$`.** Use `useSignal$` for state owned
 by a component. Runtime signal imports let the compiler track reads.
 
@@ -120,18 +120,17 @@ export function NameField() {
 }
 ```
 
-- Native `.tsx` files inherit shared JSX types from the app config. A native
-  `.tsrx` file that uses host elements needs the shared pragma on line 1.
-  A leaf that only uses shared components can omit it.
+The installed compiler and mapper use the program's JSX setting. Lint
+requires a first-line pragma for raw native host tags in TSRX. A leaf that
+renders only shared components can inherit the setting.
 
 ```tsrx
-import { Text } from '@octane-xplat/ui'
-
-export function NativeGreeting() { return <Text>Hello</Text> }
+/** @jsxImportSource @octane-xplat/jsx */
+export function NativeGreeting() { return <label text="Hello" /> }
 ```
 
-- Browser JSX leaves select DOM types explicitly on line 1. These pragmas
-  select types; the build keeps the existing web and native renderers:
+When the program uses the shared Xplat JSX setting, a browser leaf selects
+DOM types with its first-line pragma. Vite selects the renderer.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx/dom */

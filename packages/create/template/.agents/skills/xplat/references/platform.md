@@ -46,7 +46,8 @@ export function UnlockTrip() {
 ## Write a platform file when behavior differs
 
 Split the file when a feature needs browser or OS APIs. Use the unsuffixed
-name with the `.tsrx` extension so the bundler can select the implementation.
+name with the `.tsrx` extension so the checker and build can select the
+implementation.
 The default can use native APIs if it only runs on native. Keep host-specific
 globals out of code that runs on several platforms.
 
@@ -65,8 +66,26 @@ export function ScanScreen() { return <Scanner /> }
 
 Expose the same names and public types from every implementation. Define
 props once in a shared file and import that type in the default and all leaves.
-Keep the leaves covered by their platform entries in `tsconfig.envs.json` so
-typecheck checks each implementation directly.
+Use a separately named helper when sibling implementations share code. An
+import of `./Scanner.tsrx` from `Scanner.ios.tsrx` can resolve back to itself
+in the iOS program.
+
+## Check each platform
+
+Keep leaves covered by their entries in `tsconfig.envs.json`. Run the app's
+typecheck after changing that manifest, its source roots, or the dependencies
+it resolves. Commit the regenerated `xplat-typecheck/` files and keep the
+root `tsconfig.json` references pointing to them.
+
+```sh
+bun run typecheck
+```
+
+Ambient SDK declarations apply to the entire program. A shared file in the
+editor normally shows one platform program's diagnostics. Use the app's
+typecheck to check every configured program. See the
+[editor setup guide](https://octane-xplat.goddardai.org/module-resolution#editor-project-context)
+when a leaf is missing from the editor's project.
 
 Native `.tsx` files inherit the shared types from the app config. Keep the
 first-line shared pragma on `.tsrx` files that use native host elements. Import
