@@ -6,7 +6,8 @@ import { hmrUniversalComponent, UNIVERSAL_HMR } from 'octane/universal/native'
 import { appMenu } from '../../../app-menu/src/index.macos.ts'
 import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.ts'
 import { createShortcuts } from '../../../shortcuts/src/index.macos.ts'
-import { openWindow } from '../../src/host-windowing'
+import { startNativeScriptApplication } from '../../platforms/nativescript/core/application/application.macos.js'
+import { createAppKitWindow, openWindow } from '../../src/host-windowing'
 import {
   createNativeScriptWindowRoot,
   installNativeScriptWindowRoots,
@@ -53,7 +54,23 @@ function stop() {
 const host = new GridLayout()
 const root = renderNativeScriptApp(host, Screen)
 installNativeScriptWindowRoots()
-Application.run({ create: () => host })
+let applicationReady = false
+Application.once(Application.readyEvent, () => {
+  applicationReady = true
+})
+startNativeScriptApplication(() => host, () => {
+  if (!applicationReady) {
+    throw new Error('Core ready must fire before creating the host window')
+  }
+  return createAppKitWindow({
+    title: 'Core provider fixture',
+    size: { width: 1024, height: 700 },
+    terminateAfterLastWindowClosed: true,
+  })
+})
+if (Application.macos.window.title !== 'Core provider fixture' || Application.getRootView() !== host) {
+  throw new Error('Core did not use the desktop host window and root')
+}
 
 function SecondaryWindow() {
   return <label className="provider-viewport" text="Secondary Core window" />

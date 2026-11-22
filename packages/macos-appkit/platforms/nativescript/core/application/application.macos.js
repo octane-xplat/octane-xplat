@@ -187,6 +187,12 @@ class MacOSApplication extends ApplicationCommon {
         }
     }
     run(entry) {
+        return this._start(entry, () => createAppKitWindow({
+            size: this._macosHandle.defaultWindowSize,
+            terminateAfterLastWindowClosed: true,
+        }));
+    }
+    _start(entry, createWindow) {
         installNativeScriptHostServices();
         if (!this.started) {
             installNativeScriptStylesheetDelivery();
@@ -201,10 +207,7 @@ class MacOSApplication extends ApplicationCommon {
         if (!rootView) {
             return null;
         }
-        const appKit = createAppKitWindow({
-            size: this._macosHandle.defaultWindowSize,
-            terminateAfterLastWindowClosed: true,
-        });
+        const appKit = createWindow();
         const { window, app } = appKit;
         this._macosHandle.window = window;
         this._mountRootView(rootView);
@@ -219,6 +222,11 @@ class MacOSApplication extends ApplicationCommon {
 }
 export const Application = new MacOSApplication();
 export const AndroidApplication = undefined;
+
+/** Start Core using the same AppKit window factory as a desktop host. */
+export function startNativeScriptApplication(createRoot, createWindow) {
+    Application._start({ create: createRoot }, createWindow);
+}
 export { Trace };
 // ── Accessibility surface parity with application.ios.js (stubs) ─────────
 import { CommonA11YServiceEnabledObservable } from '@nativescript/core/accessibility/accessibility-common';
