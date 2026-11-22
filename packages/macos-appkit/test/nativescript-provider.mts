@@ -6,7 +6,6 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { build } from 'vite'
-import { nativeScriptDevImports } from '../src/nativescript-dev-imports.ts'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle, macOSHostArch, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 import { createCoreMacOSConfig } from '../../cli/src/macos/core-vite.ts'
@@ -31,7 +30,7 @@ try {
       outDir: output,
       hmr: true,
       fileName: revision + '.cjs',
-      external: nativeScriptDevImports,
+      packaged: false,
     })
     await build({
       ...config,

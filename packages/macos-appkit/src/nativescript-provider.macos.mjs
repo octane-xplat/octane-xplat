@@ -118,3 +118,5 @@ export async function createNativeScriptProvider(project) {
 
   return { config, coreRoot, reusedCoreFiles }
 }
+
+export { nativeScriptDevImports } from './nativescript-dev-imports.mjs'

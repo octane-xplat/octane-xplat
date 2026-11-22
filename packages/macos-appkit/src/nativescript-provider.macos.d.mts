@@ -8,3 +8,5 @@ export interface NativeScriptProvider {
 
 /** @internal Resolve the consuming app's patched NativeScript toolchain. */
 export function createNativeScriptProvider(project: string): Promise<NativeScriptProvider>
+
+export { nativeScriptDevImports } from './nativescript-dev-imports.mjs'

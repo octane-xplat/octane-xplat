@@ -5,7 +5,7 @@ import * as octaneClient from 'octane/internal/client'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as universal from 'octane/universal/native'
-import type { nativeScriptDevImports } from './nativescript-dev-imports'
+import type { nativeScriptDevImports } from './nativescript-dev-imports.mjs'
 
 /** Share the shell's Core and Octane instances with every rebuilt app bundle. */
 export function installNativeScriptDevModules(shellModules: Record<string, object> = {}) {

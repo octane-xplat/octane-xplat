@@ -1,5 +1,5 @@
 /** App bundles loaded into an existing host use these resident modules. */
-export const nativeScriptDevImports = [
+export const nativeScriptDevImports = /** @type {const} */ ([
   '@nativescript/core',
   '@nativescript/core/animation-frame',
   '@octane-xplat/nativescript-octane',
@@ -8,4 +8,4 @@ export const nativeScriptDevImports = [
   'octane/signals',
   'octane/signals/client',
   'octane/universal/native',
-] as const
+])

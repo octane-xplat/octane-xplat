@@ -524,7 +524,10 @@ async function checkMasonScroll() {
 
 async function checkDevelopmentReload() {
   const shellImport = { stored: true }
-  __installDevelopmentModules({ 'provider-fixture-shell': shellImport })
+  __installDevelopmentModules({
+    'provider-fixture-shell': shellImport,
+    '@octane-xplat/macos-appkit': { __rendererId },
+  })
   if (Reflect.get(globalThis, '__xplatDevModules')['provider-fixture-shell'] !== shellImport) {
     throw new Error('Core did not retain the shared shell modules')
   }
@@ -540,6 +543,7 @@ async function checkDevelopmentReload() {
     const first = label()
     if (
       before.Label !== Label ||
+      before.__rendererId !== __rendererId ||
       !(first instanceof Label) ||
       first.nativeViewProtected.stringValue !== 'before:0'
     ) {

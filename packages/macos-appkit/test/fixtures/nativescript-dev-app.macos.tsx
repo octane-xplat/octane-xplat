@@ -1,9 +1,10 @@
 import { Label } from '@nativescript/core'
+import { __rendererId } from '@octane-xplat/macos-appkit'
 import { useSignal$ } from 'octane/signals/client'
 
 declare const __PROVIDER_DEV_REVISION__: string
 
-export { Label }
+export { Label, __rendererId }
 export let increment = () => {}
 
 export default function Counter() {
