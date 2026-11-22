@@ -8,7 +8,8 @@ import { setAppMainEntry } from '@nativescript/core/application/helpers-common';
 import { Trace } from '@nativescript/core/trace';
 import { layout } from '@nativescript/core/utils';
 import { installNativeScriptHostServices } from '../../../../src/nativescript-host-services';
-import { installNativeScriptStylesheetDelivery, trackNativeScriptStyleRoot } from '../../../../src/nativescript-css.macos';
+import { installNativeScriptStylesheetDelivery } from '../../../../src/nativescript-css.macos';
+import { trackNativeScriptRoot } from '../../../../src/nativescript-roots.macos';
 import { createAppKitWindow } from '../../../../src/host-windowing';
 export * from '@nativescript/core/application/application-common';
 export * from '@nativescript/core/application/application-interfaces';
@@ -107,8 +108,8 @@ class MacOSApplication extends ApplicationCommon {
         rootView._nativeWindow = window;
         window?.contentView.addSubview(rootView.nativeViewProtected);
         rootView.callLoaded();
-        this._untrackStyleRoot?.();
-        this._untrackStyleRoot = trackNativeScriptStyleRoot(rootView);
+        this._untrackRoot?.();
+        this._untrackRoot = trackNativeScriptRoot(rootView, window.contentView);
         this._layoutRoot();
     }
     _createEntryRootView(entry) {
@@ -212,8 +213,8 @@ class MacOSApplication extends ApplicationCommon {
         this._macosHandle.window = window;
         this._mountRootView(rootView);
         void appKit.windowClosed.then(() => {
-            this._untrackStyleRoot?.();
-            this._untrackStyleRoot = undefined;
+            this._untrackRoot?.();
+            this._untrackRoot = undefined;
         });
         this._installObservers(window);
         app.activateIgnoringOtherApps(true);

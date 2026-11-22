@@ -11,6 +11,7 @@ import { runNativeScriptMacOSApp } from '../../src/nativescript-host.macos'
 import { createNativeScriptWindowRoot } from '../../src/nativescript-window.macos'
 import { installNativeScriptDevModules } from '../../src/nativescript-dev.macos'
 import { registerNativeScriptStylesheet } from '../../src/nativescript-css.macos'
+import { observeNativeScriptLayoutCommits } from '../../src/nativescript-roots.macos'
 import './nativescript-provider.css'
 
 function Screen() {
@@ -94,6 +95,29 @@ function checkEmbeddedCoreRoot() {
       throw new Error('The embedded Core root remained attached after unmount')
     }
     content.removeFromSuperview()
+  }
+}
+
+async function checkLayoutNotifications() {
+  const target = host.getViewById('title')
+  const contentView = Application.macos.window.contentView
+  const widths: number[] = []
+  const unobserve = observeNativeScriptLayoutCommits(({ hostView }) => {
+    if (hostView === contentView) {
+      widths.push(target.nativeViewProtected.frame.size.width)
+    }
+  })
+  try {
+    if (widths.length !== 1) {
+      throw new Error('Layout observation did not visit the existing Core root')
+    }
+    target.style.width = 160
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (widths.length < 2 || widths[0] === widths.at(-1)) {
+      throw new Error('Core did not report the completed layout after a width change')
+    }
+  } finally {
+    unobserve()
   }
 }
 
@@ -444,6 +468,7 @@ setTimeout(async () => {
     }
     await checkDesktopServices()
     checkShortcuts()
+    await checkLayoutNotifications()
     checkEmbeddedCoreRoot()
     await checkWindowLifecycle()
     registerNativeScriptStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')

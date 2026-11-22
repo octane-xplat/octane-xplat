@@ -1,26 +1,12 @@
 import {
-  type ViewBase,
   addTaggedAdditionalCSS,
   removeTaggedAdditionalCSS,
 } from '@nativescript/core'
+import { restyleNativeScriptRoots } from './nativescript-roots.macos'
 
 type Stylesheet = readonly [name: string, css: string]
-const roots = new Set<ViewBase>()
 const bundleTags: string[] = []
 const registeredStylesheets = new Map<string, string>()
-
-export function trackNativeScriptStyleRoot(root: ViewBase): () => void {
-  roots.add(root)
-  return () => {
-    roots.delete(root)
-  }
-}
-
-function refreshRoots() {
-  for (const root of roots) {
-    root._onCssStateChange()
-  }
-}
 
 /** Register or replace a stylesheet owned by the application. */
 export function registerNativeScriptStylesheet(id: string, css: string): void {
@@ -37,7 +23,7 @@ export function registerNativeScriptStylesheet(id: string, css: string): void {
       addTaggedAdditionalCSS(content, registeredTag)
     }
   }
-  refreshRoots()
+  restyleNativeScriptRoots()
 }
 
 function replaceBundle(stylesheets: readonly Stylesheet[]) {
@@ -50,7 +36,7 @@ function replaceBundle(stylesheets: readonly Stylesheet[]) {
     bundleTags.push(tag)
     addTaggedAdditionalCSS(css, tag)
   }
-  refreshRoots()
+  restyleNativeScriptRoots()
 }
 
 export function installNativeScriptStylesheetDelivery() {

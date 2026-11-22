@@ -7,6 +7,7 @@ import { Trace } from '@nativescript/core/trace';
 import { layout, getWindow } from '@nativescript/core/utils';
 import { MacOSHelper } from '@nativescript/core/ui/core/view/view-helper';
 import { retireNativeScriptHostView } from '../../../../../../src/nativescript-host-services';
+import { notifyNativeScriptLayout } from '../../../../../../src/nativescript-roots.macos';
 import { evalMediaQuery } from '@octane-xplat/css-engine';
 import { NSWorkspace } from '@octane-xplat/platform/macos';
 import {
@@ -172,6 +173,9 @@ export class View extends ViewCommon {
             this.updateBackground(sizeChanged, needsLayout);
         }
         this._privateFlags &= ~PFLAG_FORCE_LAYOUT;
+        if (needsLayout) {
+            notifyNativeScriptLayout(this);
+        }
     }
     updateBackground(sizeChanged, needsLayout) {
         const background = this.style.backgroundInternal;
