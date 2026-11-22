@@ -289,6 +289,17 @@ export class Style {
             horizontal: owner?.__isMasonHorizontal === true,
             collapsed,
         });
+        // Core composites with a plain AppKit host can supply intrinsic
+        // dimensions without registering a native getter that re-enters JS.
+        const intrinsic = this.leafView?.getMasonIntrinsicSize?.();
+        if (intrinsic) {
+            if (!dict.width && (!dict.minWidth || dict.minWidth[0] === 1 && dict.minWidth[1] === 0)) {
+                dict.minWidth = [1, intrinsic.width];
+            }
+            if (!dict.height && (!dict.minHeight || dict.minHeight[0] === 1 && dict.minHeight[1] === 0)) {
+                dict.minHeight = [1, intrinsic.height];
+            }
+        }
         invoke('style', [this.masonNode, dict]);
         this._pending = false;
     }

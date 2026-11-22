@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@nativescript/macos-node-api'
-import { Application, GridLayout, Label, LiquidGlass, TextField } from '@nativescript/core'
+import { ActionBar, Application, GridLayout, Label, LiquidGlass, TextField } from '@nativescript/core'
 import { renderNativeScriptApp } from '@octane-xplat/nativescript-octane'
 import { appMenu } from '../../../app-menu/src/index.macos.ts'
 import { createTray, getTrayAvailability } from '../../../tray/src/index.macos.ts'
@@ -10,7 +10,7 @@ import { installNativeScriptWindowRoots } from '../../src/nativescript-window.ma
 
 function Screen() {
   return (
-    <masonview style={{ width: 320, height: 160, flexDirection: 'column' }}>
+    <masonview style={{ width: 320, height: 220, flexDirection: 'column' }}>
       <label
         id="title"
         text="NativeScript Core on AppKit"
@@ -22,6 +22,10 @@ function Screen() {
       <liquidglass id="glass" style={{ width: 160, height: 48 }}>
         <label id="glass-content" text="Glass content" />
       </liquidglass>
+      <actionbar id="bar" title="Initial" style={{ width: 220 }} />
+      <actionbar id="child-bar" style={{ width: 220 }}>
+        <label id="bar-child" text="Custom title" style={{ width: 120, height: 20 }} />
+      </actionbar>
     </masonview>
   )
 }
@@ -154,6 +158,66 @@ function checkLiquidGlass() {
   return backdrop
 }
 
+function checkActionBar() {
+  const bar = host.getViewById('bar')
+  const childBar = host.getViewById('child-bar')
+  const child = host.getViewById('bar-child')
+  if (!(bar instanceof ActionBar) || !(childBar instanceof ActionBar) || !(child instanceof Label)) {
+    throw new Error('Core did not mount both ActionBar title forms')
+  }
+
+  const native = bar.nativeViewProtected
+  const label = native.subviews.objectAtIndex(0)
+  if (
+    label.stringValue !== 'Initial' ||
+    native.frame.size.height !== 44 ||
+    native.layer.shadowOpacity <= 0
+  ) {
+    throw new Error(`ActionBar default title: ${label.stringValue}, height ${native.frame.size.height}, shadow ${native.layer.shadowOpacity}`)
+  }
+  bar.title = 'Updated'
+  bar.flat = true
+  if (label.stringValue !== 'Updated' || native.layer.shadowOpacity !== 0) {
+    throw new Error('ActionBar did not update its title and shadow in place')
+  }
+
+  if (
+    child.nativeViewProtected.superview !== childBar.nativeViewProtected ||
+    Math.abs(child.nativeViewProtected.frame.origin.x - 50) > 1
+  ) {
+    throw new Error(`ActionBar JSX title location: ${JSON.stringify(child.nativeViewProtected.frame)}`)
+  }
+
+  const external = NSTextField.labelWithString('External')
+  bar.titleView = external
+  if (external.superview !== native || label.superview || native.subviews.count !== 1) {
+    throw new Error('ActionBar did not replace its plain title with an AppKit view')
+  }
+  bar.titleView = null
+  if (external.superview || label.superview !== native || native.subviews.count !== 1) {
+    throw new Error('ActionBar did not retire the AppKit title and restore the label')
+  }
+  const box = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 80, 24))
+  bar.titleView = box
+  if (box.superview !== native || bar.getMasonIntrinsicSize().width !== 80) {
+    throw new Error('ActionBar did not measure an AppKit title with an explicit frame')
+  }
+  let rejected = false
+  try {
+    bar.titleView = child.nativeViewProtected
+  } catch {
+    rejected = true
+  }
+  if (
+    !rejected ||
+    box.superview !== native ||
+    child.nativeViewProtected.superview !== childBar.nativeViewProtected
+  ) {
+    throw new Error('ActionBar allowed a title replacement to steal another host’s view')
+  }
+  return native
+}
+
 setTimeout(async () => {
   try {
     const title = host.getViewById('title')
@@ -174,13 +238,14 @@ setTimeout(async () => {
     checkShortcuts()
     await checkWindowLifecycle()
     const backdrop = checkLiquidGlass()
+    const bar = checkActionBar()
     root.unmount()
-    if (native.superview || backdrop.superview || host.getViewById('title')) {
+    if (native.superview || backdrop.superview || bar.subviews.count || host.getViewById('title')) {
       throw new Error('Unmount left a native view attached')
     }
     console.log('CORE_PROVIDER_OK')
   } catch (error) {
-    console.error('CORE_PROVIDER_FAIL', error)
+    console.error('CORE_PROVIDER_FAIL', String(error), error)
   } finally {
     stop()
   }

@@ -45,6 +45,9 @@ starts. Window sizing and close behavior stay in `host-windowing.ts`.
 When compiling Core-backed components, select `host-core.macos.tsx` for
 the UI interaction host. It waits for the Core view to load and uses AppKit's
 mouse contact stream. AppKit retains its normal wheel scrolling.
+The Core ActionBar supplies its natural title size to Mason. AppKit keeps a
+plain native host view, so measuring the title does not require a native
+getter that calls back into JavaScript.
 
 ```sh
 bun run turbo run test:nativescript --filter=@octane-xplat/macos-appkit
