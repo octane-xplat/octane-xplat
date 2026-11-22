@@ -36,9 +36,17 @@ export * from './shared.js'
 export interface HostElement {
   addSubview(subview: HostElement): void
   removeFromSuperview(): void
-  readonly subviews: HostElement[]
+  readonly subviews: {
+    readonly count: number
+    objectAtIndex(index: number): HostElement
+  }
   hidden: boolean
   [key: string]: any
+}
+
+interface AppKitTextEntryProps {
+  value?: string
+  placeholder?: string
 }
 
 /** Public instance of a viewless intrinsic. It owns logical identity and
@@ -63,6 +71,7 @@ export declare namespace JSX {
     | 'label'
     | 'masonview'
     | 'textfield'
+    | 'textview'
     | 'proxyviewcontainer'
     | 'formattedstring'
     | 'span'
@@ -73,13 +82,20 @@ export declare namespace JSX {
     /** AX orientation for named toolbar hosts; does not change layout or keys. */
     masonview: NativeElements<HostElement>['masonview'] & {
       accessibilityOrientation?: 'horizontal' | 'vertical'
+      disabled?: boolean
+      accessibilityMinValue?: number
+      accessibilityMaxValue?: number
+      onAccessibilityIncrement?: () => void
+      onAccessibilityDecrement?: () => void
     }
     /** AppKit AXHeading metadata; prefer ui's Heading level prop. */
     label: NativeElements<HostElement>['label'] & {
       accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6
     }
     /** CSS color string for the AppKit placeholder; prefer ui's TextInput placeholderTextColor prop. */
-    textfield: NativeElements<HostElement>['textfield'] & { placeholderTextColor?: string }
+    textfield: NativeElements<HostElement>['textfield'] &
+      AppKitTextEntryProps & { placeholderTextColor?: string }
+    textview: NativeElements<HostElement>['textview'] & AppKitTextEntryProps
     proxyviewcontainer: Attributes<LogicalElement>
     tabview: Attributes<HostElement, TabViewProps<HostElement, TabViewItemHandle>>
     tabviewitem: Attributes<TabViewItemHandle, TabViewItemProps>

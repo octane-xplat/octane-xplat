@@ -15,26 +15,13 @@ import {
 import './fail-fast.mts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const cliBuild = spawnSync('bun', ['--filter', '@octane-xplat/cli', 'build'], {
-  shell: process.platform === 'win32',
-  cwd: appRoot,
+const generated = spawnSync(process.execPath, [resolve(appRoot, '../../scripts/gen-routes.ts')], {
+  cwd: join(appRoot, 'test/default-client'),
   encoding: 'utf8',
-  timeout: 120000,
+  timeout: 60000,
 })
 
-assert.equal(cliBuild.status, 0, cliBuild.stdout + cliBuild.stderr)
-
-const { generateRoutes } = await import('../../../packages/cli/dist/commands/routes.js')
-
-await generateRoutes(join(appRoot, 'test/default-client'), undefined, undefined, { bake: true })
-
-const checked = spawnSync(
-  'bun',
-  ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', 'test/tsconfig.routing.json'],
-  { cwd: appRoot, encoding: 'utf8', timeout: 60000, shell: process.platform === 'win32' },
-)
-
-assert.equal(checked.status, 0, checked.stdout + checked.stderr)
+assert.equal(generated.status, 0, generated.stdout + generated.stderr)
 
 const scratch = resolve(appRoot, '../../research')
 
@@ -100,3 +87,11 @@ assert.equal(result.status, 0, output)
 assert.doesNotMatch(output, /ROUTING_FIXTURE_FAIL|uncaught render error/)
 assert.match(output, /ROUTING_FIXTURE_OK/)
 console.log(output)
+
+const checked = spawnSync(
+  'bun',
+  ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', 'test/tsconfig.routing.json'],
+  { cwd: appRoot, encoding: 'utf8', timeout: 60000, shell: process.platform === 'win32' },
+)
+
+assert.equal(checked.status, 0, checked.stdout + checked.stderr)
