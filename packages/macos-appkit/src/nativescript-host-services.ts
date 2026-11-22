@@ -15,6 +15,9 @@ import { createAppKitKeyboardDispatcher } from './keyboard'
 import { registerGestureClass } from './gestures'
 import { createPickerBridge } from './picker-bridge'
 import { buildPopUpControl } from './picker-control'
+import { createContextMenu } from './context-menu'
+import { createPopover } from './popover'
+import { createSheetBridge } from './sheet-bridge'
 
 const keyboard = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
 
@@ -41,6 +44,13 @@ export function installNativeScriptHostServices() {
       actions: { allocate: actions.allocate, invokeAction: actions.dispatch },
     })
     appKitBridge.installApplicationMenu = menu.installApplicationMenu
+    const contextMenu = createContextMenu({
+      actions: { allocate: actions.allocate, invokeAction: actions.dispatch },
+    })
+    appKitBridge.attachContextMenu = (host, options, onSelect) => {
+      const view = appKitView(host)
+      return view ? contextMenu.attachContextMenu(view, options, onSelect) : null
+    }
 
     class PickerActionTarget extends NSObject {
       static ObjCExposedMethods = {
@@ -79,5 +89,25 @@ export function installNativeScriptHostServices() {
     appKitBridge.observeViewKeys = keyboard.subscribe
     appKitBridge.dispatchKeyboardEvent = keyboard.dispatch
     appKitBridge.observeHardwareKeys = keyboard.observe
+  }
+}
+
+
+/** Share desktop surfaces that host their own Octane roots. */
+export function installNativeScriptWindowServices(dependencies: Parameters<typeof createPopover>[0]) {
+  const { appKitBridge } = createHostBridge()
+  if (appKitBridge.showAnchoredPopup) {
+    return
+  }
+
+  const popover = createPopover(dependencies)
+  const sheet = createSheetBridge({ popover })
+  appKitBridge.showAnchoredPopup = (options) => {
+    const anchor = appKitView(options.anchor)
+    return anchor ? popover.showAnchoredPopup({ ...options, anchor }) : null
+  }
+  appKitBridge.presentSheet = (host, options) => {
+    const view = appKitView(host)
+    return view ? sheet.presentSheet(view, options) : null
   }
 }

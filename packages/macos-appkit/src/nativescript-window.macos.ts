@@ -10,8 +10,11 @@ import type { UniversalRoot } from 'octane/universal/native'
 import { FailureCollector } from './failures'
 import { installWindowRootFactory } from './host-windowing'
 import { installNativeScriptStylesheetDelivery } from './nativescript-css.macos'
-import { installNativeScriptHostServices } from './nativescript-host-services'
-import { trackNativeScriptRoot } from './nativescript-roots.macos'
+import {
+  installNativeScriptHostServices,
+  installNativeScriptWindowServices,
+} from './nativescript-host-services'
+import { measureNativeScriptContent, nativeScriptFontFamilyForView, trackNativeScriptRoot } from './nativescript-roots.macos'
 import type { MacOSRootOptions } from './runtime'
 
 /** Mount a Core root in the AppKit content view that owns its size and lifetime. */
@@ -20,6 +23,7 @@ export function createNativeScriptWindowRoot(
   options?: MacOSRootOptions,
 ): UniversalRoot {
   installNativeScriptHostServices()
+  installNativeScriptWindowRoots()
   installNativeScriptStylesheetDelivery()
   const host = new GridLayout()
   if (options?.fontFamily) {
@@ -115,4 +119,9 @@ export function createNativeScriptWindowRoot(
 /** Give Core-hosted apps the existing AppKit secondary-window lifecycle. */
 export function installNativeScriptWindowRoots() {
   installWindowRootFactory(createNativeScriptWindowRoot)
+  installNativeScriptWindowServices({
+    roots: { createMacOSRoot: createNativeScriptWindowRoot },
+    measureContent: measureNativeScriptContent,
+    directory: { fontFamilyForView: nativeScriptFontFamilyForView },
+  })
 }

@@ -15,6 +15,7 @@ import type { PropBag, PopupOptions } from './model'
 interface Dependencies {
   roots: Pick<Roots, 'createMacOSRoot'>
   directory: Pick<RootDirectoryReader, 'fontFamilyForView'>
+  measureContent?(contentView: NSView): { width: number; height: number } | null
 }
 
 export type Popover = ReturnType<typeof createPopover>
@@ -49,6 +50,11 @@ export function createPopover(deps: Dependencies) {
 
   function popupFittingSize(contentView: NSView) {
     try {
+      const measured = deps.measureContent?.(contentView)
+      if (measured) {
+        return measured
+      }
+
       const direct = contentView.fittingSize
 
       if (direct && direct.width > 0 && direct.height > 0) {

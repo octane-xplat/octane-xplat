@@ -138,6 +138,67 @@ function checkDesktopDatePicker() {
   }
 }
 
+function OverlayContent() {
+  return <label text="Core overlay" style={{ width: 160, height: 22 }} />
+}
+
+function checkDesktopSurfaces() {
+  const target = host.getViewById('date-control-host')
+  const nativeHost = target.nativeViewProtected
+  const bridge = Reflect.get(globalThis, '__xplatAppKit')
+  const previousMenu = nativeHost.menu
+  let selection
+  const detach = bridge.attachContextMenu(target, {
+    items: [{ id: 'core-item', title: 'Core menu item' }],
+  }, (next) => {
+    selection = next
+  })
+  if (!detach) {
+    throw new Error('AppKit could not create a context menu for the Core view')
+  }
+  try {
+    const item = nativeHost.menu.itemAtIndex(0)
+    NSApplication.sharedApplication.sendActionToFrom(item.action, item.target, item)
+    if (selection !== 'core-item') {
+      throw new Error('The Core context menu did not dispatch its AppKit action')
+    }
+  } finally {
+    detach()
+  }
+  if (nativeHost.menu !== previousMenu) {
+    throw new Error('Removing the Core context menu did not restore the previous AppKit menu')
+  }
+
+  const popup = bridge.showAnchoredPopup({
+    anchor: target, component: OverlayContent, placement: 'right', animates: false,
+  })
+  if (!popup) {
+    throw new Error('AppKit could not show a popover from the Core view')
+  }
+  try {
+    if (popup.popover.contentSize.width < 100) {
+      throw new Error('The AppKit popover did not size itself to the Core content')
+    }
+  } finally {
+    popup.close()
+  }
+
+  const sheet = bridge.presentSheet(target, {})
+  if (!sheet) {
+    throw new Error('AppKit could not prepare a sheet from the Core view')
+  }
+  const sheetRoot = createMacOSRoot(sheet.target)
+  try {
+    sheetRoot.render(OverlayContent, {})
+    if (!sheet.present() || !sheet.presented || !Application.macos.window.attachedSheet) {
+      throw new Error('AppKit did not present the Core sheet on the parent window')
+    }
+  } finally {
+    sheetRoot.unmount()
+    sheet.close()
+  }
+}
+
 function checkCorePaint() {
   const coreView = host.getViewById('paint')
   const view = coreView.nativeViewProtected
@@ -558,6 +619,7 @@ setTimeout(async () => {
     await checkDesktopServices()
     checkShortcuts()
     checkDesktopDatePicker()
+    checkDesktopSurfaces()
     checkCorePaint()
     await checkLayoutNotifications()
     await checkEmbeddedCoreRoot()
