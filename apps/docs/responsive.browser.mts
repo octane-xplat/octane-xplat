@@ -1,20 +1,18 @@
 // Local browser coverage; excluded from the lightweight PR gate.
 import assert from 'node:assert/strict'
 import { chromium, firefox, webkit } from 'playwright'
-import { createServer } from 'vite'
+import { preview } from 'vite'
 import { fileURLToPath } from 'node:url'
 
 // Transformed rectangles can report a fractional rounding error.
 const minimumTouchTarget = 44 - 0.01
 
-const server = await createServer({
+const server = await preview({
   root: fileURLToPath(new URL('.', import.meta.url)),
-  server: { host: '127.0.0.1', port: 0, strictPort: true },
+  preview: { host: '127.0.0.1', port: 0, strictPort: true },
 })
 
 try {
-  await server.listen()
-
   const address = server.httpServer.address()
 
   assert(address && typeof address === 'object')

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot } from 'octane'
-import { View, Text, Link, postToHost } from '@octane-xplat/ui'
+import { Text, Link, postToHost } from '@octane-xplat/ui'
 import { GoalCounter } from '@octane-xplat/demos/GoalCounter.tsrx'
 import { PackingList } from '@octane-xplat/demos/PackingList.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
@@ -11,13 +11,13 @@ import './demo.css'
 const packing = new URLSearchParams(location.search).get('demo') === 'packing-list'
 
 createRoot(document.getElementById('root')!).render(
-  <View className="demo-standalone">
+  <main className="demo-standalone">
     <Link href={packing ? '/packing-list' : '/goal-counter'} target="_top">
       Back to docs
     </Link>
     <Text className="demo-description">Browser demo · session-only state</Text>
     {packing ? <PackingList /> : <GoalCounter />}
-  </View>,
+  </main>,
 )
 
 // The host treats a document load without this rendered-app handshake as failure.

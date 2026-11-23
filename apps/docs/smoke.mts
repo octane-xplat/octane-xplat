@@ -301,6 +301,8 @@ assert(
 )
 
 for (const path of walkDocs('../../docs')) {
+  const previous = window.location.pathname
+  const previousTitle = root.querySelector('.doc .h1')?.textContent
   const rel = relative('../../docs', path)
   const dir = dirname(rel) === '.' ? '' : dirname(rel)
   const slug = slugFor(dir, basename(rel, '.md'))
@@ -335,6 +337,18 @@ for (const path of walkDocs('../../docs')) {
         )
       }),
   )
+
+  // Visit each guide from the same history entry so the corpus walk does
+  // not retain a browser-history entry for every generated reference page.
+  if (previous !== window.location.pathname) {
+    window.history.back()
+    await waitFor(
+      'return from ' + slug,
+      () =>
+        window.location.pathname === previous &&
+        root.querySelector('.doc .h1')?.textContent === previousTitle,
+    )
+  }
 }
 
 // Cmd-K palette: open via the global shortcut, query for an API symbol,

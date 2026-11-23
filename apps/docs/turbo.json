@@ -24,12 +24,27 @@
 				"$TURBO_ROOT$/docs/**"
 			]
 		},
-		"test:responsive": {
+		"smoke": {
 			"dependsOn": [
-				"^typegen",
-				"^build"
+				"build"
 			],
 			"cache": false
+		},
+		"test:responsive": {
+			"dependsOn": [
+				"build"
+			],
+			"cache": false,
+			"passThroughEnv": [
+				"PLAYWRIGHT_BROWSERS_PATH"
+			]
+		},
+		"test:demos": {
+			"cache": false,
+			"passThroughEnv": [
+				"DEMOS_URL",
+				"PLAYWRIGHT_BROWSERS_PATH"
+			]
 		},
 		"api": {
 			"dependsOn": [
