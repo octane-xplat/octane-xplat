@@ -337,11 +337,19 @@ async function checkProjectedGrid() {
   }
 }
 
-function PercentRootLayout(props: { width: number }) {
+function PercentRootLayout(props: { width: number; alignToEnd?: boolean }) {
   return (
     <masonview style={{ display: 'flex' }}>
       <rootlayout id="percent-root" style={{ width: props.width, height: 80, padding: 10 }}>
-        <contentview id="percent-root-child" style={{ width: '50%', height: '50%' }} />
+        <contentview
+          id="percent-root-child"
+          style={{
+            width: '50%',
+            height: '50%',
+            justifySelf: props.alignToEnd ? 'end' : undefined,
+            alignSelf: props.alignToEnd ? 'end' : undefined,
+          }}
+        />
       </rootlayout>
       <rootlayout id="natural-root">
         <contentview style={{ width: 52, height: 18 }} />
@@ -358,12 +366,13 @@ async function checkRootLayoutPercentages() {
   const root = createMacOSRoot(window.contentView)
   try {
     const debug = Reflect.get(root, '__macosDebug')
-    for (const width of [200, 240]) {
-      root.render(PercentRootLayout, { width })
+    for (const [width, alignToEnd] of [[200, false], [240, true], [240, false]] as const) {
+      root.render(PercentRootLayout, { width, alignToEnd })
       await new Promise((resolve) => setTimeout(resolve, 30))
       const child = debug.findId('percent-root-child')
       const { origin, size } = child.alignmentRectForFrame(child.frame)
-      if (origin.x !== width / 4 || origin.y !== 20 || size.width !== width / 2 || size.height !== 40) {
+      const x = alignToEnd ? width / 2 - 10 : width / 4
+      if (origin.x !== x || origin.y !== (alignToEnd ? 10 : 20) || size.width !== width / 2 || size.height !== 40) {
         throw new Error(
           `RootLayout percentage placement at ${width}: ${origin.x},${origin.y},${size.width},${size.height}`,
         )

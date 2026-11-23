@@ -393,6 +393,7 @@ const MASON_CSS_PROPS = [
     ['flexBasis', 'flex-basis'],
     ['aspectRatio', 'aspect-ratio'],
     ['justifySelf', 'justify-self'],
+    ['alignSelf', 'align-self'],
     ['justifyItems', 'justify-items'],
     ['textAlign', 'text-align'],
     ['boxSizing', 'box-sizing'],
@@ -428,20 +429,25 @@ export function ensureMasonStyleProperties() {
         return;
     }
     registered = true;
-    const existing = new Set(_getStyleProperties().map((p) => p.name));
+    const existing = new Map(_getStyleProperties().map((p) => [p.name, p]));
     for (const [name, cssName] of MASON_CSS_PROPS) {
-        if (existing.has(name)) {
+        const property = existing.get(name);
+        const selfAlignment = name === 'alignSelf' || name === 'justifySelf';
+        if (property) {
+            if (selfAlignment) {
+                property.overrideHandlers({ affectsLayout: true });
+            }
             continue;
         }
         // Resolved styles must forward an explicit reset when a foreign
         // leaf drops its authored flex basis or absolute inset.
         const defaults = name === 'position' ? 'relative' : undefined;
-        const hasAutoDefault = name === 'flexBasis' || DIM_EDGES.includes(name);
+        const hasAutoDefault = selfAlignment || name === 'flexBasis' || DIM_EDGES.includes(name);
         new CssProperty({
             name,
             cssName,
             defaultValue: hasAutoDefault ? 'auto' : defaults,
-            affectsLayout: globalThis.__NS_CAP__?.propertyChangesRequestLayout === true,
+            affectsLayout: selfAlignment || globalThis.__NS_CAP__?.propertyChangesRequestLayout === true,
         }).register(CoreStyle);
     }
 }

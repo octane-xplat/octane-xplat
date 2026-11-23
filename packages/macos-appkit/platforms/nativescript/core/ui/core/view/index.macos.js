@@ -64,7 +64,75 @@ function detachNativeViewTree(native) {
     }
     native.removeFromSuperview();
 }
+function selfAlignment(value, reverse = false) {
+    switch (value) {
+        case 'left':
+        case 'top':
+            return 'start';
+        case 'right':
+        case 'bottom':
+            return 'end';
+        case 'start':
+        case 'self-start':
+        case 'flex-start':
+            return reverse ? 'end' : 'start';
+        case 'end':
+        case 'self-end':
+        case 'flex-end':
+            return reverse ? 'start' : 'end';
+        case 'center':
+        case 'middle':
+            return 'center';
+        case 'stretch':
+            return 'stretch';
+    }
+}
+
+function placeInCell(start, end, marginStart, marginEnd, measuredSize, alignment, hasSize) {
+    const space = Math.max(0, end - start - marginStart - marginEnd);
+    const stretch = alignment === 'stretch' && !hasSize;
+    const size = stretch ? space : measuredSize;
+    let offset = start + marginStart;
+    if (alignment === 'end') {
+        offset += space - size;
+    }
+    else if (alignment === 'center' || (alignment === 'stretch' && hasSize)) {
+        offset += (space - size) / 2;
+    }
+    return [Math.round(offset), Math.round(offset + size)];
+}
+
 export class View extends ViewCommon {
+    static layoutChild(parent, child, left, top, right, bottom, setFrame = true) {
+        const rtl = child?.direction === 'rtl';
+        const justify = selfAlignment(child?.style.justifySelf, rtl);
+        const align = selfAlignment(child?.style.alignSelf);
+        if (!child || child.isCollapsed || (!justify && !align)) {
+            super.layoutChild(parent, child, left, top, right, bottom, setFrame);
+            return;
+        }
+
+        // NativeScript knows its own alignment properties; the AppKit JSX
+        // contract also permits CSS self alignment inside a Core layout cell.
+        const horizontal = justify ?? selfAlignment(child.horizontalAlignment, rtl) ?? 'stretch';
+        const vertical = align ?? selfAlignment(child.verticalAlignment) ?? 'stretch';
+        View.measureChild(
+            parent,
+            child,
+            layout.makeMeasureSpec(right - left, horizontal === 'stretch' ? layout.EXACTLY : layout.AT_MOST),
+            layout.makeMeasureSpec(bottom - top, vertical === 'stretch' ? layout.EXACTLY : layout.AT_MOST),
+        );
+        const [x1, x2] = placeInCell(
+            left, right, child.effectiveMarginLeft, child.effectiveMarginRight,
+            child.getMeasuredWidth(), horizontal, child.effectiveWidth >= 0,
+        );
+        const [y1, y2] = placeInCell(
+            top, bottom, child.effectiveMarginTop, child.effectiveMarginBottom,
+            child.getMeasuredHeight(), vertical, child.effectiveHeight >= 0,
+        );
+        child.layout(x1, y1, x2, y2, setFrame);
+    }
+
     _matchesMediaQuery(query) {
         let window;
         for (let view = this; view && !window; view = view.parent) {
