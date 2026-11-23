@@ -1991,7 +1991,10 @@ function applyCommand(container: NativeScriptContainer, command: UniversalHostCo
       return
     }
     case 'event': {
-      setEvent(container, expect(container, command.id), command.type, command.listener)
+      const node = expect(container, command.id)
+      // SearchBar's submit event predates editable controls' returnPress.
+      const type = node.type === 'searchbar' && command.type === 'returnPress' ? 'submit' : command.type
+      setEvent(container, node, type, command.listener)
       return
     }
     case 'visibility': {

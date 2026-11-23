@@ -3,7 +3,7 @@
 // ui/search-bar/index.ios.js. Colors have no direct AppKit knob — gap.
 import { SearchBarBase, textProperty, hintProperty } from '@nativescript/core/ui/search-bar/search-bar-common';
 import { layout } from '@nativescript/core/utils';
-import { View } from '@nativescript/core/ui/core/view';
+import { registerGestureClass } from '../../../../../src/gestures';
 export * from '@nativescript/core/ui/search-bar/search-bar-common';
 class SearchBarDelegateImpl extends NSObject {
     static ObjCProtocols = [NSSearchFieldDelegate];
@@ -23,28 +23,23 @@ class SearchBarDelegateImpl extends NSObject {
             }
         }
     }
+    controlTextViewDoCommandBySelector(_field, editor, selector) {
+        const owner = this._owner?.deref();
+        if (!owner || String(selector) !== 'insertNewline:') {
+            return false;
+        }
+        const marked = editor?.hasMarkedText;
+        if (typeof marked === 'function' ? marked.call(editor) : marked) {
+            return false;
+        }
+        owner._submit();
+        return true;
+    }
 }
-for (const name of Object.getOwnPropertyNames(SearchBarDelegateImpl.prototype)) {
-    if (name === 'constructor')
-        {continue;}
-    const d = Object.getOwnPropertyDescriptor(SearchBarDelegateImpl.prototype, name);
-    Object.defineProperty(SearchBarDelegateImpl.prototype, name, { ...d, enumerable: true });
-}
-NativeClass(SearchBarDelegateImpl);
-const SearchBarTargetImpl = NSObject.extend({
-    ['submit:'](_sender) {
-        const owner = this._weakOwner ? this._weakOwner.deref() : null;
-        if (owner)
-            {owner._submit();}
-    },
-}, {
-    name: 'NSCoreMacosSearchBarTarget',
-    exposedMethods: { 'submit:': { returns: interop.types.void, params: [interop.types.id] } },
-});
+registerGestureClass(SearchBarDelegateImpl);
 export class SearchBar extends SearchBarBase {
     nativeViewProtected;
     _delegate;
-    _target;
     createNativeView() {
         const field = NSSearchField.alloc().initWithFrame(CGRectMake(0, 0, 0, 0));
         return field;
@@ -53,10 +48,11 @@ export class SearchBar extends SearchBarBase {
         super.initNativeView();
         this._delegate = SearchBarDelegateImpl.initWithOwner(new WeakRef(this));
         this.nativeViewProtected.delegate = this._delegate;
-        this._target = SearchBarTargetImpl.new();
-        this._target._weakOwner = new WeakRef(this);
-        this.nativeViewProtected.target = this._target;
-        this.nativeViewProtected.action = NSSelectorFromString('submit:');
+        // NSSearchField action dispatch can also fire when clearing or
+        // ending editing. Only the field editor's Return command submits.
+        this.nativeViewProtected.target = null;
+        this.nativeViewProtected.action = null;
+        this.nativeViewProtected.cell.sendsActionOnEndEditing = false;
     }
     disposeNativeView() {
         const nv = this.nativeViewProtected;
@@ -64,6 +60,10 @@ export class SearchBar extends SearchBarBase {
             nv.delegate = null;
             nv.target = null;
             nv.action = null;
+        }
+        if (this._delegate) {
+            this._delegate._owner = undefined;
+            this._delegate = undefined;
         }
         super.disposeNativeView();
     }

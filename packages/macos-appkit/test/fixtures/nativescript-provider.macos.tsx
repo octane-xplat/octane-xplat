@@ -388,6 +388,38 @@ async function checkRootLayoutPercentages() {
   }
 }
 
+function SearchSubmission(props: { onSubmit: () => void }) {
+  return <searchbar id="return-search" text="Needle" onSubmit={props.onSubmit} />
+}
+
+async function checkSearchSubmission() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  const callCount = { value: 0 }
+  try {
+    root.render(SearchSubmission, { onSubmit: () => callCount.value++ })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const field = Reflect.get(root, '__macosDebug').findId('return-search')
+    if (!window.makeFirstResponder(field) || !field.currentEditor()) {
+      throw new Error('Core SearchBar did not accept the AppKit field editor')
+    }
+    field.currentEditor().doCommandBySelector('insertNewline:')
+    if (callCount.value !== 1) {
+      throw new Error('AppKit SearchBar Return did not submit once')
+    }
+    field.stringValue = ''
+    field.delegate.controlTextDidChange({ object: field })
+    if (callCount.value !== 1 || field.cell.sendsActionOnEndEditing) {
+      throw new Error('AppKit SearchBar clear or end-editing could submit')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 function AbsoluteLeaf(props: { bottom: boolean }) {
   return (
     <masonview style={{ width: 120, height: 100, position: 'relative' }}>
@@ -1327,6 +1359,7 @@ setTimeout(async () => {
     await checkProjectedLeaves()
     await checkProjectedGrid()
     await checkRootLayoutPercentages()
+    await checkSearchSubmission()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

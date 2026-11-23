@@ -460,6 +460,15 @@ describe('nativeScriptDriver', () => {
     expect(label.formattedText).toBeNull()
   })
 
+  it('dispatches SearchBar submit through the onSubmit alias', () => {
+    const { apply, view, dispatched } = mount(new MockLayoutBase())
+    apply(create(1, 'searchbar'), insert(1), event(1, 'returnPress', listener(10)))
+    const search = view<MockView>(1)
+    const submission = { eventName: 'submit', object: search }
+    search.notify(submission)
+    expect(dispatched).toEqual([{ listener: 10, data: submission }])
+  })
+
   it('sets an ActionBar child as its titleView', () => {
     const { apply, view } = mount(new MockLayoutBase())
     apply(create(1, 'actionbar'), create(2, 'label'), insert(1), insert(2, 1))
