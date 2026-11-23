@@ -37,8 +37,16 @@ export const DocNavigation = createContext({
 })
 
 export const DocNavigationProvider: any = DocNavigation
-export function DocPageContent(props: { doc: DocPage }) @{
-  const doc = props.doc
+export function DocRouteScreen(props: { data: DocPage | undefined }) @{
+  const doc = props.data
+
+  // Keep the article in the route screen itself. In Octane 0.23.2 an @if
+  // wrapper around the article component registers a speculative memo cache
+  // that repeatedly scans prior entries when mounting large references.
+  if (!doc) {
+    return <DocNotFound />
+  }
+
   const { leaving, followDoc } = useContext(DocNavigation)
   const nextDoc = DOCS[DOCS.findIndex((candidate) => candidate.slug === doc.slug) + 1]
 
@@ -98,12 +106,4 @@ export function DocNotFound() @{
       </NavLink>
     </View>
   </View>
-}
-
-export function DocRouteScreen(props: { data: DocPage | undefined }) @{
-  @if (props.data) {
-    <DocPageContent doc={props.data} />
-  } @else {
-    <DocNotFound />
-  }
 }

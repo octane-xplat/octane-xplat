@@ -32,6 +32,17 @@ There is no shared `mark` element or arbitrary HTML metadata contract; the
 prompt no longer sets the browser-only `data-nosnippet` attribute. Do not add
 web escape props to presentation components to conceal that gap.
 
+## Large reference rendering
+
+The docs route renders the article directly in `DocRouteScreen`, with an
+early return for unknown slugs. With Octane 0.23.2, the previous `@if` wrapper
+around the article component emitted a speculative memo plan in Vite
+development. Chromium profiling showed repeated linear scans of consumed
+entries at the same memo call sites, dominating the full UI reference mount.
+Keep the article directly in the screen until the runtime handles those
+lookups efficiently. The production build uses the same Markdown and anchors.
+[Octane memo lookup source](https://github.com/octanejs/octane/blob/octane%400.23.2/packages/octane/src/runtime/use.ts#L781).
+
 ## Verification
 
 Use `turbo run typecheck --filter=...@octane-xplat/docs`, the docs smoke task, and the
