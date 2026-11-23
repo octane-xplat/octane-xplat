@@ -55,6 +55,25 @@ function mount(node: any) {
 const click = (selector: string) =>
   act(() => (document.querySelector(selector) as HTMLElement).click())
 
+function actionButton(label: 'Apply' | 'Cancel' | 'Clear'): HTMLButtonElement {
+  const area = label === 'Clear' ? '.vx-power-search-row' : '.vx-power-search-editor-actions'
+  const button = Array.from(document.querySelectorAll<HTMLButtonElement>(`${area} > button`)).find(
+    (item) => item.textContent?.trim() === label,
+  )
+
+  if (!button) {
+    throw new Error(`Missing PowerSearch action: ${label}`)
+  }
+
+  return button
+}
+
+function clickAction(label: 'Apply' | 'Cancel' | 'Clear') {
+  const button = actionButton(label)
+
+  return act(() => button.click())
+}
+
 const input = (selector: string, value: string) =>
   act(() => {
     const el = document.querySelector(selector) as HTMLInputElement
@@ -132,9 +151,9 @@ it.each([-1, 0])('renders resolved create/edit editor %s and reports save/cancel
 
   mount(<PowerSearchView {...props} />)
   expect(document.querySelector('.vx-power-search-editor')).not.toBeNull()
-  click('.vx-power-search-editor-actions button.vx-pressable:last-child')
+  clickAction('Apply')
   expect(props.onSave).toHaveBeenCalledWith(filter)
-  click('.vx-power-search-editor-actions button.vx-pressable:first-child')
+  clickAction('Cancel')
   expect(props.onCancel).toHaveBeenCalledTimes(1)
 })
 
@@ -148,13 +167,13 @@ it('preserves package-root family imports and canonical add/edit/remove/clear tr
   input('.vx-power-search-input input', 'title hello')
   click('.vx-power-search-result')
   input('.vx-power-search-editor input', 'hello')
-  click('.vx-power-search-editor-actions button.vx-pressable:last-child')
+  clickAction('Apply')
   expect(onChange).toHaveBeenLastCalledWith([filter], 'add', 0)
   expect((ui.host.querySelector('.vx-power-search-input input') as HTMLInputElement).value).toBe('')
   ui.render(<PowerSearch config={config} filters={[filter]} onChange={onChange} />)
   click('.vx-power-search-token')
   input('.vx-power-search-editor input', 'changed')
-  click('.vx-power-search-editor-actions button.vx-pressable:last-child')
+  clickAction('Apply')
   expect(onChange).toHaveBeenLastCalledWith(
     [{ ...filter, value: { type: 'string', value: 'changed' } }],
     'edit',
@@ -163,7 +182,7 @@ it('preserves package-root family imports and canonical add/edit/remove/clear tr
 
   click('.vx-power-search-remove')
   expect(onChange).toHaveBeenLastCalledWith([], 'remove', 0)
-  click('.vx-power-search-row > button.vx-pressable:last-child')
+  clickAction('Clear')
   expect(onChange).toHaveBeenLastCalledWith([], 'remove', -1)
 })
 
@@ -182,7 +201,7 @@ it('cancel retains query and filters and web retains hardcoded leaves', () => {
 
   input('.vx-power-search-input input', 'title hello')
   click('.vx-power-search-result')
-  click('.vx-power-search-editor-actions button.vx-pressable:first-child')
+  clickAction('Cancel')
   expect(onChange).not.toHaveBeenCalled()
   expect(override).not.toHaveBeenCalled()
   expect((document.querySelector('.vx-power-search-input input') as HTMLInputElement).value).toBe(
@@ -265,11 +284,7 @@ it('mounts token and unsupported editor fixtures through existing leaf contracts
   )
 
   expect(ui.host.querySelector('.vx-power-search-editor-note')).not.toBeNull()
-  expect(
-    ui.host
-      .querySelector('.vx-power-search-editor-actions button.vx-pressable:last-child')
-      ?.hasAttribute('disabled'),
-  ).toBe(true)
+  expect(actionButton('Apply').disabled).toBe(true)
 
   expect(onSave).not.toHaveBeenCalled()
 })
