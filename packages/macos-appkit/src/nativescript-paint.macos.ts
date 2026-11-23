@@ -253,6 +253,19 @@ export function paintNativeScriptTransform(view: AppKitView | null, style: Style
   }
 }
 
+export function syncNativeScriptPaintGeometry(view: AppKitView | null) {
+  const state = view && views.get(view)
+  if (state) {
+    CATransaction.begin()
+    try {
+      CATransaction.setDisableActions(true)
+      paint.syncGeometry(state.node)
+    } finally {
+      CATransaction.commit()
+    }
+  }
+}
+
 export function syncNativeScriptProjection(view: AppKitView, scale: ProjectionScale | null) {
   setProjectionScale(view, scale)
   const state = views.get(view)
