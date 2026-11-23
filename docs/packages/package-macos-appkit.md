@@ -6,7 +6,8 @@
 `NSView`. NativeScript Core runs those components on AppKit through
 `@nativescript/macos-node-api` and the CLI's JavaScriptCore host.
 The packaged app supports Apple Silicon and Intel Macs running macOS 13.5
-or later. Build apps that compile native leaves on an Apple Silicon Mac.
+or later. If your app compiles native libraries, install the
+[macOS native tools](../platform/macos-native.md) for your build Mac.
 
 The package's `host` entry runs the AppKit application for you: it creates
 `NSApplication`, the main window, its universal root, the platform services
@@ -18,32 +19,29 @@ engine iOS and Android use, but does not implement every NativeScript widget or
 CSS property. See the [macOS harness](../../apps/macos/README.md) for the
 current component and service limits.
 
-The independent packed consumer checks native selector dispatch, geometry,
-element and nested-root cleanup, and retained-root HMR. These are programmatic
-checks on Apple Silicon macOS. Physical input, VoiceOver, visual parity and
-whole-process leak freedom require separate qualification; the full application
-harness is not qualified by this consumer.
+See [macOS support limits](../testing/known-limits.md#experimental-appkit-renderer)
+when choosing components and planning what to check in your app.
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-macos-appkit).
 
 ## Configure an app
 
-Declare the renderer, `octane`, and `@nativescript/macos-node-api` as application
-dependencies. The CLI also requires the runtime to be directly declared, even
-though the renderer depends on it. Use one copy of Octane per application.
-Declare `@octane-xplat/cli` and `vite` as development dependencies. The
-macOS provider supplies its pinned NativeScript Core and NativeScript Vite
-packages.
-Use the compatible versions supplied by the [toolchain setup](package-toolchain.md);
-the maintained consumer reads the repository's compatibility manifest rather
-than maintaining a second set of version pins.
+In your app's `package.json`, declare `@octane-xplat/macos-appkit`, `octane`,
+and `@nativescript/macos-node-api` as dependencies. Use one copy of Octane.
+Add `@octane-xplat/cli`, `@octane-xplat/macos-build`, `@octane-xplat/jsx`,
+Vite, TypeScript, and Octane's compiler peers `@octanejs/vite-plugin` and
+`@tsrx/oxc` as development dependencies. The provider brings NativeScript
+Core and NativeScript Vite. Use the compatible versions in the
+[toolchain setup](package-toolchain.md).
 
-Apply the framework's patches at your app's install root so the macOS
-provider can load its platform definitions. For TSX and TSRX checking,
-install TypeScript and run `tsc --runExternalCode`. See the [patch setup](package-cli.md#framework-patches).
+From your app's install root, apply the framework patches and reinstall
+so the macOS provider can load its platform definitions. If this is the
+first install, run `bun install` first to make the CLI available. See
+[framework patches](package-cli.md#framework-patches).
 
 ```sh
-xplat patches apply
+bun run xplat patches apply
+bun install
 ```
 
 Use this production Vite config:
@@ -87,8 +85,8 @@ Set these TypeScript options:
 }
 ```
 
-Declare `@octane-xplat/jsx` for the JSX types shown above. Its runtime subpaths
-contain compiler typing declarations; use the Octane Vite
+Run `bun run tsc --runExternalCode --noEmit` to check the app. The JSX
+package supplies compiler typing declarations. Use the Octane Vite
 compiler to produce runnable code. The preset compiles reachable TSX/TSRX
 source by default. `rules` can override that selection.
 
@@ -98,6 +96,29 @@ import { macos } from '@octane-xplat/cli/macos/vite'
 export default await macos('production', {
   rules: [{ include: '**/*.tsx', renderer: 'macos' }],
 })
+```
+
+## Register a custom macOS element
+
+If your app defines its own native element, declare `@nativescript/core`,
+`@octane-xplat/nativescript-octane`, and `@octane-xplat/platform` as direct
+dependencies for the imports below. Use the provider's compatible Core
+version. Extend Core's `View` and register the class through NativeScript
+Octane before rendering it.
+
+```ts
+// src/appkit-badge.macos.ts — import this module from the app entry.
+import { View } from '@nativescript/core'
+import { registerElement } from '@octane-xplat/nativescript-octane'
+import { NSView } from '@octane-xplat/platform/macos'
+
+class AppKitBadge extends View {
+  createNativeView() {
+    return NSView.alloc().init()
+  }
+}
+
+registerElement('appkitbadge', AppKitBadge)
 ```
 
 ## Start an app
@@ -189,12 +210,11 @@ re-exports Octane's universal native runtime for compiler and hook imports.
 ## Apply stylesheets
 
 Import CSS files from your entry module, the same way the iOS and Android
-apps do. `macos` compiles them like the native preset (it drops
-`@platform` blocks for other targets, unwraps `@layer`, and treats `px` as
-points) and bundles them into `main.cjs`. The renderer then matches
-`className`, `id`, and element-type selectors against your views. (The
-engine lives in the internal `@octane-xplat/css-engine` package shared
-with the GTK renderer — it is not a stable public API.)
+apps do. The macOS preset selects the applicable `@platform` blocks,
+treats `px` as points, and bundles the CSS into `main.cjs`. NativeScript
+Core matches `className`, `id`, and element selectors against your views.
+Use `min-width` or `max-width` media queries to style each window at its
+own width.
 
 ```ts
 // src/styles.ts, imported by your entry before the first render
@@ -210,10 +230,14 @@ import './app.css'
   background-color: var(--color-surface);
   border-radius: 12px;
 }
+
+@media (max-width: 600px) {
+  .card { padding: 8px; }
+}
 ```
 
-The cascade follows NativeScript: specificity, then `@layer`, then source
-order. Custom properties and `color`/`font-*`/`line-height` inherit, and
+NativeScript Core resolves the cascade by layer order, then specificity,
+then source order. Unlayered rules win over layered rules. Custom properties and `color`/`font-*`/`line-height` inherit, and
 `var()` and `calc()` resolve per view. A `style` prop overrides CSS, and so
 does an element prop with the same name, such as a label's `fontSize`. The
 root of every renderer tree gets `ns-root`, `ns-macos`, and `ns-light` or
@@ -232,8 +256,8 @@ Current limits:
 
 - A text field or text view drops its native bezel and background as soon
   as CSS gives it a background, border, or corner radius.
-- An unsupported property logs `[macos-css] ignored unsupported property`
-  once per property name.
+- Core applies the CSS properties supported by the target view. Check
+  platform-specific styling in the running Mac app.
 
 ## Preserve context through portals
 
@@ -469,9 +493,9 @@ export default await macos('development', {
 Other preset options are `root` (defaults to cwd), `entry`, `outDir`, and
 `rules`. Packaged output defaults to CommonJS; component output defaults to
 ES modules. Component builds preserve the output directory so they do not
-delete a shell sharing it; shell configurations should also preserve that
-directory when used for development. Applications may override the component format to CommonJS for
-the CLI watcher, as the maintained fixture does.
+delete a shell sharing it. Preserve that directory in the shell configuration
+as well. For the CLI's JavaScriptCore watcher, write the component bundle as
+CommonJS and point the dev configuration at both bundles.
 
 ```js
 import { macos } from '@octane-xplat/cli/macos/vite'
@@ -481,12 +505,42 @@ const config = await macos('development', {
   entry: 'src/App.macos.tsx',
   outDir: 'dist/dev',
   packaged: false,
+  hmr: true,
 })
 config.build = {
   ...config.build,
   lib: { entry: 'src/App.macos.tsx', formats: ['cjs'], fileName: 'app' },
 }
 export default config
+```
+
+```js
+// vite.shell.config.mjs — src/dev-shell.ts owns the window and mounts the root.
+import { defineConfig } from 'vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
+
+export default defineConfig(async ({ mode }) => {
+  const config = await macos(mode, { entry: 'src/dev-shell.ts', outDir: 'dist/dev' })
+  return { ...config, build: { ...config.build, emptyOutDir: false } }
+})
+```
+
+```json
+{
+  "xplat": {
+    "targets": {
+      "macos": {
+        "runtime": "appkit-node-api",
+        "dev": {
+          "viteConfig": "vite.component.config.mjs",
+          "bundleFile": "dist/dev/app.cjs",
+          "shellViteConfig": "vite.shell.config.mjs",
+          "shellBundleFile": "dist/dev/main.cjs"
+        }
+      }
+    }
+  }
+}
 ```
 
 ## Press and swipe callbacks

@@ -447,14 +447,23 @@ desktop setup and are separate from creating your first browser or phone app.
 
 ## Experimental AppKit target
 
-The CLI can also run the in-repository experimental macOS AppKit Node-API app
-with `bun run xplat dev macos` and package it with
-`bun run xplat build --targets macos`. Packaged apps are universal: one `.app`
-runs on Apple Silicon and Intel Macs. You can package on either kind of Mac,
-and apps with native leaves build on either kind too — the metadata generator
-loads the Command Line Tools `libclang` for the build host's architecture. This target is
-not part of the scaffolded starter. See the
-[target guide](spec.md#choose-your-targets) for release support boundaries.
+The experimental `macos` target runs NativeScript Core on AppKit, the native
+macOS window and control framework. Set up the app with the
+[macOS renderer guide](../packages/package-macos-appkit.md#configure-an-app),
+then run these commands from its project folder:
+
+```sh
+bun run xplat doctor
+bun run xplat dev --targets macos
+bun run xplat build --targets macos
+```
+
+The build produces a universal `.app` and `.dmg` for Apple Silicon and Intel
+Macs. Either architecture can be a build host. Apps that compile native
+libraries need Xcode Command Line Tools for the build host's architecture.
+The macOS target needs its own configuration alongside the scaffolded
+web and phone targets. See the [target guide](spec.md#choose-your-targets)
+for release support boundaries.
 `xplat.targets.macos.package` in the app manifest supplies the app name, bundle identifier, executable name, version, minimum macOS version, Vite
 config, and production bundle path. An optional `icon` path selects an `.icns`
 file inside the app project for the packaged app icon. `entitlements` is also
@@ -501,7 +510,7 @@ app's name and icon in the Dock and Cmd-Tab. It reuses `package.productName`
 and `package.icon`; without a product name, it uses the root package's `name`.
 To customize development without configuring a release, add `productName` and
 an app-root-relative `.icns` path to `xplat.targets.macos.dev`. Restart the dev
-command after changing these settings. This applies to AppKit and WKWebView.
+command after changing these settings.
 
 ```json
 {
@@ -524,21 +533,16 @@ command after changing these settings. This applies to AppKit and WKWebView.
 The development bundle is removed when the command exits and is not installed
 for Spotlight. Use the packaged `.app` for a lasting installation.
 
-For AppKit rendering, install `@octane-xplat/macos-appkit` and use
-`macos` from `@octane-xplat/cli/macos/vite` to register the compiler,
-and macOS platform support for NativeScript Core. `runMacOSApp` from
-`@octane-xplat/macos-appkit/host` runs the app for you — startup, the main
-window, and platform services; the app owns its custom fonts, and the
-renderer defaults to Apple's system font.
-See the [renderer setup](../packages/package-macos-appkit.md) for dependencies,
-Vite and TypeScript configuration, and the root lifecycle.
+Use the `macos` Vite preset to load the compiler and the AppKit provider for
+NativeScript Core. See the [renderer setup](../packages/package-macos-appkit.md)
+for dependencies, TypeScript options, and the app entry point.
 
 ```js
 // vite.package.config.mjs — AppKit build.
 import { defineConfig } from 'vite'
 import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default defineConfig((env) => macos(env, { entry: 'src/main.mjs' }))
+export default defineConfig(({ mode }) => macos(mode, { entry: 'src/main.ts' }))
 ```
 
 Leaf packages can also ship `platforms/macos/` sources in C, ObjC, Swift, or
@@ -563,7 +567,9 @@ for the measured boundary.
 
 ### Desktop hosting boundary
 
-Desktop WebView app hosting has been removed. macOS apps use the experimental native AppKit renderer. Apps that retain DOM screens can run in a browser. The local WebView used by [rich text editing](../app/rich-text.md#macos-appkit-editing) remains owned by the editor package.
+Use the AppKit target for native Mac screens and the web target for DOM
+screens that run in a browser. The [macOS rich text editor](../app/rich-text.md#macos-appkit-editing)
+uses its own embedded WebView within the native app.
 
 ## Experimental Windows target
 

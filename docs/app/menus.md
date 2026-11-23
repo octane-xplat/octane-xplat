@@ -97,11 +97,11 @@ Selecting a nested action closes the whole menu by default; setting
 `hasCloseOnSelect={false}` keeps that menu open. Escape and outside dismissal
 close the top surface first. Menus inherit the shared layer
 registry and Popover positioning; they do not install another Escape handler.
-`placement` and `alignment` on the root control the inherited Popover.
-The inherited macOS Popover does not guarantee custom alignment or offset.
+`placement` and `alignment` on the root control the inherited Popover,
+including the anchored AppKit window layer.
 
 ```tsx
-<DropdownMenu button={{ label: 'Actions' }}>
+<DropdownMenu button={{ label: 'Actions' }} placement="bottom" alignment="end">
   <DropdownMenuItem label="Save draft" onSelect={saveDraft} hasCloseOnSelect={false} />
 </DropdownMenu>
 ```

@@ -6,17 +6,20 @@ Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package,
 
 ## Starting point
 
-An AppKit Node-API app on a Mac with Apple Silicon or an Intel chip. The app already has a
-production Vite config that emits one CommonJS host bundle.
+An AppKit app using the NativeScript Core provider on a Mac with Apple
+Silicon or Intel. The app has a production Vite config that emits one
+CommonJS host bundle.
 
 ## Requirements
 
 - Declare the AppKit Node-API runtime and the app's bundle metadata in
   `package.json`.
+- Install the macOS build worker and apply the framework patches before
+  building with the macOS Vite preset.
 - Optionally include a custom macOS app icon from an `.icns` file in the app
   project.
-- Build with the macOS `codesign` and `hdiutil` tools. Apps with native leaves
-  need an Apple Silicon build Mac.
+- Build with the macOS `codesign` and `hdiutil` tools. Compiling native leaves
+  also needs Xcode Command Line Tools for the build host's architecture.
 - Ship one universal app that runs on Apple Silicon and Intel Macs.
 - Set the package's minimum macOS version to 13.5 or later for the
   JavaScriptCore host.

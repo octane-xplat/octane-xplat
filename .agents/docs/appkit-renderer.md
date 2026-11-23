@@ -118,7 +118,7 @@ runs through the shared AppKit application launcher and checks one cleanup.
 Other Core platforms keep their existing media matcher. The native provider fixture verifies different rules in two
 windows and independent updates when either window resizes.
 The development shell owns Core, the driver, and the Octane runtime. Mark
-the modules in `nativescript-dev-imports.ts` external in app rebuilds and
+the modules in `nativescript-dev-imports.mjs` external in app rebuilds and
 install the shell's module table before evaluating the first app bundle.
 
 ```sh

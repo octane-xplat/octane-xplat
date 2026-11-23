@@ -2,9 +2,9 @@
 
 > The owned NativeScript renderer and how to replace upstream imports.
 
-`@octane-xplat/nativescript-octane` is the source-owned renderer used by Octane Xplat on iOS and Android. It is maintained in this monorepo, with attribution to the original NativeScript Octane project. Most apps get it through the [app creator](package-create.md); keep the creator's native build configuration and shared JSX types.
+`@octane-xplat/nativescript-octane` is the shared renderer used by Octane Xplat on iOS, Android, and experimental macOS. It is maintained in this monorepo, with attribution to the original NativeScript Octane project. The [app creator](package-create.md) configures the iOS and Android targets. For a Mac app, follow the [AppKit setup](package-macos-appkit.md#configure-an-app).
 
-For a custom native bootstrap with the Octane Xplat native preset already configured, mount your compiled app into a NativeScript host:
+For a custom iOS or Android entry point with the native preset already configured, mount your compiled app into a NativeScript host:
 
 ```ts
 // src/main.ts

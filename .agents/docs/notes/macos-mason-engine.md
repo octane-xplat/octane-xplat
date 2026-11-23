@@ -40,7 +40,14 @@ rebuilding it.
 
 ## Text measurement
 
-Mason's native leaf callback reads AppKit intrinsic size. An unconstrained
+The Core provider measures through `platforms/nativescript/mason/index.js`.
+Mason reads AppKit's intrinsic size for simple leaves. When Mason has
+allocated a box to a Core container, the provider measures that container
+with the allocated width and height so it can lay out its own children.
+Keep placement in Core coordinates until the provider converts the
+alignment rectangle to an AppKit frame.
+
+In the legacy renderer fixtures, Mason's native leaf callback reads AppKit intrinsic size. An unconstrained
 NSTextField can report a single-line height even after receiving a narrower
 allocation. `layout.ts::pinLayoutChild` publishes a changed allocation through
 `preferredMaxLayoutWidth`, invalidates intrinsic size, and queues another
@@ -49,6 +56,10 @@ feedback when changing layout ownership; the maintained page-layout fixture
 checks that long paragraphs grow vertically inside bounded content.
 
 ## Dynamic content sizing
+
+The following ownership rules describe the retained legacy renderer fixtures.
+The public macOS target uses the Core provider's Mason measure and layout
+passes.
 
 Structural changes reconcile the containing Mason tree, not only the immediate
 parent. Otherwise a locally recomputed block can place its new children while
@@ -75,7 +86,7 @@ string slots keep their last value on `NULL` as well. Since `styleDict`
 omits absent keys, a removed style left the stale value installed — e.g.
 removing `flexDirection: 'column'` kept the column layout.
 
-Local workaround: `mason.ts::styleDict` emits the engine defaults for those
+In the legacy renderer, `mason.ts::styleDict` emits the engine defaults for those
 enum keys when the computed style lacks them, so removal restores the
 default instead of keeping the last value. Grid string removals
 (`gridRow`, `gridColumn`, `gridTemplate*`, `gridArea`, `gridAuto*`) still
