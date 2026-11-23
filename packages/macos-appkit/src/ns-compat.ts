@@ -272,6 +272,12 @@ export interface PluginElementOptions<T extends ViewBase> {
   styleKeys?: ReadonlySet<string>
 }
 
+const pluginElements = new Map<string, PluginElementOptions<ViewBase>>()
+
+export function registeredPluginElement(name: string): PluginElementOptions<ViewBase> | undefined {
+  return pluginElements.get(name)
+}
+
 /** Called by the renderer at module init; queued registrations replay. */
 export function installCompat(deps: CompatDeps) {
   compatDeps = deps
@@ -286,6 +292,7 @@ export function registerPluginElement<T extends ViewBase>(
   name: string,
   options: PluginElementOptions<T>,
 ) {
+  pluginElements.set(name, options)
   const register = () => {
     if (!compatDeps) {
       pendingRegistrations.push(register)

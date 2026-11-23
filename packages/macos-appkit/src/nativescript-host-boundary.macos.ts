@@ -1,6 +1,7 @@
 import { ListView, SegmentedBar, TabView, TabViewItem, TextView, type ViewBase } from '@nativescript/core'
 import type { NativeScriptHostBoundary, NativeScriptTextNode } from '@octane-xplat/nativescript-octane'
 import { NSScrollView, NSView } from '@octane-xplat/platform/macos'
+import { corePluginElementConstructor } from './nativescript-compat.macos'
 import { appKitFormattedText } from './nativescript-formatted-text.macos'
 
 const coreOwners = new WeakMap<object, ViewBase>()
@@ -36,6 +37,7 @@ function nativeHandle(view: ViewBase): NSView | undefined {
 
 export const appKitHostBoundary: NativeScriptHostBoundary = {
   formattedText: appKitFormattedText,
+  elementConstructor: corePluginElementConstructor,
   tabItems: {
     release(view) {
       Reflect.get(view, '_releaseTabItem').call(view)

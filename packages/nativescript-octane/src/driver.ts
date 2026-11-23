@@ -38,7 +38,13 @@ import {
 
 import { NATIVESCRIPT_RENDERER_ID } from './config.js'
 
-import { ELEMENTS, EVENT_PROP, eventNameFor, onElementReplaced } from './elements.js'
+import {
+  ELEMENTS,
+  EVENT_PROP,
+  eventNameFor,
+  onElementReplaced,
+  type ElementConstructor,
+} from './elements.js'
 
 import { releaseListView, setRenderItem, type RenderItem } from './list-view.js'
 
@@ -108,6 +114,7 @@ export interface NativeScriptHostBoundary {
   publicInstance(node: NativeScriptTextNode): object | null
   eventData(data: EventData, publicInstance: object | null, view: ViewBase): unknown
   coreView(target: object): ViewBase | undefined
+  elementConstructor?(type: string): ElementConstructor | undefined
   emitProgrammaticChange?(type: string, property: string): boolean
   /** Hosts with standalone logical tab items can assign their handles through items. */
   tabItems?: { release(view: TabViewItem): void }
@@ -225,7 +232,7 @@ function createNode(
   const node: HostNode = {
     id,
     type,
-    view: type === TEXT ? null : instantiate(type),
+    view: type === TEXT ? null : instantiate(type, container.hostBoundary),
     text: '',
     props,
     parent: null,
@@ -251,8 +258,12 @@ function unregisteredElementError(type: string): Error {
   return new Error(`NativeScript driver: <${type}> is not a registered element.`)
 }
 
-function instantiate(type: string): ViewBase {
-  const Element = ELEMENTS.get(type)
+function elementConstructor(type: string, boundary?: NativeScriptHostBoundary) {
+  return boundary?.elementConstructor?.(type) ?? ELEMENTS.get(type)
+}
+
+function instantiate(type: string, boundary?: NativeScriptHostBoundary): ViewBase {
+  const Element = elementConstructor(type, boundary)
   if (Element === undefined) {
     throw unregisteredElementError(type)
   }
@@ -1691,7 +1702,7 @@ function recreateView(
       portalTarget = entry
     }
   }
-  const view = instantiate(nextType)
+  const view = instantiate(nextType, container.hostBoundary)
   if (portalTarget !== undefined && !(view instanceof LayoutBase)) {
     // Fail before anything detaches: the previous view keeps the registration
     // and its portal children rather than stranding them on a view that can
@@ -1861,7 +1872,7 @@ function validateBatch(
     }
   }
   const assertSupportedType = (type: string): void => {
-    if (type !== TEXT && !ELEMENTS.has(type)) {
+    if (type !== TEXT && !elementConstructor(type, container.hostBoundary)) {
       throw unregisteredElementError(type)
     }
   }

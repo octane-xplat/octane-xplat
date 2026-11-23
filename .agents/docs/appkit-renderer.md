@@ -59,6 +59,9 @@ The macOS compiler adapter gives tabs and ListView row renderers portals
 in their declaring Octane tree. Same-count ListView updates rebind visible
 rows in place. An AppKit factory template can own its own root through
 `createMacOSRoot`; the list releases that root when it retires the factory view.
+The Core host uses the same AppKit pager and AVPlayer ownership code as the
+legacy renderer. Compatibility plugin views retain the factory they acquired
+until disposal, even when a later registration supplies a new factory.
 When compiling Core-backed components, select `host-core.macos.tsx` for
 the UI interaction host. It waits for the Core view to load and uses AppKit's
 mouse contact stream. Wait for the underlying AppKit view's window
