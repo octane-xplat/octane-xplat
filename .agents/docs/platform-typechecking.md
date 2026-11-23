@@ -66,10 +66,15 @@ language server discovers platform projects right after dependency
 installation. Every typecheck run regenerates it; `bun run sync:envs` rewrites
 all manifests' programs and `bun run check:envs` fails on stale, missing, or
 unreferenced output. Repository environment workspaces and new starters carry
-solution references. `xplat typecheck` retains the root config check and also checks the manifest
-programs independently. A solution root contains no source files of its own;
-a mixed legacy root is an additional check and does not qualify isolation. Existing apps need to
-replace broad root `include`/`files` with solution references, retaining shared
+solution references. `xplat typecheck` retains the root config check and also
+checks the manifest programs independently. A phone target added with
+`xplat add` gets its manifest entry and solution
+reference even when shared NativeScript setup already exists. Re-add a phone
+to restore those entries if an earlier addition omitted them.
+
+A solution root contains no source files of its own. A mixed legacy root is an
+additional check and does not qualify isolation. Existing apps need to replace
+broad root `include`/`files` with solution references, retaining shared
 options in the manifest or its base. See the [public setup](../../docs/platform/module-resolution.md#editor-project-context).
 
 TypeScript 7's native LSP (`tsc --lsp --stdio`) and the actual

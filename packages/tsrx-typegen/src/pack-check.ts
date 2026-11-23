@@ -717,11 +717,20 @@ export function checkPackedPackage(projectRoot, ts) {
   mkdirSync(packOutput)
   mkdirSync(extractedRoot)
   try {
-    const packed = spawnSync(
-      'bun',
-      ['pm', 'pack', '--ignore-scripts', '--destination', packOutput],
-      { cwd: projectRoot, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 },
-    )
+    const { packageManager } = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
+    const usesPnpm = typeof packageManager === 'string' && packageManager.startsWith('pnpm@')
+    const manager = usesPnpm ? 'pnpm' : 'bun'
+    const args = usesPnpm
+      ? ['pack', '--pack-destination', packOutput]
+      : ['pm', 'pack', '--ignore-scripts', '--destination', packOutput]
+    // The check can itself run from prepack. Skip lifecycle scripts for this
+    // nested archive so the outer pack can finish without recursion.
+    const packed = spawnSync(manager, args, {
+      cwd: projectRoot,
+      env: usesPnpm ? { ...process.env, pnpm_config_ignore_scripts: 'true' } : process.env,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    })
 
     if (packed.stdout) {
       process.stdout.write(packed.stdout)
@@ -736,7 +745,7 @@ export function checkPackedPackage(projectRoot, ts) {
     }
 
     if (packed.status !== 0) {
-      throw new Error(`bun pm pack exited with ${packed.status}`)
+      throw new Error(`${manager} ${usesPnpm ? 'pack' : 'pm pack'} exited with ${packed.status}`)
     }
 
     const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))

@@ -1,1 +1,4 @@
 *.tsrx linguist-language=TSX
+
+# Unified diff context starts with a space and preserves upstream tab indentation.
+packages/cli/patches/@tsrx__content-mapper@0.1.2.patch whitespace=-space-before-tab

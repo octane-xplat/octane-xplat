@@ -478,6 +478,11 @@ experience of agents writing Octane-xplat code effectively.
   accepts either manager and checks its own selected lockfile/configuration.
   pnpm 11 ignores `package.json.pnpm`, so standalone applications also need
   a `pnpm-workspace.yaml`; do not restore the old JSON fallback.
+- **Keep surrounding lines in the TSRX content mapper patch.** pnpm 11.24.0
+  misplaced an insertion from a context-free hunk in the patch for
+  `@tsrx/content-mapper@0.1.2`, leaving the mapper with a syntax error.
+  Bun 1.4.4 and pnpm 11.24.0 install byte-identical mapper code from the
+  contextual patch.
 - **`@nativescript/vite` 8.0.20/8.0.21 delegate `.tsrx` build checks to
   `tsrx-tsc`.** Upstream's `typescript-check.js` resolves
   `@tsrx/typescript-plugin` and spawns its `tsrx-tsc` bin for files with TSRX
@@ -944,7 +949,9 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   separate blocking CI check; recipe structure runs in the PR hygiene job.
   Consumer apps and libraries use `xplat lint [paths...] [--fix]`; the CLI
   depends on `@octane-xplat/lint`, which owns Oxlint and the shared file
-  selector for regular source and TSRX. Root `xplat/no-unknown-class.allow`
+  selector for regular source and TSRX. Both passes skip generated
+  `xplat-typecheck/` directories, which contain deliberate isolation errors.
+  Root `xplat/no-unknown-class.allow`
   lists reviewed, unstyled component hooks whose names resemble CSS classes;
   preserve those hooks instead of renaming them to a fuzzy match. Generated
   Tailwind classes are allowed only in the owning qualification fixture. The

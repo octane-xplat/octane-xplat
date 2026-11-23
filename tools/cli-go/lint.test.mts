@@ -148,6 +148,17 @@ test('actual installed engine agrees on valid/invalid regular and TSRX source', 
   }
 })
 
+test('whole-project lint skips generated typecheck isolation guards', () => {
+  const dir = project({
+    'src/app.ios.ts': 'export const value = 1\n',
+    'xplat-typecheck/isolation-ios.ts': '// @ts-expect-error DOM must be absent\nvoid document\n',
+  })
+
+  status(run(dir), 0)
+  put(dir, 'src/app.ios.ts', 'void document\n')
+  status(run(dir), 1)
+})
+
 test('canonical configuration/ignore and setup failures retain engine semantics', () => {
   for (const files of [
     { 'a.ts': 'export const value=1\n', '.oxlintrc.json': '{broken' },

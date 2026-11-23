@@ -2,31 +2,71 @@ diff --git a/dist/mapper-B4f--1ac.js b/dist/mapper-B4f--1ac.js
 index 9c9eac84e37b84b649eb70703cc8e9ebb06802a8..41d61198c203b7189a20bdc080dba74f45b5b985 100644
 --- a/dist/mapper-B4f--1ac.js
 +++ b/dist/mapper-B4f--1ac.js
-@@ -1678,0 +1679,1 @@
+@@ -1676,6 +1676,7 @@
+ /**
+ * @typedef {object} TsrxTransformOptions
+ * @property {'web' | 'ios' | 'android'} [platform] Platform selected for `import.meta.env.platform` flags.
 +* @property {string} [defaultIntrinsics] JSX type namespace for files without an authored pragma, from the project's effective `jsxImportSource`. Unlike a compiler's `intrinsics` it never overrides authored comments.
-@@ -1725,1 +1726,2 @@
+ */
+ /**
+ * A `<style>` or `<script>` body inside a `.tsrx` file, located by source
+@@ -1722,7 +1723,8 @@
+ 	try {
+ 		transpiled = compiler.compile_to_volar_mappings(content, file_name, {
+ 			loose: true,
 -			platform: options.platform
 +			platform: options.platform,
 +			defaultIntrinsics: options.defaultIntrinsics
-@@ -3013,0 +3016,1 @@
+ 		});
+ 	} catch (e) {
+ 		const error = e;
+@@ -3011,6 +3013,7 @@
+ * @typedef {object} ProjectState
+ * @property {string | undefined} configFileName
+ * @property {MapperOptions} options
 +* @property {string | undefined} defaultIntrinsics The program's effective `jsxImportSource`, forwarded to compilers for files without an authored pragma.
-@@ -3060,1 +3063,1 @@
+ * @property {Set<string>} dependencies Files whose content affects transform output.
+ * @property {Map<string, AST.Program>} lastGood Last successfully parsed source AST per file, for the compile-failure stub. Shared by every project state of a mapper (see {@link create_tsrx_content_mapper}).
+ */
+@@ -3057,7 +3060,7 @@
+ 	function openProject(params) {
+ 		invalidateCompilerResolutionCaches();
+ 		const { options, optionDiagnostics } = validate_options(params.options);
 -		const state = create_project_state(params.configFileName || void 0, options);
 +		const state = create_project_state(params.configFileName || void 0, options, default_intrinsics(params));
-@@ -3117,1 +3120,4 @@
+ 		projects.set(params.projectHandle, state);
+ 		try {
+ 			resolve_compiler(state, probe_file_name(state));
+@@ -3114,7 +3117,10 @@
+ 				messageText: error_message(error)
+ 			});
+ 		}
 -		const result = transform_tsrx(compiler, file_name, content, { platform });
 +		const result = transform_tsrx(compiler, file_name, content, {
 +			platform,
 +			defaultIntrinsics: state.defaultIntrinsics
 +		});
-@@ -3134,0 +3141,1 @@
+ 		if (result.fatalError) return failure(state, file_name, content, to_diagnostic(result.fatalError, content.length, MAPPER_CODES.COMPILE_ERROR));
+ 		if (result.sourceAst) state.lastGood.set(file_name, result.sourceAst);
+ 		const language_features = state.options.languageFeatures !== false;
+@@ -3132,17 +3138,31 @@
+ 	/**
+ 	* @param {string | undefined} config_file_name
+ 	* @param {MapperOptions} options
 +	* @param {string | undefined} defaultIntrinsics
-@@ -3137,1 +3144,1 @@
+ 	* @returns {ProjectState}
+ 	*/
 -	function create_project_state(config_file_name, options) {
 +	function create_project_state(config_file_name, options, defaultIntrinsics) {
-@@ -3140,0 +3148,1 @@
+ 		return {
+ 			configFileName: config_file_name ? path.normalize(config_file_name) : void 0,
+ 			options,
 +			defaultIntrinsics,
-@@ -3145,0 +3154,12 @@
+ 			dependencies: /* @__PURE__ */ new Set(),
+ 			lastGood: last_good
+ 		};
+ 	}
+ 	/**
 +	* The effective `jsxImportSource` TypeScript reports in the open-project
 +	* compiler options, or `undefined`. Kept weak by design: a compiler's
 +	* `intrinsics` option can rewrite authored pragmas, while this default only
@@ -39,6 +79,15 @@ index 9c9eac84e37b84b649eb70703cc8e9ebb06802a8..41d61198c203b7189a20bdc080dba74f
 +		return typeof value === "string" && value !== "" ? value : void 0;
 +	}
 +	/**
-@@ -3202,0 +3223,2 @@
+ 	* A `.tsrx` path inside the project directory, used to drive compiler
+ 	* resolution before any real file is transformed.
+ 	* @param {ProjectState} state
+@@ -3200,6 +3220,8 @@
+ 		const hash = createHash("sha256");
+ 		hash.update(JSON.stringify(state.options));
+ 		hash.update("\0");
 +		hash.update(state.defaultIntrinsics ?? "");
 +		hash.update("\0");
+ 		for (const file of watched_files) {
+ 			hash.update(file);
+ 			hash.update("\0");

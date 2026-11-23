@@ -204,10 +204,10 @@ Use `--pack-check` before publishing. It checks every configured target unless
 scripts disabled, and verifies that package and `publishConfig` export paths
 exist in the tarball. It also compares runtime and declaration value exports
 and checks that relative declaration references resolve to declarations inside
-the package and bare package imports are declared dependencies or peers. The command needs
-`Bun` and the system `tar` utility. It checks package structure; keep a plain
-TypeScript consumer test for the module-resolution modes and public prop
-contracts your package supports.
+the package and bare package imports are declared dependencies or peers. The
+command needs the system `tar` utility and uses pnpm when declared in
+`package.json` or Bun by default. Keep a plain TypeScript consumer test for
+the module-resolution modes and public prop contracts your package supports.
 
 The checker requires paired runtime and type exports. Pure type-only export
 maps and mixed Node tooling exports without type entries need separate

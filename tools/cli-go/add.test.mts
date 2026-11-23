@@ -151,6 +151,35 @@ test('native add uses the actual creator for web/iOS/Android output and preserve
   }
 })
 
+test('adding both phones registers both typecheck programs and repairs a missing program on retry', () => {
+  const app = fixture()
+  const envPath = join(app, 'tsconfig.envs.json')
+  const configPath = join(app, 'tsconfig.json')
+
+  success(run(app, ['ios', 'android', '--no-install']))
+
+  const envs = JSON.parse(readFileSync(envPath, 'utf8'))
+  const config = JSON.parse(readFileSync(configPath, 'utf8'))
+
+  assert.deepEqual(Object.keys(envs.environments), ['web', 'ios', 'android'])
+  assert.deepEqual(
+    config.references.map((ref) => ref.path),
+    ['./xplat-typecheck/web.json', './xplat-typecheck/ios.json', './xplat-typecheck/android.json'],
+  )
+
+  // Recreate the incomplete configuration left by earlier CLI versions.
+  delete envs.environments.android
+  config.references.pop()
+  put(app, 'tsconfig.envs.json', envs)
+  put(app, 'tsconfig.json', config)
+
+  success(run(app, ['android', '--no-install']))
+  assert.ok(JSON.parse(readFileSync(envPath, 'utf8')).environments.android)
+  assert.deepEqual(JSON.parse(readFileSync(configPath, 'utf8')).references.at(-1), {
+    path: './xplat-typecheck/android.json',
+  })
+})
+
 test('workspace catalog and patch ownership match the creator', () => {
   function workspace() {
     const dir = join(scratch, 'workspace ' + sequence++)
@@ -302,7 +331,7 @@ function installFixture(hook) {
     ]),
   )
 
-  for (const name of ['jsdom', '@octanejs/vite-plugin']) {
+  for (const name of ['jsdom', '@octanejs/vite-plugin', '@octane-xplat/workshop']) {
     const dep = join(scratch, 'local ' + name.replaceAll('/', '-'))
 
     put(dep, 'package.json', { name, version: '1.0.0' })

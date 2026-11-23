@@ -18,6 +18,7 @@ const IGNORED_DIRECTORIES = new Set([
   'release',
   'research',
   'tmp',
+  'xplat-typecheck',
 ])
 
 // Select files once for both engines. Explicit paths obey the same ignores,

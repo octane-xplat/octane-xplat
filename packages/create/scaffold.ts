@@ -770,7 +770,7 @@ function copyMissing(rel, appRoot, report, present, copy) {
  * Add the selected platform to manifest projects and solution discovery.
  * Older apps without a manifest retain their existing config migration.
  */
-function enableNativeInTsconfig(appRoot, read, write, target) {
+function enableNativeInTsconfig(appRoot, read, write, target, migrateLegacy) {
   const envPath = join(appRoot, 'tsconfig.envs.json')
   const envText = read(envPath)?.toString('utf8')
 
@@ -786,6 +786,7 @@ function enableNativeInTsconfig(appRoot, read, write, target) {
 
     const configPath = join(appRoot, 'tsconfig.json')
     const config = JSON.parse(read(configPath).toString('utf8'))
+    const originalConfig = JSON.stringify(config)
 
     config.compilerOptions ??= {}
     config.compilerOptions.paths ??= {}
@@ -800,8 +801,15 @@ function enableNativeInTsconfig(appRoot, read, write, target) {
       config.references.push({ path: ref })
     }
 
-    write(configPath, Buffer.from(JSON.stringify(config, null, '\t') + '\n'), 0o644)
+    if (JSON.stringify(config) !== originalConfig) {
+      write(configPath, Buffer.from(JSON.stringify(config, null, '\t') + '\n'), 0o644)
+    }
+
     return true
+  }
+
+  if (!migrateLegacy) {
+    return false
   }
 
   const path = join(appRoot, 'tsconfig.json')
@@ -1054,16 +1062,21 @@ export function planTarget(appRoot, id) {
       }
     }
 
-    if (tid === 'native-shared') {
-      if (manifest.main === undefined) {
-        manifest.main = tpl.main
-      }
-
-      // Add native checking and preserve authored config — pull the
-      // ambient declaration entry into the roots and un-exclude the
-      // NativeScript entry that a web-only scaffold skips.
-      report.tsconfigUpdated = enableNativeInTsconfig(appRoot, read, write, id)
+    if (tid === 'native-shared' && manifest.main === undefined) {
+      manifest.main = tpl.main
     }
+  }
+
+  if (id === 'ios' || id === 'android') {
+    // Each phone owns a program, including when shared native setup already
+    // exists. Re-adding a phone also repairs configs from older additions.
+    report.tsconfigUpdated = enableNativeInTsconfig(
+      appRoot,
+      read,
+      write,
+      id,
+      report.enabled.includes('native-shared'),
+    )
   }
 
   // Newly enabled targets may carry patch entries the scaffolded

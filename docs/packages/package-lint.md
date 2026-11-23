@@ -41,8 +41,9 @@ bun run xplat fmt
 With no paths, both passes discover source recursively from the current
 directory. Explicit files and directories follow the same ignores:
 `.gitignore` (including nested files), `.eslintignore`, and root config
-`ignorePatterns`. Build/output directories, symlinks and nested repositories
-are skipped. Paths must stay inside the current directory:
+`ignorePatterns`. Both passes skip build output, generated `xplat-typecheck/`
+directories, symlinks, and nested repositories. Pass paths inside the current
+directory to check specific files:
 
 ```sh
 bun run xplat lint src/Screen.tsrx src/components

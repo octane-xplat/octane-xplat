@@ -58,7 +58,7 @@ import {
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { packedUiPlatformConditions } from './packed-ui-conditions.ts'
@@ -173,12 +173,11 @@ function run(command, argv, cwd, env = {}) {
   return result
 }
 
-// Lifecycle scripts never run for file:/link: dependencies, so the CLI's
-// postinstall has not selected a payload and bin/xplat.exe is the empty
-// placeholder. Follow the documented repair: the launcher prints the exact
-// install-native command to run.
-function repairNativeCli(dir, pm = packageManager) {
-  const unrepaired = run(pm, ['run', 'xplat', '--version'], dir)
+// If the package manager skipped the local CLI installer, follow the repair
+// command printed by the launcher.
+function repairNativeCli(dir) {
+  const command = packageManager === 'pnpm' ? 'exec' : 'run'
+  const unrepaired = run(packageManager, [command, 'xplat', '--version'], dir)
 
   if (unrepaired.status === 0) {
     return
@@ -236,6 +235,38 @@ function report() {
 }
 
 const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${pkg.version}.tgz`
+
+function applyPackedOverrides(dir, manifest, tarballs) {
+  if (packageManager === 'pnpm') {
+    const yamlPath = join(dir, 'pnpm-workspace.yaml')
+    const doc = parseDocument(readFileSync(yamlPath, 'utf8'))
+
+    for (const [name, tarball] of tarballs) {
+      doc.setIn(['overrides', name], `file:${tarball}`)
+    }
+
+    // pnpm treats local archives as distinct from registry packages for
+    // build approval. Carry the starter's existing installer approvals
+    // over to these two fixture archives by their exact lockfile identity.
+    for (const name of ['@octane-xplat/cli', 'octane-xplat']) {
+      const tarball = tarballs.get(name)
+
+      assert.ok(tarball, `missing packed installer for ${name}`)
+      if (doc.getIn(['allowBuilds', name]) === true) {
+        const path = relative(dir, tarball).split(sep).join('/')
+
+        doc.setIn(['allowBuilds', `${name}@file:${path}`], true)
+      }
+    }
+
+    writeFileSync(yamlPath, String(doc))
+  } else {
+    manifest.overrides ??= {}
+    for (const [name, tarball] of tarballs) {
+      manifest.overrides[name] = `file:${tarball}`
+    }
+  }
+}
 
 try {
   // ---- build ------------------------------------------------------------
@@ -451,26 +482,9 @@ try {
       }
     }
 
-    writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
-
     // Late additions and transitive framework dependencies use these same tarballs.
-    if (packageManager === 'pnpm') {
-      const yamlPath = join(appDir, 'pnpm-workspace.yaml')
-      const doc = parseDocument(readFileSync(yamlPath, 'utf8'))
-
-      for (const [name, tarball] of tarballs) {
-        doc.setIn(['overrides', name], `file:${tarball}`)
-      }
-
-      writeFileSync(yamlPath, String(doc))
-    } else {
-      manifest.overrides ??= {}
-      for (const [name, tarball] of tarballs) {
-        manifest.overrides[name] = `file:${tarball}`
-      }
-
-      writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
-    }
+    applyPackedOverrides(appDir, manifest, tarballs)
+    writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
 
     return `${rewritten} deps + packed dependency overrides`
   })
@@ -646,6 +660,12 @@ void props
           manifest.devDependencies['@nativescript/android'],
           'add missed @nativescript/android',
         )
+
+        const { environments } = JSON.parse(
+          readFileSync(join(appDir, 'tsconfig.envs.json'), 'utf8'),
+        )
+
+        assert.deepEqual(Object.keys(environments).sort(), ['android', 'ios', 'web'])
       },
     )
   }
@@ -683,10 +703,10 @@ try {
   })
 
   for (const [name, argv] of [
-    ...(fullStarter ? [[`${packageManager} run lint`, ['lint']]] : []),
     // The starter typecheck generates the project references NativeScript's
     // Vite build reads, including when CI only builds the native app.
     ...(!quick ? [[`${packageManager} run typecheck (web + native)`, ['typecheck']]] : []),
+    ...(fullStarter ? [[`${packageManager} run lint after typecheck`, ['lint']]] : []),
     ...(!nativeBuildOnly
       ? [
           [`${packageManager} run test:web — default component test`, ['test:web']],
@@ -757,20 +777,20 @@ try {
           `import { router } from '@octane-xplat/ui/routing'\nvoid router.push({ to: '/items/:id' })\n`,
         )
 
-        const denied = run('bun', ['run', 'xplat', 'typecheck'], appDir)
+        const denied = run(packageManager, ['run', 'xplat', 'typecheck'], appDir)
 
         assert.notEqual(denied.status, 0, 'router.push without params must fail typecheck')
         rmSync(negative, { force: true })
 
-        const routes = run('bun', ['run', 'xplat', 'routes'], appDir)
+        const routes = run(packageManager, ['run', 'xplat', 'routes'], appDir)
 
         assert.equal(routes.status, 0, `xplat routes failed for snippets: ${written.join(', ')}`)
 
-        const typecheck = run('bun', ['run', 'xplat', 'typecheck'], appDir)
+        const typecheck = run(packageManager, ['run', 'xplat', 'typecheck'], appDir)
 
         assert.equal(typecheck.status, 0, 'skill snippets failed typecheck')
 
-        const lint = run('bun', ['run', 'xplat', 'lint', 'src'], appDir)
+        const lint = run(packageManager, ['run', 'xplat', 'lint', 'src'], appDir)
 
         assert.equal(lint.status, 0, 'skill snippets failed lint')
       } finally {
@@ -789,27 +809,18 @@ try {
         const file = join(libraryDir, 'package.json')
         const manifest = JSON.parse(readFileSync(file, 'utf8'))
 
-        manifest.overrides ??= {}
-        for (const [name, tarball] of tarballs) {
-          manifest.overrides[name] = `file:${tarball}`
-        }
-
+        applyPackedOverrides(libraryDir, manifest, tarballs)
         writeFileSync(file, JSON.stringify(manifest, null, '\t') + '\n')
 
-        for (const argv of [
-          ['install'],
-          ['typegen'],
-          ['typecheck'],
-          ['lint'],
-          ['test'],
-          ['test:packed'],
-        ]) {
-          const r = run('bun', argv[0] === 'install' ? argv : ['run', ...argv], libraryDir)
+        const install = run(packageManager, ['install'], libraryDir)
 
-          assert.equal(r.status, 0, `library bun run ${argv.join(' ')} exited ${r.status}`)
-          if (argv[0] === 'install') {
-            repairNativeCli(libraryDir, 'bun')
-          }
+        assert.equal(install.status, 0, `library ${packageManager} install failed`)
+        repairNativeCli(libraryDir)
+
+        for (const script of ['typegen', 'typecheck', 'lint', 'test', 'test:packed']) {
+          const result = run(packageManager, ['run', script], libraryDir)
+
+          assert.equal(result.status, 0, `library ${packageManager} run ${script} failed`)
         }
       },
     )
