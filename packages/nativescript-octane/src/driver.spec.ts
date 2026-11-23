@@ -644,6 +644,41 @@ describe('nativeScriptDriver', () => {
     expect(container.nodes.size).toBe(0)
   })
 
+  it('rejects multiple projected ContentView children before applying a batch', () => {
+    const { apply, container, host } = mount(new MockLayoutBase())
+    expect(() =>
+      apply(
+        create(1, 'contentview'),
+        create(2, 'proxyviewcontainer'),
+        create(3, 'label'),
+        create(4, 'proxyviewcontainer'),
+        create(5, 'label'),
+        insert(1),
+        insert(2, 1),
+        insert(3, 2),
+        insert(4, 2),
+        insert(5, 4),
+      ),
+    ).toThrow(/<contentview> cannot project multiple/)
+    expect(host.children).toEqual([])
+    expect(container.nodes.size).toBe(0)
+  })
+
+  it('admits one projected ContentView child alongside a collapsed sibling', () => {
+    const { apply, host } = mount(new MockLayoutBase())
+    apply(
+      create(1, 'contentview'),
+      create(2, 'proxyviewcontainer'),
+      create(3, 'label'),
+      create(4, 'label', { style: { visibility: 'collapse' } }),
+      insert(1),
+      insert(2, 1),
+      insert(3, 2),
+      insert(4, 2),
+    )
+    expect(host.children).toHaveLength(1)
+  })
+
   it('rejects commands against unknown hosts before any command applies', () => {
     const { apply, container, host } = mount(new MockLayoutBase())
     expect(() => apply(insert(9))).toThrow(/unknown host 9/)

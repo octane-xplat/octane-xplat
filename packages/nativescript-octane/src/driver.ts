@@ -1665,6 +1665,9 @@ function validateBatch(
   // later commands validate against the intended tree.
   const created = new Set<number>()
   const destroyed = new Set<number>()
+  const nextTypes = new Map<number, string>()
+  const nextProps = new Map<number, Readonly<Record<string, unknown>>>()
+  const changedPositions = new Set<number>()
   // Intended parents for ids whose attachment changes during the batch.
   const parents = new Map<number, UniversalHostParent>()
   const known = (id: number): boolean =>
@@ -1682,6 +1685,7 @@ function validateBatch(
           ? node.parent
           : node.parent.id
   }
+  const typeOf = (id: number) => nextTypes.get(id) ?? container.nodes.get(id)?.type
   const assertKnown = (id: number): void => {
     if (!known(id)) {
       throw new Error(`NativeScript driver: unknown host ${id}.`)
@@ -1706,14 +1710,22 @@ function validateBatch(
       case 'create':
         assertSupportedType(command.type)
         created.add(command.id)
+        nextTypes.set(command.id, command.type)
+        nextProps.set(command.id, command.props)
         destroyed.delete(command.id)
         parents.set(command.id, null)
         continue
       case 'recreate':
         assertKnown(command.id)
         assertSupportedType(command.type)
+        nextTypes.set(command.id, command.type)
+        nextProps.set(command.id, command.props)
+        changedPositions.add(command.id)
         continue
       case 'update':
+        assertKnown(command.id)
+        nextProps.set(command.id, command.props)
+        continue
       case 'event':
       case 'visibility':
         assertKnown(command.id)
@@ -1738,6 +1750,7 @@ function validateBatch(
           seen.add(ancestor)
         }
         parents.set(command.id, command.parent)
+        changedPositions.add(command.id)
         continue
       }
       case 'remove':
@@ -1755,6 +1768,85 @@ function validateBatch(
         // Ops the driver does not apply (templates, lifecycle, runs) warn
         // inside `apply`, not here.
         continue
+    }
+  }
+
+  // A viewless group can occupy one logical ContentView slot and still
+  // project multiple native children. Validate the intended attachments.
+  const contentOwnerOf = (id: number) => {
+    let parent = parentOf(id)
+    let projected = false
+    while (typeof parent === 'number' && known(parent)) {
+      const type = typeOf(parent)
+      if (type === 'contentview') {
+        return { id: parent, projected }
+      }
+      if (type !== 'proxyviewcontainer') {
+        break
+      }
+      projected = true
+      parent = parentOf(parent)
+    }
+  }
+
+  const affected = new Map<number, { count: number; projected: boolean }>()
+  const trackContent = (id: number) => {
+    const view = container.nodes.get(id)?.view
+    const ctor = nextTypes.has(id) ? ELEMENTS.get('contentview') : view?.constructor
+    if (ctor === ContentView) {
+      affected.set(id, { count: 0, projected: false })
+    }
+  }
+
+  for (const id of changedPositions) {
+    if (!known(id)) {
+      continue
+    }
+    const type = typeOf(id)
+    if (type === 'contentview' && nextTypes.has(id) && !created.has(id)) {
+      trackContent(id)
+    }
+    const owner = contentOwnerOf(id)
+    if (owner && (owner.projected || type === 'proxyviewcontainer')) {
+      trackContent(owner.id)
+    }
+  }
+  if (affected.size === 0) {
+    return
+  }
+
+  for (const id of new Set([...container.nodes.keys(), ...created])) {
+    const type = typeOf(id)
+    if (!known(id) || type === TEXT || type === 'proxyviewcontainer') {
+      continue
+    }
+    const owner = contentOwnerOf(id)
+    if (!owner) {
+      continue
+    }
+    const slot = affected.get(owner.id)
+    if (slot) {
+      if (owner.projected) {
+        const props = nextProps.get(id)
+        const existing = container.nodes.get(id)?.view
+        const style = props?.style
+        if (
+          props?.visibility === 'collapse' ||
+          (style !== null &&
+            typeof style === 'object' &&
+            Reflect.get(style, 'visibility') === 'collapse') ||
+          (props === undefined && existing instanceof View && existing.isCollapsed)
+        ) {
+          continue
+        }
+      }
+      slot.count++
+      slot.projected ||= owner.projected
+      if (slot.projected && slot.count > 1) {
+        throw new Error(
+          'NativeScript driver: <contentview> cannot project multiple ProxyViewContainer layout children.',
+        )
+      }
     }
   }
 }
