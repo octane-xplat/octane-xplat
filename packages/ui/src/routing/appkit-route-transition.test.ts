@@ -17,6 +17,11 @@ let reduced = false
 
 beforeEach(() => {
   vi.useFakeTimers()
+  // The web test runner uses Node, which has no browser frame callbacks.
+  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) =>
+    setTimeout(() => callback(performance.now()), 16),
+  )
+  vi.stubGlobal('cancelAnimationFrame', clearTimeout)
   vi.stubGlobal('NSWorkspace', {
     sharedWorkspace: {
       get accessibilityDisplayShouldReduceMotion() {
