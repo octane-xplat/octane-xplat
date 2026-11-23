@@ -88,7 +88,7 @@ test('native presets reject .server imports and erase named re-exports', async (
 
     makePackage(
       '@octane-xplat/nativescript-octane',
-      { exports: { './config': './index.js', './driver': './driver.js' } },
+      { exports: { '.': './driver.js', './config': './index.js', './driver': './driver.js' } },
       { 'index.js': 'export const nativeScriptRenderer = {}', 'driver.js': 'export {}' },
     )
 
@@ -125,14 +125,24 @@ test('native presets reject .server imports and erase named re-exports', async (
       {
         exports: {
           '.': './index.js',
+          './package.json': './package.json',
           './compat/escape-props': './compat/escape-props.js',
-          './compat/native-core': './compat/native-core.js',
+          './core-provider': './provider.js',
         },
       },
       {
         'index.js': 'export {}',
         'compat/escape-props.js': 'export const applyEscapeProps = () => "HOST_ESCAPE_SENTINEL"',
-        'compat/native-core.js': 'export {}',
+        'platforms/linux/prebuilt/x86_64/XplatMason-1.0.typelib': 'fixture',
+        'platforms/linux/prebuilt/x86_64/libxplatmason-gtk.so': 'fixture',
+        'platforms/linux/prebuilt/aarch64/XplatMason-1.0.typelib': 'fixture',
+        'platforms/linux/prebuilt/aarch64/libxplatmason-gtk.so': 'fixture',
+        'provider.js': `
+          export const createNativeScriptProvider = () => ({
+            config: { define: {}, plugins: [], resolve: { alias: [] }, build: { rollupOptions: {} } },
+            reusedCoreFiles: [],
+          })
+        `,
       },
     )
 

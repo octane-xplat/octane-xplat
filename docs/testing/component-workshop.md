@@ -291,25 +291,24 @@ bun run xplat workshop dev --target web --story counter/basic
 
 ## Linux host
 
-On Linux the workshop renders chrome and stories directly with GTK4 through
-`@octane-xplat/linux-gtk` — no WebKitGTK or DOM is involved. `xplat workshop dev
---target linux` builds the chrome shell for GJS and the story bundle for the
-NativeScript-dialect renderer, then drives the window over stdin.
+On Linux, Workshop runs its GTK4 window and mounted stories on the
+NativeScript Linux runtime bundled with `@octane-xplat/linux-gtk`. Save a story
+to load the rebuilt version into the open window.
 
 ```sh
 bun run xplat workshop dev --target linux
 bun run xplat workshop dev --target linux --story counter/basic
 ```
 
-This is currently a repository development path: the GTK renderer is private
-and was unavailable from the public npm registry in this review. Supported
-consumer distribution is tracked in [Linux support #63](https://github.com/octane-xplat/octane-xplat/issues/63).
-Do not treat the command above as a fresh npm installation path. A configured
-checkout needs `gjs`, the GTK4 typelib (on Debian/Ubuntu: `gjs libgtk-4-1
-gir1.2-gtk-4.0`), and the checkout renderer resolvable as
-`@octane-xplat/linux-gtk`. `xplat workshop doctor` probes these without opening a window.
-A missing XplatMason typelib warns and falls back to `Gtk.Box` layout. On
-macOS a Homebrew GJS run is a development stand-in, not Linux qualification.
+Install the matching GTK renderer and system libraries from the
+[Linux GTK guide](../platform/linux-gtk.md#install-the-renderer). In a source
+checkout, [stage the pinned runtime files](https://github.com/octane-xplat/octane-xplat/tree/main/tools/linux-runtime-release#stage-the-runtime-pair-for-the-renderer-package)
+before launching Workshop. Check discovery and installed prerequisites with
+Workshop doctor.
+
+```sh
+bun run xplat workshop doctor
+```
 
 Linux stories resolve `.gtk` leaves ahead of shared modules; a story listing
 `linux` under `targets` mounts, while foreign leaves stay out of the bundle.

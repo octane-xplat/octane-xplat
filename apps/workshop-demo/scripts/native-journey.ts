@@ -19,6 +19,7 @@ import { spawn } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { setTimeout as pause } from 'node:timers/promises'
 
 export function runNativeJourney(options) {
   const appRoot = process.argv[2]
@@ -29,6 +30,7 @@ export function runNativeJourney(options) {
   const originalStory = readFileSync(storyFile, 'utf8')
 
   const normalize = options.normalize ?? ((line) => line)
+  const pressCounter = `press ${options.counterTarget ?? 'Increment'}`
 
   const proc = spawn(
     options.executable ?? join(appRoot, 'node_modules/.bin/xplat'),
@@ -223,7 +225,7 @@ export function runNativeJourney(options) {
         s.stageOnly === false && s.mountedGeneration === mounted,
       )
 
-      s = await state('press Increment')
+      s = await state(pressCounter)
       check('gesture dispatch updates story state', s.store?.count === 1, JSON.stringify(s.store))
 
       s = await state('control step 5')
@@ -233,7 +235,7 @@ export function runNativeJourney(options) {
         `props=${JSON.stringify(s.props)} store=${JSON.stringify(s.store)}`,
       )
 
-      s = await state('press Increment')
+      s = await state(pressCounter)
       check('control affects next interaction', s.store?.count === 6, JSON.stringify(s.store))
 
       s = await state('control step 99')
@@ -281,6 +283,7 @@ export function runNativeJourney(options) {
       let lateDeadline = Date.now() + 30_000
 
       while (!(s.storyId === 'counter/basic' && s.phase === 'ready')) {
+        await pause(25)
         s = await state('status', Math.max(1, lateDeadline - Date.now()))
         if (Date.now() > lateDeadline) {
           break
@@ -292,6 +295,7 @@ export function runNativeJourney(options) {
       lateDeadline = Date.now() + 900
       while (Date.now() < lateDeadline) {
         try {
+          await pause(25)
           await state('status', Math.max(1, lateDeadline - Date.now()))
         } catch {
           break
@@ -371,6 +375,7 @@ export function runNativeJourney(options) {
         const deadline = Date.now() + timeout
 
         while (Date.now() < deadline) {
+          await pause(25)
           const next = await state('status', Math.max(1_000, deadline - Date.now()))
 
           if (predicate(next)) {
@@ -401,11 +406,11 @@ export function runNativeJourney(options) {
 
       writeFileSync(storyFile, 'export const Broken = defineStory({ syntax error')
 
-      const broken = await waitFor((x) => x.phase === 'failed' || x.stale === true)
+      const broken = await waitFor((x) => x.phase === 'failed' && Boolean(x.failure))
 
       check(
         'bad edit fails honestly',
-        broken !== null && (broken.phase === 'failed' || broken.stale === true),
+        broken !== null && broken.stale === true,
         broken
           ? `phase=${broken.phase} stale=${broken.stale} failure=${broken.failure}`
           : 'no stale/failed state observed',

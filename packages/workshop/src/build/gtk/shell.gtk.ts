@@ -1,4 +1,4 @@
-// @ts-nocheck — GJS shell for the GTK workshop: window + stdin automation
+// @ts-nocheck — GTK shell for the GTK workshop: window + stdin automation
 // protocol; chrome renders through @octane-xplat/linux-gtk.
 // GJS 1.90 supplies no queueMicrotask — octane's universal runtime requires
 // one on the global object (the renderer's root options cover the scheduler,
@@ -7,13 +7,17 @@ globalThis.queueMicrotask ??= (cb) => Promise.resolve().then(cb)
 
 import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
-import GLib from 'gi://GLib'
 import Gio from 'gi://Gio'
+import GLib from 'gi://GLib'
 import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
 import * as renderer from '@octane-xplat/linux-gtk'
+import { runGtkApp } from '@octane-xplat/linux-gtk/host'
+import * as core from '@nativescript/core'
+import * as coreAnimation from '@nativescript/core/animation-frame'
+import * as nativeScript from '@octane-xplat/nativescript-octane'
 import { NativeWorkshopController } from '../../native/controller.ts'
 import { NativeWorkshopChrome } from '../../native/chrome.tsrx'
 import { createGtkStageHost } from '../../native/stage.gtk.ts'
@@ -26,6 +30,9 @@ const modules = {
 	'octane/signals': signals,
 	'octane/signals/client': signalsClient,
 	'octane/internal/client': internal,
+	'@nativescript/core': core,
+	'@nativescript/core/animation-frame': coreAnimation,
+	'@octane-xplat/nativescript-octane': nativeScript,
 	'@octane-xplat/linux-gtk': renderer,
 }
 
@@ -36,18 +43,23 @@ const RESOLVED_MODULE = [
 	[/octane\/dist\/.*signals.*client/, 'octane/signals/client'],
 	[/octane\/dist\/.*internal.*client/, 'octane/internal/client'],
 	[/octane\/dist\/.*signals/, 'octane/signals'],
+	[/nativescript-octane\//, '@octane-xplat/nativescript-octane'],
+	[/\/core\/animation-frame\/index\.gtk\.js$/, '@nativescript/core/animation-frame'],
+	[/\/core\/index\.gtk\.js$/, '@nativescript/core'],
 	[/linux-gtk(-renderer)?\//, '@octane-xplat/linux-gtk'],
 ]
 
 const requireModule = (specifier) => {
 	if (specifier.startsWith('gi://')) {
 		const [name, query] = specifier.slice(5).split('?')
-		const version = new URLSearchParams(query ?? '').get('version')
+		const version = /(?:^|&)version=([^&]+)/.exec(query ?? '')?.[1]
 		if (version) {
 			imports.gi.versions[name] = version
 		}
 
-		return imports.gi[name]
+		// GJS exposes GI as a default export. CJS namespace interop otherwise
+		// eagerly enumerates GI members that cannot be marshalled by GJS.
+		return { __esModule: true, default: imports.gi[name] }
 	}
 	let key = specifier
 	if (!modules[key]) {
@@ -65,15 +77,10 @@ const requireModule = (specifier) => {
 	return found
 }
 
-/** Evaluate a compiled CJS story bundle — the GJS analogue of the macOS
- *  host's __hostRunFile. Runtime singletons resolve through `modules`. */
+/** Evaluate a story revision using the shell's runtime singletons. */
 function runStoryBundle(file) {
-	const [ok, contents] = GLib.file_get_contents(file)
-	if (!ok) {
-		throw new Error(`cannot read story bundle ${file}`)
-	}
-
-	const code = new TextDecoder().decode(contents)
+	const [bytes] = Gio.File.new_for_path(file).load_bytes(null)
+	const code = new TextDecoder().decode(bytes.get_data())
 	const module = { exports: {} }
 	const fn = new Function('require', 'module', 'exports', code)
 	fn(requireModule, module, module.exports)
@@ -94,28 +101,12 @@ const eachChild = (widget, visit) => {
 
 export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 	globalThis.__xplatDevModules = modules
-	const app = new Gtk.Application({
-		application_id: 'org.octane.xplat.workshop',
-		flags: Gio.ApplicationFlags.FLAGS_NONE,
-	})
-
-	let mounted = false
-	app.connect('activate', () => {
-		if (mounted) {
-			mounted.window.present()
-			return
-		}
-		mounted = true
-
-		const window = new Gtk.ApplicationWindow({
-			application: app,
-			title: 'Octane Xplat workshop — GTK (qualification preview)',
-			default_width: 1100,
-			default_height: 720,
-		})
-		const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
-		window.set_child(content)
-
+	return runGtkApp({
+		applicationId: 'org.octane.xplat.workshop',
+		title: 'Octane Xplat workshop — GTK (qualification preview)',
+		defaultWidth: 1100,
+		defaultHeight: 720,
+	}, ({ window, content, root }) => {
 		let firstRevision = runStoryBundle(bundleFile)
 		let stage = null
 		const controller = new NativeWorkshopController({
@@ -132,7 +123,6 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 			globalProviders: firstRevision.providers ?? [],
 		})
 
-		const { root } = renderer.createGtkRoot(content)
 		root.render(NativeWorkshopChrome, {
 			controller,
 			target: 'linux',
@@ -356,11 +346,10 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 			dump()
 		}
 
-		// stdin line protocol — same verbs as the macOS shell; a GLib I/O watch
-		// on fd 0 (the classic GJS stdin loop).
+		// Gtk and the command pipe share the GLib main loop.
 		const stdinChannel = GLib.IOChannel.unix_new(0)
-		// Nonblocking: read_line yields AGAIN on partial input instead of
-		// stalling the main loop inside the watch callback.
+		// A partial command must never block the GTK main loop.
+		stdinChannel.set_flags(stdinChannel.get_flags() | GLib.IOFlags.NONBLOCK)
 		const dispatchLine = (line) => {
 			try {
 				if (line === 'reload') {
@@ -369,7 +358,7 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 					controller.session.markRebuilding()
 					dump()
 				} else if (line.startsWith('compile-error ')) {
-					controller.session.markCompileError(line.slice('compile-error '.length))
+					controller.session.markCompileError(JSON.parse(line.slice('compile-error '.length)))
 					dump()
 				} else if (line === 'close') {
 					void close()
@@ -415,8 +404,5 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 
 		print('WORKSHOP_GTK_HOST')
 		void reload().then(dump)
-		window.present()
 	})
-
-	app.run(null)
 }

@@ -16,7 +16,7 @@ export const directory = dirname(fileURLToPath(import.meta.url))
 export const appFor = (target) =>
   target === 'web' || target === 'macos'
     ? join(repo, 'tools', target === 'web' ? 'web-verification' : 'macos-verification')
-    : join(repo, 'apps', ['ios', 'android', 'linux'].includes(target) ? 'mobile' : target)
+    : join(repo, 'apps', ['ios', 'android', 'linux'].includes(target) ? 'harness' : target)
 
 export const hash = (value) => createHash('sha256').update(value).digest('hex').slice(0, 16)
 export const caseIdentity = (target, caseFile) => hash(repo + '\n' + caseFile + '\n' + target)
@@ -134,7 +134,7 @@ export async function dependencies(target, caseFile, extra, dependencyAnchor = c
     roots.push(dirname(roots.at(-1)))
   }
 
-  roots.push(app, ...['web', 'mobile', 'macos'].map((name) => join(repo, 'apps', name)), repo)
+  roots.push(app, ...['web', 'ios', 'macos'].map(appFor), repo)
 
   const resolved = new Map()
   const development = Object.keys(pkg.devDependencies ?? {}).filter(

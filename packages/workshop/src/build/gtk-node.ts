@@ -1,13 +1,13 @@
 // @ts-nocheck — Node driver for the GTK workshop: builds the shell once and
-// the stories bundle in watch mode, launches `gjs -m`, and forwards the same
+// the stories bundle in watch mode, launches the GTK host, and forwards the same
 // stdin line protocol the macOS driver speaks.
 import { createRequire } from 'node:module'
 import { mkdir, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { WorkshopUsageError } from './node.ts'
-import { existsSync, readFileSync } from 'node:fs'
-import { join, relative, dirname } from 'node:path'
-import { pathToFileURL } from 'node:url'
-import { fileURLToPath } from 'node:url'
+import { nativeCatalogPlugin } from './native-catalog-vite.ts'
+import { existsSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { spawn, spawnSync } from 'node:child_process'
 import { createInterface } from 'node:readline'
 
@@ -43,57 +43,56 @@ function masonTypelibDir(root) {
 	}
 }
 
-/** GTK host prerequisites as a missing-item list (empty when satisfied). */
-export function gtkMissingPrerequisites(root) {
-	const missing = []
-	if (!gjsProbe(['--version'])) {
-		missing.push('gjs')
-	} else if (!gjsProbe(['-c', 'imports.gi.versions.Gtk="4.0";void imports.gi.Gtk'])) {
-		missing.push('GTK 4 typelib')
-	}
-	const req = createRequire(join(root, 'package.json'))
-	try {
-		req.resolve('@octane-xplat/linux-gtk')
-	} catch {
-		missing.push('@octane-xplat/linux-gtk')
-	}
-	return missing
+function gtkPreset(root) {
+	const require = createRequire(join(root, 'package.json'))
+	return import(pathToFileURL(require.resolve('@octane-xplat/cli/linux-gtk/vite')).href)
 }
 
-export function gtkDoctor(root, configFile) {
-	const backend = 'gtk4 renderer (gjs)'
+async function gtkRequirements(root) {
+	const require = createRequire(join(root, 'package.json'))
+	const requirements = {}
+	try {
+		require.resolve('@octane-xplat/linux-gtk')
+		requirements['@octane-xplat/linux-gtk'] = true
+	} catch {
+		requirements['@octane-xplat/linux-gtk'] = false
+	}
+	if (process.platform === 'linux') {
+		try {
+			const { hasGtkDevelopmentRuntime } = await gtkPreset(root)
+			requirements['NativeScript Linux runtime'] = hasGtkDevelopmentRuntime(root)
+		} catch {
+			requirements['NativeScript Linux runtime'] = false
+		}
+	} else {
+		requirements.gjs = gjsProbe(['--version'])
+		requirements['GTK 4 typelib'] = requirements.gjs &&
+			gjsProbe(['-c', 'imports.gi.versions.Gtk="4.0";void imports.gi.Gtk'])
+	}
+	return requirements
+}
+
+export async function gtkMissingPrerequisites(root) {
+	return Object.entries(await gtkRequirements(root))
+		.filter(([, available]) => !available)
+		.map(([name]) => name)
+}
+
+export async function gtkDoctor(root, configFile) {
+	const backend = process.platform === 'linux' ? 'GTK4 (NativeScript Linux)' : 'GTK4 (GJS)'
 	if (process.platform !== 'linux' && process.platform !== 'darwin') {
 		return {
 			backend,
 			requirements: {},
 			status: 'unsupported-host',
-			note: 'the GTK workshop launches on Linux, or on macOS with Homebrew gjs as a development stand-in',
+			note: 'the GTK workshop launches on Linux, or on macOS with Homebrew GJS as a development stand-in',
 		}
 	}
-
-	const requirements = {
-		gjs: gjsProbe(['--version']),
-		'GTK 4 typelib': gjsProbe(['-c', 'imports.gi.versions.Gtk="4.0";void imports.gi.Gtk']),
-		'@octane-xplat/linux-gtk': Boolean(
-			(() => {
-				try {
-					createRequire(join(root, 'package.json')).resolve('@octane-xplat/linux-gtk')
-					return true
-				} catch {
-					return false
-				}
-			})(),
-		),
-		'workshop.config': Boolean(configFile),
-	}
+	const requirements = { ...await gtkRequirements(root), 'workshop.config': Boolean(configFile) }
 	return {
 		backend,
 		requirements,
 		status: Object.values(requirements).every(Boolean) ? 'available' : 'missing-prerequisites',
-		note:
-			process.platform !== 'linux'
-				? 'non-Linux gjs is a development stand-in, not qualified Linux evidence'
-				: undefined,
 	}
 }
 
@@ -104,7 +103,7 @@ export async function workshopGtkDev({ root, config, story, profileRoot, onStart
 			'The GTK workshop runs on Linux, or on macOS with Homebrew gjs as a development stand-in',
 		)
 	}
-	const missing = gtkMissingPrerequisites(root)
+	const missing = await gtkMissingPrerequisites(root)
 	if (missing.length) {
 		throw new WorkshopUsageError(
 			`GTK workshop prerequisites missing: ${missing.join(', ')}` +
@@ -132,29 +131,22 @@ export async function workshopGtkDev({ root, config, story, profileRoot, onStart
 	}
 
 	const source = dirname(fileURLToPath(import.meta.url)).replace('/dist/', '/src/')
-	const catalogPlugin = join(source, 'native-catalog-vite.ts')
 	const shell = join(source, 'gtk/shell.gtk.ts')
 	const chromeCss = join(source, '../native/chrome.css')
 	const cache = profileRoot ?? join(root, 'node_modules/.cache/xplat/workshop-gtk')
 	await mkdir(cache, { recursive: true })
 	const directory = await mkdtemp(join(cache, 'session-'))
 	const bundle = join(directory, 'stories.cjs')
-	const shellBundle = join(directory, 'shell.js')
 	const catalogFile = join(directory, 'catalog.gen.ts')
-	const typelibDir = masonTypelibDir(root)
-	const hasTypelib = typelibDir !== null
-	if (!hasTypelib) {
-		console.log(
-			'xplat workshop: XplatMason typelib not built — masonview falls back to Gtk.Box emulation ' +
-				'(see @octane-xplat/linux-gtk README: Optional native layout)',
-		)
-	}
+	const shellOut = join(directory, 'shell-out')
+	await mkdir(shellOut)
+	const { linuxGtk, stageGtkDevelopmentRuntime } = await gtkPreset(root)
+	const nativeHost = process.platform === 'linux'
+		? stageGtkDevelopmentRuntime(root, shellOut, 'shell.js')
+		: null
+	const typelibDir = nativeHost ? null : masonTypelibDir(root)
 
-	const { linuxGtk } = await import(
-		pathToFileURL(require.resolve('@octane-xplat/cli/linux-gtk/vite')).href
-	)
-
-	// Shell: one ESM file, built once, run by `gjs -m`.
+	// Build the shell once. Story revisions share its runtime instances.
 	await writeFile(
 		join(directory, 'entry.ts'),
 		`import '@octane-xplat/ui/theme/tokens.css'
@@ -166,14 +158,14 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 	)
 
 	const { build } = await import(pathToFileURL(require.resolve('vite')).href)
-	const shellSettings = await linuxGtk('production', { root })
+	const shellSettings = await linuxGtk('production', { root, nativeGiSchema: nativeHost?.schema })
 	await build({
 		logLevel: 'error',
 		configFile: false,
 		...shellSettings,
 		build: {
 			...shellSettings.build,
-			outDir: join(directory, 'shell-out'),
+			outDir: shellOut,
 			emptyOutDir: false,
 			lib: { entry: join(directory, 'entry.ts'), formats: ['es'], fileName: () => 'shell.js' },
 		},
@@ -181,12 +173,14 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 
 	// Stories: CJS bundle rebuilt in watch mode; runtime singletons external,
 	// resolved by the shell's own module map at evaluation time.
-	const { nativeCatalogPlugin } = await import(catalogPlugin)
 	const singletons = [
 		'octane/universal/native',
 		'octane/signals',
 		'octane/signals/client',
 		'octane/internal/client',
+		'@nativescript/core',
+		'@nativescript/core/animation-frame',
+		'@octane-xplat/nativescript-octane',
 		'@octane-xplat/linux-gtk',
 	]
 	const storySettings = await linuxGtk('production', { root })
@@ -229,17 +223,17 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 			rollupOptions: {
 				external: (id) =>
 					id.startsWith('gi://') || singletons.includes(id) || resolvedSingletons.has(id),
-				output: { inlineDynamicImports: true },
+				output: { codeSplitting: false },
 			},
 		},
 	})
 
 	const env = gjsEnv()
-	if (hasTypelib) {
+	if (typelibDir) {
 		env.GI_TYPELIB_PATH = [typelibDir, env.GI_TYPELIB_PATH].filter(Boolean).join(':')
 	}
 
-	// The stories bundle must exist before gjs evaluates it — launch only
+	// The stories bundle must exist before the host evaluates it — launch only
 	// after the watch build's first END event.
 	await new Promise((resolveSpawn, rejectSpawn) => {
 		let first = false
@@ -256,7 +250,7 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 		}
 	})
 
-	const host = spawn('gjs', ['-m', join(directory, 'shell-out/shell.js')], {
+	const host = spawn(nativeHost?.executable ?? 'gjs', nativeHost ? [] : ['-m', join(shellOut, 'shell.js')], {
 		stdio: ['pipe', 'inherit', 'inherit'],
 		env,
 	})
@@ -276,7 +270,7 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 	}
 
 	// External automation (the e2e journeys) writes the same line protocol to
-	// this process's stdin — forward it to the gjs host.
+	// this process's stdin — forward it to the GTK host.
 	const input = createInterface({ input: process.stdin })
 	input.on('line', (line) => {
 		if (host.stdin.writable) {
@@ -307,7 +301,7 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 		} else if (event.code === 'END' && existsSync(bundle)) {
 			host.stdin.write('reload\n')
 		} else if (event.code === 'ERROR') {
-			host.stdin.write(`compile-error ${String(event.error?.message ?? event.error)}\n`)
+			host.stdin.write(`compile-error ${JSON.stringify(String(event.error?.message ?? event.error))}\n`)
 		}
 	})
 

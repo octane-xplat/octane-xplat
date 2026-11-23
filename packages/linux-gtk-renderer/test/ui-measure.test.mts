@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
@@ -6,20 +7,24 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
 test('measurement and aspect ratio follow real GTK allocation and scrolling', async (t) => {
-  const outDir = join(fixture, 'dist-ui-measure')
-
-  if (!gjsAvailable()) {
-    t.skip('gjs is not installed')
-    return
+  if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+    return runGtkEvalFixture(t, {
+      stem: 'ui-measure',
+      entry: 'src/ui-measure-main.ts',
+      marker: 'GTK_UI_MEASURE',
+      minChecks: 19,
+    })
   }
 
-  if (!masonTypelibPresent()) {
-    t.skip('XplatMason typelib required for runtime')
+  const outDir = join(fixture, 'dist-ui-measure')
+
+  if (!gtkRuntimeReady()) {
+    t.skip(gtkRuntimeUnavailableReason())
     return
   }
 
@@ -36,9 +41,7 @@ test('measurement and aspect ratio follow real GTK allocation and scrolling', as
 
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 
-  const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-  const hasMason = existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
-  const env = { ...process.env, ...(hasMason ? { XPLAT_MASON_TYPELIB: nativeDir } : {}) }
+  const env = { ...process.env }
 
   if (process.platform === 'darwin') {
     env.DYLD_FALLBACK_LIBRARY_PATH = [

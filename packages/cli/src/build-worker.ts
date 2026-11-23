@@ -265,7 +265,7 @@ try {
 
     const { packageLinux } = await import('./linux/package.ts')
 
-    data = await packageLinux(process.cwd(), { stagingRoot: stage, publish: false })
+    data = await packageLinux(process.cwd(), { stagingRoot: stage, publish: false, gtkRuntimeRoot: process.env.XPLAT_GTK_RUNTIME_PAYLOAD })
   } else if (request.operation === 'fmt-plan') {
     if (
       !Array.isArray(request.inputs) ||

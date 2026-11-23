@@ -12,7 +12,7 @@ it:
 - **iOS:** `.ios.*` → `.mobile.*` → unsuffixed.
 - **Android:** `.android.*` → `.mobile.*` → unsuffixed.
 - **macOS / Windows native:** `.macos.*` / `.windows.*` → unsuffixed.
-- **Linux GTK:** `.gtk.*` → unsuffixed (GTK4/GJS host). Workshop uses the same chain; rename `.stories.linux.*` to `.stories.gtk.*`, keeping `.web` for browser stories.
+- **Linux GTK:** `.gtk.*` → unsuffixed (GTK4 with the NativeScript Linux runtime). Workshop uses the same chain; rename `.stories.linux.*` to `.stories.gtk.*`, keeping `.web` for browser stories.
 
 Use `.web` for browser-specific APIs or markup, `.mobile` when iOS and Android
 share an implementation that differs from the native default, and an OS suffix
@@ -220,7 +220,7 @@ It opens or inherits the proper scope; wrapping each listener's priority can
 fail when focus/blur is emitted synchronously inside a discrete press.
 
 GTK host integrations may use universal createPortal with a local multi-child
-Gtk.Box/Fixed/Grid, the root layout host, or an owned Mason/viewless layout ref.
+Gtk.Box/Fixed/Grid for non-layout hosts, the root layout host, or an owned Mason/viewless layout ref.
 Use the same universal root to retain providers and component state; do not
 mount a separate root for overlay content. Keep the target alive through portal
 removal. External targets preserve foreign children, but CSS inherits from the
@@ -314,7 +314,8 @@ filled prefix is visual state; checked metadata identifies only one score.
 Web uses matching roving focus, arrows/Space and readonly navigation. Glyph
 changes and scoped icon providers must retain the score widgets.
 
-For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
+For native GTK assertion fixtures, use the shipped XplatMason typelib (or a
+`native/xplatmason/build.sh` output via `XPLAT_MASON_TYPELIB`) and its
 fixed-signature test_accessible_state, test_accessible_boolean_property and
 test_accessible_string_property
 helpers. GTK's original variadic checks are not introspectable. The wrappers
@@ -378,7 +379,7 @@ software-keyboard overlay to host.
 - `Toast.gtk.tsrx` / `toast-viewport.gtk.tsrx` / `toast-surface.gtk.tsrx` / `toast-service.gtk.tsrx` — one scrim-free overlay layer per edge (`TOAST_POSITIONS`/`TOAST_EDGE_ALIGN` exported from the surface leaf); the layer widget hugs its corner so uncovered regions stay interactive (never use `can_target=false` for pass-through — it skips whole subtrees in pick). `maxVisible` queues overflow; service roots mount via `createGtkRoot(host,{service:true})` + `__octaneGtkHost.mountServiceRoot` and stay out of the bridge layer target.
 - `Lightbox.gtk.tsrx` — modal scrim layer, `flexGrow` stage, capture-phase window `EventControllerKey` for Left/Right (layer target is a plain non-focusable `Gtk.Box`), `onPan` bound only while zoomed (`Gtk.GestureDrag` claims sequences and starves `GestureSwipe`), zoom writes `scaleX/scaleY`/`translate` directly (`ref.animate` is translate-only). `type:"video"` falls back to alt text.
 - `CommandPalette.gtk.tsrx` + `command-palette-keys.gtk.ts` + `command-palette-scroll.gtk.ts` — centered modal layer; capture-phase key controller on the Gtk.Entry handles arrows/Page/Enter, `map`-signal re-grab for focus (grab on an unmapped widget is a no-op), GJS `AbortController` shim at module scope.
-- `Drawer.gtk.tsrx` — shared leaf relies on overlapping grid cells the GTK fallback lacks; the .gtk leaf presents the panel on a modal `align:{h:start,v:fill}` scrim layer and renders `main` inline.
+- `Drawer.gtk.tsrx` — shared leaf relies on overlapping grid cells the former Gtk.Box fallback lacked; the .gtk leaf presents the panel on a modal `align:{h:start,v:fill}` scrim layer and renders `main` inline.
 - `BottomSheet.gtk.tsrx` (+ exported `GtkSheetPanel`) — sentinel view + `createOverlayLayer({modal,scrim,align:{h:fill,v:end}})` + `createPortal` into `layer.target`; `sheet-detents.gtk.ts` drives `translateY`/`view.animate` on the numeric `view.on("pan")` states; `useLayerDismissal` for Escape.
 - `bottom-sheet-service.gtk.tsrx` — imperative sheets via `__octaneGtkHost.createOverlayLayer` + `mountServiceRoot`/`owner.createRoot`, newest-first `closeBottomSheet`; `bottomSheetHost()` is `null` and deliberately unexported (host-subpath only on the shared barrel).
 - `menu-sheet.gtk.tsrx` — real `MenuSheet` (MenuProvider + MenuData in a `height="hug"` sheet); `useMenuSheet` resolves `'adaptive'` via `Gdk.Seat` TOUCH capability.

@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -7,7 +8,7 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
@@ -15,10 +16,22 @@ test(
   'GTK SearchInput retains native editing, field context and accessible OS clear/submit actions',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-search-input',
+        title: 'Octane GTK search input test',
+        marker: 'GTK_SEARCH_INPUT',
+        readyMarker: 'GTK_SEARCH_READY',
+        inputFlag: 'GTK_SEARCH_OS',
+        minChecks: { os: 76, properties: 59 },
+        input: true,
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-search-input')
 
-    if (!gjsAvailable() || !masonTypelibPresent()) {
-      t.skip('GJS and XplatMason required for runtime')
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
       return
     }
 
@@ -35,7 +48,6 @@ test(
 
     assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 
-    const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const osInput =
       process.platform === 'linux' &&
       !!process.env.DISPLAY &&
@@ -45,7 +57,6 @@ test(
       ...process.env,
       GTK_A11Y: 'test',
       GTK_SEARCH_OS: osInput ? '1' : '0',
-      XPLAT_MASON_TYPELIB: nativeDir,
     }
 
     const child = spawn('gjs', ['-m', bundle], { env, stdio: ['ignore', 'pipe', 'pipe'] })

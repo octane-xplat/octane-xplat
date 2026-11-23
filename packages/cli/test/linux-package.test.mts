@@ -16,6 +16,7 @@ import test from 'node:test'
 import { inspectLinuxPackageConfig } from '../dist/linux/config.js'
 import { packageLinux } from '../dist/linux/package.js'
 import { hasLinux, linuxRuntime } from '../dist/targets.js'
+import { writeFakeGtkRuntime } from './linux-gtk-runtime-fixture.mjs'
 
 function project(t) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-linux-'))
@@ -64,7 +65,7 @@ function gtkProject(t) {
   writeFileSync(join(root, 'vite.gtk.config.ts'), '')
   writeFileSync(
     join(root, 'node_modules/vite/build.cjs'),
-    `const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'app.js'), 'import Gtk from "gi://Gtk?version=4.0";');`,
+    `const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'app.js'), 'export const app = 1'); fs.writeFileSync(path.join(out, '.xplat-gtk-runtime'), '1\\n');`,
   )
 
   return { root, manifest }
@@ -72,7 +73,8 @@ function gtkProject(t) {
 
 test('GTK archive ships desktop entry and install/uninstall; install→reinstall→uninstall keeps settings', async (t) => {
   const { root } = gtkProject(t)
-  const { appDir } = await packageLinux(root)
+  const runtime = writeFakeGtkRuntime(join(root, 'payload'))
+  const { appDir } = await packageLinux(root, { gtkRuntimeRoot: runtime })
 
   const relocated = join(root, 'relocated app')
 
@@ -144,12 +146,13 @@ test('Linux packaging rejects invalid identities, injection and config traversal
 })
 
 test('failed frontend build preserves previously packaged app', async (t) => {
-  const { root } = project(t)
-  const result = await packageLinux(root)
+  const { root } = gtkProject(t)
+  const runtime = writeFakeGtkRuntime(join(root, 'payload'))
+  const result = await packageLinux(root, { gtkRuntimeRoot: runtime })
 
   writeFileSync(join(result.appDir, 'keep.txt'), 'previous app')
   writeFileSync(join(root, 'node_modules/vite/build.cjs'), 'process.exit(1)')
-  await assert.rejects(packageLinux(root))
+  await assert.rejects(packageLinux(root, { gtkRuntimeRoot: runtime }))
   assert.equal(readFileSync(join(result.appDir, 'keep.txt'), 'utf8'), 'previous app')
 })
 
@@ -195,8 +198,20 @@ test('GTK config still validates a declared URI scheme', async (t) => {
   assert.match(config.issues[0], /linux\.host\.scheme/)
 })
 
-test('GTK packaging produces the ESM bundle, gjs -m launcher, and archive', async (t) => {
+test('GTK packaging uses the installed NativeScript payload pair', async (t) => {
   const { root } = gtkProject(t)
+  const rendererPackage = join(root, 'node_modules/@octane-xplat/linux-gtk')
+  const payloads = join(rendererPackage, 'platforms/linux/runtime')
+  for (const architecture of ['x86_64', 'aarch64']) {
+    writeFakeGtkRuntime(join(payloads, architecture), architecture)
+  }
+  writeFileSync(
+    join(rendererPackage, 'package.json'),
+    JSON.stringify({
+      name: '@octane-xplat/linux-gtk',
+      exports: { './package.json': './package.json' },
+    }),
+  )
   const { appDir, archive } = await packageLinux(root)
 
   assert.ok(existsSync(archive))
@@ -209,7 +224,7 @@ test('GTK packaging produces the ESM bundle, gjs -m launcher, and archive', asyn
 
   const launcher = readFileSync(join(appDir, 'sample-app'), 'utf8')
 
-  assert.match(launcher, /exec gjs -m "\$APP_DIR\/app\.js"/)
+  assert.match(launcher, /exec "\$RUNTIME\/ns-linux"/)
   execFileSync('sh', ['-n', join(appDir, 'sample-app')])
 
   const listing = execFileSync('tar', ['-tzf', archive], { encoding: 'utf8' })
@@ -219,6 +234,8 @@ test('GTK packaging produces the ESM bundle, gjs -m launcher, and archive', asyn
   assert.ok(listing.includes('sample-app/org.example.Sample.desktop'))
   assert.ok(listing.includes('sample-app/install.sh'))
   assert.ok(listing.includes('sample-app/uninstall.sh'))
+  assert.ok(listing.includes('sample-app/runtime/x86_64/ns-linux'))
+  assert.ok(listing.includes('sample-app/runtime/aarch64/ns-linux'))
   assert.ok(!existsSync(join(appDir, 'bundle')))
   assert.ok(!existsSync(join(appDir, 'host')))
 
@@ -229,6 +246,11 @@ test('GTK packaging produces the ESM bundle, gjs -m launcher, and archive', asyn
   assert.ok(!desktop.includes('MimeType'))
 })
 
+test('GTK packaging requires the installed runtime payloads', async (t) => {
+  const { root } = gtkProject(t)
+  await assert.rejects(packageLinux(root), /requires the NativeScript runtime payloads/)
+})
+
 test('GTK packaging rejects a build that emits no single ESM bundle', async (t) => {
   const { root } = gtkProject(t)
 
@@ -237,5 +259,6 @@ test('GTK packaging rejects a build that emits no single ESM bundle', async (t) 
     `const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'a.js'), ''); fs.writeFileSync(path.join(out, 'b.js'), '');`,
   )
 
-  await assert.rejects(packageLinux(root), /exactly one ESM bundle/)
+  const runtime = writeFakeGtkRuntime(join(root, 'payload'))
+  await assert.rejects(packageLinux(root, { gtkRuntimeRoot: runtime }), /exactly one ESM bundle/)
 })

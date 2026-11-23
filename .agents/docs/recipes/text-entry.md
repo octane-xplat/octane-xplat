@@ -164,9 +164,8 @@ Field ownership and mixed checkbox state. These add AC3 field evidence; they
 do not establish assistive-client speech or navigation. The public-root
 [radio fixture](../../../packages/linux-gtk-renderer/test/ui-radio-list.test.mts)
 adds grouped Tab/arrow/Space and pointer ownership, controlled values, child
-parts, field defaults and native state checks. It runs keyboard/pointer cases
-with both Mason and the Gtk.Box fallback; broader layout/value comparisons use
-Mason.
+parts, field defaults and native state checks under Mason — the binding is
+required and ships in the package.
 
 The [GTK numeric field guide](../../../docs/platform/linux-gtk.md#numeric-fields)
 and public-root [number fixture](../../../packages/linux-gtk-renderer/test/ui-number-input.test.mts)

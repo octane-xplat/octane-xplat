@@ -1,8 +1,8 @@
-// GJS application host for the GTK renderer — owns the GtkApplication, the
-// window, and the content widget a universal root mounts into. The app entry
-// bundles this module and calls runGtkApp; `gjs -m` executes the bundle.
+// GTK application host. The entry bundle calls runGtkApp to mount the root
+// in the application window and drive the GLib event loop.
 import Gtk from 'gi://Gtk?version=4.0'
 import Gio from 'gi://Gio'
+import { launchCoreApplication, exitCoreApplication } from './core-application.js'
 import { createGtkRoot } from './index.js'
 import type { GtkContainer, GtkRoot, GtkView } from './index.js'
 
@@ -78,11 +78,17 @@ export function runGtkApp(
     try {
       mountCleanup?.()
     } finally {
-      mounted?.root.unmount()
+      try {
+        mounted?.root.unmount()
+      } finally {
+        if (mounted) {
+          exitCoreApplication()
+        }
+      }
     }
   })
 
-  app.connect('activate', () => {
+  const activate = () => {
     if (mounted !== null) {
       mounted.window.present()
       return
@@ -107,9 +113,24 @@ export function runGtkApp(
     const { root, container } = createGtkRoot(content)
 
     mounted = { app, window, content, container, root }
+    launchCoreApplication(app, container.coreHost)
     mountCleanup = mount(mounted) ?? undefined
     window.present()
+  }
+
+  let activationFailure: { error: unknown } | undefined
+  app.connect('activate', () => {
+    try {
+      activate()
+    } catch (error) {
+      activationFailure = { error }
+      app.quit()
+    }
   })
 
-  return app.run(null)
+  const status = app.run(null)
+  if (activationFailure) {
+    throw activationFailure.error
+  }
+  return status
 }

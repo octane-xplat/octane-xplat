@@ -1,0 +1,19 @@
+{
+	"repository": "https://github.com/octane-xplat/nativescript-mason",
+	"revision": "0cdc3c80ea1b7cff74ce6b723f1d10a11f983a0d",
+	"crate": "mason-c",
+	"toolchain": "stable",
+	"cargoLockSha256": "ae1730f204453c212d06d09398bb9b719b8a4f5081a69257fb07c758a54f3720",
+	"headerSourceSha256": "deb575db60cc8142f0255fa0784d835dded067e244b822508a4b7d653d638769",
+	"engine": "cargo rustc -p mason-c --lib --release --locked --crate-type staticlib + tools/mason-core/build-native.mjs prepareHeaders — upstream build.native.desktop requires an Apple host at this revision",
+	"targets": {
+		"x86_64-unknown-linux-gnu": {
+			"archiveSha256": "d4cf4eed70702ec63df291223aeffcd2443eb2f62cb3ed3d0769565d872276e2",
+			"headerSha256": "ef117af0d549542f22a50d90484e05b62eb9c7aca00b0aaeb9a6fe9723ca79f7"
+		},
+		"aarch64-unknown-linux-gnu": {
+			"archiveSha256": "c9961dacad609903dbbbb3cc365873ab5ed577079abfdd0e808ad186d2618da4",
+			"headerSha256": "ef117af0d549542f22a50d90484e05b62eb9c7aca00b0aaeb9a6fe9723ca79f7"
+		}
+	}
+}

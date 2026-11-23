@@ -523,8 +523,9 @@ The GJS 1.82.3 / GTK 4.18.6 check passed **13 assertions** on Debian 13 arm64:
 route commits, GTK rendering, event-driven local updates, hidden retained entries,
 Back with widget/state identity, explicit modal rejection preserving the screen,
 and native child disposal. The owned `gtk-smoke` VM was stopped afterward.
-Its Mason typelib is absent, so this is Gtk.Box fallback evidence; the native
-Mason layout test remains skipped. It does not qualify geometry, visual parity,
+Its Mason typelib was absent at the time, so this is historical Gtk.Box
+fallback evidence — the fallback no longer exists and Mason is now required
+and shipped in the package. It does not qualify geometry, visual parity,
 OS input, Wayland, generated GTK startup, window lifecycle or the complete shared
 UI. The independent pane host reports skipped motion and has no modal surface.
 The main Linux WebKitGTK host retains its separate browser-routing evidence.

@@ -1,4 +1,4 @@
-import { globSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import { copyFileSync, globSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { createRequire } from 'node:module'
 import { build, defineConfig } from 'vite'
@@ -49,6 +49,7 @@ export default defineConfig({
         }
 
         restore('dist')
+        copyFileSync('src/linux-gtk/bindings.mjs', 'dist/linux-gtk/bindings.mjs')
         for (const name of ['native', 'macos']) {
           mkdirSync('dist/typecheck-globals', { recursive: true })
           writeFileSync(

@@ -1170,10 +1170,14 @@ export async function native(env, opts = {}) {
   )
 
   const platform = nativePlatform()
+  const windowsTarget = pkg.xplat?.targets?.windows
+  const toolchain = windowsTarget?.toolchain
+  const separateWindows = typeof toolchain === 'string' && toolchain.trim() !== ''
   const engine = masonEngine(
     declared,
     platform === 'windows' ||
-      (platform == null && Boolean(pkg.xplat?.targets?.windows || declared['@nativescript/windows'])),
+      (platform == null &&
+        Boolean((windowsTarget && !separateWindows) || declared['@nativescript/windows'])),
   )
 
   if (engine === masonCorePackage && !declared[masonCorePackage]) {

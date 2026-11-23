@@ -1684,8 +1684,11 @@
       "name": "@octane-xplat/linux-gtk",
       "version": "0.21.0",
       "dependencies": {
+        "@nativescript/core": "catalog:",
+        "@nativescript/vite": "8.0.20",
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
       },
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
@@ -3274,6 +3277,20 @@
         "@tsrx/content-mapper": "catalog:",
         "typescript": "catalog:",
         "wrangler": "4.136.3",
+      },
+    },
+    "tools/linux-gtk-tests": {
+      "name": "@xplat/linux-gtk-tests",
+      "devDependencies": {
+        "@octane-xplat/build": "workspace:*",
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/linux-gtk": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
+        "@octanejs/vite-plugin": "catalog:",
+        "octane": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
       },
     },
     "tools/macos-verification": {
@@ -5486,6 +5503,8 @@
     "@webcontainer/env": ["@webcontainer/env@1.1.1", "", {}, "sha512-6aN99yL695Hi9SuIk1oC88l9o0gmxL1nGWWQ/kNy81HigJ0FoaoTXpytCj6ItzgyCEwA9kF1wixsTuv5cjsgng=="],
 
     "@xmldom/xmldom": ["@xmldom/xmldom@0.9.12", "", {}, "sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A=="],
+
+    "@xplat/linux-gtk-tests": ["@xplat/linux-gtk-tests@workspace:tools/linux-gtk-tests"],
 
     "@xtuc/ieee754": ["@xtuc/ieee754@1.2.0", "", {}, "sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA=="],
 

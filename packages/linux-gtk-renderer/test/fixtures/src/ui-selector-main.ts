@@ -19,12 +19,6 @@ const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 
 window.set_child(host)
 
-const { root, container } = createGtkRoot(host, {
-  onUncaughtError(error) {
-    throw error
-  },
-})
-
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 250) =>
   new Promise<void>((resolve) =>
@@ -107,7 +101,12 @@ function acknowledge(widget: any) {
 
 acknowledge(window)
 
-const windowBaseline = controllerCount(window)
+const windowControllersBeforeRoot = controllerCount(window)
+const { root, container } = createGtkRoot(host, {
+  onUncaughtError(error) {
+    throw error
+  },
+})
 const point = (widget: any) => {
   const native = widget.get_native ? widget.get_native() : widget
   const [ok, rect] = widget.compute_bounds(native)
@@ -389,7 +388,10 @@ async function run() {
   root.unmount()
   await pause()
   check('unmount releases managed nodes', container.nodes.size === 0)
-  check('unmount releases shared window controllers', controllerCount(window) === windowBaseline)
+  check(
+    'unmount restores the window controllers present before mounting the renderer',
+    controllerCount(window) === windowControllersBeforeRoot,
+  )
   check(
     'unmount clears window wiring',
     !container.windowConnections?.length &&

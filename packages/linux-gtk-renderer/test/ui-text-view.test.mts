@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -7,7 +8,7 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 
@@ -15,10 +16,22 @@ test(
   'GTK multiline buffers preserve Unicode selection, editability, focus, Return behavior and retired listeners',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-text-view',
+        title: 'Octane GTK multiline test',
+        marker: 'GTK_TEXT_VIEW',
+        minChecks: { os: 83, properties: 45 },
+        input: true,
+        inputFlag: 'GTK_TEXT_OS',
+        inputResult: 'osKeyboard',
+      })
+    }
+
     const outDir = join(fixture, 'dist-ui-text-view')
 
-    if (!gjsAvailable() || !masonTypelibPresent()) {
-      t.skip('GJS and XplatMason required for runtime')
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
       return
     }
 
@@ -35,7 +48,6 @@ test(
 
     assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 
-    const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const osKeyboard =
       process.platform === 'linux' &&
       !!process.env.DISPLAY &&
@@ -45,7 +57,6 @@ test(
       ...process.env,
       GTK_A11Y: 'test',
       GTK_TEXT_OS: osKeyboard ? '1' : '0',
-      XPLAT_MASON_TYPELIB: nativeDir,
     }
 
     const child = spawn('gjs', ['-m', bundle], { env, stdio: ['ignore', 'pipe', 'pipe'] })

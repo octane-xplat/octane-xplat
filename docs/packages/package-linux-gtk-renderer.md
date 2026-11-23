@@ -1,8 +1,8 @@
 # Experimental GTK4 renderer for Linux
 
-> Experimental GTK4 renderer for Octane on Linux (GJS universal runtime)
+> Experimental GTK4 renderer for Octane on the NativeScript Linux runtime
 
-Build a native GTK4 window with Octane and GJS. This package is experimental;
+Build a native GTK4 window with Octane and NativeScript. This package is experimental;
 the [production feasibility gate](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/design/linux-gtk-feasibility-review.md)
 still fails. Publication does not qualify complete UI parity, Wayland, IME,
 OS input, or production use.
@@ -11,19 +11,21 @@ After the first stable automated release, install matching Xplat releases in you
 
 ```sh
 bun add @octane-xplat/linux-gtk @octane-xplat/ui octane
-bun add -D @octane-xplat/cli @octanejs/vite-plugin vite
-sudo apt install gjs gir1.2-gtk-4.0
+bun add -D @octane-xplat/cli @octane-xplat/build @tsrx/oxc vite
+bun run xplat patches apply
+bun install
+sudo apt install libgtk-4-1 libjson-glib-1.0-0
 ```
 
-GTK 4.10 or later is required by the CLI runtime check. The package ships
-JavaScript in `dist/` and TypeScript declarations. Bundle your application with
-`linuxGtk`; GJS loads the resulting app, not Node. Follow the
+Doctor checks for GTK 4.14 or later. The package ships JavaScript in `dist/`,
+TypeScript declarations, and the pinned NativeScript payloads for x86_64 and
+ARM64. Set up the `linuxGtk` preset and build your app through Xplat. Follow the
 [Linux GTK app guide](https://octane-xplat.goddardai.org/linux-gtk)
 for an entry point and packaging commands.
 
 ```ts
 // vite.gtk.config.ts
-import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+import { linuxGtk } from '@octane-xplat/build/linux-gtk/vite'
 export default async (env: { mode: string }) => linuxGtk(env)
 ```
 
@@ -47,34 +49,44 @@ These declarations are a hand-maintained subset of GObject Introspection APIs,
 not generated SDK types. Some members remain `any`; typechecking does not verify
 that an API is available on your installed GTK version.
 
-## Optional native layout
+## Native layout — Mason ships in the package
 
-No native binary is downloaded or compiled during installation. Without
-XplatMason the renderer warns once and uses `Gtk.Box`: ordinary rows and columns
-work, but grid, reverse directions, asymmetric gaps and full flex alignment
-remain approximate or unsupported. This is the default npm consumer path.
-
-Advanced consumers can build the included C facade on the Linux host. It needs
-a matching architecture's pinned MasonCore engine archive, C compiler,
-`pkg-config`, GTK4, JSON-GLib and GObject Introspection development tools.
-The source package does not include the engine archive or its checkout. Use the
-[engine build instructions](https://github.com/octane-xplat/nativescript-mason)
-and the artifact contract in `native/xplatmason/build.sh`; the script rejects a
-missing archive/header/manifest. Keep that external checkout pinned in your app.
+Mason is required. The package ships the engine and GTK binding with the
+NativeScript payload for each architecture under `platforms/linux/runtime/`.
+The CLI copies both payloads to the packaged app, and the launcher selects the
+payload for the running machine. If Mason cannot load, root creation stops
+with a diagnostic.
 
 ```sh
-# MASON_CHECKOUT points to your pinned nativescript-mason checkout, after its
-# nativescript-mason-core:build.native.desktop task has produced the archive.
+bun run xplat build --targets linux
+./dist/linux/my-app/my-app
+```
+
+The prebuilt baseline is a *minimum*: newer distros with a compatible GTK4
+and json-glib run the same binding (proven on Debian 13 / GTK 4.18).
+
+### Developer note — building the facade yourself
+
+For GJS probes, facade developers can rebuild the binding from the included C sources. It
+needs the pinned MasonCore engine archive (see
+`native/xplatmason/mason-core.pin.json`), a C compiler, `pkg-config`, GTK4,
+JSON-GLib and GObject Introspection development tools. `build.sh` runs
+against a pinned nativescript-mason checkout; `build-prebuilt.sh` is the
+committed producer that also builds the engine archive inside the Ubuntu
+24.04 baseline image (`native/xplatmason/Dockerfile`).
+
+```sh
+# MASON_CHECKOUT points to a nativescript-mason checkout at the pinned
+# revision in native/xplatmason/mason-core.pin.json.
 GTK_PACKAGE="$PWD/node_modules/@octane-xplat/linux-gtk"
 bash "$GTK_PACKAGE/native/xplatmason/build.sh" "$MASON_CHECKOUT"
-export GI_TYPELIB_PATH="$GTK_PACKAGE/native/xplatmason${GI_TYPELIB_PATH:+:$GI_TYPELIB_PATH}"
-export LD_LIBRARY_PATH="$GTK_PACKAGE/native/xplatmason${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export XPLAT_MASON_TYPELIB="$GTK_PACKAGE/native/xplatmason"
 gjs -m dist/app.js
 ```
 
-Ship the resulting `.so` and `.typelib` with the app for its architecture and
-preserve the engine's license notices. Native Mason builds and relocation need
-separate runtime qualification; the npm consumer check uses the Box fallback.
+`XPLAT_MASON_TYPELIB` is a developer override for `build.sh` output — it
+takes priority over the bundled `xplatmason/<arch>/` directory. It is not
+the default consumer path.
 
 ## Accessible names and automation
 
@@ -104,10 +116,12 @@ custom `Gtk.LayoutManager` during GTK's own measure/allocate passes.
 Children keep their real widgets; leaf nodes measure them live on every
 compute, the same callback contract the macOS bridge uses for NSViews.
 
-When the typelib is absent, `masonview` warns once and falls back to the
-`Gtk.Box` emulation — the app still runs, layout is approximate.
+The binding is required — a missing or unloadable namespace throws at
+`createGtkRoot` with the directories tried and the `XPLAT_MASON_TYPELIB`
+override name.
 
-For consumer build steps, use [Optional native layout](#optional-native-layout).
+For facade development builds, use
+[Developer note — building the facade yourself](#developer-note--building-the-facade-yourself).
 Contributor implementation details and qualification evidence live in the
 [renderer note](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/linux-gtk-renderer.md).
 
@@ -117,7 +131,7 @@ Contributor implementation details and qualification evidence live in the
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `.`                     | `gtkDriver`, `createGtkRoot`, `GTK_RENDERER_ID`, `registerStylesheet`, `octane/universal/native` re-export |
 | `./host`                | `runGtkApp` — GtkApplication + window + content box + mounted root; `setWindowContentResolver` — app-level `openWindow` content seam (the macOS host's counterpart). `runGtkApp`'s `mount` may return a cleanup invoked once on Gtk.Application `shutdown` before the root unmounts |
-| `./compat/native-core`  | `@nativescript/core` shim for leaves evaluated in a GTK bundle                                             |
+| `./compat/native-core`  | GTK host services used by older integrations                                             |
 | `./compat/escape-props` | escape-props shim                                                                                          |
 
 Implemented intrinsics: `masonview` (the single layout container — every
@@ -126,6 +140,18 @@ layout semantic arrives through `style`/`className`), `label`, `button`,
 `activityindicator`, `image`, `svgview`, plus viewless `#text`, `span`, `formattedstring`,
 `contentview`, `proxyviewcontainer`, `rootlayout`. Anything else throws a
 named driver error at mount.
+
+The Core provider covers the view lifecycle used by these Octane elements.
+The GTK host supplies their widgets and layout. Direct construction of
+NativeScript controls such as `new Button()`, mobile plugins, Core animations,
+and Core HTTP are outside this provider's supported surface.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function SaveButton({ save }: { save: () => void }) {
+  return <button text="Save" onTap={save} />
+}
+```
 
 ## Icon sources
 
@@ -547,9 +573,14 @@ export function GtkStatus() {
 ## Bundle + run
 
 `@octane-xplat/cli` ships `linuxGtk` (`@octane-xplat/cli/linux-gtk/vite`)
-which wires the Octane compiler's `gtk` renderer, `gi://` externals, the
-`.gtk` extension chain, and the `octane` → `octane/universal/native` retarget.
-The output is one ESM file run with `gjs -m`.
+which wires the Octane compiler's `gtk` renderer, the `.gtk` extension chain,
+and the `octane` → `octane/universal/native` retarget. The Xplat build projects
+`gi://` imports onto the NativeScript bindings and packages one ESM file
+with the two runtime payloads.
+
+```sh
+bun run xplat build --targets linux
+```
 
 ## Portal targets
 

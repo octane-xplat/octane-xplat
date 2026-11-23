@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "runtimeCommit": "158da846adc6d123817ff9a172b26bb8a183e12f",
+  "manifests": {
+    "x86_64": "e4d874a89df6ac7829f9fc45638bb0658cda2189d5cdd5805957a7d7c02a2a52",
+    "aarch64": "9023aa320df67e41a90897e8d9cc1fad9567cd2d6362fd1357d85555443e99dd"
+  }
+}

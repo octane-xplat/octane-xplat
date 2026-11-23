@@ -5,7 +5,9 @@ export function Surfaces() {
   // 1. Track which surface is open and clear it on dismissal.
   const [surface, setSurface] = useState<'dialog' | 'alert' | 'sheet' | null>(null)
   const onOpenChange = (open: boolean) => {
-    if (!open) setSurface(null)
+    if (!open) {
+      setSurface(null)
+    }
   }
   // 2. Let each action open a surface and connect its close callback.
   return (

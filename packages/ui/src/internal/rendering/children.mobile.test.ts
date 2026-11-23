@@ -16,6 +16,7 @@ vi.mock('@nativescript/core', () => ({
   View: class {},
   Utils: { openUrl() {} },
   Application: { on() {}, off() {} },
+  Screen: { mainScreen: { widthDIPs: 1024, heightDIPs: 768 } },
 }))
 
 vi.mock('../../components/media/Icon', async () => {

@@ -33,6 +33,7 @@ import {
   type UniversalPortalTargetHandle,
   type UniversalPortalTargetRegistration,
   type UniversalRoot,
+  type UniversalRootOptions,
 } from 'octane/universal/native'
 
 import { NATIVESCRIPT_RENDERER_ID } from './config.js'
@@ -110,6 +111,14 @@ type ResolvePortalHost = (target: object) => NativeScriptPortalHost | undefined
 
 /** A host can expose native handles while the driver still owns Core views. */
 export interface NativeScriptHostBoundary {
+  /** Adapt a Core view to a host that owns its own native style and layout. */
+  projection?: {
+    create(node: NativeScriptTextNode): void
+    update(node: NativeScriptTextNode, props: Readonly<Record<string, unknown>>): void
+    release(view: ViewBase): void
+  }
+  events?: UniversalHostDriver<NativeScriptContainer, object | null>['events']
+  updates?: UniversalHostDriver<NativeScriptContainer, object | null>['updates']
   publicInstance(node: NativeScriptTextNode): object | null
   eventData(data: EventData, publicInstance: object | null, view: ViewBase): unknown
   coreView(target: object): ViewBase | undefined
@@ -252,6 +261,7 @@ function createNode(
   if (node.view !== null) {
     viewOwners.set(node.view, { container, node })
   }
+  container.hostBoundary?.projection?.create(node)
   applyProps(node, props)
   return node
 }
@@ -270,7 +280,7 @@ function instantiate(type: string, boundary?: NativeScriptHostBoundary): ViewBas
     throw unregisteredElementError(type)
   }
   const view = new Element()
-  if (isMasonContainer(type, view)) {
+  if (!boundary?.projection && isMasonContainer(type, view)) {
     applyMasonDefaults(type, view)
   }
   return view
@@ -280,6 +290,11 @@ function applyProps(node: HostNode, props: Readonly<Record<string, unknown>>): v
   if (node.view === null) {
     node.text = props.value == null ? '' : String(props.value)
     syncText(node.parent)
+    return
+  }
+  const projection = viewOwners.get(node.view)?.container.hostBoundary?.projection
+  if (projection) {
+    projection.update(node, props)
     return
   }
   // A list's cell renderer must be in place before `items` reloads the cells.
@@ -304,7 +319,11 @@ function applyProps(node: HostNode, props: Readonly<Record<string, unknown>>): v
  */
 function updateProps(node: HostNode, next: Readonly<Record<string, unknown>>): void {
   for (const name of Object.keys(node.props)) {
-    if (!Object.hasOwn(next, name) && node.view !== null) {
+    if (
+      !Object.hasOwn(next, name) &&
+      node.view !== null &&
+      !viewOwners.get(node.view)?.container.hostBoundary?.projection
+    ) {
       setProp(node, node.view, name, undefined)
     }
   }
@@ -760,6 +779,9 @@ function applyMasonContainerProp(node: HostNode, view: ViewBase, name: string, v
 
 /** Viewless proxies place their children in the nearest concrete layout. */
 function masonLayoutParent(node: HostNode): HostNode | null {
+  if (node.view && viewOwners.get(node.view)?.container.hostBoundary?.projection) {
+    return null
+  }
   let parent = node.parent
   while (parent !== null && !isPortalTarget(parent)) {
     if (parent.type !== 'proxyviewcontainer') {
@@ -1604,10 +1626,17 @@ function setEvent(
       try {
         const boundary = container.hostBoundary
         const current = node.view
-        const payload = boundary && current
-          ? boundary.eventData(data, boundary.publicInstance(node), current)
-          : data
-        root.eventScope(listener.priority, () => root.dispatchEvent(listener.id, payload))
+        const payload =
+          boundary && current
+            ? boundary.eventData(data, boundary.publicInstance(node), current)
+            : data
+        if (boundary?.projection) {
+          // Native GTK signals can be raised synchronously by another handler.
+          // Octane reuses the active event scope and its priority in dispatchEvent.
+          root.dispatchEvent(listener.id, payload)
+        } else {
+          root.eventScope(listener.priority, () => root.dispatchEvent(listener.id, payload))
+        }
       } catch (error) {
         console.warn(`NativeScript driver: dropped ${type} event:`, error)
       }
@@ -1673,6 +1702,9 @@ function destroyNode(container: NativeScriptContainer, node: HostNode): void {
   if (node.view instanceof TabViewItem) {
     container.hostBoundary?.tabItems?.release(node.view)
   }
+  if (node.view) {
+    container.hostBoundary?.projection?.release(node.view)
+  }
   if (container.hostBoundary) {
     node.parent = null
     node.props = {}
@@ -1737,6 +1769,7 @@ function recreateView(
   if (previous instanceof ListView) {
     releaseListView(previous)
   }
+  container.hostBoundary?.projection?.release(previous)
   viewOwners.set(view, { container, node })
   node.type = nextType
   node.props = nextProps
@@ -1745,6 +1778,7 @@ function recreateView(
   node.propDefaults.clear()
   node.styleDefaults.clear()
   node.styleKeys.clear()
+  container.hostBoundary?.projection?.create(node)
   applyProps(node, nextProps)
   for (const [type, handler] of node.listeners) {
     view.on(type, handler)
@@ -1772,7 +1806,7 @@ function recreateView(
       }
     }
   }
-  if (isMasonContainer(node.type, node.view)) {
+  if (!container.hostBoundary?.projection && isMasonContainer(node.type, node.view)) {
     for (const child of node.children) {
       applyMasonChildLayout(child, null)
       applyMasonChildLayout(child, node)
@@ -2302,14 +2336,17 @@ export function createNativeScriptRoot(
   host: ViewBase,
   resolvePortalHost?: ResolvePortalHost,
   hostBoundary?: NativeScriptHostBoundary,
+  options?: UniversalRootOptions<NativeScriptContainer>,
 ): UniversalRoot {
   const container = createNativeScriptContainer(host, resolvePortalHost, hostBoundary)
   const driver: UniversalHostDriver<NativeScriptContainer, object | null> = hostBoundary
     ? {
         ...nativeScriptDriver,
+        events: hostBoundary.events ?? nativeScriptDriver.events,
+        updates: hostBoundary.updates ?? nativeScriptDriver.updates,
         getPublicInstance(active, id) {
           const node = active.nodes.get(id)
-          return node?.view ? hostBoundary.publicInstance(node) : null
+          return node ? hostBoundary.publicInstance(node) : null
         },
       }
     : nativeScriptDriver
@@ -2317,6 +2354,7 @@ export function createNativeScriptRoot(
     scheduleMicrotask: (callback) => {
       Promise.resolve().then(callback)
     },
+    ...options,
   })
   container.root = root
   const unmount = root.unmount.bind(root)

@@ -2,13 +2,14 @@
 // real GJS+GTK, headless: the imported .css file reaches the renderer through
 // the CLI's inline-stylesheet injection, registerStylesheet restyles live
 // widgets, and widget.get_color() gives real GTK evidence. Prints one JSON
-// result object; the node test asserts on it. The XplatMason typelib is not
-// required — the Gtk.Box masonview fallback is fine.
+// result object; the node test asserts on it. The shipped XplatMason
+// binding drives the masonview hosts in this fixture.
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkContainer, gtkDriver, registerStylesheet } from '@octane-xplat/linux-gtk'
 import type { GtkContainer } from '@octane-xplat/linux-gtk'
 import type { UniversalHostCommand } from 'octane/universal/native'
+import { sleep } from './fixture-timer'
 import './css-smoke.css'
 import tokensCss from '@octane-xplat/ui/theme/tokens.css?raw'
 import chromeCss from '@octane-xplat/ui/theme/chrome.css?raw'
@@ -19,14 +20,7 @@ function apply(container: GtkContainer, commands: UniversalHostCommand[]) {
   gtkDriver.prepareBatch(container, { renderer: 'gtk', commands }).apply()
 }
 
-function idle(): Promise<void> {
-  return new Promise((resolve) => {
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => {
-      resolve()
-      return false
-    })
-  })
-}
+const idle = () => sleep(0)
 
 const cmd = (op: string, id: number, extra: Record<string, unknown> = {}) =>
   ({ op, id, ...extra }) as UniversalHostCommand
@@ -88,7 +82,7 @@ apply(container, [
   cmd('insert', 15, { parent: 1, before: null }),
   cmd('insert', 16, { parent: 1, before: null }),
   cmd('insert', 17, { parent: 1, before: null }),
-  cmd('insert', 18, { parent: 1, before: null }),
+  cmd('insert', 18, { parent: null, before: null }),
   cmd('insert', 19, { parent: 1, before: null }),
   cmd('insert', 20, { parent: 1, before: null }),
   cmd('insert', 21, { parent: 1, before: null }),
@@ -328,14 +322,6 @@ out.mediaAfter = colorOf(26)
 out.rootClassesB2 = [...(node(1)?.cssClasses ?? [])].sort()
 
 // ---- Keyframe animations ---------------------------------------------------
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => {
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
-      resolve()
-      return false
-    })
-  })
-
 registerStylesheet(
   'anim',
   `@keyframes fade { from { opacity: 0; } to { opacity: 1; } }

@@ -1,3 +1,7 @@
 # Maintained GTK tests emit standalone bundles beside these sources.
+/dist/
+/dist-mason/
+/dist-mason-missing/
 /dist-ui-*/
 /dist-visibility/
+/dist-root-teardown/

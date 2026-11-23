@@ -168,7 +168,7 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 
 	report.targets.windows = windowsPreflight(root)
 
-	report.targets.linux = gtkDoctor(root, configFile)
+	report.targets.linux = await gtkDoctor(root, configFile)
 
 	if (json) {
 		console.log(JSON.stringify(report, null, 2))

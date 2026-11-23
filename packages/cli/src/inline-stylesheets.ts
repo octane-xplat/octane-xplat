@@ -38,7 +38,15 @@ export function inlineStylesheets(destination: 'css-engine' | 'nativescript' = '
           return
         }
 
-        if (!id.split('?')[0].endsWith('.css')) {
+        const [path, query] = id.split('?')
+
+        if (!path.endsWith('.css')) {
+          return
+        }
+
+        // `?raw`/`?inline`/`?url` ids arrive already converted to JS export
+        // modules — they are data imports, not stylesheets to process.
+        if (/(?:^|&)(raw|inline|url)(?:&|$)/.test(query ?? '')) {
           return
         }
 

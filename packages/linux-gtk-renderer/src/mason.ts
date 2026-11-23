@@ -6,9 +6,11 @@
 //
 // GJS has no plain-C FFI, so the engine crosses `imports.gi.XplatMason`
 // (a GI namespace over the libxplatmason-gtk shared library — the GTK-side
-// counterpart of macOS's XPLMason ObjC facade). The typelib resolves via
-// GI_TYPELIB_PATH, the XPLAT_MASON_TYPELIB env var, or a system install;
-// absent it, masonview falls back to the Gtk.Box emulation in index.ts.
+// counterpart of macOS's XPLMason ObjC facade). Mason is required: the
+// binding resolves from XPLAT_MASON_TYPELIB (developer override for
+// build.sh output), the xplatmason/<arch>/ directory the CLI preset emits
+// beside the bundle, or GI's own search paths. A missing binding throws at
+// createGtkRoot — there is no fallback layout.
 //
 // Mason owns border-box sizes and sibling spacing. GTK still paints CSS
 // borders/padding/margins, so bridge its outer allocation and leaf measures
@@ -38,34 +40,71 @@ const MAX_CONTENT = -2
 
 let mason: any = null
 let engine = 0
-let initFailed = false
+let masonError: Error | null = null
+const searchedDirs: string[] = []
+let hostArch = 'unknown'
+
+/** Registers a directory holding XplatMason-1.0.typelib with both GI's
+ *  typelib search path and the loader's library path — the gir binds the
+ *  facade by soname only, so the shipped artifacts stay relocatable. */
+function prependTypelibDir(dir: string): void {
+  searchedDirs.push(dir)
+
+  try {
+    const repo = (globalThis as any).imports?.gi?.GIRepository?.Repository
+    const instance = repo?.get_default?.() ?? repo?.dup_default?.()
+
+    if (instance?.prepend_search_path) {
+      instance.prepend_search_path(dir)
+    } else {
+      repo?.prepend_search_path?.(dir)
+    }
+
+    if (instance?.prepend_library_path) {
+      instance.prepend_library_path(dir)
+    } else {
+      repo?.prepend_library_path?.(dir)
+    }
+  } catch {
+    // Older GIRepository revisions — GI_TYPELIB_PATH and the loader
+    // paths (LD_LIBRARY_PATH, DYLD_FALLBACK_LIBRARY_PATH) still apply.
+  }
+}
+
+/** <bundle dir>/xplatmason/<uname -m>/ — the location the CLI's linux-gtk
+ *  preset emits both prebuilt architectures into. Returns null when the
+ *  directory or the GLib helpers are unavailable (non-GJS hosts still
+ *  reach the GI_TYPELIB_PATH fallback). */
+function bundledTypelibDir(): string | null {
+  try {
+    const bundlePath = GLib.filename_from_uri(import.meta.url)[0]
+    const arch = new TextDecoder()
+      .decode(GLib.spawn_command_line_sync('uname -m')[1])
+      .trim()
+    const dir = GLib.build_filenamev([
+      GLib.path_get_dirname(bundlePath),
+      'xplatmason',
+      arch,
+    ])
+
+    hostArch = arch
+    return GLib.file_test(dir, GLib.FileTest.IS_DIR) ? dir : null
+  } catch {
+    return null
+  }
+}
 
 function loadMasonNamespace(): any {
-  const typelibDir = GLib.getenv?.('XPLAT_MASON_TYPELIB')
+  const override = GLib.getenv?.('XPLAT_MASON_TYPELIB')
 
-  if (typelibDir) {
-    try {
-      const repo = (globalThis as any).imports?.gi?.GIRepository?.Repository
-      const instance = repo?.get_default?.() ?? repo?.dup_default?.()
+  if (override) {
+    prependTypelibDir(override)
+  }
 
-      if (instance?.prepend_search_path) {
-        instance.prepend_search_path(typelibDir)
-      } else {
-        repo?.prepend_search_path?.(typelibDir)
-      }
+  const bundled = bundledTypelibDir()
 
-      // The gir binds the facade by soname only, so the shipped
-      // artifacts stay relocatable — the loader must find the lib
-      // beside its typelib via the repository library path.
-      if (instance?.prepend_library_path) {
-        instance.prepend_library_path(typelibDir)
-      } else {
-        repo?.prepend_library_path?.(typelibDir)
-      }
-    } catch {
-      // Older GIRepository revisions — GI_TYPELIB_PATH and the loader
-      // paths (LD_LIBRARY_PATH, DYLD_FALLBACK_LIBRARY_PATH) still apply.
-    }
+  if (bundled && bundled !== override) {
+    prependTypelibDir(bundled)
   }
 
   try {
@@ -75,35 +114,40 @@ function loadMasonNamespace(): any {
   }
 }
 
-function masonEngine(): number | null {
-  if (engine || initFailed) {
-    return engine || null
+/** The mason-c engine — required. Throws when the XplatMason binding or
+ *  engine cannot be created rather than degrading to another layout. */
+export function masonEngine(): number {
+  if (engine) {
+    return engine
+  }
+
+  if (masonError) {
+    throw masonError
   }
 
   mason = loadMasonNamespace()
   if (!mason) {
-    console.warn(
-      '[linux-gtk-mason] XplatMason typelib not found — masonview falls back to Gtk.Box emulation. ' +
-        'Build packages/linux-gtk-renderer/native/xplatmason and set XPLAT_MASON_TYPELIB (or GI_TYPELIB_PATH plus the loader library path).',
+    masonError = new Error(
+      `[linux-gtk-mason] the XplatMason layout engine is required (arch ${hostArch}) ` +
+        'but its binding could not be loaded. Searched: ' +
+        (searchedDirs.length ? searchedDirs.join(', ') : 'GI_TYPELIB_PATH and system paths only') +
+        '. Set XPLAT_MASON_TYPELIB to a native/xplatmason build.sh output directory ' +
+        'for development builds; bundles built with the linux-gtk preset carry xplatmason/<arch>/ beside app.js.',
     )
-
-    initFailed = true
-    return null
+    throw masonError
   }
 
   engine = mason.engine_new()
   if (!engine) {
-    initFailed = true
-    return null
+    masonError = new Error(
+      `[linux-gtk-mason] XplatMason loaded but engine_new() failed (arch ${hostArch})`,
+    )
+    throw masonError
   }
 
   // GTK logical pixels are already the device scale CSS px assume.
   mason.engine_set_scale(engine, 1)
   return engine
-}
-
-export function masonAvailable(): boolean {
-  return masonEngine() != null
 }
 
 // ---------------------------------------------------------------------------
@@ -853,23 +897,6 @@ const MasonView = GObject.registerClass(
     }
   },
 )
-
-const MasonFallbackView = GObject.registerClass(
-  { GTypeName: 'XplatMasonFallbackView' },
-  class XplatMasonFallbackView extends (Gtk as any).Box {
-    vfunc_focus(direction: number) {
-      return (
-        focusRadioGroup(this, direction) ??
-        focusSelf(this, direction) ??
-        super.vfunc_focus(direction)
-      )
-    }
-  },
-)
-
-export function makeMasonFallbackView(): GtkView {
-  return new MasonFallbackView({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
-}
 
 type GtkView = any
 

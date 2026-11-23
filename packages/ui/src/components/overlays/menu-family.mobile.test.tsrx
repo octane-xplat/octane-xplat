@@ -34,6 +34,7 @@ vi.mock('@nativescript/core', async () => ({
   isIOS: true,
   isAndroid: false,
   Application: { on() {}, off() {} },
+  Screen: { mainScreen: { widthDIPs: 1024, heightDIPs: 768 } },
 }))
 
 vi.mock('@nativescript/core/animation-frame', () => ({

@@ -1,3 +1,4 @@
+import { runGtkEvalFixture } from './gjs-ui-fixture.mts'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -6,17 +7,27 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mts'
+import { gtkRuntimeReady, gtkRuntimeUnavailableReason } from './gjs-availability.mts'
 
 test(
   'GTK text fields retain width, chrome flags and focusable status affordances',
   { timeout: 120000 },
   async (t) => {
+    if (process.env.LINUX_RUNTIME_EVAL_ENGINE) {
+      return runGtkEvalFixture(t, {
+        stem: 'ui-field-chrome',
+        title: 'Octane GTK field chrome test',
+        marker: 'GTK_FIELD_CHROME',
+        minChecks: { os: 61, properties: 44 },
+        input: true,
+      })
+    }
+
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-field-chrome')
 
-    if (!gjsAvailable() || !masonTypelibPresent()) {
-      t.skip('GJS and XplatMason required for runtime')
+    if (!gtkRuntimeReady()) {
+      t.skip(gtkRuntimeUnavailableReason())
       return
     }
 
@@ -29,7 +40,6 @@ test(
       })),
     })
 
-    const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const osInput =
       process.platform === 'linux' &&
       !!process.env.DISPLAY &&
@@ -39,7 +49,6 @@ test(
       ...process.env,
       GTK_A11Y: 'test',
       GTK_FIELD_CHROME_OS: osInput ? '1' : '0',
-      XPLAT_MASON_TYPELIB: nativeDir,
     }
 
     const child = spawn('gjs', ['-m', join(outDir, 'app.js')], {

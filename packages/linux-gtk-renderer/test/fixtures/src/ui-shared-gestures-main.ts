@@ -24,15 +24,17 @@ const host = new Gtk.Box()
 
 window.set_child(host)
 
+const errors: string[] = []
+const events: { kind: string; detail?: unknown }[] = []
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
-    console.error('GESTURE_ERROR', String(error))
+    errors.push(String(error))
   },
 })
 
 root.render(SharedGestures, {
   report(kind: string, detail?: unknown) {
-    print('SHARED_GESTURE ' + JSON.stringify({ kind, detail }))
+    events.push({ kind, detail })
   },
 })
 
@@ -59,17 +61,13 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 50, () => {
 const loop = GLib.MainLoop.new(null, false)
 
 GLib.timeout_add(GLib.PRIORITY_DEFAULT, 12000, () => {
-  const button = [...container.nodes.values()].find(
-    (node) => node.props.id === 'shared-button',
-  )?.view
-
   print(
-    'SHARED_FOCUS ' +
+    'SHARED_GESTURE_RESULT ' +
       JSON.stringify({
-        focusable: button?.get_focusable(),
-        focused: button?.has_focus,
-        role: button?.get_accessible_role(),
-        controllers: button?.observe_controllers().get_n_items(),
+        checks: 2,
+        osInput: true,
+        events,
+        failures: errors,
       }),
   )
 
