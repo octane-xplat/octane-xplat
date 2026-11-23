@@ -84,6 +84,20 @@ Windows uses the full MasonKit pin because the mobile Mason Core package
 does not supply Windows native artifacts. Keep the matching x64 Widgets
 artifact paired with the patched preview, as described below.
 
+Keep `@nativescript/canvas` out of the Windows harness's eager dev vendor
+bundle. On the pinned x64 host, starting that add-on from the vendor bundle
+terminated the process in `canvasnative.node` with `0xc0000409` before
+the app mounted. The Windows Canvas leaf provides a neutral frame.
+
+The Vite preview carries the existing NativeScript Vite package-import
+rewrite. Without it, the device receives unresolved `#octane/...` imports
+from raw dependency files and Windows development stops before mounting.
+The preview also recognizes exact `.tsrx` requests in the device server.
+This keeps the unsuffixed implementation reachable when a Windows wrapper
+imports it, as the dropdown menu and tab list do.
+The workspace harness uses the same native Bamboo Vite adapter as mobile to
+compile styles from the shared app package during builds and device sessions.
+
 The packed suite stages a separate Bun installation from package tarballs. The
 first command checks the production bundle and the device module server on any
 supported build host. The second builds and launches the fixture from a signed-in
@@ -96,8 +110,10 @@ bun run turbo run test:core --filter=@octane-xplat/windows -- --native
 ```
 
 The device-server check establishes compilation and HTTP routing. The native
-fixture checks dispatched Core events. OS input, Narrator, ARM64, and visual
-parity require their own checks.
+fixture checks dispatched Core events. On x64, a text-only hot edit preserved
+Octane state, the Core Button, and the host Page, and recreated the button's
+WinUI peer. Peer-local state such as focus requires its own check. OS input,
+Narrator, ARM64, and visual parity also require separate checks.
 
 ## Run an owned desktop helper
 

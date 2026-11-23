@@ -1,10 +1,18 @@
 import { defineConfig } from 'vite'
 import { native } from '@octane-xplat/cli/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { verifyWindowsLayoutRepair } from './scripts/verify-layout-repair'
 
 verifyWindowsLayoutRepair()
+
+const bambooRoot = fileURLToPath(new URL('../../packages/app/', import.meta.url))
+
+// The Windows Canvas leaf supplies a neutral frame. Eagerly loading the
+// optional Canvas add-on from the dev vendor bundle crashes WinUI at launch.
+const vendorExclude = process.env.NS_VENDOR_EXCLUDE?.split(',').filter(Boolean) ?? []
+process.env.NS_VENDOR_EXCLUDE = [...new Set([...vendorExclude, '@nativescript/canvas'])].join(',')
 
 const qualificationEnabled = process.env.XPLAT_WINDOWS_QUALIFICATION === '1'
 const qualificationSource = qualificationEnabled
@@ -34,24 +42,27 @@ export default defineConfig(({ mode }) =>
       define: qualificationSource
         ? { __WINDOWS_QUALIFICATION_SOURCE__: JSON.stringify(qualificationSource) }
         : {},
-      plugins: entryOverride
-        ? [
-            {
-              name: 'windows-entry-override',
-              enforce: 'pre',
-              resolveId(source, importer) {
-                if (
-                  importer?.includes('virtual:entry-with-polyfills') &&
-                  source === '/src/index.ts'
-                ) {
-                  return entryOverride
-                }
+      plugins: [
+        bamboo({ cwd: bambooRoot, configPath: `${bambooRoot}bamboo.config.ts`, native: true }),
+        ...(entryOverride
+          ? [
+              {
+                name: 'windows-entry-override',
+                enforce: 'pre' as const,
+                resolveId(source: string, importer?: string) {
+                  if (
+                    importer?.includes('virtual:entry-with-polyfills') &&
+                    source === '/src/index.ts'
+                  ) {
+                    return entryOverride
+                  }
 
-                return null
+                  return null
+                },
               },
-            },
-          ]
-        : [],
+            ]
+          : []),
+      ],
     },
   }),
 )
