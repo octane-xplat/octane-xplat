@@ -205,6 +205,55 @@ async function checkBuilderControls() {
   }
 }
 
+function ForeignView(props: { width: number; onCreatingView: (event: { object?: unknown; view?: unknown }) => void }) {
+  return (
+    <placeholder
+      id="foreign-view"
+      style={{ width: props.width, height: 30 }}
+      onCreatingView={props.onCreatingView}
+    />
+  )
+}
+
+async function checkForeignView() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  const content = NSTextField.labelWithString('Native plug-in content')
+  let creates = 0
+  let eventHost: unknown
+  const onCreatingView = (event: { object?: unknown; view?: unknown }) => {
+    creates++
+    eventHost = event.object
+    event.view = content
+  }
+  try {
+    root.render(ForeignView, { width: 80, onCreatingView })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const debug = Reflect.get(root, '__macosDebug')
+    const native = debug.findId('foreign-view')
+    if (native !== eventHost || content.superview !== native || content.frame.size.width !== 80) {
+      throw new Error(
+        'Core Placeholder assignment failed: ' +
+          JSON.stringify({ creates, sameHost: native === eventHost, attached: content.superview === native,
+            width: content.frame.size.width, hostWidth: native?.frame.size.width }),
+      )
+    }
+    root.render(ForeignView, { width: 120, onCreatingView })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (creates !== 1 || content.superview !== native || content.frame.size.width !== 120) {
+      throw new Error('Core Placeholder replaced its assigned view on resize')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+  if (content.superview) {
+    throw new Error('Core Placeholder retained plug-in content after unmount')
+  }
+}
+
 function HtmlText(props: { changed: boolean }) {
   return (
     <htmlview
@@ -996,6 +1045,7 @@ setTimeout(async () => {
     await checkSharedTextAreaSizing()
     await checkBuilderControls()
     await checkHtmlText()
+    await checkForeignView()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {
