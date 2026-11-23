@@ -161,7 +161,8 @@ async function verifyGuide(path) {
       root.querySelector('.doc .h1')?.textContent === title,
   )
 
-  const headings = parseMd(markdown).filter((block) => block.kind === 'h')
+  const blocks = parseMd(markdown)
+  const headings = blocks.filter((block) => block.kind === 'h')
 
   assert(
     `page ${slug} uses semantic headings with section anchors`,
@@ -176,6 +177,17 @@ async function verifyGuide(path) {
         )
       }),
   )
+
+  if (slug === 'api-ui') {
+    const rendered = [...root.querySelectorAll('.doc .code')]
+    const fences = blocks.filter((block) => block.kind === 'code')
+
+    assert(
+      'the full UI reference preserves declaration code',
+      rendered.length === fences.length &&
+        rendered.every((block, index) => block.textContent?.trimEnd() === fences[index].text.trimEnd()),
+    )
+  }
 }
 
 const promptCard = root.querySelector('.agent-prompt')

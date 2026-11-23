@@ -67,7 +67,15 @@ function tokenStyle(t: { color?: string; fontStyle?: number }) {
   }
 }
 
-function CodeBlock(props: { code: string; lang: string }) @{
+function CodeBlock(props: { code: string; lang: string; highlight: boolean }) @{
+  if (!props.highlight) {
+    return (
+      <View className="code">
+        <Text className="mono">{props.code + '\n'}</Text>
+      </View>
+    )
+  }
+
   const lang = LANGS[props.lang] ?? 'text'
   const { tokens } = hl.codeToTokens(props.code, { lang, theme: 'nb' })
 
@@ -234,6 +242,7 @@ function BlockView(props: {
   b: Block
   lede?: boolean
   dir: string
+  highlightCode: boolean
   homeActions?: boolean
 }) @{
   const b = props.b
@@ -310,7 +319,7 @@ function BlockView(props: {
   }
 
   if (b.kind === 'code') {
-    return <CodeBlock code={b.text} lang={b.lang} />
+    return <CodeBlock code={b.text} lang={b.lang} highlight={props.highlightCode} />
   }
 
   if (b.kind === 'hr') {
@@ -335,6 +344,9 @@ export function MdDoc(props: {
   // Positions identify nodes within this fixed document; the shell remounts
   // MdDoc when its slug changes, so keys never cross document boundaries.
   const blocks = useMemo(() => parseMd(props.md), [props.md])
+  // Large generated references can contain thousands of declarations.
+  // Preserve their code and anchors without mounting a span per syntax token.
+  const highlightCode = blocks.length <= 1000
   const clipboard = useClipboard({ getItems: () => props.md, resetAfterMs: 1600 })
   const copyPage = async () => {
     await clipboard.copy()
@@ -411,6 +423,7 @@ export function MdDoc(props: {
         <BlockView
           b={b}
           dir={props.dir}
+          highlightCode={highlightCode}
           lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1}
           homeActions={
             props.showHomeActions &&
