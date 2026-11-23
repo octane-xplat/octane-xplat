@@ -40,7 +40,9 @@ export function DraftWithMentions({ send }: { send: (text: string) => void }) {
         label="Restore draft"
         isDisabled={!saved}
         onPress={() => {
-          if (saved) setDraft(deserializeChatComposerDraft(saved))
+          if (saved) {
+            setDraft(deserializeChatComposerDraft(saved))
+          }
         }}
       />
     </VStack>
