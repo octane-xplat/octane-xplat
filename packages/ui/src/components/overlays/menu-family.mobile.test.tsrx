@@ -31,6 +31,7 @@ vi.mock('@nativescript/core', async () => ({
     language: 'en-US',
     region: 'US',
   },
+  Screen: { mainScreen: { widthDIPs: 390, heightDIPs: 844 } },
   isIOS: true,
   isAndroid: false,
   Application: { on() {}, off() {} },

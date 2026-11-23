@@ -181,7 +181,7 @@ checks, and the distinction between LSP evidence and actual editor evidence.
 | Pin                                                                    | Constraint                                                                                          |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `octane`                                                               | single copy per app — dedupe via package-manager `resolutions`/overrides                            |
-| `@octanejs/vite-plugin`                                                | declares the `octane` range it compiles for (`@octanejs/vite-plugin@0.6.0` ↔ octane `^0.17.0`) — must bracket the app's octane |
+| `@octanejs/vite-plugin`                                                | declares the `octane` range it compiles for (`@octanejs/vite-plugin@0.6.6` ↔ octane `^0.23.0`) — must bracket the app's octane |
 | `@octane-xplat/nativescript-octane`                                       | peer `octane >=0.16.3 <1`; `@nativescript/core >=9.1.0`; `@octane-xplat/nativescript-masonkit >=1.0.0-beta.126 <2` |
 | `@nativescript/core`, runtimes (`ios`/`android`), `@nativescript/vite` | NS 9.1+ for HTTP ESM dev boot                                                                       |
 | Node                                                                   | `>= 22.22.2` for published Octane packages                                                          |
@@ -206,7 +206,7 @@ When a workspace package's dependency declarations change, resync with
 `bun install --lockfile-only`; do not hand-edit the lockfile entry. The
 `packages/lint` lockfile entry is the canary for this rule because its `@tsrx/core`
 and `oxlint` entries must stay aligned with the published package. The
-workspace installs published `octane@0.17.0` with the canonical patch set;
+workspace installs published `octane@0.23.2` with the canonical patch set;
 fresh clones and worktrees can use `bun install --frozen-lockfile` without
 the gitignored `research/` directory.
 

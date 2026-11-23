@@ -31,8 +31,11 @@ export default async function nativeCaseConfig(project, target) {
     }
   } finally {
     process.chdir(previousDirectory)
-    if (previousTarget === undefined) delete process.env.XPLAT_TARGET
-    else process.env.XPLAT_TARGET = previousTarget
+    if (previousTarget === undefined) {
+      delete process.env.XPLAT_TARGET
+    } else {
+      process.env.XPLAT_TARGET = previousTarget
+    }
   }
 
   return {

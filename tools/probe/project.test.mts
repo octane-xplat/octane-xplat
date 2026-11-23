@@ -64,7 +64,10 @@ test('native preset folds the Windows branch in host builds', async () => {
     assert.equal(config.define.__WINDOWS__, 'false')
   } finally {
     process.chdir(cwd)
-    if (previousTarget === undefined) delete process.env.XPLAT_TARGET
-    else process.env.XPLAT_TARGET = previousTarget
+    if (previousTarget === undefined) {
+      delete process.env.XPLAT_TARGET
+    } else {
+      process.env.XPLAT_TARGET = previousTarget
+    }
   }
 })

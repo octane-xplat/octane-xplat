@@ -262,33 +262,19 @@ mapper, or patch. See the [platform program reference](platform-typechecking.md)
 for editor coverage and the [public JSX guide](../../docs/packages/package-jsx.md)
 for examples.
 
-The workspace uses Octane 0.17.0 with `@tsrx/oxc` 0.23.0 and
-`@octanejs/vite-plugin` 0.6.0. The parser pin is explicit at the root so a
-hoisted installation cannot select the older optional peer from another
-Octane context. These compiler dependencies must move together. Octane now
-requires Node 22.22.2 or newer; starters and doctor share that minimum in
-`packages/create/compatibility.json`.
+The workspace uses Octane 0.23.2 with `@tsrx/oxc` 0.24.0 and
+`@octanejs/vite-plugin` 0.6.6. Keep these pins aligned in the compatibility
+manifest and the root catalog. Octane requires Node 22.22.2 or newer.
 
-The Octane 0.17.0 patch preserves upstream universal `Children`,
-`descriptorChildren`, compiler-owned binding bags, and absent/replaced
-imperative refs with callback cleanup and indexed dependency handling. It
-retains local universal signal ownership and local hooks, nested imperative-ref
-arrays and partial-attachment cleanup, event-error forwarding, descriptor
-owner fallback, transparent keyed-root identity, ref-attach normalization,
-`__methodDep` compiler admission, and HMR slot/wrapper fixes. The universal
-native-read allowance preserves upstream's `OCTANE_NATIVE_READ_TARGET` code.
-See the patch manifest for removal criteria. Patch applicability and host tests
-do not establish device behavior.
-
-Octane 0.17.0's bundled Volar parser leaves its type-only export context
-active after `export type { ... }` and `export type *`. A following lexical
-binding is then recorded as an import, producing false duplicate declarations
-across separate functions and blocks. The Octane patch resets that context
-after named and star exports; it preserves real same-scope duplicate errors.
-`packages/ui/src/internal/rendering/octane-type-view.mobile.test.ts` covers
-both export forms and the genuine-error case. Remove this hunk when upstream's
-bundled parser clears the context. This is declaration/compiler evidence;
-it does not establish renderer behavior.
+Octane 0.22 moved compiler-generated helpers to internal runtime entries.
+Recompile output produced by earlier compilers after installation. The
+universal compiler now routes `__methodDep` through
+`octane/internal/universal-children`, and Octane 0.23.2's bundled Volar entry
+passes the type-only re-export regression without the previous parser patch.
+The remaining [Octane patch](../../packages/cli/patches/manifest.json)
+owns universal signals, refs, HMR, and the program JSX default. Universal-only
+modules with signal declarations activate the universal signal owner rather
+than the DOM binding driver.
 
 With Octane 0.17.0 and `@tsrx/content-mapper` 0.1.2, the Astryx sandbox's
 `payment-form.tsrx` and `work-item-detail.tsrx` passed the OXC TSRX parser but

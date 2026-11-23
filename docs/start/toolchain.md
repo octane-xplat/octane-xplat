@@ -261,7 +261,7 @@ Keep those files and the scaffold's `patches/` directory in Git.
   "dependencies": { "octane": "catalog:xplat" },
   "workspaces": {
     "packages": [],
-    "catalogs": { "xplat": { "octane": "0.17.0" } }
+    "catalogs": { "xplat": { "octane": "0.23.2" } }
   }
 }
 ```
@@ -319,7 +319,9 @@ This shorter command aligns to the CLI already installed in your app; it does
 not look for a newer release. `doctor` checks actual installed versions and
 reports duplicate runtimes, including two physical copies of the same
 version. Continue with your app's tests and target builds; these package checks
-do not prove that the app runs on a phone or desktop.
+do not prove that the app runs on a phone or desktop. If you move from Octane
+before 0.22 to a newer release, rebuild any app or library output you compiled
+with the older version. Its generated imports need to match the new runtime.
 If your iOS or Android app lists `@nativescript/font-manager` in `package.json`,
 upgrading also aligns its version with Mason core. Rebuild the app so its
 installed native code matches the new packages.

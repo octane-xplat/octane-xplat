@@ -48,7 +48,7 @@ try {
           '@octane-xplat/sentry': '0.0.0',
           '@nativescript/core': '9.1.3',
           '@nativescript-community/sentry': '4.6.49',
-          octane: '0.17.0',
+          octane: '0.23.2',
         },
       },
       null,

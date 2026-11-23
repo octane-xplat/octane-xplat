@@ -32,6 +32,7 @@ import * as native from '@octane-xplat/nativescript-octane'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
+import * as universalChildren from 'octane/internal/universal-children'
 
 // Keep one runtime across independently compiled cases. Plugin modules use
 // NativeScript's require and are present in this host's declared dependency graph.
@@ -69,6 +70,7 @@ const modules = {
   'octane/signals': signals,
   'octane/signals/client': signalsClient,
   'octane/internal/client': internal,
+  'octane/internal/universal-children': universalChildren,
 }
 
 gesturehandler.install()

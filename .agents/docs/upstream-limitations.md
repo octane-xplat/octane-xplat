@@ -32,18 +32,6 @@ from current behavior.
 
 
 
-## octane universal compiler: __methodDep allowlist gap (0.17.0)
-
-The universal compiler emits `import { __methodDep } from 'octane'` when
-a member call (`x.m()`) appears inside a compiled hook callback
-(useMemo/useCallback/useEffect bodies) — e.g. `items.map`, `set.has`,
-`data.filter` inside ui table hooks and OverflowList's useCallback.
-`UNIVERSAL_RUNTIME_IMPORTS` in dist/compiler/compile-universal.js lacks
-`'__methodDep'`, so universal compilation throws even though
-universal-core exports the helper. Patched locally:
-packages/cli/patches/octane@0.17.0.patch adds the name to the allowlist
-(manifest.json records why/dropWhen).
-
 ## octane universal compiler: plain .ts helpers fall to the dom default
 
 `slotHooks` (the .ts/.js hook-slotting pass) resolves the file renderer
@@ -520,7 +508,7 @@ module and drives `wrapper[UNIVERSAL_HMR].update` under `flushUniversalSync`.
 Until upstream emits a hook signature HMR can compare, there is no dispatch-time
 signal to detect the mismatch — the slot symbols are identical by design.
 
-Local patch scope: `packages/cli/patches/octane@0.17.0.patch` wraps the revised
+Local patch scope: `packages/cli/patches/octane@0.23.2.patch` wraps the revised
 component in a revision-keyed `universalBlock` + `universalKey`, so every
 accepted update claims a fresh scope owner — old ref/effect cleanups run
 against the old hooks and the new revision mounts independently. This trades

@@ -95,12 +95,9 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
   if (target === 'native') {
     // Load the packed helper: declaration checks alone cannot catch missing
     // runtime exports from an external Octane entry point.
-    // Older runtimes enumerate exports rather than forwarding all of core.
     for (const entry of ['dist/universal-native.js', 'dist/node/universal-native.js']) {
-      assert.match(
-        readFileSync(join(modules, 'octane', entry), 'utf8'),
-        /export \{[^}]*\bChildren\b[^}]*\} from ["']\.\/universal-core\.js["']/,
-      )
+      const { Children } = await import(pathToFileURL(join(modules, 'octane', entry)).href)
+      assert.equal(typeof Children.toArray, 'function', `${entry} must export Children`)
     }
 
     const helper = join(packageLink, 'src/internal/rendering/child-array.ts')

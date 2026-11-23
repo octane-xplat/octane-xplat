@@ -72,7 +72,7 @@ try {
           '@octane-xplat/tray': `file:${trayPack}`,
           '@octane-xplat/platform': '0.19.0',
           '@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
-          octane: '0.17.0',
+          octane: '0.23.2',
         },
         devDependencies: {
           vite: '8.3.0',

@@ -114,8 +114,8 @@ describe('inspectCompatibility', () => {
         '@nativescript/ios': '9.1.0',
         '@octane-xplat/nativescript-mason-core': '1.0.0',
         '@octane-xplat/nativescript-octane': '1.0.0',
-        '@tsrx/oxc': '0.23.0',
-        octane: '0.17.0',
+        '@tsrx/oxc': '0.24.0',
+        octane: '0.23.2',
       },
     })
 
@@ -140,10 +140,10 @@ describe('inspectCompatibility', () => {
       name: '@nativescript/ios',
       version: '9.1.0',
     })
-    makePkg(join(app, 'node_modules/@tsrx/oxc'), { name: '@tsrx/oxc', version: '0.23.0' })
+    makePkg(join(app, 'node_modules/@tsrx/oxc'), { name: '@tsrx/oxc', version: '0.24.0' })
     makePkg(join(app, 'node_modules/octane'), {
       name: 'octane',
-      version: '0.17.0',
+      version: '0.23.2',
       peerDependencies: { '@tsrx/oxc': '*' },
     })
 

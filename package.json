@@ -83,7 +83,7 @@
 			"packages/*"
 		],
 		"catalog": {
-			"octane": "0.17.0",
+			"octane": "0.23.2",
 			"@nativescript/core": "9.1.3",
 			"@nativescript/types": "9.1.4",
 			"@nativescript/types-android": "9.1.1",
@@ -92,12 +92,12 @@
 			"@nativescript/unit-test-runner": "5.0.0",
 			"typescript": "7.1.0-dev.20261121.1",
 			"vite": "8.3.6",
-			"@octanejs/vite-plugin": "0.6.0",
+			"@octanejs/vite-plugin": "0.6.6",
 			"vitest": "4.1.11",
 			"jsdom": "30.1.1",
 			"@tsrx/content-mapper": "0.1.2",
 			"typescript-classic": "npm:typescript@5.9.3",
-			"@tsrx/oxc": "0.23.0"
+			"@tsrx/oxc": "0.24.0"
 		}
 	},
 	"overrides": {
@@ -172,7 +172,7 @@
 		}
 	},
 	"patchedDependencies": {
-		"octane@0.17.0": "packages/cli/patches/octane@0.17.0.patch",
+		"octane@0.23.2": "packages/cli/patches/octane@0.23.2.patch",
 		"@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
 		"@octane-xplat/nativescript-mason-core@1.0.0-beta.13": "packages/cli/patches/@octane-xplat__nativescript-mason-core@1.0.0-beta.13.patch",
 		"css@3.0.0": "packages/cli/patches/css@3.0.0.patch",

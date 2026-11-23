@@ -8,6 +8,7 @@ import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
+import * as universalChildren from 'octane/internal/universal-children'
 import * as renderer from '@octane-xplat/macos-appkit'
 import { createAppKitWindow, fitWindowToContent } from '@octane-xplat/macos-appkit/host'
 
@@ -16,6 +17,7 @@ renderer.__installDevelopmentModules({
   'octane/signals': signals,
   'octane/signals/client': signalsClient,
   'octane/internal/client': internal,
+  'octane/internal/universal-children': universalChildren,
   '@octane-xplat/macos-appkit': renderer,
 })
 
