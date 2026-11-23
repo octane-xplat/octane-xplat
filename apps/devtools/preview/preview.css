@@ -1,0 +1,17 @@
+.preview-controls {
+  height: auto;
+  min-height: 34px;
+  flex-wrap: wrap;
+  column-gap: 16px;
+}
+
+.preview-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-panel {
+  flex: 1;
+  min-height: 0;
+}

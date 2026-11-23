@@ -53,7 +53,7 @@ CommonJS host bundle.
   app bundles no Node executable or JavaScript engine binary; it loads system
   JavaScriptCore and rejects unsupported external imports with a diagnostic.
 - AC9: Native macOS leaf libraries and extended metadata participate in packaging and nested signing; the native source workflow and verification limits are documented separately.
-- AC7: `apps/mobile/macos` loads the shared `@octane-xplat/app` harness through
+- AC7: `apps/harness/macos` loads the shared `@octane-xplat/app` harness through
   the public macOS preset with no app-specific UI aliases. The
   adapted sweep mounts Home, Apps, Test/probes, and all nine app-gallery demos,
   checks representative interactions, and exposes missing AppKit services
@@ -107,7 +107,7 @@ CommonJS host bundle.
   [native source recipe](macos-native-code.md).
 
 - AC10: [AppKit fonts](../../../docs/app/styling.md#appkit-fonts) and the
-  [maintained harness font setup](../../../apps/mobile/macos/src/fonts.ts).
+  [maintained harness font setup](../../../apps/harness/macos/src/fonts.ts).
 
 - AC11: [Renderer setup](../../../docs/packages/package-macos-appkit.md) and the
   [packed renderer consumer](../../../packages/macos-appkit/test/packed-consumer.ts).

@@ -6,6 +6,7 @@
 	"scripts": {
 		"xplat": "xplat",
 		"dev": "xplat dev macos",
+		"dev:web": "vite --config vite.preview.config.mjs",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"build:release": "node build-release.mjs"
 	},

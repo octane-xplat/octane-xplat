@@ -10,11 +10,11 @@ the universal-runtime driver over `@nativescript/core`).
 
 The framework exists and is published: `packages/ui` ships as
 `@octane-xplat/ui` on npm, `packages/cli` as `@octane-xplat/cli` (dev/build/
-doctor/typecheck). `packages/app` + `apps/mobile` host the shared web and mobile kitchen sink;
-`apps/mobile/linux` holds the Linux webview target, `apps/mobile/windows` holds the Windows entry and qualification screens, and `tools/windows-host` isolates its preview toolchain; `apps/mobile/macos` holds its AppKit target and entry while `tools/macos-verification` still owns
+doctor/typecheck). `packages/app` + `apps/harness` host the shared web and mobile kitchen sink;
+`apps/harness/linux` holds the Linux webview target, `apps/harness/windows` holds the Windows entry and qualification screens, and `tools/windows-host` isolates its preview toolchain; `apps/harness/macos` holds its AppKit target and entry while `tools/macos-verification` still owns
 macOS verification tooling; `tools/web-verification` owns browser verification. The app
 launches Windows through its `windows` script; CLI discovery lists Windows on
-`apps/mobile` and selects the isolated toolchain for Windows commands.
+`apps/harness` and selects the isolated toolchain for Windows commands.
 The app also has a separate `/harness` test console (`/harness-baseline` retains the older integration fixture); `packages/demos` contains the retained seam-by-seam demo screens. `docs/` contains
 app-building guides. Internal implementation guidance and records live in
 [`.agents/docs/`](README.md); design decisions and proposals live in
@@ -64,7 +64,7 @@ SDK interop remain separate features.
 | `docs/`                                                                                    | Reader-facing app-building guides grouped in `start/`, `app/`, `platform/`, and `testing/`. Begin at `docs/README.md`.                                                                             |
 | `.agents/docs/`                                                                            | Internal implementation guidance, implementation notes, recipes, parity records, and platform lab notes, and framework verification runbooks. Begin at `.agents/docs/README.md`.                                                       |
 | `.agents/design/`                                                                          | Internal design decisions, open questions, proposals, and design research. Begin at `.agents/design/README.md`.                                                                                   |
-| `packages/macos-appkit`                                                                    | Experimental AppKit host and macOS provider for NativeScript Core. The shared app target in `apps/mobile/macos` consumes the package. `tools/macos-verification` owns verification tooling. See [renderer internals](appkit-renderer.md) for source ownership. |
+| `packages/macos-appkit`                                                                    | Experimental AppKit host and macOS provider for NativeScript Core. The shared app target in `apps/harness/macos` consumes the package. `tools/macos-verification` owns verification tooling. See [renderer internals](appkit-renderer.md) for source ownership. |
 | `packages/css-engine`                                                                      | Internal CSS parsing and cascade helpers. The GTK renderer uses the vendored selector engine. The macOS provider sends its stylesheets to NativeScript Core. |
 | `packages/jsx`                                                                             | Type-only `@octane-xplat/jsx` facade: the shared native JSX contract (intrinsics + conditioned host ref types) plus `@octane-xplat/jsx/dom` re-exporting octane's DOM types.                      |
 | `packages/ui`                                                                              | The framework — `@octane-xplat/ui` on npm. Primitives, styled(), stacks, routes, theme. Prop types in `src/props.ts`.                                                                             |
@@ -72,7 +72,8 @@ SDK interop remain separate features.
 | `packages/build` | `@octane-xplat/build` — separately installed Vite presets, CSS/compiler plugins and development middleware; built from the CLI package's TypeScript plugin sources. |
 | `packages/macos-build` | `@octane-xplat/macos-build` — project-installed macOS packaging worker and verified JSC host assets; shares the TypeScript packager, while Go owns lifecycle and publication. |
 | `packages/app`, `packages/demos`                                                           | Visitor experiences, separate sanity harness, and retained seam-by-seam demo screens.                                                                                                                                                    |
-| `apps/mobile`, `tools/web-verification`                                                                  | Shared web/mobile app entries and native host in `apps/mobile`; browser verification workspace in `tools/web-verification`.                                                                                    |
+| `apps/harness`, `tools/web-verification`                                                                  | Shared web/mobile app entries and native host in `apps/harness`; browser verification workspace in `tools/web-verification`.                                                                                    |
+| [`apps/devtools`](../../apps/devtools/README.md) | macOS DevTools app and browser preview for editing the shared panel against simulated sessions. |
 | `packages/create`, `packages/platform`                                                     | Project scaffolder; platform services seam.                                                                                                                                                       |
 | `packages/gif`, `packages/image`, `packages/canvas`, `packages/effects`, `packages/lottie` | Leaf packages — features that need a NativeScript plugin ship here, declaring the plugin as a real `dependency` (decision #51).                                                                   |
 | `packages/tweaks` | `@octane-xplat/tweaks`: `useTweak` live-value runtime, `./dev` style leaves, and the `./vite` plugin — protocol v5 rides the devtools hub's `tweaks` channel; `apps/tweaks-playground` is its web/e2e fixture. See its [AGENTS.md](../../packages/tweaks/AGENTS.md). |

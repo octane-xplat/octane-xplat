@@ -163,11 +163,13 @@ export function App(props: DevtoolsPanelProps) @{
   const [tab, setTab] = useState<string>(
     tabs.some((item) => item.id === props.initialTab) ? props.initialTab! : 'sessions',
   )
+  const [connectionVersion, setConnectionVersion] = useState(0)
 
   const scrollRef = useRef<ScrollableAreaHandle | null>(null)
 
   useEffect(() => {
     model.current.connect(props.record, props.socket)
+    setConnectionVersion((version) => version + 1)
     return () => model.current.dispose()
   }, [props.record.instanceId, props.socket])
 
@@ -210,7 +212,8 @@ export function App(props: DevtoolsPanelProps) @{
       // Plugin tabs own their own scrolling — no dt-main ScrollableArea.
       <VStack className="dt-plugin-host">
         @if (connection) {
-          <pluginTab.Panel connection={connection} state={connState} />
+          // Plugins bind their subscriptions to the connection they mount with.
+          <pluginTab.Panel key={connectionVersion} connection={connection} state={connState} />
         }
       </VStack>
     } @else {
