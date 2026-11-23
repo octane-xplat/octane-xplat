@@ -145,10 +145,11 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
 
   nativeWindow.appearance = null
 
-  const red = Number(body.colorUsingColorSpace(NSColorSpace.sRGBColorSpace).redComponent)
+  const resolved = body.colorUsingColorSpace(NSColorSpace.sRGBColorSpace)
+  const bodyChannels = [resolved.redComponent, resolved.greenComponent, resolved.blueComponent]
 
   check(
-    appDark ? red < 0.1 : red > 0.9,
+    bodyChannels.every((channel) => appDark ? channel < 0.1 : channel > 0.9),
     'HTML labelColor default did not resolve under the host appearance: ' + srgb(body),
   )
 

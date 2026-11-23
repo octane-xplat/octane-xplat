@@ -45,10 +45,10 @@ export class HtmlView extends HtmlViewBase {
         this._refreshHtml();
     }
     [colorProperty.getDefault]() {
-        return this.nativeViewProtected.textColor;
+        return NSColor.labelColor;
     }
     [colorProperty.setNative](value) {
-        this.nativeViewProtected.textColor = value instanceof Color ? value.macos : value;
+        this.nativeViewProtected.textColor = value instanceof Color ? value.macos : value ?? NSColor.labelColor;
         this._refreshHtml();
     }
     [textAlignmentProperty.setNative]() {
@@ -59,11 +59,15 @@ export class HtmlView extends HtmlViewBase {
     }
     _refreshHtml(html = this.html) {
         const view = this.nativeViewProtected;
+        // Setting attributedStringValue can change the field's textColor.
+        // Supply the current Core color to the field and the importer.
+        const color = this.style.color?.macos ?? NSColor.labelColor;
+        view.textColor = color;
         view.attributedStringValue = parseHtmlText(html, {
             fontSize: Number(view.font.pointSize),
             fontFamily: String(view.font.familyName),
             fontWeight: this.style.fontWeight ?? '400',
-            color: view.textColor,
+            color,
             appearance: view.effectiveAppearance,
             style: { fontStyle: this.style.fontStyle, textAlign: this.style.textAlignment, lineHeight: this.style.lineHeight },
         });
