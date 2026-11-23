@@ -1,5 +1,5 @@
 import { SegmentedBar, TextView, type ViewBase } from '@nativescript/core'
-import type { NativeScriptHostBoundary } from '@octane-xplat/nativescript-octane'
+import type { NativeScriptHostBoundary, NativeScriptTextNode } from '@octane-xplat/nativescript-octane'
 import { NSScrollView, NSView } from '@octane-xplat/platform/macos'
 import { appKitFormattedText } from './nativescript-formatted-text.macos'
 
@@ -10,9 +10,11 @@ interface LogicalInstance {
   readonly view: null
   readonly children: readonly object[]
   readonly parent: object | null
+  readonly props: Readonly<Record<string, unknown>>
 }
 
 const logicalInstances = new WeakMap<ViewBase, LogicalInstance>()
+const parentInstances = new WeakMap<NativeScriptTextNode, { readonly view: object | null }>()
 const logicalTypes = new Set([
   'formattedstring',
   'proxyviewcontainer',
@@ -51,9 +53,23 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
             return node.children.flatMap((child) => appKitHostBoundary.publicInstance(child) ?? [])
           },
           get parent() {
-            return node.parentNode === null
-              ? null
-              : appKitHostBoundary.publicInstance(node.parentNode)
+            const parent = node.parentNode
+            if (parent === null || logicalTypes.has(parent.type)) {
+              return parent === null ? null : appKitHostBoundary.publicInstance(parent)
+            }
+            let instance = parentInstances.get(parent)
+            if (instance === undefined) {
+              instance = {
+                get view() {
+                  return appKitHostBoundary.publicInstance(parent)
+                },
+              }
+              parentInstances.set(parent, instance)
+            }
+            return instance
+          },
+          get props() {
+            return node.props
           },
         }
         logicalInstances.set(view, instance)

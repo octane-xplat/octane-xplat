@@ -12,6 +12,7 @@
 export * from 'octane/universal/native'
 export {
   createNativeScriptRoot,
+  inspectNativeScriptNodes,
   nativeScriptDriver,
   observeBatches,
   renderNativeScriptApp,

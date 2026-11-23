@@ -1613,6 +1613,10 @@ function destroyNode(container: NativeScriptContainer, node: HostNode): void {
   if ((retainedRun && node.parent !== null) || subtreeAttached(container, node)) {
     detach(container, node)
   }
+  if (container.hostBoundary) {
+    node.parent = null
+    node.props = {}
+  }
   container.nodes.delete(node.id)
 }
 
@@ -1725,6 +1729,15 @@ function recreateView(
 }
 
 const containers = new Set<NativeScriptContainer>()
+
+/** Inspect renderer-owned nodes, including nodes without a native view. */
+export function* inspectNativeScriptNodes(root?: UniversalRoot): Iterable<NativeScriptTextNode> {
+  for (const container of containers) {
+    if (container.root !== null && (root === undefined || container.root === root)) {
+      yield* container.nodes.values()
+    }
+  }
+}
 
 onElementReplaced((tag) => {
   for (const container of containers) {

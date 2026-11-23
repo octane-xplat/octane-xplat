@@ -1,4 +1,5 @@
 import { Button, eachDescendant, Label, TextField, TextView, View } from '@nativescript/core'
+import { inspectNativeScriptNodes } from '@octane-xplat/nativescript-octane'
 import {
   NSControlTextDidChangeNotification,
   NSNotification,
@@ -10,6 +11,7 @@ import {
 import type { UniversalRoot } from 'octane/universal/native'
 import { activateNativeScriptView } from './nativescript-actions.macos'
 import { appKitAutomationEnabled, publishAppKitAutomation } from './automation-root'
+import { appKitHostBoundary } from './nativescript-host-boundary.macos'
 import { trackedNativeScriptRoots } from './nativescript-roots.macos'
 
 /** Core-backed view lookup and control dispatch for the Mac probe runner. */
@@ -33,6 +35,14 @@ export function installNativeScriptAutomation(root: UniversalRoot): void {
   const find = (id: string) => views().find((view) => view.id === id)
   const unpublish = publishAppKitAutomation(root, {
     findId(id: string) {
+      for (const node of inspectNativeScriptNodes()) {
+        if (node.props.id === id) {
+          const instance = appKitHostBoundary.publicInstance(node)
+          if (instance !== null) {
+            return instance
+          }
+        }
+      }
       const view = find(id)
       if (view instanceof TextView && view.nativeViewProtected instanceof NSScrollView) {
         return view.nativeViewProtected.documentView
@@ -94,10 +104,16 @@ export function installNativeScriptAutomation(root: UniversalRoot): void {
       }
     },
     metrics() {
+      let nativeViewCount = 0
+      for (const node of inspectNativeScriptNodes(root)) {
+        if (node.view?.nativeViewProtected) {
+          nativeViewCount++
+        }
+      }
       const mountedRowCount = views().filter(
         (view) => /^(?:row-r|bench-row-)\d+$/.test(view.id) && view.nativeViewProtected.superview,
       ).length
-      return { mountedRowCount }
+      return { mountedRowCount, nativeViewCount }
     },
   })
   const unmount = root.unmount.bind(root)
