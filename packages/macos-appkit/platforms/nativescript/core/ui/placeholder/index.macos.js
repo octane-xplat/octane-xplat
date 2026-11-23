@@ -25,7 +25,7 @@ export class Placeholder extends View {
                 owner._content?.removeFromSuperview();
                 owner._content = undefined;
                 if (content != null) {
-                    content.frame = host.bounds;
+                    content.frame = content.frameForAlignmentRect(host.bounds);
                     host.addSubview(content);
                     owner._content = content;
                 }
@@ -36,8 +36,9 @@ export class Placeholder extends View {
 
     onLayout(left, top, right, bottom) {
         super.onLayout(left, top, right, bottom);
-        if (this._content) {
-            this._content.frame = this.nativeViewProtected.bounds;
+        const content = this._content;
+        if (content) {
+            content.frame = content.frameForAlignmentRect(this.nativeViewProtected.bounds);
         }
     }
 

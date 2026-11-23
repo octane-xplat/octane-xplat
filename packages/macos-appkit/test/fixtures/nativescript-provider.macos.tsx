@@ -300,6 +300,7 @@ async function checkForeignView() {
   )
   const root = createMacOSRoot(window.contentView)
   const content = NSTextField.labelWithString('Native plug-in content')
+  const contentWidth = () => content.alignmentRectForFrame(content.frame).size.width
   let creates = 0
   let eventHost: unknown
   const onCreatingView = (event: { object?: unknown; view?: unknown }) => {
@@ -312,16 +313,16 @@ async function checkForeignView() {
     await new Promise((resolve) => setTimeout(resolve, 30))
     const debug = Reflect.get(root, '__macosDebug')
     const native = debug.findId('foreign-view')
-    if (native !== eventHost || content.superview !== native || content.frame.size.width !== 80) {
+    if (native !== eventHost || content.superview !== native || contentWidth() !== 80) {
       throw new Error(
         'Core Placeholder assignment failed: ' +
           JSON.stringify({ creates, sameHost: native === eventHost, attached: content.superview === native,
-            width: content.frame.size.width, hostWidth: native?.frame.size.width }),
+            width: contentWidth(), hostWidth: native?.frame.size.width }),
       )
     }
     root.render(ForeignView, { width: 120, onCreatingView })
     await new Promise((resolve) => setTimeout(resolve, 30))
-    if (creates !== 1 || content.superview !== native || content.frame.size.width !== 120) {
+    if (creates !== 1 || content.superview !== native || contentWidth() !== 120) {
       throw new Error('Core Placeholder replaced its assigned view on resize')
     }
   } finally {
