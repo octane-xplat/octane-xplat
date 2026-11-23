@@ -170,6 +170,7 @@ function foreign() {
   return {
     view,
     node: {
+      parent: null,
       view,
       styleKeys: new Set(),
       styleDefaults: new Map(),
