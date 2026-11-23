@@ -42,8 +42,17 @@ import { ELEMENTS, EVENT_PROP, eventNameFor, onElementReplaced } from './element
 
 import { releaseListView, setRenderItem, type RenderItem } from './list-view.js'
 
-interface HostNode {
+export interface NativeScriptTextNode {
   readonly id: number
+  readonly type: string
+  readonly view: ViewBase | null
+  readonly text: string
+  readonly props: Readonly<Record<string, unknown>>
+  readonly children: readonly NativeScriptTextNode[]
+  readonly parentNode: NativeScriptTextNode | null
+}
+
+interface HostNode extends NativeScriptTextNode {
   /** Swapped when a `recreate` command retargets the record to another tag. */
   type: string
   /** Replaced in place when the tag's class is re-registered; `null` for `#text`. */
@@ -96,10 +105,16 @@ type ResolvePortalHost = (target: object) => NativeScriptPortalHost | undefined
 
 /** A host can expose native handles while the driver still owns Core views. */
 export interface NativeScriptHostBoundary {
-  publicInstance(view: ViewBase, type: string, id: number): object | null
+  publicInstance(node: NativeScriptTextNode): object | null
   eventData(data: EventData, publicInstance: object | null, view: ViewBase): unknown
   coreView(target: object): ViewBase | undefined
   emitProgrammaticChange?(type: string, property: string): boolean
+  formattedText?: {
+    validateChild(parent: string | undefined, child: string): void
+    validateProps(type: string, props: Readonly<Record<string, unknown>>): void
+    sync(node: NativeScriptTextNode): boolean
+    release(view: ViewBase): void
+  }
 }
 
 export interface NativeScriptContainer {
@@ -212,6 +227,9 @@ function createNode(
     text: '',
     props,
     parent: null,
+    get parentNode() {
+      return this.parent !== null && !isPortalTarget(this.parent) ? this.parent : null
+    },
     children: [],
     listeners: new Map(),
     muted: new Set(),
@@ -273,6 +291,9 @@ function updateProps(node: HostNode, next: Readonly<Record<string, unknown>>): v
   }
   applyProps(node, next)
   node.props = next
+  if (node.view !== null && viewOwners.get(node.view)?.container.hostBoundary?.formattedText) {
+    syncText(node)
+  }
   const layoutParent = masonLayoutParent(node)
   if (layoutParent !== null) {
     applyMasonChildLayout(node, layoutParent)
@@ -947,11 +968,51 @@ function setSilently(node: HostNode, view: ViewBase, name: string, value: unknow
   }
 }
 
-/** Recompute a text host's `text` from its `#text` children. */
+// Core creates native controls when an ancestor attaches. Defer rich-text
+// writes to the end of the batch, and keep reentrant list-cell batches separate.
+const pendingFormattedText: (Set<HostNode> | undefined)[] = []
+
+/** Recompute a text host when its text or logical runs change. */
 function syncText(parent: NativeScriptParent): void {
   if (parent === null || isPortalTarget(parent)) {
     return
   }
+  const view = parent.view
+  const formatting = view && viewOwners.get(view)?.container.hostBoundary?.formattedText
+  if (formatting) {
+    let owner = parent
+    while (isFormattedNode(owner.type)) {
+      const ancestor = owner.parent
+      if (ancestor === null || isPortalTarget(ancestor)) {
+        return
+      }
+      owner = ancestor
+    }
+    const pending = pendingFormattedText.at(-1)
+    if (pending) {
+      pending.add(owner)
+      return
+    }
+    if (formatting.sync(owner)) {
+      return
+    }
+  }
+  syncCoreText(parent)
+}
+
+function flushFormattedText(container: NativeScriptContainer, pending: Set<HostNode> | undefined) {
+  if (!pending) {
+    return
+  }
+  const formatting = container.hostBoundary?.formattedText
+  for (const node of pending) {
+    if (container.nodes.get(node.id) === node && node.view && !formatting?.sync(node)) {
+      syncCoreText(node)
+    }
+  }
+}
+
+function syncCoreText(parent: HostNode): void {
   const view = parent.view
   if (view instanceof Span) {
     // A Span can't host views; its `#text` children fold into `text`.
@@ -1062,7 +1123,24 @@ function hasCustomChildOperations(view: ViewBase): boolean {
   )
 }
 
+function isFormattedNode(type: string): boolean {
+  return type === 'span' || type === 'formattedstring'
+}
+
+function syncLogicalTextChild(parentView: ViewBase, view: ViewBase): boolean {
+  const owner = viewOwners.get(parentView)
+  const child = viewOwners.get(view)?.node
+  if (!owner?.container.hostBoundary?.formattedText || !child || !isFormattedNode(child.type)) {
+    return false
+  }
+  syncText(owner.node)
+  return true
+}
+
 function addViewChild(parentView: ViewBase, view: ViewBase, index: number): void {
+  if (syncLogicalTextChild(parentView, view)) {
+    return
+  }
   // Slot-hosted children (e.g. ui-drawer's mainContent/leftDrawer): the host
   // wires the view up through a property setter, and its addChild is a no-op
   // — so this check must run before the LayoutBase branch.
@@ -1142,7 +1220,7 @@ function addViewChild(parentView: ViewBase, view: ViewBase, index: number): void
 const CLEARED = null as never
 
 function removeViewChild(parentView: ViewBase | null, view: ViewBase): void {
-  if (parentView === null) {
+  if (parentView === null || syncLogicalTextChild(parentView, view)) {
     return
   }
   const slot: unknown = Reflect.get(view, 'hostSlot')
@@ -1339,6 +1417,9 @@ function attach(container: NativeScriptContainer, node: HostNode): void {
     }
   }
   addViewChild(parentView, node.view, index)
+  if (container.hostBoundary?.formattedText && node.children.some((child) => isFormattedNode(child.type))) {
+    syncText(node)
+  }
   // The child's mason leaf node exists only once the parent has attached it;
   // synchronize effective styles after attachment.
   const layoutParent = masonLayoutParent(node)
@@ -1448,6 +1529,9 @@ function setEvent(
     view.off(type, previous)
     node.listeners.delete(type)
   }
+  if (node.type === 'span' && container.hostBoundary?.formattedText) {
+    syncText(node)
+  }
   if (listener === null) {
     return
   }
@@ -1464,7 +1548,7 @@ function setEvent(
         const boundary = container.hostBoundary
         const current = node.view
         const payload = boundary && current
-          ? boundary.eventData(data, boundary.publicInstance(current, node.type, node.id), current)
+          ? boundary.eventData(data, boundary.publicInstance(node), current)
           : data
         root.eventScope(listener.priority, () => root.dispatchEvent(listener.id, payload))
       } catch (error) {
@@ -1520,7 +1604,13 @@ function subtreeAttached(container: NativeScriptContainer, node: HostNode): bool
  */
 function destroyNode(container: NativeScriptContainer, node: HostNode): void {
   disposeListeners(node)
-  if (subtreeAttached(container, node)) {
+  if (node.view) {
+    container.hostBoundary?.formattedText?.release(node.view)
+  }
+  // Viewless runs retain their logical refs during teardown, including when
+  // Octane removes the owning control before destroying each of its children.
+  const retainedRun = container.hostBoundary?.formattedText && isFormattedNode(node.type)
+  if ((retainedRun && node.parent !== null) || subtreeAttached(container, node)) {
     detach(container, node)
   }
   container.nodes.delete(node.id)
@@ -1559,6 +1649,7 @@ function recreateView(
       `NativeScript driver: re-registered <${nextType}> is a <${view.typeName}>, which cannot host portal children; the registration stays on the previous view.`,
     )
   }
+  container.hostBoundary?.formattedText?.release(previous)
   applyMasonChildLayout(node, null)
   const parentView = hostViewOf(container, node.parent)
   for (const child of node.children) {
@@ -1727,6 +1818,7 @@ function validateBatch(
     switch (command.op) {
       case 'create':
         assertSupportedType(command.type)
+        container.hostBoundary?.formattedText?.validateProps(command.type, command.props)
         created.add(command.id)
         nextTypes.set(command.id, command.type)
         nextProps.set(command.id, command.props)
@@ -1736,12 +1828,14 @@ function validateBatch(
       case 'recreate':
         assertKnown(command.id)
         assertSupportedType(command.type)
+        container.hostBoundary?.formattedText?.validateProps(command.type, command.props)
         nextTypes.set(command.id, command.type)
         nextProps.set(command.id, command.props)
         changedPositions.add(command.id)
         continue
       case 'update':
         assertKnown(command.id)
+        container.hostBoundary?.formattedText?.validateProps(typeOf(command.id)!, command.props)
         nextProps.set(command.id, command.props)
         continue
       case 'event':
@@ -1768,6 +1862,10 @@ function validateBatch(
           seen.add(ancestor)
         }
         parents.set(command.id, command.parent)
+        container.hostBoundary?.formattedText?.validateChild(
+          typeof command.parent === 'number' ? typeOf(command.parent) : undefined,
+          typeOf(command.id)!,
+        )
         changedPositions.add(command.id)
         continue
       }
@@ -2055,11 +2153,15 @@ export const nativeScriptDriver: UniversalHostDriver<NativeScriptContainer, View
         notifyBatchObservers('willApply', container, batch.commands, applyingDepth)
         applyingDepth++
         pendingTabViews.push(new Set())
+        const formattedText = container.hostBoundary?.formattedText ? new Set<HostNode>() : undefined
+        pendingFormattedText.push(formattedText)
         try {
           for (const command of batch.commands) {
             applyCommand(container, command)
           }
+          flushFormattedText(container, formattedText)
         } finally {
+          pendingFormattedText.pop()
           try {
             flushTabViews(pendingTabViews.pop())
           } finally {
@@ -2129,7 +2231,7 @@ export function createNativeScriptRoot(
         ...nativeScriptDriver,
         getPublicInstance(active, id) {
           const node = active.nodes.get(id)
-          return node?.view ? hostBoundary.publicInstance(node.view, node.type, id) : null
+          return node?.view ? hostBoundary.publicInstance(node) : null
         },
       }
     : nativeScriptDriver

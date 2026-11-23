@@ -46,7 +46,7 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
   )
 
   check(span && span.view === null && span.type === 'span', 'Span logical ref missing')
-  check(String(parent.stringValue) === 'AnB', 'Nested span composition failed')
+  check(String(parent.stringValue) === 'AnB', 'Nested span composition failed: ' + parent.stringValue)
 
   const frame = parent.alignmentRectForFrame(parent.frame)
 

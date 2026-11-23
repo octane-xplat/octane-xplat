@@ -1,9 +1,18 @@
 import { TextView, type ViewBase } from '@nativescript/core'
 import type { NativeScriptHostBoundary } from '@octane-xplat/nativescript-octane'
 import { NSScrollView, NSView } from '@octane-xplat/platform/macos'
+import { appKitFormattedText } from './nativescript-formatted-text.macos'
 
 const coreOwners = new WeakMap<object, ViewBase>()
-const logicalInstances = new WeakMap<ViewBase, { id: number; type: string; view: null }>()
+interface LogicalInstance {
+  readonly id: number
+  readonly type: string
+  readonly view: null
+  readonly children: readonly object[]
+  readonly parent: object | null
+}
+
+const logicalInstances = new WeakMap<ViewBase, LogicalInstance>()
 const logicalTypes = new Set([
   'formattedstring',
   'proxyviewcontainer',
@@ -24,11 +33,29 @@ function nativeHandle(view: ViewBase): NSView | undefined {
 }
 
 export const appKitHostBoundary: NativeScriptHostBoundary = {
-  publicInstance(view, type, id) {
+  formattedText: appKitFormattedText,
+
+  publicInstance(node) {
+    const { view, type, id } = node
+    if (!view) {
+      return null
+    }
     if (logicalTypes.has(type)) {
       let instance = logicalInstances.get(view)
       if (!instance) {
-        instance = { id, type, view: null }
+        instance = {
+          id,
+          type,
+          view: null,
+          get children() {
+            return node.children.flatMap((child) => appKitHostBoundary.publicInstance(child) ?? [])
+          },
+          get parent() {
+            return node.parentNode === null
+              ? null
+              : appKitHostBoundary.publicInstance(node.parentNode)
+          },
+        }
         logicalInstances.set(view, instance)
         coreOwners.set(instance, view)
       }

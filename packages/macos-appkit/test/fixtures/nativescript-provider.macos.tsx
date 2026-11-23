@@ -19,6 +19,7 @@ import {
 import { postToPid } from '../../../../tools/probe/appkit-input'
 import { useInteractionHost } from '../../../ui/src/gestures/host-core.macos'
 import { TextArea } from '../../../ui/src/components/forms/TextArea.tsrx'
+import { checkFormattedLifecycle } from './formatted-lifecycle'
 import './nativescript-provider.css'
 
 let automationButtonPresses = 0
@@ -457,6 +458,76 @@ async function checkSearchSubmission() {
       changes[0].value !== 'Updated search'
     ) {
       throw new Error('AppKit SearchBar did not dispatch the programmatic text change')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
+async function checkFormattedText() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 420, 360), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    await checkFormattedLifecycle(root, window)
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
+function FormattedLinks(props: { enabled: boolean; onFirst(): void; onSecond(): void }) {
+  return (
+    <label id="formatted-links" isEnabled={props.enabled} style={{ width: 260, height: 30 }}>
+      <formattedstring>
+        <span text="First" {...{ onLinkTap: props.onFirst }}>
+          <span text=" second" {...{ onLinkTap: props.onSecond }} />
+        </span>
+        <span text=" plain" />
+      </formattedstring>
+    </label>
+  )
+}
+
+async function checkFormattedLinks() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 420, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  const calls: string[] = []
+  const bindings = {
+    onFirst: () => { calls.push('first') },
+    onSecond: () => { calls.push('second') },
+  }
+  try {
+    root.render(FormattedLinks, { ...bindings, enabled: true })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const label = Reflect.get(root, '__macosDebug').findId('formatted-links')
+    const actions: readonly NSAccessibilityCustomAction[] = label.accessibilityCustomActions
+    const activate = (action: NSAccessibilityCustomAction) =>
+      Reflect.get(action.target, String(action.selector)).call(action.target, action)
+    if (actions.length !== 2) {
+      throw new Error(`AppKit published ${actions.length} formatted-link actions`)
+    }
+    const second = activate(actions[1])
+    const first = activate(actions[0])
+    if (!second || !first) {
+      throw new Error(`AppKit formatted-link selectors returned ${second}, ${first} (window ${!!label.window})`)
+    }
+    if (calls.join(',') !== 'second,first') {
+      throw new Error('Nested formatted links did not dispatch independently')
+    }
+    const saved = actions[0]
+    root.render(FormattedLinks, { ...bindings, enabled: false })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (label.accessibilityCustomActions.length || activate(saved)) {
+      throw new Error('Disabled formatted links retained an active accessibility action')
+    }
+    root.unmount()
+    if (activate(saved) || calls.length !== 2) {
+      throw new Error('A retained formatted-link action could dispatch after unmount')
     }
   } finally {
     root.unmount()
@@ -1404,6 +1475,8 @@ setTimeout(async () => {
     await checkProjectedGrid()
     await checkRootLayoutPercentages()
     await checkSearchSubmission()
+    await checkFormattedText()
+    await checkFormattedLinks()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {
