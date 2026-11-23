@@ -31,10 +31,6 @@
 			],
 			"cache": false
 		},
-		"test:camera-webview": {
-			"dependsOn": ["^typegen", "^build"],
-			"cache": false
-		},
 		"smoke": {
 			"dependsOn": [
 				"^typegen",
