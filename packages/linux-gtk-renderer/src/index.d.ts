@@ -35,7 +35,7 @@ export interface GtkContainer {
   root: GtkRoot | null
 }
 
-export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {}
+export interface GtkRootOptions extends Omit<UniversalRootOptions<GtkContainer>, 'transport'> {}
 
 export declare const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode | null>
 

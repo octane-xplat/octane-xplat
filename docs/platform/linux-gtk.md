@@ -21,7 +21,9 @@ registry stub has no supported API.
 
 ```sh
 bun add @octane-xplat/linux-gtk @octane-xplat/ui octane
-bun add -D @octane-xplat/cli @octanejs/vite-plugin vite
+bun add -D @octane-xplat/cli @octane-xplat/build @tsrx/oxc vite
+bun run xplat patches apply
+bun install
 ```
 
 The npm package includes the NativeScript runtime, its TypeScript declarations,
@@ -62,12 +64,12 @@ Use a reverse-DNS `applicationId` with at least three segments, such as `com.exa
 Create `vite.gtk.config.ts` using the CLI's GTK preset:
 
 ```ts
-import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+import { linuxGtk } from '@octane-xplat/build/linux-gtk/vite'
 
 export default async (env: { mode: string }) => linuxGtk(env)
 ```
 
-The preset registers the `gtk` renderer and resolves `.gtk` files before
+The preset uses the shared NativeScript Octane renderer and resolves `.gtk` files before
 shared ones. When you build through Xplat, it maps `gi://` imports to the
 bundled runtime’s native bindings and emits a single ESM file. Put
 platform-specific screens in `.gtk.tsrx` or `.gtk.tsx` files.
@@ -1084,11 +1086,17 @@ bun run xplat build --targets linux
 ./dist/linux/my-app/my-app
 ```
 
-`xplat dev linux` runs your app's `dev` script. You can use the same two commands
-in that script for a local build-and-run loop:
+`xplat dev linux` runs the app's `dev` script. Point that script at the generated
+launcher. Build before starting the dev session and after changing app source.
+For live story edits, use the [Linux component workshop](../testing/component-workshop.md#linux-host).
 
 ```json
-{ "scripts": { "dev": "xplat build --targets linux && ./dist/linux/my-app/my-app" } }
+{ "scripts": { "dev": "./dist/linux/my-app/my-app" } }
+```
+
+```sh
+bun run xplat build --targets linux
+bun run xplat dev linux
 ```
 
 The build creates a directory and a tar archive.
@@ -1127,6 +1135,13 @@ and desktop entry; settings under
 ```
 
 ## What this target does not have yet
+
+- The Core provider covers the GTK view tree and application lifecycle. Direct
+  construction of mobile NativeScript controls, mobile NativeScript plugins,
+  Core HTTP, and Core animations are outside the supported GTK surface.
+- The theme and clipboard journey times out during the first appearance
+  change on the pinned NativeScript runtime with GTK 4.14.5. Live theme
+  switching and the rest of that journey need separate qualification.
 
 - URI scheme handling is unavailable. The GTK desktop entry declares no
   MimeType, and `x-scheme-handler` links do not reach the GTK host. The install scripts themselves are not yet qualified on a real

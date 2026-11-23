@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 /**
- * Workshop GTK e2e — drives `xplat workshop dev --target linux` on the GJS
+ * Workshop GTK e2e — drives `xplat workshop dev --target linux` on the
  * GTK4 host through its stdin automation protocol. Shared journey lives in
  * ./native-journey.ts; this file owns GTK-only steps: the bundle
  * externalization assertion and the gtk-leaf mount.
@@ -20,9 +20,10 @@ import { runNativeJourney } from './native-journey.ts'
 await runNativeJourney({
   target: 'linux',
   hostBanner: 'WORKSHOP_GTK_HOST',
-  hostCheckName: 'GJS/GTK4 host started',
+  hostCheckName: 'GTK4 host started',
   catalogLabel: 'linux',
   rendererName: 'the GTK renderer',
+  counterTarget: 'workshop.counter',
   expectedApplicable:
     'counter/async-fixture,counter/basic,counter/static,failing/broken,failing/fixture,platform/linux-gtk,providers/theme',
   expectedInapplicable: 3,
@@ -39,20 +40,23 @@ await runNativeJourney({
   // — an inlined second copy would fork signal/store identity between the
   // shell and the stories. Locate the session's built bundle and assert.
   afterHostStarted({ appRoot, check }) {
-    const cacheDir = join(appRoot, 'node_modules/.cache/xplat/workshop-gtk')
-    const sessions = readdirSync(cacheDir)
-      .map((d) => join(cacheDir, d, 'stories.cjs'))
-      .filter((f) => existsSync(f))
+    const profiles = readdirSync(appRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name.startsWith('.xplat-go-profile-'))
+      .map(({ name }) => join(appRoot, name))
+    const sessions = profiles
+      .flatMap((profile) => readdirSync(profile).map((session) => join(profile, session, 'stories.cjs')))
+      .filter((file) => existsSync(file))
 
     const stories = sessions.map((f) => readFileSync(f, 'utf8')).join('\n')
+    const imports = [...stories.matchAll(/\brequire\(["']([^"']+)["']\)/g)].map((m) => m[1])
 
     check(
       'stories bundle externalizes octane runtime + renderer',
       sessions.length > 0 &&
-        /require\(["'][^"']*universal-native\.js["']\)/.test(stories) &&
-        stories.includes('require("@octane-xplat/linux-gtk")') &&
-        !stories.includes('function createUniversalRoot'),
-      `${sessions.length} bundle(s)`,
+        imports.some((id) => id === 'octane/universal/native' || id.endsWith('/universal-native.js')) &&
+        !stories.includes('function createUniversalRoot') &&
+        !stories.includes('NativeScript driver: batch renderer'),
+      `${sessions.length} bundle(s), ${imports.length} external imports`,
     )
   },
 

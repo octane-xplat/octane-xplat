@@ -6,6 +6,7 @@ import type { CatalogEntry } from '../catalog'
 import { WORKSHOP_TARGETS, type WorkshopTarget } from '../contract'
 import { UNSET, controlEntries, isUnsettable } from '../controls'
 import type { NativeWorkshopController } from './controller'
+import { StageSlot } from './stage-slot.tsrx'
 
 export interface NativeChromeProps {
   controller: NativeWorkshopController
@@ -588,15 +589,10 @@ export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
               style={{ display: 'flex' }}
               className={`xw-preview-frame${s.stage.size === 'bounded' ? ' xw-preview-bounded' : ''}`}
             >
-              <masonview
+              <StageSlot
                 key="story"
-                style={{ display: 'flex' }}
                 className={`xw-stage${s.stage.background === 'dark' ? ' xw-background-dark' : ''}`}
-                ref={(v: unknown) => {
-                  if (v) {
-                    p.onStage(v)
-                  }
-                }}
+                onStage={p.onStage}
               />
             </masonview>
             @if (notice) {

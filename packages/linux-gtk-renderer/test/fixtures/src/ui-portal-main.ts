@@ -1,5 +1,6 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
+import { observeBatches, type NativeScriptContainer } from '@octane-xplat/nativescript-octane'
 import {
   createGtkRoot,
   createGtkContainer,
@@ -37,7 +38,6 @@ const { root, container } = createGtkRoot(host, {
   },
 })
 
-const state = container as any
 const loop = GLib.MainLoop.new(null, false)
 const pause = () =>
   new Promise<void>((resolve) =>
@@ -70,11 +70,25 @@ const text = (name: string) => refs['label-' + name].get_text()
 let props: Parameters<typeof Portals>[0] = { target: a, value: 'one', order: ['a', 'b'] }
 const render = () => root.render(Portals, props)
 async function run() {
+  const observed: { targets?: NativeScriptContainer['portalTargets'] } = {}
+  const stopObserving = observeBatches({
+    willApply(active) {
+      observed.targets = active.portalTargets
+    },
+  })
+  try {
+    root.render(Portals, { ...props, show: false })
+  } finally {
+    stopObserving()
+  }
+  const { targets } = observed
+  if (!targets) {
+    throw new Error('expected a shared NativeScript batch')
+  }
+  const baselineNodes = container.nodes.size
   const attempt = root.prepare(Portals, props)
 
   check('portal preparation is prepared', attempt.status === 'prepared')
-  // The renderer-owned Gtk.Overlay sits inside the root host from setup —
-  // preparation must not add children beyond that baseline.
   check(
     'preparation never mutates GTK hosts',
     children(a).length === 1 &&
@@ -82,7 +96,7 @@ async function run() {
       children(host)[0] === container.overlay,
   )
 
-  check('preparation never creates host nodes', container.nodes.size === 0)
+  check('preparation never creates host nodes', container.nodes.size === baselineNodes)
   if (attempt.status !== 'prepared') {
     throw new Error('unexpected suspension')
   }
@@ -90,7 +104,7 @@ async function run() {
   attempt.abort()
   check(
     'aborted preparation releases target registrations',
-    state.portalTargets.size === 0 && state.portalTargetsByObject.size === 0,
+    targets.size === 0,
   )
 
   render()
@@ -115,7 +129,8 @@ async function run() {
     refs['label-a'].get_parent() === a && refs['action-b'].get_parent() === a,
   )
 
-  check('target registrations share one identity', state.portalTargets.size === 1)
+  check('target registrations share one identity', targets.size === 1)
+  const originalTarget = targets.keys().next().value!
   registerStylesheet(
     'portal-cascade',
     ':root { --portal-ink: #123456; } #portal-label-a { color: var(--portal-ink); }',
@@ -187,7 +202,7 @@ async function run() {
   moving.abort()
   check(
     'aborted retarget releases only speculative target',
-    state.portalTargets.size === 1 && label.get_parent() === a,
+    targets.size === 1 && targets.has(originalTarget) && label.get_parent() === a,
   )
 
   props = { ...props, target: b }
@@ -210,7 +225,7 @@ async function run() {
 
   check(
     'retarget releases previous registration',
-    state.portalTargets.size === 1 && !state.portalTargetsByObject.has(a),
+    targets.size === 1 && !targets.has(originalTarget),
   )
 
   check(
@@ -256,7 +271,7 @@ async function run() {
   await pause()
   check(
     'removing portals cleans all registrations',
-    state.portalTargets.size === 0 && state.portalTargetsByObject.size === 0,
+    targets.size === 0,
   )
 
   check(
@@ -280,7 +295,7 @@ async function run() {
   check('single-child widget target fails during preparation', invalid)
   check(
     'failed preparation leaves no registrations or native changes',
-    state.portalTargets.size === 0 && children(a)[0] === prefixA,
+    targets.size === 0 && children(a)[0] === prefixA,
   )
 
   props = { ...props, target: b, show: true }
@@ -305,7 +320,7 @@ async function run() {
   await pause()
   check(
     'unmount releases portal registry',
-    state.portalTargets.size === 0 && state.portalTargetsByObject.size === 0,
+    targets.size === 0,
   )
 
   check('unmount destroys all managed nodes', container.nodes.size === 0)

@@ -6,6 +6,31 @@ import { pathToFileURL } from 'node:url'
 import { boundary, nodeEnvDefine, css } from '../vite.ts'
 import { inlineStylesheets } from '../inline-stylesheets.ts'
 import { nativeGiProjection } from './native-gi-projection.ts'
+import { installedGtkRuntimeRoot, stageGtkRuntime, writeGtkRuntimeLauncher } from '../linux/gtk-runtime.ts'
+
+function hostRuntime(root: string) {
+  const architecture = process.arch === 'x64' ? 'x86_64' : process.arch === 'arm64' ? 'aarch64' : null
+  const payload = installedGtkRuntimeRoot(root)
+  return architecture && payload ? { architecture, path: join(payload, architecture) } : null
+}
+
+export function hasGtkDevelopmentRuntime(root: string) {
+  const runtime = hostRuntime(root)
+  return Boolean(runtime && existsSync(join(runtime.path, 'ns-linux')))
+}
+
+export function stageGtkDevelopmentRuntime(root: string, outDir: string, bundle: string) {
+  const runtime = hostRuntime(root)
+  if (!runtime) {
+    throw new Error('GTK development requires the installed NativeScript Linux runtime for this host')
+  }
+  const directory = join(outDir, 'runtime')
+  if (stageGtkRuntime(runtime.path, directory) !== runtime.architecture) {
+    throw new Error(`GTK development runtime must match ${runtime.architecture}`)
+  }
+  writeGtkRuntimeLauncher(outDir, 'launch', bundle, runtime.architecture)
+  return { executable: join(outDir, 'launch'), schema: join(directory, 'gi.json') }
+}
 
 const renderer = '@octane-xplat/linux-gtk'
 
@@ -99,10 +124,6 @@ export function gtkSlotDedupe() {
   }
 }
 
-/** GTK4/GJS compiler and bundle setup; the consuming app owns the toolchain.
- *  Produces a single ESM file `gjs -m` executes — the Octane universal
- *  runtime and the app's components are bundled; `gi://` introspection
- *  imports stay external because the GI libraries are the platform. */
 /** Shared sources import siblings with explicit extensions so Node can
  *  type-strip them — but the extension pins the native-default leaf and
  *  skips platform resolution. A GTK bundle redirects to the .gtk sibling
@@ -197,12 +218,21 @@ export async function linuxGtk(env, options = {}) {
   const mode = typeof env === 'string' ? env : env.mode
   const root = resolve(options.root ?? process.cwd())
   const appRequire = createRequire(join(root, 'package.json'))
-  const { octane } = await import(
-    pathToFileURL(realpathSync(appRequire.resolve('@octanejs/vite-plugin'))).href
-  )
 
   const resolveApp = (name) => realpathSync(appRequire.resolve(name))
   const rendererEntry = resolveApp(renderer)
+  const providerEntry = resolveApp(`${renderer}/core-provider`)
+  const providerRequire = createRequire(providerEntry)
+  const sharedRenderer = providerRequire.resolve('@octane-xplat/nativescript-octane')
+  const [{ createNativeScriptProvider }, { nativeScriptRenderer }, { octane }] = await Promise.all([
+    import(pathToFileURL(providerEntry).href),
+    import(pathToFileURL(providerRequire.resolve('@octane-xplat/nativescript-octane/config')).href),
+    import(pathToFileURL(resolveApp('octane/compiler/vite')).href),
+  ])
+  const { config: provider } = await createNativeScriptProvider(root)
+  const rules = options.rules?.map((rule) =>
+    rule?.renderer === 'gtk' ? { ...rule, renderer: 'nativescript' } : rule,
+  )
   // The universal runtime must be the same module the bundler reaches —
   // resolve through the app's dependency tree, not ours.
   const universalNative = realpathSync(appRequire.resolve('octane/universal/native'))
@@ -213,7 +243,9 @@ export async function linuxGtk(env, options = {}) {
   return {
     root,
     define: {
+      ...provider.define,
       ...nodeEnvDefine(mode),
+      __DEV__: JSON.stringify(mode === 'development'),
       ...(schemaPath && {
         print: 'console.log',
         printerr: 'console.error',
@@ -221,6 +253,7 @@ export async function linuxGtk(env, options = {}) {
       }),
     },
     plugins: [
+      ...provider.plugins,
       ...(schemaPath ? [nativeGiProjection(schemaPath, Boolean(packagedSchema))] : []),
       gtkLeafResolve(),
       gtkSlotDedupe(),
@@ -237,20 +270,9 @@ export async function linuxGtk(env, options = {}) {
           // useMemo/useCallback to the native memoSlot/memoTake/
           // memoPublish ABI (octane/internal/client, CURRENT_SCOPE-
           // bound) instead of the slotted universal useMemo.
-          default: 'gtk',
-          registry: {
-            gtk: {
-              module: renderer,
-              target: 'universal',
-              server: 'unsupported',
-              text: 'host',
-              // The shared-contract pragma names the source every
-              // native target uses; renderer selection is the
-              // .gtk include rule, not the pragma.
-              intrinsics: '@octane-xplat/jsx',
-            },
-          },
-          rules: options.rules ?? [{ include: '**/*.{tsx,tsrx}', renderer: 'gtk' }],
+          default: 'nativescript',
+          registry: { nativescript: { ...nativeScriptRenderer, intrinsics: '@octane-xplat/jsx' } },
+          rules: rules ?? [{ include: '**/*.{tsx,tsrx}', renderer: 'nativescript' }],
         },
       }),
     ],
@@ -267,17 +289,15 @@ export async function linuxGtk(env, options = {}) {
         fileName: options.fileName ?? 'app',
       },
       rollupOptions: {
-        // GJS resolves GI imports at runtime. NativeScript builds project
-        // those imports in the bundle against the payload's GI schema.
         external: (id) => !schemaPath && id.startsWith('gi://'),
-        // Linux GTK launchers execute a single application entry.
-        output: { inlineDynamicImports: true },
+        output: { ...provider.build.rollupOptions.output, codeSplitting: false },
       },
     },
     resolve: {
       conditions: ['gtk', 'native'],
       dedupe: ['octane'],
       alias: [
+        ...provider.resolve.alias,
         // One universal runtime instance for the app and the renderer.
         { find: /^octane$/, replacement: universalNative },
         // The universal entry resolved by Node imports its sibling signal
@@ -291,9 +311,7 @@ export async function linuxGtk(env, options = {}) {
           ),
         })),
         { find: /^octane\/universal\/native$/, replacement: universalNative },
-        // Leaves that touch NativeScript defaults keep working inside a
-        // GTK bundle via the renderer's compat shims.
-        { find: /^@octane-xplat\/nativescript-octane$/, replacement: rendererEntry },
+        { find: /^@octane-xplat\/nativescript-octane$/, replacement: sharedRenderer },
         // Workspace UI leaves import the selected renderer from their own graph;
         // resolve it through the app without adding a UI renderer dependency.
         { find: /^@octane-xplat\/linux-gtk$/, replacement: rendererEntry },
@@ -304,14 +322,6 @@ export async function linuxGtk(env, options = {}) {
         {
           find: /(^|.*\/)escape-props$/,
           replacement: resolveApp(`${renderer}/compat/escape-props`),
-        },
-        {
-          find: /^@nativescript\/core$/,
-          replacement: resolveApp(`${renderer}/compat/native-core`),
-        },
-        {
-          find: /^@nativescript\/core\/animation-frame$/,
-          replacement: resolveApp(`${renderer}/compat/native-core`),
         },
       ],
       extensions: [

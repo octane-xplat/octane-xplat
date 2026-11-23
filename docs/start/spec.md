@@ -37,7 +37,7 @@ you can add phone targets after the first screen works.
 | Android | The starter uses native Android views and device features through NativeScript.                                       | Android development tools, JDK 21, and an emulator or device; see [phone setup](toolchain.md#run-on-ios-and-android).          |
 | macOS   | Experimental native AppKit app running on NativeScript Core, separate from the starter.                               | Apple Silicon or Intel, macOS 13.5+, and separate app configuration. See [macOS setup](toolchain.md#experimental-appkit-target). |
 | Windows | Experimental WinUI 3 harness in the framework repository; not available in the app starter. UI support is incomplete. | No supported downstream setup is provided yet; see [Windows status](../platform/windows-setup.md).                             |
-| Linux | Experimental native GTK4 widgets through GJS. Separate from the starter. | A Linux host with GTK4 and separate package settings; see [GTK4/GJS packaging](../platform/linux-gtk.md). |
+| Linux | Experimental native GTK4 widgets through the bundled NativeScript runtime. Separate from the starter. | A Linux host with GTK4 and separate package settings; see [GTK4 packaging](../platform/linux-gtk.md). |
 
 An **emulator** or **simulator** lets you run a phone app on your computer.
 **Signing** identifies who made an app and is required for installing or

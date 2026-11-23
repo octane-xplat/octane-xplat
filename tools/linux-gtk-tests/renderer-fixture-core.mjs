@@ -25,6 +25,7 @@ export async function runRendererFixture({
   diagnostics = false,
   missingMason = false,
   packageArchive,
+  packageLauncher,
   logPath = process.env.LINUX_RUNTIME_EVAL_LOG_PATH ??
     (process.env.LINUX_RUNTIME_EVAL_LOG_DIR &&
       resolve(process.env.LINUX_RUNTIME_EVAL_LOG_DIR, `${stem}.${engine}.log`)),
@@ -41,6 +42,9 @@ export async function runRendererFixture({
   const executable = process.env.LINUX_RUNTIME_EVAL_EXECUTABLE
   const masonDir = process.env.LINUX_RUNTIME_EVAL_MASON_DIR
 
+  if (packageArchive && !packageLauncher) {
+    throw Error('A packaged fixture needs the launcher path inside its archive')
+  }
   if (engine === 'native' && !packageArchive && !executable) {
     throw Error('Set LINUX_RUNTIME_EVAL_EXECUTABLE to the remote ns-linux binary')
   }
@@ -133,7 +137,7 @@ export async function runRendererFixture({
       let runtime = engine === 'gjs' ? ['gjs', '-m'] : [executable]
       if (packageArchive) {
         ssh(`tar -C ${quote(remote)} -xzf ${quote(remote + '/app.tar.gz')}`)
-        runtime = ['./gtk-runtime-consumer/gtk-runtime-consumer']
+        runtime = [packageLauncher]
       }
       if (projected && missingMason) {
         const isolated = remote + '/runtime'

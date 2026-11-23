@@ -1,6 +1,6 @@
 # Linux GTK integration tests
 
-The opt-in suite runs the maintained renderer fixtures against the NativeScript runtime on the `octane-linux` VM on `andromeda.local`. It also covers native projection, mount and unmount ownership, real X11 input, and launch of an app archive built by the Linux CLI. The packaged app verifies TypeScript SDK declarations, a direct GTK call, and locale data from bundled ICU.
+The opt-in suite runs the maintained renderer fixtures against the NativeScript runtime on the `octane-linux` VM on `andromeda.local`. It also covers the Core view lifecycle and component replacement, native projection, mount and unmount ownership, real X11 input, and launch of an app archive built by the Linux CLI. The packaged app verifies TypeScript SDK declarations, a direct GTK call, and locale data from bundled ICU.
 
 ## Light checks
 
@@ -24,4 +24,4 @@ goddard-agent resource run --json '{"resources":{"exclusive":["linux:andromeda-o
     bun run turbo run test:gtk --filter=@xplat/linux-gtk-tests
 ```
 
-Add `-- projection lifetime packaged-app shared-gestures` to run only the runtime contract and gesture cases. Use `-- gjs ui-theme` to compare a renderer fixture with GJS on the same VM. The contract tests run only on NativeScript. The runner saves a log for each remote fixture, including failures.
+Add `-- core projection lifetime packaged-app shared-gestures` to run only the Core, runtime contract, and gesture cases. Use `-- gjs ui-theme` to compare a renderer fixture with GJS on the same VM. The contract tests run only on NativeScript. The runner saves a log for each remote fixture, including failures.

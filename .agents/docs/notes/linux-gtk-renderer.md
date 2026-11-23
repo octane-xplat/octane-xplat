@@ -1,11 +1,36 @@
 # Linux GTK renderer — v1 implementation status
 
+## NativeScript Core provider
+
+The `linuxGtk` preset resolves the GTK provider through the patched
+`@nativescript/vite` platform resolver. The production and development bundle
+use the shared NativeScript Octane driver. Core `ViewBase` manages parentage
+and load/unload. The GTK projection owns widget insertion, GObject signals,
+CSS, and native sizing. Existing refs still expose GTK widgets. The shared
+driver owns portal registrations. GTK tracks external portal hosts so
+stylesheet changes reach their children and recompute inherited values.
+
+The GTK layout manager owns Mason nodes and allocation for `masonview`.
+Mason is required. The bundled Core provider covers the GTK view tree.
+Direct construction of mobile Core controls, Core HTTP, and Core animations
+remain out of scope. The ordinary app dev script launches the built app. Rebuild before restarting
+the script to pick up edits. The Core fixture exercises in-process
+component replacement. Workshop watches story source and loads each
+revision into its running shell, sharing Core and Octane with its stories.
+
+Run the [maintained Linux fixtures](../../../tools/linux-gtk-tests/README.md)
+with the pinned runtime. The `core` case checks Core lifecycle, GTK
+controls and events, Mason sizing, component replacement, and teardown.
+The isolated install fixture builds an archive from tarball-installed
+packages. Set `XPLAT_GTK_REMOTE_PACKED=1` and reserve Andromeda to launch
+that archive during `bun run turbo run test:packed-core --filter=@octane-xplat/linux-gtk`.
+
 Desktop WebView app hosting and its native-service bridge are retired. Any
 WebKitGTK app-host evidence below is historical and does not qualify native
 GTK. Removed host paths are historical identifiers, not runnable procedures.
 
 > Status note for `packages/linux-gtk-renderer` (`@octane-xplat/linux-gtk`,
-> private). Follows the feasibility review
+> experimental). Follows the feasibility review
 > (`.agents/design/linux-gtk-feasibility-review.md`, gate verdict **fail** —
 > production qualification remains gated) and the capability inventory
 > (`linux-gtk-capability-inventory.md`). This note distinguishes what is
@@ -14,16 +39,13 @@ GTK. Removed host paths are historical identifiers, not runnable procedures.
 
 ## What landed
 
-A first native slice of the GTK4/GJS renderer:
+The GTK4 renderer provides these capabilities:
 
-- **Driver** (`src/index.ts`): `UniversalHostDriver` implementation derived
-  from the proven feasibility adapter, mapped onto the shared intrinsic
-  vocabulary. `createGtkRoot(host)` mounts a universal root on any GTK
-  container widget and installs the required `scheduleMicrotask` bridge
-  (GJS has no `queueMicrotask`; the Promise bridge is the evidenced path).
-  Handles `create`, `update`, `insert`/`move`, `remove`, `destroy`,
-  `event`, `visibility`, `recreate`, `ensure-public-instance`. Rejects
-  foreign-renderer batches before mutation.
+- **Driver** (`src/index.ts`): `createGtkRoot(host)` mounts a NativeScript
+  Octane root in a GTK container widget. GJS uses a Promise-based
+  `queueMicrotask` bridge. The GTK host boundary adapts shared driver
+  commands to the existing widget adapters. Direct GTK command fixtures
+  continue to exercise those adapters at the lower-level boundary.
 - **Intrinsics implemented**: `masonview` — the single layout container;
   all layout semantics arrive through the `style`/`className` bag
   (MasonStyleProps) after the style-only cutover — `label`, `button`,
@@ -51,8 +73,8 @@ A first native slice of the GTK4/GJS renderer:
   allocations (px-only there — percentage/auto is a gap).
 - **Events**: tap/click/press → `clicked` on buttons / `Gtk.GestureClick`
   released elsewhere; doubletap (n_press===2 filter), longpress
-  (GestureLongPress), focus/blur (EventControllerFocus), loaded/unloaded
-  (`map`/`unmap`), change (entry `changed`, switch `notify::active`, scale
+  (GestureLongPress), focus/blur (EventControllerFocus), Core
+  loaded/unloaded, change (entry `changed`, switch `notify::active`, scale
   `value-changed`), submit (entry `activate`), scroll (scrolled-window
   adjustments).
 - **Props**: `text`/`value`, `enabled`/`disabled`→sensitive plus the
@@ -88,9 +110,9 @@ A first native slice of the GTK4/GJS renderer:
 - **CLI target**: `xplat.targets.linux.runtime` accepts only `"gtk"`.
   Configuration validates identity and native build paths; `viteConfig` defaults
   to `vite.gtk.config.ts`. Packaging emits a single-file ESM bundle, executable
-  `gjs -m` launcher, `app.json`, README, desktop entry, per-user install/uninstall
-  scripts, and a tar archive. GJS produces no binary. URI handling remains
-  unavailable. Linux users supply GJS/GTK4; the CLI ships no WebView host.
+  NativeScript launcher with runtime payloads, `app.json`, README, desktop
+  entry, per-user install/uninstall scripts, and a tar archive. URI handling
+  remains unavailable. Linux users supply GTK4 and system libraries.
   See `docs/platform/linux-gtk.md` and `.agents/docs/recipes/linux-gtk-package.md`.
 
 ## The `.gtk` suffix (deviation from the task brief)
@@ -114,11 +136,11 @@ suffix:
   and the `.gtk.tsrx` pragma rule expecting
   `/** @jsxImportSource @octane-xplat/linux-gtk */`
 - `packages/cli/src/linux-gtk/vite.ts` (`@octane-xplat/build/linux-gtk/vite`):
-  `linuxGtk` selects the `gtk` renderer and `.gtk` extension chain and
-  resolves one universal-native Octane instance for app and renderer. Until
-  the runtime cutover, the preset leaves `gi://` external for GJS by default.
-  Qualification builds pass the prepared payload's GI schema to project these
-  imports with `bindings.mjs`. That projection loads inside the Linux app and
+  `linuxGtk` selects the shared `nativescript` renderer with the `.gtk`
+  extension chain. App and renderer share one universal-native Octane
+  instance. Packaged apps and the Linux Workshop pass the pinned payload's
+  GI schema to project `gi://` imports with `bindings.mjs`. The GJS probe
+  path leaves those imports external. That projection loads inside the Linux app and
   ships as source beside the preset so the app bundler can resolve its schema.
   To qualify the native CLI package before automatic SDK delivery, set
   `XPLAT_GTK_RUNTIME_PAYLOAD` to a verified stage directory for one target
@@ -3128,12 +3150,10 @@ Wayland, pixel, IME or AT-client evidence).
   is app-owned on GTK < 4.20, so the app pinning it does not clobber
   an OS signal; `gtk-interface-color-scheme` (4.20+) still wins in
   `cssSchemeName`.
-- Fixture pitfalls recorded in STATUS: `hasText` must recurse
-  `node.children` (label text lives on a child node); call
-  `root.unmount()` before `loop.quit()` or teardown trips GC-sweep
-  CRITICALs; generated theme CSS needs single-family `font-family`
-  values on GTK (the astryx stack warns 'Junk at end of value'); the
-  result JSON must carry `osInput`/`gtk` fields.
+- The theme fixture was qualified on GJS. The same suite on the pinned
+  NativeScript Linux runtime stalls during the initial appearance
+  transition, before the first X11 interaction. Core controls, Mason
+  geometry, lifetime, and GTK portaling have separate runtime fixtures.
 
 `ui-theme.test.ts`: 53 assertions, real OS input, guest GJS 1.80.2 /
 GTK 4.14.5 — scheme reads, OS flip, preference-over-system, theme

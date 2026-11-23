@@ -1684,8 +1684,11 @@
       "name": "@octane-xplat/linux-gtk",
       "version": "0.21.0",
       "dependencies": {
+        "@nativescript/core": "catalog:",
+        "@nativescript/vite": "8.0.20",
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/nativescript-octane": "workspace:*",
       },
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",

@@ -580,7 +580,7 @@ framework contributors, not downstream apps. See [Windows support status](../pla
 
 ## Experimental Linux target
 
-The Linux target uses native GTK4 widgets through GJS. It remains experimental; follow [Package a Linux GTK4/GJS app](../platform/linux-gtk.md) for setup, packaging, and runtime qualification limits. The former `"webkitgtk"` runtime and desktop service bridge have been removed.
+The Linux target uses native GTK4 widgets through the bundled NativeScript runtime. It remains experimental; follow [Package a Linux GTK4 app](../platform/linux-gtk.md) for setup, packaging, and runtime qualification limits. The former `"webkitgtk"` runtime and desktop service bridge have been removed.
 
 ```json
 { "xplat": { "targets": { "linux": { "runtime": "gtk" } } } }

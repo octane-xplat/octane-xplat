@@ -10,6 +10,7 @@
 		"../src/index.ts",
 		"../src/native/chrome.tsrx",
 		"../src/native/controller.ts",
+		"../src/native/stage-slot.tsrx",
 		"../src/native/story-tree.tsrx",
 		"../src/session.ts",
 		"../src/web/boot.web.ts",

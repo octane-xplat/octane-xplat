@@ -2,7 +2,7 @@
  * aliases. Requires built UI/workshop artifacts. Covers everything checkable
  * without a real GTK host: doctor's linux row (GTK runtime checks), catalog
  * applicability with .stories.gtk.* leaves, the .stories.linux.* discovery
- * diagnostic, and packed export resolution. The GJS window, GTK input/focus
+ * diagnostic, and packed export resolution. The GTK window, GTK input/focus
  * and story reload semantics are exercised by apps/workshop-demo e2e:gtk —
  * this is not that evidence. */
 import assert from 'node:assert/strict'
@@ -49,14 +49,19 @@ function write(name, content) {
 
 try {
   const tarballs = {}
+  const { workspaces: { catalog } } = JSON.parse(readFileSync(join(repo, 'package.json'), 'utf8'))
 
   for (const dir of [
     'create',
     'cli',
+    'docs-search',
+    'camera',
+    'platform',
     'lib',
     'ui',
     'workshop',
     'linux-gtk-renderer',
+    'nativescript-octane',
     'css-engine',
     'jsx',
   ]) {
@@ -80,11 +85,11 @@ try {
           '@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
           '@octane-xplat/cli': tarballs['@octane-xplat/cli'],
           '@octane-xplat/linux-gtk': tarballs['@octane-xplat/linux-gtk'],
-          '@octanejs/vite-plugin': '0.6.0',
-          '@tsrx/oxc': '0.23.0',
-          '@tsrx/core': '0.2.4',
-          typescript: '5.9.3',
-          vite: '8.3.0',
+          '@octanejs/vite-plugin': catalog['@octanejs/vite-plugin'],
+          '@tsrx/oxc': catalog['@tsrx/oxc'],
+          '@tsrx/core': catalog['@tsrx/core'],
+          typescript: catalog.typescript,
+          vite: catalog.vite,
         },
       },
       null,
@@ -120,7 +125,9 @@ try {
   assert.ok(linux, 'doctor reports a linux row')
   assert.match(linux.backend, /gtk/i, 'linux backend is the GTK renderer')
   assert.ok(
-    'gjs' in linux.requirements || linux.status === 'unsupported-host',
+    (process.platform === 'linux'
+      ? 'NativeScript Linux runtime' in linux.requirements
+      : 'gjs' in linux.requirements || linux.status === 'unsupported-host'),
     'doctor checks the GTK runtime, not WebKitGTK',
   )
 
@@ -247,7 +254,9 @@ void options; void invalid
   succeeded = true
 } finally {
   // Keep failure artifacts for diagnosis; successful fixtures are owned and temporary.
-  if (succeeded) {
+  if (succeeded && process.env.XPLAT_GTK_KEEP_PACKED !== '1') {
     rmSync(work, { recursive: true, force: true })
+  } else {
+    console.log(work)
   }
 }

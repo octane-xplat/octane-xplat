@@ -20,6 +20,26 @@
 				"^typegen"
 			]
 		},
+		"test:packed-core": {
+			"dependsOn": [
+				"build",
+				"^build",
+				"^typegen",
+				"@octane-xplat/build#build"
+			],
+			"cache": false,
+			"passThroughEnv": [
+				"XPLAT_GTK_KEEP_PACKED",
+				"XPLAT_GTK_REMOTE_PACKED",
+				"LINUX_RUNTIME_EVAL_*",
+				"XPLAT_GTK_REQUIRE_MASON",
+				"XPLAT_MASON_TYPELIB",
+				"GI_TYPELIB_PATH",
+				"LD_LIBRARY_PATH",
+				"DISPLAY",
+				"DBUS_SESSION_BUS_ADDRESS"
+			]
+		},
 		"test:a11y": {
 			"dependsOn": [
 				"build",

@@ -20,9 +20,14 @@
 				"typegen",
 				"^build",
 				"^typegen",
-				"create-octane-xplat#build"
+				"create-octane-xplat#build",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/cli#build:go",
+				"@octane-xplat/linux-gtk#build",
+				"@octane-xplat/docs-search#build"
 			],
-			"cache": false
+			"cache": false,
+			"passThroughEnv": ["XPLAT_GTK_KEEP_PACKED"]
 		},
 		"test": {
 			"dependsOn": [

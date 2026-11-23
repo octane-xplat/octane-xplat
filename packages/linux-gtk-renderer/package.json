@@ -40,16 +40,18 @@
 			"types": "./dist/native-escape-props.d.ts",
 			"default": "./dist/native-escape-props.js"
 		},
+		"./core-provider": "./platforms/provider.mjs",
 		"./gi": {
 			"types": "./dist/gi.d.ts"
 		},
 		"./package.json": "./package.json"
 	},
 	"scripts": {
-		"test": "node --test --test-concurrency=1 test/build.test.mts test/prebuilt-engine.test.mjs test/mason.test.mts test/visibility.test.mts test/css.test.mts test/style-css.test.mts test/ui.test.mts test/root-teardown.test.mjs test/ui-input.test.mts test/ui-measure.test.mts test/ui-animation.test.mts test/ui-scroll.test.mts test/ui-area.test.mts test/ui-icon.test.mts test/ui-text-entry.test.mts test/ui-text-view.test.mts test/ui-text-area.test.mts test/ui-search-input.test.mts test/ui-form-layout.test.mts test/ui-input-group.test.mts test/ui-field-group.test.mts test/ui-indicators.test.mts test/ui-toggle-controls.test.mts test/ui-toggle-fields.test.mts test/ui-radio-list.test.mts test/ui-number-input.test.mts test/ui-checkbox-list.test.mts test/ui-segmented-control.test.mts test/ui-pin-input.test.mts test/ui-slider.test.mts test/ui-rating.test.mts test/ui-portal.test.mts test/ui-popup-portal.test.mts test/ui-popup-events.test.mts test/ui-tooltip.test.mts test/ui-tooltip-hook.test.mts test/ui-popover.test.mts test/ui-accessibility.test.mts test/ui-press-keys.test.mts test/ui-field-chrome.test.mts test/ui-box-model.test.mts test/ui-selector-option.test.mts test/ui-selector.test.mts test/ui-utilities.test.mts test/ui-buttons.test.mts test/ui-display.test.mts test/ui-drawer.test.mts test/ui-images.test.mts test/ui-menus.test.mts test/ui-layers.test.mts test/ui-overlays.test.mts test/ui-toast.test.mts test/ui-palette.test.mts test/ui-lightbox.test.mts test/ui-sheet.test.mts test/ui-theme.test.mts test/ui-focus.test.mts test/ui-nav.test.mts test/ui-appshell.test.mts test/ui-collections.test.mts test/ui-table.test.mts test/ui-typeahead.test.mts test/ui-dates.test.mts test/ui-dates-cal.test.mts test/ui-powersearch.test.mts test/ui-colors.test.mts test/ui-webview.test.mts test/window-service.test.mts",
+		"test": "node --test --test-concurrency=1 test/build.test.mts test/core.test.mts test/prebuilt-engine.test.mjs test/mason.test.mts test/visibility.test.mts test/css.test.mts test/style-css.test.mts test/ui.test.mts test/root-teardown.test.mjs test/ui-input.test.mts test/ui-measure.test.mts test/ui-animation.test.mts test/ui-scroll.test.mts test/ui-area.test.mts test/ui-icon.test.mts test/ui-text-entry.test.mts test/ui-text-view.test.mts test/ui-text-area.test.mts test/ui-search-input.test.mts test/ui-form-layout.test.mts test/ui-input-group.test.mts test/ui-field-group.test.mts test/ui-indicators.test.mts test/ui-toggle-controls.test.mts test/ui-toggle-fields.test.mts test/ui-radio-list.test.mts test/ui-number-input.test.mts test/ui-checkbox-list.test.mts test/ui-segmented-control.test.mts test/ui-pin-input.test.mts test/ui-slider.test.mts test/ui-rating.test.mts test/ui-portal.test.mts test/ui-popup-portal.test.mts test/ui-popup-events.test.mts test/ui-tooltip.test.mts test/ui-tooltip-hook.test.mts test/ui-popover.test.mts test/ui-accessibility.test.mts test/ui-press-keys.test.mts test/ui-field-chrome.test.mts test/ui-box-model.test.mts test/ui-selector-option.test.mts test/ui-selector.test.mts test/ui-utilities.test.mts test/ui-buttons.test.mts test/ui-display.test.mts test/ui-drawer.test.mts test/ui-images.test.mts test/ui-menus.test.mts test/ui-layers.test.mts test/ui-overlays.test.mts test/ui-toast.test.mts test/ui-palette.test.mts test/ui-lightbox.test.mts test/ui-sheet.test.mts test/ui-theme.test.mts test/ui-focus.test.mts test/ui-nav.test.mts test/ui-appshell.test.mts test/ui-collections.test.mts test/ui-table.test.mts test/ui-typeahead.test.mts test/ui-dates.test.mts test/ui-dates-cal.test.mts test/ui-powersearch.test.mts test/ui-colors.test.mts test/ui-webview.test.mts test/window-service.test.mts",
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && tsc --runExternalCode --noEmit -p test/fixtures/tsconfig.routing.json && tsc --runExternalCode --noEmit -p test/fixtures/tsconfig.ui.json",
 		"build": "tsc --runExternalCode -p tsconfig.build.json && node build.mjs",
 		"prepack": "bun run turbo run build --filter=@octane-xplat/linux-gtk",
+		"test:packed-core": "node test/packed-core.mts",
 		"test:a11y": "node --test test/a11y.test.mts",
 		"typegen": "tsc --runExternalCode -p tsconfig.build.json && node build.mjs",
 		"test:runtime": "node --test --test-concurrency=1"
@@ -68,6 +70,9 @@
 		"octane": ">=0.14.0 <1"
 	},
 	"dependencies": {
+		"@nativescript/core": "catalog:",
+		"@nativescript/vite": "8.0.20",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*"
 	},

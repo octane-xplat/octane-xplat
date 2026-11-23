@@ -1,9 +1,6 @@
 import { gtkGestureSurface, gtkActivationSource } from './gesture-input.js'
-// GTK4 host driver for the Octane universal runtime — the Linux/GJS sibling
-// of packages/macos-appkit's AppKit driver. Derived from the proven
-// feasibility adapter (evidence: .agents/design/linux-gtk-feasibility-review.md;
-// runs 12–16 on GJS 1.82.3 + GTK 4.18.6, Debian 13 aarch64) and mapped onto
-// the shared intrinsic vocabulary (packages/jsx/src/shared.d.ts).
+// GTK4 widgets, styles, layout and host events for the NativeScript Octane
+// renderer. The GTK projection uses the adapters from the original GJS driver.
 //
 // Runs inside GJS; `gi://` imports stay external to the app bundle — the GI
 // libraries are the platform. GJS 1.82 exposes no queueMicrotask and no
@@ -63,7 +60,15 @@ import {
 } from './style-css.js'
 
 import { resolveTransform, cssTransformText } from './transform-style.js'
-import { createUniversalRoot } from 'octane/universal/native'
+// oxlint-disable-next-line xplat/no-nativescript-import -- This entry runs inside the GTK provider bundle.
+import { LayoutBase, type View, type ViewBase } from '@nativescript/core'
+import {
+  createNativeScriptRoot,
+  observeBatches,
+  type ElementConstructor,
+  type NativeScriptHostBoundary,
+  type NativeScriptTextNode,
+} from '@octane-xplat/nativescript-octane'
 import type {
   UniversalEventListenerDescriptor,
   UniversalHostBatch,
@@ -208,6 +213,8 @@ export interface GtkContainer {
   nodes: Map<number, ElementNode>
   children: ElementNode[]
   root: GtkRoot | null
+  coreHost?: ViewBase
+  externalPortalNodes: Set<ElementNode>
   portalTargets: Map<number, GtkPortalTarget>
   portalTargetsByObject: Map<unknown, GtkPortalTarget>
   nextPortalTarget: number
@@ -1503,10 +1510,8 @@ function restyleAllContainers() {
       markStyleDirty(child, true)
     }
 
-    for (const target of container.portalTargets.values()) {
-      if (target.synthetic && target.parent) {
-        markStyleDirty(target.parent, true)
-      }
+    for (const node of container.externalPortalNodes) {
+      markStyleDirty(node, true)
     }
 
     flushStyleDirty(container)
@@ -1588,8 +1593,8 @@ function notifyAppearance() {
   emittedScheme = scheme
   if (flipped) {
     for (const listener of colorSchemeListeners) {
-      listener()
-    }
+    listener()
+  }
   }
 
   for (const listener of mediaListeners) {
@@ -1619,8 +1624,8 @@ function onWindowResize() {
     }
 
     for (const listener of mediaListeners) {
-      listener()
-    }
+    listener()
+  }
   })
 }
 
@@ -3327,7 +3332,7 @@ interface SpanChain {
 
 const SPAN_LINK_SCHEME = 'octane-span://'
 
-function spanChain(node: ElementNode): SpanChain {
+function spanChain(node: GtkTextRun): SpanChain {
   const style = normalizeStyleBag(node.props?.style)
   const tap = node.props?.onLinkTap ?? node.props?.onPress
 
@@ -3366,7 +3371,18 @@ function bindSpanLinks(view: GtkView, links: Array<() => void>): void {
   }
 }
 
-function syncText(anchor: ElementNode | null) {
+interface GtkTextRun {
+  type: string
+  text: string
+  view: object | null
+  props: Readonly<Record<string, unknown>>
+  children: readonly GtkTextRun[]
+}
+
+function syncText(
+  anchor: ElementNode | null,
+  children: readonly GtkTextRun[] = anchor?.children ?? [],
+) {
   if (anchor === null || anchor.view === null) {
     return
   }
@@ -3414,8 +3430,8 @@ function syncText(anchor: ElementNode | null) {
     markup += segment
   }
 
-  const collect = (node: ElementNode, chain: SpanChain) => {
-    for (const child of node.children) {
+  const collect = (runs: readonly GtkTextRun[], chain: SpanChain) => {
+    for (const child of runs) {
       if (child.view !== null) {
         continue
       }
@@ -3429,16 +3445,16 @@ function syncText(anchor: ElementNode | null) {
         }
 
         emitRun(child.text, next)
-        collect(child, next)
+        collect(child.children, next)
       } else if (child.type === TEXT) {
         emitRun(child.text, chain)
       } else {
-        collect(child, chain)
+        collect(child.children, chain)
       }
     }
   }
 
-  collect(anchor, { attrs: {}, link: null, tx: (s) => s })
+  collect(children, { attrs: {}, link: null, tx: (s) => s })
   if (!found) {
     // Last text child left — the element's own text prop owns the label
     // again, or empty if it was never set.
@@ -3822,6 +3838,9 @@ function insert(
   }
 
   node.parent = parent
+  if (parent?.portalHost && !parent.computedCustomProps) {
+    markStyleDirty(parent)
+  }
   markStyleDirty(node, true)
   markSiblingsForSelectors(container, parent, node)
   if (node.view === null) {
@@ -3961,6 +3980,7 @@ function connectEvent(
   view: GtkView,
   type: string,
   listener: UniversalEventListenerDescriptor | ((payload: any) => void),
+  scopeCallback = true,
 ): { connections: SignalConnection[]; controllers: any[] } {
   const eventVersion = node.eventVersions?.get(type)
   const dispatch = (payload: unknown) => {
@@ -3990,7 +4010,7 @@ function connectEvent(
 
       try {
         if (typeof listener === 'function') {
-          if (root) {
+          if (root && scopeCallback) {
             root.eventScope('continuous', () => listener(payload))
           } else {
             listener(payload)
@@ -4679,7 +4699,13 @@ function createNode(
 ): ElementNode {
   const view = VIEWLESS.has(type) ? null : instantiate(type)
   const node = createNodeState(container, id, type, props, view)
+  initializeGtkNode(node)
+  applyProps(node, props)
+  return node
+}
 
+function initializeGtkNode(node: ElementNode) {
+  const { view, type } = node
   if (view !== null && isMasonView(view)) {
     // The layout manager's vfuncs resolve the logical node from the
     // widget — link them before props land so style writes find it.
@@ -4692,8 +4718,19 @@ function createNode(
 
   node.disposePublicInstance = bindNodePublicInstance(node)
   wireStateFlags(node)
-  applyProps(node, props)
+}
+
+function createExternalPortalNode(container: GtkContainer, host: GtkView) {
+  const node = createNodeState(container, --nextExternalHostId, 'portal-target', {}, null)
+  node.portalHost = host
+  container.externalPortalNodes.add(node)
   return node
+}
+
+function releaseExternalPortalNode(node: ElementNode) {
+  node.destroyed = true
+  node.container.cssDirty?.delete(node)
+  node.container.externalPortalNodes.delete(node)
 }
 
 function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>) {
@@ -4723,15 +4760,7 @@ function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>
           throw new Error('linux-gtk portal: target must be a multi-child GTK layout container.')
         }
 
-        parent = createNodeState(
-          container,
-          -(container.nextPortalTarget + 1),
-          'portal-target',
-          {},
-          null,
-        )
-
-        parent.portalHost = target
+        parent = createExternalPortalNode(container, target)
         synthetic = true
       } else if (
         parent &&
@@ -4815,10 +4844,49 @@ function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>
       container.portalTargets.delete(record!.id)
       container.portalTargetsByObject.delete(target)
       if (record!.synthetic && record!.parent) {
-        record!.parent.destroyed = true
-        container.cssDirty?.delete(record!.parent)
+        releaseExternalPortalNode(record!.parent)
       }
     },
+  }
+}
+
+function releaseGtkNode(node: ElementNode) {
+  const { container } = node
+  node.picture?.dispose()
+  if (node.type === 'webview' && node.view !== null) {
+    disposeWebView(node.view)
+  }
+
+  node.disposePublicInstance?.()
+  node.destroyed = true
+  container.cssDirty?.delete(node)
+  cancelKeyframeAnimations(node)
+  cancelSelectionSettle(node)
+  disposeListeners(node)
+  unwireStateFlags(node)
+  releaseMasonNodes(node)
+  // Batches normally remove before destroy — detach defensively so a
+  // destroy without a preceding remove can't leave a parented view or
+  // a stale logical child behind.
+  if (node.parent !== null || container.children.includes(node)) {
+    detach(container, node)
+  }
+
+  if (node.cssProvider !== null) {
+    for (const target of node.cssProviderTargets ?? []) {
+      target.get_style_context().remove_provider(node.cssProvider)
+    }
+
+    node.cssProviderTargets = undefined
+  }
+
+  node.layoutView = undefined
+  node.textView = undefined
+  node.disposePublicInstance = undefined
+  node.cssProvider = null
+
+  if (container.nodes.get(node.id) === node) {
+    container.nodes.delete(node.id)
   }
 }
 
@@ -4854,41 +4922,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
         return
       }
 
-      node.picture?.dispose()
-      if (node.type === 'webview' && node.view !== null) {
-        disposeWebView(node.view)
-      }
-
-      node.disposePublicInstance?.()
-      node.destroyed = true
-      container.cssDirty?.delete(node)
-      cancelKeyframeAnimations(node)
-      cancelSelectionSettle(node)
-      disposeListeners(node)
-      unwireStateFlags(node)
-      releaseMasonNodes(node)
-      // Batches normally remove before destroy — detach defensively so a
-      // destroy without a preceding remove can't leave a parented view or
-      // a stale logical child behind.
-      if (node.parent !== null || container.children.includes(node)) {
-        detach(container, node)
-      }
-
-      if (node.cssProvider !== null) {
-        for (const target of node.cssProviderTargets ?? []) {
-          target.get_style_context().remove_provider(node.cssProvider)
-        }
-
-        node.cssProviderTargets = undefined
-      }
-
-      // Public ref closures can outlive a node. Drop the composite's native
-      // parent references once all detach and CSS cleanup is complete.
-      node.layoutView = undefined
-      node.textView = undefined
-      node.disposePublicInstance = undefined
-      node.cssProvider = null
-      container.nodes.delete(command.id)
+      releaseGtkNode(node)
       return
     }
     case 'event':
@@ -5169,6 +5203,7 @@ export function createGtkContainer(
     nodes: new Map(),
     children: [],
     root: null,
+    externalPortalNodes: new Set(),
     portalTargets: new Map(),
     portalTargetsByObject: new Map(),
     nextPortalTarget: 0,
@@ -5448,7 +5483,283 @@ export function createGtkContainer(
   return container
 }
 
-export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {
+// Some GTK gesture payloads have no eventName. Core Observable needs one to
+// route the event, and Octane handlers receive the original GTK payload.
+class GtkCoreEvent {
+  readonly eventName: string
+  readonly object: ViewBase
+  readonly payload: unknown
+
+  constructor(eventName: string, object: ViewBase, payload: unknown) {
+    this.eventName = eventName
+    this.object = object
+    this.payload = payload
+  }
+}
+
+/** Core owns logical parentage and loaded/unloaded delivery. GTK owns native
+ * widget allocation, CSS, and Mason's layout-manager callbacks. */
+class GtkCoreLayout extends LayoutBase {
+  readonly gtkChildren: GtkCoreLayout[] = []
+  node: ElementNode | undefined
+  hostWidget: GtkView | undefined
+
+  override createNativeView() {
+    // Core permits a viewless node at runtime even though its declaration requires Object.
+    return this.node?.view ?? this.hostWidget ?? (undefined as never)
+  }
+
+  override eachChild(callback: (child: ViewBase) => boolean) {
+    for (const child of this.gtkChildren) {
+      if (!callback(child)) {
+        break
+      }
+    }
+  }
+
+  override getChildrenCount() {
+    return this.gtkChildren.length
+  }
+
+  override getChildIndex(child: View) {
+    return child instanceof GtkCoreLayout ? this.gtkChildren.indexOf(child) : -1
+  }
+
+  override insertChild(child: View, index: number) {
+    if (!(child instanceof GtkCoreLayout)) {
+      throw new TypeError('Expected a GTK Core child')
+    }
+    this.gtkChildren.splice(index, 0, child)
+    this._addView(child, index)
+    return true
+  }
+
+  override removeChild(child: View) {
+    const index = this.getChildIndex(child)
+    if (index < 0) {
+      return
+    }
+    this.gtkChildren.splice(index, 1)
+    this._removeView(child)
+  }
+
+  moveChildInPlace(child: GtkCoreLayout, index: number) {
+    const previous = this.gtkChildren.indexOf(child)
+    if (previous === -1) {
+      throw new Error('Cannot move a detached GTK Core child')
+    }
+    if (index === previous) {
+      return
+    }
+    this.gtkChildren.splice(previous, 1)
+    this.gtkChildren.splice(index, 0, child)
+    this._addViewToNativeVisualTree(child, index)
+  }
+
+  override _addViewToNativeVisualTree(child: ViewBase, index?: number) {
+    if (!(child instanceof GtkCoreLayout)) {
+      return false
+    }
+    const node = child.node
+    if (!node) {
+      return false
+    }
+    const next = this.gtkChildren[(index ?? this.gtkChildren.indexOf(child)) + 1]
+    insert(node.container, this.node ?? null, node, next?.node?.id ?? null)
+    return true
+  }
+
+  override _removeViewFromNativeVisualTree(child: ViewBase) {
+    const node = child instanceof GtkCoreLayout ? child.node : undefined
+    if (node) {
+      detach(node.container, node)
+    }
+    super._removeViewFromNativeVisualTree(child)
+  }
+
+  override on(event: string, handler: (...args: any[]) => void, thisArg?: unknown) {
+    super.on(event, handler, thisArg)
+    const node = this.node
+    if (!node?.view || event === 'loaded' || event === 'unloaded') {
+      return
+    }
+    if (node.listeners.has(event) || node.controllers.has(event)) {
+      return
+    }
+    const wired = connectEvent(
+      node.container,
+      node,
+      node.view,
+      event,
+      (payload) => this.notify(new GtkCoreEvent(event, this, payload)),
+      false,
+    )
+    node.listeners.set(event, wired.connections)
+    node.controllers.set(event, wired.controllers)
+  }
+
+  override off(event: string, handler?: (...args: any[]) => void, thisArg?: unknown) {
+    super.off(event, handler, thisArg)
+    if (this.node && !this.hasListeners(event)) {
+      setEvent(this.node.container, this.node, event, null)
+    }
+  }
+}
+
+const gtkElementTypes = new Set([
+  ...VIEWLESS,
+  'masonview',
+  'label',
+  'button',
+  'scrollview',
+  'image',
+  'svgview',
+  'textfield',
+  'textview',
+  'switch',
+  'slider',
+  'progress',
+  'activityindicator',
+  'webview',
+])
+
+function createCoreGtkHost(container: GtkContainer) {
+  const mount = new GtkCoreLayout()
+  mount.hostWidget = container.contentHost
+  container.coreHost = mount
+  mount._setupAsRootView(container)
+  mount.callLoaded()
+
+  const boundary: NativeScriptHostBoundary = {
+    events: gtkDriver.events,
+    updates: gtkDriver.updates,
+    elementConstructor(type): ElementConstructor | undefined {
+      return gtkElementTypes.has(type) ? GtkCoreLayout : undefined
+    },
+    projection: {
+      create(source) {
+        const owner = source.view
+        if (!(owner instanceof GtkCoreLayout)) {
+          return
+        }
+        const widget = VIEWLESS.has(source.type) ? null : instantiate(source.type)
+        const node = createNodeState(container, source.id, source.type, {}, widget)
+        owner.node = node
+        container.nodes.set(node.id, node)
+        gtkCoreOwners.set(node.view ?? node, owner)
+        initializeGtkNode(node)
+      },
+      update(source, props) {
+        const view = source.view
+        if (view instanceof GtkCoreLayout && view.node) {
+          applyUpdate(view.node, props)
+        }
+      },
+      release(view) {
+        if (view instanceof GtkCoreLayout && view.node) {
+          gtkCoreOwners.delete(view.node.view ?? view.node)
+          releaseGtkNode(view.node)
+          view.node = undefined
+        }
+      },
+    },
+    publicInstance(source) {
+      const view = source.view
+      if (view instanceof GtkCoreLayout && view.node) {
+        return view.node.view ?? view.node
+      }
+      return view
+    },
+    coreView(target) {
+      const owner = gtkCoreOwners.get(target)
+      const node = owner?.node
+      if (node && !node.destroyed) {
+        const native = node.view
+        if (
+          native &&
+          !(
+            isMasonHostView(native) ||
+            native instanceof Gtk.Box ||
+            native instanceof Gtk.Grid ||
+            native instanceof Gtk.Fixed
+          )
+        ) {
+          throw new TypeError('A GTK portal target must be a multi-child layout')
+        }
+        return owner
+      }
+      return target === container.host ? mount : undefined
+    },
+    eventData(data, instance, view) {
+      if (data instanceof GtkCoreEvent) {
+        return data.payload
+      }
+      return data.object === view && instance ? { ...data, object: instance } : data
+    },
+    formattedText: {
+      validateChild() {},
+      validateProps(type, props) {
+        if (type === 'textview' && props.secure === true) {
+          throw new Error(
+            'linux-gtk: secure multiline input is unavailable; use TextInput with secure instead.',
+          )
+        }
+      },
+      sync(source) {
+        if (!TEXT_HOSTS.has(source.type)) {
+          return false
+        }
+        const view = source.view
+        if (!(view instanceof GtkCoreLayout) || !view.node) {
+          return false
+        }
+        syncText(view.node, projectTextRuns(source))
+        return true
+      },
+      release() {},
+    },
+  }
+
+  return {
+    boundary,
+    mount,
+    resolvePortalHost(target: object) {
+      if (
+        !(target instanceof Gtk.Box || target instanceof Gtk.Grid || target instanceof Gtk.Fixed)
+      ) {
+        throw new TypeError('A GTK portal target must be a multi-child layout')
+      }
+      const host = new GtkCoreLayout()
+      host.hostWidget = target
+      const node = createExternalPortalNode(container, target)
+      host.node = node
+      host._setupAsRootView(container)
+      host.callLoaded()
+      return {
+        view: host,
+        release() {
+          releaseExternalPortalNode(node)
+          host.destroyNode(true)
+        },
+      }
+    },
+  }
+}
+
+const gtkCoreOwners = new WeakMap<object, GtkCoreLayout>()
+let nextExternalHostId = 0
+
+function projectTextRuns(source: NativeScriptTextNode): GtkTextRun[] {
+  return source.children.map((child) => ({
+    type: child.type,
+    text: child.text,
+    view: child.view instanceof GtkCoreLayout ? (child.view.node?.view ?? null) : child.view,
+    props: child.props,
+    children: projectTextRuns(child),
+  }))
+}
+
+export interface GtkRootOptions extends Omit<UniversalRootOptions<GtkContainer>, 'transport'> {
   /** Service roots mount inside another root's overlay layer — they never
    *  become the `__octaneGtkHost` bridge's layer target and skip the
    *  duplicate window wiring the owning app root already provides. */
@@ -5469,17 +5780,20 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
   masonEngine()
 
   const container = createGtkContainer(host, { service: options.service === true })
-  const root = createUniversalRoot(container, gtkDriver, {
-    // GJS has no queueMicrotask — the universal runtime requires a
-    // scheduler bridge; Promise resolution is the proven path (feasibility
-    // evidence: idle/timeout ordering held at p95 1.4–1.7ms).
-    scheduleMicrotask: (callback: () => void) => {
-      Promise.resolve().then(callback)
+  const { boundary, mount, resolvePortalHost } = createCoreGtkHost(container)
+  const stopObserving = observeBatches({
+    didApply(active) {
+      if (active.host === mount) {
+        flushStyleDirty(container)
+      }
     },
+  })
+  const { service: _service, ...rootOptions } = options
+  const root = createNativeScriptRoot(mount, resolvePortalHost, boundary, {
     onUncaughtError: (error: unknown) => {
       console.error('[linux-gtk] uncaught error', error)
     },
-    ...options,
+    ...rootOptions,
   }) as GtkRoot
 
   container.root = root
@@ -5490,7 +5804,10 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
   // the last root goes away.
   const universalUnmount = root.unmount.bind(root)
 
-  ;(root as any).unmount = () => {
+  root.unmount = () => {
+    if (container.root === null) {
+      return
+    }
     // Settle any in-flight incremental GC while JS still controls the
     // stack — teardown emissions (map/unmap/state-flags/idle sources)
     // dispatched during a sweep are blocked and dropped, not deferred.
@@ -5502,6 +5819,10 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
     // that survive the root keep dispatching into the dead container.
     unwireContainerWindow(container)
     universalUnmount()
+    stopObserving()
+    container.root = null
+    container.coreHost = undefined
+    mount.destroyNode(true)
     for (const layer of Array.from(container.overlayLayerHandles ?? [])) {
       layer.dispose()
     }
@@ -5511,7 +5832,10 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
     if (overlay) {
       const parent = overlay.get_parent?.()
 
-      if (
+      if (host instanceof Gtk.ScrolledWindow && parent && host.get_child() === parent) {
+        // GTK wraps a non-scrollable overlay in a viewport.
+        host.set_child(null)
+      } else if (
         parent === host &&
         (host instanceof Gtk.Box || host instanceof Gtk.Fixed || host instanceof Gtk.Grid)
       ) {

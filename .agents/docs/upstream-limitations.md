@@ -54,7 +54,7 @@ lowers useMemo/useCallback to the native-only `memoSlot`/`memoTake`/
 read CURRENT_SCOPE (render.js), which is null on universal targets, so
 the first useMemo inside a shared .ts hook throws at render
 ('r is null'). Fix at our layer: linuxGtk sets
-`renderers.default: 'gtk'` so every unmatched file gets universal
+`renderers.default: 'nativescript'` so every unmatched file gets universal
 slotting (`useMemo(fn, deps, sym)`). Long-term, upstream could treat
 non-component helper files as renderer-agnostic or honor the app-level
 universal runtime instead of the dom default.
@@ -845,6 +845,14 @@ the poster contract is qualified by the paused/failed paths, not a
 single-instant sample. AVFoundation errors were observed via item status, not
 a plugin error event; static bindings and release-app delivery remain
 unqualified.
+
+## NativeScript Core 9.1.3 weak references on GJS
+
+Core's `CssState` calls the NativeScript runtime's `WeakRef.get()` when a
+Core view loads. GJS 1.80.2 exposes ECMAScript `WeakRef.deref()` and raises
+`this.viewRef.get is not a function` on the first load. The GTK bundle
+adds a nonenumerable `get` alias for `deref` before Core evaluates when the
+host lacks it. Recheck the alias when upgrading Core or GJS.
 
 ## GTK 4: WM_DELETE on a second window crashes X11 apps under headless Xvfb
 

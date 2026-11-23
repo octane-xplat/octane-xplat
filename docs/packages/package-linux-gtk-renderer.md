@@ -11,7 +11,9 @@ After the first stable automated release, install matching Xplat releases in you
 
 ```sh
 bun add @octane-xplat/linux-gtk @octane-xplat/ui octane
-bun add -D @octane-xplat/cli @octanejs/vite-plugin vite
+bun add -D @octane-xplat/cli @octane-xplat/build @tsrx/oxc vite
+bun run xplat patches apply
+bun install
 sudo apt install libgtk-4-1 libjson-glib-1.0-0
 ```
 
@@ -23,7 +25,7 @@ for an entry point and packaging commands.
 
 ```ts
 // vite.gtk.config.ts
-import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+import { linuxGtk } from '@octane-xplat/build/linux-gtk/vite'
 export default async (env: { mode: string }) => linuxGtk(env)
 ```
 
@@ -49,20 +51,23 @@ that an API is available on your installed GTK version.
 
 ## Native layout — Mason ships in the package
 
-Mason is required. The package ships the engine and binding prebuilt under
-`platforms/linux/prebuilt/` for `x86_64` and `aarch64` (the `uname -m`
-architecture names), built on the Ubuntu 24.04 baseline — GTK 4.14, glibc
-2.39. `xplat build --targets linux` copies both architectures into the
-bundle next to `app.js`, and `createGtkRoot` resolves the matching one at
-startup. A host missing the binding fails fast with a diagnostic instead
-of silently changing layout; there is no `Gtk.Box` fallback.
+Mason is required. The package ships the engine and GTK binding with the
+NativeScript payload for each architecture under `platforms/linux/runtime/`.
+The CLI copies both payloads to the packaged app, and the launcher selects the
+payload for the running machine. If Mason cannot load, root creation stops
+with a diagnostic.
+
+```sh
+bun run xplat build --targets linux
+./dist/linux/my-app/my-app
+```
 
 The prebuilt baseline is a *minimum*: newer distros with a compatible GTK4
 and json-glib run the same binding (proven on Debian 13 / GTK 4.18).
 
 ### Developer note — building the facade yourself
 
-Facade developers can rebuild the binding from the included C sources. It
+For GJS probes, facade developers can rebuild the binding from the included C sources. It
 needs the pinned MasonCore engine archive (see
 `native/xplatmason/mason-core.pin.json`), a C compiler, `pkg-config`, GTK4,
 JSON-GLib and GObject Introspection development tools. `build.sh` runs
@@ -126,7 +131,7 @@ Contributor implementation details and qualification evidence live in the
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `.`                     | `gtkDriver`, `createGtkRoot`, `GTK_RENDERER_ID`, `registerStylesheet`, `octane/universal/native` re-export |
 | `./host`                | `runGtkApp` — GtkApplication + window + content box + mounted root; `setWindowContentResolver` — app-level `openWindow` content seam (the macOS host's counterpart). `runGtkApp`'s `mount` may return a cleanup invoked once on Gtk.Application `shutdown` before the root unmounts |
-| `./compat/native-core`  | `@nativescript/core` shim for leaves evaluated in a GTK bundle                                             |
+| `./compat/native-core`  | GTK host services used by older integrations                                             |
 | `./compat/escape-props` | escape-props shim                                                                                          |
 
 Implemented intrinsics: `masonview` (the single layout container — every
@@ -135,6 +140,18 @@ layout semantic arrives through `style`/`className`), `label`, `button`,
 `activityindicator`, `image`, `svgview`, plus viewless `#text`, `span`, `formattedstring`,
 `contentview`, `proxyviewcontainer`, `rootlayout`. Anything else throws a
 named driver error at mount.
+
+The Core provider covers the view lifecycle used by these Octane elements.
+The GTK host supplies their widgets and layout. Direct construction of
+NativeScript controls such as `new Button()`, mobile plugins, Core animations,
+and Core HTTP are outside this provider's supported surface.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function SaveButton({ save }: { save: () => void }) {
+  return <button text="Save" onTap={save} />
+}
+```
 
 ## Icon sources
 

@@ -18,7 +18,7 @@ export interface XplatLinuxGtkOptions {
   rules?: unknown[]
 }
 
-/** Configure the experimental GTK4/GJS renderer using the app's installed toolchain. */
+/** Configure the experimental GTK4 renderer using the app's installed toolchain. */
 export function linuxGtk(
   env: { mode: string } | string,
   options?: XplatLinuxGtkOptions,
@@ -26,3 +26,14 @@ export function linuxGtk(
 
 /** @deprecated Use {@link linuxGtk}. */
 export const xplatLinuxGtk: typeof linuxGtk
+
+
+/** Check whether the installed renderer includes the runtime for the current architecture. */
+export function hasGtkDevelopmentRuntime(root: string): boolean
+
+/** Stage a checked runtime next to the development shell bundle. */
+export function stageGtkDevelopmentRuntime(
+  root: string,
+  outDir: string,
+  bundle: string,
+): { executable: string; schema: string }

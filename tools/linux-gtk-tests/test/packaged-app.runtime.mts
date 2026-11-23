@@ -13,6 +13,11 @@ test('the Linux CLI archive launches with its packaged GTK and ICU runtime', asy
     const payloads = join(renderer, 'platforms/linux/runtime')
     mkdirSync(join(renderer, 'platforms/linux'), { recursive: true })
     cpSync(join(sourceRenderer, 'package.json'), join(renderer, 'package.json'))
+    for (const name of ['core', 'provider.mjs', 'mason.gtk.mjs']) {
+      cpSync(join(sourceRenderer, 'platforms', name), join(renderer, 'platforms', name), {
+        recursive: true,
+      })
+    }
     cpSync(join(sourceRenderer, 'dist'), join(renderer, 'dist'), { recursive: true })
     symlinkSync(join(sourceRenderer, 'node_modules'), join(renderer, 'node_modules'), 'dir')
     execFileSync('python3', [
@@ -84,6 +89,7 @@ test('the Linux CLI archive launches with its packaged GTK and ICU runtime', asy
       input: false,
       checks: 3,
       packageArchive: archive,
+      packageLauncher: './gtk-runtime-consumer/gtk-runtime-consumer',
     })
   } finally {
     rmSync(root, { recursive: true, force: true })

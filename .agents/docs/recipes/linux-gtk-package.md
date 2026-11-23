@@ -2,7 +2,7 @@
 
 ID: linux-gtk-package
 Targets: linux
-Related APIs: xplat build, xplat dev, xplat doctor, xplat.targets.linux.runtime, xplat.targets.linux.package, @octane-xplat/cli/linux-gtk/vite, linuxGtk, @octane-xplat/linux-gtk/host, runGtkApp
+Related APIs: xplat build, xplat dev, xplat doctor, xplat.targets.linux.runtime, xplat.targets.linux.package, @octane-xplat/build/linux-gtk/vite, linuxGtk, @octane-xplat/linux-gtk/host, runGtkApp
 
 ## Starting point
 
@@ -34,6 +34,12 @@ on Linux.
 - AC2: [Build output](../../../docs/platform/linux-gtk.md#develop-and-build)
   and [packaging tests](../../../packages/cli/test/linux-package.test.mts).
 - AC3: [Missing pieces and evidence boundary](../../../docs/platform/linux-gtk.md#what-this-target-does-not-have-yet).
+
+The [Core smoke](../../../packages/linux-gtk-renderer/test/core.test.mts)
+and [packed consumer](../../../packages/linux-gtk-renderer/test/packed-core.mts)
+cover the development bundle, Core lifecycle, native Mason sizing, and the
+installed build worker. Run the Core fixture and the installed archive
+on the Linux VM with the pinned NativeScript GTK runtime.
 
 The primitive and pointer fixtures qualify named Mason allocations and X11
 Pressable input, independently of this packaging recipe. They do not qualify
