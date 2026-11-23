@@ -16,10 +16,12 @@ export default async function nativeCaseConfig(project, target) {
     ])
 
   const previousDirectory = process.cwd()
+  const previousTarget = process.env.XPLAT_TARGET
   let nativeCss
 
   try {
     process.chdir(project)
+    process.env.XPLAT_TARGET = target
 
     const preset = await native('production')
 
@@ -29,6 +31,8 @@ export default async function nativeCaseConfig(project, target) {
     }
   } finally {
     process.chdir(previousDirectory)
+    if (previousTarget === undefined) delete process.env.XPLAT_TARGET
+    else process.env.XPLAT_TARGET = previousTarget
   }
 
   return {

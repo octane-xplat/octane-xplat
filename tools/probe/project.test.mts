@@ -51,9 +51,11 @@ test('mobile host fingerprint follows renderer source changes while case content
 
 test('native preset folds the Windows branch in host builds', async () => {
   const cwd = process.cwd()
+  const previousTarget = process.env.XPLAT_TARGET
 
   try {
     process.chdir(appFor('ios'))
+    process.env.XPLAT_TARGET = 'ios'
 
     const require = createRequire(join(process.cwd(), 'package.json'))
     const { native } = await import(require.resolve('@octane-xplat/cli/vite'))
@@ -62,5 +64,7 @@ test('native preset folds the Windows branch in host builds', async () => {
     assert.equal(config.define.__WINDOWS__, 'false')
   } finally {
     process.chdir(cwd)
+    if (previousTarget === undefined) delete process.env.XPLAT_TARGET
+    else process.env.XPLAT_TARGET = previousTarget
   }
 })
