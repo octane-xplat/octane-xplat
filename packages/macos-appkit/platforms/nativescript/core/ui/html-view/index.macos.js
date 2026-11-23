@@ -1,19 +1,22 @@
-// macOS Core provider: HtmlView for AppKit — non-editable,
-// non-selectable NSTextView whose attributed string is imported from HTML
-// via NSAttributedString initWithHTML. UTF-8 needs the explicit
-// NSCharacterEncodingDocumentAttribute or Unicode mojibake results.
-import { HtmlViewBase, htmlProperty } from '@nativescript/core/ui/html-view/html-view-common';
+// macOS Core provider: AppKit imports HTML into a selectable text field.
+import { HtmlViewBase, htmlProperty, selectableProperty } from '@nativescript/core/ui/html-view/html-view-common';
+import { lineHeightProperty, textAlignmentProperty } from '@nativescript/core/ui/text-base/text-base-common';
+import { colorProperty, fontInternalProperty } from '@nativescript/core/ui/styling/style-properties';
+import { Color } from '@nativescript/core/color';
+import { Font } from '@nativescript/core/ui/styling/font';
 import { layout } from '@nativescript/core/utils';
+import { parseHtmlText } from '../../../../../src/html-text';
+
 export * from '@nativescript/core/ui/html-view/html-view-common';
 export class HtmlView extends HtmlViewBase {
-    nativeViewProtected;
     createNativeView() {
-        const tv = NSTextView.alloc().initWithFrame(CGRectMake(0, 0, 0, 0));
-        tv.editable = false;
-        tv.selectable = false;
-        tv.drawsBackground = false;
-        tv.textContainerInset = { width: 0, height: 0 };
-        return tv;
+        const field = NSTextField.wrappingLabelWithString('');
+        field.editable = false;
+        field.selectable = true;
+        field.drawsBackground = false;
+        field.font = NSFont.systemFontOfSize(16);
+        field.textColor = NSColor.labelColor;
+        return field;
     }
     get ios() {
         return undefined;
@@ -25,57 +28,55 @@ export class HtmlView extends HtmlViewBase {
         return '';
     }
     [htmlProperty.setNative](value) {
-        const nv = this.nativeViewProtected;
-        if (!nv)
-            {return;}
-        const html = value == null ? '' : String(value);
-        if (!html) {
-            nv.string = '';
-            return;
-        }
-        // AppKit's initWithHTML ignores NSCharacterEncodingDocumentAttribute —
-        // UTF-8 bytes decode as Latin-1. Numeric entities are encoding-immune,
-        // so escape everything outside ASCII before handing it data.
-        const safe = html.replace(/[\u0080-\uFFFF]/g, (ch) => `&#x${ch.charCodeAt(0).toString(16)};`);
-        const data = NSString.stringWithString(safe).dataUsingEncoding(NSUTF8StringEncoding);
-        const options = NSDictionary.dictionaryWithObjectsForKeys(['NSHTMLTextDocumentType', NSUTF8StringEncoding], ['NSDocumentTypeDocumentAttribute', 'NSCharacterEncodingDocumentAttribute']);
-        const attr = NSAttributedString.alloc().initWithHTMLOptionsDocumentAttributes(data, options, null);
-        if (attr) {
-            nv.textStorage.setAttributedString(attr);
-        }
-        else {
-            nv.string = html;
-        }
+        this._refreshHtml(value);
+    }
+    [selectableProperty.getDefault]() {
+        return true;
+    }
+    [selectableProperty.setNative](value) {
+        this.nativeViewProtected.selectable = value;
+    }
+    [fontInternalProperty.getDefault]() {
+        return this.nativeViewProtected.font;
+    }
+    [fontInternalProperty.setNative](value) {
+        const view = this.nativeViewProtected;
+        view.font = value instanceof Font ? value.getUIFont(view.font) : value;
+        this._refreshHtml();
+    }
+    [colorProperty.getDefault]() {
+        return this.nativeViewProtected.textColor;
+    }
+    [colorProperty.setNative](value) {
+        this.nativeViewProtected.textColor = value instanceof Color ? value.macos : value;
+        this._refreshHtml();
+    }
+    [textAlignmentProperty.setNative]() {
+        this._refreshHtml();
+    }
+    [lineHeightProperty.setNative]() {
+        this._refreshHtml();
+    }
+    _refreshHtml(html = this.html) {
+        const view = this.nativeViewProtected;
+        view.attributedStringValue = parseHtmlText(html, {
+            fontSize: Number(view.font.pointSize),
+            fontFamily: String(view.font.familyName),
+            fontWeight: this.style.fontWeight ?? '400',
+            color: view.textColor,
+            appearance: view.effectiveAppearance,
+            style: { fontStyle: this.style.fontStyle, textAlign: this.style.textAlignment, lineHeight: this.style.lineHeight },
+        });
+        view.invalidateIntrinsicContentSize();
+        this.requestLayout();
     }
     onMeasure(widthMeasureSpec, heightMeasureSpec) {
-        const nv = this.nativeViewProtected;
-        if (!nv)
-            {return;}
-        const width = layout.getMeasureSpecSize(widthMeasureSpec);
-        const widthMode = layout.getMeasureSpecMode(widthMeasureSpec);
-        const heightMode = layout.getMeasureSpecMode(heightMeasureSpec);
-        let measuredWidth = width;
-        if (widthMode !== layout.EXACTLY) {
-            nv.textContainer.containerSize = { width: widthMode === layout.AT_MOST ? width : 0, height: 0 };
-            nv.textContainer.widthTracksTextView = false;
-            const lm = nv.layoutManager;
-            const tc = nv.textContainer;
-            if (lm && tc) {
-                lm.ensureLayoutForTextContainer(tc);
-                const used = lm.usedRectForTextContainer(tc).size;
-                measuredWidth = Math.min(width, Math.max(used.width, 1));
-            }
+        const view = this.nativeViewProtected;
+        if (view) {
+            const width = layout.getMeasureSpecSize(widthMeasureSpec);
+            const constrained = layout.getMeasureSpecMode(widthMeasureSpec) !== layout.UNSPECIFIED;
+            view.preferredMaxLayoutWidth = constrained ? layout.toDeviceIndependentPixels(width) : 0;
         }
-        let measuredHeight = layout.getMeasureSpecSize(heightMeasureSpec);
-        if (heightMode !== layout.EXACTLY) {
-            nv.textContainer.containerSize = { width: measuredWidth, height: 0 };
-            const lm = nv.layoutManager;
-            const tc = nv.textContainer;
-            if (lm && tc) {
-                lm.ensureLayoutForTextContainer(tc);
-                measuredHeight = lm.usedRectForTextContainer(tc).size.height || 1;
-            }
-        }
-        this.setMeasuredDimension(measuredWidth, measuredHeight);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

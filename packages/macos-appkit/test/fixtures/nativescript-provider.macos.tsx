@@ -205,6 +205,43 @@ async function checkBuilderControls() {
   }
 }
 
+function HtmlText(props: { changed: boolean }) {
+  return (
+    <htmlview
+      id="provider-html"
+      html={props.changed ? '<i>Updated &amp; 世界</i>' : '<b>Hello</b> &amp; <a href="https://example.com">link</a>'}
+      style={{ width: 200, fontSize: props.changed ? 24 : 20 }}
+    />
+  )
+}
+
+async function checkHtmlText() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    root.render(HtmlText, { changed: false })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const debug = Reflect.get(root, '__macosDebug')
+    const first = debug.findId('provider-html')
+    if (first.editable || !first.selectable || first.stringValue.trim() !== 'Hello & link' ||
+      !first.attributedStringValue.attributeAtIndexEffectiveRange(NSLinkAttributeName, 8, null)) {
+      throw new Error('Core HtmlView lost its selectable markup and link')
+    }
+    root.render(HtmlText, { changed: true })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const font = first.attributedStringValue.attributeAtIndexEffectiveRange(NSFontAttributeName, 0, null)
+    if (debug.findId('provider-html') !== first || first.stringValue.trim() !== 'Updated & 世界' ||
+      font.pointSize !== 24) {
+      throw new Error('Core HtmlView did not update its Unicode markup and style in place')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 async function checkSharedTextAreaSizing() {
   const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
     NSMakeRect(0, 0, 250, 250), 1, 2, false,
@@ -958,6 +995,7 @@ setTimeout(async () => {
     await checkEmbeddedCoreRoot()
     await checkSharedTextAreaSizing()
     await checkBuilderControls()
+    await checkHtmlText()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {
