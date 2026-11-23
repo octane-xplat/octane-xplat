@@ -17,8 +17,10 @@ The Xplat integration has a separate packed-consumer check, implemented here
 and owned by the leaf package's task. It packs Tailwind, build tooling and the
 shared build library, then installs those tarballs with isolated dependencies
 outside the repository. It checks exported files, JavaScript execution,
-NodeNext/Bundler declarations, web/iOS/Android/AppKit/GTK/Linux-webview CSS compilation in development
-and production, development maps, platform-file selection, and browser SSR inline CSS:
+NodeNext/Bundler declarations, development and production CSS for web, iOS,
+Android, AppKit, and GTK, development maps, platform-file selection, and browser
+SSR inline CSS. It also retains a compiler regression for browser CSS built
+with `linux` and `web` resolution conditions from the retired desktop WebView host:
 
 ```sh
 bun run turbo run test:packed --filter=@octane-xplat/tailwind
@@ -74,12 +76,13 @@ bun run turbo run qualify:xplat --filter=@octane-xplat/tailwind-qualification --
 
 This writes `compiled-web.css`, `compiled-ios.css`, `compiled-android.css`,
 `compiled-macos.css`, `compiled-gtk.css`, `compiled-linux.css`,
-`consumer.json` and `browser.json`. The browser uses the web and Linux-webview
-CSS; the iOS file remains compilation evidence. The command fails on a missing
-browser, invalid fixture, failed package check or computed-style/layout mismatch.
-It captures no images. Chromium results establish no Linux webview session,
-NativeScript/Mason runtime, OS input or painting parity. Keep this opt-in task
-outside PR checks alongside the upstream comparison command.
+`consumer.json` and `browser.json`. Chromium checks the ordinary web CSS and
+the browser CSS built with `linux` and `web` conditions. The iOS and GTK files
+remain compilation evidence. The command fails on a missing browser, invalid
+fixture, failed package check or computed-style/layout mismatch. It captures no
+images. Chromium measurements cover browser styles and layout. NativeScript,
+Mason, OS input, and painting parity require separate checks. Keep this opt-in
+task outside PR checks alongside the upstream comparison command.
 
 The app gate adds packed UI and its workspace dependency closure, the patched
 Octane runtime, and the Octane compiler to a fresh installation. Optional native workspace peers
@@ -105,8 +108,8 @@ production app CSS under `app-assets/`. `app-source/` and `app-packages.json`
 retain the source fixture and packed-package versions and hashes. The separate
 `compiled-*.css` and `consumer.json` files still describe the base CSS consumer,
 not this app's output. The app gate uses browser actions and numeric DOM/style/
-layout evidence without images; it does not qualify SSR/hydration, portals,
-OS input, native layout or a Linux webview session. Keep it outside PR checks.
+layout evidence without images. SSR/hydration, portals, OS input, and native
+layout require separate checks. Keep it outside PR checks.
 
 Each browser observation identifies generated CSS or a hand-authored reference
 case. The reference cases establish variable fallback and invalidation behavior
