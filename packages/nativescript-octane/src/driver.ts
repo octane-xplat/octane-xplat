@@ -1269,6 +1269,26 @@ function insert(
 ): void {
   const host = hostViewOf(container, parent)
   const view = node.view
+  if (host !== null && view !== null && node.parent === parent && !isPortalTarget(parent)) {
+    const moveChildInPlace: unknown = Reflect.get(host, 'moveChildInPlace')
+    if (typeof moveChildInPlace === 'function') {
+      const siblings = childrenOf(container, parent)
+      const from = siblings.indexOf(node)
+      if (from !== -1) {
+        if (before === node.id) {
+          return
+        }
+        const next = siblings.filter((sibling) => sibling !== node)
+        const beforeIndex = before === null ? -1 : next.findIndex((sibling) => sibling.id === before)
+        const index = beforeIndex === -1 ? next.length : beforeIndex
+        const viewIndex = next.slice(0, index).filter((sibling) => sibling.view !== null).length
+        moveChildInPlace.call(host, view, viewIndex)
+        siblings.splice(from, 1)
+        siblings.splice(index, 0, node)
+        return
+      }
+    }
+  }
   if (host instanceof ContentView && view !== null && host.content != null && host.content !== view) {
     const slot: unknown = Reflect.get(view, 'hostSlot')
     if (!(typeof slot === 'string' && slot in host) && !hasCustomChildOperations(host)) {

@@ -205,6 +205,43 @@ async function checkBuilderControls() {
   }
 }
 
+function KeyedLayout(props: { row: boolean }) {
+  return (
+    <masonview
+      style={{ display: 'flex', flexDirection: props.row ? 'row' : 'column', width: 240, height: 80 }}
+    >
+      {(props.row ? ['c', 'a', 'b'] : ['a', 'b', 'c']).map((id) => (
+        <label key={id} id={id} text={id} style={{ width: 40, height: 16 }} />
+      ))}
+    </masonview>
+  )
+}
+
+async function checkKeyedLayout() {
+  const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+    NSMakeRect(0, 0, 260, 180), 1, 2, false,
+  )
+  const root = createMacOSRoot(window.contentView)
+  try {
+    root.render(KeyedLayout, { row: false })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    const debug = Reflect.get(root, '__macosDebug')
+    const a = debug.findId('a')
+    const b = debug.findId('b')
+    const c = debug.findId('c')
+    root.render(KeyedLayout, { row: true })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    if (debug.findId('c') !== c || c.superview !== a.superview ||
+      c.frame.origin.y !== b.frame.origin.y ||
+      !(c.frame.origin.x < a.frame.origin.x && a.frame.origin.x < b.frame.origin.x)) {
+      throw new Error('Core keyed layout move lost its native child or row position')
+    }
+  } finally {
+    root.unmount()
+    window.close()
+  }
+}
+
 function ForeignView(props: { width: number; onCreatingView: (event: { object?: unknown; view?: unknown }) => void }) {
   return (
     <placeholder
@@ -1046,6 +1083,7 @@ setTimeout(async () => {
     await checkBuilderControls()
     await checkHtmlText()
     await checkForeignView()
+    await checkKeyedLayout()
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

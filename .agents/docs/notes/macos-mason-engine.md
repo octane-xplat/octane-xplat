@@ -132,3 +132,11 @@ Mason. The maintained layout-placement fixture passes for both absolute
 and grid panel layouts, including repeated solves after window resize.
 Keep the opt-in until Core can forward the basis to external layout
 engines.
+
+## Keyed children on NativeScript Core
+
+The Core driver uses the Mac Mason layout's in-place move capability for a keyed
+child that stays in the same container. Core's normal remove-and-insert path
+tears down that child's native view. In-place moves update the Core child list
+and AppKit stacking order, invalidate affected sibling selectors, and request
+Mason layout while keeping the existing view and subscriptions.

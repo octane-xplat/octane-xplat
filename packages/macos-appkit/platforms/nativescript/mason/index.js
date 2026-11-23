@@ -357,6 +357,30 @@ export class View extends LayoutBase {
     get __isMasonHorizontal() {
         return false;
     }
+    moveChildInPlace(child, index) {
+        const previous = this.getChildIndex(child);
+        if (previous < 0) {
+            throw new Error('Cannot move an AppKit child owned by another layout');
+        }
+        if (previous === index) {
+            return;
+        }
+        // Core's removeChild tears down the AppKit view, even when the
+        // same layout will immediately reinsert it. Keep it loaded.
+        this._subViews.splice(previous, 1);
+        this._subViews.splice(index, 0, child);
+        const host = this.nativeViewProtected;
+        const native = child.nativeViewProtected;
+        if (native?.superview === host && host) {
+            const following = this._subViews.slice(index + 1)
+                .find((sibling) => sibling.nativeViewProtected?.superview === host);
+            host.addSubviewPositionedRelativeTo(
+                native, following ? -1 : 1, following?.nativeViewProtected ?? null,
+            );
+        }
+        this._invalidateSiblingCssState(Math.min(previous, index), Math.max(previous, index) + 2);
+        this.requestLayout();
+    }
     onMeasure(widthMeasureSpec, heightMeasureSpec) {
         masonOnMeasure(this, widthMeasureSpec, heightMeasureSpec);
     }
