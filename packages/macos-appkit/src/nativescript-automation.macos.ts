@@ -33,6 +33,7 @@ export function installNativeScriptAutomation(root: UniversalRoot): void {
     return result
   }
   const find = (id: string) => views().find((view) => view.id === id)
+  const pressedViews = new WeakSet<View>()
   const unpublish = publishAppKitAutomation(root, {
     findId(id: string) {
       for (const node of inspectNativeScriptNodes()) {
@@ -51,7 +52,12 @@ export function installNativeScriptAutomation(root: UniversalRoot): void {
     },
     pressId(id: string) {
       const view = find(id)
-      if (!view || !activateNativeScriptView(view)) {
+      if (view && activateNativeScriptView(view)) {
+        pressedViews.add(view)
+        return
+      }
+      // A retained view can lose the handler after automation has used it.
+      if (!view || !pressedViews.has(view)) {
         throw new Error('No AppKit pressable with id ' + id)
       }
     },
