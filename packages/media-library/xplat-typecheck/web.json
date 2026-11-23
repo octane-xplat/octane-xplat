@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/image-attachment.ts",
+		"../../../examples/media/image-attachment.ts",
 		"../src/backend-types.ts",
 		"../src/backend.photos.ts",
 		"../src/backend.web.ts",
@@ -16,6 +16,14 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-library": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/image-manipulator": [
+				"../../image-manipulator/types/generated/index.d.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

@@ -12,6 +12,11 @@
 		"./isolation-android.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-converter": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [
 			"../node_modules/@nativescript/types/globals.d.ts",

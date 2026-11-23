@@ -11,6 +11,14 @@
 		"./isolation-android.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/screen-orientation": [
+				"../src/index.ts"
+			],
+			"@nativescript/core": [
+				"../node_modules/@nativescript/core"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [
 			"../node_modules/@nativescript/types/globals.d.ts",

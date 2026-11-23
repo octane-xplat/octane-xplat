@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/reporting.web.ts",
+		"../../../examples/observability/reporting.web.ts",
 		"../src/index.web.ts",
 		"./isolation-web.ts"
 	],

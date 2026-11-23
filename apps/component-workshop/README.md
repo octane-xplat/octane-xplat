@@ -11,10 +11,10 @@ regenerate `bun.lock`, and run the build, typecheck, and packaging check below.
 The sandbox stories use this workspace's framework packages.
 
 ```sh
-bun run turbo run build --filter=@xplat/component-workshop
-bun run turbo run typecheck --filter=@xplat/component-workshop
-bun run turbo run test:browser --filter=@xplat/component-workshop
-bun run turbo run test --filter=@xplat/component-workshop
+bun run turbo run build --filter=@octane-xplat/component-workshop
+bun run turbo run typecheck --filter=@octane-xplat/component-workshop
+bun run turbo run test:browser --filter=@octane-xplat/component-workshop
+bun run turbo run test --filter=@octane-xplat/component-workshop
 ```
 
 The packed-sandbox check packages the installed sandbox, resolves the catalog's

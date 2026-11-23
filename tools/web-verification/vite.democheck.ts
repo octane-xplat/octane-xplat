@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import base from './vite.verification.config'
 
 // Scratch config — same plugins/resolution as the real app, different entry.
-// Used to compile-check @xplat/demos without touching main.tsrx.
+// Used to compile-check @octane-xplat/demos without touching main.tsrx.
 export default defineConfig((env) => ({
   ...base(env),
   build: {

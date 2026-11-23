@@ -12,7 +12,7 @@
 		"parity": "node ./scripts/parity.ts",
 		"bench:virtual-list": "node ./scripts/bench-virtual-list.ts",
 		"bench:virtual-list-scroll": "node ./scripts/bench-virtual-list-scroll.ts",
-		"package": "xplat build --targets macos",
+		"package": "bun run --cwd ../../apps/mobile build:macos",
 		"test:announce": "node test/verify-announce.mts",
 		"smoke": "node scripts/smoke.ts",
 		"verify-hmr": "node scripts/verify-hmr.ts",

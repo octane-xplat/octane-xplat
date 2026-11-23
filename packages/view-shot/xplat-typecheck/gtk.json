@@ -10,6 +10,11 @@
 		"./isolation-gtk.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/view-shot": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

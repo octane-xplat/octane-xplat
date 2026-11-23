@@ -2,7 +2,7 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/native.d.ts",
-		"../examples/startup.mobile.ts",
+		"../../../examples/startup/splash-screen.mobile.ts",
 		"../src/backend-types.ts",
 		"../src/backend.ios.ts",
 		"../src/index.ts",
@@ -13,6 +13,14 @@
 		"./isolation-ios.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/splash-screen": [
+				"../src/index.ts"
+			],
+			"@nativescript/core": [
+				"../node_modules/@nativescript/core"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [
 			"../node_modules/@nativescript/types/globals.d.ts",

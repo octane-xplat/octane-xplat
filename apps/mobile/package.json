@@ -4,13 +4,13 @@
 	"private": true,
 	"main": "src/index.ts",
 	"scripts": {
-		"web": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev web",
+		"web": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && xplat dev web",
 		"build:web": "vite build",
-		"ios": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev ios",
-		"android": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev android",
-		"windows": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev windows --app .",
+		"ios": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && xplat dev ios",
+		"android": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && xplat dev android",
+		"windows": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && xplat dev windows --app .",
 		"build:windows": "xplat build --targets windows",
-		"debug:ios": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && ns debug ios",
+		"debug:ios": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && ns debug ios",
 		"build:ios": "ns build ios",
 		"build:android": "ns build android",
 		"bench:animation:ios": "node scripts/build-animation-quality.mjs",
@@ -24,13 +24,11 @@
 		"demos:ios": "XPLAT_DOCS_DEMOS=1 ns run ios --no-hmr",
 		"demos:android": "XPLAT_DOCS_DEMOS=1 ns run android --no-hmr",
 		"demos:build:ios": "XPLAT_DOCS_DEMOS=1 ns build ios",
-		"linux": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && xplat dev linux",
-		"macos": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && bun run --cwd ../.. turbo run build --filter=@octane-xplat/macos-build && xplat dev macos",
+		"macos": "bun run --cwd ../.. turbo run gen --filter=@octane-xplat/app && bun run --cwd ../.. turbo run build --filter=@octane-xplat/macos-build && xplat dev macos",
 		"build:macos": "xplat build --targets macos",
 		"build:macos:bundle": "vite build --config macos/vite.package.config.mjs",
 		"typecheck:macos": "tsc --runExternalCode --noEmit -p ../../tools/macos-verification/tsconfig.json",
-		"build:macos:dev": "vite build --config macos/vite.dev.config.mjs --mode development && vite build --config macos/vite.dev-shell.config.mjs --mode development",
-		"webview:macos": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && bun run --cwd ../.. turbo run build --filter=@octane-xplat/macos-build && node macos/webview-dev.mjs"
+		"build:macos:dev": "vite build --config macos/vite.dev.config.mjs --mode development && vite build --config macos/vite.dev-shell.config.mjs --mode development"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.1.0",
@@ -47,7 +45,6 @@
 		"@octane-xplat/canvas": "workspace:*",
 		"@octane-xplat/context-menu": "workspace:*",
 		"@octane-xplat/date-picker": "workspace:*",
-		"@octane-xplat/desktop-webview": "workspace:*",
 		"@octane-xplat/effects": "workspace:*",
 		"@octane-xplat/files": "workspace:*",
 		"@octane-xplat/geolocation": "workspace:*",
@@ -56,7 +53,7 @@
 		"@octane-xplat/image": "workspace:*",
 		"@octane-xplat/lottie": "workspace:*",
 		"@octane-xplat/media": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.10",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/notifications": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
@@ -102,29 +99,13 @@
 			"windows": {
 				"toolchain": "../../tools/windows-host"
 			},
-			"linux": {
-				"runtime": "webkitgtk",
-				"host": {
-					"scheme": "xplat"
-				},
-				"package": {
-					"applicationId": "org.octane.xplat",
-					"productName": "Octane xplat",
-					"executableName": "octane-xplat",
-					"version": "0.0.0",
-					"viteConfig": "linux/vite.linux.config.mts"
-				}
-			},
 			"macos": {
 				"runtime": "appkit-node-api",
 				"dev": {
 					"viteConfig": "macos/vite.dev.config.mjs",
 					"bundleFile": "dist/macos-dev/app.cjs",
 					"shellViteConfig": "macos/vite.dev-shell.config.mjs",
-					"shellBundleFile": "dist/macos-dev/shell.cjs",
-					"webViteConfig": "macos/vite.webview-app.config.mjs",
-					"hostViteConfig": "macos/vite.webview-app-host.config.mjs",
-					"hostBundleFile": "dist/macos-webview-app-host/host.cjs"
+					"shellBundleFile": "dist/macos-dev/shell.cjs"
 				},
 				"package": {
 					"productName": "Octane macOS spike",
@@ -138,11 +119,7 @@
 					"infoPlist": {
 						"NSCameraUsageDescription": "This app records video with the camera.",
 						"NSMicrophoneUsageDescription": "This app records audio with your video."
-					},
-					"webViteConfig": "macos/vite.webview-app.config.mjs",
-					"hostViteConfig": "macos/vite.webview-app-host.config.mjs",
-					"hostBundleFile": "dist/macos-webview-app-host/host.cjs",
-					"webOutDir": "dist/macos-webview-app"
+					}
 				}
 			}
 		}

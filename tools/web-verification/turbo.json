@@ -23,12 +23,12 @@
 		// styled-system/* resolves into packages/app's generated sources — the
 		// files must exist before these tasks run.
 		"typecheck": {
-			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
 			"inputs": ["$TURBO_DEFAULT$", "../../apps/mobile/web/**", "../../apps/mobile/vite.web.config.mts", "../../apps/mobile/package.json"],
 			"outputs": []
 		},
 		"build": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
 			"inputs": [
 				"$TURBO_DEFAULT$",
 				"../../apps/mobile/web/**",

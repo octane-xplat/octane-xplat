@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/checkout.ts",
+		"../../../examples/payments/checkout.ts",
 		"../src/backend-types.ts",
 		"../src/backend.web.ts",
 		"../src/client.ts",
@@ -13,6 +13,11 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/stripe": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

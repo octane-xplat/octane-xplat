@@ -1,7 +1,7 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"paths": { "@octane-xplat/pretext": ["../../../src/index.ts"], "@octane-xplat/pretext/rich-inline": ["../../../src/rich-inline.ts"] },
+		"paths": { "@octane-xplat/pretext": ["../src/index.ts"], "@octane-xplat/pretext/rich-inline": ["../src/rich-inline.ts"] },
 		"resolveJsonModule": true,
 		"types": ["@nativescript/types"]
 	},

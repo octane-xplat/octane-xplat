@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/tracking-actions.ts",
+		"../../../examples/privacy/tracking-actions.ts",
 		"../src/backend-types.ts",
 		"../src/backend.web.ts",
 		"../src/index.web.ts",
@@ -13,6 +13,11 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/tracking-transparency": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

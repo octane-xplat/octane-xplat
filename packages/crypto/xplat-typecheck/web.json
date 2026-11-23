@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/encrypted-note.ts",
+		"../../../examples/security/encrypted-note.ts",
 		"../src/aes.ts",
 		"../src/backend-types.ts",
 		"../src/backend.apple.ts",
@@ -14,6 +14,11 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/crypto": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",

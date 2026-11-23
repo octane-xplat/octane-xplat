@@ -6,6 +6,11 @@
 		"./isolation-windows.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/stripe": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

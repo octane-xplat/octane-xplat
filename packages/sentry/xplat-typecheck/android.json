@@ -2,7 +2,7 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/native.d.ts",
-		"../examples/reporting.mobile.ts",
+		"../../../examples/observability/reporting.mobile.ts",
 		"../src/index.ts",
 		"./isolation-android.ts"
 	],

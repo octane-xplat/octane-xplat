@@ -6,6 +6,11 @@
 		"./isolation-gtk.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/print": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",

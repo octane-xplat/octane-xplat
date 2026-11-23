@@ -193,7 +193,7 @@ Native click recognizers now have ownership separate from accessibility IDs.
 Controls mounted disabled/read-only can install a callback later; updates reuse
 one recognizer, removal disables it and teardown removes it. This repairs source
 wiring, not actual native re-enable/hit-testing or lifecycle qualification. See
-[click ownership](../../recipes/appkit-click-actions.md).
+[click ownership](../../recipes/appkit-nested-clicks.md).
 
 ```tsx
 import { Checkbox } from '@octane-xplat/ui'

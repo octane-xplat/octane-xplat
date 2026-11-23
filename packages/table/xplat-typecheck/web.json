@@ -1,6 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
+		"../../../examples/tables/interactive.tsrx",
 		"../src/index.web.ts",
 		"./isolation-web.ts"
 	],

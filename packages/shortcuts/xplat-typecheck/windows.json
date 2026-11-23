@@ -6,6 +6,11 @@
 		"./isolation-windows.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/shortcuts": [
+				"../src/index.ts"
+			]
+		},
 		"jsxImportSource": "@octane-xplat/jsx",
 		"moduleSuffixes": [
 			".windows",

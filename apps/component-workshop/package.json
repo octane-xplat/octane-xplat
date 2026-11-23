@@ -46,7 +46,7 @@
     "@octane-xplat/workshop": "workspace:*",
     "@octanejs/vite-plugin": "catalog:",
     "@tsrx/content-mapper": "catalog:",
-    "@octane-xplat/astryx-sandbox": "git+https://github.com/octane-xplat/astryx-sandbox.git#160f0052cf5b64167135937c04ff9a23cf5fc38d",
+    "@octane-xplat/astryx-sandbox": "git+https://github.com/octane-xplat/astryx-sandbox.git#aabfe55398acd82722e5be73b6c121c173759a28",
     "playwright": "1.63.0",
     "typescript": "catalog:",
     "vite": "catalog:"

@@ -3,8 +3,8 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"paths": {
-			"@octane-xplat/media-library": ["../../../src/index.ts"],
-			"@octane-xplat/image-manipulator": ["../../../../image-manipulator/types/generated/index.d.ts"]
+			"@octane-xplat/media-library": ["../src/index.ts"],
+			"@octane-xplat/image-manipulator": ["../../image-manipulator/types/generated/index.d.ts"]
 		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",

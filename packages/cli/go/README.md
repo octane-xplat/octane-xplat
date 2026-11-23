@@ -152,9 +152,9 @@ full 256-frame receiver queue closes just that consumer with 1013 rather than
 blocking the hub. The Vite fallback bridge has no channels.
 
 ```sh
-/absolute/path/to/xplat-go actions run --action fixture.read --target web --input '{}' --project /work/repo --app apps/web --json
-/absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
-/absolute/path/to/xplat-go actions status JOB_ID --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go actions run --action fixture.read --target web --input '{}' --project /work/repo --app apps/mobile --json
+/absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/mobile --json
+/absolute/path/to/xplat-go actions status JOB_ID --project /work/repo --app apps/mobile --json
 ```
 
 A short client's exit does not cancel an accepted action. Request keys are scoped

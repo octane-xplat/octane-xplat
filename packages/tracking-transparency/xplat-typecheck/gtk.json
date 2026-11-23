@@ -7,6 +7,11 @@
 		"./isolation-gtk.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/tracking-transparency": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

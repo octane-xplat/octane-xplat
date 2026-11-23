@@ -22,7 +22,7 @@ Build the qualification entry through the shared app from the repository root on
 ```powershell
 $env:XPLAT_WINDOWS_QUALIFICATION = '1'
 $sourceCommit = (git rev-parse HEAD).Trim()
-bun run turbo run build:windows --filter=@xplat/mobile --concurrency=1
+bun run turbo run build:windows --filter=@octane-xplat/mobile --concurrency=1
 ```
 
 The shared app selects its isolated Windows toolchain. The environment flag

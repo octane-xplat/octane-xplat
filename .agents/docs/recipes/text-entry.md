@@ -39,7 +39,7 @@ space through form and overlay lifecycles.
 ## macOS verification
 
 Run `bun run --filter @octane-xplat/macos test:text-controls` for the maintained
-[AppKit fixture](../../../apps/macos/test/text-controls-fixture.macos.tsx). It checks
+[AppKit fixture](../../../tools/macos-verification/test/text-controls-fixture.macos.tsx). It checks
 text-control handles and responder callbacks, secure-mode updates while focused,
 and submit dispatch distinct from text changes. Multiline action Return uses
 `done`/`send`; other Return actions remain newlines. The fixture dispatches

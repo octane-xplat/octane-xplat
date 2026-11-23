@@ -14,6 +14,11 @@
 		"./isolation-ios.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/print": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [
 			"../node_modules/@nativescript/types/globals.d.ts",

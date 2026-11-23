@@ -9,12 +9,18 @@
 		"../src/core.ts",
 		"../src/geometry.ts",
 		"../src/index.ts",
+		"../src/shared-exports.ts",
 		"../src/source.mobile.ts",
 		"../src/types.ts",
 		"../src/use-image-manipulator.tsx",
 		"./isolation-android.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/image-manipulator": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

@@ -71,7 +71,7 @@ jobs:
       # Workshop stories import the sandbox through its package exports. Keep
       # their framework API compatibility checked without launching a browser.
       - name: Typecheck web and workshop
-        run: bun run turbo run typecheck --filter=@xplat/web --filter=@xplat/component-workshop
+        run: bun run turbo run typecheck --filter=@octane-xplat/web --filter=@octane-xplat/component-workshop
 
       - name: Typecheck mobile
         run: bun run turbo run typecheck --filter=@octane-xplat/mobile

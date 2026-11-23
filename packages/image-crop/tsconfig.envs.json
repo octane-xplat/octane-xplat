@@ -8,9 +8,9 @@
 		"jsx": "react-jsx",
 		"allowImportingTsExtensions": true,
 		"paths": {
-			"@octane-xplat/image-crop": ["../../../src/index.ts"],
-			"octane": ["../../../node_modules/octane"],
-			"octane/jsx-runtime": ["../../../node_modules/octane/dist/jsx-runtime.d.ts"],
+			"@octane-xplat/image-crop": ["../src/index.ts"],
+			"octane": ["../node_modules/octane"],
+			"octane/jsx-runtime": ["../node_modules/octane/dist/jsx-runtime.d.ts"],
 			"@octane-xplat/ui": [
 				"../ui/types/generated/index.d.ts"
 			]

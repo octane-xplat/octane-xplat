@@ -7,6 +7,11 @@
 		"./isolation-macos.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/global-shortcuts": [
+				"../src/index.ts"
+			]
+		},
 		"jsxImportSource": "@octane-xplat/jsx",
 		"moduleSuffixes": [
 			".macos",

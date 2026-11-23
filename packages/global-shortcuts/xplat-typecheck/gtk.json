@@ -8,6 +8,11 @@
 		"./isolation-gtk.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/global-shortcuts": [
+				"../src/index.ts"
+			]
+		},
 		"jsxImportSource": "@octane-xplat/jsx",
 		"moduleSuffixes": [
 			".gtk",

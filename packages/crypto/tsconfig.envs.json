@@ -2,7 +2,7 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"paths": { "@octane-xplat/crypto": ["../../../src/index.ts"] },
+		"paths": { "@octane-xplat/crypto": ["../src/index.ts"] },
 		"resolveJsonModule": true,
 		"types": ["@nativescript/types"]
 	},

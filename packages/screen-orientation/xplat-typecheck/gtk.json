@@ -6,6 +6,14 @@
 		"./isolation-gtk.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/screen-orientation": [
+				"../src/index.ts"
+			],
+			"@nativescript/core": [
+				"../node_modules/@nativescript/core"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",

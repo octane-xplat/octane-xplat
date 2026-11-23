@@ -69,7 +69,7 @@ export default defineConfig(async ({ mode }) => {
         extensions: ['.native.tsrx', '.native.tsx', '.native.ts', '.native.js'],
         alias: [
           {
-            find: '@xplat/app/platform/filepick',
+            find: '@octane-xplat/app/platform/filepick',
             replacement: fileURLToPath(
               new URL('../../packages/app/src/platform/filepick.windows.ts', import.meta.url),
             ),

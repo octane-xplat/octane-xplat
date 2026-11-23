@@ -38,7 +38,7 @@ export const hasWeb = (cwd) => viteConfigFiles.some((file) => existsSync(`${cwd}
 
 export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
 
-/** The opt-in macOS AppKit target currently used by apps/macos. */
+/** The opt-in macOS AppKit target currently used by apps/mobile/macos. */
 export const hasMacOS = (cwd) =>
   readJson(`${cwd}/package.json`)?.xplat?.targets?.macos?.runtime === 'appkit-node-api'
 

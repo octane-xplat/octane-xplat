@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/upload-pdf.ts",
+		"../../../examples/printing/upload-pdf.ts",
 		"../src/backend-types.ts",
 		"../src/backend.web.ts",
 		"../src/index.web.ts",
@@ -13,6 +13,11 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/print": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",

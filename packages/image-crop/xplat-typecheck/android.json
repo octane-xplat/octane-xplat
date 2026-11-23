@@ -2,7 +2,8 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/native.d.ts",
-		"../examples/selection.tsrx",
+		"../../../examples/media/crop-selection.tsrx",
+		"../../../examples/probes/image-crop-selection.tsrx",
 		"../src/Gesture.tsrx",
 		"../src/Guide.tsrx",
 		"../src/ImageCrop.tsrx",
@@ -19,6 +20,15 @@
 		"jsx": "react-jsx",
 		"allowImportingTsExtensions": true,
 		"paths": {
+			"@octane-xplat/image-crop": [
+				"../src/index.ts"
+			],
+			"octane": [
+				"../node_modules/octane"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
 			"@octane-xplat/ui": [
 				"../ui/types/generated/index.d.ts"
 			]

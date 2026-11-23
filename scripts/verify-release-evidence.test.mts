@@ -494,7 +494,7 @@ test('workflow dependencies keep ci independent and stable bound to the release 
     commands.some(
       (command) =>
         command.includes('turbo run typecheck') &&
-        command.includes('--filter=@xplat/component-workshop'),
+        command.includes('--filter=@octane-xplat/component-workshop'),
     ),
     'CI must typecheck workshop stories against their sandbox dependency',
   )

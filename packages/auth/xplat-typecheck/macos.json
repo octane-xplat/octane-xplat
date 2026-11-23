@@ -2,7 +2,7 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/macos.d.ts",
-		"../examples/auth0-flow.ts",
+		"../../../examples/auth/auth0-flow.ts",
 		"../src/AppleSignInButton.macos.tsrx",
 		"../src/GoogleSignInButton.macos.tsrx",
 		"../src/apple-button.macos.ts",
@@ -14,6 +14,14 @@
 		"./isolation-macos.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/auth": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/platform": [
+				"../../platform/types/generated/index.d.ts"
+			]
+		},
 		"target": "esnext",
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

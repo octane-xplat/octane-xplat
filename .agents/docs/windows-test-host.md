@@ -52,7 +52,7 @@ From the repository root, the intended checks are:
 bun install --frozen-lockfile
 bun run --cwd tools/windows-host xplat doctor
 $env:NODE_OPTIONS = '--max-old-space-size=4096'
-bun run turbo run build:windows typecheck --filter=@xplat/mobile --concurrency=1 --continue=dependencies-successful
+bun run turbo run build:windows typecheck --filter=@octane-xplat/mobile --concurrency=1 --continue=dependencies-successful
 ```
 
 Turbo generates the app and typechecks the isolated Windows toolchain before

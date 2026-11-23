@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/measure.ts",
+		"../../../examples/text/measure.ts",
 		"../src/index.web.ts",
 		"../src/install.web.ts",
 		"../src/intl.ts",
@@ -10,6 +10,14 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/pretext": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/pretext/rich-inline": [
+				"../src/rich-inline.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",

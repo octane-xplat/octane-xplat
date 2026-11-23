@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/workspace.ts",
+		"../../../examples/keyboard-shortcuts/workspace.ts",
 		"../src/engine/bindings/canonicalizeStep.ts",
 		"../src/engine/bindings/compileBinding.ts",
 		"../src/engine/bindings/parseCombo.ts",
@@ -35,6 +35,11 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/shortcuts": [
+				"../src/index.ts"
+			]
+		},
 		"jsxImportSource": "@octane-xplat/jsx",
 		"moduleSuffixes": [
 			".web",

@@ -2,9 +2,9 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/native.d.ts",
-		"../examples/KeyboardComposerDemo.tsrx",
-		"../examples/KeyboardFormDemo.tsrx",
-		"../examples/KeyboardMotionDemo.tsrx",
+		"../../../examples/keyboard/avoiding.tsrx",
+		"../../../examples/keyboard/composer.tsrx",
+		"../../../examples/keyboard/form.tsrx",
 		"../src/KeyboardAwareScrollView.mobile.tsrx",
 		"../src/KeyboardStickyView.mobile.tsrx",
 		"../src/Provider.tsrx",
@@ -43,6 +43,23 @@
 	],
 	"compilerOptions": {
 		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/keyboard": [
+				"../src/index.ts"
+			],
+			"@octane-xplat/ui": [
+				"../node_modules/@octane-xplat/ui/types/generated/index.d.ts"
+			],
+			"octane": [
+				"../node_modules/octane/dist/index.d.ts"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
+			"octane/tsrx-boundary": [
+				"../node_modules/octane/dist/tsrx-boundary.d.ts"
+			]
+		},
 		"moduleSuffixes": [
 			".android",
 			".mobile",

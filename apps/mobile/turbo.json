@@ -1,67 +1,166 @@
 {
 	"$schema": "https://turborepo.dev/schema.json",
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
 		"build:windows": {
-			"dependsOn": ["@xplat/windows#typecheck", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"dependsOn": [
+				"@octane-xplat/windows#typecheck",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false,
-			"env": ["XPLAT_WINDOWS_QUALIFICATION"],
-			"passThroughEnv": ["CommonProgramFiles", "CommonProgramFiles(x86)", "ProgramFiles", "ProgramFiles(x86)", "LOCALAPPDATA", "NODE_OPTIONS", "PROCESSOR_ARCHITECTURE"]
+			"env": [
+				"XPLAT_WINDOWS_QUALIFICATION"
+			],
+			"passThroughEnv": [
+				"CommonProgramFiles",
+				"CommonProgramFiles(x86)",
+				"ProgramFiles",
+				"ProgramFiles(x86)",
+				"LOCALAPPDATA",
+				"NODE_OPTIONS",
+				"PROCESSOR_ARCHITECTURE"
+			]
 		},
-		"typecheck:macos:webview": { "dependsOn": ["^typegen", "@xplat/app#gen"], "inputs": ["$TURBO_DEFAULT$", "../../tools/macos-verification/tsconfig*.json"], "outputs": [] },
-		"build:macos:webview-host": { "dependsOn": ["^typegen", "@octane-xplat/cli#build"], "cache": false },
-		"build:macos:webview": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/cli#build"], "cache": false },
-		"build:macos:dev": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/lexical#build:assets", "@octane-xplat/richtext#build:assets", "@octane-xplat/tiptap#build:assets"], "cache": false },
-		"build:macos:bundle": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/lexical#build:assets", "@octane-xplat/richtext#build:assets", "@octane-xplat/tiptap#build:assets"], "cache": false },
-		"build:macos": { "dependsOn": ["^typegen", "@xplat/app#gen", "@octane-xplat/lexical#build:assets", "@octane-xplat/richtext#build:assets", "@octane-xplat/tiptap#build:assets", "@octane-xplat/cli#build", "@octane-xplat/macos-build#build"], "cache": false },
-		"typecheck:macos": { "dependsOn": ["^typegen", "@xplat/app#gen"], "inputs": ["$TURBO_DEFAULT$", "../../tools/macos-verification/tsconfig.json"], "outputs": [] },
-		"build:linux:web": { "dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"], "cache": false },
-		"build:linux": { "dependsOn": ["^typegen", "@xplat/app#gen"], "cache": false },
-		"typecheck:linux": { "dependsOn": ["^typegen", "@xplat/app#gen"], "outputs": [] },
-		"smoke:linux": { "cache": false },
+		"build:macos:dev": {
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/app#gen",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets"
+			],
+			"cache": false
+		},
+		"build:macos:bundle": {
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/app#gen",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets"
+			],
+			"cache": false
+		},
+		"build:macos": {
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/app#gen",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/macos-build#build"
+			],
+			"cache": false
+		},
+		"typecheck:macos": {
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/app#gen"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../../tools/macos-verification/tsconfig.json"
+			],
+			"outputs": []
+		},
 		"build:web": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false
 		},
 		"bench:animation:ios": {
-			"dependsOn": ["@octane-xplat/motion#typegen", "@octane-xplat/sheet#typegen", "@octane-xplat/cli#build"],
+			"dependsOn": [
+				"@octane-xplat/motion#typegen",
+				"@octane-xplat/sheet#typegen",
+				"@octane-xplat/cli#build"
+			],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "DEVELOPER_DIR", "XPLAT_IOS_DEVELOPMENT_TEAM", "XPLAT_ANIMATION_INPUT_DEBUG"]
+			"passThroughEnv": [
+				"GODDARD_*",
+				"DEVELOPER_DIR",
+				"XPLAT_IOS_DEVELOPMENT_TEAM",
+				"XPLAT_ANIMATION_INPUT_DEBUG"
+			]
 		},
 		"build:ios": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false
 		},
 		"build:android": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false,
-			"passThroughEnv": ["JAVA_HOME", "ANDROID_HOME", "ANDROID_SDK_ROOT"]
+			"passThroughEnv": [
+				"JAVA_HOME",
+				"ANDROID_HOME",
+				"ANDROID_SDK_ROOT"
+			]
 		},
 		"test:ios": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false
 		},
 		"test:visibility": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false,
-			"passThroughEnv": ["NS_PLATFORM", "NS_DEVICE", "GODDARD_*", "XPLAT_VLIST_APP_ID", "DEVELOPER_DIR", "JAVA_HOME", "ANDROID_HOME", "ANDROID_SDK_ROOT"]
+			"passThroughEnv": [
+				"NS_PLATFORM",
+				"NS_DEVICE",
+				"GODDARD_*",
+				"XPLAT_VLIST_APP_ID",
+				"DEVELOPER_DIR",
+				"JAVA_HOME",
+				"ANDROID_HOME",
+				"ANDROID_SDK_ROOT"
+			]
 		},
 		"test:ios:fonts": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false,
-			"passThroughEnv": ["NS_DEVICE", "GODDARD_*"]
+			"passThroughEnv": [
+				"NS_DEVICE",
+				"GODDARD_*"
+			]
 		},
 		"test:android": {
-			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@octane-xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false
 		},
-		// The mobile program's tsconfig `include` covers ../../packages/**/* —
-		// every package's sources are real inputs, including packages that are
-		// not declared dependencies, so hash them explicitly. Explicit input
-		// globs are filesystem walks (not git-aware), so node_modules and
-		// per-package .turbo logs must be negated or the hash never stabilizes.
 		"typecheck": {
-			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/app#gen"
+			],
 			"inputs": [
 				"$TURBO_DEFAULT$",
 				"../../packages/**/*.ts",
@@ -78,14 +177,24 @@
 			"outputs": []
 		},
 		"bench:vlist:ios": {
-			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false,
-			"env": ["XPLAT_WEB_BROWSER"]
+			"env": [
+				"XPLAT_WEB_BROWSER"
+			]
 		},
 		"bench:vlist:android": {
-			"dependsOn": ["^typegen", "@octane-xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/app#gen"
+			],
 			"cache": false,
-			"env": ["XPLAT_WEB_BROWSER"]
+			"env": [
+				"XPLAT_WEB_BROWSER"
+			]
 		}
 	}
 }

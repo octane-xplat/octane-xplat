@@ -24,7 +24,6 @@
 					"tools/web-verification/",
 					"apps/mobile/web/",
 					"apps/docs/",
-					"apps/mobile/linux/",
 					"tools/macos-verification/",
 					"packages/cli/test/fixtures/",
 					"scripts/"
@@ -37,8 +36,7 @@
 				"exclude": [
 					"tools/web-verification/",
 					"apps/mobile/web/",
-					"apps/docs/",
-					"apps/mobile/linux/"
+					"apps/docs/"
 				]
 			}
 		],

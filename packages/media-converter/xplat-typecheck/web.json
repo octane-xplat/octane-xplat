@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/attachment.ts",
+		"../../../examples/media/gif-attachment.ts",
 		"../src/backend-types.ts",
 		"../src/backend.apple.ts",
 		"../src/backend.web.ts",
@@ -12,6 +12,11 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-converter": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",

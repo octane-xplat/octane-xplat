@@ -309,7 +309,7 @@ registry revision for the selected instance. The
 shows how to select an instance and recover an interrupted wait.
 
 ```sh
-xplat actions run --action ACTION_ID --target web --input '{}' --project "$PWD" --app apps/web --json
+xplat actions run --action ACTION_ID --target web --input '{}' --project "$PWD" --app apps/mobile --json
 ```
 
 Use `actions invoke` for asynchronous submission. Inspect the job's reported
@@ -317,8 +317,8 @@ effects before retrying.
 
 ```sh
 # Replace these values with exact identities from the live listing.
-xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/web --json
-xplat actions status JOB_ID --project "$PWD" --app apps/web --json
+xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/mobile --json
+xplat actions status JOB_ID --project "$PWD" --app apps/mobile --json
 ```
 
 Request keys recover retained jobs for the same app instance and action. Reusing a key

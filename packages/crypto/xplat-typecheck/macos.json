@@ -9,6 +9,11 @@
 		"./isolation-macos.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/crypto": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",

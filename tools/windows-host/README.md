@@ -83,7 +83,7 @@ generates the app and typechecks the isolated Windows toolchain before the
 shared app selects that toolchain for its Windows build.
 
 ```sh
-bun run turbo run build:windows --filter=@xplat/mobile --concurrency=1 -- --release
+bun run turbo run build:windows --filter=@octane-xplat/mobile --concurrency=1 -- --release
 ```
 
 

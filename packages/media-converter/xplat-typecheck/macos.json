@@ -8,6 +8,11 @@
 		"./isolation-macos.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/media-converter": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"types": [],
 		"jsxImportSource": "@octane-xplat/jsx",

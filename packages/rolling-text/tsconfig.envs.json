@@ -33,10 +33,10 @@
 	"compilerOptions": {
 		"jsxImportSource": "@octane-xplat/jsx",
 		"paths": {
-			"@octane-xplat/rolling-text": ["../../../src/index.ts"],
-			"@octane-xplat/ui": ["../../../node_modules/@octane-xplat/ui/types/generated/index.d.ts"],
-			"octane": ["../../../node_modules/octane/dist/index.d.ts"],
-			"octane/jsx-runtime": ["../../../node_modules/octane/dist/jsx-runtime.d.ts"]
+			"@octane-xplat/rolling-text": ["../src/index.ts"],
+			"@octane-xplat/ui": ["../node_modules/@octane-xplat/ui/types/generated/index.d.ts"],
+			"octane": ["../node_modules/octane/dist/index.d.ts"],
+			"octane/jsx-runtime": ["../node_modules/octane/dist/jsx-runtime.d.ts"]
 		}
 	}
 }

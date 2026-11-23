@@ -14,7 +14,7 @@ drivers, browser input, native callbacks and OS input establish different things
 
    ```sh
    bun install --frozen-lockfile
-   bun run --filter @xplat/web build
+   bun run --filter @octane-xplat/web build
    node tools/web-verification/scripts/navigation.ts
    ```
 
@@ -574,7 +574,7 @@ it. Linux and Windows have source/type evidence for this refinement; Windows
 runtime remains unavailable.
 
 ```sh
-bun run --filter @xplat/web build
+bun run --filter @octane-xplat/web build
 node tools/web-verification/scripts/navigation.ts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID

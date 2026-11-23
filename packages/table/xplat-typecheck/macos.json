@@ -2,6 +2,7 @@
 	"extends": "../tsconfig.envs.json",
 	"files": [
 		"../../cli/src/typecheck-globals/macos.d.ts",
+		"../../../examples/tables/interactive.tsrx",
 		"../src/index.macos.ts",
 		"./isolation-macos.ts"
 	],

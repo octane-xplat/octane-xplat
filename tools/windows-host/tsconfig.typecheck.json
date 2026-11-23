@@ -14,16 +14,16 @@
 			"@nativescript/core/*": [
 				"./node_modules/@nativescript/core/*"
 			],
-			"@xplat/app": [
+			"@octane-xplat/app": [
 				"../../packages/app/src/index.ts"
 			],
-			"@xplat/app/*": [
+			"@octane-xplat/app/*": [
 				"../../packages/app/src/*"
 			],
-			"@xplat/demos": [
+			"@octane-xplat/demos": [
 				"../../packages/demos/src/index.ts"
 			],
-			"@xplat/demos/*": [
+			"@octane-xplat/demos/*": [
 				"../../packages/demos/src/*"
 			],
 			"@octane-xplat/audio": [

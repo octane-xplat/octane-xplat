@@ -39,10 +39,10 @@ aliases; see each app's `package.json` for its full task list.
 
 | Task                                                        | Command                                                                                                                          |
 | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Start the web harness                                       | `bun run --filter @octane-xplat/web dev`                                                                                                 |
+| Start the web harness                                       | `bun run --filter @octane-xplat/mobile web`                                                                                                 |
 | Start the iOS or Android harness                            | `bun run --filter @octane-xplat/mobile ios` or `bun run --filter @octane-xplat/mobile android`                                                   |
-| Start the macOS or Windows harness                          | `bun run --filter @octane-xplat/macos dev` or `bun run --filter @octane-xplat/windows windows`                                                   |
-| Build a harness target                                      | `bun run turbo run build --filter=@octane-xplat/web`, `bun run --filter @octane-xplat/mobile build:ios`, `bun run --filter @octane-xplat/macos package`, or `bun run --filter @octane-xplat/windows build:windows` |
+| Start the macOS or Windows harness                          | `bun run --filter @octane-xplat/mobile macos` or `bun run --filter @octane-xplat/windows windows`                                                   |
+| Build a harness target                                      | `bun run turbo run build --filter=@octane-xplat/web`, `bun run --filter @octane-xplat/mobile build:ios`, `bun run --filter @octane-xplat/mobile build:macos`, or `bun run --filter @octane-xplat/windows build:windows` |
 | Work on the docs site                                       | `bun run --filter @octane-xplat/docs dev` or `bun run turbo run build --filter=@octane-xplat/docs`                                               |
 | Build workspace packages                                    | `bun run build:packages`                                                                                                          |
 | Build the local `xplat` executable                          | `bun run turbo run build:go --filter=@octane-xplat/cli`                                                                            |
@@ -65,6 +65,6 @@ Aggregates stop on the first failure; `validate` does not run native builds,
 browser smoke, or all packed-consumer checks.
 
 Native launch and build commands require the target's SDK and host tools.
-`@octane-xplat/macos package` builds the experimental AppKit app. Browser smoke
+`@octane-xplat/mobile build:macos` builds the experimental AppKit app. Browser smoke
 commands require Playwright's browser installation. These commands retain the
 [existing target limits](docs/start/spec.md#choose-your-targets).

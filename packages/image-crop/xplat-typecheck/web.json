@@ -1,7 +1,8 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/selection.tsrx",
+		"../../../examples/media/crop-selection.tsrx",
+		"../../../examples/probes/image-crop-selection.tsrx",
 		"../src/Gesture.web.tsrx",
 		"../src/Guide.web.tsrx",
 		"../src/ImageCrop.tsrx",
@@ -18,6 +19,15 @@
 		"jsx": "react-jsx",
 		"allowImportingTsExtensions": true,
 		"paths": {
+			"@octane-xplat/image-crop": [
+				"../src/index.ts"
+			],
+			"octane": [
+				"../node_modules/octane"
+			],
+			"octane/jsx-runtime": [
+				"../node_modules/octane/dist/jsx-runtime.d.ts"
+			],
 			"@octane-xplat/ui": [
 				"../ui/types/generated/index.d.ts"
 			]

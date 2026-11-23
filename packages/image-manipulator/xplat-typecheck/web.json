@@ -1,8 +1,8 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../examples/crop.ts",
-		"../examples/webp.ts",
+		"../../../examples/media/crop-image.ts",
+		"../../../examples/media/encode-webp.ts",
 		"../src/api.web.ts",
 		"../src/assets.d.ts",
 		"../src/backend-types.ts",
@@ -10,6 +10,7 @@
 		"../src/core.ts",
 		"../src/geometry.ts",
 		"../src/index.web.ts",
+		"../src/shared-exports.ts",
 		"../src/types.ts",
 		"../src/use-image-manipulator.tsx",
 		"../src/webp.web.ts",
@@ -17,6 +18,11 @@
 		"./isolation-web.ts"
 	],
 	"compilerOptions": {
+		"paths": {
+			"@octane-xplat/image-manipulator": [
+				"../src/index.ts"
+			]
+		},
 		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",

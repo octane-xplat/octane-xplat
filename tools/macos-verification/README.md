@@ -72,7 +72,7 @@ const root = createMacOSRoot(host.contentView, harnessFontOptions)
 
 ## Native AppKit harness
 
-`apps/macos` imports `App` from `@octane-xplat/app`, and the app imports UI components
+`apps/mobile/macos` imports `App` from `@octane-xplat/app`, and the app imports UI components
 from `@octane-xplat/ui` without a Vite alias for the package root. The package's
 `macos` condition selects `src/index.macos.ts` and matching declarations. This
 is an explicit experimental AppKit surface: components without a host
@@ -133,8 +133,8 @@ addon. The package supplies TypeScript declarations and its license. This uses
 Vite's bundle watcher and Octane's component HMR API; it does not use
 NativeScript's `/ns-hmr` HTTP-ESM transport.
 
-From the repository root, run `bun run --filter @xplat/mobile macos` to launch it, or
-`bun run turbo run build:macos --filter=@xplat/mobile` to create the `.app` and `.dmg`. The app's
+From the repository root, run `bun run --filter @octane-xplat/mobile macos` to launch it, or
+`bun run turbo run build:macos --filter=@octane-xplat/mobile` to create the `.app` and `.dmg`. The app's
 `package.json` opts in with `xplat.targets.macos.runtime: "appkit-node-api"`
 and supplies product/package metadata under `xplat.targets.macos.package`.
 The app's `macos` script launches the CLI's own dev
@@ -464,7 +464,7 @@ the in-repository sweep covers its shared harness, not every AppKit API.
 
 The shared `@octane-xplat/ui` `WebView` embeds WKWebView inside an AppKit screen;
 general WebView app-shell hosting and its service bridge have been removed.
-Run `bun run --cwd apps/macos node test/verify-webview.mts` from the
+Run `bun run --cwd tools/macos-verification node test/verify-webview.mts` from the
 repository root for the isolated compiled component fixture. It exercises real
 WebKit load callbacks, reload, HTML replacement, local-file history and errors,
 content measurement and unmount cleanup without screenshots. Delegate tests run with

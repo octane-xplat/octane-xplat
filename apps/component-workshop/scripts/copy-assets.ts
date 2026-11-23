@@ -43,8 +43,8 @@ function inspect(file: string) {
 for (const entry of Object.values(catalog)) {
   if (entry.module.startsWith('@octane-xplat/astryx-sandbox/examples/')) {
     inspect(require.resolve(entry.module))
-  } else if (entry.module.startsWith('@xplat/demos/')) {
-    inspect(resolve(root, '../../packages/demos/src', entry.module.replace('@xplat/demos/', '')))
+  } else if (entry.module.startsWith('@octane-xplat/demos/')) {
+    inspect(resolve(root, '../../packages/demos/src', entry.module.replace('@octane-xplat/demos/', '')))
   }
 }
 

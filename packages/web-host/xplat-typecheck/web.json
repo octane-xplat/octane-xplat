@@ -1,11 +1,11 @@
 {
 	"extends": "../tsconfig.envs.json",
 	"files": [
-		"../example/Document.web.tsrx",
-		"../example/client.web.ts",
-		"../example/context.server.ts",
-		"../example/routes.web.tsrx",
-		"../example/server.web.ts",
+		"../../../examples/web-rendering/Document.web.tsrx",
+		"../../../examples/web-rendering/client.web.ts",
+		"../../../examples/web-rendering/context.server.ts",
+		"../../../examples/web-rendering/routes.web.tsrx",
+		"../../../examples/web-rendering/server.web.ts",
 		"../src/assets.ts",
 		"../src/build/prerender.ts",
 		"../src/build/vite.ts",

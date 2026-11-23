@@ -2,7 +2,7 @@
 	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"paths": { "@octane-xplat/auth": ["../../../src/index.ts"], "@octane-xplat/platform": ["../../../../platform/src/index.ts"] },
+		"paths": { "@octane-xplat/auth": ["../src/index.ts"], "@octane-xplat/platform": ["../../platform/types/generated/index.d.ts"] },
 		"target": "esnext",
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx"
