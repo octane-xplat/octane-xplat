@@ -107,8 +107,9 @@ openUrl('https://example.com/trips')
 ```
 
 The AppKit Vite config compiles the UI package's macOS leaves with its renderer
-through `@octane-xplat/cli/macos/vite`. The preset resolves NativeScript
-compatibility shims from `@octane-xplat/macos-appkit`. The UI package includes the leaf sources and local helpers needed by
+through `@octane-xplat/cli/macos/vite`. The preset loads NativeScript Core
+and its AppKit provider from `@octane-xplat/macos-appkit`. The UI package
+includes the leaf sources and local helpers needed by
 the bounded root surface. `tsconfig.json` sets the `macos` custom condition so
 TypeScript selects the matching declarations.
 

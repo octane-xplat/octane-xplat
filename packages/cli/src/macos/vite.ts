@@ -1,115 +1,28 @@
-// @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-import { createRequire } from 'node:module'
-import { realpathSync } from 'node:fs'
-import { join, resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
-import { boundary, nodeEnvDefine, css } from '../vite.ts'
+import type { UserConfig } from 'vite'
+import { createCoreMacOSConfig } from './core-vite.ts'
+import type { XplatMacOSOptions } from './vite-options.ts'
 
-import { nativeDevSocketPlugin } from '../mcp/dev-socket.ts'
-import { tabItemContentRoots } from './tab-item.ts'
-import { inlineStylesheets } from '../inline-stylesheets.ts'
-
-const renderer = '@octane-xplat/macos-appkit'
-const runtime = '@nativescript/macos-node-api'
-
-/** AppKit compiler and bundle setup; the consuming app owns the toolchain. */
-export async function macos(env, options = {}) {
-  const mode = typeof env === 'string' ? env : env.mode
-  const root = resolve(options.root ?? process.cwd())
-  const appRequire = createRequire(join(root, 'package.json'))
-  const { octane } = await import(
-    pathToFileURL(realpathSync(appRequire.resolve('@octanejs/vite-plugin'))).href
+/** Compile the macOS app for the NativeScript Core provider on AppKit. */
+export async function macos(
+  env: string | { mode: string },
+  options: XplatMacOSOptions = {},
+): Promise<UserConfig> {
+  const rules = options.rules?.map((rule) =>
+    rule && typeof rule === 'object' && 'renderer' in rule && rule.renderer === 'macos'
+      ? { ...rule, renderer: 'nativescript' }
+      : rule,
   )
-
-  const packaged = options.packaged ?? true
-  const resolveApp = (name) => realpathSync(appRequire.resolve(name))
-
-  return {
-    root,
-    define: nodeEnvDefine(mode),
-    plugins: [
-      ...(mode === 'development' ? [nativeDevSocketPlugin()].filter(Boolean) : []),
-      css('macos'),
-      inlineStylesheets(),
-      boundary('macos'),
-      tabItemContentRoots(),
-      octane({
-        hmr: options.hmr ?? false,
-        // The generated platform type surface (types/macos*) is ~8MB of
-        // pure binding declarations with no JSX/hooks — compiling it
-        // dominates the transform budget for no benefit.
-        exclude: ['types/macos', ...(options.exclude ?? [])],
-        renderers: {
-          registry: {
-            macos: {
-              module: renderer,
-              target: 'universal',
-              server: 'unsupported',
-              text: 'host',
-              // JSX typing lives in the facade; renderer keeps only its module/target.
-              intrinsics: '@octane-xplat/jsx',
-            },
-          },
-          rules: options.rules ?? [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
-        },
-      }),
-    ],
-    build: {
-      // cssCodeSplit emits the CSS asset at renderChunk time, before the
-      // 'pre' generateBundle where Bamboo's survival check and our
-      // stylesheet serializer run (lib-mode's merged asset arrives too late).
-      cssCodeSplit: true,
-      outDir: options.outDir ?? (packaged ? 'dist/package-build' : 'dist'),
-      emptyOutDir: packaged,
-      lib: {
-        entry: options.entry ?? (packaged ? 'src/main.ts' : 'src/App.tsx'),
-        formats: packaged ? ['cjs'] : ['es'],
-        fileName: packaged ? 'main' : 'app',
-      },
-      rollupOptions: {
-        external: packaged ? [runtime, /^node:/] : [runtime, renderer, /^octane\//],
-        // The JavaScriptCore host evaluates one bundle; it cannot require chunks.
-        output: { codeSplitting: false },
-      },
-    },
-    resolve: {
-      conditions: ['macos', 'native'],
-      dedupe: ['octane'],
-      alias: [
-        ...(packaged
-          ? [{ find: /^@octane-xplat\/macos-appkit$/, replacement: resolveApp(renderer) }]
-          : []),
-        { find: /^octane$/, replacement: 'octane/universal/native' },
-        { find: /^@octane-xplat\/nativescript-octane$/, replacement: renderer },
-        {
-          find: /(^|.*\/)escape-props$/,
-          replacement: resolveApp(`${renderer}/compat/escape-props`),
-        },
-        {
-          find: /^@nativescript\/core$/,
-          replacement: resolveApp(`${renderer}/compat/native-core`),
-        },
-        {
-          find: /^@nativescript\/core\/animation-frame$/,
-          replacement: resolveApp(`${renderer}/compat/native-core`),
-        },
-      ],
-      extensions: [
-        '.macos.tsrx',
-        '.tsrx',
-        '.macos.tsx',
-        '.tsx',
-        '.macos.ts',
-        '.ts',
-        '.mts',
-        '.ts',
-        '.jsx',
-        '.js',
-        '.json',
-      ],
-    },
+  const { config } = await createCoreMacOSConfig(typeof env === 'string' ? env : env.mode, {
+    ...options,
+    rules,
+  })
+  const library = config.build?.lib
+  if (options.packaged === false && library) {
+    library.formats = ['es']
+    library.fileName = 'app'
   }
+  return config
 }
 
 /** @deprecated Use {@link macos}. */
-export const xplatMacOS: typeof macos = macos
+export const xplatMacOS = macos

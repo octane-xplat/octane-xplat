@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/macos-appkit",
 	"version": "0.20.0",
-	"description": "Experimental AppKit renderer for Octane on macOS",
+	"description": "NativeScript Core provider and AppKit host for Octane on macOS",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -27,13 +27,13 @@
 	"exports": {
 		".": {
 			"types": "./src/index.d.ts",
-			"import": "./src/index.ts",
-			"default": "./src/index.ts"
+			"import": "./src/nativescript-renderer.macos.ts",
+			"default": "./src/nativescript-renderer.macos.ts"
 		},
 		"./host": {
 			"types": "./src/host.d.ts",
-			"import": "./src/host.ts",
-			"default": "./src/host.ts"
+			"import": "./src/nativescript-host.macos.ts",
+			"default": "./src/nativescript-host.macos.ts"
 		},
 		"./types": {
 			"types": "./types/index.d.ts"
@@ -45,8 +45,6 @@
 			"types": "./src/nativescript-provider.macos.d.mts",
 			"default": "./src/nativescript-provider.macos.mjs"
 		},
-		"./compat/native-core": "./src/native-core-shim.ts",
-		"./compat/escape-props": "./src/native-escape-props.ts",
 		"./compat/ns-core": "./src/ns-compat.ts"
 	},
 	"publishConfig": {
@@ -66,18 +64,18 @@
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
+		"@nativescript/core": "catalog:",
 		"@nativescript/macos-node-api": "catalog:",
 		"@nativescript/objc-node-api": "1.0.0-alpha.7",
+		"@nativescript/vite": "8.0.20",
 		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
+		"@octane-xplat/nativescript-octane": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"acorn": "8.19.0",
 		"saxes": "6.0.0"
 	},
 	"devDependencies": {
-		"@nativescript/core": "catalog:",
-		"@nativescript/vite": "8.0.20",
-		"@octane-xplat/nativescript-octane": "workspace:*",
 		"vite": "catalog:",
 		"octane": "catalog:",
 		"typescript": "catalog:",

@@ -122,6 +122,7 @@ export class ListView extends ListViewBase {
     _heightCache = new Map();
     _measureCells = new Map();
     _widthMeasureSpec = 0;
+    _layoutWidth = 0;
     _preparedTemplate;
     constructor() {
         super();
@@ -217,6 +218,7 @@ export class ListView extends ListViewBase {
         const table = this._tableView;
         this._tableView = undefined;
         this._refreshTable = undefined;
+        this._layoutWidth = 0;
         if (table) {
             // Nil JS-backed delegate/dataSource/action before super's native
             // detach — a finalizer-time dealloc must never re-enter JS.
@@ -263,8 +265,10 @@ export class ListView extends ListViewBase {
         const w = layout.getMeasureSpecSize(this.widthMeasureSpec || this._widthMeasureSpec);
         if (w > 0)
             {return w;}
-        const clipWidth = Number(this._tableView?.superview?.bounds?.size?.width);
-        return clipWidth > 0 ? clipWidth : 200;
+        // AppKit can ask for row heights before the first Core measure.
+        // Use Core geometry here to avoid looking up native wrappers inside
+        // the AppKit delegate callback.
+        return this._layoutWidth || 200;
     }
     _notifyItemLoading(view, index, nativeCell) {
         const args = { eventName: ITEMLOADING, object: this, index, view, appKitCell: nativeCell };
@@ -539,6 +543,10 @@ export class ListView extends ListViewBase {
         this.setMeasuredDimension(layout.getMeasureSpecSize(widthMeasureSpec), layout.getMeasureSpecMode(heightMeasureSpec) === layout.UNSPECIFIED
             ? DEFAULT_ROW_HEIGHT * Math.min(this._rowCount(), 8)
             : layout.getMeasureSpecSize(heightMeasureSpec));
+    }
+    layoutNativeView(left, top, right, bottom) {
+        this._layoutWidth = right - left;
+        super.layoutNativeView(left, top, right, bottom);
     }
     [itemsProperty.setNative](value) {
         this.refresh();

@@ -83,10 +83,18 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
         }
       }
 
+      const viewTree = Reflect.get(globalThis, 'XplatViewTree')
+      check(
+        typeof viewTree?.insertViewIntoParentAtIndex === 'function' &&
+          typeof viewTree?.detachViewTree === 'function',
+        'Packed AppKit view tree helper unavailable',
+      )
+
       // masonview hosts are plain NSViews laid out by Mason, so direction,
       // padding, gap and child order are asserted through child geometry.
       const rect = (view: any) => view.alignmentRectForFrame(view.frame)
       const near = (a: number, b: number) => Math.abs(a - b) < 1
+      const nativeRef = (view: any) => view?.nativeViewProtected ?? view
       const left = (view: any) => Number(rect(view).origin.x)
       const top = (view: any) =>
         Number(stack.frame.size.height) -
@@ -134,8 +142,11 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
       checkPickerBridgeLifecycle(app, nativeWindow.contentView)
 
       nativeWindow.contentView.layoutSubtreeIfNeeded()
-      check(stackRefs.length === 1 && stackRefs[0] === stack, 'Stack ref assignment failed')
-      check(childRefs.a.current === a, 'Object ref assignment failed')
+      check(
+        stackRefs.length === 1 && nativeRef(stackRefs[0]) === stack,
+        'Stack ref assignment failed',
+      )
+      check(nativeRef(childRefs.a.current) === a, 'Object ref assignment failed')
       check(
         Number(stack.subviews.count) === 3 && [a, b, c].every((view) => view.superview === stack),
         'Children not hosted by the masonview',
@@ -183,7 +194,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
           )
 
           check(
-            childRefs.a.current === a && childRefs.b.current === b && childRefs.c.current === c,
+            nativeRef(childRefs.a.current) === a &&
+              nativeRef(childRefs.b.current) === b &&
+              nativeRef(childRefs.c.current) === c,
             'Moved refs changed identity',
           )
 

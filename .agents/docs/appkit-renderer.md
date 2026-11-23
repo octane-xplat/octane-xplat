@@ -1,8 +1,9 @@
 # AppKit renderer internals
 
-Use this map when changing `packages/macos-appkit`. The public entry is
-[`src/index.ts`](../../packages/macos-appkit/src/index.ts); its declaration
-contract remains in `src/index.d.ts`.
+Use this map when changing `packages/macos-appkit`. The public renderer
+entry is [`src/nativescript-renderer.macos.ts`](../../packages/macos-appkit/src/nativescript-renderer.macos.ts)
+and its declaration contract is in `src/index.d.ts`. The public AppKit host
+entry is [`src/nativescript-host.macos.ts`](../../packages/macos-appkit/src/nativescript-host.macos.ts).
 
 ## Find the owner
 
@@ -31,11 +32,11 @@ Paths below are relative to `packages/macos-appkit/src/`.
 `packages/macos-appkit/platforms/nativescript/` owns the Core 9.1.3 platform
 modules and the adapter to the existing Mason library. These modules implement
 the pinned Core runtime contract. Core supplies its public declarations.
-`@octane-xplat/macos-appkit/core-provider` wires the app's patched Vite
-resolver to a single Core installation. Provider imports can reach Core
-internals because they implement those modules. The runtime fixture uses
-the CLI Core bundle configuration to verify the resolved Core paths and
-rejects the old renderer in its bundle. The macOS build boundary permits
+`@octane-xplat/macos-appkit/core-provider` uses the package's pinned,
+patched NativeScript Vite and Core dependencies. Provider imports can reach
+Core internals because they implement those modules. The runtime fixture
+verifies the resolved Core paths and checks that the legacy renderer stays
+out of the bundle. The macOS build boundary permits
 iOS-suffixed files only for paths in the Core provider's explicit reuse map.
 The Core CLI resolves shared UI, routes and gestures through the same
 renderer. Its UI entry keeps the desktop keyboard wrapper.
@@ -46,7 +47,7 @@ In the installed Intel fixture the bridge sometimes reported that the
 screen wrapper had no native counterpart. The layout helper keeps the last
 valid scale for that conversion and reacquires the class on the next read.
 
-The candidate uses the AppKit menu action store, keyboard dispatcher and
+The renderer uses the AppKit menu action store, keyboard dispatcher and
 secondary-window lifecycle. Native pickers and context menus unwrap Core
 references before attaching the same AppKit controls used by the existing
 renderer. Anchored layers, popovers, dialogs and sheets can mount Core roots
@@ -92,11 +93,20 @@ painter can resolve them against the layer. The same registry exposes border
 styles and outlines to the AppKit painter.
 Core transform and opacity properties update the same AppKit layers.
 Core refreshes paint geometry after layout so percentage transforms can
-resolve against the new bounds. The
-painter owns its frame observers and layer disposal. Keep CSS parser
-coverage separate from paint coverage. Core CSS still needs explicit
+resolve against the new bounds. The painter owns its frame observers
+and layer disposal. Keep CSS parser coverage separate from paint coverage.
+Core CSS still needs explicit
 `border-width` and `border-color`. Bundled CSS uses the CLI's `px` to
 `dip` rewrite. Runtime stylesheet registration passes lengths through to Core.
+The AppKit measurement hook defers clearing its bounds when a ref receives
+null. A replacement callback can rebind the same view during the commit.
+Publishing null and then the same rectangle in one commit keeps the bounds
+reader rendering and can starve the AppKit event loop. Rebinding cancels
+the scheduled clear.
+The Core route pane can shrink to its outlet's bounds even when a scroll
+view inside it has a tall document. The desktop harness checks that the
+500-row VirtualList has a bounded, scrollable viewport and mounts a subset
+of the rows before and after a data change.
 The Core stylesheet destination preserves the authored min/max media
 syntax because Core 9.1.3 cannot parse the minifier's range syntax.
 Core 9.1.3 normally evaluates selector and keyframe media queries against
@@ -118,8 +128,9 @@ bun run turbo run test:nativescript --filter=@octane-xplat/macos-appkit
 The fixture checks Core layout, teardown, native accessibility names, menu
 actions, tray lifecycle, shortcut dispatch and secondary windows. It drives
 AppKit objects directly. Native input and assistive-technology behavior need
-their own checks. The shipping macOS preset continues to use the AppKit
-renderer until the desktop app and its feature contracts qualify.
+their own checks. `test:packed` installs the public package exports in an
+independent app and exercises the signed production bundle and development
+hot reload.
 
 ## Keep lifecycle and initialization explicit
 
@@ -445,9 +456,21 @@ clear delegates during disposal before dropping their wrappers. Requalify
 finalization before adding JavaScript overrides that AppKit can call during
 teardown.
 
+On Intel, the bridge can hand Core a stale AppKit subview collection during
+insertion, replacement, or window teardown. The CLI-built host uses
+`XplatViewTree` for indexed insertion and recursive detachment. The helper
+reads AppKit's child collections in Objective-C and keeps their wrappers
+out of JavaScript. The bare-host fixture can fall back to the JavaScript
+path, which detaches the owning view if the bridge reports a stale child
+wrapper. Other teardown errors still surface.
+
+AppKit can request ListView row heights before the first Core measure.
+Use the Core layout width in that callback. Looking up the table's clip
+view through the bridge can raise an exception during AppKit layout on Intel.
+
 The installed Intel AppKit runtime can return a stale native color during
 reactive SegmentedBar tint updates. The same signed lifecycle fails with
-both the current AppKit renderer and the Core provider. Core receives the
+both the previous AppKit renderer and the Core provider. Core receives the
 new RGB channels, then the bridge provides the old native color before the
 control setter runs. Check native readback on Intel when changing this
 path or the bridge, including a second distinct color in the same view.

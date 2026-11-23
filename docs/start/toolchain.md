@@ -526,7 +526,7 @@ for Spotlight. Use the packaged `.app` for a lasting installation.
 
 For AppKit rendering, install `@octane-xplat/macos-appkit` and use
 `macos` from `@octane-xplat/cli/macos/vite` to register the compiler,
-platform resolution, and compatibility aliases. `runMacOSApp` from
+and macOS platform support for NativeScript Core. `runMacOSApp` from
 `@octane-xplat/macos-appkit/host` runs the app for you — startup, the main
 window, and platform services; the app owns its custom fonts, and the
 renderer defaults to Apple's system font.

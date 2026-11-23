@@ -3,7 +3,7 @@ import { NSFontDescriptor, NSView } from '@octane-xplat/platform/macos'
 
 export * from 'octane/universal/native'
 /** @internal Renderer tag for the AppKit development shell. */
-export declare const __rendererId: 'macos' | 'nativescript'
+export declare const __rendererId: 'nativescript'
 /** @internal Install the modules shared by the shell and rebuilt bundles. */
 export declare function __installDevelopmentModules(modules: Record<string, object>): void
 export type { AppKitView, ElementNode } from './model'
@@ -24,9 +24,6 @@ export declare function createMacOSRoot(
   hostView: NSView,
   options?: MacOSRootOptions,
 ): import('octane/universal/native').UniversalRoot
-
-/** @internal Compiler ABI for tabviewitem JSX spreads in macos builds. */
-export declare function __tabItemProps(props: any): any
 
 /** @internal Compiler-owned portal wrapper for raw AppKit tab items. */
 export declare function __PortalTabItem(props: any): any

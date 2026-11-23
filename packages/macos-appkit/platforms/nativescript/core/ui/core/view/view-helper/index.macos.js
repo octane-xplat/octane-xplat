@@ -25,10 +25,18 @@ export class MacOSHelper {
         return CGRectMake(left, top, width, height);
     }
     static insertNativeSubview(parentNativeView, childNativeView, atIndex) {
+        if (typeof atIndex !== 'number' || atIndex < 0) {
+            parentNativeView.addSubview(childNativeView);
+            return;
+        }
+        if (typeof XplatViewTree !== 'undefined') {
+            XplatViewTree.insertViewIntoParentAtIndex(childNativeView, parentNativeView, atIndex);
+            return;
+        }
         // NSWindowOrderingMode: NSWindowAbove = 1, NSWindowBelow = -1 (0 is
         // NSWindowOut — invalid here, AppKit asserts and aborts on it).
         const subviews = parentNativeView.subviews;
-        if (typeof atIndex !== 'number' || !subviews || atIndex >= subviews.count) {
+        if (!subviews || atIndex >= subviews.count) {
             parentNativeView.addSubview(childNativeView);
             return;
         }

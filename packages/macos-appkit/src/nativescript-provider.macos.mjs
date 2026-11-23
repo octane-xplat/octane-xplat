@@ -35,12 +35,12 @@ const platform = {
 }
 
 /**
- * Create a Core provider using the consuming app's patched NativeScript toolchain.
+ * Create a Core provider from this package's patched NativeScript toolchain.
  * @param {string} project The consuming app's absolute path.
  */
 export async function createNativeScriptProvider(project) {
   const manifest = join(project, 'package.json')
-  const require = createRequire(manifest)
+  const require = createRequire(import.meta.url)
   const coreRoot = dirname(realpathSync(require.resolve(`${coreSpecifier}/package.json`)))
   const { getPlatformBundleDefines, platformProviderPlugin } = await import(
     pathToFileURL(require.resolve('@nativescript/vite/platforms')).href

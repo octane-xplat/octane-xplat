@@ -1,11 +1,12 @@
 # Render Octane components in AppKit
 
-> Experimental AppKit renderer for Octane on macOS
+> Build a macOS app with NativeScript Core and native AppKit windows.
 
 `@octane-xplat/macos-appkit` mounts Octane components into an existing
-`NSView`. It is the experimental macOS AppKit renderer, using the
-`@nativescript/macos-node-api` runtime and the CLI's JavaScriptCore host.
-The supported packaging target is Apple Silicon with macOS 13.5 or later.
+`NSView`. NativeScript Core runs those components on AppKit through
+`@nativescript/macos-node-api` and the CLI's JavaScriptCore host.
+The packaged app supports Apple Silicon and Intel Macs running macOS 13.5
+or later. Build apps that compile native leaves on an Apple Silicon Mac.
 
 The package's `host` entry runs the AppKit application for you: it creates
 `NSApplication`, the main window, its universal root, the platform services
@@ -30,14 +31,20 @@ harness is not qualified by this consumer.
 Declare the renderer, `octane`, and `@nativescript/macos-node-api` as application
 dependencies. The CLI also requires the runtime to be directly declared, even
 though the renderer depends on it. Use one copy of Octane per application.
-Declare `@octane-xplat/cli`, `@octanejs/vite-plugin`, and `vite` as development
-dependencies; the preset resolves these from your app, not from the CLI.
+Declare `@octane-xplat/cli` and `vite` as development dependencies. The
+macOS provider supplies its pinned NativeScript Core and NativeScript Vite
+packages.
 Use the compatible versions supplied by the [toolchain setup](package-toolchain.md);
 the maintained consumer reads the repository's compatibility manifest rather
 than maintaining a second set of version pins.
 
-Apply the framework's [patch setup](package-cli.md)
-before building. For TSX and TSRX checking, install TypeScript and run `tsc --runExternalCode`.
+Apply the framework's patches at your app's install root so the macOS
+provider can load its platform definitions. For TSX and TSRX checking,
+install TypeScript and run `tsc --runExternalCode`. See the [patch setup](package-cli.md#framework-patches).
+
+```sh
+xplat patches apply
+```
 
 Use this production Vite config:
 
@@ -48,11 +55,10 @@ import { macos } from '@octane-xplat/cli/macos/vite'
 export default defineConfig(({ mode }) => macos(mode))
 ```
 
-The async preset bundles the packaged entry (`src/main.mjs` by default) into `dist/package-build/main.cjs`,
-selects macOS platform files, registers the universal renderer, aliases
-NativeScript compatibility imports, and externalizes only the native runtime
-and `node:` host imports. Unsupported host imports still fail CLI packaging.
-No repository paths or harness fonts are needed.
+The preset compiles `src/main.ts` to `dist/package-build/main.cjs` by
+default. It selects macOS platform files and bundles Core, the AppKit
+provider, and Octane together. The AppKit host supplies the native runtime
+and supported `node:` imports.
 
 ```js
 import { macos } from '@octane-xplat/cli/macos/vite'
@@ -438,9 +444,16 @@ environment variable is required — and `xplat build` copies it into
 Call `macos(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`
 for the component bundle. It retains renderer and Octane imports so the
 CLI-managed shell can share their live instances across edits. Build the
-shell with `packaged: true`, and populate `__xplatDevModules` with the renderer
-and Octane modules. The [independent development shell](../../packages/macos-appkit/test/fixtures/dev-shell.ts)
-shows the module mapping and retained-root HMR lifecycle.
+shell with `packaged: true`. Install the module table before loading the
+component bundle so it uses the shell's Core, renderer, and Octane instances.
+The [independent development shell](../../packages/macos-appkit/test/fixtures/dev-shell.ts)
+shows how to update the mounted root after an edit.
+
+```ts
+import * as renderer from '@octane-xplat/macos-appkit'
+
+renderer.__installDevelopmentModules({ '@octane-xplat/macos-appkit': renderer })
+```
 
 ```js
 // vite.component.config.mjs

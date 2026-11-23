@@ -38,6 +38,18 @@ export * from '@nativescript/core/ui/core/properties';
 const PFLAG_FORCE_LAYOUT = 1;
 const PFLAG_MEASURED_DIMENSION_SET = 1 << 1;
 const PFLAG_LAYOUT_REQUIRED = 1 << 2;
+function readSubviewTree(read) {
+    try {
+        return read();
+    }
+    catch (error) {
+        // The Intel bridge can return a stale NSArray or child wrapper even
+        // while the containing view still has a live native counterpart.
+        if (!String(error).includes('no native counterpart to the JavaScript object')) {
+            throw error;
+        }
+    }
+}
 // Bridge finalizers dealloc collected wrappers inside JSC's GC sweep; a
 // still-linked NSView's dealloc then cascades through removeFromSuperview →
 // visibleRect → a JS isFlipped override, which must allocate and crashes
@@ -46,6 +58,10 @@ const PFLAG_LAYOUT_REQUIRED = 1 << 2;
 function detachNativeViewTree(native, visited = new WeakSet()) {
     if (!native || typeof native.removeFromSuperview !== 'function' || visited.has(native))
         {return;}
+    if (typeof XplatViewTree !== 'undefined') {
+        XplatViewTree.detachViewTree(native);
+        return;
+    }
     visited.add(native);
     if (native instanceof NSScrollView) {
         // Clip view/scrollers are AppKit-owned (removeFromSuperview throws on
@@ -58,15 +74,16 @@ function detachNativeViewTree(native, visited = new WeakSet()) {
         native.removeFromSuperview();
         return;
     }
-    const subviews = native.subviews;
-    if (subviews && subviews.count > 0) {
-        for (let i = subviews.count - 1; i >= 0; i--) {
-            const child = subviews.objectAtIndex(i);
-            // Native collection wrappers can expose stale entries during
-            // teardown. Only follow children still owned by this view.
-            if (child?.superview === native) {
-                detachNativeViewTree(child, visited);
-            }
+    const subviews = readSubviewTree(() => native.subviews);
+    const count = readSubviewTree(() => subviews?.count) ?? 0;
+    for (let i = count - 1; i >= 0; i--) {
+        const child = readSubviewTree(() => {
+            const candidate = subviews.objectAtIndex(i);
+            // Only follow children still owned by this view.
+            return candidate?.superview === native ? candidate : undefined;
+        });
+        if (child) {
+            detachNativeViewTree(child, visited);
         }
     }
     native.removeFromSuperview();

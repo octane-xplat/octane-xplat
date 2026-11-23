@@ -53,6 +53,7 @@ assert.ok(
 )
 
 const cssEngine = await pack(join(repo, 'packages/css-engine'))
+const nativeScriptOctane = await pack(join(repo, 'packages/nativescript-octane'))
 const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
 const stagedCli = stageHostCli(repo, join(packs, 'native-cli'))
@@ -186,11 +187,13 @@ await writeFile(
       type: 'module',
       dependencies: {
         '@octane-xplat/macos-appkit': renderer,
+        '@octane-xplat/nativescript-octane': nativeScriptOctane,
         '@octane-xplat/css-engine': cssEngine,
         '@octane-xplat/platform': platform,
         '@octane-xplat/jsx': jsx,
         '@nativescript/macos-node-api':
           compatibility.packages['@nativescript/macos-node-api'].version,
+        '@nativescript/core': compatibility.packages['@nativescript/core'].version,
         octane: octaneVersion,
       },
       devDependencies: {
@@ -243,6 +246,7 @@ consumerConfig.overrides = {
   '@octane-xplat/platform': platform,
   '@octane-xplat/css-engine': cssEngine,
   '@octane-xplat/jsx': jsx,
+  '@octane-xplat/nativescript-octane': nativeScriptOctane,
 }
 
 consumerConfig.packageManager = 'bun@1.4.4'

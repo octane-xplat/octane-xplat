@@ -909,8 +909,8 @@ export default defineConfig(({ mode }) => native(mode))
 
 ## macOS AppKit preset
 
-The experimental AppKit preset is exported separately from
-`@octane-xplat/cli/macos/vite`:
+The macOS preset runs NativeScript Core on AppKit. Import it from
+`@octane-xplat/cli/macos/vite`.
 
 ```js
 import { defineConfig } from 'vite'

@@ -12,7 +12,7 @@ const xplatCli = join(
 )
 
 // Cold native-leaf builds can outlast the normal warm-session deadline.
-const timeoutMs = Number(process.env.XPLAT_MACOS_SMOKE_TIMEOUT_MS ?? 120000)
+const timeoutMs = Number(process.env.XPLAT_MACOS_SMOKE_TIMEOUT_MS ?? 240000)
 
 assert.ok(Number.isSafeInteger(timeoutMs) && timeoutMs > 0, 'Invalid AppKit smoke timeout')
 
@@ -21,6 +21,7 @@ const host = spawn(xplatCli, ['dev', 'macos'], {
   env: {
     ...process.env,
     OCTANE_MACOS_AUTOMATION: '1',
+    OCTANE_MACOS_RUN_SMOKE: '1',
     OCTANE_MACOS_PARITY_ONLY: '0',
     OCTANE_MACOS_VLIST_BENCH: '0',
   },

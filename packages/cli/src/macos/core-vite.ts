@@ -27,15 +27,16 @@ export async function createCoreMacOSConfig(
   const root = resolve(options.root ?? process.cwd())
   const packaged = options.packaged ?? true
   const require = createRequire(join(root, 'package.json'))
-  const fromApp = (name: string) => import(pathToFileURL(require.resolve(name)).href)
+  const providerEntry = require.resolve('@octane-xplat/macos-appkit/core-provider')
+  const requireProvider = createRequire(providerEntry)
   const [
     { createNativeScriptProvider, nativeScriptDevImports },
     { nativeScriptRenderer },
     { octane },
   ] = await Promise.all([
-    fromApp('@octane-xplat/macos-appkit/core-provider'),
-    fromApp('@octane-xplat/nativescript-octane/config'),
-    fromApp('octane/compiler/vite'),
+    import(pathToFileURL(providerEntry).href),
+    import(pathToFileURL(requireProvider.resolve('@octane-xplat/nativescript-octane/config')).href),
+    import(pathToFileURL(require.resolve('octane/compiler/vite')).href),
   ])
   const { config: provider, coreRoot, reusedCoreFiles } = await createNativeScriptProvider(root)
   const appKitSource = dirname(require.resolve('@octane-xplat/macos-appkit/host'))
@@ -76,7 +77,18 @@ export async function createCoreMacOSConfig(
     resolve: {
       conditions: ['macos', 'native'],
       dedupe: ['octane'],
-      extensions: ['.macos.tsrx', '.tsrx', '.macos.tsx', '.tsx', '.macos.ts', '.ts', '.mts', '.jsx', '.js', '.json'],
+      extensions: [
+        '.macos.tsrx',
+        '.tsrx',
+        '.macos.tsx',
+        '.tsx',
+        '.macos.ts',
+        '.ts',
+        '.mts',
+        '.jsx',
+        '.js',
+        '.json',
+      ],
       alias: [
         ...provider.resolve.alias,
         ...ui.aliases,
@@ -89,10 +101,12 @@ export async function createCoreMacOSConfig(
           replacement: join(appKitSource, 'nativescript-host.macos.ts'),
         },
         ...(!external.has('@octane-xplat/nativescript-octane')
-          ? [{
-              find: /^@octane-xplat\/nativescript-octane$/,
-              replacement: require.resolve('@octane-xplat/nativescript-octane'),
-            }]
+          ? [
+              {
+                find: /^@octane-xplat\/nativescript-octane$/,
+                replacement: requireProvider.resolve('@octane-xplat/nativescript-octane'),
+              },
+            ]
           : []),
         { find: /^octane$/, replacement: 'octane/universal/native' },
       ],
