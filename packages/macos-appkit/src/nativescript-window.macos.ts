@@ -14,7 +14,7 @@ import { FailureCollector } from './failures'
 import { installWindowRootFactory } from './host-windowing'
 import { appKitHostBoundary } from './nativescript-host-boundary.macos'
 import { installCoreHostedElements } from './nativescript-hosted-elements.macos'
-import { registerAppKitContentRoot } from './nativescript-content-ownership'
+import { installAppKitContentRootFactory, registerAppKitContentRoot } from './nativescript-content-ownership'
 import { installNativeScriptAutomation } from './nativescript-automation.macos'
 import { installNativeScriptStylesheetDelivery } from './nativescript-css.macos'
 import {
@@ -205,6 +205,7 @@ export function createNativeScriptWindowRoot(
 /** Give Core-hosted apps the existing AppKit secondary-window lifecycle. */
 export function installNativeScriptWindowRoots() {
   installCoreHostedElements()
+  installAppKitContentRootFactory(createNativeScriptWindowRoot)
   installWindowRootFactory(createNativeScriptWindowRoot)
   installNativeScriptWindowServices({
     roots: { createMacOSRoot: createNativeScriptWindowRoot },

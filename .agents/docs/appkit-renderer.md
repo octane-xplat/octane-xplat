@@ -62,6 +62,14 @@ rows in place. An AppKit factory template can own its own root through
 The Core host uses the same AppKit pager and AVPlayer ownership code as the
 legacy renderer. Compatibility plugin views retain the factory they acquired
 until disposal, even when a later registration supplies a new factory.
+Raw tab items own a retained content root while assigned to a tab view.
+An AppKit portal mounts a Core layout inside the caller's native target and
+inherits the containing root's font. Duplicate mounts on the same native
+target are rejected until the first owner releases it.
+
+Native button and field actions check their current sender before dispatch.
+The native accessibility adjustment selectors respect disabled and read-only
+state, and retained control targets are inert once their owner retires.
 When compiling Core-backed components, select `host-core.macos.tsx` for
 the UI interaction host. It waits for the Core view to load and uses AppKit's
 mouse contact stream. Wait for the underlying AppKit view's window

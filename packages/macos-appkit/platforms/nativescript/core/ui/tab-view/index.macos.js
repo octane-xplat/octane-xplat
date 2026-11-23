@@ -6,6 +6,8 @@ import { TabViewBase, TabViewItemBase, itemsProperty, selectedIndexProperty } fr
 import { View } from '@nativescript/core/ui/core/view';
 import { layout } from '@nativescript/core/utils';
 import { nativeColor } from '../../../../../src/native-colors';
+import { renderAppKitRetainedContent, unmountAppKitContentRoot } from '../../../../../src/nativescript-content-ownership';
+import { nativeScriptFontFamilyForView } from '../../../../../src/nativescript-roots.macos';
 import { cancelTabIcon, IconTabItem, updateTabIcon } from '../../../../../src/tab-item-native';
 export * from '@nativescript/core/ui/tab-view/tab-view-common';
 const TabViewDelegateImpl = NSObject.extend({
@@ -28,12 +30,23 @@ export class TabViewItem extends TabViewItemBase {
     _nativeItem;
     _tabOwner = null;
     _publishTarget = false;
+    _retainedContent;
+    contentRoot = null;
     _disposed = false;
     get ios() {
         return undefined;
     }
     get macos() {
         return this._nativeItem ?? null;
+    }
+    get __tabContent() {
+        return this._retainedContent;
+    }
+    set __tabContent(content) {
+        if (this._retainedContent !== content) {
+            this._retainedContent = content;
+            this._scheduleContentBinding();
+        }
     }
     _getNativeItem() {
         if (!this._nativeItem) {
@@ -67,14 +80,35 @@ export class TabViewItem extends TabViewItemBase {
             return;
         }
         this._tabOwner = owner;
-        // An items update can move a tab between two owners in the same commit.
-        // Send only the final target so the existing Octane portal stays mounted.
-        if (!this._publishTarget) {
-            this._publishTarget = true;
-            queueMicrotask(() => {
-                this._publishTarget = false;
-                this.__onContentTarget?.(this._tabOwner ? this.macos?.view ?? null : null);
-            });
+        this._scheduleContentBinding();
+    }
+    _scheduleContentBinding() {
+        if (this._publishTarget) {
+            return;
+        }
+        // An items update can transfer a tab in one commit. Bind its final
+        // owner so the existing portal or retained root stays mounted.
+        this._publishTarget = true;
+        queueMicrotask(() => {
+            this._publishTarget = false;
+            const owner = this._tabOwner;
+            const host = owner && !this._disposed ? this.macos?.view : null;
+            if (host && !this.__portalContent && this._retainedContent != null) {
+                this.contentRoot = renderAppKitRetainedContent(
+                    host,
+                    this._retainedContent,
+                    nativeScriptFontFamilyForView(owner.nativeViewProtected),
+                );
+            } else {
+                this._releaseContentRoot();
+            }
+            this.__onContentTarget?.(host ?? null);
+        });
+    }
+    _releaseContentRoot() {
+        if (this.contentRoot) {
+            this.contentRoot = null;
+            unmountAppKitContentRoot(this.macos.view);
         }
     }
     _releaseTabItem() {
@@ -86,6 +120,7 @@ export class TabViewItem extends TabViewItemBase {
         if (owner) {
             owner.items = owner.items.filter((item) => item !== this);
         }
+        this._releaseContentRoot();
         if (this._nativeItem) {
             cancelTabIcon(this._nativeItem);
             this._nativeItem.view = null;

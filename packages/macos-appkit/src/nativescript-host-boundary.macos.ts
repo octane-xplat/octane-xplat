@@ -83,7 +83,7 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
           Object.defineProperties(instance, {
             tabNativeItem: { get: () => Reflect.get(view, 'macos') },
             contentRoot: {
-              get: () => null,
+              get: () => Reflect.get(view, 'contentRoot'),
               set: () => {
                 throw new TypeError('AppKit tabviewitem content root cannot be reassigned')
               },
