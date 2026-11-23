@@ -2038,21 +2038,6 @@
         "@nativescript/core",
       ],
     },
-    "packages/media-probe": {
-      "name": "@octane-xplat/media-probe",
-      "version": "0.0.0",
-      "dependencies": {
-        "@nativescript-community/audio": "6.4.14",
-        "@nativescript/audio-context": "1.3.3",
-        "@octane-xplat/platform": "workspace:*",
-      },
-      "devDependencies": {
-        "@nativescript/core": "catalog:",
-        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.13",
-        "@octane-xplat/nativescript-octane": "workspace:*",
-        "octane": "catalog:",
-      },
-    },
     "packages/motion": {
       "name": "@octane-xplat/motion",
       "version": "0.21.0",
@@ -4329,8 +4314,6 @@
 
     "@nativescript-community/arraybuffers": ["@nativescript-community/arraybuffers@1.1.5", "", {}, "sha512-Tcvb8Y+i71UUHiOd59KZefP1UmOXDYKg/Oy2KGf1CgPH7i0TlosBxYJwwczq2csuuKYG4Bde//K+I/soym+8eg=="],
 
-    "@nativescript-community/audio": ["@nativescript-community/audio@6.4.14", "", { "dependencies": { "@nativescript-community/perms": "3.0.11" } }, "sha512-YLdOWxHtyBoEzNFc0mK6Ww9v5SSPUuaLk7Vik+q0lF9oA6DOIEhs64qbj1iHqnZTYG8886TWFx+mg5dsh5Go2A=="],
-
     "@nativescript-community/gesturehandler": ["@nativescript-community/gesturehandler@2.0.45", "", { "dependencies": { "@nativescript-community/observable": "2.0.11" } }, "sha512-4GcYCxJByXVUIdOch5BY/HP32bO8lrOhaBpzlb/rQZwV3lmqmEZ4d5Jp33vxuekIcbxKhlWO72ky7H/0gMfQDQ=="],
 
     "@nativescript-community/observable": ["@nativescript-community/observable@2.0.11", "", {}, "sha512-G30bcw2gwvBB5ceJ23mEtej/iYVqXCrgLaMxOftNrno0wyg0RWuJQqDUFwO4bZdSRz8/um9oM1u/5SihmxJvBA=="],
@@ -4624,8 +4607,6 @@
     "@octane-xplat/media-converter": ["@octane-xplat/media-converter@workspace:packages/media-converter"],
 
     "@octane-xplat/media-library": ["@octane-xplat/media-library@workspace:packages/media-library"],
-
-    "@octane-xplat/media-probe": ["@octane-xplat/media-probe@workspace:packages/media-probe"],
 
     "@octane-xplat/mobile": ["@octane-xplat/mobile@workspace:apps/mobile"],
 
@@ -7376,8 +7357,6 @@
     "@nano-sql/core/chalk": ["chalk@2.4.2", "", { "dependencies": { "ansi-styles": "3.2.1", "escape-string-regexp": "1.0.5", "supports-color": "5.5.0" } }, "sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ=="],
 
     "@nano-sql/core/fast-deep-equal": ["fast-deep-equal@2.0.1", "", {}, "sha512-bCK/2Z4zLidyB4ReuIsvALH6w31YfAQDmXMqMx6FyfHqvBxtjC0eRumeSu4Bs3XtXwpyIywtSTrVT99BxY1f9w=="],
-
-    "@nativescript-community/audio/@nativescript-community/perms": ["@nativescript-community/perms@3.0.11", "", {}, "sha512-Q2Fee9LoxE9GfOR+9nPoSHkCFU+uFIO3jMmsC3J/Z/XC6j9mT7PhgG6APhzCE9Oqo14GSUTxR0oDbv4us9zcdg=="],
 
     "@nativescript-community/sentry/@sentry/browser": ["@sentry/browser@7.111.0", "", { "dependencies": { "@sentry-internal/feedback": "7.111.0", "@sentry-internal/replay-canvas": "7.111.0", "@sentry-internal/tracing": "7.111.0", "@sentry/core": "7.111.0", "@sentry/replay": "7.111.0", "@sentry/types": "7.111.0", "@sentry/utils": "7.111.0" } }, "sha512-x7S9XoJh+TbMnur4eBhPpCVo+p7udABBV2gQk+Iw6LP9e8EFKmGmNyl76vSsT6GeFJ7mwxDEKfuwbVoLBjIvHw=="],
 

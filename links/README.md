@@ -22,12 +22,11 @@ The root manifest is restored after the install, including failed installs.
 Verify the installed package links with:
 
 ```sh
-realpath apps/mobile/node_modules/@octane-xplat/nativescript-masonkit
+realpath apps/windows/node_modules/@octane-xplat/nativescript-masonkit
 ```
 
 The path should resolve into your checkout's
-`dist/packages/nativescript-masonkit`. Other declaring packages (for example
-`apps/windows`, `packages/demos`, `packages/media-probe`) resolve the same way.
+`dist/packages/nativescript-masonkit`.
 
 Rebuild the fork (`pnpm exec nx run nativescript-masonkit:build.all`) after
 changing its source; `link:` dependencies expose the dist directory directly,

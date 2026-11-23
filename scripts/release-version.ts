@@ -10,8 +10,8 @@ export const RELEASES = {
     prefix: 'v',
     paths: [
       'packages/**',
-      // Every private package plus tsrx-typegen (own cadence) — changes to
-      // code that never ships must not trigger a version bump or a nightly.
+      // Exclude private package history and tsrx-typegen's own release stream.
+      // Keep media-probe excluded when reading commits from before its removal.
       ...['app', 'demos', 'lightbox', 'media-probe', 'node', 'typegen-fixture', 'tsrx-typegen'].map(
         (name) => `:(exclude)packages/${name}/**`,
       ),
