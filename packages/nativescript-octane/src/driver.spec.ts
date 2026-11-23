@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type {
-  UniversalHostBatch,
-  UniversalHostCommand,
-  UniversalRoot,
+import {
+  defineUniversalComponent,
+  universalPlan,
+  universalValue,
+  type UniversalHostBatch,
+  type UniversalHostCommand,
+  type UniversalRoot,
 } from 'octane/universal/native'
 
 vi.mock('@nativescript/core', async () => (await import('../tests/core-mock.js')).createCoreMock())
@@ -19,8 +22,10 @@ import {
 } from '../tests/core-mock.js'
 import {
   createNativeScriptContainer,
+  createNativeScriptRoot,
   type NativeScriptContainer,
   nativeScriptDriver,
+  observeBatches,
   releaseNativeScriptContainer,
 } from './driver.js'
 import { type ElementConstructor, registerElement } from './elements.js'
@@ -830,8 +835,8 @@ describe('nativeScriptDriver', () => {
     expect(orphaned.children).toEqual([])
   })
 
-  it('rejects batches for another renderer and unknown tags', () => {
-    const { apply, container } = mount(new MockLayoutBase())
+  it('rejects batches for another renderer', () => {
+    const { container } = mount(new MockLayoutBase())
     const batch: UniversalHostBatch = {
       renderer: 'dom',
       version: 1,
@@ -840,7 +845,82 @@ describe('nativeScriptDriver', () => {
     expect(() => nativeScriptDriver.prepareBatch(container, batch, {} as never)).toThrow(
       /does not match/,
     )
-    expect(() => apply(create(1, 'nope'))).toThrow(/<nope> is not a registered element/)
+  })
+
+  const invalidSuffixes: [string, Command[], RegExp][] = [
+    ['unregistered create', [create(3, 'nope')], /<nope> is not a registered element/],
+    [
+      'unregistered recreation',
+      [{ op: 'recreate', id: 1, type: 'nope', props: {} }],
+      /<nope> is not a registered element/,
+    ],
+    ['unknown host', [insert(3)], /unknown host 3/],
+    ['unknown parent', [insert(2, 3)], /unknown host 3/],
+    ['use after destroy', [{ op: 'destroy', id: 2 }, update(2, {})], /unknown host 2/],
+    ['cycle', [insert(2, 1), move(1, 2)], /logical ownership cycle/],
+  ]
+
+  it.each(invalidSuffixes)('rejects %s before applying a valid prefix', (_, suffix, error) => {
+    const { apply, container, host, view } = mount(new MockLayoutBase())
+    apply(create(1, 'test-stack', { className: 'before' }), insert(1))
+    const previous = view<MockLayoutBase>(1)
+    const observer = { willApply: vi.fn(), didApply: vi.fn() }
+    const unobserve = observeBatches(observer)
+    try {
+      const batch: UniversalHostBatch = {
+        renderer: 'nativescript',
+        version: 2,
+        commands: [update(1, { className: 'after' }), create(2, 'test-stack'), ...suffix],
+      }
+      expect(() => nativeScriptDriver.prepareBatch(container, batch, {} as never)).toThrow(error)
+      expect(host.children).toEqual([previous])
+      expect(previous.children).toEqual([])
+      expect(previous.className).toBe('before')
+      expect([...container.nodes.keys()]).toEqual([1])
+      expect(observer.willApply).not.toHaveBeenCalled()
+      expect(observer.didApply).not.toHaveBeenCalled()
+    } finally {
+      unobserve()
+    }
+  })
+
+  it('allows a move after an earlier command detaches the destination from the moving node', () => {
+    const { apply, host, view } = mount(new MockLayoutBase())
+    apply(create(1, 'test-stack'), create(2, 'test-stack'), insert(2, 1), insert(1))
+    apply(remove(2, 1), insert(2), move(1, 2))
+    expect(host.children).toEqual([view(2)])
+    expect(view<MockLayoutBase>(2).children).toEqual([view(1)])
+  })
+
+  it('keeps the root usable after rejecting an unregistered sibling', () => {
+    const renderer = 'nativescript'
+    const label = universalPlan(renderer, { kind: 'host', type: 'label', bindings: [['text', 0]] })
+    const invalid = universalPlan(renderer, { kind: 'host', type: 'nope' })
+    const scene = defineUniversalComponent(
+      renderer,
+      ({ text, showInvalid }: { text: string; showInvalid?: boolean }) => [
+        universalValue(label, [text]),
+        ...(showInvalid ? [universalValue(invalid)] : []),
+      ],
+    )
+    const host = new MockLayoutBase()
+    const root = createNativeScriptRoot(host as unknown as core.ViewBase)
+    root.render(scene, { text: 'before' })
+    const [previous] = host.children as MockTextBase[]
+    try {
+      expect(() => root.render(scene, { text: 'bad', showInvalid: true })).toThrow(
+        /<nope> is not a registered element/,
+      )
+      expect(host.children).toEqual([previous])
+      expect(previous.text).toBe('before')
+
+      root.render(scene, { text: 'after' })
+      expect(host.children).toEqual([previous])
+      expect(previous.text).toBe('after')
+    } finally {
+      root.unmount()
+    }
+    expect(host.children).toEqual([])
   })
 
   it('classifies handler props as discrete host events', () => {

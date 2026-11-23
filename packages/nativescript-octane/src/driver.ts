@@ -29,7 +29,6 @@ import {
   type UniversalEventListenerDescriptor,
   type UniversalHostCommand,
   type UniversalHostDriver,
-  type UniversalHostParent,
   type UniversalPortalTargetContext,
   type UniversalPortalTargetHandle,
   type UniversalPortalTargetRegistration,
@@ -196,7 +195,10 @@ function portalTargetOf(
 }
 
 function expect(container: NativeScriptContainer, id: number): HostNode {
-  const node = container.nodes.get(id)
+  return expectNode(container.nodes.get(id), id)
+}
+
+function expectNode<Node>(node: Node | undefined, id: number): Node {
   if (node === undefined) {
     throw new Error(`NativeScript driver: unknown host ${id}.`)
   }
@@ -1808,17 +1810,15 @@ onElementReplaced((tag) => {
 })
 
 /**
- * A numeric parent is a host node, `null` the root container, and a portal
- * target handle an active registration. Anything else — a stale handle whose
- * registration was released, one minted by another root, or a value that is
- * no parent at all — fails here rather than silently attaching to the root.
+ * Numeric parents are resolved by the caller. A portal handle must match the
+ * active registration by identity, even when its id matches.
  */
-function resolveParent(container: NativeScriptContainer, parent: unknown): NativeScriptParent {
+function resolvePortalParent(
+  container: NativeScriptContainer,
+  parent: unknown,
+): UniversalPortalTargetHandle | null {
   if (parent === null) {
     return null
-  }
-  if (typeof parent === 'number') {
-    return expect(container, parent)
   }
   if (isPortalTarget(parent)) {
     portalTargetOf(container, parent)
@@ -1829,144 +1829,149 @@ function resolveParent(container: NativeScriptContainer, parent: unknown): Nativ
   )
 }
 
-/**
- * Pre-flight a whole batch without mutating, so a deterministic failure —
- * unregistered elements, unknown ids or parents, inactive portal targets,
- * ownership cycles — rejects in `prepareBatch` before the core accepts any
- * of it. A partially applied batch cannot be unwound once the core marks it
- * accepted; after validation, only unexpected native errors should surface
- * mid-apply.
- */
+interface BatchNode {
+  readonly id: number
+  readonly type: string
+  readonly view?: ViewBase | null
+  readonly parent: BatchParent
+}
+
+type BatchParent = BatchNode | UniversalPortalTargetHandle | null
+
 function validateBatch(
   container: NativeScriptContainer,
   commands: readonly UniversalHostCommand[],
 ): void {
-  // Ids created by this batch are not in container.nodes yet — track them so
-  // later commands validate against the intended tree.
-  const created = new Set<number>()
-  const destroyed = new Set<number>()
-  const nextTypes = new Map<number, string>()
-  const nextProps = new Map<number, Readonly<Record<string, unknown>>>()
-  const changedPositions = new Set<number>()
-  // Intended parents for ids whose attachment changes during the batch.
-  const parents = new Map<number, UniversalHostParent>()
-  const known = (id: number): boolean =>
-    created.has(id) || (!destroyed.has(id) && container.nodes.has(id))
-  const parentOf = (id: number): UniversalHostParent | undefined => {
-    if (parents.has(id)) {
-      return parents.get(id)
-    }
-    const node = container.nodes.get(id)
-    return node === undefined
-      ? undefined
-      : node.parent === null
-        ? null
-        : isPortalTarget(node.parent)
-          ? node.parent
-          : node.parent.id
-  }
-  const typeOf = (id: number) => nextTypes.get(id) ?? container.nodes.get(id)?.type
-  const assertKnown = (id: number): void => {
-    if (!known(id)) {
-      throw new Error(`NativeScript driver: unknown host ${id}.`)
-    }
-  }
-  const assertSupportedType = (type: string): void => {
-    if (type !== TEXT && !elementConstructor(type, container.hostBoundary)) {
+  // Track only changed entries. Key parent changes by node identity because
+  // recreate replaces the node at an id, while its old view can still own children.
+  const nodes = new Map<number, BatchNode | null>()
+  const parents = new Map<BatchNode, BatchParent>()
+  const nextTypes = new Map<BatchNode, string>()
+  const nextProps = new Map<BatchNode, Readonly<Record<string, unknown>>>()
+  const changedPositions = new Set<BatchNode>()
+  const typeOf = (node: BatchNode) => nextTypes.get(node) ?? node.type
+  const { hostBoundary } = container
+  const formattedText = hostBoundary?.formattedText
+  const validateElement = (type: string, props: Readonly<Record<string, unknown>>) => {
+    if (type !== TEXT && !elementConstructor(type, hostBoundary)) {
       throw unregisteredElementError(type)
     }
+    formattedText?.validateProps(type, props)
   }
-  const validateParent = (parent: UniversalHostParent): void => {
-    if (typeof parent === 'number') {
-      assertKnown(parent)
-      return
+  const nodeFor = (id: number) => {
+    const node = nodes.get(id)
+    return node === undefined ? container.nodes.get(id) : (node ?? undefined)
+  }
+  const requireNode = (id: number) => expectNode(nodeFor(id), id)
+  const parentOf = (node: BatchNode) => {
+    const parent = parents.get(node)
+    return parent === undefined ? node.parent : parent
+  }
+  const projectDetach = (node: BatchNode) => {
+    const parent = parentOf(node)
+    if (isPortalTarget(parent)) {
+      portalTargetOf(container, parent)
     }
-    // `null` and active portal handles resolve; anything else throws.
-    resolveParent(container, parent)
+    parents.set(node, null)
+    return parent
   }
 
   for (const command of commands) {
     switch (command.op) {
-      case 'create':
-        assertSupportedType(command.type)
-        container.hostBoundary?.formattedText?.validateProps(command.type, command.props)
-        created.add(command.id)
-        nextTypes.set(command.id, command.type)
-        nextProps.set(command.id, command.props)
-        destroyed.delete(command.id)
-        parents.set(command.id, null)
-        continue
-      case 'recreate':
-        assertKnown(command.id)
-        assertSupportedType(command.type)
-        container.hostBoundary?.formattedText?.validateProps(command.type, command.props)
-        nextTypes.set(command.id, command.type)
-        nextProps.set(command.id, command.props)
-        changedPositions.add(command.id)
-        continue
-      case 'update':
-        assertKnown(command.id)
-        container.hostBoundary?.formattedText?.validateProps(typeOf(command.id)!, command.props)
-        nextProps.set(command.id, command.props)
-        continue
-      case 'event':
-      case 'visibility':
-        assertKnown(command.id)
-        continue
+      case 'create': {
+        const existing = nodeFor(command.id)
+        if (existing !== undefined) {
+          projectDetach(existing)
+        }
+        validateElement(command.type, command.props)
+        const node = { id: command.id, type: command.type, parent: null }
+        nodes.set(command.id, node)
+        nextProps.set(node, command.props)
+        break
+      }
+      case 'recreate': {
+        const node = requireNode(command.id)
+        validateElement(command.type, command.props)
+        if (command.type !== TEXT && typeOf(node) !== TEXT) {
+          // Element-to-element recreation keeps the node and its ownership.
+          nextTypes.set(node, command.type)
+          nextProps.set(node, command.props)
+          changedPositions.add(node)
+          break
+        }
+        const parent = projectDetach(node)
+        const replacement = { id: command.id, type: command.type, parent }
+        nodes.set(command.id, replacement)
+        nextProps.set(replacement, command.props)
+        changedPositions.add(replacement)
+        break
+      }
       case 'insert':
       case 'move': {
-        assertKnown(command.id)
-        validateParent(command.parent)
-        // Reject a logical ownership cycle: walking the intended ancestors
-        // must never return to a visited node.
-        const seen = new Set<UniversalHostParent>([command.id])
-        for (
-          let ancestor = command.parent;
-          typeof ancestor === 'number';
-          ancestor = parentOf(ancestor) ?? null
-        ) {
-          if (seen.has(ancestor)) {
-            throw new Error(
-              `NativeScript driver: logical ownership cycle through host ${ancestor}.`,
-            )
+        const parent =
+          typeof command.parent === 'number'
+            ? requireNode(command.parent)
+            : resolvePortalParent(container, command.parent)
+        const node = requireNode(command.id)
+        projectDetach(node)
+
+        const seen = new Set([node])
+        let ancestor = parent
+        while (ancestor !== null) {
+          if (isPortalTarget(ancestor)) {
+            const { view } = portalTargetOf(container, ancestor)
+            const owner = viewOwners.get(view)
+            ancestor =
+              owner?.container === container && owner.node.view === view ? owner.node : null
+          } else {
+            if (seen.has(ancestor)) {
+              throw new Error(
+                `NativeScript driver: logical ownership cycle for host ${command.id}.`,
+              )
+            }
+            seen.add(ancestor)
+            ancestor = parentOf(ancestor)
           }
-          seen.add(ancestor)
         }
-        parents.set(command.id, command.parent)
-        container.hostBoundary?.formattedText?.validateChild(
-          typeof command.parent === 'number' ? typeOf(command.parent) : undefined,
-          typeOf(command.id)!,
-        )
-        changedPositions.add(command.id)
-        continue
+        formattedText?.validateChild(parent && !isPortalTarget(parent) ? typeOf(parent) : undefined, typeOf(node))
+        parents.set(node, parent)
+        changedPositions.add(node)
+        break
       }
       case 'remove':
-        assertKnown(command.id)
-        if (Object.is(parentOf(command.id), command.parent)) {
-          parents.set(command.id, null)
+        // The driver detaches from the actual attachment at this point in the batch.
+        projectDetach(requireNode(command.id))
+        break
+      case 'destroy': {
+        const node = nodeFor(command.id)
+        if (node !== undefined) {
+          projectDetach(node)
         }
-        continue
-      case 'destroy':
-        created.delete(command.id)
-        destroyed.add(command.id)
-        parents.delete(command.id)
-        continue
-      default:
-        // Ops the driver does not apply (templates, lifecycle, runs) warn
-        // inside `apply`, not here.
-        continue
+        nodes.set(command.id, null)
+        break
+      }
+      case 'update': {
+        const node = requireNode(command.id)
+        formattedText?.validateProps(typeOf(node), command.props)
+        nextProps.set(node, command.props)
+        break
+      }
+      case 'event':
+      case 'visibility':
+        requireNode(command.id)
+        break
     }
   }
 
   // A viewless group can occupy one logical ContentView slot and still
   // project multiple native children. Validate the intended attachments.
-  const contentOwnerOf = (id: number) => {
-    let parent = parentOf(id)
+  const contentOwnerOf = (node: BatchNode) => {
+    let parent = parentOf(node)
     let projected = false
-    while (typeof parent === 'number' && known(parent)) {
+    while (parent !== null && !isPortalTarget(parent) && nodeFor(parent.id) === parent) {
       const type = typeOf(parent)
       if (type === 'contentview') {
-        return { id: parent, projected }
+        return { node: parent, projected }
       }
       if (type !== 'proxyviewcontainer') {
         break
@@ -1976,46 +1981,47 @@ function validateBatch(
     }
   }
 
-  const affected = new Map<number, { count: number; projected: boolean }>()
-  const trackContent = (id: number) => {
-    const view = container.nodes.get(id)?.view
-    const ctor = nextTypes.has(id) ? ELEMENTS.get('contentview') : view?.constructor
+  const affected = new Map<BatchNode, { count: number; projected: boolean }>()
+  const trackContent = (node: BatchNode) => {
+    const ctor = nextTypes.has(node) || node.view === undefined
+      ? elementConstructor('contentview', hostBoundary)
+      : node.view?.constructor
     if (ctor === ContentView) {
-      affected.set(id, { count: 0, projected: false })
+      affected.set(node, { count: 0, projected: false })
     }
   }
 
-  for (const id of changedPositions) {
-    if (!known(id)) {
+  for (const node of changedPositions) {
+    if (nodeFor(node.id) !== node) {
       continue
     }
-    const type = typeOf(id)
-    if (type === 'contentview' && nextTypes.has(id) && !created.has(id)) {
-      trackContent(id)
+    const type = typeOf(node)
+    if (type === 'contentview' && nextTypes.has(node)) {
+      trackContent(node)
     }
-    const owner = contentOwnerOf(id)
+    const owner = contentOwnerOf(node)
     if (owner && (owner.projected || type === 'proxyviewcontainer')) {
-      trackContent(owner.id)
+      trackContent(owner.node)
     }
   }
   if (affected.size === 0) {
     return
   }
 
-  for (const id of new Set([...container.nodes.keys(), ...created])) {
-    const type = typeOf(id)
-    if (!known(id) || type === TEXT || type === 'proxyviewcontainer') {
+  for (const id of new Set([...container.nodes.keys(), ...nodes.keys()])) {
+    const node = nodeFor(id)
+    if (node === undefined || typeOf(node) === TEXT || typeOf(node) === 'proxyviewcontainer') {
       continue
     }
-    const owner = contentOwnerOf(id)
+    const owner = contentOwnerOf(node)
     if (!owner) {
       continue
     }
-    const slot = affected.get(owner.id)
+    const slot = affected.get(owner.node)
     if (slot) {
       if (owner.projected) {
-        const props = nextProps.get(id)
-        const existing = container.nodes.get(id)?.view
+        const props = nextProps.get(node)
+        const existing = node.view
         const style = props?.style
         if (
           props?.visibility === 'collapse' ||
@@ -2160,7 +2166,9 @@ function applyCommand(container: NativeScriptContainer, command: UniversalHostCo
     case 'move': {
       insert(
         container,
-        resolveParent(container, command.parent),
+        typeof command.parent === 'number'
+          ? expect(container, command.parent)
+          : resolvePortalParent(container, command.parent),
         expect(container, command.id),
         command.before,
       )
@@ -2216,8 +2224,7 @@ export const nativeScriptDriver: UniversalHostDriver<NativeScriptContainer, View
         `NativeScript driver: batch renderer ${JSON.stringify(batch.renderer)} does not match.`,
       )
     }
-    // Reject deterministic failures before any command mutates — a partially
-    // applied batch cannot be rolled back once the core marks it accepted.
+    // Octane publishes the logical commit once apply starts, even if it throws.
     validateBatch(container, batch.commands)
     return {
       apply() {

@@ -211,6 +211,20 @@ Upstream status: reported — [NativeScript/NativeScript#11613](https://github.c
 `Task`-returning methods on the caller thread). Revisit all when the
 Windows core runtime rev changes.
 
+## Octane universal core: synchronous host batch acceptance (0.17.0)
+
+Octane accepts a synchronous host batch when it starts `apply()`. If the
+driver throws, the core still publishes the logical tree and reports the
+error. The [NativeScript driver](../../packages/nativescript-octane/src/driver.ts)
+checks registered tags, host IDs, portal handles, and ownership cycles in
+`prepareBatch` so these failures reject the batch before Octane accepts it.
+Custom constructors, setters, and native attachment methods can still throw
+during application. This follows the
+[upstream commit contract](https://github.com/octanejs/octane/blob/c86fe7d3c90c4add5e81e700b16a10c63f7e5dd2/packages/octane/src/universal-core.ts#L13655-L13670).
+The renderer's Node tests exercise recovery through a real Octane root over a
+mock NativeScript host. Revisit failure handling if a future core can reject
+or recover from synchronous apply failures.
+
 ## Upstream NativeScript Octane driver: text-run parenting gaps (0.2.5)
 
 Upstream `@nativescript-community/octane` 0.2.5 accepts
