@@ -1,4 +1,5 @@
 import {
+  NSApplication,
   NSControlSize,
   NSSegmentedControl,
   NSSegmentSwitchTracking,
@@ -112,7 +113,7 @@ export async function checkSegmentLifecycle(root: any, nativeWindow: any) {
   const before = segmentChanges.length
 
   first.selectedSegment = 0
-  first.target.controlChanged(first)
+  NSApplication.sharedApplication.sendActionToFrom(first.action, first.target, first)
   check(
     segmentChanges.length === before + 1 &&
       segmentChanges.at(-1).value === 0 &&
@@ -121,7 +122,7 @@ export async function checkSegmentLifecycle(root: any, nativeWindow: any) {
     'SegmentedBar native event payload failed',
   )
 
-  first.target.controlChanged(first)
+  NSApplication.sharedApplication.sendActionToFrom(first.action, first.target, first)
   check(segmentChanges.length === before + 1, 'SegmentedBar unchanged action emitted an event')
   await advance()
   check(

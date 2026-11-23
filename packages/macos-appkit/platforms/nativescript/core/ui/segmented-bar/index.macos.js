@@ -2,14 +2,14 @@
 // NSSegmentedControl with target-action selectedIndexChanged, ported from
 // ui/segmented-bar/index.ios.js. Per-segment colors/fonts have no direct
 // NSSegmentedControl API — gap.
-import { SegmentedBarBase, SegmentedBarItemBase, itemsProperty, selectedIndexProperty } from '@nativescript/core/ui/segmented-bar/segmented-bar-common';
+import { SegmentedBarBase, SegmentedBarItemBase, itemsProperty, selectedBackgroundColorProperty, selectedIndexProperty } from '@nativescript/core/ui/segmented-bar/segmented-bar-common';
 import { View, CSSType } from '@nativescript/core/ui/core/view';
 import { layout } from '@nativescript/core/utils';
 export * from '@nativescript/core/ui/segmented-bar/segmented-bar-common';
 const SegmentedBarTargetImpl = NSObject.extend({
     ['selected:'](sender) {
         const owner = this._weakOwner ? this._weakOwner.deref() : null;
-        if (owner) {
+        if (owner?.isEnabled && sender === owner.nativeViewProtected) {
             selectedIndexProperty.nativeValueChange(owner, Number(sender.selectedSegment));
         }
     },
@@ -58,6 +58,7 @@ export class SegmentedBar extends SegmentedBarBase {
     }
     createNativeView() {
         const control = NSSegmentedControl.segmentedControlWithLabelsTrackingModeTargetAction([], 0 /* NSSegmentSwitchTrackingSelectOne */, null, null);
+        control.selectedSegmentBezelColor = this[selectedBackgroundColorProperty.getDefault]();
         return control;
     }
     initNativeView() {
@@ -73,6 +74,11 @@ export class SegmentedBar extends SegmentedBarBase {
         if (nv) {
             nv.target = null;
             nv.action = null;
+            nv.segmentCount = 0;
+        }
+        if (this._target) {
+            this._target._weakOwner = undefined;
+            this._target = undefined;
         }
         super.disposeNativeView();
     }
@@ -105,6 +111,13 @@ export class SegmentedBar extends SegmentedBarBase {
     }
     [selectedIndexProperty.getDefault]() {
         return -1;
+    }
+    [selectedBackgroundColorProperty.getDefault]() {
+        return NSColor.colorWithRedGreenBlueAlpha(0, 0, 1, 1);
+    }
+    [selectedBackgroundColorProperty.setNative](value) {
+        this.nativeViewProtected.selectedSegmentBezelColor =
+            value?.macos ?? value ?? this[selectedBackgroundColorProperty.getDefault]();
     }
     [selectedIndexProperty.setNative](value) {
         const nv = this.nativeViewProtected;

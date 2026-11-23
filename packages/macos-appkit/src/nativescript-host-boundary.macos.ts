@@ -1,4 +1,4 @@
-import { TextView, type ViewBase } from '@nativescript/core'
+import { SegmentedBar, TextView, type ViewBase } from '@nativescript/core'
 import type { NativeScriptHostBoundary } from '@octane-xplat/nativescript-octane'
 import { NSScrollView, NSView } from '@octane-xplat/platform/macos'
 import { appKitFormattedText } from './nativescript-formatted-text.macos'
@@ -88,6 +88,10 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
         configurable: original?.configurable ?? true,
       }
     }
+    if (view instanceof SegmentedBar && data.eventName === 'selectedIndexChange') {
+      descriptors.oldIndex = { value: Reflect.get(data, 'oldValue'), enumerable: true }
+      descriptors.newIndex = { value: Reflect.get(data, 'value'), enumerable: true }
+    }
     return Object.defineProperties(Object.create(Object.getPrototypeOf(data)), descriptors)
   },
 
@@ -95,7 +99,7 @@ export const appKitHostBoundary: NativeScriptHostBoundary = {
     return (
       (type === 'searchbar' && property === 'text') ||
       (type === 'datepicker' && property === 'date') ||
-      (type === 'listpicker' && property === 'selectedIndex')
+      ((type === 'listpicker' || type === 'segmentedbar') && property === 'selectedIndex')
     )
   },
 
