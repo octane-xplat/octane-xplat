@@ -450,6 +450,22 @@ test('stable verification reports none — not an error — when no run carried 
   })
 })
 
+test('a cancelled Stable CI run sends the merged tree to inline qualification', () => {
+  withGithubFixture(({ execute, output, responses, data }) => {
+    const base = `repos/${repository}/actions`
+
+    responses[`${base}/runs/200`].conclusion = 'cancelled'
+    delete responses[`${base}/runs/200/jobs?filter=latest&per_page=100`]
+    writeFileSync(data, JSON.stringify(responses))
+
+    const run = execute(['--tree', tree])
+
+    assert.equal(run.status, 0, run.stderr)
+    assert.match(run.stdout, /Stable CI run 200 was cancelled/)
+    assert.equal(readFileSync(output, 'utf8'), 'channel=none\nsha=\n')
+  })
+})
+
 test('stable verification still rejects forged evidence for the searched tree', () => {
   withGithubFixture(({ execute, responses, data }) => {
     const run = { ...responses[`repos/${repository}/actions/runs/200`], head_branch: 'main' }

@@ -123,9 +123,9 @@ selects the newest matching artifact within a run by GitHub creation time and
 artifact ID, then checks its identity and results against GitHub's latest jobs.
 New records also bind the run attempt. An expired, invalid, or failing newest
 record cannot fall back to an older success. Verifying `stable` by tree searches the
-release PR's completed runs; absent evidence resolves `channel=none` rather
-than failing, which queues the inline `qualify` job. A failed or missing
-required gate cannot promote to that track. Both tracks record automated
+release PR's completed runs. If evidence is absent or its run was cancelled,
+the verifier returns `channel=none` and queues the inline `qualify` job. A
+failed or missing required gate cannot promote to that track. Both tracks record automated
 build, test, and packaging results. Browser and device runtime checks have
 separate manual results.
 
