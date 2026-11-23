@@ -37,31 +37,36 @@ wrap screen content that must stay clear of the system bars. A custom
 NativeScript page needs `prepareFullScreenPage(page)` from
 `@octane-xplat/ui/nativescript` before its content renders.
 
-For images, prefer the `Image` from `@octane-xplat/image` — it has the exact
-same props as `@octane-xplat/ui`'s `Image` but loads through a real image
-engine on native (Glide on Android, SDWebImage on iOS) with a sized memory +
-disk cache and decode-to-view-size, instead of the 5 MB cache in the core
-component that evicts visible images mid-scroll. Apps scaffolded with iOS or
-Android targets already have the package; a web-only app renders a plain
-`<img>` either way, so `bun add @octane-xplat/image` is optional there. Core
-`Image` remains the baseline for SVG sources, which the engine cannot decode.
+Use `Image` from `@octane-xplat/ui` in a fresh starter. For an iOS or Android
+app that needs cached raster image loading, add `@octane-xplat/image` with
+`bun add @octane-xplat/image` and import `Image` from that package. It uses
+Glide on Android and SDWebImage on iOS. Keep the core component for SVG sources.
+See the [image guide](https://octane-xplat.goddardai.org/package-image) for
+engine-specific options.
 
 ```tsrx
-import { Image } from '@octane-xplat/image'
+import { Image } from '@octane-xplat/ui'
 
 export function TripPhoto() {
   return <Image
     src="https://picsum.photos/seed/trail/800/450"
     alt="Trailhead"
     contentFit="cover"
-    placeholder="blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj"
-    style={{ width: '100%', height: 180 }}
+    className="trip-photo"
   />
 }
 ```
 
-`ScrollableArea` scrolls a bounded set of children. For a long list, use
-`VirtualList` so the app does not mount every row at once.
+```css
+.trip-photo {
+  width: 100%;
+  height: 180px;
+}
+```
+
+Constrain the height of a `ScrollableArea` so it has a viewport. For a long
+list, use `VirtualList` with a bounded viewport so the app only mounts rows it
+needs.
 
 ```tsrx
 import { ScrollableArea, VirtualList, Text } from '@octane-xplat/ui'
@@ -70,10 +75,16 @@ const destinations = [{ id: 'oslo', name: 'Oslo' }, { id: 'rome', name: 'Rome' }
 
 export function Destinations() {
   return <>
-    <ScrollableArea><Text>Choose your next destination</Text></ScrollableArea>
-    <VirtualList items={destinations} keyExtractor={(item) => item.id}
+    <ScrollableArea className="destination-list"><Text>Choose your next destination</Text></ScrollableArea>
+    <VirtualList className="destination-list" items={destinations} keyExtractor={(item) => item.id}
       renderItem={(item) => <Text>{item.name}</Text>} />
   </>
+}
+```
+
+```css
+.destination-list {
+  height: 240px;
 }
 ```
 
@@ -144,7 +155,21 @@ export function TripStatus() {
 ## Platform widgets
 
 Choose platform widgets when you want the OS's own controls. Import them only
-in the matching platform file. This iOS example belongs in `Preference.ios.tsrx`:
+in the matching platform file. Keep a shared `Preference.tsrx` fallback for
+other targets.
+
+```tsrx
+// src/Preference.tsrx
+import { useState } from 'octane'
+import { Switch } from '@octane-xplat/ui'
+
+export function Preference() {
+  const [checked, setChecked] = useState(false)
+  return <Switch accessibilityLabel="Reminders" value={checked} onChange={setChecked} />
+}
+```
+
+Use the iOS widget in `Preference.ios.tsrx`.
 
 ```tsrx
 import { useState } from 'octane'
@@ -152,7 +177,7 @@ import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function Preference() {
   const [checked, setChecked] = useState(false)
-  return <UISwitch checked={checked} onCheckedChange={setChecked} />
+  return <UISwitch accessibilityLabel="Reminders" value={checked} onChange={setChecked} />
 }
 ```
 
@@ -164,14 +189,14 @@ import { MaterialSwitch } from '@octane-xplat/ui/android'
 
 export function Preference() {
   const [checked, setChecked] = useState(false)
-  return <MaterialSwitch checked={checked} onCheckedChange={setChecked} />
+  return <MaterialSwitch accessibilityLabel="Reminders" value={checked} onChange={setChecked} />
 }
 ```
 
 | Platform | Additional widget names                                                                                                          |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| iOS      | `UISlider`, `UIActivityIndicatorView`, `UITableView`, `UITabBar`, `UIModal`, `SideDrawer`, `LiquidGlass`, `LiquidGlassContainer` |
-| Android  | `SeekBar`, `CircularProgressIndicator`, `RecyclerView`, `BottomNavigationView`, `MaterialDialog`, `DrawerLayout`                 |
+| iOS      | `UISlider`, `UIActivityIndicatorView`, `UITableView`, `UITabBar`, `UIModal`, `LiquidGlass`, `LiquidGlassContainer` |
+| Android  | `SeekBar`, `CircularProgressIndicator`, `RecyclerView`, `BottomNavigationView`, `MaterialDialog` |
 
 Keep platform lists outside other scrolling containers. Use a layout container
 around the list; see the [components guide](https://octane-xplat.goddardai.org/components)

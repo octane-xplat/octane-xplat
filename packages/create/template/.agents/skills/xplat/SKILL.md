@@ -1,24 +1,34 @@
 ---
 name: xplat
-description: Build and review code in an Octane Xplat app — one TypeScript codebase targeting web (DOM) and iOS/Android (NativeScript). Use when writing components, styles, routes, platform leaves, or device-service calls, and when a feature works on one target but not another.
+description: Build, check, and troubleshoot Octane Xplat apps for web and NativeScript iOS/Android. Use for the first screen in a scaffolded app, shared components and styles, routing, platform-specific files, or device services.
 ---
 
 # Octane Xplat app
 
-Shared TSRX can run on web and NativeScript. Run `bun run lint` and
-`bun run typecheck` before handing back changes. Check behavior on the
-platforms the change affects.
+Shared TSRX can run on web and NativeScript. Work from the app directory
+containing `package.json`. Check its scripts and `tsconfig.envs.json` for the
+enabled targets.
+
+## Build the first screen
+
+Edit `src/App.tsrx` for a first feature. The starter already loads it on every
+enabled target. Put shared styles in `src/style.css`. If you replace the
+starter counter, adapt its sample tests to the new interaction. If the app has
+web enabled, run `bun run dev` and use the local address printed in the
+terminal to check the main interaction. Follow the
+[iOS or Android setup](https://octane-xplat.goddardai.org/toolchain#run-on-ios-and-android)
+before running on a phone.
 
 ## Non-negotiables
 
-**One element vocabulary per file.** Shared code renders only
-`@octane-xplat/ui` components. Put browser elements in a `.web` file and
-native elements in the native default or a matching platform leaf. Keep
-platform-authentic imports such as `@octane-xplat/ui/ios` in the matching
-platform files.
+**One element vocabulary per file.** Use portable components such as
+`@octane-xplat/ui` in shared code. Put browser elements in a `.web` file and
+native elements in a native-only implementation. Keep platform-authentic
+imports such as `@octane-xplat/ui/ios` in the matching platform files.
 
-**One public contract for platform leaves.** Keep exported names and public
-types identical. Define props once and import that type in each implementation.
+**One public contract for platform leaves.** Keep an unsuffixed implementation
+or declaration for the family. Keep exported names and public types identical.
+Define props once and import that type in each implementation.
 Import `./Card.tsrx` using the basename and explicit extension. The platform
 checker and build select the matching leaf. See
 [platform files](references/platform.md#write-a-platform-file-when-behavior-differs).
@@ -34,7 +44,9 @@ subset — the native build warns on declarations it drops
 **Hooks and JSX live in `.tsrx` (or `.tsx`).** Keep plain `.ts` modules
 for non-component code. Keep component imports in component files.
 **Keep signal names suffixed with `$`.** Use `useSignal$` for state owned
-by a component. Runtime signal imports let the compiler track reads.
+by a component. Each module that reads signals on native needs a runtime
+signals import, even when it receives the signal from another module. Use
+`import 'octane/signals'` if the file has no named signals API to import.
 
 ```tsrx
 import { useSignal$ } from 'octane/signals/client'
@@ -62,8 +74,9 @@ export function addTraveler() {
 ```
 
 `query$` loads asynchronous data. A screen-owned query keeps its selection
-local to the screen. `.latest()` reads without suspending; use the data
-guide's boundary pattern when reading with `.get()`.
+local to the screen. `.latest()` reads without suspending. Use the
+[data guide's boundary pattern](https://octane-xplat.goddardai.org/data#module-scope-vs-screen-scope)
+when reading with `.get()`.
 
 ```tsrx
 import { query$ } from 'octane/signals'
@@ -139,28 +152,31 @@ export function BrowserGreeting() { return <p>Hello</p> }
 
 ## Verify
 
-| Command                             | Catches                                                                  |
-| ----------------------------------- | ------------------------------------------------------------------------ |
-| `bun run lint`                         | vocabulary / DOM-global / style violations — its output is authoritative |
-| `bun run typecheck`                    | `tsconfig.json` + every environment declared in `tsconfig.envs.json`     |
-| `bun run dev`                          | web behavior                                                             |
-| `bun run dev:ios` / `bun run dev:android` | the platform where behavior actually differs                             |
+Run lint and typecheck before handing back changes. Run the available test
+and build scripts for the targets affected. Report the targets and interactions
+you actually checked.
+
+| Command | What it checks |
+| --- | --- |
+| `bun run lint` | The app's lint rules, including platform boundaries |
+| `bun run typecheck` | Types in the environments declared in `tsconfig.envs.json` |
+| `bun run test:web` | The app's web tests in jsdom |
+| `bun run build` | The production web bundle |
+| `bun run dev` | Starts the local web server |
+| `bun run dev:ios` / `bun run dev:android` | Starts development on the selected phone target when its tooling is set up |
 
 ## Read next (only when needed)
 
-- `references/components.md` — the component vocabulary plus per-platform
-  divergences and name traps.
-- `references/styling.md` — tokens, the portable CSS subset, dark mode.
-- `references/navigation.md` — file routes, links, params, stacks, modals.
-- `references/platform.md` — device services and writing your own leaf.
-- Live tweaks: wrap an editable literal in `useTweak` from
-  `octane-xplat/tweaks`, run `bun run dev`, then edit values and styles from
-  the Tweaks tab in `bun run xplat devtools` (macOS host). Save writes the
-  new literal back to source. Details:
-  https://octane-xplat.goddardai.org/package-tweaks
-- Current limits and platform boundaries:
-  https://octane-xplat.goddardai.org/known-limits
-- Full framework docs, one file:
-  https://octane-xplat.goddardai.org/llms-full.txt (index:
-  https://octane-xplat.goddardai.org/llms.txt). The `/notes/*` design
-  record explains _why_ a constraint exists — rarely needed for app work.
+- [Components](references/components.md) covers shared and platform widgets.
+- [Styling](references/styling.md) covers CSS, tokens, dark mode, and fonts.
+- [Navigation](references/navigation.md) covers file routes, links, parameters,
+  stacks, and modals.
+- [Platform services and files](references/platform.md) covers device APIs and
+  platform-specific implementations.
+- [Live tweaks](https://octane-xplat.goddardai.org/package-tweaks) shows how to
+  edit `useTweak` literals from the Tweaks tab in `bun run xplat devtools`
+  while `bun run dev` is running. The macOS app can save changes to source.
+- Check [known limits](https://octane-xplat.goddardai.org/known-limits) before
+  using a feature on a new target. Find other guides in the
+  [docs index](https://octane-xplat.goddardai.org/llms.txt) or the
+  [complete text](https://octane-xplat.goddardai.org/llms-full.txt).

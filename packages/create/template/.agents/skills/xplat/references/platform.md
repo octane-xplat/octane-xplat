@@ -21,8 +21,9 @@ export function CopyTrip() {
 Features with additional native dependencies live in separate packages:
 `@octane-xplat/share`, `files`, `media`, `biometrics`, `geolocation`,
 `notifications`, `secure-storage`, and `haptics`. Install the package for the
-feature you need. Biometrics, for example, reports `unsupported` on web;
-check permission and availability before trying to verify someone.
+feature you need. For the example below, run `bun add @octane-xplat/biometrics`.
+Check permission and availability before requesting verification. On web,
+biometrics reports `unsupported`, so the example offers a fallback.
 
 ```tsrx
 import { useState } from 'octane'
@@ -90,7 +91,8 @@ when a leaf is missing from the editor's project.
 Native `.tsx` files inherit the shared types from the app config. Keep the
 first-line shared pragma on `.tsrx` files that use native host elements. Import
 native APIs from `@nativescript/core` and read app lifecycle state when the
-handler runs. Place this shared-component example in `Status.mobile.tsrx`.
+handler runs. Place this example in `Status.mobile.tsrx` and supply a matching
+`Status.tsrx` fallback for other targets.
 
 ```tsrx
 import { Application } from '@nativescript/core'

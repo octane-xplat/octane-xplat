@@ -25,9 +25,9 @@ build commands also run it):
 bun run xplat routes --dir src/app
 ```
 
-Import the generated client once in your entry module and place `RouteOutlet`
-around the content that forms the home screen — the starter's `App` keeps its
-own content and wraps it:
+Import the generated client once in `src/App.tsrx`. Both starter entry points
+already load this component. Put `RouteOutlet` around the content that forms
+the home screen.
 
 ```tsrx
 // src/App.tsrx
@@ -120,16 +120,16 @@ export function validateSearch(raw: { tab?: unknown }) {
 
 ```tsrx
 // src/ActivityFilter.tsrx
-import { Button } from '@octane-xplat/ui'
+import { Pressable, Text } from '@octane-xplat/ui'
 import { getRouteApi } from '@octane-xplat/ui/routing'
 
 const item = getRouteApi('/items/:id')
 
 export function ActivityFilter() {
   const updateSearch = item.useUpdateSearch()
-  return <Button label="Show activity" onPress={() => {
+  return <Pressable onPress={() => {
     void updateSearch(previous => ({ ...previous, tab: 'activity' }))
-  }} />
+  }}><Text>Show activity</Text></Pressable>
 }
 ```
 
