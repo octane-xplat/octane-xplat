@@ -19,6 +19,7 @@ import {
 import { postToPid } from '../../../../tools/probe/appkit-input'
 import { useInteractionHost } from '../../../ui/src/gestures/host-core.macos'
 import { TextArea } from '../../../ui/src/components/forms/TextArea.tsrx'
+import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkFormattedLifecycle } from './formatted-lifecycle'
 import './nativescript-provider.css'
 
@@ -465,13 +466,13 @@ async function checkSearchSubmission() {
   }
 }
 
-async function checkFormattedText() {
+async function checkControlLifecycle(check: (root: UniversalRoot, window: NSWindow) => Promise<void>) {
   const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
     NSMakeRect(0, 0, 420, 360), 1, 2, false,
   )
   const root = createMacOSRoot(window.contentView)
   try {
-    await checkFormattedLifecycle(root, window)
+    await check(root, window)
   } finally {
     root.unmount()
     window.close()
@@ -1475,8 +1476,9 @@ setTimeout(async () => {
     await checkProjectedGrid()
     await checkRootLayoutPercentages()
     await checkSearchSubmission()
-    await checkFormattedText()
+    await checkControlLifecycle(checkFormattedLifecycle)
     await checkFormattedLinks()
+    await checkControlLifecycle(checkActivityLifecycle)
     await checkWindowLifecycle()
     registerStylesheet('logical-align', '#title { direction: rtl; text-align: start; }')
     if (native.alignment !== 1) {

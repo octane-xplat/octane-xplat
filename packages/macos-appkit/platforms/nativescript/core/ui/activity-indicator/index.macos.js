@@ -5,7 +5,7 @@
 // iosIndicatorViewStyle/style tint has no equivalent — color is a gap.
 import { ActivityIndicatorBase, busyProperty } from '@nativescript/core/ui/activity-indicator/activity-indicator-common';
 import { layout } from '@nativescript/core/utils';
-import { colorProperty } from '@nativescript/core/ui/styling/style-properties';
+import { colorProperty, opacityProperty } from '@nativescript/core/ui/styling/style-properties';
 import { View, CSSType } from '@nativescript/core/ui/core/view';
 export * from '@nativescript/core/ui/activity-indicator/activity-indicator-common';
 export class ActivityIndicator extends ActivityIndicatorBase {
@@ -15,6 +15,7 @@ export class ActivityIndicator extends ActivityIndicatorBase {
         view.style = 1; // NSProgressIndicatorStyleSpinning
         view.displayedWhenStopped = false;
         view.indeterminate = true;
+        view.alphaValue = 0;
         return view;
     }
     get ios() {
@@ -24,7 +25,7 @@ export class ActivityIndicator extends ActivityIndicatorBase {
         return this.nativeViewProtected;
     }
     [busyProperty.getDefault]() {
-        return !this.nativeViewProtected.hidden;
+        return false;
     }
     [busyProperty.setNative](value) {
         const nativeView = this.nativeViewProtected;
@@ -34,9 +35,23 @@ export class ActivityIndicator extends ActivityIndicatorBase {
         else {
             nativeView.stopAnimation(null);
         }
-        if (nativeView.displayedWhenStopped === false) {
-            this.requestLayout();
+        // Keep the view's layout slot and combine visibility with authored opacity.
+        nativeView.alphaValue = value ? this.style.opacity : 0;
+    }
+    [opacityProperty.getDefault]() {
+        return 1;
+    }
+    [opacityProperty.setNative](value) {
+        this.nativeViewProtected.alphaValue = this.busy ? value : 0;
+    }
+    disposeNativeView() {
+        const nativeView = this.nativeViewProtected;
+        if (nativeView) {
+            nativeView.stopAnimation(null);
+            nativeView.alphaValue = 0;
+            nativeView.hidden = true;
         }
+        super.disposeNativeView();
     }
     // Color gap: NSProgressIndicator has no tint API.
     [colorProperty.getDefault]() {
