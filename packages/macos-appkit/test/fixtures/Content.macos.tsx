@@ -70,7 +70,7 @@ export default function Content() {
         )}
       </contentview>
       <contentview id="replacement-slot" style={{ width: 100, height: 32 }}>
-        {(phase === 0 ? ['a', 'b'] : phase === 1 ? ['b'] : []).map((id) => (
+        {(phase === 0 ? ['a'] : phase === 1 ? ['b'] : []).map((id) => (
           <label key={id} id={'slot-' + id} text={id} />
         ))}
       </contentview>

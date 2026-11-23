@@ -181,6 +181,17 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
   check(proxyEvents.length === 8, 'Proxy cleanup repeated')
 
   const rejectedRoot = createMacOSRoot(nativeWindow.contentView)
+  const rejectedDebug = (rejectedRoot as any).__macosDebug
+  const countDescendants = (host: any): number => {
+    const children = host.subviews
+    const count = Number(children.count)
+    let total = count
+    for (let index = 0; index < count; index++) {
+      total += countDescendants(children.objectAtIndex(index))
+    }
+    return total
+  }
+  const baselineDescendants = countDescendants(nativeWindow.contentView)
   const errors: string[] = [],
     originalError = console.error
 
@@ -202,7 +213,8 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
     )
 
     check(
-      Number(nativeWindow.contentView.subviews.count) === 0,
+      countDescendants(nativeWindow.contentView) === baselineDescendants &&
+        rejectedDebug.metrics().nativeViewCount === 0,
       'Rejected ContentView batch partially mounted',
     )
   } finally {
